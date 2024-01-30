@@ -1,0 +1,25 @@
+= form_tag(filter_url, method: :get) do
+  = render partial: 'webui/shared/build_result_filter', locals: { id: 'project-monitor-package-dropdown',
+                                                                  text: 'Package Name',
+                                                                  values: package_names,
+                                                                  value_prefix: 'package_',
+                                                                  checked_values: filters }
+  = render partial: 'webui/shared/build_result_filter', locals: { id: 'project-monitor-repositories-dropdown',
+                                                                  text: 'Repository',
+                                                                  values: repository_names,
+                                                                  value_prefix: 'repo_',
+                                                                  checked_values: filters }
+  = render partial: 'webui/shared/build_result_filter', locals: { id: 'project-monitor-architectures-dropdown',
+                                                                  text: 'Architecture',
+                                                                  values: architecture_names,
+                                                                  value_prefix: 'arch_',
+                                                                  checked_values: filters }
+  = render partial: 'webui/shared/build_result_filter', locals: { id: 'project-monitor-status-dropdown',
+                                                                  text: 'Status',
+                                                                  values: status_names,
+                                                                  value_prefix: 'status_',
+                                                                  checked_values: filters }
+  %button.btn.btn-primary#filter-button{ type: :submit }
+    Apply Filter
+
+  = render partial: 'webui/shared/build_status_legend_modal', locals: { legend: Buildresult::STATUS_DESCRIPTION }

@@ -1,7 +1,6 @@
 get:
   summary: List project files
-  description: |
-    List all the files in project
+  description: List all the files in project
   security:
     - basic_authentication: []
   parameters:

@@ -49,7 +49,7 @@
                 %h4.list-group.mb-4.ms-3.pt-3 Comments & History
                 .timeline-item.mb-3
                   .d-flex.align-items-start
-                    %i.fas.fa-lg.fa-code-commit.text-dark
+                    %i.fas.fa-lg.fa-code-commit
                     .ms-2
                       %span.small
                         - creator = User.find_by_login(@bs_request.creator) || User.nobody
@@ -112,6 +112,7 @@
               .chart_build_results_wrapper{ data: { url: request_chart_build_results_path } }
               :javascript
                 updateChartBuildResults();
+                setInterval(updateChartBuildResults, 60000);
 
               = render AccordionReviewsComponent.new(@request_reviews, @bs_request)
               = render RequestDecisionComponent.new(bs_request: @bs_request, action: @action,

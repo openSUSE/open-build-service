@@ -41,6 +41,26 @@ class Buildresult
     unknown: 'The scheduler has not yet evaluated this package. Should be a short intermediate state for new packages.'
   }.with_indifferent_access.freeze
 
+  STATUS_CATEGORIES = ['succeeded', 'failed', 'processing', 'blocked', 'disabled'].freeze
+
+  STATUS_CATEGORIES_MAP = {
+    succeeded: STATUS_CATEGORIES[0],
+    failed: STATUS_CATEGORIES[1],
+    unresolvable: STATUS_CATEGORIES[1],
+    broken: STATUS_CATEGORIES[1],
+    blocked: STATUS_CATEGORIES[3],
+    scheduled: STATUS_CATEGORIES[2],
+    dispatching: STATUS_CATEGORIES[2],
+    building: STATUS_CATEGORIES[2],
+    signing: STATUS_CATEGORIES[2],
+    finished: STATUS_CATEGORIES[2],
+    disabled: STATUS_CATEGORIES[4],
+    excluded: STATUS_CATEGORIES[4],
+    locked: STATUS_CATEGORIES[3],
+    deleting: STATUS_CATEGORIES[2],
+    unknown: STATUS_CATEGORIES[3]
+  }.with_indifferent_access.freeze
+
   StatusCount = Struct.new(:code, :count)
 
   def initialize(status)

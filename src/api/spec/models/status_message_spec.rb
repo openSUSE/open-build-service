@@ -26,7 +26,7 @@ RSpec.describe StatusMessage do
 
   describe '.communication_scopes_for_current_user' do
     context 'when user is nobody' do
-      it { expect(StatusMessage.communication_scopes_for_current_user).to match_array([:all_users]) }
+      it { expect(StatusMessage.communication_scopes_for_current_user).to contain_exactly(:all_users) }
     end
 
     context 'when user is in beta' do
@@ -36,7 +36,7 @@ RSpec.describe StatusMessage do
         login(user)
       end
 
-      it { expect(StatusMessage.communication_scopes_for_current_user).to match_array([:all_users, :in_beta_users, :in_rollout_users, :logged_in_users]) }
+      it { expect(StatusMessage.communication_scopes_for_current_user).to contain_exactly(:all_users, :in_beta_users, :in_rollout_users, :logged_in_users) }
     end
 
     context 'when user is admin' do
@@ -46,7 +46,7 @@ RSpec.describe StatusMessage do
         login(user)
       end
 
-      it { expect(StatusMessage.communication_scopes_for_current_user).to match_array([:all_users, :in_beta_users, :admin_users, :logged_in_users]) }
+      it { expect(StatusMessage.communication_scopes_for_current_user).to contain_exactly(:all_users, :in_beta_users, :admin_users, :logged_in_users) }
     end
   end
 

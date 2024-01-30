@@ -831,6 +831,7 @@ our $binaryversionlist = [
 
 our $packagebinaryversionlist = [
     'packagebinaryversionlist' =>
+	'cookie',
      [[ 'binaryversionlist' =>
 	    'package',
 	    'code',
@@ -1047,6 +1048,7 @@ our $ajaxjob = [
 	'peer',
 	'request',
 	'state',
+	'requestid',
 ];
 
 our $ajaxstatus = [

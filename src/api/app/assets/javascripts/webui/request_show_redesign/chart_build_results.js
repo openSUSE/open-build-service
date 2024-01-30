@@ -13,5 +13,3 @@ function updateChartBuildResults() {
     }
   });
 }
-
-setInterval(updateChartBuildResults, 60000);

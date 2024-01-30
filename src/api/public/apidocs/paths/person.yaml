@@ -1,7 +1,6 @@
 get:
   summary: List all people.
-  description: >
-    List all people.
+  description: List all people.
   security:
     - basic_authentication: []
   parameters:
@@ -22,7 +21,7 @@ get:
 
   responses:
     '200':
-      description: >
+      description: |
         OK. The request has succeeded.
 
         XML Schema used for body validation: [directory.xsd](../schema/directory.xsd)

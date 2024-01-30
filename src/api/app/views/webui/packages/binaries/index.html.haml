@@ -25,7 +25,7 @@
                                                          options: { modal_title: 'Do you want to remove these binaries?' })
 
     - @buildresults.each do |result|
-      %h5.bg-light.p-2.mb-0
+      %h5.bg-body-secondary.p-2.mb-0
         = repository_status_icon(status: result[:repocode].to_s, html_class: 'fa-xs')
         = result[:arch]
       - if result[:binaries].empty?

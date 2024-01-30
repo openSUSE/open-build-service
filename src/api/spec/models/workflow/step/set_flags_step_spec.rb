@@ -72,7 +72,7 @@ RSpec.describe Workflow::Step::SetFlags do
 
         it 'adds flag to the project' do
           expect { subject.call }.to change(Flag, :count).by(1)
-          expect(Flag.all).to match_array([have_attributes(status: 'enable', repo: 'openSUSE_Tumbleweed', project_id: target_project.id, package_id: nil, flag: 'build')])
+          expect(Flag.all).to contain_exactly(have_attributes(status: 'enable', repo: 'openSUSE_Tumbleweed', project_id: target_project.id, package_id: nil, flag: 'build'))
         end
       end
 
@@ -103,10 +103,8 @@ RSpec.describe Workflow::Step::SetFlags do
 
         it 'add flags to the project' do
           expect { subject.call }.to change(Flag, :count).by(2)
-          expect(Flag.all).to match_array([
-                                            have_attributes(status: 'enable', repo: 'openSUSE_Tumbleweed', project_id: target_project.id, package_id: nil, flag: 'build'),
-                                            have_attributes(status: 'enable', project_id: target_project.id, package_id: nil, flag: 'publish')
-                                          ])
+          expect(Flag.all).to contain_exactly(have_attributes(status: 'enable', repo: 'openSUSE_Tumbleweed', project_id: target_project.id, package_id: nil, flag: 'build'),
+                                              have_attributes(status: 'enable', project_id: target_project.id, package_id: nil, flag: 'publish'))
         end
       end
     end
@@ -135,9 +133,7 @@ RSpec.describe Workflow::Step::SetFlags do
 
       it 'add flags to the package' do
         expect { subject.call }.to change(Flag, :count).by(1)
-        expect(Flag.all).to match_array([
-                                          have_attributes(status: 'disable', project_id: nil, package_id: target_package.id, flag: 'lock')
-                                        ])
+        expect(Flag.all).to contain_exactly(have_attributes(status: 'disable', project_id: nil, package_id: target_package.id, flag: 'lock'))
       end
     end
 
@@ -174,9 +170,7 @@ RSpec.describe Workflow::Step::SetFlags do
 
       it 'does not raise an error' do
         expect { subject.call }.not_to(change(Flag, :count))
-        expect(Flag.all).to match_array([
-                                          have_attributes(status: 'enable', repo: 'openSUSE_Tumbleweed', project_id: target_project.id, package_id: nil, flag: 'build')
-                                        ])
+        expect(Flag.all).to contain_exactly(have_attributes(status: 'enable', repo: 'openSUSE_Tumbleweed', project_id: target_project.id, package_id: nil, flag: 'build'))
       end
     end
 
@@ -213,9 +207,7 @@ RSpec.describe Workflow::Step::SetFlags do
 
       it 'does not raise an error and updates the status' do
         expect { subject.call }.not_to(change(Flag, :count))
-        expect(Flag.all).to match_array([
-                                          have_attributes(status: 'enable', repo: 'openSUSE_Tumbleweed', project_id: target_project.id, package_id: nil, flag: 'publish')
-                                        ])
+        expect(Flag.all).to contain_exactly(have_attributes(status: 'enable', repo: 'openSUSE_Tumbleweed', project_id: target_project.id, package_id: nil, flag: 'publish'))
       end
     end
   end

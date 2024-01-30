@@ -1,7 +1,6 @@
 get:
   summary: Get list of status messages
-  description: |
-    Get a list of all status messages
+  description: Get a list of all status messages
   security:
     - basic_authentication: []
   parameters:

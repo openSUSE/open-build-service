@@ -37,7 +37,7 @@ RSpec.describe NotificationService::Notifier do
       end
 
       it 'subscribes bob and kim to the rss notifications' do
-        expect(Notification.where(event_type: 'Event::CommentForProject').pluck(:subscriber_id)).to match_array([user_bob.id, user_kim.id])
+        expect(Notification.where(event_type: 'Event::CommentForProject').pluck(:subscriber_id)).to contain_exactly(user_bob.id, user_kim.id)
       end
 
       it 'creates one notification with rss checked for bob' do

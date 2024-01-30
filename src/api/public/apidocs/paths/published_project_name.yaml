@@ -1,7 +1,6 @@
 get:
   summary: List the repositories of a project with published binaries
-  description: >
-    Get a list of the repositories of the project that already have published binaries.
+  description: Get a list of the repositories of the project that already have published binaries.
   security:
     - basic_authentication: []
   parameters:

@@ -4,6 +4,8 @@ module Webui::ReportablesHelper
 
   def link_to_reportables(report_id:, reportable_type:, host:)
     reportable = Report.find(report_id).reportable
+    return "The reported #{reportable_type.downcase} does not exist anymore." if reportable.blank?
+
     case reportable_type
     when 'Comment'
       link_to_commentables_on_reportables(commentable: reportable.commentable, host: host)

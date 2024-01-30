@@ -349,7 +349,7 @@ RSpec.describe Kiwi::Image, :vcr do
     context 'without a package' do
       it { expect(kiwi_image.write_to_backend).to be(false) }
 
-      it 'will not call save! method' do
+      it 'does not call save! method' do
         expect(kiwi_image).not_to receive(:save!)
         kiwi_image.write_to_backend
       end
@@ -451,19 +451,19 @@ RSpec.describe Kiwi::Image, :vcr do
     context 'with use_project_repositories set' do
       subject { Kiwi::Image.binaries_available(project.name, true, []) }
 
-      it { expect(subject.keys).to match_array(['package1', 'package2', 'package3']) }
-      it { expect(subject['package1']).to match_array(['i586', 'x86_64']) }
-      it { expect(subject['package2']).to match_array(['i586']) }
-      it { expect(subject['package3']).to match_array(['x86_64']) }
+      it { expect(subject.keys).to contain_exactly('package1', 'package2', 'package3') }
+      it { expect(subject['package1']).to contain_exactly('i586', 'x86_64') }
+      it { expect(subject['package2']).to contain_exactly('i586') }
+      it { expect(subject['package3']).to contain_exactly('x86_64') }
     end
 
     context 'with OBS and "normal" repositories set' do
       subject { Kiwi::Image.binaries_available(project.name, false, ['obs://home:tom/standard', 'http://example.com/']) }
 
-      it { expect(subject.keys).to match_array(['package1', 'package3', 'package4']) }
-      it { expect(subject['package1']).to match_array(['x86_64']) }
-      it { expect(subject['package3']).to match_array(['i586']) }
-      it { expect(subject['package4']).to match_array(['i586', 'x86_64']) }
+      it { expect(subject.keys).to contain_exactly('package1', 'package3', 'package4') }
+      it { expect(subject['package1']).to contain_exactly('x86_64') }
+      it { expect(subject['package3']).to contain_exactly('i586') }
+      it { expect(subject['package4']).to contain_exactly('i586', 'x86_64') }
     end
   end
 

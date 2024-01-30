@@ -9,8 +9,7 @@ get:
     - $ref: '../components/parameters/package_name.yaml'
   responses:
     '200':
-      description: |
-        This endpoint returns the log file content
+      description: This endpoint returns the log file content
       content:
         text/plain:
           example: |

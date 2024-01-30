@@ -6,7 +6,7 @@ get:
     - $ref: '../components/parameters/login.yaml'
   responses:
     '200':
-      description: >
+      description: |
         OK. The request has succeeded.
 
         XML Schema used for body validation: [user.rng](../schema/user.rng)
@@ -59,7 +59,7 @@ post:
           type: string
   responses:
     '200':
-      description: >
+      description: |
         OK. The request has succeeded.
 
         XML Schema used for body validation: [api_response.xsd](../schema/api_response.xsd)

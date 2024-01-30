@@ -1,7 +1,6 @@
 get:
   summary: Get project's attribute
-  description: |
-    Get a specified attribute of the project
+  description: Get a specified attribute of the project
   security:
   - basic_authentication: []
   parameters:
@@ -68,8 +67,7 @@ get:
 
 post:
   summary: Modifies the specified attribute
-  description: |
-    Modifies the specified attribute
+  description: Modifies the specified attribute
   security:
     - basic_authentication: []
   parameters:
@@ -111,8 +109,7 @@ post:
 
 delete:
   summary: Removes a specified attribute
-  description: |
-    Removes a specified attribute
+  description: Removes a specified attribute
   security:
     - basic_authentication: []
   parameters:

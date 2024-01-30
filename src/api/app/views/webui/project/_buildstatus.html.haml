@@ -18,7 +18,7 @@
       - repository_name = repository.tr('.', '_')
       - expanded = repository_expanded?(collapsed_repositories, repository_name)
       .d-flex.flex-column
-        .d-flex.flex-row.py-1.bg-light.ps-1.ps-sm-2
+        .d-flex.flex-row.py-1.buildresult_repo_header.ps-1.ps-sm-2
           = link_to(word_break(repository, 12),
             project_repository_state_path(project: project.name, repository: repository),
             title: "Repository #{repository}")

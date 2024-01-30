@@ -15,7 +15,8 @@
                 = f.label(:type, 'Type:', class: 'col-form-label me-2')
                 .w-100.d-sm-none
                 = f.collection_radio_buttons(:type, type_options, :to_s, :to_s,
-                                             checked: 'service', class: 'form-check-input', include_hidden: false, required: true) do |radio|
+                                             checked: f.object.type.nil? ? 'service' : f.object.type,
+                                             class: 'form-check-input', include_hidden: false, required: true) do |radio|
                   .form-check.custom-control-inline
                     = radio.radio_button(class: 'form-check-input')
                     = radio.label(class: 'form-check-label')

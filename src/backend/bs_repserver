@@ -291,7 +291,7 @@ sub getpackagebinaryversionlist {
       my $r = { 'name' => $bin->{'filename'} };
       $r->{'hdrmd5'} = $bin->{'hdrmd5'} if $bin->{'hdrmd5'};
       $r->{'leadsigmd5'} = $bin->{'leadsigmd5'} if $bin->{'leadsigmd5'};
-      $r->{'md5sum'} = $bin->{'md5sum'} if $bin->{'md5sum'} && !$cgi->{'view'};	# compat: added only for worker requests
+      $r->{'md5sum'} = $bin->{'md5sum'} if $bin->{'md5sum'} && (!$cgi->{'view'} || !$cgi->{'withcode'});	# compat: do not add for interconnect
       my $size = (split('/', $bin->{'id'}))[1];
       $r->{'sizek'} = ($size + 512) >> 10;
       push @pres, $r;
@@ -386,6 +386,10 @@ sub getpackagelist_build {
   die "must specify view\n" unless $view;
   return getrepositorystatus($cgi, $projid, $repoid, $arch) if $view eq 'status';
   return getbinarychecksums($cgi, $projid, $repoid, $arch) if $view eq 'binarychecksums' || $view eq 'rawbinarychecksums';
+  if ($view eq 'binaryversionscookie') {
+    my $cookie = calc_bininfocookie("$projid/$repoid/$arch");
+    return { 'cookie' => $cookie }, $BSXML::packagebinaryversionlist;
+  }
   $cgi->{'withcode'} = 1 if $view  eq 'binaryversionscode' || $view  eq 'gbininfocode';
   return getgbininfo($cgi, $projid, $repoid, $arch) if $view eq 'gbininfo' || $view eq 'gbininfocode';
   return getpackstatus($cgi, $projid, $repoid, $arch) if $view eq 'packstatus';

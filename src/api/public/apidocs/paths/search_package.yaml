@@ -92,7 +92,6 @@ get:
 post:
   deprecated: true
   summary: List packages that match a XPath condition.
-  description: |
-    This endpoint is exactly the same as `GET /search/package`, please use that one.
+  description: This endpoint is exactly the same as `GET /search/package`, please use that one.
   tags:
     - Search

@@ -7,7 +7,7 @@
 
 %div{ class: "card #{'editable' unless style[:read_only]}" }
   - unless style[:read_only]
-    .sticky-top.bg-light{ id: "top_#{uid}" }
+    .sticky-top.editor-bg{ id: "top_#{uid}" }
       .card-header
         .d-flex.justify-content-between
           .btn-group.ps-2
@@ -32,7 +32,7 @@
   = text_area_tag("editor_#{uid}", text, cols: '0', rows: '0', data: data, class: 'form-control')
 
   - unless style[:read_only]
-    .bg-light{ id: "bottom_#{uid}" }
+    .editor-bg{ id: "bottom_#{uid}" }
       .card-footer
         .d-flex.justify-content-end
           %p

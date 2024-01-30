@@ -67,8 +67,6 @@ our $oid_client_auth		= BSASN1::pack_obj_id(1 ,3, 6, 1, 5, 5, 7, 3, 2);
 our $oid_code_signing		= BSASN1::pack_obj_id(1, 3, 6, 1, 5, 5, 7, 3, 3);
 our $oid_ed25519		= BSASN1::pack_obj_id(1, 3, 101, 112);
 our $oid_ed448			= BSASN1::pack_obj_id(1, 3, 101, 113);
-our $oid_pkcs7_data		= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 7, 1);
-our $oid_pkcs7_signed_data	= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 7, 2);
 our $oid_pkcs9_extension_request	= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 9, 14);
 
 # certificate keyusage bits
@@ -193,6 +191,26 @@ sub unpack_validity {
   return (BSASN1::unpack_time($begins), BSASN1::unpack_time($expires));
 }
 
+sub pack_digalgo {
+  my ($algo, $params) = @_;
+  my $oid;
+  $oid = $BSX509::oid_sha1 if $algo eq 'sha1';
+  $oid = $BSX509::oid_sha256 if $algo eq 'sha256';
+  $oid = $BSX509::oid_sha512 if $algo eq 'sha512';
+  $oid = BSASN1::pack_obj_id(split(/\./, $algo)) if !$oid && $algo =~ /^\d+\.\d+(?:\.\d+)+$/;
+  die("unknown digest algo: $algo\n") unless $oid;
+  $params = BSASN1::pack_null() if @_ == 1;	# compat
+  return BSASN1::pack_sequence($oid, $params);
+}
+
+sub unpack_digalgo {
+  my ($oid, $params) = BSASN1::unpack_sequence($_[0], $_[1], [ $BSASN1::OBJ_ID, [0, undef] ]);
+  return 'sha1', $params if $oid eq $BSX509::oid_sha1;
+  return 'sha256', $params if $oid eq $BSX509::oid_sha256;
+  return 'sha512', $params if $oid eq $BSX509::oid_sha512;
+  return oid2str($oid), $params;
+}
+
 sub pack_sigalgo {
   my ($algo, $hash, $params) = @_;
   die("pack_sigalgo: need pubkey algorithm\n") unless $algo;
@@ -217,7 +235,7 @@ sub pack_sigalgo {
     $oid = BSASN1::pack_obj_id(split(/\./, $algo)) if !$oid && $algo =~ /^\d+\.\d+(?:\.\d+)+$/;
     die("unknown algo: $algo\n") unless $oid;
   }
-  $params = BSASN1::pack_null() if !defined($params) && $algo eq 'rsa';
+  $params = BSASN1::pack_null() if @_ == 2 && $algo eq 'rsa';
   return BSASN1::pack_sequence($oid, $params);
 }
 
@@ -345,6 +363,7 @@ sub keydata2pubkey {
   my ($algoparams, $bits);
   if ($algo eq 'rsa') {
     $bits = BSASN1::pack_sequence(BSASN1::pack_integer_mpi($keydata->{'mpis'}->[0]->{'data'}), BSASN1::pack_integer_mpi($keydata->{'mpis'}->[1]->{'data'}));
+    $algoparams = BSASN1::pack_null();	# compat
   } elsif ($algo eq 'dsa') {
     my @mpis = @{$keydata->{'mpis'} || []};
     $bits = BSASN1::pack_integer_mpi((pop @mpis)->{'data'});

@@ -1,7 +1,6 @@
 post:
   summary: Locks the project.
-  description: |
-    Locks the project given as parameter. You can pass a comment with the reason of the lock.
+  description: Locks the project given as parameter. You can pass a comment with the reason of the lock.
   security:
     - basic_authentication: []
   parameters:

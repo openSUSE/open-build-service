@@ -326,6 +326,12 @@ module Webui::WebuiHelper
     rawid = "_#{rawid}" unless /^[A-Za-z_]/.match?(rawid) # xs:ID elements have to start with character or '_'
     CGI.escapeHTML(rawid.gsub(%r{[+&: ./~()@#]}, '_'))
   end
+
+  def theme_from_user
+    return 'light' unless feature_enabled?('color_themes')
+
+    User.session&.color_theme || 'system'
+  end
 end
 
 # rubocop:enable Metrics/ModuleLength

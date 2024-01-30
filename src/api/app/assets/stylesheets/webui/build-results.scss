@@ -18,6 +18,10 @@
   }
 }
 
+.buildresult_repo_header {
+  background-color: var(--bs-secondary-bg);
+}
+
 .custom-label {
   cursor: pointer;
   color: $link-color;
@@ -43,7 +47,7 @@
   @extend .d-flex;
   @extend .flex-column;
   position: relative;
-  background-color: #eeeeee;
+  background-color: var(--bs-secondary-bg);
   max-height: 100vh;
   width: 100%;
   font-size: 90%;
@@ -64,8 +68,9 @@
   }
 
   .build-info-content {
-    @extend .py-2;
     @extend .px-3;
+    padding-top: 0.4rem !important;
+    padding-bottom: 0.4rem !important;
     overflow-y: hidden;
   }
 
@@ -168,6 +173,16 @@
 
 .repository-state-published {
   @extend .text-success;
+}
+
+#build-results-monitor {
+  .accordion-button:not(.collapsed) {
+    --bs-accordion-active-bg: var(--bs-secondary-bg);
+  }
+
+  .accordion-button:hover {
+    @extend .text-bg-hover;
+  }
 }
 
 @include media-breakpoint-up(md) {

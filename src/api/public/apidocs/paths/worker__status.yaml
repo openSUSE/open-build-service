@@ -1,7 +1,6 @@
 get:
   summary: Lists status of workers, jobs, backend services and general statistics.
-  description: |
-    Lists status of workers, running jobs, waiting jobs, status of the backend services and general statistics.
+  description: Lists status of workers, running jobs, waiting jobs, status of the backend services and general statistics.
   security:
     - basic_authentication: []
   responses:

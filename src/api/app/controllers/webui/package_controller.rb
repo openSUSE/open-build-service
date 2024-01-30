@@ -24,8 +24,6 @@ class Webui::PackageController < Webui::WebuiController
   # FIXME: Remove this before_action, it's doing validation and authorization at the same time
   before_action :check_package_name_for_new, only: [:create]
 
-  before_action :handle_parameters_for_rpmlint_log, only: [:rpmlint_log]
-
   prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :requests]
 
   after_action :verify_authorized, only: [:new, :create, :remove_file, :remove, :abort_build, :trigger_rebuild, :wipe_binaries, :save_meta, :save, :abort_build]
@@ -470,12 +468,18 @@ class Webui::PackageController < Webui::WebuiController
     end
   end
 
+  def rpmlint_log_params
+    params.require([:project, :package, :repository, :architecture])
+    params.slice(:project, :package, :repository, :architecture).permit!
+  end
+
   def rpmlint_log
-    @log = Backend::Api::BuildResults::Binaries.rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
-    @log.encode!(xml: :text)
-    render partial: 'rpmlint_log'
-  rescue Backend::NotFoundError
-    render plain: 'No rpmlint log'
+    rpmlint_log_file = RpmlintLogExtractor.new(rpmlint_log_params).call
+    render plain: 'No rpmlint log' and return if rpmlint_log_file.blank?
+
+    render_chart = params[:renderChart] == 'true'
+    parsed_messages = RpmlintLogParser.new(content: rpmlint_log_file).call if render_chart
+    render partial: 'rpmlint_log', locals: { rpmlint_log_file: rpmlint_log_file, render_chart: render_chart, parsed_messages: parsed_messages }
   end
 
   def meta
@@ -571,10 +575,6 @@ class Webui::PackageController < Webui::WebuiController
 
     flash[:error] = "Couldn't find repository '#{params[:repository]}'"
     redirect_to package_show_path(project: @project, package: @package)
-  end
-
-  def handle_parameters_for_rpmlint_log
-    params.require([:project, :package, :repository, :architecture])
   end
 
   def set_file_details

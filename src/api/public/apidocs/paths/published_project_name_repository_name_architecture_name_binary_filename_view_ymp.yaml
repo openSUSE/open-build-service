@@ -1,6 +1,6 @@
 get:
   summary: Generate a ymp pattern that includes the needed repositories to install the given binary.
-  description: >
+  description: |
     Generate a ymp pattern, which contains the list of packages needed for intalling certain software without having to
     create dependencies between them.
 

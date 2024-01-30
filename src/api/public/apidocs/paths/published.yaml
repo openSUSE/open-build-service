@@ -1,7 +1,6 @@
 get:
   summary: List all the published projects.
-  description: >
-    Get a list of all the projects, all of them are considered published.
+  description: Get a list of all the projects, all of them are considered published.
   security:
     - basic_authentication: []
   responses:

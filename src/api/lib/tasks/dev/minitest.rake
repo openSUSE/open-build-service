@@ -4,7 +4,7 @@ namespace :dev do
       desc 'Create minitest fixtures in the database (as opposed to loading them with db:fixture:load)'
       task create: :test_environment do
         puts "\n\nMake sure you start with a fresh backend! Outside the container run..."
-        puts "docker-compose stop backend; docker-compose rm -f backend; docker-compose up -d backend\n\n"
+        puts "docker compose stop backend; docker compose rm -f backend; docker compose up -d backend\n\n"
         puts 'Please also note this will drop your current test database'
         puts "Confirm? Enter 'YES' to confirm:"
         input = $stdin.gets.chomp

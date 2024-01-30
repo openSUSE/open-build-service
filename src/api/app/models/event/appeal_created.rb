@@ -8,7 +8,7 @@ module Event
 
     def subject
       appeal = Appeal.find(payload['id'])
-      "Appeal to #{appeal.decision.reports.first.reportable&.class&.name} decision".squish
+      "Appeal to #{appeal.decision.reports.first.reportable&.class&.name || appeal.decision.reports.first.reportable_type} decision".squish
     end
   end
 end

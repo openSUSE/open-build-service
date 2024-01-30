@@ -35,7 +35,7 @@ RSpec.describe Webui::FeedsController, :vcr do
 
         it 'provides a rss feed' do
           expect(response).to have_http_status(:success)
-          expect(assigns(:news).map(&:message)).to match_array(['message 1', 'message 2', 'message 3', 'message 4', 'message 5'])
+          expect(assigns(:news).map(&:message)).to contain_exactly('message 1', 'message 2', 'message 3', 'message 4', 'message 5')
           expect(response).to render_template('webui/feeds/news')
         end
       end

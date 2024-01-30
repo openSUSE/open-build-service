@@ -1,6 +1,6 @@
 get:
   summary: Show the build dependencies of packages that are part of the project.
-  description: >
+  description: |
     Show the build dependencies of packages that are part of the project,
     for a given repository and architecture.
   security:

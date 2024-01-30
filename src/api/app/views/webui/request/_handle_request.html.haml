@@ -1,6 +1,6 @@
 - if can_handle_request || (can_add_reviews && my_open_reviews.any?)
   .card.mb-3#handle-request
-    .bg-light
+    .card-header.p-0
       %ul.nav.nav-tabs.disable-link-generation{ role: 'tablist' }
         - if can_handle_request
           %li.nav-item
