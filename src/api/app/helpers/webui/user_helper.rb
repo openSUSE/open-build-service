@@ -25,9 +25,11 @@ module Webui::UserHelper
         mail_to(user.email) do
           tag.i(nil, class: 'fas fa-envelope text-secondary pe-1', title: 'Send Email to User')
         end,
-        link_to('#', title: 'Delete User', data: { 'bs-toggle': 'modal',
-                                                   'bs-target': '#delete-user-modal', 'user-login': user.login, action: user_path(user.login) }) do
-          tag.i(nil, class: 'fas fa-times-circle text-danger pe-1')
+        unless user.state == 'deleted'
+          link_to('#', title: 'Delete User', data: { 'bs-toggle': 'modal',
+                                                     'bs-target': '#delete-user-modal', 'user-login': user.login, action: user_path(user.login) }) do
+            tag.i(nil, class: 'fas fa-times-circle text-danger pe-1')
+          end
         end
       ]
     )
