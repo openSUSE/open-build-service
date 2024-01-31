@@ -4,7 +4,7 @@
     = image_tag_for(comment.user, size: 35, custom_class: 'me-3 d-none d-sm-block')
   .comment.flex-grow-1.text-break
     .mb-3{ id: "comment-#{comment.id}-user" }
-      = link_to(comment.user, user_path(comment.user))
+      = link_to(realname_with_login(comment.user), user_path(comment.user))
       wrote
       = link_to("#comment-#{comment.id}", title: I18n.l(comment.created_at.utc), name: "comment-#{comment.id}") do
         = render TimeComponent.new(time: comment.created_at)
