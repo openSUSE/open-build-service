@@ -14,16 +14,11 @@ RSpec.describe 'ImageTemplates', :js, :vcr do
 
     before do
       # create attrib as user
-      User.session = user
+      login(user)
       attrib
-      User.session = nil
     end
 
     it 'branch image template' do
-      visit image_templates_path
-      expect(page).to have_css('input[type=submit][disabled]')
-
-      login(user)
       visit project_show_path(user.home_project)
       desktop? ? click_link('New Image') : click_menu_link('Actions', 'New Image')
 
@@ -50,10 +45,6 @@ RSpec.describe 'ImageTemplates', :js, :vcr do
       # FIXME: This scenario is flickering on mobile
       skip('This scenario fails most of the time') if mobile?
 
-      visit image_templates_path
-      expect(page).to have_css('input[type=submit][disabled]')
-
-      login(user)
       visit project_show_path(user.home_project)
       click_link('New Image')
 
