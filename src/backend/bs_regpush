@@ -475,17 +475,20 @@ sub construct_container_tar {
     push @tar, {'name' => $blobid, 'file' => $fd, 'mtime' => $mtime, 'offset' => 0, 'size' => (-s $fd)};
   }
   push @tar, {'name' => 'manifest.json', 'data' => $manifest, 'mtime' => $mtime, 'size' => length($manifest)};
-  return \@tar;
+  return (\@tar, $mtime);
 }
 
 sub open_tarfile {
   my ($tarfile) = @_;
 
   my ($tar, $tarfd, $containerinfo);
-  if ($tarfile =~ /\.containerinfo$/) {
+  if ($tarfile =~ /^artifacthub:(.+)/) {
+    $containerinfo = { 'type' => 'artifacthub', 'artifacthubdata' => $1 };
+    ($tar) = BSContar::container_from_artifacthub($containerinfo->{'artifacthubdata'});
+  } elsif ($tarfile =~ /\.containerinfo$/) {
     my $containerinfo_json = readstr($tarfile);
     $containerinfo = JSON::XS::decode_json($containerinfo_json);
-    $tar = construct_container_tar($containerinfo);
+    ($tar) = construct_container_tar($containerinfo);
   } elsif ($tarfile =~ /\.helminfo$/) {
     my $chart = $tarfile;
     $chart =~ s/\.helminfo$/.tgz/;
@@ -683,8 +686,8 @@ if ($use_image_tags && @tarfiles > 1) {
   $use_image_tags = 0;
 }
 
-# use oci types if we have a helm chart
-$oci = 1 if grep {/\.helminfo$/} @tarfiles;
+# use oci types if we have a helm chart or artifacthub data
+$oci = 1 if grep {/\.helminfo$/ || /^artifacthub:/} @tarfiles;
 
 my %digests_to_sign;
 my @multimanifests;
