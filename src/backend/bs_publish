@@ -2857,6 +2857,11 @@ sub publish {
       'publishid' => $publishid,
       'multiarch' => $multicontainer,
     };
+    if ($config->{'publishflags:artifacthub'}) {
+      for (@{$config->{'publishflags'} || []}) {
+        $data->{'artifacthubdata'}->{$1} = $2 if /^artifacthub:([^:]+):(.+)$/;
+      }
+    }
     $data->{'notify'} = sub { BSNotify::notify('CONTAINER_PUBLISHED', { project => $projid , 'repo' => $repoid, 'buildid' => $publishid, 'container' => "$_[0]"}) };
     if ($blobdir) {
       $_->{'blobdir'} = $blobdir for values %containers;

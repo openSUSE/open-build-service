@@ -548,6 +548,28 @@ sub create_manifestinfo {
   push_manifestinfo($repodir, $imginfo->{'distmanifest'}, JSON::XS->new->utf8->canonical->encode($imginfo));
 }
 
+sub open_container_tar {
+  my ($containerinfo, $file) = @_;
+  my ($tar, $mtime, $layer_compression);
+  if (($containerinfo->{'type'} || '') eq 'artifacthub') {
+    ($tar, $mtime, $layer_compression) = BSContar::container_from_artifacthub($containerinfo->{'artifacthubdata'});
+  } elsif (!defined($file)) {
+    ($tar, $mtime, $layer_compression) = BSPublisher::Containerinfo::construct_container_tar($containerinfo, 1);
+    # set blobfile in entries so we can create a link in push_blob
+    for (@$tar) {
+      $_->{'blobfile'} = "$containerinfo->{'blobdir'}/_blob.$_->{'blobid'}" if $_->{'blobid'};
+    }
+  } elsif (($containerinfo->{'type'} || '') eq 'helm') {
+    ($tar, $mtime, $layer_compression) = BSContar::container_from_helm($file, $containerinfo->{'config_json'}, $containerinfo->{'tags'});
+  } else {
+    my $tarfd;
+    open($tarfd, '<', $file) || die("$file: $!\n");
+    ($tar, $mtime, undef, undef, $layer_compression) = BSContar::normalize_container($tarfd, 1);
+  }
+  die("incomplete containerinfo\n") unless $tar; 
+  return ($tar, $mtime, $layer_compression);
+}
+
 sub push_containers {
   my ($registry, $projid, $repoid, $repo, $tags, $data) = @_;
 
@@ -594,6 +616,7 @@ sub push_containers {
     my $multiarch = $data->{'multiarch'};
     $multiarch = 1 if @$containerinfos > 1;
     $multiarch = 0 if @$containerinfos == 1 && ($containerinfos->[0]->{'type'} || '') eq 'helm';
+    $multiarch = 0 if @$containerinfos == 1 && ($containerinfos->[0]->{'type'} || '') eq 'artifacthub';
     die("must use multiarch if multiple containers are to be pushed\n") if @$containerinfos > 1 && !$multiarch;
     my %multiplatforms;
     my @multimanifests;
@@ -601,7 +624,7 @@ sub push_containers {
     my $oci;
     # use oci types if we have a helm chart or we use a nonstandard compression
     for my $containerinfo (@$containerinfos) {
-      $oci = 1 if ($containerinfo->{'type'} || '') eq 'helm';
+      $oci = 1 if ($containerinfo->{'type'} || '') eq 'helm' || ($containerinfo->{'type'} || '') eq 'artifacthub';
       $oci = 1 if grep {$_ && $_ ne 'gzip'} @{$containerinfo->{'layer_compression'} || []};
     }
     for my $containerinfo (@$containerinfos) {
@@ -620,22 +643,7 @@ sub push_containers {
 	next;
       }
 
-      my ($tar, $mtime, $layer_compression);
-      my $tarfd;
-      if ($containerinfo->{'uploadfile'}) {
-	open($tarfd, '<', $containerinfo->{'uploadfile'}) || die("$containerinfo->{'uploadfile'}: $!\n");
-	if (($containerinfo->{'type'} || '') eq 'helm') {
-	  ($tar, $mtime, $layer_compression) = BSContar::container_from_helm($containerinfo->{'uploadfile'}, $containerinfo->{'config_json'}, $containerinfo->{'tags'});
-	} else {
-	  ($tar, $mtime, undef, undef, $layer_compression) = BSContar::normalize_container($tarfd, 1);
-	}
-      } else {
-	($tar, $mtime, $layer_compression) = BSPublisher::Containerinfo::construct_container_tar($containerinfo, 1);
-	# set blobfile in entries so we can create a link in push_blob
-        for (@$tar) {
-	  $_->{'blobfile'} = "$containerinfo->{'blobdir'}/_blob.$_->{'blobid'}" if $_->{'blobid'};
-	}
-      }
+      my ($tar, $mtime, $layer_compression) = open_container_tar($containerinfo, $containerinfo->{'uploadfile'});
       my %tar = map {$_->{'name'} => $_} @$tar;
 
       my ($manifest_ent, $manifest) = BSContar::get_manifest(\%tar);
@@ -657,7 +665,6 @@ sub push_containers {
       $platformstr .= " variant:$govariant" if $govariant;
       if ($multiplatforms{$platformstr}) {
 	print "ignoring $containerinfo->{'file'}, already have $platformstr\n";
-	close $tarfd if $tarfd;
 	next;
       }
       $multiplatforms{$platformstr} = 1;
@@ -690,7 +697,6 @@ sub push_containers {
         push_blob($repodir, $layer_ent);
         $knownblobs{$layer_blobid} = 1;
       }
-      close $tarfd if $tarfd;
 
       # put manifest into repo
       my $mani = BSContar::create_dist_manifest_data($config_data, \@layer_data, $oci);
