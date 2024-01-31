@@ -26,6 +26,7 @@ use JSON::XS ();
 use Digest::SHA ();
 use Digest::MD5 ();
 use Compress::Zlib ();
+use Scalar::Util;
 use POSIX;
 
 use BSUtil;
@@ -44,6 +45,8 @@ our $mt_oci_config          = 'application/vnd.oci.image.config.v1+json';
 our $mt_oci_layer_gzip      = 'application/vnd.oci.image.layer.v1.tar+gzip';
 our $mt_oci_layer_zstd      = 'application/vnd.oci.image.layer.v1.tar+zstd';
 our $mt_helm_config         = 'application/vnd.cncf.helm.config.v1+json';
+our $mt_artifacthub_config  = 'application/vnd.cncf.artifacthub.config.v1+yaml';
+our $mt_artifacthub_layer   = 'application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml';
 
 sub blobid {
   return 'sha256:'.Digest::SHA::sha256_hex($_[0]);
@@ -270,6 +273,7 @@ sub get_config {
   die("File $config_file not included in tar\n") unless $config_ent;
   my $config_json = BSTar::extract($config_ent->{'file'}, $config_ent);
   $config_ent->{'blobid'} ||= blobid($config_json);		# convenience
+  return ($config_ent, {}) if $config_json eq '';		# workaround for artifacthub
   my $config = JSON::XS::decode_json($config_json);
   return ($config_ent, $config);
 }
@@ -442,6 +446,57 @@ sub container_from_helm {
   return ($tar, $mtime, \@layercomp);
 }
 
+sub unparse_yaml_string {
+  my ($d) = @_;
+  return "''" unless length $d;
+  return "\"$d\"" if Scalar::Util::looks_like_number($d);
+  if ($d =~ /[\x00-\x1f\x7f-\x9f\']/) {
+    $d =~ s/\\/\\\\/g;
+    $d =~ s/\"/\\\"/g;
+    $d =~ s/([\x00-\x1f\x7f-\x9f])/'\x'.sprintf("%X",ord($1))/ge;
+    return "\"$d\"";
+  } elsif ($d =~ /^[\!\&*{}[]|>@`"'#%, ]/s) {
+    return "'$d'";
+  } elsif ($d =~ /: / || $d =~ / #/ || $d =~ /[: \t]\z/) {
+    return "'$d'";
+  } elsif ($d eq '~' || $d eq 'null' || $d eq 'true' || $d eq 'false' && $d =~ /^(?:---|\.\.\.)/s) {
+    return "'$d'";
+  } elsif ($d =~ /^[-?:](?:\s|\z)/s) {
+    return "'$d'";
+  } else {
+    return $d;
+  }
+}
+
+sub create_artifacthub_yaml {
+  my ($artifacthubdata) = @_;
+  my ($repoid, $name, $email) = split(':', $artifacthubdata, 3);
+  my $yaml = '';
+  $yaml .= "repositoryID: ".unparse_yaml_string($repoid)."\n" if $repoid;
+  my $owners = '';
+  $owners .= "    name: ".unparse_yaml_string($name)."\n" if $name;
+  $owners .= "    email: ".unparse_yaml_string($email)."\n" if $email;
+  $owners =~ s/^   /  -/;
+  $yaml .= "owners:\n$owners" if $owners;
+  return $yaml;
+}
+
+sub container_from_artifacthub {
+  my ($artifacthubdata, $mtime) = @_;
+  my $artifacthub_yaml = create_artifacthub_yaml($artifacthubdata);
+  my $config_ent = { 'name' => 'config.yaml', 'mtime' => $mtime, 'data' => '', 'size' => 0, 'mimetype' => $mt_artifacthub_config };
+  my $layer_ent = { 'name' => 'artifacthub-repo.yml', 'mtime' => $mtime, 'data' => $artifacthub_yaml, 'size' => length($artifacthub_yaml), 'mimetype' => $mt_artifacthub_layer };
+  $layer_ent->{'annotations'}->{'org.opencontainers.image.title'} = 'artifacthub-repo.yml';
+  my $manifest = {
+    'Layers' => [ 'artifacthub-repo.yml' ],
+    'Config' => 'config.yaml',
+    'RepoTags' => [ 'artifacthub.io' ],
+  };
+  my $manifest_ent = create_manifest_entry($manifest, $mtime);
+  my $tar = [ $manifest_ent, $config_ent, $layer_ent ];
+  return ($tar, $mtime, [ '' ]);
+}
+
 sub create_config_data {
   my ($config_ent, $oci) = @_;
   my $config_data = {
@@ -482,7 +537,7 @@ sub create_layer_data {
     'size' => 0 + $layer_ent->{'size'},
     'digest' => $layer_ent->{'blobid'} || blobid_entry($layer_ent),
   };
-  $layer_data->{'annotations'} = { %$annotations } if $annotations;
+  $layer_data->{'annotations'} = { %{$layer_ent->{'annotations'} || {}}, %{$annotations || {}} } if $layer_ent->{'annotations'} || $annotations;
   if ($comp eq 'zstd' && $lcomp && $lcomp =~ /^zstd:chunked/) {
     my @c = split(',', $lcomp);
     $layer_data->{'annotations'}->{'io.github.containers.zstd-chunked.manifest-position'} = $c[1] if $c[1];
