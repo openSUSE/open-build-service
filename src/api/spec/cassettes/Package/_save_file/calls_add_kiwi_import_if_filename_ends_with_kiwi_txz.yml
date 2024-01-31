@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Wed, 14 Oct 2020 14:37:31 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>What's Become of Waring</title>
-          <description>Sed ullam necessitatibus dolorum.</description>
+          <title>Dying of the Light</title>
+          <description>Beatae reprehenderit ex quo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>What's Become of Waring</title>
-          <description>Sed ullam necessitatibus dolorum.</description>
+          <title>Dying of the Light</title>
+          <description>Beatae reprehenderit ex quo.</description>
         </package>
-  recorded_at: Wed, 14 Oct 2020 14:37:31 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/foo.kiwi.txz?user=tom
@@ -107,15 +107,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="9" vrev="9">
-          <srcmd5>81575939cda8390add9a1c92f78eae75</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>5c6164d882258ac8ef8d0f3f065c7b68</srcmd5>
           <version>unknown</version>
-          <time>1602686251</time>
+          <time>1706702041</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 14 Oct 2020 14:37:31 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -123,8 +123,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>What's Become of Waring</title>
-          <description>Sed ullam necessitatibus dolorum.</description>
+          <title>Dying of the Light</title>
+          <description>Beatae reprehenderit ex quo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -145,15 +145,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>What's Become of Waring</title>
-          <description>Sed ullam necessitatibus dolorum.</description>
+          <title>Dying of the Light</title>
+          <description>Beatae reprehenderit ex quo.</description>
         </package>
-  recorded_at: Wed, 14 Oct 2020 14:37:31 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:01 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package
@@ -179,16 +179,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '330'
+      - '202'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="9" vrev="9" srcmd5="81575939cda8390add9a1c92f78eae75">
-          <serviceinfo code="running"/>
-          <entry name="_service" md5="603a221291ebe7f39ec8d928de707f5c" size="141" mtime="1602679081"/>
-          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1602686251"/>
+        <directory name="test_package" rev="1" vrev="1" srcmd5="5c6164d882258ac8ef8d0f3f065c7b68">
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1706702041"/>
         </directory>
-  recorded_at: Wed, 14 Oct 2020 14:37:31 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:01 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package?view=info
@@ -214,14 +212,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '230'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="test_package" rev="9" vrev="9" srcmd5="81575939cda8390add9a1c92f78eae75">
-          <error>service in progress</error>
+        <sourceinfo package="test_package" rev="1" vrev="1" srcmd5="5c6164d882258ac8ef8d0f3f065c7b68" verifymd5="5c6164d882258ac8ef8d0f3f065c7b68">
+          <error>bad build configuration, no build type defined or detected</error>
         </sourceinfo>
-  recorded_at: Wed, 14 Oct 2020 14:37:31 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:01 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package
@@ -247,16 +245,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '330'
+      - '202'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="9" vrev="9" srcmd5="81575939cda8390add9a1c92f78eae75">
-          <serviceinfo code="running"/>
-          <entry name="_service" md5="603a221291ebe7f39ec8d928de707f5c" size="141" mtime="1602679081"/>
-          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1602686251"/>
+        <directory name="test_package" rev="1" vrev="1" srcmd5="5c6164d882258ac8ef8d0f3f065c7b68">
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1706702041"/>
         </directory>
-  recorded_at: Wed, 14 Oct 2020 14:37:31 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:01 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -288,12 +284,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="4a9f1abb8e8b4484928779efc75bdaa1">
+        <sourcediff key="c80bee99bdb6c4f9498628501ff5629a">
           <old project="home:tom" package="test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:tom" package="test_package" rev="9" srcmd5="81575939cda8390add9a1c92f78eae75"/>
+          <new project="home:tom" package="test_package" rev="1" srcmd5="5c6164d882258ac8ef8d0f3f065c7b68"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 14 Oct 2020 14:37:31 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Wed, 31 Jan 2024 11:54:01 GMT
+recorded_with: VCR 6.2.0

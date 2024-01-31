@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Wed, 14 Oct 2020 18:26:45 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Cover Her Face</title>
-          <description>Beatae non quia nostrum.</description>
+          <title>Ego Dominus Tuus</title>
+          <description>Repudiandae aspernatur aut aliquam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Cover Her Face</title>
-          <description>Beatae non quia nostrum.</description>
+          <title>Ego Dominus Tuus</title>
+          <description>Repudiandae aspernatur aut aliquam.</description>
         </package>
-  recorded_at: Wed, 14 Oct 2020 18:26:45 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/foo.spec?user=tom
@@ -103,19 +103,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '203'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="11" vrev="11">
-          <srcmd5>8102c1ea44b9ca8768abe4f0ac1e6a1b</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>9b1c1ddcaab8327d31b5f9d882782630</srcmd5>
           <version>unknown</version>
-          <time>1602700006</time>
+          <time>1706702042</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 14 Oct 2020 18:26:46 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -123,8 +123,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Cover Her Face</title>
-          <description>Beatae non quia nostrum.</description>
+          <title>Ego Dominus Tuus</title>
+          <description>Repudiandae aspernatur aut aliquam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -145,15 +145,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Cover Her Face</title>
-          <description>Beatae non quia nostrum.</description>
+          <title>Ego Dominus Tuus</title>
+          <description>Repudiandae aspernatur aut aliquam.</description>
         </package>
-  recorded_at: Wed, 14 Oct 2020 18:26:46 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package
@@ -179,17 +179,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '426'
+      - '296'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="11" vrev="11" srcmd5="8102c1ea44b9ca8768abe4f0ac1e6a1b">
-          <serviceinfo code="running"/>
-          <entry name="_service" md5="603a221291ebe7f39ec8d928de707f5c" size="141" mtime="1602679081"/>
-          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1602686251"/>
-          <entry name="foo.spec" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1602699960"/>
+        <directory name="test_package" rev="2" vrev="2" srcmd5="9b1c1ddcaab8327d31b5f9d882782630">
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1706702041"/>
+          <entry name="foo.spec" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1706702042"/>
         </directory>
-  recorded_at: Wed, 14 Oct 2020 18:26:46 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package?view=info
@@ -215,14 +213,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '186'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="test_package" rev="11" vrev="11" srcmd5="8102c1ea44b9ca8768abe4f0ac1e6a1b">
-          <error>service in progress</error>
+        <sourceinfo package="test_package" rev="2" vrev="2" srcmd5="9b1c1ddcaab8327d31b5f9d882782630" verifymd5="9b1c1ddcaab8327d31b5f9d882782630">
+          <filename>foo.spec</filename>
         </sourceinfo>
-  recorded_at: Wed, 14 Oct 2020 18:26:46 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package
@@ -248,17 +246,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '426'
+      - '296'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="11" vrev="11" srcmd5="8102c1ea44b9ca8768abe4f0ac1e6a1b">
-          <serviceinfo code="running"/>
-          <entry name="_service" md5="603a221291ebe7f39ec8d928de707f5c" size="141" mtime="1602679081"/>
-          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1602686251"/>
-          <entry name="foo.spec" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1602699960"/>
+        <directory name="test_package" rev="2" vrev="2" srcmd5="9b1c1ddcaab8327d31b5f9d882782630">
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1706702041"/>
+          <entry name="foo.spec" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1706702042"/>
         </directory>
-  recorded_at: Wed, 14 Oct 2020 18:26:46 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:02 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -286,16 +282,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '303'
+      - '302'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="97c3e98968c2e523ba1339cedbe47b22">
+        <sourcediff key="b19e7be6361c9c087b949ca15c3b64a1">
           <old project="home:tom" package="test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:tom" package="test_package" rev="11" srcmd5="8102c1ea44b9ca8768abe4f0ac1e6a1b"/>
+          <new project="home:tom" package="test_package" rev="2" srcmd5="9b1c1ddcaab8327d31b5f9d882782630"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 14 Oct 2020 18:26:46 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Wed, 31 Jan 2024 11:54:02 GMT
+recorded_with: VCR 6.2.0

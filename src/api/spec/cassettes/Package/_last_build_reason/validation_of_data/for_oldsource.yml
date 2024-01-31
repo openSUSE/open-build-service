@@ -30,17 +30,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:35 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:19 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -48,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Blue Remembered Earth</title>
-          <description>Laudantium quaerat nobis iure.</description>
+          <title>Postern of Fate</title>
+          <description>Repellendus blanditiis dolorem omnis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,53 +69,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Blue Remembered Earth</title>
-          <description>Laudantium quaerat nobis iure.</description>
+          <title>Postern of Fate</title>
+          <description>Repellendus blanditiis dolorem omnis.</description>
         </package>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:35 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="test_package" project="home:tom">
-          <title>Blue Remembered Earth</title>
-          <description>Laudantium quaerat nobis iure.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '159'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="test_package" project="home:tom">
-          <title>Blue Remembered Earth</title>
-          <description>Laudantium quaerat nobis iure.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:35 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Wed, 31 Jan 2024 11:54:20 GMT
+recorded_with: VCR 6.2.0

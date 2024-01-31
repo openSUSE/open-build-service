@@ -30,58 +30,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:33 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:other_user2/_meta?user=other_user2
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:other_user2">
-          <title/>
-          <description/>
-          <person userid="other_user2" role="maintainer"/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '145'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:other_user2">
-          <title></title>
-          <description></description>
-          <person userid="other_user2" role="maintainer" />
-        </project>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:34 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -89,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>This Side of Paradise</title>
-          <description>Dignissimos et officiis assumenda.</description>
+          <title>A Monstrous Regiment of Women</title>
+          <description>Nostrum facilis repellendus molestiae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -111,94 +69,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>This Side of Paradise</title>
-          <description>Dignissimos et officiis assumenda.</description>
+          <title>A Monstrous Regiment of Women</title>
+          <description>Nostrum facilis repellendus molestiae.</description>
         </package>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:34 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="test_package" project="home:tom">
-          <title>This Side of Paradise</title>
-          <description>Dignissimos et officiis assumenda.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '163'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="test_package" project="home:tom">
-          <title>This Side of Paradise</title>
-          <description>Dignissimos et officiis assumenda.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:34 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:other_user/_meta?user=other_user
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:other_user">
-          <title/>
-          <description/>
-          <person userid="other_user" role="maintainer"/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '143'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:other_user">
-          <title></title>
-          <description></description>
-          <person userid="other_user" role="maintainer" />
-        </project>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:34 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Wed, 31 Jan 2024 11:54:09 GMT
+recorded_with: VCR 6.2.0

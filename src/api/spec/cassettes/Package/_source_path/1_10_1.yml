@@ -30,17 +30,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:38 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
@@ -48,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>From Here to Eternity</title>
-          <description>Quae repellendus quia sed.</description>
+          <title>Unweaving the Rainbow</title>
+          <description>Enim ab facere dolores.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,61 +69,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>From Here to Eternity</title>
-          <description>Quae repellendus quia sed.</description>
+          <title>Unweaving the Rainbow</title>
+          <description>Enim ab facere dolores.</description>
         </package>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:38 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_files" project="home:tom">
-          <title>From Here to Eternity</title>
-          <description>Quae repellendus quia sed.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '161'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_files" project="home:tom">
-          <title>From Here to Eternity</title>
-          <description>Quae repellendus quia sed.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:38 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: Et et excepturi. Assumenda totam voluptas. Exercitationem mollitia velit.
+      string: Vitae laudantium sint. Suscipit libero autem. Necessitatibus doloremque
+        quis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -144,26 +104,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="401" vrev="401">
-          <srcmd5>4c48afd32d25875fae7d4520cdf82168</srcmd5>
+        <revision rev="9" vrev="9">
+          <srcmd5>8ca8b47563e429e01443ae2b1d65c8aa</srcmd5>
           <version>unknown</version>
-          <time>1536230738</time>
+          <time>1706702054</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:38 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
     body:
       encoding: UTF-8
-      string: Est est vitae. Odit quaerat pariatur. Quis nisi dolor.
+      string: Sequi eum impedit. Ad voluptatem dolor. Accusantium aut et.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -183,18 +142,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="402" vrev="402">
-          <srcmd5>3d19273f6817ff36a1c0245a47a881c6</srcmd5>
+        <revision rev="10" vrev="10">
+          <srcmd5>7d899a564ae2ac85fef9a25ea00fe7ab</srcmd5>
           <version>unknown</version>
-          <time>1536230738</time>
+          <time>1706702054</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:38 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Wed, 31 Jan 2024 11:54:14 GMT
+recorded_with: VCR 6.2.0
