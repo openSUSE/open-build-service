@@ -199,7 +199,7 @@ sub upload_all_containers {
     for my $p (sort keys %$containers) {
       my $containerinfo = $containers->{$p};
       my $arch = $containerinfo->{'arch'};
-      my $goarch = $containerinfo->{'goarch'} || (($containerinfo->{'type'} || '') eq 'helm' ? 'any' : $arch);
+      my $goarch = $containerinfo->{'goarch'} || (($containerinfo->{'type'} || '') eq 'helm' || ($containerinfo->{'type'} || '') eq 'artifacthub' ? 'any' : $arch);
       $goarch .= ":$containerinfo->{'govariant'}" if $containerinfo->{'govariant'};
       $goarch .= "_$containerinfo->{'goos'}" if $containerinfo->{'goos'} && $containerinfo->{'goos'} ne 'linux';
       my @tags = $mapper->($registry, $containerinfo, $projid, $repoid, $arch);
@@ -308,11 +308,12 @@ sub reconstruct_container {
   BSTar::writetarfile($dst, $dstfinal, $tar, 'mtime' => $mtime) if $tar;
 }
 
-sub create_container_dist_info {
-  my ($containerinfo, $oci, $platforms) = @_;
-  my $file = $containerinfo->{'publishfile'};
+sub open_container_tar {
+  my ($containerinfo, $file) = @_;
   my ($tar, $mtime, $layer_compression);
-  if (!defined($file)) {
+  if (($containerinfo->{'type'} || '') eq 'artifacthub') {
+    ($tar, $mtime, $layer_compression) = BSContar::container_from_artifacthub($containerinfo->{'artifacthubdata'});
+  } elsif (!defined($file)) {
     ($tar, $mtime, $layer_compression) = BSPublisher::Containerinfo::construct_container_tar($containerinfo, 1);
   } elsif (($containerinfo->{'type'} || '') eq 'helm') {
     ($tar, $mtime, $layer_compression) = BSContar::container_from_helm($file, $containerinfo->{'config_json'}, $containerinfo->{'tags'});
@@ -330,6 +331,12 @@ sub create_container_dist_info {
     $_->{'file'} = $tarfd for @$tar;
   }
   die("incomplete containerinfo\n") unless $tar;
+  return ($tar, $mtime, $layer_compression);
+}
+
+sub create_container_dist_info {
+  my ($containerinfo, $oci, $platforms) = @_;
+  my ($tar, $mtime, $layer_compression) = open_container_tar($containerinfo, $containerinfo->{'publishfile'});
   my %tar = map {$_->{'name'} => $_} @$tar;
   my ($manifest_ent, $manifest) = BSContar::get_manifest(\%tar);
   my ($config_ent, $config) = BSContar::get_config(\%tar, $manifest);
@@ -529,9 +536,10 @@ sub upload_to_registry {
   my $multiarch = 0;	# XXX: use $data->{'multiarch'}
   $multiarch = 1 if @$containerinfos > 1;
   $multiarch = 0 if @$containerinfos == 1 && ($containerinfos->[0]->{'type'} || '') eq 'helm';
+  $multiarch = 0 if @$containerinfos == 1 && ($containerinfos->[0]->{'type'} || '') eq 'artifacthub';
   my $oci;
   for my $containerinfo (@$containerinfos) {
-    $oci = 1 if ($containerinfo->{'type'} || '') eq 'helm';
+    $oci = 1 if ($containerinfo->{'type'} || '') eq 'helm' || ($containerinfo->{'type'} || '') eq 'artifacthub';
     $oci = 1 if grep {$_ && $_ ne 'gzip'} @{$containerinfo->{'layer_compression'} || []};
   }
 
@@ -569,6 +577,10 @@ sub upload_to_registry {
     my $file = $containerinfo->{'publishfile'};
     my $wrote_containerinfo;
     if (!defined($file)) {
+      if (($containerinfo->{'type'} || '') eq 'artifacthub') {
+	push @uploadfiles, "artifacthub:$containerinfo->{'artifacthubdata'}";
+	next;
+      }
       # tar file needs to be constructed from blobs
       $blobdir = $containerinfo->{'blobdir'};
       die("need a blobdir for containerinfo uploads\n") unless $blobdir;
@@ -832,6 +844,13 @@ sub do_local_uploads {
       push @{$todo{$tag}}, $containerinfo;
     }
   }
+  my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
+  $gun =~ s/^https?:\/\///;
+  $gun = '' if $gun eq 'local:';
+  if (($data->{'artifacthubdata'} || {})->{"$gun/$repository"} && !$uptags->{'artifacthub.io'}) {
+    my $containerinfo = { 'type' => 'artifacthub', 'artifacthubdata' => $data->{'artifacthubdata'}->{"$gun/$repository"} };
+    push @{$todo{'artifacthub.io'}}, $containerinfo;
+  }
   eval {
     BSPublisher::Registry::push_containers($registry, $projid, $repoid, $repository, \%todo, $data);
   };
@@ -875,6 +894,14 @@ sub do_remote_uploads {
     my @tags = @{$todo{$joinp}};
     my @containerinfos = map {$containers->{$_}} @{$todo_p{$joinp}};
     my $digests = upload_to_registry($registry, $projid, $repoid, $repository, \@containerinfos, \@tags, $data, $repostate);
+    $containerdigests .= $digests;
+  }
+  my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
+  $gun =~ s/^https?:\/\///;
+  $gun = '' if $gun eq 'local:';
+  if (($data->{'artifacthubdata'} || {})->{"$gun/$repository"} && !$uptags->{'artifacthub.io'}) {
+    my $containerinfo = { 'type' => 'artifacthub', 'artifacthubdata' => $data->{'artifacthubdata'}->{"$gun/$repository"} };
+    my $digests = upload_to_registry($registry, $projid, $repoid, $repository, [ $containerinfo ], [ 'artifacthub.io' ], $data, $repostate);
     $containerdigests .= $digests;
   }
   # all is pushed, now clean the rest
