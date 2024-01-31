@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Thu, 18 May 2023 11:49:39 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_one_file/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_one_file" project="home:tom">
-          <title>Dulce et Decorum Est</title>
-          <description>Cupiditate ad quis velit.</description>
+          <title>A Swiftly Tilting Planet</title>
+          <description>Cupiditate aut et et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -74,16 +74,23 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_one_file" project="home:tom">
-          <title>Dulce et Decorum Est</title>
-          <description>Cupiditate ad quis velit.</description>
+          <title>A Swiftly Tilting Planet</title>
+          <description>Cupiditate aut et et.</description>
         </package>
-  recorded_at: Thu, 18 May 2023 11:49:39 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_one_file/_service
     body:
       encoding: UTF-8
-      string: "<services/>"
+      string: |
+        <services>
+          <service name="download_url">
+            <param name="host">openbuildservice.org</param>
+            <param name="protocol">https</param>
+            <param name="path">/images/obs-logo.svg</param>
+          </service>
+        </services>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -108,14 +115,14 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="2" vrev="2">
-          <srcmd5>3ac4b29d09369cc0bd4c17dd6a5c7d4c</srcmd5>
+          <srcmd5>d80a38d591d0b26d3918fbb95a73620c</srcmd5>
           <version>unknown</version>
-          <time>1684410579</time>
+          <time>1706702050</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 18 May 2023 11:49:39 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:10 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_one_file
@@ -141,14 +148,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '208'
+      - '241'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_one_file" rev="2" vrev="2" srcmd5="3ac4b29d09369cc0bd4c17dd6a5c7d4c">
-          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1684410579"/>
+        <directory name="package_with_one_file" rev="2" vrev="2" srcmd5="d80a38d591d0b26d3918fbb95a73620c">
+          <serviceinfo code="running"/>
+          <entry name="_service" md5="79173416b7727f83e37313c3aa5c164e" size="213" mtime="1706702050"/>
         </directory>
-  recorded_at: Thu, 18 May 2023 11:49:39 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:10 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_one_file
@@ -174,12 +182,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '208'
+      - '241'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_one_file" rev="2" vrev="2" srcmd5="3ac4b29d09369cc0bd4c17dd6a5c7d4c">
-          <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1684410579"/>
+        <directory name="package_with_one_file" rev="2" vrev="2" srcmd5="d80a38d591d0b26d3918fbb95a73620c">
+          <serviceinfo code="running"/>
+          <entry name="_service" md5="79173416b7727f83e37313c3aa5c164e" size="213" mtime="1706702050"/>
         </directory>
-  recorded_at: Thu, 18 May 2023 11:49:39 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Wed, 31 Jan 2024 11:54:10 GMT
+recorded_with: VCR 6.2.0
