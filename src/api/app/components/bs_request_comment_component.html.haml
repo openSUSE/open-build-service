@@ -1,6 +1,7 @@
 .d-flex.mt-3.align-items-start
-  %i{ title: 'Comment', class: "fas fa-lg fa-comment #{ level > 1 ? 'd-none' : '' }" }
-  = render(AvatarComponent.new(name: comment.user.name, email: comment.user.email, size: 35, shape: :circle, custom_css: 'avatars-counter'))
+  - unless @nodecoration
+    %i{ title: 'Comment', class: "fas fa-lg fa-comment #{ level > 1 ? 'd-none' : '' }" }
+    = render(AvatarComponent.new(name: comment.user.name, email: comment.user.email, size: 35, shape: :circle, custom_css: 'avatars-counter'))
   .timeline-item-comment.ms-0.flex-fill.overflow-auto
     .comment-bubble.ms-3
       - if policy(comment).update? || policy(comment).destroy?
@@ -24,10 +25,10 @@
                             class: 'dropdown-item delete_link', title: 'Delete comment') do
                 Delete
       .px-3.py-2.border-bottom
-        = link_to(helpers.realname_with_login(comment.user), user_path(comment.user))
-        \-
-        = link_to("#comment-#{comment.id}", title: l(comment.created_at.utc), name: "comment-#{comment.id}") do
-          = render TimeComponent.new(time: comment.created_at)
+        - unless @nodecoration
+          = link_to(helpers.realname_with_login(comment.user), user_path(comment.user))
+          \-
+        = link_to_comment(comment)
         = render CommentHistoryComponent.new(comment)
       - if comment.diff_ref && diff
         - action = comment.commentable

@@ -34,4 +34,24 @@ module Webui::ReportablesHelper
       link_to("#{commentable.name}", Rails.application.routes.url_helpers.project_show_url(commentable, anchor: 'comments-list', only_path: false, host: host))
     end
   end
+
+  def commentable_path(comment:)
+    anchor = "comment-#{comment.id}"
+    case comment.commentable
+    when BsRequest
+      Rails.application.routes.url_helpers.request_show_path(comment.commentable.number,
+                                                             anchor: anchor)
+    when BsRequestAction
+      Rails.application.routes.url_helpers.request_show_path(number: comment.commentable.bs_request.number,
+                                                             request_action_id: comment.commentable.id,
+                                                             anchor: 'tab-pane-changes')
+    when Package
+      Rails.application.routes.url_helpers.package_show_path(package: comment.commentable,
+                                                             project: comment.commentable.project,
+                                                             anchor: anchor)
+    when Project
+      Rails.application.routes.url_helpers.project_show_path(comment.commentable,
+                                                             anchor: anchor)
+    end
+  end
 end
