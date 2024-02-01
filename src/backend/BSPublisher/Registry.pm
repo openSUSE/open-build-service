@@ -562,9 +562,7 @@ sub open_container_tar {
   } elsif (($containerinfo->{'type'} || '') eq 'helm') {
     ($tar, $mtime, $layer_compression) = BSContar::container_from_helm($file, $containerinfo->{'config_json'}, $containerinfo->{'tags'});
   } else {
-    my $tarfd;
-    open($tarfd, '<', $file) || die("$file: $!\n");
-    ($tar, $mtime, undef, undef, $layer_compression) = BSContar::normalize_container($tarfd, 1);
+    ($tar, $mtime, undef, undef, $layer_compression) = BSContar::normalize_container($file, 1);
   }
   die("incomplete containerinfo\n") unless $tar; 
   return ($tar, $mtime, $layer_compression);

@@ -302,12 +302,8 @@ sub checksum_tar {
 }
 
 sub normalize_container {
-  my ($tarfd, $recompress, $repotags, $tmpdir) = @_;
-  my @tarstat = stat($tarfd);
-  die("stat: $!\n") unless @tarstat;
-  my $mtime = $tarstat[9];
-  my $tar = BSTar::list($tarfd);
-  $_->{'file'} = $tarfd for @$tar;
+  my ($file, $recompress, $repotags, $tmpdir) = @_;
+  my ($tar, $mtime) = open_container_tar($file);
   my %tar = map {$_->{'name'} => $_} @$tar;
   my ($manifest_ent, $manifest, $layercomp) = get_manifest(\%tar);
   my ($config_ent, $config) = get_config(\%tar, $manifest);
@@ -412,6 +408,21 @@ sub create_dist_manifest_list {
   $json =~ s/!!!\d_//g;
   $json =~ s/\n$//s;
   return $json;
+}
+
+sub open_container_tar {
+  my ($file) = @_;
+  my $tarfd;
+  if (ref($file)) {
+    $tarfd = $file;
+  } else {
+    open($tarfd, '<', $file) || die("$file: $!\n");
+  }
+  my @s = stat($tarfd);
+  die("$file: $!\n") unless @s;
+  my $tar = BSTar::list($tarfd);
+  $_->{'file'} = $tarfd for @$tar;
+  return ($tar, $s[9]);
 }
 
 sub container_from_helm {

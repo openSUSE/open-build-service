@@ -318,17 +318,13 @@ sub open_container_tar {
   } elsif (($containerinfo->{'type'} || '') eq 'helm') {
     ($tar, $mtime, $layer_compression) = BSContar::container_from_helm($file, $containerinfo->{'config_json'}, $containerinfo->{'tags'});
   } elsif ($file =~ /\.tar$/) {
-    my $tarfd;
-    open($tarfd, '<', $file) || die("$file: $!\n");
-    $tar = BSTar::list($tarfd);
-    $_->{'file'} = $tarfd for @$tar;
+    ($tar, $mtime) = BSContar::open_container_tar($file);
   } else {
     my $tmpfile = decompress_container($file);
     my $tarfd;
     open($tarfd, '<', $tmpfile) || die("$tmpfile: $!\n");
     unlink($tmpfile);
-    $tar = BSTar::list($tarfd);
-    $_->{'file'} = $tarfd for @$tar;
+    ($tar, $mtime) = BSContar::open_container_tar($tarfd);
   }
   die("incomplete containerinfo\n") unless $tar;
   return ($tar, $mtime, $layer_compression);
