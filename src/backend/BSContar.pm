@@ -557,7 +557,7 @@ sub create_layer_data {
     $layer_data->{'annotations'}->{'io.github.containers.zstd-chunked.manifest-position'} = $c[1] if $c[1];
     $layer_data->{'annotations'}->{'io.github.containers.zstd-chunked.manifest-checksum'} = $c[2] if $c[2];
   }
-  return ($layer_ent, $layer_data);
+  return $layer_data;
 }
 
 sub create_dist_manifest_data {
