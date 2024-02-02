@@ -6,7 +6,7 @@ module Webui::CommentsHelper
 
     roles += roles_for_package(comment) if comment.commentable.is_a?(Package)
 
-    roles = roles_for_request(comment) if comment.commentable.is_a?(BsRequest)
+    roles += roles_for_request(comment) if comment.commentable.is_a?(BsRequest)
 
     roles.uniq
   end
