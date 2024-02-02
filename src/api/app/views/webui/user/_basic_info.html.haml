@@ -55,6 +55,11 @@
 
   - if Flipper.enabled?(:content_moderation, User.possibly_nobody)
     = render partial: 'webui/shared/report_modal'
+    - if User.possibly_nobody.is_admin? || User.possibly_nobody.is_moderator?
+      .mt-2
+        This user is currently #{user.blocked_from_commenting ? 'blocked' : 'unblocked'} from commenting.
+        = button_to(user.blocked_from_commenting ? 'Unblock' : 'Block', user_path(user), method: :put,
+          class: 'btn btn-outline-secondary', remote: true, params: { user: { blocked_from_commenting: !user.blocked_from_commenting } })
 
 :javascript
   $('#toggle-in-place-editing').on('click', function () {
