@@ -539,17 +539,20 @@ sub normalize_layer {
 }
 
 sub create_layer_data {
-  my ($layer_ent, $oci, $comp, $annotations) = @_;
-  my $lcomp = $comp;
-  $comp = 'zstd' if $comp && $comp =~ /^zstd:chunked/;
-  $comp = detect_entry_compression($layer_ent) unless defined $comp;
+  my ($layer_ent, $oci, $lcomp, $annotations) = @_;
+  my $mime_type = $layer_ent->{'mimetype'};
+  if (!$mime_type) {
+    my $comp = defined($lcomp) ? $lcomp : detect_entry_compression($layer_ent);
+    $comp = 'zstd' if $comp =~ /^zstd:chunked/;
+    $mime_type =  $oci ? ($comp eq 'zstd' ? $mt_oci_layer_zstd : $mt_oci_layer_gzip) : $mt_docker_layer_gzip,
+  }
   my $layer_data = {
-    'mediaType' => $layer_ent->{'mimetype'} || ($oci ? ($comp eq 'zstd' ? $mt_oci_layer_zstd : $mt_oci_layer_gzip) : $mt_docker_layer_gzip),
+    'mediaType' => $mime_type,
     'size' => 0 + $layer_ent->{'size'},
     'digest' => $layer_ent->{'blobid'} || blobid_entry($layer_ent),
   };
   $layer_data->{'annotations'} = { %{$layer_ent->{'annotations'} || {}}, %{$annotations || {}} } if $layer_ent->{'annotations'} || $annotations;
-  if ($comp eq 'zstd' && $lcomp && $lcomp =~ /^zstd:chunked/) {
+  if ($lcomp && $lcomp =~ /^zstd:chunked/) {
     my @c = split(',', $lcomp);
     $layer_data->{'annotations'}->{'io.github.containers.zstd-chunked.manifest-position'} = $c[1] if $c[1];
     $layer_data->{'annotations'}->{'io.github.containers.zstd-chunked.manifest-checksum'} = $c[2] if $c[2];
