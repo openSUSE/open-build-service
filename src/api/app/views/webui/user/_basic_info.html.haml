@@ -53,8 +53,8 @@
         %i.fas.fa-envelope.me-1
         = user.email
 
-- if Flipper.enabled?(:content_moderation, User.possibly_nobody)
-  = render partial: 'webui/shared/report_modal'
+  - if Flipper.enabled?(:content_moderation, User.possibly_nobody)
+    = render partial: 'webui/shared/report_modal'
 
 :javascript
   $('#toggle-in-place-editing').on('click', function () {
