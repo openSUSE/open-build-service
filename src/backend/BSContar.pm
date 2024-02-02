@@ -99,6 +99,8 @@ sub compress_entry {
   my $tmp;
   if (!defined($outfile)) {
     open($tmp, '+>', undef) || die("tmp file open: $!\n");
+  } elsif (ref($outfile)) {
+    $tmp = $outfile;
   } else {
     open($tmp, '+>', $outfile) || die("$outfile: $!\n");
   }
@@ -302,12 +304,8 @@ sub checksum_tar {
 }
 
 sub normalize_container {
-  my ($tarfd, $recompress, $repotags, $tmpdir) = @_;
-  my @tarstat = stat($tarfd);
-  die("stat: $!\n") unless @tarstat;
-  my $mtime = $tarstat[9];
-  my $tar = BSTar::list($tarfd);
-  $_->{'file'} = $tarfd for @$tar;
+  my ($file, $recompress, $repotags, $tmpdir) = @_;
+  my ($tar, $mtime) = open_container_tar($file);
   my %tar = map {$_->{'name'} => $_} @$tar;
   my ($manifest_ent, $manifest, $layercomp) = get_manifest(\%tar);
   my ($config_ent, $config) = get_config(\%tar, $manifest);
@@ -412,6 +410,21 @@ sub create_dist_manifest_list {
   $json =~ s/!!!\d_//g;
   $json =~ s/\n$//s;
   return $json;
+}
+
+sub open_container_tar {
+  my ($file) = @_;
+  my $tarfd;
+  if (ref($file)) {
+    $tarfd = $file;
+  } else {
+    open($tarfd, '<', $file) || die("$file: $!\n");
+  }
+  my @s = stat($tarfd);
+  die("$file: $!\n") unless @s;
+  my $tar = BSTar::list($tarfd);
+  $_->{'file'} = $tarfd for @$tar;
+  return ($tar, $s[9]);
 }
 
 sub container_from_helm {
@@ -528,22 +541,25 @@ sub normalize_layer {
 }
 
 sub create_layer_data {
-  my ($layer_ent, $oci, $comp, $annotations) = @_;
-  my $lcomp = $comp;
-  $comp = 'zstd' if $comp && $comp =~ /^zstd:chunked/;
-  $comp = detect_entry_compression($layer_ent) unless defined $comp;
+  my ($layer_ent, $oci, $lcomp, $annotations) = @_;
+  my $mime_type = $layer_ent->{'mimetype'};
+  if (!$mime_type) {
+    my $comp = defined($lcomp) ? $lcomp : detect_entry_compression($layer_ent);
+    $comp = 'zstd' if $comp =~ /^zstd:chunked/;
+    $mime_type =  $oci ? ($comp eq 'zstd' ? $mt_oci_layer_zstd : $mt_oci_layer_gzip) : $mt_docker_layer_gzip,
+  }
   my $layer_data = {
-    'mediaType' => $layer_ent->{'mimetype'} || ($oci ? ($comp eq 'zstd' ? $mt_oci_layer_zstd : $mt_oci_layer_gzip) : $mt_docker_layer_gzip),
+    'mediaType' => $mime_type,
     'size' => 0 + $layer_ent->{'size'},
     'digest' => $layer_ent->{'blobid'} || blobid_entry($layer_ent),
   };
   $layer_data->{'annotations'} = { %{$layer_ent->{'annotations'} || {}}, %{$annotations || {}} } if $layer_ent->{'annotations'} || $annotations;
-  if ($comp eq 'zstd' && $lcomp && $lcomp =~ /^zstd:chunked/) {
+  if ($lcomp && $lcomp =~ /^zstd:chunked/) {
     my @c = split(',', $lcomp);
     $layer_data->{'annotations'}->{'io.github.containers.zstd-chunked.manifest-position'} = $c[1] if $c[1];
     $layer_data->{'annotations'}->{'io.github.containers.zstd-chunked.manifest-checksum'} = $c[2] if $c[2];
   }
-  return ($layer_ent, $layer_data);
+  return $layer_data;
 }
 
 sub create_dist_manifest_data {
