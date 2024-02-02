@@ -24,12 +24,17 @@
                                     action: comment_path(comment) },
                             class: 'dropdown-item delete_link', title: 'Delete comment') do
                 Delete
-      .px-3.py-2.border-bottom
-        - unless @nodecoration
-          = link_to(helpers.realname_with_login(comment.user), user_path(comment.user))
-          \-
-        = link_to_comment(comment)
-        = render CommentHistoryComponent.new(comment)
+      .px-3.py-2.border-bottom.d-flex.flex-column.flex-lg-row.justify-content-between.align-items-start.gap-2
+        .d-inline-flex.justify-content-start
+          - unless @nodecoration
+            = link_to(helpers.realname_with_login(comment.user), user_path(comment.user))
+            \-
+          = link_to_comment(comment)
+          = render CommentHistoryComponent.new(comment)
+        .d-inline-flex.justify-content-end.gap-1
+          - helpers.comment_user_role_titles(comment).each do |title|
+            %span.badge.border.border-secondary.text-secondary.text-capitalize
+              = title
       - if comment.diff_ref && diff
         - action = comment.commentable
         .comment-diff
