@@ -562,7 +562,7 @@ sub open_container_tar {
   } elsif (($containerinfo->{'type'} || '') eq 'helm') {
     ($tar, $mtime, $layer_compression) = BSContar::container_from_helm($file, $containerinfo->{'config_json'}, $containerinfo->{'tags'});
   } else {
-    ($tar, $mtime, undef, undef, $layer_compression) = BSContar::normalize_container($file, 1);
+    ($tar, $mtime) = BSContar::open_container_tar($file);
   }
   die("incomplete containerinfo\n") unless $tar; 
   return ($tar, $mtime, $layer_compression);
@@ -686,7 +686,10 @@ sub push_containers {
 	}
 	my $layer_ent = $tar{$layer_file};
 	die("File $layer_file not included in tar\n") unless $layer_ent;
-	$lcomp = 'gzip' unless $oci && $lcomp && ($lcomp eq 'zstd' || $lcomp =~ /^zstd:/);
+	# normalize layer (but not if we reconstructed or we already have the mime type)
+	if (!$layer_ent->{'mimetype'} && $containerinfo->{'uploadfile'}) {
+	  ($layer_ent, $lcomp) = BSContar::normalize_layer($layer_ent, $oci, undef, undef, $lcomp);
+	}
 	my $layer_data = BSContar::create_layer_data($layer_ent, $oci, $lcomp);
 	push @layer_data, $layer_data;
 	$layer_datas{$layer_file} = $layer_data;
