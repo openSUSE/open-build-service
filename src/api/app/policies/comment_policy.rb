@@ -5,7 +5,8 @@ class CommentPolicy < ApplicationPolicy
 
   def create?
     return false if user.blank? || user.is_nobody?
-    return true if maintainer? || user.is_admin? || user.is_moderator? || user.is_staff?
+    return true if maintainer? || important_user?
+    return false if user.blocked_from_commenting
 
     !locked?
   end
@@ -74,5 +75,11 @@ class CommentPolicy < ApplicationPolicy
 
     # Don't display history for moderated and soft deleted comments
     !(record.moderated? || record.user.is_nobody?)
+  end
+
+  private
+
+  def important_user?
+    user.is_admin? || user.is_moderator? || user.is_staff?
   end
 end
