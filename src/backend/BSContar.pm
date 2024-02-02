@@ -99,6 +99,8 @@ sub compress_entry {
   my $tmp;
   if (!defined($outfile)) {
     open($tmp, '+>', undef) || die("tmp file open: $!\n");
+  } elsif (ref($outfile)) {
+    $tmp = $outfile;
   } else {
     open($tmp, '+>', $outfile) || die("$outfile: $!\n");
   }
