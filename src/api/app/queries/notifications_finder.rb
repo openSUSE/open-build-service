@@ -1,14 +1,13 @@
 class NotificationsFinder
+  EVENT_TYPES = ['Event::CreateReport', 'Event::ReportForRequest', 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForComment',
+                 'Event::ReportForUser', 'Event::ClearedDecision', 'Event::FavoredDecision', 'Event::AppealCreated'].freeze
+
   def initialize(relation = Notification.all)
     @relation = if Flipper.enabled?(:content_moderation, User.session)
                   relation.order(created_at: :desc)
                 else
                   # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-                  relation.where.not(event_type: ['Event::CreateReport', 'Event::ReportForRequest',
-                                                  'Event::ReportForProject', 'Event::ReportForPackage',
-                                                  'Event::ReportForComment', 'Event::ReportForUser',
-                                                  'Event::ClearedDecision', 'Event::FavoredDecision',
-                                                  'Event::AppealCreated']).order(created_at: :desc)
+                  relation.where.not(event_type: EVENT_TYPES).order(created_at: :desc)
                 end
   end
 
@@ -50,9 +49,7 @@ class NotificationsFinder
 
   def for_reports
     # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    @relation.where(event_type: ['Event::CreateReport', 'Event::ReportForProject', 'Event::ReportForPackage',
-                                 'Event::ReportForComment', 'Event::ReportForUser', 'Event::ReportForRequest',
-                                 'Event::ClearedDecision', 'Event::FavoredDecision', 'Event::AppealCreated'], delivered: false)
+    @relation.where(event_type: EVENT_TYPES, delivered: false)
   end
 
   def for_workflow_runs
