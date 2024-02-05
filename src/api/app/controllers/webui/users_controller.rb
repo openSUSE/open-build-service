@@ -68,7 +68,9 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def update
-    if !User.admin_session? && (User.session! != @displayed_user || !@configuration.accounts_editable?(@displayed_user))
+    if !User.admin_session? &&
+       (User.session! != @displayed_user || !@configuration.accounts_editable?(@displayed_user)) &&
+       !(User.session.is_moderator? && params[:user][:blocked_from_commenting].present?)
       flash[:error] = "Can't edit #{@displayed_user.login}"
       redirect_back(fallback_location: root_path)
       return
@@ -182,7 +184,7 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def assign_common_user_attributes
-    @displayed_user.assign_attributes(params[:user].slice(:biography, :color_theme).permit!)
+    @displayed_user.assign_attributes(params[:user].slice(:biography, :blocked_from_commenting, :color_theme).permit!)
     @displayed_user.assign_attributes(params[:user].slice(:realname, :email).permit!) unless @account_edit_link
     @displayed_user.toggle(:in_beta) if params[:user][:in_beta]
   end
