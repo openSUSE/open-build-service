@@ -149,7 +149,7 @@ GEM
     delayed_job_active_record (4.1.8)
       activerecord (>= 3.0, < 8.0)
       delayed_job (>= 3.0, < 5)
-    diff-lcs (1.5.0)
+    diff-lcs (1.5.1)
     docile (1.4.0)
     down (5.4.1)
       addressable (~> 2.8)
