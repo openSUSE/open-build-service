@@ -1,7 +1,6 @@
 .d-flex.mt-3.align-items-start
-  - unless @nodecoration
-    %i{ title: 'Comment', class: "fas fa-lg fa-comment #{ level > 1 ? 'd-none' : '' }" }
-    = render(AvatarComponent.new(name: comment.user.name, email: comment.user.email, size: 35, shape: :circle, custom_css: 'avatars-counter'))
+  %i{ title: 'Comment', class: "fas fa-lg fa-comment #{ level > 1 ? 'd-none' : '' }" }
+  = render(AvatarComponent.new(name: comment.user.name, email: comment.user.email, size: 35, shape: :circle, custom_css: 'avatars-counter'))
   .timeline-item-comment.ms-0.flex-fill.overflow-auto
     .comment-bubble.ms-3
       - if policy(comment).update? || policy(comment).destroy?
@@ -26,10 +25,10 @@
                 Delete
       .px-3.py-2.border-bottom.d-flex.flex-column.flex-lg-row.justify-content-between.align-items-start.gap-2
         .d-inline-flex.justify-content-start
-          - unless @nodecoration
-            = link_to(helpers.realname_with_login(comment.user), user_path(comment.user))
-            \-
-          = link_to_comment(comment)
+          = link_to(helpers.realname_with_login(comment.user), user_path(comment.user))
+          \-
+          = link_to("#comment-#{comment.id}", title: l(comment.created_at.utc), name: "comment-#{comment.id}") do
+            = render TimeComponent.new(time: comment.created_at)
           = render CommentHistoryComponent.new(comment)
         .d-inline-flex.justify-content-end.gap-1
           - helpers.comment_user_role_titles(comment).each do |title|
