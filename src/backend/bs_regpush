@@ -468,13 +468,17 @@ sub construct_container_tar {
   my $mtime = $containerinfo->{'tar_mtime'};
   my $blobids = $containerinfo->{'tar_blobids'};
   die("containerinfo is incomplete\n") unless $mtime && $manifest && $blobids;
+  my @comp = @{$containerinfo->{'tar_blobcompression'} || []};
   my @tar;
   for my $blobid (@$blobids) {
     my $fd;
     open($fd, '<', "$blobdir/_blob.$blobid") || die("$blobdir/_blob.$blobid: $!\n");
     push @tar, {'name' => $blobid, 'file' => $fd, 'mtime' => $mtime, 'offset' => 0, 'size' => (-s $fd)};
+    my $comp = shift @comp;
+    $tar[-1]->{'layer_compression'} = $comp if defined $comp;
   }
   push @tar, {'name' => 'manifest.json', 'data' => $manifest, 'mtime' => $mtime, 'size' => length($manifest)};
+  BSContar::set_layer_compression(\@tar, $containerinfo->{'layer_compression'}) if !$containerinfo->{'tar_blobcompression'} && $containerinfo->{'layer_compression'};
   return (\@tar, $mtime);
 }
 
@@ -765,9 +769,7 @@ for my $tarfile (@tarfiles) {
   # process layers (compress if necessary)
   my %layer_datas;
   my @layer_data;
-  my @layer_comp = @{($containerinfo || {})->{'layer_compression'} || []};
   for my $layer_file (@layers) {
-    my $lcomp = shift @layer_comp;
     if ($layer_datas{$layer_file}) {
       # already did that file, just reuse old layer data
       push @layer_data, $layer_datas{$layer_file};
@@ -776,9 +778,9 @@ for my $tarfile (@tarfiles) {
     my $layer_ent = $tar{$layer_file};
     die("File $layer_file not included in tar\n") unless $layer_ent;
     # normalize layer
-    ($layer_ent, $lcomp) = BSContar::normalize_layer($layer_ent, $oci, undef, undef, $lcomp);
+    $layer_ent = BSContar::normalize_layer($layer_ent, $oci);
     # create layer data
-    my $layer_data = BSContar::create_layer_data($layer_ent, $oci, $lcomp);
+    my $layer_data = BSContar::create_layer_data($layer_ent, $oci);
     push @layer_data, $layer_data;
     $layer_datas{$layer_file} = $layer_data;
 

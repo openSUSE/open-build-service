@@ -550,22 +550,22 @@ sub create_manifestinfo {
 
 sub open_container_tar {
   my ($containerinfo, $file) = @_;
-  my ($tar, $mtime, $layer_compression);
+  my ($tar, $mtime);
   if (($containerinfo->{'type'} || '') eq 'artifacthub') {
-    ($tar, $mtime, $layer_compression) = BSContar::container_from_artifacthub($containerinfo->{'artifacthubdata'});
+    ($tar, $mtime) = BSContar::container_from_artifacthub($containerinfo->{'artifacthubdata'});
   } elsif (!defined($file)) {
-    ($tar, $mtime, $layer_compression) = BSPublisher::Containerinfo::construct_container_tar($containerinfo, 1);
+    ($tar, $mtime) = BSPublisher::Containerinfo::construct_container_tar($containerinfo, 1);
     # set blobfile in entries so we can create a link in push_blob
     for (@$tar) {
       $_->{'blobfile'} = "$containerinfo->{'blobdir'}/_blob.$_->{'blobid'}" if $_->{'blobid'};
     }
   } elsif (($containerinfo->{'type'} || '') eq 'helm') {
-    ($tar, $mtime, $layer_compression) = BSContar::container_from_helm($file, $containerinfo->{'config_json'}, $containerinfo->{'tags'});
+    ($tar, $mtime) = BSContar::container_from_helm($file, $containerinfo->{'config_json'}, $containerinfo->{'tags'});
   } else {
     ($tar, $mtime) = BSContar::open_container_tar($file);
   }
   die("incomplete containerinfo\n") unless $tar; 
-  return ($tar, $mtime, $layer_compression);
+  return ($tar, $mtime);
 }
 
 sub push_containers {
@@ -641,7 +641,7 @@ sub push_containers {
 	next;
       }
 
-      my ($tar, $mtime, $layer_compression) = open_container_tar($containerinfo, $containerinfo->{'uploadfile'});
+      my ($tar, $mtime) = open_container_tar($containerinfo, $containerinfo->{'uploadfile'});
       my %tar = map {$_->{'name'} => $_} @$tar;
 
       my ($manifest_ent, $manifest) = BSContar::get_manifest(\%tar);
@@ -676,9 +676,7 @@ sub push_containers {
       # put layer blobs into repo
       my %layer_datas;
       my @layer_data;
-      my @layer_comp = @{$layer_compression || []};
       for my $layer_file (@layers) {
-	my $lcomp = shift @layer_comp;
 	if ($layer_datas{$layer_file}) {
 	  # already did that file, just reuse old layer data
 	  push @layer_data, $layer_datas{$layer_file};
@@ -688,9 +686,9 @@ sub push_containers {
 	die("File $layer_file not included in tar\n") unless $layer_ent;
 	# normalize layer (but not if we reconstructed or we already have the mime type)
 	if (!$layer_ent->{'mimetype'} && $containerinfo->{'uploadfile'}) {
-	  ($layer_ent, $lcomp) = BSContar::normalize_layer($layer_ent, $oci, undef, undef, $lcomp);
+	  $layer_ent = BSContar::normalize_layer($layer_ent, $oci);
 	}
-	my $layer_data = BSContar::create_layer_data($layer_ent, $oci, $lcomp);
+	my $layer_data = BSContar::create_layer_data($layer_ent, $oci);
 	push @layer_data, $layer_data;
 	$layer_datas{$layer_file} = $layer_data;
 

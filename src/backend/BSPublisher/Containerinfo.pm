@@ -33,6 +33,7 @@ sub construct_container_tar {
   my $mtime = $containerinfo->{'tar_mtime'};
   my $blobids = $containerinfo->{'tar_blobids'};
   die("containerinfo is incomplete\n") unless $mtime && $manifest && $blobids;
+  my @comp = @{$containerinfo->{'tar_blobcompression'} || []};
   my @tar;
   for my $blobid (@$blobids) {
     my $file = "$blobdir/_blob.$blobid";
@@ -43,9 +44,12 @@ sub construct_container_tar {
     }
     die("missing blobid $blobid\n") unless -e $file;
     push @tar, {'name' => $blobid, 'file' => $file, 'mtime' => $mtime, 'offset' => 0, 'size' => (-s _), 'blobid' => $blobid};
+    my $comp = shift @comp;
+    $tar[-1]->{'layer_compression'} = $comp if defined $comp;
   }
   push @tar, {'name' => 'manifest.json', 'data' => $manifest, 'mtime' => $mtime, 'size' => length($manifest)};
-  return (\@tar, $mtime, $containerinfo->{'layer_compression'});
+  BSContar::set_layer_compression(\@tar, $containerinfo->{'layer_compression'}) if !$containerinfo->{'tar_blobcompression'} && $containerinfo->{'layer_compression'};
+  return (\@tar, $mtime);
 }
 
 sub nevra {

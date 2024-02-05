@@ -310,13 +310,13 @@ sub reconstruct_container {
 
 sub open_container_tar {
   my ($containerinfo, $file) = @_;
-  my ($tar, $mtime, $layer_compression);
+  my ($tar, $mtime);
   if (($containerinfo->{'type'} || '') eq 'artifacthub') {
-    ($tar, $mtime, $layer_compression) = BSContar::container_from_artifacthub($containerinfo->{'artifacthubdata'});
+    ($tar, $mtime) = BSContar::container_from_artifacthub($containerinfo->{'artifacthubdata'});
   } elsif (!defined($file)) {
-    ($tar, $mtime, $layer_compression) = BSPublisher::Containerinfo::construct_container_tar($containerinfo, 1);
+    ($tar, $mtime) = BSPublisher::Containerinfo::construct_container_tar($containerinfo, 1);
   } elsif (($containerinfo->{'type'} || '') eq 'helm') {
-    ($tar, $mtime, $layer_compression) = BSContar::container_from_helm($file, $containerinfo->{'config_json'}, $containerinfo->{'tags'});
+    ($tar, $mtime) = BSContar::container_from_helm($file, $containerinfo->{'config_json'}, $containerinfo->{'tags'});
   } elsif ($file =~ /\.tar$/) {
     ($tar, $mtime) = BSContar::open_container_tar($file);
   } else {
@@ -327,12 +327,12 @@ sub open_container_tar {
     ($tar, $mtime) = BSContar::open_container_tar($tarfd);
   }
   die("incomplete containerinfo\n") unless $tar;
-  return ($tar, $mtime, $layer_compression);
+  return ($tar, $mtime);
 }
 
 sub create_container_dist_info {
   my ($containerinfo, $oci, $platforms) = @_;
-  my ($tar, $mtime, $layer_compression) = open_container_tar($containerinfo, $containerinfo->{'publishfile'});
+  my ($tar, $mtime) = open_container_tar($containerinfo, $containerinfo->{'publishfile'});
   my %tar = map {$_->{'name'} => $_} @$tar;
   my ($manifest_ent, $manifest) = BSContar::get_manifest(\%tar);
   my ($config_ent, $config) = BSContar::get_config(\%tar, $manifest);
@@ -351,13 +351,11 @@ sub create_container_dist_info {
   my $config_data = BSContar::create_config_data($config_ent, $oci);
   my @layer_data;
   die("container has no layers\n") unless @{$manifest->{'Layers'} || []};
-  my @layer_comp = @{$layer_compression || []};
   for my $layer_file (@{$manifest->{'Layers'}}) {
     my $layer_ent = $tar{$layer_file};
     die("file $layer_file not included in tar\n") unless $layer_ent;
-    my $lcomp = shift @layer_comp;
-    ($layer_ent, $lcomp) = BSContar::normalize_layer($layer_ent, $oci, $lcomp);
-    my $layer_data = BSContar::create_layer_data($layer_ent, $oci, $lcomp);
+    $layer_ent = BSContar::normalize_layer($layer_ent, $oci);
+    my $layer_data = BSContar::create_layer_data($layer_ent, $oci);
     push @layer_data, $layer_data;
   }
   my $mani = BSContar::create_dist_manifest_data($config_data, \@layer_data, $oci);

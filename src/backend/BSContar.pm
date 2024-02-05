@@ -155,7 +155,7 @@ sub compress_entry {
   }
   close(G) or die("compress_entry $decompressor[0]: $?\n") if $pid2;
   close(F) or die("compress_entry $compressor[0]: $?\n");
-  my $newent = { %$ent, 'offset' => 0, 'size' => (-s $tmp), 'file' => $tmp };
+  my $newent = { %$ent, 'offset' => 0, 'size' => (-s $tmp), 'file' => $tmp, 'layer_compression' => $newcomp };
   delete $newent->{'blobid'};
   return $newent;
 }
@@ -231,19 +231,20 @@ sub get_manifest_oci_tar {
   my @newlayers;
   my @newlayercomp;
   for my $l (@{$distmanifest->{'layers'} || []}) {
-    push @newlayers, get_digest_file_from_oci_tar($tar, $l->{'digest'});
+    my $layerfile = get_digest_file_from_oci_tar($tar, $l->{'digest'});
+    push @newlayers, $layerfile;
+    my $comp;
     if (($l->{'mediaType'} || '') eq $mt_oci_layer_zstd) {
-      push @newlayercomp, 'zstd';
+      $comp = 'zstd';
       my $ann = $l->{'annotations'};
       if ($ann->{'io.github.containers.zstd-chunked.manifest-position'}) {
-	$newlayercomp[-1] = "zstd:chunked,$ann->{'io.github.containers.zstd-chunked.manifest-position'}";
-	$newlayercomp[-1] .= ",$ann->{'io.github.containers.zstd-chunked.manifest-checksum'}" if $ann->{'io.github.containers.zstd-chunked.manifest-checksum'};
+	$comp = "zstd:chunked,$ann->{'io.github.containers.zstd-chunked.manifest-position'}";
+	$comp .= ",$ann->{'io.github.containers.zstd-chunked.manifest-checksum'}" if $ann->{'io.github.containers.zstd-chunked.manifest-checksum'};
       }
     } elsif (($l->{'mediaType'} || '') eq $mt_oci_layer_gzip) {
-      push @newlayercomp, 'gzip';
-    } else {
-      push @newlayercomp, undef;
+      $comp = 'gzip';
     }
+    $tar->{$layerfile}->{'layer_compression'} = $comp;
   }
   my $manifest = {
     'Config' => $configfile,
@@ -251,7 +252,7 @@ sub get_manifest_oci_tar {
     'Layers' => \@newlayers,
   };
   my $manifest_ent = create_manifest_entry($manifest);
-  return ($manifest_ent, $manifest, \@newlayercomp);
+  return ($manifest_ent, $manifest);
 }
 
 sub get_manifest {
@@ -303,31 +304,44 @@ sub checksum_tar {
   return ($md5, $sha256, $size);
 }
 
+sub set_layer_compression {
+  my ($tar, $layer_compression) = @_;
+  my @lcomp = @{$layer_compression || []};
+  return unless @lcomp;
+  my %tar = map {$_->{'name'} => $_} @$tar;
+  my ($manifest_ent, $manifest) = get_manifest(\%tar);
+  for my $layer_file (@{$manifest->{'Layers'} || []}) {
+    my $layer_ent = $tar{$layer_file};
+    die("File $layer_file not included in tar\n") unless $layer_ent;
+    my $lcomp = shift @lcomp;
+    $layer_ent->{'layer_compression'} = $lcomp if defined $lcomp;
+  }
+}
+
 sub normalize_container {
   my ($file, $recompress, $repotags, $tmpdir) = @_;
   my ($tar, $mtime) = open_container_tar($file);
   my %tar = map {$_->{'name'} => $_} @$tar;
-  my ($manifest_ent, $manifest, $layercomp) = get_manifest(\%tar);
+  my ($manifest_ent, $manifest) = get_manifest(\%tar);
   my ($config_ent, $config) = get_config(\%tar, $manifest);
 
   # compress blobs
   my %newblobs;
   my @newlayers;
   my @newlayercomp;
+  my @newblobcomp;
   my $newconfig = blobid_entry($config_ent);
   $newblobs{$newconfig} ||= { %$config_ent, 'name' => $newconfig };
   my $cnt = 0;
-  my @layercomp = @{$layercomp || []};
   for my $layer_file (@{$manifest->{'Layers'} || []}) {
     my $layer_ent = $tar{$layer_file};
     die("File $layer_file not included in tar\n") unless $layer_ent;
-    my $lcomp = shift @layercomp;
-    my $comp = detect_entry_compression($layer_ent);
-    if ($comp eq 'zstd' && $lcomp && ($lcomp eq 'zstd' || $lcomp =~ /^zstd:chunked,/)) {
+    my $comp = defined($layer_ent->{'layer_compression'}) ? $layer_ent->{'layer_compression'} : detect_entry_compression($layer_ent);
+    if ($comp && ($comp eq 'zstd' || $comp =~ /^zstd:chunked,/)) {
       my $blobid = blobid_entry($layer_ent);
       $newblobs{$blobid} ||= { %$layer_ent, 'name' => $blobid };
       push @newlayers, $blobid;
-      push @newlayercomp, $lcomp;
+      push @newlayercomp, $comp;
       next;
     }
     my $newcomp = 'gzip';
@@ -348,7 +362,7 @@ sub normalize_container {
       unlink($outfile) if $outfile;
     }
     my $blobid = blobid_entry($layer_ent);
-    $newblobs{$blobid} ||= { %$layer_ent, 'name' => $blobid };
+    $newblobs{$blobid} ||= { %$layer_ent, 'name' => $blobid, 'layer_compression' => $newcomp };
     push @newlayers, $blobid;
     push @newlayercomp, $newcomp;
   }
@@ -365,7 +379,7 @@ sub normalize_container {
   my @newtar;
   for my $blobid (sort keys %newblobs) {
     my $ent = $newblobs{$blobid};
-    push @newtar, {'name' => $blobid, 'mtime' => $mtime, 'offset' => $ent->{'offset'}, 'size' => $ent->{'size'}, 'file' => $ent->{'file'}, 'blobid' => $blobid};
+    push @newtar, {'name' => $blobid, 'mtime' => $mtime, 'offset' => $ent->{'offset'}, 'size' => $ent->{'size'}, 'file' => $ent->{'file'}, 'blobid' => $blobid, 'layer_compression' => $ent->{'layer_compression'}};
   }
   $newmanifest_ent->{'blobid'} = blobid_entry($newmanifest_ent);
   push @newtar, $newmanifest_ent;
@@ -438,13 +452,12 @@ sub container_from_helm {
   my $chartbasename = $chartfile;
   $chartbasename =~ s/^.*\///;
   my $chart_ent = { 'name' => $chartbasename, 'offset' => 0, 'size' => $s[7], 'mtime' => $mtime, 'file' => $fd };
-  my @layercomp;
   if ($chartbasename =~ /($?:\.tar\.gz|\.tgz)$/) {
     $chart_ent->{'mimetype'} = 'application/vnd.cncf.helm.chart.content.v1.tar+gzip';
-    push @layercomp, 'gzip';
+    $chart_ent->{'layer_compression'} = 'gzip';
   } else {
     $chart_ent->{'mimetype'} = 'application/vnd.cncf.helm.chart.content.v1.tar';
-    push @layercomp, '';
+    $chart_ent->{'layer_compression'} = '';
   }
   # create ent for the config
   my ($config_ent) = make_blob_entry('config.json', $config_json, 'mtime' => $mtime, 'mimetype' => $mt_helm_config);
@@ -456,7 +469,7 @@ sub container_from_helm {
   };
   my $manifest_ent = create_manifest_entry($manifest, $mtime);
   my $tar = [ $manifest_ent, $config_ent, $chart_ent ];
-  return ($tar, $mtime, \@layercomp);
+  return ($tar, $mtime)
 }
 
 sub unparse_yaml_string {
@@ -498,7 +511,7 @@ sub container_from_artifacthub {
   my ($artifacthubdata, $mtime) = @_;
   my $artifacthub_yaml = create_artifacthub_yaml($artifacthubdata);
   my $config_ent = { 'name' => 'config.yaml', 'mtime' => $mtime, 'data' => '', 'size' => 0, 'mimetype' => $mt_artifacthub_config };
-  my $layer_ent = { 'name' => 'artifacthub-repo.yml', 'mtime' => $mtime, 'data' => $artifacthub_yaml, 'size' => length($artifacthub_yaml), 'mimetype' => $mt_artifacthub_layer };
+  my $layer_ent = { 'name' => 'artifacthub-repo.yml', 'mtime' => $mtime, 'data' => $artifacthub_yaml, 'size' => length($artifacthub_yaml), 'mimetype' => $mt_artifacthub_layer, 'layer_compression' => '' };
   $layer_ent->{'annotations'}->{'org.opencontainers.image.title'} = 'artifacthub-repo.yml';
   my $manifest = {
     'Layers' => [ 'artifacthub-repo.yml' ],
@@ -507,7 +520,7 @@ sub container_from_artifacthub {
   };
   my $manifest_ent = create_manifest_entry($manifest, $mtime);
   my $tar = [ $manifest_ent, $config_ent, $layer_ent ];
-  return ($tar, $mtime, [ '' ]);
+  return ($tar, $mtime);
 }
 
 sub create_config_data {
@@ -521,13 +534,13 @@ sub create_config_data {
 }
 
 sub normalize_layer {
-  my ($layer_ent, $oci, $comp, $newcomp, $lcomp) = @_;
-  $lcomp = $comp unless defined $lcomp;
-  $comp = 'zstd' if $comp && $comp =~ /^zstd:chunked/;
+  my ($layer_ent, $oci, $comp, $newcomp) = @_;
+  $comp = $layer_ent->{'layer_compression'} unless defined $comp;
   $comp = detect_entry_compression($layer_ent) unless defined $comp;
-  $newcomp ||= $oci && $comp eq 'zstd' ? 'zstd' : 'gzip';
-  return ($layer_ent, $lcomp) if $newcomp eq 'zstd' && $comp eq $newcomp && $lcomp && $lcomp =~ /^zstd:chunked/;
-  return ($layer_ent, $comp) if $layer_ent->{'mimetype'};		# do not change the compression if the mime type is already set
+  $layer_ent->{'layer_compression'} = $comp;
+  $newcomp ||= $oci && ($comp eq 'zstd' || $comp =~ /^zstd:chunked/) ? 'zstd' : 'gzip';
+  return $layer_ent if $newcomp eq 'zstd' && $comp =~ /^zstd:chunked/;
+  return $layer_ent if $layer_ent->{'mimetype'};
   if ($comp ne $newcomp) {
     if ($comp) {
       print "recompressing $layer_ent->{'name'}... ";
@@ -537,14 +550,14 @@ sub normalize_layer {
     $layer_ent = compress_entry($layer_ent, $comp, $newcomp);
     print "done.\n";
   }
-  return ($layer_ent, $newcomp);
+  return $layer_ent;
 }
 
 sub create_layer_data {
-  my ($layer_ent, $oci, $lcomp, $annotations) = @_;
+  my ($layer_ent, $oci, $annotations) = @_;
   my $mime_type = $layer_ent->{'mimetype'};
   if (!$mime_type) {
-    my $comp = defined($lcomp) ? $lcomp : detect_entry_compression($layer_ent);
+    my $comp = defined($layer_ent->{'layer_compression'}) ? $layer_ent->{'layer_compression'} : detect_entry_compression($layer_ent);
     $comp = 'zstd' if $comp =~ /^zstd:chunked/;
     $mime_type =  $oci ? ($comp eq 'zstd' ? $mt_oci_layer_zstd : $mt_oci_layer_gzip) : $mt_docker_layer_gzip,
   }
@@ -554,8 +567,8 @@ sub create_layer_data {
     'digest' => $layer_ent->{'blobid'} || blobid_entry($layer_ent),
   };
   $layer_data->{'annotations'} = { %{$layer_ent->{'annotations'} || {}}, %{$annotations || {}} } if $layer_ent->{'annotations'} || $annotations;
-  if ($lcomp && $lcomp =~ /^zstd:chunked/) {
-    my @c = split(',', $lcomp);
+  if ($layer_ent->{'layer_compression'} && $layer_ent->{'layer_compression'} =~ /^zstd:chunked/) {
+    my @c = split(',', $layer_ent->{'layer_compression'});
     $layer_data->{'annotations'}->{'io.github.containers.zstd-chunked.manifest-position'} = $c[1] if $c[1];
     $layer_data->{'annotations'}->{'io.github.containers.zstd-chunked.manifest-checksum'} = $c[2] if $c[2];
   }
