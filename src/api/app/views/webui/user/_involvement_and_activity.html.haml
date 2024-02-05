@@ -15,12 +15,6 @@
           = link_to('#activity', id: 'activity-tab', class: 'nav-link text-nowrap',
                     data: { 'bs-toggle': 'tab' }, role: 'tab', aria: { controls: 'activity', selected: false }) do
             Contributions
-        - if Flipper.enabled?(:content_moderation, User.session)
-          - if policy(Report.new(reportable: displayed_user)).create?
-            %li.nav-item
-              = link_to('#comments', id: 'comments-tab', class: 'nav-link text-nowrap',
-                        data: { 'bs-toggle': 'tab' }, role: 'tab', aria: { controls: 'comments', selected: false }) do
-                Comments
 
   .card-body.p-0#involvement-and-activity
     = render partial: 'webui/user/involvement', locals: { involved_items_service: involved_items_service }
@@ -37,10 +31,6 @@
                                                              user: displayed_user,
                                                              date: date,
                                                              activities_per_day: activities_per_day }
-    - if Flipper.enabled?(:content_moderation, User.session)
-      - if policy(Report.new(reportable: displayed_user)).create?
-        .tab-pane.fade#comments{ role: 'tabpanel', aria: { labelledby: 'comments-tab' } }
-          = render partial: 'webui/user/comments', locals: { comments: comments }
 
 - content_for :ready_function do
   :plain
