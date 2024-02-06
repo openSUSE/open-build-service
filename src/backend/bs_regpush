@@ -468,40 +468,56 @@ sub construct_container_tar {
   my $mtime = $containerinfo->{'tar_mtime'};
   my $blobids = $containerinfo->{'tar_blobids'};
   die("containerinfo is incomplete\n") unless $mtime && $manifest && $blobids;
+  my @comp = @{$containerinfo->{'tar_blobcompression'} || []};
   my @tar;
   for my $blobid (@$blobids) {
     my $fd;
     open($fd, '<', "$blobdir/_blob.$blobid") || die("$blobdir/_blob.$blobid: $!\n");
     push @tar, {'name' => $blobid, 'file' => $fd, 'mtime' => $mtime, 'offset' => 0, 'size' => (-s $fd)};
+    my $comp = shift @comp;
+    $tar[-1]->{'layer_compression'} = $comp if defined $comp;
   }
   push @tar, {'name' => 'manifest.json', 'data' => $manifest, 'mtime' => $mtime, 'size' => length($manifest)};
+  BSContar::set_layer_compression(\@tar, $containerinfo->{'layer_compression'}) if !$containerinfo->{'tar_blobcompression'} && $containerinfo->{'layer_compression'};
   return (\@tar, $mtime);
 }
 
-sub open_tarfile {
+sub get_containerinfo {
   my ($tarfile) = @_;
-
-  my ($tar, $tarfd, $containerinfo);
+  my $containerinfo;
   if ($tarfile =~ /^artifacthub:(.+)/) {
     $containerinfo = { 'type' => 'artifacthub', 'artifacthubdata' => $1 };
-    ($tar) = BSContar::container_from_artifacthub($containerinfo->{'artifacthubdata'});
-  } elsif ($tarfile =~ /\.containerinfo$/) {
-    my $containerinfo_json = readstr($tarfile);
-    $containerinfo = JSON::XS::decode_json($containerinfo_json);
-    ($tar) = construct_container_tar($containerinfo);
   } elsif ($tarfile =~ /\.helminfo$/) {
     my $chart = $tarfile;
     $chart =~ s/\.helminfo$/.tgz/;
     die("$chart: $!\n") unless -e $chart;
     my $helminfo_json = readstr($tarfile);
     my $helminfo = JSON::XS::decode_json($helminfo_json);
-    ($tar) = BSContar::container_from_helm($chart, $helminfo->{'config_json'}, $helminfo->{'tags'});
+    $containerinfo = { 'type' => 'helm', 'filename' => $chart, 'config_json' => $helminfo->{'config_json'}, 'tags' => $helminfo->{'tags'} };
+  } elsif ($tarfile =~ /\.containerinfo$/) {
+    my $containerinfo_json = readstr($tarfile);
+    $containerinfo = JSON::XS::decode_json($containerinfo_json);
+    delete $containerinfo->{'filename'};	# just in case
   } else {
-    open($tarfd, '<', $tarfile) || die("$tarfile: $!\n");
-    $tar = BSTar::list($tarfd);
-    $_->{'file'} = $tarfd for @$tar;
+    $containerinfo = { 'filename' => $tarfile };
   }
-  return ($tar, $tarfd, $containerinfo);
+  return $containerinfo;
+}
+
+sub open_container_tar {
+  my ($containerinfo, $file) = @_;
+  my ($tar, $mtime);
+  if (($containerinfo->{'type'} || '') eq 'artifacthub') {
+    ($tar, $mtime) = BSContar::container_from_artifacthub($containerinfo->{'artifacthubdata'});
+  } elsif (!defined($file)) {
+    ($tar, $mtime) = construct_container_tar($containerinfo);
+  } elsif (($containerinfo->{'type'} || '') eq 'helm') {
+    ($tar, $mtime) = BSContar::container_from_helm($file, $containerinfo->{'config_json'}, $containerinfo->{'tags'});
+  } else {
+    ($tar, $mtime) = BSContar::open_container_tar($file);
+  }
+  die("incomplete containerinfo\n") unless $tar;
+  return ($tar, $mtime);
 }
 
 sub die_with_usage {
@@ -616,6 +632,11 @@ if ($list_mode) {
       my $config = blob_fetch($mani->{'config'}->{'digest'});
       $config = JSON::XS->new->utf8->canonical->pretty->encode(JSON::XS::decode_json($config)) if $ARGV[3] eq 'config';
       print $config;
+    } elsif ($ARGV[3] =~ /^layer(\d+)$/) {
+      my ($mani) = get_manifest_for_tag($ARGV[2]);
+      die("no such layer\n") unless $mani->{'layers'}->[$1];
+      my $data = blob_fetch($mani->{'layers'}->[$1]->{'digest'});
+      print $data;
     } else {
       blob_download($ARGV[2], $ARGV[3]);
     }
@@ -670,7 +691,8 @@ if ($use_image_tags && @tarfiles > 1) {
   # make sure all tar files contain the same tags
   my $imagetags;
   for my $tarfile (@tarfiles) {
-    my ($tar, $tarfd) = open_tarfile($tarfile);
+    my $containerinfo = get_containerinfo($tarfile);
+    my ($tar) = open_container_tar($containerinfo, $containerinfo->{'filename'});
     my %tar = map {$_->{'name'} => $_} @$tar;
     my ($manifest_ent, $manifest) = BSContar::get_manifest(\%tar);
     my @imagetags = @{$manifest->{'RepoTags'} || []};
@@ -681,7 +703,6 @@ if ($use_image_tags && @tarfiles > 1) {
       $imagetags = $it;
       push @tags, @imagetags;
     }
-    close $tarfd if $tarfd;
   }
   $use_image_tags = 0;
 }
@@ -694,7 +715,8 @@ my @multimanifests;
 my %multiplatforms;
 my @imginfos;
 for my $tarfile (@tarfiles) {
-  my ($tar, $tarfd, $containerinfo) = open_tarfile($tarfile);
+  my $containerinfo = get_containerinfo($tarfile);
+  my ($tar) = open_container_tar($containerinfo, $containerinfo->{'filename'});
   my %tar = map {$_->{'name'} => $_} @$tar;
 
   my $provenance;
@@ -739,16 +761,13 @@ for my $tarfile (@tarfiles) {
 
   my $goarch = $config->{'architecture'} || 'any';
   my $goos = $config->{'os'} || 'any';
-  my $govariant;
-  $govariant = $containerinfo->{'govariant'} if $containerinfo && $containerinfo->{'govariant'};
-  $govariant = $config->{'variant'} if $config->{'variant'};
+  my $govariant = $config->{'variant'} || $containerinfo->{'govariant'} || undef;
   if ($multiarch) {
     # see if a already have this arch/os combination
     my $platformstr = "architecture:$goarch os:$goos";
     $platformstr .= " variant:$govariant" if $govariant;
     if ($multiplatforms{$platformstr}) {
       print "ignoring $tarfile, already have $platformstr\n";
-      close $tarfd if $tarfd;
       next;
     }
     $multiplatforms{$platformstr} = 1;
@@ -765,9 +784,7 @@ for my $tarfile (@tarfiles) {
   # process layers (compress if necessary)
   my %layer_datas;
   my @layer_data;
-  my @layer_comp = @{($containerinfo || {})->{'layer_compression'} || []};
   for my $layer_file (@layers) {
-    my $lcomp = shift @layer_comp;
     if ($layer_datas{$layer_file}) {
       # already did that file, just reuse old layer data
       push @layer_data, $layer_datas{$layer_file};
@@ -776,16 +793,15 @@ for my $tarfile (@tarfiles) {
     my $layer_ent = $tar{$layer_file};
     die("File $layer_file not included in tar\n") unless $layer_ent;
     # normalize layer
-    ($layer_ent, $lcomp) = BSContar::normalize_layer($layer_ent, $oci, undef, undef, $lcomp);
+    $layer_ent = BSContar::normalize_layer($layer_ent, $oci);
     # create layer data
-    my $layer_data = BSContar::create_layer_data($layer_ent, $oci, $lcomp);
+    my $layer_data = BSContar::create_layer_data($layer_ent, $oci);
     push @layer_data, $layer_data;
     $layer_datas{$layer_file} = $layer_data;
 
     # upload to server
     blob_upload($layer_data->{'digest'}, $layer_ent);
   }
-  close $tarfd if $tarfd;
 
   my $mani = BSContar::create_dist_manifest_data($config_data, \@layer_data, $oci);
   my $mediaType = $mani->{'mediaType'};
@@ -862,13 +878,13 @@ if ($cosign && %digests_to_sign) {
     print "creating cosign signature for $gun $digest\n";
     my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
     my $annotations = { $cosign_cookie_name => $cosigncookie };
-    my ($config, $payload_layer, $payload, $sig) = BSConSign::createcosign($signfunc, $digest, $gun, $creator, undef, $annotations);
-    cosign_upload($sig_tag, $config, $payload_layer, $payload);
+    my ($config, $payload_layer_data, $payload, $sig) = BSConSign::createcosign($signfunc, $digest, $gun, $creator, undef, $annotations);
+    cosign_upload($sig_tag, $config, $payload_layer_data, $payload);
     if ($rekorserver) {
       print "uploading cosign signature to $rekorserver\n";
       my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata(BSPGP::unarmor($gpgpubkey)));
       $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
-      BSRekor::upload_hashedrekord($rekorserver, $payload_layer->{'digest'}, $sslpubkey, $sig);
+      BSRekor::upload_hashedrekord($rekorserver, $payload_layer_data->{'digest'}, $sslpubkey, $sig);
     }
   }
   # upload attestations
