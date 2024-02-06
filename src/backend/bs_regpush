@@ -482,30 +482,42 @@ sub construct_container_tar {
   return (\@tar, $mtime);
 }
 
-sub open_tarfile {
+sub get_containerinfo {
   my ($tarfile) = @_;
-
-  my ($tar, $tarfd, $containerinfo);
+  my $containerinfo;
   if ($tarfile =~ /^artifacthub:(.+)/) {
     $containerinfo = { 'type' => 'artifacthub', 'artifacthubdata' => $1 };
-    ($tar) = BSContar::container_from_artifacthub($containerinfo->{'artifacthubdata'});
-  } elsif ($tarfile =~ /\.containerinfo$/) {
-    my $containerinfo_json = readstr($tarfile);
-    $containerinfo = JSON::XS::decode_json($containerinfo_json);
-    ($tar) = construct_container_tar($containerinfo);
   } elsif ($tarfile =~ /\.helminfo$/) {
     my $chart = $tarfile;
     $chart =~ s/\.helminfo$/.tgz/;
     die("$chart: $!\n") unless -e $chart;
     my $helminfo_json = readstr($tarfile);
     my $helminfo = JSON::XS::decode_json($helminfo_json);
-    ($tar) = BSContar::container_from_helm($chart, $helminfo->{'config_json'}, $helminfo->{'tags'});
+    $containerinfo = { 'type' => 'helm', 'filename' => $chart, 'config_json' => $helminfo->{'config_json'}, 'tags' => $helminfo->{'tags'} };
+  } elsif ($tarfile =~ /\.containerinfo$/) {
+    my $containerinfo_json = readstr($tarfile);
+    $containerinfo = JSON::XS::decode_json($containerinfo_json);
+    delete $containerinfo->{'filename'};	# just in case
   } else {
-    open($tarfd, '<', $tarfile) || die("$tarfile: $!\n");
-    $tar = BSTar::list($tarfd);
-    $_->{'file'} = $tarfd for @$tar;
+    $containerinfo = { 'filename' => $tarfile };
   }
-  return ($tar, $tarfd, $containerinfo);
+  return $containerinfo;
+}
+
+sub open_container_tar {
+  my ($containerinfo, $file) = @_;
+  my ($tar, $mtime);
+  if (($containerinfo->{'type'} || '') eq 'artifacthub') {
+    ($tar, $mtime) = BSContar::container_from_artifacthub($containerinfo->{'artifacthubdata'});
+  } elsif (!defined($file)) {
+    ($tar, $mtime) = construct_container_tar($containerinfo);
+  } elsif (($containerinfo->{'type'} || '') eq 'helm') {
+    ($tar, $mtime) = BSContar::container_from_helm($file, $containerinfo->{'config_json'}, $containerinfo->{'tags'});
+  } else {
+    ($tar, $mtime) = BSContar::open_container_tar($file);
+  }
+  die("incomplete containerinfo\n") unless $tar;
+  return ($tar, $mtime);
 }
 
 sub die_with_usage {
@@ -620,6 +632,11 @@ if ($list_mode) {
       my $config = blob_fetch($mani->{'config'}->{'digest'});
       $config = JSON::XS->new->utf8->canonical->pretty->encode(JSON::XS::decode_json($config)) if $ARGV[3] eq 'config';
       print $config;
+    } elsif ($ARGV[3] =~ /^layer(\d+)$/) {
+      my ($mani) = get_manifest_for_tag($ARGV[2]);
+      die("no such layer\n") unless $mani->{'layers'}->[$1];
+      my $data = blob_fetch($mani->{'layers'}->[$1]->{'digest'});
+      print $data;
     } else {
       blob_download($ARGV[2], $ARGV[3]);
     }
@@ -674,7 +691,8 @@ if ($use_image_tags && @tarfiles > 1) {
   # make sure all tar files contain the same tags
   my $imagetags;
   for my $tarfile (@tarfiles) {
-    my ($tar, $tarfd) = open_tarfile($tarfile);
+    my $containerinfo = get_containerinfo($tarfile);
+    my ($tar) = open_container_tar($containerinfo, $containerinfo->{'filename'});
     my %tar = map {$_->{'name'} => $_} @$tar;
     my ($manifest_ent, $manifest) = BSContar::get_manifest(\%tar);
     my @imagetags = @{$manifest->{'RepoTags'} || []};
@@ -685,7 +703,6 @@ if ($use_image_tags && @tarfiles > 1) {
       $imagetags = $it;
       push @tags, @imagetags;
     }
-    close $tarfd if $tarfd;
   }
   $use_image_tags = 0;
 }
@@ -698,7 +715,8 @@ my @multimanifests;
 my %multiplatforms;
 my @imginfos;
 for my $tarfile (@tarfiles) {
-  my ($tar, $tarfd, $containerinfo) = open_tarfile($tarfile);
+  my $containerinfo = get_containerinfo($tarfile);
+  my ($tar) = open_container_tar($containerinfo, $containerinfo->{'filename'});
   my %tar = map {$_->{'name'} => $_} @$tar;
 
   my $provenance;
@@ -743,16 +761,13 @@ for my $tarfile (@tarfiles) {
 
   my $goarch = $config->{'architecture'} || 'any';
   my $goos = $config->{'os'} || 'any';
-  my $govariant;
-  $govariant = $containerinfo->{'govariant'} if $containerinfo && $containerinfo->{'govariant'};
-  $govariant = $config->{'variant'} if $config->{'variant'};
+  my $govariant = $config->{'variant'} || $containerinfo->{'govariant'} || undef;
   if ($multiarch) {
     # see if a already have this arch/os combination
     my $platformstr = "architecture:$goarch os:$goos";
     $platformstr .= " variant:$govariant" if $govariant;
     if ($multiplatforms{$platformstr}) {
       print "ignoring $tarfile, already have $platformstr\n";
-      close $tarfd if $tarfd;
       next;
     }
     $multiplatforms{$platformstr} = 1;
@@ -787,7 +802,6 @@ for my $tarfile (@tarfiles) {
     # upload to server
     blob_upload($layer_data->{'digest'}, $layer_ent);
   }
-  close $tarfd if $tarfd;
 
   my $mani = BSContar::create_dist_manifest_data($config_data, \@layer_data, $oci);
   my $mediaType = $mani->{'mediaType'};
