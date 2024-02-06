@@ -93,13 +93,13 @@ sub createcosign_config {
 sub createcosign_payload {
   my ($payloadtype, $payload, $sig, $annotations) = @_;
   my $payload_digest = 'sha256:'.Digest::SHA::sha256_hex($payload);
-  my $payload_layer = {
+  my $payload_layer_data = {
     'annotations' => { 'dev.cosignproject.cosign/signature' => MIME::Base64::encode_base64($sig, ''), %{$annotations || {}} },
     'digest' => $payload_digest,
     'mediaType' => $payloadtype,
     'size' => length($payload),
   };
-  return (createcosign_config($payload_layer), $payload_layer, $payload, $sig);
+  return (createcosign_config($payload_layer_data), $payload_layer_data, $payload, $sig);
 }
 
 sub createcosign {

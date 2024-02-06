@@ -878,13 +878,13 @@ if ($cosign && %digests_to_sign) {
     print "creating cosign signature for $gun $digest\n";
     my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
     my $annotations = { $cosign_cookie_name => $cosigncookie };
-    my ($config, $payload_layer, $payload, $sig) = BSConSign::createcosign($signfunc, $digest, $gun, $creator, undef, $annotations);
-    cosign_upload($sig_tag, $config, $payload_layer, $payload);
+    my ($config, $payload_layer_data, $payload, $sig) = BSConSign::createcosign($signfunc, $digest, $gun, $creator, undef, $annotations);
+    cosign_upload($sig_tag, $config, $payload_layer_data, $payload);
     if ($rekorserver) {
       print "uploading cosign signature to $rekorserver\n";
       my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata(BSPGP::unarmor($gpgpubkey)));
       $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
-      BSRekor::upload_hashedrekord($rekorserver, $payload_layer->{'digest'}, $sslpubkey, $sig);
+      BSRekor::upload_hashedrekord($rekorserver, $payload_layer_data->{'digest'}, $sslpubkey, $sig);
     }
   }
   # upload attestations

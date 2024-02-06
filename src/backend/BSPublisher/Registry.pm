@@ -482,14 +482,14 @@ sub update_cosign {
       next;
     }
     print "creating cosign signature for $gun $digest\n";
-    my ($config, $payload_layer, $payload, $sig) = BSConSign::createcosign($signfunc, $digest, $gun, $creator);
-    my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, $config, $payload_layer, $payload);
+    my ($config, $payload_layer_data, $payload, $sig) = BSConSign::createcosign($signfunc, $digest, $gun, $creator);
+    my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, $config, $payload_layer_data, $payload);
     $sigs->{'digests'}->{$digest} = $mani_id;
     if ($rekorserver) {
       print "uploading cosign signature to $rekorserver\n";
       my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata($gpgpubkey));
       $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
-      BSRekor::upload_hashedrekord($rekorserver, $payload_layer->{'digest'}, $sslpubkey, $sig);
+      BSRekor::upload_hashedrekord($rekorserver, $payload_layer_data->{'digest'}, $sslpubkey, $sig);
     }
   }
 
