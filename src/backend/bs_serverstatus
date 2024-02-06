@@ -44,7 +44,7 @@ while (@ARGV) {
     last;
   }
 }
-die("Usage: bs_serverstatus [--top] <statusfile>\n") unless $ARGV[0];
+die("Usage: obs_serverstatus [--top] <statusfile>\n") unless $ARGV[0];
 $| = 1;
 print "\033[H\033[J" if $top;
 my $nl = "\n";
