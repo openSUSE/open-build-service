@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_02_06_173411) do
+ActiveRecord::Schema[7.0].define(version: 2024_02_07_080349) do
   create_table "appeals", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.text "reason", null: false
     t.integer "appellant_id", null: false
@@ -1127,6 +1127,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_06_173411) do
     t.string "rss_secret", limit: 200
     t.integer "color_theme", default: 0, null: false
     t.boolean "blocked_from_commenting", default: false, null: false
+    t.index ["blocked_from_commenting"], name: "index_users_on_blocked_from_commenting"
     t.index ["deprecated_password"], name: "users_password_index"
     t.index ["in_beta"], name: "index_users_on_in_beta"
     t.index ["in_rollout"], name: "index_users_on_in_rollout"
