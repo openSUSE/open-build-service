@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_02_01_082303) do
+ActiveRecord::Schema[7.0].define(version: 2024_02_06_173411) do
   create_table "appeals", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.text "reason", null: false
     t.integer "appellant_id", null: false
@@ -1132,6 +1132,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_01_082303) do
     t.index ["in_rollout"], name: "index_users_on_in_rollout"
     t.index ["login"], name: "users_login_index", unique: true, length: 255
     t.index ["rss_secret"], name: "index_users_on_rss_secret", unique: true
+    t.index ["state"], name: "index_users_on_state"
   end
 
   create_table "versions", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
