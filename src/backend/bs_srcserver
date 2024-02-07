@@ -6053,8 +6053,15 @@ sub getsignkey {
   my ($skprojid, $sk) = findsignkey($projid);
   return ('', 'Content-Type: text/plain') unless $sk;
   if ($cgi->{'withpubkey'} || $cgi->{'withalgo'}) {
-    my $pk = readstr("$projectsdir/$skprojid.pkg/_pubkey", 1);
-    $pk = autoextend_check($skprojid, $pk) if $cgi->{'withpubkey'} && $cgi->{'autoextend'};
+    my $signtype = $cgi->{'signtype'};
+    my $signflavor = $cgi->{'signflavor'};
+    my $pk;
+    if (length($sk) <= 2 && ($signtype || $signflavor)) {
+      $pk = BSSrcServer::Signkey::getdefaultpubkey($projid, $signtype, $signflavor);
+    } else {
+      $pk = readstr("$projectsdir/$skprojid.pkg/_pubkey", 1);
+      $pk = autoextend_check($skprojid, $pk) if $cgi->{'withpubkey'} && $cgi->{'autoextend'};
+    }
     if ($cgi->{'withalgo'} && $sk !~ /^\S+:/) {
       my $algo = '?';
       eval { $algo = BSPGP::pk2algo(BSPGP::unarmor($pk)) if $pk };
@@ -6069,17 +6076,17 @@ sub getsignkey {
 }
 
 sub projid2sslcert {
-  my ($skprojid, $sk, $projid, $nocreate, $signtype) = @_;
+  my ($skprojid, $sk, $projid, $nocreate, $signtype, $signflavor) = @_;
   if ($BSConfig::disable_sslcert_cache && $BSConfig::disable_sslcert_cache->{$skprojid}) {
     # we ignore nocreate here for now
-    return BSSrcServer::Signkey::pubkey2sslcert($projid || $skprojid, "$projectsdir/$skprojid.pkg/_pubkey", "$projectsdir/$skprojid.pkg/_signkey", $signtype);
+    return BSSrcServer::Signkey::pubkey2sslcert($projid || $skprojid, "$projectsdir/$skprojid.pkg/_pubkey", "$projectsdir/$skprojid.pkg/_signkey", $signtype, $signflavor);
   }
   my $rev = BSRevision::getrev_meta($skprojid, undef);
   my $files = BSRevision::lsrev($rev);
   if (!$files->{'_sslcert'}) {
     if (!$sk || length($sk) <= 2) {
       # length(signkey) <= 2 means special handling: do not commit it
-      return BSSrcServer::Signkey::pubkey2sslcert($projid || $skprojid, "$projectsdir/$skprojid.pkg/_pubkey", "$projectsdir/$skprojid.pkg/_signkey", $signtype);
+      return BSSrcServer::Signkey::pubkey2sslcert($projid || $skprojid, "$projectsdir/$skprojid.pkg/_pubkey", "$projectsdir/$skprojid.pkg/_signkey", $signtype, $signflavor);
     }
     return undef if $nocreate;
     my $cert = BSSrcServer::Signkey::pubkey2sslcert($skprojid, "$projectsdir/$skprojid.pkg/_pubkey", "$projectsdir/$skprojid.pkg/_signkey");
@@ -6095,15 +6102,16 @@ sub getsslcert {
   my ($cgi, $projid) = @_;
   my ($skprojid, $sk) = findsignkey($projid);
   my $signtype = $cgi->{'signtype'};
+  my $signflavor = $cgi->{'signflavor'};
   if ($sk) {
     my $pk = readstr("$projectsdir/$skprojid.pkg/_pubkey", 1);
     $pk = autoextend_check($skprojid, $pk) if $cgi->{'autoextend'};
-    my $cert = projid2sslcert($skprojid, $sk, $projid, 0, $signtype);
+    my $cert = projid2sslcert($skprojid, $sk, $projid, 0, $signtype, $signflavor);
     return ($cert, 'Content-Type: text/plain');
   }
   my $cert;
   if ($BSConfig::sign_project && $BSConfig::sign) {
-    $cert = BSSrcServer::Signkey::getdefaultcert($projid, $signtype);
+    $cert = BSSrcServer::Signkey::getdefaultcert($projid, $signtype, $signflavor);
   } elsif ($BSConfig::certfile) {
     $cert = readstr($BSConfig::certfile, 1);
   }
@@ -6115,6 +6123,7 @@ sub getkeyinfo {
 
   my ($skprojid, $sk) = findsignkey($projid);
   my $signtype = $cgi->{'signtype'};
+  my $signflavor = $cgi->{'signflavor'};
   my ($pk, $cert);
   if ($sk) {
     $pk = readstr("$projectsdir/$skprojid.pkg/_pubkey", 1);
@@ -6122,19 +6131,19 @@ sub getkeyinfo {
     $pk = autoextend_check($skprojid, $pk) if $cgi->{'autoextend'};
   }
   if ($cgi->{'withsslcert'} && $skprojid && $sk) {
-    $cert = projid2sslcert($skprojid, $sk, $projid, $cgi->{'donotcreatecert'}, $signtype);
+    $cert = projid2sslcert($skprojid, $sk, $projid, $cgi->{'donotcreatecert'}, $signtype, $signflavor);
   }
   if ($cgi->{'withsslcert'} && !$skprojid && $BSConfig::sign_project && $BSConfig::sign) {
     if ($cgi->{'donotcreatecert'}) {
-      eval { $cert = BSSrcServer::Signkey::getdefaultcert($projid, $signtype) };
+      eval { $cert = BSSrcServer::Signkey::getdefaultcert($projid, $signtype, $signflavor) };
     } else {
-      $cert = BSSrcServer::Signkey::getdefaultcert($projid, $signtype);
+      $cert = BSSrcServer::Signkey::getdefaultcert($projid, $signtype, $signflavor);
     }
   } elsif ($cgi->{'withsslcert'} && !$skprojid && $BSConfig::certfile) {
     $cert = readstr($BSConfig::certfile, 1);
   }
   if (!$pk && $BSConfig::sign_project && $BSConfig::sign) {
-    $pk = BSSrcServer::Signkey::getdefaultpubkey($projid);
+    $pk = BSSrcServer::Signkey::getdefaultpubkey($projid, $signtype, $signflavor);
   } elsif (!$pk && $BSConfig::keyfile) {
     $pk = readstr($BSConfig::keyfile, 1);
   }
@@ -7719,7 +7728,7 @@ my $dispatches = [
   'DELETE:/source/$project/_config user:? comment:?' => \&delprojectconfig,
 
   '/source/$project/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
-  '/source/$project/_keyinfo withsslcert:bool? autoextend:bool? donotcreatecert:bool? signtype:?' => \&getkeyinfo,
+  '/source/$project/_keyinfo withsslcert:bool? autoextend:bool? donotcreatecert:bool? signtype:? signflavor:?' => \&getkeyinfo,
 
   'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:? unified:bool? missingok:bool? meta:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool? nocache:bool? cacheonly:bool? nodiff:bool?' => \&sourcediff,
   'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool? nocache:bool? cacheonly:bool? nodiff:bool?' => \&linkdiff,
@@ -7775,14 +7784,14 @@ my $dispatches = [
   # worker calls
   '/getsources $project $package $srcmd5:md5 workerid?' => \&getsources,
   '/getconfig $project $repository path:prp* workerid?' => \&worker_getbuildconfig,
-  '/getsslcert $project autoextend:bool? workerid? signtype:?' => \&getsslcert,
+  '/getsslcert $project autoextend:bool? workerid? signtype:? signflavor:?' => \&getsslcert,
   '/getbinaries $project $repository $arch binaries: nometa:bool? workerid? now:num? module*' => \&worker_getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool? workerid? now:num? module* withevr:bool?' => \&worker_getbinaryversions,
   '/getobsgendiffdata $project $repository $arch jobid? workerid?' => \&getobsgendiffdata,
   '/getmodulemd $project $package $srcmd5:md5 module* modularityplatform: modularitylabel: arch? view:?' => \&getmodulemd,
 
-  # publisher/signer calls
-  '/getsignkey $project withpubkey:bool? autoextend:bool? withalgo:bool?' => \&getsignkey,
+  # worker/publisher/signer calls
+  '/getsignkey $project withpubkey:bool? autoextend:bool? withalgo:bool? signtype:? signflavor:?' => \&getsignkey,
 
   # event/notification handling
   '!- /lastevents $filter:* start:num? obsname:? block:bool?' => \&lastevents,
