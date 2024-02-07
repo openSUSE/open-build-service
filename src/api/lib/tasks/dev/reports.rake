@@ -19,9 +19,20 @@ namespace :dev do
         Report.create!(reportable: reportable, user: iggy, reason: 'Watch your language, please')
       end
 
+      source_project = create(:project, :as_submission_source, name: 'source_project')
+      source_package = create(:package_with_files,
+                              name: 'package_a',
+                              project: source_project,
+                              changes_file_content: '- Fixes ------')
+      target_project = create(:project, name: 'target_project')
+      target_package = create(:package, name: 'target_package', project: target_project)
       user1 = User.find_by(login: 'user_1')
       [
-        create(:bs_request_with_submit_action, creator: user1, description: 'Hey! Visit my new site $$$!')
+        create(:bs_request_with_submit_action,
+               creator: user1,
+               target_package: target_package,
+               source_package: source_package,
+               description: 'Hey! Visit my new site $$$!')
       ].each do |reportable|
         Report.create!(reportable: reportable, user: user1, reason: 'This is a scam')
       end
