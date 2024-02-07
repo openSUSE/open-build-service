@@ -199,7 +199,8 @@ Requires(pre):  shadow
 %endif
 
 %if 0%{?suse_version:1}
-Recommends:     yum yum-metadata-parser repoview dpkg
+Recommends:     yum yum-metadata-parser repoview 
+Recommends:     dpkg >= 1.20
 Recommends:     deb >= 1.5
 Recommends:     lvm2
 Recommends:     openslp-server
