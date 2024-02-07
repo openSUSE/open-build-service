@@ -237,7 +237,7 @@ sub get_manifest_oci_tar {
     if (($l->{'mediaType'} || '') eq $mt_oci_layer_zstd) {
       $comp = 'zstd';
       my $ann = $l->{'annotations'};
-      if ($ann->{'io.github.containers.zstd-chunked.manifest-position'}) {
+      if ($ann && $ann->{'io.github.containers.zstd-chunked.manifest-position'}) {
 	$comp = "zstd:chunked,$ann->{'io.github.containers.zstd-chunked.manifest-position'}";
 	$comp .= ",$ann->{'io.github.containers.zstd-chunked.manifest-checksum'}" if $ann->{'io.github.containers.zstd-chunked.manifest-checksum'};
       }
@@ -523,16 +523,6 @@ sub container_from_artifacthub {
   return ($tar, $mtime);
 }
 
-sub create_config_data {
-  my ($config_ent, $oci) = @_;
-  my $config_data = {
-    'mediaType' => $config_ent->{'mimetype'} || ($oci ? $mt_oci_config : $mt_docker_config),
-    'size' => 0 + $config_ent->{'size'},
-    'digest' => $config_ent->{'blobid'} || blobid_entry($config_ent),
-  };
-  return $config_data;
-}
-
 sub normalize_layer {
   my ($layer_ent, $oci, $comp, $newcomp) = @_;
   $comp = $layer_ent->{'layer_compression'} unless defined $comp;
@@ -553,6 +543,16 @@ sub normalize_layer {
   return $layer_ent;
 }
 
+sub create_config_data {
+  my ($config_ent, $oci) = @_;
+  my $config_data = {
+    'mediaType' => $config_ent->{'mimetype'} || ($oci ? $mt_oci_config : $mt_docker_config),
+    'size' => 0 + $config_ent->{'size'},
+    'digest' => $config_ent->{'blobid'} || blobid_entry($config_ent),
+  };
+  return $config_data;
+}
+
 sub create_layer_data {
   my ($layer_ent, $oci, $annotations) = @_;
   my $mime_type = $layer_ent->{'mimetype'};
@@ -566,12 +566,13 @@ sub create_layer_data {
     'size' => 0 + $layer_ent->{'size'},
     'digest' => $layer_ent->{'blobid'} || blobid_entry($layer_ent),
   };
-  $layer_data->{'annotations'} = { %{$layer_ent->{'annotations'} || {}}, %{$annotations || {}} } if $layer_ent->{'annotations'} || $annotations;
+  my %annotations = (%{$layer_ent->{'annotations'} || {}}, %{$annotations || {}});
   if ($layer_ent->{'layer_compression'} && $layer_ent->{'layer_compression'} =~ /^zstd:chunked/) {
     my @c = split(',', $layer_ent->{'layer_compression'});
-    $layer_data->{'annotations'}->{'io.github.containers.zstd-chunked.manifest-position'} = $c[1] if $c[1];
-    $layer_data->{'annotations'}->{'io.github.containers.zstd-chunked.manifest-checksum'} = $c[2] if $c[2];
+    $annotations{'io.github.containers.zstd-chunked.manifest-position'} = $c[1] if $c[1];
+    $annotations{'io.github.containers.zstd-chunked.manifest-checksum'} = $c[2] if $c[2];
   }
+  $layer_data->{'annotations'} = \%annotations if %annotations;
   return $layer_data;
 }
 
