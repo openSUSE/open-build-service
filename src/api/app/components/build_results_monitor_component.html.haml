@@ -23,7 +23,7 @@
                 = render partial: 'webui/shared/build_status_count_badge', locals: { category: key, count: value.to_s }
 
       .accordion-collapse.collapse{ id: "collapse-#{package_name.gsub(':', '_')}", class: show }
-        .rounded-bottom.build-result-table{ class: "build-result-table-#{filtered_architecture_names.length}" }
+        .build-result-table
           .build-result-legend
             .build-result-name
             - filtered_architecture_names.each do |architecture_name|
