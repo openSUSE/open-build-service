@@ -327,9 +327,10 @@ sub getpatterns {
 ##########################################################################
 
 sub getsigndata {
-  my ($projid) = @_;
+  my ($projid, $signflavor) = @_;
 
   my @args = ("withpubkey=1", "withalgo=1");
+  push @args, "signflavor=$signflavor" if $signflavor;
   push @args, "autoextend=1" if $BSConfig::sign;
   my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid", @args);
   my $pubkey;
@@ -547,6 +548,7 @@ sub createrepo_zyppservice {
   if ($BSConfig::sign) {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repo/repoindex.xml") && die("    sign failed: $?\n");
     pickup_detached_signature($data, "$extrep/repo/repoindex.xml");
@@ -788,6 +790,7 @@ sub createrepo_rpmmd {
   if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
     writestr("$extrep/repodata/repomd.xml.key", undef, $data->{'pubkey'}) if $data->{'pubkey'};
@@ -837,6 +840,7 @@ sub createrepo_virtbuilder {
     print "Signing the index for $projid/$repoid\n";
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     push @signargs, @{$data->{'signargs'} || []};
     print "Running command: $BSConfig::sign @signargs -c $extrep/index\n";
     qsystem($BSConfig::sign, @signargs, '-c', "$extrep/index") && die("    sign failed: $?\n");
@@ -1074,6 +1078,7 @@ EOL
   if ($BSConfig::sign && -e "$extrep/Release") {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/Release") && die("    sign failed: $?\n");
     pickup_detached_signature($data, "$extrep/Release");
@@ -1126,6 +1131,7 @@ sub createrepo_arch {
     if ($BSConfig::sign) {
       my @signargs;
       push @signargs, '--project', $projid if $BSConfig::sign_project;
+      push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
       push @signargs, @{$data->{'signargs'} || []};
       if (-e "$extrep/$arch/$rname.db.tar.gz") {
         qsystem($BSConfig::sign, @signargs, '-D', "$extrep/$arch/$rname.db.tar.gz") && die("    sign failed: $?\n");
@@ -1207,6 +1213,7 @@ sub createrepo_staticlinks {
         if ($BSConfig::sign && -e "$extrep/$arch/$link.sha256") {
           my @signargs;
           push @signargs, '--project', $projid if $BSConfig::sign_project;
+          push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
           push @signargs, @{$data->{'signargs'} || []};
           qsystem($BSConfig::sign, @signargs, '-d', "$extrep/$arch/$link.sha256") && die("    sign failed: $?\n");
           pickup_detached_signature($data, "$extrep/$arch/$link.sha256");
@@ -1345,6 +1352,7 @@ sub createrepo_checksumsfile {
     if ($BSConfig::sign) {
       my @signargs;
       push @signargs, '--project', $projid if $BSConfig::sign_project;
+      push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
       push @signargs, @{$data->{'signargs'} || []};
       my %options = map {$_ => 1} @{$options || []};
       if ($options{'rawsig'}) {
@@ -1412,6 +1420,7 @@ sub createpatterns_rpmmd {
   if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
     pickup_detached_signature($data, "$extrep/repodata/repomd.xml");
@@ -1481,6 +1490,7 @@ sub createpatterns_comps {
   if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
     pickup_detached_signature($data, "$extrep/repodata/repomd.xml");
@@ -1956,15 +1966,14 @@ sub fixsleimage {
   mkdir_p(($p =~ /(.*)\//) ? "$extrep/$1" : $extrep);
   writestr("$extrep/$p", undef, $newcontent);
   if ($BSConfig::sign && ($hadsig || $bins_id->{"$p.asc"})) {
+    my $projid = $data->{'projid'};
     if (!$data->{'signargs'}) {
-      my $projid = $data->{'projid'};
-      my ($pubkey, $signargs) = getsigndata($projid);
-      my @signargs;
-      push @signargs, '--project', $projid if $BSConfig::sign_project;
-      push @signargs, @$signargs;
-      $data->{'signargs'} = \@signargs;
+      my ($pubkey, $signargs) = getsigndata($projid, $data->{'signflavor'});
+      $data->{'signargs'} = $signargs;
     }
     my @signargs = @{$data->{'signargs'}};
+    push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     if ($hadsig) {
       qsystem($BSConfig::sign, @signargs, '-c', "$extrep/$p") && die("    sign failed: $?\n");
     }
@@ -2064,6 +2073,11 @@ sub publish {
     $repotype ||= 'rpm-md';
     $config->{'repotype'} = [ $repotype ];
   }
+  my $signflavor;
+  $signflavor = $BSConfig::sign_flavor ? $config->{'buildflags:signflavor'} : undef;
+  if ($signflavor) {
+    die("illegal sign flavor '$signflavor'\n") unless grep {$_ eq $signflavor} @$BSConfig::sign_flavor;
+  }
 
   my %repotype;
   for (@{$config->{'repotype'} || []}) {
@@ -2146,7 +2160,7 @@ sub publish {
   my $sleimagedata;
   if ($repotype{'sleimage'} || $repotype{'sleimage-media'}) {
     my $media = $repotype{'sleimage'} ? 'dvd' : $repotype{'sleimage-media'} ? 'media' : undef;
-    $sleimagedata = { 'projid' => $projid, 'extrep' => $extrep, 'bins_id' => \%bins_id, 'media' => $media, 'config' => $config, 'mapped' => {} };
+    $sleimagedata = { 'projid' => $projid, 'extrep' => $extrep, 'bins_id' => \%bins_id, 'media' => $media, 'config' => $config, 'mapped' => {}, 'signflavor' => $signflavor };
   }
 
   if ($archorder) {
@@ -2858,6 +2872,7 @@ sub publish {
       'config' => $config,
       'publishid' => $publishid,
       'multiarch' => $multicontainer,
+      'signflavor' => $signflavor,
     };
     if ($config->{'publishflags:artifacthub'}) {
       for (@{$config->{'publishflags'} || []}) {
@@ -3183,6 +3198,7 @@ sub publish {
     'modulemds' => $modulemds,
     'sigs' => [],
     'publishid' => $publishid,
+    'signflavor' => $signflavor,
   };
 
   if ($repotype{'rpm-md'}) {

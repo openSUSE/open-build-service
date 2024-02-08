@@ -1238,6 +1238,9 @@ sub create {
 	$binfo->{'slsadownloadurl'} = $BSConfig::api_url;
       }
     }
+    my $signflavor = $BSConfig::sign_flavor ? $bconf->{'buildflags:signflavor'} : undef;
+    return ('broken', "illegal sign flavor '$signflavor'") if $signflavor && !grep {$_ eq $signflavor} @$BSConfig::sign_flavor;
+    $binfo->{'signflavor'} = $signflavor if $signflavor;
   }
   $ctx->writejob($job, $binfo, $reason);
 

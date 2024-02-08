@@ -82,11 +82,12 @@ sub have_good_project_signkey {
 }
 
 sub get_notary_pubkey {
-  my ($projid, $pubkey, $signargs) = @_;
+  my ($projid, $pubkey, $signargs, $signflavor) = @_;
 
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
   push @signargs, '--signtype', 'notary' if $BSConfig::sign_type || $BSConfig::sign_type;
+  push @signargs, '--signflavor', $signflavor if $signflavor;
   push @signargs, @{$signargs || []};
 
   # ask the sign tool for the correct pubkey if we do not have a good sign key
@@ -177,7 +178,7 @@ sub upload_all_containers {
     $isdelete = 1;
     $containers = {};
   } else {
-    my ($pubkey, $signargs) = get_notary_pubkey($projid, $data->{'pubkey'}, $data->{'signargs'});
+    my ($pubkey, $signargs) = get_notary_pubkey($projid, $data->{'pubkey'}, $data->{'signargs'}, $data->{'signflavor'});
     $data = { %$data, 'pubkey' => $pubkey, 'signargs' => $signargs };
   }
 

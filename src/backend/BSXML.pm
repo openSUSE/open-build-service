@@ -653,6 +653,8 @@ our $buildinfo = [
 	'slsadownloadurl',	# internal
 	'slsabuilder',   	# internal
 
+	'signflavor',   	# internal
+
       [ 'preinstallimage' =>
 	    'project',
 	    'repository',

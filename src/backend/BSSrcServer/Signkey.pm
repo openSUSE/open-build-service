@@ -73,14 +73,22 @@ sub extendkey {
   return $pubkey;
 }
 
+sub allowedsignflavor {
+  my ($signflavor) = @_;
+  return 0 unless $BSConfig::sign_flavor;
+  die("illegal sign flavor '$signflavor'\n") unless grep {$_ eq $signflavor} @$BSConfig::sign_flavor;
+  return 1;
+}
+
 sub pubkey2sslcert {
-  my ($projid, $pubkeyfile, $signkeyfile, $signtype) = @_;
+  my ($projid, $pubkeyfile, $signkeyfile, $signtype, $signflavor) = @_;
   die("don't know how to generate a ssl cert\n") unless $BSConfig::sign;
   die("project does not have a key\n") unless -s $pubkeyfile;
   die("project does not have a signkey\n") unless -s $signkeyfile;
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
   push @signargs, '--signtype', $signtype if $BSConfig::sign_type && $signtype;
+  push @signargs, '--signflavor', $signflavor if $signflavor && allowedsignflavor($signflavor);
   push @signargs, '-P', $signkeyfile;
   my $cert;
   eval { $cert = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-C', $pubkeyfile) };
@@ -92,11 +100,12 @@ sub pubkey2sslcert {
 }
 
 sub getdefaultcert {
-  my ($projid, $signtype) = @_;
+  my ($projid, $signtype, $signflavor) = @_;
   return undef unless $BSConfig::sign;
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
   push @signargs, '--signtype', $signtype if $BSConfig::sign_type && $signtype;
+  push @signargs, '--signflavor', $signflavor if $signflavor && allowedsignflavor($signflavor);
   my $cert;
   eval { $cert = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-C') };
   die("sign: $@") if $@;
@@ -105,10 +114,12 @@ sub getdefaultcert {
 
 
 sub getdefaultpubkey {
-  my ($projid) = @_;
+  my ($projid, $signtype, $signflavor) = @_;
   return undef unless $BSConfig::sign;
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
+  push @signargs, '--signtype', $signtype if $BSConfig::sign_type && $signtype;
+  push @signargs, '--signflavor', $signflavor if $signflavor && allowedsignflavor($signflavor);
   my $pubkey;
   eval { $pubkey = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-p') };
   die("sign: $@") if $@;
