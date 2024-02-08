@@ -25,8 +25,7 @@
           %i Inline comment for target: '#{target}', file: '#{filename}', and line: #{line_number}.
     = render ReportsNoticeComponent.new(reportable: comment, user: User.session)
     = render_as_markdown(comment)
-    - unless comment.commentable.is_a?(BsRequestAction)
-      = render partial: 'webui/comment/reply', locals: { comment: comment, level: 0, commentable: commentable }
+    = render partial: 'webui/comment/reply', locals: { comment: comment, level: 0, commentable: comment.commentable }
     - if level <= 3
       - comment.children.includes(:user).each do |children|
         = render partial: 'webui/comment/content', locals: { comment: children, commentable: commentable, level: level + 1 }
