@@ -36,6 +36,10 @@ class BuildResultsMonitorComponent < ApplicationComponent
     raw_data.pluck(:architecture).uniq
   end
 
+  def filtered_architecture_names
+    @filtered_data.pluck(:architecture).uniq
+  end
+
   def status_names
     raw_data.pluck(:status).uniq
   end
@@ -57,6 +61,10 @@ class BuildResultsMonitorComponent < ApplicationComponent
 
   def results_per_package_and_repository(package, repository)
     results_per_package(package).select { |result| result[:repository] == repository }
+  end
+
+  def results_per_package_repository_and_architecture(package, repository, architecture)
+    results_per_package_and_repository(package, repository).select { |result| result[:architecture] == architecture }
   end
 
   def live_build_log_url(status, project, package, repository, architecture)

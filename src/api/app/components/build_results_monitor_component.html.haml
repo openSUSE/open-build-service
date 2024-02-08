@@ -23,20 +23,28 @@
                 = render partial: 'webui/shared/build_status_count_badge', locals: { category: key, count: value.to_s }
 
       .accordion-collapse.collapse{ id: "collapse-#{package_name.gsub(':', '_')}", class: show }
-        .list-group.list-group-flush.rounded-bottom
+        .build-result-table
+          .build-result-legend
+            .build-result-name
+            - filtered_architecture_names.each do |architecture_name|
+              .build-result-architecture
+                = architecture_name
           - filtered_repository_names.each do |repository_name|
-            .list-group-item.d-flex.justify-content-between
+            .build-result-row
               = link_to(helpers.word_break(repository_name, 22),
                         project_package_repository_binaries_path(project_name: project_name,
                                                                  package_name: package_name,
                                                                  repository_name: repository_name),
-                        title: "Binaries for #{repository_name}")
-              %span.text-end
-                - results_per_package_and_repository(package_name, repository_name).each do |result|
-                  = render partial: 'webui/shared/build_status_badge', locals: { status: result[:status],
-                                                                                 text: "#{result[:architecture]} : #{repository_status(result)}" ,
-                                                                                 url: live_build_log_url(result[:status],
-                                                                                                         project_name,
-                                                                                                         package_name,
-                                                                                                         repository_name,
-                                                                                                         result[:architecture]) }
+                        title: "Binaries for #{repository_name}", class: 'build-result-name text-break')
+              .build-result-architectures
+                - filtered_architecture_names.each do |architecture_name|
+                  .build-result-architecture
+                    - results_per_package_repository_and_architecture(package_name, repository_name, architecture_name).each do |result|
+                      = render partial: 'webui/shared/build_status_badge', locals: { status: result[:status],
+                                                                                     text: repository_status(result) ,
+                                                                                     architecture: result[:architecture],
+                                                                                     url: live_build_log_url(result[:status],
+                                                                                                             project_name,
+                                                                                                             package_name,
+                                                                                                             repository_name,
+                                                                                                             result[:architecture]) }
