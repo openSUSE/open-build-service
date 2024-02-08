@@ -177,14 +177,9 @@ sub construct_containerinfo {
   }
   push @tags, $data->{'name'} unless @tags;
   s/^container:// for @tags;
-  my @layers = @$blobs;
-  shift @layers;
-  my $manifest = {
-    'Config' => $blobs->[0],
-    'RepoTags' => \@tags,
-    'Layers' => \@layers,
-  };
-  my $manifest_ent = BSContar::create_manifest_entry($manifest, $mtime);
+  my ($config, @layers) = @$blobs;
+  my $manifest = BSContar::create_tar_manifest_data($config, \@layers, \@tags);
+  my $manifest_ent = BSContar::create_tar_manifest_entry($manifest, $mtime);
   my $containerinfo = {
     'tar_manifest' => $manifest_ent->{'data'},
     'tar_size' => 1,	# make construct_container_tar() happy
