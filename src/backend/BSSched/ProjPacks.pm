@@ -517,6 +517,7 @@ sub has_critical_config_change {
   my @mprefix = ("%define _project $projid", "%define _repository $repoid");
   my $cold = Build::read_config($arch, [ @mprefix, split("\n", $oldconfig || '') ]);
   my $cnew = Build::read_config($arch, [ @mprefix, split("\n", $newconfig || '') ]);
+  return 1 if ($cold->{'expandflags:macroserial'} || '') ne ($cnew->{'expandflags:macroserial'} || '');
   return 1 unless BSUtil::identical($cold->{'macros'}, $cnew->{'macros'});
   return 1 unless BSUtil::identical($cold->{'type'}, $cnew->{'type'});
   # some buildflags change the dependency parsing
