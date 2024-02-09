@@ -55,14 +55,4 @@ class ChartComponent < ApplicationComponent
 
     'text-bg-light' if build_result.refused_status?
   end
-
-  def legend
-    content_tag(:div, 'Published', class: 'text-bg-success ps-2 pe-2').concat(
-      content_tag(:div, 'Failed', class: 'text-bg-danger ps-2 pe-2').concat(
-        content_tag(:div, 'Building', class: 'text-bg-warning ps-2 pe-2').concat(
-          content_tag(:div, 'Excluded', class: 'text-bg-light ps-2 pe-2')
-        )
-      )
-    )
-  end
 end
