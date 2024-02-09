@@ -226,6 +226,7 @@
   @include media-breakpoint-up(xl) {
     display: grid;
     grid-template-columns: 1fr repeat(20, auto);
+    overflow-x: scroll;
 
     .build-result-architectures, .build-result-row, .build-result-legend {
       display: contents;
@@ -237,7 +238,7 @@
     }
 
     .build-result-architecture {
-      padding: 0.25rem 1rem;
+      padding: 0.25rem;
       text-align: end;
       .architecture { display: none }
     }
