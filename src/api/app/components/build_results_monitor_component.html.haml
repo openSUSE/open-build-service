@@ -41,9 +41,9 @@
                   .build-result-architecture
                     - results_per_package_repository_and_architecture(package_name, repository_name, architecture_name).each do |result|
                       = render partial: 'webui/shared/build_status_badge', locals: { status: result[:status],
-                                                                                     text: repository_status(result) ,
+                                                                                     text: helpers.repository_status(result),
                                                                                      architecture: result[:architecture],
-                                                                                     url: live_build_log_url(result[:status],
+                                                                                     url: helpers.live_build_log_url(result[:status],
                                                                                                              project_name,
                                                                                                              package_name,
                                                                                                              repository_name,

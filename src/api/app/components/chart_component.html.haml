@@ -27,6 +27,11 @@
             .col-9.d-flex.flex-wrap.gap-1.justify-content-start
               - raw_data.each do |result|
                 - if result[:repository] == repo
-                  %span.ps-2.pe-2.align-self-start{ class: status_color(result[:status]),
-                                        title: "#{result[:project_name]}/#{result[:package_name]}" }
-                    = result[:architecture]
+                  = render partial: 'webui/shared/build_status_badge', locals: { status: result[:status],
+                                                                                 text: helpers.repository_status(result),
+                                                                                 architecture: result[:architecture],
+                                                                                 url: helpers.live_build_log_url(result[:status],
+                                                                                                         result[:project_name],
+                                                                                                         result[:package_name],
+                                                                                                         result[:repository],
+                                                                                                         result[:architecture]) }

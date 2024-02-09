@@ -75,4 +75,19 @@ module Webui::BuildresultHelper
   def build_status_category_color(status)
     CATEGORY_COLOR[Buildresult::STATUS_CATEGORIES_MAP[status]]
   end
+
+  def live_build_log_url(status, project, package, repository, architecture)
+    return if ['unresolvable', 'blocked', 'excluded', 'scheduled'].include?(status)
+
+    package_live_build_log_path(project: project,
+                                package: package,
+                                repository: repository,
+                                arch: architecture)
+  end
+
+  def repository_status(result)
+    return 'Outdated' unless result[:is_repository_in_db]
+
+    result[:repository_status].humanize
+  end
 end
