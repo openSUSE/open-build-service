@@ -1317,15 +1317,15 @@ sub issues {
   for my $tracker (@$trackers) {
     my @issues = $entry =~ /$tracker->{'regex'}/g;
     pop @issues if @issues & 1;	# hmm
-    my %issues = @issues;
-    for (sort keys %issues) {
+    for my $cur_issue (sort @issues) {
       my $label = $tracker->{'label'};
-      $label =~ s/\@\@\@/$issues{$_}/g;
+      $label =~ s/\@\@\@/$cur_issue/g;
       $ret->{$label} = {
-	'name' => $issues{$_},
+	'name' => $cur_issue,
 	'label' => $label,
         'tracker' => $tracker,
       };
+      $ret->{'counter'} = ($ret->{'counter'} || 0) + 1;
     }
   }
 }
@@ -1396,7 +1396,7 @@ sub issuediff {
   for (sort keys %newissues) {
     if (exists $oldissues{$_}) {
       $newissues{$_}->{'state'} = 'changed';
-      delete $oldissues{$_};
+      $oldissues{$_}->{'counter'} -= 1;
       push @changed, $newissues{$_};
     } else {
       $newissues{$_}->{'state'} = 'added';
@@ -1404,6 +1404,7 @@ sub issuediff {
     }
   }
   for (sort keys %oldissues) {
+    next if $oldissues{$_}->{'counter'} > 0;
     $oldissues{$_}->{'state'} = 'deleted';
     push @deleted , $oldissues{$_};
   }
