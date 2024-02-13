@@ -54,7 +54,7 @@
         }
     }
 
-    .collapse, .collapsing {
+    .collapse:not(.comment-edit), .collapsing:not(.comment-edit) {
         position: relative;
         left: $timeline-offset;
         .timeline-item {

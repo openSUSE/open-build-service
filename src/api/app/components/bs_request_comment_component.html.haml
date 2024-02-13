@@ -10,7 +10,7 @@
           .dropdown-menu
             - if policy(comment).update?
               = link_to("#edit_form_of_#{comment.id}", id: "edit_button_of_#{comment.id}", 'data-bs-toggle': 'collapse',
-                        class: 'dropdown-item collapsed') do
+                        'data-comment-id': comment.id, class: 'dropdown-item collapsed edit-comment-button') do
                 Edit
             - if Flipper.enabled?(:content_moderation, User.session)
               - if policy(comment).moderate?
@@ -49,7 +49,7 @@
         = helpers.render_as_markdown(comment)
 
       - if policy(comment).update?
-        .collapse{ id: "edit_form_of_#{comment.id}" }
+        .collapse.comment-edit{ id: "edit_form_of_#{comment.id}" }
           = render(partial: 'webui/comment/comment_field', locals: { form_method: :put,
           comment: comment, commentable: commentable, element_suffix: "edit_#{comment.id}", has_cancel: true })
 
@@ -79,3 +79,12 @@
 - if level > 3
   - comment.children.includes(:user).each do |children|
     = render BsRequestCommentComponent.new(comment: children, level: level + 1, commentable: commentable)
+
+:javascript
+  $(document).on('click', '.edit-comment-button', function() {
+    var commentId = $(this).data('comment-id');
+    $(`#comment-${commentId}-body`).hide();
+  });
+  $(document).on('click', '.cancel-comment', function() {
+    $(this).parents('.comment-bubble').children('.comment-bubble-content').show();
+  });
