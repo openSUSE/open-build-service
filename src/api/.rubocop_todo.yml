@@ -205,6 +205,7 @@ Metrics/ClassLength:
     - 'app/controllers/request_controller.rb'
     - 'app/controllers/search_controller.rb'
     - 'app/controllers/source_controller.rb'
+    - 'app/controllers/source_package_command_controller.rb'
     - 'app/controllers/webui/comments_controller.rb'
     - 'app/controllers/webui/kiwi/images_controller.rb'
     - 'app/controllers/webui/package_controller.rb'
@@ -292,6 +293,7 @@ Metrics/CyclomaticComplexity:
     - 'app/controllers/build_controller.rb'
     - 'app/controllers/concerns/backend_proxy.rb'
     - 'app/controllers/concerns/webui/project_build_result_parsing.rb'
+    - 'app/controllers/concerns/verify_release_targets.rb'
     - 'app/controllers/configurations_controller.rb'
     - 'app/controllers/issue_trackers_controller.rb'
     - 'app/controllers/person_controller.rb'
@@ -299,6 +301,7 @@ Metrics/CyclomaticComplexity:
     - 'app/controllers/request_controller.rb'
     - 'app/controllers/search_controller.rb'
     - 'app/controllers/source_controller.rb'
+    - 'app/controllers/source_package_command_controller.rb'
     - 'app/controllers/source_project_controller.rb'
     - 'app/controllers/source_project_meta_controller.rb'
     - 'app/controllers/trigger_controller.rb'
@@ -415,6 +418,7 @@ Metrics/PerceivedComplexity:
     - 'app/controllers/application_controller.rb'
     - 'app/controllers/build_controller.rb'
     - 'app/controllers/concerns/webui/project_build_result_parsing.rb'
+    - 'app/controllers/concerns/verify_release_targets.rb'
     - 'app/controllers/configurations_controller.rb'
     - 'app/controllers/issue_trackers_controller.rb'
     - 'app/controllers/person_controller.rb'
@@ -422,6 +426,7 @@ Metrics/PerceivedComplexity:
     - 'app/controllers/request_controller.rb'
     - 'app/controllers/search_controller.rb'
     - 'app/controllers/source_controller.rb'
+    - 'app/controllers/source_package_command_controller.rb'
     - 'app/controllers/source_project_controller.rb'
     - 'app/controllers/source_project_meta_controller.rb'
     - 'app/controllers/webui/monitor_controller.rb'
@@ -797,7 +802,7 @@ RSpec/MultipleMemoizedHelpers:
 RSpec/Rails/HaveHttpStatus:
   Exclude:
     - 'spec/controllers/attribute_controller_spec.rb'
-    - 'spec/controllers/source_controller_spec.rb'
+    - 'spec/controllers/source_package_command_controller_spec.rb'
     - 'spec/controllers/webui/projects/project_configuration_controller_spec.rb'
     - 'spec/controllers/webui/session_controller_spec.rb'
     - 'spec/controllers/webui/users/notifications_controller_spec.rb'
@@ -1273,4 +1278,4 @@ ViewComponent/MissingPreviewFile:
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, AllowedPatterns.
 # URISchemes: http, https
 Layout/LineLength:
-  Max: 264
+  Max: 271
