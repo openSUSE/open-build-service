@@ -1382,6 +1382,7 @@ sub issuediff {
   }
   my %oldissues;
   my %newissues;
+  my %keptissues;
   for my $c (keys %oldchanges) {
     next if exists $newchanges{$c};
     issues($oldchanges{$c}, $trackers, \%oldissues);
@@ -1390,11 +1391,17 @@ sub issuediff {
     next if exists $oldchanges{$c};
     issues($newchanges{$c}, $trackers, \%newissues);
   }
+  if (%oldissues || %newissues) {
+    for my $c (keys %oldchanges) {
+      next unless exists $newchanges{$c};
+      issues($oldchanges{$c}, $trackers, \%keptissues);
+    }
+  }
   my @added;
   my @changed;
   my @deleted;
   for (sort keys %newissues) {
-    if (exists $oldissues{$_}) {
+    if (exists($oldissues{$_}) || exists($keptissues{$_})) {
       $newissues{$_}->{'state'} = 'changed';
       delete $oldissues{$_};
       push @changed, $newissues{$_};
@@ -1404,8 +1411,13 @@ sub issuediff {
     }
   }
   for (sort keys %oldissues) {
-    $oldissues{$_}->{'state'} = 'deleted';
-    push @deleted , $oldissues{$_};
+    if (exists($keptissues{$_})) {
+      $oldissues{$_}->{'state'} = 'changed';
+      push @changed, $oldissues{$_};
+    } else {
+      $oldissues{$_}->{'state'} = 'deleted';
+      push @deleted , $oldissues{$_};
+    }
   }
   finalizeissues(@changed, @added, @deleted);
   return [ @changed, @added, @deleted ];
