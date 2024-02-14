@@ -259,18 +259,16 @@ sub manifest_upload_tags {
 }
 
 sub cosign_upload {
-  my ($tag, $config, @layers) = @_;
+  my ($tag, @layer_ents) = @_;
   my $oci = 1;
-  my ($config_ent, $config_blobid) = BSContar::make_blob_entry('config.json', $config);
+  my $config_ent = BSConSign::create_cosign_config_ent(\@layer_ents);
   my $config_data = BSContar::create_config_data($config_ent, $oci);
-  blob_upload($config_blobid, $config_ent);
+  blob_upload($config_data->{'digest'}, $config_ent);
   my @layer_data;
-  while (@layers >= 2) {
-    my ($payload_layer_data, $payload) = splice(@layers, 0, 2);
-    my ($payload_ent, $payload_blobid) = BSContar::make_blob_entry($payload_layer_data->{'digest'}, $payload);
-    die unless $payload_blobid eq $payload_layer_data->{'digest'};
-    blob_upload($payload_blobid, $payload_ent);
-    push @layer_data, $payload_layer_data;
+  for my $layer_ent (@layer_ents) {
+    my $layer_data = BSContar::create_layer_data($layer_ent, $oci);
+    push @layer_data, $layer_data;
+    blob_upload($layer_data->{'digest'}, $layer_ent);
   }
   my $mani = BSContar::create_dist_manifest_data($config_data, \@layer_data, $oci);
   my $mani_json = BSContar::create_dist_manifest($mani);
@@ -798,7 +796,6 @@ for my $tarfile (@tarfiles) {
     my $layer_data = BSContar::create_layer_data($layer_ent, $oci);
     push @layer_data, $layer_data;
     $layer_datas{$layer_file} = $layer_data;
-
     # upload to server
     blob_upload($layer_data->{'digest'}, $layer_ent);
   }
@@ -865,7 +862,7 @@ if ($writeinfofile) {
 if ($cosign && %digests_to_sign) {
   my $creator = 'OBS';
   my $gpgpubkey = readstr($pubkeyfile);
-  $cosigncookie ||= BSConSign::createcosigncookie($gpgpubkey, $gun, $creator);
+  $cosigncookie ||= BSConSign::create_cosign_cookie($gpgpubkey, $gun, $creator);
   # upload signatures
   for my $digest (sort keys %digests_to_sign) {
     my $sig_tag = "$digest.sig";
@@ -878,13 +875,14 @@ if ($cosign && %digests_to_sign) {
     print "creating cosign signature for $gun $digest\n";
     my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
     my $annotations = { $cosign_cookie_name => $cosigncookie };
-    my ($config, $payload_layer_data, $payload, $sig) = BSConSign::createcosign($signfunc, $digest, $gun, $creator, undef, $annotations);
-    cosign_upload($sig_tag, $config, $payload_layer_data, $payload);
+    my ($cosign_ent, $sig) = BSConSign::create_cosign_signature_ent($signfunc, $digest, $gun, $creator, undef, $annotations);
+    cosign_upload($sig_tag, $cosign_ent);
     if ($rekorserver) {
       print "uploading cosign signature to $rekorserver\n";
       my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata(BSPGP::unarmor($gpgpubkey)));
       $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
-      BSRekor::upload_hashedrekord($rekorserver, $payload_layer_data->{'digest'}, $sslpubkey, $sig);
+      my $hash = 'sha256:'.Digest::SHA::sha256_hex($cosign_ent->{'data'});	# must match signfunc
+      BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
     }
   }
   # upload attestations
@@ -907,8 +905,8 @@ if ($cosign && %digests_to_sign) {
     push @attestations, BSConSign::fixup_intoto_attestation($provenance, $signfunc, $digest, $gun) if $provenance;
     push @attestations, BSConSign::fixup_intoto_attestation($spdx_json, $signfunc, $digest, $gun) if $spdx_json;
     push @attestations, BSConSign::fixup_intoto_attestation($cyclonedx_json, $signfunc, $digest, $gun) if $cyclonedx_json;
-    my ($config, @attestation_layers) = BSConSign::createcosign_attestation($digest, \@attestations, $annotations);
-    cosign_upload($att_tag, $config, @attestation_layers);
+    my @attestation_ents = BSConSign::create_cosign_attestation_ents(\@attestations, $annotations);
+    cosign_upload($att_tag, @attestation_ents);
     if ($rekorserver) {
       print "uploading cosign attestations to $rekorserver\n";
       my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata(BSPGP::unarmor($gpgpubkey)));

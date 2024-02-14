@@ -17,7 +17,7 @@
 #
 ################################################################
 #
-# Create an "atomic container signature"
+# Create container signatures and handle attestations
 #
 
 package BSConSign;
@@ -39,7 +39,14 @@ sub canonical_json {
   return JSON::XS->new->utf8->canonical->encode($_[0]);
 }
 
-sub createpayload {
+sub create_entry {
+  my ($data, %extra) = @_;
+  my $blobid = 'sha256:'.Digest::SHA::sha256_hex($data);
+  my $ent = { %extra, 'size' => length($data), 'data' => $data, 'blobid' => $blobid };
+  return $ent;
+}
+
+sub create_signature_payload {
   my ($type, $digest, $reference, $creator, $timestamp) = @_;
   my $critical = {
     'type' => $type,
@@ -53,9 +60,9 @@ sub createpayload {
   return canonical_json($data);
 }
 
-sub createsig {
+sub create_atomic_signature {
   my ($signfunc, $digest, $reference, $creator, $timestamp) = @_;
-  my $payload = createpayload('atomic container signature', $digest, $reference, $creator, $timestamp);
+  my $payload = create_signature_payload('atomic container signature', $digest, $reference, $creator, $timestamp);
   my $sig = $signfunc->($payload);
   my $packets = BSPGP::onepass_signed_message($payload, $sig, 'rpmsig-req.bin');
   # compress packets like gpg does
@@ -77,49 +84,44 @@ sub sig2openshift {
   return $data;
 }
 
-sub createcosign_config {
-  my (@payload_layers) = @_;
+sub create_cosign_config_ent {
+  my (@layer_ents) = @_;
+  my @diff_ids = map {$_->{'blobid'}} @layer_ents;
   my $config = {
     'architecture' => '',
     'config' => {},
     'created' => '0001-01-01T00:00:00Z',
     'history' => [ { 'created' => '0001-01-01T00:00:00Z' } ],
     'os' => '',
-    'rootfs' => { 'type' => 'layers', 'diff_ids' => [ map {$_->{'digest'}} @payload_layers ] },
+    'rootfs' => { 'type' => 'layers', 'diff_ids' => \@diff_ids },
   };
-  return canonical_json($config);
+  return create_entry(canonical_json($config));
 }
 
-sub createcosign_payload {
+sub create_cosign_layer_ent {
   my ($payloadtype, $payload, $sig, $annotations) = @_;
-  my $payload_digest = 'sha256:'.Digest::SHA::sha256_hex($payload);
-  my $payload_layer_data = {
-    'annotations' => { 'dev.cosignproject.cosign/signature' => MIME::Base64::encode_base64($sig, ''), %{$annotations || {}} },
-    'digest' => $payload_digest,
-    'mediaType' => $payloadtype,
-    'size' => length($payload),
-  };
-  return (createcosign_config($payload_layer_data), $payload_layer_data, $payload, $sig);
+  my %annotations = %{$annotations || {}};
+  $annotations->{'dev.cosignproject.cosign/signature'} = MIME::Base64::encode_base64($sig, '') if defined $sig;
+  return create_entry($payload, 'mimetype' => $payloadtype, 'annotations' => \%annotations);
 }
 
-sub createcosign {
+sub create_cosign_signature_ent {
   my ($signfunc, $digest, $reference, $creator, $timestamp, $annotations) = @_;
-  my $payload = createpayload('cosign container image signature', $digest, $reference, $creator, $timestamp);
+  my $payload = create_signature_payload('cosign container image signature', $digest, $reference, $creator, $timestamp);
   # signfunc must return the openssl rsa signature
   my $sig = $signfunc->($payload);
-  return createcosign_payload($mt_cosign, $payload, $sig, $annotations);
+  return (create_cosign_layer_ent($mt_cosign, $payload, $sig, $annotations), $sig);
 }
 
-sub createcosign_attestation {
-  my ($digest, $attestations, $annotations) = @_;
+sub create_cosign_attestation_ents {
+  my ($attestations, $annotations) = @_;
   $attestations = [ $attestations ] if ref($attestations) ne 'ARRAY';
-  my @r = map { [ createcosign_payload($mt_dsse, $_, '', $annotations) ] } @$attestations;
-  return createcosign_config(map {$_->[1]} @r), map { ($_->[1], $_->[2]) } @r;
+  return map { create_cosign_layer_ent($mt_dsse, $_, '', $annotations) } @$attestations;
 }
 
 sub dsse_pae {
   my ($type, $payload) = @_;
-  return sprintf("DSSEv1 %d %s %d ", length($type), $type, length($payload))."$payload";
+  return sprintf("DSSEv1 %d %s %d ", length($type), $type, length($payload)).$payload;
 }
 
 sub dsse_sign {
@@ -164,7 +166,7 @@ sub fixup_intoto_attestation {
   return dsse_sign($attestation, $mt_intoto, $signfunc);
 }
 
-sub createcosigncookie {
+sub create_cosign_cookie {
   my ($gpgpubkey, $reference, $creator) = @_;
   $creator ||= '';
   my $pubkeyid = BSPGP::pk2fingerprint(BSPGP::unarmor($gpgpubkey));
