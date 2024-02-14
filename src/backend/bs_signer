@@ -692,6 +692,8 @@ sub getsignkey {
     if ($BSConfig::sign_project && $BSConfig::sign) {
       my @signargs;
       push @signargs, '--project', $projid;
+      push @signargs, '--signtype', $signtype if $signtype;
+      push @signargs, '--signflavor', $signflavor if $signflavor;
       local *S;
       open(S, '-|', $BSConfig::sign, @signargs, '-p') || die("$BSConfig::sign: $!\n");;
       $pubkey = ''; 
@@ -796,13 +798,20 @@ sub signjob {
     }
   }
   if (@signfiles) {
+    my $signflavor;
+    if ($info->{'signflavor'}) {
+      $signflavor = $info->{'signflavor'};
+      die("Signflavor is not configured\n") unless $BSConfig::sign_flavor;
+      die("Illegal signflavor '$signflavor'\n") unless grep {$_ eq $signflavor} @{$BSConfig::sign_flavor || []};
+    }
     my $needcert = grep {/\.appx$/} @signfiles;
     $needpubkey ||= grep {/\.iso$/} @signfiles;
     $needpubkey = 1 if $info->{'file'} eq '_aggregate' && grep {/\.d?rpm$/} @signfiles;
-    my ($algo, $signkey, $pubkey, $cert) = getsignkey($projid, $needpubkey, $needcert, undef, $info->{'signflavor'});
+    my ($algo, $signkey, $pubkey, $cert) = getsignkey($projid, $needpubkey, $needcert, undef, $signflavor);
     my $pubkey_create_time;
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, '--signflavor', $signflavor if $signflavor;
     if ($signkey) {
       mkdir_p($uploaddir);
       writestr("$uploaddir/signer.$$", undef, $signkey);
@@ -843,7 +852,7 @@ sub signjob {
       'pubkey' => $pubkey,
       'signkey' => $signkey,
       'cert' => $cert,
-      'signflavor' => $info->{'signflavor'},
+      'signflavor' => $signflavor,
     };
 
     eval {
