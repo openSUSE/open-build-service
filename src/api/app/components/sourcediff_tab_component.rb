@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class SourcediffTabComponent < ApplicationComponent
   attr_accessor :bs_request, :action, :active, :index
 

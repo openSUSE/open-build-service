@@ -163,6 +163,11 @@ module Webui::RequestHelper
     # TODO: merge these extra conditions when request_show_redesign is rolled out.
     if Flipper.enabled?(:request_show_redesign, User.session)
       description = case action[:type]
+                    when :submit
+                      'Submit %{source_container} to %{target_container}' % {
+                        source_container: project_or_package_link(source_project_hash),
+                        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
+                      }
                     when :change_devel
                       'Set %{source_container} to be devel project/package of %{target_container}' % {
                         source_container: project_or_package_link(source_project_hash),

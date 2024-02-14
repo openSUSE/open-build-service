@@ -39,6 +39,7 @@
         %strong Supersedes
         - bs_request.superseding.each do |supersed|
           = link_to "##{supersed['number']}", number: supersed['number']
+          = link_to "(changes from superseded)", request_changes_path(bs_request, diff_to_superseded: supersed)
     -# staging statement
     - if staging_status
       - staging_project = staging_status[:staging_project]
