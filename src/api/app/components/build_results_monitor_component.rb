@@ -67,21 +67,6 @@ class BuildResultsMonitorComponent < ApplicationComponent
     results_per_package_and_repository(package, repository).select { |result| result[:architecture] == architecture }
   end
 
-  def live_build_log_url(status, project, package, repository, architecture)
-    return if ['unresolvable', 'blocked', 'excluded', 'scheduled'].include?(status)
-
-    package_live_build_log_path(project: project,
-                                package: package,
-                                repository: repository,
-                                arch: architecture)
-  end
-
-  def repository_status(result)
-    return 'Outdated' unless result[:is_repository_in_db]
-
-    result[:repository_status].humanize
-  end
-
   def show
     'show' if filtered_package_names.count == 1
   end
