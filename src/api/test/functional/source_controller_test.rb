@@ -1912,7 +1912,6 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     node = Xmlhash.parse(@response.body)
     srcmd5 = node['srcmd5']
     get "/public/source/kde4/kdelibs/DUMMYFILE?rev=#{srcmd5}"
-    puts @response.body
     assert_response :success
 
     # list deleted packages of existing project
