@@ -1,5 +1,6 @@
 class PublicController < ApplicationController
   include PublicHelper
+  include ValidationHelper
 
   # we need to fall back to _nobody_ (_public_)
   before_action :extract_user_public, :set_response_format_to_xml
@@ -109,10 +110,20 @@ class PublicController < ApplicationController
 
   # GET /public/source/:project/:package/:filename
   def source_file
-    check_package_access(params[:project], params[:package])
+    if params[:rev].present? && params[:rev].length >= 32 &&
+       !Package.exists_by_project_and_name(params[:project], params[:package])
+      # automatic fallback
+      params[:deleted] = '1'
+    end
+
+    if params[:deleted].present?
+      validate_read_access_of_deleted_package(params[:project], params[:package])
+    else
+      check_package_access(params[:project], params[:package])
+    end
 
     path = Package.source_path(params[:project], params[:package], params[:filename])
-    path += build_query_from_hash(params, [:rev, :limit, :expand])
+    path += build_query_from_hash(params, [:rev, :limit, :expand, :deleted])
     volley_backend_path(path) unless forward_from_backend(path)
   end
 
