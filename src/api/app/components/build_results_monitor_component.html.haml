@@ -22,13 +22,13 @@
               - results_count_per_package_and_category(package_name).each do |key, value|
                 = render partial: 'webui/shared/build_status_count_badge', locals: { category: key, count: value.to_s }
 
-      .accordion-collapse.collapse{ id: "collapse-#{package_name.gsub(':', '_')}", class: show }
+      .accordion-collapse.collapse.my-3{ id: "collapse-#{package_name.gsub(':', '_')}", class: show }
         .build-result-table
           .build-result-legend
             .build-result-name
             - filtered_architecture_names.each do |architecture_name|
-              .build-result-architecture
-                = architecture_name
+              .build-result-architecture.mb-1
+                %b= architecture_name
           - filtered_repository_names.each do |repository_name|
             .build-result-row
               = link_to(helpers.word_break(repository_name, 22),
