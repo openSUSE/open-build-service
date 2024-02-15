@@ -1,5 +1,9 @@
 .card-body
-  - if packages.present?
+  - if project.scmsync.present?
+    %p
+    = link_to project.scmsync do
+      This project is managed in SCM
+  - elsif packages.present?
     .obs-dataTable
       %table.table.table-sm.table-bordered.table-hover.w-100#packages-table{ data: { source: package_index_path(project: project) } }
         %thead
