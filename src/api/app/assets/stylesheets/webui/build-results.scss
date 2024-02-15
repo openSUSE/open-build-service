@@ -241,6 +241,7 @@
       padding: 0.25rem;
       text-align: end;
       .architecture { display: none }
+      &:last-of-type { padding-right: 1rem }
     }
 
     .build-result-row {
