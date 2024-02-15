@@ -478,7 +478,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_07_080349) do
 
   create_table "events", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "eventtype", null: false
-    t.text "payload"
+    t.text "payload", size: :medium
     t.datetime "created_at", precision: nil
     t.datetime "updated_at"
     t.integer "undone_jobs", default: 0
