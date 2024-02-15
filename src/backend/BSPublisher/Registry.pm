@@ -400,7 +400,7 @@ sub update_sigs {
 	next;
       }
       print "creating atomic signature for $gun:$tag $digest\n";
-      my $sig = BSConSign::createsig($signfunc, $digest, "$gun:$tag", $creator);
+      my $sig = BSConSign::create_atomic_signature($signfunc, $digest, "$gun:$tag", $creator);
       push @d, [ $tag, $sig ];
     }
     $sigs->{'digests'}->{$digest} = \@d;
@@ -417,20 +417,16 @@ sub update_sigs {
 }
 
 sub create_cosign_manifest {
-  my ($repodir, $oci, $knownmanifests, $knownblobs, $config, @payload_layers) = @_;
-
-  my ($config_ent, $config_blobid) = BSContar::make_blob_entry('config.json', $config);
-  push_blob($repodir, $config_ent);
-  $knownblobs->{$config_blobid} = 1;
+  my ($repodir, $oci, $knownmanifests, $knownblobs, @layer_ents) = @_;
+  my $config_ent = BSConSign::create_cosign_config_ent(\@layer_ents);
   my $config_data = BSContar::create_config_data($config_ent, $oci);
+  push_blob($repodir, $config_ent);
+  $knownblobs->{$config_ent->{'blobid'}} = 1;
   my @layer_data;
-  while (@payload_layers >= 2) {
-    my ($payload_layer_data, $payload) = splice(@payload_layers, 0, 2);
-    my ($payload_ent, $payload_blobid) = BSContar::make_blob_entry($payload_layer_data->{'digest'}, $payload);
-    die unless $payload_blobid eq $payload_layer_data->{'digest'};
-    push_blob($repodir, $payload_ent);
-    $knownblobs->{$payload_blobid} = 1;
-    push @layer_data, $payload_layer_data;
+  for my $layer_ent (@layer_ents) {
+    push @layer_data, BSContar::create_layer_data($layer_ent, $oci);
+    push_blob($repodir, $layer_ent);
+    $knownblobs->{$layer_ent->{'blobid'}} = 1;
   }
   my $mani = BSContar::create_dist_manifest_data($config_data, \@layer_data, $oci);
   my $mani_json = BSContar::create_dist_manifest($mani);
@@ -482,14 +478,15 @@ sub update_cosign {
       next;
     }
     print "creating cosign signature for $gun $digest\n";
-    my ($config, $payload_layer_data, $payload, $sig) = BSConSign::createcosign($signfunc, $digest, $gun, $creator);
-    my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, $config, $payload_layer_data, $payload);
+    my ($cosign_ent, $sig) = BSConSign::create_cosign_signature_ent($signfunc, $digest, $gun, $creator);
+    my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, $cosign_ent);
     $sigs->{'digests'}->{$digest} = $mani_id;
     if ($rekorserver) {
       print "uploading cosign signature to $rekorserver\n";
       my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata($gpgpubkey));
       $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
-      BSRekor::upload_hashedrekord($rekorserver, $payload_layer_data->{'digest'}, $sslpubkey, $sig);
+      my $hash = 'sha256:'.Digest::SHA::sha256_hex($cosign_ent->{'data'});	# must match signfunc
+      BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
     }
   }
 
@@ -512,8 +509,8 @@ sub update_cosign {
     push @attestations, BSConSign::fixup_intoto_attestation($containerinfo->{'slsa_provenance'}, $signfunc, $digest, $gun) if $containerinfo->{'slsa_provenance'};
     push @attestations, BSConSign::fixup_intoto_attestation(readstr($containerinfo->{'spdx_file'}), $signfunc, $digest, $gun) if $containerinfo->{'spdx_file'};
     push @attestations, BSConSign::fixup_intoto_attestation(readstr($containerinfo->{'cyclonedx_file'}), $signfunc, $digest, $gun) if $containerinfo->{'cyclonedx_file'};
-    my ($config, @attestation_layers) = BSConSign::createcosign_attestation($digest, \@attestations);
-    my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, $config, @attestation_layers);
+    my @attestation_ents = BSConSign::create_cosign_attestation_ents(\@attestations);
+    my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, @attestation_ents);
     $sigs->{'attestations'}->{$digest} = $mani_id;
     if ($rekorserver) {
       print "uploading cosign attestation to $rekorserver\n";

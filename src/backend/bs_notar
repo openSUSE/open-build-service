@@ -33,7 +33,6 @@ use MIME::Base64 ();
 use Digest::SHA ();
 use Data::Dumper;
 
-use BSConfiguration;	# for BSConfig::sign
 use BSRPC ':https';
 use BSUtil;
 use BSPGP;
@@ -49,7 +48,7 @@ my $targets_expire = 3 * 366 * 24 * 3600;	# 3 years
 my $notary_timeout = 300;
 my $registry_timeout = 300;
 
-my @signcmd = ( $BSConfig::sign );
+my @signcmd;
 
 sub multipartentry {
   my ($name, $d) = @_;
@@ -257,6 +256,11 @@ sub getoldkey {
   };
   return BSRPC::rpc($param, \&JSON::XS::decode_json);
 }
+
+
+require BSConfiguration; 	# for BSConfig::sign
+die("sign program is not configured!\n") unless $BSConfig::sign;
+unshift @signcmd, $BSConfig::sign;
 
 my $signfunc = sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
 #

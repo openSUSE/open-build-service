@@ -553,7 +553,7 @@ sub upload_to_registry {
   my $cosigncookie;
   if (defined($pubkey) && $cosign) {
     my $creator = 'OBS';
-    $cosigncookie = BSConSign::createcosigncookie($pubkey, $gun, $creator);
+    $cosigncookie = BSConSign::create_cosign_cookie($pubkey, $gun, $creator);
   }
 
   # check if the registry is up-to-date
