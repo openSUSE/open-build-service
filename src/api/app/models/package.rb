@@ -719,21 +719,12 @@ class Package < ApplicationRecord
     check_write_access!(ignore_lock)
 
     Package.transaction do
-      assign_attributes_from_from_xml(xmlhash)
-
-      assign_devel_package_from_xml(xmlhash)
+      read_from_xml(xmlhash)
 
       # just for cycle detection
       resolve_devel_package
-
       update_relationships_from_xml(xmlhash)
-
-      #---begin enable / disable flags ---#
       update_all_flags(xmlhash)
-
-      #--- update url ---#
-      self.url = xmlhash.value('url')
-      #--- end update url ---#
 
       save!
     end
@@ -762,6 +753,11 @@ class Package < ApplicationRecord
     raise SaveError, "package '#{devel_package_name}' does not exist in project '#{devel_project_name}'" unless devel_package
 
     self.develpackage = devel_package
+  end
+
+  def read_from_xml(xmlhash)
+    assign_attributes_from_from_xml(xmlhash)
+    assign_devel_package_from_xml(xmlhash)
   end
 
   def store(opts = {})
