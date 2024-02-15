@@ -1225,6 +1225,8 @@ sub getpubkey {
   my ($buildinfo, $dir, $signtype) = @_;
   my $server = $buildinfo->{'srcserver'} || $srcserver;
   my @args = ("project=$buildinfo->{'project'}", "withpubkey=1");
+  push @args, "signtype=$signtype" if $signtype;
+  push @args, "signflavor=$buildinfo->{'signflavor'}" if $buildinfo->{'signflavor'};
   my $signkey;
   my $pubkey;
   eval {
@@ -1245,6 +1247,7 @@ sub getsslcert {
   my $cert;
   my @args = ("project=$buildinfo->{'project'}", "autoextend=1");
   push @args, "signtype=$signtype" if $signtype;
+  push @args, "signflavor=$buildinfo->{'signflavor'}" if $buildinfo->{'signflavor'};
   eval {
     $cert = BSRPC::rpc({
       'uri' => "$server/getsslcert",
