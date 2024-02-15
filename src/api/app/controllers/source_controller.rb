@@ -996,6 +996,14 @@ class SourceController < ApplicationController
     multibuild_container = nil
     multibuild_container = params[:package].gsub(/^.*:/, '') if params[:package].include?(':') && !params[:package].starts_with?('_product:')
 
+    if pkg.nil?
+      prj = Project.get_by_name(params[:project])
+      pkg = prj.packages.new(name: Package.striping_multibuild_suffix(params[:package]))
+      meta = Xmlhash.parse(Backend::Api::Sources::Package.meta(prj.name, pkg.name))
+      pkg.read_from_xml(meta)
+      # no pkg.store
+    end
+
     # uniq timestring for all targets
     time_now = Time.now.utc
 
