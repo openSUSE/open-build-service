@@ -1909,7 +1909,6 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # source access check via public route (critical for obs-git-lfs-ro)
     get '/source/kde4/kdelibs?deleted=1'
     assert_response :success
-    puts @response.body
     node = Xmlhash.parse(@response.body)
     srcmd5 = node['srcmd5']
     get "/public/source/kde4/kdelibs/DUMMYFILE?rev=#{srcmd5}"
