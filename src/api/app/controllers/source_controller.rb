@@ -822,9 +822,7 @@ class SourceController < ApplicationController
     project = Project.get_by_name(params[:project])
     opackage = Package.get_by_project_and_name(project.name, params[:package], check_update_project: true)
     raise RemoteProjectError, 'Instantiation from remote project is not supported' unless opackage
-    raise CmdExecutionNoPermission, 'package is already intialized here' if project == opackage.project
-    raise CmdExecutionNoPermission, "no permission to execute command 'copy'" unless User.session!.can_modify?(project)
-    raise CmdExecutionNoPermission, 'no permission to modify source package' unless User.session!.can_modify?(opackage, true) # ignore_lock option
+    raise CmdExecutionNoPermission, 'package is already instantiated here' if project == opackage.project
 
     opts = {}
     at = AttribType.find_by_namespace_and_name!('OBS', 'MakeOriginOlder')
