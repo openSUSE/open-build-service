@@ -100,6 +100,7 @@ my $prodfile_dtd = [
 	    [],
 	    'target',
 	    'release',
+	    'flavor',
 	  [ 'repositories' =>
 	     [[ 'repository' =>
 		    'path',
@@ -142,6 +143,11 @@ my $prodfile_dtd = [
 	    'defaultlang',
 	    'datadir',
 	    'descriptiondir',
+	    'descrdir',
+	  [ 'references' =>
+		'name',
+		'version',
+	  ],
 	  [ 'releasepackage' =>
 		'name',
 		'flag',
@@ -152,6 +158,13 @@ my $prodfile_dtd = [
 	  [ 'obsoletepackage' ],
       ],
 	'runtimeconfig',
+	[ 'productdependency' =>
+		'relationship',
+		'name',
+		'baseversion',
+		'patchlevel',
+		'flag',
+	],
 ];
 
 my $productsfile_dtd = [
@@ -177,8 +190,16 @@ sub unpack_legacy_product {
 
   my $unpack_dir = tempdir("produnpack-XXXXXX", TMPDIR => 1, CLEANUP => 1);
   die unless $unpack_dir && -d $unpack_dir;
+  my $pid;
+  if (!($pid = BSUtil::xfork())) {
+    chdir($unpack_dir) || die("chdir $unpack_dir: $!\n");
+    open(STDOUT, '>', '/dev/null');
+    exec('/usr/bin/unrpm', $rpm);
+    die("/usr/bin/unrpm: $!\n");
+  }
+  waitpid($pid, 0) == $pid || die("waitpid $pid: $!\n");
+  warn("unrpm: exit status $?\n") if $?;
   my $products;
-  system("cd $unpack_dir && /usr/bin/unrpm $rpm >/dev/null 2>&1");
   for my $prod (grep {/\.prod$/} sort(ls("$unpack_dir/etc/products.d"))) {
     my $cprod = readxml("$unpack_dir/etc/products.d/$prod", $prodfile_dtd);
     $cprod->{$_} ||= '0' for qw{epoch version release};
@@ -294,6 +315,23 @@ sub createrepo_rpmmd_hook {
 
   return unless $projid =~ /^$BSConfig::repomd_hook_masterregex/;
 
+  my @legacyargs;
+  if ($options->{'sha512'}) {
+    push @legacyargs, '--unique-md-filenames', '--checksum=sha512';
+  } elsif ($options->{'legacy'}) {
+    push @legacyargs, '--simple-md-filenames', '--checksum=sha';
+  } else {
+    # the default in newer createrepos
+    push @legacyargs, '--unique-md-filenames', '--checksum=sha256';
+  }
+  # createrepo_c 1.0.0 changed the default to zstd. In order to preserve
+  # compatibility with SLE12 and SLE15 GA we need to set gz
+  if ($options->{'compression-zstd'}) {
+    push @legacyargs, '--compress-type=zst';
+  } else {
+    push @legacyargs, '--compress-type=gz';
+  }
+
   if ($BSConfig::repomd_hook_expires) {
     my $expire;
     my @ex = @$BSConfig::repomd_hook_expires;
@@ -311,7 +349,7 @@ sub createrepo_rpmmd_hook {
       };
       print "    adding suseinfo.xml to repodata\n";
       writexml("$extrep/repodata/suseinfo.xml", undef, $suseinfo, $suseinfo_dtd);
-      ::qsystem('modifyrepo', "$extrep/repodata/suseinfo.xml", "$extrep/repodata") && print("    modifyrepo failed: $?\n");
+      ::qsystem('modifyrepo', "$extrep/repodata/suseinfo.xml", "$extrep/repodata", @legacyargs) && print("    modifyrepo failed: $?\n");
       unlink("$extrep/repodata/suseinfo.xml");
     }
   }
@@ -459,7 +497,7 @@ sub createrepo_rpmmd_hook {
     };
     print "    adding susedata.xml to repodata\n";
     writexml("$extrep/repodata/susedata.xml", undef, $susedata, $susedata_dtd);
-    ::qsystem('modifyrepo', "$extrep/repodata/susedata.xml", "$extrep/repodata") && print("    modifyrepo failed: $?\n");
+    ::qsystem('modifyrepo', "$extrep/repodata/susedata.xml", "$extrep/repodata", @legacyargs) && print("    modifyrepo failed: $?\n");
     unlink("$extrep/repodata/susedata.xml");
   }
   my @productdata = map {$productdata->{$_}} sort keys %$productdata;
@@ -467,7 +505,7 @@ sub createrepo_rpmmd_hook {
     my $proddata = { 'product' => \@productdata, };
     print "    adding products.xml to repodata\n";
     writexml("$extrep/repodata/products.xml", undef, $proddata, $productsfile_dtd);
-    ::qsystem('modifyrepo', "$extrep/repodata/products.xml", "$extrep/repodata") && print("    modifyrepo failed: $?\n");
+    ::qsystem('modifyrepo', "$extrep/repodata/products.xml", "$extrep/repodata", @legacyargs) && print("    modifyrepo failed: $?\n");
     unlink("$extrep/repodata/products.xml");
   }
 
