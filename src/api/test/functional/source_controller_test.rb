@@ -1906,6 +1906,13 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(parent: { tag: 'revision' }, tag: 'user', content: 'fredlibs')
     assert_xml_tag(parent: { tag: 'revision' }, tag: 'comment', content: 'test deleted')
     assert_response :success
+    # source access check via public route (critical for obs-git-lfs-ro)
+    get '/source/kde4/kdelibs?deleted=1'
+    assert_response :success
+    node = Xmlhash.parse(@response.body)
+    srcmd5 = node['srcmd5']
+    get "/public/source/kde4/kdelibs/DUMMYFILE?rev=#{srcmd5}"
+    assert_response :success
 
     # list deleted packages of existing project
     get '/source/kde4', params: { deleted: 1 }
