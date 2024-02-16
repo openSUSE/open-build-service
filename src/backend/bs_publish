@@ -774,7 +774,7 @@ sub createrepo_rpmmd {
   }
 
   if ($BSConfig::createrepo_rpmmd_hook) {
-    $BSConfig::createrepo_rpmmd_hook->($projid, $repoid, $extrep, \%options, $data);
+    $BSConfig::createrepo_rpmmd_hook->($projid, $repoid, $extrep, \%options, $data, \@legacyargs);
   }
 
   if ($options{'rsyncable'}) {
