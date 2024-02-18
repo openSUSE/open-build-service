@@ -7,6 +7,10 @@ class CommentsController < ApplicationController
     @comments = comments.sort_by(&:id)
   end
 
+  def show
+    @comment = Comment.find(params[:id])
+  end
+
   def create
     @obj.comments.create!(body: request.raw_post, user: User.session!, parent_id: params[:parent_id])
     render_ok
