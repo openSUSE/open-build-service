@@ -1,6 +1,6 @@
 RSpec.describe CommentsController do
   render_views
-  describe 'GET #show' do
+  describe 'GET #index' do
     let(:user) { create(:confirmed_user) }
 
     RSpec.shared_examples 'request comment index' do
