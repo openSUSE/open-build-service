@@ -337,6 +337,7 @@ OBSApi::Application.routes.draw do
       get 'comments/user' => :index, constraints: cons, as: :comments_user
 
       get 'comments/:id' => :show, constraints: cons
+      put 'comments/:id' => :update, constraints: cons
       delete 'comment/:id' => :destroy, constraints: cons, as: :comment_delete
     end
   end
