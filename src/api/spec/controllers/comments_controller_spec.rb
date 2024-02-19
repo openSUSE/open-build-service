@@ -192,7 +192,7 @@ RSpec.describe CommentsController do
 
   describe 'PUT #update' do
     let(:user) { create(:confirmed_user) }
-    let(:new_comment_body) { "new comment body" }
+    let(:new_comment_body) { 'new comment body' }
 
     before do
       login user
