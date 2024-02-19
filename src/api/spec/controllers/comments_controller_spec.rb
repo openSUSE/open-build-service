@@ -142,4 +142,50 @@ RSpec.describe CommentsController do
       it { expect(response).to have_http_status(:success) }
     end
   end
+
+  describe 'GET #show' do
+    let(:user) { create(:confirmed_user) }
+    let(:comment) { create(:comment_project) }
+
+    RSpec.shared_examples 'request comment show' do
+      it { expect(response).to have_http_status(:success) }
+      it { expect(assigns(:comment)).to eq(comment) }
+
+      it {
+        expect(response.body.strip)
+          .to eq("<comment who=\"#{comment.user}\" when=\"#{comment.created_at}\" id=\"#{comment.id}\">#{comment.body}</comment>")
+      }
+    end
+
+    context 'of a project' do
+      before do
+        login user
+        get :show, format: :xml, params: { id: comment.id }
+      end
+
+      include_examples 'request comment show'
+    end
+
+    context 'of a package' do
+      let(:comment) { create(:comment_package) }
+
+      before do
+        login user
+        get :show, format: :xml, params: { id: comment.id }
+      end
+
+      include_examples 'request comment show'
+    end
+
+    context 'of a bs_request' do
+      let(:comment) { create(:comment_request) }
+
+      before do
+        login user
+        get :show, format: :xml, params: { id: comment.id }
+      end
+
+      include_examples 'request comment show'
+    end
+  end
 end
