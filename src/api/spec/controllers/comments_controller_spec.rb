@@ -145,7 +145,6 @@ RSpec.describe CommentsController do
 
   describe 'GET #show' do
     let(:user) { create(:confirmed_user) }
-    let(:comment) { create(:comment_project) }
 
     RSpec.shared_examples 'request comment show' do
       it { expect(response).to have_http_status(:success) }
@@ -158,6 +157,8 @@ RSpec.describe CommentsController do
     end
 
     context 'of a project' do
+      let(:comment) { create(:comment_project) }
+
       before do
         login user
         get :show, format: :xml, params: { id: comment.id }
