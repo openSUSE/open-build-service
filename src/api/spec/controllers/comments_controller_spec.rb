@@ -189,4 +189,43 @@ RSpec.describe CommentsController do
       include_examples 'request comment show'
     end
   end
+
+  describe 'PUT #update' do
+    let(:user) { create(:confirmed_user) }
+    let(:new_comment_body) { "new comment body" }
+
+    before do
+      login user
+    end
+
+    context 'of a project' do
+      let(:comment) { create(:comment_project, user: user) }
+
+      before do
+        put :update, format: :xml, params: { id: comment.id, body: new_comment_body }
+      end
+
+      it { expect(response).to have_http_status(:success) }
+    end
+
+    context 'of a package' do
+      let(:comment) { create(:comment_package, user: user) }
+
+      before do
+        put :update, format: :xml, params: { id: comment.id, body: new_comment_body }
+      end
+
+      it { expect(response).to have_http_status(:success) }
+    end
+
+    context 'of a bs_request' do
+      let(:comment) { create(:comment_request, user: user) }
+
+      before do
+        put :update, format: :xml, params: { id: comment.id, body: new_comment_body }
+      end
+
+      it { expect(response).to have_http_status(:success) }
+    end
+  end
 end
