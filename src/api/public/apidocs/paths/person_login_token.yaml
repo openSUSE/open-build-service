@@ -35,7 +35,7 @@ get:
       description: |
         Forbidden.
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
       content:
         application/xml; charset=utf-8:
           schema:
@@ -108,7 +108,7 @@ post:
       description: |
         OK. The request has succeeded.
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
 
         **NOTE:** This is an example of a valid response. It should include the attribute 'name'
         in every 'data' tag, which is missing in the example using the schema.
@@ -133,7 +133,7 @@ post:
       description: |
         Bad Request.
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
       content:
         application/xml; charset=utf-8:
           schema:
@@ -147,7 +147,7 @@ post:
       description: |
         Forbidden.
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
       content:
         application/xml; charset=utf-8:
           schema:
