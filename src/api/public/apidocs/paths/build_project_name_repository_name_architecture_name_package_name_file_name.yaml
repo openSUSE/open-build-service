@@ -24,7 +24,7 @@ get:
       description: |
         Error: Not Found
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
       content:
         application/xml; charset=utf-8:
           schema:
@@ -93,7 +93,7 @@ put:
       description: |
         Error: Not Found
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
       content:
         application/xml; charset=utf-8:
           schema:
@@ -153,7 +153,7 @@ delete:
       description: |
         Error: Not Found
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
       content:
         application/xml; charset=utf-8:
           schema:

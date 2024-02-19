@@ -53,7 +53,7 @@ get:
       description: |
         Bad Request.
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+        XML Schema used for body validation: [status.rng](../schema/status.rng).
       content:
         application/xml; charset=utf-8:
           schema:
@@ -80,7 +80,7 @@ get:
       description: |
         Not Found.
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+        XML Schema used for body validation: [status.rng](../schema/status.rng).
       content:
         application/xml; charset=utf-8:
           schema:
@@ -136,7 +136,7 @@ put:
       description: |
         Bad Request.
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
       content:
         application/xml; charset=utf-8:
           schema:
@@ -156,7 +156,7 @@ put:
       description: |
         Forbidden.
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+        XML Schema used for body validation: [status.rng](../schema/status.rng).
       content:
         application/xml; charset=utf-8:
           schema:
