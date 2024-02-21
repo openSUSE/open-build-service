@@ -8,7 +8,9 @@ class CommentsController < ApplicationController
   end
 
   def create
-    @obj.comments.create!(body: request.raw_post, user: User.session!, parent_id: params[:parent_id])
+    comment = @obj.comments.new(body: request.raw_post, user: User.session!, parent_id: params[:parent_id])
+    authorize comment, :create?
+    comment.save!
     render_ok
   end
 
