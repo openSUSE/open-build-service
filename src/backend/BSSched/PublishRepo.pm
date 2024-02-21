@@ -167,8 +167,9 @@ sub prpfinished {
 
   my $seen_binary;
   my $singleexport;
-  $singleexport = $bconf->{'singleexport'} if $bconf;
-  $singleexport = 1 if $bconf && grep {$_ eq 'singleexport'} @{$bconf->{'repotype'} || []};
+  $singleexport = $bconf->{'singleexport'} if $bconf;						# obsolete
+  $singleexport = 1 if $bconf && grep {$_ eq 'singleexport'} @{$bconf->{'repotype'} || []};	# obsolete
+  $singleexport = 1 if $bconf && $bconf->{'publishflags:singleexport'};
   if ($singleexport) {
     print "    prp $prp is singleexport\n";
     $seen_binary = {};
