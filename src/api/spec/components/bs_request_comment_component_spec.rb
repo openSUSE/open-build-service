@@ -15,7 +15,7 @@ RSpec.describe BsRequestCommentComponent, type: :component do
   end
 
   it 'displays who wrote the comment' do
-    expect(rendered_content).to have_text("#{comment_a.user.realname} (#{comment_a.user.login})\n-")
+    expect(rendered_content).to have_text("#{comment_a.user.realname} (#{comment_a.user.login})\ncommented")
   end
 
   it 'displays the time when the comment happened in words' do
@@ -81,12 +81,12 @@ RSpec.describe BsRequestCommentComponent, type: :component do
     end
 
     it 'displays the parent comment' do
-      expect(rendered_content).to have_text("(#{comment_a.user.login})\n-")
+      expect(rendered_content).to have_text("(#{comment_a.user.login})\ncommented")
       expect(rendered_content).to have_text('Comment A')
     end
 
     it 'displays the third child comment on the third children level' do
-      expect(rendered_content).to have_css("#{(['.d-flex > .timeline-item-comment'] * 4).join(' > ')} > .comment-bubble", text: "(#{comment_d.user.login})\n-")
+      expect(rendered_content).to have_css("#{(['.d-flex > .timeline-item-comment'] * 4).join(' > ')} > .comment-bubble", text: "(#{comment_d.user.login})\ncommented")
       expect(rendered_content).to have_css("#{(['.d-flex > .timeline-item-comment'] * 4).join(' > ')} > .comment-bubble", text: 'Comment D')
     end
 
