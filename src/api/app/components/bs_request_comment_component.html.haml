@@ -24,9 +24,9 @@
                             class: 'dropdown-item delete_link', title: 'Delete comment') do
                 Delete
       .ps-3.pe-5.py-2.border-bottom.d-flex.flex-column.flex-lg-row.justify-content-between.align-items-start.gap-2
-        .d-inline-flex.justify-content-start
+        %span
           = link_to(helpers.realname_with_login(comment.user), user_path(comment.user))
-          \-
+          commented
           = link_to("#comment-#{comment.id}", title: l(comment.created_at.utc), name: "comment-#{comment.id}") do
             = render TimeComponent.new(time: comment.created_at)
           = render CommentHistoryComponent.new(comment)
