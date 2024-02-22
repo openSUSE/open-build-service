@@ -101,7 +101,7 @@ sub create_cosign_config_ent {
 sub create_cosign_layer_ent {
   my ($payloadtype, $payload, $sig, $annotations) = @_;
   my %annotations = %{$annotations || {}};
-  $annotations->{'dev.cosignproject.cosign/signature'} = MIME::Base64::encode_base64($sig, '') if defined $sig;
+  $annotations{'dev.cosignproject.cosign/signature'} = MIME::Base64::encode_base64($sig, '') if defined $sig;
   return create_entry($payload, 'mimetype' => $payloadtype, 'annotations' => \%annotations);
 }
 
