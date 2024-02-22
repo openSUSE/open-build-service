@@ -104,6 +104,8 @@ RSpec.describe 'User beta features', :js do
 
     context 'when disabling a beta feature which is not already disabled' do
       before do
+        Flipper::Adapters::ActiveRecord::Feature.create(key: beta_feature)
+        Flipper.enable(beta_feature, user)
         visit my_beta_features_path
         uncheck('feature[something_cool]')
       end
