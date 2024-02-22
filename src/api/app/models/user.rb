@@ -421,6 +421,10 @@ class User < ApplicationRecord
     self.state == 'confirmed'
   end
 
+  def is_deleted?
+    state == 'deleted'
+  end
+
   def is_in_group?(group)
     case group
     when String
