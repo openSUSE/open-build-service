@@ -269,6 +269,23 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'comment', content: 'fixtures')
   end
 
+  def test_put_minimal_package_meta
+    login_tom
+    # ensure that api and backend takes this minimal meta
+    raw_put '/source/home:tom/MINIMAL/_meta', '<package name="MINIMAL"/>'
+    assert_response :success
+
+    # check created package in api and backend
+    get '/source/home:tom/MINIMAL/_meta'
+    assert_response :success
+    get '/source/home:tom/MINIMAL'
+    assert_response :success
+
+    # cleanup
+    delete '/source/home:tom/MINIMAL'
+    assert_response :success
+  end
+
   def test_get_package_meta_from_hidden_project
     login_tom
     get '/source/HiddenProject/pack/_meta'
