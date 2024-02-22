@@ -581,7 +581,7 @@ sub upload_to_registry {
       die("need a blobdir for containerinfo uploads\n") unless $blobdir;
       push @uploadfiles, "$blobdir/container.".scalar(@uploadfiles).".containerinfo";
       BSRepServer::Containerinfo::writecontainerinfo($uploadfiles[-1], undef, $containerinfo);
-      $wrote_containerinfo = 1;
+      $wrote_containerinfo = $uploadfiles[-1];
     } elsif ($file =~ /(.*)\.tgz$/ && ($containerinfo->{'type'} || '') eq 'helm') {
       my $helminfofile = "$1.helminfo";
       $blobdir = $containerinfo->{'blobdir'};
@@ -589,7 +589,7 @@ sub upload_to_registry {
       die("bad publishfile\n") unless $helminfofile =~ /^\Q$blobdir\E\//;	# just in case
       push @uploadfiles, $helminfofile;
       BSRepServer::Containerinfo::writecontainerinfo($uploadfiles[-1], undef, $containerinfo);
-      $wrote_containerinfo = 1;
+      $wrote_containerinfo = $uploadfiles[-1];
     } elsif ($file =~ /\.tar$/) {
       push @uploadfiles, $file;
     } else {
@@ -598,23 +598,33 @@ sub upload_to_registry {
       push @tempfiles, $tmpfile;
     }
     # copy provenance file into blobdir
-    if ($wrote_containerinfo && $containerinfo->{'slsa_provenance'} && $cosign_attestation) {
-      my $provenancefile = $uploadfiles[-1];
-      die unless $provenancefile =~ s/\.[^\.]+$/.slsa_provenance.json/;
-      writestr($provenancefile, undef, $containerinfo->{'slsa_provenance'});
-      $do_slsaprovenance = 1;
-    }
-    if ($wrote_containerinfo && $containerinfo->{'spdx_file'} && $cosign_attestation) {
-      my $spdx_file = $uploadfiles[-1];
-      die unless $spdx_file =~ s/\.[^\.]+$/.spdx.json/;
-      BSUtil::cp($containerinfo->{'spdx_file'}, $spdx_file) if $containerinfo->{'spdx_file'} ne $spdx_file;
-      $do_sbom = 1;
-    }
-    if ($wrote_containerinfo && $containerinfo->{'cyclonedx_file'} && $cosign_attestation) {
-      my $cyclonedx_file = $uploadfiles[-1];
-      die unless $cyclonedx_file =~ s/\.[^\.]+$/.cdx.json/;
-      BSUtil::cp($containerinfo->{'cyclonedx_file'}, $cyclonedx_file) if $containerinfo->{'cyclonedx_file'} ne $cyclonedx_file;
-      $do_sbom = 1;
+    if ($wrote_containerinfo && $cosign_attestation) {
+      if ($containerinfo->{'slsa_provenance'}) {
+	my $provenancefile = $wrote_containerinfo;
+	die unless $provenancefile =~ s/\.[^\.]+$/.slsa_provenance.json/;
+	writestr($provenancefile, undef, $containerinfo->{'slsa_provenance'});
+	$do_slsaprovenance = 1;
+      }
+      if ($containerinfo->{'spdx_file'}) {
+	my $spdx_file = $wrote_containerinfo;
+	die unless $spdx_file =~ s/\.[^\.]+$/.spdx.json/;
+	BSUtil::cp($containerinfo->{'spdx_file'}, $spdx_file) if $containerinfo->{'spdx_file'} ne $spdx_file;
+	$do_sbom = 1;
+      }
+      if ($containerinfo->{'cyclonedx_file'}) {
+	my $cyclonedx_file = $wrote_containerinfo;
+	die unless $cyclonedx_file =~ s/\.[^\.]+$/.cdx.json/;
+	BSUtil::cp($containerinfo->{'cyclonedx_file'}, $cyclonedx_file) if $containerinfo->{'cyclonedx_file'} ne $cyclonedx_file;
+	$do_sbom = 1;
+      }
+      for my $intoto (@{$containerinfo->{'intoto_files'} || []}) {
+        next unless $intoto =~ /(\.[^\/\.]+\.intoto\.json)$/;
+        my $intoto_suffix = $1;
+	my $intoto_file = $wrote_containerinfo;
+	die unless $intoto_file =~ s/\.[^\.]+$/$intoto_suffix/;
+	BSUtil::cp($intoto, $intoto_file) if $intoto ne $intoto_file;
+	$do_sbom = 1;
+      }
     }
   }
 

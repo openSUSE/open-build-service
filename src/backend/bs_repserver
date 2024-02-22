@@ -2560,14 +2560,14 @@ sub copybuild {
       if (!defined($setrelease)) {
         $setrelease = '' if -d "$odir/$bin";
         # need to keep associated files in sync with dir
-        $setrelease = '' if $bin =~ /^(.*)\.(?:report|milestone|cdx\.json|spdx\.json)$/ && -d "$odir/$1";
+        $setrelease = '' if $bin =~ /^(.*)\.(?:report|milestone|cdx\.json|spdx\.json|[^\.]+\.intoto\.json)$/ && -d "$odir/$1";
       }
       if (defined($oldsetrelease) && $oldsetrelease eq '-') {
         # we use '-' as "released without setrelease" marker
         undef $oldsetrelease;
         $oldsetrelease = '' if -d "$odir/$bin";
         # need to keep associated files in sync with dir
-        $oldsetrelease = '' if $bin =~ /^(.*)\.(?:report|milestone|cdx\.json|spdx\.json)$/ && -d "$odir/$1";
+        $oldsetrelease = '' if $bin =~ /^(.*)\.(?:report|milestone|cdx\.json|spdx\.json|[^\.]+\.intoto\.json)$/ && -d "$odir/$1";
       }
       if (defined($setrelease)) {
 	$setrelease =~ s/^-?/-/; # "-" will drop the release tag

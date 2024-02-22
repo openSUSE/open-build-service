@@ -495,7 +495,11 @@ sub build {
 	    # copy extra data like .packages or .basepackages
 	    my $extraprefix = $containerinfofile;
 	    $extraprefix =~ s/\.containerinfo//;
-	    for my $extra ('.spdx.json', '.cdx.json') {
+	    my @extra = ('.spdx.json', '.cdx.json');
+	    for (@d) {
+	      push @extra, $1 if /(\.[^\.\/]+\.intoto.json)$/;
+	    }
+	    for my $extra (@extra) {
 	      if (-e "$dir/$prefix$extraprefix$extra") {
 		BSUtil::cp("$dir/$prefix$extraprefix$extra", "$jobdatadir/$extraprefix$extra");
 		$jobbins{"$extraprefix$extra"} = 1;

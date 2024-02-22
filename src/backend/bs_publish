@@ -2005,9 +2005,9 @@ sub linkintoblobdir {
 }
 
 sub readcontainermetafiles {
-  my ($containerinfo, $containerinfofile, $blobdirref) = @_;
+  my ($containerinfo, $dir, $containerinfofile, $blobdirref) = @_;
   return unless $containerinfo;
-  my $prefix = $containerinfofile;
+  my $prefix = "$dir/$containerinfofile";
   return unless $prefix =~ s/\.containerinfo$//;
   if (-e "$prefix.slsa_provenance.json") {
     my $provenance = readstr("$prefix.slsa_provenance.json", 1);
@@ -2019,6 +2019,8 @@ sub readcontainermetafiles {
   if (-e "$prefix.cdx.json") {
     $containerinfo->{'cyclonedx_file'} = linkintoblobdir("$prefix.cdx.json", $blobdirref);
   }
+  my @intoto = grep {/^\Q$prefix\E\.[^\.]+\.intoto.json$/} map {"$dir/$_"} sort(ls($dir));
+  push @{$containerinfo->{'intoto_files'}}, map {linkintoblobdir($_, $blobdirref)} @intoto;
   $prefix =~ s/\.docker$// unless -e "$prefix.packages";
   if (-e "$prefix.packages") {
     $containerinfo->{'container_packages'} = linkintoblobdir("$prefix.packages", $blobdirref);
@@ -2379,7 +2381,7 @@ sub publish {
 	  } elsif ($bin =~ /(.*)\.containerinfo$/) {
             $kiwimedium{$p} = "$arch/$1" if -e "$r/$1.packages";
 	  }
-          readcontainermetafiles($containerinfo, "$r/$bin", \$blobdir);
+          readcontainermetafiles($containerinfo, $r, $bin, \$blobdir);
 	  next;
 	} elsif ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256(?:\.asc)?)?$/) {
           # kiwi image case
@@ -2398,7 +2400,7 @@ sub publish {
 	      $containerinfo->{'publishfile'} = "$extrep/$p";
 	      undef $containerinfo if $3;
 	    }
-            readcontainermetafiles($containerinfo, "$r/$1.containerinfo", \$blobdir) if $containerinfo;
+            readcontainermetafiles($containerinfo, $r, "$1.containerinfo", \$blobdir) if $containerinfo;
 	  } else {
 	    $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
 	  }
@@ -2419,7 +2421,7 @@ sub publish {
 	      $containerinfo->{'publishfile'} = "$extrep/$p";
 	      undef $containerinfo if $2;
 	    }
-            readcontainermetafiles($containerinfo, "$r/$1.containerinfo", \$blobdir) if $containerinfo;
+            readcontainermetafiles($containerinfo, $r, "$1.containerinfo", \$blobdir) if $containerinfo;
 	  }
 	  next if $bin =~ /-(?:appstream|desktopfiles|polkitactions|mimetypes)\.tar/;
         } elsif ($bin =~ /\.(?:tgz|zip)?(?:\.sha256(?:\.asc)?)?$/) {
