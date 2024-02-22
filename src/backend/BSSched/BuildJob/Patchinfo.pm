@@ -22,6 +22,7 @@ use Digest::MD5 ();
 
 use BSUtil;
 use BSSched::BuildJob;
+use BSSched::ProjPacks;		# for orderpackids
 use BSXML;
 use Build;			# for query
 use BSVerify;			# for verify_nevraquery
@@ -147,10 +148,9 @@ sub check {
   } else {
     my $pdatas = $proj->{'package'} || {};
     @packages = grep {!$pdatas->{$_}->{'aggregatelist'} && !$pdatas->{$_}->{'patchinfo'}} sort keys %$pdatas;
+    @packages = BSSched::ProjPacks::orderpackids($proj, @packages);
   }
-  if (!@packages && !$broken) {
-    $broken = 'no packages found';
-  }
+  $broken = 'no packages found' if !@packages && !$broken;
 
   if ($buildarch ne $myarch) {
     # XXX wipe just in case! remove when we do that elsewhere...
@@ -223,6 +223,13 @@ sub check {
       print "        nothing changed\n";
       return ('done');
     }
+  }
+
+  # architecture ordering magic: if the first arch is 'local', order reverse lexicographically
+  if ($archs[0] eq 'local') {
+    shift @archs;
+    @archs = sort {$b cmp $a} @archs;
+    unshift @archs, 'local';
   }
 
   # collect em
