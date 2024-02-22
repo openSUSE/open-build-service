@@ -271,6 +271,7 @@ OBSApi::Application.routes.draw do
       resource :signing_keys, controller: 'webui/projects/signing_keys', only: [:show], constraints: cons do
         get 'download'
       end
+      resources :labels, controller: 'webui/projects/bs_request_labels', only: [:index, :new, :create, :edit, :update, :destroy]
       resource :pulse, controller: 'webui/projects/pulse', only: [:show], constraints: cons
       resource :meta, controller: 'webui/projects/meta', only: [:show, :update], constraints: cons
       resource :prjconf, controller: 'webui/projects/project_configuration', only: [:show, :update], as: :config, constraints: cons
@@ -305,6 +306,8 @@ OBSApi::Application.routes.draw do
     end
 
     controller 'webui/request' do
+      post 'request/add_label_relation'=> :add_label_relation
+      delete 'request/destroy_label_relation'=> :destroy_label_relation
       post 'request/add_reviewer' => :add_reviewer
       post 'request/modify_review' => :modify_review
       get 'request/show/:number/(request_action/:request_action_id)' => :show, as: 'request_show', constraints: cons

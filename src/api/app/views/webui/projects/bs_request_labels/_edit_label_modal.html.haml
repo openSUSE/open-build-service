@@ -1,0 +1,19 @@
+#editLabelModal.modal.fade{ tabindex: "-1", role: "dialog", aria: { labelledby: "editLabelModalLabel", hidden: "true" } }
+  .modal-dialog.modal-dialog-centered{ role: "document" }
+    .modal-content
+      .modal-header
+        %h5.modal-title#editLabelModalLabel
+          Edit Label
+          %i.fas.fa-edit.ml-2
+        %button.close{ aria: { label: "Close" }, type: "button", data: { dismiss: "modal" } }
+          %span{ aria: { hidden: "true" } } &times;
+      .modal-body
+        = form_tag project_label_path(project_name: project_name, id: id), method: :patch, remote: true do
+          .form-group
+            = label_tag 'label[name]', 'Name'
+            = text_field_tag 'label[name]', nil, class: 'form-control', id: 'edit-label-name'
+          .form-group
+            = label_tag 'label[description]', 'Description'
+            = text_area_tag 'label[description]', nil, class: 'form-control', id: 'edit-label-description'
+          %br
+          = submit_tag 'Save', class: 'btn btn-primary'

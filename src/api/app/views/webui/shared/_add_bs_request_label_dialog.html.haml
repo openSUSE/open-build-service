@@ -1,0 +1,15 @@
+.modal.fade#add-label-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'add-label-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      = form_tag project_labels_path, remote: true do
+        .modal-header
+          %h5.modal-title#add-label-modal-label Add Label
+        .modal-body
+          .form-group
+            = label_tag 'label_name', 'Name'
+            = text_field_tag 'name', nil, class: 'form-control'
+          .form-group
+            = label_tag 'label_description', 'Description'
+            = text_area_tag 'description', nil, class: 'form-control'
+        .modal-footer
+          = render partial: 'webui/shared/dialog_action_buttons'

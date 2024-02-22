@@ -24,10 +24,13 @@
                                                      bs_requests: @watched_requests,
                                                      packages: @watched_packages,
                                                      projects: @watched_projects }
+
       .col-md-4#side-links
         = render partial: 'show_side_links', locals: { bs_request: @bs_request, package_maintainers: @package_maintainers }
       - if @can_add_reviews
         = render partial: 'actions'
+
+= render partial: 'webui/request/show_labels', locals: { bs_request: @bs_request, all_labels: @all_labels }
 
 .card.mb-3
   .card-header.p-0

@@ -1,0 +1,15 @@
+#addLabelModal.modal.fade{ tabindex: "-1", role: "dialog", aria: { labelledby: "addLabelModalLabel", hidden: "true" } }
+  .modal-dialog{ role: "document" }
+    .modal-content
+      .modal-header
+        %h5.modal-title#addLabelModalLabel Add Label
+        %button.close{ aria: { label: "Close" }, type: "button", data: { dismiss: "modal" } }
+          %span{ aria: { hidden: "true" } } &times;
+      .modal-body
+        = form_tag request_add_label_relation_path, method: :post do
+          .form-group
+            = label_tag 'label_id', 'Select Labels'
+            = select_tag 'label_id', options_for_select(@all_labels.map { |label| [label.name, label.id] }), class: 'form-control'
+          %br
+          = hidden_field_tag 'number', @bs_request.number
+          = submit_tag 'Add Label', class: 'btn btn-primary'

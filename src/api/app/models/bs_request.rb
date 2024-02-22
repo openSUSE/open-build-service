@@ -70,6 +70,8 @@ class BsRequest < ApplicationRecord
       .includes(:reviews)
   }
 
+  has_many :bs_request_bs_request_labels
+  has_many :labels, through: :bs_request_bs_request_labels, source: :bs_request_label
   has_many :bs_request_actions, dependent: :destroy
   has_many :reviews, dependent: :delete_all
   has_many :comments, as: :commentable, dependent: :destroy

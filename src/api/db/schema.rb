@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_02_07_080349) do
+ActiveRecord::Schema[7.0].define(version: 2024_02_22_080033) do
   create_table "appeals", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.text "reason", null: false
     t.integer "appellant_id", null: false
@@ -206,8 +206,24 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_07_080349) do
     t.index ["bs_request_action_id", "user_id"], name: "bs_request_actions_seen_by_users_index"
   end
 
+  create_table "bs_request_bs_request_labels", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.integer "bs_request_id", null: false
+    t.integer "bs_request_label_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["bs_request_id"], name: "index_bs_request_bs_request_labels_on_bs_request_id"
+    t.index ["bs_request_label_id"], name: "index_bs_request_bs_request_labels_on_bs_request_label_id"
+  end
+
   create_table "bs_request_counter", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "counter", default: 1
+  end
+
+  create_table "bs_request_labels", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "bs_requests", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -1232,6 +1248,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_02_07_080349) do
   add_foreign_key "binary_releases", "repositories", name: "binary_releases_ibfk_1"
   add_foreign_key "bs_request_action_accept_infos", "bs_request_actions", name: "bs_request_action_accept_infos_ibfk_1"
   add_foreign_key "bs_request_actions", "bs_requests", name: "bs_request_actions_ibfk_1"
+  add_foreign_key "bs_request_bs_request_labels", "bs_request_labels"
+  add_foreign_key "bs_request_bs_request_labels", "bs_requests"
   add_foreign_key "canned_responses", "users"
   add_foreign_key "channel_binaries", "architectures", name: "channel_binaries_ibfk_4"
   add_foreign_key "channel_binaries", "channel_binary_lists", name: "channel_binaries_ibfk_1"

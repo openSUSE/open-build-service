@@ -1,0 +1,53 @@
+:javascript
+  $(document).ready(function() {
+    $('.edit-label').click(function() {
+      var labelName = $(this).data('name');
+      var labelDescription = $(this).data('description');
+      $('#edit-label-name').val(labelName);
+      $('#edit-label-description').val(labelDescription);
+      $('#editLabelModal').modal('show');
+    });
+
+    $('#newLabelButton').click(function() {
+      $('#newLabelModal').modal('show');
+    });
+
+    $('.modal .close').click(function() {
+      $(this).closest('.modal').modal('hide');
+    });
+  });
+:ruby
+  content_for(:content_for_head, javascript_include_tag('webui/cm2/codemirror-xml'))
+  @pagetitle = "Labels of #{@project}"
+  @metarobots = 'noindex'
+
+.card
+  = render(partial: 'webui/project/tabs', locals: { project: @project })
+
+  .card-body
+    %h3= @pagetitle
+  .container
+    .container
+    %h2 Existing Labels
+    %table.table.table-striped
+      %thead
+        %tr
+          %th Name
+          %th Description
+          %th Edit
+          %th Delete
+      %tbody
+        - @labels.each do |label|
+          %tr
+            %td= label.name
+            %td= label.description
+            %td
+              = link_to 'Edit', '#', class: 'btn btn-primary edit-label', data: { name: label.name, description: label.description }, data_toggle: 'modal'
+            %td
+              = link_to 'Delete', project_label_path(project_name: @project.name, id: label.id), method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger'
+          = render(partial: 'edit_label_modal', locals: {project_name: @project.name, id: label.id})
+          = render(partial: 'new_label_modal', locals: {project_name: @project.name, id: label.id})
+    %button.btn.btn-primary#newLabelButton New Label
+
+
+
