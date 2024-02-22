@@ -45,90 +45,108 @@
         <attribute name="project"/>
       </optional>
 
-      <element ns="" name="title">
-        <text/>
-      </element>
+      <interleave>
 
-      <element ns="" name="description">
-        <text/>
-      </element>
+        <optional>
+          <element ns="" name="title">
+            <text/>
+          </element>
+        </optional>
 
-<interleave>
+        <optional>
+          <element ns="" name="description">
+            <text/>
+          </element>
+        </optional>
 
-      <optional>
-        <element ns="" name="devel">
-          <optional>
-              <attribute name="project"/>
-          </optional>
-          <optional>
-              <attribute name="package"/>
-          </optional>
-          <empty/>
-        </element>
-      </optional>
-      <optional>
-        <element ns="" name="releasename">
-          <text/>
-        </element>
-      </optional>
-      <zeroOrMore>
-        <ref name="person-element"/>
-      </zeroOrMore>
-      <zeroOrMore>
-        <ref name="group-element"/>
-      </zeroOrMore>
-      <optional>
-        <element ns="" name="lock">
-          <ref name="simple-flag-element"/>
-        </element>
-      </optional>
-      <optional>
-        <element ns="" name="build">
-          <ref name="flag-element"/>
-        </element>
-      </optional>
-      <optional>
-        <element ns="" name="publish">
-          <ref name="flag-element"/>
-        </element>
-      </optional>
-      <optional>
-        <element ns="" name="useforbuild">
-          <ref name="flag-element"/>
-        </element>
-      </optional>
-      <optional>
-        <element ns="" name="debuginfo">
-          <ref name="flag-element"/>
-        </element>
-      </optional>
-      <optional>
-        <element ns="" name="binarydownload">
-          <ref name="flag-element"/>
-        </element>
-      </optional>
-      <optional>
-        <element ns="" name="sourceaccess">
-          <ref name="simple-flag-element"/>
-        </element>
-      </optional>
-      <optional>
-        <element ns="" name="url">
-          <text/>
-        </element>
-      </optional>
-      <optional>
-        <element ns="" name="scmsync">
-          <text/>
-        </element>
-      </optional>
-      <optional>
-        <element ns="" name="bcntsynctag">
-          <text/>
-        </element>
-      </optional>
+        <optional>
+          <element ns="" name="devel">
+            <optional>
+                <attribute name="project"/>
+            </optional>
+            <optional>
+                <attribute name="package"/>
+            </optional>
+            <empty/>
+          </element>
+        </optional>
 
-</interleave>
+        <optional>
+          <element ns="" name="releasename">
+            <text/>
+          </element>
+        </optional>
+
+        <zeroOrMore>
+          <ref name="person-element"/>
+        </zeroOrMore>
+
+        <zeroOrMore>
+          <ref name="group-element"/>
+        </zeroOrMore>
+
+        <optional>
+          <element ns="" name="lock">
+            <ref name="simple-flag-element"/>
+          </element>
+        </optional>
+
+        <optional>
+          <element ns="" name="build">
+            <ref name="flag-element"/>
+          </element>
+        </optional>
+
+        <optional>
+          <element ns="" name="publish">
+            <ref name="flag-element"/>
+          </element>
+        </optional>
+
+        <optional>
+          <element ns="" name="useforbuild">
+            <ref name="flag-element"/>
+          </element>
+        </optional>
+
+        <optional>
+          <element ns="" name="debuginfo">
+            <ref name="flag-element"/>
+          </element>
+        </optional>
+
+        <optional>
+          <element ns="" name="binarydownload">
+            <ref name="flag-element"/>
+          </element>
+        </optional>
+
+        <optional>
+          <element ns="" name="sourceaccess">
+            <ref name="simple-flag-element"/>
+          </element>
+        </optional>
+
+        <optional>
+          <element ns="" name="url">
+            <text/>
+          </element>
+        </optional>
+
+        <optional>
+          <element ns="" name="scmsync">
+            <text/>
+          </element>
+        </optional>
+
+        <optional>
+          <element ns="" name="bcntsynctag">
+            <text/>
+          </element>
+        </optional>
+
+      </interleave>
+
     </element>
   </define>
 </grammar>
