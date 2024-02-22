@@ -85,8 +85,8 @@ sub sig2openshift {
 }
 
 sub create_cosign_config_ent {
-  my (@layer_ents) = @_;
-  my @diff_ids = map {$_->{'blobid'}} @layer_ents;
+  my ($layer_ents) = @_;
+  my @diff_ids = map {$_->{'blobid'}} @{$layer_ents || []};
   my $config = {
     'architecture' => '',
     'config' => {},
