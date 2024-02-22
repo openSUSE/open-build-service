@@ -75,7 +75,12 @@
         </element>
 
         <optional>
-          <element name="stopped"> 
+          <element name="seperate_build_arch">
+            <empty/>
+          </element>
+        </optional>
+        <optional>
+          <element name="stopped">
             <text/>
           </element>
         </optional>
@@ -133,6 +138,7 @@
       <value>optional</value>
       <value>feature</value>
       <value>ptf</value>
+      <value>no_updateinfo</value>
     </choice>
   </define>
 

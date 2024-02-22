@@ -268,6 +268,7 @@ our $patchinfo = [
             'packager',
             'retracted',
             'stopped',
+            'seperate_build_arch', # for builds on each scheduler arch
             'zypp_restart_needed',
             'reboot_needed',
             'relogin_needed',

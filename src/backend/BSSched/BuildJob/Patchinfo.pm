@@ -110,10 +110,14 @@ sub check {
   my $myarch = $gctx->{'arch'};
   my @archs = @{$repo->{'arch'}};
   return ('broken', 'missing archs') unless @archs;     # can't happen
-  my $buildarch = $archs[0];    # always build in first arch
+  my $patchinfo = $pdata->{'patchinfo'};
+  if (exists $patchinfo->{'seperate_build_arch'}) {
+    # build on all schedulers, but don't take content from each other
+    @archs = ($myarch);
+  };
+  my $buildarch = $archs[0];
   my $reporoot = $gctx->{'reporoot'};
   my $markerdir = "$reporoot/$prp/$buildarch/$packid";
-  my $patchinfo = $pdata->{'patchinfo'};
   my $projpacks = $gctx->{'projpacks'};
   my $proj = $projpacks->{$projid} || {};
 
@@ -719,8 +723,10 @@ sub build {
   };
   $update->{'pkglist'} = {'collection' => [ $col ] };
   $update->{'patchinforef'} = "$projid/$packid";        # deleted in publisher...
-  writexml("$jobdatadir/updateinfo.xml", undef, {'update' => [$update]}, $BSXML::updateinfo);
-  $bininfo->{'updateinfo.xml'} = genbininfo($jobdatadir, 'updateinfo.xml');
+  if ($category ne 'no_updateinfo') {
+    writexml("$jobdatadir/updateinfo.xml", undef, {'update' => [$update]}, $BSXML::updateinfo);
+    $bininfo->{'updateinfo.xml'} = genbininfo($jobdatadir, 'updateinfo.xml');
+  };
   writestr("$jobdatadir/logfile", undef, "update built succeeded ".localtime($now)."\n");
   $updateinfodata = {
     'packages' => \@tocopy,
