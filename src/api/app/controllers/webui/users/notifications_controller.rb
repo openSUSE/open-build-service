@@ -13,6 +13,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @show_read_all_button = show_read_all_button?
     @filtered_project = Project.find_by(name: params[:project])
     @selected_filter = selected_filter
+    @current_user = User.session
   end
 
   def update
