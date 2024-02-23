@@ -48,9 +48,14 @@
 
   .mt-4
     - if User.session
-      = mail_to(user.email, title: "Send mail to #{user.name}", class: 'd-block') do
-        %i.fas.fa-envelope.me-1
-        = user.email
+      - if user.email.present?
+        = mail_to(user.email, title: "Send mail to #{user.name}", class: 'd-block') do
+          %i.fas.fa-envelope.me-1
+          = user.email
+      - else
+        .d-block
+          %i.fas.fa-envelope.me-1
+          %em.small No email address
 
   - if user != User.possibly_nobody && Flipper.enabled?(:content_moderation, User.possibly_nobody)
     = render partial: 'webui/shared/report_modal'
