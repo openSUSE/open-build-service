@@ -29,18 +29,17 @@
       = link_to('javascript:void(0);', id: 'toggle-in-place-editing', remote: true, title: 'Edit Your Account') do
         %i.fas.fa-user-edit
         %span.nav-item-name Edit
-  .row.mb-3.mb-md-0
+  .row.mb-3
     .col-4.col-sm-2.col-md-12.text-center
       = render(AvatarComponent.new(name: user.name, email: user.email, size: 200))
-    .col-8.col-sm-10.col-md-12.ps-0.p-md-3
+      - if User.possibly_nobody.is_admin?
+        .border.rounded-2.my-2.px-1
+          = user.state.camelcase
+    .col-8.col-sm-10.col-md-12
       %h4#home-realname
         = user.realname
       %h5.text-reset#home-login
         = user.login
-      - if User.possibly_nobody.is_admin?
-        .text-reset
-          State:
-          = user.state
 
   - role_titles.each do |title|
     %span.badge.text-bg-secondary
