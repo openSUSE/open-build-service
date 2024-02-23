@@ -101,10 +101,6 @@ module Webui::UserHelper
     "#{result}."
   end
 
-  def user_by_login(user_login)
-    User.find_by_login(user_login)
-  end
-
   def current_user_is_admin
     User.admin_session?
   end

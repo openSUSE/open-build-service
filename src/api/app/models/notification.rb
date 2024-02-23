@@ -47,6 +47,10 @@ class Notification < ApplicationRecord
     last_seen_at || created_at
   end
 
+  def event_user
+    User.find_by_login(event_payload['user_login']) if event_payload['user_login']
+  end
+
   private
 
   def track_notification_creation
