@@ -23,7 +23,8 @@
         .list-group.list-group-flush.mt-3
           = render NotificationComponent.with_collection(notifications, selected_filter: selected_filter,
                                                                         page: params[:page],
-                                                                        show_more: params[:show_more])
+                                                                        show_more: params[:show_more],
+                                                                        current_user: current_user)
   = paginate notifications, views_prefix: 'webui', window: 2, params: { action: 'index', id: nil }
 
 - content_for :ready_function do

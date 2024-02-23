@@ -101,10 +101,6 @@ module Webui::UserHelper
     "#{result}."
   end
 
-  def current_user_is_admin
-    User.admin_session?
-  end
-
   private
 
   def project_package_message
