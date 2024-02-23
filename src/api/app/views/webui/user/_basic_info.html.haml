@@ -3,7 +3,7 @@
            locals: { displayed_user: user, role_titles: role_titles, account_edit_link: account_edit_link }
 
 .basic-info
-  .d-flex.flex-row-reverse
+  .d-flex.flex-row-reverse.mb-3
     = render ReportsNoticeComponent.new(reportable: user, user: User.session)
     - if policy(Report.new(reportable: user)).create?
       = link_to('#', id: "js-user-#{user.id}", class: 'ps-2',
