@@ -1888,7 +1888,7 @@ sub mapslepool {
   my $p = $bin;
   if ($name eq 'nobuildid') {
     $p = "repo/$bin";
-    $p =~ s/-Build[\d\.]+//;
+    $p =~ s/-Build[\d\.]*\d//;
   } elsif ($bin =~ /.*-Media1?(\.license|)$/) {
     $p = "$name$1";
   } elsif ($bin =~ /-Media3$/ || $bin =~ /-Debug$/) {
