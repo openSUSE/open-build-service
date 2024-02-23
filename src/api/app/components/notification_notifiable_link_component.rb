@@ -123,7 +123,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     when 'Event::ReportForProject', 'Event::ReportForPackage'
       @notification.event_type.constantize.notification_link_path(@notification)
     when 'Event::ReportForUser'
-      Rails.application.routes.url_helpers.user_path(@notification.event_payload['user_login'], notification_id: @notification.id) if !user_event.is_deleted? || current_user_is_admin
+      Rails.application.routes.url_helpers.user_path(@notification.event_payload['user_login'], notification_id: @notification.id) if !helpers.user_by_login(@notification.event_payload['user_login']).is_deleted? || helpers.current_user_is_admin
     when 'Event::ReportForRequest'
       bs_request = @notification.notifiable.reportable
       Rails.application.routes.url_helpers.request_show_path(bs_request.number, notification_id: @notification.id)
@@ -206,17 +206,5 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
                                                                                             anchor: 'comments-list')
     end
   end
-
-  # rubocop:disable ViewComponent/AvoidGlobalState
-  def user_event
-    User.find_by_login(@notification.event_payload['user_login'])
-  end
-  # rubocop:enable ViewComponent/AvoidGlobalState
-
-  # rubocop:disable ViewComponent/AvoidGlobalState
-  def current_user_is_admin
-    User.admin_session?
-  end
-  # rubocop:enable ViewComponent/AvoidGlobalState
 end
 # rubocop:enable Metrics/ClassLength
