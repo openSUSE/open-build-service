@@ -52,7 +52,7 @@
         %i.fas.fa-envelope.me-1
         = user.email
 
-  - if Flipper.enabled?(:content_moderation, User.possibly_nobody)
+  - if user != User.possibly_nobody && Flipper.enabled?(:content_moderation, User.possibly_nobody)
     = render partial: 'webui/shared/report_modal'
     - if User.possibly_nobody.is_admin? || User.possibly_nobody.is_moderator?
       .mt-2
