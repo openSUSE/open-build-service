@@ -57,6 +57,10 @@ OBSApi::Application.routes.draw do
       get 'monitor/events' => :events, as: :monitor_events
     end
 
+    controller 'webui/worker_capabilities' do
+      get 'worker_capabilities/:arch/:id' => :show, as: 'worker_capabilities'
+    end
+
     resources :package, only: [:index], controller: 'webui/package', constraints: cons
 
     controller 'webui/packages/build_log' do
