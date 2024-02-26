@@ -32,7 +32,7 @@
   .row.mb-3
     .col-4.col-sm-2.col-md-12.text-center
       = render(AvatarComponent.new(name: user.name, email: user.email, size: 200))
-      - if User.possibly_nobody.is_admin?
+      - if User.possibly_nobody.is_admin? && user.state != 'confirmed'
         .border.rounded-2.my-2.px-1
           = user.state.camelcase
     .col-8.col-sm-10.col-md-12
