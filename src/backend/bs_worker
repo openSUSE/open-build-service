@@ -1686,7 +1686,7 @@ sub getbinaries_product {
     my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $repoarch, 1, \@kdeps, $modules);
     @kdeps = grep {!$got->{$_}} @kdeps;
   }
-  die("getbinaries_product: missing packages: @kdeps\n") if @kdeps;
+  die("404: getbinaries_product: missing packages: @kdeps\n") if @kdeps;
 
   # all done for followup builds
   return () if $buildinfo->{'followupfile'};
@@ -2524,7 +2524,7 @@ sub getbinaries_buildenv {
   }
   # ok, all info is collected
   my @missing = grep {!@{$needed{"$_->{'name'}.$_->{'hdrmd5'}"}}} @bdeps;
-  die("missing packages: ".join(', ', map {+"$_->{'name'}\@$_->{'hdrmd5'}"} @missing)."\n") if @missing;
+  die("404 missing packages: ".join(', ', map {+"$_->{'name'}\@$_->{'hdrmd5'}"} @missing)."\n") if @missing;
 
   my @cacheold;
   my @cachenew;
@@ -2676,7 +2676,7 @@ sub getbinaries_containers {
     }, undef, @args, "binaries=$bdep->{'name'}");
     die("Error\n") unless ref($res);
     $res = [ grep {$_->{'name'} ne '.errors'} @$res ];
-    die("getbinaries: missing packages: $bdep->{'name'}\n") unless @$res == 1;
+    die("404 getbinaries: missing packages: $bdep->{'name'}\n") unless @$res == 1;
     my $tarname = $res->[0]->{'name'};
     add_slsa_materials_binary($buildinfo, "$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}", $tarname, "$ddir/$tarname", 'containers') if $buildinfo->{'slsaprovenance'};
     my $imagemode = getimagemode($buildinfo);
@@ -2749,7 +2749,7 @@ sub getbinaries_image {
       }
       @todo = grep {!$got->{$_}} @todo;
     }
-    die("getbinaries: missing packages: @todo\n") if @todo;
+    die("404 getbinaries: missing packages: @todo\n") if @todo;
     @todo = grep {$bdep_noinstall{$_} || !$bdep_notmeta{$_}} @bdep;
   }
 
@@ -2798,7 +2798,7 @@ sub getbinaries_image {
     }
     @todo = grep {!$got->{$_}} @todo;
   }
-  die("getbinaries: missing packages: @todo\n") if @todo;
+  die("404 getbinaries: missing packages: @todo\n") if @todo;
 
   # fetch the base containers
   push @meta, getbinaries_containers($buildinfo, $dir, $srcdir, $origins);
@@ -2910,7 +2910,7 @@ sub getbinaries {
     }
     @todo = grep {!$done{"$binaryprefix$_"}} @todo;
   }
-  die("getbinaries: missing packages: @todo\n") if @todo;
+  die("404 getbinaries: missing packages: @todo\n") if @todo;
 
   # now get the native packages in cross mode
   @todo = map {$_->{'name'}} grep {!$_->{'sysroot'}} @bdep if $cross;
@@ -2943,7 +2943,7 @@ sub getbinaries {
     }
     @todo = grep {!$done{$_}} @todo;
   }
-  die("getbinaries: missing native packages: @todo\n") if @todo;
+  die("404 getbinaries: missing native packages: @todo\n") if @todo;
 
   # everything is downloaded, now generate meta data
   my @meta;
