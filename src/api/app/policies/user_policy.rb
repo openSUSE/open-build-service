@@ -10,4 +10,8 @@ class UserPolicy < ApplicationPolicy
   def check_watchlist?
     record.login == User.session!.login || User.admin_session?
   end
+
+  def comments?
+    user.is_moderator? || user.is_admin?
+  end
 end
