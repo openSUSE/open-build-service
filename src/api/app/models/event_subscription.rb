@@ -7,7 +7,7 @@ class EventSubscription < ApplicationRecord
     source_maintainer: 'Maintainer of the source',
     target_maintainer: 'Maintainer of the target',
     reviewer: 'Reviewer',
-    commenter: 'Commenter',
+    commenter: 'Commenter or mentioned user',
     creator: 'Creator',
     watcher: 'Watching the project',
     source_watcher: 'Watching the source project',
