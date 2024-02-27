@@ -41,6 +41,8 @@ class RpmlintLogExtractor
     @parse_internal_log_file = true
 
     log_content = Backend::Api::BuildResults::Binaries.file(project, repository, architecture, package, '_log')
+    # Remove invalid byte sequences
+    log_content.scrub!
 
     # The OBS rpmlint mark is defined here: https://github.com/openSUSE/obs-build/blob/44e43abe9da522c1c6685742aecc55be158da55b/build-recipe-spec#L331
     mark1 = '\[\s*\d+s\]\s\n'
