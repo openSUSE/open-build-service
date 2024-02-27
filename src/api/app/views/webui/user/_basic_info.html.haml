@@ -60,13 +60,12 @@
   - if user != User.possibly_nobody && Flipper.enabled?(:content_moderation, User.possibly_nobody)
     = render partial: 'webui/shared/report_modal'
     - if User.possibly_nobody.is_admin? || User.possibly_nobody.is_moderator?
-      .d-flex.justify-content-between.mt-2.border-top.pt-3
-        .mx-2
-          This user is currently
-          %b= user.blocked_from_commenting ? 'blocked' : 'unblocked'
-          from commenting.
-        = button_to(user.blocked_from_commenting ? 'Unblock' : 'Block', user_path(user), method: :put,
-          class: 'btn btn-sm btn-outline-secondary', remote: true, params: { user: { blocked_from_commenting: !user.blocked_from_commenting } })
+      = form_with(url: user_path(user), method: :put, remote: true) do |_form|
+        .form-check.form-switch.mt-3
+          = hidden_field_tag("user[blocked_from_commenting]", !user.blocked_from_commenting, id: nil)
+          = check_box_tag("user[blocked_from_commenting]", !user.blocked_from_commenting, user.blocked_from_commenting,
+                          class: 'form-check-input', onChange: 'this.form.submit()')
+          = label_tag("user[blocked_from_commenting]", 'Comment Block', class: 'form-check-label')
 
 :javascript
   $('#toggle-in-place-editing').on('click', function () {
