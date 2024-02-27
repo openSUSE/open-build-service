@@ -1248,6 +1248,7 @@ sub getlogfile {
     if (!$BSStdServer::isajax && !$cgi->{'view'}) {
       BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid/_log", undef, @args);
     }
+    push @args, "jobid=$jobstatus->{'jobid'}" if $jobstatus->{'jobid'};
     my $param = {
       'uri' => "$jobstatus->{'uri'}/logfile",
       'joinable' => 1,
