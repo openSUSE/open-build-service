@@ -179,6 +179,7 @@ our $relsync_pool = {
  "armv8el" => "armv8el",
  "sparcv9" => "sparcv9",
  "sparc64" => "sparcv9",
+ "loongarch64" => "loongarch64",
 };
 
 #No extra stage server sync

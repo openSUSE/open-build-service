@@ -64,6 +64,8 @@
 
       <value>x86_64</value>
 
+      <value>loongarch64</value>
+
       <value>local</value>
     </choice>
   </define>

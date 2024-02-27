@@ -69,6 +69,7 @@ our %cando = (
   'mips64'  => [ 'mips64', 'mips:mips32' ],
 
   'm68k'    => [ 'm68k' ],
+  'loongarch64' => [ 'loongarch64' ],
 
   'local'   => [ 'local' ],
 );
