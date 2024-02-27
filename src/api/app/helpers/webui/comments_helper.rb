@@ -1,6 +1,6 @@
 module Webui::CommentsHelper
   def comment_user_role_titles(comment)
-    roles = comment.user.roles.global.pluck(:title)
+    roles = []
 
     roles += roles_for_project(comment) if comment.commentable.is_a?(Project)
 

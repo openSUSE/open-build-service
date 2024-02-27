@@ -2,14 +2,6 @@ RSpec.describe Webui::CommentsHelper do
   describe 'comment_user_role_titles' do
     subject { comment_user_role_titles(comment) }
 
-    context 'when the commenter has a moderator global role' do
-      let(:comment) { create(:comment_package) }
-
-      before { comment.user.roles << Role.find_by_title!('Moderator') }
-
-      it { is_expected.to include('Moderator') }
-    end
-
     context 'when the commenter is the maintainer of the commented package' do
       let(:comment) { create(:comment_package) }
 
