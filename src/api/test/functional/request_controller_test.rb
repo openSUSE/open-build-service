@@ -1089,6 +1089,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                    },
                    'review' => [{
                      'state' => 'accepted',
+                     'created' => '2010-07-12T00:00:01',
                      'when' => '2010-07-12T00:00:02',
                      'who' => 'tom',
                      'by_user' => 'tom',
@@ -1101,6 +1102,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                      }
                    }, {
                      'state' => 'new',
+                     'created' => '2010-07-12T00:00:03',
                      'when' => '2010-07-12T00:00:05',
                      'who' => 'tom',
                      'by_user' => 'tom',
