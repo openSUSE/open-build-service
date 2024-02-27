@@ -73,7 +73,7 @@ class Webui::UsersController < Webui::WebuiController
     else
       authorize [:webui, @displayed_user], :update?
 
-      assign_common_user_attributes if @configuration.accounts_editable?(@displayed_user)
+      assign_common_user_attributes
       assign_admin_attributes if User.admin_session?
     end
 
