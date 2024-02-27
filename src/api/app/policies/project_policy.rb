@@ -9,14 +9,21 @@ class ProjectPolicy < ApplicationPolicy
     user.can_create_project?(record.name)
   end
 
-  def update?
+  def update_content?
     return false unless user
     return false unless local_project_and_allowed_to_create_package_in?
     # The ordering is important because of the lock status check
     return true if user.is_admin?
-    return false unless user.can_modify?(record, true)
 
-    # Regular users are not allowed to modify projects with remote references
+    user.can_modify?(record, true)
+  end
+
+  # this check is only valid for project definition itself (project meta xml)
+  def update?
+    return false unless update_content?
+
+    # Regular users are not allowed to modify project definition with remote references
+    # (actually it used to be only to modify the remote references)
     no_remote_instance_defined_and_has_not_remote_repositories?
   end
 
