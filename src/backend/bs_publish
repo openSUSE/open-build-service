@@ -344,7 +344,10 @@ sub getsigndata {
   if (!$pubkey) {
     if ($BSConfig::sign_project && $BSConfig::sign) {
       local *S;
-      open(S, '-|', $BSConfig::sign, '--project', $projid, '-p') || die("$BSConfig::sign: $!\n");;
+      my @signargs;
+      push @signargs, '--project', $projid;
+      push @signargs, '--signflavor', $signflavor if $signflavor;
+      open(S, '-|', $BSConfig::sign, @signargs, '-p') || die("$BSConfig::sign: $!\n");;
       $pubkey = '';
       1 while sysread(S, $pubkey, 4096, length($pubkey));
       if (!close(S)) {
@@ -2857,7 +2860,7 @@ sub publish {
   mkdir_p($extrep) unless -d $extrep;
 
   # get sign data
-  my ($pubkey, $signargs) = getsigndata($projid);
+  my ($pubkey, $signargs) = getsigndata($projid, $signflavor);
 
   # get all patterns
   my $patterns = [];
