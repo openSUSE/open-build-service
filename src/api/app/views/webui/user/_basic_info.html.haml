@@ -48,17 +48,24 @@
 
   .mt-4
     - if User.session
-      = mail_to(user.email, title: "Send mail to #{user.name}", class: 'd-block') do
-        %i.fas.fa-envelope.me-1
-        = user.email
+      - if user.email.present?
+        = mail_to(user.email, title: "Send mail to #{user.name}", class: 'd-block') do
+          %i.fas.fa-envelope.me-1
+          = user.email
+      - else
+        .d-block
+          %i.fas.fa-envelope.me-1
+          %em.small No email address
 
-  - if Flipper.enabled?(:content_moderation, User.possibly_nobody)
+  - if user != User.possibly_nobody && Flipper.enabled?(:content_moderation, User.possibly_nobody)
     = render partial: 'webui/shared/report_modal'
     - if User.possibly_nobody.is_admin? || User.possibly_nobody.is_moderator?
-      .mt-2
-        This user is currently #{user.blocked_from_commenting ? 'blocked' : 'unblocked'} from commenting.
-        = button_to(user.blocked_from_commenting ? 'Unblock' : 'Block', user_path(user), method: :put,
-          class: 'btn btn-outline-secondary', remote: true, params: { user: { blocked_from_commenting: !user.blocked_from_commenting } })
+      = form_with(url: user_path(user), method: :put, remote: true) do |_form|
+        .form-check.form-switch.mt-3
+          = hidden_field_tag("user[blocked_from_commenting]", !user.blocked_from_commenting, id: nil)
+          = check_box_tag("user[blocked_from_commenting]", !user.blocked_from_commenting, user.blocked_from_commenting,
+                          class: 'form-check-input', onChange: 'this.form.submit()')
+          = label_tag("user[blocked_from_commenting]", 'Comment Block', class: 'form-check-label')
 
 :javascript
   $('#toggle-in-place-editing').on('click', function () {
