@@ -335,6 +335,7 @@ OBSApi::Application.routes.draw do
       get 'comments/project/:project' => :index, constraints: cons, as: :comments_project
       post 'comments/project/:project' => :create, constraints: cons, as: :create_project_comment
       get 'comments/user' => :index, constraints: cons, as: :comments_user
+      get 'comment/:id/history' => :history, constraints: cons
 
       delete 'comment/:id' => :destroy, constraints: cons, as: :comment_delete
     end

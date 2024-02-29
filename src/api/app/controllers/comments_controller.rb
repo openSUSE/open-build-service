@@ -19,6 +19,16 @@ class CommentsController < ApplicationController
     render_ok
   end
 
+  def history
+    comment = Comment.find(params[:id])
+    authorize comment, :history?
+
+    versions = comment.versions
+
+    @header = { comment: comment.id }
+    @comments = versions.filter_map(&:reify)
+  end
+
   protected
 
   def find_obj
