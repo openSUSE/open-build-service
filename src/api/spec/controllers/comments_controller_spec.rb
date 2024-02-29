@@ -142,4 +142,23 @@ RSpec.describe CommentsController do
       it { expect(response).to have_http_status(:success) }
     end
   end
+
+  describe 'GET #history' do
+    let(:moderator) { create(:moderator) }
+    let(:comment) { create(:comment_project) }
+
+    before do
+      with_versioning do
+        comment.update!(body: 'I edited this comment!')
+      end
+
+      login(moderator)
+
+      Flipper.enable(:content_moderation)
+      get :history, format: :xml, params: { id: comment.id }
+    end
+
+    it { expect(response.body).to include("<comment_history comment=\"#{comment.id}\">") }
+    it { expect(response.body).to include("<comment who=\"#{comment.paper_trail.previous_version.user}\" when=\"#{comment.paper_trail.previous_version.created_at}\" id=\"#{comment.id}\">#{comment.paper_trail.previous_version.body}</comment>") }
+  end
 end
