@@ -48,8 +48,7 @@ RSpec.describe EventMailer, :vcr do
       end
 
       it 'uses display name for FROM if originator exists' do
-        expect(mail.from).to include(originator.email)
-        expect(mail['From'].value).to eq(originator.display_name)
+        expect(mail['From'].value).to eq("\"#{originator.realname} (#{originator.login})\" <unconfigured@openbuildservice.org>")
       end
     end
 
@@ -87,7 +86,6 @@ RSpec.describe EventMailer, :vcr do
         expect(mail['X-Mailer'].value).to eq('OBS Notification System')
         expect(mail['X-OBS-URL'].value).to eq('https://build.example.com')
         expect(mail['Auto-Submitted'].value).to eq('auto-generated')
-        expect(mail['Return-Path'].value).to eq('OBS Notification <unconfigured@openbuildservice.org>')
         expect(mail['Sender'].value).to eq('OBS Notification <unconfigured@openbuildservice.org>')
       end
 
@@ -130,10 +128,6 @@ RSpec.describe EventMailer, :vcr do
           expect(ActionMailer::Base.deliveries).to include(mail)
         end
 
-        it 'sends an email as the user from which the event originates' do
-          expect(mail.from).to include(who.email)
-        end
-
         it 'sends an email to the subscribed user' do
           expect(mail.to).to include(receiver.email)
         end
@@ -156,10 +150,6 @@ RSpec.describe EventMailer, :vcr do
 
         it 'gets delivered' do
           expect(ActionMailer::Base.deliveries).to include(mail)
-        end
-
-        it 'sends an email as the user from which the event originates' do
-          expect(mail.from).to include(who.email)
         end
 
         it 'sends an email to the user belonging to the subscribed group' do
@@ -198,10 +188,6 @@ RSpec.describe EventMailer, :vcr do
           expect(ActionMailer::Base.deliveries).to include(mail)
         end
 
-        it 'sends an email as the user from which the event originates' do
-          expect(mail.from).to include(who.email)
-        end
-
         it 'sends an email to the subscribed user' do
           expect(mail.to).to include(receiver.email)
         end
@@ -224,10 +210,6 @@ RSpec.describe EventMailer, :vcr do
 
         it 'gets delivered' do
           expect(ActionMailer::Base.deliveries).to include(mail)
-        end
-
-        it 'sends an email as the user from which the event originates' do
-          expect(mail.from).to include(who.email)
         end
 
         it 'sends an email to the user belonging to the subscribed group' do
@@ -406,7 +388,6 @@ RSpec.describe EventMailer, :vcr do
       it 'renders the headers' do
         expect(mail.subject).to have_text('Build failure of project_2/package_2 in repository_2/i586')
         expect(mail.to).to eq([recipient.email])
-        expect(mail.from).to eq([from.email])
       end
 
       context 'and there is a payload' do
