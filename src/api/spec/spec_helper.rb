@@ -138,6 +138,10 @@ require 'support/bullet'
 # support haml
 require 'support/haml'
 
+# support paper_trail, versioning is disabled by default during tests
+# and has to be opted in when required
+require 'paper_trail/frameworks/rspec'
+
 Dir['./spec/shared/contexts/*.rb'].sort.each { |file| require file }
 Dir['./spec/shared/examples/*.rb'].sort.each { |file| require file }
 
