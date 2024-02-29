@@ -1,0 +1,20 @@
+#
+# Open Build Service 2.10.22
+#
+
+Please read the README.md file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+The dist/README.UPDATERS file has information for people updating
+from a previous OBS release.
+
+
+Bugfixes
+========
+Frontend:
+ * Update rack to version 2.2.8.1
+   - Fixed ReDoS in Accept header parsing [CVE-2024-26146]
+   - Fixed ReDoS in Content Type header parsing [CVE-2024-25126]
+   - Reject Range headers which are too large [CVE-2024-26141] DoS Vulnerability in Multipart MIME parsing.
