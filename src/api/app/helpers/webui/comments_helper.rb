@@ -6,10 +6,10 @@ module Webui::CommentsHelper
     when comment.commentable.is_a?(BsRequest)
       roles = roles_for_request(comment)
     when comment.commentable.is_a?(Project)
-      roles.push('maintainer') if roles_for_project(comment).any?
+      roles << 'maintainer' if roles_for_project(comment).any?
     when comment.commentable.is_a?(Package)
-      roles.push('maintainer') if roles_for_package(comment).any?
-      roles.push('project maintainer') if roles_for_project(comment).any?
+      roles << 'maintainer' if roles_for_package(comment).any?
+      roles << 'project maintainer' if roles_for_project(comment).any?
     end
 
     roles
@@ -31,9 +31,9 @@ module Webui::CommentsHelper
 
   def roles_for_request(comment)
     roles = []
-    roles.push('author') if comment.commentable.creator == comment.user.login
-    roles.push('reviewer') if comment.commentable.reviews.pluck(:user_id).include?(comment.user.id) ||
-                              comment.commentable.reviews.pluck(:group_id).intersect?(comment.user.groups.ids)
+    roles << 'author' if comment.commentable.creator == comment.user.login
+    roles << 'reviewer' if comment.commentable.reviews.pluck(:user_id).include?(comment.user.id) ||
+                           comment.commentable.reviews.pluck(:group_id).intersect?(comment.user.groups.ids)
     source_roles = []
     target_roles = []
     comment.commentable.bs_request_actions.each do |action|
@@ -60,8 +60,8 @@ module Webui::CommentsHelper
                                                      .pluck('roles.title'))
     end
 
-    roles.push('source maintainer') if source_roles.any?
-    roles.push('target maintainer') if target_roles.any?
+    roles << 'source maintainer' if source_roles.any?
+    roles << 'target maintainer' if target_roles.any?
 
     roles
   end
