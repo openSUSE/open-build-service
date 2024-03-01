@@ -12,5 +12,6 @@ class ReportsModalComponent < ApplicationComponent
 
   def canned_responses
     CannedResponsePolicy::Scope.new(user, CannedResponse).resolve
+                               .where(decision_kind: ['favor', 'cleared']).order(:decision_kind, :title)
   end
 end
