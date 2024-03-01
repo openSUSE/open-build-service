@@ -1,0 +1,52 @@
+get:
+  summary: List the history of a comment
+  description: |
+    List the versions of a edited comment.
+
+    **(Beta/Unstable)** This endpoint is currently behind the `content_moderation` beta flag.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: path
+      name: comment_id
+      schema:
+        type: integer
+      required: true
+      description: Id of the comment.
+      example: 5
+  responses:
+    '200':
+      description: |
+        OK. The request has succeeded.
+        XML Schema used for body validation: [comment_history.rng](../schema/comment_history.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/comment_history.yaml'
+          example: |
+            <comment_history comment="6">
+              <comment who="bar" when="2024-02-28 16:12:45 UTC" id="6">First version of comment</comment>
+              <comment who="bar" when="2024-02-28 16:15:27 UTC" id="6">UHH DONT LIKE MY COMMENT</comment>
+            </comment_history>
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: 'Forbidden'
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: history_comment_not_authorized
+            summary: Sorry, you are not authorized to history this comment.
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: Couldn't find Comment with 'id'=67
+  tags:
+    - Comments
