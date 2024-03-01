@@ -7,13 +7,13 @@ class SourceController < ApplicationController
   include Source::Errors
 
   SOURCE_UNTOUCHED_COMMANDS = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'rebuild', 'wipe',
-                               'waitservice', 'remove_flag', 'set_flag', 'getprojectservices'].freeze
+                               'waitservice', 'remove_flag', 'set_flag', 'getprojectservices', 'fork'].freeze
   # list of cammands which create the target package
-  PACKAGE_CREATING_COMMANDS = ['branch', 'release', 'copy', 'undelete', 'instantiate'].freeze
+  PACKAGE_CREATING_COMMANDS = ['branch', 'release', 'copy', 'undelete', 'instantiate', 'fork'].freeze
   # list of commands which are allowed even when the project has the package only via a project link
-  READ_COMMANDS = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'getprojectservices', 'release'].freeze
+  READ_COMMANDS = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'getprojectservices', 'release', 'fork'].freeze
   # commands which are fine to operate on external scm managed projects
-  SCM_SYNC_PROJECT_COMMANDS = ['diff', 'linkdiff', 'showlinked', 'copy', 'remove_flag', 'set_flag', 'runservice',
+  SCM_SYNC_PROJECT_COMMANDS = ['diff', 'linkdiff', 'showlinked', 'copy', 'remove_flag', 'set_flag', 'runservice', 'fork',
                                'waitservice', 'getprojectservices', 'unlock', 'wipe', 'rebuild', 'collectbuildenv'].freeze
 
   validate_action index: { method: :get, response: :directory }
@@ -115,7 +115,7 @@ class SourceController < ApplicationController
                       'mergeservice', 'commit', 'commitfilelist', 'createSpecFileTemplate',
                       'deleteuploadrev', 'linktobranch', 'updatepatchinfo', 'getprojectservices',
                       'unlock', 'release', 'importchannel', 'rebuild', 'collectbuildenv',
-                      'instantiate', 'addcontainers', 'addchannels', 'enablechannel']
+                      'instantiate', 'addcontainers', 'addchannels', 'enablechannel', 'fork']
 
     @command = params[:cmd]
     raise IllegalRequest, 'invalid_command' unless valid_commands.include?(@command)
@@ -1151,11 +1151,25 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"&update_project_attribute="alternative_attribute"&comment="message"
   def package_command_branch
     # find out about source and target dependening on command   - FIXME: ugly! sync calls
-
     # The branch command may be used just for simulation
     verify_can_modify_target! if !params[:dryrun] && @target_project_name
 
     private_branch_command
+  end
+
+  # POST /source/<project>/<package>?cmd=fork&scmsync="url"&target_project="optional_project"
+  def package_command_fork
+    # The branch command may be used just for simulation
+    verify_can_modify_target!
+
+    raise MissingParameterError, 'scmsync url is not specified' if params[:scmsync].blank?
+
+    ret = BranchPackage.new(params).branch
+    if ret[:text]
+      render plain: ret[:text]
+    else
+      render_ok ret
+    end
   end
 
   # POST /source/<project>/<package>?cmd=set_flag&repository=:opt&arch=:opt&flag=flag&status=status

@@ -712,6 +712,22 @@ Parameters:
 XmlResult: status
 
 
+POST /source/<project>/<package>?cmd=fork&scmsync=url
+
+  Create a fork of a package taking the source from the scmsync parameter.
+  The target project is by default below home:<user>:branches namespace.
+  The target project will be setup to include the source project repository setup.
+  The source project must exists, the source package may not exist.
+
+Parameters:
+  scmsync: string, required, specifies checkout url for the source
+  target_project: target project name, optional (default home:<user>:branches:<project>)
+  add_repositories_rebuild: use defined rebuild policy for new repos ("transitive", "direct" or "local") or copy it from the source project ("copy")
+  add_repositories_block: use defined block policy for new repos
+
+XmlResult: status
+
+
 POST /source/<project>/<package>?cmd=set_flag
   Modify or set a defined flag for package
 

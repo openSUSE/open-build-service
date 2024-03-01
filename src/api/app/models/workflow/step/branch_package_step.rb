@@ -3,6 +3,8 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
   include TargetProjectLifeCycleSupport
 
   REQUIRED_KEYS = [:source_project, :source_package, :target_project].freeze
+  BRANCH_REQUEST_COMMIT_MESSAGE = 'Updated _branch_request file via SCM/CI Workflow run'.freeze
+
   validate :validate_source_project_and_package_name
 
   def call
@@ -14,7 +16,11 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
       restore_target_project
     elsif scm_webhook.new_commit_event?
       create_branched_package
-      point_branched_package_to_new_commit
+      unless scm_synced?
+        target_package.save_file({ file: branch_request_content,
+                                   filename: '_branch_request',
+                                   comment: BRANCH_REQUEST_COMMIT_MESSAGE })
+      end
       Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, target_package).call
 
       target_package
@@ -22,14 +28,6 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
   end
 
   private
-
-  def point_branched_package_to_new_commit
-    if scm_synced?
-      target_package.update(scmsync: parse_scmsync_for_target_package)
-    else
-      add_branch_request_file(package: target_package)
-    end
-  end
 
   def target_project_base_name
     step_instructions[:target_project]
@@ -75,7 +73,8 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
     create_target_project if skip_repositories?
 
     branch_options = { project: source_project_name, package: source_package_name,
-                       target_project: target_project_name, target_package: target_package_name }
+                       target_project: target_project_name, target_package: target_package_name,
+                       scmsync: parse_scmsync_for_target_package }
 
     begin
       # Service running on package avoids branching it: wait until services finish
@@ -93,8 +92,6 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
                                 targetproject: target_project_name,
                                 targetpackage: target_package_name,
                                 user: @token.executor.login)
-
-    target_package
   end
 
   def create_target_project
@@ -109,17 +106,15 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
     project.store
   end
 
-  def add_branch_request_file(package:)
-    branch_request_file = case scm_webhook.payload[:scm]
-                          when 'github'
-                            branch_request_content_github
-                          when 'gitlab'
-                            branch_request_content_gitlab
-                          when 'gitea'
-                            branch_request_content_gitea
-                          end
-
-    package.save_file({ file: branch_request_file, filename: '_branch_request', comment: 'Updated _branch_request file via SCM/CI Workflow run' })
+  def branch_request_content
+    case scm_webhook.payload[:scm]
+    when 'github'
+      branch_request_content_github
+    when 'gitlab'
+      branch_request_content_gitlab
+    when 'gitea'
+      branch_request_content_gitea
+    end
   end
 
   def branch_request_content_github

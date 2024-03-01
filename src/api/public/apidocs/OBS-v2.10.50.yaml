@@ -283,6 +283,8 @@ paths:
 
   /source?cmd=branch:
     $ref: 'paths/source_branch.yaml'
+  /source?cmd=fork:
+    $ref: 'paths/source_fork.yaml'
   /source?cmd=createmaintenanceincident:
     $ref: 'paths/source_createmaintenanceincident.yaml'
   /source?cmd=orderkiwirepos:
