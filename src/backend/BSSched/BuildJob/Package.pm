@@ -363,6 +363,9 @@ sub build {
   my $subpacks = $ctx->{'subpacks'}->{$info->{'name'}} || [];
   my $edeps = $info->{'edeps'} || $ctx->{'edeps'}->{$packid} || [];
 
+  my $nounchanged;
+  #$nounchanged = 1 if $packid && $ctx->{'cychash'}->{$packid} && !$ctx->{'forcebinaryidmeta'};
+
   if ($ctx->{'conf_host'}) {
     # add all sysdeps as extrabdeps
     my $dobuildinfo = $ctx->{'dobuildinfo'};
@@ -395,13 +398,13 @@ sub build {
     use warnings 'redefine';
     $ctx = bless { %$ctx, 'conf' => $ctx->{'conf_host'}, 'pool' => $ctx->{'pool_host'}, 'dep2pkg' => $ctx->{'dep2pkg_host'}, 'realctx' => $ctx, 'expander' => $xp, 'crossmode' => 1}, ref($ctx);
     $ctx->{'extrabdeps'} = \@bdeps;
-    $info->{'nounchanged'} = 1 if $packid && $ctx->{'cychash'}->{$packid};
+    $info->{'nounchanged'} = 1 if $nounchanged;
     my ($state, $job) = BSSched::BuildJob::create($ctx, $packid, $pdata, $info, $subpacks, $hdeps || [], $reason, $needed);
     delete $info->{'nounchanged'};
     return ($state, $job);
   }
 
-  $info->{'nounchanged'} = 1 if $packid && $ctx->{'cychash'}->{$packid} && !$ctx->{'forcebinaryidmeta'};
+  $info->{'nounchanged'} = 1 if $nounchanged;
   my ($state, $job) = BSSched::BuildJob::create($ctx, $packid, $pdata, $info, $subpacks, $edeps, $reason, $needed);
   delete $info->{'nounchanged'};
   return ($state, $job);
