@@ -4,7 +4,7 @@
     %h5 Involved Projects and Packages
 
   -# Tabs
-  - if contribution_graph? || (Flipper.enabled?(:content_moderation, User.session) && policy(displayed_user).comments?)
+  - if contribution_graph? || comments
     .d-none.d-md-block
       %ul.card-header.nav.nav-tabs.pt-2.px-3.pb-0.flex-nowrap.collapsible{ role: 'tablist' }
         %li.nav-item
@@ -16,18 +16,17 @@
             = link_to('#activity', id: 'activity-tab', class: 'nav-link text-nowrap',
                       data: { 'bs-toggle': 'tab' }, role: 'tab', aria: { controls: 'activity', selected: false }) do
               Contributions
-        - if Flipper.enabled?(:content_moderation, User.session)
-          - if policy(displayed_user).comments?
-            %li.nav-item
-              = link_to('#comments', id: 'comments-tab', class: 'nav-link text-nowrap',
-                        data: { 'bs-toggle': 'tab' }, role: 'tab', aria: { controls: 'comments', selected: false }) do
-                Comments
+        - if comments
+          %li.nav-item
+            = link_to('#comments', id: 'comments-tab', class: 'nav-link text-nowrap',
+                      data: { 'bs-toggle': 'tab' }, role: 'tab', aria: { controls: 'comments', selected: false }) do
+              Comments
 
   .card-body.p-0#involvement-and-activity
     = render partial: 'webui/user/involvement', locals: { involved_items_service: involved_items_service }
 
     -# Displaying tabs in medium-large viewports when the Contribution Graph is enabled
-    - if contribution_graph? || (Flipper.enabled?(:content_moderation, User.session) && policy(displayed_user).comments?)
+    - if contribution_graph? || comments
       .tab-content.d-none.d-md-block
         .tab-pane.fade#involved-projects-and-packages{ role: 'tabpanel', aria: { labelledby: 'involved-projects-and-packages-tab' } }
           -# Content to be injected by JavaScript
@@ -39,10 +38,9 @@
                                                               user: displayed_user,
                                                               date: date,
                                                               activities_per_day: activities_per_day }
-        - if Flipper.enabled?(:content_moderation, User.session)
-          - if policy(displayed_user).comments?
-            .tab-pane.fade#comments{ role: 'tabpanel', aria: { labelledby: 'comments-tab' } }
-              = render partial: 'webui/user/comments', locals: { comments: comments }
+        - if comments
+          .tab-pane.fade#comments{ role: 'tabpanel', aria: { labelledby: 'comments-tab' } }
+            = render partial: 'webui/user/comments', locals: { comments: comments }
 - content_for :ready_function do
   :plain
     // Move the involvement element in the right place.

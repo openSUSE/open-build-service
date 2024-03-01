@@ -201,6 +201,9 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def paged_comments
+    return unless Flipper.enabled?(:content_moderation, User.session)
+    return unless policy(@displayed_user).comment_index?
+
     comments = @displayed_user.comments.newest_first
     params[:page] = comments.page(params[:page]).total_pages if comments.page(params[:page]).out_of_range?
     comments.page(params[:page])
