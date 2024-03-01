@@ -7,7 +7,9 @@ class Webui::RequestController < Webui::WebuiController
   before_action :lockout_spiders
   before_action :require_request,
                 only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment, :build_results, :rpm_lint,
-                       :changes, :mentioned_issues, :chart_build_results, :complete_build_results]
+                       :changes, :mentioned_issues, :chart_build_results, :complete_build_results, :add_label_relation,
+                       :destroy_label_relation]
+  before_action :set_label, only: [:add_label_relation, :destroy_label_relation]
   before_action :set_actions, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues, :chart_build_results, :complete_build_results],
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :build_results_data, only: [:show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
@@ -67,6 +69,7 @@ class Webui::RequestController < Webui::WebuiController
       user = User.session # might be nil
       @my_open_reviews = reviews.select { |review| review.matches_user?(user) }.reject(&:staging_project?)
       @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
+      @all_labels = BsRequestLabel.all
 
       respond_to do |format|
         format.html
@@ -115,6 +118,36 @@ class Webui::RequestController < Webui::WebuiController
         flash[:error] = "Unable to add review to request with id '#{params[:number]}': #{e.message}"
       end
     end
+    redirect_to controller: :request, action: 'show', number: params[:number]
+  end
+
+  def add_label_relation
+    existing_relation = BsRequestBsRequestLabel.find_by(bs_request: @bs_request, bs_request_label: @label)
+
+    if existing_relation
+      flash[:error] = "Label relation already exists."
+    else
+      @relation = BsRequestBsRequestLabel.new(bs_request: @bs_request, bs_request_label: @label)
+
+      if @relation.save
+        flash[:success] = "Label relation successfully created."
+      else
+        flash[:error] = "Failed to create label relation."
+      end
+    end
+
+    redirect_to controller: :request, action: 'show', number: params[:number]
+  end
+
+  def destroy_label_relation
+    @relation = BsRequestBsRequestLabel.find_by(bs_request: @bs_request, bs_request_label: @label)
+
+    if @relation.destroy
+      flash[:success] = "Label relation successfully deleted."
+    else
+      flash[:error] = "Failed to delete label relation."
+    end
+
     redirect_to controller: :request, action: 'show', number: params[:number]
   end
 
@@ -375,6 +408,10 @@ class Webui::RequestController < Webui::WebuiController
 
     flash[:error] = "Request #{params[:diff_to_superseded]} does not exist or is not superseded by request #{@bs_request.number}."
     nil
+  end
+
+  def set_label
+    @label = BsRequestLabel.find_by!(id: params[:label_id])
   end
 
   def require_request

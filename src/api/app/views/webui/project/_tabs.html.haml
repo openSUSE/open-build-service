@@ -19,6 +19,7 @@
       = tab_link('Attributes', [index_attribs_path(project)], controller_name == 'attribute', 'scrollable-tab-link')
       = tab_link('Signing Keys', project_signing_keys_path(project), false, 'scrollable-tab-link')
       = tab_link('Meta', project_meta_path(project), false, 'scrollable-tab-link')
+      = tab_link('Labels', new_project_label_path(project_name: project.name), false, 'scrollable-tab-link')
       - unless project.defines_remote_instance? || project.is_maintenance?
         = tab_link('Status', project_status_path(project), false, 'scrollable-tab-link')
       = tab_link('Pulse', project_pulse_path(project), false, 'scrollable-tab-link')

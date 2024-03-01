@@ -1,0 +1,33 @@
+:javascript
+  $(document).ready(function() {
+    $('#addLabelButton').click(function() {
+      $('#addLabelModal').modal('show');
+    });
+
+    $('#addLabelModal .close').click(function() {
+      $('#addLabelModal').modal('hide');
+    });
+  });
+
+.card.mb-3
+  .card-header.d-flex.justify-content-between
+    %h5 Labels
+  .card-body
+    .row
+      .col-md-8#labels
+        .container
+          %table.table.table-striped
+            %thead
+              %tr
+                %th Label Name
+                %th Actions
+            %tbody
+              - @bs_request.labels.each do |label|
+                %tr
+                  %td= label.name
+                  %td
+                    = link_to 'Delete', request_destroy_label_relation_path(label_id: label.id, number: @bs_request.number), method: :delete, class: 'btn btn-danger', data: { confirm: 'Are you sure you want to delete this label?' }
+
+        = link_to 'Add Label', '#', id: 'addLabelButton', class: 'btn btn-primary add-label', data: { bs_request: @bs_request}, data_toggle: 'modal'
+
+  = render(partial: 'add_label_relation', locals: { bs_request: @bs_request })
