@@ -173,4 +173,26 @@ RSpec.describe CommentPolicy do
       end
     end
   end
+
+  permissions :history? do
+    let(:staff_user) { create(:staff_user) }
+    let(:moderator) { create(:moderator) }
+    let(:comment_moderated) { create(:comment_project, commentable: project, moderated_at: DateTime.now.utc, moderator_id: moderator.id) }
+
+    before do
+      Flipper.enable(:content_moderation)
+    end
+
+    it { is_expected.to permit(other_user, comment) }
+    it { is_expected.not_to permit(other_user, comment_deleted) }
+    it { is_expected.not_to permit(other_user, comment_moderated) }
+
+    it { is_expected.to permit(moderator, comment_deleted) }
+    it { is_expected.to permit(admin_user, comment_deleted) }
+    it { is_expected.to permit(staff_user, comment_deleted) }
+
+    it { is_expected.to permit(moderator, comment_moderated) }
+    it { is_expected.to permit(admin_user, comment_moderated) }
+    it { is_expected.to permit(staff_user, comment_moderated) }
+  end
 end
