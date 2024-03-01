@@ -1,3 +1,4 @@
+version: '1.1'
 testbuild:
   steps:
     - branch_package:
@@ -17,3 +18,10 @@ testbuild:
   filters:
     event: pull_request
 
+rebuild:
+  steps:
+    - trigger_services:
+        project: OBS:Server:2.10:Staging
+        package: obs-server
+  filters:
+    event: push
