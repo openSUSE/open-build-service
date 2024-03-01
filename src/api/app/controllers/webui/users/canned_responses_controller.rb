@@ -61,6 +61,6 @@ class Webui::Users::CannedResponsesController < Webui::WebuiController
   end
 
   def canned_response_params
-    params.require(:canned_response).permit(:title, :content)
+    params.require(:canned_response).permit(:title, :content, :decision_kind)
   end
 end

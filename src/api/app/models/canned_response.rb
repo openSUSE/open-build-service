@@ -9,6 +9,11 @@ class CannedResponse < ApplicationRecord
   validates :title, length: { maximum: 255 }
   validates :content, length: { maximum: 65_535 }
 
+  enum decision_kind: {
+    cleared: 0,
+    favor: 1
+  }
+
   #### Attributes
 
   #### Associations macros (Belongs to, Has one, Has many)
