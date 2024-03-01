@@ -426,7 +426,7 @@ sub createrepo_rpmmd_hook {
       if ($supportstatus{$path}) {
 	push @kw, $supportstatus{$path};
       }
-      s/^(l\d|unsuported|acc)$/support_$1/ for @kw;
+      s/^(l\d|unsupported|acc)$/support_$1/ for @kw;
 
       next unless @pe || @kw || $options->{'diskusage'};
 
