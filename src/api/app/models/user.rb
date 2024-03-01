@@ -689,18 +689,6 @@ class User < ApplicationRecord
     Package.for_user(id).or(Package.for_group(group_ids)).where.not(project: involved_projects)
   end
 
-  # list packages owned by this user.
-  def owned_packages
-    owned = []
-    begin
-      OwnerSearch::Owned.new.for(self).each do |owner|
-        owned << [owner.package, owner.project]
-      end
-    rescue APIError # no attribute set
-    end
-    owned
-  end
-
   # lists reviews involving this user
   def involved_reviews(search = nil)
     result = BsRequest.by_user_reviews(id).or(
