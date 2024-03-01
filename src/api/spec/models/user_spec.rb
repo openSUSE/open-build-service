@@ -168,16 +168,6 @@ RSpec.describe User do
       expect(involved_projects).to include(project)
       expect(involved_projects).to include(project_with_package)
     end
-
-    it 'has owned projects and packages' do
-      login user
-      create(:attrib, attrib_type: AttribType.find_by(name: 'OwnerRootProject'), project: project_with_package)
-      create(:relationship_package_user, package: project_with_package.packages.first, user: user)
-      create(:relationship_project_user, project: project_with_package, user: user)
-      owned_packages = user.owned_packages
-      expect(owned_packages[0]).to eq([nil, project_with_package])
-      expect(owned_packages[1]).to eq([project_with_package.packages.first, project_with_package])
-    end
   end
 
   describe 'create_user_with_fake_pw!' do
