@@ -1,0 +1,12 @@
+type: object
+properties:
+  comment:
+    type: array
+    items:
+      $ref: 'comment.yaml'
+  comment:
+    type: integer
+    xml:
+      attribute: true
+xml:
+  name: comment_history
