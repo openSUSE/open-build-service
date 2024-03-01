@@ -64,14 +64,18 @@ RSpec.describe Webui::CommentsHelper do
       before do
         action = comment.commentable.bs_request_actions.first
         User.session = create(:admin_user)
-        project = create(:project_with_package, package_name: 'package1')
-        action.target_project = project.name
-        action.target_package = project.packages.first.name
-        project.packages.first.add_maintainer(comment.user)
-        comment.commentable.bs_request_actions.first.target_project
-        comment.commentable.bs_request_actions.first.target_package
+
+        source_project = create(:project_with_package, package_name: 'package1')
+        action.source_project = source_project
+        action.source_package = source_project.packages.first
+
+        target_project = create(:project_with_package, package_name: 'package1')
+        action.target_project = target_project.name
+        action.target_package = target_project.packages.first.name
+        target_project.packages.first.add_maintainer(comment.user)
       end
 
+      it { is_expected.not_to include('source maintainer') }
       it { is_expected.to include('target maintainer') }
     end
 
