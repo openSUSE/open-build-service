@@ -35,8 +35,7 @@ RSpec.describe Webui::CommentsHelper do
         source_project = create(:project_with_package, package_name: 'package1')
         action.source_project = source_project
         action.source_package = source_project.packages.first
-        sprj = comment.commentable.bs_request_actions.first.source_project
-        Project.find_by_name(sprj).add_maintainer(comment.user)
+        source_project.add_maintainer(comment.user)
       end
 
       it { is_expected.to include('source maintainer') }
@@ -51,8 +50,7 @@ RSpec.describe Webui::CommentsHelper do
         project = create(:project_with_package, package_name: 'package1')
         action.target_project = project
         action.target_package = project.packages.first
-        tprj = comment.commentable.bs_request_actions.first.target_project
-        Project.find_by_name(tprj).add_maintainer(comment.user)
+        project.add_maintainer(comment.user)
       end
 
       it { is_expected.to include('target maintainer') }
@@ -89,8 +87,7 @@ RSpec.describe Webui::CommentsHelper do
         project = create(:project_with_package, package_name: 'package1')
         action.target_project = project
         action.target_package = project.packages.first
-        tprj = comment.commentable.bs_request_actions.first.target_project
-        Project.find_by_name(tprj).add_maintainer(somebody)
+        project.add_maintainer(somebody)
       end
 
       it { is_expected.to be_empty }
