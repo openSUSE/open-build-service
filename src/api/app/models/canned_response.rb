@@ -34,12 +34,13 @@ end
 #
 # Table name: canned_responses
 #
-#  id         :bigint           not null, primary key
-#  content    :text(65535)
-#  title      :string(255)
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#  user_id    :integer          not null, indexed
+#  id            :bigint           not null, primary key
+#  content       :text(65535)
+#  decision_kind :integer
+#  title         :string(255)
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  user_id       :integer          not null, indexed
 #
 # Indexes
 #
