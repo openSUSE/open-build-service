@@ -1974,9 +1974,10 @@ sub fixsleimage {
       my ($pubkey, $signargs) = getsigndata($projid, $data->{'signflavor'});
       $data->{'signargs'} = $signargs;
     }
-    my @signargs = @{$data->{'signargs'}};
+    my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
+    push @signargs, @{$data->{'signargs'} || []};
     if ($hadsig) {
       qsystem($BSConfig::sign, @signargs, '-c', "$extrep/$p") && die("    sign failed: $?\n");
     }
