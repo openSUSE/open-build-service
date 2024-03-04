@@ -365,6 +365,35 @@ RSpec.describe Webui::UsersController do
         it { expect(user.email).to eq('new_valid@email.es') }
       end
     end
+
+    context 'for a moderator' do
+      let(:moderator) { create(:moderator) }
+
+      context 'blocking the ability of a user to create comments' do
+        before do
+          login(moderator)
+          post :update, params: { login: user.login, user: { blocked_from_commenting: 'true' } }
+          user.reload
+        end
+
+        it { expect(user.blocked_from_commenting).to be(true) }
+        it { expect(flash[:success]).to eq("User data for user '#{user.login}' successfully updated.") }
+      end
+
+      context 'passing parameters other than the blocked_from_commenting' do
+        before do
+          login(moderator)
+          post :update, params: { login: user.login, user: { blocked_from_commenting: 'true', email: 'foo@bar.baz' } }
+          user.reload
+        end
+
+        it 'leaves the other attributes untouched' do
+          expect(user.email).not_to eq('foo@bar.baz')
+          expect(user.blocked_from_commenting).to be(true)
+          expect(flash[:success]).to eq("User data for user '#{user.login}' successfully updated.")
+        end
+      end
+    end
   end
 
   describe 'GET #autocomplete' do
