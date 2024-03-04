@@ -9,6 +9,11 @@ class CannedResponse < ApplicationRecord
   validates :title, length: { maximum: 255 }
   validates :content, length: { maximum: 65_535 }
 
+  enum decision_kind: {
+    cleared: 0,
+    favor: 1
+  }
+
   #### Attributes
 
   #### Associations macros (Belongs to, Has one, Has many)
@@ -34,12 +39,13 @@ end
 #
 # Table name: canned_responses
 #
-#  id         :bigint           not null, primary key
-#  content    :text(65535)
-#  title      :string(255)
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#  user_id    :integer          not null, indexed
+#  id            :bigint           not null, primary key
+#  content       :text(65535)
+#  decision_kind :integer
+#  title         :string(255)
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  user_id       :integer          not null, indexed
 #
 # Indexes
 #

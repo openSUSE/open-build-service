@@ -18,6 +18,7 @@
             %h5 Decision
             .d-flex.align-items-center.justify-content-between.mb-1
               = form.label(:reason)
+              -# Decision-related canned responses exclusively:
               = render CannedResponsesDropdownComponent.new(canned_responses)
             = form.text_area(:reason, class: 'form-control mb-3', required: true, placeholder: 'Reason for the decision')
             = form.select(:kind, Decision.kinds.keys, {}, class: 'form-select')
