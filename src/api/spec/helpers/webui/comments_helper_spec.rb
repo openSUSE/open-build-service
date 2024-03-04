@@ -2,14 +2,6 @@ RSpec.describe Webui::CommentsHelper do
   describe 'comment_user_role_titles' do
     subject { comment_user_role_titles(comment) }
 
-    context 'when the commenter has a moderator global role' do
-      let(:comment) { create(:comment_package) }
-
-      before { comment.user.roles << Role.find_by_title!('Moderator') }
-
-      it { is_expected.to include('Moderator') }
-    end
-
     context 'when the commenter is the maintainer of the commented package' do
       let(:comment) { create(:comment_package) }
 
@@ -31,7 +23,22 @@ RSpec.describe Webui::CommentsHelper do
 
       before { comment.user = User.find_by(login: comment.commentable.creator) }
 
-      it { is_expected.to include('Submitter') }
+      it { is_expected.to include('author') }
+    end
+
+    context 'when the commenter is the maintainer of the source project of the request' do
+      let(:comment) { create(:comment_request, :bs_request_action) }
+
+      before do
+        action = comment.commentable.bs_request_actions.first
+        User.session = create(:admin_user)
+        source_project = create(:project_with_package, package_name: 'package1')
+        action.source_project = source_project
+        action.source_package = source_project.packages.first
+        source_project.add_maintainer(comment.user)
+      end
+
+      it { is_expected.to include('source maintainer') }
     end
 
     context 'when the commenter is the maintainer of the target project of the request' do
@@ -43,11 +50,10 @@ RSpec.describe Webui::CommentsHelper do
         project = create(:project_with_package, package_name: 'package1')
         action.target_project = project
         action.target_package = project.packages.first
-        tprj = comment.commentable.bs_request_actions.first.target_project
-        Project.find_by_name(tprj).add_maintainer(comment.user)
+        project.add_maintainer(comment.user)
       end
 
-      it { is_expected.to include('maintainer') }
+      it { is_expected.to include('target maintainer') }
     end
 
     context 'when the commenter is the maintainer of the target package of the request' do
@@ -56,15 +62,19 @@ RSpec.describe Webui::CommentsHelper do
       before do
         action = comment.commentable.bs_request_actions.first
         User.session = create(:admin_user)
-        project = create(:project_with_package, package_name: 'package1')
-        action.target_project = project.name
-        action.target_package = project.packages.first.name
-        project.packages.first.add_maintainer(comment.user)
-        comment.commentable.bs_request_actions.first.target_project
-        comment.commentable.bs_request_actions.first.target_package
+
+        source_project = create(:project_with_package, package_name: 'package1')
+        action.source_project = source_project
+        action.source_package = source_project.packages.first
+
+        target_project = create(:project_with_package, package_name: 'package1')
+        action.target_project = target_project.name
+        action.target_package = target_project.packages.first.name
+        target_project.packages.first.add_maintainer(comment.user)
       end
 
-      it { is_expected.to include('maintainer') }
+      it { is_expected.not_to include('source maintainer') }
+      it { is_expected.to include('target maintainer') }
     end
 
     context 'when the commenter is not the maintainer of the targe project of the request' do
@@ -77,8 +87,7 @@ RSpec.describe Webui::CommentsHelper do
         project = create(:project_with_package, package_name: 'package1')
         action.target_project = project
         action.target_package = project.packages.first
-        tprj = comment.commentable.bs_request_actions.first.target_project
-        Project.find_by_name(tprj).add_maintainer(somebody)
+        project.add_maintainer(somebody)
       end
 
       it { is_expected.to be_empty }
@@ -94,7 +103,7 @@ RSpec.describe Webui::CommentsHelper do
         Project.find_by_name(action.target_project).add_maintainer(comment.user)
       end
 
-      it { is_expected.to include('maintainer') }
+      it { is_expected.to include('target maintainer') }
     end
   end
 end

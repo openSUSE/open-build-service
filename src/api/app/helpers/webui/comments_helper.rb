@@ -1,14 +1,18 @@
 module Webui::CommentsHelper
   def comment_user_role_titles(comment)
-    roles = comment.user.roles.global.pluck(:title)
+    roles = []
 
-    roles += roles_for_project(comment) if comment.commentable.is_a?(Project)
+    case
+    when comment.commentable.is_a?(BsRequest)
+      roles = roles_for_request(comment)
+    when comment.commentable.is_a?(Project)
+      roles << 'maintainer' if roles_for_project(comment).any?
+    when comment.commentable.is_a?(Package)
+      roles << 'maintainer' if roles_for_package(comment).any?
+      roles << 'project maintainer' if roles_for_project(comment).any?
+    end
 
-    roles += roles_for_package(comment) if comment.commentable.is_a?(Package)
-
-    roles += roles_for_request(comment) if comment.commentable.is_a?(BsRequest)
-
-    roles.uniq
+    roles
   end
 
   private
@@ -27,21 +31,24 @@ module Webui::CommentsHelper
 
   def roles_for_request(comment)
     roles = []
-    roles << 'Submitter' if comment.commentable.creator == comment.user.login
-    comment.commentable.bs_request_actions.inject(roles) do |acc, action|
-      acc += Relationship
-             .joins(:role)
-             .joins(:project)
-             .where(projects: { name: action.target_project })
-             .where(user: comment.user)
-             .pluck('roles.title')
+    roles << 'author' if comment.commentable.creator == comment.user.login
+    roles << 'reviewer' if review_assigned_to_user(comment)
+    roles << 'source maintainer' if comment.commentable.bs_request_actions.any? { |action| source_maintainer(action, comment.user) }
+    roles << 'target maintainer' if comment.commentable.bs_request_actions.any? { |action| target_maintainer(action, comment.user) }
+    roles
+  end
 
-      acc + Relationship
-            .joins(:role)
-            .joins(:package)
-            .where(packages: { name: action.target_package })
-            .where(user: comment.user)
-            .pluck('roles.title')
-    end
+  def review_assigned_to_user(comment)
+    comment.commentable.reviews.map(&:user).include?(comment.user) || comment.commentable.reviews.pluck(:group_id).intersect?(comment.user.groups.ids)
+  end
+
+  def source_maintainer(action, user)
+    RelationshipsFinder.new.user_has_role_for_project(action.source_project, user, 'maintainer') ||
+      RelationshipsFinder.new.user_has_role_for_package(action.source_package, action.source_project, user, 'maintainer')
+  end
+
+  def target_maintainer(action, user)
+    RelationshipsFinder.new.user_has_role_for_project(action.target_project, user, 'maintainer') ||
+      RelationshipsFinder.new.user_has_role_for_package(action.target_package, action.target_project, user, 'maintainer')
   end
 end
