@@ -19,6 +19,7 @@ class Webui::UsersController < Webui::WebuiController
   def show
     @groups = @displayed_user.groups
     @involved_items_service = UserService::Involved.new(user: @displayed_user, filters: extract_filter_params, page: params[:page])
+    @comments = paged_comments
 
     return if CONFIG['contribution_graph'] == :off
 
@@ -197,5 +198,14 @@ class Webui::UsersController < Webui::WebuiController
 
     @current_notification = Notification.find(params[:notification_id])
     authorize @current_notification, :update?, policy_class: NotificationPolicy
+  end
+
+  def paged_comments
+    return unless Flipper.enabled?(:content_moderation, User.session)
+    return unless policy(@displayed_user).comment_index?
+
+    comments = @displayed_user.comments.newest_first
+    params[:page] = comments.page(params[:page]).total_pages if comments.page(params[:page]).out_of_range?
+    comments.page(params[:page])
   end
 end

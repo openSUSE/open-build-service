@@ -1,0 +1,10 @@
+.card-body
+  %h5 These are all the comments this user made
+  - comments.each do |comment|
+    = render BsRequestCommentComponent.new(comment: comment,
+                                           level: 1,
+                                           commentable: comment.commentable,
+                                           show_username: false)
+  = paginate comments, view_prefix: 'webui',
+                       window: 2,
+                       params: { anchor: 'tab-pane-comments', id: nil }
