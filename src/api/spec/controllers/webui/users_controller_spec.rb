@@ -205,7 +205,7 @@ RSpec.describe Webui::UsersController do
 
       it { expect(non_admin_user.realname).not_to eq('another real name') }
       it { expect(non_admin_user.email).not_to eq('new_valid@email.es') }
-      it { expect(flash[:error]).to eq("Can't edit #{non_admin_user.login}") }
+      it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this user.') }
       it { is_expected.to redirect_to(root_url) }
     end
 
