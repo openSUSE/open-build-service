@@ -49,4 +49,21 @@ RSpec.describe 'Canned responses', :js do
       expect(page).to have_no_text('wow')
     end
   end
+
+  context 'with decision-related canned response' do
+    let(:moderator) { create(:moderator) }
+
+    before do
+      login moderator
+      visit canned_responses_path
+      fill_in(name: 'canned_response[title]', with: 'wow')
+      fill_in(name: 'canned_response[content]', with: 'a decision-related canned response')
+      find(:id, 'canned_response_decision_kind').select('favor')
+      click_button('Create')
+      find('.accordion-button').click
+    end
+
+    it { expect(page).to have_text('Favor') }
+    it { expect(page).to have_text('a decision-related canned response') }
+  end
 end
