@@ -804,15 +804,6 @@ RSpec/Rails/HaveHttpStatus:
     - 'spec/controllers/webui/session_controller_spec.rb'
     - 'spec/controllers/webui/users/notifications_controller_spec.rb'
 
-# Offense count: 10
-RSpec/RepeatedSubjectCall:
-  Exclude:
-    - 'spec/models/workflow/step/branch_package_step_spec.rb'
-    - 'spec/models/workflow/step/configure_repositories_spec.rb'
-    - 'spec/models/workflow/step/link_package_step_spec.rb'
-    - 'spec/models/workflow/step/rebuild_package_step_spec.rb'
-    - 'spec/models/workflow/step/submit_request_step_spec.rb'
-
 # Offense count: 1
 RSpec/SubjectStub:
   Exclude:
