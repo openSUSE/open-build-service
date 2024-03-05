@@ -66,9 +66,6 @@ class Webui::ProjectController < Webui::WebuiController
 
   def edit
     authorize @project, :update?
-    respond_to do |format|
-      format.js
-    end
   end
 
   def create
@@ -107,20 +104,15 @@ class Webui::ProjectController < Webui::WebuiController
 
   def update
     authorize @project, :update?
-    respond_to do |format|
-      if @project.update(project_params)
-        format.html do
-          flash[:success] = 'Project was successfully updated.'
-          redirect_to project_show_path(@project)
+
+    if @project.update(project_params)
+      respond_to do |format|
+        format.turbo_stream do
+          flash.now[:success] = 'Project was successfully updated.'
         end
-        format.js { flash.now[:success] = 'Project was successfully updated.' }
-      else
-        format.html do
-          flash[:error] = 'Failed to update project'
-          redirect_to project_show_path(@project)
-        end
-        format.js
       end
+    else
+      render :edit, status: :unprocessable_entity
     end
   end
 

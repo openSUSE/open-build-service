@@ -213,6 +213,10 @@ GEM
       multi_xml (>= 0.5.2)
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
+    importmap-rails (1.2.3)
+      actionpack (>= 6.0.0)
+      activesupport (>= 6.0.0)
+      railties (>= 6.0.0)
     influxdb (0.8.1)
     influxdb-rails (1.0.3)
       influxdb (~> 0.6, >= 0.6.4)
@@ -490,6 +494,10 @@ GEM
     thor (1.3.1)
     tilt (2.3.0)
     timeout (0.4.1)
+    turbo-rails (1.5.0)
+      actionpack (>= 6.0.0)
+      activejob (>= 6.0.0)
+      railties (>= 6.0.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.5.0)
@@ -567,6 +575,7 @@ DEPENDENCIES
   haml
   haml-rails
   haml_lint
+  importmap-rails (~> 1.2)
   influxdb-rails
   jquery-datatables
   jquery-rails
@@ -618,6 +627,7 @@ DEPENDENCIES
   terser
   test-unit
   thinking-sphinx
+  turbo-rails
   vcr
   view_component
   voight_kampff

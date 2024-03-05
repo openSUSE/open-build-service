@@ -118,6 +118,8 @@ gem 'matrix', '~> 0.4'
 # until we have a fix for https://github.com/rubygems/rubygems/pull/5529
 gem 'strscan', '3.0.1'
 
+gem 'turbo-rails'
+
 group :development, :production do
   # to have the delayed job daemon
   gem 'daemons'
@@ -234,3 +236,5 @@ group :assets do
   # assets for font-awesome vector icons
   gem 'font-awesome-sass'
 end
+
+gem "importmap-rails", "~> 1.2"

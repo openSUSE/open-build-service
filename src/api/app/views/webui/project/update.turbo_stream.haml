@@ -1,0 +1,4 @@
+= turbo_stream.replace "basic-info-project_#{@project.id}", partial: 'basic_info', locals: { project: @project }
+= turbo_stream.replace "flash", partial: "layouts/webui/flash"
+= turbo_stream.update "project-title" do
+  = @project.title.presence || @project
