@@ -72,6 +72,7 @@ my $repository;
 my @tarfiles;
 
 my $registry_authenticator;
+my $registry_blob_authenticator;
 my $keepalive;
 
 my $cosign_cookie_name = 'org.open-build-service.cosign.cookie';
@@ -104,6 +105,12 @@ sub blob_exists {
   return 0;
 }
 
+sub calc_authrealm {
+  my ($url) = @_;
+  return '' unless $url =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
+  return $3 . ($4 || '');
+}
+
 sub blob_upload {
   my ($blobid, $upload_ent) = @_;
 
@@ -112,6 +119,7 @@ sub blob_upload {
   print "uploading layer $blobid... ";
   my $replyheaders;
   my $param = {
+    'headers' => [ 'Content-Length: 0', 'Content-Type: application/octet-stream' ],
     'uri' => "$registryserver/v2/$repository/blobs/uploads/",
     'request' => 'POST',
     'authenticator' => $registry_authenticator,
@@ -127,11 +135,14 @@ sub blob_upload {
   }
   die("no location in upload reply\n") unless $loc;
   $loc = "$registryserver$loc" if $loc =~ /^\//;
+  my $authenticator = $registry_authenticator;
+  # use the blob authenticator if the upload goes to a different server
+  $authenticator = $registry_blob_authenticator if calc_authrealm($loc) ne calc_authrealm("$registryserver/");
   $param = {
     'headers' => [ "Content-Length: $size", "Content-Type: application/octet-stream" ],
     'uri' => $loc,
     'request' => 'PUT',
-    'authenticator' => $registry_authenticator,
+    'authenticator' => $authenticator,
     'replyheaders' => \$replyheaders,
     'data' => \&send_layer,
     'send_layer_data' => [ $upload_ent, 0 ],
@@ -608,6 +619,7 @@ while (@ARGV) {
 }
 
 $registry_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => (-c STDOUT ? 1 : 0));
+$registry_blob_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => (-c STDOUT ? 1 : 0));
 
 if ($list_mode) {
   ($registryserver, $repository) = @ARGV;
