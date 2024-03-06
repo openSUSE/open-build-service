@@ -2,7 +2,7 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
   include ScmSyncEnabledStep
   include TargetProjectLifeCycleSupport
 
-  REQUIRED_KEYS = [:source_project, :source_package, :target_project].freeze
+  REQUIRED_KEYS = %i[source_project source_package target_project].freeze
 
   validate :validate_source_project_and_package_name
   validate :validate_source_project_or_package_are_not_scmsynced

@@ -9,7 +9,7 @@ class ChannelBinary < ApplicationRecord
   end
 
   def self._sync_keys
-    [:name, :project, :repository, :architecture, :package, :binaryarch]
+    %i[name project repository architecture package binaryarch]
   end
 
   def self.find_by_project_and_package(project, package)

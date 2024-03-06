@@ -13,7 +13,7 @@ class CreateFlipperTables < ActiveRecord::Migration[5.2]
       t.string :value
       t.timestamps null: false
 
-      t.index [:feature_key, :key, :value], unique: true
+      t.index %i[feature_key key value], unique: true
     end
   end
 end

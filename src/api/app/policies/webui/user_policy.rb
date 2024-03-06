@@ -5,7 +5,7 @@ class Webui::UserPolicy < ApplicationPolicy
 
   # This is a stub: right now the authorization logic lives in Webui::UsersController.
   # TODO: move here the authorization logic from Webui::UsersController.
-  [:index?, :edit?, :destroy?, :change_password?, :edit_account?].each do |action|
+  %i[index? edit? destroy? change_password? edit_account?].each do |action|
     define_method action do
       true
     end

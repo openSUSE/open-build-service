@@ -7,6 +7,6 @@ class CreateEc2Configuration < ActiveRecord::Migration[5.1]
 
       t.timestamps
     end
-    add_index :cloud_ec2_configurations, [:external_id, :arn], unique: true
+    add_index :cloud_ec2_configurations, %i[external_id arn], unique: true
   end
 end

@@ -2,7 +2,7 @@ class Webui::SearchController < Webui::WebuiController
   before_action :set_attribute_list
   before_action :set_tracker_list
   before_action :set_parameters, except: :issue
-  before_action :set_page, only: [:index, :issue]
+  before_action :set_page, only: %i[index issue]
 
   def index
     search

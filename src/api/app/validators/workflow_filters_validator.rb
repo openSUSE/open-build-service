@@ -1,5 +1,5 @@
 class WorkflowFiltersValidator < ActiveModel::Validator
-  SUPPORTED_FILTER_VALUES = [:only, :ignore].freeze
+  SUPPORTED_FILTER_VALUES = %i[only ignore].freeze
   DOCUMENTATION_LINK = "#{::Workflow::SCM_CI_DOCUMENTATION_URL}#sec.obs.obs_scm_ci_workflow_integration.setup.obs_workflows.filters".freeze
 
   def validate(record)

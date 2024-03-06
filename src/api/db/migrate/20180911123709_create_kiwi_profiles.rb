@@ -8,7 +8,7 @@ class CreateKiwiProfiles < ActiveRecord::Migration[5.2]
 
       t.timestamps
 
-      t.index [:name, :image_id], unique: true, name: 'name_once_per_image'
+      t.index %i[name image_id], unique: true, name: 'name_once_per_image'
     end
 
     add_column :kiwi_preferences, :profile, :string, limit: 191

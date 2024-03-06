@@ -84,7 +84,7 @@ module Backend
           return {} if repository_paths.empty? && repository_urls.empty?
 
           transform_binary_packages_response(http_get(['/build/:project/_availablebinaries', project_name],
-                                                      params: { url: repository_urls, path: repository_paths }, expand: [:url, :path]))
+                                                      params: { url: repository_urls, path: repository_paths }, expand: %i[url path]))
         end
 
         # TODO: Move this method that transforms the output into another module

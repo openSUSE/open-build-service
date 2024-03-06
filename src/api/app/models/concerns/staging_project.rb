@@ -14,8 +14,8 @@ module StagingProject
     scope :staging_projects, -> { where.not(staging_workflow: nil) }
   end
 
-  HISTORY_EVENT_TYPES = [:staging_project_created, :staged_request, :unstaged_request].freeze
-  FORCEABLE_STATES = [:building, :failed, :testing, :acceptable].freeze
+  HISTORY_EVENT_TYPES = %i[staging_project_created staged_request unstaged_request].freeze
+  FORCEABLE_STATES = %i[building failed testing acceptable].freeze
 
   def accept
     # Disabling build for all repositories and architectures.
@@ -259,7 +259,7 @@ module StagingProject
     # Instead, we could have something like
     # who = review.by_group || review.by_user || review.by_project || review.by_package
 
-    [:by_group, :by_user, :by_package, :by_project].each_with_object({}) do |review_by, extracted|
+    %i[by_group by_user by_package by_project].each_with_object({}) do |review_by, extracted|
       who = review.send(review_by)
       next unless who
 

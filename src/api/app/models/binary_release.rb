@@ -203,7 +203,7 @@ class BinaryRelease < ApplicationRecord
   # renders all values, which are used as identifier of a binary entry.
   def render_attributes
     attributes = { project: repository.project.name, repository: repository.name }
-    [:binary_name, :binary_epoch, :binary_version, :binary_release, :binary_arch, :medium].each do |key|
+    %i[binary_name binary_epoch binary_version binary_release binary_arch medium].each do |key|
       value = send(key)
       next unless value
 

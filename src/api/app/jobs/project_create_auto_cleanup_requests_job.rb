@@ -93,7 +93,7 @@ These requests are not created for projects with open requests or if you remove 
   end
 
   def relation
-    BsRequest.in_states([:new, :review, :declined])
+    BsRequest.in_states(%i[new review declined])
              .joins(:bs_request_actions)
   end
 end

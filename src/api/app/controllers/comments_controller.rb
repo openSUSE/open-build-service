@@ -1,5 +1,5 @@
 class CommentsController < ApplicationController
-  before_action :find_obj, only: [:index, :create]
+  before_action :find_obj, only: %i[index create]
 
   def index
     comments = @obj.comments.includes(:user)

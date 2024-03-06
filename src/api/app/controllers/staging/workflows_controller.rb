@@ -2,8 +2,8 @@ class Staging::WorkflowsController < Staging::StagingController
   before_action :require_login
   before_action :set_project
   before_action :check_staging_workflow, only: :create
-  before_action :set_staging_workflow, only: [:update, :destroy]
-  before_action :set_xml_hash, only: [:create, :update]
+  before_action :set_staging_workflow, only: %i[update destroy]
+  before_action :set_xml_hash, only: %i[create update]
   after_action :verify_authorized
 
   def create

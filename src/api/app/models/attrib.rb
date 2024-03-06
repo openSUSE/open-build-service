@@ -32,7 +32,7 @@ class Attrib < ApplicationRecord
            :validate_allowed_values_for_attrib_type
 
   after_save :populate_to_sphinx
-  after_commit :write_container_attributes, on: [:create, :destroy, :update]
+  after_commit :write_container_attributes, on: %i[create destroy update]
 
   #### Class methods using self. (public and then private)
   def self.find_by_container_and_fullname(container, fullname)

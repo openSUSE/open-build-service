@@ -19,7 +19,7 @@ class Flag < ApplicationRecord
 
   validate :validate_custom_save
 
-  validates :flag, uniqueness: { scope: [:project_id, :package_id, :architecture_id, :repo], case_sensitive: false }
+  validates :flag, uniqueness: { scope: %i[project_id package_id architecture_id repo], case_sensitive: false }
 
   def to_xml(builder)
     raise "FlagError: No flag-status set. \n #{inspect}" if status.nil?

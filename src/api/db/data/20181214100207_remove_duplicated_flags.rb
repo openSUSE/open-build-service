@@ -1,6 +1,6 @@
 class RemoveDuplicatedFlags < ActiveRecord::Migration[5.2]
   def up
-    attributes = [:flag, :repo, :architecture_id, :package_id, :project_id]
+    attributes = %i[flag repo architecture_id package_id project_id]
     # whenever 2 flags are for the same 'thing' (in _meta), we remove all but one
     last_flags = Flag.group([:status] + attributes).select('MAX(id) as id')
     # we need to pluck the ids (even though it's a lot) as you can't delete

@@ -5,10 +5,10 @@ class PersonController < ApplicationController
   validate_action register: { method: :put, response: :status }
   validate_action register: { method: :post, response: :status }
 
-  skip_before_action :extract_user, only: [:command, :register]
-  skip_before_action :require_login, only: [:command, :register]
+  skip_before_action :extract_user, only: %i[command register]
+  skip_before_action :require_login, only: %i[command register]
 
-  before_action :set_user, only: [:post_userinfo, :change_my_password, :get_watchlist, :put_watchlist]
+  before_action :set_user, only: %i[post_userinfo change_my_password get_watchlist put_watchlist]
 
   def show
     @list = if params[:prefix]

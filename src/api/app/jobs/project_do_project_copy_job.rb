@@ -17,8 +17,8 @@ class ProjectDoProjectCopyJob < ApplicationJob
       begin
         path = "/source/#{CGI.escape(project.name)}"
         path << Backend::Connection.build_query_from_hash(params,
-                                                          [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory,
-                                                           :makeolder, :makeoriginolder, :noservice])
+                                                          %i[cmd user comment oproject withbinaries withhistory
+                                                             makeolder makeoriginolder noservice])
         Backend::Connection.post path
       rescue Backend::Error => e
         logger.debug "copy failed: #{e.summary}"

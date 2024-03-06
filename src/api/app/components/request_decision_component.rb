@@ -30,7 +30,7 @@ class RequestDecisionComponent < ApplicationComponent
 
   # TODO: Move all those "can_*" checks to a pundit policy
   def can_accept_request?
-    @bs_request.state.in?([:new, :review]) && @is_target_maintainer
+    @bs_request.state.in?(%i[new review]) && @is_target_maintainer
   end
 
   def can_decline_request?

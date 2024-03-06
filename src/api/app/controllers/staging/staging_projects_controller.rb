@@ -4,8 +4,8 @@ class Staging::StagingProjectsController < Staging::StagingController
   before_action :require_login
   before_action :set_project
   before_action :set_staging_workflow, only: :create
-  before_action :set_options, only: [:index, :show]
-  before_action :set_staging_project, only: [:show, :accept]
+  before_action :set_options, only: %i[index show]
+  before_action :set_staging_project, only: %i[show accept]
 
   validate_action create: { method: :post, request: :staging_project }
 
@@ -76,7 +76,7 @@ class Staging::StagingProjectsController < Staging::StagingController
 
   def set_options
     @options = {}
-    [:requests, :history, :status].each do |option|
+    %i[requests history status].each do |option|
       @options[option] = params[option].present?
     end
   end

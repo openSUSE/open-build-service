@@ -4,7 +4,7 @@ class SourceProjectPackageMetaController < SourceController
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   validate_action update: { request: :package, response: :status }
-  before_action :require_package_name, only: [:show, :update]
+  before_action :require_package_name, only: %i[show update]
   before_action :set_request_data, only: [:update]
 
   before_action only: [:update] do
@@ -26,7 +26,7 @@ class SourceProjectPackageMetaController < SourceController
       # check if this comes from a remote project, also true for _project package
       # or if meta is specified we need to fetch the meta from the backend
       path = request.path_info
-      path += build_query_from_hash(params, [:meta, :rev, :view])
+      path += build_query_from_hash(params, %i[meta rev view])
       pass_to_backend(path)
       return
     end

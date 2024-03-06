@@ -1,6 +1,6 @@
 class Webui::GroupsController < Webui::WebuiController
-  before_action :require_login, except: [:show, :autocomplete]
-  after_action :verify_authorized, except: [:show, :autocomplete]
+  before_action :require_login, except: %i[show autocomplete]
+  after_action :verify_authorized, except: %i[show autocomplete]
 
   def index
     authorize Group.new, :index?

@@ -1,7 +1,7 @@
 class Workflow::Step::RebuildPackage < Workflow::Step
   include Triggerable
 
-  REQUIRED_KEYS = [:project, :package].freeze
+  REQUIRED_KEYS = %i[project package].freeze
 
   attr_reader :project_name, :package_name
 

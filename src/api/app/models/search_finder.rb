@@ -3,7 +3,7 @@ class SearchFinder
 
   attr_reader :included_classes, :relation, :what, :render_all, :search_items
 
-  validates :what, inclusion: [:package, :project, :repository, :request, :person, :channel, :channel_binary, :released_binary, :issue]
+  validates :what, inclusion: %i[package project repository request person channel channel_binary released_binary issue]
 
   def initialize(what:, search_items: [], render_all: false)
     @what = what

@@ -1,8 +1,8 @@
 module Cloud
   class UploadJobsController < ApplicationController
     before_action :require_login
-    before_action :validate_configuration_presence, only: [:index, :create]
-    before_action :set_upload_job, only: [:destroy, :show]
+    before_action :validate_configuration_presence, only: %i[index create]
+    before_action :set_upload_job, only: %i[destroy show]
 
     def index
       render xml: ::Cloud::Backend::UploadJob.all(::User.session!, format: :xml)

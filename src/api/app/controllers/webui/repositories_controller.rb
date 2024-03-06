@@ -1,12 +1,12 @@
 class Webui::RepositoriesController < Webui::WebuiController
   before_action :set_project
   before_action :set_repository, only: [:state]
-  before_action :set_architectures, only: [:index, :change_flag]
+  before_action :set_architectures, only: %i[index change_flag]
   before_action :set_repository, only: [:state]
-  before_action :set_package, only: [:index, :change_flag]
-  before_action :set_main_object, only: [:index, :change_flag]
+  before_action :set_package, only: %i[index change_flag]
+  before_action :set_main_object, only: %i[index change_flag]
   before_action :check_ajax, only: :change_flag
-  after_action :verify_authorized, except: [:index, :state]
+  after_action :verify_authorized, except: %i[index state]
 
   # GET /repositories/:project(/:package)
   # Compatibility routes
@@ -19,7 +19,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     @user_can_modify = @package.present? ? policy(@package).update? : policy(@project).update?
 
     @flags = {}
-    [:build, :debuginfo, :publish, :useforbuild].each do |flag_type|
+    %i[build debuginfo publish useforbuild].each do |flag_type|
       @flags[flag_type] = Flag::SpecifiedFlags.new(@main_object, flag_type)
     end
   end

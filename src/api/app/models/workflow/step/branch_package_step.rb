@@ -2,7 +2,7 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
   include ScmSyncEnabledStep
   include TargetProjectLifeCycleSupport
 
-  REQUIRED_KEYS = [:source_project, :source_package, :target_project].freeze
+  REQUIRED_KEYS = %i[source_project source_package target_project].freeze
   BRANCH_REQUEST_COMMIT_MESSAGE = 'Updated _branch_request file via SCM/CI Workflow run'.freeze
 
   validate :validate_source_project_and_package_name

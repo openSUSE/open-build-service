@@ -37,7 +37,7 @@ class Staging::StagedRequests
         package_name: request.first_target_package
       )
 
-      add_review_for_unstaged_request(request, staging_project) if request.state.in?([:new, :review])
+      add_review_for_unstaged_request(request, staging_project) if request.state.in?(%i[new review])
       send_to_backlog_declined_request(request, staging_project) if request.state == :declined
       staging_project.staged_requests.delete(request)
     end

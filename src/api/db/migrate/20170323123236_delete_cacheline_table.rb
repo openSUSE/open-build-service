@@ -1,6 +1,6 @@
 class DeleteCachelineTable < ActiveRecord::Migration[5.1]
   def change
-    remove_index :cache_lines, [:project, :package]
+    remove_index :cache_lines, %i[project package]
 
     drop_table :cache_lines do |t|
       t.string :key, limit: 4096, null: false

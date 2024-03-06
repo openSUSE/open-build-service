@@ -5,7 +5,7 @@ RSpec.describe Webui::WebuiController do
   controller do
     before_action :require_admin, only: :new
     before_action :require_login, only: :show
-    before_action :set_project, only: [:edit, :create]
+    before_action :set_project, only: %i[edit create]
     before_action :require_package, only: :create
     before_action :check_anonymous, only: :index
 

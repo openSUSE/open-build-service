@@ -6,9 +6,9 @@ OBSApi::Application.routes.draw do
 
     resources :about, only: :index
 
-    resource :configuration, only: [:show, :update]
+    resource :configuration, only: %i[show update]
 
-    resources :announcements, except: [:edit, :new]
+    resources :announcements, except: %i[edit new]
 
     ### /person
     post 'person' => 'person#command'
@@ -19,8 +19,8 @@ OBSApi::Application.routes.draw do
 
     # FIXME3.0: this is no clean namespace, a person "register" or "changepasswd" could exist ...
     #           remove these for OBS 3.0
-    match 'person/register' => 'person#register', via: [:post, :put] # use /person?cmd=register POST instead
-    match 'person/changepasswd' => 'person#change_my_password', via: [:post, :put] # use /person/:login?cmd=changepassword POST instead
+    match 'person/register' => 'person#register', via: %i[post put] # use /person?cmd=register POST instead
+    match 'person/changepasswd' => 'person#change_my_password', via: %i[post put] # use /person/:login?cmd=changepassword POST instead
     get 'person/:login/group' => 'person#grouplist', constraints: cons # Use /group?person=:login GET instead
 
     ### notifications
@@ -54,18 +54,18 @@ OBSApi::Application.routes.draw do
       get 'attribute/:namespace/_meta' => :show
       delete 'attribute/:namespace/_meta' => :delete
       delete 'attribute/:namespace' => :delete
-      match 'attribute/:namespace/_meta' => :update, via: [:post, :put]
+      match 'attribute/:namespace/_meta' => :update, via: %i[post put]
     end
 
     controller :attribute do
       get 'attribute/:namespace/:name/_meta' => :show
       delete 'attribute/:namespace/:name/_meta' => :delete
       delete 'attribute/:namespace/:name' => :delete
-      match 'attribute/:namespace/:name/_meta' => :update, via: [:post, :put]
+      match 'attribute/:namespace/:name/_meta' => :update, via: %i[post put]
     end
 
     ### /architecture
-    resources :architectures, only: [:index, :show, :update] # create,delete currently disabled
+    resources :architectures, only: %i[index show update] # create,delete currently disabled
 
     ### /trigger
     post 'trigger' => 'trigger#create'
@@ -76,7 +76,7 @@ OBSApi::Application.routes.draw do
     post 'trigger/workflow' => 'trigger_workflow#create'
 
     ### /issue_trackers
-    resources :issue_trackers, only: [:index, :show, :create, :update, :destroy], param: :name do
+    resources :issue_trackers, only: %i[index show create update destroy], param: :name do
       resources :issues, only: [:show]
     end
 
@@ -107,7 +107,7 @@ OBSApi::Application.routes.draw do
     end
 
     ### /status_message
-    resources :status_messages, only: [:show, :index, :create, :destroy], path: 'status/messages'
+    resources :status_messages, only: %i[show index create destroy], path: 'status/messages'
 
     resources :status_project, only: [:show], param: :project, path: 'status/project'
 
@@ -117,34 +117,34 @@ OBSApi::Application.routes.draw do
     ### /search
 
     controller :search do
-      match 'search/published/binary/id' => :pass_to_backend, via: [:get, :post]
-      match 'search/published/repoinfo/id' => :pass_to_backend, via: [:get, :post]
-      match 'search/published/pattern/id' => :pass_to_backend, via: [:get, :post]
-      match 'search/channel/binary/id' => :channel_binary_id, via: [:get, :post]
-      match 'search/channel/binary' => :channel_binary, via: [:get, :post]
-      match 'search/channel' => :channel, via: [:get, :post]
-      match 'search/released/binary/id' => :released_binary_id, via: [:get, :post]
-      match 'search/released/binary' => :released_binary, via: [:get, :post]
-      match 'search/project/id' => :project_id, via: [:get, :post]
-      match 'search/package/id' => :package_id, via: [:get, :post]
-      match 'search/project_id' => :project_id_deprecated, via: [:get, :post] # FIXME3.0: to be removed
-      match 'search/package_id' => :package_id_deprecated, via: [:get, :post] # FIXME3.0: to be removed
-      match 'search/project' => :project, via: [:get, :post]
-      match 'search/package' => :package, via: [:get, :post]
-      match 'search/person' => :person, via: [:get, :post]
-      match 'search/owner' => :owner, via: [:get, :post]
-      match 'search/missing_owner' => :missing_owner, via: [:get, :post]
-      match 'search/request' => :bs_request, via: [:get, :post]
-      match 'search/request/id' => :bs_request_id, via: [:get, :post]
-      match 'search' => :pass_to_backend, via: [:get, :post]
+      match 'search/published/binary/id' => :pass_to_backend, via: %i[get post]
+      match 'search/published/repoinfo/id' => :pass_to_backend, via: %i[get post]
+      match 'search/published/pattern/id' => :pass_to_backend, via: %i[get post]
+      match 'search/channel/binary/id' => :channel_binary_id, via: %i[get post]
+      match 'search/channel/binary' => :channel_binary, via: %i[get post]
+      match 'search/channel' => :channel, via: %i[get post]
+      match 'search/released/binary/id' => :released_binary_id, via: %i[get post]
+      match 'search/released/binary' => :released_binary, via: %i[get post]
+      match 'search/project/id' => :project_id, via: %i[get post]
+      match 'search/package/id' => :package_id, via: %i[get post]
+      match 'search/project_id' => :project_id_deprecated, via: %i[get post] # FIXME3.0: to be removed
+      match 'search/package_id' => :package_id_deprecated, via: %i[get post] # FIXME3.0: to be removed
+      match 'search/project' => :project, via: %i[get post]
+      match 'search/package' => :package, via: %i[get post]
+      match 'search/person' => :person, via: %i[get post]
+      match 'search/owner' => :owner, via: %i[get post]
+      match 'search/missing_owner' => :missing_owner, via: %i[get post]
+      match 'search/request' => :bs_request, via: %i[get post]
+      match 'search/request/id' => :bs_request_id, via: %i[get post]
+      match 'search' => :pass_to_backend, via: %i[get post]
 
-      match 'search/repository/id' => :repository_id, via: [:get, :post]
-      match 'search/issue' => :issue, via: [:get, :post]
+      match 'search/repository/id' => :repository_id, via: %i[get post]
+      match 'search/issue' => :issue, via: %i[get post]
     end
 
     ### /request
 
-    resources :request, only: [:index, :show, :update, :destroy]
+    resources :request, only: %i[index show update destroy]
 
     post 'request' => 'request#global_command'
     post 'request/:id' => 'request#request_command', constraints: cons
@@ -152,12 +152,12 @@ OBSApi::Application.routes.draw do
     ### /lastevents
 
     get '/lastevents' => 'source#lastevents_public'
-    match 'public/lastevents' => 'source#lastevents_public', via: [:get, :post]
+    match 'public/lastevents' => 'source#lastevents_public', via: %i[get post]
     post '/lastevents' => 'source#lastevents'
 
     ### /distributions
 
-    resources :distributions, except: [:new, :edit] do
+    resources :distributions, except: %i[new edit] do
       collection do
         get 'include_remotes'
         put 'bulk_replace' => :bulk_replace
@@ -173,7 +173,7 @@ OBSApi::Application.routes.draw do
     ### /cloud/upload
 
     scope :cloud, as: :cloud do
-      resources :upload, only: [:index, :show, :create, :destroy], controller: 'cloud/upload_jobs'
+      resources :upload, only: %i[index show create destroy], controller: 'cloud/upload_jobs'
     end
 
     ### /public
@@ -208,20 +208,20 @@ OBSApi::Application.routes.draw do
 
   # StagingWorkflow API
   resources :staging, only: [], param: 'workflow_project', module: 'staging', constraints: cons do
-    resource :workflow, only: [:create, :destroy, :update], constraints: cons
+    resource :workflow, only: %i[create destroy update], constraints: cons
     resources :backlog, only: [:index]
-    resources :staging_projects, only: [:index, :create], param: :name, constraints: cons do
+    resources :staging_projects, only: %i[index create], param: :name, constraints: cons do
       get '' => :show
       post 'copy/:staging_project_copy_name' => :copy
       post :accept
 
       get 'staged_requests' => 'staged_requests#index', constraints: cons
-      resource :staged_requests, only: [:create, :destroy]
+      resource :staged_requests, only: %i[create destroy]
     end
     delete 'staged_requests' => :destroy, constraints: cons, controller: 'staged_requests'
 
     resources :excluded_requests, only: [:index], constraints: cons
-    resource :excluded_requests, only: [:create, :destroy], constraints: cons
+    resource :excluded_requests, only: %i[create destroy], constraints: cons
   end
 
   controller :source_attribute do
@@ -281,13 +281,13 @@ OBSApi::Application.routes.draw do
 
   scope module: :status, path: :status_reports do
     resources :projects, only: [], param: :name, constraints: cons do
-      resources :required_checks, only: [:index, :create, :destroy], param: :name
+      resources :required_checks, only: %i[index create destroy], param: :name
     end
 
     scope :repositories do
       resources :projects, only: [], param: :name, path: '', constraints: cons do
         resources :repositories, only: [], param: :name, path: '', constraints: cons do
-          resources :required_checks, only: [:index, :create, :destroy], param: :name
+          resources :required_checks, only: %i[index create destroy], param: :name
         end
       end
     end
@@ -296,7 +296,7 @@ OBSApi::Application.routes.draw do
       resources :projects, only: [], param: :name, path: '', constraints: cons do
         resources :repositories, only: [], param: :name, path: '', constraints: cons do
           resources :architectures, only: [], param: :name, path: '', constraints: cons do
-            resources :required_checks, only: [:index, :create, :destroy], param: :name
+            resources :required_checks, only: %i[index create destroy], param: :name
           end
         end
       end
@@ -368,20 +368,20 @@ OBSApi::Application.routes.draw do
 
   ### /build
   get 'build/:project/:repository/:arch/:package/_log' => 'build#logfile', constraints: cons, as: :raw_logfile
-  match 'build/:project/:repository/:arch/:package/_buildinfo' => 'build#buildinfo', constraints: cons, via: [:get, :post]
-  match 'build/:project/:repository/:arch/:package/_status' => 'build#index', constraints: cons, via: [:get, :post]
-  match 'build/:project/:repository/:arch/:package/_history' => 'build#index', constraints: cons, via: [:get, :post]
+  match 'build/:project/:repository/:arch/:package/_buildinfo' => 'build#buildinfo', constraints: cons, via: %i[get post]
+  match 'build/:project/:repository/:arch/:package/_status' => 'build#index', constraints: cons, via: %i[get post]
+  match 'build/:project/:repository/:arch/:package/_history' => 'build#index', constraints: cons, via: %i[get post]
   get 'build/:project/:repository/:arch/:package/:filename' => 'build/file#show', constraints: cons
   put 'build/:project/:repository/:arch/:package/:filename' => 'build/file#update', constraints: cons
   delete 'build/:project/:repository/:arch/:package/:filename' => 'build/file#destroy', constraints: cons
-  match 'build/:project/:repository/:arch/_builddepinfo' => 'build#builddepinfo', via: [:get, :post], constraints: cons
+  match 'build/:project/:repository/:arch/_builddepinfo' => 'build#builddepinfo', via: %i[get post], constraints: cons
   get 'build/:project/:repository/_buildconfig' => 'build#index', constraints: cons
-  match 'build/:project/:repository/:arch/:package' => 'build#index', constraints: cons, via: [:get, :post]
+  match 'build/:project/:repository/:arch/:package' => 'build#index', constraints: cons, via: %i[get post]
   get 'build/:project/:repository/:arch' => 'build#index', constraints: cons
   get 'build/_result' => 'build#scmresult', constraints: cons
   get 'build/:project/_result' => 'build#result', constraints: cons
   get 'build/:project/:repository' => 'build#index', constraints: cons
-  match 'build/:project' => 'build#project_index', constraints: cons, via: [:get, :post, :put]
+  match 'build/:project' => 'build#project_index', constraints: cons, via: %i[get post put]
   get 'build' => 'source#index'
 
   ### /published

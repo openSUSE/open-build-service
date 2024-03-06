@@ -2,7 +2,7 @@ class BsRequestPermissionCheck
   include BsRequest::Errors
 
   def cmd_addreview_permissions(permissions_granted)
-    raise ReviewChangeStateNoPermission, 'The request is not in state new or review' unless req.state.in?([:review, :new])
+    raise ReviewChangeStateNoPermission, 'The request is not in state new or review' unless req.state.in?(%i[review new])
 
     req.bs_request_actions.each do |action|
       set_permissions_for_action(action)
@@ -11,7 +11,7 @@ class BsRequestPermissionCheck
   end
 
   def cmd_setpriority_permissions
-    raise SetPriorityNoPermission, 'The request is not in state new or review' unless req.state.in?([:review, :new])
+    raise SetPriorityNoPermission, 'The request is not in state new or review' unless req.state.in?(%i[review new])
 
     return if req.creator == User.session!.login
 
@@ -24,7 +24,7 @@ class BsRequestPermissionCheck
   end
 
   def cmd_setincident_permissions
-    raise ReviewChangeStateNoPermission, 'The request is not in state new or review' unless req.state.in?([:review, :new])
+    raise ReviewChangeStateNoPermission, 'The request is not in state new or review' unless req.state.in?(%i[review new])
 
     req.bs_request_actions.each do |action|
       set_permissions_for_action(action)
@@ -52,7 +52,7 @@ class BsRequestPermissionCheck
     # Admin always ...
     return true if User.admin_session?
 
-    raise ReviewChangeStateNoPermission, 'The request is neither in state review nor new' unless req.state.in?([:review, :new])
+    raise ReviewChangeStateNoPermission, 'The request is neither in state review nor new' unless req.state.in?(%i[review new])
     raise ReviewNotSpecified, 'The review must specified via by_user, by_group or by_project(by_package) argument.' unless by_user || by_group || by_package || by_project
     raise ReviewChangeStateNoPermission, "review state change is not permitted for #{User.session!.login}" if by_user && User.session! != by_user
     raise ReviewChangeStateNoPermission, "review state change for group #{by_group.title} is not permitted for #{User.session!.login}" if by_group && !User.session!.is_in_group?(by_group)
@@ -90,7 +90,7 @@ class BsRequestPermissionCheck
     end
     # do not allow direct switches from a final state to another one to avoid races and double actions.
     # request needs to get reopened first.
-    raise PostRequestNoPermission, "set state to #{opts[:newstate]} from a final state is not allowed." if req.state.in?([:accepted, :superseded, :revoked]) && opts[:newstate].in?(%w[accepted declined superseded revoked])
+    raise PostRequestNoPermission, "set state to #{opts[:newstate]} from a final state is not allowed." if req.state.in?(%i[accepted superseded revoked]) && opts[:newstate].in?(%w[accepted declined superseded revoked])
 
     raise PostRequestMissingParameter, "Supersed a request requires a 'superseded_by' parameter with the request id." if opts[:newstate] == 'superseded' && !opts[:superseded_by]
 
@@ -175,7 +175,7 @@ class BsRequestPermissionCheck
     check_action_target(action)
 
     # validate that specified sources do not have conflicts on accepting request
-    if action.action_type.in?([:submit, :maintenance_incident])
+    if action.action_type.in?(%i[submit maintenance_incident])
       query = { expand: 1 }
       query[:rev] = action.source_rev if action.source_rev
       begin
@@ -192,7 +192,7 @@ class BsRequestPermissionCheck
     end
 
     # target must exist
-    raise NotExistingTarget, "Unable to process package #{action.target_project}/#{action.target_package}; it does not exist." if action.action_type.in?([:delete, :add_role, :set_bugowner]) && action.target_package && !@target_package
+    raise NotExistingTarget, "Unable to process package #{action.target_project}/#{action.target_package}; it does not exist." if action.action_type.in?(%i[delete add_role set_bugowner]) && action.target_package && !@target_package
 
     check_delete_accept(action, opts) if action.action_type == :delete
 
@@ -207,7 +207,7 @@ class BsRequestPermissionCheck
   end
 
   def check_action_target(action)
-    return unless action.action_type.in?([:submit, :change_devel, :maintenance_release, :maintenance_incident])
+    return unless action.action_type.in?(%i[submit change_devel maintenance_release maintenance_incident])
 
     raise PostRequestNoPermission, "Target package is missing in request #{action.bs_request.number} (type #{action.action_type})" if action.action_type == :change_devel && !action.target_package
 

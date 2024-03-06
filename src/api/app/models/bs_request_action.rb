@@ -70,7 +70,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def check_sanity
-    if action_type.in?([:submit, :release, :maintenance_incident, :maintenance_release, :change_devel])
+    if action_type.in?(%i[submit release maintenance_incident maintenance_release change_devel])
       errors.add(:source_project, "should not be empty for #{action_type} requests") if source_project.blank?
       errors.add(:source_package, "should not be empty for #{action_type} requests") if !is_maintenance_incident? && source_package.blank?
       errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
@@ -193,7 +193,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def render_xml_attributes(node)
-    return unless action_type.in?([:submit, :release, :maintenance_incident, :maintenance_release, :change_devel])
+    return unless action_type.in?(%i[submit release maintenance_incident maintenance_release change_devel])
 
     render_xml_source(node)
     render_xml_target(node)
@@ -296,7 +296,7 @@ class BsRequestAction < ApplicationRecord
                else
                  tprj.find_package(target_package.gsub(/\.[^.]*$/, ''))
                end
-             elsif action_type.in?([:set_bugowner, :add_role, :change_devel, :delete])
+             elsif action_type.in?(%i[set_bugowner add_role change_devel delete])
                # target must exists
                tprj.packages.find_by_name!(target_package)
              else
@@ -570,7 +570,7 @@ class BsRequestAction < ApplicationRecord
       next unless new_action
 
       # check if the source contains really a diff or we can skip the entire action
-      if new_action.action_type.in?([:submit, :maintenance_incident]) && !new_action.contains_change?
+      if new_action.action_type.in?(%i[submit maintenance_incident]) && !new_action.contains_change?
         # submit contains no diff, drop it again
         new_action.destroy
       else
@@ -647,7 +647,7 @@ class BsRequestAction < ApplicationRecord
       raise UnknownProject, 'No target project specified' unless tprj
 
       raise UnknownRole, 'No role specified' if action_type == :add_role && !role
-    elsif action_type.in?([:submit, :change_devel, :maintenance_release, :maintenance_incident, :release])
+    elsif action_type.in?(%i[submit change_devel maintenance_release maintenance_incident release])
       # check existence of source
       unless sprj || skip_source
         # no support for remote projects yet, it needs special support during accept as well
@@ -680,7 +680,7 @@ class BsRequestAction < ApplicationRecord
     expand_target_project if action_type == :submit && ignore_delegate.blank? && target_project.present?
 
     # empty submission protection
-    if action_type.in?([:submit, :maintenance_incident]) && (target_package &&
+    if action_type.in?(%i[submit maintenance_incident]) && (target_package &&
          Package.exists_by_project_and_name(target_project, target_package, follow_project_links: false))
       raise MissingAction unless contains_change?
 
@@ -688,9 +688,9 @@ class BsRequestAction < ApplicationRecord
     end
 
     # complete in formation available already?
-    return if action_type.in?([:submit, :release, :maintenance_release]) && target_package
+    return if action_type.in?(%i[submit release maintenance_release]) && target_package
 
-    if action_type.in?([:release, :maintenance_incident]) && target_releaseproject && source_package
+    if action_type.in?(%i[release maintenance_incident]) && target_releaseproject && source_package
       pkg = Package.get_by_project_and_name(source_project, source_package)
       prj = Project.get_by_name(target_releaseproject).update_instance_or_self
       self.target_releaseproject = prj.name
@@ -698,7 +698,7 @@ class BsRequestAction < ApplicationRecord
       return
     end
 
-    if action_type.in?([:submit, :release, :maintenance_release, :maintenance_incident])
+    if action_type.in?(%i[submit release maintenance_release maintenance_incident])
       packages = []
       if source_package
         packages << Package.get_by_project_and_name(source_project, source_package)
@@ -761,7 +761,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def check_for_expand_errors!(add_revision)
-    return unless action_type.in?([:submit, :release, :maintenance_incident, :maintenance_release])
+    return unless action_type.in?(%i[submit release maintenance_incident maintenance_release])
 
     # validate that the sources are not broken
     begin
@@ -798,7 +798,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def set_sourceupdate_default(user)
-    return if sourceupdate || [:submit, :maintenance_incident].exclude?(action_type)
+    return if sourceupdate || %i[submit maintenance_incident].exclude?(action_type)
 
     update(sourceupdate: 'cleanup') if target_project && user.branch_project_name(target_project) == source_project
   end
@@ -914,7 +914,7 @@ class BsRequestAction < ApplicationRecord
 
     sprj = Project.get_by_name(source_project)
     raise UnknownProject, "Unknown source project #{source_project}" unless sprj
-    raise NotSupported, "Source project #{source_project} is not a local project. This is not supported yet." unless sprj.instance_of?(Project) || action_type.in?([:submit, :maintenance_incident])
+    raise NotSupported, "Source project #{source_project} is not a local project. This is not supported yet." unless sprj.instance_of?(Project) || action_type.in?(%i[submit maintenance_incident])
 
     if source_package
       spkg = Package.get_by_project_and_name(source_project, source_package)
@@ -947,7 +947,7 @@ class BsRequestAction < ApplicationRecord
     end
     if target_package
       if Package.exists_by_project_and_name(target_project, target_package) ||
-         action_type.in?([:delete, :change_devel, :add_role, :set_bugowner])
+         action_type.in?(%i[delete change_devel add_role set_bugowner])
         tpkg = Package.get_by_project_and_name(target_project, target_package)
       end
 

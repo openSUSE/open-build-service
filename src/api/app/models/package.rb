@@ -793,7 +793,7 @@ class Package < ApplicationRecord
       h = { user: commit_user.login }
       h[:comment] = commit_opts[:comment] if commit_opts[:comment]
       h[:requestid] = commit_opts[:request].number if commit_opts[:request]
-      path << Backend::Connection.build_query_from_hash(h, [:user, :comment, :requestid])
+      path << Backend::Connection.build_query_from_hash(h, %i[user comment requestid])
       begin
         Backend::Connection.delete path
       rescue Backend::NotFoundError
@@ -838,19 +838,19 @@ class Package < ApplicationRecord
   end
 
   def open_requests_with_package_as_target
-    rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
+    rel = BsRequest.where(state: %i[new review declined]).joins(:bs_request_actions)
     rel = rel.where('(bs_request_actions.target_project = ? and bs_request_actions.target_package = ?)', project.name, name)
     BsRequest.where(id: rel.select('bs_requests.id'))
   end
 
   def open_requests_with_package_as_source
-    rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
+    rel = BsRequest.where(state: %i[new review declined]).joins(:bs_request_actions)
     rel = rel.where('(bs_request_actions.source_project = ? and bs_request_actions.source_package = ?)', project.name, name)
     BsRequest.where(id: rel.select('bs_requests.id'))
   end
 
   def open_requests_with_by_package_review
-    rel = BsRequest.where(state: [:new, :review])
+    rel = BsRequest.where(state: %i[new review])
     rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? and reviews.by_package = ? ", project.name, name)
     BsRequest.where(id: rel.select('bs_requests.id'))
   end
@@ -907,7 +907,7 @@ class Package < ApplicationRecord
   end
 
   def modify_channel(mode = :add_disabled)
-    raise InvalidParameterError unless [:add_disabled, :enable_all].include?(mode)
+    raise InvalidParameterError unless %i[add_disabled enable_all].include?(mode)
 
     channel = channels.first
     return unless channel
@@ -916,7 +916,7 @@ class Package < ApplicationRecord
   end
 
   def add_channels(mode = :add_disabled)
-    raise InvalidParameterError unless [:add_disabled, :skip_disabled, :enable_all].include?(mode)
+    raise InvalidParameterError unless %i[add_disabled skip_disabled enable_all].include?(mode)
     return if is_channel?
 
     opkg = origin_container(local: false)
@@ -999,8 +999,8 @@ class Package < ApplicationRecord
     myparam.merge!(opts) { |_key, v1, _v2| v1 }
     path = source_path
     path += Backend::Connection.build_query_from_hash(myparam,
-                                                      [:cmd, :oproject, :opackage, :user, :comment,
-                                                       :orev, :missingok, :noservice, :olinkrev, :extendvrev])
+                                                      %i[cmd oproject opackage user comment
+                                                         orev missingok noservice olinkrev extendvrev])
     # branch sources in backend
     Backend::Connection.post path
   end

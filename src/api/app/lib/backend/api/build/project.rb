@@ -14,7 +14,7 @@ module Backend
 
         def self.rebuild(project_name, options = {})
           http_post(['/build/:project', project_name], defaults: { cmd: :rebuild },
-                                                       params: options, accepted: [:repository, :arch])
+                                                       params: options, accepted: %i[repository arch])
         end
 
         def self.resume_scheduler(project_name, comment = nil)

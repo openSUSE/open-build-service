@@ -4,7 +4,7 @@ class Staging::StagedRequestsController < Staging::StagingController
   before_action :set_staging_workflow
   before_action :set_staging_project, except: :destroy
   before_action :check_overall_state, only: :create
-  before_action :set_xml_hash, :set_request_numbers, only: [:create, :destroy]
+  before_action :set_xml_hash, :set_request_numbers, only: %i[create destroy]
 
   validate_action create: { method: :post, request: :number, response: :number }, destroy: { method: :delete, request: :number, response: :number }
 

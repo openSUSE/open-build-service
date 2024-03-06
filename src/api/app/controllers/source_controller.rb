@@ -18,18 +18,18 @@ class SourceController < ApplicationController
 
   validate_action index: { method: :get, response: :directory }
 
-  skip_before_action :extract_user, only: [:lastevents_public, :global_command_orderkiwirepos, :global_command_triggerscmsync]
-  skip_before_action :require_login, only: [:lastevents_public, :global_command_orderkiwirepos, :global_command_triggerscmsync]
+  skip_before_action :extract_user, only: %i[lastevents_public global_command_orderkiwirepos global_command_triggerscmsync]
+  skip_before_action :require_login, only: %i[lastevents_public global_command_orderkiwirepos global_command_triggerscmsync]
   # we use an array for the "file" parameter for: package_command_diff, package_command_linkdiff and package_command_servicediff
   skip_before_action :validate_params, only: [:package_command]
 
-  before_action :require_valid_project_name, except: [:index, :lastevents, :lastevents_public,
-                                                      :global_command_orderkiwirepos, :global_command_branch,
-                                                      :global_command_triggerscmsync, :global_command_createmaintenanceincident]
+  before_action :require_valid_project_name, except: %i[index lastevents lastevents_public
+                                                        global_command_orderkiwirepos global_command_branch
+                                                        global_command_triggerscmsync global_command_createmaintenanceincident]
 
   before_action :require_scmsync_host_check, only: [:global_command_triggerscmsync]
 
-  before_action :require_package, only: [:show_package, :delete_package, :package_command]
+  before_action :require_package, only: %i[show_package delete_package package_command]
 
   # GET /source
   #########
@@ -68,11 +68,11 @@ class SourceController < ApplicationController
 
     # exec
     path = request.path_info
-    path += build_query_from_hash(params, [:rev, :linkrev, :emptylink,
-                                           :expand, :view, :extension,
-                                           :lastworking, :withlinked, :meta,
-                                           :deleted, :parse, :arch,
-                                           :repository, :product, :nofilename])
+    path += build_query_from_hash(params, %i[rev linkrev emptylink
+                                             expand view extension
+                                             lastworking withlinked meta
+                                             deleted parse arch
+                                             repository product nofilename])
     pass_to_backend(path)
   end
 
@@ -223,7 +223,7 @@ class SourceController < ApplicationController
     end
 
     path = Package.source_path(project_name, package_name, file)
-    path += build_query_from_hash(params, [:rev, :meta, :deleted, :limit, :expand, :view])
+    path += build_query_from_hash(params, %i[rev meta deleted limit expand view])
     pass_to_backend(path)
   end
 
@@ -253,7 +253,7 @@ class SourceController < ApplicationController
 
     Package.verify_file!(@pack, params[:filename], request.raw_post)
 
-    @path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink, :meta])
+    @path += build_query_from_hash(params, %i[user comment rev linkrev keeplink meta])
     pass_to_backend(@path)
 
     # update package timestamp and reindex sources
@@ -269,7 +269,7 @@ class SourceController < ApplicationController
 
     raise DeleteFileNoPermission, 'Insufficient permissions to delete file' unless @allowed
 
-    @path += build_query_from_hash(params, [:user, :comment, :meta, :rev, :linkrev, :keeplink])
+    @path += build_query_from_hash(params, %i[user comment meta rev linkrev keeplink])
     Backend::Connection.delete @path
 
     unless @package_name == '_pattern' || @package_name == '_project'
@@ -319,7 +319,7 @@ class SourceController < ApplicationController
 
   # POST /source?cmd=triggerscmsync
   def global_command_triggerscmsync
-    pass_to_backend('/source' + build_query_from_hash(params, [:cmd, :scmrepository, :scmbranch, :isdefaultbranch]))
+    pass_to_backend('/source' + build_query_from_hash(params, %i[cmd scmrepository scmbranch isdefaultbranch]))
   end
 
   def set_issues_defaults
@@ -361,7 +361,7 @@ class SourceController < ApplicationController
   def pubkey_path
     # check for project
     @prj = Project.get_by_name(params[:project])
-    request.path_info + build_query_from_hash(params, [:user, :comment, :meta, :rev])
+    request.path_info + build_query_from_hash(params, %i[user comment meta rev])
   end
 
   def check_permissions_for_file
@@ -442,7 +442,7 @@ class SourceController < ApplicationController
   # freeze project link, either creating the freeze or updating it
   # POST /source/<project>?cmd=freezelink
   def project_command_freezelink
-    pass_to_backend(request.path_info + build_query_from_hash(params, [:cmd, :user, :comment]))
+    pass_to_backend(request.path_info + build_query_from_hash(params, %i[cmd user comment]))
   end
 
   # add channel packages and extend repository list
@@ -484,7 +484,7 @@ class SourceController < ApplicationController
     Project.find_by_name(params[:project])
 
     path = request.path_info
-    path += build_query_from_hash(params, [:cmd, :user, :comment])
+    path += build_query_from_hash(params, %i[cmd user comment])
     pass_to_backend(path)
   end
 
@@ -811,7 +811,7 @@ class SourceController < ApplicationController
     Package.get_by_project_and_name(@target_project_name, @target_package_name)
 
     path = request.path_info
-    path << build_query_from_hash(params, [:cmd, :user, :comment, :orev, :oproject, :opackage])
+    path << build_query_from_hash(params, %i[cmd user comment orev oproject opackage])
     pass_to_backend(path)
   end
 
@@ -842,7 +842,7 @@ class SourceController < ApplicationController
     path = request.path_info
     raise CmdExecutionNoPermission, 'Only administrators are allowed to set the time' unless User.admin_session? || params[:time].blank?
 
-    path += build_query_from_hash(params, [:cmd, :user, :comment, :time])
+    path += build_query_from_hash(params, %i[cmd user comment time])
     pass_to_backend(path)
 
     # read meta data from backend to restore database object
@@ -905,7 +905,7 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=commit
   def package_command_commit
     path = request.path_info
-    path += build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
+    path += build_query_from_hash(params, %i[cmd user comment rev linkrev keeplink repairlink])
     pass_to_backend(path)
 
     @package.sources_changed if @package # except in case of _project package
@@ -914,7 +914,7 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=commitfilelist
   def package_command_commitfilelist
     path = request.path_info
-    path += build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink, :withvalidate])
+    path += build_query_from_hash(params, %i[cmd user comment rev linkrev keeplink repairlink withvalidate])
     answer = pass_to_backend(path)
 
     @package.sources_changed(dir_xml: answer) if @package # except in case of _project package
@@ -926,24 +926,24 @@ class SourceController < ApplicationController
     # opackage_name = params[:opackage]
 
     path = request.path_info
-    path += build_query_from_hash(params, [:cmd, :rev, :orev, :oproject, :opackage, :expand, :linkrev, :olinkrev,
-                                           :unified, :missingok, :meta, :file, :filelimit, :tarlimit,
-                                           :view, :withissues, :onlyissues, :cacheonly, :nodiff])
+    path += build_query_from_hash(params, %i[cmd rev orev oproject opackage expand linkrev olinkrev
+                                             unified missingok meta file filelimit tarlimit
+                                             view withissues onlyissues cacheonly nodiff])
     pass_to_backend(path)
   end
 
   # POST /source/<project>/<package>?cmd=linkdiff
   def package_command_linkdiff
     path = request.path_info
-    path += build_query_from_hash(params, [:cmd, :rev, :unified, :linkrev, :file, :filelimit, :tarlimit,
-                                           :view, :withissues, :onlyissues])
+    path += build_query_from_hash(params, %i[cmd rev unified linkrev file filelimit tarlimit
+                                             view withissues onlyissues])
     pass_to_backend(path)
   end
 
   # POST /source/<project>/<package>?cmd=servicediff
   def package_command_servicediff
     path = request.path_info
-    path += build_query_from_hash(params, [:cmd, :rev, :unified, :file, :filelimit, :tarlimit, :view, :withissues, :onlyissues])
+    path += build_query_from_hash(params, %i[cmd rev unified file filelimit tarlimit view withissues onlyissues])
     pass_to_backend(path)
   end
 
@@ -965,9 +965,9 @@ class SourceController < ApplicationController
 
     # We need to use the project name of package object, since it might come via a project linked project
     path = @package.source_path
-    path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand,
-                                           :keeplink, :repairlink, :linkrev, :olinkrev, :requestid,
-                                           :withvrev, :noservice, :dontupdatesource, :withhistory])
+    path << build_query_from_hash(params, %i[cmd rev user comment oproject opackage orev expand
+                                             keeplink repairlink linkrev olinkrev requestid
+                                             withvrev noservice dontupdatesource withhistory])
     pass_to_backend(path)
 
     @package.sources_changed
@@ -1070,7 +1070,7 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=mergeservice
   def package_command_mergeservice
     path = request.path_info
-    path += build_query_from_hash(params, [:cmd, :comment, :user])
+    path += build_query_from_hash(params, %i[cmd comment user])
     pass_to_backend(path)
 
     @package.sources_changed
@@ -1079,7 +1079,7 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=runservice
   def package_command_runservice
     path = request.path_info
-    path += build_query_from_hash(params, [:cmd, :comment, :user])
+    path += build_query_from_hash(params, %i[cmd comment user])
     pass_to_backend(path)
 
     @package.sources_changed unless @project.scmsync.present? || params[:package] == '_project'

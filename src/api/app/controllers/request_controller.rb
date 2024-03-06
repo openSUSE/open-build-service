@@ -5,7 +5,7 @@ class RequestController < ApplicationController
   validate_action request_create: { method: :post, response: :request }
 
   # TODO: allow PUT for non-admins
-  before_action :require_admin, only: [:update, :destroy]
+  before_action :require_admin, only: %i[update destroy]
 
   # GET /request
   def index
@@ -27,7 +27,7 @@ class RequestController < ApplicationController
 
   def render_request_collection
     # if all params areblank, something is wrong
-    raise RequireFilter if [:project, :user, :states, :types, :reviewstates, :ids].all? { |f| params[f].blank? }
+    raise RequireFilter if %i[project user states types reviewstates ids].all? { |f| params[f].blank? }
 
     # convert comma seperated values into arrays
     params[:roles] = params[:roles].split(',') if params[:roles]

@@ -670,7 +670,7 @@ class Project < ApplicationRecord
 
   def can_be_unlocked?(with_exception = true)
     if is_maintenance_incident?
-      requests = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
+      requests = BsRequest.where(state: %i[new review declined]).joins(:bs_request_actions)
       maintenance_release_requests = requests.where(bs_request_actions: { type: 'maintenance_release', source_project: name })
       if maintenance_release_requests.exists?
         if with_exception
@@ -1062,13 +1062,13 @@ class Project < ApplicationRecord
 
   def open_requests_with_project_as_source_or_target
     # Includes also requests for packages contained in this project
-    OpenRequestsWithProjectAsSourceOrTargetFinder.new(BsRequest.where(state: [:new, :review, :declined])
+    OpenRequestsWithProjectAsSourceOrTargetFinder.new(BsRequest.where(state: %i[new review declined])
                                                                .joins(:bs_request_actions), name).call
   end
 
   def open_requests_with_by_project_review
     # Includes also by_package reviews for packages contained in this project
-    OpenRequestsWithByProjectReviewFinder.new(BsRequest.where(state: [:new, :review])
+    OpenRequestsWithByProjectReviewFinder.new(BsRequest.where(state: %i[new review])
                                                        .joins(:reviews), name).call
   end
 

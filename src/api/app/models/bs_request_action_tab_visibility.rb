@@ -24,7 +24,7 @@ class BsRequestActionTabVisibility
   private
 
   def patchinfo_package
-    @action.type.in?([:maintenance_incident, :maintenance_release]) && @action.source_package == 'patchinfo'
+    @action.type.in?(%i[maintenance_incident maintenance_release]) && @action.source_package == 'patchinfo'
   end
 
   def source_package

@@ -3,30 +3,30 @@ class Webui::PackageController < Webui::WebuiController
   include Webui::PackageHelper
   include Webui::ManageRelationships
 
-  before_action :set_project, only: [:show, :edit, :update, :index, :users, :requests, :statistics, :revisions,
-                                     :new, :branch_diff_info, :rdiff, :create, :save, :remove,
-                                     :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
-                                     :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :save_meta, :files]
+  before_action :set_project, only: %i[show edit update index users requests statistics revisions
+                                       new branch_diff_info rdiff create save remove
+                                       remove_file save_person save_group remove_role view_file abort_build trigger_rebuild
+                                       trigger_services wipe_binaries buildresult rpmlint_result rpmlint_log meta save_meta files]
 
-  before_action :require_package, only: [:edit, :update, :show, :requests, :statistics, :revisions,
-                                         :branch_diff_info, :rdiff, :save, :save_meta, :remove,
-                                         :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
-                                         :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files, :users]
+  before_action :require_package, only: %i[edit update show requests statistics revisions
+                                           branch_diff_info rdiff save save_meta remove
+                                           remove_file save_person save_group remove_role view_file abort_build trigger_rebuild
+                                           trigger_services wipe_binaries buildresult rpmlint_result rpmlint_log meta files users]
 
   before_action :validate_xml, only: [:save_meta]
 
-  before_action :check_ajax, only: [:devel_project, :buildresult, :rpmlint_result]
+  before_action :check_ajax, only: %i[devel_project buildresult rpmlint_result]
   # make sure it's after the require_, it requires both
-  before_action :require_login, except: [:show, :index, :branch_diff_info,
-                                         :users, :requests, :statistics, :revisions, :view_file,
-                                         :devel_project, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files]
+  before_action :require_login, except: %i[show index branch_diff_info
+                                           users requests statistics revisions view_file
+                                           devel_project buildresult rpmlint_result rpmlint_log meta files]
 
   # FIXME: Remove this before_action, it's doing validation and authorization at the same time
   before_action :check_package_name_for_new, only: [:create]
 
-  prepend_before_action :lockout_spiders, only: [:revisions, :rdiff, :requests]
+  prepend_before_action :lockout_spiders, only: %i[revisions rdiff requests]
 
-  after_action :verify_authorized, only: [:new, :create, :remove_file, :remove, :abort_build, :trigger_rebuild, :wipe_binaries, :save_meta, :save, :abort_build]
+  after_action :verify_authorized, only: %i[new create remove_file remove abort_build trigger_rebuild wipe_binaries save_meta save abort_build]
 
   def index
     render json: PackageDatatable.new(params, view_context: view_context, project: @project)
@@ -197,7 +197,7 @@ class Webui::PackageController < Webui::WebuiController
     @linkrev = params[:linkrev]
 
     options = {}
-    [:orev, :opackage, :oproject, :linkrev, :olinkrev].each do |k|
+    %i[orev opackage oproject linkrev olinkrev].each do |k|
       options[k] = params[k] if params[k].present?
     end
     options[:rev] = @rev if @rev
@@ -428,7 +428,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def rpmlint_log_params
-    params.require([:project, :package, :repository, :architecture])
+    params.require(%i[project package repository architecture])
     params.slice(:project, :package, :repository, :architecture).permit!
   end
 
@@ -511,7 +511,7 @@ class Webui::PackageController < Webui::WebuiController
     @serviceinfo = dir.elements('serviceinfo').first
     files = []
     dir.elements('entry') do |entry|
-      file = Hash[*[:name, :size, :mtime, :md5].map! { |x| [x, entry.value(x.to_s)] }.flatten]
+      file = Hash[*%i[name size mtime md5].map! { |x| [x, entry.value(x.to_s)] }.flatten]
       file[:viewable] = !binary_file?(file[:name]) && file[:size].to_i < 2**20 # max. 1 MB
       file[:editable] = file[:viewable] && !file[:name].match?(/^_service[_:]/)
       file[:srcmd5] = dir.value('srcmd5')

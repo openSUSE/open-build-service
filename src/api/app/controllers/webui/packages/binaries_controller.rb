@@ -13,10 +13,10 @@ module Webui
       before_action :set_project
       before_action :set_package
       before_action :set_repository
-      before_action :set_architecture, only: [:show, :dependency]
+      before_action :set_architecture, only: %i[show dependency]
       before_action :set_dependant_project, only: :dependency
       before_action :set_dependant_repository, only: :dependency
-      before_action :set_filename, only: [:show, :dependency]
+      before_action :set_filename, only: %i[show dependency]
 
       prepend_before_action :lockout_spiders
 

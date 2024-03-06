@@ -527,7 +527,7 @@ class User < ApplicationRecord
 
     return true if is_admin?
 
-    abies = object.attrib_namespace_modifiable_bies.includes([:user, :group])
+    abies = object.attrib_namespace_modifiable_bies.includes(%i[user group])
     abies.any? { |rule| attribute_modifier_rule_matches?(rule) }
   end
 
@@ -544,7 +544,7 @@ class User < ApplicationRecord
 
     return true if is_admin?
 
-    abies = atype.attrib_type_modifiable_bies.includes([:user, :group, :role])
+    abies = atype.attrib_type_modifiable_bies.includes(%i[user group role])
     # no rules -> maintainer
     return can_modify?(object) if abies.empty?
 
@@ -720,7 +720,7 @@ class User < ApplicationRecord
 
   # list outgoing requests involving this user
   def outgoing_requests(search = nil, all_states: false)
-    states = all_states ? BsRequest::VALID_REQUEST_STATES : [:new, :review]
+    states = all_states ? BsRequest::VALID_REQUEST_STATES : %i[new review]
 
     result = requests_created.in_states(states).with_actions
     search.present? ? result.do_search(search) : result

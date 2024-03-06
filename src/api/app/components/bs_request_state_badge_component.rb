@@ -51,7 +51,7 @@ class BsRequestStateBadgeComponent < ApplicationComponent
   end
 
   def icon_state_tag
-    if [:declined, :revoked].include?(state)
+    if %i[declined revoked].include?(state)
       content_tag(
         :span,
         tag.i(class: "fas fa-#{decode_state_icon}").concat(

@@ -44,10 +44,10 @@ class EventSubscription < ApplicationRecord
   belongs_to :bs_request, optional: true
 
   validates :receiver_role, inclusion: {
-    in: [:maintainer, :bugowner, :reader, :source_maintainer, :target_maintainer,
-         :reviewer, :commenter, :creator, :watcher, :source_watcher, :target_watcher,
-         :package_watcher, :target_package_watcher, :source_package_watcher, :request_watcher, :any_role,
-         :moderator, :reporter, :offender, :token_executor]
+    in: %i[maintainer bugowner reader source_maintainer target_maintainer
+           reviewer commenter creator watcher source_watcher target_watcher
+           package_watcher target_package_watcher source_package_watcher request_watcher any_role
+           moderator reporter offender token_executor]
   }
 
   scope :for_eventtype, ->(eventtype) { where(eventtype: eventtype) }
