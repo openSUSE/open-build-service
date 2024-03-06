@@ -90,8 +90,8 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
 
   def test_watchlist_with_admin_user
     project_names = ['Apache', 'BaseDistro3', 'Devel:BaseDistro:Update', 'home:Iggy']
-    package_names = ['Tidy', 'TestPack']
-    request_numbers = ['1000', '4']
+    package_names = %w[Tidy TestPack]
+    request_numbers = %w[1000 4]
     user = User.find_by(login: 'tom')
     project_names.each do |name|
       user.watched_items << WatchedItem.create(watchable: Project.find_by!(name: name), user: user)
@@ -176,7 +176,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     end
     assert_equal ['Apache', 'BaseDistro3', 'Devel:BaseDistro:Update', 'home:Iggy'],
                  Project.includes(:watched_items).where(watched_items: { user: user_tom }).pluck(:name).sort
-    assert_equal ['apache2', 'pack2'],
+    assert_equal %w[apache2 pack2],
                  Package.includes(:watched_items).where(watched_items: { user: user_tom }).pluck(:name).sort
     assert_equal [1000],
                  BsRequest.includes(:watched_items).where(watched_items: { user: user_tom }).pluck(:number).sort

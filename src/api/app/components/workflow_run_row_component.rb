@@ -29,11 +29,11 @@ class WorkflowRunRowComponent < ApplicationComponent
   def status_icon
     classes = case status
               when 'running'
-                ['fas', 'fa-running']
+                %w[fas fa-running]
               when 'success'
-                ['fas', 'fa-check', 'text-primary']
+                %w[fas fa-check text-primary]
               else
-                ['fas', 'fa-exclamation-triangle', 'text-danger']
+                %w[fas fa-exclamation-triangle text-danger]
               end
     classes.join(' ')
   end

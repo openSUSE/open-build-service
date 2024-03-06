@@ -69,7 +69,7 @@ RSpec.describe Repository do
         end
 
         it do
-          expect(subject).to eq([['a', 'b', 'c']])
+          expect(subject).to eq([%w[a b c]])
         end
       end
 
@@ -79,7 +79,7 @@ RSpec.describe Repository do
         end
 
         it do
-          expect(subject).to eq([['a', 'b', 'c', 'd']])
+          expect(subject).to eq([%w[a b c d]])
         end
       end
 
@@ -89,7 +89,7 @@ RSpec.describe Repository do
         end
 
         it do
-          expect(subject).to eq([['a', 'b', 'c'], ['x', 'y', 'z']])
+          expect(subject).to eq([%w[a b c], %w[x y z]])
         end
       end
 
@@ -99,14 +99,14 @@ RSpec.describe Repository do
         end
 
         it do
-          expect(subject).to eq([['a', 'b', 'c', 'd'], ['w', 'x', 'y', 'z'], ['m', 'n', 'o', 'p']])
+          expect(subject).to eq([%w[a b c d], %w[w x y z], %w[m n o p]])
         end
       end
     end
   end
 
   describe '#copy_to' do
-    let(:repository) { create(:repository, architectures: ['i586', 'x86_64']) }
+    let(:repository) { create(:repository, architectures: %w[i586 x86_64]) }
     let!(:path_elements) { create_list(:path_element, 3, repository: repository) }
     let(:project) { create(:project) }
 

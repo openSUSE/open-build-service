@@ -1,7 +1,7 @@
 module PackageService
   class SchemaVerifier
-    SCHEMAS = ['aggregate', 'constraints', 'link',
-               'service', 'patchinfo', 'channel', 'multibuild', 'pattern'].freeze
+    SCHEMAS = %w[aggregate constraints link
+                 service patchinfo channel multibuild pattern].freeze
 
     def initialize(content:, package:, file_name:)
       @content = content

@@ -110,8 +110,8 @@ RSpec.describe Project::UpdateFromXmlCommand do
         )
         Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
 
-        expect(repository_1.architectures.map(&:name)).to eq(['x86_64', 'i586'])
-        expect(repository_1.repository_architectures.map { |repoarch| repoarch.architecture.name }).to eq(['x86_64', 'i586'])
+        expect(repository_1.architectures.map(&:name)).to eq(%w[x86_64 i586])
+        expect(repository_1.repository_architectures.map { |repoarch| repoarch.architecture.name }).to eq(%w[x86_64 i586])
       end
 
       it 'raises an error for unknown architectures' do

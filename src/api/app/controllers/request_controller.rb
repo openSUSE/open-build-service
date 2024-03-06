@@ -169,7 +169,7 @@ class RequestController < ApplicationController
     xml_request = Nokogiri::XML("<request id='#{req.number}'/>", &:strict).root if params[:view] == 'xml'
 
     req.bs_request_actions.each do |action|
-      withissues = params[:withissues].to_s.in?(['1', 'true'])
+      withissues = params[:withissues].to_s.in?(%w[1 true])
       action_diff = action.sourcediff(
         view: params[:view],
         withissues: withissues,

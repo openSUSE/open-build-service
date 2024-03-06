@@ -849,7 +849,7 @@ RSpec.describe Webui::ProjectController, :vcr do
           it { expect(assigns(:buildresult_unavailable)).to be_nil }
           it { expect(assigns(:packagenames)).to eq(['c++', 'redis']) }
           it { expect(assigns(:statushash)).to eq(statushash) }
-          it { expect(assigns(:repoarray)).to eq([['openSUSE_42.2', ['s390x']], ['openSUSE_Tumbleweed', ['i586', 'x86_64']]]) }
+          it { expect(assigns(:repoarray)).to eq([['openSUSE_42.2', ['s390x']], ['openSUSE_Tumbleweed', %w[i586 x86_64]]]) }
 
           it {
             expect(assigns(:repostatushash)).to eq('openSUSE_Tumbleweed' => { 'i586' => 'published', 'x86_64' => 'building' },

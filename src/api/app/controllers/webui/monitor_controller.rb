@@ -18,7 +18,7 @@ class Webui::MonitorController < Webui::WebuiController
 
       workers = {}
       workers_list = []
-      ['idle', 'building', 'away', 'down', 'dead'].each do |state|
+      %w[idle building away down dead].each do |state|
         @workerstatus.elements(state) do |b|
           workers_list << [b['workerid'], b['hostarch']]
         end
@@ -48,11 +48,11 @@ class Webui::MonitorController < Webui::WebuiController
 
     range = params.fetch(:range, DEFAULT_SEARCH_RANGE)
 
-    ['waiting', 'blocked', 'squeue_high', 'squeue_med'].each do |prefix|
+    %w[waiting blocked squeue_high squeue_med].each do |prefix|
       data[prefix] = status_history("#{prefix}_#{arch.name}", range).map { |time, value| [time * 1000, value] }
     end
 
-    ['idle', 'building', 'away', 'down', 'dead'].each do |prefix|
+    %w[idle building away down dead].each do |prefix|
       data[prefix] = status_history("#{prefix}_#{arch.worker}", range).map { |time, value| [time * 1000, value] }
     end
 

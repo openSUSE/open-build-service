@@ -1216,13 +1216,6 @@ Style/SlicingWithRange:
 Style/SymbolArray:
   EnforcedStyle: brackets
 
-# Offense count: 297
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle, MinSize, WordRegex.
-# SupportedStyles: percent, brackets
-Style/WordArray:
-  Enabled: false
-
 # Offense count: 10
 ViewComponent/AvoidGlobalState:
   Exclude:

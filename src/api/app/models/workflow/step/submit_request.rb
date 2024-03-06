@@ -76,7 +76,7 @@ class Workflow::Step::SubmitRequest < Workflow::Step
     BsRequest.list({ project: step_instructions[:target_project],
                      source_project: step_instructions[:source_project],
                      package: step_instructions[:source_package],
-                     types: 'submit', states: ['new', 'review', 'declined'] })
+                     types: 'submit', states: %w[new review declined] })
   end
 
   def source_package

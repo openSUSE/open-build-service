@@ -19,7 +19,7 @@ module Webui::RequestHelper
     'superseded' => 'fa-plus'
   }.freeze
 
-  AVAILABLE_TYPES = ['all', 'submit', 'delete', 'add_role', 'change_devel', 'maintenance_incident', 'maintenance_release', 'release'].freeze
+  AVAILABLE_TYPES = %w[all submit delete add_role change_devel maintenance_incident maintenance_release release].freeze
   AVAILABLE_STATES = ['new or review', 'new', 'review', 'accepted', 'declined', 'revoked', 'superseded'].freeze
 
   def request_state_color(state)
@@ -97,7 +97,7 @@ module Webui::RequestHelper
   end
 
   def calculate_filename(filename, file_element)
-    return filename unless ['changed', 'renamed'].include?(file_element['state'])
+    return filename unless %w[changed renamed].include?(file_element['state'])
     return filename if file_element['old']['name'] == filename
 
     "#{file_element['old']['name']} -> #{filename}"

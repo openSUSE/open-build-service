@@ -6,15 +6,15 @@ require 'builder/xchar'
 class SourceController < ApplicationController
   include Source::Errors
 
-  SOURCE_UNTOUCHED_COMMANDS = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'rebuild', 'wipe',
-                               'waitservice', 'remove_flag', 'set_flag', 'getprojectservices', 'fork'].freeze
+  SOURCE_UNTOUCHED_COMMANDS = %w[branch diff linkdiff servicediff showlinked rebuild wipe
+                                 waitservice remove_flag set_flag getprojectservices fork].freeze
   # list of cammands which create the target package
-  PACKAGE_CREATING_COMMANDS = ['branch', 'release', 'copy', 'undelete', 'instantiate', 'fork'].freeze
+  PACKAGE_CREATING_COMMANDS = %w[branch release copy undelete instantiate fork].freeze
   # list of commands which are allowed even when the project has the package only via a project link
-  READ_COMMANDS = ['branch', 'diff', 'linkdiff', 'servicediff', 'showlinked', 'getprojectservices', 'release', 'fork'].freeze
+  READ_COMMANDS = %w[branch diff linkdiff servicediff showlinked getprojectservices release fork].freeze
   # commands which are fine to operate on external scm managed projects
-  SCM_SYNC_PROJECT_COMMANDS = ['diff', 'linkdiff', 'showlinked', 'copy', 'remove_flag', 'set_flag', 'runservice', 'fork',
-                               'waitservice', 'getprojectservices', 'unlock', 'wipe', 'rebuild', 'collectbuildenv'].freeze
+  SCM_SYNC_PROJECT_COMMANDS = %w[diff linkdiff showlinked copy remove_flag set_flag runservice fork
+                                 waitservice getprojectservices unlock wipe rebuild collectbuildenv].freeze
 
   validate_action index: { method: :get, response: :directory }
 
@@ -58,7 +58,7 @@ class SourceController < ApplicationController
       raise PackageExists, 'the package is not deleted' if tpkg
 
       validate_read_access_of_deleted_package(@target_project_name, @target_package_name)
-    elsif ['_project', '_pattern'].include?(@target_package_name)
+    elsif %w[_project _pattern].include?(@target_package_name)
       Project.get_by_name(@target_project_name)
     else
       @tpkg = Package.get_by_project_and_name(@target_project_name, @target_package_name)
@@ -110,12 +110,12 @@ class SourceController < ApplicationController
     raise MissingParameterError, 'POST request without given cmd parameter' unless params[:cmd]
 
     # valid post commands
-    valid_commands = ['diff', 'branch', 'servicediff', 'linkdiff', 'showlinked', 'copy',
-                      'remove_flag', 'set_flag', 'undelete', 'runservice', 'waitservice',
-                      'mergeservice', 'commit', 'commitfilelist', 'createSpecFileTemplate',
-                      'deleteuploadrev', 'linktobranch', 'updatepatchinfo', 'getprojectservices',
-                      'unlock', 'release', 'importchannel', 'rebuild', 'collectbuildenv',
-                      'instantiate', 'addcontainers', 'addchannels', 'enablechannel', 'fork']
+    valid_commands = %w[diff branch servicediff linkdiff showlinked copy
+                        remove_flag set_flag undelete runservice waitservice
+                        mergeservice commit commitfilelist createSpecFileTemplate
+                        deleteuploadrev linktobranch updatepatchinfo getprojectservices
+                        unlock release importchannel rebuild collectbuildenv
+                        instantiate addcontainers addchannels enablechannel fork]
 
     @command = params[:cmd]
     raise IllegalRequest, 'invalid_command' unless valid_commands.include?(@command)
@@ -137,7 +137,7 @@ class SourceController < ApplicationController
     # Check for existence/access of origin package when specified
     @spkg = nil
     Project.get_by_name(origin_project_name) if origin_project_name
-    @spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name) if origin_package_name && !origin_package_name.in?(['_project', '_pattern']) && !(params[:missingok] && @command.in?(['branch', 'release']))
+    @spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name) if origin_package_name && !origin_package_name.in?(%w[_project _pattern]) && !(params[:missingok] && @command.in?(%w[branch release]))
     unless PACKAGE_CREATING_COMMANDS.include?(@command) && !Project.exists_by_name(@target_project_name)
       valid_project_name!(params[:project])
       if @command == 'release' # wipe and rebuild should become supported as well
@@ -257,9 +257,9 @@ class SourceController < ApplicationController
     pass_to_backend(@path)
 
     # update package timestamp and reindex sources
-    return if params[:rev] == 'repository' || @package_name.in?(['_project', '_pattern'])
+    return if params[:rev] == 'repository' || @package_name.in?(%w[_project _pattern])
 
-    special_file = params[:filename].in?(['_aggregate', '_constraints', '_link', '_service', '_patchinfo', '_channel'])
+    special_file = params[:filename].in?(%w[_aggregate _constraints _link _service _patchinfo _channel])
     @pack.sources_changed(wait_for_update: special_file) # wait for indexing for special files
   end
 
@@ -338,7 +338,7 @@ class SourceController < ApplicationController
     @deleted_package = params.key?(:deleted)
 
     # FIXME: for OBS 3, api of branch and copy calls have target and source in the opposite place
-    if params[:cmd].in?(['branch', 'release'])
+    if params[:cmd].in?(%w[branch release])
       @target_package_name = params[:package]
       @target_project_name = params[:target_project] # might be nil
       @target_package_name = params[:target_package] if params[:target_package]
@@ -543,7 +543,7 @@ class SourceController < ApplicationController
 
     follow_project_links = SOURCE_UNTOUCHED_COMMANDS.include?(@command)
 
-    unless @target_package_name.in?(['_project', '_pattern'])
+    unless @target_package_name.in?(%w[_project _pattern])
       use_source = true
       use_source = false if @command == 'showlinked'
       @package = Package.get_by_project_and_name(@target_project_name, @target_package_name,
@@ -585,7 +585,7 @@ class SourceController < ApplicationController
         repo.release_targets.each do |releasetarget|
           next unless releasetarget
 
-          unless releasetarget.trigger.in?(['manual', 'maintenance'])
+          unless releasetarget.trigger.in?(%w[manual maintenance])
             repo_bad_type = true
             next
           end
@@ -1018,7 +1018,7 @@ class SourceController < ApplicationController
         next if params[:repository] && params[:repository] != repo.name
 
         repo.release_targets.each do |releasetarget|
-          next unless releasetarget.trigger.in?(['manual', 'maintenance'])
+          next unless releasetarget.trigger.in?(%w[manual maintenance])
 
           # find md5sum and release source and binaries
           release_package(pkg,

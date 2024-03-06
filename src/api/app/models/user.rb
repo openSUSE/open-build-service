@@ -6,11 +6,11 @@ class User < ApplicationRecord
   include Flipper::Identifier
 
   # Keep in sync with states defined in db/schema.rb
-  STATES = ['unconfirmed', 'confirmed', 'locked', 'deleted', 'subaccount'].freeze
+  STATES = %w[unconfirmed confirmed locked deleted subaccount].freeze
   NOBODY_LOGIN = '_nobody_'.freeze
   MAX_BIOGRAPHY_LENGTH_ALLOWED = 250
 
-  enum :color_theme, ['system', 'light', 'dark']
+  enum :color_theme, %w[system light dark]
 
   # disable validations because there can be users which don't have a bcrypt
   # password yet. this is for backwards compatibility
@@ -354,9 +354,9 @@ class User < ApplicationRecord
     when 'unconfirmed'
       true
     when 'confirmed'
-      to.in?(['locked', 'deleted'])
+      to.in?(%w[locked deleted])
     when 'locked'
-      to.in?(['confirmed', 'deleted'])
+      to.in?(%w[confirmed deleted])
     when 'deleted'
       to == 'confirmed'
     else

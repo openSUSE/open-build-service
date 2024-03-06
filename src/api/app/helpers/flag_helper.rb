@@ -90,7 +90,7 @@ module FlagHelper
 
   def add_flag(flag, status, repository = nil, arch = nil)
     validate_type flag
-    raise ArgumentError, "Error: unknown status for flag '#{status}'" unless ['enable', 'disable'].include?(status)
+    raise ArgumentError, "Error: unknown status for flag '#{status}'" unless %w[enable disable].include?(status)
 
     flags.build(status: status, flag: flag) do |f|
       f.architecture = Architecture.find_by_name(arch) if arch

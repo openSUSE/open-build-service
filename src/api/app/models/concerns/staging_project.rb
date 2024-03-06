@@ -204,7 +204,7 @@ module StagingProject
     @building_repositories = []
 
     buildresult.elements('result') do |result|
-      building = ['published', 'unpublished'].exclude?(result['state']) || result['dirty'] == 'true'
+      building = %w[published unpublished].exclude?(result['state']) || result['dirty'] == 'true'
       add_broken_packages(result)
       add_building_repositories(result) if building
     end
@@ -216,7 +216,7 @@ module StagingProject
     result.elements('status') do |status|
       code = status.get('code')
 
-      next unless code.in?(['broken', 'failed', 'unresolvable'])
+      next unless code.in?(%w[broken failed unresolvable])
 
       @broken_packages << { package: status['package'],
                             project: name,
@@ -235,7 +235,7 @@ module StagingProject
     buildresult = Buildresult.find_hashed(project: name, view: 'summary', repository: current_repo['repository'], arch: current_repo['arch'])
     buildresult = buildresult.get('result').get('summary')
     buildresult.elements('statuscount') do |status_count|
-      if status_count['code'].in?(['excluded', 'broken', 'failed', 'unresolvable', 'succeeded', 'excluded', 'disabled'])
+      if status_count['code'].in?(%w[excluded broken failed unresolvable succeeded excluded disabled])
         current_repo[:final] += status_count['count'].to_i
       else
         current_repo[:tobuild] += status_count['count'].to_i

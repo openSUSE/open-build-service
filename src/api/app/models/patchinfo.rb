@@ -250,7 +250,7 @@ class Patchinfo
     # validate _patchinfo for completeness
     raise IncompletePatchinfo, 'The _patchinfo file is not parseble' if data.empty?
 
-    ['rating', 'category', 'summary'].each do |field|
+    %w[rating category summary].each do |field|
       raise IncompletePatchinfo, "The _patchinfo has no #{field} set" if data[field].blank?
     end
     # a patchinfo may limit the targets

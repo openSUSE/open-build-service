@@ -111,8 +111,8 @@ RSpec.describe Attrib do
       end
 
       context 'values list' do
-        let(:values1) { ['blue', 'green'] }
-        let(:values2) { ['green', 'blue'] }
+        let(:values1) { %w[blue green] }
+        let(:values2) { %w[green blue] }
 
         it 'resorts attribute values' do
           expect(attribute.update_with_associations(values1, [])).to be(true)

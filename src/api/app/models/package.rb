@@ -645,7 +645,7 @@ class Package < ApplicationRecord
 
     ret = []
     directory.elements('entry') do |e|
-      ['patchinfo', 'aggregate', 'link', 'channel'].each do |kind|
+      %w[patchinfo aggregate link channel].each do |kind|
         ret << kind if e['name'] == '_' + kind
       end
       ret << 'product' if /.product$/.match?(e['name'])
@@ -977,7 +977,7 @@ class Package < ApplicationRecord
     # this length check is duplicated but useful for other uses for this function
     return false if name.length > 200
     return false if name == '0'
-    return true if ['_product', '_pattern', '_project', '_patchinfo'].include?(name)
+    return true if %w[_product _pattern _project _patchinfo].include?(name)
 
     # _patchinfo: is obsolete, just for backward compatibility
     allowed_characters = /[-+\w.#{allow_multibuild ? ':' : ''}]/
@@ -1237,9 +1237,9 @@ class Package < ApplicationRecord
     end
 
     # update package timestamp and reindex sources
-    return if opt[:rev] == 'repository' || ['_project', '_pattern'].include?(name)
+    return if opt[:rev] == 'repository' || %w[_project _pattern].include?(name)
 
-    sources_changed(wait_for_update: ['_aggregate', '_constraints', '_link', '_service', '_patchinfo', '_channel'].include?(opt[:filename]))
+    sources_changed(wait_for_update: %w[_aggregate _constraints _link _service _patchinfo _channel].include?(opt[:filename]))
   end
 
   def to_param

@@ -320,9 +320,9 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
                     target_repository: 'snapshot'
                   }
                 ],
-                architectures: [
-                  'x86_64',
-                  'ppc'
+                architectures: %w[
+                  x86_64
+                  ppc
                 ]
               },
               {

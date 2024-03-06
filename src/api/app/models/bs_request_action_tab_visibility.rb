@@ -1,5 +1,5 @@
 class BsRequestActionTabVisibility
-  CHANGES_TABS = ['submit', 'maintenance_incident', 'maintenance_release'].freeze
+  CHANGES_TABS = %w[submit maintenance_incident maintenance_release].freeze
 
   def initialize(bs_request_action)
     @action = bs_request_action

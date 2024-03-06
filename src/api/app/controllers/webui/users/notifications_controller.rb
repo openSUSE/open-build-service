@@ -1,6 +1,6 @@
 class Webui::Users::NotificationsController < Webui::WebuiController
-  VALID_NOTIFICATION_TYPES = ['read', 'reviews', 'comments', 'requests', 'unread', 'incoming_requests', 'outgoing_requests', 'relationships_created', 'relationships_deleted',
-                              'build_failures', 'reports', 'workflow_runs', 'appealed_decisions'].freeze
+  VALID_NOTIFICATION_TYPES = %w[read reviews comments requests unread incoming_requests outgoing_requests relationships_created relationships_deleted
+                                build_failures reports workflow_runs appealed_decisions].freeze
 
   # TODO: Remove this when we'll refactor kerberos_auth
   before_action :kerberos_auth

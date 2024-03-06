@@ -138,7 +138,7 @@ class Webui::RequestController < Webui::WebuiController
       flash[:error] = 'Unable to load request'
       redirect_back(fallback_location: user_path(User.session!))
       return
-    elsif !new_state.in?(['accepted', 'declined'])
+    elsif !new_state.in?(%w[accepted declined])
       flash[:error] = 'Unknown state to set'
     else
       begin
@@ -204,7 +204,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def changerequest
-    changestate = (['accepted', 'declined', 'revoked', 'new'] & params.keys).last
+    changestate = (%w[accepted declined revoked new] & params.keys).last
 
     if change_state(changestate, params)
       # TODO: Make this work for each submit action individually
@@ -324,7 +324,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def complete_build_results
-    filters = params.keys - ['controller', 'action', 'number']
+    filters = params.keys - %w[controller action number]
     render partial: 'webui/request/beta_show_tabs/build_status', locals: { build_results_data: build_results_data, bs_request_number: @bs_request.number, filters: filters }
   end
 

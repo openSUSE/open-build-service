@@ -12,7 +12,7 @@ module Cloud
       with: /\A.+(.raw.xz|.vhdfixed.xz)\z/, message: "'%{value}' is not a valid cloud image (needs to be a raw.xz or vhdfixed.xz file)"
     }
     validates :arch, inclusion: { in: ['x86_64'], message: "'%{value}' is not a valid cloud architecture" }
-    validates :target, inclusion: { in: ['ec2', 'azure'] }
+    validates :target, inclusion: { in: %w[ec2 azure] }
 
     def_delegator :backend_upload_job, :id
 

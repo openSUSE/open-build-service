@@ -14,6 +14,6 @@ class BuildResultsMonitorComponentPreview < ViewComponent::Preview
   end
 
   def monitor_page_with_filters
-    render(BuildResultsMonitorComponent.new(raw_data: FAKE_RAW_DATA, filter_url: '', filters: ['repo_openSUSE_Tumbleweed', 'status_unresolvable', 'arch_i586']))
+    render(BuildResultsMonitorComponent.new(raw_data: FAKE_RAW_DATA, filter_url: '', filters: %w[repo_openSUSE_Tumbleweed status_unresolvable arch_i586]))
   end
 end

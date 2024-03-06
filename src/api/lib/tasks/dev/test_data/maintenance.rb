@@ -148,7 +148,7 @@ module TestData
              :with_patchinfo,
              creator: iggy,
              description: 'Request with incident actions',
-             source_package_names: ['cacti', 'cacti-spine'],
+             source_package_names: %w[cacti cacti-spine],
              target_releaseproject_names: [update_project1.name, update_project2.name],
              source_project_name: update_project_branch.name,
              target_project_name: maintenance_project).tap do |bs_request|
@@ -161,7 +161,7 @@ module TestData
              :with_last_incident_accepted,
              creator: iggy,
              description: 'Request with incident actions',
-             source_package_names: ['cacti', 'cacti-spine'],
+             source_package_names: %w[cacti cacti-spine],
              target_releaseproject_names: [update_project1.name, update_project2.name],
              source_project_name: update_project_branch.name,
              target_project_name: maintenance_project).tap do |bs_request|
@@ -182,7 +182,7 @@ module TestData
 
       # Create maintenance release request that asks for releasing the changes on openSUSE:Maintenance:0 to openSUSE:*:Update.
       create_request_with_maintenance_release_actions(source_project_name: 'openSUSE:Maintenance:0',
-                                                      package_names: ['cacti', 'cacti-spine'],
+                                                      package_names: %w[cacti cacti-spine],
                                                       target_project_names: [update_project1.name, update_project2.name])
     end
   end

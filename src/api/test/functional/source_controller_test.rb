@@ -3780,7 +3780,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     get '/source/home:tom:branches:home:Iggy/_meta'
-    assert_equal({ 'name' => '10.2', 'path' => { 'project' => 'home:Iggy', 'repository' => '10.2' }, 'arch' => ['i586', 'x86_64'] }, Xmlhash.parse(@response.body)['repository'])
+    assert_equal({ 'name' => '10.2', 'path' => { 'project' => 'home:Iggy', 'repository' => '10.2' }, 'arch' => %w[i586 x86_64] }, Xmlhash.parse(@response.body)['repository'])
 
     # check source link
     get '/source/home:tom:branches:home:Iggy/TestPack/_link'

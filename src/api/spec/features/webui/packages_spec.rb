@@ -127,7 +127,7 @@ RSpec.describe 'Packages', :js, :vcr do
 
     it 'via binaries view' do
       allow(Buildresult).to receive(:find_hashed)
-        .with(project: user.home_project.name, package: package.name, repository: repository.name, view: ['binarylist', 'status'])
+        .with(project: user.home_project.name, package: package.name, repository: repository.name, view: %w[binarylist status])
         .and_return(Xmlhash.parse(fake_buildresult))
 
       visit project_package_repository_binaries_path(project_name: user.home_project, package_name: package, repository_name: repository.name)

@@ -66,7 +66,7 @@ class SCMStatusReporter
       'success'
     when 'Event::RequestStatechange'
       return 'success' if @event_payload[:state] == 'accepted'
-      return 'failure' if ['declined', 'superseded', 'revoked'].include?(@event_payload[:state])
+      return 'failure' if %w[declined superseded revoked].include?(@event_payload[:state])
 
       'pending'
     else

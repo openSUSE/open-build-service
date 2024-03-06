@@ -57,7 +57,7 @@ class Role < ApplicationRecord
   end
 
   def self.local_roles
-    ['maintainer', 'bugowner', 'reviewer', 'downloader', 'reader'].map { |r| Role.hashed[r] }
+    %w[maintainer bugowner reviewer downloader reader].map { |r| Role.hashed[r] }
   end
 
   def self.global_roles

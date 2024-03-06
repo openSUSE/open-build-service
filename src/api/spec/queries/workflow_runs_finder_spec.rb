@@ -12,7 +12,7 @@ RSpec.describe WorkflowRunsFinder do
   let!(:workflow_run_gitlab_pull_request_closed) { create(:workflow_run_gitlab, :succeeded, :pull_request_closed, token: workflow_token) }
 
   before do
-    ['success', 'running', 'fail'].each do |status|
+    %w[success running fail].each do |status|
       create(:workflow_run, token: workflow_token, status: status, request_headers: "HTTP_X_GITHUB_EVENT: pull_request\n")
     end
   end

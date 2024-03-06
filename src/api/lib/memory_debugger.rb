@@ -59,8 +59,8 @@ class MemoryDebugger
     file.close
     File.delete(file.path)
 
-    array_varmap_hash = ['varmap', 'hash']
-    array_n1_n2_n3_block_scope_shared = ['n1', 'n2', 'n3', 'block', 'scope', 'shared']
+    array_varmap_hash = %w[varmap hash]
+    array_n1_n2_n3_block_scope_shared = %w[n1 n2 n3 block scope shared]
     ids.each do |_, d|
       type = d.line['type'] || ''
       if d.line['data']

@@ -93,9 +93,9 @@ class SourceProjectController < SourceController
     #--------------------
     required_parameters(:cmd)
 
-    valid_commands = ['undelete', 'showlinked', 'remove_flag', 'set_flag', 'createpatchinfo',
-                      'createkey', 'extendkey', 'copy', 'createmaintenanceincident', 'lock',
-                      'unlock', 'release', 'addchannels', 'modifychannels', 'move', 'freezelink']
+    valid_commands = %w[undelete showlinked remove_flag set_flag createpatchinfo
+                        createkey extendkey copy createmaintenanceincident lock
+                        unlock release addchannels modifychannels move freezelink]
 
     raise IllegalRequest, 'invalid_command' unless valid_commands.include?(params[:cmd])
 
@@ -103,7 +103,7 @@ class SourceProjectController < SourceController
     project_name = params[:project]
     params[:user] = User.session!.login
 
-    return dispatch_command(:project_command, command) if command.in?(['undelete', 'release', 'copy', 'move'])
+    return dispatch_command(:project_command, command) if command.in?(%w[undelete release copy move])
 
     @project = Project.get_by_name(project_name)
 

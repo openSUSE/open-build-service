@@ -52,7 +52,7 @@ class LocalBuildResult
     def excluded_or_disabled?(status)
       return false if show_all
 
-      ['excluded', 'disabled'].include?(status)
+      %w[excluded disabled].include?(status)
     end
 
     def backend_build_result

@@ -79,9 +79,9 @@ RSpec.describe Workflow::Step do
               name: 'openSUSE_Tumbleweed',
               target_project: 'openSUSE:Factory',
               target_repository: 'snapshot',
-              architectures: [
-                'x86_64',
-                'ppc'
+              architectures: %w[
+                x86_64
+                ppc
               ]
             }
           ]

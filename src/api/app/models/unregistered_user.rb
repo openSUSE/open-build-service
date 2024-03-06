@@ -33,7 +33,7 @@ class UnregisteredUser < User
     end
 
     # Turn on registration if it's enabled
-    return true if ['allow', 'confirmation'].include?(::Configuration.registration)
+    return true if %w[allow confirmation].include?(::Configuration.registration)
 
     # This shouldn't happen, but disable registration by default.
     logger.debug "Huh? This shouldn't happen. UnregisteredUser.can_register ran out of options"

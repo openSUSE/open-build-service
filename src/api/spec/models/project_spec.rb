@@ -11,7 +11,7 @@ RSpec.describe Project, :vcr do
   describe 'validations' do
     it {
       expect(subject).to validate_inclusion_of(:kind)
-        .in_array(['standard', 'maintenance', 'maintenance_incident', 'maintenance_release'])
+        .in_array(%w[standard maintenance maintenance_incident maintenance_release])
     }
 
     it { is_expected.to validate_length_of(:name).is_at_most(200) }
@@ -443,8 +443,8 @@ RSpec.describe Project, :vcr do
     end
 
     context 'with linked repositories' do
-      let(:repository_1) { create(:repository, name: 'Tumbleweed', architectures: ['i586', 'x86_64'], project: deleted_project) }
-      let(:repository_2) { create(:repository, name: 'RepoWithLink', architectures: ['i586', 'x86_64'], project: deleted_project) }
+      let(:repository_1) { create(:repository, name: 'Tumbleweed', architectures: %w[i586 x86_64], project: deleted_project) }
+      let(:repository_2) { create(:repository, name: 'RepoWithLink', architectures: %w[i586 x86_64], project: deleted_project) }
       let!(:path_elements) { create(:path_element, repository: repository_2, link: repository_1) }
 
       it 'project meta is properly restored' do
@@ -692,7 +692,7 @@ RSpec.describe Project, :vcr do
       end
 
       it 'returns the categories values' do
-        expect(subject).to eql(['Test', 'Private'])
+        expect(subject).to eql(%w[Test Private])
       end
     end
 

@@ -23,7 +23,7 @@ class BsRequest < ApplicationRecord
 
   ACTION_NOTIFY_LIMIT = 50
 
-  scope :to_accept_by_time, -> { where(state: ['new', 'review']).where('accept_at < ?', Time.now) }
+  scope :to_accept_by_time, -> { where(state: %w[new review]).where('accept_at < ?', Time.now) }
   # Scopes for collections
   scope :with_actions, -> { joins(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
   scope :with_involved_projects, ->(project_ids) { where(bs_request_actions: { target_project_id: project_ids }) }
@@ -121,7 +121,7 @@ class BsRequest < ApplicationRecord
     # it's wiser to split the queries
     if opts[:project] && roles.empty? && (states.empty? || states.include?('review'))
       (BsRequest.find_for(opts.merge(roles: ['reviewer'])) +
-        BsRequest.find_for(opts.merge(roles: ['target', 'source']))).uniq
+        BsRequest.find_for(opts.merge(roles: %w[target source]))).uniq
     else
       BsRequest.find_for(opts).uniq
     end
@@ -769,7 +769,7 @@ class BsRequest < ApplicationRecord
   def setpriority(opts)
     permission_check_setpriority!
 
-    raise SaveError, "Illegal priority '#{opts[:priority]}'" unless opts[:priority].in?(['low', 'moderate', 'important', 'critical'])
+    raise SaveError, "Illegal priority '#{opts[:priority]}'" unless opts[:priority].in?(%w[low moderate important critical])
 
     p = { request: self, user_id: User.session!.id, description_extension: "#{priority} => #{opts[:priority]}" }
     p[:comment] = opts[:comment] if opts[:comment]
@@ -1157,7 +1157,7 @@ class BsRequest < ApplicationRecord
   # This method checks makes sure this is the case.
   def change_priorities?(new_priority)
     new_priority == 'critical' ||
-      (new_priority == 'important' && priority.in?(['moderate', 'low'])) ||
+      (new_priority == 'important' && priority.in?(%w[moderate low])) ||
       (new_priority == 'moderate' && priority == 'low')
   end
 
