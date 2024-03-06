@@ -6,12 +6,12 @@ class Webui::PackageController < Webui::WebuiController
   before_action :set_project, only: %i[show edit update index users requests statistics revisions
                                        new branch_diff_info rdiff create save remove
                                        remove_file save_person save_group remove_role view_file abort_build trigger_rebuild
-                                       trigger_services wipe_binaries buildresult rpmlint_result rpmlint_log meta save_meta files]
+                                       trigger_services buildresult rpmlint_result rpmlint_log meta save_meta files]
 
   before_action :require_package, only: %i[edit update show requests statistics revisions
                                            branch_diff_info rdiff save save_meta remove
                                            remove_file save_person save_group remove_role view_file abort_build trigger_rebuild
-                                           trigger_services wipe_binaries buildresult rpmlint_result rpmlint_log meta files users]
+                                           trigger_services buildresult rpmlint_result rpmlint_log meta files users]
 
   before_action :validate_xml, only: [:save_meta]
 
@@ -26,7 +26,7 @@ class Webui::PackageController < Webui::WebuiController
 
   prepend_before_action :lockout_spiders, only: %i[revisions rdiff requests]
 
-  after_action :verify_authorized, only: %i[new create remove_file remove abort_build trigger_rebuild wipe_binaries save_meta save abort_build]
+  after_action :verify_authorized, only: %i[new create remove_file remove abort_build trigger_rebuild save_meta save abort_build]
 
   def index
     render json: PackageDatatable.new(params, view_context: view_context, project: @project)
@@ -352,18 +352,6 @@ class Webui::PackageController < Webui::WebuiController
       flash[:error] = rebuild_trigger.error_message
       redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package, repository_name: params[:repository])
     end
-  end
-
-  def wipe_binaries
-    authorize @package, :update?
-
-    if @package.wipe_binaries(params)
-      flash[:success] = "Triggered wipe binaries for #{elide(@project.name)}/#{elide(@package.name)} successfully."
-    else
-      flash[:error] = "Error while triggering wipe binaries for #{elide(@project.name)}/#{elide(@package.name)}: #{@package.errors.full_messages.to_sentence}."
-    end
-
-    redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package, repository_name: params[:repository])
   end
 
   def devel_project

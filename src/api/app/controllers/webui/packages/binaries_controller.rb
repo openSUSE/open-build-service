@@ -21,6 +21,7 @@ module Webui
       prepend_before_action :lockout_spiders
 
       before_action :require_login, except: [:index]
+      after_action :verify_authorized, only: [:destroy]
 
       def index
         results_from_backend = Buildresult.find_hashed(project: @project.name, package: @package_name, repository: @repository.name, view: %w[binarylist status])
@@ -67,6 +68,22 @@ module Webui
 
         redirect_back(fallback_location: project_package_repository_binary_url(project_name: @project, package_name: @package,
                                                                                repository: @repository, arch: @architecture, filename: @filename))
+      end
+
+      def destroy
+        authorize @package, :update?
+
+        opts = params.slice(:arch)
+        opts[:repository] = params[:repository_name]
+        opts[:package] = @package_name
+        opts[:project] = @project.name
+        if @package.wipe_binaries(opts)
+          flash[:success] = "Triggered wipe binaries for #{elide(@project.name)}/#{elide(@package_name)} successfully."
+        else
+          flash[:error] = "Error while triggering wipe binaries for #{elide(@project.name)}/#{elide(@package_name)}: #{@package.errors.full_messages.to_sentence}."
+        end
+
+        redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package, repository_name: @repository)
       end
 
       private
