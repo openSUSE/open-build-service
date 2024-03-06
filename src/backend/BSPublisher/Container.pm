@@ -465,7 +465,8 @@ sub compare_to_repostate {
     for my $containerinfo (@$containerinfos) {
       $info = create_container_dist_info($containerinfo, $oci, \%platforms);
       $missing_manifestinfo = 1 if $manifestinfodir && ! -s "$manifestinfodir/$info->{'digest'}";
-      if ($cosigncookie && $cosign_attestation && ($containerinfo->{'slsa_provenance'} || $containerinfo->{'spdx_file'} ||  $containerinfo->{'cyclonedx_file'} )) {
+      my $attestation_layers = ($containerinfo->{'slsa_provenance'} ? 1 : 0) + ($containerinfo->{'spdx_file'} ? 1 : 0) + ($containerinfo->{'cyclonedx_file'} ? 1 : 0) + scalar(@{$containerinfo->{'intoto_files'} || []});
+      if ($cosigncookie && $cosign_attestation && $attestation_layers) {
 	my $atttag = $info->{'digest'};
 	$atttag =~ s/:(.*)/-$1.att/;
 	$expected{$atttag} = $cosign_expect;
@@ -483,7 +484,8 @@ sub compare_to_repostate {
     my $containerinfo = $containerinfos->[0];
     $info = create_container_dist_info($containerinfo, $oci);
     $missing_manifestinfo = 1 if $manifestinfodir && ! -s "$manifestinfodir/$info->{'digest'}";
-    if ($cosigncookie && $cosign_attestation && ($containerinfo->{'slsa_provenance'} || $containerinfo->{'spdx_file'} || $containerinfo->{'cyclonedx_file'})) {
+    my $attestation_layers = ($containerinfo->{'slsa_provenance'} ? 1 : 0) + ($containerinfo->{'spdx_file'} ? 1 : 0) + ($containerinfo->{'cyclonedx_file'} ? 1 : 0) + scalar(@{$containerinfo->{'intoto_files'} || []});
+    if ($cosigncookie && $cosign_attestation && $attestation_layers) {
       my $atttag = $info->{'digest'};
       $atttag =~ s/:(.*)/-$1.att/;
       $expected{$atttag} = $cosign_expect;
@@ -617,11 +619,11 @@ sub upload_to_registry {
 	BSUtil::cp($containerinfo->{'cyclonedx_file'}, $cyclonedx_file) if $containerinfo->{'cyclonedx_file'} ne $cyclonedx_file;
 	$do_sbom = 1;
       }
+      my $nintoto = 0;
       for my $intoto (@{$containerinfo->{'intoto_files'} || []}) {
-        next unless $intoto =~ /(\.[^\/\.]+\.intoto\.json)$/;
-        my $intoto_suffix = $1;
 	my $intoto_file = $wrote_containerinfo;
-	die unless $intoto_file =~ s/\.[^\.]+$/$intoto_suffix/;
+	die unless $intoto_file =~ s/\.[^\.]+$/.$nintoto.intoto.json/;
+	$nintoto++;
 	BSUtil::cp($intoto, $intoto_file) if $intoto ne $intoto_file;
 	$do_sbom = 1;
       }
