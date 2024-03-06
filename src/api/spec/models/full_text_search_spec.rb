@@ -66,7 +66,7 @@ RSpec.describe FullTextSearch do
       end
 
       context 'classes project and package' do
-        let(:search_params) { search_param_text.merge(classes: ['project', 'package']) }
+        let(:search_params) { search_param_text.merge(classes: %w[project package]) }
 
         it { expect(subject).to eql([package, project]) }
       end

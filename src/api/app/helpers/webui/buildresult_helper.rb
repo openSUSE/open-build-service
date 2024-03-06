@@ -46,8 +46,8 @@ module Webui::BuildresultHelper
     link_to('#', aria: { controls: "collapse-#{collapse_id}", expanded: expanded }, class: 'px-2 ms-auto',
                  data: { 'bs-toggle': 'collapse' }, href: ".collapse-#{collapse_id}", role: 'button') do
       capture do
-        concat(tag.i(nil, class: ['fas', 'fa-chevron-left', 'expander'], title: "Show build results for this #{collapse_text}"))
-        concat(tag.i(nil, class: ['fas', 'fa-chevron-down', 'collapser'], title: "Hide build results for this #{collapse_text}"))
+        concat(tag.i(nil, class: %w[fas fa-chevron-left expander], title: "Show build results for this #{collapse_text}"))
+        concat(tag.i(nil, class: %w[fas fa-chevron-down collapser], title: "Hide build results for this #{collapse_text}"))
       end
     end
   end
@@ -77,7 +77,7 @@ module Webui::BuildresultHelper
   end
 
   def live_build_log_url(status, project, package, repository, architecture)
-    return if ['unresolvable', 'blocked', 'excluded', 'scheduled'].include?(status)
+    return if %w[unresolvable blocked excluded scheduled].include?(status)
 
     package_live_build_log_path(project: project,
                                 package: package,

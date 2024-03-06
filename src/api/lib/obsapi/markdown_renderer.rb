@@ -23,7 +23,7 @@ module OBSApi
 
     def block_html(raw_html)
       # sanitize the HTML we get
-      scrubber = Rails::Html::PermitScrubber.new.tap { |a| a.tags = ['b', 'em', 'i', 'strong', 'u', 'pre'] }
+      scrubber = Rails::Html::PermitScrubber.new.tap { |a| a.tags = %w[b em i strong u pre] }
       Rails::Html::SafeListSanitizer.new.sanitize(raw_html, scrubber: scrubber)
     end
 

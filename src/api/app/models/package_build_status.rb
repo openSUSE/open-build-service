@@ -102,8 +102,8 @@ class PackageBuildStatus
     rescue Backend::Error
       currentcode = nil
     end
-    @buildcode = 'failed' if currentcode.in?(['unresolvable', 'failed', 'broken'])
-    @buildcode = 'building' if currentcode.in?(['building', 'scheduled', 'finished', 'signing', 'blocked'])
+    @buildcode = 'failed' if currentcode.in?(%w[unresolvable failed broken])
+    @buildcode = 'building' if currentcode.in?(%w[building scheduled finished signing blocked])
     @buildcode = 'excluded' if currentcode == 'excluded'
     # if it's currently succeeded but !@everbuilt, it's different sources
     return unless currentcode == 'succeeded'

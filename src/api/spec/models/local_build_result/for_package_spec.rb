@@ -71,9 +71,9 @@ RSpec.describe LocalBuildResult::ForPackage, :vcr do
 
         it { expect(test_package.length).to eq(2) }
         it { expect(test_package.map(&:repository)).to eq(['openSUSE_Leap_42.2', 'openSUSE_Tumbleweed']) }
-        it { expect(test_package.map(&:architecture)).to eq(['x86_64', 'i586']) }
-        it { expect(test_package.map(&:code)).to eq(['succeeded', 'unresolvable']) }
-        it { expect(test_package.map(&:state)).to eq(['finished', 'finished']) }
+        it { expect(test_package.map(&:architecture)).to eq(%w[x86_64 i586]) }
+        it { expect(test_package.map(&:code)).to eq(%w[succeeded unresolvable]) }
+        it { expect(test_package.map(&:state)).to eq(%w[finished finished]) }
         it { expect(test_package.map(&:details)).to eq([nil, nil]) }
 
         it { expect(test_package_source.length).to eq(1) }
@@ -96,16 +96,16 @@ RSpec.describe LocalBuildResult::ForPackage, :vcr do
 
       it { expect(test_package.length).to eq(3) }
       it { expect(test_package.map(&:repository)).to eq(['openSUSE_Leap_42.2', 'openSUSE_Tumbleweed', 'openSUSE_Tumbleweed']) }
-      it { expect(test_package.map(&:architecture)).to eq(['x86_64', 'i586', 'x86_64']) }
-      it { expect(test_package.map(&:code)).to eq(['succeeded', 'unresolvable', 'excluded']) }
-      it { expect(test_package.map(&:state)).to eq(['finished', 'finished', 'building']) }
+      it { expect(test_package.map(&:architecture)).to eq(%w[x86_64 i586 x86_64]) }
+      it { expect(test_package.map(&:code)).to eq(%w[succeeded unresolvable excluded]) }
+      it { expect(test_package.map(&:state)).to eq(%w[finished finished building]) }
       it { expect(test_package.map(&:details)).to eq([nil, nil, nil]) }
 
       it { expect(test_package_source.length).to eq(3) }
       it { expect(test_package_source.map(&:repository)).to eq(['openSUSE_Leap_42.2', 'openSUSE_Tumbleweed', 'openSUSE_Tumbleweed']) }
-      it { expect(test_package_source.map(&:architecture)).to eq(['x86_64', 'i586', 'x86_64']) }
-      it { expect(test_package_source.map(&:code)).to eq(['excluded', 'excluded', 'broken']) }
-      it { expect(test_package_source.map(&:state)).to eq(['finished', 'finished', 'building']) }
+      it { expect(test_package_source.map(&:architecture)).to eq(%w[x86_64 i586 x86_64]) }
+      it { expect(test_package_source.map(&:code)).to eq(%w[excluded excluded broken]) }
+      it { expect(test_package_source.map(&:state)).to eq(%w[finished finished building]) }
       it { expect(test_package_source.map(&:details)).to eq([nil, nil, 'fake details']) }
     end
   end

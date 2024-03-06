@@ -16,7 +16,7 @@ class DiffSubjectComponent < ApplicationComponent
   end
 
   def changed_filename
-    return @new_filename unless ['changed', 'renamed'].include?(@state)
+    return @new_filename unless %w[changed renamed].include?(@state)
     return @new_filename if @old_filename == @new_filename
     return @new_filename unless @old_filename
 

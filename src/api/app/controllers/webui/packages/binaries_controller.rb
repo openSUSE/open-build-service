@@ -20,7 +20,7 @@ module Webui
       before_action :require_login, except: [:index]
 
       def index
-        results_from_backend = Buildresult.find_hashed(project: @project.name, package: @package_name, repository: @repository.name, view: ['binarylist', 'status'])
+        results_from_backend = Buildresult.find_hashed(project: @project.name, package: @package_name, repository: @repository.name, view: %w[binarylist status])
         raise ActiveRecord::RecordNotFound, 'Not Found' if results_from_backend.empty?
 
         @buildresults = []

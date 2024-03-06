@@ -14,7 +14,7 @@ RSpec.describe "User's admin edit page", :js do
 
     expect(find_field('confirmed', visible: false)).to be_checked
 
-    ['Admin', 'unconfirmed', 'deleted', 'locked'].each do |field|
+    %w[Admin unconfirmed deleted locked].each do |field|
       expect(find_field(field, visible: false)).not_to be_checked
     end
   end

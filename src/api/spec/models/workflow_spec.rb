@@ -270,7 +270,7 @@ RSpec.describe Workflow, :vcr do
     context 'when the webhook event is against none of the branches in the branches/ignore filters' do
       let(:yaml) do
         { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
-          'filters' => { 'branches' => { 'ignore' => ['something', 'main'] } } }
+          'filters' => { 'branches' => { 'ignore' => %w[something main] } } }
       end
       let(:extractor_payload) do
         {
@@ -294,7 +294,7 @@ RSpec.describe Workflow, :vcr do
     context 'when the webhook event is against none of the branches in the branches/only filters' do
       let(:yaml) do
         { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
-          'filters' => { 'branches' => { 'only' => ['something', 'main'] } } }
+          'filters' => { 'branches' => { 'only' => %w[something main] } } }
       end
       let(:extractor_payload) do
         {
@@ -318,7 +318,7 @@ RSpec.describe Workflow, :vcr do
     context 'when the webhook event is against one of the branches in the branches/ignore filters' do
       let(:yaml) do
         { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
-          'filters' => { 'branches' => { 'ignore' => ['something', 'main'] } } }
+          'filters' => { 'branches' => { 'ignore' => %w[something main] } } }
       end
       let(:extractor_payload) do
         {
@@ -342,7 +342,7 @@ RSpec.describe Workflow, :vcr do
     context 'when the webhook event is against one of the branches in the branches/only filters' do
       let(:yaml) do
         { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
-          'filters' => { 'branches' => { 'only' => ['master', 'develop'] } } }
+          'filters' => { 'branches' => { 'only' => %w[master develop] } } }
       end
       let(:extractor_payload) do
         {
@@ -504,14 +504,14 @@ RSpec.describe Workflow, :vcr do
         {
           'filters' => {
             'event' => 'push',
-            'branches' => { 'only' => ['master', 'staging'] }
+            'branches' => { 'only' => %w[master staging] }
           }
         }
       end
 
       it 'returns filters' do
         expect(subject.filters).to eq({ event: 'push',
-                                        branches: { only: ['master', 'staging'] } })
+                                        branches: { only: %w[master staging] } })
       end
     end
 

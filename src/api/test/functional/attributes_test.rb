@@ -202,7 +202,7 @@ ription</description>
     assert_response :success
     get '/attribute/TEST/Dummy/_meta'
     assert_response :success
-    ['count', 'description', 'default', 'allowed', 'count', 'modifiable_by'].each do |i|
+    %w[count description default allowed count modifiable_by].each do |i|
       assert_equal(Xmlhash.parse(data)[i], Xmlhash.parse(@response.body)[i])
     end
     login_Iggy

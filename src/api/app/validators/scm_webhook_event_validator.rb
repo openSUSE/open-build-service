@@ -1,5 +1,5 @@
 class SCMWebhookEventValidator < ActiveModel::Validator
-  ALLOWED_GITHUB_AND_GITEA_EVENTS = ['pull_request', 'push', 'ping'].freeze
+  ALLOWED_GITHUB_AND_GITEA_EVENTS = %w[pull_request push ping].freeze
   ALLOWED_GITLAB_EVENTS = ['Merge Request Hook', 'Push Hook', 'Tag Push Hook'].freeze
 
   def validate(record)
@@ -14,7 +14,7 @@ class SCMWebhookEventValidator < ActiveModel::Validator
   private
 
   def valid_github_or_gitea_event?
-    return false unless ['github', 'gitea'].include?(@record.payload[:scm])
+    return false unless %w[github gitea].include?(@record.payload[:scm])
     return false unless ALLOWED_GITHUB_AND_GITEA_EVENTS.include?(@record.payload[:event])
 
     case @record.payload[:event]

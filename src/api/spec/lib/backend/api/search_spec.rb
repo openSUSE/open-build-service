@@ -15,7 +15,7 @@ RSpec.describe Backend::Api::Search, :vcr do
     end
 
     context 'with unexistent projects' do
-      subject { Backend::Api::Search.projects(['xaa', 'xee']) }
+      subject { Backend::Api::Search.projects(%w[xaa xee]) }
 
       it { expect(Nokogiri::XML(subject).xpath('//collection//project').count).to eq(0) }
     end

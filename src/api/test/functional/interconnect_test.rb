@@ -282,7 +282,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_match(/no pubkey available/, @response.body)
 
     # access to local project with project link to remote, and via a local indirection
-    ['UseRemoteInstance', 'UseRemoteInstanceIndirect'].each do |project|
+    %w[UseRemoteInstance UseRemoteInstanceIndirect].each do |project|
       get "/source/#{project}"
       assert_response :success
       get "/source/#{project}/_meta"
@@ -419,7 +419,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
 
     login_tom
     # FIXME: submission from a remote project is not yet supported "RemoteInstance:BaseDistro2.0"
-    ['LocalProject', 'UseRemoteInstance'].each do |prj|
+    %w[LocalProject UseRemoteInstance].each do |prj|
       post '/request?cmd=create', params: '<request>
                                    <action type="submit">
                                      <source project="' + prj + '" package="pack2.linked" rev="1"/>

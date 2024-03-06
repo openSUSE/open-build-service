@@ -42,7 +42,7 @@ Airbrake.configure do |c|
   # NOTE: This option *does not* work if you don't set the 'environment' option.
   # https://github.com/airbrake/airbrake-ruby#ignore_environments
   c.ignore_environments = if c.host.blank? || c.project_key.blank? || c.project_id.blank?
-                            ['production', 'development', 'test']
+                            %w[production development test]
                           else
                             ['development']
                           end

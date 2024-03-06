@@ -55,13 +55,13 @@ class DiffParser
   end
 
   def final_original_index
-    return if ['comment', 'range'].include?(@state)
+    return if %w[comment range].include?(@state)
 
     @original_index unless @last_original_index == @original_index
   end
 
   def final_changed_index
-    return if ['comment', 'range'].include?(@state)
+    return if %w[comment range].include?(@state)
 
     @changed_index unless @last_changed_index == @changed_index
   end

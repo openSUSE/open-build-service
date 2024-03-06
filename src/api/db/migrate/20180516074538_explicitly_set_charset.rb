@@ -1,17 +1,17 @@
 class ExplicitlySetCharset < ActiveRecord::Migration[5.1]
   def up
-    [
-      'product_update_repositories', 'kiwi_repositories', 'kiwi_preferences', 'kiwi_packages',
-      'kiwi_package_groups', 'incident_updateinfo_counter_values', 'cloud_user_upload_jobs',
-      'kiwi_images', 'cloud_ec2_configurations', 'ar_internal_metadata', 'maintained_projects',
-      'data_migrations', 'binary_releases', 'cloud_azure_configurations', 'download_repositories',
-      'group_maintainers', 'history_elements', 'kiwi_descriptions', 'notifications', 'product_media',
-      'bs_request_counter'
+    %w[
+      product_update_repositories kiwi_repositories kiwi_preferences kiwi_packages
+      kiwi_package_groups incident_updateinfo_counter_values cloud_user_upload_jobs
+      kiwi_images cloud_ec2_configurations ar_internal_metadata maintained_projects
+      data_migrations binary_releases cloud_azure_configurations download_repositories
+      group_maintainers history_elements kiwi_descriptions notifications product_media
+      bs_request_counter
     ].each do |table|
       execute("ALTER TABLE #{table} CONVERT TO CHARACTER SET utf8") if ActiveRecord::Base.connection.table_exists?(table)
     end
 
-    ['delayed_jobs', 'flags'].each do |table|
+    %w[delayed_jobs flags].each do |table|
       execute("ALTER TABLE #{table} CONVERT TO CHARACTER SET utf8 COLLATE utf8_bin")
     end
 

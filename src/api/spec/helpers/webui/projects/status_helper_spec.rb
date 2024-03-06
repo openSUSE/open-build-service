@@ -1,13 +1,13 @@
 RSpec.describe Webui::Projects::StatusHelper do
   describe '.parse_status' do
     let(:problems) do
-      [
-        'different_changes',
-        'different_sources',
-        'diff_against_link',
-        'error-foo',
-        'currently_declined',
-        'no-existing-error'
+      %w[
+        different_changes
+        different_sources
+        diff_against_link
+        error-foo
+        currently_declined
+        no-existing-error
       ]
     end
 

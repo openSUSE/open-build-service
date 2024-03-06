@@ -2,9 +2,9 @@
 
 class WorkflowRun < ApplicationRecord
   SOURCE_URL_PAYLOAD_MAPPING = {
-    'pull_request' => ['pull_request', 'html_url'],
-    'Merge Request Hook' => ['object_attributes', 'url'],
-    'push' => ['head_commit', 'url'],
+    'pull_request' => %w[pull_request html_url],
+    'Merge Request Hook' => %w[object_attributes url],
+    'push' => %w[head_commit url],
     'Push Hook' => ['commits', 0, 'url']
   }.freeze
 

@@ -13,8 +13,8 @@ class Project < ApplicationRecord
   include ProjectDistribution
   include ProjectMaintenance
 
-  TYPES = ['standard', 'maintenance', 'maintenance_incident',
-           'maintenance_release'].freeze
+  TYPES = %w[standard maintenance maintenance_incident
+             maintenance_release].freeze
 
   after_initialize :init
   before_destroy :cleanup_before_destroy, prepend: true
@@ -1002,7 +1002,7 @@ class Project < ApplicationRecord
         next if cycle_detection[path.id]
 
         # go to all my path elements
-        path_kinds = ['standard', 'hostsystem'] # for rubocop
+        path_kinds = %w[standard hostsystem] # for rubocop
         path_kinds.each do |path_kind|
           path.link.path_elements.where(kind: path_kind).find_each do |ipe|
             # avoid mixing update code streams with channels
@@ -1046,7 +1046,7 @@ class Project < ApplicationRecord
     # - omit 'lock' or we cannot create packages
     disable_publish_for_branches = ::Configuration.disable_publish_for_branches || project.image_template?
     project.flags.each do |f|
-      next if f.flag.in?(['build', 'lock'])
+      next if f.flag.in?(%w[build lock])
       next if f.flag == 'publish' && disable_publish_for_branches
       # NOTE: it does not matter if that flag is set to enable or disable, so we do not check fro
       #       for same flag status here explizit

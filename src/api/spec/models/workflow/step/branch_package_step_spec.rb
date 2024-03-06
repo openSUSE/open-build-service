@@ -55,7 +55,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
 
   RSpec.shared_context 'successful new PR or MR event' do
     before do
-      create(:repository, name: 'Unicorn_123', project: package.project, architectures: ['x86_64', 'i586', 'ppc', 'aarch64'])
+      create(:repository, name: 'Unicorn_123', project: package.project, architectures: %w[x86_64 i586 ppc aarch64])
       create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
     end
 
@@ -211,7 +211,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
         before do
           allow(Octokit::Client).to receive(:new).and_return(octokit_client)
           allow(octokit_client).to receive(:create_status).and_return(true)
-          create(:repository, name: 'Unicorn_123', project: package.project, architectures: ['x86_64', 'i586', 'ppc', 'aarch64'])
+          create(:repository, name: 'Unicorn_123', project: package.project, architectures: %w[x86_64 i586 ppc aarch64])
           create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
           subject.call
         end
@@ -236,14 +236,14 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
         before do
           allow(Octokit::Client).to receive(:new).and_return(octokit_client)
           allow(octokit_client).to receive(:create_status).and_return(true)
-          create(:repository, name: 'Unicorn_123', project: package.project, architectures: ['x86_64', 'i586', 'ppc', 'aarch64'])
+          create(:repository, name: 'Unicorn_123', project: package.project, architectures: %w[x86_64 i586 ppc aarch64])
           create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
 
           subject.call
         end
 
         it 'adds repositories to target project' do
-          expect(Project.find_by(name: target_project_final_name).repositories.map(&:name).sort).to eq(['Unicorn_123', 'openSUSE_Tumbleweed'])
+          expect(Project.find_by(name: target_project_final_name).repositories.map(&:name).sort).to eq(%w[Unicorn_123 openSUSE_Tumbleweed])
         end
       end
 
@@ -263,7 +263,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
           allow(Octokit::Client).to receive(:new).and_return(octokit_client)
           allow(octokit_client).to receive(:create_status).and_return(true)
 
-          create(:repository, name: 'Unicorn_123', project: package.project, architectures: ['x86_64', 'i586', 'ppc', 'aarch64'])
+          create(:repository, name: 'Unicorn_123', project: package.project, architectures: %w[x86_64 i586 ppc aarch64])
           create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
         end
 
@@ -328,7 +328,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
 
         before do
           # branching a package to an existing project doesn't take over the set repositories
-          create(:repository, name: 'Unicorn_123', project: user.home_project, architectures: ['x86_64', 'i586', 'ppc', 'aarch64'])
+          create(:repository, name: 'Unicorn_123', project: user.home_project, architectures: %w[x86_64 i586 ppc aarch64])
           create(:repository, name: 'openSUSE_Tumbleweed', project: user.home_project, architectures: ['x86_64'])
 
           allow(Octokit::Client).to receive(:new).and_return(octokit_client)
@@ -367,7 +367,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
 
         before do
           # branching a package to an existing project doesn't take over the set repositories
-          create(:repository, name: 'Unicorn_123', project: user.home_project, architectures: ['x86_64', 'i586', 'ppc', 'aarch64'])
+          create(:repository, name: 'Unicorn_123', project: user.home_project, architectures: %w[x86_64 i586 ppc aarch64])
           create(:repository, name: 'openSUSE_Tumbleweed', project: user.home_project, architectures: ['x86_64'])
 
           allow(Octokit::Client).to receive(:new).and_return(octokit_client)
@@ -410,7 +410,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
           allow(Octokit::Client).to receive(:new).and_return(octokit_client)
           allow(octokit_client).to receive(:create_status).and_return(true)
 
-          create(:repository, name: 'Unicorn_123', project: package.project, architectures: ['x86_64', 'i586', 'ppc', 'aarch64'])
+          create(:repository, name: 'Unicorn_123', project: package.project, architectures: %w[x86_64 i586 ppc aarch64])
           create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
         end
 
@@ -558,7 +558,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
 
         before do
           # branching a package to an existing project doesn't take over the set repositories
-          create(:repository, name: 'Unicorn_123', project: user.home_project, architectures: ['x86_64', 'i586', 'ppc', 'aarch64'])
+          create(:repository, name: 'Unicorn_123', project: user.home_project, architectures: %w[x86_64 i586 ppc aarch64])
           create(:repository, name: 'openSUSE_Tumbleweed', project: user.home_project, architectures: ['x86_64'])
 
           allow(Gitlab).to receive(:client).and_return(gitlab_client)

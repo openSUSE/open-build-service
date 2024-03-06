@@ -42,7 +42,7 @@ RSpec.describe PatchinfoComponent, type: :component do
     end
 
     it 'displays a badge for properties' do
-      ['reboot_needed', 'relogin_needed', 'zypp_restart_needed'].each do |property|
+      %w[reboot_needed relogin_needed zypp_restart_needed].each do |property|
         expect(rendered_content).to have_css('span.badge.text-bg-info', text: property)
       end
     end
@@ -172,7 +172,7 @@ RSpec.describe PatchinfoComponent, type: :component do
     end
 
     it 'does not display a badge for properties when they are missing' do
-      ['reboot_needed', 'relogin_needed', 'zypp_restart_needed'].each do |property|
+      %w[reboot_needed relogin_needed zypp_restart_needed].each do |property|
         expect(rendered_content).to have_no_css('span.badge.text-bg-info', text: property)
       end
     end

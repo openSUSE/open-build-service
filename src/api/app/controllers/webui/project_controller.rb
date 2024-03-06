@@ -460,7 +460,7 @@ class Webui::ProjectController < Webui::WebuiController
     return unless @is_incident_project
 
     @open_release_requests = BsRequest.find_for(project: @project.name,
-                                                states: ['new', 'review'],
+                                                states: %w[new review],
                                                 types: ['maintenance_release'],
                                                 roles: ['source']).pluck(:number)
   end

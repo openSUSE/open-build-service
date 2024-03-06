@@ -27,7 +27,7 @@ class NotificationComponent < ApplicationComponent
     if NOTIFICATION_ICON[@notification.notifiable_type].present?
       tag.i(class: ['fas', NOTIFICATION_ICON[@notification.notifiable_type]], title: NOTIFICATION_TITLE[@notification.notifiable_type])
     else
-      tag.i(class: ['fas', 'fa-user-tag'], title: 'Relationship notification')
+      tag.i(class: %w[fas fa-user-tag], title: 'Relationship notification')
     end
   end
 end

@@ -89,7 +89,7 @@ class Staging::Workflow < ApplicationRecord
   def create_staging_projects
     raise ArgumentError, 'no commit user set' unless commit_user
 
-    ['A', 'B'].each do |letter|
+    %w[A B].each do |letter|
       staging_project = Project.find_or_initialize_by(name: "#{project.name}:Staging:#{letter}")
       next if staging_project.staging_workflow # if it belongs to another staging workflow skip it
 

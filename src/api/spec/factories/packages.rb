@@ -96,7 +96,7 @@ FactoryBot.define do
 
     factory :multibuild_package do
       transient do
-        flavors { ['flavor_a', 'flavor_b'] }
+        flavors { %w[flavor_a flavor_b] }
       end
 
       after(:create) do |package, evaluator|

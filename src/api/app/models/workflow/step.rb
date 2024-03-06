@@ -24,7 +24,7 @@ class Workflow::Step
 
     return nil unless scm_webhook.pull_request_event?
 
-    pr_subproject_name = if ['github', 'gitea'].include?(scm_webhook.payload[:scm])
+    pr_subproject_name = if %w[github gitea].include?(scm_webhook.payload[:scm])
                            scm_webhook.payload[:target_repository_full_name]&.tr('/', ':')
                          else
                            scm_webhook.payload[:path_with_namespace]&.tr('/', ':')

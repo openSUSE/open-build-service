@@ -9,7 +9,7 @@ FactoryBot.define do
     link { 'http://www.opensuse.org/' }
 
     transient do
-      architectures { ['x86_64', 'ppc64le'] }
+      architectures { %w[x86_64 ppc64le] }
       icons_count { 2 }
     end
 

@@ -6,7 +6,7 @@ class BuildController < ApplicationController
 
   def index
     # for read access and visibility permission check
-    if params[:package] && ['_repository', '_jobhistory'].exclude?(params[:package])
+    if params[:package] && %w[_repository _jobhistory].exclude?(params[:package])
       Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_multibuild: true)
     else
       Project.get_by_name(params[:project])
@@ -43,7 +43,7 @@ class BuildController < ApplicationController
       # check for cmd parameter
       raise MissingParameterError, "Missing parameter 'cmd'" if params[:cmd].nil?
 
-      unless ['wipe', 'restartbuild', 'killbuild', 'abortbuild', 'rebuild', 'unpublish', 'sendsysrq'].include?(params[:cmd])
+      unless %w[wipe restartbuild killbuild abortbuild rebuild unpublish sendsysrq].include?(params[:cmd])
         render_error status: 400, errorcode: 'illegal_request',
                      message: "unsupported POST command #{params[:cmd]} to #{request.url}"
         return

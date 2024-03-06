@@ -11,7 +11,7 @@ RSpec.describe WatchlistComponent, type: :component do
       render_inline(described_class.new(user: user, current_object: current_object, projects: projects, packages: packages, bs_requests: bs_requests))
     end
 
-    ['package', 'project', 'request'].each do |item_name|
+    %w[package project request].each do |item_name|
       it { expect(rendered_content).to have_no_text("Watch this #{item_name}") }
       it { expect(rendered_content).to have_no_text("Remove this #{item_name} from Watchlist") }
       it { expect(rendered_content).to have_text("There are no #{item_name}s in the watchlist yet.") }

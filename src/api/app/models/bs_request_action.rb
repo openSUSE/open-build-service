@@ -3,7 +3,7 @@ class BsRequestAction < ApplicationRecord
   include ParsePackageDiff
   include BsRequestAction::Errors
   #### Constants
-  VALID_SOURCEUPDATE_OPTIONS = ['update', 'noupdate', 'cleanup'].freeze
+  VALID_SOURCEUPDATE_OPTIONS = %w[update noupdate cleanup].freeze
 
   #### Self config
 
@@ -660,7 +660,7 @@ class BsRequestAction < ApplicationRecord
 
         # validate project type
         prj = Project.get_by_name(target_project)
-        raise IncidentHasNoMaintenanceProject, 'incident projects shall only create below maintenance projects' unless prj.kind.in?(['maintenance', 'maintenance_incident'])
+        raise IncidentHasNoMaintenanceProject, 'incident projects shall only create below maintenance projects' unless prj.kind.in?(%w[maintenance maintenance_incident])
       end
 
       if action_type == :submit && tprj.is_a?(Project)
@@ -894,9 +894,9 @@ class BsRequestAction < ApplicationRecord
   end
 
   def check_repository_published!(state, pkg, repo, arch)
-    raise BuildNotFinished, check_repository_published_error_message('publish', pkg.project.name, repo, arch) if state.in?(['finished', 'publishing'])
+    raise BuildNotFinished, check_repository_published_error_message('publish', pkg.project.name, repo, arch) if state.in?(%w[finished publishing])
 
-    raise BuildNotFinished, check_repository_published_error_message('build', pkg.project.name, repo, arch) unless state.in?(['published', 'unpublished'])
+    raise BuildNotFinished, check_repository_published_error_message('build', pkg.project.name, repo, arch) unless state.in?(%w[published unpublished])
   end
 
   def check_repository_published_error_message(state, prj, repo, arch)
@@ -973,7 +973,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def check_permissions_for_sources!
-    return unless sourceupdate.in?(['update', 'cleanup']) || updatelink
+    return unless sourceupdate.in?(%w[update cleanup]) || updatelink
 
     source_object = Package.find_by_project_and_name(source_project, source_package) ||
                     Project.get_by_name(source_project)

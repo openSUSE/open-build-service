@@ -35,7 +35,7 @@ class WorkflowArtifactsPerStepComponentPreview < ViewComponent::Preview
                                                              name: 'openSUSE_Tumbleweed',
                                                              paths: [{ target_project: 'openSUSE:Factory', target_repository: 'snapshot' },
                                                                      { target_project: 'devel:tools', target_repository: 'openSUSE_Factory_ARM' }],
-                                                             architectures: ['x86_64', 'ppc']
+                                                             architectures: %w[x86_64 ppc]
                                                            },
                                                            {
                                                              name: 'openSUSE_Leap_15.3',

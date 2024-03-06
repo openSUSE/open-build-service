@@ -1,5 +1,5 @@
 class WorkerStatus
-  WORKER_STATUS = ['building', 'idle', 'dead', 'down', 'away'].freeze
+  WORKER_STATUS = %w[building idle dead down away].freeze
 
   class << self
     def hidden
@@ -25,7 +25,7 @@ class WorkerStatus
     end
 
     def hide_project_information(prj)
-      ['project', 'repository', 'package'].each { |k| prj[k] = '---' }
+      %w[project repository package].each { |k| prj[k] = '---' }
     end
 
     def initialize_projects(ws)
@@ -45,7 +45,7 @@ class WorkerStatus
     @squeues = Hash.new(0)
 
     StatusHistory.transaction do
-      ['blocked', 'waiting'].each do |state|
+      %w[blocked waiting].each do |state|
         @workerstatus.search("//#{state}").each { |e| save_value_line(e, state) }
       end
       @workerstatus.search('partition/daemon').each { |daemon| parse_daemon_infos(daemon) }
@@ -68,7 +68,7 @@ class WorkerStatus
 
     architecture_name = daemon.attributes['arch'].value
 
-    ['high', 'next', 'med', 'low'].each do |key|
+    %w[high next med low].each do |key|
       s_key = squeue_key([key, architecture_name])
       add_squeue(s_key, queue.attributes[key].value)
     end

@@ -301,7 +301,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
 
         before do
           # branching a package to an existing project doesn't take over the set repositories
-          create(:repository, name: 'Unicorn_123', project: user.home_project, architectures: ['x86_64', 'i586', 'ppc', 'aarch64'])
+          create(:repository, name: 'Unicorn_123', project: user.home_project, architectures: %w[x86_64 i586 ppc aarch64])
           create(:repository, name: 'openSUSE_Tumbleweed', project: user.home_project, architectures: ['x86_64'])
 
           allow(Octokit::Client).to receive(:new).and_return(octokit_client)
