@@ -13,7 +13,10 @@ module Webui
       before_action :set_project
       before_action :set_package
       before_action :set_repository
-      before_action :set_architecture, only: [:show]
+      before_action :set_architecture, only: [:show, :dependency]
+      before_action :set_dependant_project, only: :dependency
+      before_action :set_dependant_repository, only: :dependency
+      before_action :set_filename, only: [:show, :dependency]
 
       prepend_before_action :lockout_spiders
 
@@ -46,9 +49,6 @@ module Webui
       end
 
       def show
-        # Ensure it really is just a file name, no '/..', etc.
-        @filename = File.basename(params[:filename])
-
         @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project.name, @package_name, @repository.name, @architecture.name, @filename)
         raise ActiveRecord::RecordNotFound, 'Not Found' unless @fileinfo
 
@@ -58,6 +58,41 @@ module Webui
           end
           format.any { redirect_to download_url_for_binary(architecture_name: @architecture.name, file_name: @filename) }
         end
+      end
+
+      def dependency
+        @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@dependant_project_name, '_repository', @dependant_repository_name,
+                                                                      @architecture, params[:dependant_name])
+        return if @fileinfo # avoid displaying an error for non-existing packages
+
+        redirect_back(fallback_location: project_package_repository_binary_url(project_name: @project, package_name: @package,
+                                                                               repository: @repository, arch: @architecture, filename: @filename))
+      end
+
+      private
+
+      def set_dependant_project
+        @dependant_project_name = params[:dependant_project]
+        @dependant_project = Project.find_by_name(@dependant_project_name) || Project.find_remote_project(@dependant_project_name).try(:first)
+        return @dependant_project if @dependant_project
+
+        flash[:error] = "Project '#{elide(@dependant_project_name)}' is invalid."
+        redirect_back(fallback_location: root_path)
+      end
+
+      def set_dependant_repository
+        @dependant_repository_name = params[:dependant_repository]
+        # FIXME: It can't check repositories of remote projects
+        @dependant_repository = @dependant_project.repositories.find_by(name: @dependant_repository_name) if @dependant_project.remoteurl.blank?
+        return @dependant_repository if @dependant_repository
+
+        flash[:error] = "Repository '#{@dependant_repository_name}' is invalid."
+        redirect_back(fallback_location: project_show_path(project: @project.name))
+      end
+
+      def set_filename
+        # Ensure it really is just a file name, no '/..', etc.
+        @filename = File.basename(params[:binary_filename] || params[:filename])
       end
 
       # Get an URL to a binary produced by the build.

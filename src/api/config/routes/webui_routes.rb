@@ -77,7 +77,6 @@ OBSApi::Application.routes.draw do
       controller 'webui/package' do
         get 'package/show/:project/:package' => :show, as: 'package_show', constraints: cons
         get 'package/branch_diff_info/:project/:package' => :branch_diff_info, as: 'package_branch_diff_info', constraints: cons
-        get 'package/dependency/:project/:package' => :dependency, constraints: cons, as: 'package_dependency'
         # For backward compatibility
         get 'package/binary/:project/:package/:repository/:arch/:filename', to: redirect('/projects/%{project}/packages/%{package}/repositories/%{repository}/%{arch}/%{filename}'),
                                                                             constraints: cons
@@ -290,7 +289,9 @@ OBSApi::Application.routes.draw do
         resources :repositories, only: [], param: :name do
           resources :binaries, controller: 'webui/packages/binaries', only: [:index], constraints: cons
           # Binaries with the exact same name can exist in multiple architectures, so we have to use arch param here additionally
-          resources :binaries, controller: 'webui/packages/binaries', only: [:show], constraints: cons, param: :filename, path: 'binaries/:arch/'
+          resources :binaries, controller: 'webui/packages/binaries', only: [:show], constraints: cons, param: :filename, path: 'binaries/:arch/' do
+            get :dependency
+          end
         end
       end
 
