@@ -384,7 +384,7 @@ sub create_container_index_info {
 }
 
 sub query_repostate {
-  my ($registry, $repository) = @_;
+  my ($registry, $repository, $tags) = @_;
   my $registryserver = $registry->{pushserver} || $registry->{server};
   my $pullserver = $registry->{server};
   $pullserver =~ s/https?:\/\///;
@@ -394,9 +394,21 @@ sub query_repostate {
   mkdir_p($uploaddir);
   my $tempfile = "$uploaddir/publisher.$$.repostate";
   unlink($tempfile);
-  print "querying state of $repository on $registryserver\n";
+  my $tagsfile;
+  if ($tags) {
+    return undef unless @$tags;
+    print "querying state of ".scalar(@$tags)." tags of $repository on $registryserver\n";
+    $tagsfile = "$uploaddir/publisher.$$.repotags";
+    my $digestdata = '';
+    $digestdata .= "sha256:0000000000000000000000000000000000000000000000000000000000000000 0 $_\n" for @$tags;
+    writestr($tagsfile, undef, $digestdata);
+  } else {
+    print "querying state of $repository on $registryserver\n";
+  }
   my @opts = ('-l');
+  push @opts, '--cosign' if $tags;
   push @opts, '--no-cosign-info' if $registry->{'cosign_nocheck'};
+  push @opts, '-F', $tagsfile if $tagsfile;
   my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @opts, $registryserver, $repository);
   my $now = time();
   my $result = BSPublisher::Util::qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', $tempfile, @cmd);
@@ -416,6 +428,7 @@ sub query_repostate {
     close($fd);
     printf "query took %d seconds, found %d tags\n", time() - $now, scalar(keys %$repostate);
   }
+  unlink($tagsfile) if $tagsfile;
   unlink($tempfile);
   return $repostate;
 }
@@ -894,7 +907,9 @@ sub do_remote_uploads {
   $pullserver = '' if $pullserver =~ /docker.io\/$/;
   # query the current state
   my $repostate;
-  $repostate = eval { query_repostate($registry, $repository) } if 1;
+  my $querytags;
+  $querytags = [ sort keys %$uptags ] if $registry->{'nodelete'};
+  $repostate = eval { query_repostate($registry, $repository, $querytags) } if 1;
   # now do the uploads for the tag groups
   my $containerdigests = '';
   for my $joinp (sort keys %todo) {

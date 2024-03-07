@@ -412,7 +412,7 @@ sub delete_tag {
 }
 
 sub list_tag {
-  my ($tag) = @_;
+  my ($tag, $maniids) = @_;
 
   if ($no_cosign_info && $tag =~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/) {
     printf "%-20s -\n", $tag;
@@ -432,6 +432,12 @@ sub list_tag {
       my $annotations = $mani->{'layers'}->[0]->{'annotations'} || {};
       my $cookie = $annotations->{$cosign_cookie_name};
       $extra = " cosigncookie=$cookie" if $cookie;
+    }
+  }
+  if ($mani && $maniids && $tag !~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/) {
+    $maniids->{$maniid} = 1;
+    if ($mani->{'mediaType'} eq $BSContar::mt_docker_manifestlist || $mani->{'mediaType'} eq $BSContar::mt_oci_index) {
+      $maniids->{$_->{'digest'}} = 1 for @{$mani->{'manifests'} || []};
     }
   }
   if (!$mani) {
@@ -631,8 +637,20 @@ if ($list_mode) {
     $keepalive = {};
     my %tags = map {$_ => 1} @tags;
     $tags{$_} = 1 for tags_from_digestfile();
-    %tags = map {$_ => 1} get_all_tags() unless %tags;
-    list_tag($_) for sort keys %tags;
+    if (%tags && $cosign) {
+      my %maniids;
+      list_tag($_, \%maniids) for sort keys %tags;
+      %tags = ();
+      if (%maniids) {
+        for (get_all_tags()) {
+          $tags{$_} = 1 if /^([a-z0-9]+)-([a-f0-9]+)\.(?:sig|att)$/ && $maniids{"$1:$2"}
+        }
+      }
+      list_tag($_) for sort keys %tags;
+    } else {
+      %tags = map {$_ => 1} get_all_tags() unless %tags;
+      list_tag($_) for sort keys %tags;
+    }
   } elsif (@ARGV == 3) {
     my ($mani, $maniid, $mani_json) = get_manifest_for_tag($ARGV[2]);
     print "$mani_json\n" if $mani_json;
