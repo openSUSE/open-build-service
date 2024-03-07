@@ -26,7 +26,7 @@
           = label_tag('Adminnote', 'Admin note:', for: 'adminnote')
           = text_area_tag(:adminnote, '', placeholder: 'Please explain the reason for the deletion...', class: 'form-control')
     - if configuration.accounts_editable?(user) && policy(user).update?
-      = link_to('javascript:void(0);', id: 'toggle-in-place-editing', remote: true, title: 'Edit Your Account') do
+      = link_to('#', id: 'toggle-in-place-editing', title: 'Edit Your Account') do
         %i.fas.fa-user-edit
         %span.nav-item-name Edit
   .row.mb-3
