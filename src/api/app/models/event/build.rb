@@ -41,6 +41,10 @@ module Event
                   notifiable_id: ::Package.find_by_project_and_name(payload['project'], payload['package'])&.id)
     end
 
+    def involves_hidden_project?
+      Project.unscoped.find_by(name: payload['project'])&.disabled_for?('access', nil, nil)
+    end
+
     private
 
     # The seconds spent building

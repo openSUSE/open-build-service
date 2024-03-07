@@ -92,5 +92,16 @@ RSpec.describe SendEventEmailsJob do
         expect(ActionMailer::Base.deliveries.count).to eq(0)
       end
     end
+
+    context 'skips sending emails about hidden projects' do
+      let(:project) { create(:forbidden_project, name: 'comment_project', maintainer: user) }
+      let!(:subscription) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user) }
+
+      subject! { SendEventEmailsJob.new.perform }
+
+      it 'does not queue a mail' do
+        expect(ActionMailer::Base.deliveries).to be_empty
+      end
+    end
   end
 end
