@@ -75,8 +75,14 @@ module Webui::PackageHelper
     state != 'deleted' && filename.exclude?('/') && (filename == '_patchinfo' || filename.ends_with?('.spec', '.changes'))
   end
 
-  def viewable_file?(filename)
+  def viewable_file?(filename, size = nil)
+    return false if size && size > 1.megabyte
+
     !binary_file?(filename) && filename.exclude?('/')
+  end
+
+  def editable_file?(filename, size = nil)
+    viewable_file?(filename, size) && !filename.match?(/^_service[_:]/)
   end
 
   def binary_file?(filename)
