@@ -26,7 +26,7 @@
           %i.fas.fa-hard-drive.text-primary
           Add local files
       .nav-item
-        = link_to(new_project_package_files_path(project, package), class: 'nav-link') do
+        = link_to(new_project_package_file_path(project, package), class: 'nav-link') do
           %i.fas.fa-plus-circle.text-primary
           Add an empty file or service
     = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-file-modal',
