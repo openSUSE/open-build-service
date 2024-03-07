@@ -2,7 +2,7 @@ class Workflow::Step::TriggerServices < Workflow::Step
   include Triggerable
   include Workflow::Step::Errors
 
-  REQUIRED_KEYS = [:project, :package].freeze
+  REQUIRED_KEYS = %i[project package].freeze
 
   validate :validate_project_and_package_name
 

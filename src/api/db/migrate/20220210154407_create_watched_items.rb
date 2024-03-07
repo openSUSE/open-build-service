@@ -7,7 +7,7 @@ class CreateWatchedItems < ActiveRecord::Migration[6.1]
       t.timestamps
     end
 
-    add_index :watched_items, [:watchable_type, :watchable_id], name: 'index_watched_items_on_watchable'
-    add_index :watched_items, [:watchable_type, :watchable_id, :user_id], name: 'index_watched_items_on_type_id_and_user_id', unique: true
+    add_index :watched_items, %i[watchable_type watchable_id], name: 'index_watched_items_on_watchable'
+    add_index :watched_items, %i[watchable_type watchable_id user_id], name: 'index_watched_items_on_type_id_and_user_id', unique: true
   end
 end

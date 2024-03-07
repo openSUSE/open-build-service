@@ -1,7 +1,7 @@
 class Workflow::Step::SetFlags < Workflow::Step
   REQUIRED_KEYS = [:flags].freeze
-  REQUIRED_FLAG_KEYS = [:type, :status, :project].freeze
-  OPTIONAL_FLAG_KEYS = [:package, :repository, :architecture].freeze
+  REQUIRED_FLAG_KEYS = %i[type status project].freeze
+  OPTIONAL_FLAG_KEYS = %i[package repository architecture].freeze
 
   validate :validate_flags
 

@@ -2,7 +2,7 @@ require 'api_error'
 
 class Owner
   def self.attribute_names
-    [:rootproject, :project, :package, :filter, :users, :groups]
+    %i[rootproject project package filter users groups]
   end
 
   include ActiveModel::Model

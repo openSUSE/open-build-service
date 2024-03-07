@@ -1,7 +1,7 @@
 class Webui::CommentsController < Webui::WebuiController
   before_action :require_login
   before_action :set_commented, only: :create
-  before_action :set_comment, only: [:moderate, :history]
+  before_action :set_comment, only: %i[moderate history]
 
   def create
     return commented_unavailable if @commented.nil?

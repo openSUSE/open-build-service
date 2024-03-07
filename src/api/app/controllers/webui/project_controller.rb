@@ -4,28 +4,28 @@ class Webui::ProjectController < Webui::WebuiController
   include Webui::ManageRelationships
   include Webui::ProjectBuildResultParsing
 
-  before_action :lockout_spiders, only: [:requests, :buildresults]
+  before_action :lockout_spiders, only: %i[requests buildresults]
 
-  before_action :require_login, only: [:create, :destroy, :new, :release_request,
-                                       :new_release_request, :edit_comment]
+  before_action :require_login, only: %i[create destroy new release_request
+                                         new_release_request edit_comment]
 
-  before_action :set_project, only: [:autocomplete_repositories, :users, :subprojects,
-                                     :edit, :release_request,
-                                     :show, :buildresult,
-                                     :destroy, :remove_path_from_target,
-                                     :requests, :save, :monitor, :edit_comment,
-                                     :unlock, :save_person, :save_group, :remove_role,
-                                     :move_path, :clear_failed_comment, :pulse]
+  before_action :set_project, only: %i[autocomplete_repositories users subprojects
+                                       edit release_request
+                                       show buildresult
+                                       destroy remove_path_from_target
+                                       requests save monitor edit_comment
+                                       unlock save_person save_group remove_role
+                                       move_path clear_failed_comment pulse]
   before_action :set_project_by_id, only: :update
 
   before_action :load_project_info, only: :show
 
-  before_action :check_ajax, only: [:buildresult, :edit_comment_form]
+  before_action :check_ajax, only: %i[buildresult edit_comment_form]
 
-  after_action :verify_authorized, except: [:index, :autocomplete_projects, :autocomplete_incidents, :autocomplete_packages,
-                                            :autocomplete_repositories, :users, :subprojects, :new, :show,
-                                            :buildresult, :requests, :monitor, :new_release_request,
-                                            :remove_target_request, :edit_comment, :edit_comment_form]
+  after_action :verify_authorized, except: %i[index autocomplete_projects autocomplete_incidents autocomplete_packages
+                                              autocomplete_repositories users subprojects new show
+                                              buildresult requests monitor new_release_request
+                                              remove_target_request edit_comment edit_comment_form]
 
   def index
     respond_to do |format|

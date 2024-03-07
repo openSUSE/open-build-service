@@ -1,4 +1,4 @@
-abies = @an.attrib_namespace_modifiable_bies.includes([:user, :group])
+abies = @an.attrib_namespace_modifiable_bies.includes(%i[user group])
 if abies.present?
   xml.namespace(name: @an.name) do |an|
     abies.each do |mod_rule|

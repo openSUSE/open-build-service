@@ -6,7 +6,7 @@ class GroupController < ApplicationController
   validate_action groupinfo: { method: :delete, response: :status }
 
   # raise an exception if authorize has not yet been called.
-  after_action :verify_authorized, except: [:index, :show]
+  after_action :verify_authorized, except: %i[index show]
 
   rescue_from Pundit::NotAuthorizedError do |exception|
     pundit_action = case exception.query.to_s

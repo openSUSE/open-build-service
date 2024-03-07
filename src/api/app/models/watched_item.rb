@@ -2,7 +2,7 @@ class WatchedItem < ApplicationRecord
   belongs_to :watchable, polymorphic: true
   belongs_to :user
 
-  validates :watchable_id, uniqueness: { scope: [:watchable_type, :user_id] }
+  validates :watchable_id, uniqueness: { scope: %i[watchable_type user_id] }
 end
 
 # == Schema Information

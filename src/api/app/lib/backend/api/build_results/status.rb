@@ -39,7 +39,7 @@ module Backend
         # @return [String]
         def self.result_swiss_knife(project_name, params = {})
           expand = []
-          [:view, :code, :arch, :repository].each do |param|
+          %i[view code arch repository].each do |param|
             expand.append(param) if params[param].is_a?(Array)
           end
           http_get(['/build/:project/_result', project_name], params: params, expand: expand)
@@ -68,7 +68,7 @@ module Backend
         # Returns the the problems for a build
         # @return [String]
         def self.build_problems(project_name)
-          http_get(['/build/:project/_result', project_name], params: { view: :status, code: [:failed, :broken, :unresolvable] }, expand: [:code])
+          http_get(['/build/:project/_result', project_name], params: { view: :status, code: %i[failed broken unresolvable] }, expand: [:code])
         end
 
         # Returns the versions of the releases for the project

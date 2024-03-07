@@ -12,7 +12,7 @@ class PublicController < ApplicationController
     required_parameters :project
 
     if params[:project] == '_result'
-      pass_to_backend('/build/_result' + build_query_from_hash(params, [:scmrepository, :scmbranch, :locallink, :multibuild, :lastbuild, :code]))
+      pass_to_backend('/build/_result' + build_query_from_hash(params, %i[scmrepository scmbranch locallink multibuild lastbuild code]))
       return
     end
     # project visible/known ?
@@ -123,7 +123,7 @@ class PublicController < ApplicationController
     end
 
     path = Package.source_path(params[:project], params[:package], params[:filename])
-    path += build_query_from_hash(params, [:rev, :limit, :expand, :deleted])
+    path += build_query_from_hash(params, %i[rev limit expand deleted])
     volley_backend_path(path) unless forward_from_backend(path)
   end
 

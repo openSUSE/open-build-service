@@ -4,7 +4,7 @@ module Webui
       after_action :verify_authorized
 
       def index
-        authorize [:users, :patchinfos]
+        authorize %i[users patchinfos]
 
         respond_to do |format|
           format.json do

@@ -6,7 +6,7 @@ class ReviewsFinder
   def completed_by_reviewer(user)
     @relation.where(
       reviewer: user.login,
-      state: [:accepted, :declined]
+      state: %i[accepted declined]
     )
   end
 

@@ -232,7 +232,7 @@ class XpathEngine
       }
     }
 
-    @operators = [:eq, :and, :or, :neq, :gt, :lt, :gteq, :lteq]
+    @operators = %i[eq and or neq gt lt gteq lteq]
 
     @base_table = ''
     @conditions = []

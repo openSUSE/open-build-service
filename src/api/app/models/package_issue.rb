@@ -44,7 +44,7 @@ class PackageIssue < ApplicationRecord
     PopulateToSphinxJob.perform_later(id: id, model_name: :package_issue,
                                       reference: :package, path: [:package])
     PopulateToSphinxJob.perform_later(id: id, model_name: :package_issue,
-                                      reference: :project, path: [:package, :project])
+                                      reference: :project, path: %i[package project])
   end
 end
 

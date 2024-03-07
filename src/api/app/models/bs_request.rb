@@ -15,11 +15,11 @@ class BsRequest < ApplicationRecord
     'bs_request_actions.type'
   ].freeze
 
-  FINAL_REQUEST_STATES = [:accepted, :declined, :superseded, :revoked].freeze
+  FINAL_REQUEST_STATES = %i[accepted declined superseded revoked].freeze
 
-  VALID_REQUEST_STATES = [:new, :deleted, :declined, :accepted, :review, :revoked, :superseded].freeze
+  VALID_REQUEST_STATES = %i[new deleted declined accepted review revoked superseded].freeze
 
-  OBSOLETE_STATES = [:declined, :superseded, :revoked].freeze
+  OBSOLETE_STATES = %i[declined superseded revoked].freeze
 
   ACTION_NOTIFY_LIMIT = 50
 
@@ -88,7 +88,7 @@ class BsRequest < ApplicationRecord
   validates :state, inclusion: { in: VALID_REQUEST_STATES }
   validates :creator, presence: true
   validate :check_supersede_state
-  validate :check_creator, on: [:create, :save!]
+  validate :check_creator, on: %i[create save!]
   validates :comment, length: { maximum: 65_535 }
   validates :description, length: { maximum: 65_535 }
   validates :number, uniqueness: true
@@ -113,7 +113,7 @@ class BsRequest < ApplicationRecord
     # All types means don't pass 'type'
     opts.delete(:types) if [opts[:types]].flatten.include?('all')
     # Do not allow a full collection to avoid server load
-    raise 'This call requires at least one filter, either by user, project or package' if [:project, :user, :package].all? { |filter| opts[filter].blank? }
+    raise 'This call requires at least one filter, either by user, project or package' if %i[project user package].all? { |filter| opts[filter].blank? }
 
     roles = opts[:roles] || []
     states = opts[:states] || []
@@ -253,7 +253,7 @@ class BsRequest < ApplicationRecord
   # Currently only used by staging projects for the obs factories and
   # customized for that.
   def as_json(*)
-    super(except: [:state, :comment, :commenter]).tap do |request_hash|
+    super(except: %i[state comment commenter]).tap do |request_hash|
       request_hash['superseded_by_id'] = superseded_by if has_attribute?(:superseded_by)
       request_hash['state'] = state.to_s if has_attribute?(:state)
       request_hash['request_type'] = bs_request_actions.first.type
@@ -562,7 +562,7 @@ class BsRequest < ApplicationRecord
       self.superseded_by = opts[:superseded_by]
 
       # check for not accepted reviews on re-open
-      if [:new, :review].include?(state)
+      if %i[new review].include?(state)
         reviews.each do |review|
           next unless review.state != :accepted
 
@@ -681,10 +681,10 @@ class BsRequest < ApplicationRecord
     with_lock do
       new_review_state = new_review_state.to_sym
 
-      raise InvalidStateError, 'request is not in a changeable state (new, review or declined)' unless state == :review || (state.in?([:new, :declined]) && new_review_state == :new)
+      raise InvalidStateError, 'request is not in a changeable state (new, review or declined)' unless state == :review || (state.in?(%i[new declined]) && new_review_state == :new)
 
       check_if_valid_review!(opts)
-      raise InvalidStateError, "review state must be new, accepted, declined or superseded, was #{new_review_state}" unless new_review_state.in?([:new, :accepted, :declined, :superseded])
+      raise InvalidStateError, "review state must be new, accepted, declined or superseded, was #{new_review_state}" unless new_review_state.in?(%i[new accepted declined superseded])
 
       old_request_state = state
       review = find_review_for_opts(opts)

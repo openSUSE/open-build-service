@@ -1,11 +1,11 @@
 module Webui
   module Staging
     class ExcludedRequestsController < WebuiController
-      before_action :require_login, except: [:index, :autocomplete]
+      before_action :require_login, except: %i[index autocomplete]
       before_action :set_workflow_project
       before_action :set_staging_workflow
       before_action :set_request_exclusion, only: [:destroy]
-      after_action :verify_authorized, except: [:index, :autocomplete]
+      after_action :verify_authorized, except: %i[index autocomplete]
 
       def index
         respond_to do |format|

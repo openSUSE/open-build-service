@@ -32,7 +32,7 @@ class Repository < ApplicationRecord
   # Name has to be unique among local repositories and remote_repositories of the associated db_project.
   # Note that remote repositories have to be unique among their remote project (remote_project_name)
   # and the associated db_project.
-  validates :name, uniqueness: { scope: [:db_project_id, :remote_project_name],
+  validates :name, uniqueness: { scope: %i[db_project_id remote_project_name],
                                  case_sensitive: true,
                                  message: '%{value} is already used by a repository of this project' }
   # NOTE: remote_project_name cannot be NULL because mysql UNIQUE KEY constraint does considers
@@ -306,7 +306,7 @@ class Repository < ApplicationRecord
   end
 
   def copy_to(new_project)
-    new_repository = deep_clone(include: [:path_elements, :repository_architectures], skip_missing_associations: true)
+    new_repository = deep_clone(include: %i[path_elements repository_architectures], skip_missing_associations: true)
     # DoD repositories require the architecture references to be stored
     new_repository.update!(db_project_id: new_project.id)
     new_repository.download_repositories = download_repositories.map(&:deep_clone)

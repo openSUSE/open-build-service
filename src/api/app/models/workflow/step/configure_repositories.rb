@@ -1,7 +1,7 @@
 class Workflow::Step::ConfigureRepositories < Workflow::Step
-  REQUIRED_KEYS = [:project, :repositories].freeze
-  REQUIRED_REPOSITORY_KEYS = [:architectures, :name, :paths].freeze
-  REQUIRED_REPOSITORY_PATH_KEYS = [:target_project, :target_repository].freeze
+  REQUIRED_KEYS = %i[project repositories].freeze
+  REQUIRED_REPOSITORY_KEYS = %i[architectures name paths].freeze
+  REQUIRED_REPOSITORY_PATH_KEYS = %i[target_project target_repository].freeze
 
   validate :validate_repositories
   validate :validate_repository_paths

@@ -15,7 +15,7 @@ module Webui
       private
 
       def bs_request_params
-        params.require(:bs_request).permit(:description, bs_request_actions_attributes: [:target_project, :target_package, :source_project, :source_package, :type])
+        params.require(:bs_request).permit(:description, bs_request_actions_attributes: %i[target_project target_package source_project source_package type])
       end
 
       def check_devel_package

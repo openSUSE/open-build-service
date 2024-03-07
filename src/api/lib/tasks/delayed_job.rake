@@ -39,12 +39,12 @@ namespace :consistency do
   end
 
   desc('Check project for consistency now, specify project with: project=MyProject')
-  task(check: [:environment, :project_environment]) do
+  task(check: %i[environment project_environment]) do
     puts ConsistencyCheckJob.new.check_project(ENV.fetch('project', nil))
   end
 
   desc('Fix inconsitent projects now, specify project with: project=MyProject')
-  task(fix: [:environment, :project_environment]) do
+  task(fix: %i[environment project_environment]) do
     ConsistencyCheckJob.new.fix_project(ENV.fetch('project', nil))
   end
 end

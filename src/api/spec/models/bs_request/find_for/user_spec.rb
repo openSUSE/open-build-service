@@ -111,7 +111,7 @@ RSpec.describe BsRequest::FindFor::User do
         let!(:another_request) { create(:set_bugowner_request, creator: another_user, review_by_user: user) }
 
         context 'submitted as array' do
-          subject { klass.new(user: user.login, review_states: [:accepted, :new]).all }
+          subject { klass.new(user: user.login, review_states: %i[accepted new]).all }
 
           it { expect(subject).to include(request) }
           it { expect(subject).to include(another_request) }

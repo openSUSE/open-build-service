@@ -1,11 +1,11 @@
 class Webui::Staging::WorkflowsController < Webui::WebuiController
-  VALID_STATES_WITH_REQUESTS = [:acceptable, :accepting, :review, :testing, :building, :failed, :unacceptable].freeze
+  VALID_STATES_WITH_REQUESTS = %i[acceptable accepting review testing building failed unacceptable].freeze
 
   # TODO: Remove this when we'll refactor kerberos_auth
   before_action :kerberos_auth, except: [:show]
-  before_action :set_project, only: [:new, :create]
-  before_action :set_workflow_project, except: [:new, :create]
-  before_action :set_staging_workflow, except: [:new, :create]
+  before_action :set_project, only: %i[new create]
+  before_action :set_workflow_project, except: %i[new create]
+  before_action :set_staging_workflow, except: %i[new create]
   after_action :verify_authorized, except: [:show]
 
   def show

@@ -32,13 +32,13 @@ module Backend
         # @option options [Integer / String] :deleted Search also on deleted projects (Needs to be a 1).
         # @return [String]
         def self.meta(project_name, options = {})
-          http_get(['/source/:project/_project/_meta', project_name], params: options, accepted: [:revision, :deleted], rename: { revision: :rev })
+          http_get(['/source/:project/_project/_meta', project_name], params: options, accepted: %i[revision deleted], rename: { revision: :rev })
         end
 
         # Writes a Project meta
         # @return [String]
         def self.write_meta(project_name, meta, options = {})
-          http_put(['/source/:project/_meta', project_name], data: meta, params: options, accepted: [:user, :comment, :requestid, :lowprio])
+          http_put(['/source/:project/_meta', project_name], data: meta, params: options, accepted: %i[user comment requestid lowprio])
         end
 
         # Writes a Project configuration
@@ -69,7 +69,7 @@ module Backend
         def self.commit(project_name, user_login, options = {})
           http_post(['/source/:project/_project', project_name],
                     defaults: { cmd: :commit, user: user_login },
-                    params: options, accepted: [:requestid, :rev, :comment])
+                    params: options, accepted: %i[requestid rev comment])
         end
 
         # Returns the list of packages inside the project
@@ -84,13 +84,13 @@ module Backend
 
         # Deletes the project and all the packages inside
         def self.delete(project_name, options = {})
-          http_delete(['/source/:project', project_name], params: options, accepted: [:user, :comment, :requestid])
+          http_delete(['/source/:project', project_name], params: options, accepted: %i[user comment requestid])
         end
 
         # Undeletes the project
         def self.undelete(project_name, options = {})
           http_post(['/source/:project', project_name], defaults: { cmd: :undelete },
-                                                        params: options, accepted: [:user, :comment])
+                                                        params: options, accepted: %i[user comment])
         end
 
         # Returns the list of repositories

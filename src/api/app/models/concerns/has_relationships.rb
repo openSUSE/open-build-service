@@ -95,7 +95,7 @@ module HasRelationships
 
   def remove_all_old_relationships(cache)
     # delete all roles that weren't found in the uploaded xml
-    roles_not_to_remove = [:keep, :new]
+    roles_not_to_remove = %i[keep new]
     cache.each do |_, roles|
       roles.each do |_, object|
         next if roles_not_to_remove.include?(object)

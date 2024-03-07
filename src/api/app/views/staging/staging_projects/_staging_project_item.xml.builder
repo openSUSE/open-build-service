@@ -29,10 +29,10 @@ builder.staging_project(attributes) do
   end
 
   if options[:history]
-    builder.history(count: staging_project.project_log_entries.where(event_type: [:staged_request, :unstaged_request]).count) do
+    builder.history(count: staging_project.project_log_entries.where(event_type: %i[staged_request unstaged_request]).count) do
       render(partial: 'history_elements', locals: { builder: builder,
                                                     elements: staging_project.project_log_entries.where(event_type:
-                                                      [:staged_request, :unstaged_request]).includes(:bs_request) })
+                                                      %i[staged_request unstaged_request]).includes(:bs_request) })
     end
   end
 end

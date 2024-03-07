@@ -12,7 +12,7 @@ class Workflow
     submit_request: Workflow::Step::SubmitRequest
   }.freeze
 
-  SUPPORTED_FILTERS = [:branches, :event].freeze
+  SUPPORTED_FILTERS = %i[branches event].freeze
 
   attr_accessor :workflow_instructions, :scm_webhook, :token, :workflow_run, :workflow_version_number
 

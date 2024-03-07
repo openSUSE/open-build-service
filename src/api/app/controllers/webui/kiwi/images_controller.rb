@@ -98,46 +98,46 @@ module Webui
       private
 
       def image_params
-        preferences_attributes = [
-          :id,
-          :type_image,
-          :type_containerconfig_name,
-          :type_containerconfig_tag,
-          :version
+        preferences_attributes = %i[
+          id
+          type_image
+          type_containerconfig_name
+          type_containerconfig_tag
+          version
         ]
 
-        description_attributes = [
-          :id,
-          :author,
-          :contact,
-          :description_type,
-          :specification
+        description_attributes = %i[
+          id
+          author
+          contact
+          description_type
+          specification
         ]
 
-        repositories_attributes = [
-          :id,
-          :_destroy,
-          :priority,
-          :repo_type,
-          :source_path,
-          :alias,
-          :username,
-          :password,
-          :prefer_license,
-          :imageinclude,
-          :replaceable,
-          :order
+        repositories_attributes = %i[
+          id
+          _destroy
+          priority
+          repo_type
+          source_path
+          alias
+          username
+          password
+          prefer_license
+          imageinclude
+          replaceable
+          order
         ]
 
         package_groups_attributes = [
           :id,
           :_destroy,
-          { packages_attributes: [:id, :name, :arch, :replaces, :bootdelete, :bootinclude, :_destroy] }
+          { packages_attributes: %i[id name arch replaces bootdelete bootinclude _destroy] }
         ]
 
-        profiles_attributes = [
-          :id,
-          :selected
+        profiles_attributes = %i[
+          id
+          selected
         ]
 
         params.require(:kiwi_image).permit(

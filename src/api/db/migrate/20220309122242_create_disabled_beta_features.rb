@@ -6,7 +6,7 @@ class CreateDisabledBetaFeatures < ActiveRecord::Migration[6.1]
 
       t.timestamps
 
-      t.index [:user_id, :name], unique: true
+      t.index %i[user_id name], unique: true
     end
   end
 end

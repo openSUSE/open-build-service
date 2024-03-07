@@ -2,32 +2,32 @@ class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
 
   before_action :require_login,
-                except: [:show, :sourcediff, :diff, :request_action, :request_action_changes, :inline_comment, :build_results, :rpm_lint, :changes, :mentioned_issues]
+                except: %i[show sourcediff diff request_action request_action_changes inline_comment build_results rpm_lint changes mentioned_issues]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
   before_action :require_request,
-                only: [:changerequest, :show, :request_action, :request_action_changes, :inline_comment, :build_results, :rpm_lint,
-                       :changes, :mentioned_issues, :chart_build_results, :complete_build_results]
-  before_action :set_actions, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues, :chart_build_results, :complete_build_results],
+                only: %i[changerequest show request_action request_action_changes inline_comment build_results rpm_lint
+                         changes mentioned_issues chart_build_results complete_build_results]
+  before_action :set_actions, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues chart_build_results complete_build_results],
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :build_results_data, only: [:show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_supported_actions, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
+  before_action :set_supported_actions, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues],
                                         if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_action_id, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
+  before_action :set_action_id, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues],
                                 if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_bs_request_action, only: [:show, :build_results, :rpm_lint, :changes, :mentioned_issues],
+  before_action :set_bs_request_action, only: %i[show build_results rpm_lint changes mentioned_issues],
                                         if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_influxdb_data_request_actions, only: [:show, :build_results, :rpm_lint, :changes, :mentioned_issues],
+  before_action :set_influxdb_data_request_actions, only: %i[show build_results rpm_lint changes mentioned_issues],
                                                     if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_active_action, only: [:inline_comment, :show, :build_results, :rpm_lint, :changes, :mentioned_issues],
+  before_action :set_active_action, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues],
                                     if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_superseded_request, only: [:show, :request_action, :request_action_changes, :build_results, :rpm_lint, :changes, :mentioned_issues]
+  before_action :set_superseded_request, only: %i[show request_action request_action_changes build_results rpm_lint changes mentioned_issues]
   before_action :check_ajax, only: :sourcediff
-  before_action :prepare_request_data, only: [:show, :build_results, :rpm_lint, :changes, :mentioned_issues],
+  before_action :prepare_request_data, only: %i[show build_results rpm_lint changes mentioned_issues],
                                        if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :cache_diff_data, only: [:show, :build_results, :rpm_lint, :changes, :mentioned_issues],
+  before_action :cache_diff_data, only: %i[show build_results rpm_lint changes mentioned_issues],
                                   if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :check_beta_user_redirect, only: [:build_results, :rpm_lint, :changes, :mentioned_issues]
+  before_action :check_beta_user_redirect, only: %i[build_results rpm_lint changes mentioned_issues]
 
   after_action :verify_authorized, only: [:create]
 
@@ -42,7 +42,7 @@ class Webui::RequestController < Webui::WebuiController
       @is_author = @bs_request.creator == User.possibly_nobody.login
 
       @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
-      @can_handle_request = @bs_request.state.in?([:new, :review, :declined]) && (@is_target_maintainer || @is_author)
+      @can_handle_request = @bs_request.state.in?(%i[new review declined]) && (@is_target_maintainer || @is_author)
 
       @history = @bs_request.history_elements.includes(:user)
 
@@ -66,7 +66,7 @@ class Webui::RequestController < Webui::WebuiController
       reviews = @bs_request.reviews.where(state: 'new')
       user = User.session # might be nil
       @my_open_reviews = reviews.select { |review| review.matches_user?(user) }.reject(&:staging_project?)
-      @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
+      @can_add_reviews = @bs_request.state.in?(%i[new review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
 
       respond_to do |format|
         format.html
@@ -486,7 +486,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def set_supported_actions
     # Change supported_actions below into actions here when all actions are supported
-    @supported_actions = @actions.where(type: [:add_role, :change_devel, :delete, :submit, :maintenance_incident, :maintenance_release, :set_bugowner])
+    @supported_actions = @actions.where(type: %i[add_role change_devel delete submit maintenance_incident maintenance_release set_bugowner])
   end
 
   def set_action_id

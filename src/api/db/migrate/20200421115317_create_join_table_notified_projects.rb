@@ -5,7 +5,7 @@ class CreateJoinTableNotifiedProjects < ActiveRecord::Migration[6.0]
       t.references :project, null: false, type: :integer, index: false
       t.datetime :created_at, null: false, precision: 6
 
-      t.index [:notification_id, :project_id], unique: true
+      t.index %i[notification_id project_id], unique: true
     end
   end
 end

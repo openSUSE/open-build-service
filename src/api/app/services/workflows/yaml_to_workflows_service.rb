@@ -3,7 +3,7 @@ module Workflows
     include WorkflowPlaceholderVariablesInstrumentation # for track_placeholder_variables
 
     # If the order of the values in this constant change, do not forget to change the mapping of the placeholder variable values
-    SUPPORTED_PLACEHOLDER_VARIABLES = [:SCM_ORGANIZATION_NAME, :SCM_REPOSITORY_NAME, :SCM_PR_NUMBER, :SCM_COMMIT_SHA].freeze
+    SUPPORTED_PLACEHOLDER_VARIABLES = %i[SCM_ORGANIZATION_NAME SCM_REPOSITORY_NAME SCM_PR_NUMBER SCM_COMMIT_SHA].freeze
 
     def initialize(yaml_file:, scm_webhook:, token:, workflow_run:)
       @yaml_file = yaml_file

@@ -43,7 +43,7 @@ namespace :dev do
   end
 
   desc 'Bootstrap the application'
-  task :bootstrap, [:old_test_suite] => [:prepare, :environment] do |_t, args|
+  task :bootstrap, [:old_test_suite] => %i[prepare environment] do |_t, args|
     args.with_defaults(old_test_suite: false)
 
     begin

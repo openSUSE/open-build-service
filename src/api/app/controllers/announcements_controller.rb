@@ -1,5 +1,5 @@
 class AnnouncementsController < ApplicationController
-  before_action :set_status_message, only: [:show, :update, :destroy]
+  before_action :set_status_message, only: %i[show update destroy]
   # Pundit authorization policies control
   after_action :verify_authorized
 
