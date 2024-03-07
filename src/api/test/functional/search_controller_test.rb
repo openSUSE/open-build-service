@@ -316,7 +316,8 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
   def test_search_request
     login_Iggy
-    get '/search/request', params: { match: "(action/target/@package='pack2' and action/target/@project='BaseDistro2.0' and action/source/@project='BaseDistro2.0' and action/source/@package='pack2.linked' and action/@type='submit')" }
+    get '/search/request',
+        params: { match: "(action/target/@package='pack2' and action/target/@project='BaseDistro2.0' and action/source/@project='BaseDistro2.0' and action/source/@package='pack2.linked' and action/@type='submit')" }
     assert_response :success
 
     # what osc may do
@@ -327,14 +328,16 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # what osc really is doing
-    get '/search/request', params: { match: "(state/@name='new' or state/@name='review') and (target/@project='BaseDistro2.0' or source/@project='BaseDistro2.0') and (target/@package='pack2.linked' or source/@package='pack2_linked')" }
+    get '/search/request',
+        params: { match: "(state/@name='new' or state/@name='review') and (target/@project='BaseDistro2.0' or source/@project='BaseDistro2.0') and (target/@package='pack2.linked' or source/@package='pack2_linked')" }
     assert_response :success
 
     # maintenance team is doing this query
     get '/search/request', params: { match: "state/@name='review' and review[@by_group='maintenance-team' and @state='new']" }
     assert_response :success
 
-    get '/search/request', params: { match: "(action/target/@project='Apache' and action/@type='submit' and state/@name='review' ) or (action/target/@project='Apache' and action/@type='maintenance_release' and state/@name='review' )" }
+    get '/search/request',
+        params: { match: "(action/target/@project='Apache' and action/@type='submit' and state/@name='review' ) or (action/target/@project='Apache' and action/@type='maintenance_release' and state/@name='review' )" }
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { 'matches' => '1' }
     assert_xml_tag tag: 'request', children: { count: 3, only: { tag: 'review' } }

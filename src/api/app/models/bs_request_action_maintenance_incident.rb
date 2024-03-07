@@ -98,7 +98,10 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       maintenance_project = Project.get_maintenance_project!
       self.target_project = maintenance_project.name
     end
-    raise NoMaintenanceProject, 'Maintenance incident requests have to go to projects of type maintenance or maintenance_incident' unless maintenance_project.is_maintenance_incident? || maintenance_project.is_maintenance?
+    unless maintenance_project.is_maintenance_incident? || maintenance_project.is_maintenance?
+      raise NoMaintenanceProject,
+            'Maintenance incident requests have to go to projects of type maintenance or maintenance_incident'
+    end
     raise IllegalRequest, 'Target package must not be specified in maintenance_incident actions' if target_package
 
     super(ignore_build_state, ignore_delegate)

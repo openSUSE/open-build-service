@@ -792,7 +792,8 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 200
 
     put url_for(controller: :source_project_meta, action: :update, project: 'home:binary_homer:ProtectedProject1'),
-        params: '<project name="home:binary_homer:ProtectedProject1"> <title/> <description/> <repository name="BinaryprotectedProjectRepo"> <path repository="nada" project="BinaryprotectedProject"/> <arch>i586</arch> </repository> </project>'
+        params: '<project name="home:binary_homer:ProtectedProject1"> <title/> <description/> ' \
+                '<repository name="BinaryprotectedProjectRepo"> <path repository="nada" project="BinaryprotectedProject"/> <arch>i586</arch> </repository> </project>'
     assert_response 200
 
     # check if sufficiently protected projects can access protected projects
@@ -851,7 +852,8 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 200
 
     put url_for(controller: :source_project_meta, action: :update, project: 'home:binary_homer:ProtectedProject3'),
-        params: '<project name="home:binary_homer:ProtectedProject3"> <title/> <description/> <repository name="BinaryprotectedProjectRepo"> <path repository="nada" project="BinaryprotectedProject"/> <arch>i586</arch> </repository> </project>'
+        params: '<project name="home:binary_homer:ProtectedProject3"> <title/> <description/> ' \
+                '<repository name="BinaryprotectedProjectRepo"> <path repository="nada" project="BinaryprotectedProject"/> <arch>i586</arch> </repository> </project>'
     assert_response 200
 
     # cleanup

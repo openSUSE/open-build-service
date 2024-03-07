@@ -147,9 +147,8 @@ class SourceController < ApplicationController
       end
       # even when we can create the package, an existing instance must be checked if permissions are right
       @project = Project.get_by_name(@target_project_name)
-      if (PACKAGE_CREATING_COMMANDS.exclude?(@command) || Package.exists_by_project_and_name(@target_project_name,
-                                                                                             @target_package_name,
-                                                                                             follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(@command))) && (@project.is_a?(String) || @project.scmsync.blank? || SCM_SYNC_PROJECT_COMMANDS.exclude?(@command))
+      if (PACKAGE_CREATING_COMMANDS.exclude?(@command) || Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(@command))) &&
+         (@project.is_a?(String) || @project.scmsync.blank? || SCM_SYNC_PROJECT_COMMANDS.exclude?(@command))
         # is a local project, which is not scm managed. Or using a command not supported for scm projects.
         validate_target_for_package_command_exists!
       end
@@ -638,7 +637,10 @@ class SourceController < ApplicationController
                                                                                      (@project.nil? && User.session!.can_create_project?(project_name))
 
     oprj = Project.get_by_name(params[:oproject], include_all_packages: true)
-    raise CmdExecutionNoPermission, "no permission to execute command 'copy', requires modification permission in origin project" if (params.key?(:makeolder) || params.key?(:makeoriginolder)) && !User.session!.can_modify?(oprj)
+    if (params.key?(:makeolder) || params.key?(:makeoriginolder)) && !User.session!.can_modify?(oprj)
+      raise CmdExecutionNoPermission,
+            "no permission to execute command 'copy', requires modification permission in origin project"
+    end
 
     raise RemoteProjectError, 'The copy from remote projects is currently not supported' if oprj.is_a?(String) # remote project
 

@@ -1460,7 +1460,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'status', attributes: { code: 'under_embargo' })
 
     # set it to yesterday, so it works below
-    post "/source/#{incident_project}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{Time.now.yesterday.year}-#{Time.now.yesterday.month}-#{Time.now.yesterday.day}</value></attribute></attributes>"
+    post "/source/#{incident_project}/_attribute",
+         params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{Time.now.yesterday.year}-#{Time.now.yesterday.month}-#{Time.now.yesterday.day}</value></attribute></attributes>"
     assert_response :success
 
     #### release packages

@@ -4,7 +4,8 @@ RSpec.describe RpmLintComponent, type: :component do
   let(:rpmlint_log_parser) { instance_double(RpmlintLogParser) }
 
   before do
-    allow(rpmlint_log_parser).to receive_messages(errors: { 'ruby2.5' => 2, 'ruby3.1' => 0 }, warnings: { 'ruby2.5' => 1, 'ruby3.1' => 0 }, info: { 'ruby2.5' => 0, 'ruby3.1' => 0 }, badness: { 'ruby2.5' => 10, 'ruby3.1' => 0 })
+    allow(rpmlint_log_parser).to receive_messages(errors: { 'ruby2.5' => 2, 'ruby3.1' => 0 }, warnings: { 'ruby2.5' => 1, 'ruby3.1' => 0 }, info: { 'ruby2.5' => 0, 'ruby3.1' => 0 },
+                                                  badness: { 'ruby2.5' => 10, 'ruby3.1' => 0 })
   end
 
   describe '#issues_chart_data' do
