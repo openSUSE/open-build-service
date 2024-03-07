@@ -90,9 +90,9 @@ def inject_build_job(project, package, repo, arch, extrabinary = nil)
   f.write(output)
   f.close
   extrabinary = " -o -name #{extrabinary}" if extrabinary
-  # rubocop:disable Layout/LineLength
-  system("cd #{Rails.root}/test/fixtures/backend/binary/; exec find . -name '*#{arch}.rpm' -o -name '*src.rpm' -o -name logfile -o -name _statistics #{extrabinary} | cpio -H newc -o 2>/dev/null | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=#{arch}&code=succeeded&job=#{jobfile.gsub(%r{.*/}, '')}&jobid=#{jobid}' > /dev/null")
-  # rubocop:enable Layout/LineLength
+  system("cd #{Rails.root}/test/fixtures/backend/binary/; exec find . -name '*#{arch}.rpm' -o -name '*src.rpm' -o -name logfile -o -name _statistics #{extrabinary} | " \
+         'cpio -H newc -o 2>/dev/null | ' \
+         "curl -s -X POST -T - 'http://localhost:3201/putjob?arch=#{arch}&code=succeeded&job=#{jobfile.gsub(%r{.*/}, '')}&jobid=#{jobid}' > /dev/null")
   system("echo \"#{verifymd5}  #{package}\" > #{jobfile}:dir/meta")
 end
 

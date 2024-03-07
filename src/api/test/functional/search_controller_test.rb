@@ -315,13 +315,15 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_search_request
-    # rubocop:disable Layout/LineLength
     login_Iggy
     get '/search/request', params: { match: "(action/target/@package='pack2' and action/target/@project='BaseDistro2.0' and action/source/@project='BaseDistro2.0' and action/source/@package='pack2.linked' and action/@type='submit')" }
     assert_response :success
 
     # what osc may do
-    get '/search/request', params: { match: "(state/@name='new' or state/@name='review') and (action/target/@project='BaseDistro2.0' or submit/target/@project='BaseDistro2.0' or action/source/@project='BaseDistro2.0' or submit/source/@project='BaseDistro2.0') and (action/target/@package='pack2.linked' or submit/target/@package='pack2_linked' or action/source/@package='pack2_linked' or submit/source/@package='pack2_linked')" }
+    get '/search/request', params: { match:
+      "(state/@name='new' or state/@name='review') and " \
+      "(action/target/@project='BaseDistro2.0' or submit/target/@project='BaseDistro2.0' or action/source/@project='BaseDistro2.0' or submit/source/@project='BaseDistro2.0') and " \
+      "(action/target/@package='pack2.linked' or submit/target/@package='pack2_linked' or action/source/@package='pack2_linked' or submit/source/@package='pack2_linked')" }
     assert_response :success
 
     # what osc really is doing
@@ -339,7 +341,6 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     get '/search/request', params: { match: '[@id=1]' }
     assert_response :success
-    # rubocop:enable Layout/LineLength
 
     get '/search/request', params: { match: "(review[@state='new' and @by_user='adrian'])" }
     assert_response :success
