@@ -1,6 +1,6 @@
 require 'webmock/rspec'
 
-RSpec.describe Webui::PackageController, :vcr do
+RSpec.describe Webui::Packages::BinariesController, :vcr do
   let(:tom) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:home_tom) { tom.home_project }
   let(:toms_package) { create(:package, name: 'my_package', project: home_tom) }
@@ -14,7 +14,9 @@ RSpec.describe Webui::PackageController, :vcr do
     before do
       allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_return(fileinfo)
 
-      get :dependency, params: { project: home_tom, package: toms_package }.merge(params)
+      get :dependency, params: { project_name: home_tom, package_name: toms_package,
+                                 repository_name: repo_for_home_tom.name, arch: 'i586',
+                                 binary_filename: 'test.rpm' }.merge(params)
     end
 
     let(:fileinfo) { { summary: 'fileinfo', description: 'fake' } }
@@ -29,19 +31,19 @@ RSpec.describe Webui::PackageController, :vcr do
     context 'when passing params referring to a valid project and an invalid architecture' do
       let(:params) { { dependant_project: home_tom.name, arch: '123' } }
 
-      it { expect(flash[:error]).to eq("Architecture '#{params[:arch]}' is invalid.") }
+      it { expect(flash[:error]).to eq("Couldn't find architecture '#{params[:arch]}'.") }
       it { expect(response).to have_http_status(:redirect) }
     end
 
     context 'when passing params referring to valid project/architecture and an invalid repository' do
-      let(:params) { { dependant_project: home_tom.name, arch: 'i586', repository: 'something' } }
+      let(:params) { { dependant_project: home_tom.name, arch: 'i586', repository_name: 'something' } }
 
-      it { expect(flash[:error]).to eq("Repository '#{params[:repository]}' is invalid.") }
+      it { expect(flash[:error]).to eq("Couldn't find repository '#{params[:repository_name]}'.") }
       it { expect(response).to have_http_status(:redirect) }
     end
 
     context 'when passing params referring to valid project/architecture/repository and an invalid repository' do
-      let(:params) { { dependant_project: home_tom.name, arch: 'i586', repository: repo_for_home_tom.name, dependant_repository: 'something' } }
+      let(:params) { { dependant_project: home_tom.name, arch: 'i586', repository_name: repo_for_home_tom.name, dependant_repository: 'something' } }
 
       it { expect(flash[:error]).to eq("Repository '#{params[:dependant_repository]}' is invalid.") }
       it { expect(response).to have_http_status(:redirect) }
@@ -52,16 +54,16 @@ RSpec.describe Webui::PackageController, :vcr do
 
       let(:params) do
         {
-          dependant_project: home_tom.name, arch: 'i586', repository: repo_for_home_tom.name,
-          dependant_repository: another_repo_for_home_tom.name, filename: 'test.rpm'
+          dependant_project: home_tom.name, arch: 'i586', repository_name: repo_for_home_tom.name,
+          dependant_repository: another_repo_for_home_tom.name, binary_filename: 'test.rpm'
         }
       end
 
-      it { expect(assigns(:arch)).to eq(params[:arch]) }
-      it { expect(assigns(:repository)).to eq(params[:repository]) }
-      it { expect(assigns(:dependant_repository)).to eq(params[:dependant_repository]) }
-      it { expect(assigns(:dependant_project)).to eq(params[:dependant_project]) }
-      it { expect(assigns(:filename)).to eq(params[:filename]) }
+      it { expect(assigns(:architecture)).to be_an(Architecture) }
+      it { expect(assigns(:repository)).to be_a(Repository) }
+      it { expect(assigns(:dependant_repository_name)).to eq(params[:dependant_repository]) }
+      it { expect(assigns(:dependant_project_name)).to eq(params[:dependant_project]) }
+      it { expect(assigns(:filename)).to eq(params[:binary_filename]) }
       it { expect(response).to have_http_status(:success) }
 
       context 'and fileinfo is nil' do
