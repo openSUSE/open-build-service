@@ -25,10 +25,10 @@
           .accordion-item
             %h2.accordion-header
               = button_tag(class: 'accordion-button collapsed',
-                           data: { 'bs-toggle': 'collapse', 'bs-target': "##{canned_response.title.parameterize}-collapse" },
-                           aria: {  expanded: false, controls: "#{canned_response.title.parameterize}-collapse" }) do
+                           data: { 'bs-toggle': 'collapse', 'bs-target': "#canned-response-#{canned_response.id}-collapse" },
+                           aria: {  expanded: false, controls: "canned-response-#{canned_response.id}-collapse" }) do
                 = canned_response.title
-            .accordion-collapse.collapse{ id: "#{canned_response.title.parameterize}-collapse" }
+            .accordion-collapse.collapse{ id: "canned-response-#{canned_response.id}-collapse" }
               .accordion-body
                 .d-flex.justify-content-between
                   %strong= canned_response.decision_kind.try(:capitalize) || 'Generic'
