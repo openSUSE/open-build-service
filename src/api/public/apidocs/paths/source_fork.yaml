@@ -16,6 +16,12 @@ post:
       required: true
       schema:
         type: string
+    - name: force
+      description: Allow to overwrite existing target package
+      in: query
+      schema:
+        type: string
+      allowEmptyValue: true
     - name: target_project
       description: target project name, optional (default home:<user>:branches:<project>)
       in: query

@@ -697,6 +697,7 @@ POST /source/<project>/<package>?cmd=branch
   A possible defined devel project in the package meta data gets ignored.
 
 Parameters:
+  force: bool, optional, allow to overwrite existing package
   ignoredevel: bool, optional
   target_project: target project name, optional
   target_package: target package name, optional
@@ -720,6 +721,7 @@ POST /source/<project>/<package>?cmd=fork&scmsync=url
   The source project must exists, the source package may not exist.
 
 Parameters:
+  force: bool, optional, allow to overwrite existing package
   scmsync: string, required, specifies checkout url for the source
   target_project: target project name, optional (default home:<user>:branches:<project>)
   add_repositories_rebuild: use defined rebuild policy for new repos ("transitive", "direct" or "local") or copy it from the source project ("copy")
