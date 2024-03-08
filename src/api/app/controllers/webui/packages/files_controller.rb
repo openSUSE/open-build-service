@@ -3,7 +3,7 @@ module Webui
     class FilesController < Packages::MainController
       before_action :set_project
       before_action :set_package
-      before_action :set_filename, only: :update
+      before_action :set_filename, only: %i[update destroy]
       after_action :verify_authorized
 
       def new
@@ -73,6 +73,19 @@ module Webui
 
         status ||= 200
         render layout: false, status: status, partial: 'layouts/webui/flash', object: flash
+      end
+
+      def destroy
+        authorize @package, :update?
+
+        begin
+          @package.delete_file(@filename)
+          flash[:success] = "File '#{@filename}' removed successfully"
+        rescue Backend::NotFoundError
+          flash[:error] = "Failed to remove file '#{@filename}'"
+        end
+
+        redirect_to package_show_path(project: @project, package: @package)
       end
 
       private

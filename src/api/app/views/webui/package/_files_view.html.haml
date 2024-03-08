@@ -30,7 +30,7 @@
           %i.fas.fa-plus-circle.text-primary
           Add an empty file or service
     = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-file-modal',
-                                                   method: :post,
+                                                   method: :delete,
                                                    options: { modal_title: 'Do you really want to remove this file?' })
 
 - unless files.blank? || spider_bot

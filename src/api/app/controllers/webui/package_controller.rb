@@ -5,12 +5,12 @@ class Webui::PackageController < Webui::WebuiController
 
   before_action :set_project, only: %i[show edit update index users requests statistics revisions
                                        new branch_diff_info rdiff create save remove
-                                       remove_file save_person save_group remove_role view_file abort_build trigger_rebuild
+                                       save_person save_group remove_role view_file abort_build trigger_rebuild
                                        trigger_services buildresult rpmlint_result rpmlint_log meta save_meta files]
 
   before_action :require_package, only: %i[edit update show requests statistics revisions
                                            branch_diff_info rdiff save save_meta remove
-                                           remove_file save_person save_group remove_role view_file abort_build trigger_rebuild
+                                           save_person save_group remove_role view_file abort_build trigger_rebuild
                                            trigger_services buildresult rpmlint_result rpmlint_log meta files users]
 
   before_action :validate_xml, only: [:save_meta]
@@ -26,7 +26,7 @@ class Webui::PackageController < Webui::WebuiController
 
   prepend_before_action :lockout_spiders, only: %i[revisions rdiff requests]
 
-  after_action :verify_authorized, only: %i[new create remove_file remove abort_build trigger_rebuild save_meta save abort_build]
+  after_action :verify_authorized, only: %i[new create remove abort_build trigger_rebuild save_meta save abort_build]
 
   def index
     render json: PackageDatatable.new(params, view_context: view_context, project: @project)
@@ -279,19 +279,6 @@ class Webui::PackageController < Webui::WebuiController
       flash[:error] = "Services couldn't be triggered: #{Xmlhash::XMLHash.new(error: e.summary)[:error]}"
     end
     redirect_to package_show_path(@project, @package)
-  end
-
-  def remove_file
-    authorize @package, :update?
-
-    filename = params[:filename]
-    begin
-      @package.delete_file(filename)
-      flash[:success] = "File '#{filename}' removed successfully"
-    rescue Backend::NotFoundError
-      flash[:error] = "Failed to remove file '#{filename}'"
-    end
-    redirect_to action: :show, project: @project, package: @package
   end
 
   def view_file
