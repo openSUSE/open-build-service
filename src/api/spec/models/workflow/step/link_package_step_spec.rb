@@ -21,30 +21,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
     it { expect { subject.call }.not_to(change(Package, :count)) }
   end
 
-  RSpec.shared_context 'failed when source_package does not exist' do
-    let(:step_instructions) do
-      {
-        source_project: project.name,
-        source_package: 'this_package_does_not_exist',
-        target_project: target_project_name
-      }
-    end
-
-    it { expect { subject.call }.to raise_error(Package::Errors::UnknownObjectError) }
-  end
-
-  RSpec.shared_context 'project and package does not exist' do
-    let(:step_instructions) do
-      {
-        source_project: 'invalid_project',
-        source_package: 'invalid_package',
-        target_project: target_project_name
-      }
-    end
-
-    it { expect { subject.call }.to raise_error(Project::Errors::UnknownObjectError) }
-  end
-
   RSpec.shared_context 'failed without link permissions' do
     let(:step_instructions) do
       {
@@ -216,8 +192,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
         end
 
         it_behaves_like 'successful new PR or MR event'
-        it_behaves_like 'failed when source_package does not exist'
-        it_behaves_like 'project and package does not exist'
         it_behaves_like 'failed without link permissions'
         it_behaves_like 'insufficient permission on target project'
         it_behaves_like 'insufficient permission to create new target project'
@@ -268,8 +242,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
         end
 
         it_behaves_like 'successful on a new push event'
-        it_behaves_like 'failed when source_package does not exist'
-        it_behaves_like 'project and package does not exist'
         it_behaves_like 'failed without link permissions'
         it_behaves_like 'insufficient permission on target project'
         it_behaves_like 'insufficient permission to create new target project'
@@ -321,8 +293,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
         it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count)) }
         it { expect(subject.call.source_file('_link')).to eq('<link project="foo_project" package="bar_package"/>') }
 
-        it_behaves_like 'failed when source_package does not exist'
-        it_behaves_like 'project and package does not exist'
         it_behaves_like 'failed without link permissions'
         it_behaves_like 'insufficient permission on target project'
         it_behaves_like 'insufficient permission to create new target project'
@@ -366,8 +336,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
         end
 
         it_behaves_like 'successful new PR or MR event'
-        it_behaves_like 'failed when source_package does not exist'
-        it_behaves_like 'project and package does not exist'
         it_behaves_like 'failed without link permissions'
         it_behaves_like 'insufficient permission on target project'
         it_behaves_like 'insufficient permission to create new target project'
@@ -417,8 +385,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
         end
 
         it_behaves_like 'successful on a new push event'
-        it_behaves_like 'failed when source_package does not exist'
-        it_behaves_like 'project and package does not exist'
         it_behaves_like 'failed without link permissions'
         it_behaves_like 'insufficient permission on target project'
         it_behaves_like 'insufficient permission to create new target project'

@@ -85,10 +85,6 @@ class Workflow::Step
     raise AbstractMethodCalled
   end
 
-  def remote_source?
-    Project.find_remote_project(source_project_name).present?
-  end
-
   # Only used in LinkPackageStep and BranchPackageStep.
   def validate_source_project_and_package_name
     errors.add(:base, "invalid source project '#{source_project_name}'") if step_instructions[:source_project] && !Project.valid_name?(source_project_name)
