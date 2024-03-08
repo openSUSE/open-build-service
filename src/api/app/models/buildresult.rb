@@ -96,7 +96,7 @@ class Buildresult
     results.elements('result').sort_by { |a| a['repository'] }.each do |result|
       state =
         if result.key?('dirty')
-          'outdated_' + result['state']
+          "outdated_#{result['state']}"
         else
           result['state']
         end

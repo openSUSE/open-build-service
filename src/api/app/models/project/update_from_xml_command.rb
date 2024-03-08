@@ -219,8 +219,8 @@ class Project
     def check_for_empty_repo_list(list, error_prefix)
       return if list.empty?
 
-      linking_repos = list.map { |x| x.repository.project.name + '/' + x.repository.name }.join("\n")
-      raise SaveError, error_prefix + "\n" + linking_repos
+      linking_repos = list.map { |x| "#{x.repository.project.name}/#{x.repository.name}" }.join("\n")
+      raise SaveError, "#{error_prefix}\n#{linking_repos}"
     end
 
     def update_repository_flags(current_repo, xml_hash)

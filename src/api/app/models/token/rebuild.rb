@@ -2,7 +2,7 @@ class Token::Rebuild < Token
   def call(options)
     set_triggered_at
     package_name = options[:package].to_param
-    package_name += ':' + options[:multibuild_flavor] if options[:multibuild_flavor]
+    package_name += ":#{options[:multibuild_flavor]}" if options[:multibuild_flavor]
     if package_name.present?
       Backend::Api::Sources::Package.rebuild(options[:project].to_param,
                                              package_name,
