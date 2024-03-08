@@ -83,7 +83,7 @@ class Webui::PackageController < Webui::WebuiController
       authorize @current_notification, :update?, policy_class: NotificationPolicy
     end
 
-    @services = @files.any? { |file| file[:name] == '_service' }
+    @services = @files.any? { |file| file['name'] == '_service' }
 
     @package.cache_revisions(@revision)
 
@@ -305,14 +305,10 @@ class Webui::PackageController < Webui::WebuiController
     @expand = params[:expand]
     @addeditlink = false
     if User.possibly_nobody.can_modify?(@package) && @rev.blank? && @package.scmsync.blank?
-      begin
-        files = package_files(@rev, @expand)
-      rescue Backend::Error
-        files = []
-      end
+      files = @package.dir_hash({ rev: @rev, expand: @expand }.compact).elements('entry')
       files.each do |file|
-        if file[:name] == @filename
-          @addeditlink = file[:editable]
+        if file['name'] == @filename
+          @addeditlink = editable_file?(@filename, file['size'].to_i)
           break
         end
       end
@@ -499,27 +495,6 @@ class Webui::PackageController < Webui::WebuiController
     render layout: false, status: :bad_request, partial: 'layouts/webui/flash', object: flash
   end
 
-  def package_files(rev = nil, expand = nil)
-    query = {}
-    query[:expand]  = expand  if expand
-    query[:rev]     = rev     if rev
-
-    dir_xml = @package.source_file(nil, query)
-    return [] if dir_xml.blank?
-
-    dir = Xmlhash.parse(dir_xml)
-    @serviceinfo = dir.elements('serviceinfo').first
-    files = []
-    dir.elements('entry') do |entry|
-      file = Hash[*%i[name size mtime md5].map! { |x| [x, entry.value(x.to_s)] }.flatten]
-      file[:viewable] = !binary_file?(file[:name]) && file[:size].to_i < 2**20 # max. 1 MB
-      file[:editable] = file[:viewable] && !file[:name].match?(/^_service[_:]/)
-      file[:srcmd5] = dir.value('srcmd5')
-      files << file
-    end
-    files
-  end
-
   def require_architecture
     @architecture = Architecture.archcache[params[:arch]]
     return if @architecture
@@ -549,7 +524,8 @@ class Webui::PackageController < Webui::WebuiController
       @current_rev = @package.rev
       @revision = @current_rev if !@revision && !@srcmd5 # on very first page load only
 
-      @files = package_files(@srcmd5 || @revision, @expand)
+      files_xml = @package.source_file(nil, { rev: @srcmd5 || @revision, expand: @expand }.compact)
+      @files = Xmlhash.parse(files_xml).elements('entry')
     rescue Backend::Error => e
       # TODO: crudest hack ever!
       if e.summary == 'service in progress' && @expand == 1
