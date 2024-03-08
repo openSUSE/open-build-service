@@ -94,7 +94,8 @@ OBSApi::Application.routes.draw do
         post 'package/save_person/:project/:package' => :save_person, constraints: cons, as: 'package_save_person'
         post 'package/save_group/:project/:package' => :save_group, constraints: cons, as: 'package_save_group'
         post 'package/remove_role/:project/:package' => :remove_role, constraints: cons, as: 'package_remove_role'
-        get 'package/view_file/:project/:package/(:filename)' => :view_file, constraints: cons, as: 'package_view_file'
+        # For backward compatibility
+        get 'package/view_file/:project/:package/:filename', to: redirect('/projects/%{project}/packages/%{package}/files/%{filename}'), constraints: cons
         defaults format: 'js' do
           post 'package/trigger_rebuild/:project/:package' => :trigger_rebuild, constraints: cons, as: 'package_trigger_rebuild'
           get 'package/abort_build/:project/:package' => :abort_build, constraints: cons, as: 'package_abort_build'
@@ -281,7 +282,7 @@ OBSApi::Application.routes.draw do
         resources :deletions, controller: 'webui/requests/deletions', only: %i[new create], constraints: cons
         resources :devel_project_changes, controller: 'webui/requests/devel_project_changes', only: %i[new create], constraints: cons
         resources :submissions, controller: 'webui/requests/submissions', only: %i[new create], constraints: cons
-        resources :files, controller: 'webui/packages/files', only: %i[new create update destroy], constraints: cons, param: :filename, format: false
+        resources :files, controller: 'webui/packages/files', only: %i[new create show update destroy], constraints: cons, param: :filename, format: false, defaults: { format: 'html' }
         put 'toggle_watched_item', controller: 'webui/watched_items', constraints: cons
         resource :badge, controller: 'webui/packages/badge', only: [:show], constraints: cons.merge(format: :svg)
         resources :repositories, only: [], param: :name do

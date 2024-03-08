@@ -19,7 +19,9 @@ class SourcediffTabComponent < ApplicationComponent
     return if sourcediff['files'][filename]['state'] == 'deleted'
 
     diff_params = diff_data(@action[:type], sourcediff)
-    package_view_file_path(diff_params.merge(filename: filename))
+    diff_params[:project_name] = diff_params[:project]
+    diff_params[:package_name] = diff_params[:package]
+    project_package_file_path(diff_params.merge(filename: filename))
   end
 
   def release_info

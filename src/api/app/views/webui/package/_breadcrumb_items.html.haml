@@ -25,6 +25,3 @@
       = link_to 'Repository State', project_package_repository_binaries_path(@project, @package_name, @repository)
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Statistics
-  - if current_page?(package_view_file_path(@project, @package))
-    %li.breadcrumb-item.active.text-word-break-all{ 'aria-current' => 'page' }
-      = truncate(@filename, length: 50)

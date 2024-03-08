@@ -46,10 +46,10 @@ RSpec.describe Webui::Kiwi::ImagesController, :vcr do
           get :import_from_package, params: { package_id: package_with_kiwi_file.id }
         end
 
-        it 'redirect to package_view_file_path' do
-          expect(response).to redirect_to(package_view_file_path(project: package_with_kiwi_file.project,
-                                                                 package: package_with_kiwi_file,
-                                                                 filename: "#{package_with_kiwi_file.name}.kiwi"))
+        it 'redirect to project_package_file_path' do
+          expect(response).to redirect_to(project_package_file_path(project_name: package_with_kiwi_file.project,
+                                                                    package_name: package_with_kiwi_file,
+                                                                    filename: "#{package_with_kiwi_file.name}.kiwi"))
         end
 
         it { expect(flash[:error]).not_to be_nil }
@@ -91,10 +91,10 @@ RSpec.describe Webui::Kiwi::ImagesController, :vcr do
             get :import_from_package, params: { package_id: package_with_kiwi_file.id }
           end
 
-          it 'redirect to package_view_file_path' do
-            expect(response).to redirect_to(package_view_file_path(project: package_with_kiwi_file.project,
-                                                                   package: package_with_kiwi_file,
-                                                                   filename: "#{package_with_kiwi_file.name}.kiwi"))
+          it 'redirect to project_package_file_path' do
+            expect(response).to redirect_to(project_package_file_path(project_name: package_with_kiwi_file.project,
+                                                                      package_name: package_with_kiwi_file,
+                                                                      filename: "#{package_with_kiwi_file.name}.kiwi"))
           end
 
           it { expect(flash[:error]).to eq(errors) }
@@ -125,10 +125,10 @@ RSpec.describe Webui::Kiwi::ImagesController, :vcr do
             get :import_from_package, params: { package_id: package_with_kiwi_file.id }
           end
 
-          it 'redirect to package_view_file_path' do
-            expect(response).to redirect_to(package_view_file_path(project: package_with_kiwi_file.project,
-                                                                   package: package_with_kiwi_file,
-                                                                   filename: "#{package_with_kiwi_file.name}.kiwi"))
+          it 'redirect to project_package_file_path' do
+            expect(response).to redirect_to(project_package_file_path(project_name: package_with_kiwi_file.project,
+                                                                      package_name: package_with_kiwi_file,
+                                                                      filename: "#{package_with_kiwi_file.name}.kiwi"))
           end
 
           it { expect(flash[:error]).to match_array(errors) }

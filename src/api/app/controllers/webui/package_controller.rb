@@ -281,40 +281,6 @@ class Webui::PackageController < Webui::WebuiController
     redirect_to package_show_path(@project, @package)
   end
 
-  def view_file
-    @filename = params[:filename] || params[:file] || ''
-    if binary_file?(@filename) # We don't want to display binary files
-      flash[:error] = "Unable to display binary file #{@filename}"
-      redirect_back(fallback_location: { action: :show, project: @project, package: @package })
-      return
-    end
-    @rev = params[:rev]
-    @expand = params[:expand]
-    @addeditlink = false
-    if User.possibly_nobody.can_modify?(@package) && @rev.blank? && @package.scmsync.blank?
-      files = @package.dir_hash({ rev: @rev, expand: @expand }.compact).elements('entry')
-      files.each do |file|
-        if file['name'] == @filename
-          @addeditlink = editable_file?(@filename, file['size'].to_i)
-          break
-        end
-      end
-    end
-    begin
-      @file = @package.source_file(@filename, fetch_from_params(:rev, :expand))
-    rescue Backend::NotFoundError
-      flash[:error] = "File not found: #{@filename}"
-      redirect_to action: :show, package: @package, project: @project
-      return
-    rescue Backend::Error => e
-      flash[:error] = "Error: #{e}"
-      redirect_back(fallback_location: { action: :show, project: @project, package: @package })
-      return
-    end
-
-    render(template: 'webui/package/simple_file_view') && return if @spider_bot
-  end
-
   def abort_build
     authorize @package, :update?
 
@@ -602,13 +568,5 @@ class Webui::PackageController < Webui::WebuiController
       end
     end
     true
-  end
-
-  def fetch_from_params(*arr)
-    opts = {}
-    arr.each do |k|
-      opts[k] = params[k] if params[k].present?
-    end
-    opts
   end
 end
