@@ -6,6 +6,19 @@ module WaitHelpers
     end
   end
 
+  def wait_up_to(seconds)
+    seconds_backup = Capybara.default_max_wait_time
+
+    begin
+      Capybara.default_max_wait_time = seconds
+      yield
+    ensure
+      Capybara.default_max_wait_time = seconds_backup
+    end
+  end
+
+  private
+
   def finished_all_ajax_requests?
     page.evaluate_script('jQuery.active').zero?
   end

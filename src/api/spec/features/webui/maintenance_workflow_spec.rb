@@ -71,7 +71,10 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
     fill_in('reason', with: 'really? ok')
 
     click_button('Accept request')
-    expect(page).to have_css('#overview h3', text: "Request #{bs_request.number} accepted")
+    # Looks like accepting the request takes some time, so we allow it to take a bit more than usual
+    wait_up_to(12.seconds) do
+      expect(page).to have_css('#overview h3', text: "Request #{bs_request.number} accepted")
+    end
 
     # Step 4: The maintenance coordinator edits the patchinfo file
     ##############################################################
