@@ -30,12 +30,12 @@ RSpec.describe Status::ChecksController do
       end
 
       it 'gives 404 for invalid project' do
-        expect(post(:update, body: xml, params: { project_name: project.name + '_', report_uuid: 'nada', repository_name: repository.name }, format: :xml)).to have_http_status(:not_found)
+        expect(post(:update, body: xml, params: { project_name: "#{project.name}_", report_uuid: 'nada', repository_name: repository.name }, format: :xml)).to have_http_status(:not_found)
         expect(Xmlhash.parse(response.body)['summary']).to match(/Couldn't find Project/)
       end
 
       it 'gives 404 for invalid repository' do
-        expect(post(:update, body: xml, params: { project_name: project.name, report_uuid: 'nada', repository_name: repository.name + '_' }, format: :xml)).to have_http_status(:not_found)
+        expect(post(:update, body: xml, params: { project_name: project.name, report_uuid: 'nada', repository_name: "#{repository.name}_" }, format: :xml)).to have_http_status(:not_found)
         expect(Xmlhash.parse(response.body)['summary']).to match(/Repository.*not found/)
       end
 
