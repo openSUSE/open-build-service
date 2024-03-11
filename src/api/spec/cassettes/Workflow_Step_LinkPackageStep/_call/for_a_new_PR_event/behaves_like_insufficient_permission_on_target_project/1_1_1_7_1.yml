@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 11 Mar 2024 13:31:22 GMT
+  recorded_at: Mon, 11 Mar 2024 13:31:20 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_43
+    uri: http://backend:5352/source/foo_project/_meta?user=user_29
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Many Waters</title>
+          <title>Fear and Trembling</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '143'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Many Waters</title>
+          <title>Fear and Trembling</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 11 Mar 2024 13:31:22 GMT
+  recorded_at: Mon, 11 Mar 2024 13:31:20 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_44
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_30
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Death Be Not Proud</title>
-          <description>Et illo vel laudantium.</description>
+          <title>To Say Nothing of the Dog</title>
+          <description>Optio officia voluptate excepturi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '151'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Death Be Not Proud</title>
-          <description>Et illo vel laudantium.</description>
+          <title>To Say Nothing of the Dog</title>
+          <description>Optio officia voluptate excepturi.</description>
         </package>
-  recorded_at: Mon, 11 Mar 2024 13:31:22 GMT
+  recorded_at: Mon, 11 Mar 2024 13:31:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Vel nobis quia. Delectus consequatur perspiciatis. At possimus laboriosam.
+      string: Quasi est modi. Aliquid dolor quibusdam. Et dolorum nihil.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -147,21 +147,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="43" vrev="43">
-          <srcmd5>9502fc412a2cf9f357cf52cf2a4e7439</srcmd5>
+        <revision rev="29" vrev="29">
+          <srcmd5>42b32511a213880ab7d3d9323322472d</srcmd5>
           <version>unknown</version>
-          <time>1710163882</time>
+          <time>1710163880</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 11 Mar 2024 13:31:22 GMT
+  recorded_at: Mon, 11 Mar 2024 13:31:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Unde animi culpa. Eveniet velit est. Dolore sit molestias.
+      string: Consequatur eos ad. Magni neque quos. Totam consectetur odit.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,25 +185,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="44" vrev="44">
-          <srcmd5>f862048545f38310621c06f4f3a9844f</srcmd5>
+        <revision rev="30" vrev="30">
+          <srcmd5>b0b9929ccab5bfafb8dd774335772053</srcmd5>
           <version>unknown</version>
-          <time>1710163882</time>
+          <time>1710163880</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 11 Mar 2024 13:31:22 GMT
+  recorded_at: Mon, 11 Mar 2024 13:31:20 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
+    uri: http://backend:5352/source/target_project_no_permission/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <project name="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title/>
+        <project name="target_project_no_permission">
+          <title>Mr Standfast</title>
           <description/>
-          <person userid="Iggy" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -224,90 +223,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '117'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title></title>
+        <project name="target_project_no_permission">
+          <title>Mr Standfast</title>
           <description></description>
-          <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 11 Mar 2024 13:31:23 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_meta?user=Iggy
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="bar_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title/>
-          <description/>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '141'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="bar_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
-          <title></title>
-          <description></description>
-        </package>
-  recorded_at: Mon, 11 Mar 2024 13:31:23 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_link?user=Iggy
-    body:
-      encoding: UTF-8
-      string: <link project="foo_project" package="bar_package"/>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '206'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="22" vrev="22">
-          <srcmd5>a98087f313391ed00a98812e815b1ef8</srcmd5>
-          <version>unknown</version>
-          <time>1710163883</time>
-          <user>Iggy</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Mon, 11 Mar 2024 13:31:23 GMT
+  recorded_at: Mon, 11 Mar 2024 13:31:20 GMT
 recorded_with: VCR 6.2.0
