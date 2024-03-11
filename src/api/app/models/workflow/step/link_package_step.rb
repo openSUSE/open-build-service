@@ -55,16 +55,16 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
   # Will raise an exception if the source package is not accesible
   def check_source_access
     # if we branch from remote there is no need to check access. Either the package exists or not...
-    return if Project.find_remote_project(source_project_name).present?
+    return if Project.find_remote_project(step_instructions[:source_project]).present?
 
-    Package.get_by_project_and_name(source_project_name, source_package_name)
+    Package.get_by_project_and_name(step_instructions[:source_project], step_instructions[:source_package])
   end
 
   def create_link
     Backend::Api::Sources::Package.write_link(target_project_name,
                                               target_package_name,
                                               @token.executor,
-                                              link_xml(project: source_project_name, package: source_package_name))
+                                              link_xml(project: step_instructions[:source_project], package: step_instructions[:source_package]))
   end
 
   def link_xml(opts = {})

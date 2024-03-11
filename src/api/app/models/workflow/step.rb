@@ -41,7 +41,7 @@ class Workflow::Step
   end
 
   def target_package_name(short_commit_sha: false)
-    package_name = step_instructions[:target_package] || source_package_name
+    package_name = step_instructions[:target_package] || step_instructions[:source_package]
 
     case
     when scm_webhook.pull_request_event?
@@ -69,14 +69,6 @@ class Workflow::Step
 
       errors.add(:base, "The '#{required_key}' key must provide a value") if step_instructions[required_key].blank?
     end
-  end
-
-  def source_package_name
-    step_instructions[:source_package]
-  end
-
-  def source_project_name
-    step_instructions[:source_project]
   end
 
   private
