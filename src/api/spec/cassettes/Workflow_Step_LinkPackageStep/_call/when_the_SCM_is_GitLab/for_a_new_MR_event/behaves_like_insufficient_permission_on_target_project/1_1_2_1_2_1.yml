@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+  recorded_at: Mon, 11 Mar 2024 10:44:13 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_19
+    uri: http://backend:5352/source/foo_project/_meta?user=user_107
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Now Sleeps the Crimson Petal</title>
+          <title>Nectar in a Sieve</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Now Sleeps the Crimson Petal</title>
+          <title>Nectar in a Sieve</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+  recorded_at: Mon, 11 Mar 2024 10:44:13 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_20
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_108
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Mirror Crack'd from Side to Side</title>
-          <description>Quibusdam voluptatem tempora ullam.</description>
+          <title>To Sail Beyond the Sunset</title>
+          <description>Maxime aliquid cum facilis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '181'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Mirror Crack'd from Side to Side</title>
-          <description>Quibusdam voluptatem tempora ullam.</description>
+          <title>To Sail Beyond the Sunset</title>
+          <description>Maxime aliquid cum facilis.</description>
         </package>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+  recorded_at: Mon, 11 Mar 2024 10:44:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Similique consequatur eaque. Quis explicabo provident. Qui ea soluta.
+      string: Voluptates consequuntur quis. Repellendus officiis est. Vero non enim.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="19" vrev="19">
-          <srcmd5>96bd1e5e145c0794672800be7fa0569d</srcmd5>
+        <revision rev="107" vrev="107">
+          <srcmd5>0d97d53f50f0e30dc29f872350e4872e</srcmd5>
           <version>unknown</version>
-          <time>1710153839</time>
+          <time>1710153853</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+  recorded_at: Mon, 11 Mar 2024 10:44:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Iste cumque cum. Et suscipit rerum. Facere aliquid est.
+      string: Vel delectus temporibus. Molestias quo dolorum. Rem impedit eum.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,29 +181,29 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '211'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="20" vrev="20">
-          <srcmd5>f748e7722dae2c7c902ae9ff79648e1a</srcmd5>
+        <revision rev="108" vrev="108">
+          <srcmd5>f2c7748d05ecffa874e537947db17b08</srcmd5>
           <version>unknown</version>
-          <time>1710153839</time>
+          <time>1710153853</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+  recorded_at: Mon, 11 Mar 2024 10:44:13 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_meta?user=Iggy
+    uri: http://backend:5352/source/target_project_no_permission/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <package name="bar_package-release_abc" project="home:Iggy">
-          <title/>
+        <project name="target_project_no_permission">
+          <title>The Cricket on the Hearth</title>
           <description/>
-        </package>
+        </project>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -223,51 +223,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '120'
+      - '130'
     body:
       encoding: UTF-8
       string: |
-        <package name="bar_package-release_abc" project="home:Iggy">
-          <title></title>
+        <project name="target_project_no_permission">
+          <title>The Cricket on the Hearth</title>
           <description></description>
-        </package>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_link?user=Iggy
-    body:
-      encoding: UTF-8
-      string: <link project="foo_project" package="bar_package"/>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '204'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="2" vrev="2">
-          <srcmd5>020ffadcfeb53d8832109237d35e8733</srcmd5>
-          <version>unknown</version>
-          <time>1710153839</time>
-          <user>Iggy</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+        </project>
+  recorded_at: Mon, 11 Mar 2024 10:44:13 GMT
 recorded_with: VCR 6.2.0
