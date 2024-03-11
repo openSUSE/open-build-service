@@ -4,8 +4,6 @@ class Workflow::Step::TriggerServices < Workflow::Step
 
   REQUIRED_KEYS = %i[project package].freeze
 
-  validate :validate_project_and_package_name
-
   def call
     return if scm_webhook.closed_merged_pull_request? || scm_webhook.reopened_pull_request?
 

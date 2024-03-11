@@ -5,8 +5,6 @@ class Workflow::Step::RebuildPackage < Workflow::Step
 
   attr_reader :project_name, :package_name
 
-  validate :validate_project_and_package_name
-
   def call
     return if scm_webhook.closed_merged_pull_request? || scm_webhook.reopened_pull_request?
     return unless valid?

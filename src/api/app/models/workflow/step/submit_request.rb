@@ -1,6 +1,5 @@
 class Workflow::Step::SubmitRequest < Workflow::Step
   REQUIRED_KEYS = %i[source_project source_package target_project].freeze
-  validate :validate_source_project_and_package_name
 
   def call
     return unless valid?

@@ -6,7 +6,6 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
   validate :validate_repositories
   validate :validate_repository_paths
   validate :validate_architectures
-  validate :validate_project_name
 
   def call
     return if scm_webhook.closed_merged_pull_request? || scm_webhook.reopened_pull_request?
@@ -82,11 +81,5 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
 
     inexistent_architectures_sentence ||= inexistent_architectures.map { |key| "'#{key}'" }.to_sentence
     errors.add(:base, "configure_repositories step: Architectures #{inexistent_architectures_sentence} do not exist")
-  end
-
-  def validate_project_name
-    return if step_instructions[:project].blank? || Project.valid_name?(target_project_base_name)
-
-    errors.add(:base, "Invalid project '#{target_project_base_name}'")
   end
 end

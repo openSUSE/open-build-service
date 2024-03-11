@@ -4,7 +4,9 @@ class Workflow::Step
 
   SHORT_COMMIT_SHA_LENGTH = 7
 
-  validate :validate_step_instructions
+  validate :validate_required_keys_in_step_instructions
+  validate :validate_project_names_in_step_instructions
+  validate :validate_package_names_in_step_instructions
 
   attr_accessor :scm_webhook, :step_instructions, :token, :workflow_run
 
@@ -60,7 +62,7 @@ class Workflow::Step
 
   protected
 
-  def validate_step_instructions
+  def validate_required_keys_in_step_instructions
     self.class::REQUIRED_KEYS.each do |required_key|
       unless step_instructions.key?(required_key)
         errors.add(:base, "The '#{required_key}' key is missing")
@@ -77,15 +79,21 @@ class Workflow::Step
     raise AbstractMethodCalled
   end
 
-  # Only used in LinkPackageStep and BranchPackageStep.
-  def validate_source_project_and_package_name
-    errors.add(:base, "invalid source project '#{source_project_name}'") if step_instructions[:source_project] && !Project.valid_name?(source_project_name)
-    errors.add(:base, "invalid source package '#{source_package_name}'") if step_instructions[:source_package] && !Package.valid_name?(source_package_name)
-    errors.add(:base, "invalid target project '#{step_instructions[:target_project]}'") if step_instructions[:target_project] && !Project.valid_name?(step_instructions[:target_project])
+  def validate_project_names_in_step_instructions
+    %i[project source_project target_project].each do |key_name|
+      next unless step_instructions[key_name]
+      next if Project.valid_name?(step_instructions[key_name])
+
+      errors.add(:base, "invalid #{key_name}: '#{step_instructions[key_name]}'")
+    end
   end
 
-  def validate_project_and_package_name
-    errors.add(:base, "invalid project '#{step_instructions[:project]}'") if step_instructions[:project] && !Project.valid_name?(step_instructions[:project])
-    errors.add(:base, "invalid package '#{step_instructions[:package]}'") if step_instructions[:package] && !Package.valid_name?(step_instructions[:package])
+  def validate_package_names_in_step_instructions
+    %i[package source_package target_package].each do |key_name|
+      next unless step_instructions[key_name]
+      next if Package.valid_name?(step_instructions[key_name])
+
+      errors.add(:base, "invalid #{key_name}: '#{step_instructions[key_name]}'")
+    end
   end
 end

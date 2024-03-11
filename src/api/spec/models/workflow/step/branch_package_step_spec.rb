@@ -573,44 +573,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
     end
   end
 
-  describe '#validate_source_project_and_package_name' do
-    let(:project) { create(:project, name: 'foo_project', maintainer: user) }
-    let(:package) { create(:package_with_file, name: 'bar_package', project: project) }
-    let(:scm_webhook) do
-      SCMWebhook.new(payload: {
-                       scm: 'github',
-                       event: 'pull_request',
-                       action: 'opened',
-                       pr_number: 1,
-                       source_repository_full_name: 'reponame',
-                       commit_sha: long_commit_sha,
-                       target_repository_full_name: 'openSUSE/open-build-service'
-                     })
-    end
-
-    context 'when the source project is invalid' do
-      let(:step_instructions) { { source_project: 'Invalid/format', source_package: package.name, target_project: target_project_name } }
-
-      it 'gives an error for invalid name' do
-        subject.valid?
-
-        expect { subject.call }.not_to change(Package, :count)
-        expect(subject.errors.full_messages.to_sentence).to eq("invalid source project 'Invalid/format'")
-      end
-    end
-
-    context 'when the source package is invalid' do
-      let(:step_instructions) { { source_project: package.project.name, source_package: 'Invalid/format', target_project: target_project_name } }
-
-      it 'gives an error for invalid name' do
-        subject.valid?
-
-        expect { subject.call }.not_to change(Package, :count)
-        expect(subject.errors.full_messages.to_sentence).to eq("invalid source package 'Invalid/format'")
-      end
-    end
-  end
-
   describe '.add_repositories?' do
     let(:project) { create(:project, name: 'foo_project', maintainer: user) }
     let(:package) { create(:package_with_file, name: 'bar_package', project: project) }
