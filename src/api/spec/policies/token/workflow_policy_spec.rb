@@ -1,10 +1,10 @@
 RSpec.describe Token::WorkflowPolicy do
+  subject { described_class }
+
   let(:user) { create(:confirmed_user) }
   let(:user_token) { create(:workflow_token, executor: user) }
   let(:other_user) { group.users.first }
   let(:group) { create(:group_with_user) }
-
-  subject { described_class }
 
   describe '#trigger' do
     context 'user inactive' do

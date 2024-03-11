@@ -44,49 +44,49 @@ RSpec.describe Webui::Projects::StatusHelper do
     end
 
     context 'icon when error was the last evaluated error' do
-      let(:problems) { ['error-foo'] }
-
       subject { helper.parse_status('foo', package)[:icon_type] }
+
+      let(:problems) { ['error-foo'] }
 
       it { expect(subject).to eq('error') }
     end
 
     context 'icon when ok when there are no problems' do
-      let(:problems) { [] }
-
       subject { helper.parse_status('foo', package)[:icon_type] }
+
+      let(:problems) { [] }
 
       it { expect(subject).to eq('ok') }
     end
 
     context 'sortkey when there are no problems' do
-      let(:problems) { [] }
-
       subject { helper.parse_status('foo', package)[:sortkey] }
+
+      let(:problems) { [] }
 
       it { expect(subject).to eq("9-ok-#{package[:name]}") }
     end
 
     context 'icon when diff_against_link was the last evaluated error' do
-      let(:problems) { ['diff_against_link'] }
-
       subject { helper.parse_status('foo', package)[:icon_type] }
+
+      let(:problems) { ['diff_against_link'] }
 
       it { expect(subject).to eq('changes') }
     end
 
     context 'icon when currently_declined was the last evaluated error' do
-      let(:problems) { ['currently_declined'] }
-
       subject { helper.parse_status('foo', package)[:icon_type] }
+
+      let(:problems) { ['currently_declined'] }
 
       it { expect(subject).to eq('error') }
     end
 
     context 'sortkey when currently_declined was the last evaluated error' do
-      let(:problems) { ['currently_declined'] }
-
       subject { helper.parse_status('foo', package)[:sortkey] }
+
+      let(:problems) { ['currently_declined'] }
 
       it { expect(subject).to eq("2-declines-#{package[:name]}") }
     end

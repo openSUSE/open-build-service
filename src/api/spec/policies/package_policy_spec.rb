@@ -1,12 +1,12 @@
 RSpec.describe PackagePolicy do
+  subject { PackagePolicy }
+
   let(:anonymous_user) { create(:user_nobody) }
   let(:user) { create(:confirmed_user, :with_home) }
   let(:other_user) { create(:confirmed_user) }
   let(:admin_user) { create(:admin_user) }
   let(:project) { user.home_project }
   let(:package) { create(:package, name: 'my_package', project: project) }
-
-  subject { PackagePolicy }
 
   context :create_in_locked_project_without_ignore_lock do
     permissions :create? do

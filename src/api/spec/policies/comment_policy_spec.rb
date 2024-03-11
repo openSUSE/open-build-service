@@ -1,4 +1,6 @@
 RSpec.describe CommentPolicy do
+  subject { CommentPolicy }
+
   let(:anonymous_user) { create(:user_nobody) }
   let(:comment_author) { create(:confirmed_user, login: 'burdenski') }
   let(:admin_user) { create(:admin_user, login: 'admin') }
@@ -11,8 +13,6 @@ RSpec.describe CommentPolicy do
   let(:comment_on_package) { create(:comment_package, commentable: package, user: comment_author) }
   let(:comment_on_request) { create(:comment_request, commentable: request, user: comment_author) }
   let(:comment_deleted) { create(:comment_project, commentable: project, user: anonymous_user) }
-
-  subject { CommentPolicy }
 
   permissions :destroy? do
     it 'Not logged users cannot destroy comments' do

@@ -1,9 +1,9 @@
 RSpec.describe Webui::UserPolicy do
+  subject { described_class }
+
   let(:user) { create(:confirmed_user) }
   let(:other_user) { create(:confirmed_user) }
   let(:user_nobody) { build(:user_nobody) }
-
-  subject { described_class }
 
   permissions :index?, :edit?, :destroy?, :change_password?, :edit_account? do
     it { expect(subject).to permit(user, other_user) }

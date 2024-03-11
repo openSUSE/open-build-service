@@ -1,4 +1,6 @@
 RSpec.describe ChartComponent, type: :component do
+  subject { described_class.new(raw_data: fake_raw_data) }
+
   let(:fake_raw_data) do
     [
       { architecture: 'x86_64', repository: 'openSUSE_Leap_42.2', status: 'excluded', package_name: 'source_package', project_name: 'source_project' },
@@ -8,8 +10,6 @@ RSpec.describe ChartComponent, type: :component do
       { architecture: 's390', repository: 'openSUSE_Tumbleweed', status: 'building', package_name: 'source_package', project_name: 'source_project' }
     ]
   end
-
-  subject { described_class.new(raw_data: fake_raw_data) }
 
   describe '#chart_data' do
     let(:chart_data) { subject.chart_data }

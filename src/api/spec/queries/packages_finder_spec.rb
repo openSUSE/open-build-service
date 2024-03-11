@@ -23,31 +23,31 @@ RSpec.describe PackagesFinder, :vcr do
     let(:maintained_attrib) { create(:maintained_attrib, project: project, package: package) }
 
     context 'when package is nil' do
+      subject { PackagesFinder.new.find_by_attribute_type(maintained_attrib.attrib_type) }
+
       before do
         User.session = admin_user
       end
-
-      subject { PackagesFinder.new.find_by_attribute_type(maintained_attrib.attrib_type) }
 
       it { expect(subject).not_to be_empty }
     end
 
     context 'when package is valid' do
+      subject { PackagesFinder.new.find_by_attribute_type(maintained_attrib.attrib_type, package.name) }
+
       before do
         User.session = admin_user
       end
-
-      subject { PackagesFinder.new.find_by_attribute_type(maintained_attrib.attrib_type, package.name) }
 
       it { expect(subject).not_to be_empty }
     end
 
     context 'when package is invalid' do
+      subject { PackagesFinder.new.find_by_attribute_type(maintained_attrib.attrib_type, 'xoo') }
+
       before do
         User.session = admin_user
       end
-
-      subject { PackagesFinder.new.find_by_attribute_type(maintained_attrib.attrib_type, 'xoo') }
 
       it { expect(subject).to be_empty }
     end
@@ -60,11 +60,11 @@ RSpec.describe PackagesFinder, :vcr do
     let(:embargo_date_attrib) { create(:embargo_date_attrib, project: project, package: package) }
 
     context 'when package is nil' do
+      subject { PackagesFinder.new.find_by_attribute_type_and_value(embargo_date_attrib.attrib_type, embargo_date_attrib.values.first) }
+
       before do
         User.session = admin_user
       end
-
-      subject { PackagesFinder.new.find_by_attribute_type_and_value(embargo_date_attrib.attrib_type, embargo_date_attrib.values.first) }
 
       it { expect(subject).not_to be_empty }
       it { expect(subject).to include(package) }

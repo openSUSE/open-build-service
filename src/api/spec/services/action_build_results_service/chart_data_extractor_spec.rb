@@ -1,5 +1,7 @@
 RSpec.describe ActionBuildResultsService::ChartDataExtractor do
   describe '#call' do
+    subject { described_class.new(actions: actions).call }
+
     let(:source_project) { create(:project, name: 'source_project') }
     let(:source_package) { create(:package_with_file, name: 'source_package', project: source_project, file_content: 'b') }
     let(:target_project) { create(:project, name: 'target_project') }
@@ -33,8 +35,6 @@ RSpec.describe ActionBuildResultsService::ChartDataExtractor do
         </resultlist>
       HEREDOC
     end
-
-    subject { described_class.new(actions: actions).call }
 
     context 'with build results' do
       before do

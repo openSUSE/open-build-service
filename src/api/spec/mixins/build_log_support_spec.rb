@@ -46,9 +46,9 @@ RSpec.describe BuildLogSupport do
   end
 
   describe '#get_size_of_log' do
-    let(:path) { "#{CONFIG['source_url']}/build/project_1/repository_1/architecture_1/package_1/_log?view=entry" }
-
     subject { instance_with_build_log_support.get_size_of_log('project_1', 'package_1', 'repository_1', 'architecture_1') }
+
+    let(:path) { "#{CONFIG['source_url']}/build/project_1/repository_1/architecture_1/package_1/_log?view=entry" }
 
     context 'with size' do
       before do
@@ -68,20 +68,20 @@ RSpec.describe BuildLogSupport do
   end
 
   describe '#get_job_status' do
+    subject { instance_with_build_log_support.get_job_status('project_1', 'package_1', 'repository_1', 'architecture_1') }
+
     before do
       path = "#{CONFIG['source_url']}/build/project_1/repository_1/architecture_1/package_1/_jobstatus"
       stub_request(:get, path).and_return(body: 'failed')
     end
 
-    subject { instance_with_build_log_support.get_job_status('project_1', 'package_1', 'repository_1', 'architecture_1') }
-
     it { is_expected.to eq('failed') }
   end
 
   describe '#get_status' do
-    let(:path) { "#{CONFIG['source_url']}/build/project_1/_result?arch=architecture_1&package=package_1&repository=repository_1&view=status" }
-
     subject { instance_with_build_log_support.get_status('project_1', 'package_1', 'repository_1', 'architecture_1') }
+
+    let(:path) { "#{CONFIG['source_url']}/build/project_1/_result?arch=architecture_1&package=package_1&repository=repository_1&view=status" }
 
     context 'with a code' do
       let(:status_body) do

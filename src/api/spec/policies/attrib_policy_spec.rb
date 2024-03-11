@@ -1,9 +1,9 @@
 RSpec.describe AttribPolicy do
+  subject { AttribPolicy }
+
   let(:anonymous_user) { create(:user_nobody) }
   let(:user_in_a_group) { create(:groups_user, user: create(:confirmed_user, :with_home)).user }
   let(:admin_user) { create(:admin_user) }
-
-  subject { AttribPolicy }
 
   context :without_explicit_permissions do
     let(:attrib) { create(:attrib) }

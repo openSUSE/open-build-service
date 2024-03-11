@@ -1,7 +1,7 @@
 RSpec.describe Status::ReportPolicy do
-  let(:anonymous_user) { create(:user_nobody) }
-
   subject { Status::ReportPolicy }
+
+  let(:anonymous_user) { create(:user_nobody) }
 
   RSpec.shared_context 'write permissions' do
     context 'status report for repository' do

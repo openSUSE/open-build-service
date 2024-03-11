@@ -1,10 +1,10 @@
 RSpec.describe AttribNamespacePolicy do
+  subject { AttribNamespacePolicy }
+
   let(:anonymous_user) { create(:user_nobody) }
   let(:user_in_a_group) { create(:groups_user, user: create(:confirmed_user)).user }
   let(:admin_user) { create(:admin_user) }
   let(:attrib_namespace) { create(:attrib_namespace) }
-
-  subject { AttribNamespacePolicy }
 
   context :without_explicit_permissions do
     permissions :create?, :update?, :destroy? do

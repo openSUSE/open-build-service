@@ -2,6 +2,8 @@ require Rails.root.join('db/data/20230620110143_backfill_scm_vendor_and_hook_eve
 
 RSpec.describe BackfillScmVendorAndHookEventInWorkflowRun, type: :migration do
   describe 'up' do
+    subject { BackfillScmVendorAndHookEventInWorkflowRun.new.up }
+
     let(:request_headers) do
       <<~END_OF_HEADERS
         HTTP_X_GITLAB_EVENT: Push Hook
@@ -12,8 +14,6 @@ RSpec.describe BackfillScmVendorAndHookEventInWorkflowRun, type: :migration do
     let!(:gitlab_workflow_run) { create(:workflow_run, request_headers: request_headers, scm_vendor: nil, hook_event: nil) }
     # Simulate new workflow run entry where scm_vendor and hook_event was set in creation time
     let!(:gitea_workflow_run) { create(:workflow_run, scm_vendor: 'gitea', hook_event: 'push') }
-
-    subject { BackfillScmVendorAndHookEventInWorkflowRun.new.up }
 
     before do
       subject

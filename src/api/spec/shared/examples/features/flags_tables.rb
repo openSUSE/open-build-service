@@ -103,22 +103,24 @@ RSpec.shared_examples 'tests for sections with flag tables' do
     end
 
     describe '#flag_table_build' do
-      let(:flag_type) { 'build' }
-
       subject { find_by_id('flag_table_build') }
+
+      let(:flag_type) { 'build' }
 
       it_behaves_like 'a flag table'
     end
 
     describe '#flag_table_publish' do
-      let(:flag_type) { 'publish' }
-
       subject { find_by_id('flag_table_publish') }
+
+      let(:flag_type) { 'publish' }
 
       it_behaves_like 'a flag table'
     end
 
     describe '#flag_table_debuginfo' do
+      subject { find_by_id('flag_table_debuginfo') }
+
       let(:flag_type) { 'debuginfo' }
 
       before do
@@ -127,15 +129,13 @@ RSpec.shared_examples 'tests for sections with flag tables' do
         visit project_repositories_path(project: project)
       end
 
-      subject { find_by_id('flag_table_debuginfo') }
-
       it_behaves_like 'a flag table'
     end
 
     describe '#flag_table_useforbuild' do
-      let(:flag_type) { 'useforbuild' }
-
       subject { find_by_id('flag_table_useforbuild') }
+
+      let(:flag_type) { 'useforbuild' }
 
       it_behaves_like 'a flag table'
     end

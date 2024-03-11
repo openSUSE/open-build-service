@@ -1,12 +1,12 @@
 RSpec.describe UserPolicy do
+  subject { UserPolicy }
+
   let(:user) { create(:confirmed_user) }
   let(:other_user) { create(:confirmed_user) }
 
   before do
     User.session = user
   end
-
-  subject { UserPolicy }
 
   permissions :update? do
     context 'user can modify the other user' do

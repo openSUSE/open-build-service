@@ -198,9 +198,9 @@ RSpec.describe Webui::WebuiHelper do
   end
 
   describe '#pick_max_problems' do
-    let(:max_shown) { 5 }
-
     subject { pick_max_problems(checks, builds, max_shown) }
+
+    let(:max_shown) { 5 }
 
     context 'with no failed checks' do
       let(:checks) { [] }

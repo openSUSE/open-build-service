@@ -354,11 +354,11 @@ RSpec.describe EventMailer, :vcr do
     end
 
     context 'when the subscriber has no email' do
+      subject! { EventMailer.with(subscribers: subscribers, event: event).notification_email.deliver_now }
+
       let(:group) { create(:group, email: nil) }
       let(:event) { Event::RequestCreate.first }
       let(:subscribers) { [group] }
-
-      subject! { EventMailer.with(subscribers: subscribers, event: event).notification_email.deliver_now }
 
       it 'does not get delivered' do
         expect(ActionMailer::Base.deliveries).to be_empty
