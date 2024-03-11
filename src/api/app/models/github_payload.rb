@@ -3,8 +3,9 @@ class GithubPayload < ScmPayload
   def default_payload
     {
       scm: 'github',
-      api_endpoint: api_endpoint
-    }
+      api_endpoint: api_endpoint,
+      repository_name: webhook_payload[:target_repository_full_name]
+    }.compact
   end
 
   private

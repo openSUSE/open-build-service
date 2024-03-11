@@ -7,10 +7,11 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
     let!(:path_repository1) { create(:repository, project: path_project1, name: 'snapshot', architectures: %w[i586 aarch64]) }
     let(:path_project2) { create(:project, name: 'openSUSE:Leap:15.4') }
     let!(:path_repository2) { create(:repository, project: path_project2, name: 'standard', architectures: ['x86_64']) }
-    let(:target_project) { create(:project, name: 'OBS:Server:Unstable:openSUSE:repo123:PR-1', maintainer: user) }
+    let!(:project) { create(:project, name: 'OBS:Server:Unstable', maintainer: user) }
+    let(:target_project) { Project.find_by(name: 'OBS:Server:Unstable:openSUSE:repo123:PR-1') }
     let(:step_instructions) do
       {
-        project: 'OBS:Server:Unstable',
+        project: project.name,
         repositories:
           [
             {
@@ -35,7 +36,8 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
                        pr_number: 1,
                        source_repository_full_name: 'openSUSE/repo123',
                        target_repository_full_name: 'openSUSE/repo123',
-                       commit_sha: '123'
+                       commit_sha: '123',
+                       repository_name: 'openSUSE/repo123'
                      })
     end
 
@@ -43,6 +45,10 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
       described_class.new(step_instructions: step_instructions,
                           scm_webhook: scm_webhook,
                           token: token)
+    end
+
+    before do
+      login token.executor
     end
 
     context 'when the token user does not have enough permissions' do
@@ -55,24 +61,15 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
                          action: 'opened',
                          pr_number: 1,
                          target_repository_full_name: 'openSUSE/repo123',
-                         commit_sha: '123'
+                         commit_sha: '123',
+                         repository_name: 'openSUSE/repo123'
                        })
-      end
-
-      before do
-        target_project
-        login(another_user)
       end
 
       it { expect { subject.call }.to raise_error(Pundit::NotAuthorizedError) }
     end
 
     context 'when the target branch project is present' do
-      before do
-        target_project
-        login(user)
-      end
-
       context 'and we have all the required keys in the step instructions' do
         before do
           subject.call
@@ -99,7 +96,6 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
       context 'and the project is missing in the step instructions' do
         let(:step_instructions) do
           {
-            fake_project: 'OBS:Server:Unstable',
             repositories:
               [
                 {
@@ -236,7 +232,8 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
         end
 
         before do
-          create(:repository, name: 'openSUSE_Tumbleweed', project: target_project)
+          pr_project = subject.send(:target_project) # creates the PR project...
+          create(:repository, name: 'openSUSE_Tumbleweed', project: pr_project)
         end
 
         it 'does not recreate the repository' do
@@ -299,7 +296,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
       end
     end
 
-    context 'when the target project does not exist' do
+    context 'when the project does not exist' do
       let(:step_instructions) do
         {
           project: 'OBS:Server:Unstable',
@@ -318,11 +315,11 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
       end
 
       before do
-        login(user)
+        project.destroy
       end
 
       it 'raises an error' do
-        expect { subject.call }.to raise_error(Project::Errors::UnknownObjectError, "Project not found: #{subject.target_project_name}")
+        expect { subject.call }.to raise_error(Pundit::NotAuthorizedError, 'not allowed to create? this Project')
       end
     end
   end

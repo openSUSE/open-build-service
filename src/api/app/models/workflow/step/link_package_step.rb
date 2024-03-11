@@ -1,6 +1,7 @@
 class Workflow::Step::LinkPackageStep < Workflow::Step
   include ScmSyncEnabledStep
   include TargetProjectLifeCycleSupport
+  include WorkflowStepTargetObjects
 
   REQUIRED_KEYS = %i[source_project source_package target_project].freeze
 
@@ -9,11 +10,14 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
   def call
     return unless valid?
 
+    authorize_target_project
+
     if scm_webhook.closed_merged_pull_request?
       destroy_target_project
     elsif scm_webhook.reopened_pull_request?
       restore_target_project
     elsif scm_webhook.new_commit_event?
+      authorize_source_package
       create_target_package
       create_link
       Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, target_package).call
@@ -24,35 +28,16 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
 
   private
 
-  def target_project_base_name
-    step_instructions[:target_project]
-  end
-
-  def target_project
-    Project.find_by(name: target_project_name)
-  end
-
   def create_target_package
     return if target_package.present?
 
-    check_source_access
+    create_target_project
 
-    if target_project.nil?
-      project = Project.new(name: target_project_name)
-      Pundit.authorize(@token.executor, project, :create?)
-
-      project.save!
-      project.commit_user = User.session
-      project.relationships.create!(user: User.session, role: Role.find_by_title('maintainer'))
-      project.store
-    end
-
-    Pundit.authorize(@token.executor, target_project, :update?)
-    target_project.packages.create(name: target_package_name)
+    target_project.packages.create!(name: target_package_name)
   end
 
   # Will raise an exception if the source package is not accesible
-  def check_source_access
+  def authorize_source_package
     # if we branch from remote there is no need to check access. Either the package exists or not...
     return if Project.find_remote_project(step_instructions[:source_project]).present?
 

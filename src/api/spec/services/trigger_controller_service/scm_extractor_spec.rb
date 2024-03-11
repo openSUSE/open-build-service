@@ -277,7 +277,6 @@ RSpec.describe TriggerControllerService::SCMExtractor do
       let(:expected_hash) do
         {
           scm: 'gitlab',
-          object_kind: nil,
           commit_sha: nil,
           pr_number: nil,
           source_branch: nil,

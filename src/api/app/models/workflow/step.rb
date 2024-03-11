@@ -21,45 +21,6 @@ class Workflow::Step
     raise AbstractMethodCalled
   end
 
-  def target_project_name
-    return target_project_base_name if scm_webhook.push_event? || scm_webhook.tag_push_event?
-
-    return nil unless scm_webhook.pull_request_event?
-
-    pr_subproject_name = if %w[github gitea].include?(scm_webhook.payload[:scm])
-                           scm_webhook.payload[:target_repository_full_name]&.tr('/', ':')
-                         else
-                           scm_webhook.payload[:path_with_namespace]&.tr('/', ':')
-                         end
-
-    "#{target_project_base_name}:#{pr_subproject_name}:PR-#{scm_webhook.payload[:pr_number]}"
-  end
-
-  def target_package
-    Package.get_by_project_and_name(target_project_name, target_package_name, follow_multibuild: true)
-  rescue Project::Errors::UnknownObjectError, Package::Errors::UnknownObjectError
-    # We rely on Package.get_by_project_and_name since it's the only way to work with multibuild packages.
-    # It's possible for a package to not exist, so we simply rescue and do nothing. The package will be created later in the step.
-  end
-
-  def target_package_name(short_commit_sha: false)
-    package_name = step_instructions[:target_package] || step_instructions[:source_package]
-
-    case
-    when scm_webhook.pull_request_event?
-      package_name
-    when scm_webhook.push_event?
-      commit_sha = scm_webhook.payload[:commit_sha]
-      if short_commit_sha
-        "#{package_name}-#{commit_sha.slice(0, SHORT_COMMIT_SHA_LENGTH)}"
-      else
-        "#{package_name}-#{commit_sha}"
-      end
-    when scm_webhook.tag_push_event?
-      "#{package_name}-#{scm_webhook.payload[:tag_name]}"
-    end
-  end
-
   protected
 
   def validate_required_keys_in_step_instructions
@@ -74,10 +35,6 @@ class Workflow::Step
   end
 
   private
-
-  def target_project_base_name
-    raise AbstractMethodCalled
-  end
 
   def validate_project_names_in_step_instructions
     %i[project source_project target_project].each do |key_name|

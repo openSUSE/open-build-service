@@ -1,4 +1,6 @@
 class Workflow::Step::SetFlags < Workflow::Step
+  include WorkflowStepTargetObjects
+
   REQUIRED_KEYS = [:flags].freeze
   REQUIRED_FLAG_KEYS = %i[type status project].freeze
   OPTIONAL_FLAG_KEYS = %i[package repository architecture].freeze
@@ -51,37 +53,5 @@ class Workflow::Step::SetFlags < Workflow::Step
 
     required_flag_keys_sentence ||= REQUIRED_FLAG_KEYS.map { |key| "'#{key}'" }.to_sentence
     errors.add(:base, "set_flags step: All flags must have the #{required_flag_keys_sentence} keys")
-  end
-
-  # TODO: Totally duplicated from Workflow::Step. Remove the duplication by using a service instead for all steps depending on this method.
-  def target_project_name(project_name:)
-    return project_name if scm_webhook.push_event? || scm_webhook.tag_push_event?
-
-    return nil unless scm_webhook.pull_request_event?
-
-    pr_subproject_name = if scm_webhook.payload[:scm] == 'github'
-                           scm_webhook.payload[:target_repository_full_name]&.tr('/', ':')
-                         else
-                           scm_webhook.payload[:path_with_namespace]&.tr('/', ':')
-                         end
-
-    "#{project_name}:#{pr_subproject_name}:PR-#{scm_webhook.payload[:pr_number]}"
-  end
-
-  # TODO: Totally duplicated from Workflow::Step. Remove the duplication by using a service instead for all steps depending on this method.
-  def target_package_name(package_name:, short_commit_sha: false)
-    case
-    when scm_webhook.pull_request_event?
-      package_name
-    when scm_webhook.push_event?
-      commit_sha = scm_webhook.payload[:commit_sha]
-      if short_commit_sha
-        "#{package_name}-#{commit_sha.slice(0, SHORT_COMMIT_SHA_LENGTH)}"
-      else
-        "#{package_name}-#{commit_sha}"
-      end
-    when scm_webhook.tag_push_event?
-      "#{package_name}-#{scm_webhook.payload[:tag_name]}"
-    end
   end
 end

@@ -3,8 +3,9 @@ class GiteaPayload < ScmPayload
     {
       scm: 'gitea',
       http_url: http_url,
-      api_endpoint: api_endpoint
-    }
+      api_endpoint: api_endpoint,
+      repository_name: webhook_payload[:target_repository_full_name]
+    }.compact
   end
 
   private

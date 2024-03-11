@@ -30,7 +30,8 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
                            target_branch: 'master',
                            action: 'opened',
                            source_repository_full_name: 'iggy/hello_world',
-                           target_repository_full_name: 'iggy/hello_world'
+                           target_repository_full_name: 'iggy/hello_world',
+                           repository_name: 'iggy/hello_world'
                          })
         end
 
@@ -61,6 +62,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
                            source_repository_full_name: 'iggy/hello_world',
                            commit_sha: '2a6b530bcdf7a54d881c62333c9f13b6ce16f3fc',
                            target_repository_full_name: 'iggy/hello_world',
+                           repository_name: 'iggy/hello_world',
                            ref: 'refs/heads/branch_123'
                          })
         end
@@ -92,6 +94,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
                            source_repository_full_name: 'iggy/hello_world',
                            commit_sha: '2a6b530bcdf7a54d881c62333c9f13b6ce16f3fc',
                            target_repository_full_name: 'iggy/hello_world',
+                           repository_name: 'iggy/hello_world',
                            tag_name: 'release_abc',
                            ref: 'refs/tags/release_abc'
                          })
@@ -140,7 +143,8 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
                            target_branch: 'master',
                            action: 'opened',
                            source_repository_full_name: 'iggy/hello_world',
-                           target_repository_full_name: 'iggy/hello_world'
+                           target_repository_full_name: 'iggy/hello_world',
+                           repository_name: 'iggy/hello_world'
                          })
         end
 
@@ -171,6 +175,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
                            source_repository_full_name: 'iggy/hello_world',
                            commit_sha: '2a6b530bcdf7a54d881c62333c9f13b6ce16f3fc',
                            target_repository_full_name: 'iggy/hello_world',
+                           repository_name: 'iggy/hello_world',
                            ref: 'refs/heads/branch_123'
                          })
         end
@@ -202,6 +207,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
                            source_repository_full_name: 'iggy/hello_world',
                            commit_sha: '2a6b530bcdf7a54d881c62333c9f13b6ce16f3fc',
                            target_repository_full_name: 'iggy/hello_world',
+                           repository_name: 'iggy/hello_world',
                            tag_name: 'release_abc',
                            ref: 'refs/tags/release_abc'
                          })
@@ -248,7 +254,8 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
                          target_branch: 'master',
                          action: 'opened',
                          source_repository_full_name: 'iggy/hello_world',
-                         target_repository_full_name: 'iggy/hello_world'
+                         target_repository_full_name: 'iggy/hello_world',
+                         repository_name: 'iggy/hello_world'
                        })
       end
 
@@ -285,7 +292,8 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
                          target_branch: 'master',
                          action: 'opened',
                          source_repository_full_name: 'iggy/hello_world',
-                         target_repository_full_name: 'iggy/hello_world'
+                         target_repository_full_name: 'iggy/hello_world',
+                         repository_name: 'iggy/hello_world'
                        })
       end
 
@@ -347,7 +355,8 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
                          target_branch: 'master',
                          action: 'opened',
                          source_repository_full_name: 'iggy/hello_world',
-                         target_repository_full_name: 'iggy/hello_world'
+                         target_repository_full_name: 'iggy/hello_world',
+                         repository_name: 'iggy/hello_world'
                        })
       end
 
@@ -384,7 +393,8 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
                          target_branch: 'master',
                          action: 'opened',
                          source_repository_full_name: 'iggy/hello_world',
-                         target_repository_full_name: 'iggy/hello_world'
+                         target_repository_full_name: 'iggy/hello_world',
+                         repository_name: 'iggy/hello_world'
                        })
       end
       let(:artifacts) do

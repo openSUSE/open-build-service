@@ -12,8 +12,9 @@ class GitlabPayload < ScmPayload
       scm: 'gitlab',
       object_kind: webhook_payload[:object_kind],
       http_url: http_url,
-      api_endpoint: api_endpoint
-    }
+      api_endpoint: api_endpoint,
+      repository_name: webhook_payload[:path_with_namespace]
+    }.compact
   end
 
   private

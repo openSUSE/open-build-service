@@ -11,14 +11,14 @@ module Workflows
                     {
                       source_project: @step.step_instructions[:source_project],
                       source_package: @step.step_instructions[:source_package],
-                      target_project: @step.target_project_name,
-                      target_package: @step.target_package_name
+                      target_project: @step.send(:target_project_name),
+                      target_package: @step.send(:target_package_name)
                     }
                   when 'Workflow::Step::RebuildPackage', 'Workflow::Step::TriggerServices', 'Workflow::Step::SetFlags'
                     @step.step_instructions
                   when 'Workflow::Step::ConfigureRepositories'
                     {
-                      project: @step.target_project_name,
+                      project: @step.send(:target_project_name),
                       repositories: @step.step_instructions[:repositories]
                     }
                   when 'Workflow::Step::SubmitRequest'

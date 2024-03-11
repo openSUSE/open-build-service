@@ -36,6 +36,7 @@ RSpec.describe Workflow::Step::SetFlags do
                          action: 'opened',
                          pr_number: 1,
                          target_repository_full_name: 'openSUSE/repo123',
+                         repository_name: 'openSUSE/repo123',
                          commit_sha: '123'
                        })
       end
@@ -61,6 +62,7 @@ RSpec.describe Workflow::Step::SetFlags do
                          action: 'opened',
                          pr_number: 1,
                          target_repository_full_name: 'openSUSE/repo123',
+                         repository_name: 'openSUSE/repo123',
                          commit_sha: '123'
                        })
       end
@@ -111,7 +113,7 @@ RSpec.describe Workflow::Step::SetFlags do
 
     context 'when user have the permission and the package is valid' do
       let!(:target_package) { create(:package, commit_user: user, project: user.home_project, name: 'ctris-0087aa5c0549a6cc0b4c1bb324d2fa8dc665e063') }
-      let(:payload) { { scm: 'gitlab', event: 'Push Hook', commit_sha: '0087aa5c0549a6cc0b4c1bb324d2fa8dc665e063' } }
+      let(:payload) { { scm: 'gitlab', event: 'Push Hook', commit_sha: '0087aa5c0549a6cc0b4c1bb324d2fa8dc665e063', repository_name: 'openSUSE/repo123' } }
       let(:scm_webhook) { SCMWebhook.new(payload: payload) }
       let(:step_instructions) do
         {
@@ -145,6 +147,7 @@ RSpec.describe Workflow::Step::SetFlags do
                          action: 'opened',
                          pr_number: 1,
                          target_repository_full_name: 'openSUSE/repo123',
+                         repository_name: 'openSUSE/repo123',
                          commit_sha: '123'
                        })
       end
@@ -182,6 +185,7 @@ RSpec.describe Workflow::Step::SetFlags do
                          action: 'opened',
                          pr_number: 1,
                          target_repository_full_name: 'openSUSE/repo123',
+                         repository_name: 'openSUSE/repo123',
                          commit_sha: '123'
                        })
       end
@@ -213,7 +217,7 @@ RSpec.describe Workflow::Step::SetFlags do
   end
 
   describe '#validate_flags' do
-    let(:payload) { { scm: 'gitlab', event: 'Push Hook' } }
+    let(:payload) { { scm: 'gitlab', event: 'Push Hook', repository_name: 'openSUSE/repo123' } }
     let(:scm_webhook) { SCMWebhook.new(payload: payload) }
 
     subject do

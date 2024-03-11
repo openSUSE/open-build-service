@@ -1,4 +1,6 @@
 class Workflow::Step::ConfigureRepositories < Workflow::Step
+  include WorkflowStepTargetObjects
+
   REQUIRED_KEYS = %i[project repositories].freeze
   REQUIRED_REPOSITORY_KEYS = %i[architectures name paths].freeze
   REQUIRED_REPOSITORY_PATH_KEYS = %i[target_project target_repository].freeze
@@ -11,13 +13,14 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
     return if scm_webhook.closed_merged_pull_request? || scm_webhook.reopened_pull_request?
     return unless valid?
 
+    authorize_target_project
+
+    create_target_project
+
     configure_repositories
   end
 
   def configure_repositories
-    target_project = Project.get_by_name(target_project_name)
-    Pundit.authorize(@token.executor, target_project, :update?)
-
     step_instructions[:repositories].each do |repository_instructions|
       repository = Repository.includes(:architectures).find_or_create_by(name: repository_instructions[:name], project: target_project)
 
@@ -39,10 +42,6 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
   end
 
   private
-
-  def target_project_base_name
-    step_instructions[:project]
-  end
 
   def validate_repositories
     return if step_instructions[:repositories].all? { |repository| repository.keys.sort == REQUIRED_REPOSITORY_KEYS }

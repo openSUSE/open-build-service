@@ -47,7 +47,8 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
                        pr_number: 1,
                        source_repository_full_name: 'reponame',
                        commit_sha: commit_sha,
-                       target_repository_full_name: 'openSUSE/open-build-service'
+                       target_repository_full_name: 'openSUSE/open-build-service',
+                       repository_name: 'openSUSE/open-build-service'
                      })
     end
 
@@ -89,12 +90,24 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
       context 'when the linked package already existed' do
         let(:action) { 'synchronize' }
         let(:creation_payload) do
-          { 'action' => 'opened', 'commit_sha' => '456', 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github', 'source_repository_full_name' => 'reponame',
-            'target_repository_full_name' => 'openSUSE/open-build-service' }
+          { 'action' => 'opened',
+            'commit_sha' => '456',
+            'event' => 'pull_request',
+            'pr_number' => 1,
+            'scm' => 'github',
+            'source_repository_full_name' => 'reponame',
+            'target_repository_full_name' => 'openSUSE/open-build-service',
+            'repository_name' => 'openSUSE/open-build-service' }
         end
         let(:update_payload) do
-          { 'action' => 'synchronize', 'commit_sha' => '456', 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github',
-            'source_repository_full_name' => 'reponame', 'target_repository_full_name' => 'openSUSE/open-build-service' }
+          { 'action' => 'synchronize',
+            'commit_sha' => '456',
+            'event' => 'pull_request',
+            'pr_number' => 1,
+            'scm' => 'github',
+            'source_repository_full_name' => 'reponame',
+            'target_repository_full_name' => 'openSUSE/open-build-service',
+            'repository_name' => 'openSUSE/open-build-service' }
         end
         let(:commit_sha) { '456' }
         let(:step_instructions) do
@@ -153,6 +166,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
                          source_repository_full_name: 'reponame',
                          commit_sha: commit_sha,
                          target_repository_full_name: 'openSUSE/open-build-service',
+                         repository_name: 'openSUSE/open-build-service',
                          ref: 'refs/heads/branch_123'
                        })
       end
@@ -192,6 +206,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
                          tag_name: 'release_abc',
                          commit_sha: '123456789012345',
                          target_repository_full_name: 'openSUSE/open-build-service',
+                         repository_name: 'openSUSE/open-build-service',
                          ref: 'refs/tags/release_abc'
                        })
       end

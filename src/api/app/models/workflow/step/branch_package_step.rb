@@ -1,6 +1,7 @@
 class Workflow::Step::BranchPackageStep < Workflow::Step
   include ScmSyncEnabledStep
   include TargetProjectLifeCycleSupport
+  include WorkflowStepTargetObjects
 
   REQUIRED_KEYS = %i[source_project source_package target_project].freeze
   BRANCH_REQUEST_COMMIT_MESSAGE = 'Updated _branch_request file via SCM/CI Workflow run'.freeze
@@ -8,11 +9,14 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
   def call
     return unless valid?
 
+    authorize_target_project
+
     if scm_webhook.closed_merged_pull_request?
       destroy_target_project
     elsif scm_webhook.reopened_pull_request?
       restore_target_project
     elsif scm_webhook.new_commit_event?
+      authorize_source_package
       create_branched_package
       unless scm_synced?
         target_package.save_file({ file: branch_request_content,
@@ -27,21 +31,13 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
 
   private
 
-  def target_project_base_name
-    step_instructions[:target_project]
-  end
-
-  def target_project
-    Project.find_by(name: target_project_name)
-  end
-
   def skip_repositories?
     return false if step_instructions[:add_repositories].blank?
 
     step_instructions[:add_repositories] != 'enabled'
   end
 
-  def check_source_access
+  def authorize_source_package
     # if we branch from remote there is no need to check access. Either the package exists or not...
     return if Project.find_remote_project(step_instructions[:source_project]).present?
 
@@ -66,8 +62,6 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
   def create_branched_package
     return if target_package.present?
 
-    check_source_access
-
     # BranchPackage.branch below will skip "copying" repositories from the source project if the target project already exists...
     create_target_project if skip_repositories?
 
@@ -91,18 +85,6 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
                                 targetproject: target_project_name,
                                 targetpackage: target_package_name,
                                 user: @token.executor.login)
-  end
-
-  def create_target_project
-    return if target_project.present?
-
-    project = Project.new(name: target_project_name)
-    Pundit.authorize(@token.executor, project, :create?)
-
-    project.relationships.build(user: @token.executor,
-                                role: Role.find_by_title('maintainer'))
-    project.commit_user = User.session
-    project.store
   end
 
   def branch_request_content
