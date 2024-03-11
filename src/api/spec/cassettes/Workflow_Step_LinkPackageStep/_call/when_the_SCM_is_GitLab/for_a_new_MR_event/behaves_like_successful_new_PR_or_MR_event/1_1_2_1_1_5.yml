@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+  recorded_at: Mon, 11 Mar 2024 10:44:11 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_19
+    uri: http://backend:5352/source/foo_project/_meta?user=user_95
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Now Sleeps the Crimson Petal</title>
+          <title>Specimen Days</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '145'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Now Sleeps the Crimson Petal</title>
+          <title>Specimen Days</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+  recorded_at: Mon, 11 Mar 2024 10:44:11 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_20
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_96
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Mirror Crack'd from Side to Side</title>
-          <description>Quibusdam voluptatem tempora ullam.</description>
+          <title>The Golden Apples of the Sun</title>
+          <description>Rerum sapiente voluptas est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '181'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Mirror Crack'd from Side to Side</title>
-          <description>Quibusdam voluptatem tempora ullam.</description>
+          <title>The Golden Apples of the Sun</title>
+          <description>Rerum sapiente voluptas est.</description>
         </package>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+  recorded_at: Mon, 11 Mar 2024 10:44:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Similique consequatur eaque. Quis explicabo provident. Qui ea soluta.
+      string: Unde tempora aut. Quam id aut. Eius est debitis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -147,21 +147,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="19" vrev="19">
-          <srcmd5>96bd1e5e145c0794672800be7fa0569d</srcmd5>
+        <revision rev="95" vrev="95">
+          <srcmd5>cfb6d40dbd8528188bf89b2e2858c1e9</srcmd5>
           <version>unknown</version>
-          <time>1710153839</time>
+          <time>1710153851</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+  recorded_at: Mon, 11 Mar 2024 10:44:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Iste cumque cum. Et suscipit rerum. Facere aliquid est.
+      string: Ad deleniti sint. Rerum voluptatibus eveniet. Ducimus voluptatem molestiae.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,22 +185,62 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="20" vrev="20">
-          <srcmd5>f748e7722dae2c7c902ae9ff79648e1a</srcmd5>
+        <revision rev="96" vrev="96">
+          <srcmd5>5b3c270e406d07fa7aeaa5af83e1c502</srcmd5>
           <version>unknown</version>
-          <time>1710153839</time>
+          <time>1710153851</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+  recorded_at: Mon, 11 Mar 2024 10:44:11 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_meta?user=Iggy
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <package name="bar_package-release_abc" project="home:Iggy">
+        <project name="home:Iggy:openSUSE:open-build-service:PR-1">
+          <title/>
+          <description/>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '163'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Iggy:openSUSE:open-build-service:PR-1">
+          <title></title>
+          <description></description>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 11 Mar 2024 10:44:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
           <title/>
           <description/>
         </package>
@@ -223,18 +263,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '120'
+      - '141'
     body:
       encoding: UTF-8
       string: |
-        <package name="bar_package-release_abc" project="home:Iggy">
+        <package name="bar_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
           <title></title>
           <description></description>
         </package>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+  recorded_at: Mon, 11 Mar 2024 10:44:11 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_link?user=Iggy
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_package/_link?user=Iggy
     body:
       encoding: UTF-8
       string: <link project="foo_project" package="bar_package"/>
@@ -257,17 +297,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '204'
+      - '206'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
-          <srcmd5>020ffadcfeb53d8832109237d35e8733</srcmd5>
+        <revision rev="41" vrev="41">
+          <srcmd5>6b38579ee4d4480b59de166885c32c1a</srcmd5>
           <version>unknown</version>
-          <time>1710153839</time>
+          <time>1710153851</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+  recorded_at: Mon, 11 Mar 2024 10:44:11 GMT
 recorded_with: VCR 6.2.0

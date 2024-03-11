@@ -801,4 +801,14 @@ RSpec.describe Project, :vcr do
 
     it { expect(project.project_state).not_to be_nil }
   end
+
+  describe '#find_remote_project' do
+    let(:project) { create(:remote_project, name: 'hans:wurst') }
+
+    it { expect(Project.find_remote_project(nil)).to be_nil }
+    it { expect(Project.find_remote_project('peter:paul')).to be_nil }
+    it { expect(Project.find_remote_project('hans:wurst')).to be_nil }
+    it { expect(Project.find_remote_project('hans:wurst:leber')).to eq([project, 'leber']) }
+    it { expect(Project.find_remote_project('hans:wurst:leber:salami')).to eq([project, 'leber:salami']) }
+  end
 end

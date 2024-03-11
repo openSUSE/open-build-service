@@ -9,60 +9,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
                         token: token)
   end
 
-  RSpec.shared_context 'source_project not provided' do
-    let(:step_instructions) { { source_package: package.name, target_project: target_project_name } }
-
-    it { expect { subject.call }.not_to(change(Package, :count)) }
-  end
-
-  RSpec.shared_context 'source_package not provided' do
-    let(:step_instructions) { { source_project: package.project.name, target_project: target_project_name } }
-
-    it { expect { subject.call }.not_to(change(Package, :count)) }
-  end
-
-  RSpec.shared_context 'failed when source_package does not exist' do
-    let(:step_instructions) do
-      {
-        source_project: project.name,
-        source_package: 'this_package_does_not_exist',
-        target_project: target_project_name
-      }
-    end
-
-    it { expect { subject.call }.to raise_error(Package::Errors::UnknownObjectError) }
-  end
-
-  RSpec.shared_context 'project and package does not exist' do
-    let(:step_instructions) do
-      {
-        source_project: 'invalid_project',
-        source_package: 'invalid_package',
-        target_project: target_project_name
-      }
-    end
-
-    it { expect { subject.call }.to raise_error(Project::Errors::UnknownObjectError) }
-  end
-
-  RSpec.shared_context 'failed without link permissions' do
-    let(:step_instructions) do
-      {
-        source_project: project.name,
-        source_package: package.name,
-        target_project: target_project_name
-      }
-    end
-
-    before do
-      # rubocop:disable RSpec/AnyInstance
-      allow_any_instance_of(Package).to receive(:disabled_for?).with('sourceaccess', nil, nil).and_return(true)
-      # rubocop:enable RSpec/AnyInstance
-    end
-
-    it { expect { subject.call }.to raise_error(Package::Errors::ReadSourceAccessError) }
-  end
-
   RSpec.shared_context 'successful new PR or MR event' do
     let(:step_instructions) do
       {
@@ -193,18 +139,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
                        })
       end
 
-      context "but we don't provide source_project" do
-        it_behaves_like 'source_project not provided' do
-          let(:action) { 'synchronize' }
-        end
-      end
-
-      context "but we don't provide a source_package" do
-        it_behaves_like 'source_package not provided' do
-          let(:action) { 'opened' }
-        end
-      end
-
       context 'for a new PR event' do
         let(:action) { 'opened' }
         let(:octokit_client) { instance_double(Octokit::Client) }
@@ -216,9 +150,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
         end
 
         it_behaves_like 'successful new PR or MR event'
-        it_behaves_like 'failed when source_package does not exist'
-        it_behaves_like 'project and package does not exist'
-        it_behaves_like 'failed without link permissions'
         it_behaves_like 'insufficient permission on target project'
         it_behaves_like 'insufficient permission to create new target project'
       end
@@ -268,9 +199,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
         end
 
         it_behaves_like 'successful on a new push event'
-        it_behaves_like 'failed when source_package does not exist'
-        it_behaves_like 'project and package does not exist'
-        it_behaves_like 'failed without link permissions'
         it_behaves_like 'insufficient permission on target project'
         it_behaves_like 'insufficient permission to create new target project'
       end
@@ -321,9 +249,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
         it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count)) }
         it { expect(subject.call.source_file('_link')).to eq('<link project="foo_project" package="bar_package"/>') }
 
-        it_behaves_like 'failed when source_package does not exist'
-        it_behaves_like 'project and package does not exist'
-        it_behaves_like 'failed without link permissions'
         it_behaves_like 'insufficient permission on target project'
         it_behaves_like 'insufficient permission to create new target project'
       end
@@ -343,18 +268,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
                        })
       end
 
-      context "but we don't provide source_project" do
-        it_behaves_like 'source_project not provided' do
-          let(:action) { 'open' }
-        end
-      end
-
-      context "but we don't provide a source_package" do
-        it_behaves_like 'source_package not provided' do
-          let(:action) { 'update' }
-        end
-      end
-
       context 'for a new MR event' do
         let(:action) { 'open' }
         let(:gitlab_client) { instance_double(Gitlab::Client) }
@@ -366,9 +279,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
         end
 
         it_behaves_like 'successful new PR or MR event'
-        it_behaves_like 'failed when source_package does not exist'
-        it_behaves_like 'project and package does not exist'
-        it_behaves_like 'failed without link permissions'
         it_behaves_like 'insufficient permission on target project'
         it_behaves_like 'insufficient permission to create new target project'
       end
@@ -417,60 +327,8 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
         end
 
         it_behaves_like 'successful on a new push event'
-        it_behaves_like 'failed when source_package does not exist'
-        it_behaves_like 'project and package does not exist'
-        it_behaves_like 'failed without link permissions'
         it_behaves_like 'insufficient permission on target project'
         it_behaves_like 'insufficient permission to create new target project'
-      end
-    end
-  end
-
-  describe '#validate_source_project_and_package_name' do
-    let(:project) { create(:project, name: 'foo_project', maintainer: user) }
-    let(:package) { create(:package_with_file, name: 'bar_package', project: project) }
-    let(:scm_webhook) do
-      SCMWebhook.new(payload: {
-                       scm: 'github',
-                       event: 'pull_request',
-                       action: 'opened',
-                       pr_number: 1,
-                       source_repository_full_name: 'reponame',
-                       commit_sha: '123',
-                       target_repository_full_name: 'openSUSE/open-build-service'
-                     })
-    end
-
-    context 'when the source project is invalid' do
-      let(:step_instructions) { { source_project: 'Invalid/format', source_package: package.name, target_project: target_project_name } }
-
-      it 'gives an error for invalid name' do
-        subject.valid?
-
-        expect { subject.call }.not_to change(Package, :count)
-        expect(subject.errors.full_messages.to_sentence).to eq("invalid source project 'Invalid/format'")
-      end
-    end
-
-    context 'when the source package is invalid' do
-      let(:step_instructions) { { source_project: package.project.name, source_package: 'Invalid/format', target_project: target_project_name } }
-
-      it 'gives an error for invalid name' do
-        subject.valid?
-
-        expect { subject.call }.not_to change(Package, :count)
-        expect(subject.errors.full_messages.to_sentence).to eq("invalid source package 'Invalid/format'")
-      end
-    end
-
-    context 'when the target project is invalid' do
-      let(:step_instructions) { { source_project: package.project.name, source_package: package.name, target_project: 'Invalid/format' } }
-
-      it 'gives an error for invalid name' do
-        subject.valid?
-
-        expect { subject.call }.not_to change(Package, :count)
-        expect(subject.errors.full_messages.to_sentence).to eq("invalid target project 'Invalid/format'")
       end
     end
   end

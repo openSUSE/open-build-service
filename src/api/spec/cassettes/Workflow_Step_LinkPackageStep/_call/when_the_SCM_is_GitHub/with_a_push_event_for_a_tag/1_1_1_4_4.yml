@@ -42,12 +42,12 @@ http_interactions:
   recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_19
+    uri: http://backend:5352/source/foo_project/_meta?user=user_17
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Now Sleeps the Crimson Petal</title>
+          <title>The Doors of Perception</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Now Sleeps the Crimson Petal</title>
+          <title>The Doors of Perception</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
   recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_20
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_18
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Mirror Crack'd from Side to Side</title>
-          <description>Quibusdam voluptatem tempora ullam.</description>
+          <title>That Hideous Strength</title>
+          <description>Tempore assumenda ipsum qui.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,13 +109,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '181'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Mirror Crack'd from Side to Side</title>
-          <description>Quibusdam voluptatem tempora ullam.</description>
+          <title>That Hideous Strength</title>
+          <description>Tempore assumenda ipsum qui.</description>
         </package>
   recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
 - request:
@@ -123,7 +123,7 @@ http_interactions:
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Similique consequatur eaque. Quis explicabo provident. Qui ea soluta.
+      string: Voluptas ut sunt. Recusandae hic neque. Suscipit maxime et.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -147,8 +147,8 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="19" vrev="19">
-          <srcmd5>96bd1e5e145c0794672800be7fa0569d</srcmd5>
+        <revision rev="17" vrev="17">
+          <srcmd5>8f320c668c5f7e958aa7b237582694c5</srcmd5>
           <version>unknown</version>
           <time>1710153839</time>
           <user>unknown</user>
@@ -161,7 +161,7 @@ http_interactions:
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Iste cumque cum. Et suscipit rerum. Facere aliquid est.
+      string: Corporis cum dolor. Laborum quasi magni. Culpa voluptatem optio.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,8 +185,8 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="20" vrev="20">
-          <srcmd5>f748e7722dae2c7c902ae9ff79648e1a</srcmd5>
+        <revision rev="18" vrev="18">
+          <srcmd5>37c55a99bc1d2eebb79edeb976f82e12</srcmd5>
           <version>unknown</version>
           <time>1710153839</time>
           <user>unknown</user>
@@ -261,7 +261,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
+        <revision rev="1" vrev="1">
           <srcmd5>020ffadcfeb53d8832109237d35e8733</srcmd5>
           <version>unknown</version>
           <time>1710153839</time>

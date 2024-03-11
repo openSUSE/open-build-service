@@ -42,12 +42,12 @@ http_interactions:
   recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_19
+    uri: http://backend:5352/source/foo_project/_meta?user=user_21
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Now Sleeps the Crimson Petal</title>
+          <title>The House of Mirth</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Now Sleeps the Crimson Petal</title>
+          <title>The House of Mirth</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
   recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_20
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_22
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Mirror Crack'd from Side to Side</title>
-          <description>Quibusdam voluptatem tempora ullam.</description>
+          <title>Clouds of Witness</title>
+          <description>Odit voluptatum aut rerum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,13 +109,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '181'
+      - '153'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Mirror Crack'd from Side to Side</title>
-          <description>Quibusdam voluptatem tempora ullam.</description>
+          <title>Clouds of Witness</title>
+          <description>Odit voluptatum aut rerum.</description>
         </package>
   recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
 - request:
@@ -123,7 +123,7 @@ http_interactions:
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Similique consequatur eaque. Quis explicabo provident. Qui ea soluta.
+      string: Nostrum nam sapiente. Deserunt voluptatem quis. Iure numquam quia.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -147,8 +147,8 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="19" vrev="19">
-          <srcmd5>96bd1e5e145c0794672800be7fa0569d</srcmd5>
+        <revision rev="21" vrev="21">
+          <srcmd5>e2ee0e2e431045d5f72d8e0817f3315a</srcmd5>
           <version>unknown</version>
           <time>1710153839</time>
           <user>unknown</user>
@@ -161,7 +161,7 @@ http_interactions:
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Iste cumque cum. Et suscipit rerum. Facere aliquid est.
+      string: Voluptas necessitatibus iste. Veniam dolor neque. Molestiae et qui.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,8 +185,8 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="20" vrev="20">
-          <srcmd5>f748e7722dae2c7c902ae9ff79648e1a</srcmd5>
+        <revision rev="22" vrev="22">
+          <srcmd5>e7371feed6c37f0b972d16ed56c6b1fe</srcmd5>
           <version>unknown</version>
           <time>1710153839</time>
           <user>unknown</user>
@@ -231,7 +231,7 @@ http_interactions:
           <title></title>
           <description></description>
         </package>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+  recorded_at: Mon, 11 Mar 2024 10:44:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_link?user=Iggy
@@ -261,13 +261,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
+        <revision rev="3" vrev="3">
           <srcmd5>020ffadcfeb53d8832109237d35e8733</srcmd5>
           <version>unknown</version>
-          <time>1710153839</time>
+          <time>1710153840</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+  recorded_at: Mon, 11 Mar 2024 10:44:00 GMT
 recorded_with: VCR 6.2.0

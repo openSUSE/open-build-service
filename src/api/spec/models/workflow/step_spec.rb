@@ -160,4 +160,34 @@ RSpec.describe Workflow::Step do
       end
     end
   end
+
+  describe '#validate_source_project_and_package_name' do
+    before do
+      subject.valid?
+    end
+
+    context 'when the source project is invalid' do
+      subject { Workflow::Step::BranchPackageStep.new(step_instructions: { source_project: 'Invalid/format', source_package: 'hans', target_project: 'franz' }) }
+
+      it 'gives an error for invalid name' do
+        expect(subject.errors.full_messages.to_sentence).to eq("invalid source project 'Invalid/format'")
+      end
+    end
+
+    context 'when the source package is invalid' do
+      subject { Workflow::Step::BranchPackageStep.new(step_instructions: { source_project: 'hans', source_package: 'Invalid/format', target_project: 'franz' }) }
+
+      it 'gives an error for invalid name' do
+        expect(subject.errors.full_messages.to_sentence).to eq("invalid source package 'Invalid/format'")
+      end
+    end
+
+    context 'when the target project is invalid' do
+      subject { Workflow::Step::BranchPackageStep.new(step_instructions: { source_project: 'hans', source_package: 'franz', target_project: 'Invalid/format' }) }
+
+      it 'gives an error for invalid name' do
+        expect(subject.errors.full_messages.to_sentence).to eq("invalid target project 'Invalid/format'")
+      end
+    end
+  end
 end

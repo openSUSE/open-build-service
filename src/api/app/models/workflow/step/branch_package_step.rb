@@ -44,7 +44,8 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
   end
 
   def check_source_access
-    return if remote_source?
+    # if we branch from remote there is no need to check access. Either the package exists or not...
+    return if Project.find_remote_project(source_project_name).present?
 
     # we don't have any package records on the frontend level for scmsynced projects, therefore
     # we can only check on the project level for sourceaccess permission

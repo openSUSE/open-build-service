@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+  recorded_at: Mon, 11 Mar 2024 10:43:58 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_19
+    uri: http://backend:5352/source/foo_project/_meta?user=user_9
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Now Sleeps the Crimson Petal</title>
+          <title>The Green Bay Tree</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Now Sleeps the Crimson Petal</title>
+          <title>The Green Bay Tree</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+  recorded_at: Mon, 11 Mar 2024 10:43:58 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_20
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_10
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Mirror Crack'd from Side to Side</title>
-          <description>Quibusdam voluptatem tempora ullam.</description>
+          <title>In a Glass Darkly</title>
+          <description>Voluptas possimus dicta error.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '181'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>The Mirror Crack'd from Side to Side</title>
-          <description>Quibusdam voluptatem tempora ullam.</description>
+          <title>In a Glass Darkly</title>
+          <description>Voluptas possimus dicta error.</description>
         </package>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+  recorded_at: Mon, 11 Mar 2024 10:43:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Similique consequatur eaque. Quis explicabo provident. Qui ea soluta.
+      string: Sint ipsum ad. Perspiciatis amet molestias. Rerum dolores atque.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="19" vrev="19">
-          <srcmd5>96bd1e5e145c0794672800be7fa0569d</srcmd5>
+        <revision rev="9" vrev="9">
+          <srcmd5>98705633fba5cdc387e633a341e199b8</srcmd5>
           <version>unknown</version>
-          <time>1710153839</time>
+          <time>1710153838</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+  recorded_at: Mon, 11 Mar 2024 10:43:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Iste cumque cum. Et suscipit rerum. Facere aliquid est.
+      string: Voluptatum consectetur vel. Sunt sapiente praesentium. Error et et.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,22 +185,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="20" vrev="20">
-          <srcmd5>f748e7722dae2c7c902ae9ff79648e1a</srcmd5>
+        <revision rev="10" vrev="10">
+          <srcmd5>614ad460896e765f6d0b0ce76df81324</srcmd5>
           <version>unknown</version>
-          <time>1710153839</time>
+          <time>1710153838</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+  recorded_at: Mon, 11 Mar 2024 10:43:58 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_meta?user=Iggy
+    uri: http://backend:5352/source/home:Iggy/bar_package-123/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <package name="bar_package-release_abc" project="home:Iggy">
+        <package name="bar_package-123" project="home:Iggy">
           <title/>
           <description/>
         </package>
@@ -223,18 +223,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '120'
+      - '112'
     body:
       encoding: UTF-8
       string: |
-        <package name="bar_package-release_abc" project="home:Iggy">
+        <package name="bar_package-123" project="home:Iggy">
           <title></title>
           <description></description>
         </package>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+  recorded_at: Mon, 11 Mar 2024 10:43:58 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_link?user=Iggy
+    uri: http://backend:5352/source/home:Iggy/bar_package-123/_link?user=Iggy
     body:
       encoding: UTF-8
       string: <link project="foo_project" package="bar_package"/>
@@ -261,13 +261,43 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
+        <revision rev="5" vrev="5">
           <srcmd5>020ffadcfeb53d8832109237d35e8733</srcmd5>
           <version>unknown</version>
-          <time>1710153839</time>
+          <time>1710153838</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 11 Mar 2024 10:43:59 GMT
+  recorded_at: Mon, 11 Mar 2024 10:43:58 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Iggy/bar_package-123/_link
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '51'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: <link project="foo_project" package="bar_package"/>
+  recorded_at: Mon, 11 Mar 2024 10:43:58 GMT
 recorded_with: VCR 6.2.0
