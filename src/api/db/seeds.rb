@@ -348,3 +348,8 @@ IssueTracker.where(name: 'gh').first_or_create(description: 'Generic Github Trac
                                                regex: '(?:gh|github)#([\w-]+\/[\w-]+#\d+)',
                                                url: 'https://www.github.com',
                                                label: 'gh#@@@', show_url: 'https://github.com/@@@')
+IssueTracker.where(name: 'svg').first_or_create(description: 'GNU Savannah bug tracker',
+                                                kind: 'other',
+                                                regex: 'svg#(\d+)',
+                                                url: 'https://savannah.gnu.org/bugs',
+                                                label: 'svg#@@@', show_url: 'https://savannah.gnu.org/bugs/?@@@')
