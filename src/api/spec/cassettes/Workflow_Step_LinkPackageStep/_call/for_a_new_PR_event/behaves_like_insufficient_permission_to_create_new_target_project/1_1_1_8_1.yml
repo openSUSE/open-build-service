@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 11 Mar 2024 13:31:24 GMT
+  recorded_at: Mon, 11 Mar 2024 13:31:20 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_53
+    uri: http://backend:5352/source/foo_project/_meta?user=user_31
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Blood's a Rover</title>
+          <title>The House of Mirth</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '147'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Blood's a Rover</title>
+          <title>The House of Mirth</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 11 Mar 2024 13:31:24 GMT
+  recorded_at: Mon, 11 Mar 2024 13:31:20 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_54
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_32
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>If Not Now, When?</title>
-          <description>Et magnam atque iste.</description>
+          <title>Fair Stood the Wind for France</title>
+          <description>Et et ut at.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>If Not Now, When?</title>
-          <description>Et magnam atque iste.</description>
+          <title>Fair Stood the Wind for France</title>
+          <description>Et et ut at.</description>
         </package>
-  recorded_at: Mon, 11 Mar 2024 13:31:24 GMT
+  recorded_at: Mon, 11 Mar 2024 13:31:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Sed minus rerum. Quasi quod eum. Est non et.
+      string: Asperiores vero earum. Aut aperiam dolorem. Alias quam beatae.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -147,21 +147,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="53" vrev="53">
-          <srcmd5>14b60e11316479330f0d2de130fe7b09</srcmd5>
+        <revision rev="31" vrev="31">
+          <srcmd5>8fac702db96f8cd8a94493a71717772c</srcmd5>
           <version>unknown</version>
-          <time>1710163884</time>
+          <time>1710163880</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 11 Mar 2024 13:31:24 GMT
+  recorded_at: Mon, 11 Mar 2024 13:31:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Ut natus repellendus. Perferendis consequatur amet. Dolorem est minima.
+      string: Recusandae quasi et. Aspernatur quo et. Corporis qui est.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,89 +185,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="54" vrev="54">
-          <srcmd5>332cdbc3b6fda3c592c3ef397da76f51</srcmd5>
+        <revision rev="32" vrev="32">
+          <srcmd5>79af965f6d56f49f94fe49a568c08578</srcmd5>
           <version>unknown</version>
-          <time>1710163884</time>
+          <time>1710163880</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 11 Mar 2024 13:31:24 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_meta?user=Iggy
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="bar_package-release_abc" project="home:Iggy">
-          <title/>
-          <description/>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '120'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="bar_package-release_abc" project="home:Iggy">
-          <title></title>
-          <description></description>
-        </package>
-  recorded_at: Mon, 11 Mar 2024 13:31:24 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_link?user=Iggy
-    body:
-      encoding: UTF-8
-      string: <link project="foo_project" package="bar_package"/>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '204'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="4" vrev="4">
-          <srcmd5>020ffadcfeb53d8832109237d35e8733</srcmd5>
-          <version>unknown</version>
-          <time>1710163884</time>
-          <user>Iggy</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Mon, 11 Mar 2024 13:31:24 GMT
+  recorded_at: Mon, 11 Mar 2024 13:31:20 GMT
 recorded_with: VCR 6.2.0
