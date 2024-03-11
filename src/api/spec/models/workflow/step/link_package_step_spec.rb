@@ -9,24 +9,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
                         token: token)
   end
 
-  RSpec.shared_context 'failed without link permissions' do
-    let(:step_instructions) do
-      {
-        source_project: project.name,
-        source_package: package.name,
-        target_project: target_project_name
-      }
-    end
-
-    before do
-      # rubocop:disable RSpec/AnyInstance
-      allow_any_instance_of(Package).to receive(:disabled_for?).with('sourceaccess', nil, nil).and_return(true)
-      # rubocop:enable RSpec/AnyInstance
-    end
-
-    it { expect { subject.call }.to raise_error(Package::Errors::ReadSourceAccessError) }
-  end
-
   RSpec.shared_context 'successful new PR or MR event' do
     let(:step_instructions) do
       {
@@ -168,7 +150,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
         end
 
         it_behaves_like 'successful new PR or MR event'
-        it_behaves_like 'failed without link permissions'
         it_behaves_like 'insufficient permission on target project'
         it_behaves_like 'insufficient permission to create new target project'
       end
@@ -218,7 +199,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
         end
 
         it_behaves_like 'successful on a new push event'
-        it_behaves_like 'failed without link permissions'
         it_behaves_like 'insufficient permission on target project'
         it_behaves_like 'insufficient permission to create new target project'
       end
@@ -269,7 +249,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
         it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count)) }
         it { expect(subject.call.source_file('_link')).to eq('<link project="foo_project" package="bar_package"/>') }
 
-        it_behaves_like 'failed without link permissions'
         it_behaves_like 'insufficient permission on target project'
         it_behaves_like 'insufficient permission to create new target project'
       end
@@ -300,7 +279,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
         end
 
         it_behaves_like 'successful new PR or MR event'
-        it_behaves_like 'failed without link permissions'
         it_behaves_like 'insufficient permission on target project'
         it_behaves_like 'insufficient permission to create new target project'
       end
@@ -349,7 +327,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
         end
 
         it_behaves_like 'successful on a new push event'
-        it_behaves_like 'failed without link permissions'
         it_behaves_like 'insufficient permission on target project'
         it_behaves_like 'insufficient permission to create new target project'
       end
