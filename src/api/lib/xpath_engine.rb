@@ -376,7 +376,7 @@ class XpathEngine
       case token
       when :function
         fname = stack.shift
-        fname_int = 'xpath_func_' + fname.tr('-', '_')
+        fname_int = "xpath_func_#{fname.tr('-', '_')}"
         raise IllegalXpathError, "unknown xpath function '#{fname}'" unless respond_to?(fname_int)
 
         __send__(fname_int, root, *stack.shift)
@@ -405,7 +405,7 @@ class XpathEngine
         end
       when *@operators
         opname = token.to_s
-        opname_int = 'xpath_op_' + opname
+        opname_int = "xpath_op_#{opname}"
         raise IllegalXpathError, "unhandled xpath operator '#{opname}'" unless respond_to?(opname_int)
 
         __send__(opname_int, root, *stack)
@@ -433,7 +433,7 @@ class XpathEngine
       when :attribute
         expr.shift # :qname token
         expr.shift # namespace
-        a << ('@' + expr.shift)
+        a << ("@#{expr.shift}")
       when :literal
         value = (escape ? escape_for_like(expr.shift) : expr.shift)
         return '' if @last_key && @attribs[table][@last_key][:empty]

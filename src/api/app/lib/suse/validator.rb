@@ -40,12 +40,12 @@ module Suse
         @schema_map ||= {}
         @schema_map[controller] ||= {}
         key = if opt.key?(:method)
-                action.to_s + '-' + opt[:method].to_s
+                "#{action}-#{opt[:method]}"
               else
                 action.to_s
               end
-        @schema_map[controller][key + '-request'] = opt[:request].to_s if opt[:request] # have a request validation schema?
-        @schema_map[controller][key + '-response'] = opt[:response].to_s if opt[:response] # have a reponse validate schema?
+        @schema_map[controller]["#{key}-request"] = opt[:request].to_s if opt[:request] # have a request validation schema?
+        @schema_map[controller]["#{key}-response"] = opt[:response].to_s if opt[:response] # have a reponse validate schema?
       end
 
       # Retrieves the schema filename from the action to schema mapping.
@@ -53,8 +53,8 @@ module Suse
         raise 'option hash needs keys :controller and :action' unless opt.key?(:controller) && opt.key?(:action) && opt.key?(:method) && opt.key?(:type)
 
         c = opt[:controller].to_s
-        key = opt[:action].to_s + '-' + opt[:method].to_s.downcase + '-' + opt[:type].to_s
-        key2 = opt[:action].to_s + '-' + opt[:type].to_s
+        key = "#{opt[:action]}-#{opt[:method].to_s.downcase}-#{opt[:type]}"
+        key2 = "#{opt[:action]}-#{opt[:type]}"
 
         # logger.debug "checking schema map for controller '#{c}', key: '#{key}'"
         return if @schema_map.nil?
@@ -78,14 +78,14 @@ module Suse
           raise "illegal option; need Hash/Symbol/String, seen: #{opt.class.name}"
         end
 
-        schema_base_filename = schema_location + '/' + schema_file
+        schema_base_filename = "#{schema_location}/#{schema_file}"
         schema = nil
-        if File.exist?(schema_base_filename + '.rng')
-          schema = Nokogiri::XML::RelaxNG(File.open(schema_base_filename + '.rng'))
-          logger.debug "validating against #{schema_base_filename + '.rng'}"
-        elsif File.exist?(schema_base_filename + '.xsd')
-          schema = Nokogiri::XML::Schema(File.open(schema_base_filename + '.xsd'))
-          logger.debug "validating against #{schema_base_filename + '.xsd'}"
+        if File.exist?("#{schema_base_filename}.rng")
+          schema = Nokogiri::XML::RelaxNG(File.open("#{schema_base_filename}.rng"))
+          logger.debug "validating against #{"#{schema_base_filename}.rng"}"
+        elsif File.exist?("#{schema_base_filename}.xsd")
+          schema = Nokogiri::XML::Schema(File.open("#{schema_base_filename}.xsd"))
+          logger.debug "validating against #{"#{schema_base_filename}.xsd"}"
         else
           logger.debug "no schema found, skipping validation for #{opt.inspect}"
           return true

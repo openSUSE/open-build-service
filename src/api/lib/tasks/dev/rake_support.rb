@@ -15,7 +15,7 @@ module RakeSupport
 
   def self.copy_example_file(example_file)
     if File.exist?(example_file) && !ENV['FORCE_EXAMPLE_FILES']
-      example_file = File.join(File.expand_path(File.dirname(__FILE__) + '/../..'), example_file)
+      example_file = File.join(File.expand_path("#{File.dirname(__FILE__)}/../.."), example_file)
       puts "WARNING: You already have the config file #{example_file}, make sure it works with docker"
     else
       puts "Creating config/#{example_file} from config/#{example_file}.example"
