@@ -326,41 +326,4 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
       end
     end
   end
-
-  describe '#validate_project_name' do
-    let(:step_instructions) do
-      {
-        project: 'Invalid/format',
-        repositories:
-          [
-            {
-              name: 'openSUSE_Tumbleweed',
-              paths: [{ target_project: 'openSUSE:Factory', target_repository: 'snapshot' }],
-              architectures: %w[
-                x86_64
-                ppc
-              ]
-            }
-          ]
-      }
-    end
-    let(:scm_webhook) { SCMWebhook.new(payload: payload) }
-
-    subject do
-      described_class.new(step_instructions: step_instructions,
-                          scm_webhook: scm_webhook,
-                          token: token)
-    end
-
-    context 'when the source project is invalid' do
-      let(:payload) { { scm: 'gitlab', event: 'Push Hook' } }
-
-      it 'adds a validation error' do
-        subject.valid?
-
-        expect { subject.call }.not_to change(Package, :count)
-        expect(subject.errors.full_messages.to_sentence).to eq("Invalid project 'Invalid/format'")
-      end
-    end
-  end
 end

@@ -1,6 +1,5 @@
 class Workflow::Step::SubmitRequest < Workflow::Step
   REQUIRED_KEYS = %i[source_project source_package target_project].freeze
-  validate :validate_source_project_and_package_name
 
   def call
     return unless valid?
@@ -80,7 +79,7 @@ class Workflow::Step::SubmitRequest < Workflow::Step
   end
 
   def source_package
-    Package.get_by_project_and_name(source_project_name, source_package_name, follow_multibuild: true)
+    Package.get_by_project_and_name(step_instructions[:source_project], step_instructions[:source_package], follow_multibuild: true)
   end
 
   def source_package_revision
