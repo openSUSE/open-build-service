@@ -21,6 +21,8 @@ class BsRequest < ApplicationRecord
 
   OBSOLETE_STATES = %i[declined superseded revoked].freeze
 
+  APPROVABLE_STATES = [:new, :review].freeze
+
   ACTION_NOTIFY_LIMIT = 50
 
   scope :to_accept_by_time, -> { where(state: %w[new review]).where('accept_at < ?', Time.now) }
@@ -626,7 +628,7 @@ class BsRequest < ApplicationRecord
   end
 
   def approval_handling(new_approver, opts)
-    raise InvalidStateError, 'request is not in review state' unless state == :review
+    raise InvalidStateError, "request is not in an approvable (#{APPROVABLE_STATES.to_sentence}) state" unless APPROVABLE_STATES.include?(state)
 
     # check if User.session! is allowed to potentially accept the request
     # (note: setting the :force key to true will skip some checks but
@@ -638,6 +640,9 @@ class BsRequest < ApplicationRecord
 
     self.approver = new_approver
     save!
+
+    # already all reviews done?
+    auto_accept if state == :new
   end
   private :approval_handling
 
