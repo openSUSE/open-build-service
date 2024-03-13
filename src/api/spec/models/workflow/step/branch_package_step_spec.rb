@@ -149,6 +149,17 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
     let(:package) { create(:package_with_file, name: 'bar_package', project: project) }
     let(:target_project_final_name) { "home:#{user.login}:openSUSE:open-build-service:PR-1" }
     let(:final_package_name) { package.name }
+    let(:scm_webhook) do
+      SCMWebhook.new(payload: {
+                       scm: 'github',
+                       event: 'pull_request',
+                       action: action,
+                       pr_number: 1,
+                       source_repository_full_name: 'reponame',
+                       commit_sha: long_commit_sha,
+                       target_repository_full_name: 'openSUSE/open-build-service'
+                     })
+    end
 
     before do
       project
@@ -156,419 +167,304 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       login(user)
     end
 
-    context 'when the SCM is GitHub' do
-      let(:scm_webhook) do
-        SCMWebhook.new(payload: {
-                         scm: 'github',
-                         event: 'pull_request',
-                         action: action,
-                         pr_number: 1,
-                         source_repository_full_name: 'reponame',
-                         commit_sha: long_commit_sha,
-                         target_repository_full_name: 'openSUSE/open-build-service'
-                       })
+    context "but we don't provide source_project" do
+      it_behaves_like 'source_project not provided' do
+        let(:action) { 'synchronize' }
+      end
+    end
+
+    context "but we don't provide a source_package" do
+      it_behaves_like 'source_package not provided' do
+        let(:action) { 'opened' }
+      end
+    end
+
+    context 'for a new PR event' do
+      let(:action) { 'opened' }
+      let(:octokit_client) { instance_double(Octokit::Client) }
+
+      before do
+        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+        allow(octokit_client).to receive(:create_status).and_return(true)
       end
 
-      context "but we don't provide source_project" do
-        it_behaves_like 'source_project not provided' do
+      it_behaves_like 'successful new PR or MR event'
+      it_behaves_like 'failed when source_package does not exist'
+      it_behaves_like 'failed without branch permissions'
+      it_behaves_like 'fails with insufficient write permission on target project'
+    end
+
+    context 'and we disabled add_repositories' do
+      let(:action) { 'opened' }
+      let(:octokit_client) { instance_double(Octokit::Client) }
+      let(:step_instructions) do
+        {
+          source_project: package.project.name,
+          source_package: package.name,
+          target_project: target_project_name,
+          add_repositories: 'disabled'
+        }
+      end
+
+      before do
+        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+        allow(octokit_client).to receive(:create_status).and_return(true)
+        create(:repository, name: 'Unicorn_123', project: package.project, architectures: %w[x86_64 i586 ppc aarch64])
+        create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
+        subject.call
+      end
+
+      it 'does not add repositories to target project' do
+        expect(Project.find_by(name: target_project_final_name).repositories.map(&:name).sort).to eq([])
+      end
+    end
+
+    context 'and we enabled add_repositories' do
+      let(:action) { 'opened' }
+      let(:octokit_client) { instance_double(Octokit::Client) }
+      let(:step_instructions) do
+        {
+          source_project: package.project.name,
+          source_package: package.name,
+          target_project: target_project_name,
+          add_repositories: 'enabled'
+        }
+      end
+
+      before do
+        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+        allow(octokit_client).to receive(:create_status).and_return(true)
+        create(:repository, name: 'Unicorn_123', project: package.project, architectures: %w[x86_64 i586 ppc aarch64])
+        create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
+
+        subject.call
+      end
+
+      it 'adds repositories to target project' do
+        expect(Project.find_by(name: target_project_final_name).repositories.map(&:name).sort).to eq(%w[Unicorn_123 openSUSE_Tumbleweed])
+      end
+    end
+
+    context 'for a multibuild package' do
+      let(:action) { 'opened' }
+      let(:package) { create(:multibuild_package, name: 'multibuild_package', project: project) }
+      let(:octokit_client) { instance_double(Octokit::Client) }
+      let(:step_instructions) do
+        {
+          source_project: package.project.name,
+          source_package: package.name,
+          target_project: target_project_name
+        }
+      end
+
+      before do
+        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+        allow(octokit_client).to receive(:create_status).and_return(true)
+
+        create(:repository, name: 'Unicorn_123', project: package.project, architectures: %w[x86_64 i586 ppc aarch64])
+        create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
+      end
+
+      it { expect { subject.call }.to(change(Package, :count).by(1)) }
+      it { expect(subject.call.project.name).to eq(target_project_final_name) }
+      it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
+      it { expect(subject.call.source_file('_branch_request')).to include('123') }
+      it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
+      it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
+    end
+
+    context 'for an updated PR event' do
+      context 'when the branched package already existed' do
+        it_behaves_like 'successful update event when the branch_package already exists' do
           let(:action) { 'synchronize' }
-        end
-      end
-
-      context "but we don't provide a source_package" do
-        it_behaves_like 'source_package not provided' do
-          let(:action) { 'opened' }
-        end
-      end
-
-      context 'for a new PR event' do
-        let(:action) { 'opened' }
-        let(:octokit_client) { instance_double(Octokit::Client) }
-
-        before do
-          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-          allow(octokit_client).to receive(:create_status).and_return(true)
-        end
-
-        it_behaves_like 'successful new PR or MR event'
-        it_behaves_like 'failed when source_package does not exist'
-        it_behaves_like 'failed without branch permissions'
-        it_behaves_like 'fails with insufficient write permission on target project'
-      end
-
-      context 'and we disabled add_repositories' do
-        let(:action) { 'opened' }
-        let(:octokit_client) { instance_double(Octokit::Client) }
-        let(:step_instructions) do
-          {
-            source_project: package.project.name,
-            source_package: package.name,
-            target_project: target_project_name,
-            add_repositories: 'disabled'
-          }
-        end
-
-        before do
-          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-          allow(octokit_client).to receive(:create_status).and_return(true)
-          create(:repository, name: 'Unicorn_123', project: package.project, architectures: %w[x86_64 i586 ppc aarch64])
-          create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
-          subject.call
-        end
-
-        it 'does not add repositories to target project' do
-          expect(Project.find_by(name: target_project_final_name).repositories.map(&:name).sort).to eq([])
-        end
-      end
-
-      context 'and we enabled add_repositories' do
-        let(:action) { 'opened' }
-        let(:octokit_client) { instance_double(Octokit::Client) }
-        let(:step_instructions) do
-          {
-            source_project: package.project.name,
-            source_package: package.name,
-            target_project: target_project_name,
-            add_repositories: 'enabled'
-          }
-        end
-
-        before do
-          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-          allow(octokit_client).to receive(:create_status).and_return(true)
-          create(:repository, name: 'Unicorn_123', project: package.project, architectures: %w[x86_64 i586 ppc aarch64])
-          create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
-
-          subject.call
-        end
-
-        it 'adds repositories to target project' do
-          expect(Project.find_by(name: target_project_final_name).repositories.map(&:name).sort).to eq(%w[Unicorn_123 openSUSE_Tumbleweed])
-        end
-      end
-
-      context 'for a multibuild package' do
-        let(:action) { 'opened' }
-        let(:package) { create(:multibuild_package, name: 'multibuild_package', project: project) }
-        let(:octokit_client) { instance_double(Octokit::Client) }
-        let(:step_instructions) do
-          {
-            source_project: package.project.name,
-            source_package: package.name,
-            target_project: target_project_name
-          }
-        end
-
-        before do
-          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-          allow(octokit_client).to receive(:create_status).and_return(true)
-
-          create(:repository, name: 'Unicorn_123', project: package.project, architectures: %w[x86_64 i586 ppc aarch64])
-          create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
-        end
-
-        it { expect { subject.call }.to(change(Package, :count).by(1)) }
-        it { expect(subject.call.project.name).to eq(target_project_final_name) }
-        it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
-        it { expect(subject.call.source_file('_branch_request')).to include('123') }
-        it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
-        it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
-      end
-
-      context 'for an updated PR event' do
-        context 'when the branched package already existed' do
-          it_behaves_like 'successful update event when the branch_package already exists' do
-            let(:action) { 'synchronize' }
-            let(:creation_payload) do
-              { 'action' => 'opened', 'commit_sha' => long_commit_sha, 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github', 'source_repository_full_name' => 'reponame',
-                'target_repository_full_name' => 'openSUSE/open-build-service' }
-            end
-            let(:update_payload) do
-              { 'action' => 'synchronize', 'commit_sha' => long_commit_sha, 'event' => 'pull_request', 'pr_number' => 1,
-                'scm' => 'github', 'source_repository_full_name' => 'reponame',
-                'target_repository_full_name' => 'openSUSE/open-build-service' }
-            end
-            let(:existing_branch_request_file) do
-              {
-                action: 'synchronize',
-                pull_request: {
-                  head: {
-                    repo: { full_name: 'source_repository_full_name' },
-                    sha: '123'
-                  }
+          let(:creation_payload) do
+            { 'action' => 'opened', 'commit_sha' => long_commit_sha, 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github', 'source_repository_full_name' => 'reponame',
+              'target_repository_full_name' => 'openSUSE/open-build-service' }
+          end
+          let(:update_payload) do
+            { 'action' => 'synchronize', 'commit_sha' => long_commit_sha, 'event' => 'pull_request', 'pr_number' => 1,
+              'scm' => 'github', 'source_repository_full_name' => 'reponame',
+              'target_repository_full_name' => 'openSUSE/open-build-service' }
+          end
+          let(:existing_branch_request_file) do
+            {
+              action: 'synchronize',
+              pull_request: {
+                head: {
+                  repo: { full_name: 'source_repository_full_name' },
+                  sha: '123'
                 }
-              }.to_json
-            end
-          end
-        end
-
-        context 'when the branched package did not exist' do
-          it_behaves_like 'non-existent branched package' do
-            let(:action) { 'synchronize' }
+              }
+            }.to_json
           end
         end
       end
 
-      context 'with a push event for a commit' do
-        let(:scm_webhook) do
-          SCMWebhook.new(payload: {
-                           scm: 'github',
-                           event: 'push',
-                           target_branch: 'main',
-                           source_repository_full_name: 'reponame',
-                           commit_sha: long_commit_sha,
-                           target_repository_full_name: 'openSUSE/open-build-service',
-                           ref: 'refs/heads/branch_123'
-                         })
-        end
-
-        let(:octokit_client) { instance_double(Octokit::Client) }
-        let(:target_project_final_name) { "home:#{user.login}" }
-        let(:final_package_name) { "#{package.name}-#{short_commit_sha}" }
-
-        before do
-          # branching a package to an existing project doesn't take over the set repositories
-          create(:repository, name: 'Unicorn_123', project: user.home_project, architectures: %w[x86_64 i586 ppc aarch64])
-          create(:repository, name: 'openSUSE_Tumbleweed', project: user.home_project, architectures: ['x86_64'])
-
-          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-          allow(octokit_client).to receive(:create_status).and_return(true)
-        end
-
-        it_behaves_like 'successful new PR or MR event'
-        it_behaves_like 'failed when source_package does not exist'
-        it_behaves_like 'failed without branch permissions'
-        it_behaves_like 'fails with insufficient write permission on target project'
-      end
-
-      context 'with a push event for a tag' do
-        let(:scm_webhook) do
-          SCMWebhook.new(payload: {
-                           scm: 'github',
-                           event: 'push',
-                           target_branch: '123456789012345',
-                           source_repository_full_name: 'openSUSE/open-build-service',
-                           tag_name: 'release_abc',
-                           commit_sha: '123456789012345',
-                           target_repository_full_name: 'openSUSE/open-build-service',
-                           ref: 'refs/tags/release_abc'
-                         })
-        end
-        let(:octokit_client) { instance_double(Octokit::Client) }
-        let(:target_project_final_name) { "home:#{user.login}" }
-        let(:final_package_name) { "#{package.name}-release_abc" }
-        let(:step_instructions) do
-          {
-            source_project: package.project.name,
-            source_package: package.name,
-            target_project: target_project_name
-          }
-        end
-
-        before do
-          # branching a package to an existing project doesn't take over the set repositories
-          create(:repository, name: 'Unicorn_123', project: user.home_project, architectures: %w[x86_64 i586 ppc aarch64])
-          create(:repository, name: 'openSUSE_Tumbleweed', project: user.home_project, architectures: ['x86_64'])
-
-          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-          allow(octokit_client).to receive(:create_status).and_return(true)
-        end
-
-        it { expect { subject.call }.to(change(Package, :count).by(1)) }
-        it { expect(subject.call.project.name).to eq(target_project_final_name) }
-        it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
-        it { expect(subject.call.source_file('_branch_request')).to include('123456789012345') }
-        it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count)) }
-        it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count)) }
-
-        it 'does not report back to the SCM' do
-          allow(SCMStatusReporter).to receive(:new)
-          subject.call
-          expect(SCMStatusReporter).not_to have_received(:new)
-        end
-
-        it_behaves_like 'failed when source_package does not exist'
-        it_behaves_like 'failed without branch permissions'
-        it_behaves_like 'fails with insufficient write permission on target project'
-      end
-
-      context 'when scmsync is active' do
-        let(:project) { create(:project, name: 'foo_scm_synced_project', maintainer: user) }
-        let(:package) { create(:package_with_file, name: 'bar_scm_synced_package', project: project) }
-        let(:action) { 'opened' }
-        let(:octokit_client) { instance_double(Octokit::Client) }
-        let(:step_instructions) do
-          {
-            source_project: package.project.name,
-            source_package: package.name,
-            target_project: target_project_name
-          }
-        end
-        let(:scmsync_url) { 'https://github.com/krauselukas/test_scmsync.git' }
-
-        before do
-          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-          allow(octokit_client).to receive(:create_status).and_return(true)
-
-          create(:repository, name: 'Unicorn_123', project: package.project, architectures: %w[x86_64 i586 ppc aarch64])
-          create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
-        end
-
-        context 'on project level' do
-          before do
-            project.update(scmsync: scmsync_url)
-          end
-
-          it { expect(subject.call.scmsync).to eq("#{scmsync_url}?subdir=#{package.name}##{long_commit_sha}") }
-          it { expect { subject.call }.to(change(Package, :count).by(1)) }
-          it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
-          it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
-          it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
-        end
-
-        context 'on package level' do
-          before do
-            package.update(scmsync: scmsync_url)
-          end
-
-          it { expect(subject.call.scmsync).to eq("#{scmsync_url}##{long_commit_sha}") }
-          it { expect { subject.call }.to(change(Package, :count).by(1)) }
-          it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
-          it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
-          it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
-        end
-
-        context 'on a package level with a subdir query' do
-          subdir = '?subdir=hello_world01'
-          before do
-            package.update(scmsync: scmsync_url + subdir)
-          end
-
-          it { expect(subject.call.scmsync).to eq("#{scmsync_url}#{subdir}##{long_commit_sha}") }
-          it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
-        end
-
-        context 'on a package level with a branch fragment' do
-          fragment = '#krauselukas-patch-2'
-          before do
-            package.update(scmsync: scmsync_url + fragment)
-          end
-
-          it { expect(subject.call.scmsync).to eq("#{scmsync_url}##{long_commit_sha}") }
-          it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
-        end
-
-        context 'on a package level with a subdir query and a branch fragment' do
-          subdir = '?subdir=hello_world01'
-          fragment = '#krauselukas-patch-2'
-          before do
-            package.update(scmsync: scmsync_url + subdir + fragment)
-          end
-
-          it { expect(subject.call.scmsync).to eq("#{scmsync_url}#{subdir}##{long_commit_sha}") }
-          it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
+      context 'when the branched package did not exist' do
+        it_behaves_like 'non-existent branched package' do
+          let(:action) { 'synchronize' }
         end
       end
     end
 
-    context 'when the SCM is GitLab' do
+    context 'with a push event for a commit' do
       let(:scm_webhook) do
         SCMWebhook.new(payload: {
-                         scm: 'gitlab',
-                         event: 'Merge Request Hook',
-                         action: action,
-                         pr_number: 1,
+                         scm: 'github',
+                         event: 'push',
+                         target_branch: 'main',
                          source_repository_full_name: 'reponame',
                          commit_sha: long_commit_sha,
-                         path_with_namespace: 'openSUSE/open-build-service'
+                         target_repository_full_name: 'openSUSE/open-build-service',
+                         ref: 'refs/heads/branch_123'
                        })
       end
 
-      context "but we don't provide source_project" do
-        it_behaves_like 'source_project not provided' do
-          let(:action) { 'open' }
-        end
+      let(:octokit_client) { instance_double(Octokit::Client) }
+      let(:target_project_final_name) { "home:#{user.login}" }
+      let(:final_package_name) { "#{package.name}-#{short_commit_sha}" }
+
+      before do
+        # branching a package to an existing project doesn't take over the set repositories
+        create(:repository, name: 'Unicorn_123', project: user.home_project, architectures: %w[x86_64 i586 ppc aarch64])
+        create(:repository, name: 'openSUSE_Tumbleweed', project: user.home_project, architectures: ['x86_64'])
+
+        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+        allow(octokit_client).to receive(:create_status).and_return(true)
       end
 
-      context "but we don't provide a source_package" do
-        it_behaves_like 'source_package not provided' do
-          let(:action) { 'update' }
-        end
+      it_behaves_like 'successful new PR or MR event'
+      it_behaves_like 'failed when source_package does not exist'
+      it_behaves_like 'failed without branch permissions'
+      it_behaves_like 'fails with insufficient write permission on target project'
+    end
+
+    context 'with a push event for a tag' do
+      let(:scm_webhook) do
+        SCMWebhook.new(payload: {
+                         scm: 'github',
+                         event: 'push',
+                         target_branch: '123456789012345',
+                         source_repository_full_name: 'openSUSE/open-build-service',
+                         tag_name: 'release_abc',
+                         commit_sha: '123456789012345',
+                         target_repository_full_name: 'openSUSE/open-build-service',
+                         ref: 'refs/tags/release_abc'
+                       })
+      end
+      let(:octokit_client) { instance_double(Octokit::Client) }
+      let(:target_project_final_name) { "home:#{user.login}" }
+      let(:final_package_name) { "#{package.name}-release_abc" }
+      let(:step_instructions) do
+        {
+          source_project: package.project.name,
+          source_package: package.name,
+          target_project: target_project_name
+        }
       end
 
-      context 'for a new MR event' do
-        let(:action) { 'open' }
-        let(:gitlab_client) { instance_double(Gitlab::Client) }
+      before do
+        # branching a package to an existing project doesn't take over the set repositories
+        create(:repository, name: 'Unicorn_123', project: user.home_project, architectures: %w[x86_64 i586 ppc aarch64])
+        create(:repository, name: 'openSUSE_Tumbleweed', project: user.home_project, architectures: ['x86_64'])
 
+        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+        allow(octokit_client).to receive(:create_status).and_return(true)
+      end
+
+      it { expect { subject.call }.to(change(Package, :count).by(1)) }
+      it { expect(subject.call.project.name).to eq(target_project_final_name) }
+      it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
+      it { expect(subject.call.source_file('_branch_request')).to include('123456789012345') }
+      it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count)) }
+      it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count)) }
+
+      it 'does not report back to the SCM' do
+        allow(SCMStatusReporter).to receive(:new)
+        subject.call
+        expect(SCMStatusReporter).not_to have_received(:new)
+      end
+
+      it_behaves_like 'failed when source_package does not exist'
+      it_behaves_like 'failed without branch permissions'
+      it_behaves_like 'fails with insufficient write permission on target project'
+    end
+
+    context 'when scmsync is active' do
+      let(:project) { create(:project, name: 'foo_scm_synced_project', maintainer: user) }
+      let(:package) { create(:package_with_file, name: 'bar_scm_synced_package', project: project) }
+      let(:action) { 'opened' }
+      let(:octokit_client) { instance_double(Octokit::Client) }
+      let(:step_instructions) do
+        {
+          source_project: package.project.name,
+          source_package: package.name,
+          target_project: target_project_name
+        }
+      end
+      let(:scmsync_url) { 'https://github.com/krauselukas/test_scmsync.git' }
+
+      before do
+        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
+        allow(octokit_client).to receive(:create_status).and_return(true)
+
+        create(:repository, name: 'Unicorn_123', project: package.project, architectures: %w[x86_64 i586 ppc aarch64])
+        create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
+      end
+
+      context 'on project level' do
         before do
-          allow(Gitlab).to receive(:client).and_return(gitlab_client)
-          allow(gitlab_client).to receive(:update_commit_status).and_return(true)
+          project.update(scmsync: scmsync_url)
         end
 
-        it_behaves_like 'successful new PR or MR event'
-        it_behaves_like 'failed when source_package does not exist'
-        it_behaves_like 'failed without branch permissions'
-        it_behaves_like 'fails with insufficient write permission on target project'
+        it { expect(subject.call.scmsync).to eq("#{scmsync_url}?subdir=#{package.name}##{long_commit_sha}") }
+        it { expect { subject.call }.to(change(Package, :count).by(1)) }
+        it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
+        it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
+        it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
       end
 
-      context 'for an updated MR event' do
-        context 'when the branched package already existed' do
-          it_behaves_like 'successful update event when the branch_package already exists' do
-            let(:action) { 'update' }
-            let(:creation_payload) do
-              { 'action' => 'open', 'commit_sha' => long_commit_sha, 'event' => 'Merge Request Hook',
-                'pr_number' => 1, 'scm' => 'gitlab', 'source_repository_full_name' => 'reponame',
-                'path_with_namespace' => 'openSUSE/open-build-service' }
-            end
-            let(:update_payload) do
-              { 'action' => 'update', 'commit_sha' => long_commit_sha, 'event' => 'Merge Request Hook',
-                'pr_number' => 1, 'scm' => 'gitlab', 'source_repository_full_name' => 'reponame',
-                'path_with_namespace' => 'openSUSE/open-build-service' }
-            end
-            let(:existing_branch_request_file) do
-              { object_kind: 'update',
-                project: { http_url: 'http_url' },
-                object_attributes: { source: { default_branch: '123' } } }.to_json
-            end
-          end
-        end
-
-        context 'when the branched package did not exist' do
-          it_behaves_like 'non-existent branched package' do
-            let(:action) { 'update' }
-          end
-        end
-      end
-
-      context 'with a push event for a commit' do
-        let(:scm_webhook) do
-          SCMWebhook.new(payload: {
-                           scm: 'gitlab',
-                           event: 'Push Hook',
-                           target_branch: 'main',
-                           source_repository_full_name: 'reponame',
-                           commit_sha: long_commit_sha,
-                           path_with_namespace: 'openSUSE/open-build-service'
-                         })
-        end
-
-        let(:gitlab_client) { instance_double(Gitlab::Client) }
-        let(:target_project_final_name) { "home:#{user.login}" }
-        let(:final_package_name) { "#{package.name}-#{short_commit_sha}" }
-
+      context 'on package level' do
         before do
-          # branching a package to an existing project doesn't take over the set repositories
-          create(:repository, name: 'Unicorn_123', project: user.home_project, architectures: %w[x86_64 i586 ppc aarch64])
-          create(:repository, name: 'openSUSE_Tumbleweed', project: user.home_project, architectures: ['x86_64'])
-
-          allow(Gitlab).to receive(:client).and_return(gitlab_client)
-          allow(gitlab_client).to receive(:update_commit_status).and_return(true)
+          package.update(scmsync: scmsync_url)
         end
 
-        it_behaves_like 'successful new PR or MR event'
-        it_behaves_like 'failed when source_package does not exist'
-        it_behaves_like 'failed without branch permissions'
-        it_behaves_like 'fails with insufficient write permission on target project'
+        it { expect(subject.call.scmsync).to eq("#{scmsync_url}##{long_commit_sha}") }
+        it { expect { subject.call }.to(change(Package, :count).by(1)) }
+        it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
+        it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
+        it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
+      end
+
+      context 'on a package level with a subdir query' do
+        subdir = '?subdir=hello_world01'
+        before do
+          package.update(scmsync: scmsync_url + subdir)
+        end
+
+        it { expect(subject.call.scmsync).to eq("#{scmsync_url}#{subdir}##{long_commit_sha}") }
+        it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
+      end
+
+      context 'on a package level with a branch fragment' do
+        fragment = '#krauselukas-patch-2'
+        before do
+          package.update(scmsync: scmsync_url + fragment)
+        end
+
+        it { expect(subject.call.scmsync).to eq("#{scmsync_url}##{long_commit_sha}") }
+        it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
+      end
+
+      context 'on a package level with a subdir query and a branch fragment' do
+        subdir = '?subdir=hello_world01'
+        fragment = '#krauselukas-patch-2'
+        before do
+          package.update(scmsync: scmsync_url + subdir + fragment)
+        end
+
+        it { expect(subject.call.scmsync).to eq("#{scmsync_url}#{subdir}##{long_commit_sha}") }
+        it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
       end
     end
   end
