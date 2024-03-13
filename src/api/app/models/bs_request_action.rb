@@ -262,12 +262,8 @@ class BsRequestAction < ApplicationRecord
     rescue DiffError, Project::UnknownObjectError, Package::UnknownObjectError => e
       return [{ error: e.message }]
     end
-    diff = sorted_filenames_from_sourcediff(sd)
-    if diff[0].empty?
-      nil
-    else
-      diff
-    end
+
+    sorted_filenames_from_sourcediff(sd)
   end
 
   def find_action_with_same_target(other_bs_request)
