@@ -16,13 +16,6 @@ class SourcediffComponent < ApplicationComponent
     BsRequestAction.find(@action[:id])
   end
 
-  def file_view_path(filename, sourcediff)
-    return if sourcediff['files'][filename]['state'] == 'deleted'
-
-    diff_params = diff_data(@action[:type], sourcediff)
-    package_view_file_path(diff_params.merge(filename: filename))
-  end
-
   def source_package
     Package.get_by_project_and_name(@action[:sprj], @action[:spkg], { follow_multibuild: true })
   rescue Package::UnknownObjectError, Project::Errors::UnknownObjectError
