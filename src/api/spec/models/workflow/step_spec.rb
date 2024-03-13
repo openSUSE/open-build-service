@@ -124,7 +124,7 @@ RSpec.describe Workflow::Step do
             scm: 'gitlab',
             event: 'Merge Request Hook',
             pr_number: 1,
-            path_with_namespace: 'openSUSE/repo123'
+            target_repository_full_name: 'openSUSE/repo123'
           }
         end
 
