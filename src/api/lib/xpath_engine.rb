@@ -209,6 +209,7 @@ class XpathEngine
         'action/target/@package' => { cpart: 'a.target_package', joins: 'LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id' },
         'action/source/@project' => { cpart: 'a.source_project', joins: 'LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id' },
         'action/source/@package' => { cpart: 'a.source_package', joins: 'LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id' },
+        'target/@releaseproject' => { cpart: 'a.target_releaseproject', joins: 'LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id' },
         # osc is doing these 4 kinds of searches during submit
         'target/@project' => { cpart: 'a.target_project', joins: 'LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id' },
         'target/@package' => { cpart: 'a.target_package', joins: 'LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id' },
