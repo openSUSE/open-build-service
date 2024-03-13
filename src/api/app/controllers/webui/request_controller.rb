@@ -532,12 +532,10 @@ class Webui::RequestController < Webui::WebuiController
     @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
     @my_open_reviews = ReviewsFinder.new(@bs_request.reviews).open_reviews_for_user(User.session).reject(&:staging_project?)
 
-    @diff_limit = params[:full_diff] ? 0 : nil
     @diff_to_superseded_id = params[:diff_to_superseded]
 
     # Handling request actions
-    @action = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded,
-                                        diffs: true, action_id: @action_id.to_i, cacheonly: 1).first
+    @action = @bs_request.webui_actions(diff_to_superseded: @diff_to_superseded, diffs: true, action_id: @action_id.to_i, cacheonly: 1).first
     active_action_index = @supported_actions.index(@active_action)
     if active_action_index
       @prev_action = @supported_actions[active_action_index - 1] unless active_action_index.zero?
