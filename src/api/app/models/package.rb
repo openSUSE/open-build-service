@@ -368,7 +368,7 @@ class Package < ApplicationRecord
     packs = packs.to_a
     return if packs.empty?
 
-    msg = packs.map { |p| p.project.name + '/' + p.name }.join(', ')
+    msg = packs.map { |p| "#{p.project.name}/#{p.name}" }.join(', ')
     de = DeleteError.new("Package is used by following packages as devel package: #{msg}")
     de.packages = packs
     raise de
@@ -462,7 +462,7 @@ class Package < ApplicationRecord
     path = "/source/#{project}/#{package}"
     path = Addressable::URI.escape(path)
     path += "/#{ERB::Util.url_encode(file)}" if file.present?
-    path += '?' + opts.to_query if opts.present?
+    path += "?#{opts.to_query}" if opts.present?
     path
   end
 
@@ -646,7 +646,7 @@ class Package < ApplicationRecord
     ret = []
     directory.elements('entry') do |e|
       %w[patchinfo aggregate link channel].each do |kind|
-        ret << kind if e['name'] == '_' + kind
+        ret << kind if e['name'] == "_#{kind}"
       end
       ret << 'product' if /.product$/.match?(e['name'])
       # further types my be spec, dsc, kiwi in future
@@ -674,10 +674,10 @@ class Package < ApplicationRecord
       # logger.debug "resolve_devel_package #{pkg.inspect}"
 
       # cycle detection
-      str = prj_name + '/' + pkg.name
+      str = "#{prj_name}/#{pkg.name}"
       if processed[str]
         processed.keys.each do |key|
-          str = str + ' -- ' + key
+          str = "#{str} -- #{key}"
         end
         raise CycleError, "There is a cycle in devel definition at #{str}"
       end

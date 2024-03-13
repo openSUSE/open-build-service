@@ -76,7 +76,7 @@ module Build
     end
 
     def path
-      @path ||= request.path_info + '?' + request.query_string
+      @path ||= "#{request.path_info}?#{request.query_string}"
     end
   end
 end

@@ -284,7 +284,7 @@ RSpec.describe Package, :vcr do
 
       it "starts with '_product:'" do
         property_of do
-          string = '_product:' + sized(1) { string(/[a-zA-Z0-9]/) } + sized(range(0, 190)) { string(/[-+\w.]/) }
+          string = "_product:#{sized(1) { string(/[a-zA-Z0-9]/) }}#{sized(range(0, 190)) { string(/[-+\w.]/) }}"
           guard(string != '0')
           string
         end.check(3) do |string|
@@ -294,7 +294,7 @@ RSpec.describe Package, :vcr do
 
       it "starts with '_patchinfo:'" do
         property_of do
-          string = '_patchinfo:' + sized(1) { string(/[a-zA-Z0-9]/) } + sized(range(0, 188)) { string(/[-+\w.]/) }
+          string = "_patchinfo:#{sized(1) { string(/[a-zA-Z0-9]/) }}#{sized(range(0, 188)) { string(/[-+\w.]/) }}"
           guard(string != '0')
           string
         end.check(3) do |string|

@@ -162,7 +162,7 @@ class Webui::RepositoriesController < Webui::WebuiController
 
     locals = { user_can_modify: true, project: @project, package: params[:package], architectures: @architectures }
     locals[:flags] = Flag::SpecifiedFlags.new(@main_object, flag_type)
-    locals[:table_id] = 'flag_table_' + flag_type
+    locals[:table_id] = "flag_table_#{flag_type}"
 
     render partial: 'webui/shared/repositories_flag_table', locals: locals
   end

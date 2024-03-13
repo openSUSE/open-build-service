@@ -152,18 +152,18 @@ module Event
                    "X-OBS-Request-Action-#{index}"
                  end
 
-        ret[suffix + '-type'] = a['type']
+        ret["#{suffix}-type"] = a['type']
         if a['targetpackage']
-          ret[suffix + '-target'] = "#{a['targetproject']}/#{a['targetpackage']}"
+          ret["#{suffix}-target"] = "#{a['targetproject']}/#{a['targetpackage']}"
         elsif a['targetrepository']
-          ret[suffix + '-target'] = "#{a['targetproject']}/#{a['targetrepository']}"
+          ret["#{suffix}-target"] = "#{a['targetproject']}/#{a['targetrepository']}"
         elsif a['targetproject']
-          ret[suffix + '-target'] = a['targetproject']
+          ret["#{suffix}-target"] = a['targetproject']
         end
         if a['sourcepackage']
-          ret[suffix + '-source'] = "#{a['sourceproject']}/#{a['sourcepackage']}"
+          ret["#{suffix}-source"] = "#{a['sourceproject']}/#{a['sourcepackage']}"
         elsif a['sourceproject']
-          ret[suffix + '-source'] = a['sourceproject']
+          ret["#{suffix}-source"] = a['sourceproject']
         end
       end
       ret

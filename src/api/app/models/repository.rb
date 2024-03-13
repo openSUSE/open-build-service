@@ -206,7 +206,7 @@ class Repository < ApplicationRecord
     long_name = project.name.tr(':', '_')
     if project.repositories.count > 1 && !(name == 'standard')
       # keep short names if project has just one repo
-      long_name += '_' + name
+      long_name += "_#{name}"
     end
     long_name
   end
@@ -288,7 +288,7 @@ class Repository < ApplicationRecord
   def download_url(file)
     xml = Xmlhash.parse(Backend::Api::Published.download_url_for_repository(project.name, name))
     url = xml.elements('url').last.to_s
-    url + '/' + file if file.present?
+    "#{url}/#{file}" if file.present?
   end
 
   def is_dod_repository?

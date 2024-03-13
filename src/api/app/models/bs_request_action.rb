@@ -408,7 +408,7 @@ class BsRequestAction < ApplicationRecord
     incident_suffix = ''
 
     # The maintenance ID is always the sub project name of the maintenance project
-    incident_suffix = '.' + source_project.gsub(/.*:/, '') if is_maintenance_release?
+    incident_suffix = ".#{source_project.gsub(/.*:/, '')}" if is_maintenance_release?
 
     found_patchinfo = false
     new_packages = []

@@ -738,7 +738,7 @@ class BsRequest < ApplicationRecord
 
     newreview.check_reviewer!
 
-    raise InvalidReview, 'Review invalid: ' + newreview.errors.full_messages.join("\n")
+    raise InvalidReview, "Review invalid: #{newreview.errors.full_messages.join("\n")}"
   end
 
   private :create_new_review
@@ -791,7 +791,7 @@ class BsRequest < ApplicationRecord
 
       # use an existing incident
       if tprj.is_maintenance?
-        tprj = Project.get_by_name(action.target_project + ':' + incident.to_s)
+        tprj = Project.get_by_name("#{action.target_project}:#{incident}")
         action.target_project = tprj.name
         action.save!
         touched = true

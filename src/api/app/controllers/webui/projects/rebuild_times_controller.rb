@@ -77,14 +77,14 @@ module Webui
         end
         Dir.chdir(oldpwd)
         begin
-          f = File.open(outdir + '/rebuild.png')
+          f = File.open("#{outdir}/rebuild.png")
           png = f.read
           f.close
         rescue StandardError
           return
         end
         Rails.cache.write("rebuild-#{@pngkey}.png", png)
-        f = File.open(outdir + '/longest.xml')
+        f = File.open("#{outdir}/longest.xml")
         longest = Xmlhash.parse(f.read)
         longest['timings'].elements('package') do |p|
           @timings[p['name']] = [p['buildtime'], p['finished']]

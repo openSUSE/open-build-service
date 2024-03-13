@@ -274,9 +274,9 @@ class Webui::PackageController < Webui::WebuiController
       Backend::Api::Sources::Package.trigger_services(@project.name, @package.name, User.session!.to_s)
       flash[:success] = 'Services successfully triggered'
     rescue Timeout::Error => e
-      flash[:error] = "Services couldn't be triggered: " + e.message
+      flash[:error] = "Services couldn't be triggered: #{e.message}"
     rescue Backend::Error => e
-      flash[:error] = "Services couldn't be triggered: " + Xmlhash::XMLHash.new(error: e.summary)[:error]
+      flash[:error] = "Services couldn't be triggered: #{Xmlhash::XMLHash.new(error: e.summary)[:error]}"
     end
     redirect_to package_show_path(@project, @package)
   end
@@ -605,11 +605,11 @@ class Webui::PackageController < Webui::WebuiController
     begin
       @rdiff = Backend::Api::Sources::Package.source_diff(project, package, options.merge(expand: 1))
     rescue Backend::Error => e
-      flash[:error] = 'Problem getting expanded diff: ' + e.summary
+      flash[:error] = "Problem getting expanded diff: #{e.summary}"
       begin
         @rdiff = Backend::Api::Sources::Package.source_diff(project, package, options.merge(expand: 0))
       rescue Backend::Error => e
-        flash[:error] = 'Error getting diff: ' + e.summary
+        flash[:error] = "Error getting diff: #{e.summary}"
         redirect_back(fallback_location: package_show_path(project: @project, package: @package))
         return false
       end

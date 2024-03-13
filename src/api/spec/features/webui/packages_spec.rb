@@ -150,7 +150,7 @@ RSpec.describe 'Packages', :js, :vcr do
                             </resultlist>
                             )
       result_path = "#{CONFIG['source_url']}/build/#{user.home_project}/_result?"
-      stub_request(:get, result_path + 'view=status&package=test_package&multibuild=1&locallink=1&lastbuild=0')
+      stub_request(:get, "#{result_path}view=status&package=test_package&multibuild=1&locallink=1&lastbuild=0")
         .and_return(body: result)
       stub_request(:get, result_path + "arch=i586&package=#{package}&repository=#{repository.name}&view=status")
         .and_return(body: result)

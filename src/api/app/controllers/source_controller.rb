@@ -319,7 +319,7 @@ class SourceController < ApplicationController
 
   # POST /source?cmd=triggerscmsync
   def global_command_triggerscmsync
-    pass_to_backend('/source' + build_query_from_hash(params, %i[cmd scmrepository scmbranch isdefaultbranch]))
+    pass_to_backend("/source#{build_query_from_hash(params, %i[cmd scmrepository scmbranch isdefaultbranch])}")
   end
 
   def set_issues_defaults

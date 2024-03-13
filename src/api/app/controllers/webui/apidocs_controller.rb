@@ -1,6 +1,6 @@
 class Webui::ApidocsController < Webui::WebuiController
   def index
-    @filename = File.expand_path(CONFIG['apidocs_location']) + '/index.html'
+    @filename = "#{File.expand_path(CONFIG['apidocs_location'])}/index.html"
     return if File.exist?(@filename)
 
     logger.error "Unable to load apidocs index file from #{CONFIG['apidocs_location']}. Did you create the apidocs?"

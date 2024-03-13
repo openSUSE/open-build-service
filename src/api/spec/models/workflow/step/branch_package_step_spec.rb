@@ -419,7 +419,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
             project.update(scmsync: scmsync_url)
           end
 
-          it { expect(subject.call.scmsync).to eq(scmsync_url + '?subdir=' + package.name + '#' + long_commit_sha) }
+          it { expect(subject.call.scmsync).to eq("#{scmsync_url}?subdir=#{package.name}##{long_commit_sha}") }
           it { expect { subject.call }.to(change(Package, :count).by(1)) }
           it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
           it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
@@ -431,7 +431,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
             package.update(scmsync: scmsync_url)
           end
 
-          it { expect(subject.call.scmsync).to eq(scmsync_url + '#' + long_commit_sha) }
+          it { expect(subject.call.scmsync).to eq("#{scmsync_url}##{long_commit_sha}") }
           it { expect { subject.call }.to(change(Package, :count).by(1)) }
           it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
           it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
@@ -444,7 +444,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
             package.update(scmsync: scmsync_url + subdir)
           end
 
-          it { expect(subject.call.scmsync).to eq(scmsync_url + subdir + '#' + long_commit_sha) }
+          it { expect(subject.call.scmsync).to eq("#{scmsync_url}#{subdir}##{long_commit_sha}") }
           it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
         end
 
@@ -454,7 +454,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
             package.update(scmsync: scmsync_url + fragment)
           end
 
-          it { expect(subject.call.scmsync).to eq(scmsync_url + '#' + long_commit_sha) }
+          it { expect(subject.call.scmsync).to eq("#{scmsync_url}##{long_commit_sha}") }
           it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
         end
 
@@ -465,7 +465,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
             package.update(scmsync: scmsync_url + subdir + fragment)
           end
 
-          it { expect(subject.call.scmsync).to eq(scmsync_url + subdir + '#' + long_commit_sha) }
+          it { expect(subject.call.scmsync).to eq("#{scmsync_url}#{subdir}##{long_commit_sha}") }
           it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
         end
       end

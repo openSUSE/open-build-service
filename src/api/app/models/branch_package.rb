@@ -182,7 +182,7 @@ class BranchPackage
         else
           tpkg = tprj.packages.new(name: pack_name)
         end
-        tpkg.bcntsynctag << ('.' + p[:link_target_project].name.tr(':', '_')) if tpkg.bcntsynctag && @extend_names
+        tpkg.bcntsynctag << (".#{p[:link_target_project].name.tr(':', '_')}") if tpkg.bcntsynctag && @extend_names
         tpkg.releasename = p[:release_name]
       end
       tpkg.store
@@ -196,7 +196,7 @@ class BranchPackage
         linked_package = p[:link_target_package]
         # user enforce a rename of base package
         linked_package = params[:target_package] if params[:target_package] && params[:package] == ret['package']
-        linked_package += '.' + p[:link_target_project].name.tr(':', '_') if @extend_names
+        linked_package += ".#{p[:link_target_project].name.tr(':', '_')}" if @extend_names
         ret['package'] = linked_package
         Backend::Api::Sources::Package.write_link(tpkg.project.name, tpkg.name, User.session!.login, ret.to_xml)
       else
@@ -364,7 +364,7 @@ class BranchPackage
       ap = innerp.first if innerp.length == 1
 
       target_package = ap.name
-      target_package += '.' + p[:target_package].gsub(/^[^.]*\./, '') if @extend_names
+      target_package += ".#{p[:target_package].gsub(/^[^.]*\./, '')}" if @extend_names
       release_name = ap.name if @extend_names
 
       # avoid double entries and therefore endless loops
