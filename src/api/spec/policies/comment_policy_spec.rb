@@ -195,4 +195,44 @@ RSpec.describe CommentPolicy do
     it { is_expected.to permit(admin_user, comment_moderated) }
     it { is_expected.to permit(staff_user, comment_moderated) }
   end
+
+  permissions :create? do
+    it { is_expected.not_to permit(anonymous_user, comment) }
+    it { is_expected.not_to permit(nil, comment) }
+    it { is_expected.to permit(comment_author, comment) }
+    it { is_expected.to permit(admin_user, comment) }
+
+    context 'for a user which is blocked from commenting' do
+      before do
+        comment_author.blocked_from_commenting = true
+      end
+
+      it { is_expected.not_to permit(comment_author, comment) }
+    end
+
+    context 'for a commentable with a comment lock set' do
+      let(:maintainer) { other_user }
+      let(:project_with_maintainer) { create(:project, maintainer: maintainer) }
+      let!(:comment_lock) { create(:comment_lock, commentable: project_with_maintainer, moderator: maintainer) }
+      let(:comment_on_comment_locked_project) { build(:comment_project, commentable: project_with_maintainer, user: author) }
+
+      context 'for the maintainer of the commentable' do
+        let(:author) { maintainer }
+
+        it { is_expected.to permit(author, comment_on_comment_locked_project) }
+      end
+
+      context 'for a user without maintainer role on the commentable' do
+        let(:author) { comment_author }
+
+        it { is_expected.not_to permit(author, comment_on_comment_locked_project) }
+      end
+
+      context 'for an admin' do
+        let(:author) { admin_user }
+
+        it { is_expected.to permit(author, comment_on_comment_locked_project) }
+      end
+    end
+  end
 end
