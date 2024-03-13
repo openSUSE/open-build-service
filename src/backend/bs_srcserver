@@ -1453,9 +1453,12 @@ sub getprojpack {
 	next;
       }
 
-      if ($plocked && !$pinfo->{'lock'}) {
-	$pinfo->{'error'} = 'locked';
-	next;
+      if ($plocked) {
+        my $plock = $pinfo->{'lock'};
+	if (!$plock || !$plock->{'disable'} || !grep {!BSUtil::enabled($_->{'name'}, $plock, 1, $arch)} @{$proj->{'repository'} || []}) {
+	  $pinfo->{'error'} = 'locked';
+	  next;
+	}
       }
 
       my $enable = defined($penable) ? {%$penable} : undef;
