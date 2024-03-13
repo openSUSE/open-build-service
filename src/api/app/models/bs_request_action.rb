@@ -253,7 +253,7 @@ class BsRequestAction < ApplicationRecord
     ''
   end
 
-  def webui_infos(opts = {})
+  def webui_sourcediff(opts = {})
     begin
       opts[:view] = 'xml'
       opts[:withissues] = 1
