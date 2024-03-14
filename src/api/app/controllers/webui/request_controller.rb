@@ -534,8 +534,8 @@ class Webui::RequestController < Webui::WebuiController
     @diff_to_superseded_id = params[:diff_to_superseded]
 
     # Handling request actions
-    @action = @bs_request.webui_actions(diff_to_superseded: @diff_to_superseded, diffs: true, action_id: @action_id.to_i, cacheonly: 1).first
-    active_action_index = @supported_actions.index(@active_action)
+    @action = @active_action || @bs_request.bs_request_actions.first
+    active_action_index = @supported_actions.index(@action)
     if active_action_index
       @prev_action = @supported_actions[active_action_index - 1] unless active_action_index.zero?
       @next_action = @supported_actions[active_action_index + 1] if active_action_index + 1 < @supported_actions.length
@@ -546,7 +546,7 @@ class Webui::RequestController < Webui::WebuiController
     @staging_status = staging_status(@bs_request, target_project) if Staging::Workflow.find_by(project: target_project)
 
     # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
-    @issues = (@action.fetch(:sourcediff, []) || []).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
+    @issues = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded_id, cacheonly: 1 }).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
 
     # retrieve a list of all package maintainers that are assigned to at least one target package
     @package_maintainers = target_package_maintainers

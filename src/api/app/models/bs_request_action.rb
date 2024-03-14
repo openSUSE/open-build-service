@@ -270,7 +270,9 @@ class BsRequestAction < ApplicationRecord
   end
 
   def diff_not_cached
-    return false if (sourcediff_results = webui_sourcediff)
+    sourcediff_results = webui_sourcediff({ cacheonly: 1 })
+
+    return false if sourcediff_results.present?
 
     errors = sourcediff_results.pluck(:error).compact
     errors.any? { |e| e.include?('diff not yet in cache') }

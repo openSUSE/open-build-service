@@ -917,6 +917,7 @@ class BsRequest < ApplicationRecord
     end
   end
 
+  # [DEPRECATED] TODO: drop this after request_workflow_redesign beta is rolled_out
   def webui_actions(opts = {})
     actions = []
     action_id = opts.delete(:action_id)
@@ -985,6 +986,7 @@ class BsRequest < ApplicationRecord
     FINAL_REQUEST_STATES.include?(state)
   end
 
+  # [DEPRECATED] TODO: drop this after request_workflow_redesign beta is rolled_out
   def action_details(opts = {}, xml:)
     with_diff = opts.delete(:diffs)
     action = { type: xml.action_type }
