@@ -269,6 +269,13 @@ class BsRequestAction < ApplicationRecord
     sorted_filenames_from_sourcediff(sd)
   end
 
+  def diff_not_cached
+    return false if (sourcediff_results = webui_sourcediff)
+
+    errors = sourcediff_results.pluck(:error).compact
+    errors.any? { |e| e.include?('diff not yet in cache') }
+  end
+
   def find_action_with_same_target(other_bs_request)
     return nil if other_bs_request.blank?
 
