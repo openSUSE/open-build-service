@@ -7,9 +7,9 @@ RSpec.describe UpdateReleasedBinariesJob, :vcr do
     context 'for an event with a repo' do
       before do
         allow(BinaryRelease).to receive(:update_binary_releases)
-      end
 
-      subject! { UpdateReleasedBinariesJob.perform_now(event.id) }
+        UpdateReleasedBinariesJob.perform_now(event.id)
+      end
 
       it { expect(BinaryRelease).to have_received(:update_binary_releases) }
     end
@@ -21,9 +21,9 @@ RSpec.describe UpdateReleasedBinariesJob, :vcr do
 
       before do
         allow(BinaryRelease).to receive(:update_binary_releases)
-      end
 
-      subject! { UpdateReleasedBinariesJob.perform_now(event_without_repo.id) }
+        UpdateReleasedBinariesJob.perform_now(event_without_repo.id)
+      end
 
       it { expect(BinaryRelease).not_to have_received(:update_binary_releases) }
     end
@@ -33,9 +33,9 @@ RSpec.describe UpdateReleasedBinariesJob, :vcr do
         allow(BinaryRelease).to receive(:update_binary_releases).and_raise(StandardError)
         allow($stdout).to receive(:write) # Needed to avoid the puts of the error method
         allow(Airbrake).to receive(:notify)
-      end
 
-      subject! { UpdateReleasedBinariesJob.perform_now(event.id) }
+        UpdateReleasedBinariesJob.perform_now(event.id)
+      end
 
       it 'notifies airbrake' do
         expect(Airbrake).to have_received(:notify)

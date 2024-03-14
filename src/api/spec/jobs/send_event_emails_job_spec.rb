@@ -23,7 +23,7 @@ RSpec.describe SendEventEmailsJob do
       let!(:subscription5) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group1, channel: :web) }
       let!(:subscription6) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group2, channel: :web) }
 
-      subject! { SendEventEmailsJob.new.perform }
+      before { described_class.new.perform }
 
       it 'sends an email to the subscribers' do
         email = ActionMailer::Base.deliveries.first
@@ -66,9 +66,9 @@ RSpec.describe SendEventEmailsJob do
 
       before do
         user.regenerate_rss_secret
-      end
 
-      subject! { SendEventEmailsJob.new.perform }
+        SendEventEmailsJob.new.perform
+      end
 
       it 'creates a rss notification' do
         notification = Notification.find_by(subscriber: user, rss: true)
@@ -81,7 +81,7 @@ RSpec.describe SendEventEmailsJob do
     end
 
     context 'without any subscriptions to the event' do
-      subject! { SendEventEmailsJob.new.perform }
+      before { SendEventEmailsJob.new.perform }
 
       it 'updates the event mails_sent = true' do
         event = Event::CommentForProject.first
@@ -97,7 +97,7 @@ RSpec.describe SendEventEmailsJob do
       let(:project) { create(:forbidden_project, name: 'comment_project', maintainer: user) }
       let!(:subscription) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user) }
 
-      subject! { SendEventEmailsJob.new.perform }
+      before { SendEventEmailsJob.new.perform }
 
       it 'does not queue a mail' do
         expect(ActionMailer::Base.deliveries).to be_empty

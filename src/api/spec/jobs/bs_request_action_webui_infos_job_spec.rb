@@ -102,9 +102,9 @@ RSpec.describe BsRequestActionWebuiInfosJob, :vcr do
 
       before do
         request.update(superseded_by: superseding_request.number, state: :superseded)
-      end
 
-      subject! { BsRequestActionWebuiInfosJob.new.perform(superseding_request_action) }
+        BsRequestActionWebuiInfosJob.new.perform(superseding_request_action)
+      end
 
       # The Job always returns the result for the target package, therefore we need check for the request to be made
       it { expect(a_request(:post, path)).to have_been_made.once }
