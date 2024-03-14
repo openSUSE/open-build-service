@@ -1,5 +1,5 @@
 RSpec.describe Staging::WorkflowPolicy do
-  subject { Staging::WorkflowPolicy }
+  subject { described_class }
 
   let(:admin) { create(:admin_user) }
   let(:user_nobody) { build(:user_nobody) }

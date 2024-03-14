@@ -1,5 +1,5 @@
 RSpec.describe AppealPolicy do
-  subject { AppealPolicy }
+  subject { described_class }
 
   let(:anonymous_user) { create(:user_nobody) }
   let(:user) { create(:confirmed_user) }

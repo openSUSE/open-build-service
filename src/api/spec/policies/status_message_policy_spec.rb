@@ -1,5 +1,5 @@
 RSpec.describe StatusMessagePolicy do
-  subject { StatusMessagePolicy }
+  subject { described_class }
 
   let(:anonymous_user) { create(:user_nobody) }
   let(:user) { create(:confirmed_user) }

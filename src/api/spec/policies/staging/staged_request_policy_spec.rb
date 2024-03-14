@@ -1,5 +1,5 @@
 RSpec.describe Staging::StagedRequestPolicy do
-  subject { Staging::StagedRequestPolicy }
+  subject { described_class }
 
   let(:admin) { create(:admin_user) }
   let(:authorized_user) { create(:confirmed_user, login: 'Tom') }

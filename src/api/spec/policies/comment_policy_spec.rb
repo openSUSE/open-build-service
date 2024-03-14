@@ -1,5 +1,5 @@
 RSpec.describe CommentPolicy do
-  subject { CommentPolicy }
+  subject { described_class }
 
   let(:anonymous_user) { create(:user_nobody) }
   let(:comment_author) { create(:confirmed_user, login: 'burdenski') }
@@ -49,8 +49,8 @@ RSpec.describe CommentPolicy do
         allow(other_user).to receive(:has_local_permission?).with('change_package', package).and_return(false)
       end
 
-      it { expect(subject).to permit(user, comment_on_package) }
-      it { expect(subject).not_to permit(other_user, comment_on_package) }
+      it { is_expected.to permit(user, comment_on_package) }
+      it { is_expected.not_to permit(other_user, comment_on_package) }
     end
 
     context 'with a comment of a Project' do
@@ -59,8 +59,8 @@ RSpec.describe CommentPolicy do
         allow(other_user).to receive(:has_local_permission?).with('change_project', project).and_return(false)
       end
 
-      it { expect(subject).to permit(user, comment) }
-      it { expect(subject).not_to permit(other_user, comment) }
+      it { is_expected.to permit(user, comment) }
+      it { is_expected.not_to permit(other_user, comment) }
     end
 
     context 'with a comment of a Request' do
@@ -69,8 +69,8 @@ RSpec.describe CommentPolicy do
         allow(request).to receive(:is_target_maintainer?).with(other_user).and_return(false)
       end
 
-      it { expect(subject).to permit(user, comment_on_request) }
-      it { expect(subject).not_to permit(other_user, comment_on_request) }
+      it { is_expected.to permit(user, comment_on_request) }
+      it { is_expected.not_to permit(other_user, comment_on_request) }
     end
   end
 

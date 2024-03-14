@@ -1,5 +1,5 @@
 RSpec.describe GroupPolicy do
-  subject { GroupPolicy }
+  subject { described_class }
 
   let(:group) { create(:group) }
   let(:anonymous_user) { create(:user_nobody) }

@@ -16,7 +16,7 @@ RSpec.describe Token::WorkflowPolicy do
       let(:user) { create(:confirmed_user, login: 'foo') }
 
       permissions :trigger? do
-        it { expect(subject).to permit(user, user_token) }
+        it { is_expected.to permit(user, user_token) }
       end
     end
   end

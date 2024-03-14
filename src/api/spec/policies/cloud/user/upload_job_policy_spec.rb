@@ -1,5 +1,5 @@
 RSpec.describe Cloud::User::UploadJobPolicy do
-  subject { Cloud::User::UploadJobPolicy }
+  subject { described_class }
 
   let(:uploader) { create(:confirmed_user) }
   let(:user) { create(:confirmed_user) }
