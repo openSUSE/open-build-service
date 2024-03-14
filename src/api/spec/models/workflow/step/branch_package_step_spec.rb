@@ -34,19 +34,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
   end
 
-  RSpec.shared_context 'non-existent branched package' do
-    let(:step_instructions) do
-      {
-        source_project: package.project.name,
-        source_package: package.name,
-        target_project: target_project_name
-      }
-    end
-
-    it { expect { subject.call }.to(change(Package, :count).by(1)) }
-    it { expect { subject.call }.to(change(EventSubscription, :count).from(0).to(2)) }
-  end
-
   describe '#call' do
     let(:project) { create(:project, name: 'foo_project', maintainer: user) }
     let(:package) { create(:package_with_file, name: 'bar_package', project: project) }
@@ -195,9 +182,17 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       end
 
       context 'when the branched package did not exist' do
-        it_behaves_like 'non-existent branched package' do
-          let(:action) { 'synchronize' }
+        let(:action) { 'synchronize' }
+        let(:step_instructions) do
+          {
+            source_project: package.project.name,
+            source_package: package.name,
+            target_project: target_project_name
+          }
         end
+
+        it { expect { subject.call }.to(change(Package, :count).by(1)) }
+        it { expect { subject.call }.to(change(EventSubscription, :count).from(0).to(2)) }
       end
     end
 
