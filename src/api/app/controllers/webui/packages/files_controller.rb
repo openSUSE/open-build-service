@@ -3,6 +3,7 @@ module Webui
     class FilesController < Packages::MainController
       before_action :set_project
       before_action :set_package
+      before_action :set_filename, only: :update
       after_action :verify_authorized
 
       def new
@@ -55,7 +56,7 @@ module Webui
         errors = []
 
         begin
-          @package.save_file(file: params[:file], filename: params[:filename],
+          @package.save_file(file: params[:file], filename: @filename,
                              comment: params[:comment])
         rescue APIError, StandardError => e
           errors << e.message
@@ -64,14 +65,20 @@ module Webui
         end
 
         if errors.blank?
-          flash.now[:success] = "'#{params[:filename]}' has been successfully saved."
+          flash.now[:success] = "'#{@filename}' has been successfully saved."
         else
-          flash.now[:error] = "Error while adding '#{params[:filename]}': #{errors.compact.join("\n")}."
+          flash.now[:error] = "Error while adding '#{@filename}': #{errors.compact.join("\n")}."
           status = 400
         end
 
         status ||= 200
         render layout: false, status: status, partial: 'layouts/webui/flash', object: flash
+      end
+
+      private
+
+      def set_filename
+        @filename = params[:filename]
       end
     end
   end

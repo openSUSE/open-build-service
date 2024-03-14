@@ -282,7 +282,7 @@ OBSApi::Application.routes.draw do
         resources :deletions, controller: 'webui/requests/deletions', only: %i[new create], constraints: cons
         resources :devel_project_changes, controller: 'webui/requests/devel_project_changes', only: %i[new create], constraints: cons
         resources :submissions, controller: 'webui/requests/submissions', only: %i[new create], constraints: cons
-        resource :files, controller: 'webui/packages/files', only: %i[new create update], constraints: cons
+        resources :files, controller: 'webui/packages/files', only: %i[new create update], constraints: cons, param: :filename, format: false
         put 'toggle_watched_item', controller: 'webui/watched_items', constraints: cons
         resource :badge, controller: 'webui/packages/badge', only: [:show], constraints: cons.merge(format: :svg)
         resources :repositories, only: [], param: :name do
