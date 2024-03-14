@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Thu, 14 Mar 2024 12:41:15 GMT
+  recorded_at: Thu, 14 Mar 2024 12:41:30 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Postern of Fate</title>
-          <description>Consectetur mollitia porro cum.</description>
+          <title>To Your Scattered Bodies Go</title>
+          <description>Neque ipsum sint praesentium.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,24 +69,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Postern of Fate</title>
-          <description>Consectetur mollitia porro cum.</description>
+          <title>To Your Scattered Bodies Go</title>
+          <description>Neque ipsum sint praesentium.</description>
         </package>
-  recorded_at: Thu, 14 Mar 2024 12:41:15 GMT
+  recorded_at: Thu, 14 Mar 2024 12:41:30 GMT
 - request:
-    method: post
-    uri: http://backend:5352/build/home:tom?arch=&cmd=rebuild&package=my_package&repository=non_existent_repository
+    method: put
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
     body:
       encoding: UTF-8
-      string: ''
+      string: |
+        <package name="my_package" project="home:tom">
+          <title>My Test package Updated via Webui</title>
+          <description/>
+        </package>
     headers:
-      Content-Type:
-      - application/octet-stream
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -95,8 +97,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 400
-      message: arch is empty
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -105,12 +107,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '65'
+      - '139'
     body:
       encoding: UTF-8
       string: |
-        <status code="400">
-          <summary>arch is empty</summary>
-        </status>
-  recorded_at: Thu, 14 Mar 2024 12:41:15 GMT
+        <package name="my_package" project="home:tom">
+          <title>My Test package Updated via Webui</title>
+          <description></description>
+        </package>
+  recorded_at: Thu, 14 Mar 2024 12:41:30 GMT
 recorded_with: VCR 6.2.0

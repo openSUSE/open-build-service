@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Thu, 14 Mar 2024 12:41:15 GMT
+  recorded_at: Thu, 14 Mar 2024 12:41:24 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Postern of Fate</title>
-          <description>Consectetur mollitia porro cum.</description>
+          <title>Terrible Swift Sword</title>
+          <description>Et est ea perferendis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,18 +69,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '148'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Postern of Fate</title>
-          <description>Consectetur mollitia porro cum.</description>
+          <title>Terrible Swift Sword</title>
+          <description>Et est ea perferendis.</description>
         </package>
-  recorded_at: Thu, 14 Mar 2024 12:41:15 GMT
+  recorded_at: Thu, 14 Mar 2024 12:41:24 GMT
 - request:
     method: post
-    uri: http://backend:5352/build/home:tom?arch=&cmd=rebuild&package=my_package&repository=non_existent_repository
+    uri: http://backend:5352/build/home:tom?arch=bar&cmd=abortbuild&package=my_package&repository=foo
     body:
       encoding: UTF-8
       string: ''
@@ -96,7 +96,7 @@ http_interactions:
   response:
     status:
       code: 400
-      message: arch is empty
+      message: no repository defined
     headers:
       Content-Type:
       - text/xml
@@ -105,12 +105,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '65'
+      - '73'
     body:
       encoding: UTF-8
       string: |
         <status code="400">
-          <summary>arch is empty</summary>
+          <summary>no repository defined</summary>
         </status>
-  recorded_at: Thu, 14 Mar 2024 12:41:15 GMT
+  recorded_at: Thu, 14 Mar 2024 12:41:24 GMT
 recorded_with: VCR 6.2.0
