@@ -23,9 +23,9 @@ RSpec.describe MigrateCommentPayload do
         event.set_payload(payload, payload.keys)
         event.save!
       end
-    end
 
-    subject! { MigrateCommentPayload.new.up }
+      subject.up
+    end
 
     it 'converts comment events in the old format' do
       Event::Base.find_each do |event|

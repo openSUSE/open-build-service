@@ -8,9 +8,9 @@ RSpec.describe ConvertNotificationsEventPayloadToJson, type: :migration do
     before do
       sql = "UPDATE `notifications` SET `event_payload` = '#{yaml}' WHERE id = #{notification.id}"
       ActiveRecord::Base.connection.execute(sql)
-    end
 
-    subject! { ConvertNotificationsEventPayloadToJson.up }
+      subject.up
+    end
 
     it 'converts the notifications event_payload from yaml to json' do
       json_hash = { 'hello' => 'world', 'how' => ['are', 'you', 'today?'], 'im' => 'fine thanks' }
