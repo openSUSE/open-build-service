@@ -28,6 +28,7 @@ class Webui::RequestController < Webui::WebuiController
   before_action :cache_diff_data, only: %i[show build_results rpm_lint changes mentioned_issues],
                                   if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :check_beta_user_redirect, only: %i[build_results rpm_lint changes mentioned_issues]
+  before_action :set_webui_actions, only: %i[request_action request_action_changes]
 
   after_action :verify_authorized, only: [:create]
 
@@ -157,11 +158,7 @@ class Webui::RequestController < Webui::WebuiController
 
   # TODO: Remove this once request_show_redesign is rolled out
   def request_action
-    @diff_limit = params[:full_diff] ? 0 : nil
     @index = params[:index].to_i
-    @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: true,
-                                         action_id: params['id'].to_i, cacheonly: 1)
-    @action = @actions.find { |action| action[:id] == params['id'].to_i }
     @active = @action[:name]
 
     if @action[:diff_not_cached]
@@ -176,13 +173,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def request_action_changes
-    # TODO: Change @diff_limit to a local variable
-    @diff_limit = params[:full_diff] ? 0 : nil
-    # TODO: Change @actions to a local variable
-    @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: true,
-                                         action_id: params['id'].to_i, cacheonly: 1)
-    @action = @actions.find { |action| action[:id] == params['id'].to_i }
-
     cache_diff_data
 
     respond_to do |format|
@@ -569,5 +559,16 @@ class Webui::RequestController < Webui::WebuiController
     InfluxDB::Rails.current.tags = {
       bs_request_action_type: @bs_request_action.class.name
     }
+  end
+
+  def set_webui_actions
+    diff_limit = params[:full_diff] ? 0 : nil
+    @actions = @bs_request.webui_actions(filelimit: diff_limit,
+                                         tarlimit: diff_limit,
+                                         diff_to_superseded: @diff_to_superseded,
+                                         diffs: true,
+                                         action_id: params['id'].to_i,
+                                         cacheonly: 1)
+    @action = @actions.find { |action| action[:id] == params['id'].to_i }
   end
 end
