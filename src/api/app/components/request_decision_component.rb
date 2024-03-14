@@ -24,7 +24,7 @@ class RequestDecisionComponent < ApplicationComponent
   end
 
   def show_add_submitter_as_maintainer_option?
-    !@action[:creator_is_target_maintainer] && @action[:type] == :submit
+    @action.type == 'submit' && !@action.creator_is_target_maintainer
   end
 
   # TODO: Move all those "can_*" checks to a pundit policy

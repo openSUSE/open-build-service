@@ -176,12 +176,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def request_action_changes
-    # TODO: Change @diff_limit to a local variable
-    @diff_limit = params[:full_diff] ? 0 : nil
-    # TODO: Change @actions to a local variable
-    @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: true,
-                                         action_id: params['id'].to_i, cacheonly: 1)
-    @action = @actions.find { |action| action[:id] == params['id'].to_i }
+    @action = @bs_request.bs_request_actions.where(id: params['id'].to_i).first
 
     cache_diff_data
 
@@ -287,8 +282,8 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to request_show_path(params[:number], params[:request_action_id]) unless @bs_request_action.tab_visibility.build
 
     @active_tab = 'build_results'
-    @project = @staging_project || @action[:sprj]
-    @buildable = @action[:spkg] || @project
+    @project = @staging_project || @action.source_project
+    @buildable = @action.source_package || @project
   end
 
   def rpm_lint
@@ -296,8 +291,8 @@ class Webui::RequestController < Webui::WebuiController
 
     @active_tab = 'rpm_lint'
     @ajax_data = {}
-    @ajax_data['project'] = @action[:sprj] if @action[:sprj]
-    @ajax_data['package'] = @action[:spkg] if @action[:spkg]
+    @ajax_data['project'] = @action.source_project if @action.source_project
+    @ajax_data['package'] = @action.source_package if @action.source_package
     @ajax_data['is_staged_request'] = true if @staging_project.present?
   end
 
@@ -513,11 +508,10 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def cache_diff_data
-    return unless @action[:diff_not_cached]
+    return unless @action.diff_not_cached
 
-    bs_request_action = BsRequestAction.find(@action[:id])
-    job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%").count
-    BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
+    job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{@action.to_global_id.uri}%").count
+    BsRequestActionWebuiInfosJob.perform_later(@action) if job.zero?
   end
 
   def handle_notification

@@ -12,19 +12,19 @@ class SourcediffComponent < ApplicationComponent
   end
 
   def commentable
-    BsRequestAction.find(@action[:id])
+    BsRequestAction.find(@action.id)
   end
 
   def source_package
-    Package.get_by_project_and_name(@action[:sprj], @action[:spkg], { follow_multibuild: true })
+    Package.get_by_project_and_name(@action.source_project, @action.source_package, { follow_multibuild: true })
   rescue Package::UnknownObjectError, Project::Errors::UnknownObjectError
   end
 
   def target_package
     # For not accepted maintenance incident requests, the package is not there.
-    return nil unless @action[:tpkg]
+    return nil unless @action.target_package
 
-    Package.get_by_project_and_name(@action[:tprj], @action[:tpkg], { follow_multibuild: true })
+    Package.get_by_project_and_name(@action.target_project, @action.target_package, { follow_multibuild: true })
   rescue Package::UnknownObjectError, Project::Errors::UnknownObjectError
   end
 end

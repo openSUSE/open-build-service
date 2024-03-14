@@ -5,16 +5,17 @@
     - if single_action_request && @is_target_maintainer && @bs_request.state.in?([:new, :review])
       - if show_add_submitter_as_maintainer_option?
         .form-check.mb-2
-          = check_box_tag('add_submitter_as_maintainer_0', "#{@action[:tprj]}_#_#{@action[:tpkg]}", false, class: 'form-check-input')
+          = check_box_tag('add_submitter_as_maintainer_0', "#{@action.target_project}_#_#{@action.target_package}", false, class: 'form-check-input')
           %label.form-check-label{ for: 'add_submitter_as_maintainer_0' }
             Add #{link_to(@bs_request.creator, user_path(@bs_request.creator))} as maintainer for
-            #{helpers.project_or_package_link(project: @action[:tprj], package: @action[:tpkg], short: true)}
-      - (@action[:forward] || []).each_with_index do |forward, index|
-        .form-check.mb-2
-          = check_box_tag("forward-#{index}", "#{forward[:project]}_#_#{forward[:package]}", true, class: 'form-check-input')
-          %label.form-check-label{ for: "forward-#{index}" }
-            Forward submit request to
-            #{helpers.project_or_package_link(project: forward[:project], package: forward[:package], short: true)}
+            #{helpers.project_or_package_link(project: @action.target_project, package: @action.target_package, short: true)}
+      - if @action.type == 'submit'
+        - (@action.forward || []).each_with_index do |forward, index|
+          .form-check.mb-2
+            = check_box_tag("forward-#{index}", "#{forward[:project]}_#_#{forward[:package]}", true, class: 'form-check-input')
+            %label.form-check-label{ for: "forward-#{index}" }
+              Forward submit request to
+              #{helpers.project_or_package_link(project: forward[:project], package: forward[:package], short: true)}
     - if policy(@bs_request).revoke_request?
       = submit_tag 'Revoke request', name: 'revoked', class: 'btn btn-danger me-2'
     - if can_reopen_request?
