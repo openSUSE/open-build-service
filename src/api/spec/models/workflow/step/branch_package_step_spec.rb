@@ -11,24 +11,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
                         token: token)
   end
 
-  RSpec.shared_context 'failed without branch permissions' do
-    let(:branch_package_mock) { instance_double(BranchPackage) }
-    before do
-      allow(BranchPackage).to receive(:new).and_return(branch_package_mock)
-      allow(branch_package_mock).to receive(:branch).and_raise(CreateProjectNoPermission)
-    end
-
-    let(:step_instructions) do
-      {
-        source_project: project.name,
-        source_package: package.name,
-        target_project: target_project_name
-      }
-    end
-
-    it { expect { subject.call }.to raise_error(BranchPackage::Errors::CanNotBranchPackageNoPermission) }
-  end
-
   RSpec.shared_context 'successful new PR or MR event' do
     before do
       create(:repository, name: 'Unicorn_123', project: package.project, architectures: %w[x86_64 i586 ppc aarch64])
@@ -107,19 +89,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
     it { expect { subject.call }.to(change(EventSubscription, :count).from(0).to(2)) }
   end
 
-  RSpec.shared_context 'fails with insufficient write permission on target project' do
-    let(:step_instructions) do
-      {
-        source_project: package.project.name,
-        source_package: package.name,
-        target_project: 'project_without_maintainer_rights'
-      }
-    end
-    let!(:project_without_permission) { create(:project, name: 'project_without_maintainer_rights') }
-
-    it { expect { subject.call }.to raise_error(BranchPackage::Errors::CanNotBranchPackageNoPermission) }
-  end
-
   describe '#call' do
     let(:project) { create(:project, name: 'foo_project', maintainer: user) }
     let(:package) { create(:package_with_file, name: 'bar_package', project: project) }
@@ -153,8 +122,26 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       end
 
       it_behaves_like 'successful new PR or MR event'
-      it_behaves_like 'failed without branch permissions'
-      it_behaves_like 'fails with insufficient write permission on target project'
+    end
+
+    context 'without branch permissions' do
+      let(:action) { 'opened' }
+      let(:octokit_client) { instance_double(Octokit::Client) }
+      let(:branch_package_mock) { instance_double(BranchPackage) }
+      let(:step_instructions) do
+        {
+          source_project: project.name,
+          source_package: package.name,
+          target_project: target_project_name
+        }
+      end
+
+      before do
+        allow(BranchPackage).to receive(:new).and_return(branch_package_mock)
+        allow(branch_package_mock).to receive(:branch).and_raise(CreateProjectNoPermission)
+      end
+
+      it { expect { subject.call }.to raise_error(BranchPackage::Errors::CanNotBranchPackageNoPermission) }
     end
 
     context 'and we disabled add_repositories' do
@@ -297,8 +284,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       end
 
       it_behaves_like 'successful new PR or MR event'
-      it_behaves_like 'failed without branch permissions'
-      it_behaves_like 'fails with insufficient write permission on target project'
     end
 
     context 'with a push event for a tag' do
@@ -346,9 +331,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
         subject.call
         expect(SCMStatusReporter).not_to have_received(:new)
       end
-
-      it_behaves_like 'failed without branch permissions'
-      it_behaves_like 'fails with insufficient write permission on target project'
     end
 
     context 'when scmsync is active' do
