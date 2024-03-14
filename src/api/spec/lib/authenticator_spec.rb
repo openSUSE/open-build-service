@@ -35,9 +35,9 @@ RSpec.describe Authenticator do
         end
 
         context 'and the user is not registered to OBS' do
-          let(:request_mock) { double(:request, env: { 'HTTP_X_USERNAME' => 'new_user' }) }
-
           subject { Authenticator.new(request_mock, session_mock, response_mock) }
+
+          let(:request_mock) { double(:request, env: { 'HTTP_X_USERNAME' => 'new_user' }) }
 
           it { expect { subject.extract_user }.to raise_error(Authenticator::AuthenticationRequiredError, "User 'new_user' does not exist") }
         end
