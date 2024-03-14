@@ -253,7 +253,10 @@ class BsRequestAction < ApplicationRecord
     ''
   end
 
+  # Serve the sourcediff to the webui
   def webui_sourcediff(opts = {})
+    opts.merge(superseded_bs_request_action: find_action_with_same_target(opts[:diff_to_superseded])) if opts[:diff_to_superseded]
+
     begin
       opts[:view] = 'xml'
       opts[:withissues] = 1

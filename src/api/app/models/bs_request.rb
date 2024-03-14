@@ -1039,8 +1039,7 @@ class BsRequest < ApplicationRecord
     case xml.action_type # All further stuff depends on action type...
     when :submit
       action[:name] = "Submit #{action[:spkg]}"
-      superseded_bs_request_action = xml.find_action_with_same_target(opts[:diff_to_superseded])
-      action[:sourcediff] = xml.webui_sourcediff(opts.merge(superseded_bs_request_action: superseded_bs_request_action)) if with_diff
+      action[:sourcediff] = xml.webui_sourcediff(opts) if with_diff
       creator = User.find_by_login(self.creator)
       target_package = Package.find_by_project_and_name(action[:tprj], action[:tpkg])
       action[:creator_is_target_maintainer] = true if creator.has_local_role?(Role.hashed['maintainer'], target_package)
@@ -1093,10 +1092,10 @@ class BsRequest < ApplicationRecord
       action[:group] = xml.group_name
     when :maintenance_incident
       action[:name] = "Incident #{action[:spkg]}"
-      action[:sourcediff] = xml.webui_sourcediff(superseded_bs_request_action: xml.find_action_with_same_target(opts[:diff_to_superseded])) if with_diff
+      action[:sourcediff] = xml.webui_sourcediff(opts) if with_diff
     when :maintenance_release, :release
       action[:name] = "Release #{action[:spkg]}"
-      action[:sourcediff] = xml.webui_sourcediff(superseded_bs_request_action: xml.find_action_with_same_target(opts[:diff_to_superseded])) if with_diff
+      action[:sourcediff] = xml.webui_sourcediff(opts) if with_diff
     end
 
     if action[:sourcediff]
