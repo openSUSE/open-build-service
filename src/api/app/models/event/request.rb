@@ -100,6 +100,13 @@ module Event
       source_or_target_package_watchers(project_type: 'targetproject', package_type: 'targetpackage')
     end
 
+    def involves_hidden_project?
+      bs_request = BsRequest.find_by(number: payload[:number])
+      return false unless bs_request
+
+      bs_request.bs_request_actions.any?(&:involves_hidden_project?)
+    end
+
     private
 
     def source_or_target_project_watchers(project_type:)

@@ -850,6 +850,10 @@ class BsRequestAction < ApplicationRecord
     BsRequestActionTabVisibility.new(self)
   end
 
+  def involves_hidden_project?
+    Project.unscoped.find_by(name: source_project)&.disabled_for?('access', nil, nil)
+  end
+
   private
 
   def cache_diffs

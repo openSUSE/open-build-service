@@ -21,6 +21,7 @@ class SendEventEmailsJob < ApplicationJob
   private
 
   def send_email(subscribers, event)
+    return if event.involves_hidden_project?
     return if subscribers.empty?
 
     email = EventMailer.with(subscribers: subscribers, event: event).notification_email

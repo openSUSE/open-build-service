@@ -331,6 +331,10 @@ module Event
         title: subject_to_title }
     end
 
+    def involves_hidden_project?
+      false
+    end
+
     private
 
     def message_bus_routing_key
