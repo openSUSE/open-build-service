@@ -230,6 +230,7 @@ Metrics/ClassLength:
     - 'app/models/bs_request_action.rb'
     - 'app/models/bs_request_action_maintenance_incident.rb'
     - 'app/models/bs_request_action_maintenance_release.rb'
+    - 'app/models/bs_request_action_submit.rb'
     - 'app/models/bs_request_permission_check.rb'
     - 'app/models/buildresult.rb'
     - 'app/models/channel.rb'
