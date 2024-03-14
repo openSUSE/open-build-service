@@ -16,7 +16,7 @@ module GiteaAPI
       ApiError = Class.new(GiteaApiError)
 
       def initialize(api_endpoint:, token:)
-        @api_endpoint = api_endpoint + '/api/v1/'
+        @api_endpoint = "#{api_endpoint}/api/v1/"
         @token = token
       end
 

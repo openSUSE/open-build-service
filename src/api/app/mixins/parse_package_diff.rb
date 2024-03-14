@@ -58,7 +58,7 @@ module ParsePackageDiff
 
     parsed_sourcediff = []
 
-    sd = '<diffs>' + sd + '</diffs>'
+    sd = "<diffs>#{sd}</diffs>"
     Xmlhash.parse(sd).elements('sourcediff').each do |sourcediff|
       parsed_sourcediff << parse_one_diff(sourcediff)
     end

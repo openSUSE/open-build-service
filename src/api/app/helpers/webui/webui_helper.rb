@@ -9,7 +9,7 @@ module Webui::WebuiHelper
     return '' if @configuration['bugzilla_url'].blank?
 
     assignee = email_list.first if email_list
-    cc = ('&cc=' + email_list[1..-1].join('&cc=')) if email_list.length > 1 && email_list
+    cc = "&cc=#{email_list[1..-1].join('&cc=')}" if email_list.length > 1 && email_list
 
     Addressable::URI.escape(
       "#{@configuration['bugzilla_url']}/enter_bug.cgi?classification=7340&product=openSUSE.org" \
@@ -134,7 +134,7 @@ module Webui::WebuiHelper
     style += "border-width: 0 0 0 0;\n" if opts[:no_border] || opts[:read_only]
     style += "height: #{opts[:height]};\n" unless opts[:height] == 'auto'
     style += "width: #{opts[:width]}; \n" unless opts[:width] == 'auto'
-    style + "}\n"
+    "#{style}}\n"
   end
 
   def package_link(pack, opts = {})

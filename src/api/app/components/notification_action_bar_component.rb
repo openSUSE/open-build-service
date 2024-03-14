@@ -28,8 +28,8 @@ class NotificationActionBarComponent < ApplicationComponent
   private
 
   def add_params(path)
-    return path + '&update_all=true' if path.include?('?')
+    return "#{path}&update_all=true" if path.include?('?')
 
-    path + '?update_all=true'
+    "#{path}?update_all=true"
   end
 end

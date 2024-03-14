@@ -1210,6 +1210,48 @@ Style/SlicingWithRange:
     - 'app/services/package_service/schema_verifier.rb'
     - 'test/node_matcher.rb'
 
+# Offense count: 83
+# This cop supports unsafe autocorrection (--autocorrect-all).
+# Configuration parameters: Mode.
+Style/StringConcatenation:
+  Exclude:
+    - 'app/helpers/webui/group_helper.rb'
+    - 'app/helpers/webui/monitor_helper.rb'
+    - 'app/helpers/webui/project_helper.rb'
+    - 'app/helpers/webui/user_helper.rb'
+    - 'app/helpers/webui/webui_helper.rb'
+    - 'app/validators/workflow_steps_validator.rb'
+    - 'config/initializers/nokogiri_builder.rb'
+    - 'test/functional/aaa_pre_consistency_test.rb'
+    - 'test/functional/about_controller_test.rb'
+    - 'test/functional/architectures_controller_test.rb'
+    - 'test/functional/attributes_test.rb'
+    - 'test/functional/backend_test.rb'
+    - 'test/functional/branch_publish_flag_test.rb'
+    - 'test/functional/build_controller_test.rb'
+    - 'test/functional/channel_maintenance_test.rb'
+    - 'test/functional/configurations_controller_test.rb'
+    - 'test/functional/distributions_controller_test.rb'
+    - 'test/functional/group_test.rb'
+    - 'test/functional/interconnect_test.rb'
+    - 'test/functional/issue_controller_test.rb'
+    - 'test/functional/issue_trackers_controller_test.rb'
+    - 'test/functional/kgraft_maintenance_test.rb'
+    - 'test/functional/person_controller_test.rb'
+    - 'test/functional/product_test.rb'
+    - 'test/functional/public_controller_test.rb'
+    - 'test/functional/published_controller_test.rb'
+    - 'test/functional/read_permission_test.rb'
+    - 'test/functional/release_management_test.rb'
+    - 'test/functional/request_controller_test.rb'
+    - 'test/functional/search_controller_test.rb'
+    - 'test/functional/source_controller_test.rb'
+    - 'test/functional/source_services_test.rb'
+    - 'test/functional/statistics_controller_test.rb'
+    - 'test/functional/status_controller_test.rb'
+    - 'test/functional/zzz_post_consistency_test.rb'
+    - 'test/integration/last_events_test.rb'
+
 # Offense count: 10
 ViewComponent/AvoidGlobalState:
   Exclude:
