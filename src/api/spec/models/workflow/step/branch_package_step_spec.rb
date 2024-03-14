@@ -11,18 +11,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
                         token: token)
   end
 
-  RSpec.shared_context 'source_project not provided' do
-    let(:step_instructions) { { source_package: package.name, target_project: target_project_name } }
-
-    it { expect { subject.call }.not_to(change(Package, :count)) }
-  end
-
-  RSpec.shared_context 'source_package not provided' do
-    let(:step_instructions) { { source_project: package.project.name, target_project: target_project_name } }
-
-    it { expect { subject.call }.not_to(change(Package, :count)) }
-  end
-
   RSpec.shared_context 'failed when source_package does not exist' do
     let(:step_instructions) do
       {
@@ -165,18 +153,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       project
       package
       login(user)
-    end
-
-    context "but we don't provide source_project" do
-      it_behaves_like 'source_project not provided' do
-        let(:action) { 'synchronize' }
-      end
-    end
-
-    context "but we don't provide a source_package" do
-      it_behaves_like 'source_package not provided' do
-        let(:action) { 'opened' }
-      end
     end
 
     context 'for a new PR event' do

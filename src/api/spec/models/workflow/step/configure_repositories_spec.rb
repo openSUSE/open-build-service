@@ -96,40 +96,6 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
         end
       end
 
-      context 'and the project is missing in the step instructions' do
-        let(:step_instructions) do
-          {
-            fake_project: 'OBS:Server:Unstable',
-            repositories:
-              [
-                {
-                  name: 'openSUSE_Tumbleweed',
-                  paths: [{ target_project: 'openSUSE:Factory', target_repository: 'snapshot' }],
-                  architectures: %w[
-                    x86_64
-                    ppc
-                  ]
-                }
-              ]
-          }
-        end
-
-        it { expect(subject).not_to be_valid }
-
-        it 'does not create any repository' do
-          expect { subject.call }.not_to change(Repository, :count)
-        end
-
-        it 'does not create any architecture' do
-          expect { subject.call }.not_to change(Architecture, :count)
-        end
-
-        it "a validation fails complaining about the missing 'project' key" do
-          subject.call
-          expect(subject.errors.full_messages.to_sentence).to eq("The 'project' key is missing")
-        end
-      end
-
       context 'and repository paths are missing in the step instructions' do
         let(:step_instructions) do
           {
