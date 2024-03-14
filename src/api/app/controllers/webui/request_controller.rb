@@ -163,8 +163,6 @@ class Webui::RequestController < Webui::WebuiController
                                          action_id: params['id'].to_i, cacheonly: 1)
     @action = @actions.find { |action| action[:id] == params['id'].to_i }
     @active = @action[:name]
-    @not_full_diff = BsRequest.truncated_diffs?(@actions)
-    @diff_to_superseded_id = params[:diff_to_superseded]
 
     if @action[:diff_not_cached]
       bs_request_action = BsRequestAction.find(@action[:id])
@@ -184,10 +182,6 @@ class Webui::RequestController < Webui::WebuiController
     @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: true,
                                          action_id: params['id'].to_i, cacheonly: 1)
     @action = @actions.find { |action| action[:id] == params['id'].to_i }
-    # TODO: Check if @not_full_diff is really needed
-    @not_full_diff = BsRequest.truncated_diffs?(@actions)
-    # TODO: Check if @diff_to_superseded_id is really needed
-    @diff_to_superseded_id = params[:diff_to_superseded]
 
     cache_diff_data
 
