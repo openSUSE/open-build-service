@@ -139,6 +139,12 @@ class BsRequestActionSubmit < BsRequestAction
     "Submit #{uniq_key}"
   end
 
+  def creator_is_target_maintainer
+    request_creator = User.find_by_login(bs_request.creator)
+    target_package_object = Package.find_by_project_and_name(target_project, target_package)
+    request_creator.has_local_role?(Role.hashed['maintainer'], target_package_object)
+  end
+
   #### Alias of methods
 end
 
