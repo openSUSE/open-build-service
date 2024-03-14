@@ -144,57 +144,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       it { expect { subject.call }.to raise_error(BranchPackage::Errors::CanNotBranchPackageNoPermission) }
     end
 
-    context 'and we disabled add_repositories' do
-      let(:action) { 'opened' }
-      let(:octokit_client) { instance_double(Octokit::Client) }
-      let(:step_instructions) do
-        {
-          source_project: package.project.name,
-          source_package: package.name,
-          target_project: target_project_name,
-          add_repositories: 'disabled'
-        }
-      end
-
-      before do
-        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-        allow(octokit_client).to receive(:create_status).and_return(true)
-        create(:repository, name: 'Unicorn_123', project: package.project, architectures: %w[x86_64 i586 ppc aarch64])
-        create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
-        subject.call
-      end
-
-      it 'does not add repositories to target project' do
-        expect(Project.find_by(name: target_project_final_name).repositories.map(&:name).sort).to eq([])
-      end
-    end
-
-    context 'and we enabled add_repositories' do
-      let(:action) { 'opened' }
-      let(:octokit_client) { instance_double(Octokit::Client) }
-      let(:step_instructions) do
-        {
-          source_project: package.project.name,
-          source_package: package.name,
-          target_project: target_project_name,
-          add_repositories: 'enabled'
-        }
-      end
-
-      before do
-        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-        allow(octokit_client).to receive(:create_status).and_return(true)
-        create(:repository, name: 'Unicorn_123', project: package.project, architectures: %w[x86_64 i586 ppc aarch64])
-        create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
-
-        subject.call
-      end
-
-      it 'adds repositories to target project' do
-        expect(Project.find_by(name: target_project_final_name).repositories.map(&:name).sort).to eq(%w[Unicorn_123 openSUSE_Tumbleweed])
-      end
-    end
-
     context 'for a multibuild package' do
       let(:action) { 'opened' }
       let(:package) { create(:multibuild_package, name: 'multibuild_package', project: project) }
@@ -412,7 +361,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
     end
   end
 
-  describe '.add_repositories?' do
+  describe '#skip_repositories?' do
     let(:project) { create(:project, name: 'foo_project', maintainer: user) }
     let(:package) { create(:package_with_file, name: 'bar_package', project: project) }
     let(:scm_webhook) do
