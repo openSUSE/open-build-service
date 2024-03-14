@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:42 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_71
+    uri: http://backend:5352/source/foo_project/_meta?user=user_39
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Edna O'Brien</title>
+          <title>An Instant In The Wind</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Edna O'Brien</title>
+          <title>An Instant In The Wind</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:42 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_72
+    uri: http://backend:5352/source/foo_project/multibuild_package/_meta?user=user_40
     body:
       encoding: UTF-8
       string: |
-        <package name="bar_package" project="foo_project">
-          <title>A Confederacy of Dunces</title>
-          <description>Porro sint quas in.</description>
+        <package name="multibuild_package" project="foo_project">
+          <title>The Needle's Eye</title>
+          <description>Maxime animi molestiae nam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '160'
     body:
       encoding: UTF-8
       string: |
-        <package name="bar_package" project="foo_project">
-          <title>A Confederacy of Dunces</title>
-          <description>Porro sint quas in.</description>
+        <package name="multibuild_package" project="foo_project">
+          <title>The Needle's Eye</title>
+          <description>Maxime animi molestiae nam.</description>
         </package>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:42 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_config
+    uri: http://backend:5352/source/foo_project/multibuild_package/_config
     body:
       encoding: UTF-8
-      string: Voluptatum nesciunt eligendi. Quia perferendis et. Aut harum voluptatem.
+      string: Quia veritatis tenetur. Atque esse nesciunt. Sint iste sint.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="65" vrev="65">
-          <srcmd5>5ef107b0aaec914b676d225a921cfa0f</srcmd5>
+        <revision rev="3" vrev="3">
+          <srcmd5>41738a60c123e349baf141e8a3c3219d</srcmd5>
           <version>unknown</version>
-          <time>1710434155</time>
+          <time>1710434142</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:42 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
+    uri: http://backend:5352/source/foo_project/multibuild_package/_multibuild
     body:
       encoding: UTF-8
-      string: Qui est vel. Dolorem itaque eaque. Culpa ut voluptates.
+      string: "<multibuild><flavor>flavor_a</flavor><flavor>flavor_b</flavor></multibuild>"
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,22 +181,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="66" vrev="66">
-          <srcmd5>e146772e18bfc740a0af2d5ff3e04050</srcmd5>
+        <revision rev="4" vrev="4">
+          <srcmd5>41738a60c123e349baf141e8a3c3219d</srcmd5>
           <version>unknown</version>
-          <time>1710434155</time>
+          <time>1710434142</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:42 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/foo_project/bar_package?cmd=waitservice
+    uri: http://backend:5352/source/foo_project/multibuild_package?cmd=waitservice
     body:
       encoding: UTF-8
       string: ''
@@ -227,10 +227,10 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:42 GMT
 - request:
     method: post
-    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22bar_package%22%20and%20linkinfo/@project=%22foo_project%22%20and%20@project=%22foo_project%22)
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22multibuild_package%22%20and%20linkinfo/@project=%22foo_project%22%20and%20@project=%22foo_project%22)
     body:
       encoding: UTF-8
       string: ''
@@ -261,16 +261,56 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:42 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_meta?user=Iggy
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <package name="bar_package-release_abc" project="home:Iggy">
-          <title>A Confederacy of Dunces</title>
-          <description>Porro sint quas in.</description>
+        <project name="home:Iggy:openSUSE:open-build-service:PR-1">
+          <title>Branch project for package multibuild_package</title>
+          <description>This project was created for package multibuild_package via attribute OBS:Maintained</description>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '292'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Iggy:openSUSE:open-build-service:PR-1">
+          <title>Branch project for package multibuild_package</title>
+          <description>This project was created for package multibuild_package via attribute OBS:Maintained</description>
+          <person userid="Iggy" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 14 Mar 2024 16:35:42 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="multibuild_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
+          <title>The Needle's Eye</title>
+          <description>Maxime animi molestiae nam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -291,18 +331,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '162'
+      - '191'
     body:
       encoding: UTF-8
       string: |
-        <package name="bar_package-release_abc" project="home:Iggy">
-          <title>A Confederacy of Dunces</title>
-          <description>Porro sint quas in.</description>
+        <package name="multibuild_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
+          <title>The Needle's Eye</title>
+          <description>Maxime animi molestiae nam.</description>
         </package>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:42 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=branch&noservice=1&opackage=bar_package&oproject=foo_project&user=Iggy
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package?cmd=branch&noservice=1&opackage=multibuild_package&oproject=foo_project&user=Iggy
     body:
       encoding: UTF-8
       string: ''
@@ -331,24 +371,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="7" vrev="7">
-          <srcmd5>f210c606a4c5bcecc10fa92e2b378068</srcmd5>
+        <revision rev="3" vrev="3">
+          <srcmd5>934acc4d4a6746732375491c309846ac</srcmd5>
           <version>unknown</version>
-          <time>1710434155</time>
+          <time>1710434142</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:42 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_meta?user=Iggy
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <package name="bar_package-release_abc" project="home:Iggy">
-          <title>A Confederacy of Dunces</title>
-          <description>Porro sint quas in.</description>
+        <package name="multibuild_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
+          <title>The Needle's Eye</title>
+          <description>Maxime animi molestiae nam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -369,18 +409,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '162'
+      - '191'
     body:
       encoding: UTF-8
       string: |
-        <package name="bar_package-release_abc" project="home:Iggy">
-          <title>A Confederacy of Dunces</title>
-          <description>Porro sint quas in.</description>
+        <package name="multibuild_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
+          <title>The Needle's Eye</title>
+          <description>Maxime animi molestiae nam.</description>
         </package>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:43 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package
     body:
       encoding: US-ASCII
       string: ''
@@ -403,21 +443,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '733'
+      - '631'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package-release_abc" rev="7" vrev="7" srcmd5="f210c606a4c5bcecc10fa92e2b378068">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="e146772e18bfc740a0af2d5ff3e04050" baserev="e146772e18bfc740a0af2d5ff3e04050" xsrcmd5="6b8c3cfe8c0dc5438f455648a83b5086" lsrcmd5="f210c606a4c5bcecc10fa92e2b378068"/>
-          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1710434133"/>
-          <entry name="_config" md5="e36f4c2a6dbb201b32335eb1ececb028" size="72" mtime="1710434155"/>
-          <entry name="_link" md5="e5d7eebbc2bf9434d2b995c472ec79a7" size="141" mtime="1710434155"/>
-          <entry name="somefile.txt" md5="c3dd175fc21683c3b236ed6d637cd41d" size="55" mtime="1710434155"/>
+        <directory name="multibuild_package" rev="3" vrev="3" srcmd5="934acc4d4a6746732375491c309846ac">
+          <linkinfo project="foo_project" package="multibuild_package" srcmd5="41738a60c123e349baf141e8a3c3219d" baserev="41738a60c123e349baf141e8a3c3219d" xsrcmd5="9eec75ef7be4e34f0e399c1ad133ddab" lsrcmd5="934acc4d4a6746732375491c309846ac"/>
+          <entry name="_config" md5="1da419c3437eab8ceb81888f60afd363" size="60" mtime="1710434142"/>
+          <entry name="_link" md5="354964ce988a05083fb46ebbf7d0b154" size="119" mtime="1710434142"/>
+          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1710434141"/>
         </directory>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:43 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?view=info
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package?view=info
     body:
       encoding: US-ASCII
       string: ''
@@ -440,18 +479,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '341'
+      - '342'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="bar_package-release_abc" rev="7" vrev="73" srcmd5="6b8c3cfe8c0dc5438f455648a83b5086" lsrcmd5="f210c606a4c5bcecc10fa92e2b378068" verifymd5="e146772e18bfc740a0af2d5ff3e04050">
+        <sourceinfo package="multibuild_package" rev="3" vrev="7" srcmd5="9eec75ef7be4e34f0e399c1ad133ddab" lsrcmd5="934acc4d4a6746732375491c309846ac" verifymd5="41738a60c123e349baf141e8a3c3219d">
           <error>bad build configuration, no build type defined or detected</error>
-          <linked project="foo_project" package="bar_package"/>
+          <linked project="foo_project" package="multibuild_package"/>
         </sourceinfo>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:43 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package
     body:
       encoding: US-ASCII
       string: ''
@@ -474,21 +513,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '733'
+      - '631'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package-release_abc" rev="7" vrev="7" srcmd5="f210c606a4c5bcecc10fa92e2b378068">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="e146772e18bfc740a0af2d5ff3e04050" baserev="e146772e18bfc740a0af2d5ff3e04050" xsrcmd5="6b8c3cfe8c0dc5438f455648a83b5086" lsrcmd5="f210c606a4c5bcecc10fa92e2b378068"/>
-          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1710434133"/>
-          <entry name="_config" md5="e36f4c2a6dbb201b32335eb1ececb028" size="72" mtime="1710434155"/>
-          <entry name="_link" md5="e5d7eebbc2bf9434d2b995c472ec79a7" size="141" mtime="1710434155"/>
-          <entry name="somefile.txt" md5="c3dd175fc21683c3b236ed6d637cd41d" size="55" mtime="1710434155"/>
+        <directory name="multibuild_package" rev="3" vrev="3" srcmd5="934acc4d4a6746732375491c309846ac">
+          <linkinfo project="foo_project" package="multibuild_package" srcmd5="41738a60c123e349baf141e8a3c3219d" baserev="41738a60c123e349baf141e8a3c3219d" xsrcmd5="9eec75ef7be4e34f0e399c1ad133ddab" lsrcmd5="934acc4d4a6746732375491c309846ac"/>
+          <entry name="_config" md5="1da419c3437eab8ceb81888f60afd363" size="60" mtime="1710434142"/>
+          <entry name="_link" md5="354964ce988a05083fb46ebbf7d0b154" size="119" mtime="1710434142"/>
+          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1710434141"/>
         </directory>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:43 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -513,21 +551,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '326'
+      - '382'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="8f28c978d2949441f442a28cfc5a2b9e">
-          <old project="home:Iggy" package="bar_package-release_abc" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy" package="bar_package-release_abc" rev="7" srcmd5="f210c606a4c5bcecc10fa92e2b378068"/>
+        <sourcediff key="c71d0b8731afec03a6868e52805f7f3a">
+          <old project="home:Iggy:openSUSE:open-build-service:PR-1" package="multibuild_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="multibuild_package" rev="3" srcmd5="934acc4d4a6746732375491c309846ac"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:43 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -552,32 +590,35 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '378'
+      - '390'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="8aac1a679b977c790a4fdf5bc62dcc56">
-          <old project="foo_project" package="bar_package" rev="e146772e18bfc740a0af2d5ff3e04050" srcmd5="e146772e18bfc740a0af2d5ff3e04050"/>
-          <new project="home:Iggy" package="bar_package-release_abc" rev="6b8c3cfe8c0dc5438f455648a83b5086" srcmd5="6b8c3cfe8c0dc5438f455648a83b5086"/>
+        <sourcediff key="3fad4896dc906cc4b6133297dbf8bcaf">
+          <old project="foo_project" package="multibuild_package" rev="41738a60c123e349baf141e8a3c3219d" srcmd5="41738a60c123e349baf141e8a3c3219d"/>
+          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="multibuild_package" rev="9eec75ef7be4e34f0e399c1ad133ddab" srcmd5="9eec75ef7be4e34f0e399c1ad133ddab"/>
           <files/>
-          <issues>
-          </issues>
         </sourcediff>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:43 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy/_meta?user=Iggy
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <project name="home:Iggy">
-          <title/>
-          <description/>
+        <project name="home:Iggy:openSUSE:open-build-service:PR-1">
+          <title>Branch project for package multibuild_package</title>
+          <description>This project was created for package multibuild_package via attribute OBS:Maintained</description>
           <person userid="Iggy" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
           <repository name="openSUSE_Tumbleweed">
+            <path project="foo_project" repository="openSUSE_Tumbleweed"/>
             <arch>x86_64</arch>
           </repository>
           <repository name="Unicorn_123">
+            <path project="foo_project" repository="Unicorn_123"/>
             <arch>x86_64</arch>
             <arch>i586</arch>
             <arch>ppc</arch>
@@ -603,31 +644,36 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '354'
+      - '682'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:Iggy">
-          <title></title>
-          <description></description>
+        <project name="home:Iggy:openSUSE:open-build-service:PR-1">
+          <title>Branch project for package multibuild_package</title>
+          <description>This project was created for package multibuild_package via attribute OBS:Maintained</description>
           <person userid="Iggy" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
           <repository name="openSUSE_Tumbleweed">
+            <path project="foo_project" repository="openSUSE_Tumbleweed"/>
             <arch>x86_64</arch>
           </repository>
           <repository name="Unicorn_123">
+            <path project="foo_project" repository="Unicorn_123"/>
             <arch>x86_64</arch>
             <arch>i586</arch>
             <arch>ppc</arch>
             <arch>aarch64</arch>
           </repository>
         </project>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:43 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_branch_request?comment=Updated%20_branch_request%20file%20via%20SCM/CI%20Workflow%20run&user=Iggy
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package/_branch_request?comment=Updated%20_branch_request%20file%20via%20SCM/CI%20Workflow%20run&user=Iggy
     body:
       encoding: UTF-8
-      string: '{"action":"opened","pull_request":{"head":{"repo":{"full_name":"openSUSE/open-build-service"},"sha":"123456789012345"}}}'
+      string: '{"action":"opened","pull_request":{"head":{"repo":{"full_name":"reponame"},"sha":"123456789"}}}'
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -651,24 +697,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="8" vrev="8">
-          <srcmd5>8d80a4552a8df40d55a9c52a60d78482</srcmd5>
+        <revision rev="4" vrev="4">
+          <srcmd5>96c12d593f745251b7fd969a25b4ab91</srcmd5>
           <version>unknown</version>
-          <time>1710434155</time>
+          <time>1710434143</time>
           <user>Iggy</user>
           <comment>Updated _branch_request file via SCM/CI Workflow run</comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:43 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_meta?user=Iggy
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
-        <package name="bar_package-release_abc" project="home:Iggy">
-          <title>A Confederacy of Dunces</title>
-          <description>Porro sint quas in.</description>
+        <package name="multibuild_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
+          <title>The Needle's Eye</title>
+          <description>Maxime animi molestiae nam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -689,18 +735,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '162'
+      - '191'
     body:
       encoding: UTF-8
       string: |
-        <package name="bar_package-release_abc" project="home:Iggy">
-          <title>A Confederacy of Dunces</title>
-          <description>Porro sint quas in.</description>
+        <package name="multibuild_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
+          <title>The Needle's Eye</title>
+          <description>Maxime animi molestiae nam.</description>
         </package>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:43 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package
     body:
       encoding: US-ASCII
       string: ''
@@ -727,17 +773,17 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package-release_abc" rev="8" vrev="8" srcmd5="8d80a4552a8df40d55a9c52a60d78482">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="e146772e18bfc740a0af2d5ff3e04050" baserev="e146772e18bfc740a0af2d5ff3e04050" xsrcmd5="4adc750e0c7397268b852b2715bd4d6f" lsrcmd5="8d80a4552a8df40d55a9c52a60d78482"/>
-          <entry name="_branch_request" md5="8ccc2896b48bb83bb375eaf0b342764a" size="120" mtime="1710434153"/>
-          <entry name="_config" md5="e36f4c2a6dbb201b32335eb1ececb028" size="72" mtime="1710434155"/>
-          <entry name="_link" md5="e5d7eebbc2bf9434d2b995c472ec79a7" size="141" mtime="1710434155"/>
-          <entry name="somefile.txt" md5="c3dd175fc21683c3b236ed6d637cd41d" size="55" mtime="1710434155"/>
+        <directory name="multibuild_package" rev="4" vrev="4" srcmd5="96c12d593f745251b7fd969a25b4ab91">
+          <linkinfo project="foo_project" package="multibuild_package" srcmd5="41738a60c123e349baf141e8a3c3219d" baserev="41738a60c123e349baf141e8a3c3219d" xsrcmd5="6b7b1074d27aeb9c91f10327b00ec091" lsrcmd5="96c12d593f745251b7fd969a25b4ab91"/>
+          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1710434142"/>
+          <entry name="_config" md5="1da419c3437eab8ceb81888f60afd363" size="60" mtime="1710434142"/>
+          <entry name="_link" md5="354964ce988a05083fb46ebbf7d0b154" size="119" mtime="1710434142"/>
+          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1710434141"/>
         </directory>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:43 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?view=info
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package?view=info
     body:
       encoding: US-ASCII
       string: ''
@@ -760,18 +806,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '341'
+      - '342'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="bar_package-release_abc" rev="8" vrev="74" srcmd5="4adc750e0c7397268b852b2715bd4d6f" lsrcmd5="8d80a4552a8df40d55a9c52a60d78482" verifymd5="7b41f44dfac5a0ec88d4742679466aa1">
+        <sourceinfo package="multibuild_package" rev="4" vrev="8" srcmd5="6b7b1074d27aeb9c91f10327b00ec091" lsrcmd5="96c12d593f745251b7fd969a25b4ab91" verifymd5="1e9b74aea1060b7675f9da87569a320b">
           <error>bad build configuration, no build type defined or detected</error>
-          <linked project="foo_project" package="bar_package"/>
+          <linked project="foo_project" package="multibuild_package"/>
         </sourceinfo>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:43 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package
     body:
       encoding: US-ASCII
       string: ''
@@ -798,17 +844,17 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package-release_abc" rev="8" vrev="8" srcmd5="8d80a4552a8df40d55a9c52a60d78482">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="e146772e18bfc740a0af2d5ff3e04050" baserev="e146772e18bfc740a0af2d5ff3e04050" xsrcmd5="4adc750e0c7397268b852b2715bd4d6f" lsrcmd5="8d80a4552a8df40d55a9c52a60d78482"/>
-          <entry name="_branch_request" md5="8ccc2896b48bb83bb375eaf0b342764a" size="120" mtime="1710434153"/>
-          <entry name="_config" md5="e36f4c2a6dbb201b32335eb1ececb028" size="72" mtime="1710434155"/>
-          <entry name="_link" md5="e5d7eebbc2bf9434d2b995c472ec79a7" size="141" mtime="1710434155"/>
-          <entry name="somefile.txt" md5="c3dd175fc21683c3b236ed6d637cd41d" size="55" mtime="1710434155"/>
+        <directory name="multibuild_package" rev="4" vrev="4" srcmd5="96c12d593f745251b7fd969a25b4ab91">
+          <linkinfo project="foo_project" package="multibuild_package" srcmd5="41738a60c123e349baf141e8a3c3219d" baserev="41738a60c123e349baf141e8a3c3219d" xsrcmd5="6b7b1074d27aeb9c91f10327b00ec091" lsrcmd5="96c12d593f745251b7fd969a25b4ab91"/>
+          <entry name="_branch_request" md5="a0ae3e8c1598e691c7662a4b258bd481" size="95" mtime="1710434142"/>
+          <entry name="_config" md5="1da419c3437eab8ceb81888f60afd363" size="60" mtime="1710434142"/>
+          <entry name="_link" md5="354964ce988a05083fb46ebbf7d0b154" size="119" mtime="1710434142"/>
+          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1710434141"/>
         </directory>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:43 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -833,21 +879,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '326'
+      - '382'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="0ced1770a127a6b14e0d51135e067d05">
-          <old project="home:Iggy" package="bar_package-release_abc" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy" package="bar_package-release_abc" rev="8" srcmd5="8d80a4552a8df40d55a9c52a60d78482"/>
+        <sourcediff key="01dd50541ed823872a59e1f6a9e1a325">
+          <old project="home:Iggy:openSUSE:open-build-service:PR-1" package="multibuild_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="multibuild_package" rev="4" srcmd5="96c12d593f745251b7fd969a25b4ab91"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:43 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/multibuild_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -872,16 +918,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '378'
+      - '413'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="3e280888751010e1f8186b7cdb6b7450">
-          <old project="foo_project" package="bar_package" rev="e146772e18bfc740a0af2d5ff3e04050" srcmd5="e146772e18bfc740a0af2d5ff3e04050"/>
-          <new project="home:Iggy" package="bar_package-release_abc" rev="4adc750e0c7397268b852b2715bd4d6f" srcmd5="4adc750e0c7397268b852b2715bd4d6f"/>
+        <sourcediff key="2e60e2d22a6218d30e39b41061e28c07">
+          <old project="foo_project" package="multibuild_package" rev="41738a60c123e349baf141e8a3c3219d" srcmd5="41738a60c123e349baf141e8a3c3219d"/>
+          <new project="home:Iggy:openSUSE:open-build-service:PR-1" package="multibuild_package" rev="6b7b1074d27aeb9c91f10327b00ec091" srcmd5="6b7b1074d27aeb9c91f10327b00ec091"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:43 GMT
 recorded_with: VCR 6.2.0

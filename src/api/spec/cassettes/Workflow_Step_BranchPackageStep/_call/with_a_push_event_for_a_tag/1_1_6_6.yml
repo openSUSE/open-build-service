@@ -42,12 +42,12 @@ http_interactions:
   recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_71
+    uri: http://backend:5352/source/foo_project/_meta?user=user_69
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Edna O'Brien</title>
+          <title>Jacob Have I Loved</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Edna O'Brien</title>
+          <title>Jacob Have I Loved</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_72
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_70
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>A Confederacy of Dunces</title>
-          <description>Porro sint quas in.</description>
+          <title>The Stars' Tennis Balls</title>
+          <description>Rerum voluptatem voluptas pariatur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>A Confederacy of Dunces</title>
-          <description>Porro sint quas in.</description>
+          <title>The Stars' Tennis Balls</title>
+          <description>Rerum voluptatem voluptas pariatur.</description>
         </package>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Voluptatum nesciunt eligendi. Quia perferendis et. Aut harum voluptatem.
+      string: Dolores et eos. Voluptas ipsum in. Recusandae velit provident.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -147,21 +147,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="65" vrev="65">
-          <srcmd5>5ef107b0aaec914b676d225a921cfa0f</srcmd5>
+        <revision rev="63" vrev="63">
+          <srcmd5>13208f37effb4b0d551096659fccc229</srcmd5>
           <version>unknown</version>
-          <time>1710434155</time>
+          <time>1710434154</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Qui est vel. Dolorem itaque eaque. Culpa ut voluptates.
+      string: Neque possimus occaecati. Repudiandae illo itaque. Sint tempore consequatur.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,15 +185,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="66" vrev="66">
-          <srcmd5>e146772e18bfc740a0af2d5ff3e04050</srcmd5>
+        <revision rev="64" vrev="64">
+          <srcmd5>9e71b7f36afd7e7978cccce5053e392d</srcmd5>
           <version>unknown</version>
-          <time>1710434155</time>
+          <time>1710434154</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: post
     uri: http://backend:5352/source/foo_project/bar_package?cmd=waitservice
@@ -227,7 +227,7 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22bar_package%22%20and%20linkinfo/@project=%22foo_project%22%20and%20@project=%22foo_project%22)
@@ -261,7 +261,7 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_meta?user=Iggy
@@ -269,8 +269,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package-release_abc" project="home:Iggy">
-          <title>A Confederacy of Dunces</title>
-          <description>Porro sint quas in.</description>
+          <title>The Stars' Tennis Balls</title>
+          <description>Rerum voluptatem voluptas pariatur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -291,15 +291,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '162'
+      - '178'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package-release_abc" project="home:Iggy">
-          <title>A Confederacy of Dunces</title>
-          <description>Porro sint quas in.</description>
+          <title>The Stars' Tennis Balls</title>
+          <description>Rerum voluptatem voluptas pariatur.</description>
         </package>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=branch&noservice=1&opackage=bar_package&oproject=foo_project&user=Iggy
@@ -331,15 +331,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="7" vrev="7">
-          <srcmd5>f210c606a4c5bcecc10fa92e2b378068</srcmd5>
+        <revision rev="5" vrev="5">
+          <srcmd5>31ae62c17c1d18586a3f29036d4b1687</srcmd5>
           <version>unknown</version>
-          <time>1710434155</time>
+          <time>1710434154</time>
           <user>Iggy</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_meta?user=Iggy
@@ -347,8 +347,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package-release_abc" project="home:Iggy">
-          <title>A Confederacy of Dunces</title>
-          <description>Porro sint quas in.</description>
+          <title>The Stars' Tennis Balls</title>
+          <description>Rerum voluptatem voluptas pariatur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -369,15 +369,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '162'
+      - '178'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package-release_abc" project="home:Iggy">
-          <title>A Confederacy of Dunces</title>
-          <description>Porro sint quas in.</description>
+          <title>The Stars' Tennis Balls</title>
+          <description>Rerum voluptatem voluptas pariatur.</description>
         </package>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc
@@ -407,14 +407,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package-release_abc" rev="7" vrev="7" srcmd5="f210c606a4c5bcecc10fa92e2b378068">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="e146772e18bfc740a0af2d5ff3e04050" baserev="e146772e18bfc740a0af2d5ff3e04050" xsrcmd5="6b8c3cfe8c0dc5438f455648a83b5086" lsrcmd5="f210c606a4c5bcecc10fa92e2b378068"/>
+        <directory name="bar_package-release_abc" rev="5" vrev="5" srcmd5="31ae62c17c1d18586a3f29036d4b1687">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="9e71b7f36afd7e7978cccce5053e392d" baserev="9e71b7f36afd7e7978cccce5053e392d" xsrcmd5="1610d7872a12012793c36659aadf6505" lsrcmd5="31ae62c17c1d18586a3f29036d4b1687"/>
           <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1710434133"/>
-          <entry name="_config" md5="e36f4c2a6dbb201b32335eb1ececb028" size="72" mtime="1710434155"/>
-          <entry name="_link" md5="e5d7eebbc2bf9434d2b995c472ec79a7" size="141" mtime="1710434155"/>
-          <entry name="somefile.txt" md5="c3dd175fc21683c3b236ed6d637cd41d" size="55" mtime="1710434155"/>
+          <entry name="_config" md5="e5618db24203d881f181ad0222a74f5f" size="62" mtime="1710434154"/>
+          <entry name="_link" md5="c554c798b735ded2b0d5f67db8cb7383" size="141" mtime="1710434154"/>
+          <entry name="somefile.txt" md5="3e9fdfa0193405384cef0fb92bd55550" size="76" mtime="1710434154"/>
         </directory>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?view=info
@@ -444,11 +444,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="bar_package-release_abc" rev="7" vrev="73" srcmd5="6b8c3cfe8c0dc5438f455648a83b5086" lsrcmd5="f210c606a4c5bcecc10fa92e2b378068" verifymd5="e146772e18bfc740a0af2d5ff3e04050">
+        <sourceinfo package="bar_package-release_abc" rev="5" vrev="69" srcmd5="1610d7872a12012793c36659aadf6505" lsrcmd5="31ae62c17c1d18586a3f29036d4b1687" verifymd5="9e71b7f36afd7e7978cccce5053e392d">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="foo_project" package="bar_package"/>
         </sourceinfo>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc
@@ -478,14 +478,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package-release_abc" rev="7" vrev="7" srcmd5="f210c606a4c5bcecc10fa92e2b378068">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="e146772e18bfc740a0af2d5ff3e04050" baserev="e146772e18bfc740a0af2d5ff3e04050" xsrcmd5="6b8c3cfe8c0dc5438f455648a83b5086" lsrcmd5="f210c606a4c5bcecc10fa92e2b378068"/>
+        <directory name="bar_package-release_abc" rev="5" vrev="5" srcmd5="31ae62c17c1d18586a3f29036d4b1687">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="9e71b7f36afd7e7978cccce5053e392d" baserev="9e71b7f36afd7e7978cccce5053e392d" xsrcmd5="1610d7872a12012793c36659aadf6505" lsrcmd5="31ae62c17c1d18586a3f29036d4b1687"/>
           <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1710434133"/>
-          <entry name="_config" md5="e36f4c2a6dbb201b32335eb1ececb028" size="72" mtime="1710434155"/>
-          <entry name="_link" md5="e5d7eebbc2bf9434d2b995c472ec79a7" size="141" mtime="1710434155"/>
-          <entry name="somefile.txt" md5="c3dd175fc21683c3b236ed6d637cd41d" size="55" mtime="1710434155"/>
+          <entry name="_config" md5="e5618db24203d881f181ad0222a74f5f" size="62" mtime="1710434154"/>
+          <entry name="_link" md5="c554c798b735ded2b0d5f67db8cb7383" size="141" mtime="1710434154"/>
+          <entry name="somefile.txt" md5="3e9fdfa0193405384cef0fb92bd55550" size="76" mtime="1710434154"/>
         </directory>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -517,14 +517,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="8f28c978d2949441f442a28cfc5a2b9e">
+        <sourcediff key="7043fcbb95705c68b6540b90f7a6dd01">
           <old project="home:Iggy" package="bar_package-release_abc" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy" package="bar_package-release_abc" rev="7" srcmd5="f210c606a4c5bcecc10fa92e2b378068"/>
+          <new project="home:Iggy" package="bar_package-release_abc" rev="5" srcmd5="31ae62c17c1d18586a3f29036d4b1687"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -556,14 +556,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="8aac1a679b977c790a4fdf5bc62dcc56">
-          <old project="foo_project" package="bar_package" rev="e146772e18bfc740a0af2d5ff3e04050" srcmd5="e146772e18bfc740a0af2d5ff3e04050"/>
-          <new project="home:Iggy" package="bar_package-release_abc" rev="6b8c3cfe8c0dc5438f455648a83b5086" srcmd5="6b8c3cfe8c0dc5438f455648a83b5086"/>
+        <sourcediff key="30e9139b76e7c9ccc29cdbc5491e3d9b">
+          <old project="foo_project" package="bar_package" rev="9e71b7f36afd7e7978cccce5053e392d" srcmd5="9e71b7f36afd7e7978cccce5053e392d"/>
+          <new project="home:Iggy" package="bar_package-release_abc" rev="1610d7872a12012793c36659aadf6505" srcmd5="1610d7872a12012793c36659aadf6505"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/_meta?user=Iggy
@@ -621,7 +621,7 @@ http_interactions:
             <arch>aarch64</arch>
           </repository>
         </project>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_branch_request?comment=Updated%20_branch_request%20file%20via%20SCM/CI%20Workflow%20run&user=Iggy
@@ -651,15 +651,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="8" vrev="8">
-          <srcmd5>8d80a4552a8df40d55a9c52a60d78482</srcmd5>
+        <revision rev="6" vrev="6">
+          <srcmd5>bef04e36c1afbc421f07f6ac127172d3</srcmd5>
           <version>unknown</version>
-          <time>1710434155</time>
+          <time>1710434154</time>
           <user>Iggy</user>
           <comment>Updated _branch_request file via SCM/CI Workflow run</comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc/_meta?user=Iggy
@@ -667,8 +667,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="bar_package-release_abc" project="home:Iggy">
-          <title>A Confederacy of Dunces</title>
-          <description>Porro sint quas in.</description>
+          <title>The Stars' Tennis Balls</title>
+          <description>Rerum voluptatem voluptas pariatur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -689,15 +689,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '162'
+      - '178'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package-release_abc" project="home:Iggy">
-          <title>A Confederacy of Dunces</title>
-          <description>Porro sint quas in.</description>
+          <title>The Stars' Tennis Balls</title>
+          <description>Rerum voluptatem voluptas pariatur.</description>
         </package>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc
@@ -727,14 +727,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package-release_abc" rev="8" vrev="8" srcmd5="8d80a4552a8df40d55a9c52a60d78482">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="e146772e18bfc740a0af2d5ff3e04050" baserev="e146772e18bfc740a0af2d5ff3e04050" xsrcmd5="4adc750e0c7397268b852b2715bd4d6f" lsrcmd5="8d80a4552a8df40d55a9c52a60d78482"/>
+        <directory name="bar_package-release_abc" rev="6" vrev="6" srcmd5="bef04e36c1afbc421f07f6ac127172d3">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="9e71b7f36afd7e7978cccce5053e392d" baserev="9e71b7f36afd7e7978cccce5053e392d" xsrcmd5="b9f780989525aaf31b370212ed9deda4" lsrcmd5="bef04e36c1afbc421f07f6ac127172d3"/>
           <entry name="_branch_request" md5="8ccc2896b48bb83bb375eaf0b342764a" size="120" mtime="1710434153"/>
-          <entry name="_config" md5="e36f4c2a6dbb201b32335eb1ececb028" size="72" mtime="1710434155"/>
-          <entry name="_link" md5="e5d7eebbc2bf9434d2b995c472ec79a7" size="141" mtime="1710434155"/>
-          <entry name="somefile.txt" md5="c3dd175fc21683c3b236ed6d637cd41d" size="55" mtime="1710434155"/>
+          <entry name="_config" md5="e5618db24203d881f181ad0222a74f5f" size="62" mtime="1710434154"/>
+          <entry name="_link" md5="c554c798b735ded2b0d5f67db8cb7383" size="141" mtime="1710434154"/>
+          <entry name="somefile.txt" md5="3e9fdfa0193405384cef0fb92bd55550" size="76" mtime="1710434154"/>
         </directory>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?view=info
@@ -764,11 +764,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="bar_package-release_abc" rev="8" vrev="74" srcmd5="4adc750e0c7397268b852b2715bd4d6f" lsrcmd5="8d80a4552a8df40d55a9c52a60d78482" verifymd5="7b41f44dfac5a0ec88d4742679466aa1">
+        <sourceinfo package="bar_package-release_abc" rev="6" vrev="70" srcmd5="b9f780989525aaf31b370212ed9deda4" lsrcmd5="bef04e36c1afbc421f07f6ac127172d3" verifymd5="baff600042c651e655ed8b895f579d2b">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="foo_project" package="bar_package"/>
         </sourceinfo>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc
@@ -798,14 +798,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package-release_abc" rev="8" vrev="8" srcmd5="8d80a4552a8df40d55a9c52a60d78482">
-          <linkinfo project="foo_project" package="bar_package" srcmd5="e146772e18bfc740a0af2d5ff3e04050" baserev="e146772e18bfc740a0af2d5ff3e04050" xsrcmd5="4adc750e0c7397268b852b2715bd4d6f" lsrcmd5="8d80a4552a8df40d55a9c52a60d78482"/>
+        <directory name="bar_package-release_abc" rev="6" vrev="6" srcmd5="bef04e36c1afbc421f07f6ac127172d3">
+          <linkinfo project="foo_project" package="bar_package" srcmd5="9e71b7f36afd7e7978cccce5053e392d" baserev="9e71b7f36afd7e7978cccce5053e392d" xsrcmd5="b9f780989525aaf31b370212ed9deda4" lsrcmd5="bef04e36c1afbc421f07f6ac127172d3"/>
           <entry name="_branch_request" md5="8ccc2896b48bb83bb375eaf0b342764a" size="120" mtime="1710434153"/>
-          <entry name="_config" md5="e36f4c2a6dbb201b32335eb1ececb028" size="72" mtime="1710434155"/>
-          <entry name="_link" md5="e5d7eebbc2bf9434d2b995c472ec79a7" size="141" mtime="1710434155"/>
-          <entry name="somefile.txt" md5="c3dd175fc21683c3b236ed6d637cd41d" size="55" mtime="1710434155"/>
+          <entry name="_config" md5="e5618db24203d881f181ad0222a74f5f" size="62" mtime="1710434154"/>
+          <entry name="_link" md5="c554c798b735ded2b0d5f67db8cb7383" size="141" mtime="1710434154"/>
+          <entry name="somefile.txt" md5="3e9fdfa0193405384cef0fb92bd55550" size="76" mtime="1710434154"/>
         </directory>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -837,14 +837,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="0ced1770a127a6b14e0d51135e067d05">
+        <sourcediff key="331d4960a7482a1e3e239529e1274064">
           <old project="home:Iggy" package="bar_package-release_abc" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:Iggy" package="bar_package-release_abc" rev="8" srcmd5="8d80a4552a8df40d55a9c52a60d78482"/>
+          <new project="home:Iggy" package="bar_package-release_abc" rev="6" srcmd5="bef04e36c1afbc421f07f6ac127172d3"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:Iggy/bar_package-release_abc?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -876,12 +876,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="3e280888751010e1f8186b7cdb6b7450">
-          <old project="foo_project" package="bar_package" rev="e146772e18bfc740a0af2d5ff3e04050" srcmd5="e146772e18bfc740a0af2d5ff3e04050"/>
-          <new project="home:Iggy" package="bar_package-release_abc" rev="4adc750e0c7397268b852b2715bd4d6f" srcmd5="4adc750e0c7397268b852b2715bd4d6f"/>
+        <sourcediff key="1c3b2e78b5a377ee4c913dc3141208b4">
+          <old project="foo_project" package="bar_package" rev="9e71b7f36afd7e7978cccce5053e392d" srcmd5="9e71b7f36afd7e7978cccce5053e392d"/>
+          <new project="home:Iggy" package="bar_package-release_abc" rev="b9f780989525aaf31b370212ed9deda4" srcmd5="b9f780989525aaf31b370212ed9deda4"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 14 Mar 2024 16:35:55 GMT
+  recorded_at: Thu, 14 Mar 2024 16:35:54 GMT
 recorded_with: VCR 6.2.0
