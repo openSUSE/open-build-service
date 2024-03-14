@@ -11,18 +11,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
                         token: token)
   end
 
-  RSpec.shared_context 'failed when source_package does not exist' do
-    let(:step_instructions) do
-      {
-        source_project: project.name,
-        source_package: 'this_package_does_not_exist',
-        target_project: target_project_name
-      }
-    end
-
-    it { expect { subject.call }.to raise_error(BranchPackage::Errors::CanNotBranchPackageNotFound) }
-  end
-
   RSpec.shared_context 'failed without branch permissions' do
     let(:branch_package_mock) { instance_double(BranchPackage) }
     before do
@@ -165,7 +153,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       end
 
       it_behaves_like 'successful new PR or MR event'
-      it_behaves_like 'failed when source_package does not exist'
       it_behaves_like 'failed without branch permissions'
       it_behaves_like 'fails with insufficient write permission on target project'
     end
@@ -310,7 +297,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       end
 
       it_behaves_like 'successful new PR or MR event'
-      it_behaves_like 'failed when source_package does not exist'
       it_behaves_like 'failed without branch permissions'
       it_behaves_like 'fails with insufficient write permission on target project'
     end
@@ -361,7 +347,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
         expect(SCMStatusReporter).not_to have_received(:new)
       end
 
-      it_behaves_like 'failed when source_package does not exist'
       it_behaves_like 'failed without branch permissions'
       it_behaves_like 'fails with insufficient write permission on target project'
     end
@@ -477,5 +462,29 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
 
       it { expect(subject.send(:skip_repositories?)).not_to be_truthy }
     end
+  end
+
+  describe '#check_source_access' do
+    let(:project) { create(:project, name: 'foo_project', maintainer: user) }
+    let(:scm_webhook) do
+      SCMWebhook.new(payload: {
+                       scm: 'github',
+                       event: 'pull_request',
+                       action: 'opened',
+                       pr_number: 1,
+                       source_repository_full_name: 'reponame',
+                       commit_sha: long_commit_sha,
+                       target_repository_full_name: 'openSUSE/open-build-service'
+                     })
+    end
+    let(:step_instructions) do
+      {
+        source_project: project.name,
+        source_package: 'this_package_does_not_exist',
+        target_project: target_project_name
+      }
+    end
+
+    it { expect { subject.call }.to raise_error(BranchPackage::Errors::CanNotBranchPackageNotFound) }
   end
 end
