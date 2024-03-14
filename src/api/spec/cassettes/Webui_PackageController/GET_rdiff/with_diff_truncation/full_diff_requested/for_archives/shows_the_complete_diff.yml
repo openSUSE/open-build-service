@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Tue, 26 Sep 2023 14:23:53 GMT
+  recorded_at: Thu, 14 Mar 2024 12:41:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/diff-truncation-test-2/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="diff-truncation-test-2" project="home:tom">
-          <title>Quo Vadis</title>
-          <description>Modi reiciendis omnis quia.</description>
+          <title>Where Angels Fear to Tread</title>
+          <description>Aut nihil quia est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '163'
     body:
       encoding: UTF-8
       string: |
         <package name="diff-truncation-test-2" project="home:tom">
-          <title>Quo Vadis</title>
-          <description>Modi reiciendis omnis quia.</description>
+          <title>Where Angels Fear to Tread</title>
+          <description>Aut nihil quia est.</description>
         </package>
-  recorded_at: Tue, 26 Sep 2023 14:23:53 GMT
+  recorded_at: Thu, 14 Mar 2024 12:41:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/diff-truncation-test-2/bigfile_archive.tar.gz
@@ -110,15 +110,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
+        <revision rev="1" vrev="1">
           <srcmd5>a9789ffd295bf47f77113616443547ac</srcmd5>
           <version>unknown</version>
-          <time>1695738233</time>
+          <time>1710420080</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:23:53 GMT
+  recorded_at: Thu, 14 Mar 2024 12:41:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/diff-truncation-test-2/bigfile_archive.tar.gz
@@ -151,15 +151,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
+        <revision rev="2" vrev="2">
           <srcmd5>f83eab96d07ccb93931e4136c117e1df</srcmd5>
           <version>unknown</version>
-          <time>1695738233</time>
+          <time>1710420080</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:23:53 GMT
+  recorded_at: Thu, 14 Mar 2024 12:41:20 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/diff-truncation-test-2
@@ -189,10 +189,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="diff-truncation-test-2" rev="4" vrev="4" srcmd5="f83eab96d07ccb93931e4136c117e1df">
-          <entry name="bigfile_archive.tar.gz" md5="e4f963909dcadcfb2cb888d0ce167570" size="10240" mtime="1695738232"/>
+        <directory name="diff-truncation-test-2" rev="2" vrev="2" srcmd5="f83eab96d07ccb93931e4136c117e1df">
+          <entry name="bigfile_archive.tar.gz" md5="e4f963909dcadcfb2cb888d0ce167570" size="10240" mtime="1710420080"/>
         </directory>
-  recorded_at: Tue, 26 Sep 2023 14:23:53 GMT
+  recorded_at: Thu, 14 Mar 2024 12:41:20 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/diff-truncation-test-2
@@ -222,13 +222,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="diff-truncation-test-2" rev="4" vrev="4" srcmd5="f83eab96d07ccb93931e4136c117e1df">
-          <entry name="bigfile_archive.tar.gz" md5="e4f963909dcadcfb2cb888d0ce167570" size="10240" mtime="1695738232"/>
+        <directory name="diff-truncation-test-2" rev="2" vrev="2" srcmd5="f83eab96d07ccb93931e4136c117e1df">
+          <entry name="bigfile_archive.tar.gz" md5="e4f963909dcadcfb2cb888d0ce167570" size="10240" mtime="1710420080"/>
         </directory>
-  recorded_at: Tue, 26 Sep 2023 14:23:53 GMT
+  recorded_at: Thu, 14 Mar 2024 12:41:20 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom/diff-truncation-test-2?cmd=diff&expand=1&filelimit=0&rev=4&tarlimit=0&view=xml&withissues=1
+    uri: http://backend:5352/source/home:tom/diff-truncation-test-2?cmd=diff&expand=1&filelimit=0&rev=2&tarlimit=0&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -257,9 +257,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="c50e6fe89975f15cf5cf4454cd7a886b">
-          <old project="home:tom" package="diff-truncation-test-2" rev="3" srcmd5="a9789ffd295bf47f77113616443547ac"/>
-          <new project="home:tom" package="diff-truncation-test-2" rev="4" srcmd5="f83eab96d07ccb93931e4136c117e1df"/>
+        <sourcediff key="81f85ae875118bbaf8d7f8cfc0b19386">
+          <old project="home:tom" package="diff-truncation-test-2" rev="1" srcmd5="a9789ffd295bf47f77113616443547ac"/>
+          <new project="home:tom" package="diff-truncation-test-2" rev="2" srcmd5="f83eab96d07ccb93931e4136c117e1df"/>
           <files>
             <file state="changed">
               <old name="bigfile_archive.tar.gz/bigfile.txt" md5="0ab4de70d53908fd2b2669101500a09a" size="12"/>
@@ -283,5 +283,5 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Tue, 26 Sep 2023 14:23:53 GMT
+  recorded_at: Thu, 14 Mar 2024 12:41:20 GMT
 recorded_with: VCR 6.2.0

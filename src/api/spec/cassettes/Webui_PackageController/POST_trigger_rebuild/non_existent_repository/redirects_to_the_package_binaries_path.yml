@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Mon, 06 Nov 2023 09:41:55 GMT
+  recorded_at: Thu, 14 Mar 2024 12:41:15 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Clouds of Witness</title>
-          <description>Qui porro veritatis laboriosam.</description>
+          <title>Postern of Fate</title>
+          <description>Consectetur mollitia porro cum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Clouds of Witness</title>
-          <description>Qui porro veritatis laboriosam.</description>
+          <title>Postern of Fate</title>
+          <description>Consectetur mollitia porro cum.</description>
         </package>
-  recorded_at: Mon, 06 Nov 2023 09:41:55 GMT
+  recorded_at: Thu, 14 Mar 2024 12:41:15 GMT
 - request:
     method: post
     uri: http://backend:5352/build/home:tom?arch=&cmd=rebuild&package=my_package&repository=non_existent_repository
@@ -112,5 +112,5 @@ http_interactions:
         <status code="400">
           <summary>arch is empty</summary>
         </status>
-  recorded_at: Mon, 06 Nov 2023 09:41:55 GMT
+  recorded_at: Thu, 14 Mar 2024 12:41:15 GMT
 recorded_with: VCR 6.2.0

@@ -19,8 +19,9 @@
         = link_to('#', title: 'Delete file', data: { 'bs-toggle': 'modal',
                                                      'bs-target': '#delete-file-modal',
                                                      confirmation_text: "Please confirm deletion of file '#{file['name']}'",
-                                                     action: url_for(action: :remove_file,
-                                                                     project: project,
-                                                                     package: package,
+                                                     action: url_for(action: :destroy,
+                                                                     controller: 'webui/packages/files',
+                                                                     project_name: project,
+                                                                     package_name: package,
                                                                      filename: file['name']) }) do
           %i.fas.fa-times-circle.text-danger

@@ -198,56 +198,6 @@ RSpec.describe Webui::PackageController, :vcr do
     end
   end
 
-  describe 'DELETE #remove_file' do
-    before do
-      login(user)
-      allow_any_instance_of(Package).to receive(:delete_file).and_return(true)
-    end
-
-    def remove_file_post
-      post :remove_file, params: { project: user.home_project, package: source_package, filename: 'the_file' }
-    end
-
-    context 'with successful backend call' do
-      before do
-        remove_file_post
-      end
-
-      it { expect(flash[:success]).to eq("File 'the_file' removed successfully") }
-      it { expect(assigns(:package)).to eq(source_package) }
-      it { expect(assigns(:project)).to eq(user.home_project) }
-      it { expect(response).to redirect_to(package_show_path(project: user.home_project, package: source_package)) }
-    end
-
-    context 'with not successful backend call' do
-      before do
-        allow_any_instance_of(Package).to receive(:delete_file).and_raise(Backend::NotFoundError)
-        remove_file_post
-      end
-
-      it { expect(flash[:error]).to eq("Failed to remove file 'the_file'") }
-    end
-
-    it 'calls delete_file method' do
-      allow_any_instance_of(Package).to receive(:delete_file).with('the_file')
-      remove_file_post
-
-      expect(flash[:success]).to eq("File 'the_file' removed successfully")
-    end
-
-    context 'with no permissions' do
-      let(:other_user) { create(:confirmed_user) }
-
-      before do
-        login other_user
-        remove_file_post
-      end
-
-      it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this package.') }
-      it { expect(Package.where(name: 'my_package')).to exist }
-    end
-  end
-
   describe 'GET #revisions' do
     let(:project) { create(:project, maintainer: user, name: 'some_dev_project123') }
     let(:package) { create(:package_with_revisions, name: 'package_with_one_revision', revision_count: 1, project: project) }

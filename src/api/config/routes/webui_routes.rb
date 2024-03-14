@@ -91,7 +91,6 @@ OBSApi::Application.routes.draw do
         get 'package/new/:project' => :new, constraints: cons, as: 'new_package'
         post 'package/save/:project/:package' => :save, constraints: cons, as: 'package_save'
         post 'package/remove/:project/:package' => :remove, constraints: cons
-        post 'package/remove_file/:project/:package/:filename' => :remove_file, constraints: cons
         post 'package/save_person/:project/:package' => :save_person, constraints: cons, as: 'package_save_person'
         post 'package/save_group/:project/:package' => :save_group, constraints: cons, as: 'package_save_group'
         post 'package/remove_role/:project/:package' => :remove_role, constraints: cons, as: 'package_remove_role'
@@ -282,7 +281,7 @@ OBSApi::Application.routes.draw do
         resources :deletions, controller: 'webui/requests/deletions', only: %i[new create], constraints: cons
         resources :devel_project_changes, controller: 'webui/requests/devel_project_changes', only: %i[new create], constraints: cons
         resources :submissions, controller: 'webui/requests/submissions', only: %i[new create], constraints: cons
-        resources :files, controller: 'webui/packages/files', only: %i[new create update], constraints: cons, param: :filename, format: false
+        resources :files, controller: 'webui/packages/files', only: %i[new create update destroy], constraints: cons, param: :filename, format: false
         put 'toggle_watched_item', controller: 'webui/watched_items', constraints: cons
         resource :badge, controller: 'webui/packages/badge', only: [:show], constraints: cons.merge(format: :svg)
         resources :repositories, only: [], param: :name do
