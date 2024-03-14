@@ -3,6 +3,8 @@ RSpec.describe GitlabStatusReporter, type: :service do
 
   describe '.new' do
     context 'status pending when event_type is missing' do
+      subject { scm_status_reporter }
+
       let(:event_payload) { {} }
       let(:event_subscription_payload) { {} }
       let(:token) { 'XYCABC' }
@@ -11,12 +13,12 @@ RSpec.describe GitlabStatusReporter, type: :service do
       let(:state) { 'pending' }
       let(:initial_report) { false }
 
-      subject { scm_status_reporter }
-
       it { expect(subject.state).to eq('pending') }
     end
 
     context 'status failed on gitlab' do
+      subject { scm_status_reporter }
+
       let(:event_payload) { { project: 'home:jane_doe', package: 'bye', repository: 'openSUSE_Leap', arch: 'x86_64' } }
       let(:event_subscription_payload) { { scm: 'gitlab' } }
       let(:token) { 'XYCABC' }
@@ -25,14 +27,14 @@ RSpec.describe GitlabStatusReporter, type: :service do
       let(:state) { 'failed' }
       let(:initial_report) { false }
 
-      subject { scm_status_reporter }
-
       it { expect(subject.state).to eq('failed') }
     end
   end
 
   describe '#call' do
     context 'when sending a report back to GitLab' do
+      subject { scm_status_reporter.call }
+
       let(:event_payload) do
         { project: 'home:danidoni', package: 'hello_world',
           repository: 'openSUSE_Tumbleweed', arch: 'x86_64' }
@@ -53,8 +55,6 @@ RSpec.describe GitlabStatusReporter, type: :service do
       end
       let(:gitlab_instance) { instance_spy(Gitlab::Client, update_commit_status: true) }
 
-      subject { scm_status_reporter.call }
-
       before do
         allow(Gitlab).to receive(:client).and_return(gitlab_instance)
         subject
@@ -66,6 +66,8 @@ RSpec.describe GitlabStatusReporter, type: :service do
     end
 
     context 'when reporting a submit request' do
+      subject { scm_status_reporter.call }
+
       let(:event_payload) do
         { project: 'home:danidoni', package: 'hello_world',
           repository: 'openSUSE_Tumbleweed', arch: 'x86_64',
@@ -86,8 +88,6 @@ RSpec.describe GitlabStatusReporter, type: :service do
         }
       end
       let(:gitlab_instance) { instance_spy(Gitlab::Client, update_commit_status: true) }
-
-      subject { scm_status_reporter.call }
 
       before do
         allow(Gitlab).to receive(:client).and_return(gitlab_instance)

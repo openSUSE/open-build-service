@@ -7,6 +7,8 @@ RSpec.describe ParsePackageDiff do
 
   describe '#sorted_filenames_from_sourcediff' do
     context 'with one file' do
+      subject { instance_with_parse_package_diff_support.sorted_filenames_from_sourcediff(package_diff).first }
+
       let(:filename) { 'my_filename' }
       let(:package_diff) do
         "<sourcediff key='461472c75f0df9421a89f528417e72eb'>
@@ -23,8 +25,6 @@ RSpec.describe ParsePackageDiff do
           </issues>
         </sourcediff>"
       end
-
-      subject { instance_with_parse_package_diff_support.sorted_filenames_from_sourcediff(package_diff).first }
 
       it 'contains the old filename' do
         result = { 'project' => 'home:Admin', 'package' => 'test', 'rev' => '4', 'srcmd5' => '61c8de91f59df43c9ffd1fa9b4a3f055' }
@@ -44,6 +44,8 @@ RSpec.describe ParsePackageDiff do
     end
 
     context 'with more than one file' do
+      subject { instance_with_parse_package_diff_support.sorted_filenames_from_sourcediff(package_diff).first }
+
       let(:package_diff) do
         '<sourcediff key="461472c75f0df9421a89f528417e72eb">
           <old project="home:Admin" package="test" rev="4" srcmd5="61c8de91f59df43c9ffd1fa9b4a3f055" />
@@ -82,8 +84,6 @@ RSpec.describe ParsePackageDiff do
         </sourcediff>'
       end
 
-      subject { instance_with_parse_package_diff_support.sorted_filenames_from_sourcediff(package_diff).first }
-
       it 'orders the filenames by type' do
         # changes files, spec files, patch files followed by all other files
         expect(subject['filenames']).to eq(['aa.changes', 'bb.changes', 'aa.spec', 'bb.spec', 'aa.patch', 'bb.dif', 'cc.diff', 'aa_file', 'bb_file'])
@@ -91,6 +91,8 @@ RSpec.describe ParsePackageDiff do
     end
 
     context 'with issues' do
+      subject { instance_with_parse_package_diff_support.sorted_filenames_from_sourcediff(package_diff).first['issues'] }
+
       let!(:package_diff) do
         <<~XML
           <sourcediff key='461472c75f0df9421a89f528417e72eb'>
@@ -110,8 +112,6 @@ RSpec.describe ParsePackageDiff do
       let(:issue_tracker) { IssueTracker.first }
       let(:issue) { create(:issue, issue_tracker: issue_tracker) }
       let(:deleted_issue) { create(:issue, name: 1234, issue_tracker: issue_tracker) }
-
-      subject { instance_with_parse_package_diff_support.sorted_filenames_from_sourcediff(package_diff).first['issues'] }
 
       it { expect(subject[issue.label][:name]).to eq(issue.name) }
       it { expect(subject[issue.label][:tracker]).to eq(issue_tracker.name) }

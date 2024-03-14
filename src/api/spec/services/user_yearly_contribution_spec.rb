@@ -20,11 +20,11 @@ RSpec.describe UserYearlyContribution, type: :service do
   end
 
   describe '#call' do
+    subject { described_class.new(user, starting_date).call }
+
     before do
       comment_for_request
     end
-
-    subject { described_class.new(user, starting_date).call }
 
     context 'when there is no activity' do
       let(:starting_date) { 1.day.from_now }

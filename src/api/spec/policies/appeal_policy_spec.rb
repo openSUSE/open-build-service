@@ -1,11 +1,11 @@
 RSpec.describe AppealPolicy do
+  subject { described_class }
+
   let(:anonymous_user) { create(:user_nobody) }
   let(:user) { create(:confirmed_user) }
   let(:moderator) { create(:moderator) }
   let(:staff_user) { create(:staff_user) }
   let(:admin_user) { create(:admin_user) }
-
-  subject { AppealPolicy }
 
   context 'with the content_moderation feature disabled' do
     let(:appeal) { create(:appeal) }

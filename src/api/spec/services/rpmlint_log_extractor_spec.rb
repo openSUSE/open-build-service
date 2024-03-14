@@ -1,7 +1,7 @@
 RSpec.describe RpmlintLogExtractor, type: :service do
-  let(:parameters) { ActionController::Parameters.new(project: 'home:user1', package: 'package1', repository: 'repo1', architecture: 'arch1') }
-
   subject { described_class.new(parameters).call }
+
+  let(:parameters) { ActionController::Parameters.new(project: 'home:user1', package: 'package1', repository: 'repo1', architecture: 'arch1') }
 
   before do
     Flipper.enable(:request_show_redesign)

@@ -774,7 +774,7 @@ RSpec/IteratedExpectation:
   Exclude:
     - 'spec/models/user_spec.rb'
 
-# Offense count: 391
+# Offense count: 296
 # This cop supports safe autocorrection (--autocorrect).
 RSpec/LeadingSubject:
   Enabled: false

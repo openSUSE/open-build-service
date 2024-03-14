@@ -1,11 +1,11 @@
 RSpec.describe AttribPolicy do
+  subject { described_class }
+
   let(:anonymous_user) { create(:user_nobody) }
   let(:user_in_a_group) { create(:groups_user, user: create(:confirmed_user, :with_home)).user }
   let(:admin_user) { create(:admin_user) }
 
-  subject { AttribPolicy }
-
-  context :without_explicit_permissions do
+  context 'without explicit permissions' do
     let(:attrib) { create(:attrib) }
 
     permissions :create?, :update?, :destroy? do
@@ -15,7 +15,7 @@ RSpec.describe AttribPolicy do
     end
   end
 
-  context :with_permissions_on_attrib_container do
+  context 'with permissions on attrib container' do
     let(:attrib) { create(:attrib, project: user_in_a_group.home_project) }
 
     permissions :create?, :update?, :destroy? do
@@ -25,7 +25,7 @@ RSpec.describe AttribPolicy do
     end
   end
 
-  context :with_permissions_for_a_group do
+  context 'with permissions for a group' do
     let(:attrib) { create(:attrib) }
 
     before do
@@ -39,7 +39,7 @@ RSpec.describe AttribPolicy do
     end
   end
 
-  context :with_permissions_for_a_user do
+  context 'with permissions for a user' do
     let(:attrib) { create(:attrib) }
 
     before do
@@ -53,7 +53,7 @@ RSpec.describe AttribPolicy do
     end
   end
 
-  context :with_permissions_for_a_role do
+  context 'with permissions for a role' do
     let(:attrib) { create(:attrib, project: user_in_a_group.home_project) }
     let(:user_role) { create(:roles_user, user: user_in_a_group).role }
 

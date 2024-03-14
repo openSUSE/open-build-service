@@ -1,4 +1,6 @@
 RSpec.describe WorkflowRunsFinder do
+  subject { described_class.new }
+
   let(:workflow_token) { create(:workflow_token) }
   # GitHub
   let!(:workflow_run_github_push) { create(:workflow_run, :push, :succeeded, token: workflow_token, event_source_name: '94561cd') }
@@ -16,8 +18,6 @@ RSpec.describe WorkflowRunsFinder do
       create(:workflow_run, token: workflow_token, status: status, request_headers: "HTTP_X_GITHUB_EVENT: pull_request\n")
     end
   end
-
-  subject { described_class.new }
 
   describe '#all' do
     it 'returns all workflow runs' do

@@ -1,10 +1,10 @@
 RSpec.describe Cloud::Azure::ConfigurationPolicy do
+  subject { described_class }
+
   let(:user) { create(:user) }
   let(:other_user) { build(:user) }
   let(:user_nobody) { build(:user_nobody) }
   let(:azure_configuration) { create(:azure_configuration, :skip_encrypt_credentials, user: user) }
-
-  subject { described_class }
 
   permissions :show?, :update?, :destroy? do
     it { is_expected.to permit(user, azure_configuration) }

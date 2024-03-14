@@ -2,6 +2,8 @@ require Rails.root.join('db/data/20200424080753_generate_web_notifications.rb')
 
 RSpec.describe GenerateWebNotifications, type: :migration do
   describe 'up' do
+    subject { GenerateWebNotifications.new.up }
+
     let(:owner) { create(:confirmed_user, login: 'bob') }
     let(:requester) { create(:confirmed_user, login: 'ann') }
     let!(:rss_notifications) { create_list(:rss_notification, 5, subscriber: owner) }
@@ -17,8 +19,6 @@ RSpec.describe GenerateWebNotifications, type: :migration do
              channel: :disabled,
              enabled: false)
     end
-
-    subject { GenerateWebNotifications.new.up }
 
     it { expect { subject }.to change(EventSubscription, :count).from(7).to(14) }
 

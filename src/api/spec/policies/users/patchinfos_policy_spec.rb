@@ -1,8 +1,8 @@
 RSpec.describe Users::PatchinfosPolicy do
+  subject { described_class }
+
   let(:user) { create(:user) }
   let(:user_nobody) { build(:user_nobody) }
-
-  subject { described_class }
 
   permissions :index? do
     it { is_expected.to permit(user, %i[users patchinfos]) }

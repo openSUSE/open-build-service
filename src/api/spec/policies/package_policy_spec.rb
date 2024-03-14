@@ -1,4 +1,6 @@
 RSpec.describe PackagePolicy do
+  subject { described_class }
+
   let(:anonymous_user) { create(:user_nobody) }
   let(:user) { create(:confirmed_user, :with_home) }
   let(:other_user) { create(:confirmed_user) }
@@ -6,9 +8,7 @@ RSpec.describe PackagePolicy do
   let(:project) { user.home_project }
   let(:package) { create(:package, name: 'my_package', project: project) }
 
-  subject { PackagePolicy }
-
-  context :create_in_locked_project_without_ignore_lock do
+  context 'create in locked project without ignore lock' do
     permissions :create? do
       before do
         allow(package.project).to receive(:is_locked?).and_return(true)
@@ -23,7 +23,7 @@ RSpec.describe PackagePolicy do
     end
   end
 
-  context :create_in_locked_project_with_ignore_lock do
+  context 'create in locked project with ignore lock' do
     permissions :create? do
       before do
         allow(package.project).to receive(:is_locked?).and_return(true)
@@ -39,7 +39,7 @@ RSpec.describe PackagePolicy do
     end
   end
 
-  context :create_in_unlocked_project do
+  context 'create in unlocked project' do
     permissions :create? do
       before do
         allow(other_user).to receive(:has_global_permission?).with('create_package').and_return(true)
@@ -53,7 +53,7 @@ RSpec.describe PackagePolicy do
     end
   end
 
-  context :branch_as_anonymous do
+  context 'branch as anonymous' do
     permissions :create_branch? do
       before do
         skip('it should fail but its passing')
@@ -63,7 +63,7 @@ RSpec.describe PackagePolicy do
     end
   end
 
-  context :branch_as_other_user do
+  context 'branch as other user' do
     permissions :create_branch? do
       it { expect(subject).to permit(other_user, package) }
     end
@@ -77,7 +77,7 @@ RSpec.describe PackagePolicy do
     it { expect(subject).to permit(user, package) }
   end
 
-  context :source_access_enabled do
+  context 'source access enabled' do
     permissions :source_access? do
       before do
         allow_any_instance_of(Package).to receive(:disabled_for?).with('sourceaccess', nil, nil).and_return(true)
@@ -87,7 +87,7 @@ RSpec.describe PackagePolicy do
     end
   end
 
-  context :source_access_disabled do
+  context 'source access disabled' do
     permissions :source_access? do
       before do
         allow_any_instance_of(Package).to receive(:disabled_for?).with('sourceaccess', nil, nil).and_return(false)

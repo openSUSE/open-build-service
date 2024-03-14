@@ -3,6 +3,8 @@ RSpec.describe GiteaStatusReporter, type: :service do
 
   describe '.new' do
     context 'status pending when event_type is missing' do
+      subject { scm_status_reporter }
+
       let(:event_payload) { {} }
       let(:event_subscription_payload) { {} }
       let(:token) { 'XYCABC' }
@@ -11,12 +13,12 @@ RSpec.describe GiteaStatusReporter, type: :service do
       let(:workflow_run) { nil }
       let(:initial_report) { false }
 
-      subject { scm_status_reporter }
-
       it { expect(subject.state).to eq('pending') }
     end
 
     context 'status failed on gitea' do
+      subject { scm_status_reporter }
+
       let(:event_payload) { { project: 'home:john_doe', package: 'hello', repository: 'openSUSE_Tumbleweed', arch: 'i586' } }
       let(:event_subscription_payload) { { scm: 'gitea' } }
       let(:token) { 'XYCABC' }
@@ -25,14 +27,14 @@ RSpec.describe GiteaStatusReporter, type: :service do
       let(:workflow_run) { nil }
       let(:initial_report) { false }
 
-      subject { scm_status_reporter }
-
       it { expect(subject.state).to eq('failure') }
     end
   end
 
   describe '#call' do
     context 'when sending a report back to Gitea' do
+      subject { scm_status_reporter.call }
+
       let(:event_payload) do
         { project: 'home:danidoni', package: 'hello_world',
           repository: 'openSUSE_Tumbleweed', arch: 'x86_64' }
@@ -53,8 +55,6 @@ RSpec.describe GiteaStatusReporter, type: :service do
       end
       let(:gitea_client) { instance_spy(GiteaAPI::V1::Client) }
 
-      subject { scm_status_reporter.call }
-
       before do
         allow(GiteaAPI::V1::Client).to receive(:new).and_return(gitea_client)
         subject
@@ -66,6 +66,8 @@ RSpec.describe GiteaStatusReporter, type: :service do
     end
 
     context 'when reporting a submit request' do
+      subject { scm_status_reporter.call }
+
       let(:event_payload) do
         { project: 'home:danidoni', package: 'hello_world',
           repository: 'openSUSE_Tumbleweed', arch: 'x86_64',
@@ -86,8 +88,6 @@ RSpec.describe GiteaStatusReporter, type: :service do
         }
       end
       let(:gitea_client) { instance_spy(GiteaAPI::V1::Client) }
-
-      subject { scm_status_reporter.call }
 
       before do
         allow(GiteaAPI::V1::Client).to receive(:new).and_return(gitea_client)

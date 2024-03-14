@@ -1,11 +1,11 @@
 RSpec.describe Cloud::User::UploadJobPolicy do
+  subject { described_class }
+
   let(:uploader) { create(:confirmed_user) }
   let(:user) { create(:confirmed_user) }
   let(:admin_user) { create(:admin_user) }
   let(:staff_user) { create(:staff_user) }
   let(:upload_job) { create(:upload_job, user: uploader) }
-
-  subject { Cloud::User::UploadJobPolicy }
 
   shared_examples_for 'a upload job policy' do
     it 'allows admin users to see any log' do

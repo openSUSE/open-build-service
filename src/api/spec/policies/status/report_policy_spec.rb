@@ -1,7 +1,7 @@
 RSpec.describe Status::ReportPolicy do
-  let(:anonymous_user) { create(:user_nobody) }
+  subject { described_class }
 
-  subject { Status::ReportPolicy }
+  let(:anonymous_user) { create(:user_nobody) }
 
   RSpec.shared_context 'write permissions' do
     context 'status report for repository' do
@@ -11,20 +11,20 @@ RSpec.describe Status::ReportPolicy do
       context "users that don't belong to the repository project" do
         let(:user) { create(:confirmed_user) }
 
-        it { expect(subject).not_to permit(user, status_report) }
+        it { is_expected.not_to permit(user, status_report) }
       end
 
       context 'user is admin' do
         let(:user) { create(:admin_user) }
 
-        it { expect(subject).to permit(user, status_report) }
+        it { is_expected.to permit(user, status_report) }
       end
 
       context 'user is project maintainer' do
         let(:user) { create(:confirmed_user) }
         let!(:relationship) { create(:relationship_project_user, user: user, project: project) }
 
-        it { expect(subject).to permit(user, status_report) }
+        it { is_expected.to permit(user, status_report) }
       end
 
       context 'user is member of project maintainer group' do
@@ -32,7 +32,7 @@ RSpec.describe Status::ReportPolicy do
         let(:group) { create(:group_with_user, user: user) }
         let!(:relationship) { create(:relationship_project_group, group: group, project: project) }
 
-        it { expect(subject).to permit(user, status_report) }
+        it { is_expected.to permit(user, status_report) }
       end
     end
 
@@ -49,20 +49,20 @@ RSpec.describe Status::ReportPolicy do
       context "users that don't belong to the repository project" do
         let(:user) { create(:confirmed_user) }
 
-        it { expect(subject).not_to permit(user, status_report) }
+        it { is_expected.not_to permit(user, status_report) }
       end
 
       context 'user is admin' do
         let(:user) { create(:admin_user) }
 
-        it { expect(subject).to permit(user, status_report) }
+        it { is_expected.to permit(user, status_report) }
       end
 
       context 'user is project maintainer' do
         let(:user) { create(:confirmed_user) }
         let!(:relationship) { create(:relationship_project_user, user: user, project: target_project) }
 
-        it { expect(subject).to permit(user, status_report) }
+        it { is_expected.to permit(user, status_report) }
       end
 
       context 'user is member of project maintainer group' do
@@ -70,7 +70,7 @@ RSpec.describe Status::ReportPolicy do
         let(:group) { create(:group_with_user, user: user) }
         let!(:relationship) { create(:relationship_project_group, group: group, project: target_project) }
 
-        it { expect(subject).to permit(user, status_report) }
+        it { is_expected.to permit(user, status_report) }
       end
     end
   end
