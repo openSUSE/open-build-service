@@ -70,13 +70,15 @@ class Report < ApplicationRecord
   end
 
   def track_report
-    RabbitmqBus.send_to_bus('metrics', "report,category=#{category},type=#{reportable_type} sibling_reports=#{ReportsFinder.new(self).siblings},count=1")
+    RabbitmqBus.send_to_bus('metrics',
+                            "report,category=#{category},type=#{reportable_type} sibling_reports=#{ReportsFinder.new(self).siblings},count=1")
   end
 
   def reports_pointing_to_same_reportable
     return unless decision && decision.reports.where.not(reportable: reportable).present?
 
-    errors.add(:base, :decision_with_different_reportables, message: 'Decision has reports pointing to a different reportable. All decision reports should point to same reportable.')
+    errors.add(:base, :decision_with_different_reportables,
+               message: 'Decision has reports pointing to a different reportable. All decision reports should point to same reportable.')
   end
 end
 

@@ -54,11 +54,13 @@ class ProductTests < ActionDispatch::IntegrationTest
     get "#{prefix}/source/home:tom:temporary?view=productlist"
     assert_response :success
     assert_xml_tag tag: 'product',
-                   attributes: { name: 'simple', cpe: 'cpe:/o:obs_fuzzies:simple:13.1', originproject: 'home:tom:temporary' }
+                   attributes: { name: 'simple', cpe: 'cpe:/o:obs_fuzzies:simple:13.1',
+                                 originproject: 'home:tom:temporary' }
     get "#{prefix}/source/home:tom:temporary?view=productlist&expand=1"
     assert_response :success
     assert_xml_tag tag: 'product',
-                   attributes: { name: 'simple', cpe: 'cpe:/o:obs_fuzzies:simple:13.1', originproject: 'home:tom:temporary' }
+                   attributes: { name: 'simple', cpe: 'cpe:/o:obs_fuzzies:simple:13.1',
+                                 originproject: 'home:tom:temporary' }
   end
   private :_simple_product_file_calls
 
@@ -73,7 +75,8 @@ class ProductTests < ActionDispatch::IntegrationTest
            </repository>
          </project>'
     assert_response :success
-    put '/source/home:tom:temporary/_config?user=tom', params: "Type: kiwi\nRepotype: none\nSubstitute: kiwi-packagemanager:instsource package\nRequired: kiwi"
+    put '/source/home:tom:temporary/_config?user=tom',
+        params: "Type: kiwi\nRepotype: none\nSubstitute: kiwi-packagemanager:instsource package\nRequired: kiwi"
     assert_response :success
     put '/source/home:tom:temporary/_product/_meta', params: '<package project="home:tom:temporary" name="_product"> <title/> <description/>
             <person userid="adrian" role="maintainer" />
@@ -88,7 +91,8 @@ class ProductTests < ActionDispatch::IntegrationTest
     # everything works even when the project is not owner by me?
     login_adrian
     # upload sources in right order
-    ['defaults-archsets.include', 'defaults-conditionals.include', 'defaults-repositories.include', 'obs.group', 'obs-release.spec', 'simple.product'].each do |file|
+    ['defaults-archsets.include', 'defaults-conditionals.include', 'defaults-repositories.include', 'obs.group',
+     'obs-release.spec', 'simple.product'].each do |file|
       raw_put "/source/home:tom:temporary/_product/#{file}",
               File.read("#{Rails.root}/test/fixtures/backend/source/simple_product/#{file}")
       assert_response :success
@@ -155,7 +159,8 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_equal pm.repository.name, 'BaseDistro_repo'
 
     # invalid uploads
-    put '/source/home:tom:temporary/_product/obs.group', params: File.read("#{Rails.root}/test/fixtures/backend/source/simple_product/INVALID_obs.group")
+    put '/source/home:tom:temporary/_product/obs.group',
+        params: File.read("#{Rails.root}/test/fixtures/backend/source/simple_product/INVALID_obs.group")
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: '400', origin: 'backend' }
     assert_match(/Illegal support key ILLEGAL for obs-server/, @response.body)
@@ -236,7 +241,8 @@ class ProductTests < ActionDispatch::IntegrationTest
     # everything works even when the project is not owner by me?
     login_adrian
     # upload sources in right order
-    ['defaults-archsets.include', 'defaults-conditionals.include', 'defaults-repositories.include', 'obs.group', 'obs-release.spec', 'SUSE_SLES.product'].each do |file|
+    ['defaults-archsets.include', 'defaults-conditionals.include', 'defaults-repositories.include', 'obs.group',
+     'obs-release.spec', 'SUSE_SLES.product'].each do |file|
       raw_put "/source/home:tom:temporary/_product/#{file}",
               File.read("#{Rails.root}/test/fixtures/backend/source/sle11_product/#{file}")
       assert_response :success
@@ -246,11 +252,13 @@ class ProductTests < ActionDispatch::IntegrationTest
     get '/source/home:tom:temporary?view=productlist'
     assert_response :success
     assert_xml_tag tag: 'product',
-                   attributes: { name: 'SUSE_SLES', cpe: 'cpe:/a:suse:suse_sles:11:sp2', originproject: 'home:tom:temporary' }
+                   attributes: { name: 'SUSE_SLES', cpe: 'cpe:/a:suse:suse_sles:11:sp2',
+                                 originproject: 'home:tom:temporary' }
     get '/source/home:tom:temporary?view=productlist&expand=1'
     assert_response :success
     assert_xml_tag tag: 'product',
-                   attributes: { name: 'SUSE_SLES', cpe: 'cpe:/a:suse:suse_sles:11:sp2', originproject: 'home:tom:temporary' }
+                   attributes: { name: 'SUSE_SLES', cpe: 'cpe:/a:suse:suse_sles:11:sp2',
+                                 originproject: 'home:tom:temporary' }
 
     # product views via project links
     get '/source/home:tom:temporary:link?view=productlist'
@@ -259,7 +267,8 @@ class ProductTests < ActionDispatch::IntegrationTest
     get '/source/home:tom:temporary:link?view=productlist&expand=1'
     assert_response :success
     assert_xml_tag tag: 'product',
-                   attributes: { name: 'SUSE_SLES', cpe: 'cpe:/a:suse:suse_sles:11:sp2', originproject: 'home:tom:temporary' }
+                   attributes: { name: 'SUSE_SLES', cpe: 'cpe:/a:suse:suse_sles:11:sp2',
+                                 originproject: 'home:tom:temporary' }
 
     # product views in a package
     get '/source/home:tom:temporary/_product?view=issues'
@@ -354,7 +363,8 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # upload sources in right order
-    ['defaults-archsets.include', 'defaults-conditionals.include', 'defaults-repositories.include', 'obs.group', 'obs-release.spec', 'SUSE_SLES.product'].each do |file|
+    ['defaults-archsets.include', 'defaults-conditionals.include', 'defaults-repositories.include', 'obs.group',
+     'obs-release.spec', 'SUSE_SLES.product'].each do |file|
       raw_put "/source/home:adrian:branches:home:tom:temporary/_product/#{file}",
               File.read("#{Rails.root}/test/fixtures/backend/source/sle11_product/#{file}")
       assert_response :success

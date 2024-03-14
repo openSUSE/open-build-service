@@ -50,7 +50,8 @@ class BranchPackage::CheckForUpdate
   end
 
   def link_target_project_valid?
-    package_hash[:link_target_project].is_a?(Project) && package_hash[:link_target_project].find_attribute('OBS', 'BranchTarget')
+    package_hash[:link_target_project].is_a?(Project) && package_hash[:link_target_project].find_attribute('OBS',
+                                                                                                           'BranchTarget')
   end
 
   def configure_package_link_target_project(pkg_name, update_project)
@@ -77,13 +78,19 @@ class BranchPackage::CheckForUpdate
         if update_pkg_via_devel_project.present?
           # nevertheless, check if update project has a devel project which contains an instance
           package_hash[:package] = update_pkg_via_devel_project
-          package_hash[:link_target_project] = update_pkg_via_devel_project.project if !link_target_project_valid? && !@copy_from_devel
+          if !link_target_project_valid? && !@copy_from_devel
+            package_hash[:link_target_project] =
+              update_pkg_via_devel_project.project
+          end
         end
       else
         # The defined update project can't reach the package instance at all.
         # So we need to create a new package and copy sources
         @missing_ok = true
-        package_hash[:copy_from_devel] = package_hash[:package].find_devel_package if package_hash[:package].is_a?(Package)
+        if package_hash[:package].is_a?(Package)
+          package_hash[:copy_from_devel] =
+            package_hash[:package].find_devel_package
+        end
         package_hash[:package] = pkg_name
       end
     end

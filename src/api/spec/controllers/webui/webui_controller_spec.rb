@@ -119,7 +119,9 @@ RSpec.describe Webui::WebuiController do
     context 'with proxy_auth_mode enabled' do
       before do
         allow(Configuration).to receive(:proxy_auth_mode_enabled?).and_return(true)
-        stub_const('CONFIG', { proxy_auth_login_page: '/', proxy_auth_logout_page: '/', proxy_auth_mode: :mellon }.with_indifferent_access)
+        stub_const('CONFIG',
+                   { proxy_auth_login_page: '/', proxy_auth_logout_page: '/',
+                     proxy_auth_mode: :mellon }.with_indifferent_access)
       end
 
       it { is_expected.to redirect_to('/?ReturnTo=%2Fwebui%2Fwebui') }

@@ -7,7 +7,9 @@ RSpec.describe SendEventEmailsJob do
     let(:user) { create(:confirmed_user, groups: [group1, group2]) }
     let(:project) { create(:project, name: 'comment_project', maintainer: [user, group1, group2]) }
     let(:comment_author) { create(:confirmed_user) }
-    let!(:comment) { create(:comment_project, commentable: project, body: "Hey @#{user.login} how are things?", user: comment_author) }
+    let!(:comment) do
+      create(:comment_project, commentable: project, body: "Hey @#{user.login} how are things?", user: comment_author)
+    end
 
     before do
       ActionMailer::Base.deliveries = []
@@ -17,11 +19,23 @@ RSpec.describe SendEventEmailsJob do
 
     context 'with no errors being raised' do
       let!(:subscription1) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user) }
-      let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user, channel: :web) }
-      let!(:subscription3) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user, channel: :rss) }
-      let!(:subscription4) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group1) }
-      let!(:subscription5) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group1, channel: :web) }
-      let!(:subscription6) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group2, channel: :web) }
+      let!(:subscription2) do
+        create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user, channel: :web)
+      end
+      let!(:subscription3) do
+        create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user, channel: :rss)
+      end
+      let!(:subscription4) do
+        create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group1)
+      end
+      let!(:subscription5) do
+        create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group1,
+                                                        channel: :web)
+      end
+      let!(:subscription6) do
+        create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group2,
+                                                        channel: :web)
+      end
 
       subject! { SendEventEmailsJob.new.perform }
 
@@ -62,7 +76,9 @@ RSpec.describe SendEventEmailsJob do
     end
 
     context 'when the user has a rss secret' do
-      let!(:subscription) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user, channel: :rss) }
+      let!(:subscription) do
+        create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user, channel: :rss)
+      end
 
       before do
         user.regenerate_rss_secret

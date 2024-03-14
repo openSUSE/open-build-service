@@ -7,7 +7,9 @@ RSpec.describe Webui::ProjectController, :vcr do
   let(:another_project) { create(:project, name: 'Another_Project') }
   let(:apache2_project) { create(:project, name: 'Apache2') }
   let(:opensuse_project) { create(:project, name: 'openSUSE') }
-  let(:apache_maintenance_incident_project) { create(:maintenance_incident_project, name: 'ApacheMI', maintenance_project: nil) }
+  let(:apache_maintenance_incident_project) do
+    create(:maintenance_incident_project, name: 'ApacheMI', maintenance_project: nil)
+  end
   let(:home_moi_project) { create(:project, name: 'home:moi') }
   let(:maintenance_project) { create(:maintenance_project, name: 'maintenance_project') }
   let(:project_with_package) { create(:project_with_package, name: 'NewProject', package_name: 'PackageExample') }
@@ -27,7 +29,9 @@ RSpec.describe Webui::ProjectController, :vcr do
     end
 
     it 'protects forms without authenticity token' do
-      expect { post :save_person, params: { project: user.home_project } }.to raise_error ActionController::InvalidAuthenticityToken
+      expect do
+        post :save_person, params: { project: user.home_project }
+      end.to raise_error ActionController::InvalidAuthenticityToken
     end
   end
 
@@ -37,7 +41,9 @@ RSpec.describe Webui::ProjectController, :vcr do
     context 'with valid parameters' do
       before do
         login user
-        patch :update, params: { id: project.id, project: { description: 'My projects description', title: 'My projects title' } }
+        patch :update,
+              params: { id: project.id,
+                        project: { description: 'My projects description', title: 'My projects title' } }
         project.reload
       end
 
@@ -50,7 +56,9 @@ RSpec.describe Webui::ProjectController, :vcr do
     context 'with invalid data' do
       before do
         login user
-        patch :update, params: { id: project.id, project: { description: 'My projects description', title: 'My projects title' * 200 } }
+        patch :update,
+              params: { id: project.id,
+                        project: { description: 'My projects description', title: 'My projects title' * 200 } }
         project.reload
       end
 
@@ -382,7 +390,10 @@ RSpec.describe Webui::ProjectController, :vcr do
     end
 
     shared_examples 'a valid project saved' do
-      it { expect(flash[:success]).to start_with("Project '#{user.home_project_name}:my_project' was created successfully") }
+      it {
+        expect(flash[:success]).to start_with("Project '#{user.home_project_name}:my_project' was created successfully")
+      }
+
       it { is_expected.to redirect_to(project_show_path("#{user.home_project_name}:my_project")) }
     end
 
@@ -398,7 +409,8 @@ RSpec.describe Webui::ProjectController, :vcr do
 
     context 'with a param called maintenance_project' do
       before do
-        post :create, params: { project: { name: 'my_project' }, namespace: user.home_project_name, maintenance_project: true }
+        post :create,
+             params: { project: { name: 'my_project' }, namespace: user.home_project_name, maintenance_project: true }
       end
 
       it { expect(assigns(:project).kind).to eq('maintenance') }
@@ -409,7 +421,8 @@ RSpec.describe Webui::ProjectController, :vcr do
     context 'with a param that disables a flag' do
       shared_examples 'a param that creates a disabled flag' do |param_name, flag_name|
         before do
-          post :create, params: { project: { name: 'my_project' }, namespace: user.home_project_name, param_name.to_sym => true }
+          post :create,
+               params: { project: { name: 'my_project' }, namespace: user.home_project_name, param_name.to_sym => true }
         end
 
         it { expect(assigns(:project).flags.first.flag).to eq(flag_name) }
@@ -480,16 +493,22 @@ RSpec.describe Webui::ProjectController, :vcr do
     end
 
     it 'without a repository param' do
-      expect { post :remove_path_from_target, params: { project: user.home_project } }.to raise_error ActiveRecord::RecordNotFound
+      expect do
+        post :remove_path_from_target, params: { project: user.home_project }
+      end.to raise_error ActiveRecord::RecordNotFound
     end
 
     it 'with a repository param but without a path param' do
-      expect { post :remove_path_from_target, params: { repository: repo_for_user_home.id, project: user.home_project } }.to raise_error ActiveRecord::RecordNotFound
+      expect do
+        post :remove_path_from_target,
+             params: { repository: repo_for_user_home.id, project: user.home_project }
+      end.to raise_error ActiveRecord::RecordNotFound
     end
 
     context 'with a repository and path' do
       before do
-        post :remove_path_from_target, params: { project: user.home_project, repository: repo_for_user_home.id, path: path_element }
+        post :remove_path_from_target,
+             params: { project: user.home_project, repository: repo_for_user_home.id, path: path_element }
       end
 
       it { expect(flash[:success]).to eq('Successfully removed path') }
@@ -502,7 +521,8 @@ RSpec.describe Webui::ProjectController, :vcr do
         request.env['HTTP_REFERER'] = root_url # Needed for the redirect_to :back
         path_element # Needed before stubbing Project#valid? to false
         allow_any_instance_of(Project).to receive(:valid?).and_return(false)
-        post :remove_path_from_target, params: { project: user.home_project, repository: repo_for_user_home.id, path: path_element }
+        post :remove_path_from_target,
+             params: { project: user.home_project, repository: repo_for_user_home.id, path: path_element }
       end
 
       it { expect(flash[:error]).to eq('Can not remove path: ') }
@@ -576,7 +596,8 @@ RSpec.describe Webui::ProjectController, :vcr do
 
     context "with a user that can't create attributes" do
       before do
-        post :edit_comment, params: { project: user.home_project, package: package, text: text, last_comment: 'Last comment' }
+        post :edit_comment,
+             params: { project: user.home_project, package: package, text: text, last_comment: 'Last comment' }
       end
 
       it { expect(response).to redirect_to(new_session_path) }
@@ -680,7 +701,11 @@ RSpec.describe Webui::ProjectController, :vcr do
       end
 
       context 'without direction' do
-        it { expect { post :move_path, params: { project: apache_project } }.to raise_error ActionController::ParameterMissing }
+        it {
+          expect do
+            post :move_path, params: { project: apache_project }
+          end.to raise_error ActionController::ParameterMissing
+        }
       end
 
       context 'only one path_element' do
@@ -688,7 +713,8 @@ RSpec.describe Webui::ProjectController, :vcr do
 
         context 'direction up' do
           before do
-            post :move_path, params: { project: apache_project, repository: repository.id, direction: 'up', path: path_element }
+            post :move_path,
+                 params: { project: apache_project, repository: repository.id, direction: 'up', path: path_element }
           end
 
           it { expect(path_element.reload.position).to eq(position) }
@@ -698,7 +724,8 @@ RSpec.describe Webui::ProjectController, :vcr do
 
         context 'direction down' do
           before do
-            post :move_path, params: { project: apache_project, repository: repository.id, direction: 'down', path: path_element }
+            post :move_path,
+                 params: { project: apache_project, repository: repository.id, direction: 'down', path: path_element }
           end
 
           it { expect(path_element.reload.position).to eq(position) }
@@ -714,7 +741,8 @@ RSpec.describe Webui::ProjectController, :vcr do
 
         context 'direction up' do
           let(:move) do
-            post :move_path, params: { project: apache_project, repository: repository.id, direction: 'up', path: path_elements[1] }
+            post :move_path,
+                 params: { project: apache_project, repository: repository.id, direction: 'up', path: path_elements[1] }
           end
 
           context 'response' do
@@ -735,7 +763,9 @@ RSpec.describe Webui::ProjectController, :vcr do
 
         context 'direction down' do
           let(:move) do
-            post :move_path, params: { project: apache_project, repository: repository.id, direction: 'down', path: path_elements[1] }
+            post :move_path,
+                 params: { project: apache_project, repository: repository.id, direction: 'down',
+                           path: path_elements[1] }
           end
 
           context 'response' do
@@ -796,9 +826,15 @@ RSpec.describe Webui::ProjectController, :vcr do
         context 'with results' do
           let(:additional_repo) { create(:repository, name: 'openSUSE_42.2', project: user.home_project) }
           let(:arch_s390x) { Architecture.where(name: 's390x').first }
-          let!(:repository_achitecture_i586) { create(:repository_architecture, repository: repo_for_user, architecture: arch_i586) }
-          let!(:repository_achitecture_x86_64) { create(:repository_architecture, repository: repo_for_user, architecture: arch_x86_64) }
-          let!(:repository_achitecture_s390x) { create(:repository_architecture, repository: additional_repo, architecture: arch_s390x) }
+          let!(:repository_achitecture_i586) do
+            create(:repository_architecture, repository: repo_for_user, architecture: arch_i586)
+          end
+          let!(:repository_achitecture_x86_64) do
+            create(:repository_architecture, repository: repo_for_user, architecture: arch_x86_64)
+          end
+          let!(:repository_achitecture_s390x) do
+            create(:repository_architecture, repository: additional_repo, architecture: arch_s390x)
+          end
           let(:fake_buildresult) do
             <<-XML
               <resultlist state="073db4412ce71471edaacf7291404276">
@@ -849,7 +885,10 @@ RSpec.describe Webui::ProjectController, :vcr do
           it { expect(assigns(:buildresult_unavailable)).to be_nil }
           it { expect(assigns(:packagenames)).to eq(['c++', 'redis']) }
           it { expect(assigns(:statushash)).to eq(statushash) }
-          it { expect(assigns(:repoarray)).to eq([['openSUSE_42.2', ['s390x']], ['openSUSE_Tumbleweed', %w[i586 x86_64]]]) }
+
+          it {
+            expect(assigns(:repoarray)).to eq([['openSUSE_42.2', ['s390x']], ['openSUSE_Tumbleweed', %w[i586 x86_64]]])
+          }
 
           it {
             expect(assigns(:repostatushash)).to eq('openSUSE_Tumbleweed' => { 'i586' => 'published', 'x86_64' => 'building' },

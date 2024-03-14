@@ -11,12 +11,20 @@ class Project
       project.check_write_access!
 
       # check for raising read access permissions, which can't get ensured atm
-      raise ForbiddenError if !(project.new_record? || project.disabled_for?('access', nil, nil)) && (FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.admin_session?)
-      raise ForbiddenError if !(project.new_record? || project.disabled_for?('sourceaccess', nil, nil)) && (FlagHelper.xml_disabled_for?(xmlhash, 'sourceaccess') && !User.admin_session?)
+      raise ForbiddenError if !(project.new_record? || project.disabled_for?('access', nil,
+                                                                             nil)) && (FlagHelper.xml_disabled_for?(
+                                                                               xmlhash, 'access'
+                                                                             ) && !User.admin_session?)
+      raise ForbiddenError if !(project.new_record? || project.disabled_for?('sourceaccess', nil,
+                                                                             nil)) && (FlagHelper.xml_disabled_for?(
+                                                                               xmlhash, 'sourceaccess'
+                                                                             ) && !User.admin_session?)
 
       new_record = project.new_record?
       if ::Configuration.default_access_disabled == true && !new_record && (project.disabled_for?('access', nil,
-                                                                                                  nil) && !FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.admin_session?)
+                                                                                                  nil) && !FlagHelper.xml_disabled_for?(
+                                                                                                    xmlhash, 'access'
+                                                                                                  ) && !User.admin_session?)
         raise ForbiddenError
       end
 
@@ -87,7 +95,10 @@ class Project
         prj_name = devel['project']
         if prj_name
           develprj = Project.get_by_name(prj_name)
-          raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)" unless develprj
+          unless develprj
+            raise SaveError,
+                  "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
+          end
           raise SaveError, 'Devel project can not point to itself' if develprj == project
 
           project.develproject = develprj
@@ -99,7 +110,10 @@ class Project
       processed = {}
 
       while prj && prj.develproject
-        raise CycleError, "There is a cycle in devel definition at #{processed.keys.join(' -- ')}" if processed[prj.name]
+        if processed[prj.name]
+          raise CycleError,
+                "There is a cycle in devel definition at #{processed.keys.join(' -- ')}"
+        end
 
         processed[prj.name] = 1
         prj = prj.develproject
@@ -146,7 +160,8 @@ class Project
         unless force
           # find repositories that link against this one and issue warning if found
           list = PathElement.where(repository_id: object.id)
-          check_for_empty_repo_list(list, "Repository #{project.name}/#{name} cannot be deleted because following repos link against it:")
+          check_for_empty_repo_list(list,
+                                    "Repository #{project.name}/#{name} cannot be deleted because following repos link against it:")
           list = ReleaseTarget.where(target_repository_id: object.id)
           check_for_empty_repo_list(
             list,
@@ -195,8 +210,14 @@ class Project
       position = 1
       xml_hash.elements('hostsystem') do |hostsystem|
         host_repo = Repository.find_by_project_and_name(hostsystem['project'], hostsystem['repository'])
-        raise SaveError, 'Using same repository as hostsystem element is not allowed' if hostsystem['project'] == project.name && hostsystem['repository'] == xml_hash['name']
-        raise SaveError, "Unknown hostsystem repository '#{hostsystem['project']}/#{hostsystem['repository']}'" unless host_repo
+        if hostsystem['project'] == project.name && hostsystem['repository'] == xml_hash['name']
+          raise SaveError,
+                'Using same repository as hostsystem element is not allowed'
+        end
+        unless host_repo
+          raise SaveError,
+                "Unknown hostsystem repository '#{hostsystem['project']}/#{hostsystem['repository']}'"
+        end
 
         current_repo.path_elements.new(link: host_repo, position: position, kind: :hostsystem)
         position += 1
@@ -206,7 +227,10 @@ class Project
       position = 1
       xml_hash.elements('path') do |path|
         link_repo = Repository.find_by_project_and_name(path['project'], path['repository'])
-        raise SaveError, 'Using same repository as path element is not allowed' if path['project'] == project.name && path['repository'] == xml_hash['name']
+        if path['project'] == project.name && path['repository'] == xml_hash['name']
+          raise SaveError,
+                'Using same repository as path element is not allowed'
+        end
         raise SaveError, "Cannot find repository '#{path['project']}/#{path['repository']}'" unless link_repo
 
         current_repo.path_elements.new(link: link_repo, position: position)
@@ -241,7 +265,10 @@ class Project
 
         raise SaveError, "Project '#{release_target['project']}' does not exist." unless project
 
-        raise SaveError, "Can not use remote repository as release target '#{project}/#{repository}'" if project.defines_remote_instance?
+        if project.defines_remote_instance?
+          raise SaveError,
+                "Can not use remote repository as release target '#{project}/#{repository}'"
+        end
 
         target_repo = Repository.find_by_project_and_name(project.name, repository)
 
@@ -284,8 +311,11 @@ class Project
           pubkey: dod['pubkey']
         }
         if dod['master']
-          dod_attributes[:masterurl]            = dod['master']['url']
-          dod_attributes[:mastersslfingerprint] = dod['master']['sslfingerprint'] if dod['master']['sslfingerprint'].present?
+          dod_attributes[:masterurl] = dod['master']['url']
+          if dod['master']['sslfingerprint'].present?
+            dod_attributes[:mastersslfingerprint] =
+              dod['master']['sslfingerprint']
+          end
         end
 
         repository = DownloadRepository.new(dod_attributes)

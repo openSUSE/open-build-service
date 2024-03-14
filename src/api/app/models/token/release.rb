@@ -10,9 +10,13 @@ class Token::Release < Token
 
     package_to_release = options[:package]
     if options[:targetproject].present? && options[:targetrepository].present? && options[:filter_source_repository].present?
-      source_repository = Repository.find_by_project_and_name(options[:project].name, options[:filter_source_repository])
+      source_repository = Repository.find_by_project_and_name(options[:project].name,
+                                                              options[:filter_source_repository])
       target_repository = Repository.find_by_project_and_name(options[:targetproject], options[:targetrepository])
-      raise InsufficientPermissionOnTargetRepository, "no permission to write in project #{target_repository.project.name}" unless User.session!.can_modify?(target_repository.project)
+      unless User.session!.can_modify?(target_repository.project)
+        raise InsufficientPermissionOnTargetRepository,
+              "no permission to write in project #{target_repository.project.name}"
+      end
 
       release(package_to_release, source_repository, target_repository, time_now, options)
       return
@@ -46,11 +50,16 @@ class Token::Release < Token
 
   def release_manually_triggered_targets(package_to_release, time_now, options)
     manual_release_targets = package_to_release.project.release_targets.where(trigger: 'manual')
-    raise NoReleaseTargetFound, "#{package_to_release.project} has no release targets that are triggered manually" unless manual_release_targets.any?
+    unless manual_release_targets.any?
+      raise NoReleaseTargetFound,
+            "#{package_to_release.project} has no release targets that are triggered manually"
+    end
 
     # releasing ...
     manual_release_targets.each do |release_target|
-      next if options[:filter_source_repository].present? && options[:filter_source_repository] == release_target.repository.name
+      if options[:filter_source_repository].present? && options[:filter_source_repository] == release_target.repository.name
+        next
+      end
 
       release_target.repository.check_valid_release_target!(release_target.target_repository, options[:arch])
       release(package_to_release, release_target.repository, release_target.target_repository, time_now, options)

@@ -31,27 +31,32 @@ class Token::Workflow < Token
 
     # We return early with a ping event, since it doesn't make sense to perform payload checks with it, just respond
     if @scm_webhook.ping_event?
-      SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, 'success', initial_report: true).call
+      SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, 'success',
+                            initial_report: true).call
       return []
     end
 
     yaml_file = Workflows::YAMLDownloader.new(@scm_webhook.payload, token: self).call
-    @workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: @scm_webhook, token: self, workflow_run: workflow_run).call
+    @workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: @scm_webhook, token: self,
+                                                       workflow_run: workflow_run).call
 
     return validation_errors unless validation_errors.none?
 
     # This is just an initial generic report to give a feedback asap. Initial status pending
-    SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, initial_report: true).call
+    SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run,
+                          initial_report: true).call
     @workflows.each do |workflow|
       return workflow.errors.full_messages if workflow.invalid?(:call)
 
       workflow.call
     end
-    SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, 'success', initial_report: true).call
+    SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, 'success',
+                          initial_report: true).call
     # Always returning validation errors to report them back to the SCM in order to help users debug their workflows
     validation_errors
   rescue Octokit::Unauthorized, Gitlab::Error::Unauthorized
-    raise Token::Errors::SCMTokenInvalid, "Your SCM token secret is not properly set in your OBS workflow token.\nCheck #{AUTHENTICATION_DOCUMENTATION_LINK}"
+    raise Token::Errors::SCMTokenInvalid,
+          "Your SCM token secret is not properly set in your OBS workflow token.\nCheck #{AUTHENTICATION_DOCUMENTATION_LINK}"
   end
 
   def owned_by?(some_user)

@@ -47,7 +47,9 @@ RSpec.describe Workflow::Step::SubmitRequest, :vcr do
       end
 
       it 'creates an event subcription' do
-        expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::RequestStatechange'), :count).by(1))
+        expect do
+          subject.call
+        end.to(change(EventSubscription.where(eventtype: 'Event::RequestStatechange'), :count).by(1))
       end
     end
 
@@ -123,7 +125,9 @@ RSpec.describe Workflow::Step::SubmitRequest, :vcr do
       end
 
       it 'creates an event subcription' do
-        expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::RequestStatechange'), :count).by(1))
+        expect do
+          subject.call
+        end.to(change(EventSubscription.where(eventtype: 'Event::RequestStatechange'), :count).by(1))
       end
     end
 

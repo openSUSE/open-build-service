@@ -5,7 +5,9 @@ RSpec.describe ProjectCreateAutoCleanupRequestsJob, :vcr do
 
   describe 'CleanupRequestTemplate' do
     describe '#render' do
-      let(:clean_up_template) { described_class::CleanupRequestTemplate.new(project: 'foo', description: 'bar', cleanup_time: 3) }
+      let(:clean_up_template) do
+        described_class::CleanupRequestTemplate.new(project: 'foo', description: 'bar', cleanup_time: 3)
+      end
       let(:bs_delete_request) do
         <<~XML
           <request>
@@ -44,7 +46,9 @@ RSpec.describe ProjectCreateAutoCleanupRequestsJob, :vcr do
     context 'with devel_package inside the project' do
       let(:another_project) { create(:project, name: 'ProjectB') }
       let!(:develpackage) { create(:package, project: project, name: 'DevelPackage') }
-      let!(:another_package) { create(:package, project: another_project, name: 'AnotherPackage', develpackage: develpackage) }
+      let!(:another_package) do
+        create(:package, project: another_project, name: 'AnotherPackage', develpackage: develpackage)
+      end
 
       it 'does not create a deletion request' do
         subject

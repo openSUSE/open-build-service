@@ -13,7 +13,9 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
   describe 'DELETE destroy' do
     context 'when wiping binaries fails' do
       before do
-        delete :destroy, params: { project_name: home_tom, package_name: toms_package, repository_name: 'non_existant_repository', format: :json }
+        delete :destroy,
+               params: { project_name: home_tom, package_name: toms_package, repository_name: 'non_existant_repository',
+                         format: :json }
       end
 
       it 'lets the user know there was an error' do
@@ -28,7 +30,9 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
 
     context 'when wiping binaries succeeds' do
       before do
-        delete :destroy, params: { project_name: home_tom, package_name: toms_package, repository_name: repo_for_home_tom.name, format: :json }
+        delete :destroy,
+               params: { project_name: home_tom, package_name: toms_package, repository_name: repo_for_home_tom.name,
+                         format: :json }
       end
 
       it do

@@ -141,8 +141,10 @@ class Webui::SearchController < Webui::WebuiController
     if @search_text.starts_with?('obs://')
       disturl_project, _, disturl_pkgrev = @search_text.split('/')[3..5]
       disturl_rev, disturl_package = disturl_pkgrev.split('-', 2) unless disturl_pkgrev.nil?
-      if disturl_project.present? && disturl_package.present? && Package.exists_by_project_and_name(disturl_project, disturl_package, follow_multibuild: true)
-        redirect_to controller: 'package', action: 'show', project: disturl_project, package: disturl_package, rev: disturl_rev
+      if disturl_project.present? && disturl_package.present? && Package.exists_by_project_and_name(disturl_project,
+                                                                                                    disturl_package, follow_multibuild: true)
+        redirect_to controller: 'package', action: 'show', project: disturl_project, package: disturl_package,
+                    rev: disturl_rev
         return
       else
         redirect_back(fallback_location: root_path, notice: 'Sorry, this disturl does not compute...')
@@ -172,7 +174,8 @@ class Webui::SearchController < Webui::WebuiController
       @page = 1
       results = perform_search(full_text_search: full_text_search)
     rescue ThinkingSphinx::SphinxError => e
-      flash.now[:error] = "There has been an error performing the search. We're working to fix it. Please, try again later."
+      flash.now[:error] =
+        "There has been an error performing the search. We're working to fix it. Please, try again later."
       Airbrake.notify(e)
       results = []
     end

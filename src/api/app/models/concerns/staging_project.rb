@@ -9,7 +9,9 @@ module StagingProject
     after_save :update_staging_workflow_on_backend, if: :staging_project?
     after_destroy :update_staging_workflow_on_backend, if: :staging_project?
     before_create :add_managers_group, if: :staging_project?
-    before_update :add_managers_group, if: proc { |project| project.staging_workflow_id_changed? && project.staging_workflow_id_was.nil? }
+    before_update :add_managers_group, if: proc { |project|
+                                             project.staging_workflow_id_changed? && project.staging_workflow_id_was.nil?
+                                           }
 
     scope :staging_projects, -> { where.not(staging_workflow: nil) }
   end
@@ -31,8 +33,14 @@ module StagingProject
 
     # Accept reviews/requests
     staged_requests.each do |staged_request|
-      staged_request.change_review_state(:accepted, by_project: name, comment: "Staging Project #{name} got accepted.") if staged_request.reviews.exists?(by_project: name)
-      staged_request.change_state(newstate: 'accepted', comment: "Staging Project #{name} got accepted.") unless staged_request.approver
+      if staged_request.reviews.exists?(by_project: name)
+        staged_request.change_review_state(:accepted, by_project: name,
+                                                      comment: "Staging Project #{name} got accepted.")
+      end
+      unless staged_request.approver
+        staged_request.change_state(newstate: 'accepted',
+                                    comment: "Staging Project #{name} got accepted.")
+      end
     end
 
     # Reset history
@@ -57,7 +65,10 @@ module StagingProject
 
       new_project.store
       project_config = config.content
-      new_project.config.save!({ user: User.session!, comment: "Copying project #{name}" }, project_config) if project_config.present?
+      if project_config.present?
+        new_project.config.save!({ user: User.session!, comment: "Copying project #{name}" },
+                                 project_config)
+      end
 
       new_project
     end
@@ -79,7 +90,8 @@ module StagingProject
   end
 
   def classified_requests
-    requests = (requests_to_review | staged_requests.includes(:not_accepted_reviews, :bs_request_actions)).map do |request|
+    requests = (requests_to_review | staged_requests.includes(:not_accepted_reviews,
+                                                              :bs_request_actions)).map do |request|
       {
         number: request.number,
         state: request.state,
@@ -176,7 +188,9 @@ module StagingProject
 
   def state
     # FIXME: We should use a better way to check if we are in :accepting state. Could be a state machine or storing the state locally.
-    return :accepting if Delayed::Job.where("handler LIKE '%job_class: StagingProjectAcceptJob% project_id: #{id}%'").exists?
+    if Delayed::Job.where("handler LIKE '%job_class: StagingProjectAcceptJob% project_id: #{id}%'").exists?
+      return :accepting
+    end
     return :empty if staged_requests.blank?
     return :unacceptable if untracked_requests.present? || staged_requests.obsolete.exists?
 
@@ -232,7 +246,8 @@ module StagingProject
     current_repo[:tobuild] = 0
     current_repo[:final] = 0
 
-    buildresult = Buildresult.find_hashed(project: name, view: 'summary', repository: current_repo['repository'], arch: current_repo['arch'])
+    buildresult = Buildresult.find_hashed(project: name, view: 'summary', repository: current_repo['repository'],
+                                          arch: current_repo['arch'])
     buildresult = buildresult.get('result').get('summary')
     buildresult.elements('statuscount') do |status_count|
       if status_count['code'].in?(%w[excluded broken failed unresolvable succeeded excluded disabled])

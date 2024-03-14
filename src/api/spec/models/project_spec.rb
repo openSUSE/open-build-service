@@ -62,10 +62,16 @@ RSpec.describe Project, :vcr do
 
   describe '#has_distribution' do
     context 'remote distribution' do
-      let(:remote_distribution) { create(:repository, name: 'snapshot', remote_project_name: 'openSUSE:Factory', project: remote_project) }
-      let(:other_remote_distribution) { create(:repository, name: 'standard', remote_project_name: 'openSUSE:Leap:42.1', project: remote_project) }
+      let(:remote_distribution) do
+        create(:repository, name: 'snapshot', remote_project_name: 'openSUSE:Factory', project: remote_project)
+      end
+      let(:other_remote_distribution) do
+        create(:repository, name: 'standard', remote_project_name: 'openSUSE:Leap:42.1', project: remote_project)
+      end
       let(:repository) { create(:repository, name: 'openSUSE_Tumbleweed', project: project) }
-      let!(:path_element) { create(:path_element, parent_id: repository.id, repository_id: remote_distribution.id, position: 1) }
+      let!(:path_element) do
+        create(:path_element, parent_id: repository.id, repository_id: remote_distribution.id, position: 1)
+      end
 
       it { expect(project.has_distribution('openSUSE.org:openSUSE:Factory', 'snapshot')).to be(true) }
       it { expect(project.has_distribution('openSUSE.org:openSUSE:Leap:42.1', 'standard')).to be(false) }
@@ -76,23 +82,32 @@ RSpec.describe Project, :vcr do
         let(:distribution) { create(:project, name: 'BaseDistro2.0') }
         let(:distribution_repository) { create(:repository, name: 'BaseDistro2_repo', project: distribution) }
         let(:repository) { create(:repository, name: 'Base_repo2', project: project) }
-        let!(:path_element) { create(:path_element, parent_id: repository.id, repository_id: distribution_repository.id, position: 1) }
+        let!(:path_element) do
+          create(:path_element, parent_id: repository.id, repository_id: distribution_repository.id, position: 1)
+        end
 
         it { expect(project.has_distribution('BaseDistro2.0', 'BaseDistro2_repo')).to be(true) }
       end
 
       context 'with not linked distribution' do
         let(:not_linked_distribution) { create(:project, name: 'BaseDistro') }
-        let!(:not_linked_distribution_repository) { create(:repository, name: 'BaseDistro_repo', project: not_linked_distribution) }
+        let!(:not_linked_distribution_repository) do
+          create(:repository, name: 'BaseDistro_repo', project: not_linked_distribution)
+        end
 
         it { expect(project.has_distribution('BaseDistro', 'BaseDistro_repo')).to be(false) }
       end
 
       context 'with linked distribution but wrong query' do
         let(:other_distribution) { create(:project, name: 'BaseDistro3.0') }
-        let!(:other_distribution_repository) { create(:repository, name: 'BaseDistro3_repo', project: other_distribution) }
+        let!(:other_distribution_repository) do
+          create(:repository, name: 'BaseDistro3_repo', project: other_distribution)
+        end
         let(:other_repository) { create(:repository, name: 'Base_repo3', project: project) }
-        let!(:path_element) { create(:path_element, parent_id: other_repository.id, repository_id: other_distribution_repository.id, position: 1) }
+        let!(:path_element) do
+          create(:path_element, parent_id: other_repository.id, repository_id: other_distribution_repository.id,
+                                position: 1)
+        end
 
         it { expect(project.has_distribution('BaseDistro3.0', 'standard')).to be(false) }
         it { expect(project.has_distribution('BaseDistro4.0', 'BaseDistro3_repo')).to be(false) }
@@ -316,29 +331,38 @@ RSpec.describe Project, :vcr do
       let(:source_package) { create(:package, :as_submission_source) }
 
       let!(:review) do
-        create(:bs_request_with_submit_action, creator: admin_user, target_project: project, source_package: source_package, review_by_user: confirmed_user)
+        create(:bs_request_with_submit_action, creator: admin_user, target_project: project,
+                                               source_package: source_package, review_by_user: confirmed_user)
       end
 
-      let!(:target) { create(:bs_request_with_submit_action, creator: confirmed_user, source_package: source_package, target_project: project) }
+      let!(:target) do
+        create(:bs_request_with_submit_action, creator: confirmed_user, source_package: source_package,
+                                               target_project: project)
+      end
       let!(:other_target) do
-        create(:bs_request_with_submit_action, creator: admin_user, target_project: project, source_package: source_package)
+        create(:bs_request_with_submit_action, creator: admin_user, target_project: project,
+                                               source_package: source_package)
       end
       let!(:declined_target) do
         create(:declined_bs_request, creator: confirmed_user, target_package: package, source_package: source_package)
       end
 
       let!(:incident) do
-        create(:bs_request_with_maintenance_incident_actions, creator: admin_user, target_project: project, source_package: source_package)
+        create(:bs_request_with_maintenance_incident_actions, creator: admin_user, target_project: project,
+                                                              source_package: source_package)
       end
       let(:accepted_incident) do
-        create(:bs_request_with_maintenance_incident_actions, creator: admin_user, target_package: package, source_package: source_package)
+        create(:bs_request_with_maintenance_incident_actions, creator: admin_user, target_package: package,
+                                                              source_package: source_package)
       end
 
       let!(:release) do
-        create(:bs_request_with_maintenance_release_actions, creator: admin_user, target_package: package, source_package: source_package)
+        create(:bs_request_with_maintenance_release_actions, creator: admin_user, target_package: package,
+                                                             source_package: source_package)
       end
       let!(:other_release) do
-        create(:bs_request_with_maintenance_release_actions, creator: admin_user, target_package: package, source_package: source_package)
+        create(:bs_request_with_maintenance_release_actions, creator: admin_user, target_package: package,
+                                                             source_package: source_package)
       end
 
       before do
@@ -443,8 +467,12 @@ RSpec.describe Project, :vcr do
     end
 
     context 'with linked repositories' do
-      let(:repository_1) { create(:repository, name: 'Tumbleweed', architectures: %w[i586 x86_64], project: deleted_project) }
-      let(:repository_2) { create(:repository, name: 'RepoWithLink', architectures: %w[i586 x86_64], project: deleted_project) }
+      let(:repository_1) do
+        create(:repository, name: 'Tumbleweed', architectures: %w[i586 x86_64], project: deleted_project)
+      end
+      let(:repository_2) do
+        create(:repository, name: 'RepoWithLink', architectures: %w[i586 x86_64], project: deleted_project)
+      end
       let!(:path_elements) { create(:path_element, repository: repository_2, link: repository_1) }
 
       it 'project meta is properly restored' do
@@ -487,7 +515,9 @@ RSpec.describe Project, :vcr do
       let(:admin_user) { create(:admin_user, login: 'Admin') }
       let(:images_repository) { create(:repository, name: 'images', project: project) }
       let(:apache_repository) { create(:repository, name: 'Apache', project: project) }
-      let!(:path_element) { create(:path_element, parent_id: images_repository.id, repository_id: apache_repository.id, position: 1) }
+      let!(:path_element) do
+        create(:path_element, parent_id: images_repository.id, repository_id: apache_repository.id, position: 1)
+      end
 
       before do
         login admin_user
@@ -616,7 +646,9 @@ RSpec.describe Project, :vcr do
     let(:project_release) { create(:project, name: "#{user.home_project}:staging") }
     let(:repository) { create(:repository, project: project) }
     let(:repository_release) { create(:repository, project: project_release) }
-    let!(:release_target) { create(:release_target, target_repository: repository_release, repository: repository, trigger: 'manual') }
+    let!(:release_target) do
+      create(:release_target, target_repository: repository_release, repository: repository, trigger: 'manual')
+    end
 
     before do
       login user

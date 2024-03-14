@@ -10,7 +10,8 @@ class MigrateRssNotificationPayload < ActiveRecord::Migration[5.2]
   private
 
   def convert_payload(notification)
-    return unless notification.event_type.in?(['Event::CommentForPackage', 'Event::CommentForProject', 'Event::CommentForRequest'])
+    return unless notification.event_type.in?(['Event::CommentForPackage', 'Event::CommentForProject',
+                                               'Event::CommentForRequest'])
 
     payload = notification.event_payload
     # Find unconverted comment events

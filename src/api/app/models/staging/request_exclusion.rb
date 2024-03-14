@@ -7,7 +7,8 @@ class Staging::RequestExclusion < ApplicationRecord
   belongs_to :bs_request
 
   validates :number, :description, presence: true
-  validates :bs_request_id, numericality: true, uniqueness: { scope: :staging_workflow_id, message: 'is already excluded' }
+  validates :bs_request_id, numericality: true,
+                            uniqueness: { scope: :staging_workflow_id, message: 'is already excluded' }
   validates :description, length: { maximum: 255 }
 
   delegate :number, to: :bs_request, allow_nil: true

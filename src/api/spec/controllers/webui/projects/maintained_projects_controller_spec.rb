@@ -5,7 +5,9 @@ RSpec.describe Webui::Projects::MaintainedProjectsController, :vcr do
   let(:admin_user) { create(:admin_user, login: 'admin') }
   let(:opensuse_project) { create(:project, name: 'openSUSE') }
   let(:opensuse_project_update) { create(:project, name: 'openSUSE_Update') }
-  let(:maintenance_project) { create(:maintenance_project, name: 'maintenance_project', target_project: opensuse_project) }
+  let(:maintenance_project) do
+    create(:maintenance_project, name: 'maintenance_project', target_project: opensuse_project)
+  end
 
   describe 'GET #index' do
     context 'showing all projects' do
@@ -21,7 +23,8 @@ RSpec.describe Webui::Projects::MaintainedProjectsController, :vcr do
       let(:datatable_params) do
         { draw: '1',
           columns: { '0' => { 'data' => 'name', 'name' => '', 'searchable' => 'true', 'orderable' => 'true', 'search' => { 'value' => '', 'regex' => 'false' } },
-                     '1' => { 'data' => 'actions', 'name' => '', 'searchable' => 'true', 'orderable' => 'true', 'search' => { 'value' => '', 'regex' => 'false' } } },
+                     '1' => { 'data' => 'actions', 'name' => '', 'searchable' => 'true', 'orderable' => 'true',
+                              'search' => { 'value' => '', 'regex' => 'false' } } },
           order: { '0' => { 'column' => '0', 'dir' => 'asc' } }, start: '0' }
       end
 

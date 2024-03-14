@@ -18,7 +18,9 @@ RSpec.describe Issue do
   describe 'validate' do
     let!(:issue_tracker) { create(:issue_tracker) }
     let!(:issue_tracker_v1) { create(:issue_tracker, name: 'v1_tracker', regex: '([BD]-[\d]+)', label: '(B-@@@)') }
-    let!(:issue_tracker_cve) { create(:issue_tracker, name: 'cve_tracker', regex: '^(?:cve|CVE)-(\d\d\d\d-\d+)', label: 'CVE-@@@') }
+    let!(:issue_tracker_cve) do
+      create(:issue_tracker, name: 'cve_tracker', regex: '^(?:cve|CVE)-(\d\d\d\d-\d+)', label: 'CVE-@@@')
+    end
 
     let!(:issue) { create(:issue, name: '1234', issue_tracker: issue_tracker) }
     let!(:issue_v1) { create(:issue, name: '1234', issue_tracker: issue_tracker_v1) }

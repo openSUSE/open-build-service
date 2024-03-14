@@ -74,7 +74,8 @@ RSpec.describe FullTextSearch do
 
     context 'projects with similar names' do
       before do
-        project_names = %w[BaseDistro BaseDistro2.0 BaseDistro2.0:LinkedUpdateProject BaseDistro3 BaseDistro:Update Devel:BaseDistro:Update home:adrian:BaseDistro]
+        project_names = %w[BaseDistro BaseDistro2.0 BaseDistro2.0:LinkedUpdateProject BaseDistro3 BaseDistro:Update
+                           Devel:BaseDistro:Update home:adrian:BaseDistro]
 
         project_names.each do |name|
           create(:project, name: name, title: '', description: '')
@@ -91,7 +92,9 @@ RSpec.describe FullTextSearch do
 
     context 'develpackage' do
       let(:kdelibs_devel_package) { create(:package, name: 'kdelibs_devel_package', title: '', description: '') }
-      let!(:kdelibs) { create(:package, name: 'kdelibs', title: '', description: '', develpackage: kdelibs_devel_package) }
+      let!(:kdelibs) do
+        create(:package, name: 'kdelibs', title: '', description: '', develpackage: kdelibs_devel_package)
+      end
 
       context 'search for kdelibs' do
         let(:search_params) { { text: 'kdelibs' } }
@@ -143,7 +146,9 @@ RSpec.describe FullTextSearch do
       end
 
       context 'existent issue and existent text' do
-        let(:search_params) { { issue_tracker_name: issue_tracker.name, issue_name: issue.name, text: 'Package title' } }
+        let(:search_params) do
+          { issue_tracker_name: issue_tracker.name, issue_name: issue.name, text: 'Package title' }
+        end
 
         it { expect(subject).to contain_exactly(package) }
       end
@@ -196,7 +201,9 @@ RSpec.describe FullTextSearch do
       context 'for packages' do
         let(:package) { create(:package, project: project) }
         let(:attrib) { create(:maintained_attrib, package: package) }
-        let(:package_2) { create(:package, project: project, name: 'test_package_2', title: 'This is another package', description: '') }
+        let(:package_2) do
+          create(:package, project: project, name: 'test_package_2', title: 'This is another package', description: '')
+        end
         let!(:attrib_for_package2) { create(:maintained_attrib, package: package_2) }
 
         context 'existent attrib' do

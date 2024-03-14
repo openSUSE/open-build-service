@@ -7,7 +7,9 @@ RSpec.describe 'Requests', :js, :vcr do
   let(:target_package) { create(:package, name: 'goal', project_id: target_project.id) }
   let(:source_project) { submitter.home_project }
   let(:source_package) { create(:package, name: 'ball', project_id: source_project.id) }
-  let(:bs_request) { create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter) }
+  let(:bs_request) do
+    create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter)
+  end
 
   RSpec.shared_examples 'expandable element' do
     it 'expanding a text field' do
@@ -305,7 +307,8 @@ RSpec.describe 'Requests', :js, :vcr do
 
       context 'for manual reviews' do
         before do
-          create(:review, by_group: review_group, bs_request: bs_request, creator: receiver, reason: 'Does this make sense?')
+          create(:review, by_group: review_group, bs_request: bs_request, creator: receiver,
+                          reason: 'Does this make sense?')
         end
 
         it 'shows request reason' do
@@ -345,7 +348,8 @@ RSpec.describe 'Requests', :js, :vcr do
 
   describe 'for a request with an existing target project' do
     let!(:delete_bs_request) do
-      create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter)
+      create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200,
+                                 creator: submitter)
     end
 
     before do
@@ -370,7 +374,8 @@ RSpec.describe 'Requests', :js, :vcr do
 
   describe 'for a request with a deleted target project' do
     let!(:delete_bs_request) do
-      create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter, state: :accepted)
+      create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200,
+                                 creator: submitter, state: :accepted)
     end
 
     before do

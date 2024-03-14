@@ -8,7 +8,8 @@ xml.rss version: '2.0' do
       xml.item do
         if element[1] == :package
           xml.title "Package #{element[2]} in project #{element[3]} updated"
-          xml.link url_for(only_path: false, controller: :package, action: :show, project: element[3], package: element[2])
+          xml.link url_for(only_path: false, controller: :package, action: :show, project: element[3],
+                           package: element[2])
         else
           xml.title "Project #{element[1]} updated"
           xml.link url_for(only_path: false, controller: :project, action: :show, project: element[1])

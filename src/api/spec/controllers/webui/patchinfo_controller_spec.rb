@@ -3,7 +3,10 @@ RSpec.describe Webui::PatchinfoController, :vcr do
   let(:other_user) { create(:confirmed_user, :with_home, login: 'gilberto') }
   let(:other_package) { create(:package_with_file, project: user.home_project, name: 'other_package') }
   let(:patchinfo_package) do
-    create(:patchinfo, project_name: user.home_project_name) unless user.home_project.packages.exists?(name: 'patchinfo')
+    unless user.home_project.packages.exists?(name: 'patchinfo')
+      create(:patchinfo,
+             project_name: user.home_project_name)
+    end
     Package.get_by_project_and_name(user.home_project_name, 'patchinfo', use_source: false)
   end
   let(:fake_build_results) do
@@ -112,14 +115,19 @@ RSpec.describe Webui::PatchinfoController, :vcr do
       end
 
       it { expect(flash[:error]).to eq("Patchinfo not found for #{user.home_project_name}") }
-      it { expect(response).to redirect_to(package_show_path(project: user.home_project_name, package: other_package.name)) }
+
+      it {
+        expect(response).to redirect_to(package_show_path(project: user.home_project_name, package: other_package.name))
+      }
     end
 
     context 'with a valid patchinfo' do
       it 'updates and redirects to edit' do
-        expect_any_instance_of(Patchinfo).to receive(:cmd_update_patchinfo).with(user.home_project_name, patchinfo_package.name, 'updated via update_issues call')
+        expect_any_instance_of(Patchinfo).to receive(:cmd_update_patchinfo).with(user.home_project_name,
+                                                                                 patchinfo_package.name, 'updated via update_issues call')
         post :update_issues, params: { project: user.home_project_name, package: patchinfo_package.name }
-        expect(response).to redirect_to(edit_patchinfo_path(project: user.home_project_name, package: patchinfo_package.name))
+        expect(response).to redirect_to(edit_patchinfo_path(project: user.home_project_name,
+                                                            package: patchinfo_package.name))
       end
     end
   end
@@ -201,7 +209,9 @@ RSpec.describe Webui::PatchinfoController, :vcr do
     end
 
     context "when the patchinfo's xml is valid" do
-      let(:patchinfo) { Package.get_by_project_and_name(user.home_project_name, 'patchinfo', use_source: false).patchinfo.hashed }
+      let(:patchinfo) do
+        Package.get_by_project_and_name(user.home_project_name, 'patchinfo', use_source: false).patchinfo.hashed
+      end
 
       before do
         post :create, params: { project: user.home_project } # this creates the patchinfo without summary and description
@@ -211,7 +221,11 @@ RSpec.describe Webui::PatchinfoController, :vcr do
       it { expect(patchinfo['summary']).to eq('long enough summary is ok') }
       it { expect(patchinfo['description']).to eq('long enough description is also ok' * 5) }
       it { expect(flash[:success]).to eq("Successfully edited #{patchinfo_package.name}") }
-      it { expect(response).to redirect_to(action: 'show', project: user.home_project_name, package: patchinfo_package.name) }
+
+      it {
+        expect(response).to redirect_to(action: 'show', project: user.home_project_name,
+                                        package: patchinfo_package.name)
+      }
     end
 
     context 'without permission to edit the patchinfo-file' do
@@ -223,7 +237,11 @@ RSpec.describe Webui::PatchinfoController, :vcr do
       end
 
       it { expect(flash[:error]).to eq('No permission to edit the patchinfo-file.') }
-      it { expect(response).to redirect_to(action: 'show', project: user.home_project_name, package: patchinfo_package.name) }
+
+      it {
+        expect(response).to redirect_to(action: 'show', project: user.home_project_name,
+                                        package: patchinfo_package.name)
+      }
     end
 
     context 'putting the file is taking so long that will raise a timeout' do
@@ -259,7 +277,10 @@ RSpec.describe Webui::PatchinfoController, :vcr do
       end
 
       it { expect(flash[:notice]).to eq("Patchinfo can't be removed: ") }
-      it { expect(response).to redirect_to(show_patchinfo_path(package: patchinfo_package, project: user.home_project)) }
+
+      it {
+        expect(response).to redirect_to(show_patchinfo_path(package: patchinfo_package, project: user.home_project))
+      }
     end
   end
 
@@ -275,7 +296,8 @@ RSpec.describe Webui::PatchinfoController, :vcr do
 
         it do
           expect(response.parsed_body).to eq('error' => '',
-                                             'issues' => [['bgo', '132412', 'https://bugzilla.gnome.org/show_bug.cgi?id=132412', '']])
+                                             'issues' => [['bgo', '132412',
+                                                           'https://bugzilla.gnome.org/show_bug.cgi?id=132412', '']])
         end
 
         it { expect(response).to have_http_status(:success) }
@@ -286,7 +308,8 @@ RSpec.describe Webui::PatchinfoController, :vcr do
 
         it do
           expect(response.parsed_body).to eq('error' => '',
-                                             'issues' => [['cve', 'CVE-2010-31337', 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-31337', '']])
+                                             'issues' => [['cve', 'CVE-2010-31337',
+                                                           'http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-31337', '']])
         end
 
         it { expect(response).to have_http_status(:success) }

@@ -18,8 +18,10 @@ module Webui::PatchinfoHelper
   def header_title(patchinfo, text, list)
     content_tag(:h3) do
       content_tag(:span, text, title: list)
-      content_tag(:span, patchinfo.category, class: "badge badge-category #{patchinfo.category}", title: 'Category of this patchinfo')
-      content_tag(:span, patchinfo.rating, class: "badge badge-rating #{patchinfo.rating}", title: 'Rating of this patchinfo')
+      content_tag(:span, patchinfo.category, class: "badge badge-category #{patchinfo.category}",
+                                             title: 'Category of this patchinfo')
+      content_tag(:span, patchinfo.rating, class: "badge badge-rating #{patchinfo.rating}",
+                                           title: 'Rating of this patchinfo')
     end
   end
 

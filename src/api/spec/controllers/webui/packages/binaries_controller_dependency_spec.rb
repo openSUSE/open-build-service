@@ -43,14 +43,19 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
     end
 
     context 'when passing params referring to valid project/architecture/repository and an invalid repository' do
-      let(:params) { { dependant_project: home_tom.name, arch: 'i586', repository_name: repo_for_home_tom.name, dependant_repository: 'something' } }
+      let(:params) do
+        { dependant_project: home_tom.name, arch: 'i586', repository_name: repo_for_home_tom.name,
+          dependant_repository: 'something' }
+      end
 
       it { expect(flash[:error]).to eq("Repository '#{params[:dependant_repository]}' is invalid.") }
       it { expect(response).to have_http_status(:redirect) }
     end
 
     context 'when passing params referring to valid project/architecture/repositories and a filename' do
-      let(:another_repo_for_home_tom) { create(:repository, project: home_tom, architectures: ['i586'], name: 'source_repo_2') }
+      let(:another_repo_for_home_tom) do
+        create(:repository, project: home_tom, architectures: ['i586'], name: 'source_repo_2')
+      end
 
       let(:params) do
         {

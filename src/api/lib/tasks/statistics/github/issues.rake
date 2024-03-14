@@ -6,7 +6,10 @@ namespace :statistics do
       GITHUB_USERNAME = ''.freeze
       GITHUB_PASSWORD = ''.freeze
 
-      raise StandardError, "Please set your github username/password in lines 8&9 of this file:\nlib/tasks/statistics/github/issues.rake" if GITHUB_USERNAME.empty? || GITHUB_PASSWORD.empty?
+      if GITHUB_USERNAME.empty? || GITHUB_PASSWORD.empty?
+        raise StandardError,
+              "Please set your github username/password in lines 8&9 of this file:\nlib/tasks/statistics/github/issues.rake"
+      end
 
       issues = []
       on_last_page = false

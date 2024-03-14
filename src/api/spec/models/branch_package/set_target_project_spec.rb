@@ -36,7 +36,9 @@ RSpec.describe BranchPackage::SetTargetProject, :vcr do
     end
 
     context 'with target_project and autocleanup' do
-      let(:set_target_project) { BranchPackage::SetTargetProject.new(target_project: project.name, autocleanup: 'true') }
+      let(:set_target_project) do
+        BranchPackage::SetTargetProject.new(target_project: project.name, autocleanup: 'true')
+      end
 
       it { expect(set_target_project.auto_cleanup).to eq(3) }
     end
@@ -44,7 +46,9 @@ RSpec.describe BranchPackage::SetTargetProject, :vcr do
 
   describe '#valid?' do
     context 'valid name' do
-      let(:set_target_project) { BranchPackage::SetTargetProject.new(target_project: project.name, autocleanup: 'true') }
+      let(:set_target_project) do
+        BranchPackage::SetTargetProject.new(target_project: project.name, autocleanup: 'true')
+      end
 
       it { expect(set_target_project).to be_valid }
     end

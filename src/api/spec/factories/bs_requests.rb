@@ -214,7 +214,10 @@ FactoryBot.define do
               # TODO: find a better way to find out if the request comes from a branched project or and official project
               # i.e. 'cacti.openSUSE_Leap_15.4_Update'
               package_name = source_package_name
-              package_name += ".#{target_releaseproject_name.tr(':', '_')}" if evaluator.source_project_name.starts_with?('home:')
+              if evaluator.source_project_name.starts_with?('home:')
+                package_name += ".#{target_releaseproject_name.tr(':',
+                                                                  '_')}"
+              end
               actions << create(:bs_request_action_maintenance_incident,
                                 bs_request: instance,
                                 source_project: evaluator.source_project_name,

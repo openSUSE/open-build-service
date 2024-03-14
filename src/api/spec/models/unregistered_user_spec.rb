@@ -16,7 +16,9 @@ RSpec.describe UnregisteredUser do
 
     it { expect(user.state).to eq('unconfirmed') }
 
-    it { expect(create(:user)).to validate_uniqueness_of(:login).with_message('is the name of an already existing user') }
+    it {
+      expect(create(:user)).to validate_uniqueness_of(:login).with_message('is the name of an already existing user')
+    }
   end
 
   describe '#register' do
@@ -32,7 +34,9 @@ RSpec.describe UnregisteredUser do
 
     context 'when not in LDAP mode' do
       context 'when registration is allowed' do
-        let(:attributes_for_query) { user_attributes.slice(:login, :realname, :email).merge(state: 'confirmed', ignore_auth_services: false) }
+        let(:attributes_for_query) do
+          user_attributes.slice(:login, :realname, :email).merge(state: 'confirmed', ignore_auth_services: false)
+        end
 
         before do
           allow(Configuration).to receive(:registration).and_return('allow')
@@ -46,7 +50,9 @@ RSpec.describe UnregisteredUser do
       end
 
       context 'when registration requires confirmation' do
-        let(:attributes_for_query) { user_attributes.slice(:login, :realname, :email).merge(state: 'unconfirmed', ignore_auth_services: false) }
+        let(:attributes_for_query) do
+          user_attributes.slice(:login, :realname, :email).merge(state: 'unconfirmed', ignore_auth_services: false)
+        end
 
         before do
           allow(Configuration).to receive(:registration).and_return('confirmation')
@@ -94,7 +100,9 @@ RSpec.describe UnregisteredUser do
         subject { UnregisteredUser.register(user_attributes) }
 
         it 'throws an exception' do
-          expect { subject }.to raise_error(UnregisteredUser::ErrRegisterSave, 'Sorry, new users can only sign up via LDAP')
+          expect do
+            subject
+          end.to raise_error(UnregisteredUser::ErrRegisterSave, 'Sorry, new users can only sign up via LDAP')
           expect(User.count).to eq(user_count_before)
         end
       end

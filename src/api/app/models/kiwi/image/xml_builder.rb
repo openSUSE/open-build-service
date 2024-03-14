@@ -50,15 +50,19 @@ module Kiwi
           return document
         end
 
-        document.xpath("image/preferences[#{index}]").first.add_child("<version>#{preference.version}</version>") if document.xpath("image/preferences[#{index}]").any?
+        if document.xpath("image/preferences[#{index}]").any?
+          document.xpath("image/preferences[#{index}]").first.add_child("<version>#{preference.version}</version>")
+        end
 
         document
       end
 
       def update_preference_type_containerconfig(document, preference, index)
         if document.xpath("image/preferences[#{index}]/type/containerconfig").any?
-          document.xpath("image/preferences[#{index}]/type/containerconfig").first['name'] = preference.type_containerconfig_name
-          document.xpath("image/preferences[#{index}]/type/containerconfig").first['tag'] = preference.type_containerconfig_tag
+          document.xpath("image/preferences[#{index}]/type/containerconfig").first['name'] =
+            preference.type_containerconfig_name
+          document.xpath("image/preferences[#{index}]/type/containerconfig").first['tag'] =
+            preference.type_containerconfig_tag
         elsif preference.type_containerconfig_tag.present? || preference.type_containerconfig_name.present?
           document.xpath("image/preferences[#{index}]/type").first.add_child(preference.containerconfig_xml)
         end
@@ -113,7 +117,10 @@ module Kiwi
         document.xpath('comment()[contains(., "OBS-Profiles:")]').remove unless comment.empty?
 
         selected_profiles = @image.profiles.selected.pluck(:name)
-        document.xpath('image').before(Nokogiri::XML::Comment.new(document, " OBS-Profiles: #{selected_profiles.join(' ')} ")) unless selected_profiles.empty?
+        unless selected_profiles.empty?
+          document.xpath('image').before(Nokogiri::XML::Comment.new(document,
+                                                                    " OBS-Profiles: #{selected_profiles.join(' ')} "))
+        end
 
         document
       end

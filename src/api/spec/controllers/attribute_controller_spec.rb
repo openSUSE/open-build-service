@@ -16,7 +16,8 @@ RSpec.describe AttributeController do
 
     it 'creates attribute on POST' do
       login admin
-      post :update, body: xml_count_2, format: :xml, params: { namespace: attribute_namespace.name, name: attribute.name }
+      post :update, body: xml_count_2, format: :xml,
+                    params: { namespace: attribute_namespace.name, name: attribute.name }
       expect(response.status).to eq(200)
 
       attrib = AttribType.find_by_namespace_and_name!(attribute_namespace.name, attribute.name)
@@ -31,7 +32,8 @@ RSpec.describe AttributeController do
       expect(attribute.value_count).to be_nil
 
       # update (yeah, API sucks)
-      post :update, body: xml_count_2, format: :xml, params: { namespace: attribute_namespace.name, name: attribute.name }
+      post :update, body: xml_count_2, format: :xml,
+                    params: { namespace: attribute_namespace.name, name: attribute.name }
       expect(response.status).to eq(200)
       attribute.reload
       expect(attribute.value_count).to eq(2)

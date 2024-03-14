@@ -33,7 +33,8 @@ RSpec.describe Workflows::YAMLToWorkflowsService, type: :service do
 
   describe '#call' do
     subject do
-      Workflows::YAMLToWorkflowsService.new(yaml_file: workflows_yml_file, scm_webhook: SCMWebhook.new(payload: payload), token: token, workflow_run: workflow_run).call
+      Workflows::YAMLToWorkflowsService.new(yaml_file: workflows_yml_file,
+                                            scm_webhook: SCMWebhook.new(payload: payload), token: token, workflow_run: workflow_run).call
     end
 
     context 'it supports many workflows' do
@@ -87,7 +88,10 @@ RSpec.describe Workflows::YAMLToWorkflowsService, type: :service do
       let(:payload) { github_extractor_payload }
 
       it 'raises a user-friendly error' do
-        expect { subject }.to raise_error(Token::Errors::WorkflowsYamlNotParsable, 'Unable to parse .obs/workflows.yml: malformed format string - %S')
+        expect do
+          subject
+        end.to raise_error(Token::Errors::WorkflowsYamlNotParsable,
+                           'Unable to parse .obs/workflows.yml: malformed format string - %S')
       end
     end
   end

@@ -33,7 +33,8 @@ RSpec.describe SourcediffTabComponent, :vcr, type: :component do
     end
 
     it do
-      expect(rendered_content).to have_link(source_package.name, href: "/package/show/#{source_project.name}/#{source_package.name}")
+      expect(rendered_content).to have_link(source_package.name,
+                                            href: "/package/show/#{source_project.name}/#{source_package.name}")
     end
 
     it do
@@ -41,7 +42,8 @@ RSpec.describe SourcediffTabComponent, :vcr, type: :component do
     end
 
     it do
-      expect(rendered_content).to have_link(target_package.name, href: "/package/show/#{target_project.name}/#{target_package.name}")
+      expect(rendered_content).to have_link(target_package.name,
+                                            href: "/package/show/#{target_project.name}/#{target_package.name}")
     end
 
     it do

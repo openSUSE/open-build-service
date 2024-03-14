@@ -101,9 +101,11 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   def test_xpath_search_for_person_or_group
     # used by maintenance people
     login_Iggy
-    get '/search/project', params: { match: "(group/@role='bugowner' or person/@role='bugowner') and starts-with(@name,\"Base\"))" }
+    get '/search/project',
+        params: { match: "(group/@role='bugowner' or person/@role='bugowner') and starts-with(@name,\"Base\"))" }
     assert_response :success
-    get '/search/package', params: { match: "(group/@role='bugowner' or person/@role='bugowner') and starts-with(@project,\"Base\"))" }
+    get '/search/package',
+        params: { match: "(group/@role='bugowner' or person/@role='bugowner') and starts-with(@project,\"Base\"))" }
     assert_response :success
     get "/search/request?match=(action/@type='set_bugowner'+and+state/@name='accepted')"
     assert_response :success
@@ -375,7 +377,8 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   def test_search_request_2
     login_Iggy
     # this is not a good test - as the actual test is that didn't create bizar SQL queries, but this requires human eyes
-    get '/search/request', params: { match: 'action/@type="submit" and (action/target/@project="Apache" or submit/target/@project="Apache") and (action/target/@package="apache2" or submit/target/@package="apache2")' }
+    get '/search/request',
+        params: { match: 'action/@type="submit" and (action/target/@project="Apache" or submit/target/@project="Apache") and (action/target/@package="apache2" or submit/target/@package="apache2")' }
     assert_response :success
   end
 
@@ -427,7 +430,8 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     assert_xml_tag tag: 'status', attributes: { code: 'unknown_attribute_type' }
 
-    post '/source/home:Iggy/_attribute', params: "<attributes><attribute namespace='OBS' name='OwnerRootProject' /></attributes>"
+    post '/source/home:Iggy/_attribute',
+         params: "<attributes><attribute namespace='OBS' name='OwnerRootProject' /></attributes>"
     assert_response :success
 
     get '/search/owner?binary=DOES_NOT_EXIST'
@@ -663,15 +667,20 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/search/missing_owner?project=TEMPORARY&filter=bugowner'
     assert_response :success
-    assert_no_xml_tag tag: 'missing_owner', attributes: { rootproject: 'TEMPORARY', project: 'TEMPORARY', package: 'pack' }
+    assert_no_xml_tag tag: 'missing_owner',
+                      attributes: { rootproject: 'TEMPORARY', project: 'TEMPORARY',
+                                    package: 'pack' }
     assert_response :success
 
     # set an valid group via project
-    put '/source/TEMPORARY/pack/_meta', params: "<package name='pack' project='TEMPORARY'><title/><description/></package>"
+    put '/source/TEMPORARY/pack/_meta',
+        params: "<package name='pack' project='TEMPORARY'><title/><description/></package>"
     assert_response :success
     get '/search/missing_owner?project=TEMPORARY&filter=maintainer'
     assert_response :success
-    assert_no_xml_tag tag: 'missing_owner', attributes: { rootproject: 'TEMPORARY', project: 'TEMPORARY', package: 'pack' }
+    assert_no_xml_tag tag: 'missing_owner',
+                      attributes: { rootproject: 'TEMPORARY', project: 'TEMPORARY',
+                                    package: 'pack' }
     assert_response :success
     # empty group in project
     put '/source/TEMPORARY/_meta', params: "<project name='TEMPORARY'><title/><description/><link project='home:Iggy'/>
@@ -720,15 +729,21 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     # search for un-maintained packages
     get '/search/missing_owner?project=BaseDistro&filter=bugowner'
     assert_response :success
-    assert_xml_tag tag: 'missing_owner', attributes: { rootproject: 'BaseDistro', project: 'BaseDistro', package: 'pack1' }
-    assert_xml_tag tag: 'missing_owner', attributes: { rootproject: 'BaseDistro', project: 'BaseDistro', package: 'pack2' }
-    assert_xml_tag tag: 'missing_owner', attributes: { rootproject: 'BaseDistro', project: 'BaseDistro', package: 'Pack3' }
+    assert_xml_tag tag: 'missing_owner',
+                   attributes: { rootproject: 'BaseDistro', project: 'BaseDistro', package: 'pack1' }
+    assert_xml_tag tag: 'missing_owner',
+                   attributes: { rootproject: 'BaseDistro', project: 'BaseDistro', package: 'pack2' }
+    assert_xml_tag tag: 'missing_owner',
+                   attributes: { rootproject: 'BaseDistro', project: 'BaseDistro', package: 'Pack3' }
 
     get '/search/missing_owner?project=BaseDistro&filter=reviewer'
     assert_response :success
-    assert_xml_tag tag: 'missing_owner', attributes: { rootproject: 'BaseDistro', project: 'BaseDistro', package: 'pack1' }
-    assert_xml_tag tag: 'missing_owner', attributes: { rootproject: 'BaseDistro', project: 'BaseDistro', package: 'pack2' }
-    assert_xml_tag tag: 'missing_owner', attributes: { rootproject: 'BaseDistro', project: 'BaseDistro', package: 'Pack3' }
+    assert_xml_tag tag: 'missing_owner',
+                   attributes: { rootproject: 'BaseDistro', project: 'BaseDistro', package: 'pack1' }
+    assert_xml_tag tag: 'missing_owner',
+                   attributes: { rootproject: 'BaseDistro', project: 'BaseDistro', package: 'pack2' }
+    assert_xml_tag tag: 'missing_owner',
+                   attributes: { rootproject: 'BaseDistro', project: 'BaseDistro', package: 'Pack3' }
   end
 
   def test_find_owner_when_binary_exist_in_Update_but_definition_is_in_GA_project
@@ -752,15 +767,18 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
                                       </repository>
                                     </project>"
     assert_response :success
-    put '/source/TEMPORARY:Update/package/_meta', params: "<package name='package' project='TEMPORARY:Update'><title/><description/> </package>"
+    put '/source/TEMPORARY:Update/package/_meta',
+        params: "<package name='package' project='TEMPORARY:Update'><title/><description/> </package>"
     assert_response :success
     put '/source/TEMPORARY:GA/package/_meta', params: "<package name='package' project='TEMPORARY:GA'><title/><description/>
                                                  <person userid='fred' role='bugowner' />
                                                </package>"
     assert_response :success
-    raw_put '/source/TEMPORARY:GA/package/package.spec', File.read("#{Rails.root}/test/fixtures/backend/binary/package.spec")
+    raw_put '/source/TEMPORARY:GA/package/package.spec',
+            File.read("#{Rails.root}/test/fixtures/backend/binary/package.spec")
     assert_response :success
-    raw_put '/source/TEMPORARY:Update/package/package.spec', File.read("#{Rails.root}/test/fixtures/backend/binary/package.spec")
+    raw_put '/source/TEMPORARY:Update/package/package.spec',
+            File.read("#{Rails.root}/test/fixtures/backend/binary/package.spec")
     assert_response :success
 
     # package exists only in Update

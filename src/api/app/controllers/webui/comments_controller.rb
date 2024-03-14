@@ -19,7 +19,8 @@ class Webui::CommentsController < Webui::WebuiController
                :unprocessable_entity
              end
 
-    if Flipper.enabled?(:request_show_redesign, User.session) && %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
+    if Flipper.enabled?(:request_show_redesign,
+                        User.session) && %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
       render(partial: 'webui/comment/beta/comments_thread',
              locals: { comment: @comment.root, commentable: @commentable, level: 1, diff: diff },
              status: status)
@@ -46,7 +47,8 @@ class Webui::CommentsController < Webui::WebuiController
 
     respond_to do |format|
       format.html do
-        if Flipper.enabled?(:request_show_redesign, User.session) && %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
+        if Flipper.enabled?(:request_show_redesign,
+                            User.session) && %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
           render(partial: 'webui/comment/beta/comments_thread',
                  locals: { comment: @comment.root, commentable: @comment.commentable, level: 1, diff: diff },
                  status: status)
@@ -76,8 +78,10 @@ class Webui::CommentsController < Webui::WebuiController
                :unprocessable_entity
              end
 
-    if Flipper.enabled?(:request_show_redesign, User.session) && %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
-      if @comment.commentable_type == 'BsRequestAction' && Comment.where(commentable: @comment.commentable, diff_ref: @comment.root.diff_ref).count.zero?
+    if Flipper.enabled?(:request_show_redesign,
+                        User.session) && %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
+      if @comment.commentable_type == 'BsRequestAction' && Comment.where(commentable: @comment.commentable,
+                                                                         diff_ref: @comment.root.diff_ref).count.zero?
         return render(partial: 'webui/request/add_inline_comment',
                       locals: { commentable: @comment.root.commentable, diff_ref: @comment.root.diff_ref },
                       status: status)
@@ -96,7 +100,8 @@ class Webui::CommentsController < Webui::WebuiController
              locals: { comment: @comment.root, commentable: @commentable, level: 1, diff: diff },
              status: status)
     else
-      render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable, diff_ref: @comment.root.diff_ref }, status: status)
+      render(partial: 'webui/comment/comment_list',
+             locals: { commentable: @commentable, diff_ref: @comment.root.diff_ref }, status: status)
     end
   end
   # rubocop: enable Metrics/CyclomaticComplexity
@@ -122,7 +127,8 @@ class Webui::CommentsController < Webui::WebuiController
                :unprocessable_entity
              end
 
-    if Flipper.enabled?(:request_show_redesign, User.session) && %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
+    if Flipper.enabled?(:request_show_redesign,
+                        User.session) && %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
       render(partial: 'webui/comment/beta/comments_thread',
              locals: { comment: @comment.root, commentable: @comment.commentable, level: 1, diff: diff },
              status: status)
@@ -158,7 +164,9 @@ class Webui::CommentsController < Webui::WebuiController
   end
 
   def set_commented
-    @commentable_type = [Project, Package, BsRequest, BsRequestActionSubmit].find { |klass| klass.name == params[:commentable_type] }
+    @commentable_type = [Project, Package, BsRequest, BsRequestActionSubmit].find do |klass|
+      klass.name == params[:commentable_type]
+    end
     @commented = @commentable_type&.find_by(id: params[:commentable_id])
     return if @commentable_type.present?
 
@@ -175,7 +183,8 @@ class Webui::CommentsController < Webui::WebuiController
     return unless @comment.root.commentable_type == 'BsRequestAction' && @comment.root.diff_ref
     return unless (ref = @comment.root.diff_ref&.match(/diff_([0-9]+)/))
 
-    diffs = @comment.root.commentable.bs_request.webui_actions(action_id: @comment.root.commentable_id, diffs: true, cacheonly: 1).first
+    diffs = @comment.root.commentable.bs_request.webui_actions(action_id: @comment.root.commentable_id, diffs: true,
+                                                               cacheonly: 1).first
     file_index = ref.captures.first
     sourcediff = diffs[:sourcediff].first
     filename = sourcediff.dig('filenames', file_index.to_i)

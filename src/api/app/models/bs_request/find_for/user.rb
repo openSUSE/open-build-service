@@ -21,7 +21,9 @@ class BsRequest
       def union_query
         query_parts = []
         # we're inside a scope, so a BsRequest.where can leak other scopes -> unscoped
-        query_parts << BsRequest.unscoped.where(creator: user.login).select(:id).to_sql if roles.empty? || roles.include?('creator')
+        if roles.empty? || roles.include?('creator')
+          query_parts << BsRequest.unscoped.where(creator: user.login).select(:id).to_sql
+        end
         query_parts << bs_request_actions_query.to_sql if bs_request_actions_query
         query_parts << reviews_query.to_sql if reviews_query
         query_parts.join(' UNION ')

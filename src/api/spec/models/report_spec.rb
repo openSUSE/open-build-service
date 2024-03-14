@@ -9,7 +9,10 @@ RSpec.describe Report do
       end
 
       it { expect(report.valid?).to be(false) }
-      it { expect(report.errors.full_messages).to eq(['Decision has reports pointing to a different reportable. All decision reports should point to same reportable.']) }
+
+      it {
+        expect(report.errors.full_messages).to eq(['Decision has reports pointing to a different reportable. All decision reports should point to same reportable.'])
+      }
     end
 
     context 'when reports are pointing to same reportable' do

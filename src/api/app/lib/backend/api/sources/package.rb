@@ -28,7 +28,8 @@ module Backend
         # @param options [Hash] Parameters to pass to the backend.
         # @return [String]
         def self.files(project_name, package_name, options = {})
-          http_get(['/source/:project/:package', project_name, package_name], params: options, accepted: %i[expand rev view])
+          http_get(['/source/:project/:package', project_name, package_name], params: options,
+                                                                              accepted: %i[expand rev view])
         end
 
         # Returns the revisions (mrev) list for a package
@@ -77,7 +78,8 @@ module Backend
         # Runs the command mergeservice for that project/package
         # @return [String]
         def self.merge_service(project_name, package_name, user_login)
-          http_post(['/source/:project/:package', project_name, package_name], params: { cmd: :mergeservice, user: user_login })
+          http_post(['/source/:project/:package', project_name, package_name],
+                    params: { cmd: :mergeservice, user: user_login })
         end
 
         # Copy a package into another project
@@ -106,7 +108,8 @@ module Backend
         # Writes the link information of a package
         # @return [String]
         def self.write_link(project_name, package_name, user_login, content)
-          http_put(['/source/:project/:package/_link', project_name, package_name], data: content, params: { user: user_login })
+          http_put(['/source/:project/:package/_link', project_name, package_name], data: content,
+                                                                                    params: { user: user_login })
         end
 
         # Returns the source diff as UTF-8 encoded string
@@ -120,8 +123,10 @@ module Backend
         # @option options [String] :filelimit Sets the maximum lines of the diff which will be returned (0 = all lines)
         # @return [String]
         def self.source_diff(project_name, package_name, options = {})
-          accepted = %i[rev orev opackage oproject linkrev olinkrev expand filelimit tarlimit withissues view cacheonly nodiff]
-          diff = http_post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :diff }, params: options, accepted: accepted)
+          accepted = %i[rev orev opackage oproject linkrev olinkrev expand filelimit tarlimit withissues view cacheonly
+                        nodiff]
+          diff = http_post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :diff },
+                                                                                      params: options, accepted: accepted)
           diff.valid_encoding? ? diff : diff.encode('UTF-8', 'binary', invalid: :replace, undef: :replace)
         end
 
@@ -143,13 +148,15 @@ module Backend
         # Writes the content of the source file
         # @return [String]
         def self.write_file(project_name, package_name, file_name, content = '', params = {})
-          http_put(['/source/:project/:package/:filename', project_name, package_name, file_name], data: content, params: params)
+          http_put(['/source/:project/:package/:filename', project_name, package_name, file_name], data: content,
+                                                                                                   params: params)
         end
 
         # Writes source filelist to the package
         # @return [String]
         def self.write_filelist(project_name, package_name, filelist, params = {})
-          http_post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :commitfilelist }, data: filelist, params: params)
+          http_post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :commitfilelist },
+                                                                               data: filelist, params: params)
         end
 
         # Deletes the package and all the source files inside

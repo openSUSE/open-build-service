@@ -35,10 +35,14 @@ module LocalBuildStatistic
       if times
         local_statistics.times = LocalBuildStatistic::Package::Time.new(total: times.dig('total', 'time', '_content'),
                                                                         total_unit: times.dig('total', 'time', 'unit'),
-                                                                        install: times.dig('install', 'time', '_content'),
-                                                                        install_unit: times.dig('install', 'time', 'unit'),
-                                                                        preinstall: times.dig('preinstall', 'time', '_content'),
-                                                                        preinstall_unit: times.dig('preinstall', 'time', 'unit'),
+                                                                        install: times.dig('install', 'time',
+                                                                                           '_content'),
+                                                                        install_unit: times.dig('install', 'time',
+                                                                                                'unit'),
+                                                                        preinstall: times.dig('preinstall', 'time',
+                                                                                              '_content'),
+                                                                        preinstall_unit: times.dig('preinstall',
+                                                                                                   'time', 'unit'),
                                                                         main: times.dig('main', 'time', '_content'),
                                                                         main_unit: times.dig('main', 'time', 'unit'))
       end

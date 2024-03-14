@@ -8,11 +8,21 @@ RSpec.describe GenerateWebNotifications, type: :migration do
     let(:requester) { create(:confirmed_user, login: 'ann') }
     let!(:rss_notifications) { create_list(:rss_notification, 5, subscriber: owner) }
     let!(:event_subscription_1) { create(:event_subscription_comment_for_project, user: owner) }
-    let!(:event_subscription_2) { create(:event_subscription_comment_for_project, user: owner, receiver_role: 'maintainer') }
-    let!(:event_subscription_3) { create(:event_subscription_comment_for_project, user: owner, receiver_role: 'bugowner') }
-    let!(:disabled_event_for_web_and_rss) { create(:event_subscription, eventtype: 'Event::BuildFail', user: owner, receiver_role: 'maintainer') }
-    let!(:default_subscription) { create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'bugowner') }
-    let!(:default_subscription_1) { create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'watcher') }
+    let!(:event_subscription_2) do
+      create(:event_subscription_comment_for_project, user: owner, receiver_role: 'maintainer')
+    end
+    let!(:event_subscription_3) do
+      create(:event_subscription_comment_for_project, user: owner, receiver_role: 'bugowner')
+    end
+    let!(:disabled_event_for_web_and_rss) do
+      create(:event_subscription, eventtype: 'Event::BuildFail', user: owner, receiver_role: 'maintainer')
+    end
+    let!(:default_subscription) do
+      create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'bugowner')
+    end
+    let!(:default_subscription_1) do
+      create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'watcher')
+    end
     let!(:default_subscription_2) do
       create(:event_subscription_comment_for_project_without_subscriber,
              receiver_role: 'maintainer',

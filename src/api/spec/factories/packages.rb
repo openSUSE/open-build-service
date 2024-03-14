@@ -33,7 +33,10 @@ FactoryBot.define do
 
       after(:create) do |package, evaluator|
         evaluator.revision_count.times do |i|
-          Backend::Connection.put("/source/#{package.project}/#{package}/somefile.txt", i.to_s) if CONFIG['global_write_through']
+          if CONFIG['global_write_through']
+            Backend::Connection.put("/source/#{package.project}/#{package}/somefile.txt",
+                                    i.to_s)
+          end
         end
       end
     end
@@ -46,7 +49,8 @@ FactoryBot.define do
 
       after(:create) do |package, evaluator|
         if CONFIG['global_write_through']
-          Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/_config", Faker::Lorem.paragraph)
+          Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/_config",
+                                  Faker::Lorem.paragraph)
           Backend::Connection.put(
             "/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/#{evaluator.file_name}", evaluator.file_content
           )
@@ -60,7 +64,10 @@ FactoryBot.define do
         file_name { 'README.txt' }
         file_content { Faker::Lorem.paragraph }
         spec_file_name { "#{name}.spec" }
-        spec_file_content { Pathname.new(File.join('spec', 'fixtures', 'files', 'factory_package.spec')).read.gsub('factory_package', name) }
+        spec_file_content do
+          Pathname.new(File.join('spec', 'fixtures', 'files', 'factory_package.spec')).read.gsub('factory_package',
+                                                                                                 name)
+        end
         changes_file_content { Pathname.new(File.join('spec', 'fixtures', 'files', 'factory_package.changes')).read }
         changes_file_name { "#{name}.changes" }
       end
@@ -103,7 +110,8 @@ FactoryBot.define do
         flavor_xml = evaluator.flavors.map { |flavor| "<flavor>#{flavor}</flavor>" }.join
         flavor_xml = "<multibuild>#{flavor_xml}</multibuild>"
         if CONFIG['global_write_through']
-          Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/_config", Faker::Lorem.paragraph)
+          Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/_config",
+                                  Faker::Lorem.paragraph)
           Backend::Connection.put(
             "/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/_multibuild", flavor_xml
           )

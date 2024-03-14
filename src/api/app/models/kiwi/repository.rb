@@ -19,7 +19,8 @@ module Kiwi
     #### Scopes (first the default_scope macro if is used)
 
     #### Validations macros
-    validates :alias, :source_path, uniqueness: { scope: :image, case_sensitive: true, message: "'%{value}' has already been taken" }, allow_blank: true
+    validates :alias, :source_path,
+              uniqueness: { scope: :image, case_sensitive: true, message: "'%{value}' has already been taken" }, allow_blank: true
     validates :source_path, presence: { message: 'can\'t be nil' }
     validate :source_path_format
     validates :priority, numericality: { only_integer: true, allow_nil: true, greater_than_or_equal_to: 0,
@@ -29,7 +30,8 @@ module Kiwi
     # https://doc.opensuse.org/projects/kiwi/doc/#sec.description.repository
     validates :repo_type, inclusion: { in: REPO_TYPES, message: "'%{value}' is not included in the list" }
     validates :replaceable, inclusion: { in: [true, false], message: 'has to be a boolean' }
-    validates :imageinclude, :prefer_license, inclusion: { in: [true, false], message: 'has to be a boolean' }, allow_nil: true
+    validates :imageinclude, :prefer_license, inclusion: { in: [true, false], message: 'has to be a boolean' },
+                                              allow_nil: true
     validates_associated :image, on: :update
     validates :order, uniqueness: {
       scope: :image_id,

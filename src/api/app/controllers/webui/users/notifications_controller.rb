@@ -68,12 +68,18 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   def show_more(notifications)
     total = notifications.size
-    flash.now[:info] = "You have too many notifications. Displaying a maximum of #{Notification::MAX_PER_PAGE} notifications per page." if total > Notification::MAX_PER_PAGE
+    if total > Notification::MAX_PER_PAGE
+      flash.now[:info] =
+        "You have too many notifications. Displaying a maximum of #{Notification::MAX_PER_PAGE} notifications per page."
+    end
     notifications.page(params[:page]).per([total, Notification::MAX_PER_PAGE].min)
   end
 
   def fetch_notifications
-    notifications = policy_scope(Notification).for_web.includes(notifiable: [{ commentable: [{ comments: :user }, :project, :bs_request_actions] }, :bs_request_actions, :reviews])
+    notifications = policy_scope(Notification).for_web.includes(notifiable: [
+                                                                  { commentable: [{ comments: :user }, :project,
+                                                                                  :bs_request_actions] }, :bs_request_actions, :reviews
+                                                                ])
     notifications_finder = NotificationsFinder.new(notifications)
 
     if params[:project]

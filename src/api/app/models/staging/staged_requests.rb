@@ -112,13 +112,17 @@ class Staging::StagedRequests
   end
 
   def add_review_for_staged_request(request)
-    request.addreview(by_project: staging_project.name, comment: "Being evaluated by staging project \"#{staging_project}\"")
-    request.change_review_state('accepted', by_group: staging_workflow.managers_group.title, comment: "Picked \"#{staging_project}\"")
+    request.addreview(by_project: staging_project.name,
+                      comment: "Being evaluated by staging project \"#{staging_project}\"")
+    request.change_review_state('accepted', by_group: staging_workflow.managers_group.title,
+                                            comment: "Picked \"#{staging_project}\"")
   end
 
   def add_review_for_unstaged_request(request, staging_project)
-    request.addreview(by_group: staging_workflow.managers_group.title, comment: "Being evaluated by group \"#{staging_workflow.managers_group}\"")
-    request.change_review_state('accepted', by_project: staging_project.name, comment: "Unstaged from project \"#{staging_project}\"")
+    request.addreview(by_group: staging_workflow.managers_group.title,
+                      comment: "Being evaluated by group \"#{staging_workflow.managers_group}\"")
+    request.change_review_state('accepted', by_project: staging_project.name,
+                                            comment: "Unstaged from project \"#{staging_project}\"")
   end
 
   def remove_packages(staging_project_packages)
@@ -160,7 +164,9 @@ class Staging::StagedRequests
     requests_found = BsRequest.where(number: not_unassigned_requests).pluck(:number)
     requests_not_found = not_unassigned_requests - requests_found
 
-    errors << "Requests with number: #{requests_found.to_sentence} don't belong to Staging: #{staging_workflow.project}" if requests_found.present?
+    if requests_found.present?
+      errors << "Requests with number: #{requests_found.to_sentence} don't belong to Staging: #{staging_workflow.project}"
+    end
     errors << "Requests with number: #{requests_not_found.to_sentence} don't exist" if requests_not_found.present?
   end
 
@@ -201,9 +207,11 @@ class Staging::StagedRequests
 
   def send_to_backlog_declined_request(request, staging_project)
     request.with_lock do
-      request.change_state(newstate: 'new', force: true, user: User.session!.login, comment: 'Reopened via staging workflow.')
+      request.change_state(newstate: 'new', force: true, user: User.session!.login,
+                           comment: 'Reopened via staging workflow.')
       add_review_for_unstaged_request(request, staging_project)
-      request.change_state(newstate: 'declined', force: true, user: User.session!.login, comment: 'Declined via staging workflow.')
+      request.change_state(newstate: 'declined', force: true, user: User.session!.login,
+                           comment: 'Declined via staging workflow.')
     end
   end
 end

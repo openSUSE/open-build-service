@@ -55,9 +55,11 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
     options = { use_source: false, follow_multibuild: true }
 
     begin
-      src_package = Package.get_by_project_and_name(step_instructions[:source_project], step_instructions[:source_package], options)
+      src_package = Package.get_by_project_and_name(step_instructions[:source_project],
+                                                    step_instructions[:source_package], options)
     rescue Package::UnknownObjectError
-      raise BranchPackage::Errors::CanNotBranchPackageNotFound, "Package #{step_instructions[:source_project]}/#{step_instructions[:source_package]} not found, it could not be branched."
+      raise BranchPackage::Errors::CanNotBranchPackageNotFound,
+            "Package #{step_instructions[:source_project]}/#{step_instructions[:source_package]} not found, it could not be branched."
     end
 
     Pundit.authorize(@token.executor, src_package, :create_branch?)
@@ -77,11 +79,13 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
 
     begin
       # Service running on package avoids branching it: wait until services finish
-      Backend::Api::Sources::Package.wait_service(step_instructions[:source_project], step_instructions[:source_package])
+      Backend::Api::Sources::Package.wait_service(step_instructions[:source_project],
+                                                  step_instructions[:source_package])
 
       BranchPackage.new(branch_options).branch
     rescue BranchPackage::InvalidArgument, InvalidProjectNameError, ArgumentError => e
-      raise BranchPackage::Errors::CanNotBranchPackage, "Package #{step_instructions[:source_project]}/#{step_instructions[:source_package]} could not be branched: #{e.message}"
+      raise BranchPackage::Errors::CanNotBranchPackage,
+            "Package #{step_instructions[:source_project]}/#{step_instructions[:source_package]} could not be branched: #{e.message}"
     rescue Project::WritePermissionError, CreateProjectNoPermission => e
       raise BranchPackage::Errors::CanNotBranchPackageNoPermission,
             "Package #{step_instructions[:source_project]}/#{step_instructions[:source_package]} could not be branched due to missing permissions: #{e.message}"

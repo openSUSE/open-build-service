@@ -44,11 +44,13 @@ module Webui
 
         if staging_project.valid? && staging_project.store
           flash[:success] = "Staging project with name = \"#{elide(staging_project.name)}\" was successfully created"
-          CreateProjectLogEntryJob.perform_later(project_log_entry_payload(staging_project), staging_project.created_at.to_s, staging_project.class.name)
+          CreateProjectLogEntryJob.perform_later(project_log_entry_payload(staging_project),
+                                                 staging_project.created_at.to_s, staging_project.class.name)
           return
         end
 
-        flash[:error] = "#{elide(staging_project.name)} couldn't be created: #{staging_project.errors.full_messages.to_sentence}"
+        flash[:error] =
+          "#{elide(staging_project.name)} couldn't be created: #{staging_project.errors.full_messages.to_sentence}"
       end
 
       def destroy
@@ -64,14 +66,16 @@ module Webui
 
         if staging_project.staged_requests.present?
           redirect_back(fallback_location: edit_staging_workflow_path(@staging_workflow.project))
-          flash[:error] = "Staging Project \"#{elide(params[:project_name])}\" could not be deleted because it has staged requests."
+          flash[:error] =
+            "Staging Project \"#{elide(params[:project_name])}\" could not be deleted because it has staged requests."
           return
         end
 
         if staging_project.destroy
           flash[:success] = "Staging Project \"#{elide(params[:project_name])}\" was deleted."
         else
-          flash[:error] = "#{elide(staging_project.name)} couldn't be deleted: #{staging_project.errors.full_messages.to_sentence}"
+          flash[:error] =
+            "#{elide(staging_project.name)} couldn't be deleted: #{staging_project.errors.full_messages.to_sentence}"
         end
 
         redirect_to edit_staging_workflow_path(@staging_workflow.project)
@@ -87,7 +91,8 @@ module Webui
       def copy
         authorize @staging_workflow
 
-        StagingProjectCopyJob.perform_later(@staging_workflow.project.name, params[:project_name], params[:staging_project_copy_name], User.session!.id)
+        StagingProjectCopyJob.perform_later(@staging_workflow.project.name, params[:project_name],
+                                            params[:staging_project_copy_name], User.session!.id)
 
         flash[:success] = "Job to copy the staging project #{elide(params[:project_name])} successfully queued."
 

@@ -16,9 +16,13 @@ class EventSubscription
         receivers_before_expand = event.send(:"#{receiver_role}s")
         next if receivers_before_expand.blank?
 
-        puts "Looking at #{receivers_before_expand.map(&:to_s).join(', ')} for '#{receiver_role}' and channel '#{channel}'" if @debug
+        if @debug
+          puts "Looking at #{receivers_before_expand.map(&:to_s).join(', ')} for '#{receiver_role}' and channel '#{channel}'"
+        end
         receivers = expand_receivers(receivers_before_expand, channel)
-        puts "Looking at #{receivers.map(&:to_s).join(', ')} for '#{receiver_role}' and channel '#{channel}'" if @debug && (receivers_before_expand - receivers).any?
+        if @debug && (receivers_before_expand - receivers).any?
+          puts "Looking at #{receivers.map(&:to_s).join(', ')} for '#{receiver_role}' and channel '#{channel}'"
+        end
 
         options = { eventtype: event.eventtype, receiver_role: receiver_role, channel: channel }
         # Find the default subscription for this eventtype and receiver_role
@@ -42,7 +46,9 @@ class EventSubscription
           if receiver_subscription.present?
             # Use the receiver's subscription if it exists
             receivers_and_subscriptions[receiver] = receiver_subscription if receiver_subscription.enabled?
-            puts "Skipped receiver #{receiver} because they have a disabled user subscription" if @debug && !receiver_subscription.enabled?
+            if @debug && !receiver_subscription.enabled?
+              puts "Skipped receiver #{receiver} because they have a disabled user subscription"
+            end
           # Only check the default_subscription if there is no receiver's subscription
           elsif default_subscription.present? && default_subscription.enabled?
             # Add a new subscription for the receiver based on the default subscription
@@ -52,14 +58,20 @@ class EventSubscription
               channel: default_subscription.channel,
               subscriber: receiver
             )
-          elsif channel == :web && receiver.instance_of?(Group) && receiver.web_users.any? { |u| EventSubscription.for_subscriber(u).find_by(options).present? }
+          elsif channel == :web && receiver.instance_of?(Group) && receiver.web_users.any? do |u|
+                  EventSubscription.for_subscriber(u).find_by(options).present?
+                end
             # There is no default subscription for groups, so we are using the existing details
             receivers_and_subscriptions[receiver] = EventSubscription.new(options.merge({ subscriber: receiver }))
           elsif @debug && default_subscription.present? && !default_subscription.enabled?
             puts "Skipped receiver #{receiver} because of a disabled default subscription"
           end
         end
-        puts "People to receive something: #{receivers_and_subscriptions.values.flatten.map { |subscription| subscription.subscriber.to_s }}\n\n" if @debug
+        next unless @debug
+
+        puts "People to receive something: #{receivers_and_subscriptions.values.flatten.map do |subscription|
+                                               subscription.subscriber.to_s
+                                             end}\n\n"
       end
 
       receivers_and_subscriptions.values.flatten

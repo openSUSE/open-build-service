@@ -6,7 +6,8 @@ class Staging::StagedRequestsController < Staging::StagingController
   before_action :check_overall_state, only: :create
   before_action :set_xml_hash, :set_request_numbers, only: %i[create destroy]
 
-  validate_action create: { method: :post, request: :number, response: :number }, destroy: { method: :delete, request: :number, response: :number }
+  validate_action create: { method: :post, request: :number, response: :number },
+                  destroy: { method: :delete, request: :number, response: :number }
 
   def index
     @requests = @staging_project.staged_requests
@@ -69,7 +70,8 @@ class Staging::StagedRequestsController < Staging::StagingController
     @staging_project = @staging_workflow.staging_projects.find_by(name: params[:staging_project_name])
     return if @staging_project
 
-    render_error status: 404, message: "Staging Project '#{params[:staging_project_name]}' not found in Staging: '#{@staging_workflow.project}'"
+    render_error status: 404,
+                 message: "Staging Project '#{params[:staging_project_name]}' not found in Staging: '#{@staging_workflow.project}'"
   end
 
   def check_overall_state

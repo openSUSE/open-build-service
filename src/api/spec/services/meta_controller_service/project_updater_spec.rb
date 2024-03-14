@@ -15,7 +15,9 @@ RSpec.describe MetaControllerService::ProjectUpdater do
       HEREDOC
     end
 
-    let(:project_updater) { MetaControllerService::ProjectUpdater.new(project: project, request_data: Xmlhash.parse(meta)) }
+    let(:project_updater) do
+      MetaControllerService::ProjectUpdater.new(project: project, request_data: Xmlhash.parse(meta))
+    end
 
     before do
       project_updater.call
@@ -43,7 +45,9 @@ RSpec.describe MetaControllerService::ProjectUpdater do
       HEREDOC
     end
 
-    let(:project_updater) { MetaControllerService::ProjectUpdater.new(project: project, request_data: Xmlhash.parse(meta)) }
+    let(:project_updater) do
+      MetaControllerService::ProjectUpdater.new(project: project, request_data: Xmlhash.parse(meta))
+    end
 
     before do
       project_updater.call
@@ -54,7 +58,9 @@ RSpec.describe MetaControllerService::ProjectUpdater do
     end
 
     describe '#errors' do
-      let(:error_message) { 'A project with the name not-existent does not exist. Please update the repository path elements.' }
+      let(:error_message) do
+        'A project with the name not-existent does not exist. Please update the repository path elements.'
+      end
 
       it { expect(project_updater.errors).to eq(error_message) }
     end

@@ -10,7 +10,8 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
 
   def test_latest_added
     login_adrian
-    get url_for(controller: :source_project_package_meta, action: :show, project: 'HiddenProject', package: 'test_latest_added')
+    get url_for(controller: :source_project_package_meta, action: :show, project: 'HiddenProject',
+                package: 'test_latest_added')
     assert_response 404
     put url_for(controller: :source_project_package_meta, action: :update, project: 'HiddenProject', package: 'test_latest_added'),
         params: '<package project="HiddenProject" name="test_latest_added"> <title/> <description/> </package>'
@@ -52,7 +53,8 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
 
   def test_latest_updated
     login_adrian
-    get url_for(controller: :source_project_package_meta, action: :show, project: 'HiddenProject', package: 'test_latest_added')
+    get url_for(controller: :source_project_package_meta, action: :show, project: 'HiddenProject',
+                package: 'test_latest_added')
     assert_response 404
     put url_for(controller: :source_project_package_meta, action: :update, project: 'HiddenProject', package: 'test_latest_added'),
         params: '<package project="HiddenProject" name="test_latest_added"> <title/> <description/> </package>'

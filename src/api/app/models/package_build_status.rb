@@ -94,7 +94,8 @@ class PackageBuildStatus
     @buildcode = 'unknown'
     begin
       package = CGI.escape(@multibuild_pkg || @pkg.name)
-      resultlist = Xmlhash.parse(Backend::Api::BuildResults::Status.build_result(@pkg.project.name, package, srep['name'], arch))
+      resultlist = Xmlhash.parse(Backend::Api::BuildResults::Status.build_result(@pkg.project.name, package,
+                                                                                 srep['name'], arch))
       currentcode = nil
       resultlist.elements('result') do |r|
         r.elements('status') { |s| currentcode = s['code'] }
@@ -121,7 +122,8 @@ class PackageBuildStatus
     # if
     if @eversucceeded
       begin
-        buildinfo = Xmlhash.parse(Backend::Api::BuildResults::Binaries.build_dependency_info(@pkg.project.name, @pkg.name, srep['name'], arch))
+        buildinfo = Xmlhash.parse(Backend::Api::BuildResults::Binaries.build_dependency_info(@pkg.project.name,
+                                                                                             @pkg.name, srep['name'], arch))
       rescue Backend::Error => e
         # if there is an error, we ignore
         raise FailedToRetrieveBuildInfo, "Can't get buildinfo: #{e.summary}"
@@ -142,12 +144,16 @@ class PackageBuildStatus
 
     # first we check the lastfailures. This route is fast but only has up to
     # two results per package. If the md5sum does not match, we have to dig deeper
-    jobhistory = @pkg.jobhistory(repository_name: srep['name'], arch_name: arch, filter: { code: 'lastfailures', limit: 2 })
+    jobhistory = @pkg.jobhistory(repository_name: srep['name'], arch_name: arch,
+                                 filter: { code: 'lastfailures', limit: 2 })
     jobhistory.each do |entry|
       @everbuilt = true if entry.verifymd5 == @verifymd5 || entry.srcmd5 == @srcmd5
     end
 
-    jobhistory = @pkg.jobhistory(repository_name: srep['name'], arch_name: arch, filter: { limit: 20 }) unless @everbuilt
+    unless @everbuilt
+      jobhistory = @pkg.jobhistory(repository_name: srep['name'], arch_name: arch,
+                                   filter: { limit: 20 })
+    end
 
     # going through the job history to check if it built and if yes, succeeded
     jobhistory.each do |entry|

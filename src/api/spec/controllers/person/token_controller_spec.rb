@@ -56,7 +56,9 @@ RSpec.describe Person::TokenController do
         login user
       end
 
-      subject { post :create, params: { login: user.login, project: user.home_project, operation: 'rebuild' }, format: :xml }
+      subject do
+        post :create, params: { login: user.login, project: user.home_project, operation: 'rebuild' }, format: :xml
+      end
 
       it 'creates a global token' do
         expect { subject }.to change { user.tokens.count }.by(1)
@@ -84,7 +86,10 @@ RSpec.describe Person::TokenController do
         login user
       end
 
-      subject { post :create, params: { login: user.login, package: package, project: package.project, operation: 'runservice' }, format: :xml }
+      subject do
+        post :create, params: { login: user.login, package: package, project: package.project, operation: 'runservice' },
+                      format: :xml
+      end
 
       it { expect(response).to have_http_status(:success) }
 
@@ -100,7 +105,9 @@ RSpec.describe Person::TokenController do
         login user
       end
 
-      subject { post :create, params: { login: user.login, operation: 'workflow', scm_token: '123456789' }, format: :xml }
+      subject do
+        post :create, params: { login: user.login, operation: 'workflow', scm_token: '123456789' }, format: :xml
+      end
 
       it { expect(response).to have_http_status(:success) }
       it { expect { subject }.to change { user.tokens.count }.by(+1) }

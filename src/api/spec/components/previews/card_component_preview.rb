@@ -72,7 +72,8 @@ class CardComponentPreview < ViewComponent::Preview
         content_tag(:a, tag.i(class: 'fas fa-edit'), href: '#', title: 'Edit Token', class: 'nav-link p-1')
       end
       component.with_action do
-        content_tag(:a, tag.i(class: 'fas fa-project-diagram'), href: '#', title: 'Trigger Token', class: 'nav-link p-1')
+        content_tag(:a, tag.i(class: 'fas fa-project-diagram'), href: '#', title: 'Trigger Token',
+                                                                class: 'nav-link p-1')
       end
       tag.p('Id: 4763', class: 'card-text').concat(
         tag.p('Operation: Rebuild', class: 'card-text')

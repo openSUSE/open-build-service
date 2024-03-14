@@ -22,7 +22,10 @@ class WorkerMeasurementsJob < ApplicationJob
     @architecture_names.each do |architecture_name|
       states.each do |state|
         state_elements = @workerstatus.xpath("//#{state}[@hostarch=\"#{architecture_name}\"]")
-        RabbitmqBus.send_to_bus('metrics', "worker,arch=#{architecture_name},state=#{state} value=#{state_elements.count}") if state_elements.any?
+        if state_elements.any?
+          RabbitmqBus.send_to_bus('metrics',
+                                  "worker,arch=#{architecture_name},state=#{state} value=#{state_elements.count}")
+        end
       end
     end
   end
@@ -30,13 +33,22 @@ class WorkerMeasurementsJob < ApplicationJob
   def send_job_metrics
     @architecture_names.each do |architecture_name|
       waiting = @workerstatus.xpath("//waiting[@arch=\"#{architecture_name}\"]")
-      RabbitmqBus.send_to_bus('metrics', "jobs,arch=#{architecture_name},state=waiting value=#{waiting.last.attributes['jobs'].value}") if waiting.any?
+      if waiting.any?
+        RabbitmqBus.send_to_bus('metrics',
+                                "jobs,arch=#{architecture_name},state=waiting value=#{waiting.last.attributes['jobs'].value}")
+      end
 
       blocked = @workerstatus.xpath("//blocked[@arch=\"#{architecture_name}\"]")
-      RabbitmqBus.send_to_bus('metrics', "jobs,arch=#{architecture_name},state=blocked value=#{blocked.last.attributes['jobs'].value}") if blocked.any?
+      if blocked.any?
+        RabbitmqBus.send_to_bus('metrics',
+                                "jobs,arch=#{architecture_name},state=blocked value=#{blocked.last.attributes['jobs'].value}")
+      end
 
       building = @workerstatus.xpath("//building[@arch=\"#{architecture_name}\"]")
-      RabbitmqBus.send_to_bus('metrics', "jobs,arch=#{architecture_name},state=building value=#{building.count}") if building.any?
+      if building.any?
+        RabbitmqBus.send_to_bus('metrics',
+                                "jobs,arch=#{architecture_name},state=building value=#{building.count}")
+      end
     end
   end
 
@@ -47,7 +59,10 @@ class WorkerMeasurementsJob < ApplicationJob
       architecture = scheduler.parent.attributes['arch'].value
       queues.each do |queue|
         value = scheduler.attribute(queue).value.to_i
-        RabbitmqBus.send_to_bus('metrics', "scheduler,arch=#{architecture},partition=#{partition},queue=#{queue} value=#{value}") if value.positive?
+        if value.positive?
+          RabbitmqBus.send_to_bus('metrics',
+                                  "scheduler,arch=#{architecture},partition=#{partition},queue=#{queue} value=#{value}")
+        end
       end
     end
   end
@@ -59,7 +74,8 @@ class WorkerMeasurementsJob < ApplicationJob
       state = daemon.attributes['state'].value
       arch = daemon.attributes['arch']
       arch = (arch.nil? ? '' : ",arch=#{arch.value}")
-      RabbitmqBus.send_to_bus('metrics', "backend_daemon_status,partition=#{partition},type=#{type},state=#{state}#{arch} count=1")
+      RabbitmqBus.send_to_bus('metrics',
+                              "backend_daemon_status,partition=#{partition},type=#{type},state=#{state}#{arch} count=1")
     end
   end
 end

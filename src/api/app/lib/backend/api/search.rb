@@ -12,7 +12,8 @@ module Backend
       end
 
       def self.published_binaries_for_package(project_name, package_name)
-        http_get('/search/published/binary/id', params: { match: "@project='#{project_name}' and @package='#{package_name}'" })
+        http_get('/search/published/binary/id',
+                 params: { match: "@project='#{project_name}' and @package='#{package_name}'" })
       end
 
       # Performs a search of packages with a link
@@ -30,7 +31,8 @@ module Backend
       end
 
       def self.product_ids(project_name)
-        http_get('/search/package/id', params: { match: "@project='#{project_name}' and starts-with(@name,'_product:')" })
+        http_get('/search/package/id',
+                 params: { match: "@project='#{project_name}' and starts-with(@name,'_product:')" })
       end
 
       def self.packages_for_project(project_name)

@@ -23,7 +23,13 @@ RSpec.describe Webui::RepositoriesController, :vcr do
     end
 
     context 'with a non valid repository param' do
-      it { expect { get :state, params: { project: user.home_project, repository: 'not_valid' } }.to raise_error ActiveRecord::RecordNotFound }
+      it {
+        expect do
+          get :state,
+              params: { project: user.home_project, repository: 'not_valid' }
+        end.to raise_error ActiveRecord::RecordNotFound
+      }
+
       it { expect(assigns(:repository)).to be_falsey }
     end
   end
@@ -47,14 +53,21 @@ RSpec.describe Webui::RepositoriesController, :vcr do
       end
 
       it { expect(repo_for_user_home.architectures.pluck(:name)).to be_empty }
-      it { expect(assigns(:repository_arch_hash).to_a).to contain_exactly(['armv7l', false], ['i586', false], ['x86_64', false]) }
+
+      it {
+        expect(assigns(:repository_arch_hash).to_a).to contain_exactly(['armv7l', false], ['i586', false],
+                                                                       ['x86_64', false])
+      }
+
       it { is_expected.to redirect_to(action: :index) }
       it { expect(flash[:success]).to eq('Successfully updated repository') }
     end
 
     context 'updating the repository with architectures' do
       before do
-        post :update, params: { project: user.home_project, repo: repo_for_user_home.name, arch: { 'i586' => true, 'x86_64' => true } }
+        post :update,
+             params: { project: user.home_project, repo: repo_for_user_home.name,
+                       arch: { 'i586' => true, 'x86_64' => true } }
       end
 
       it 'each repository has a different position' do
@@ -65,7 +78,12 @@ RSpec.describe Webui::RepositoriesController, :vcr do
 
       it { expect(repo_for_user_home.architectures.pluck(:name)).to contain_exactly('i586', 'x86_64') }
       it { expect(Architecture.available.pluck(:name)).to contain_exactly('armv7l', 'i586', 'x86_64') }
-      it { expect(assigns(:repository_arch_hash).to_a).to contain_exactly(['armv7l', false], ['i586', true], ['x86_64', true]) }
+
+      it {
+        expect(assigns(:repository_arch_hash).to_a).to contain_exactly(['armv7l', false], ['i586', true],
+                                                                       ['x86_64', true])
+      }
+
       it { is_expected.to redirect_to(action: :index) }
       it { expect(flash[:success]).to eq('Successfully updated repository') }
     end
@@ -91,17 +109,23 @@ RSpec.describe Webui::RepositoriesController, :vcr do
 
     context 'with a non valid target repository' do
       before do
-        post :create, params: { project: user.home_project, repository: 'valid_name', target_project: another_project, target_repo: 'non_valid_repo' }
+        post :create,
+             params: { project: user.home_project, repository: 'valid_name', target_project: another_project,
+                       target_repo: 'non_valid_repo' }
       end
 
-      it { expect(flash[:error]).to eq('Can not add repository: Path elements is invalid and Path Element: Link must exist') }
+      it {
+        expect(flash[:error]).to eq('Can not add repository: Path elements is invalid and Path Element: Link must exist')
+      }
+
       it { is_expected.to redirect_to(root_url) }
     end
 
     context 'with a valid repository but with a non valid architecture' do
       before do
         create(:repository, project: another_project)
-        post :create, params: { project: user.home_project, repository: 'valid_name', architectures: ['non_existent_arch'] }
+        post :create,
+             params: { project: user.home_project, repository: 'valid_name', architectures: ['non_existent_arch'] }
       end
 
       it { expect(flash[:error]).to start_with('Can not add repository: Repository ') }
@@ -225,7 +249,10 @@ RSpec.describe Webui::RepositoriesController, :vcr do
       it { is_expected.to redirect_to(action: :index, project: user.home_project) }
       it { expect(assigns(:project).repositories.count).to eq(1) }
       it { expect(assigns(:project).repositories.first.name).to eq('images') }
-      it { expect(assigns(:project).repositories.first.repository_architectures.count).to eq(Architecture.available.count) }
+
+      it {
+        expect(assigns(:project).repositories.first.repository_architectures.count).to eq(Architecture.available.count)
+      }
     end
   end
 end

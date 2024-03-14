@@ -43,15 +43,22 @@ RSpec.describe RegenerateNotifications, type: :migration do
       bs_request_to_decline.update(state: 'declined')
       bs_request_to_decline
     end
-    let!(:revoked_bs_request) { create(:bs_request, type: 'maintenance_release', state: :revoked) } # This shouldn't regenerate notification
+    # This shouldn't regenerate notification
+    let!(:revoked_bs_request) do
+      create(:bs_request, type: 'maintenance_release', state: :revoked)
+    end
 
     before do
       owner.regenerate_rss_secret
     end
 
     context 'for RequestCreate Notifications' do
-      let!(:rss_subscription) { create(:event_subscription_request_created, receiver_role: 'target_maintainer', user: owner, channel: :rss) }
-      let!(:web_subscription) { create(:event_subscription_request_created, receiver_role: 'target_maintainer', user: owner, channel: :web) }
+      let!(:rss_subscription) do
+        create(:event_subscription_request_created, receiver_role: 'target_maintainer', user: owner, channel: :rss)
+      end
+      let!(:web_subscription) do
+        create(:event_subscription_request_created, receiver_role: 'target_maintainer', user: owner, channel: :web)
+      end
 
       before do
         subject
@@ -73,7 +80,9 @@ RSpec.describe RegenerateNotifications, type: :migration do
     end
 
     context 'for RequesStatechange Notifications' do
-      let!(:subscription) { create(:event_subscription_request_statechange, receiver_role: 'target_maintainer', user: owner, channel: :rss) }
+      let!(:subscription) do
+        create(:event_subscription_request_statechange, receiver_role: 'target_maintainer', user: owner, channel: :rss)
+      end
 
       before do
         subject
@@ -105,8 +114,12 @@ RSpec.describe RegenerateNotifications, type: :migration do
       let!(:accepted_review) { create(:review, bs_request: review_request, by_user: owner, state: :accepted) }
 
       context 'with review by user' do
-        let!(:subscription) { create(:event_subscription_review_wanted, receiver_role: 'reviewer', user: owner, channel: :rss) }
-        let!(:review) { create(:review, bs_request: review_request, by_user: owner, state: :new, updated_at: 10.days.ago) }
+        let!(:subscription) do
+          create(:event_subscription_review_wanted, receiver_role: 'reviewer', user: owner, channel: :rss)
+        end
+        let!(:review) do
+          create(:review, bs_request: review_request, by_user: owner, state: :new, updated_at: 10.days.ago)
+        end
 
         before do
           subject
@@ -128,9 +141,15 @@ RSpec.describe RegenerateNotifications, type: :migration do
         let(:reviewer_1) { create(:confirmed_user, login: 'reviewer_1') }
         let(:package_2) { create(:package, name: 'package_2') }
         let!(:relationship) { create(:relationship_package_user, user: reviewer_1, package: package_2) }
-        let!(:web_subscription) { create(:event_subscription_review_wanted, receiver_role: 'reviewer', user: reviewer_1, channel: :web) }
-        let!(:rss_subscription) { create(:event_subscription_review_wanted, receiver_role: 'reviewer', user: reviewer_1, channel: :rss) }
-        let!(:review_by_package) { create(:review, bs_request: review_request, by_project: package_2.project, by_package: package_2, state: :new) }
+        let!(:web_subscription) do
+          create(:event_subscription_review_wanted, receiver_role: 'reviewer', user: reviewer_1, channel: :web)
+        end
+        let!(:rss_subscription) do
+          create(:event_subscription_review_wanted, receiver_role: 'reviewer', user: reviewer_1, channel: :rss)
+        end
+        let!(:review_by_package) do
+          create(:review, bs_request: review_request, by_project: package_2.project, by_package: package_2, state: :new)
+        end
 
         before do
           subject
@@ -151,11 +170,23 @@ RSpec.describe RegenerateNotifications, type: :migration do
     end
 
     context 'for CommentForRequest Notifications' do
-      let!(:subscription) { create(:event_subscription_comment_for_request, receiver_role: 'target_maintainer', user: owner, channel: :rss) }
-      let!(:old_comment_for_request) { create(:comment_request, commentable: new_bs_request, user: requester, created_at: 4.weeks.ago) }
-      let!(:comment_for_request) { create(:comment_request, commentable: new_bs_request, user: requester, updated_at: 1.week.ago) }
-      let!(:comment_for_project) { create(:comment_project, commentable: project, user: requester) } # Shouldn't regenerate notification
-      let!(:comment_for_package) { create(:comment_package, commentable: package, user: requester) } # Shouldn't regenerate notification
+      let!(:subscription) do
+        create(:event_subscription_comment_for_request, receiver_role: 'target_maintainer', user: owner, channel: :rss)
+      end
+      let!(:old_comment_for_request) do
+        create(:comment_request, commentable: new_bs_request, user: requester, created_at: 4.weeks.ago)
+      end
+      let!(:comment_for_request) do
+        create(:comment_request, commentable: new_bs_request, user: requester, updated_at: 1.week.ago)
+      end
+      # Shouldn't regenerate notification
+      let!(:comment_for_project) do
+        create(:comment_project, commentable: project, user: requester)
+      end
+      # Shouldn't regenerate notification
+      let!(:comment_for_package) do
+        create(:comment_package, commentable: package, user: requester)
+      end
 
       before do
         subject
@@ -175,7 +206,9 @@ RSpec.describe RegenerateNotifications, type: :migration do
     end
 
     context 'when running the job after running the data migration' do
-      let!(:subscription) { create(:event_subscription_comment_for_request, receiver_role: 'target_maintainer', user: owner, channel: :rss) }
+      let!(:subscription) do
+        create(:event_subscription_comment_for_request, receiver_role: 'target_maintainer', user: owner, channel: :rss)
+      end
       let!(:comment_for_request) { create(:comment_request, commentable: new_bs_request, user: requester, body: 'bla') }
       let(:events) { Event::Base.where(eventtype: 'Event::CommentForRequest') }
       let(:comment_notifications) { Notification.where(notifiable_type: 'Comment') }

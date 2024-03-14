@@ -32,7 +32,8 @@ class RabbitmqBus
     connection.start
     rabbitmq_channel = connection.create_channel
     self.exchange = if CONFIG['amqp_exchange_name']
-                      rabbitmq_channel.exchange(CONFIG['amqp_exchange_name'], CONFIG['amqp_exchange_options'].try(:symbolize_keys) || {})
+                      rabbitmq_channel.exchange(CONFIG['amqp_exchange_name'],
+                                                CONFIG['amqp_exchange_options'].try(:symbolize_keys) || {})
                     else
                       # can't cover due to https://github.com/arempe93/bunny-mock/pull/25
                       # :nocov:

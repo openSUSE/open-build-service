@@ -9,7 +9,9 @@ RSpec.describe BackfillNotifiedProjects, :vcr, type: :migration do
     let(:target_project_2) { create(:project, name: 'target_project_2') }
     let(:target_package_2) { create(:package, name: 'target_package_2', project: target_project_2) }
 
-    let(:bs_request_action_1) { create(:bs_request_action_add_maintainer_role, target_project: target_project, source_package: source_package) }
+    let(:bs_request_action_1) do
+      create(:bs_request_action_add_maintainer_role, target_project: target_project, source_package: source_package)
+    end
     let(:bs_request_action_2) do
       create(:bs_request_action_submit,
              source_project: source_project, source_package: source_package, target_project: target_project, target_package: target_package)
@@ -20,7 +22,8 @@ RSpec.describe BackfillNotifiedProjects, :vcr, type: :migration do
     end
 
     let(:bs_request_with_submit_action) do
-      create(:bs_request_with_submit_action, bs_request_actions: [bs_request_action_1, bs_request_action_2, bs_request_action_3])
+      create(:bs_request_with_submit_action,
+             bs_request_actions: [bs_request_action_1, bs_request_action_2, bs_request_action_3])
     end
     let(:user_review) { create(:user_review, bs_request: bs_request_with_submit_action) }
     let(:comment_project) { create(:comment_project) }

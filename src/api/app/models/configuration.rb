@@ -45,7 +45,9 @@ class Configuration < ApplicationRecord
   end
 
   def proxy_auth_mode_enabled?
-    logger.info 'Warning: You are using the deprecated ichain_mode setting in config/options.yml' if CONFIG['ichain_mode'].present?
+    if CONFIG['ichain_mode'].present?
+      logger.info 'Warning: You are using the deprecated ichain_mode setting in config/options.yml'
+    end
 
     return false unless PROXY_MODE_ENABLED_VALUES.include?(CONFIG['proxy_auth_mode']) || CONFIG['ichain_mode'] == :on
 
@@ -86,7 +88,10 @@ class Configuration < ApplicationRecord
     end
 
     # special for api_url
-    attribs['api_url'] = "#{CONFIG['frontend_protocol']}://#{CONFIG['frontend_host']}:#{CONFIG['frontend_port']}" unless CONFIG['frontend_host'].blank? || CONFIG['frontend_port'].blank? || CONFIG['frontend_protocol'].blank?
+    unless CONFIG['frontend_host'].blank? || CONFIG['frontend_port'].blank? || CONFIG['frontend_protocol'].blank?
+      attribs['api_url'] =
+        "#{CONFIG['frontend_protocol']}://#{CONFIG['frontend_host']}:#{CONFIG['frontend_port']}"
+    end
     update(attribs)
     save!
   end

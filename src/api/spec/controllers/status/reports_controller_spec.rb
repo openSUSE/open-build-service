@@ -33,7 +33,10 @@ RSpec.describe Status::ReportsController do
         repository.update!(required_checks: ['openQA'])
       end
 
-      subject! { get :show, params: { project_name: project.name, repository_name: repository.name, report_uuid: status_report.uuid }, format: :xml }
+      subject! do
+        get :show, params: { project_name: project.name, repository_name: repository.name, report_uuid: status_report.uuid },
+                   format: :xml
+      end
 
       it { is_expected.to have_http_status(:success) }
       it { expect(assigns(:checks)).to contain_exactly(check) }

@@ -20,13 +20,18 @@ RSpec.describe WorkflowRunPolicy do
       let(:release_token) { create(:release_token, executor: token_user) }
 
       it 'raise a not authorized error' do
-        expect { subject.new(User.session, WorkflowRun, { token_id: release_token.id }).resolve }.to raise_error(Pundit::NotAuthorizedError)
+        expect do
+          subject.new(User.session, WorkflowRun,
+                      { token_id: release_token.id }).resolve
+        end.to raise_error(Pundit::NotAuthorizedError)
       end
     end
 
     context 'when the token does not exist' do
       it 'does not crash and raises a not authorized error' do
-        expect { subject.new(User.session, WorkflowRun, { token_id: nil }).resolve }.to raise_error(Pundit::NotAuthorizedError)
+        expect do
+          subject.new(User.session, WorkflowRun, { token_id: nil }).resolve
+        end.to raise_error(Pundit::NotAuthorizedError)
       end
     end
 
@@ -36,7 +41,10 @@ RSpec.describe WorkflowRunPolicy do
       end
 
       it 'raises a not authorized error' do
-        expect { subject.new(User.session, WorkflowRun, { token_id: workflow_token.id }).resolve }.to raise_error(Pundit::NotAuthorizedError)
+        expect do
+          subject.new(User.session, WorkflowRun,
+                      { token_id: workflow_token.id }).resolve
+        end.to raise_error(Pundit::NotAuthorizedError)
       end
     end
   end

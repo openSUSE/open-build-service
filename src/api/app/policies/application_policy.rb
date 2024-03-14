@@ -47,7 +47,10 @@ class ApplicationPolicy
   private
 
   def ensure_logged_in!(user, opts)
-    raise Pundit::NotAuthorizedError, reason: ANONYMOUS_USER if opts[:ensure_logged_in] && (user.nil? || user.is_nobody?)
+    return unless opts[:ensure_logged_in] && (user.nil? || user.is_nobody?)
+
+    raise Pundit::NotAuthorizedError,
+          reason: ANONYMOUS_USER
   end
 
   class Scope

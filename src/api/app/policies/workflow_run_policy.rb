@@ -8,7 +8,10 @@ class WorkflowRunPolicy < ApplicationPolicy
 
     def resolve
       token = Token.find_by(id: opts[:token_id])
-      raise Pundit::NotAuthorizedError, 'you are not authorized to access those workflow runs' unless token.present? && token.owned_by?(user)
+      unless token.present? && token.owned_by?(user)
+        raise Pundit::NotAuthorizedError,
+              'you are not authorized to access those workflow runs'
+      end
       raise Pundit::NotAuthorizedError, 'the token is not of type workflow' unless token.type == 'Token::Workflow'
 
       scope.where(token_id: token.id).order(created_at: :desc)

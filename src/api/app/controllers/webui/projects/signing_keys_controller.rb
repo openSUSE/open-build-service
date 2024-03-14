@@ -9,8 +9,14 @@ module Webui
         key = @project.signing_key(type: params[:kind])
 
         if key.present? && %w[gpg ssl].include?(params[:kind])
-          send_data(key.content, disposition: 'attachment', filename: "#{@project.name.tr(':', '_')}_key.gpg") if params[:kind] == 'gpg'
-          send_data(key.content, disposition: 'attachment', filename: "#{@project.name.tr(':', '_')}_cert.pem") if params[:kind] == 'ssl'
+          if params[:kind] == 'gpg'
+            send_data(key.content, disposition: 'attachment',
+                                   filename: "#{@project.name.tr(':', '_')}_key.gpg")
+          end
+          if params[:kind] == 'ssl'
+            send_data(key.content, disposition: 'attachment',
+                                   filename: "#{@project.name.tr(':', '_')}_cert.pem")
+          end
         else
           flash[:error] = "Key not found for project #{@project.name}"
           redirect_to project_signing_keys_path(@project)

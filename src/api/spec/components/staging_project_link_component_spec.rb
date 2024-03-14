@@ -18,7 +18,9 @@ RSpec.describe StagingProjectLinkComponent, type: :component do
     context 'but is a subproject of the staging workflow project' do
       let(:staging_workflow_project) { build_stubbed(:project, name: 'SUSE') }
       let(:staging_workflow) { build_stubbed(:staging_workflow, project: staging_workflow_project) }
-      let(:staging_project) { build_stubbed(:project, name: 'SUSE:Staging:A', title: nil, staging_workflow: staging_workflow) }
+      let(:staging_project) do
+        build_stubbed(:project, name: 'SUSE:Staging:A', title: nil, staging_workflow: staging_workflow)
+      end
 
       before do
         render_inline(described_class.new(staging_project: staging_project, staging_workflow: staging_workflow))
@@ -32,7 +34,9 @@ RSpec.describe StagingProjectLinkComponent, type: :component do
     context 'but is not a subproject of the staging workflow project' do
       let(:staging_workflow_project) { build_stubbed(:project, name: 'SUSE') }
       let(:staging_workflow) { build_stubbed(:staging_workflow, project: staging_workflow_project) }
-      let(:staging_project) { build_stubbed(:project, name: 'home:user123', title: nil, staging_workflow: staging_workflow) }
+      let(:staging_project) do
+        build_stubbed(:project, name: 'home:user123', title: nil, staging_workflow: staging_workflow)
+      end
 
       before do
         render_inline(described_class.new(staging_project: staging_project, staging_workflow: staging_workflow))

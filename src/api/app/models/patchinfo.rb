@@ -232,7 +232,8 @@ class Patchinfo
     xml = pkg.patchinfo
     xml = update_patchinfo(pkg.project, xml)
 
-    Backend::Api::Sources::Package.write_patchinfo(pkg.project.name, pkg.name, User.session!.login, xml.document.to_xml, message)
+    Backend::Api::Sources::Package.write_patchinfo(pkg.project.name, pkg.name, User.session!.login,
+                                                   xml.document.to_xml, message)
     pkg.sources_changed
   end
 

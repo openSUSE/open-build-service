@@ -17,7 +17,8 @@ class IssueTracker < ApplicationRecord
   after_save :update_package_meta
 
   # FIXME: issues_updated should not be hidden, but it should also not break our api
-  DEFAULT_RENDER_PARAMS = { except: %i[id password user issues_updated api_key], dasherize: true, skip_types: true, skip_instruct: true }.freeze
+  DEFAULT_RENDER_PARAMS = { except: %i[id password user issues_updated api_key], dasherize: true, skip_types: true,
+                            skip_instruct: true }.freeze
 
   before_validation(on: :create) do
     self.issues_updated ||= Time.now

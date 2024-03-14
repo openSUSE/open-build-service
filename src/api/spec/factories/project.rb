@@ -27,8 +27,14 @@ FactoryBot.define do
     end
 
     after(:create) do |project, evaluator|
-      create(:linked_project, project: project, linked_db_project: evaluator.link_to) if evaluator.link_to.is_a?(Project)
-      create(:linked_project, project: project, linked_remote_project_name: evaluator.link_to) if evaluator.link_to.is_a?(String)
+      if evaluator.link_to.is_a?(Project)
+        create(:linked_project, project: project,
+                                linked_db_project: evaluator.link_to)
+      end
+      if evaluator.link_to.is_a?(String)
+        create(:linked_project, project: project,
+                                linked_remote_project_name: evaluator.link_to)
+      end
 
       project.config.save({ user: 'factory bot' }, evaluator.project_config) if evaluator.project_config
 
@@ -151,7 +157,11 @@ FactoryBot.define do
           end
         end
 
-        evaluator.maintainer.run_as { create(:patchinfo, project_name: project.name, comment: 'Fake comment', force: true) } if evaluator.create_patchinfo
+        if evaluator.create_patchinfo
+          evaluator.maintainer.run_as do
+            create(:patchinfo, project_name: project.name, comment: 'Fake comment', force: true)
+          end
+        end
       end
 
       factory :maintenance_project_with_packages do
@@ -175,7 +185,10 @@ FactoryBot.define do
         create(:update_project_attrib, project: evaluator.maintained_project, update_project: update_project)
 
         # Set the relationship between the update project and the maintenance project
-        create(:maintained_project, project: update_project, maintenance_project: evaluator.maintenance_project) if evaluator.maintenance_project
+        if evaluator.maintenance_project
+          create(:maintained_project, project: update_project,
+                                      maintenance_project: evaluator.maintenance_project)
+        end
 
         create(:build_flag, status: 'disable', project: evaluator.maintained_project)
         create(:publish_flag, status: 'disable', project: evaluator.maintained_project)

@@ -17,7 +17,8 @@ RSpec.describe Token::Service do
 
     context 'triggered without success' do
       before do
-        allow(Backend::Api::Sources::Package).to receive(:trigger_services).and_raise(Backend::Error, 'something went wrong')
+        allow(Backend::Api::Sources::Package).to receive(:trigger_services).and_raise(Backend::Error,
+                                                                                      'something went wrong')
       end
 
       it 'records the current date and time in the triggered_at column' do

@@ -15,7 +15,9 @@ class BranchPackage::LookupIncidentPackage
     pkg = nil
     # choose the last one based on the incident number (incremental sequence)
     possible_packages.compact.each do |possible_package|
-      pkg = possible_package if pkg.nil? || possible_package.project.name.gsub(/.*:/, '').to_i > pkg.project.name.gsub(/.*:/, '').to_i
+      pkg = possible_package if pkg.nil? || possible_package.project.name.gsub(/.*:/,
+                                                                               '').to_i > pkg.project.name.gsub(/.*:/,
+                                                                                                                '').to_i
     end
     pkg
   end

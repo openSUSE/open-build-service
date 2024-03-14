@@ -44,6 +44,7 @@ class Relationship::AddRole
     return unless role.global
 
     # only nonglobal roles may be set in an object
-    raise SaveError, "tried to set global role '#{role.title}' in #{package_or_project.class} '#{package_or_project.name}'"
+    raise SaveError,
+          "tried to set global role '#{role.title}' in #{package_or_project.class} '#{package_or_project.name}'"
   end
 end

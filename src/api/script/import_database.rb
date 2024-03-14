@@ -23,7 +23,8 @@ OptionParser.new do |opts|
     @params[:all] = v
   end
 
-  opts.on('-i', '--import', 'Import the latest dump into development database. You might want to specify the path with --filename.') do |v|
+  opts.on('-i', '--import',
+          'Import the latest dump into development database. You might want to specify the path with --filename.') do |v|
     @params[:import] = v
   end
 
@@ -31,7 +32,8 @@ OptionParser.new do |opts|
     @params[:load] = v
   end
 
-  opts.on('-p', '--path [PATH]', 'Specify the filename of the database dump. Default is /db/data/obs_production.sql.') do |v|
+  opts.on('-p', '--path [PATH]',
+          'Specify the filename of the database dump. Default is /db/data/obs_production.sql.') do |v|
     @params[:path] = v
   end
 
@@ -41,12 +43,16 @@ OptionParser.new do |opts|
 end.parse!
 
 def init
-  abort('Not possible to locate options.yml or database.yml. Please execute this script in your open-build-service directory.') unless File.exist?(@options_path) || File.exist?(@database_path)
+  unless File.exist?(@options_path) || File.exist?(@database_path)
+    abort('Not possible to locate options.yml or database.yml. Please execute this script in your open-build-service directory.')
+  end
 
   # There is only the filename given
   abort('No parameters, use --help') if @params.count == 1
 
-  abort('The --all parameter is not valid in combination with --import, --load or --filename') if @params[:all] && (@params[:import] || @params[:load] || @params[:path])
+  if @params[:all] && (@params[:import] || @params[:load] || @params[:path])
+    abort('The --all parameter is not valid in combination with --import, --load or --filename')
+  end
 
   if @params[:load] &&
      @params[:filename]
@@ -64,7 +70,9 @@ def load_dump
   filename = options[environment]['backup_filename']
   port = options[environment]['backup_port']
 
-  abort('Please specify at least backup_server, backup_user, backup_location and backup_filename in your options.yml') if !server || !username || !location || !filename
+  if !server || !username || !location || !filename
+    abort('Please specify at least backup_server, backup_user, backup_location and backup_filename in your options.yml')
+  end
 
   puts 'Downloading database backup ...'
   `scp -v -P #{port || 22} #{username}@#{server}:#{File.join(location, filename)} #{@data_path}`

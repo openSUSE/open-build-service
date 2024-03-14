@@ -261,7 +261,8 @@ module Event
     end
 
     def package_watchers
-      package = Package.get_by_project_and_name(payload['project'], payload['package'], { follow_multibuild: true, follow_project_links: false, use_source: false })
+      package = Package.get_by_project_and_name(payload['project'], payload['package'],
+                                                { follow_multibuild: true, follow_project_links: false, use_source: false })
       return [] if package.blank?
 
       package.watched_items.includes(:user).map(&:user)

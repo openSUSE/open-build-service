@@ -37,7 +37,8 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
     expect(page).to have_text('Successfully branched package')
 
     # change the package sources so we have a difference
-    Backend::Connection.put('/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/DUMMY_FILE', 'dummy')
+    Backend::Connection.put('/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/DUMMY_FILE',
+                            'dummy')
 
     # Step 2: The user submits the update
     #####################################
@@ -80,7 +81,8 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
 
     # needed for patchinfo validation
     fill_in('patchinfo_summary', with: 'ProjectWithRepo_package is much better than the old one')
-    fill_in('patchinfo_description', with: 'Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing')
+    fill_in('patchinfo_description',
+            with: 'Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing')
     check('patchinfo_block')
     fill_in('patchinfo_block_reason', with: 'locked!')
 

@@ -93,7 +93,8 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
       flash[:success] = "Staging for #{elide(@project.name)} was successfully deleted."
       render js: "window.location='#{project_show_path(@project)}'"
     else
-      flash[:error] = "Staging for #{elide(@project.name)} couldn't be deleted: #{@staging_workflow.errors.full_messages.to_sentence}."
+      flash[:error] =
+        "Staging for #{elide(@project.name)} couldn't be deleted: #{@staging_workflow.errors.full_messages.to_sentence}."
       render js: "window.location='#{staging_workflow_path(@staging_workflow.project)}'"
     end
   end

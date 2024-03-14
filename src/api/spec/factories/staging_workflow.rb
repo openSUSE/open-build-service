@@ -20,7 +20,8 @@ FactoryBot.define do
         letters = Array('A'..'Z')
         new_staging_projects_count.times do |index|
           letter = letters[index + staging_workflow.staging_projects.count]
-          staging_workflow.staging_projects << create(:staging_project, name: "#{staging_workflow.project.name}:Staging:#{letter}", maintainer: staging_workflow.managers_group)
+          staging_workflow.staging_projects << create(:staging_project,
+                                                      name: "#{staging_workflow.project.name}:Staging:#{letter}", maintainer: staging_workflow.managers_group)
         end
       end
 

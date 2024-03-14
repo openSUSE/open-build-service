@@ -20,7 +20,8 @@ xml.project(project_attributes) do
 
   my_model.render_relationships(xml)
 
-  repos = my_model.repositories.preload(:download_repositories, :release_targets, path_elements: :link).not_remote.order(name: :desc)
+  repos = my_model.repositories.preload(:download_repositories, :release_targets,
+                                        path_elements: :link).not_remote.order(name: :desc)
   FlagHelper.render(my_model, xml)
 
   repos.each do |repo|
@@ -31,12 +32,16 @@ xml.project(project_attributes) do
     params[:linkedbuild] = repo.linkedbuild if repo.linkedbuild
     xml.repository(params) do |xml_repository|
       repo.download_repositories.each do |download_repository|
-        params = { arch: download_repository.arch, url: download_repository.url, repotype: download_repository.repotype }
+        params = { arch: download_repository.arch, url: download_repository.url,
+                   repotype: download_repository.repotype }
         xml_repository.download(params) do |xml_download|
           xml_download.archfilter download_repository.archfilter if download_repository.archfilter.present?
           if download_repository.masterurl.present?
             params = { url: download_repository.masterurl }
-            params[:sslfingerprint] = download_repository.mastersslfingerprint if download_repository.mastersslfingerprint
+            if download_repository.mastersslfingerprint
+              params[:sslfingerprint] =
+                download_repository.mastersslfingerprint
+            end
             xml_download.master(params)
           end
           xml_download.pubkey download_repository.pubkey if download_repository.pubkey.present?

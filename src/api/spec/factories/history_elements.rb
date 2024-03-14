@@ -55,7 +55,8 @@ FactoryBot.define do
         superseding_bs_request = create(:bs_request_with_submit_action)
         superseded_bs_request = create(:superseded_bs_request, superseded_by_request: superseding_bs_request)
 
-        history_element.update(description_extension: superseded_bs_request.superseded_by.to_s, op_object_id: superseded_bs_request.id)
+        history_element.update(description_extension: superseded_bs_request.superseded_by.to_s,
+                               op_object_id: superseded_bs_request.id)
       end
     end
   end

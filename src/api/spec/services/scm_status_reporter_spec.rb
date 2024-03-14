@@ -1,5 +1,7 @@
 RSpec.describe SCMStatusReporter, type: :service do
-  let(:scm_status_reporter) { SCMStatusReporter.new(event_payload, event_subscription_payload, token, workflow_run, event_type) }
+  let(:scm_status_reporter) do
+    SCMStatusReporter.new(event_payload, event_subscription_payload, token, workflow_run, event_type)
+  end
 
   describe '.new' do
     context 'status pending when event_type is missing' do

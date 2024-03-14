@@ -5,8 +5,14 @@ RSpec.describe ConsistencyCheckJobService::ProjectMetaChecker, :vcr do
 
   describe '#call' do
     context 'different meta in frontend and backend' do
-      let(:frontend_meta) { { 'name' => 'Test', 'title' => 'test project', 'description' => {}, 'person' => { 'userid' => 'Admin', 'role' => 'maintainer' } } }
-      let(:backend_meta) { { 'name' => 'Test', 'title' => 'test project foo', 'description' => {}, 'person' => { 'userid' => 'Admin', 'role' => 'maintainer' } } }
+      let(:frontend_meta) do
+        { 'name' => 'Test', 'title' => 'test project', 'description' => {},
+          'person' => { 'userid' => 'Admin', 'role' => 'maintainer' } }
+      end
+      let(:backend_meta) do
+        { 'name' => 'Test', 'title' => 'test project foo', 'description' => {},
+          'person' => { 'userid' => 'Admin', 'role' => 'maintainer' } }
+      end
 
       before do
         allow(project_meta_checker).to receive_messages(frontend_meta: frontend_meta, backend_meta: backend_meta)

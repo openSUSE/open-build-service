@@ -7,7 +7,8 @@ class WatchlistComponent < ApplicationComponent
 
   attr_reader :projects, :packages, :bs_requests
 
-  def initialize(user:, current_object:, bs_request: nil, package: nil, project: nil, bs_requests: [], packages: [], projects: [])
+  def initialize(user:, current_object:, bs_request: nil, package: nil, project: nil, bs_requests: [], packages: [],
+                 projects: [])
     super
 
     @user = user
@@ -52,7 +53,8 @@ class WatchlistComponent < ApplicationComponent
   def toggle_watchable_path
     case @current_object
     when Package
-      project_package_toggle_watched_item_path(project_name: @current_object.project.name, package_name: @current_object.name)
+      project_package_toggle_watched_item_path(project_name: @current_object.project.name,
+                                               package_name: @current_object.name)
     when Project
       project_toggle_watched_item_path(project_name: @current_object.name)
     when BsRequest

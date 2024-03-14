@@ -122,7 +122,8 @@ class WorkflowRun < ApplicationRecord
   private
 
   def event_parameters
-    { id: id, token_id: token_id, hook_event: hook_event&.humanize || 'unknown', summary: summary, repository_full_name: repository_full_name }
+    { id: id, token_id: token_id, hook_event: hook_event&.humanize || 'unknown', summary: summary,
+      repository_full_name: repository_full_name }
   end
 
   def create_event

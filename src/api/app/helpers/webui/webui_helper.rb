@@ -76,7 +76,8 @@ module Webui::WebuiHelper
     default_icon = image_url('drive-optical-48.png')
     icon = template.source_path('_icon') if template.has_icon?
     capture_haml do
-      content_tag(:object, data: icon || default_icon, type: 'image/png', title: template.title, width: 32, height: 32) do
+      content_tag(:object, data: icon || default_icon, type: 'image/png', title: template.title, width: 32,
+                           height: 32) do
         content_tag(:img, src: default_icon, alt: template.title, width: 32, height: 32)
       end
     end
@@ -91,7 +92,8 @@ module Webui::WebuiHelper
 
     repo_state_class = repository_state_class(outdated, status)
 
-    tag.i('', class: "repository-state-#{repo_state_class} #{html_class} fas fa-#{repo_status_icon(status)}", title: description)
+    tag.i('', class: "repository-state-#{repo_state_class} #{html_class} fas fa-#{repo_status_icon(status)}",
+              title: description)
   end
 
   def repository_info(status)
@@ -196,7 +198,10 @@ module Webui::WebuiHelper
     # Expires in 2 hours so that changes of local and remote packages eventually result in an update
     Rails.cache.fetch(['project_or_package_link', prj.try(:id), opts], expires_in: 2.hours) do
       opts[:project_text] ||= format_projectname(opts[:project], opts[:creator]) if prj && opts[:creator]
-      pkg = prj.packages.where(name: opts[:package]).select(:id, :name, :project_id).first if opts[:package] && prj && opts[:package] != :multiple
+      if opts[:package] && prj && opts[:package] != :multiple
+        pkg = prj.packages.where(name: opts[:package]).select(:id, :name,
+                                                              :project_id).first
+      end
       if opts[:package]
         link_to_package(prj, pkg, opts)
       else

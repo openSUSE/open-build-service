@@ -64,7 +64,9 @@ class Webui::PackageController < Webui::WebuiController
         @is_current_rev = (@revision == @current_rev)
       elsif @service_running
         flash.clear
-        flash.now[:notice] = "Service currently running (<a href='#{package_show_path(project: @project, package: @package)}'>reload page</a>)."
+        flash.now[:notice] =
+          "Service currently running (<a href='#{package_show_path(project: @project,
+                                                                   package: @package)}'>reload page</a>)."
       else
         @more_info = @package.service_error
         flash.now[:error] = "Files could not be expanded: #{@forced_unexpand}"
@@ -162,7 +164,9 @@ class Webui::PackageController < Webui::WebuiController
       @current_notification = Notification.find(params[:notification_id])
       authorize @current_notification, :update?, policy_class: NotificationPolicy
     end
-    @current_request_action = BsRequestAction.find(params[:request_action_id]) if User.session && params[:request_action_id]
+    return unless User.session && params[:request_action_id]
+
+    @current_request_action = BsRequestAction.find(params[:request_action_id])
   end
 
   def requests
@@ -214,7 +218,9 @@ class Webui::PackageController < Webui::WebuiController
 
     # FIXME: moved from the old view, needs refactoring
     @submit_url_opts = {}
-    if @oproject && @opackage && !@oproject.find_attribute('OBS', 'RejectRequests') && !@opackage.find_attribute('OBS', 'RejectRequests')
+    if @oproject && @opackage && !@oproject.find_attribute('OBS',
+                                                           'RejectRequests') && !@opackage.find_attribute('OBS',
+                                                                                                          'RejectRequests')
       @submit_message = "Submit to #{@oproject.name}/#{@opackage.name}"
       @submit_url_opts[:target_project] = @oproject.name
       @submit_url_opts[:targetpackage] = @opackage.name
@@ -322,8 +328,10 @@ class Webui::PackageController < Webui::WebuiController
       flash[:success] = "Triggered abort build for #{elide(@project.name)}/#{elide(@package.name)} successfully."
       redirect_to package_show_path(project: @project, package: @package)
     else
-      flash[:error] = "Error while triggering abort build for #{elide(@project.name)}/#{elide(@package.name)}: #{@package.errors.full_messages.to_sentence}."
-      redirect_to package_live_build_log_path(project: @project, package: @package, repository: params[:repository], arch: params[:arch])
+      flash[:error] =
+        "Error while triggering abort build for #{elide(@project.name)}/#{elide(@package.name)}: #{@package.errors.full_messages.to_sentence}."
+      redirect_to package_live_build_log_path(project: @project, package: @package, repository: params[:repository],
+                                              arch: params[:arch])
     end
   end
 
@@ -337,7 +345,8 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to package_show_path(project: @project, package: @package)
     else
       flash[:error] = rebuild_trigger.error_message
-      redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package, repository_name: params[:repository])
+      redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package,
+                                                           repository_name: params[:repository])
     end
   end
 
@@ -354,13 +363,19 @@ class Webui::PackageController < Webui::WebuiController
       @buildresults = @package.buildresult(@project, show_all)
 
       # TODO: this is part of the temporary changes done for 'request_show_redesign'.
-      request_show_redesign_partial = 'webui/request/beta_show_tabs/build_status' if params.fetch(:inRequestShowRedesign, false)
+      request_show_redesign_partial = 'webui/request/beta_show_tabs/build_status' if params.fetch(
+        :inRequestShowRedesign, false
+      )
 
       render partial: request_show_redesign_partial || 'buildstatus', locals: { buildresults: @buildresults,
                                                                                 index: @index,
                                                                                 project: @project,
-                                                                                collapsed_packages: params.fetch(:collapsedPackages, []),
-                                                                                collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
+                                                                                collapsed_packages: params.fetch(
+                                                                                  :collapsedPackages, []
+                                                                                ),
+                                                                                collapsed_repositories: params.fetch(
+                                                                                  :collapsedRepositories, {}
+                                                                                ) }
     else
       render partial: 'no_repositories', locals: { project: @project }
     end
@@ -390,7 +405,9 @@ class Webui::PackageController < Webui::WebuiController
       render partial: 'no_repositories', locals: { project: @project }
     else
       # TODO: this is part of the temporary changes done for 'request_show_redesign'.
-      request_show_redesign_partial = 'webui/request/beta_show_tabs/rpm_lint_result' if params.fetch(:inRequestShowRedesign, false)
+      request_show_redesign_partial = 'webui/request/beta_show_tabs/rpm_lint_result' if params.fetch(
+        :inRequestShowRedesign, false
+      )
 
       render partial: request_show_redesign_partial || 'rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
                                                                                    repository_list: @repo_list, repo_arch_hash: @repo_arch_hash,
@@ -409,7 +426,9 @@ class Webui::PackageController < Webui::WebuiController
 
     render_chart = params[:renderChart] == 'true'
     parsed_messages = RpmlintLogParser.new(content: rpmlint_log_file).call if render_chart
-    render partial: 'rpmlint_log', locals: { rpmlint_log_file: rpmlint_log_file, render_chart: render_chart, parsed_messages: parsed_messages }
+    render partial: 'rpmlint_log',
+           locals: { rpmlint_log_file: rpmlint_log_file, render_chart: render_chart,
+                     parsed_messages: parsed_messages }
   end
 
   def meta
@@ -421,11 +440,17 @@ class Webui::PackageController < Webui::WebuiController
 
     authorize @package, :save_meta_update?
 
-    errors << 'admin rights are required to raise the protection level of a package' if FlagHelper.xml_disabled_for?(@meta_xml, 'sourceaccess')
+    errors << 'admin rights are required to raise the protection level of a package' if FlagHelper.xml_disabled_for?(
+      @meta_xml, 'sourceaccess'
+    )
 
-    errors << 'project name in xml data does not match resource path component' if @meta_xml['project'] && @meta_xml['project'] != @project.name
+    if @meta_xml['project'] && @meta_xml['project'] != @project.name
+      errors << 'project name in xml data does not match resource path component'
+    end
 
-    errors << 'package name in xml data does not match resource path component' if @meta_xml['name'] && @meta_xml['name'] != @package.name
+    if @meta_xml['name'] && @meta_xml['name'] != @package.name
+      errors << 'package name in xml data does not match resource path component'
+    end
 
     if errors.empty?
       begin
@@ -475,7 +500,8 @@ class Webui::PackageController < Webui::WebuiController
     return if @architecture
 
     flash[:error] = "Couldn't find architecture '#{params[:arch]}'"
-    redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package, repository_name: @repository.name)
+    redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package,
+                                                         repository_name: @repository.name)
   end
 
   def require_repository

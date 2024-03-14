@@ -35,18 +35,25 @@ RSpec.describe Staging::StagingProjectsController do
   describe 'GET #show' do
     context 'not existing staging workflow' do
       before do
-        get :show, params: { staging_workflow_project: project_without_staging.name, staging_project_name: staging_project.name, format: :xml }
+        get :show,
+            params: { staging_workflow_project: project_without_staging.name, staging_project_name: staging_project.name,
+                      format: :xml }
       end
 
       it { expect(response).to have_http_status(:not_found) }
-      it { expect(response.body).to include("Staging Workflow for project \"#{project_without_staging.name}\" does not exist.") }
+
+      it {
+        expect(response.body).to include("Staging Workflow for project \"#{project_without_staging.name}\" does not exist.")
+      }
     end
 
     context 'not existing staging project' do
       let(:staging_project_name) { 'non-existent' }
 
       before do
-        get :show, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project_name, format: :xml }
+        get :show,
+            params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project_name,
+                      format: :xml }
       end
 
       it { expect(response).to have_http_status(:not_found) }
@@ -66,7 +73,9 @@ RSpec.describe Staging::StagingProjectsController do
           </resultlist>
         XML
       end
-      let(:broken_packages_path) { "#{CONFIG['source_url']}/build/#{staging_project.name}/_result?code=failed&code=broken&code=unresolvable" }
+      let(:broken_packages_path) do
+        "#{CONFIG['source_url']}/build/#{staging_project.name}/_result?code=failed&code=broken&code=unresolvable"
+      end
 
       let(:request_attributes) do
         {
@@ -76,19 +85,24 @@ RSpec.describe Staging::StagingProjectsController do
       end
 
       let(:bs_request) do
-        create(:bs_request_with_submit_action, request_attributes.merge(creator: user, staging_project: staging_project))
+        create(:bs_request_with_submit_action,
+               request_attributes.merge(creator: user, staging_project: staging_project))
       end
 
       let(:untracked_request) do
-        create(:bs_request_with_submit_action, request_attributes.merge(creator: user, review_by_project: staging_project))
+        create(:bs_request_with_submit_action,
+               request_attributes.merge(creator: user, review_by_project: staging_project))
       end
 
       let(:bs_request_to_review) do
-        create(:bs_request_with_submit_action, request_attributes.merge(creator: user, review_by_project: staging_project, staging_project: staging_project))
+        create(:bs_request_with_submit_action,
+               request_attributes.merge(creator: user, review_by_project: staging_project,
+                                        staging_project: staging_project))
       end
 
       let(:bs_request_missing_review) do
-        create(:bs_request_with_submit_action, request_attributes.merge(creator: user, review_by_user: user, staging_project: staging_project))
+        create(:bs_request_with_submit_action,
+               request_attributes.merge(creator: user, review_by_user: user, staging_project: staging_project))
       end
 
       before do
@@ -102,7 +116,9 @@ RSpec.describe Staging::StagingProjectsController do
 
       context 'without requesting extra information' do
         before do
-          get :show, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml }
+          get :show,
+              params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name,
+                        format: :xml }
         end
 
         it { expect(response).to have_http_status(:success) }
@@ -233,17 +249,21 @@ RSpec.describe Staging::StagingProjectsController do
     end
 
     it 'queues a StagingProjectCopyJob job' do
-      expect { post :copy, format: :xml, params: params }.to have_enqueued_job(StagingProjectCopyJob).with(staging_workflow_project,
-                                                                                                           original_staging_project_name,
-                                                                                                           staging_project_copy_name,
-                                                                                                           user.id)
+      expect do
+        post :copy, format: :xml, params: params
+      end.to have_enqueued_job(StagingProjectCopyJob).with(staging_workflow_project,
+                                                           original_staging_project_name,
+                                                           staging_project_copy_name,
+                                                           user.id)
     end
   end
 
   describe 'POST #accept' do
     render_views
 
-    let(:params) { { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project_name } }
+    let(:params) do
+      { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project_name }
+    end
 
     before do
       staging_workflow
@@ -315,7 +335,10 @@ RSpec.describe Staging::StagingProjectsController do
       end
 
       context 'with missing check' do
-        let!(:repo) { create(:repository, project: staging_project, name: 'standard', architectures: ['local'], required_checks: ['theone']) }
+        let!(:repo) do
+          create(:repository, project: staging_project, name: 'standard', architectures: ['local'],
+                              required_checks: ['theone'])
+        end
 
         it { is_expected.to have_http_status(:bad_request) }
 

@@ -4,7 +4,9 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
 
   describe '#call' do
     let(:path_project1) { create(:project, name: 'openSUSE:Factory') }
-    let!(:path_repository1) { create(:repository, project: path_project1, name: 'snapshot', architectures: %w[i586 aarch64]) }
+    let!(:path_repository1) do
+      create(:repository, project: path_project1, name: 'snapshot', architectures: %w[i586 aarch64])
+    end
     let(:path_project2) { create(:project, name: 'openSUSE:Leap:15.4') }
     let!(:path_repository2) { create(:repository, project: path_project2, name: 'standard', architectures: ['x86_64']) }
     let(:target_project) { create(:project, name: 'OBS:Server:Unstable:openSUSE:repo123:PR-1', maintainer: user) }
@@ -83,7 +85,8 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
         let(:configured_architectures) { configured_repositories.first.architectures }
 
         it 'configures the repository with the right attributes' do
-          expect(configured_repositories).to contain_exactly(have_attributes(name: 'openSUSE_Tumbleweed', db_project_id: target_project.id))
+          expect(configured_repositories).to contain_exactly(have_attributes(name: 'openSUSE_Tumbleweed',
+                                                                             db_project_id: target_project.id))
         end
 
         it 'configures the path elements with the right attributes' do
@@ -322,7 +325,9 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
       end
 
       it 'raises an error' do
-        expect { subject.call }.to raise_error(Project::Errors::UnknownObjectError, "Project not found: #{subject.target_project_name}")
+        expect do
+          subject.call
+        end.to raise_error(Project::Errors::UnknownObjectError, "Project not found: #{subject.target_project_name}")
       end
     end
   end

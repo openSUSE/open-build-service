@@ -18,7 +18,8 @@ class EventMailerTest < ActionMailer::TestCase
     EventSubscription.create(eventtype: 'Event::BuildFail', receiver_role: :maintainer, user: users(:Iggy))
     Backend::Test.start(wait_for_scheduler: true)
 
-    mail = EventMailer.with(subscribers: [users(:Iggy)], event: events(:build_failure_for_iggy)).notification_email.encoded.lines.map(&:chomp).join("\n")
+    mail = EventMailer.with(subscribers: [users(:Iggy)],
+                            event: events(:build_failure_for_iggy)).notification_email.encoded.lines.map(&:chomp).join("\n")
 
     assert_match(/To: Iggy Pop <Iggy@pop.org>/, mail)
     pattern = Regexp.new('Visit http://localhost/package/live_build_log/home:Iggy/TestPack/10.2/i586')
@@ -36,7 +37,8 @@ class EventMailerTest < ActionMailer::TestCase
     EventSubscription.create(eventtype: 'Event::BuildFail', receiver_role: :reader, user: users(:fred))
     Backend::Test.start(wait_for_scheduler: true)
 
-    mail = EventMailer.with(subscribers: [users(:fred)], event: events(:build_failure_for_reader)).notification_email.encoded.lines.map(&:chomp).join("\n")
+    mail = EventMailer.with(subscribers: [users(:fred)],
+                            event: events(:build_failure_for_reader)).notification_email.encoded.lines.map(&:chomp).join("\n")
 
     assert_match(/To: Frederic Feuerstone <fred@feuerstein.de>/, mail)
     pattern = Regexp.new('Visit http://localhost/package/live_build_log/home:Iggy/TestPack/10.2/i586')

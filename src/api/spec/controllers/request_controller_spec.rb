@@ -24,7 +24,8 @@ RSpec.describe RequestController, :vcr do
 
       context 'of a not superseded request' do
         before do
-          post :request_command, params: { id: bs_request.number, cmd: :diff, format: :xml, diff_to_superseded: another_bs_request }
+          post :request_command,
+               params: { id: bs_request.number, cmd: :diff, format: :xml, diff_to_superseded: another_bs_request }
         end
 
         it { expect(response).to have_http_status(:not_found) }
@@ -33,7 +34,8 @@ RSpec.describe RequestController, :vcr do
       context 'of a superseded request' do
         before do
           another_bs_request.update(state: :superseded, superseded_by: bs_request.number)
-          post :request_command, params: { id: bs_request.number, cmd: :diff, format: :xml, diff_to_superseded: another_bs_request }
+          post :request_command,
+               params: { id: bs_request.number, cmd: :diff, format: :xml, diff_to_superseded: another_bs_request }
         end
 
         it { expect(response).to have_http_status(:success) }
@@ -46,7 +48,9 @@ RSpec.describe RequestController, :vcr do
       include_context 'a BsRequest that has a project link'
 
       it 'prohibits creation of request', :vcr do
-        expect { post :global_command, params: { cmd: :create }, body: xml, format: :xml }.not_to change(BsRequest, :count)
+        expect do
+          post :global_command, params: { cmd: :create }, body: xml, format: :xml
+        end.not_to change(BsRequest, :count)
         expect(response).to have_http_status(:forbidden)
         expect(response.body).to have_css('status[code=lacking_maintainership] > summary',
                                           text: 'Creating a submit request action with options requires maintainership in source package')

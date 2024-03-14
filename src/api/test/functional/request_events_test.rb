@@ -65,7 +65,8 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     myid = 0
     SendEventEmailsJob.new.perform
     assert_difference('ActionMailer::Base.deliveries.size', +1) do
-      post '/request?cmd=create', params: "<request><action type='set_bugowner'><target project='home:tom'/><person name='Iggy'/></action></request>"
+      post '/request?cmd=create',
+           params: "<request><action type='set_bugowner'><target project='home:tom'/><person name='Iggy'/></action></request>"
       assert_response :success
       myid = Xmlhash.parse(@response.body)['id']
       SendEventEmailsJob.new.perform
@@ -125,7 +126,8 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     myid = ''
     SendEventEmailsJob.new.perform
     assert_difference('ActionMailer::Base.deliveries.size', +1) do
-      post '/request?cmd=create', params: "<request><action type='delete'><target project='home:coolo' repository='standard'/></action></request>"
+      post '/request?cmd=create',
+           params: "<request><action type='delete'><target project='home:coolo' repository='standard'/></action></request>"
       assert_response :success
       myid = Xmlhash.parse(@response.body)['id']
       SendEventEmailsJob.new.perform

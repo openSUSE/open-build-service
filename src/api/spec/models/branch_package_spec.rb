@@ -6,7 +6,11 @@ RSpec.describe BranchPackage, :vcr do
 
   describe 'new' do
     context 'with wrong arguments' do
-      it { expect { create(:branch_package_base, add_repositories_block: 'foo') }.to raise_error(BranchPackage::Errors::InvalidArgument) }
+      it {
+        expect do
+          create(:branch_package_base, add_repositories_block: 'foo')
+        end.to raise_error(BranchPackage::Errors::InvalidArgument)
+      }
     end
   end
 

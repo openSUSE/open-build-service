@@ -3,7 +3,8 @@ module BsRequestAction::Errors
   class DiffError < APIError; setup 404; end
 
   class RemoteSource < APIError
-    setup 'remote_source', 400, 'No support for auto expanding from remote instance. You need to submit a full specified request in that case.'
+    setup 'remote_source', 400,
+          'No support for auto expanding from remote instance. You need to submit a full specified request in that case.'
   end
 
   class RemoteTarget < APIError; end
@@ -15,7 +16,8 @@ module BsRequestAction::Errors
   class MultipleReleaseTargets < APIError; setup 'Multiple release target projects are not supported'; end
 
   class LackingMaintainership < APIError
-    setup 'lacking_maintainership', 403, 'Creating a submit request action with options requires maintainership in source package'
+    setup 'lacking_maintainership', 403,
+          'Creating a submit request action with options requires maintainership in source package'
   end
 
   class NoMaintenanceProject < APIError; end

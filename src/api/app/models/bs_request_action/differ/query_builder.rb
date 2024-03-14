@@ -29,7 +29,9 @@ class BsRequestAction
           end
         end
 
-        tpkg = Package.get_by_project_and_name(target_project, target_package) if Package.exists_by_project_and_name(target_project, target_package)
+        tpkg = Package.get_by_project_and_name(target_project, target_package) if Package.exists_by_project_and_name(
+          target_project, target_package
+        )
 
         query = {}
 
@@ -76,7 +78,11 @@ class BsRequestAction
         return unless linkinfo['project'] == action.source_project
 
         # a local link, check if the real source change gets also transported in a seperate action
-        action.bs_request.bs_request_actions.any? { |a| check_action_target(a, linkinfo['package']) } if action.bs_request
+        return unless action.bs_request
+
+        action.bs_request.bs_request_actions.any? do |a|
+          check_action_target(a, linkinfo['package'])
+        end
       end
 
       # check if the action is the same target

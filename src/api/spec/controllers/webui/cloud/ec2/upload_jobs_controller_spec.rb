@@ -31,14 +31,17 @@ RSpec.describe Webui::Cloud::Ec2::UploadJobsController, :vcr do
   describe 'GET #new' do
     context 'with valid parameters' do
       before do
-        get :new, params: { project: 'EC2Images', package: 'MyEC2Image', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz' }
+        get :new,
+            params: { project: 'EC2Images', package: 'MyEC2Image', repository: 'standard', arch: 'x86_64',
+                      filename: 'appliance.raw.xz' }
       end
 
       it { expect(response).to have_http_status(:success) }
 
       it {
         expect(assigns(:upload_job))
-          .to have_attributes(project: 'EC2Images', package: 'MyEC2Image', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz')
+          .to have_attributes(project: 'EC2Images', package: 'MyEC2Image', repository: 'standard', arch: 'x86_64',
+                              filename: 'appliance.raw.xz')
       }
     end
 
@@ -53,19 +56,28 @@ RSpec.describe Webui::Cloud::Ec2::UploadJobsController, :vcr do
       end
 
       context 'with a not existing package' do
-        let(:params) { { project: 'EC2Images', package: 'not-existent', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz' } }
+        let(:params) do
+          { project: 'EC2Images', package: 'not-existent', repository: 'standard', arch: 'x86_64',
+            filename: 'appliance.raw.xz' }
+        end
 
         include_context 'it redirects and assigns flash error'
       end
 
       context 'with an invalid filename' do
-        let(:params) { { project: 'EC2Images', package: 'MyEC2Image', repository: 'standard', arch: 'x86_64', filename: 'appliance.rpm' } }
+        let(:params) do
+          { project: 'EC2Images', package: 'MyEC2Image', repository: 'standard', arch: 'x86_64',
+            filename: 'appliance.rpm' }
+        end
 
         include_context 'it redirects and assigns flash error'
       end
 
       context 'with an invalid architecture' do
-        let(:params) { { project: 'EC2Images', package: 'MyEC2Image', repository: 'standard', arch: 'i386', filename: 'appliance.raw.xz' } }
+        let(:params) do
+          { project: 'EC2Images', package: 'MyEC2Image', repository: 'standard', arch: 'i386',
+            filename: 'appliance.raw.xz' }
+        end
 
         include_context 'it redirects and assigns flash error'
       end
@@ -92,7 +104,9 @@ RSpec.describe Webui::Cloud::Ec2::UploadJobsController, :vcr do
        </status>
       HEREDOC
     end
-    let(:post_url) { "#{CONFIG['source_url']}/cloudupload?arch=x86_64&filename=appliance.raw.xz&package=aws&project=Cloud&repository=standard&target=ec2&user=tom" }
+    let(:post_url) do
+      "#{CONFIG['source_url']}/cloudupload?arch=x86_64&filename=appliance.raw.xz&package=aws&project=Cloud&repository=standard&target=ec2&user=tom"
+    end
 
     shared_context 'it redirects and assigns flash error' do
       before do
@@ -135,7 +149,8 @@ RSpec.describe Webui::Cloud::Ec2::UploadJobsController, :vcr do
         }
       end
       let(:post_body) do
-        user_with_ec2_configuration.ec2_configuration.attributes.except('id', 'created_at', 'updated_at').merge(additional_data).to_json
+        user_with_ec2_configuration.ec2_configuration.attributes.except('id', 'created_at',
+                                                                        'updated_at').merge(additional_data).to_json
       end
 
       before do

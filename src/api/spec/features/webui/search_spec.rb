@@ -12,14 +12,19 @@ RSpec.describe 'Search', :js do
     let(:another_package) { create(:package, name: 'goal2', title: 'Second goal', project: user.home_project) }
     let(:bs_request) { create(:bs_request, description: "This request's description", creator: user) }
 
-    let(:apache2) { create(:project, name: "#{apache.name}:Apache2", title: 'New and awesome project', description: 'Very very very awesome project') }
+    let(:apache2) do
+      create(:project, name: "#{apache.name}:Apache2", title: 'New and awesome project',
+                       description: 'Very very very awesome project')
+    end
     let(:apache2_subproject) { create(:project, name: "#{apache2.name}:FakeSubproject") }
 
     let(:russian_project) { create(:project, name: 'Russian', title: 'Этёам вокябюч еюж эи') }
     let(:chinese_project) { create(:project, name: 'Chinese', title: '窞綆腤 埱娵徖 渮湸湤 殠 唲堔') }
 
     let(:hidden_project) { create(:forbidden_project, name: 'SecretProject', title: 'Fake description') }
-    let(:hidden_package) { create(:package, name: 'hidden_package', title: 'Hidden package rocks!', project_id: hidden_project.id) }
+    let(:hidden_package) do
+      create(:package, name: 'hidden_package', title: 'Hidden package rocks!', project_id: hidden_project.id)
+    end
 
     it 'basic search functionality' do
       package
@@ -200,11 +205,21 @@ RSpec.describe 'Search', :js do
     let(:group_bugowner) { create(:group, title: 'bugowner_group') }
     let(:group_maintainer) { create(:group, title: 'maintainer_group') }
     let(:apache_package) { create(:package, name: 'apache2', title: 'Apache2 package', project: apache) }
-    let(:relationship_package_user) { create(:relationship_package_user, package: apache_package, user: confirmed_user) }
-    let(:relationship_package_group) { create(:relationship_package_group, package: apache_package, group: group_maintainer) }
-    let(:relationship_user_bugowner) { create(:relationship_package_user_as_bugowner, package: apache_package, user: other_confirmed_user) }
-    let(:relationship_group_bugowner) { create(:relationship_package_group_as_bugowner, package: apache_package, group: group_bugowner) }
-    let(:backend_url) { "#{CONFIG['source_url']}/search/published/binary/id?match=(@name='#{apache_package}'+and+(@project='#{apache}'))" }
+    let(:relationship_package_user) do
+      create(:relationship_package_user, package: apache_package, user: confirmed_user)
+    end
+    let(:relationship_package_group) do
+      create(:relationship_package_group, package: apache_package, group: group_maintainer)
+    end
+    let(:relationship_user_bugowner) do
+      create(:relationship_package_user_as_bugowner, package: apache_package, user: other_confirmed_user)
+    end
+    let(:relationship_group_bugowner) do
+      create(:relationship_package_group_as_bugowner, package: apache_package, group: group_bugowner)
+    end
+    let(:backend_url) do
+      "#{CONFIG['source_url']}/search/published/binary/id?match=(@name='#{apache_package}'+and+(@project='#{apache}'))"
+    end
     let(:backend_response) { file_fixture('apache_search.xml') }
 
     before do

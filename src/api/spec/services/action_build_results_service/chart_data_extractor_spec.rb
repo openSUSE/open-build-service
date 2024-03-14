@@ -3,9 +3,13 @@ RSpec.describe ActionBuildResultsService::ChartDataExtractor do
     subject { described_class.new(actions: actions).call }
 
     let(:source_project) { create(:project, name: 'source_project') }
-    let(:source_package) { create(:package_with_file, name: 'source_package', project: source_project, file_content: 'b') }
+    let(:source_package) do
+      create(:package_with_file, name: 'source_package', project: source_project, file_content: 'b')
+    end
     let(:target_project) { create(:project, name: 'target_project') }
-    let(:target_package) { create(:package_with_file, name: 'target_package', project: target_project, file_content: 'a') }
+    let(:target_package) do
+      create(:package_with_file, name: 'target_package', project: target_project, file_content: 'a')
+    end
     let(:request) do
       create(:bs_request_with_submit_action,
              source_package: source_package,

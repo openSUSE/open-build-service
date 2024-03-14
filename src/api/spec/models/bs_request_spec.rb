@@ -161,7 +161,8 @@ RSpec.describe BsRequest, :vcr do
           expect(body).to include('author' => user.login)
 
           body = expect_message('opensuse.obs.request.reviews_done')
-          expect(body).to include('author' => user.login, 'state' => 'new', 'comment' => 'All reviewers accepted request', 'number' => request.number)
+          expect(body).to include('author' => user.login, 'state' => 'new',
+                                  'comment' => 'All reviewers accepted request', 'number' => request.number)
 
           expect_message('opensuse.obs.metrics', "request.reviews_done,state=new number=#{request.number}")
 
@@ -236,7 +237,10 @@ RSpec.describe BsRequest, :vcr do
           end
 
           it 'triggers an error' do
-            expect { request.change_state(newstate: 'accepted', force: true) }.to raise_error(BsRequest::Errors::CreatorCannotAcceptOwnRequests)
+            expect do
+              request.change_state(newstate: 'accepted',
+                                   force: true)
+            end.to raise_error(BsRequest::Errors::CreatorCannotAcceptOwnRequests)
           end
         end
 
@@ -274,7 +278,9 @@ RSpec.describe BsRequest, :vcr do
           end
 
           it 'triggers an error' do
-            expect { request.change_state(newstate: 'accepted') }.to raise_error(BsRequest::Errors::CreatorCannotAcceptOwnRequests)
+            expect do
+              request.change_state(newstate: 'accepted')
+            end.to raise_error(BsRequest::Errors::CreatorCannotAcceptOwnRequests)
           end
         end
 

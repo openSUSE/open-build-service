@@ -8,12 +8,14 @@ module Backend
         # Returns a file list of binaries
         # @return [String]
         def self.files(project_name, repository_name, architecture_name, package_name)
-          http_get(['/build/:project/:repository/:architecture/:package', project_name, repository_name, architecture_name, package_name])
+          http_get(['/build/:project/:repository/:architecture/:package', project_name, repository_name,
+                    architecture_name, package_name])
         end
 
         # Returns the history file of a package
         def self.history(project, repository, package, architecture)
-          http_get(['/build/:project/:repository/:architecture/:package/_history', project, repository, architecture, package])
+          http_get(['/build/:project/:repository/:architecture/:package/_history', project, repository, architecture,
+                    package])
         end
 
         # Returns the jobs history for a project
@@ -25,7 +27,8 @@ module Backend
 
         # Returns the file of a package
         def self.file(project_name, repository_name, architecture_name, package_name, file_name)
-          http_get(['/build/:project/:repository/:architecture/:package/:file', project_name, repository_name, architecture_name, package_name, file_name])
+          http_get(['/build/:project/:repository/:architecture/:package/:file', project_name, repository_name,
+                    architecture_name, package_name, file_name])
         end
 
         # Returns the publishedpath for a file of a package
@@ -38,22 +41,26 @@ module Backend
         # Returns the download url for a file of a package
         # @return [String]
         def self.download_url_for_file(project_name, repository_name, package_name, architecture_name, file_name)
-          published_url = Xmlhash.parse(publishedpath(project_name, repository_name, package_name, architecture_name, file_name))['url']
+          published_url = Xmlhash.parse(publishedpath(project_name, repository_name, package_name, architecture_name,
+                                                      file_name))['url']
           return unless published_url
 
-          published_url if published_url.end_with?(file_name) # FIXME: bs_srcserver.published_path should not return an url in the first place...
+          # FIXME: bs_srcserver.published_path should not return an url in the first place...
+          published_url if published_url.end_with?(file_name)
         end
 
         # Returns the RPMlint log
         # @return [String]
         def self.rpmlint_log(project_name, package_name, repository_name, architecture_name)
-          http_get(['/build/:project/:repository/:architecture/:package/rpmlint.log', project_name, repository_name, architecture_name, package_name])
+          http_get(['/build/:project/:repository/:architecture/:package/rpmlint.log', project_name, repository_name,
+                    architecture_name, package_name])
         end
 
         # special view on a binary file for details display
         # @return [Hash]
         def self.fileinfo_ext(project_name, package_name, repository, arch, filename)
-          fileinfo = http_get(['/build/:project/:repository/:arch/:package/:filename?view=fileinfo_ext', project_name, repository, arch, package_name, filename])
+          fileinfo = http_get(['/build/:project/:repository/:arch/:package/:filename?view=fileinfo_ext', project_name,
+                               repository, arch, package_name, filename])
           Xmlhash.parse(fileinfo) if fileinfo
         end
 

@@ -20,7 +20,8 @@ namespace :dev do
       # Simulate the branching of source project by Iggy, then it modifies some packages
       source_project = RakeSupport.find_or_create_project(iggy.branch_project_name(target_project.name), iggy) # home:Admin:branches:openSUSE:Factory
       source_package_a = Package.where(name: 'package_a', project: source_project).first ||
-                         create(:package_with_files, name: 'package_a', project: source_project, changes_file_content: '- Fixes boo#2222222 and CVE-2011-2222')
+                         create(:package_with_files, name: 'package_a', project: source_project,
+                                                     changes_file_content: '- Fixes boo#2222222 and CVE-2011-2222')
 
       # Create request to submit new files to the target package A
       request = create(
@@ -41,7 +42,8 @@ namespace :dev do
         changes_file_content = "- Fixes boo#11111#{figure} CVE-2011-11#{figure}"
 
         source_package = Package.where(name: "package_#{char}", project: source_project).first ||
-                         create(:package_with_files, name: "package_#{char}", project: source_project, changes_file_content: changes_file_content)
+                         create(:package_with_files, name: "package_#{char}", project: source_project,
+                                                     changes_file_content: changes_file_content)
 
         action_attributes = {
           source_package: source_package,
@@ -104,11 +106,14 @@ namespace :dev do
 
       # Current devel package
       servers_project = Project.find_by(name: 'servers') || create(:project, name: 'servers')
-      apache2_servers = Package.find_by_project_and_name(servers_project.name, 'apache2') || create(:package_with_file, project: servers_project, name: 'apache2')
+      apache2_servers = Package.find_by_project_and_name(servers_project.name,
+                                                         'apache2') || create(:package_with_file,
+                                                                              project: servers_project, name: 'apache2')
 
       # Future devel package (source)
       # source_project -> home:Admin:branches:openSUSE:Factory
-      Package.find_by_project_and_name(source_project.name, 'apache2') || create(:package, project: source_project, name: 'apache2')
+      Package.find_by_project_and_name(source_project.name,
+                                       'apache2') || create(:package, project: source_project, name: 'apache2')
 
       # Set development package
       apache2_factory.update(develpackage: apache2_servers)
@@ -158,7 +163,8 @@ namespace :dev do
                           target_package: target_package)
 
       another_source_package =
-        Package.find_by_project_and_name(iggy_home_project.name, 'source_package_with_multiple_submit_request_and_diff') ||
+        Package.find_by_project_and_name(iggy_home_project.name,
+                                         'source_package_with_multiple_submit_request_and_diff') ||
         create(:package_with_files,
                project: iggy_home_project,
                name: 'source_package_with_multiple_submit_request_and_diff',

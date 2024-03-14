@@ -89,7 +89,8 @@ RSpec.describe Webui::Requests::SubmissionsController, :vcr do
       it_behaves_like 'a response of a successful submit request'
 
       it 'creates a submit request with correct sourceupdate attibute' do
-        created_request = BsRequestActionSubmit.where(target_project: target_project.name, target_package: target_package).first
+        created_request = BsRequestActionSubmit.where(target_project: target_project.name,
+                                                      target_package: target_package).first
         expect(created_request.sourceupdate).to eq('update')
       end
     end
@@ -191,9 +192,16 @@ RSpec.describe Webui::Requests::SubmissionsController, :vcr do
         }
       end
 
-      it { expect(flash[:error]).to eq("Unable to submit: The source of package #{source_project}/#{source_package} is broken") }
+      it {
+        expect(flash[:error]).to eq("Unable to submit: The source of package #{source_project}/#{source_package} is broken")
+      }
+
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
-      it { expect(BsRequestActionSubmit.where(target_project: target_project.name, target_package: source_package.name)).not_to exist }
+
+      it {
+        expect(BsRequestActionSubmit.where(target_project: target_project.name,
+                                           target_package: source_package.name)).not_to exist
+      }
     end
 
     context 'a submit request that fails due to validation errors' do
@@ -217,8 +225,14 @@ RSpec.describe Webui::Requests::SubmissionsController, :vcr do
                                     'Bs request actions Type can\'t be blank')
       end
 
-      it { expect(response).to redirect_to(package_show_path(project: source_project.name, package: source_package.name)) }
-      it { expect(BsRequestActionSubmit.where(target_project: target_project.name, target_package: source_package.name)).not_to exist }
+      it {
+        expect(response).to redirect_to(package_show_path(project: source_project.name, package: source_package.name))
+      }
+
+      it {
+        expect(BsRequestActionSubmit.where(target_project: target_project.name,
+                                           target_package: source_package.name)).not_to exist
+      }
     end
 
     context 'unchanged sources' do
@@ -242,7 +256,11 @@ RSpec.describe Webui::Requests::SubmissionsController, :vcr do
 
       it { expect(flash[:error]).to eq('Unable to submit, sources are unchanged') }
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
-      it { expect(BsRequestActionSubmit.where(target_project: source_project.name, target_package: source_package.name)).not_to exist }
+
+      it {
+        expect(BsRequestActionSubmit.where(target_project: source_project.name,
+                                           target_package: source_package.name)).not_to exist
+      }
     end
   end
 end

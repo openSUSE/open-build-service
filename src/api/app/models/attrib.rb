@@ -151,7 +151,10 @@ class Attrib < ApplicationRecord
 
     values.map(&:value).each do |value|
       allowed_values = attrib_type.allowed_values.map(&:value)
-      errors.add(:values, "Value '#{value}' is not allowed. Please use one of: #{allowed_values.join(', ')}") unless allowed_values.include?(value)
+      unless allowed_values.include?(value)
+        errors.add(:values,
+                   "Value '#{value}' is not allowed. Please use one of: #{allowed_values.join(', ')}")
+      end
     end
   end
 
@@ -161,7 +164,10 @@ class Attrib < ApplicationRecord
 
   def validate_value_count
     value_count = attrib_type.try(:value_count)
-    errors.add(:values, "has #{values.length} values, but only #{value_count} are allowed") if value_count && value_count != values.length
+    return unless value_count && value_count != values.length
+
+    errors.add(:values,
+               "has #{values.length} values, but only #{value_count} are allowed")
   end
 
   def validate_embargo_date_value

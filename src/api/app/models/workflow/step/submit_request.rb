@@ -42,7 +42,8 @@ class Workflow::Step::SubmitRequest < Workflow::Step
     @bs_request.save!
 
     Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, @bs_request).call
-    SCMStatusReporter.new({ number: @bs_request.number, state: @bs_request.state }, scm_webhook.payload, @token.scm_token, workflow_run, 'Event::RequestStatechange').call
+    SCMStatusReporter.new({ number: @bs_request.number, state: @bs_request.state }, scm_webhook.payload,
+                          @token.scm_token, workflow_run, 'Event::RequestStatechange').call
     @bs_request
   end
 
@@ -79,7 +80,8 @@ class Workflow::Step::SubmitRequest < Workflow::Step
   end
 
   def source_package
-    Package.get_by_project_and_name(step_instructions[:source_project], step_instructions[:source_package], follow_multibuild: true)
+    Package.get_by_project_and_name(step_instructions[:source_project], step_instructions[:source_package],
+                                    follow_multibuild: true)
   end
 
   def source_package_revision

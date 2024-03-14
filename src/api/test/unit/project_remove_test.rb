@@ -114,7 +114,8 @@ class ProjectRemoveTest < ActiveSupport::TestCase
     @package.save_file(file: 'whatever', filename: "testfile#{SecureRandom.hex}") # always new file to have changes in the package
   end
 
-  def create_request(project = 'Apache', package = 'apache2', source_project = "home:#{User.session!.login}:branches:#{project}")
+  def create_request(project = 'Apache', package = 'apache2',
+                     source_project = "home:#{User.session!.login}:branches:#{project}")
     # Create a request to submit the changes back
     request = BsRequest.new(state: 'new', description: 'project_remove_test')
     action = BsRequestActionSubmit.new(source_project: source_project,

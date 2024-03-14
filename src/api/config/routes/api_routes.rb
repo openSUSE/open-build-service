@@ -103,7 +103,8 @@ OBSApi::Application.routes.draw do
       get 'statistics/active_request_creators/:project' => :active_request_creators, constraints: cons
       get 'statistics/maintenance_statistics/:project' => 'statistics/maintenance_statistics#index', constraints: cons,
           as: 'maintenance_statistics'
-      get 'public/statistics/maintenance_statistics/:project' => 'statistics/maintenance_statistics#index', constraints: cons
+      get 'public/statistics/maintenance_statistics/:project' => 'statistics/maintenance_statistics#index',
+          constraints: cons
     end
 
     ### /status_message
@@ -192,7 +193,8 @@ OBSApi::Application.routes.draw do
       get 'public/source/:project/:package/:filename' => :source_file, constraints: cons
       get 'public/distributions' => :distributions
       get 'public/binary_packages/:project/:package' => :binary_packages, constraints: cons
-      get 'public/build/:project(/:repository(/:arch(/:package(/:filename))))' => 'public#build', constraints: cons, as: :public_build
+      get 'public/build/:project(/:repository(/:arch(/:package(/:filename))))' => 'public#build', constraints: cons,
+          as: :public_build
     end
 
     scope 'public' do
@@ -203,7 +205,8 @@ OBSApi::Application.routes.draw do
 
     ### /projects
     get 'projects/:project/requests' => 'webui/projects/bs_requests#index', constraints: cons, as: 'projects_requests'
-    get 'projects/:project/packages/:package/requests' => 'webui/packages/bs_requests#index', constraints: cons, as: 'packages_requests'
+    get 'projects/:project/packages/:package/requests' => 'webui/packages/bs_requests#index', constraints: cons,
+        as: 'packages_requests'
   end
 
   # StagingWorkflow API
@@ -226,7 +229,8 @@ OBSApi::Application.routes.draw do
 
   controller :source_attribute do
     get 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :show, constraints: cons
-    post 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :update, constraints: cons, as: :change_attribute
+    post 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :update, constraints: cons,
+         as: :change_attribute
     delete 'source/:project(/:package(/:binary))/_attribute/:attribute' => :delete, constraints: cons
   end
 
@@ -263,10 +267,16 @@ OBSApi::Application.routes.draw do
 
   controller :source do
     get 'source' => :index
-    post 'source' => :global_command_createmaintenanceincident, constraints: ->(req) { req.params[:cmd] == 'createmaintenanceincident' }
+    post 'source' => :global_command_createmaintenanceincident, constraints: lambda { |req|
+                                                                               req.params[:cmd] == 'createmaintenanceincident'
+                                                                             }
     post 'source' => :global_command_branch,                    constraints: ->(req) { req.params[:cmd] == 'branch' }
-    post 'source' => :global_command_orderkiwirepos,            constraints: ->(req) { req.params[:cmd] == 'orderkiwirepos' }
-    post 'public/source' => :global_command_triggerscmsync,     constraints: ->(req) { req.params[:cmd] == 'triggerscmsync' }
+    post 'source' => :global_command_orderkiwirepos,            constraints: lambda { |req|
+                                                                               req.params[:cmd] == 'orderkiwirepos'
+                                                                             }
+    post 'public/source' => :global_command_triggerscmsync,     constraints: lambda { |req|
+                                                                               req.params[:cmd] == 'triggerscmsync'
+                                                                             }
     get 'source/:project/_pubkey' => :show_project_pubkey, constraints: cons
     delete 'source/:project/_pubkey' => :delete_project_pubkey, constraints: cons
 
@@ -368,7 +378,8 @@ OBSApi::Application.routes.draw do
 
   ### /build
   get 'build/:project/:repository/:arch/:package/_log' => 'build#logfile', constraints: cons, as: :raw_logfile
-  match 'build/:project/:repository/:arch/:package/_buildinfo' => 'build#buildinfo', constraints: cons, via: %i[get post]
+  match 'build/:project/:repository/:arch/:package/_buildinfo' => 'build#buildinfo', constraints: cons,
+        via: %i[get post]
   match 'build/:project/:repository/:arch/:package/_status' => 'build#index', constraints: cons, via: %i[get post]
   match 'build/:project/:repository/:arch/:package/_history' => 'build#index', constraints: cons, via: %i[get post]
   get 'build/:project/:repository/:arch/:package/:filename' => 'build/file#show', constraints: cons

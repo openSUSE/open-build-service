@@ -9,7 +9,8 @@ class AdminMailer < ActionMailer::Base
 
     headers['Precedence'] = 'bulk'
     headers['X-Mailer'] = 'OBS Administrator Notification'
-    headers['X-OBS-URL'] = ActionDispatch::Http::URL.url_for(controller: :main, action: :index, only_path: false, host: @host)
+    headers['X-OBS-URL'] =
+      ActionDispatch::Http::URL.url_for(controller: :main, action: :index, only_path: false, host: @host)
     headers['Auto-Submitted'] = 'auto-generated'
     headers['Return-Path'] = mail_sender
     headers['Sender'] = mail_sender

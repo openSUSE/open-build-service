@@ -131,7 +131,8 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # test again with history copy
-    post '/source/TEST:BaseDistro', params: { cmd: :copy, oproject: 'BaseDistro', makeolder: 1, nodelay: 1, withhistory: 1 }
+    post '/source/TEST:BaseDistro',
+         params: { cmd: :copy, oproject: 'BaseDistro', makeolder: 1, nodelay: 1, withhistory: 1 }
     assert_response :success
 
     # the origin must got increased by another 2

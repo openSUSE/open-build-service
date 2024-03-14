@@ -102,7 +102,9 @@ RSpec.describe 'Reports', :js, :vcr do
   describe 'reporting a comment on a request' do
     let(:user) { create(:confirmed_user, login: 'jane_doe') }
     let(:project) { create(:project, name: 'some_random_project') }
-    let(:bs_request) { create(:delete_bs_request, target_project: project, description: 'Delete this project!', creator: user) }
+    let(:bs_request) do
+      create(:delete_bs_request, target_project: project, description: 'Delete this project!', creator: user)
+    end
 
     context 'for a user who is not the author' do
       let!(:comment) { create(:comment, commentable: bs_request) }
@@ -199,7 +201,9 @@ RSpec.describe 'Reports', :js, :vcr do
 
     context 'for a user who is maintainer' do
       let(:maintainer) { create(:confirmed_user, login: 'foo') }
-      let(:package) { create(:package_with_maintainer, project: project, name: 'some_random_package', maintainer: maintainer) }
+      let(:package) do
+        create(:package_with_maintainer, project: project, name: 'some_random_package', maintainer: maintainer)
+      end
 
       before do
         login maintainer

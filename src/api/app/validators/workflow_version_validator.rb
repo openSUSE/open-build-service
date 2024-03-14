@@ -6,7 +6,8 @@ class WorkflowVersionValidator < ActiveModel::Validator
     begin
       Gem::Version.new(record.workflow_version_number)
     rescue ArgumentError
-      record.errors.add(:base, "Malformed workflow version string, please provide the version number in the format: 'major.minor' e.g. '1.1'")
+      record.errors.add(:base,
+                        "Malformed workflow version string, please provide the version number in the format: 'major.minor' e.g. '1.1'")
     end
   end
 end

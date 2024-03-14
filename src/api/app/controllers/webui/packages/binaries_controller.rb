@@ -24,7 +24,8 @@ module Webui
       after_action :verify_authorized, only: [:destroy]
 
       def index
-        results_from_backend = Buildresult.find_hashed(project: @project.name, package: @package_name, repository: @repository.name, view: %w[binarylist status])
+        results_from_backend = Buildresult.find_hashed(project: @project.name, package: @package_name,
+                                                       repository: @repository.name, view: %w[binarylist status])
         raise ActiveRecord::RecordNotFound, 'Not Found' if results_from_backend.empty?
 
         @buildresults = []
@@ -37,9 +38,14 @@ module Webui
             else
               build_results_set[:binaries] << { filename: binary['filename'],
                                                 size: binary['size'],
-                                                links: { details?: QUERYABLE_BUILD_RESULTS.any? { |regex| regex.match?(binary['filename']) },
-                                                         download_url: download_url_for_binary(architecture_name: result['arch'], file_name: binary['filename']),
-                                                         cloud_upload?: uploadable?(binary['filename'], result['arch']) } }
+                                                links: { details?: QUERYABLE_BUILD_RESULTS.any? do |regex|
+                                                                     regex.match?(binary['filename'])
+                                                                   end,
+                                                         download_url: download_url_for_binary(
+                                                           architecture_name: result['arch'], file_name: binary['filename']
+                                                         ),
+                                                         cloud_upload?: uploadable?(binary['filename'],
+                                                                                    result['arch']) } }
             end
           end
           @buildresults << build_results_set
@@ -50,14 +56,17 @@ module Webui
       end
 
       def show
-        @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project.name, @package_name, @repository.name, @architecture.name, @filename)
+        @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project.name, @package_name, @repository.name,
+                                                                      @architecture.name, @filename)
         raise ActiveRecord::RecordNotFound, 'Not Found' unless @fileinfo
 
         respond_to do |format|
           format.html do
             @download_url = download_url_for_binary(architecture_name: @architecture.name, file_name: @filename)
           end
-          format.any { redirect_to download_url_for_binary(architecture_name: @architecture.name, file_name: @filename) }
+          format.any do
+            redirect_to download_url_for_binary(architecture_name: @architecture.name, file_name: @filename)
+          end
         end
       end
 
@@ -80,10 +89,12 @@ module Webui
         if @package.wipe_binaries(opts)
           flash[:success] = "Triggered wipe binaries for #{elide(@project.name)}/#{elide(@package_name)} successfully."
         else
-          flash[:error] = "Error while triggering wipe binaries for #{elide(@project.name)}/#{elide(@package_name)}: #{@package.errors.full_messages.to_sentence}."
+          flash[:error] =
+            "Error while triggering wipe binaries for #{elide(@project.name)}/#{elide(@package_name)}: #{@package.errors.full_messages.to_sentence}."
         end
 
-        redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package, repository_name: @repository)
+        redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package,
+                                                             repository_name: @repository)
       end
 
       private
@@ -100,7 +111,9 @@ module Webui
       def set_dependant_repository
         @dependant_repository_name = params[:dependant_repository]
         # FIXME: It can't check repositories of remote projects
-        @dependant_repository = @dependant_project.repositories.find_by(name: @dependant_repository_name) if @dependant_project.remoteurl.blank?
+        if @dependant_project.remoteurl.blank?
+          @dependant_repository = @dependant_project.repositories.find_by(name: @dependant_repository_name)
+        end
         return @dependant_repository if @dependant_repository
 
         flash[:error] = "Repository '#{@dependant_repository_name}' is invalid."
@@ -116,7 +129,8 @@ module Webui
       # In the published repo for everyone, in the backend directly only for logged in users.
       def download_url_for_binary(architecture_name:, file_name:)
         if publishing_enabled(architecture_name: architecture_name)
-          published_url = Backend::Api::BuildResults::Binaries.download_url_for_file(@project.name, @repository.name, @package_name, architecture_name, file_name)
+          published_url = Backend::Api::BuildResults::Binaries.download_url_for_file(@project.name, @repository.name,
+                                                                                     @package_name, architecture_name, file_name)
           return published_url if published_url
         end
 

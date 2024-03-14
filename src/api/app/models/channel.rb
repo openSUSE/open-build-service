@@ -9,7 +9,10 @@ class Channel < ApplicationRecord
     xmlhash = Xmlhash.parse(xmlhash) if xmlhash.is_a?(String)
     xmlhash.elements('target') do |p|
       prj = Project.get_by_name(p['project'])
-      raise UnknownRepository, "Repository does not exist #{prj.name}/#{p['repository']}" unless prj.repositories.find_by_name(p['repository'])
+      unless prj.repositories.find_by_name(p['repository'])
+        raise UnknownRepository,
+              "Repository does not exist #{prj.name}/#{p['repository']}"
+      end
     end
     xmlhash.elements('binaries').each do |p|
       project = p['project']
@@ -27,7 +30,10 @@ class Channel < ApplicationRecord
             pkg = prj.find_package(b['package'].gsub(/:.*$/, ''))
             raise UnknownPackage, "Package does not exist #{prj.name}/#{p['package']}" unless pkg
           end
-          raise UnknownRepository, "Repository does not exist #{prj.name}/#{b['repository']}" if b['repository'] && !prj.repositories.find_by_name(b['repository'])
+          if b['repository'] && !prj.repositories.find_by_name(b['repository'])
+            raise UnknownRepository,
+                  "Repository does not exist #{prj.name}/#{b['repository']}"
+          end
         end
       end
     end
@@ -69,7 +75,9 @@ class Channel < ApplicationRecord
       end
       hasharray.flatten!
       # no match? either not created or searched in the right way
-      raise "Unable to find binary list #{cbl.project.name} #{cbl.repository.name} #{cbl.architecture.name}" if hasharray.empty?
+      if hasharray.empty?
+        raise "Unable to find binary list #{cbl.project.name} #{cbl.repository.name} #{cbl.architecture.name}"
+      end
 
       # update...
       _update_from_xml_binaries(cbl, hasharray)

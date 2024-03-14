@@ -2,7 +2,10 @@ class AddPrimaryKeyToDataMigrations < ActiveRecord::Migration[5.2]
   def up
     return unless ActiveRecord::Base.connection.table_exists?('data_migrations')
 
-    change_column :data_migrations, :version, :string, limit: 255, primary_key: true if primary_keys(:data_migrations).empty?
+    if primary_keys(:data_migrations).empty?
+      change_column :data_migrations, :version, :string, limit: 255,
+                                                         primary_key: true
+    end
     return unless index_exists?(:data_migrations, :version, name: :unique_data_migrations)
 
     remove_index :data_migrations, name: :unique_data_migrations

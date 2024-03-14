@@ -70,7 +70,9 @@ RSpec.describe Cloud::Backend::UploadJob do
     context 'with an invalid backend response' do
       subject { Cloud::Backend::UploadJob.create(params) }
 
-      let(:url) { "#{CONFIG['source_url']}/cloudupload?arch=x86_64&filename=appliance.raw.gz&package=aws&project=Cloud&repository=standard&target=ec2&user=tom" }
+      let(:url) do
+        "#{CONFIG['source_url']}/cloudupload?arch=x86_64&filename=appliance.raw.gz&package=aws&project=Cloud&repository=standard&target=ec2&user=tom"
+      end
       let(:error_response) do
         <<-HEREDOC
          <status code="400">

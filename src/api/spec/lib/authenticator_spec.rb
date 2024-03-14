@@ -39,14 +39,20 @@ RSpec.describe Authenticator do
 
           subject { Authenticator.new(request_mock, session_mock, response_mock) }
 
-          it { expect { subject.extract_user }.to raise_error(Authenticator::AuthenticationRequiredError, "User 'new_user' does not exist") }
+          it {
+            expect do
+              subject.extract_user
+            end.to raise_error(Authenticator::AuthenticationRequiredError, "User 'new_user' does not exist")
+          }
         end
       end
     end
 
     context 'in ldap mode' do
       it_behaves_like 'a confirmed user logs in' do
-        let(:request_mock) { double(:request, env: { 'Authorization' => "Basic #{Base64.encode64("#{user.login}:buildservice")}" }) }
+        let(:request_mock) do
+          double(:request, env: { 'Authorization' => "Basic #{Base64.encode64("#{user.login}:buildservice")}" })
+        end
 
         before do
           stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
@@ -57,7 +63,9 @@ RSpec.describe Authenticator do
 
     context 'in basic authentication mode' do
       it_behaves_like 'a confirmed user logs in' do
-        let(:request_mock) { double(:request, env: { 'Authorization' => "Basic #{Base64.encode64("#{user.login}:buildservice")}" }) }
+        let(:request_mock) do
+          double(:request, env: { 'Authorization' => "Basic #{Base64.encode64("#{user.login}:buildservice")}" })
+        end
       end
     end
 
@@ -82,7 +90,9 @@ RSpec.describe Authenticator do
 
       context 'with a valid ticket' do
         let(:user) { create(:confirmed_user, login: 'kerberos_user') }
-        let(:request_mock) { double(:request, env: { 'Authorization' => "Negotiate #{Base64.strict_encode64('krb_ticket')}" }) }
+        let(:request_mock) do
+          double(:request, env: { 'Authorization' => "Negotiate #{Base64.strict_encode64('krb_ticket')}" })
+        end
         let(:authenticator) { Authenticator.new(request_mock, session_mock, response_mock) }
 
         include_context 'a kerberos mock for' do

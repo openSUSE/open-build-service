@@ -50,7 +50,9 @@ RSpec.describe LocalBuildResult::ForPackage, :vcr do
     let(:excluded_counter) { local_build_result.excluded_counter }
 
     context 'with "show_all" equal false' do
-      let(:local_build_result) { LocalBuildResult::ForPackage.new(package: package, project: home_project, show_all: false) }
+      let(:local_build_result) do
+        LocalBuildResult::ForPackage.new(package: package, project: home_project, show_all: false)
+      end
 
       context 'when all entries are excluded' do
         before do
@@ -86,7 +88,9 @@ RSpec.describe LocalBuildResult::ForPackage, :vcr do
     end
 
     context 'with "show_all" equal true' do
-      let(:local_build_result) { LocalBuildResult::ForPackage.new(package: package, project: home_project, show_all: true) }
+      let(:local_build_result) do
+        LocalBuildResult::ForPackage.new(package: package, project: home_project, show_all: true)
+      end
 
       before do
         allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_multibuild_results_with_some_excluded)
@@ -95,14 +99,24 @@ RSpec.describe LocalBuildResult::ForPackage, :vcr do
       it { expect(excluded_counter).to eq(0) }
 
       it { expect(test_package.length).to eq(3) }
-      it { expect(test_package.map(&:repository)).to eq(['openSUSE_Leap_42.2', 'openSUSE_Tumbleweed', 'openSUSE_Tumbleweed']) }
+
+      it {
+        expect(test_package.map(&:repository)).to eq(['openSUSE_Leap_42.2', 'openSUSE_Tumbleweed',
+                                                      'openSUSE_Tumbleweed'])
+      }
+
       it { expect(test_package.map(&:architecture)).to eq(%w[x86_64 i586 x86_64]) }
       it { expect(test_package.map(&:code)).to eq(%w[succeeded unresolvable excluded]) }
       it { expect(test_package.map(&:state)).to eq(%w[finished finished building]) }
       it { expect(test_package.map(&:details)).to eq([nil, nil, nil]) }
 
       it { expect(test_package_source.length).to eq(3) }
-      it { expect(test_package_source.map(&:repository)).to eq(['openSUSE_Leap_42.2', 'openSUSE_Tumbleweed', 'openSUSE_Tumbleweed']) }
+
+      it {
+        expect(test_package_source.map(&:repository)).to eq(['openSUSE_Leap_42.2', 'openSUSE_Tumbleweed',
+                                                             'openSUSE_Tumbleweed'])
+      }
+
       it { expect(test_package_source.map(&:architecture)).to eq(%w[x86_64 i586 x86_64]) }
       it { expect(test_package_source.map(&:code)).to eq(%w[excluded excluded broken]) }
       it { expect(test_package_source.map(&:state)).to eq(%w[finished finished building]) }

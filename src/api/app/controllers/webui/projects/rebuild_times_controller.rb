@@ -64,7 +64,8 @@ module Webui
         File.write(File.join(indir, '_jobhistory.xml'), jobs)
         outdir = Dir.mktmpdir
 
-        logger.debug "cd #{Rails.root.join('vendor', 'diststats')} && perl ./mkdiststats --srcdir=#{indir} --destdir=#{outdir}
+        logger.debug "cd #{Rails.root.join('vendor',
+                                           'diststats')} && perl ./mkdiststats --srcdir=#{indir} --destdir=#{outdir}
                  --outfmt=xml #{@project.name}/#{@repository}/#{@arch} --width=910
                  --buildhosts=#{@hosts} --scheduler=#{@scheduler}"
         oldpwd = Dir.pwd

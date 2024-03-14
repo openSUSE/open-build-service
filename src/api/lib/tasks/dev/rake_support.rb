@@ -58,13 +58,19 @@ module RakeSupport
     create(:event_subscription_report_for_user, channel: :web, user: user)
 
     user.groups.each do |group|
-      create(:event_subscription_request_created, channel: :web, user: nil, group: group, receiver_role: 'target_maintainer')
+      create(:event_subscription_request_created, channel: :web, user: nil, group: group,
+                                                  receiver_role: 'target_maintainer')
       create(:event_subscription_review_wanted, channel: 'web', user: nil, group: group, receiver_role: 'reviewer')
-      create(:event_subscription_request_statechange, channel: :web, user: nil, group: group, receiver_role: 'target_maintainer')
-      create(:event_subscription_request_statechange, channel: :web, user: nil, group: group, receiver_role: 'source_maintainer')
-      create(:event_subscription_comment_for_project, channel: :web, user: nil, group: group, receiver_role: 'maintainer')
-      create(:event_subscription_comment_for_package, channel: :web, user: nil, group: group, receiver_role: 'maintainer')
-      create(:event_subscription_comment_for_request, channel: :web, user: nil, group: group, receiver_role: 'target_maintainer')
+      create(:event_subscription_request_statechange, channel: :web, user: nil, group: group,
+                                                      receiver_role: 'target_maintainer')
+      create(:event_subscription_request_statechange, channel: :web, user: nil, group: group,
+                                                      receiver_role: 'source_maintainer')
+      create(:event_subscription_comment_for_project, channel: :web, user: nil, group: group,
+                                                      receiver_role: 'maintainer')
+      create(:event_subscription_comment_for_package, channel: :web, user: nil, group: group,
+                                                      receiver_role: 'maintainer')
+      create(:event_subscription_comment_for_request, channel: :web, user: nil, group: group,
+                                                      receiver_role: 'target_maintainer')
       create(:event_subscription_relationship_create, channel: :web, user: nil, group: group, receiver_role: 'any_role')
       create(:event_subscription_relationship_delete, channel: :web, user: nil, group: group, receiver_role: 'any_role')
     end

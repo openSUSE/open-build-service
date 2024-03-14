@@ -44,13 +44,17 @@ module Suse
               else
                 action.to_s
               end
-        @schema_map[controller]["#{key}-request"] = opt[:request].to_s if opt[:request] # have a request validation schema?
-        @schema_map[controller]["#{key}-response"] = opt[:response].to_s if opt[:response] # have a reponse validate schema?
+        # have a request validation schema?
+        @schema_map[controller]["#{key}-request"] = opt[:request].to_s if opt[:request]
+        # have a reponse validate schema?
+        @schema_map[controller]["#{key}-response"] = opt[:response].to_s if opt[:response]
       end
 
       # Retrieves the schema filename from the action to schema mapping.
       def get_schema(opt)
-        raise 'option hash needs keys :controller and :action' unless opt.key?(:controller) && opt.key?(:action) && opt.key?(:method) && opt.key?(:type)
+        unless opt.key?(:controller) && opt.key?(:action) && opt.key?(:method) && opt.key?(:type)
+          raise 'option hash needs keys :controller and :action'
+        end
 
         c = opt[:controller].to_s
         key = "#{opt[:action]}-#{opt[:method].to_s.downcase}-#{opt[:type]}"

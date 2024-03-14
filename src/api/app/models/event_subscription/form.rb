@@ -15,7 +15,9 @@ class EventSubscription
     def subscriptions_by_event
       event_classes = Event::Base.notification_events
       event_classes.filter_map do |event_class|
-        EventSubscription::ForEventForm.new(event_class, subscriber).call if show_form_for_content_moderation_events?(event_class: event_class, subscriber: subscriber)
+        EventSubscription::ForEventForm.new(event_class, subscriber).call if show_form_for_content_moderation_events?(
+          event_class: event_class, subscriber: subscriber
+        )
       end
     end
 
@@ -55,8 +57,11 @@ class EventSubscription
       # Admin user should be able to configure all event subscription types,
       # even if they are not participating in the corresponding beta program
       return true if subscriber.blank?
-      return false if EVENTS_FOR_CONTENT_MODERATORS.include?(event_class.name) && !ReportPolicy.new(subscriber, Report).notify?
-      return false if EVENTS_IN_CONTENT_MODERATION_BETA.include?(event_class.name) && !Flipper.enabled?(:content_moderation, subscriber)
+      return false if EVENTS_FOR_CONTENT_MODERATORS.include?(event_class.name) && !ReportPolicy.new(subscriber,
+                                                                                                    Report).notify?
+      return false if EVENTS_IN_CONTENT_MODERATION_BETA.include?(event_class.name) && !Flipper.enabled?(
+        :content_moderation, subscriber
+      )
 
       true
     end

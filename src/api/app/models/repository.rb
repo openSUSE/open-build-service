@@ -7,7 +7,9 @@ class Repository < ApplicationRecord
 
   has_many :channel_targets, class_name: 'ChannelTarget', dependent: :delete_all
   has_many :release_targets, class_name: 'ReleaseTarget', dependent: :delete_all
-  has_many :path_elements, -> { order('position') }, foreign_key: 'parent_id', dependent: :delete_all, inverse_of: :repository
+  has_many :path_elements, lambda {
+                             order('position')
+                           }, foreign_key: 'parent_id', dependent: :delete_all, inverse_of: :repository
   has_many :download_repositories, dependent: :delete_all
   has_many :links, class_name: 'PathElement', inverse_of: :link
   has_many :targetlinks, class_name: 'ReleaseTarget', foreign_key: 'target_repository_id'
@@ -55,7 +57,10 @@ class Repository < ApplicationRecord
     # no local repository found, check if remote repo possible
 
     local_project, remote_project = Project.find_remote_project(project)
-    return local_project.repositories.find_or_create_by(name: repo, remote_project_name: remote_project) if local_project
+    if local_project
+      return local_project.repositories.find_or_create_by(name: repo,
+                                                          remote_project_name: remote_project)
+    end
 
     nil
   end
@@ -233,7 +238,10 @@ class Repository < ApplicationRecord
     repository_architectures.each do |ra|
       next if architecture_filter.present? && ra.architecture.name != architecture_filter
 
-      raise ArchitectureOrderMissmatch, "Release target repository lacks the architecture #{ra.architecture.name}" unless target_repository.architectures.include?(ra.architecture)
+      unless target_repository.architectures.include?(ra.architecture)
+        raise ArchitectureOrderMissmatch,
+              "Release target repository lacks the architecture #{ra.architecture.name}"
+      end
     end
   end
 
@@ -282,7 +290,10 @@ class Repository < ApplicationRecord
 
     # we build against the other repository by default
     path_elements.create(link: source_repository, position: position)
-    path_elements.create(link: source_repository, position: position, kind: :hostsystem) if source_repository.has_hostsystem?
+    return unless source_repository.has_hostsystem?
+
+    path_elements.create(link: source_repository, position: position,
+                         kind: :hostsystem)
   end
 
   def download_url(file)

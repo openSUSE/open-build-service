@@ -9,7 +9,8 @@ module Webui
         return @repository if @repository
 
         flash[:error] = "Couldn't find repository '#{repository_name}'."
-        redirect_to(project_package_repository_binaries_path(package_name: @package.name, project_name: @project.name, repository_name: repository_name))
+        redirect_to(project_package_repository_binaries_path(package_name: @package.name, project_name: @project.name,
+                                                             repository_name: repository_name))
       end
 
       def set_architecture

@@ -92,7 +92,9 @@ RSpec.describe UserService::Involved, :vcr do
 
     context 'when the owner role filter is applied with the OwnerRootProject attribute being set' do
       let(:filters) { { 'search_text' => '', 'role_owner' => 1 } }
-      let!(:owner_root_project) { Attrib.create!(attrib_type: AttribType.find_by(name: 'OwnerRootProject'), project: some_project) }
+      let!(:owner_root_project) do
+        Attrib.create!(attrib_type: AttribType.find_by(name: 'OwnerRootProject'), project: some_project)
+      end
 
       it 'returns only the owned packages and projects' do
         expect(subject).to contain_exactly(some_project, some_package)
@@ -101,7 +103,9 @@ RSpec.describe UserService::Involved, :vcr do
 
     context 'when the owner role filter is applied in combination with another role filter' do
       let(:filters) { { 'search_text' => '', 'role_owner' => 1, 'role_bugowner' => 1 } }
-      let!(:owner_root_project) { Attrib.create!(attrib_type: AttribType.find_by(name: 'OwnerRootProject'), project: some_project) }
+      let!(:owner_root_project) do
+        Attrib.create!(attrib_type: AttribType.find_by(name: 'OwnerRootProject'), project: some_project)
+      end
 
       it 'returns projects and packages of the selected role and the owned ones' do
         expect(subject).to contain_exactly(some_project, some_package, another_project)
@@ -110,7 +114,9 @@ RSpec.describe UserService::Involved, :vcr do
 
     context 'when the owner role filter is applied in combination with a class filter' do
       let(:filters) { { 'search_text' => '', 'role_owner' => 1, 'involved_packages' => 1 } }
-      let!(:owner_root_project) { Attrib.create!(attrib_type: AttribType.find_by(name: 'OwnerRootProject'), project: some_project) }
+      let!(:owner_root_project) do
+        Attrib.create!(attrib_type: AttribType.find_by(name: 'OwnerRootProject'), project: some_project)
+      end
 
       it 'returns projects and packages of the selected role and the owned ones' do
         expect(subject).to contain_exactly(some_package)

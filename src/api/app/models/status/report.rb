@@ -20,7 +20,8 @@ class Status::Report < ApplicationRecord
   validates :uuid, presence: true
 
   validates_each :checkable do |record, attr, value|
-    record.errors.add(attr, "invalid class #{value.class}") unless %w[BsRequest Repository RepositoryArchitecture].include?(value.class.to_s)
+    record.errors.add(attr, "invalid class #{value.class}") unless %w[BsRequest Repository
+                                                                      RepositoryArchitecture].include?(value.class.to_s)
   end
 
   #### Class methods using self. (public and then private)
@@ -55,7 +56,8 @@ class Status::Report < ApplicationRecord
     when Repository
       { project: checkable.project.name, repo: checkable.name, buildid: uuid }
     when RepositoryArchitecture
-      { project: checkable.repository.project.name, repo: checkable.repository.name, arch: checkable.architecture.name, buildid: uuid }
+      { project: checkable.repository.project.name, repo: checkable.repository.name, arch: checkable.architecture.name,
+        buildid: uuid }
     end
   end
 

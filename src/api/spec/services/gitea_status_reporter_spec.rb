@@ -1,5 +1,8 @@
 RSpec.describe GiteaStatusReporter, type: :service do
-  let(:scm_status_reporter) { GiteaStatusReporter.new(event_payload, event_subscription_payload, token, state, workflow_run, event_type, initial_report: initial_report) }
+  let(:scm_status_reporter) do
+    GiteaStatusReporter.new(event_payload, event_subscription_payload, token, state, workflow_run, event_type,
+                            initial_report: initial_report)
+  end
 
   describe '.new' do
     context 'status pending when event_type is missing' do
@@ -19,7 +22,9 @@ RSpec.describe GiteaStatusReporter, type: :service do
     context 'status failed on gitea' do
       subject { scm_status_reporter }
 
-      let(:event_payload) { { project: 'home:john_doe', package: 'hello', repository: 'openSUSE_Tumbleweed', arch: 'i586' } }
+      let(:event_payload) do
+        { project: 'home:john_doe', package: 'hello', repository: 'openSUSE_Tumbleweed', arch: 'i586' }
+      end
       let(:event_subscription_payload) { { scm: 'gitea' } }
       let(:token) { 'XYCABC' }
       let(:event_type) { 'Event::BuildFail' }
@@ -61,7 +66,8 @@ RSpec.describe GiteaStatusReporter, type: :service do
       end
 
       it 'sends a short commit sha' do
-        expect(gitea_client).to have_received(:create_commit_status).with(owner: 'danidoni', repo: 'hello_world', sha: '123456789', state: state, **status_options)
+        expect(gitea_client).to have_received(:create_commit_status).with(owner: 'danidoni', repo: 'hello_world',
+                                                                          sha: '123456789', state: state, **status_options)
       end
     end
 
@@ -95,7 +101,8 @@ RSpec.describe GiteaStatusReporter, type: :service do
       end
 
       it 'creates a commit status' do
-        expect(gitea_client).to have_received(:create_commit_status).with(owner: 'danidoni', repo: 'hello_world', sha: '123456789', state: state, **status_options)
+        expect(gitea_client).to have_received(:create_commit_status).with(owner: 'danidoni', repo: 'hello_world',
+                                                                          sha: '123456789', state: state, **status_options)
       end
     end
   end

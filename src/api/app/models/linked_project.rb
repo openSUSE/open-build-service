@@ -37,7 +37,8 @@ class LinkedProject < ApplicationRecord
     all_linked_projects = Project.find_by(id: linked_db_project)&.expand_all_projects(project_map: {}, allow_remote_projects: false)
     return unless all_linked_projects&.include?(project)
 
-    errors.add(:base, "The link target '#{linked_db_project}' links to a project that links to us, cycles are not allowed")
+    errors.add(:base,
+               "The link target '#{linked_db_project}' links to a project that links to us, cycles are not allowed")
   end
 
   def validate_access_flag_equality

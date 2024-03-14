@@ -3,19 +3,32 @@ RSpec.describe WorkflowRunsFinder do
 
   let(:workflow_token) { create(:workflow_token) }
   # GitHub
-  let!(:workflow_run_github_push) { create(:workflow_run, :push, :succeeded, token: workflow_token, event_source_name: '94561cd') }
-  let!(:workflow_run_github_tag_push) { create(:workflow_run, :tag_push, :succeeded, token: workflow_token, event_source_name: '94561cd') }
+  let!(:workflow_run_github_push) do
+    create(:workflow_run, :push, :succeeded, token: workflow_token, event_source_name: '94561cd')
+  end
+  let!(:workflow_run_github_tag_push) do
+    create(:workflow_run, :tag_push, :succeeded, token: workflow_token, event_source_name: '94561cd')
+  end
   let!(:workflow_run_github_pull_request_opened) { create(:workflow_run, :succeeded, token: workflow_token) }
-  let!(:workflow_run_github_pull_request_closed) { create(:workflow_run, :succeeded, :pull_request_closed, token: workflow_token) }
+  let!(:workflow_run_github_pull_request_closed) do
+    create(:workflow_run, :succeeded, :pull_request_closed, token: workflow_token)
+  end
   # GitLab
-  let!(:workflow_run_gitlab_push) { create(:workflow_run_gitlab, :push, :succeeded, token: workflow_token, event_source_name: '97561db') }
-  let!(:workflow_run_gitlab_tag_push) { create(:workflow_run_gitlab, :tag_push, :succeeded, token: workflow_token, event_source_name: '97561db') }
+  let!(:workflow_run_gitlab_push) do
+    create(:workflow_run_gitlab, :push, :succeeded, token: workflow_token, event_source_name: '97561db')
+  end
+  let!(:workflow_run_gitlab_tag_push) do
+    create(:workflow_run_gitlab, :tag_push, :succeeded, token: workflow_token, event_source_name: '97561db')
+  end
   let!(:workflow_run_gitlab_pull_request_opened) { create(:workflow_run_gitlab, :succeeded, token: workflow_token) }
-  let!(:workflow_run_gitlab_pull_request_closed) { create(:workflow_run_gitlab, :succeeded, :pull_request_closed, token: workflow_token) }
+  let!(:workflow_run_gitlab_pull_request_closed) do
+    create(:workflow_run_gitlab, :succeeded, :pull_request_closed, token: workflow_token)
+  end
 
   before do
     %w[success running fail].each do |status|
-      create(:workflow_run, token: workflow_token, status: status, request_headers: "HTTP_X_GITHUB_EVENT: pull_request\n")
+      create(:workflow_run, token: workflow_token, status: status,
+                            request_headers: "HTTP_X_GITHUB_EVENT: pull_request\n")
     end
   end
 

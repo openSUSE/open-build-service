@@ -21,7 +21,8 @@ module Kiwi
     #### Attributes
 
     #### Associations macros (Belongs to, Has one, Has many)
-    has_one :package, foreign_key: 'kiwi_image_id', class_name: '::Package', dependent: :nullify, inverse_of: :kiwi_image
+    has_one :package, foreign_key: 'kiwi_image_id', class_name: '::Package', dependent: :nullify,
+                      inverse_of: :kiwi_image
     has_one :description, inverse_of: :image, dependent: :destroy
     has_many :preferences, inverse_of: :image, dependent: :destroy
     has_many :profiles, inverse_of: :image, dependent: :destroy, index_errors: true
@@ -93,11 +94,14 @@ module Kiwi
 
     def self.find_binaries_by_name(query, project, repositories, options = {})
       finder = /\A#{Regexp.quote(query)}/
-      binaries_available(project, options[:use_project_repositories], repositories).select { |package, _| finder.match(package.to_s) }
+      binaries_available(project, options[:use_project_repositories], repositories).select do |package, _|
+        finder.match(package.to_s)
+      end
     end
 
     def self.binaries_available(project, use_project_repositories, repositories)
-      Rails.cache.fetch("kiwi_image_binaries_available_#{project}_#{use_project_repositories}_#{repositories}", expires_in: 5.minutes) do
+      Rails.cache.fetch("kiwi_image_binaries_available_#{project}_#{use_project_repositories}_#{repositories}",
+                        expires_in: 5.minutes) do
         if use_project_repositories
           Backend::Api::BuildResults::Binaries.available_in_project(project)
         else
@@ -105,7 +109,8 @@ module Kiwi
 
           obs_repository_paths = repositories.select { |url| url.starts_with?('obs://') }.map! { |url| url[6..-1] }
           non_obs_repository_urls = repositories.reject { |url| url.starts_with?('obs://') }
-          Backend::Api::BuildResults::Binaries.available_in_repositories(project, non_obs_repository_urls, obs_repository_paths)
+          Backend::Api::BuildResults::Binaries.available_in_repositories(project, non_obs_repository_urls,
+                                                                         obs_repository_paths)
         end
       end
     end
@@ -122,7 +127,8 @@ module Kiwi
     end
 
     def build_results
-      results = ::Buildresult.find_hashed(project: package.project, package: package.name, view: 'status', multibuild: '1', locallink: '1')
+      results = ::Buildresult.find_hashed(project: package.project, package: package.name, view: 'status',
+                                          multibuild: '1', locallink: '1')
 
       local_build_results = {}
       results.elements('result').select { |x| x['repository'] == 'images' }.each do |result|
@@ -150,7 +156,9 @@ module Kiwi
 
     def check_package_groups
       # FIXME: This should be a validation on Kiwi::PackageGroup, it would need a new join table
-      return if package_groups.group_by { |package_group| [package_group.kiwi_type, package_group.profiles] }.select { |_, value| value.count > 1 }.keys.empty?
+      return if package_groups.group_by do |package_group|
+                  [package_group.kiwi_type, package_group.profiles]
+                end.select { |_, value| value.count > 1 }.keys.empty?
 
       errors.add(:base, 'Multiple package groups with same type and profiles are not allowed')
     end

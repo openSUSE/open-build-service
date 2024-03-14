@@ -88,7 +88,8 @@ module Webui::RequestHelper
     result = ''
     if row.target_project
       result = if row.target_package && row.source_package != row.target_package
-                 project_or_package_link(project: row.target_project, package: row.target_package, trim_to: 40, short: true)
+                 project_or_package_link(project: row.target_project, package: row.target_package, trim_to: 40,
+                                         short: true)
                else
                  project_or_package_link(project: row.target_project, trim_to: 40, short: true)
                end
@@ -124,7 +125,11 @@ module Webui::RequestHelper
                       target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
                     }
                   when :delete
-                    target_repository = "repository #{link_to(action[:trepo], repositories_path(project: action[:tprj], repository: action[:trepo]))} for " if action[:trepo]
+                    if action[:trepo]
+                      target_repository = "repository #{link_to(action[:trepo],
+                                                                repositories_path(project: action[:tprj],
+                                                                                  repository: action[:trepo]))} for "
+                    end
 
                     'Delete %{target_repository}%{target_container}' % {
                       target_repository: target_repository,
@@ -177,12 +182,14 @@ module Webui::RequestHelper
                       source_project_hash.update(homeproject: creator)
                       'Submit update from %{source_container} to %{target_container}' % {
                         source_container: project_or_package_link(source_project_hash),
-                        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg], trim_to: nil)
+                        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg],
+                                                                  trim_to: nil)
                       }
                     when :maintenance_release
                       'Maintenance release %{source_container} to %{target_container}' % {
                         source_container: project_or_package_link(source_project_hash),
-                        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg], trim_to: nil)
+                        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg],
+                                                                  trim_to: nil)
                       }
                     else
                       description
@@ -207,7 +214,8 @@ module Webui::RequestHelper
   end
 
   def next_prev_path(**opts)
-    parameters = { number: opts[:number], request_action_id: opts[:request_action_id], full_diff: opts[:full_diff], diff_to_superseded: opts[:diff_to_superseded] }
+    parameters = { number: opts[:number], request_action_id: opts[:request_action_id], full_diff: opts[:full_diff],
+                   diff_to_superseded: opts[:diff_to_superseded] }
 
     case opts[:page_name]
     when 'request_build_results'

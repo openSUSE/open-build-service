@@ -15,7 +15,9 @@ module Webui
 
         @project.repositories.each do |repository|
           release_target = repository.release_targets.first
-          @release_targets.push("#{release_target.repository.project.name}/#{release_target.repository.name}") if release_target
+          if release_target
+            @release_targets.push("#{release_target.repository.project.name}/#{release_target.repository.name}")
+          end
         end
       end
 
@@ -34,7 +36,8 @@ module Webui
             req.save!
           end
           flash[:success] = 'Created maintenance incident request'
-        rescue MaintenanceHelper::MissingAction, BsRequestAction::UnknownProject, BsRequestAction::UnknownTargetPackage => e
+        rescue MaintenanceHelper::MissingAction, BsRequestAction::UnknownProject,
+               BsRequestAction::UnknownTargetPackage => e
           flash[:error] = e.message
           redirect_back(fallback_location: project_show_path(@project))
           return

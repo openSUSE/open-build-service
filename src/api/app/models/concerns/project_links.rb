@@ -2,9 +2,13 @@ module ProjectLinks
   extend ActiveSupport::Concern
 
   included do
-    has_many :linking_to, -> { order(:position) }, class_name: 'LinkedProject', foreign_key: :db_project_id, dependent: :delete_all
+    has_many :linking_to, lambda {
+                            order(:position)
+                          }, class_name: 'LinkedProject', foreign_key: :db_project_id, dependent: :delete_all
     has_many :projects_linking_to, through: :linking_to, class_name: 'Project', source: :linked_db_project
-    has_many :linked_by, -> { order(:position) }, class_name: 'LinkedProject', foreign_key: :linked_db_project_id, dependent: :delete_all
+    has_many :linked_by, lambda {
+                           order(:position)
+                         }, class_name: 'LinkedProject', foreign_key: :linked_db_project_id, dependent: :delete_all
     has_many :linked_by_projects, through: :linked_by, class_name: 'Project', source: :project
   end
 
@@ -47,7 +51,8 @@ module ProjectLinks
       if lp.linked_db_project.nil?
         projects << lp.linked_remote_project_name if allow_remote_projects
       else
-        lp.linked_db_project.expand_all_projects(project_map: project_map, allow_remote_projects: allow_remote_projects).each do |p|
+        lp.linked_db_project.expand_all_projects(project_map: project_map,
+                                                 allow_remote_projects: allow_remote_projects).each do |p|
           projects << p
         end
       end

@@ -15,7 +15,10 @@ module Webui
 
         files = params[:files] || []
         filename = params[:filename]
-        files << ActionDispatch::Http::UploadedFile.new(tempfile: Tempfile.new(''), filename: filename) if filename.present?
+        if filename.present?
+          files << ActionDispatch::Http::UploadedFile.new(tempfile: Tempfile.new(''),
+                                                          filename: filename)
+        end
         file_url = params[:file_url]
 
         errors = []

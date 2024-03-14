@@ -26,7 +26,10 @@ module Workflows
                       request_numbers_and_state: @step.artifact
                     }
                   end
-      WorkflowArtifactsPerStep.find_or_create_by(workflow_run_id: @workflow_run_id, step: @step.class.name, artifacts: artifacts.to_json) if artifacts
+      return unless artifacts
+
+      WorkflowArtifactsPerStep.find_or_create_by(workflow_run_id: @workflow_run_id, step: @step.class.name,
+                                                 artifacts: artifacts.to_json)
     end
   end
 end

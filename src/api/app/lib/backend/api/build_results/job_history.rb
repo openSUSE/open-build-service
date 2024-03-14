@@ -5,7 +5,8 @@ module Backend
       class JobHistory
         extend Backend::ConnectionHelper
 
-        def self.for_project(project_name:, filter: { limit: nil, endtime_start: nil, endtime_end: nil, code: nil, package: nil }, raw: false)
+        def self.for_project(project_name:, filter: { limit: nil, endtime_start: nil, endtime_end: nil, code: nil,
+                                                      package: nil }, raw: false)
           filter.compact!
           begin
             results = http_get(['/build/:project/_jobhistory', project_name], params: filter, expand: [:code])
@@ -18,7 +19,8 @@ module Backend
           build_local_jobhistory(jobhistory_xml: results)
         end
 
-        def self.for_package(project_name:, package_name:, repository_name:, arch_name:, filter: { limit: nil, endtime_start: nil, endtime_end: nil, code: nil }, raw: false)
+        def self.for_package(project_name:, package_name:, repository_name:, arch_name:, filter: { limit: nil,
+                                                                                                   endtime_start: nil, endtime_end: nil, code: nil }, raw: false)
           filter.compact!
 
           begin
@@ -30,10 +32,13 @@ module Backend
           end
           return results if raw
 
-          build_local_jobhistory(jobhistory_xml: results, overwrite_attributes: { repository: repository_name, arch: arch_name })
+          build_local_jobhistory(jobhistory_xml: results,
+                                 overwrite_attributes: { repository: repository_name,
+                                                         arch: arch_name })
         end
 
-        def self.for_repository_and_arch(project_name:, repository_name:, arch_name:, filter: { limit: nil, endtime_start: nil, endtime_end: nil, code: nil }, raw: false)
+        def self.for_repository_and_arch(project_name:, repository_name:, arch_name:, filter: { limit: nil,
+                                                                                                endtime_start: nil, endtime_end: nil, code: nil }, raw: false)
           filter.compact!
 
           begin
@@ -45,7 +50,9 @@ module Backend
           end
           return results if raw
 
-          build_local_jobhistory(jobhistory_xml: results, overwrite_attributes: { repository: repository_name, arch: arch_name })
+          build_local_jobhistory(jobhistory_xml: results,
+                                 overwrite_attributes: { repository: repository_name,
+                                                         arch: arch_name })
         end
 
         # We need overwrite_attributes because the backend omits repo/arch in the output when we

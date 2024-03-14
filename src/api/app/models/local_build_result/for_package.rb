@@ -56,7 +56,8 @@ class LocalBuildResult
     end
 
     def backend_build_result
-      backend_results = Buildresult.find_hashed(project: project, package: package, view: 'status', multibuild: '1', locallink: '1', lastbuild: lastbuild ? '1' : '0')
+      backend_results = Buildresult.find_hashed(project: project, package: package, view: 'status', multibuild: '1',
+                                                locallink: '1', lastbuild: lastbuild ? '1' : '0')
       backend_results.elements('result').sort_by { |a| a['repository'] }
     end
   end

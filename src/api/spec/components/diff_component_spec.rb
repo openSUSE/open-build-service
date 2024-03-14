@@ -2,8 +2,14 @@ RSpec.describe DiffComponent, :vcr, type: :component do
   let(:target_project) { create(:project, name: 'target_project') }
   let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }
   let(:file_name) { 'somefile.txt' }
-  let(:target_package) { create(:package_with_file, name: 'target_package', project: target_project, file_name: file_name, file_content: '# This will be replaced') }
-  let(:source_package) { create(:package_with_file, name: 'source_package', project: source_project, file_name: file_name, file_content: '# This is the new text') }
+  let(:target_package) do
+    create(:package_with_file, name: 'target_package', project: target_project, file_name: file_name,
+                               file_content: '# This will be replaced')
+  end
+  let(:source_package) do
+    create(:package_with_file, name: 'source_package', project: source_project, file_name: file_name,
+                               file_content: '# This is the new text')
+  end
   let(:bs_request) do
     create(:bs_request_with_submit_action,
            target_package: target_package,
@@ -14,7 +20,8 @@ RSpec.describe DiffComponent, :vcr, type: :component do
   context 'with a request having a submit action' do
     before do
       action = bs_request.send(:action_details, bs_request_opts, xml: bs_request.bs_request_actions.last)
-      render_inline(described_class.new(diff: action[:sourcediff].first['files'].values.last['diff']['_content'], file_index: 3))
+      render_inline(described_class.new(diff: action[:sourcediff].first['files'].values.last['diff']['_content'],
+                                        file_index: 3))
     end
 
     it 'renders the diff' do

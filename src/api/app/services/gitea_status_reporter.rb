@@ -1,7 +1,8 @@
 class GiteaStatusReporter < SCMExceptionHandler
   attr_accessor :state, :initial_report, :event_type
 
-  def initialize(event_payload, event_subscription_payload, scm_token, state, workflow_run = nil, event_type = nil, initial_report: false)
+  def initialize(event_payload, event_subscription_payload, scm_token, state, workflow_run = nil, event_type = nil,
+                 initial_report: false)
     super(event_payload, event_subscription_payload, scm_token, workflow_run)
 
     @state = state
@@ -18,14 +19,21 @@ class GiteaStatusReporter < SCMExceptionHandler
                                       state: @state, **status_options)
     if @workflow_run.present?
       @workflow_run.save_scm_report_success(request_context)
-      RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=success,scm=#{@event_subscription_payload[:scm]} value=1")
+      RabbitmqBus.send_to_bus('metrics',
+                              "scm_status_report,status=success,scm=#{@event_subscription_payload[:scm]} value=1")
     end
   rescue Faraday::ConnectionFailed => e
-    @workflow_run.save_scm_report_failure("Failed to report back to Gitea: #{e.message}", request_context) if @workflow_run.present?
+    if @workflow_run.present?
+      @workflow_run.save_scm_report_failure("Failed to report back to Gitea: #{e.message}",
+                                            request_context)
+    end
   rescue GiteaAPI::V1::Client::GiteaApiError => e
     rescue_with_handler(e) || raise(e)
   ensure
-    RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=fail,scm=#{@event_subscription_payload[:scm]},exception=#{e.class} value=1") if e.present? && @workflow_run.present?
+    if e.present? && @workflow_run.present?
+      RabbitmqBus.send_to_bus('metrics',
+                              "scm_status_report,status=fail,scm=#{@event_subscription_payload[:scm]},exception=#{e.class} value=1")
+    end
   end
 
   private
@@ -34,13 +42,16 @@ class GiteaStatusReporter < SCMExceptionHandler
   def status_options
     if @initial_report
       { context: 'OBS SCM/CI Workflow Integration started',
-        target_url: Rails.application.routes.url_helpers.token_workflow_run_url(@workflow_run.token_id, @workflow_run.id, host: Configuration.obs_url) }
+        target_url: Rails.application.routes.url_helpers.token_workflow_run_url(@workflow_run.token_id,
+                                                                                @workflow_run.id, host: Configuration.obs_url) }
     elsif @event_type == 'Event::RequestStatechange'
       { context: "OBS: Request #{@event_payload[:number]}",
-        target_url: Rails.application.routes.url_helpers.request_show_url(@event_payload[:number], host: Configuration.obs_url) }
+        target_url: Rails.application.routes.url_helpers.request_show_url(@event_payload[:number],
+                                                                          host: Configuration.obs_url) }
     else
       { context: "OBS: #{@event_payload[:package]} - #{@event_payload[:repository]}/#{@event_payload[:arch]}",
-        target_url: Rails.application.routes.url_helpers.package_show_url(@event_payload[:project], @event_payload[:package], host: Configuration.obs_url) }
+        target_url: Rails.application.routes.url_helpers.package_show_url(@event_payload[:project],
+                                                                          @event_payload[:package], host: Configuration.obs_url) }
     end
   end
 

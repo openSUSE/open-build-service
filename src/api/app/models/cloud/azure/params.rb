@@ -4,7 +4,8 @@ module Cloud
       include ActiveModel::Validations
       include ActiveModel::Model
 
-      attr_accessor :image_name, :application_id, :application_key, :subscription, :container, :storage_account, :resource_group
+      attr_accessor :image_name, :application_id, :application_key, :subscription, :container, :storage_account,
+                    :resource_group
 
       validates :image_name, presence: true, length: { minimum: 2, maximum: 63 },
                              format: { with: /\A[[:alnum:]]([\w.-]*\w)?\z/, message: 'not a valid format' }
@@ -17,7 +18,8 @@ module Cloud
                                  format: { with: /\A[-\w.]*[-\w]\z/, message: 'not a valid format' }
 
       def self.build(params)
-        new(params.slice(:image_name, :application_id, :application_key, :subscription, :container, :storage_account, :resource_group))
+        new(params.slice(:image_name, :application_id, :application_key, :subscription, :container, :storage_account,
+                         :resource_group))
       end
     end
   end

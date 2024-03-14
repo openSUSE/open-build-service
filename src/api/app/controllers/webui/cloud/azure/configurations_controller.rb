@@ -14,7 +14,8 @@ module Webui
           if @azure_configuration.update(permitted_params)
             flash[:success] = 'Successfully updated your Azure configuration.'
           else
-            flash[:error] = "Could not update your Azure configuration: #{@azure_configuration.errors.full_messages.to_sentence}."
+            flash[:error] =
+              "Could not update your Azure configuration: #{@azure_configuration.errors.full_messages.to_sentence}."
           end
 
           redirect_to cloud_azure_configuration_path

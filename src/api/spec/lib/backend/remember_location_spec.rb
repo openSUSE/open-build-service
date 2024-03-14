@@ -4,7 +4,9 @@ RSpec.describe Backend::RememberLocation do
       extend Backend::RememberLocation
 
       def self.run
-        raise 'Backend module missing' unless Thread.current[:_influxdb_obs_backend_api_module] == 'WithRememberLocation'
+        unless Thread.current[:_influxdb_obs_backend_api_module] == 'WithRememberLocation'
+          raise 'Backend module missing'
+        end
         raise 'Backend method missing' unless Thread.current[:_influxdb_obs_backend_api_method] == 'run'
       end
     end

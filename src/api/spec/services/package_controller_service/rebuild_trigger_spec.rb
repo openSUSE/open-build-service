@@ -2,11 +2,16 @@ RSpec.describe PackageControllerService::RebuildTrigger do
   let(:project) { OpenStruct.new(name: 'bar') }
   let(:package) { OpenStruct.new(name: 'foo', project: project) }
   let(:params) { {} }
-  let(:rebuild_trigger) { described_class.new(package_object: package, package_name_with_multibuild_suffix: package.name, project: project, params: params) }
+  let(:rebuild_trigger) do
+    described_class.new(package_object: package, package_name_with_multibuild_suffix: package.name, project: project,
+                        params: params)
+  end
 
   it { expect(rebuild_trigger.policy_object).to eq(package) }
 
-  it { expect(rebuild_trigger.success_message).to eq("Triggered rebuild for #{project.name}/#{package.name} successfully.") }
+  it {
+    expect(rebuild_trigger.success_message).to eq("Triggered rebuild for #{project.name}/#{package.name} successfully.")
+  }
 
   context 'with error' do
     let(:error_message) do

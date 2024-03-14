@@ -4,7 +4,9 @@ RSpec.describe Workflow::Step::RebuildPackage, :vcr do
   let(:project) { create(:project, name: 'openSUSE:Factory', maintainer: user) }
   let(:package) { create(:package, name: 'hello_world', project: project) }
 
-  let!(:repository) { create(:repository, project: project, rebuild: 'direct', name: 'repository_1', architectures: ['x86_64']) }
+  let!(:repository) do
+    create(:repository, project: project, rebuild: 'direct', name: 'repository_1', architectures: ['x86_64'])
+  end
 
   let(:step_instructions) { { package: package.name, project: project.name } }
 

@@ -79,7 +79,8 @@ module BackendProxy
     # https://build.opensuse.org/package/show/OBS:Server:Unstable/apache2-mod_xforward
     if CONFIG['use_xforward'] && CONFIG['use_xforward'] != 'false'
       logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
-      headers['X-Forward'] = "#{CONFIG['source_protocol'] || 'http'}://#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
+      headers['X-Forward'] =
+        "#{CONFIG['source_protocol'] || 'http'}://#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
       headers['Cache-Control'] = 'no-transform' # avoid compression
       head(:ok)
       @skip_validation = true
@@ -100,7 +101,8 @@ module BackendProxy
     # https://www.nginx.com/resources/wiki/start/topics/examples/x-accel/
     if CONFIG['use_nginx_redirect']
       logger.debug "[backend] VOLLEY(nginx): #{path}"
-      headers['X-Accel-Redirect'] = "#{CONFIG['use_nginx_redirect']}/http/#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
+      headers['X-Accel-Redirect'] =
+        "#{CONFIG['use_nginx_redirect']}/http/#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
       headers['Cache-Control'] = 'no-transform' # avoid compression
       head(:ok)
       @skip_validation = true

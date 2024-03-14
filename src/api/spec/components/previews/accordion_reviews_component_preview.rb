@@ -4,6 +4,7 @@ class AccordionReviewsComponentPreview < ViewComponent::Preview
     pending_reviews = Review.opened.take(3)
     accepted_reviews = Review.accepted.take(2)
     declined_review = Review.declined.take(1)
-    render(AccordionReviewsComponent.new(pending_reviews + accepted_reviews + declined_review, :review, can_handle_request: true))
+    render(AccordionReviewsComponent.new(pending_reviews + accepted_reviews + declined_review, :review,
+                                         can_handle_request: true))
   end
 end

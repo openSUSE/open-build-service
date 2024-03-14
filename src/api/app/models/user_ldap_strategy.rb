@@ -18,7 +18,10 @@ class UserLdapStrategy
     # This static method performs the search with the given grouplist, user to return the groups that the user in
     def render_grouplist_ldap(grouplist, user = nil)
       result = []
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth']) if @@ldap_search_con.nil?
+      if @@ldap_search_con.nil?
+        @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'],
+                                                CONFIG['ldap_search_auth'])
+      end
       ldap_con = @@ldap_search_con
       if ldap_con.nil?
         Rails.logger.info('Unable to connect to LDAP server')
@@ -33,7 +36,9 @@ class UserLdapStrategy
         user_memberof_attr = ''
         ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
           user_dn = entry.dn
-          user_memberof_attr = entry.vals(CONFIG['ldap_user_memberof_attr']) if CONFIG['ldap_user_memberof_attr'].in?(entry.attrs)
+          if CONFIG['ldap_user_memberof_attr'].in?(entry.attrs)
+            user_memberof_attr = entry.vals(CONFIG['ldap_user_memberof_attr'])
+          end
         end
         if user_dn.empty?
           Rails.logger.info("Failed to find #{user} in ldap")
@@ -48,7 +53,10 @@ class UserLdapStrategy
         group = eachgroup if eachgroup.is_a?(String)
         group = eachgroup.title if eachgroup.is_a?(Group)
 
-        raise ArgumentError, "illegal parameter type to UserLdapStrategy#render_grouplist_ldap?: #{eachgroup.class.name}" unless group.is_a?(String)
+        unless group.is_a?(String)
+          raise ArgumentError,
+                "illegal parameter type to UserLdapStrategy#render_grouplist_ldap?: #{eachgroup.class.name}"
+        end
 
         # clean group_dn, group_member_attr
         group_dn = ''
@@ -57,7 +65,9 @@ class UserLdapStrategy
         Rails.logger.debug { "Search group: #{filter}" }
         ldap_con.search(CONFIG['ldap_group_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
           group_dn = entry.dn
-          group_member_attr = entry.vals(CONFIG['ldap_group_member_attr']) if CONFIG['ldap_group_member_attr'].in?(entry.attrs)
+          if CONFIG['ldap_group_member_attr'].in?(entry.attrs)
+            group_member_attr = entry.vals(CONFIG['ldap_group_member_attr'])
+          end
         end
         if group_dn.empty?
           Rails.logger.info("Failed to find #{group} in ldap")
@@ -142,7 +152,10 @@ class UserLdapStrategy
       # TODO: This should be refactored
       # rubocop:disable Lint/UselessTimes
       1.times do
-        @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth']) if @@ldap_search_con.nil?
+        if @@ldap_search_con.nil?
+          @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'],
+                                                  CONFIG['ldap_search_auth'])
+        end
         ldap_con = @@ldap_search_con
         if ldap_con.nil?
           Rails.logger.info('Unable to connect to LDAP server')
@@ -274,7 +287,10 @@ class UserLdapStrategy
 
     # This static method performs the search with the given search_base, filter
     def search_ldap(group)
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth']) if @@ldap_search_con.nil?
+      if @@ldap_search_con.nil?
+        @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'],
+                                                CONFIG['ldap_search_auth'])
+      end
       if @@ldap_search_con.nil?
         Rails.logger.info('Unable to connect to LDAP server')
         return

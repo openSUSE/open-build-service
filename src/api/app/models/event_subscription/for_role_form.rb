@@ -35,7 +35,9 @@ class EventSubscription
     end
 
     def find_subscription_for_subscriber(event_class, role, channel)
-      subscriber_subscriptions.find { |s| s.event_class == event_class && s.receiver_role == role && s.channel == channel }
+      subscriber_subscriptions.find do |s|
+        s.event_class == event_class && s.receiver_role == role && s.channel == channel
+      end
     end
 
     def find_default_subscription(event_class, role, channel)

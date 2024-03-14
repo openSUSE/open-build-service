@@ -28,7 +28,8 @@ class ReportToSCMJob < CreateJob
     @event_package_or_request = if @event_type == 'Event::RequestStatechange'
                                   BsRequest.find_by_number(@event.payload['number'])
                                 else
-                                  Package.find_by_project_and_name(@event.payload['project'], Package.striping_multibuild_suffix(@event.payload['package']))
+                                  Package.find_by_project_and_name(@event.payload['project'],
+                                                                   Package.striping_multibuild_suffix(@event.payload['package']))
                                 end
 
     return false if @event_package_or_request.blank?

@@ -106,7 +106,9 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
         end
 
         # Emulate the linked project/package and the subcription created in a previous new PR/MR event
-        let!(:linked_project) { create(:project, name: "home:#{user.login}:openSUSE:open-build-service:PR-1", maintainer: user) }
+        let!(:linked_project) do
+          create(:project, name: "home:#{user.login}:openSUSE:open-build-service:PR-1", maintainer: user)
+        end
         let!(:linked_package) { create(:package_with_file, name: package.name, project: linked_project) }
 
         ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
@@ -126,7 +128,12 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
         it { expect(subject.call.source_file('_link')).to eq('<link project="foo_project" package="bar_package"/>') }
         it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count)) }
         it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count)) }
-        it { expect { subject.call }.to(change { EventSubscription.where(eventtype: 'Event::BuildSuccess').last.payload }.from(creation_payload).to(update_payload)) }
+
+        it {
+          expect { subject.call }.to(change do
+                                       EventSubscription.where(eventtype: 'Event::BuildSuccess').last.payload
+                                     end.from(creation_payload).to(update_payload))
+        }
       end
 
       context 'when the linked package did not exist' do

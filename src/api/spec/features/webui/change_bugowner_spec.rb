@@ -16,7 +16,8 @@ RSpec.describe 'ChangeBugowner', :js do
 
   before do
     login bugowner
-    create(:attrib, attrib_type: AttribType.where(name: 'OwnerRootProject').first, project: Project.find_by(name: 'home:Iggy'))
+    create(:attrib, attrib_type: AttribType.where(name: 'OwnerRootProject').first,
+                    project: Project.find_by(name: 'home:Iggy'))
     create(:relationship_package_user, package: package, user: bugowner, role: Role.find_by_title('bugowner'))
     allow(Backend::Api::Search).to receive(:binary).and_return(collection)
 

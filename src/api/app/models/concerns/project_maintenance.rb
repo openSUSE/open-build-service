@@ -6,7 +6,8 @@ module ProjectMaintenance
     has_one :maintenance_incident, dependent: :delete, foreign_key: :db_project_id
 
     # projects can maintain other projects
-    has_many :maintained_projects, class_name: 'MaintainedProject', foreign_key: :maintenance_project_id, dependent: :delete_all
+    has_many :maintained_projects, class_name: 'MaintainedProject', foreign_key: :maintenance_project_id,
+                                   dependent: :delete_all
     has_many :maintenance_projects, class_name: 'MaintainedProject', dependent: :delete_all
 
     has_many :incident_updateinfo_counter_values, dependent: :delete_all
@@ -29,7 +30,10 @@ module ProjectMaintenance
 
     def get_maintenance_project!(at = nil)
       maintenance_project = get_maintenance_project(at)
-      raise Project::Errors::UnknownObjectError, 'There is no project flagged as maintenance project on server and no target in request defined.' unless maintenance_project
+      unless maintenance_project
+        raise Project::Errors::UnknownObjectError,
+              'There is no project flagged as maintenance project on server and no target in request defined.'
+      end
 
       maintenance_project
     end
@@ -39,7 +43,9 @@ module ProjectMaintenance
         maintenance.elements('maintains') do |maintains|
           target_project_name = maintains.value('project')
           target_project = Project.get_by_name(target_project_name)
-          return { error: "No write access to maintained project #{target_project_name}" } unless target_project.instance_of?(Project) && User.possibly_nobody.can_modify?(target_project)
+          unless target_project.instance_of?(Project) && User.possibly_nobody.can_modify?(target_project)
+            return { error: "No write access to maintained project #{target_project_name}" }
+          end
         end
       end
       {}
@@ -82,6 +88,8 @@ module ProjectMaintenance
 
     return maintenance_project.name if name.start_with?(maintenance_project.name)
 
-    maintenance_project.maintained_project_names.sort_by(&:length).reverse.find { |maintained_project_name| maintained_project_name.in?(name) } || default
+    maintenance_project.maintained_project_names.sort_by(&:length).reverse.find do |maintained_project_name|
+      maintained_project_name.in?(name)
+    end || default
   end
 end

@@ -18,7 +18,10 @@ class IssueTrackersController < ApplicationController
   # GET /issue_trackers/<name>
   def show
     @issue_tracker = IssueTracker.find_by_name(params[:name])
-    render_error(status: 404, message: "Unable to find issue tracker '#{params[:name]}'") && return unless @issue_tracker
+    unless @issue_tracker
+      render_error(status: 404,
+                   message: "Unable to find issue tracker '#{params[:name]}'") && return
+    end
 
     respond_to do |format|
       format.xml  { render xml: @issue_tracker.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS) }
@@ -59,7 +62,10 @@ class IssueTrackersController < ApplicationController
       attribs[:regex] = xml.xpath('regex[1]/text()').to_s unless xml.xpath('regex[1]/text()').empty?
       attribs[:url] = xml.xpath('url[1]/text()').to_s unless xml.xpath('url[1]/text()').empty?
       attribs[:label] = xml.xpath('label[1]/text()').to_s unless xml.xpath('label[1]/text()').empty?
-      attribs[:enable_fetch] = xml.xpath('enable-fetch[1]/text()').to_s unless xml.xpath('enable-fetch[1]/text()').empty?
+      unless xml.xpath('enable-fetch[1]/text()').empty?
+        attribs[:enable_fetch] =
+          xml.xpath('enable-fetch[1]/text()').to_s
+      end
       attribs[:show_url] = xml.xpath('show-url[1]/text()').to_s unless xml.xpath('show-url[1]/text()').empty?
 
       issue_tracker = IssueTracker.find_by_name(params[:name])
@@ -75,7 +81,10 @@ class IssueTrackersController < ApplicationController
   # DELETE /issue_trackers/<name>
   def destroy
     @issue_tracker = IssueTracker.find_by_name(params[:name])
-    render_error(status: 404, message: "Unable to find issue tracker '#{params[:name]}'") && return unless @issue_tracker
+    unless @issue_tracker
+      render_error(status: 404,
+                   message: "Unable to find issue tracker '#{params[:name]}'") && return
+    end
 
     @issue_tracker.destroy
 

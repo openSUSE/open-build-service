@@ -7,7 +7,8 @@ module Webui
       before_action :check_devel_package
 
       def new
-        bs_request_action = BsRequestAction.new(target_package: @package, target_project: @project, source_package: @package, type: 'change_devel')
+        bs_request_action = BsRequestAction.new(target_package: @package, target_project: @project,
+                                                source_package: @package, type: 'change_devel')
         @bs_request = BsRequest.new(bs_request_actions: [bs_request_action])
         authorize @bs_request, :create?
       end
@@ -15,7 +16,9 @@ module Webui
       private
 
       def bs_request_params
-        params.require(:bs_request).permit(:description, bs_request_actions_attributes: %i[target_project target_package source_project source_package type])
+        params.require(:bs_request).permit(:description,
+                                           bs_request_actions_attributes: %i[target_project target_package
+                                                                             source_project source_package type])
       end
 
       def check_devel_package

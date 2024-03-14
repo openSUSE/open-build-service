@@ -11,12 +11,14 @@ RSpec.describe RepositoryArchitecture do
     subject { repository_architecture.build_id }
 
     it 'fetches from backend' do
-      stub_request(:get, "#{CONFIG['source_url']}/build/#{project}/#{repository.name}/#{architecture}?view=status").and_return(body: good_response)
+      stub_request(:get,
+                   "#{CONFIG['source_url']}/build/#{project}/#{repository.name}/#{architecture}?view=status").and_return(body: good_response)
       expect(subject).to eq('1')
     end
 
     it 'does not crash' do
-      stub_request(:get, "#{CONFIG['source_url']}/build/#{project}/#{repository.name}/#{architecture}?view=status").and_return(body: busy_response)
+      stub_request(:get,
+                   "#{CONFIG['source_url']}/build/#{project}/#{repository.name}/#{architecture}?view=status").and_return(body: busy_response)
       expect(subject).to be_nil
     end
   end

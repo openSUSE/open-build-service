@@ -14,8 +14,10 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
 
   let(:branched_project) do
     project = create(:project_with_repository, name: 'home:tom:branches:Update')
-    create(:package_with_file, project: project, name: 'cacti.openSUSE_11.4_Update', file_name: 'DUMMY_FILE', file_content: 'boo#12345')
-    create(:package_with_file, project: project, name: 'cacti.openSUSE_11.5_Update', file_name: 'DUMMY_FILE', file_content: 'boo#12345')
+    create(:package_with_file, project: project, name: 'cacti.openSUSE_11.4_Update', file_name: 'DUMMY_FILE',
+                               file_content: 'boo#12345')
+    create(:package_with_file, project: project, name: 'cacti.openSUSE_11.5_Update', file_name: 'DUMMY_FILE',
+                               file_content: 'boo#12345')
     project
   end
 

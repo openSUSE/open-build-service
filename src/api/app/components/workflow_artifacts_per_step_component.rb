@@ -88,8 +88,10 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
   end
 
   def artifacts_for_branch_or_link_package(parsed_artifacts, label)
-    source_path = helpers.package_show_path(project: parsed_artifacts[:source_project], package: parsed_artifacts[:source_package])
-    target_path = helpers.package_show_path(project: parsed_artifacts[:target_project], package: parsed_artifacts[:target_package])
+    source_path = helpers.package_show_path(project: parsed_artifacts[:source_project],
+                                            package: parsed_artifacts[:source_package])
+    target_path = helpers.package_show_path(project: parsed_artifacts[:target_project],
+                                            package: parsed_artifacts[:target_package])
 
     tag.li do
       concat(label)

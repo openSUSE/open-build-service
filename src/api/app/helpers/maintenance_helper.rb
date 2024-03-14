@@ -70,13 +70,18 @@ module MaintenanceHelper
 
     # copy binaries
     u_ids = if target.is_a?(Repository)
-              copy_binaries_to_repository(filter_source_repository, filter_architecture, source_package, target, target_package_name, multibuild_container, setrelease)
+              copy_binaries_to_repository(filter_source_repository, filter_architecture, source_package, target,
+                                          target_package_name, multibuild_container, setrelease)
             else
-              copy_binaries(filter_source_repository, filter_architecture, source_package, target_package_name, target_project, multibuild_container, setrelease, manual)
+              copy_binaries(filter_source_repository, filter_architecture, source_package, target_package_name,
+                            target_project, multibuild_container, setrelease, manual)
             end
 
     # create or update main package linking to incident package
-    release_package_create_main_package(action.bs_request, source_package, target_package_name, target_project) unless source_package.is_patchinfo? || manual
+    unless source_package.is_patchinfo? || manual
+      release_package_create_main_package(action.bs_request, source_package, target_package_name,
+                                          target_project)
+    end
 
     # publish incident if source is read protect, but release target is not. assuming it got public now.
     f = source_package.project.flags.find_by_flag_and_status('access', 'disable')
@@ -96,7 +101,8 @@ module MaintenanceHelper
     link.remove_attribute('project') # its a local link, project name not needed
     link['package'] = link['package'].gsub(/\..*/, '') + target_package_name.gsub(/.*\./, '.') # adapt link target with suffix
     link_xml = link.to_xml
-    Backend::Connection.put Addressable::URI.escape("/source/#{target_project.name}/#{target_package_name}/_link?rev=repository&user=#{User.session!.login}"), link_xml
+    Backend::Connection.put Addressable::URI.escape("/source/#{target_project.name}/#{target_package_name}/_link?rev=repository&user=#{User.session!.login}"),
+                            link_xml
 
     md5 = Digest::MD5.hexdigest(link_xml)
     # commit with noservice parameter
@@ -119,7 +125,8 @@ module MaintenanceHelper
     # only if package does not contain a _patchinfo file
     lpkg = nil
     if Package.exists_by_project_and_name(target_project.name, base_package_name, follow_project_links: false)
-      lpkg = Package.get_by_project_and_name(target_project.name, base_package_name, use_source: false, follow_project_links: false)
+      lpkg = Package.get_by_project_and_name(target_project.name, base_package_name, use_source: false,
+                                                                                     follow_project_links: false)
     else
       lpkg = Package.new(name: base_package_name, title: source_package.title, description: source_package.description)
       target_project.packages << lpkg
@@ -270,7 +277,8 @@ module MaintenanceHelper
     first_ct = cts.first
     unless cts.all? { |c| c.id_template == first_ct.id_template }
       msg = cts.map { |cti| "#{cti.channel.package.project.name}/#{cti.channel.package.name}" }.join(', ')
-      raise MultipleUpdateInfoTemplate, "Multiple channel targets found in #{msg} for repository #{target_repo.project.name}/#{target_repo.name}"
+      raise MultipleUpdateInfoTemplate,
+            "Multiple channel targets found in #{msg} for repository #{target_repo.project.name}/#{target_repo.name}"
     end
     id_template = cts.first.id_template if cts.first && cts.first.id_template
 
@@ -280,7 +288,8 @@ module MaintenanceHelper
   def create_package_container_if_missing(source_package, target_package_name, target_project)
     tpkg = nil
     if Package.exists_by_project_and_name(target_project.name, target_package_name, follow_project_links: false)
-      tpkg = Package.get_by_project_and_name(target_project.name, target_package_name, use_source: false, follow_project_links: false)
+      tpkg = Package.get_by_project_and_name(target_project.name, target_package_name, use_source: false,
+                                                                                       follow_project_links: false)
     else
       tpkg = Package.new(name: target_package_name,
                          releasename: source_package.releasename,
@@ -299,7 +308,10 @@ module MaintenanceHelper
   def import_channel(channel, pkg, target_repo = nil)
     channel = REXML::Document.new(channel)
 
-    channel.elements['/channel'].add_element 'target', 'project' => target_repo.project.name, 'repository' => target_repo.name if target_repo
+    if target_repo
+      channel.elements['/channel'].add_element 'target', 'project' => target_repo.project.name,
+                                                         'repository' => target_repo.name
+    end
 
     # replace all project definitions with update projects, if they are defined
     ['//binaries', '//binary'].each do |bin|
@@ -331,7 +343,9 @@ module MaintenanceHelper
     end
 
     # target packages must not exist yet
-    raise PackageAlreadyExists, "package #{opkg.name} already exists" if Package.exists_by_project_and_name(project.name, pkg_name, follow_project_links: false)
+    raise PackageAlreadyExists, "package #{opkg.name} already exists" if Package.exists_by_project_and_name(
+      project.name, pkg_name, follow_project_links: false
+    )
 
     local_linked_packages = {}
     opkg.find_project_local_linking_packages.each do |p|
@@ -342,7 +356,9 @@ module MaintenanceHelper
         # skip the base links
         next if lpkg_name == p.name
       end
-      raise PackageAlreadyExists, "package #{p.name} already exists" if Package.exists_by_project_and_name(project.name, lpkg_name, follow_project_links: false)
+      raise PackageAlreadyExists, "package #{p.name} already exists" if Package.exists_by_project_and_name(
+        project.name, lpkg_name, follow_project_links: false
+      )
 
       local_linked_packages[lpkg_name] = p
     end

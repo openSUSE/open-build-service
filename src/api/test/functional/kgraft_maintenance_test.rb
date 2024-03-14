@@ -45,7 +45,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # setup a maintained distro
-    post '/source/BaseDistro2.0/_attribute', params: "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
+    post '/source/BaseDistro2.0/_attribute',
+         params: "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
     post '/source/BaseDistro2.0/_attribute',
          params: "<attributes><attribute namespace='OBS' name='UpdateProject' > <value>BaseDistro2.0:LinkedUpdateProject</value> " \
@@ -70,7 +71,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     kernel_incident_project = data.elements['/status/data'].text
     kernel_incident_id = kernel_incident_project.gsub(/^My:Maintenance:/, '')
     # submit packages via mbranch
-    post '/source', params: { cmd: 'branch', package: 'pack2', target_project: kernel_incident_project, add_repositories: 1 }
+    post '/source',
+         params: { cmd: 'branch', package: 'pack2', target_project: kernel_incident_project, add_repositories: 1 }
     assert_response :success
     get "/source/#{kernel_incident_project}/_meta"
     assert_response :success
@@ -84,7 +86,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # create a GA update patch
-    post '/source/BaseDistro2.0/kgraft-GA', params: { cmd: 'branch', missingok: 1, extend_package_names: 1, add_repositories: 1, ignoredevel: 1 }
+    post '/source/BaseDistro2.0/kgraft-GA',
+         params: { cmd: 'branch', missingok: 1, extend_package_names: 1, add_repositories: 1, ignoredevel: 1 }
     assert_response :success
     raw_put '/source/home:king:branches:BaseDistro2.0/kgraft-GA.BaseDistro2.0/package.spec',
             File.read("#{Rails.root}/test/fixtures/backend/binary/package.spec")
@@ -106,7 +109,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     put '/source/Channel/_meta', params: '<project name="Channel"><title/><description/>
                                   </project>'
     assert_response :success
-    put '/source/Channel/BaseDistro2/_meta', params: '<package project="Channel" name="BaseDistro2"><title/><description/></package>'
+    put '/source/Channel/BaseDistro2/_meta',
+        params: '<package project="Channel" name="BaseDistro2"><title/><description/></package>'
     assert_response :success
     # add reference to empty kgraft container
     post '/source/Channel/BaseDistro2?cmd=importchannel', params: "<?xml version='1.0' encoding='UTF-8'?>
@@ -124,14 +128,17 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     ### Here starts the kgraft team
     # create a update patch based on former kernel incident
-    post '/source/' + kernel_incident_project + '/kgraft-incident-' + kernel_incident_id, params: { cmd: 'branch', target_project: 'home:king:branches:BaseDistro2.0', maintenance: 1 }
+    post '/source/' + kernel_incident_project + '/kgraft-incident-' + kernel_incident_id,
+         params: { cmd: 'branch', target_project: 'home:king:branches:BaseDistro2.0', maintenance: 1 }
     assert_response :success
     raw_put "/source/home:king:branches:BaseDistro2.0/kgraft-incident-0.#{kernel_incident_project.tr(':', '_')}/packageNew.spec",
             File.read("#{Rails.root}/test/fixtures/backend/binary/packageNew.spec")
     assert_response :success
 
     # branch channel
-    post '/source/Channel/BaseDistro2', params: { cmd: 'branch', target_project: 'home:king:branches:BaseDistro2.0', extend_package_names: 1, add_repositories: 1 }
+    post '/source/Channel/BaseDistro2',
+         params: { cmd: 'branch', target_project: 'home:king:branches:BaseDistro2.0', extend_package_names: 1,
+                   add_repositories: 1 }
     assert_response :success
     put '/source/home:king:branches:BaseDistro2.0/BaseDistro2.Channel/_channel', params: "<?xml version='1.0' encoding='UTF-8'?>
         <channel>
@@ -162,7 +169,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
-    assert_xml_tag(tag: 'target', attributes: { project: 'My:Maintenance', releaseproject: 'BaseDistro2.0:LinkedUpdateProject' })
+    assert_xml_tag(tag: 'target',
+                   attributes: { project: 'My:Maintenance',
+                                 releaseproject: 'BaseDistro2.0:LinkedUpdateProject' })
     node = Xmlhash.parse(@response.body)
     assert node['id']
     id1 = node['id']

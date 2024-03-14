@@ -80,7 +80,8 @@ module NotificationService
 
     def create_report_notification?(event:, subscriber:)
       # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-      return false if (event.is_a?(Event::CreateReport) || event.is_a?(Event::Report)) && !ReportPolicy.new(subscriber, Report).notify?
+      return false if (event.is_a?(Event::CreateReport) || event.is_a?(Event::Report)) && !ReportPolicy.new(subscriber,
+                                                                                                            Report).notify?
 
       true
     end

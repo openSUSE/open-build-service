@@ -1,6 +1,7 @@
 module ProjectStatus
   class PackInfo
-    attr_accessor :backend_package, :project, :links_to, :develpack, :failed_comment, :upstream_version, :upstream_url, :declined_request
+    attr_accessor :backend_package, :project, :links_to, :develpack, :failed_comment, :upstream_version, :upstream_url,
+                  :declined_request
     attr_reader :name, :package_id, :version, :release, :versiontime, :failed, :groups, :persons
 
     delegate :srcmd5, :verifymd5, :changesmd5, :maxmtime, :error, :links_to_id, to: :backend_package

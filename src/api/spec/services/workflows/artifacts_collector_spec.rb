@@ -368,7 +368,9 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
     end
 
     context 'for set_flag step' do
-      let(:step) { Workflow::Step::SetFlags.new(step_instructions: step_instructions, scm_webhook: scm_webhook, token: token) }
+      let(:step) do
+        Workflow::Step::SetFlags.new(step_instructions: step_instructions, scm_webhook: scm_webhook, token: token)
+      end
       let(:step_instructions) do
         {
           flags: [

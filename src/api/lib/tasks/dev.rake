@@ -107,13 +107,15 @@ namespace :dev do
       interconnect = create(:remote_project, name: 'openSUSE.org', remoteurl: 'https://api.opensuse.org/public')
       # The interconnect doesn't work unless we set the distributions
       FetchRemoteDistributionsJob.perform_now
-      tw_repository = create(:repository, name: 'snapshot', project: interconnect, remote_project_name: 'openSUSE:Factory')
+      tw_repository = create(:repository, name: 'snapshot', project: interconnect,
+                                          remote_project_name: 'openSUSE:Factory')
 
       # the home:Admin is not created because the Admin user is created in seeds.rb
       # therefore we need to create it manually and also set the proper relationship
       home_admin = create(:project, name: admin.home_project_name)
       create(:relationship, project: home_admin, user: admin, role: Role.hashed['maintainer'])
-      admin_repository = create(:repository, project: home_admin, name: 'openSUSE_Tumbleweed', architectures: ['x86_64'])
+      admin_repository = create(:repository, project: home_admin, name: 'openSUSE_Tumbleweed',
+                                             architectures: ['x86_64'])
       create(:path_element, link: tw_repository, repository: admin_repository)
       ruby_admin = create(:package_with_file, name: 'ruby', project: home_admin, file_content: 'from admin home')
 
@@ -219,7 +221,8 @@ namespace :dev do
       create(:project, name: 'linked_project', link_to: home_admin)
       create(:multibuild_package, project: home_admin, name: 'multibuild_package')
       create(:package_with_link, project: home_admin, name: 'linked_package')
-      create(:package_with_remote_link, project: home_admin, name: 'remotely_linked_package', remote_project_name: 'openSUSE.org:openSUSE:Factory', remote_package_name: 'aaa_base')
+      create(:package_with_remote_link, project: home_admin, name: 'remotely_linked_package',
+                                        remote_project_name: 'openSUSE.org:openSUSE:Factory', remote_package_name: 'aaa_base')
 
       # Trigger package builds for home:Admin
       home_admin.store

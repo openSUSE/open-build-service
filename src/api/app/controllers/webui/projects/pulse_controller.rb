@@ -38,7 +38,11 @@ module Webui
         # group by state, sort by value...
         @requests_by_state = @requests.group(:state).count.sort_by { |_, v| -v }.to_h
         # transpose to percentages
-        @requests_by_percentage = @requests_by_state.each_with_object({}) { |(k, v), hash| hash[k] = (v * 100.0 / @requests_by_state.values.sum).round.to_s } if @requests_by_state.any?
+        return unless @requests_by_state.any?
+
+        @requests_by_percentage = @requests_by_state.each_with_object({}) do |(k, v), hash|
+          hash[k] = (v * 100.0 / @requests_by_state.values.sum).round.to_s
+        end
       end
     end
   end

@@ -39,7 +39,9 @@ RSpec.describe BranchPackage::LookupIncidentPackage do
     end
 
     let(:package_1) { project_1.packages.first }
-    let(:lookup_incident_package) { BranchPackage::LookupIncidentPackage.new(package: 'chromium', link_target_project: 'openSUSE:Leap:15.01:Update') }
+    let(:lookup_incident_package) do
+      BranchPackage::LookupIncidentPackage.new(package: 'chromium', link_target_project: 'openSUSE:Leap:15.01:Update')
+    end
 
     let(:xml_response) do
       <<~XML_BODY
@@ -67,7 +69,9 @@ RSpec.describe BranchPackage::LookupIncidentPackage do
     let(:link_target_project) { create(:project_with_package, name: 'openSUSE:Maintenance', package_name: 'chromium') }
     let(:maintenance_project) { create(:maintenance_project, target_project: link_target_project) }
     let(:package_1) { link_target_project.packages.first }
-    let(:lookup_incident_package) { BranchPackage::LookupIncidentPackage.new(package: 'chromium', link_target_project: link_target_project) }
+    let(:lookup_incident_package) do
+      BranchPackage::LookupIncidentPackage.new(package: 'chromium', link_target_project: link_target_project)
+    end
 
     before do
       allow_any_instance_of(BranchPackage::LookupIncidentPackage).to receive(:possible_packages).and_return(link_target_project.packages)
@@ -80,7 +84,9 @@ RSpec.describe BranchPackage::LookupIncidentPackage do
 
     context 'possible packages are nil' do
       before do
-        allow_any_instance_of(BranchPackage::LookupIncidentPackage).to receive(:possible_packages).and_return([[package_1], [nil]])
+        allow_any_instance_of(BranchPackage::LookupIncidentPackage).to receive(:possible_packages).and_return([
+                                                                                                                [package_1], [nil]
+                                                                                                              ])
       end
 
       it { expect(subject).to eq(package_1) }

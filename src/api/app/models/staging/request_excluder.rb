@@ -12,7 +12,9 @@ class Staging::RequestExcluder
     exclusions_removed = exclusions.destroy_all
     non_excluded_requests = request_numbers - exclusions_removed.try(:pluck, :number)
 
-    errors << "Requests with number #{non_excluded_requests.to_sentence} are not excluded." if non_excluded_requests.present?
+    if non_excluded_requests.present?
+      errors << "Requests with number #{non_excluded_requests.to_sentence} are not excluded."
+    end
     self
   end
 

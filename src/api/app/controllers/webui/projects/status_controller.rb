@@ -159,7 +159,9 @@ module Webui
           if value.develpack
             dproject = value.develpack.project
             @develprojects[dproject] = 1
-            next if (current_develproject != dproject || current_develproject == @no_project) && current_develproject != @all_projects
+            if (current_develproject != dproject || current_develproject == @no_project) && current_develproject != @all_projects
+              next
+            end
           elsif @current_develproject == @no_project
             next
           end

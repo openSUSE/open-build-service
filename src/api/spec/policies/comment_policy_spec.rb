@@ -177,7 +177,9 @@ RSpec.describe CommentPolicy do
   permissions :history? do
     let(:staff_user) { create(:staff_user) }
     let(:moderator) { create(:moderator) }
-    let(:comment_moderated) { create(:comment_project, commentable: project, moderated_at: DateTime.now.utc, moderator_id: moderator.id) }
+    let(:comment_moderated) do
+      create(:comment_project, commentable: project, moderated_at: DateTime.now.utc, moderator_id: moderator.id)
+    end
 
     before do
       Flipper.enable(:content_moderation)
@@ -214,7 +216,9 @@ RSpec.describe CommentPolicy do
       let(:maintainer) { other_user }
       let(:project_with_maintainer) { create(:project, maintainer: maintainer) }
       let!(:comment_lock) { create(:comment_lock, commentable: project_with_maintainer, moderator: maintainer) }
-      let(:comment_on_comment_locked_project) { build(:comment_project, commentable: project_with_maintainer, user: author) }
+      let(:comment_on_comment_locked_project) do
+        build(:comment_project, commentable: project_with_maintainer, user: author)
+      end
 
       context 'for the maintainer of the commentable' do
         let(:author) { maintainer }

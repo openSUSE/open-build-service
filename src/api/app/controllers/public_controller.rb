@@ -12,7 +12,9 @@ class PublicController < ApplicationController
     required_parameters :project
 
     if params[:project] == '_result'
-      pass_to_backend("/build/_result#{build_query_from_hash(params, %i[scmrepository scmbranch locallink multibuild lastbuild code])}")
+      pass_to_backend("/build/_result#{build_query_from_hash(params,
+                                                             %i[scmrepository scmbranch locallink multibuild lastbuild
+                                                                code])}")
       return
     end
     # project visible/known ?
@@ -175,7 +177,11 @@ class PublicController < ApplicationController
         dist_id = dist.id
         @binary_links[dist_id] ||= {}
         binary = binary_map[repo.name].find { |bin| bin.value(:name) == @pkg.name }
-        @binary_links[dist_id][:ymp] = { url: ymp_url(File.join(@pkg.project.name, repo.name, "#{@pkg.name}.ymp")) } if binary && dist.vendor == 'openSUSE'
+        if binary && dist.vendor == 'openSUSE'
+          @binary_links[dist_id][:ymp] =
+            { url: ymp_url(File.join(@pkg.project.name, repo.name,
+                                     "#{@pkg.name}.ymp")) }
+        end
 
         @binary_links[dist_id][:binary] ||= []
         binary_map[repo.name].each do |b|

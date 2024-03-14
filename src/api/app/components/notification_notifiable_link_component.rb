@@ -84,7 +84,8 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
   def notifiable_link_path
     case @notification.event_type
     when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted'
-      Rails.application.routes.url_helpers.request_show_path(@notification.notifiable.number, notification_id: @notification.id)
+      Rails.application.routes.url_helpers.request_show_path(@notification.notifiable.number,
+                                                             notification_id: @notification.id)
     when 'Event::CommentForRequest'
       # TODO: It would be better to eager load the commentable association with `includes(...)`,
       #      but it's complicated since this isn't for all notifications and it's nested 2 levels deep.
@@ -93,9 +94,11 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
                else
                  'comments-list'
                end
-      Rails.application.routes.url_helpers.request_show_path(bs_request.number, notification_id: @notification.id, anchor: anchor)
+      Rails.application.routes.url_helpers.request_show_path(bs_request.number, notification_id: @notification.id,
+                                                                                anchor: anchor)
     when 'Event::CommentForProject'
-      Rails.application.routes.url_helpers.project_show_path(@notification.notifiable.commentable, notification_id: @notification.id, anchor: 'comments-list')
+      Rails.application.routes.url_helpers.project_show_path(@notification.notifiable.commentable,
+                                                             notification_id: @notification.id, anchor: 'comments-list')
     when 'Event::CommentForPackage'
       # TODO: It would be better to eager load the commentable association with `includes(...)`,
       #       but it's complicated since this isn't for all notifications and it's nested 2 levels deep.
@@ -120,11 +123,16 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       link_for_reportables(reportable)
     when 'Event::ReportForComment'
       # Do not have a link for deleted comments
-      Comment.exists?(@notification.event_payload['reportable_id']) && path_to_commentables_on_reports(event_payload: @notification.event_payload, notification_id: @notification.id)
+      Comment.exists?(@notification.event_payload['reportable_id']) && path_to_commentables_on_reports(
+        event_payload: @notification.event_payload, notification_id: @notification.id
+      )
     when 'Event::ReportForProject', 'Event::ReportForPackage'
       @notification.event_type.constantize.notification_link_path(@notification)
     when 'Event::ReportForUser'
-      Rails.application.routes.url_helpers.user_path(@notification.event_payload['user_login'], notification_id: @notification.id) if !@notification.event_user.is_deleted? || @current_user.is_admin?
+      if !@notification.event_user.is_deleted? || @current_user.is_admin?
+        Rails.application.routes.url_helpers.user_path(@notification.event_payload['user_login'],
+                                                       notification_id: @notification.id)
+      end
     when 'Event::ReportForRequest'
       bs_request = @notification.notifiable.reportable
       Rails.application.routes.url_helpers.request_show_path(bs_request.number, notification_id: @notification.id)
@@ -134,7 +142,8 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     when 'Event::AppealCreated'
       Rails.application.routes.url_helpers.appeal_path(@notification.notifiable)
     when 'Event::WorkflowRunFail'
-      Rails.application.routes.url_helpers.token_workflow_run_path(@notification.notifiable.token, @notification.notifiable)
+      Rails.application.routes.url_helpers.token_workflow_run_path(@notification.notifiable.token,
+                                                                   @notification.notifiable)
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity
@@ -165,7 +174,8 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
                                                              notification_id: @notification.id,
                                                              anchor: 'comments-list')
     when 'Project'
-      Rails.application.routes.url_helpers.project_show_path(reportable, notification_id: @notification.id, anchor: 'comments-list')
+      Rails.application.routes.url_helpers.project_show_path(reportable, notification_id: @notification.id,
+                                                                         anchor: 'comments-list')
     when 'User'
       Rails.application.routes.url_helpers.user_path(reportable)
     end
@@ -174,7 +184,8 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
   def link_for_commentables_on_reportables(commentable:)
     case commentable
     when BsRequest
-      Rails.application.routes.url_helpers.request_show_path(commentable.number, notification_id: @notification.id, anchor: 'comments-list')
+      Rails.application.routes.url_helpers.request_show_path(commentable.number, notification_id: @notification.id,
+                                                                                 anchor: 'comments-list')
     when BsRequestAction
       Rails.application.routes.url_helpers.request_show_path(number: commentable.bs_request.number, request_action_id: commentable.id,
                                                              notification_id: @notification.id, anchor: 'tab-pane-changes')
@@ -184,7 +195,8 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
                                                              notification_id: @notification.id,
                                                              anchor: 'comments-list')
     when Project
-      Rails.application.routes.url_helpers.project_show_path(commentable, notification_id: @notification.id, anchor: 'comments-list')
+      Rails.application.routes.url_helpers.project_show_path(commentable, notification_id: @notification.id,
+                                                                          anchor: 'comments-list')
     end
   end
 

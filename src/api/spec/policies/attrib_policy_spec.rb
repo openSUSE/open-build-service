@@ -29,7 +29,8 @@ RSpec.describe AttribPolicy do
     let(:attrib) { create(:attrib) }
 
     before do
-      create(:attrib_type_modifiable_by, attrib_type: attrib.attrib_type, group: user_in_a_group.groups.first, user: nil, role: nil)
+      create(:attrib_type_modifiable_by, attrib_type: attrib.attrib_type, group: user_in_a_group.groups.first,
+                                         user: nil, role: nil)
     end
 
     permissions :create?, :update?, :destroy? do

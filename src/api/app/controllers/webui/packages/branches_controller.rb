@@ -32,7 +32,8 @@ module Webui
           source_project_name = params[:linked_project]
           source_package_name = params[:linked_package]
         else
-          source_package = Package.get_by_project_and_name(params[:linked_project], params[:linked_package], use_source: false, follow_multibuild: true)
+          source_package = Package.get_by_project_and_name(params[:linked_project], params[:linked_package],
+                                                           use_source: false, follow_multibuild: true)
           source_project_name = source_package.project.name
           source_package_name = source_package.name
           authorize source_package, :create_branch?
@@ -59,7 +60,10 @@ module Webui
 
         branch_params[:target_project] = params[:target_project] if params[:target_project].present?
         branch_params[:target_package] = params[:target_package] if params[:target_package].present?
-        branch_params[:add_repositories_rebuild] = params[:add_repositories_rebuild] if params[:add_repositories_rebuild].present?
+        if params[:add_repositories_rebuild].present?
+          branch_params[:add_repositories_rebuild] =
+            params[:add_repositories_rebuild]
+        end
         branch_params[:autocleanup] = params[:autocleanup] if params[:autocleanup].present?
 
         branched_package = BranchPackage.new(branch_params).branch
@@ -84,7 +88,8 @@ module Webui
       rescue CreateProjectNoPermission
         flash[:error] = 'Sorry, you are not authorized to create this project.'
         redirect_back(fallback_location: root_path)
-      rescue ArgumentError, Package::UnknownObjectError, Project::UnknownObjectError, APIError, ActiveRecord::RecordInvalid => e
+      rescue ArgumentError, Package::UnknownObjectError, Project::UnknownObjectError, APIError,
+             ActiveRecord::RecordInvalid => e
         flash[:error] = "Failed to branch: #{e.message}"
         redirect_back(fallback_location: root_path)
       end

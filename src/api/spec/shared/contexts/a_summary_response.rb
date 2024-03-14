@@ -1,6 +1,8 @@
 RSpec.shared_context 'a summary response' do
   let(:arch) { 'i586' }
-  let(:summary_backend_url) { "#{CONFIG['source_url']}/build/#{staging_a}/_result?view=summary&repository=standard&arch=#{arch}" }
+  let(:summary_backend_url) do
+    "#{CONFIG['source_url']}/build/#{staging_a}/_result?view=summary&repository=standard&arch=#{arch}"
+  end
   let(:status) { 'building' }
   let(:summary_backend_response) do
     %(<resultlist state='d797d177b6a6a9096ca39b01d40ab600'>

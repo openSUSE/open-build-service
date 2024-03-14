@@ -24,11 +24,17 @@ RSpec.describe User do
       end
 
       let(:target_package) { create(:package) }
-      let!(:relationship_project_user) { create(:relationship_project_user, user: confirmed_user, project: target_package.project) }
-      let!(:relationship_package_user) { create(:relationship_package_user, user: confirmed_user, package: target_package) }
+      let!(:relationship_project_user) do
+        create(:relationship_project_user, user: confirmed_user, project: target_package.project)
+      end
+      let!(:relationship_package_user) do
+        create(:relationship_package_user, user: confirmed_user, package: target_package)
+      end
 
       let(:not_maintained_target_package) { create(:package) }
-      let!(:relationship_project_admin) { create(:relationship_project_user, user: admin_user, project: target_package.project) }
+      let!(:relationship_project_admin) do
+        create(:relationship_project_user, user: admin_user, project: target_package.project)
+      end
 
       subject { confirmed_user.requests }
 
@@ -81,10 +87,14 @@ RSpec.describe User do
     context 'with by_user reviews' do
       it_behaves_like 'all_my_requests' do
         let!(:subject_request) { create(:set_bugowner_request, creator: admin_user, review_by_user: confirmed_user) }
-        let!(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user, review_by_user: confirmed_user) }
+        let!(:request_with_same_creator_and_reviewer) do
+          create(:set_bugowner_request, creator: confirmed_user, review_by_user: confirmed_user)
+        end
 
         let(:other_project) { create(:project) }
-        let!(:request_of_another_subject) { create(:set_bugowner_request, creator: confirmed_user, review_by_user: admin_user) }
+        let!(:request_of_another_subject) do
+          create(:set_bugowner_request, creator: confirmed_user, review_by_user: admin_user)
+        end
 
         it 'Include reviews where the user is the creator of the request' do
           expect(subject).to include(request_of_another_subject)
@@ -98,10 +108,14 @@ RSpec.describe User do
         let!(:groups_user) { create(:groups_user, user: confirmed_user, group: group) }
 
         let!(:subject_request) { create(:set_bugowner_request, creator: admin_user, review_by_group: group) }
-        let!(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user, review_by_group: group) }
+        let!(:request_with_same_creator_and_reviewer) do
+          create(:set_bugowner_request, creator: confirmed_user, review_by_group: group)
+        end
 
         let(:other_group) { create(:group) }
-        let!(:request_of_another_subject) { create(:set_bugowner_request, creator: admin_user, review_by_group: other_group) }
+        let!(:request_of_another_subject) do
+          create(:set_bugowner_request, creator: admin_user, review_by_group: other_group)
+        end
 
         it 'not include reviews where the user is the creator of the request' do
           expect(subject).not_to include(request_of_another_subject)
@@ -116,10 +130,14 @@ RSpec.describe User do
 
         let!(:subject_request) { create(:set_bugowner_request, creator: admin_user, review_by_project: project) }
 
-        let!(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user, review_by_project: project) }
+        let!(:request_with_same_creator_and_reviewer) do
+          create(:set_bugowner_request, creator: confirmed_user, review_by_project: project)
+        end
 
         let(:other_project) { create(:project) }
-        let!(:request_of_another_subject) { create(:set_bugowner_request, creator: admin_user, review_by_project: other_project) }
+        let!(:request_of_another_subject) do
+          create(:set_bugowner_request, creator: admin_user, review_by_project: other_project)
+        end
 
         it 'not include reviews where the user is the creator of the request' do
           expect(subject).not_to include(request_of_another_subject)
@@ -134,10 +152,14 @@ RSpec.describe User do
 
         let!(:subject_request) { create(:set_bugowner_request, creator: admin_user, review_by_package: package) }
 
-        let!(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user, review_by_package: package) }
+        let!(:request_with_same_creator_and_reviewer) do
+          create(:set_bugowner_request, creator: confirmed_user, review_by_package: package)
+        end
 
         let(:other_package) { create(:package) }
-        let!(:request_of_another_subject) { create(:set_bugowner_request, creator: admin_user, review_by_package: other_package) }
+        let!(:request_of_another_subject) do
+          create(:set_bugowner_request, creator: admin_user, review_by_package: other_package)
+        end
 
         it 'not include reviews where the user is the creator of the request' do
           expect(subject).not_to include(request_of_another_subject)
@@ -312,20 +334,28 @@ RSpec.describe User do
     context 'with maintained project' do
       it_behaves_like 'incoming_requests' do
         let(:target_package) { create(:package) }
-        let!(:relationship_project_user) { create(:relationship_project_user, user: confirmed_user, project: target_package.project) }
+        let!(:relationship_project_user) do
+          create(:relationship_project_user, user: confirmed_user, project: target_package.project)
+        end
 
         let(:not_maintained_target_package) { create(:package) }
-        let!(:relationship_project_admin) { create(:relationship_project_user, user: admin_user, project: target_package.project) }
+        let!(:relationship_project_admin) do
+          create(:relationship_project_user, user: admin_user, project: target_package.project)
+        end
       end
     end
 
     context 'with maintained package' do
       it_behaves_like 'incoming_requests' do
         let(:target_package) { create(:package) }
-        let!(:relationship_package_user) { create(:relationship_package_user, user: confirmed_user, package: target_package) }
+        let!(:relationship_package_user) do
+          create(:relationship_package_user, user: confirmed_user, package: target_package)
+        end
 
         let(:not_maintained_target_package) { create(:package) }
-        let!(:relationship_package_admin) { create(:relationship_package_user, user: admin_user, package: target_package) }
+        let!(:relationship_package_admin) do
+          create(:relationship_package_user, user: admin_user, package: target_package)
+        end
       end
     end
   end

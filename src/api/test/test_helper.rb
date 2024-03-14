@@ -141,7 +141,10 @@ module ActionDispatch
     class Session
       def add_auth(headers)
         headers = {} if headers.nil?
-        headers['HTTP_AUTHORIZATION'] = IntegrationTest.basic_auth if !headers.key?('HTTP_AUTHORIZATION') && IntegrationTest.basic_auth
+        if !headers.key?('HTTP_AUTHORIZATION') && IntegrationTest.basic_auth
+          headers['HTTP_AUTHORIZATION'] =
+            IntegrationTest.basic_auth
+        end
 
         headers
       end
@@ -290,12 +293,18 @@ module ActionDispatch
 
     def assert_xml_tag(conds)
       ret = check_xml_tag(@response.body, conds)
-      raise MiniTest::Assertion, "expected tag, but no tag found matching #{conds.inspect} in:\n#{@response.body}" unless ret
+      return if ret
+
+      raise MiniTest::Assertion,
+            "expected tag, but no tag found matching #{conds.inspect} in:\n#{@response.body}"
     end
 
     def assert_no_xml_tag(conds)
       ret = check_xml_tag(@response.body, conds)
-      raise MiniTest::Assertion, "expected no tag, but found tag matching #{conds.inspect} in:\n#{@response.body}" if ret
+      return unless ret
+
+      raise MiniTest::Assertion,
+            "expected no tag, but found tag matching #{conds.inspect} in:\n#{@response.body}"
     end
 
     # useful to fix our test cases

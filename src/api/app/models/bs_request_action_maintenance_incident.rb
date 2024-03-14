@@ -84,7 +84,10 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     source_cleanup if sourceupdate == 'cleanup'
 
     # create a patchinfo if missing and incident has just been created
-    Patchinfo.new.create_patchinfo_from_request(incident_project, bs_request) if opts[:check_for_patchinfo] && !incident_project.packages.joins(:package_kinds).where("kind = 'patchinfo'").exists?
+    if opts[:check_for_patchinfo] && !incident_project.packages.joins(:package_kinds).where("kind = 'patchinfo'").exists?
+      Patchinfo.new.create_patchinfo_from_request(incident_project,
+                                                  bs_request)
+    end
 
     save
   end
@@ -98,7 +101,10 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       maintenance_project = Project.get_maintenance_project!
       self.target_project = maintenance_project.name
     end
-    raise NoMaintenanceProject, 'Maintenance incident requests have to go to projects of type maintenance or maintenance_incident' unless maintenance_project.is_maintenance_incident? || maintenance_project.is_maintenance?
+    unless maintenance_project.is_maintenance_incident? || maintenance_project.is_maintenance?
+      raise NoMaintenanceProject,
+            'Maintenance incident requests have to go to projects of type maintenance or maintenance_incident'
+    end
     raise IllegalRequest, 'Target package must not be specified in maintenance_incident actions' if target_package
 
     super(ignore_build_state, ignore_delegate)
@@ -130,11 +136,14 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     # patchinfos are handled as new packages
     if kinds.include?('patchinfo')
       if Package.exists_by_project_and_name(incident_project.name, source_package, follow_project_links: false)
-        new_pkg = Package.get_by_project_and_name(incident_project.name, source_package, use_source: false, follow_project_links: false)
+        new_pkg = Package.get_by_project_and_name(incident_project.name, source_package, use_source: false,
+                                                                                         follow_project_links: false)
       else
         new_pkg = incident_project.packages.create(name: source_package, title: pkg_title, description: pkg_description)
         new_pkg.flags.create(status: 'enable', flag: 'build')
-        new_pkg.flags.create(status: 'enable', flag: 'publish') unless incident_project.flags.find_by_flag_and_status('access', 'disable')
+        new_pkg.flags.create(status: 'enable', flag: 'publish') unless incident_project.flags.find_by_flag_and_status(
+          'access', 'disable'
+        )
         new_pkg.store(comment: "maintenance_incident request #{bs_request.number}", request: bs_request)
       end
 
@@ -179,7 +188,8 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       new_pkg = Package.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
     elsif linkinfo && linkinfo['package'] # a new package for all targets
       if Package.exists_by_project_and_name(incident_project.name, source_package, follow_project_links: false)
-        new_pkg = Package.get_by_project_and_name(incident_project.name, source_package, use_source: false, follow_project_links: false)
+        new_pkg = Package.get_by_project_and_name(incident_project.name, source_package, use_source: false,
+                                                                                         follow_project_links: false)
       else
         new_pkg = Package.new(name: source_package, title: pkg.title, description: pkg.description)
         incident_project.packages << new_pkg
@@ -199,7 +209,8 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       comment: "Maintenance incident copy from project #{source_project}"
     }
     cp_params[:orev] = source_rev if source_rev
-    response = Backend::Api::Sources::Package.copy(incident_project.name, new_pkg.name, source_project, source_package, User.session!.login, cp_params)
+    response = Backend::Api::Sources::Package.copy(incident_project.name, new_pkg.name, source_project, source_package,
+                                                   User.session!.login, cp_params)
     result = Xmlhash.parse(response)
     set_acceptinfo(result['acceptinfo'])
 

@@ -11,6 +11,7 @@ module WorkflowStepInstrumentation
   private
 
   def track_instantiation
-    RabbitmqBus.send_to_bus('metrics', "workflow_step,step=#{self.class.name.demodulize.underscore},action=instantiation count=1")
+    RabbitmqBus.send_to_bus('metrics',
+                            "workflow_step,step=#{self.class.name.demodulize.underscore},action=instantiation count=1")
   end
 end

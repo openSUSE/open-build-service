@@ -56,7 +56,9 @@ RSpec.describe Webui::Projects::RebuildTimesController do
 
     context 'with an invalid scheduler' do
       before do
-        get :show, params: { project_name: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64', scheduler: 'invalid_scheduler' }
+        get :show,
+            params: { project_name: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64',
+                      scheduler: 'invalid_scheduler' }
       end
 
       it { expect(flash[:error]).to eq('Invalid scheduler type, check mkdiststats docu - aehm, source') }

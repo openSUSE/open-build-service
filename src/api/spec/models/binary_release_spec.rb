@@ -18,7 +18,8 @@ RSpec.describe BinaryRelease do
 
     context 'no binary release existed before' do
       before do
-        allow(Backend::Api::Server).to receive_messages(notification_payload: [binary_hash].to_json, delete_notification_payload: '')
+        allow(Backend::Api::Server).to receive_messages(notification_payload: [binary_hash].to_json,
+                                                        delete_notification_payload: '')
       end
 
       it { expect { subject }.not_to raise_error }
@@ -39,7 +40,8 @@ RSpec.describe BinaryRelease do
       end
 
       before do
-        allow(Backend::Api::Server).to receive_messages(notification_payload: [repeated_binary_hash].to_json, delete_notification_payload: '')
+        allow(Backend::Api::Server).to receive_messages(notification_payload: [repeated_binary_hash].to_json,
+                                                        delete_notification_payload: '')
         subject
       end
 
@@ -67,7 +69,11 @@ RSpec.describe BinaryRelease do
         }
       end
 
-      it { expect { described_class.update_binary_releases_via_json(repository, [repeated_binary_hash]) }.not_to raise_error }
+      it {
+        expect do
+          described_class.update_binary_releases_via_json(repository, [repeated_binary_hash])
+        end.not_to raise_error
+      }
     end
   end
 

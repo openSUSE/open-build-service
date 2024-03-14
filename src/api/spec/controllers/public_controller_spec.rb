@@ -62,7 +62,10 @@ RSpec.describe PublicController, :vcr do
       it { expect(assigns(:project)).to eq(project) }
       it { expect(response).to have_http_status(:success) }
       it { expect(response.body).to match(/<entry name="public_controller_package"/) }
-      it { expect(a_request(:get, %r{.*/source/public_controller_project\?expand=1&noorigins=1})).to have_been_made.once }
+
+      it {
+        expect(a_request(:get, %r{.*/source/public_controller_project\?expand=1&noorigins=1})).to have_been_made.once
+      }
     end
 
     context "with 'info' view specified" do
@@ -72,7 +75,10 @@ RSpec.describe PublicController, :vcr do
         end
 
         it { expect(response).to have_http_status(:bad_request) }
-        it { expect(a_request(:get, %r{.*/source/public_controller_project\?nofilename=1&view=info})).not_to have_been_made }
+
+        it {
+          expect(a_request(:get, %r{.*/source/public_controller_project\?nofilename=1&view=info})).not_to have_been_made
+        }
       end
 
       context "and nofilename is equal '1'" do
@@ -82,7 +88,11 @@ RSpec.describe PublicController, :vcr do
 
         it { expect(assigns(:project)).to eq(project) }
         it { expect(response).to have_http_status(:success) }
-        it { expect(a_request(:get, %r{.*/source/public_controller_project\?nofilename=1&view=info})).to have_been_made.once }
+
+        it {
+          expect(a_request(:get,
+                           %r{.*/source/public_controller_project\?nofilename=1&view=info})).to have_been_made.once
+        }
       end
     end
 
@@ -126,7 +136,10 @@ RSpec.describe PublicController, :vcr do
 
     it { expect(response).to have_http_status(:success) }
     it { expect(response.body).to match(/name="somefile.txt"/) }
-    it { expect(a_request(:get, %r{.*/source/public_controller_project/public_controller_package})).to have_been_made.once }
+
+    it {
+      expect(a_request(:get, %r{.*/source/public_controller_project/public_controller_package})).to have_been_made.once
+    }
   end
 
   describe 'GET #package_meta' do
@@ -135,8 +148,15 @@ RSpec.describe PublicController, :vcr do
     end
 
     it { expect(response).to have_http_status(:success) }
-    it { expect(response.body).to match(/<package name="public_controller_package" project="public_controller_project">/) }
-    it { expect(a_request(:get, %r{.*/source/public_controller_project/public_controller_package/_meta})).to have_been_made.once }
+
+    it {
+      expect(response.body).to match(/<package name="public_controller_package" project="public_controller_project">/)
+    }
+
+    it {
+      expect(a_request(:get,
+                       %r{.*/source/public_controller_project/public_controller_package/_meta})).to have_been_made.once
+    }
   end
 
   describe 'GET #distributions' do

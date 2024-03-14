@@ -20,9 +20,12 @@ module TestData
       admin = User.get_default_admin
       maintained_project = create(:project, name: project_name)
       create(:repository, project: maintained_project, name: 'openSUSE_Tumbleweed', architectures: ['x86_64'])
-      create(:package_with_file, name: 'cacti', project: maintained_project, file_name: 'README.txt', file_content: 'Original content', commit_user: admin)
-      create(:package_with_file, name: 'cacti-spine', project: maintained_project, file_name: 'README.txt', file_content: 'Original content', commit_user: admin)
-      create(:package_with_file, name: 'bash', project: maintained_project, file_name: 'README.txt', file_content: 'Original content', commit_user: admin)
+      create(:package_with_file, name: 'cacti', project: maintained_project, file_name: 'README.txt',
+                                 file_content: 'Original content', commit_user: admin)
+      create(:package_with_file, name: 'cacti-spine', project: maintained_project, file_name: 'README.txt',
+                                 file_content: 'Original content', commit_user: admin)
+      create(:package_with_file, name: 'bash', project: maintained_project, file_name: 'README.txt',
+                                 file_content: 'Original content', commit_user: admin)
       maintained_project
     end
 
@@ -75,8 +78,12 @@ module TestData
       changes_file_content = Pathname.new(File.join('spec', 'fixtures', 'files', 'factory_package.changes')).read
 
       update_project_branch.packages.each do |package|
-        Backend::Connection.put("/source/#{CGI.escape(update_project_branch.name)}/#{CGI.escape(package.name)}/README.txt", 'New content')
-        Backend::Connection.put("/source/#{CGI.escape(update_project_branch.name)}/#{CGI.escape(package.name)}/#{CGI.escape(package.name)}.changes", changes_file_content)
+        Backend::Connection.put(
+          "/source/#{CGI.escape(update_project_branch.name)}/#{CGI.escape(package.name)}/README.txt", 'New content'
+        )
+        Backend::Connection.put(
+          "/source/#{CGI.escape(update_project_branch.name)}/#{CGI.escape(package.name)}/#{CGI.escape(package.name)}.changes", changes_file_content
+        )
       end
     end
 
@@ -120,8 +127,10 @@ module TestData
 
       maintenance_project = create_maintenance_project
 
-      update_project1 = create_update_project(maintained_project: maintained_project1, maintenance_project: maintenance_project)
-      update_project2 = create_update_project(maintained_project: maintained_project2, maintenance_project: maintenance_project)
+      update_project1 = create_update_project(maintained_project: maintained_project1,
+                                              maintenance_project: maintenance_project)
+      update_project2 = create_update_project(maintained_project: maintained_project2,
+                                              maintenance_project: maintenance_project)
 
       # Create the first incident request (one action; not accepted; no patchinfo)
       update_project_branch = mimic_mbranch('bash')
@@ -138,8 +147,10 @@ module TestData
       end
 
       update_project_branch = mimic_mbranch('cacti')
-      mimic_branch_maintenance(project_name: update_project1.name, package_name: 'cacti-spine', target_project_name: update_project_branch.name)
-      mimic_branch_maintenance(project_name: update_project2.name, package_name: 'cacti-spine', target_project_name: update_project_branch.name)
+      mimic_branch_maintenance(project_name: update_project1.name, package_name: 'cacti-spine',
+                               target_project_name: update_project_branch.name)
+      mimic_branch_maintenance(project_name: update_project2.name, package_name: 'cacti-spine',
+                               target_project_name: update_project_branch.name)
       add_changes_to_update_project_branch(update_project_branch)
       mimic_patchinfo(update_project_branch.name)
 
@@ -183,7 +194,8 @@ module TestData
       # Create maintenance release request that asks for releasing the changes on openSUSE:Maintenance:0 to openSUSE:*:Update.
       create_request_with_maintenance_release_actions(source_project_name: 'openSUSE:Maintenance:0',
                                                       package_names: %w[cacti cacti-spine],
-                                                      target_project_names: [update_project1.name, update_project2.name])
+                                                      target_project_names: [update_project1.name,
+                                                                             update_project2.name])
     end
   end
 end

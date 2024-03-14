@@ -9,7 +9,9 @@ module WorkflowVersionMatcher
     workflow_version = FALLBACK_VERSION if workflow_version.blank?
 
     FEATURES_FOR_VERSION.each do |feature_version, features|
-      return true if Gem::Version.new(workflow_version) >= Gem::Version.new(feature_version) && features.include?(feature_name)
+      if Gem::Version.new(workflow_version) >= Gem::Version.new(feature_version) && features.include?(feature_name)
+        return true
+      end
     end
     false
   end

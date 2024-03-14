@@ -19,7 +19,8 @@ module Webui
         if group_user.valid?
           flash[:success] = "Added user '#{user}' to group '#{@group}'"
         else
-          flash[:error] = "Couldn't add user '#{user}' to group '#{@group}': #{group_user.errors.full_messages.to_sentence}"
+          flash[:error] =
+            "Couldn't add user '#{user}' to group '#{@group}': #{group_user.errors.full_messages.to_sentence}"
         end
 
         redirect_to group_path(@group)
@@ -37,7 +38,8 @@ module Webui
             flash.now[:success] = "Gave maintainer rights to '#{@user}'"
             render 'flash', status: :ok
           else
-            flash.now[:error] = "Couldn't make user '#{@user}' maintainer: #{group_maintainer.errors.full_messages.to_sentence}"
+            flash.now[:error] =
+              "Couldn't make user '#{@user}' maintainer: #{group_maintainer.errors.full_messages.to_sentence}"
             render 'flash', status: :bad_request
           end
         else

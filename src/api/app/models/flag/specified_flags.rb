@@ -27,7 +27,8 @@ class Flag::SpecifiedFlags
   end
 
   def effective_flag_for(flags, repository, architecture)
-    flags.dig(repository, architecture) || flags.dig(repository, nil) || flags.dig(nil, architecture) || flags.dig(nil, nil)
+    flags.dig(repository,
+              architecture) || flags.dig(repository, nil) || flags.dig(nil, architecture) || flags.dig(nil, nil)
   end
 
   # It finds out how the table would look like if the flag was not set.

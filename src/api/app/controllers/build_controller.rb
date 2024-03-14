@@ -19,7 +19,8 @@ class BuildController < ApplicationController
 
     if User.admin_session?
       # check for a local package instance
-      Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: false)
+      Package.get_by_project_and_name(params[:project], params[:package], use_source: false,
+                                                                          follow_project_links: false)
       pass_to_backend
     else
       render_error status: 403, errorcode: 'execute_cmd_no_permission',
@@ -177,7 +178,8 @@ class BuildController < ApplicationController
 
     tprj = Project.get_by_name(params[:pathproject])
     multibuild_package = params[:package] if params[:package].include?(':')
-    bs = PackageBuildStatus.new(pkg).result(target_project: tprj, srcmd5: params[:srcmd5], multibuild_pkg: multibuild_package)
+    bs = PackageBuildStatus.new(pkg).result(target_project: tprj, srcmd5: params[:srcmd5],
+                                            multibuild_pkg: multibuild_package)
     @result = []
     bs.each do |repo, status|
       archs = status.map do |arch, archstat|

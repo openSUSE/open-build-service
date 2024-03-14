@@ -6,7 +6,9 @@ RSpec.describe Package, :vcr do
   let(:home_project) { user.home_project }
   let(:package) { create(:package, name: 'test_package', project: home_project) }
   let(:package_with_file) { create(:package_with_file, name: 'package_with_files', project: home_project) }
-  let(:package_with_broken_service) { create(:package_with_broken_service, name: 'package_with_broken_service', project: home_project) }
+  let(:package_with_broken_service) do
+    create(:package_with_broken_service, name: 'package_with_broken_service', project: home_project)
+  end
   let(:package_with_service) { create(:package_with_service, name: 'package_with_service', project: home_project) }
   let(:services) { package.services }
   let(:group_bugowner) { create(:group, title: 'senseless_group') }
@@ -159,7 +161,9 @@ RSpec.describe Package, :vcr do
     end
 
     context 'with one file' do
-      let(:package_with_one_file) { create(:package_with_service, name: 'package_with_one_file', project: home_project) }
+      let(:package_with_one_file) do
+        create(:package_with_service, name: 'package_with_one_file', project: home_project)
+      end
 
       it 'returns true if the file exist' do
         expect(package_with_one_file.file_exists?('_service')).to be(true)
@@ -207,7 +211,9 @@ RSpec.describe Package, :vcr do
         <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1530259187" />
       </directory>'
     end
-    let(:service_error_url) { "#{CONFIG['source_url']}/source/#{package_with_service.project}/#{package_with_service.name}/_serviceerror?rev=b725a05beaf57fbf1ec85276efbcbf97" }
+    let(:service_error_url) do
+      "#{CONFIG['source_url']}/source/#{package_with_service.project}/#{package_with_service.name}/_serviceerror?rev=b725a05beaf57fbf1ec85276efbcbf97"
+    end
     let(:error) do
       "service daemon error:
          400 remote error: document element must be 'services', was 'service'"
@@ -318,14 +324,20 @@ RSpec.describe Package, :vcr do
   describe '#source_path' do
     it { expect(package_with_file.source_path).to eq('/source/home:tom/package_with_files') }
     it { expect(package_with_file.source_path('icon')).to eq('/source/home:tom/package_with_files/icon') }
-    it { expect(package_with_file.source_path('icon', format: :html)).to eq('/source/home:tom/package_with_files/icon?format=html') }
+
+    it {
+      expect(package_with_file.source_path('icon',
+                                           format: :html)).to eq('/source/home:tom/package_with_files/icon?format=html')
+    }
   end
 
   describe '.what_depends_on' do
     let(:repository) { 'openSUSE_Leap_42.1' }
     let(:architecture) { 'x86_64' }
     let(:parameter) { "package=#{package.name}&view=revpkgnames" }
-    let(:url) { "#{CONFIG['source_url']}/build/#{package.project}/#{repository}/#{architecture}/_builddepinfo?#{parameter}" }
+    let(:url) do
+      "#{CONFIG['source_url']}/build/#{package.project}/#{repository}/#{architecture}/_builddepinfo?#{parameter}"
+    end
     let(:result) { Package.what_depends_on(package.project, package, repository, architecture) }
     let(:no_dependency) { '<builddepinfo />' }
 
@@ -441,7 +453,9 @@ RSpec.describe Package, :vcr do
   end
 
   describe '.jobhistory' do
-    let(:backend_url) { "#{CONFIG['source_url']}/build/#{home_project}/openSUSE_Tumbleweed/x86_64/_jobhistory?limit=100&package=#{package}" }
+    let(:backend_url) do
+      "#{CONFIG['source_url']}/build/#{home_project}/openSUSE_Tumbleweed/x86_64/_jobhistory?limit=100&package=#{package}"
+    end
     let(:backend_response) { file_fixture('jobhistory.xml') }
 
     subject { package.jobhistory(repository_name: 'openSUSE_Tumbleweed', arch_name: 'x86_64') }
@@ -500,7 +514,9 @@ RSpec.describe Package, :vcr do
   end
 
   describe '#last_build_reason' do
-    let(:path) { "#{CONFIG['source_url']}/build/#{package.project.name}/openSUSE_Leap_42.3/x86_64/#{package.name}/_reason" }
+    let(:path) do
+      "#{CONFIG['source_url']}/build/#{package.project.name}/openSUSE_Leap_42.3/x86_64/#{package.name}/_reason"
+    end
     let(:result) { package.last_build_reason('openSUSE_Leap_42.3', 'x86_64') }
     let(:time) { 1_496_387_771 }
 
@@ -571,7 +587,8 @@ RSpec.describe Package, :vcr do
 
     context 'with a kiwi_image' do
       let(:kiwi_image_with_package_with_kiwi_file) do
-        create(:kiwi_image_with_package, project: home_project, package_name: 'package_with_kiwi_file', with_kiwi_file: true)
+        create(:kiwi_image_with_package, project: home_project, package_name: 'package_with_kiwi_file',
+                                         with_kiwi_file: true)
       end
 
       context 'with same md5' do
@@ -608,7 +625,8 @@ RSpec.describe Package, :vcr do
     context 'with a diff to the target package changes file' do
       let(:target_project)  { create(:project, name: 'Apache') }
       let!(:target_package) do
-        create(:package_with_changes_file, project: target_project, name: 'package_with_changes_file', changes_file_content: changes_file)
+        create(:package_with_changes_file, project: target_project, name: 'package_with_changes_file',
+                                           changes_file_content: changes_file)
       end
 
       subject { package.commit_message_from_changes_file(target_project, target_package) }
@@ -694,11 +712,13 @@ RSpec.describe Package, :vcr do
       end
 
       it 'returns true for an existing multibuild package' do
-        expect(Package.exists_by_project_and_name(project_name, "#{subject}:hello-world", follow_multibuild: true)).to be_truthy
+        expect(Package.exists_by_project_and_name(project_name, "#{subject}:hello-world",
+                                                  follow_multibuild: true)).to be_truthy
       end
 
       it 'returns false for a not existing multibuild package' do
-        expect(Package.exists_by_project_and_name(project_name, 'does-not-exist:hello-world', follow_multibuild: true)).to be_falsey
+        expect(Package.exists_by_project_and_name(project_name, 'does-not-exist:hello-world',
+                                                  follow_multibuild: true)).to be_falsey
       end
 
       it 'returns false for an existing multibuild package without follow_multibuild option' do
@@ -712,7 +732,8 @@ RSpec.describe Package, :vcr do
 
     context "when the package has an 'ignored_requests' file" do
       let(:package) do
-        create(:package_with_file, project: project, name: 'dashboard_1', file_name: 'ignored_requests', file_content: 'foo: bar')
+        create(:package_with_file, project: project, name: 'dashboard_1', file_name: 'ignored_requests',
+                                   file_content: 'foo: bar')
       end
 
       it 'parses the content as YAML and returns a hash' do
@@ -789,7 +810,9 @@ RSpec.describe Package, :vcr do
 
   describe '#add_containers' do
     let(:maintenance_update_with_package) { create(:maintenance_project, name: 'project_foo') }
-    let(:first_maintained_package) { create(:package_with_file, name: 'package_bar', project: maintenance_update_with_package) }
+    let(:first_maintained_package) do
+      create(:package_with_file, name: 'package_bar', project: maintenance_update_with_package)
+    end
 
     it { expect { first_maintained_package.add_containers({}) }.not_to raise_error }
   end

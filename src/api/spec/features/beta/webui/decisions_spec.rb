@@ -18,7 +18,9 @@ RSpec.describe 'Decisions', :js, :vcr do
 
   describe 'project' do
     let(:project) { create(:project, name: 'against_the_rules') }
-    let!(:report_for_project) { create(:report, reportable: project, reason: 'This project does not follow the rules!', user: reporter) }
+    let!(:report_for_project) do
+      create(:report, reportable: project, reason: 'This project does not follow the rules!', user: reporter)
+    end
 
     before do
       login(moderator)
@@ -38,7 +40,9 @@ RSpec.describe 'Decisions', :js, :vcr do
   describe 'package' do
     let(:project) { create(:project, name: 'factory') }
     let(:package) { create(:package_with_maintainer, project: project, name: 'against_the_rules') }
-    let!(:report_for_package) { create(:report, reportable: package, reason: 'This package does not follow the rules!', user: reporter) }
+    let!(:report_for_package) do
+      create(:report, reportable: package, reason: 'This package does not follow the rules!', user: reporter)
+    end
 
     before do
       login(moderator)
@@ -57,7 +61,9 @@ RSpec.describe 'Decisions', :js, :vcr do
 
   describe 'user' do
     let(:spammer) { create(:confirmed_user, login: 'spammer') }
-    let!(:report_for_user) { create(:report, reportable: spammer, reason: 'User produces spam comments!', user: reporter) }
+    let!(:report_for_user) do
+      create(:report, reportable: spammer, reason: 'User produces spam comments!', user: reporter)
+    end
 
     before do
       login(moderator)
@@ -78,9 +84,13 @@ RSpec.describe 'Decisions', :js, :vcr do
     let(:user) { create(:confirmed_user, login: 'jane_doe') }
     let(:spammer) { create(:confirmed_user, login: 'trouble_maker') }
     let(:project) { create(:project, name: 'some_random_project') }
-    let(:bs_request) { create(:delete_bs_request, target_project: project, description: 'Delete this project!', creator: user) }
+    let(:bs_request) do
+      create(:delete_bs_request, target_project: project, description: 'Delete this project!', creator: user)
+    end
     let(:comment_on_request) { create(:comment, commentable: bs_request, user: spammer) }
-    let!(:report_for_comment) { create(:report, reportable: comment_on_request, reason: 'This is spam!', user: reporter) }
+    let!(:report_for_comment) do
+      create(:report, reportable: comment_on_request, reason: 'This is spam!', user: reporter)
+    end
 
     before do
       login moderator
@@ -101,7 +111,9 @@ RSpec.describe 'Decisions', :js, :vcr do
     let(:spammer) { create(:confirmed_user, login: 'trouble_maker') }
     let(:project) { create(:project, name: 'factory') }
     let(:comment_on_project) { create(:comment_project, commentable: project, user: spammer) }
-    let!(:report_for_comment) { create(:report, reportable: comment_on_project, reason: 'This is spam!', user: reporter) }
+    let!(:report_for_comment) do
+      create(:report, reportable: comment_on_project, reason: 'This is spam!', user: reporter)
+    end
 
     before do
       login(moderator)
@@ -123,7 +135,9 @@ RSpec.describe 'Decisions', :js, :vcr do
     let(:project) { create(:project, name: 'factory') }
     let(:package) { create(:package, name: 'hello', project: project) }
     let(:comment_on_package) { create(:comment_package, commentable: package, user: spammer) }
-    let!(:report_for_comment) { create(:report, reportable: comment_on_package, reason: 'This is spam!', user: reporter) }
+    let!(:report_for_comment) do
+      create(:report, reportable: comment_on_package, reason: 'This is spam!', user: reporter)
+    end
 
     before do
       login(moderator)

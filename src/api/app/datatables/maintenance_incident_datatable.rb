@@ -1,5 +1,6 @@
 class MaintenanceIncidentDatatable < Datatable
-  def_delegators :@view, :summary_cell, :category_cell, :packages_cell, :info_cell, :release_targets_cell, :build_results_cell, :patchinfo_data
+  def_delegators :@view, :summary_cell, :category_cell, :packages_cell, :info_cell, :release_targets_cell,
+                 :build_results_cell, :patchinfo_data
 
   def initialize(params, opts = {})
     @project = opts[:project]

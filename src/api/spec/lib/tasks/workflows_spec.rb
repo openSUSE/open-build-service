@@ -8,13 +8,28 @@ RSpec.describe 'workflows' do
   let!(:project_iggy_hello_world_pr2) { create(:project, name: 'home:Iggy:iggy:hello_world:PR-2') }
   let!(:project_iggy_test_pr3) { create(:project, name: 'home:Iggy:iggy:test:PR-3') }
 
-  let!(:workflow_run_running_pr_opened) { create(:workflow_run, repository_owner: 'iggy', repository_name: 'hello_world') }
-  let!(:workflow_run_succeeded_pr_opened) { create(:workflow_run, :succeeded, repository_owner: 'iggy', repository_name: 'hello_world') }
-  let!(:workflow_run_failed_pr_opened) { create(:workflow_run, :failed, repository_owner: 'iggy', repository_name: 'hello_world') }
+  let!(:workflow_run_running_pr_opened) do
+    create(:workflow_run, repository_owner: 'iggy', repository_name: 'hello_world')
+  end
+  let!(:workflow_run_succeeded_pr_opened) do
+    create(:workflow_run, :succeeded, repository_owner: 'iggy', repository_name: 'hello_world')
+  end
+  let!(:workflow_run_failed_pr_opened) do
+    create(:workflow_run, :failed, repository_owner: 'iggy', repository_name: 'hello_world')
+  end
 
-  let!(:workflow_run_running_pr_closed) { create(:workflow_run, :pull_request_closed, repository_owner: 'iggy', repository_name: 'hello_world', event_source_name: 1) }
-  let!(:another_workflow_run_running_pr_closed) { create(:workflow_run, :pull_request_closed, repository_owner: 'iggy', repository_name: 'hello_world', event_source_name: 2) }
-  let!(:workflow_run_running_pr_merge) { create(:workflow_run_gitlab, :pull_request_merged, repository_owner: 'iggy', repository_name: 'hello_world', event_source_name: 3) }
+  let!(:workflow_run_running_pr_closed) do
+    create(:workflow_run, :pull_request_closed, repository_owner: 'iggy', repository_name: 'hello_world',
+                                                event_source_name: 1)
+  end
+  let!(:another_workflow_run_running_pr_closed) do
+    create(:workflow_run, :pull_request_closed, repository_owner: 'iggy', repository_name: 'hello_world',
+                                                event_source_name: 2)
+  end
+  let!(:workflow_run_running_pr_merge) do
+    create(:workflow_run_gitlab, :pull_request_merged, repository_owner: 'iggy', repository_name: 'hello_world',
+                                                       event_source_name: 3)
+  end
 
   describe 'cleanup_non_closed_projects' do
     let(:task) { 'dev:workflows:cleanup_non_closed_projects' }

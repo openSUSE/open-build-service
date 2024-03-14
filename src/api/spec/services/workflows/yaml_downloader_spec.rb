@@ -105,7 +105,9 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
         yaml_downloader.call
       end
 
-      let(:payload) { { scm: 'gitlab', target_branch: 'master', path_with_namespace: 'openSUSE/obs-server', api_endpoint: 'https://gitlab.com' } }
+      let(:payload) do
+        { scm: 'gitlab', target_branch: 'master', path_with_namespace: 'openSUSE/obs-server', api_endpoint: 'https://gitlab.com' }
+      end
       let(:url) { 'https://example.com/subdir/config_file.yml' }
 
       it { expect(Down).to have_received(:download).with(url, max_size: max_size) }
@@ -113,7 +115,9 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
 
     context 'given workflow_configuration_path' do
       let(:gitlab_client) { instance_spy(Gitlab::Client, file_contents: true) }
-      let(:payload) { { scm: 'gitlab', target_branch: 'master', path_with_namespace: 'openSUSE/obs-server', api_endpoint: 'https://gitlab.com' } }
+      let(:payload) do
+        { scm: 'gitlab', target_branch: 'master', path_with_namespace: 'openSUSE/obs-server', api_endpoint: 'https://gitlab.com' }
+      end
 
       before do
         allow(Gitlab).to receive(:client).and_return(gitlab_client)
@@ -131,7 +135,9 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
         yaml_downloader.call
       end
 
-      let(:payload) { { scm: 'gitlab', target_branch: 'master', path_with_namespace: 'openSUSE/obs-server', api_endpoint: 'https://gitlab.com' } }
+      let(:payload) do
+        { scm: 'gitlab', target_branch: 'master', path_with_namespace: 'openSUSE/obs-server', api_endpoint: 'https://gitlab.com' }
+      end
       let(:url) { 'https://example.com/subdir/config_file.yml' }
 
       it { expect(Down).to have_received(:download).with(url, max_size: max_size) }

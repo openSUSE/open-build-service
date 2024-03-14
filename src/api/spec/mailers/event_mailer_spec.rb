@@ -54,9 +54,15 @@ RSpec.describe EventMailer, :vcr do
 
     context 'for an event of type Event::CommentForProject' do
       let!(:subscription) { create(:event_subscription_comment_for_project, user: receiver) }
-      let!(:comment) { create(:comment_project, body: "Hey @#{receiver.login} how are things? Look at [bug](/project/show/apache) please.") }
+      let!(:comment) do
+        create(:comment_project,
+               body: "Hey @#{receiver.login} how are things? Look at [bug](/project/show/apache) please.")
+      end
       let(:originator) { comment.user }
-      let(:mail) { EventMailer.with(subscribers: Event::CommentForProject.last.subscribers, event: Event::CommentForProject.last).notification_email.deliver_now }
+      let(:mail) do
+        EventMailer.with(subscribers: Event::CommentForProject.last.subscribers,
+                         event: Event::CommentForProject.last).notification_email.deliver_now
+      end
 
       it 'gets delivered' do
         expect(ActionMailer::Base.deliveries).to include(mail)
@@ -91,7 +97,10 @@ RSpec.describe EventMailer, :vcr do
 
       context 'when originator is subscribed' do
         let!(:originator_subscription) { create(:event_subscription_comment_for_project, user: originator) }
-        let(:mail) { EventMailer.with(subscribers: Event::CommentForProject.last.subscribers, event: Event::CommentForProject.last).notification_email.deliver_now }
+        let(:mail) do
+          EventMailer.with(subscribers: Event::CommentForProject.last.subscribers,
+                           event: Event::CommentForProject.last).notification_email.deliver_now
+        end
 
         it 'does not send to the originator' do
           expect(mail.to).not_to include(originator.email)
@@ -113,7 +122,10 @@ RSpec.describe EventMailer, :vcr do
       let(:project) { create(:project) }
       let(:group) { create(:group_with_user, user: receiver, email: nil) }
       let!(:subscription) { create(:event_subscription_relationship_create, user: receiver) }
-      let(:mail) { EventMailer.with(subscribers: Event::RelationshipCreate.last.subscribers, event: Event::RelationshipCreate.last).notification_email.deliver_now }
+      let(:mail) do
+        EventMailer.with(subscribers: Event::RelationshipCreate.last.subscribers,
+                         event: Event::RelationshipCreate.last).notification_email.deliver_now
+      end
 
       before do
         login(receiver)
@@ -121,7 +133,8 @@ RSpec.describe EventMailer, :vcr do
 
       context 'when a user is added to a project' do
         before do
-          Event::RelationshipCreate.create!(who: who.login, user: receiver.login, project: project.name, role: 'reviewer')
+          Event::RelationshipCreate.create!(who: who.login, user: receiver.login, project: project.name,
+                                            role: 'reviewer')
         end
 
         it 'gets delivered' do
@@ -145,7 +158,8 @@ RSpec.describe EventMailer, :vcr do
 
       context 'when a group is added to a project' do
         before do
-          Event::RelationshipCreate.create!(who: who.login, group: group.title, project: project.name, role: 'maintainer')
+          Event::RelationshipCreate.create!(who: who.login, group: group.title, project: project.name,
+                                            role: 'maintainer')
         end
 
         it 'gets delivered' do
@@ -173,7 +187,10 @@ RSpec.describe EventMailer, :vcr do
       let(:project) { create(:project) }
       let(:group) { create(:group_with_user, user: receiver, email: nil) }
       let!(:subscription) { create(:event_subscription_relationship_delete, user: receiver) }
-      let(:mail) { EventMailer.with(subscribers: Event::RelationshipDelete.last.subscribers, event: Event::RelationshipDelete.last).notification_email.deliver_now }
+      let(:mail) do
+        EventMailer.with(subscribers: Event::RelationshipDelete.last.subscribers,
+                         event: Event::RelationshipDelete.last).notification_email.deliver_now
+      end
 
       before do
         login(receiver)
@@ -181,7 +198,8 @@ RSpec.describe EventMailer, :vcr do
 
       context 'when a user is added to a project' do
         before do
-          Event::RelationshipDelete.create!(who: who.login, user: receiver.login, project: project.name, role: 'reviewer')
+          Event::RelationshipDelete.create!(who: who.login, user: receiver.login, project: project.name,
+                                            role: 'reviewer')
         end
 
         it 'gets delivered' do
@@ -205,7 +223,8 @@ RSpec.describe EventMailer, :vcr do
 
       context 'when a group is added to a project' do
         before do
-          Event::RelationshipDelete.create!(who: who.login, group: group.title, project: project.name, role: 'maintainer')
+          Event::RelationshipDelete.create!(who: who.login, group: group.title, project: project.name,
+                                            role: 'maintainer')
         end
 
         it 'gets delivered' do
@@ -234,7 +253,10 @@ RSpec.describe EventMailer, :vcr do
       let!(:subscription) { create(:event_subscription_create_report, user: admin) }
       let(:report) { create(:report, reason: 'Because reasons') }
       let(:package) { report.reportable.commentable }
-      let(:mail) { EventMailer.with(subscribers: Event::CreateReport.last.subscribers, event: Event::CreateReport.last).notification_email.deliver_now }
+      let(:mail) do
+        EventMailer.with(subscribers: Event::CreateReport.last.subscribers,
+                         event: Event::CreateReport.last).notification_email.deliver_now
+      end
 
       before do
         Event::CreateReport.create({ id: report.id, user_id: report.user_id, reportable_id: report.reportable_id,
@@ -258,7 +280,10 @@ RSpec.describe EventMailer, :vcr do
     context 'for an event of type Event::ReportForProject' do
       let(:admin) { create(:admin_user) }
       let!(:subscription) { create(:event_subscription_report_for_project, user: admin) }
-      let(:mail) { EventMailer.with(subscribers: Event::ReportForProject.last.subscribers, event: Event::ReportForProject.last).notification_email.deliver_now }
+      let(:mail) do
+        EventMailer.with(subscribers: Event::ReportForProject.last.subscribers,
+                         event: Event::ReportForProject.last).notification_email.deliver_now
+      end
       let(:project) { create(:project, name: 'foo') }
 
       before do
@@ -282,7 +307,10 @@ RSpec.describe EventMailer, :vcr do
     context 'for an event of type Event::ReportForPackage' do
       let(:admin) { create(:admin_user) }
       let!(:subscription) { create(:event_subscription_report_for_package, user: admin) }
-      let(:mail) { EventMailer.with(subscribers: Event::ReportForPackage.last.subscribers, event: Event::ReportForPackage.last).notification_email.deliver_now }
+      let(:mail) do
+        EventMailer.with(subscribers: Event::ReportForPackage.last.subscribers,
+                         event: Event::ReportForPackage.last).notification_email.deliver_now
+      end
       let(:project) { create(:project, name: 'foo') }
       let(:package) { create(:package, name: 'bar', project: project) }
 
@@ -307,7 +335,10 @@ RSpec.describe EventMailer, :vcr do
     context 'for an event of type Event::ReportForUser' do
       let(:admin) { create(:admin_user) }
       let!(:subscription) { create(:event_subscription_report_for_user, user: admin) }
-      let(:mail) { EventMailer.with(subscribers: Event::ReportForUser.last.subscribers, event: Event::ReportForUser.last).notification_email.deliver_now }
+      let(:mail) do
+        EventMailer.with(subscribers: Event::ReportForUser.last.subscribers,
+                         event: Event::ReportForUser.last).notification_email.deliver_now
+      end
       let(:user) { create(:user, login: 'hans') }
 
       before do
@@ -331,7 +362,10 @@ RSpec.describe EventMailer, :vcr do
     context 'for an event of type Event::ReportForComment' do
       let(:admin) { create(:admin_user) }
       let!(:subscription) { create(:event_subscription_report_for_comment, user: admin) }
-      let(:mail) { EventMailer.with(subscribers: Event::ReportForComment.last.subscribers, event: Event::ReportForComment.last).notification_email.deliver_now }
+      let(:mail) do
+        EventMailer.with(subscribers: Event::ReportForComment.last.subscribers,
+                         event: Event::ReportForComment.last).notification_email.deliver_now
+      end
       let(:project) { create(:project, name: 'foo') }
       let(:comment) { create(:comment_project, commentable: project) }
 
@@ -409,7 +443,10 @@ RSpec.describe EventMailer, :vcr do
       let(:token) { create(:workflow_token, executor: receiver) }
       let(:workflow_run) { create(:workflow_run, token: token) }
       let!(:subscription) { create(:event_subscription_workflow_run_fail, user: receiver) }
-      let(:mail) { EventMailer.with(subscribers: Event::WorkflowRunFail.last.subscribers, event: Event::WorkflowRunFail.last).notification_email.deliver_now }
+      let(:mail) do
+        EventMailer.with(subscribers: Event::WorkflowRunFail.last.subscribers,
+                         event: Event::WorkflowRunFail.last).notification_email.deliver_now
+      end
 
       before do
         login(receiver)
@@ -439,7 +476,10 @@ RSpec.describe EventMailer, :vcr do
 
         it { expect(mail.text_part.body.to_s).to include('A workflow run failed for Pull request #1, opened') }
         it { expect(mail.html_part.body.to_s).to include('A workflow run failed for Pull request #1, opened') }
-        it { expect(mail.html_part.body.to_s).to include("on repository #{workflow_run.repository_owner}/#{workflow_run.repository_name}") }
+
+        it {
+          expect(mail.html_part.body.to_s).to include("on repository #{workflow_run.repository_owner}/#{workflow_run.repository_name}")
+        }
       end
     end
 
@@ -490,9 +530,13 @@ RSpec.describe EventMailer, :vcr do
       let(:report) { create(:report, user: reporter, reportable: comment) }
 
       let!(:reporter_subscription) { create(:event_subscription_favored_decision, user: reporter) }
-      let!(:offender_subscription) { create(:event_subscription_favored_decision, user: offender, receiver_role: 'offender') }
+      let!(:offender_subscription) do
+        create(:event_subscription_favored_decision, user: offender, receiver_role: 'offender')
+      end
 
-      let(:decision) { create(:decision, :favor, moderator: admin, reason: 'This is spam for sure.', reports: [report]) }
+      let(:decision) do
+        create(:decision, :favor, moderator: admin, reason: 'This is spam for sure.', reports: [report])
+      end
       let(:event) { Event::FavoredDecision.last }
       let(:mail) { EventMailer.with(subscribers: event.subscribers, event: event).notification_email.deliver_now }
 
@@ -535,7 +579,9 @@ RSpec.describe EventMailer, :vcr do
 
       let!(:moderator_subscription) { create(:event_subscription_appeal_created, user: moderator) }
 
-      let(:decision) { create(:decision, :favor, moderator: moderator, reason: 'This is spam for sure.', reports: [report]) }
+      let(:decision) do
+        create(:decision, :favor, moderator: moderator, reason: 'This is spam for sure.', reports: [report])
+      end
       let(:appeal) { create(:appeal, appellant: appellant, decision: decision, reason: 'I strongly disagree!') }
       let(:event) { Event::AppealCreated.last }
       let(:mail) { EventMailer.with(subscribers: event.subscribers, event: event).notification_email.deliver_now }
@@ -579,7 +625,9 @@ RSpec.describe EventMailer, :vcr do
 
       let!(:moderator_subscription) { create(:event_subscription_appeal_created, user: moderator) }
 
-      let(:decision) { create(:decision, :favor, moderator: moderator, reason: 'This is spam for sure.', reports: [report]) }
+      let(:decision) do
+        create(:decision, :favor, moderator: moderator, reason: 'This is spam for sure.', reports: [report])
+      end
       let(:appeal) { create(:appeal, appellant: appellant, decision: decision, reason: 'I strongly disagree!') }
       let(:event) { Event::AppealCreated.last }
       let(:mail) { EventMailer.with(subscribers: event.subscribers, event: event).notification_email.deliver_now }

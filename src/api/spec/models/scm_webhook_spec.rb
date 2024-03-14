@@ -451,13 +451,19 @@ RSpec.describe SCMWebhook do
     end
 
     context 'with a Push Hook event from Gitlab for a deleted commit reference' do
-      let(:payload) { { scm: 'gitlab', event: 'Push Hook', ref: 'refs/heads/branch_123', commit_sha: '0000000000000000000000000000000000000000' } }
+      let(:payload) do
+        { scm: 'gitlab', event: 'Push Hook', ref: 'refs/heads/branch_123',
+          commit_sha: '0000000000000000000000000000000000000000' }
+      end
 
       it { is_expected.to be true }
     end
 
     context 'with a Push Hook event from Gitlab without a deleted commit reference' do
-      let(:payload) { { scm: 'gitlab', event: 'Push Hook', ref: 'refs/heads/branch_123', commit_sha: 'd8964263418b3946a6d540a50d09c89c6e13e82d' } }
+      let(:payload) do
+        { scm: 'gitlab', event: 'Push Hook', ref: 'refs/heads/branch_123',
+          commit_sha: 'd8964263418b3946a6d540a50d09c89c6e13e82d' }
+      end
 
       it { is_expected.to be false }
     end

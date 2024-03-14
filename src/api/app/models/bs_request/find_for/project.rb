@@ -3,8 +3,10 @@ class BsRequest
     class Project < Base
       def all
         inner_or = []
-        @relation, inner_or = extend_relation('source', @relation, roles, package_name, subprojects, project_name, inner_or)
-        @relation, inner_or = extend_relation('target', @relation, roles, package_name, subprojects, project_name, inner_or)
+        @relation, inner_or = extend_relation('source', @relation, roles, package_name, subprojects, project_name,
+                                              inner_or)
+        @relation, inner_or = extend_relation('target', @relation, roles, package_name, subprojects, project_name,
+                                              inner_or)
 
         if (roles.empty? || roles.include?('reviewer')) &&
            (states.empty? || states.include?('review'))

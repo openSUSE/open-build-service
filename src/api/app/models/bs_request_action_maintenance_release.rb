@@ -84,7 +84,8 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
       rel = rel.where(bs_request_actions: { target_package: target_package })
     else
       tpkgprefix = target_package.gsub(/\.[^.]*$/, '')
-      rel = rel.where('bs_request_actions.target_package = ? or bs_request_actions.target_package like ?', target_package, "#{tpkgprefix}.%")
+      rel = rel.where('bs_request_actions.target_package = ? or bs_request_actions.target_package like ?',
+                      target_package, "#{tpkgprefix}.%")
     end
 
     # run search
@@ -99,7 +100,8 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     spkg = Package.find_by_project_and_name(source_project, source_package)
     return if spkg || !User.session!.can_modify?(spkg)
 
-    raise LackingReleaseMaintainership, 'Creating a maintenance release request action requires maintainership in source package'
+    raise LackingReleaseMaintainership,
+          'Creating a maintenance release request action requires maintainership in source package'
   end
 
   def set_acceptinfo(ai)
@@ -151,8 +153,14 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     # get sure that the releasetarget definition exists or we release without binaries
     prj = Project.get_by_name(source_project)
     prj.repositories.includes(:release_targets).find_each do |repo|
-      raise RepositoryWithoutReleaseTarget, "Release target definition is missing in #{prj.name} / #{repo.name}" if repo.release_targets.empty?
-      raise RepositoryWithoutArchitecture, "Repository has no architecture #{prj.name} / #{repo.name}" if repo.architectures.empty?
+      if repo.release_targets.empty?
+        raise RepositoryWithoutReleaseTarget,
+              "Release target definition is missing in #{prj.name} / #{repo.name}"
+      end
+      if repo.architectures.empty?
+        raise RepositoryWithoutArchitecture,
+              "Repository has no architecture #{prj.name} / #{repo.name}"
+      end
 
       repo.release_targets.each do |rt|
         repo.check_valid_release_target!(rt.target_repository)

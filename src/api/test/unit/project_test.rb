@@ -875,7 +875,9 @@ class ProjectTest < ActiveSupport::TestCase
                               position: 2)
 
       result = projects('home_Iggy').packages + child.packages + parent1.packages + parent2.packages
-      result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
+      result.sort! do |a, b|
+        a.name.downcase <=> b.name.downcase
+      end.map! { |package| [package.name, package.project.name] }
 
       assert_equal result, child.expand_all_packages
     end
@@ -914,7 +916,9 @@ class ProjectTest < ActiveSupport::TestCase
       child.packages << pack2.dup
 
       result = child.packages + parent1.packages + parent2.packages.where(name: 'pack2.linked')
-      result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
+      result.sort! do |a, b|
+        a.name.downcase <=> b.name.downcase
+      end.map! { |package| [package.name, package.project.name] }
 
       assert_equal result, child.expand_all_packages
     end
@@ -939,7 +943,9 @@ class ProjectTest < ActiveSupport::TestCase
       base_distro_update.packages << pack2.dup
 
       result = child.packages + base_distro_update.packages + base_distro.packages.where(name: 'pack2.linked')
-      result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
+      result.sort! do |a, b|
+        a.name.downcase <=> b.name.downcase
+      end.map! { |package| [package.name, package.project.name] }
 
       assert_equal result, child.expand_all_packages
     end

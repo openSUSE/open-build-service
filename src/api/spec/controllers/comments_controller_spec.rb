@@ -36,7 +36,9 @@ RSpec.describe CommentsController do
       end
 
       include_examples 'request comment index'
-      it { expect(response.body).to include("<comments project=\"#{object.project.name}\" package=\"#{object.name}\">") }
+      it {
+        expect(response.body).to include("<comments project=\"#{object.project.name}\" package=\"#{object.name}\">")
+      }
     end
 
     context 'of a bs_request' do
@@ -77,7 +79,9 @@ RSpec.describe CommentsController do
           get :index, format: :xml, params: { request_number: object.bs_request.number }
         end
 
-        it { expect(response.body).to include("<comment who=\"#{comment.user}\" when=\"#{comment.created_at}\" id=\"#{comment.id}\">#{comment.body}</comment>") }
+        it {
+          expect(response.body).to include("<comment who=\"#{comment.user}\" when=\"#{comment.created_at}\" id=\"#{comment.id}\">#{comment.body}</comment>")
+        }
       end
     end
 
@@ -124,7 +128,8 @@ RSpec.describe CommentsController do
       let(:parent_comment) { create(:comment_request, commentable: bs_request) }
 
       before do
-        post :create, format: :xml, params: { request_number: bs_request.number, body: 'Something', parent_id: parent_comment.id }
+        post :create, format: :xml,
+                      params: { request_number: bs_request.number, body: 'Something', parent_id: parent_comment.id }
       end
 
       it { expect(response).to have_http_status(:success) }
@@ -136,7 +141,8 @@ RSpec.describe CommentsController do
       let(:parent_comment) { create(:comment_request, commentable: bs_request_action) }
 
       before do
-        post :create, format: :xml, params: { request_number: bs_request.number, body: 'Something', parent_id: parent_comment.id }
+        post :create, format: :xml,
+                      params: { request_number: bs_request.number, body: 'Something', parent_id: parent_comment.id }
       end
 
       it { expect(response).to have_http_status(:success) }
@@ -159,6 +165,9 @@ RSpec.describe CommentsController do
     end
 
     it { expect(response.body).to include("<comment_history comment=\"#{comment.id}\">") }
-    it { expect(response.body).to include("<comment who=\"#{comment.paper_trail.previous_version.user}\" when=\"#{comment.paper_trail.previous_version.created_at}\" id=\"#{comment.id}\">#{comment.paper_trail.previous_version.body}</comment>") }
+
+    it {
+      expect(response.body).to include("<comment who=\"#{comment.paper_trail.previous_version.user}\" when=\"#{comment.paper_trail.previous_version.created_at}\" id=\"#{comment.id}\">#{comment.paper_trail.previous_version.body}</comment>")
+    }
   end
 end

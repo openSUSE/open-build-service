@@ -130,7 +130,10 @@ RSpec.describe Repository do
     context 'when the repository has DoD repositories' do
       let!(:dod_repository) { create(:download_repository, repository: repository) }
 
-      it { expect(subject.download_repositories.pluck(:arch, :url)).to contain_exactly([dod_repository.arch, dod_repository.url]) }
+      it {
+        expect(subject.download_repositories.pluck(:arch,
+                                                   :url)).to contain_exactly([dod_repository.arch, dod_repository.url])
+      }
     end
   end
 

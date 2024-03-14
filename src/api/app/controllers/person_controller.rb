@@ -207,7 +207,9 @@ class PersonController < ApplicationController
 
       login = request.env['HTTP_X_USERNAME']
       email = request.env['HTTP_X_EMAIL'] if request.env['HTTP_X_EMAIL'].present?
-      realname = "#{request.env['HTTP_X_FIRSTNAME']} #{request.env['HTTP_X_LASTNAME']}" if request.env['HTTP_X_LASTNAME'].present?
+      if request.env['HTTP_X_LASTNAME'].present?
+        realname = "#{request.env['HTTP_X_FIRSTNAME']} #{request.env['HTTP_X_LASTNAME']}"
+      end
     end
 
     UnregisteredUser.register(login: login, realname: realname, email:
@@ -216,7 +218,8 @@ class PersonController < ApplicationController
     render_ok
   rescue StandardError => e
     # Strip passwords from request environment and re-raise exception
-    request.env['RAW_POST_DATA'] = request.env['RAW_POST_DATA'].sub(%r{<password>(.*)</password>}, '<password>STRIPPED<password>')
+    request.env['RAW_POST_DATA'] =
+      request.env['RAW_POST_DATA'].sub(%r{<password>(.*)</password>}, '<password>STRIPPED<password>')
     raise e
   end
 

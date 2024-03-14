@@ -99,7 +99,9 @@ RSpec.describe BsRequestAction::Differ::QueryBuilderForSuperseded do
 
       context 'from different sources' do
         let!(:another_source_project) { create(:project, name: 'another_source_project', maintainer: user) }
-        let!(:another_source_package) { create(:package, name: 'another_source_package', project: another_source_project) }
+        let!(:another_source_package) do
+          create(:package, name: 'another_source_package', project: another_source_project)
+        end
         let!(:superseded_bs_request) do
           create(:bs_request_with_submit_action,
                  source_package: another_source_package,

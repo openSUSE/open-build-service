@@ -18,9 +18,11 @@ class Workflow::Step::TriggerServices < Workflow::Step
     Pundit.authorize(@token.executor, @token, :trigger_service?)
 
     begin
-      Backend::Api::Sources::Package.trigger_services(@project_name, @package_name, @token.executor.login, trigger_service_comment)
+      Backend::Api::Sources::Package.trigger_services(@project_name, @package_name, @token.executor.login,
+                                                      trigger_service_comment)
     rescue Backend::NotFoundError => e
-      raise NoSourceServiceDefined, "Package #{@project_name}/#{@package_name} does not have a source service defined: #{e.summary}"
+      raise NoSourceServiceDefined,
+            "Package #{@project_name}/#{@package_name} does not have a source service defined: #{e.summary}"
     end
 
     Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, @package).call

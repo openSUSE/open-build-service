@@ -38,7 +38,9 @@ RSpec.describe WorkflowStepsValidator do
     end
 
     context 'with unsupported and supported steps' do
-      let(:step_instructions) { { source_project: 'project', source_package: 'package', target_project: 'target_project' } }
+      let(:step_instructions) do
+        { source_project: 'project', source_package: 'package', target_project: 'target_project' }
+      end
       let(:steps) { [Workflow::Step::BranchPackageStep.new(step_instructions: step_instructions)] }
       let(:workflow_steps) { [unsupported_step: {}, branch_package: step_instructions] }
 

@@ -36,7 +36,8 @@ module Workflows
       client = Octokit::Client.new(access_token: @token.scm_token, api_endpoint: @scm_payload[:api_endpoint])
       # :ref can be the name of the commit, branch or tag.
       begin
-        content = client.content("#{@scm_payload[:target_repository_full_name]}", path: "/#{@token.workflow_configuration_path}", ref: @scm_payload[:target_branch])[:content]
+        content = client.content("#{@scm_payload[:target_repository_full_name]}",
+                                 path: "/#{@token.workflow_configuration_path}", ref: @scm_payload[:target_branch])[:content]
       rescue Octokit::InvalidRepository => e
         raise Token::Errors::NonExistentRepository, e.message
       rescue Octokit::NotFound => e
@@ -50,8 +51,10 @@ module Workflows
     # Note: For GitLab we still use the Down gem when workflow_configuration_url is present
     def download_gitlab_yaml_file
       begin
-        gitlab_client = Gitlab.client(endpoint: "#{@scm_payload[:api_endpoint]}/api/v4", private_token: @token.scm_token)
-        gitlab_file = gitlab_client.file_contents(@scm_payload[:project_id], @token.workflow_configuration_path, @scm_payload[:target_branch])
+        gitlab_client = Gitlab.client(endpoint: "#{@scm_payload[:api_endpoint]}/api/v4",
+                                      private_token: @token.scm_token)
+        gitlab_file = gitlab_client.file_contents(@scm_payload[:project_id], @token.workflow_configuration_path,
+                                                  @scm_payload[:target_branch])
       rescue Gitlab::Error::NotFound => e
         raise Token::Errors::NonExistentRepository, e.message
       end
@@ -68,7 +71,10 @@ module Workflows
     def download_from_url(url)
       Down.download(url, max_size: MAX_FILE_SIZE)
     rescue Down::Error => e
-      raise Token::Errors::NonExistentWorkflowsFile, "#{@token.workflow_configuration_url} could not be downloaded.\n#{e.message}" if @token.workflow_configuration_url.present?
+      if @token.workflow_configuration_url.present?
+        raise Token::Errors::NonExistentWorkflowsFile,
+              "#{@token.workflow_configuration_url} could not be downloaded.\n#{e.message}"
+      end
 
       # 'target_branch' can contain a commit sha (when tag push) instead of a branch name
       raise Token::Errors::NonExistentWorkflowsFile, "#{@token.workflow_configuration_path} could not be downloaded from the SCM branch/commit #{@scm_payload[:target_branch]}." \

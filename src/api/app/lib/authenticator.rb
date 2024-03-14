@@ -124,7 +124,10 @@ class Authenticator
         raise_and_invalidate(authorization, 'Received invalid GSSAPI context.')
       end
 
-      raise_and_invalidate(authorization, 'User authenticated in wrong Kerberos realm.') unless krb.display_name.match?("@#{CONFIG['kerberos_realm']}$")
+      unless krb.display_name.match?("@#{CONFIG['kerberos_realm']}$")
+        raise_and_invalidate(authorization,
+                             'User authenticated in wrong Kerberos realm.')
+      end
 
       unless tok == true
         tok = Base64.strict_encode64(tok)

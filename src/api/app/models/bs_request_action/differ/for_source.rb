@@ -61,7 +61,8 @@ class BsRequestAction
       rescue Timeout::Error
         raise BsRequestAction::Errors::DiffError, "Timeout while diffing #{project_name}/#{package_name}"
       rescue Backend::Error => e
-        raise BsRequestAction::Errors::DiffError, "The diff call for #{project_name}/#{package_name} failed: #{e.summary}"
+        raise BsRequestAction::Errors::DiffError,
+              "The diff call for #{project_name}/#{package_name} failed: #{e.summary}"
       end
 
       def superseded_bs_request_action

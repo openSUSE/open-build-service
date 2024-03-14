@@ -7,7 +7,9 @@ RSpec.describe Webui::PackageController, :vcr do
   let(:target_project) { create(:project) }
   let(:package) { create(:package_with_file, name: 'package_with_file', project: source_project) }
   let(:service_package) { create(:package_with_service, name: 'package_with_service', project: source_project) }
-  let(:broken_service_package) { create(:package_with_broken_service, name: 'package_with_broken_service', project: source_project) }
+  let(:broken_service_package) do
+    create(:package_with_broken_service, name: 'package_with_broken_service', project: source_project)
+  end
   let(:repo_for_source_project) do
     repo = create(:repository, project: source_project, architectures: ['i586'], name: 'source_repo')
     source_project.store(login: user)
@@ -193,14 +195,20 @@ RSpec.describe Webui::PackageController, :vcr do
         end
 
         it { expect(flash[:error]).to eq('No such revision: 4') }
-        it { expect(response).to redirect_to(package_show_path(project: user.home_project, package: package_with_revisions)) }
+
+        it {
+          expect(response).to redirect_to(package_show_path(project: user.home_project,
+                                                            package: package_with_revisions))
+        }
       end
     end
   end
 
   describe 'GET #revisions' do
     let(:project) { create(:project, maintainer: user, name: 'some_dev_project123') }
-    let(:package) { create(:package_with_revisions, name: 'package_with_one_revision', revision_count: 1, project: project) }
+    let(:package) do
+      create(:package_with_revisions, name: 'package_with_one_revision', revision_count: 1, project: project)
+    end
     let(:elided_package_name) { 'package_w...revision' }
 
     before do
@@ -218,7 +226,10 @@ RSpec.describe Webui::PackageController, :vcr do
       end
 
       context 'when not passing the rev parameter' do
-        let(:package_with_revisions) { create(:package_with_revisions, name: "package_with_#{revision_count}_revisions", revision_count: revision_count, project: project) }
+        let(:package_with_revisions) do
+          create(:package_with_revisions, name: "package_with_#{revision_count}_revisions", revision_count: revision_count,
+                                          project: project)
+        end
         let(:revision_count) { 25 }
 
         before do
@@ -295,7 +306,9 @@ RSpec.describe Webui::PackageController, :vcr do
     end
 
     context 'with right params' do
-      let(:post_url) { "#{CONFIG['source_url']}/source/#{source_project}/#{service_package}?cmd=runservice&user=#{user}" }
+      let(:post_url) do
+        "#{CONFIG['source_url']}/source/#{source_project}/#{service_package}?cmd=runservice&user=#{user}"
+      end
 
       before do
         get :trigger_services, params: { project: source_project, package: service_package }
@@ -371,30 +384,42 @@ RSpec.describe Webui::PackageController, :vcr do
     context 'without admin rights to raise protection level' do
       before do
         allow_any_instance_of(Package).to receive(:disabled_for?).with('sourceaccess', nil, nil).and_return(false)
-        allow(FlagHelper).to receive(:xml_disabled_for?).with(Xmlhash.parse(valid_meta), 'sourceaccess').and_return(true)
+        allow(FlagHelper).to receive(:xml_disabled_for?).with(Xmlhash.parse(valid_meta),
+                                                              'sourceaccess').and_return(true)
 
         post :save_meta, params: { project: source_project, package: source_package, meta: valid_meta }
       end
 
-      it { expect(flash[:error]).to eq('Error while saving the Meta file: admin rights are required to raise the protection level of a package.') }
+      it {
+        expect(flash[:error]).to eq('Error while saving the Meta file: admin rights are required to raise the protection level of a package.')
+      }
+
       it { expect(response).to have_http_status(:bad_request) }
     end
 
     context 'with an invalid package name' do
       before do
-        post :save_meta, params: { project: source_project, package: source_package, meta: invalid_meta_because_package_name }
+        post :save_meta,
+             params: { project: source_project, package: source_package, meta: invalid_meta_because_package_name }
       end
 
-      it { expect(flash[:error]).to eq('Error while saving the Meta file: package name in xml data does not match resource path component.') }
+      it {
+        expect(flash[:error]).to eq('Error while saving the Meta file: package name in xml data does not match resource path component.')
+      }
+
       it { expect(response).to have_http_status(:bad_request) }
     end
 
     context 'with an invalid project name' do
       before do
-        post :save_meta, params: { project: source_project, package: source_package, meta: invalid_meta_because_project_name }
+        post :save_meta,
+             params: { project: source_project, package: source_package, meta: invalid_meta_because_project_name }
       end
 
-      it { expect(flash[:error]).to eq('Error while saving the Meta file: project name in xml data does not match resource path component.') }
+      it {
+        expect(flash[:error]).to eq('Error while saving the Meta file: project name in xml data does not match resource path component.')
+      }
+
       it { expect(response).to have_http_status(:bad_request) }
     end
 
@@ -463,9 +488,12 @@ RSpec.describe Webui::PackageController, :vcr do
       # TODO: check if this value, the default diff size, is correct
       let(:default_diff_size) { 199 }
       let(:package_ascii_file) do
-        create(:package_with_file, name: 'diff-truncation-test-1', project: source_project, file_content: "a\n" * ascii_file_size)
+        create(:package_with_file, name: 'diff-truncation-test-1', project: source_project,
+                                   file_content: "a\n" * ascii_file_size)
       end
-      let(:package_binary_file) { create(:package_with_binary_diff, name: 'diff-truncation-test-2', project: source_project) }
+      let(:package_binary_file) do
+        create(:package_with_binary_diff, name: 'diff-truncation-test-2', project: source_project)
+      end
 
       context 'full diff requested' do
         it 'does not show a hint' do
@@ -494,7 +522,8 @@ RSpec.describe Webui::PackageController, :vcr do
 
           it 'shows the complete diff' do
             diff = assigns(:files)['bigfile_archive.tar.gz/bigfile.txt']['diff']['_content'].split("\n")
-            expect(diff).to eq(['@@ -1,6 +1,6 @@', '-a', '-a', '-a', '-a', '-a', '-a', '+b', '+b', '+b', '+b', '+b', '+b'])
+            expect(diff).to eq(['@@ -1,6 +1,6 @@', '-a', '-a', '-a', '-a', '-a', '-a', '+b', '+b', '+b', '+b', '+b',
+                                '+b'])
           end
         end
       end
@@ -526,7 +555,8 @@ RSpec.describe Webui::PackageController, :vcr do
 
           it 'shows the truncated diff' do
             diff = assigns(:files)['bigfile_archive.tar.gz/bigfile.txt']['diff']['_content'].split("\n")
-            expect(diff).to eq(['@@ -1,6 +1,6 @@', '-a', '-a', '-a', '-a', '-a', '-a', '+b', '+b', '+b', '+b', '+b', '+b'])
+            expect(diff).to eq(['@@ -1,6 +1,6 @@', '-a', '-a', '-a', '-a', '-a', '-a', '+b', '+b', '+b', '+b', '+b',
+                                '+b'])
           end
         end
       end
@@ -540,7 +570,8 @@ RSpec.describe Webui::PackageController, :vcr do
 
     context 'non existent repository' do
       before do
-        post :trigger_rebuild, params: { project: source_project, package: source_package, repository: 'non_existent_repository' }
+        post :trigger_rebuild,
+             params: { project: source_project, package: source_package, repository: 'non_existent_repository' }
       end
 
       it 'lets the user know there was an error' do
@@ -555,15 +586,21 @@ RSpec.describe Webui::PackageController, :vcr do
     end
 
     context 'when triggering a rebuild succeeds' do
-      let!(:repository) { create(:repository, project: source_project, architectures: ['i586'], name: 'openSUSE_Leap_15.1') }
+      let!(:repository) do
+        create(:repository, project: source_project, architectures: ['i586'], name: 'openSUSE_Leap_15.1')
+      end
 
       before do
         source_project.store
 
-        post :trigger_rebuild, params: { project: source_project, package: source_package, repository: repository.name, arch: 'i586' }
+        post :trigger_rebuild,
+             params: { project: source_project, package: source_package, repository: repository.name, arch: 'i586' }
       end
 
-      it { expect(flash[:success]).to eq("Triggered rebuild for #{source_project.name}/#{source_package.name} successfully.") }
+      it {
+        expect(flash[:success]).to eq("Triggered rebuild for #{source_project.name}/#{source_package.name} successfully.")
+      }
+
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
     end
 
@@ -572,7 +609,9 @@ RSpec.describe Webui::PackageController, :vcr do
       let(:other_user) { create(:confirmed_user, login: 'bar') }
       let!(:project) { create(:project, name: 'foo_project', maintainer: user) }
       let!(:repository) { create(:repository, project: project, architectures: ['i586'], name: 'openSUSE_Leap_15.1') }
-      let!(:package_with_maintainer) { create(:package_with_maintainer, maintainer: other_user, project: project, name: 'package_1') }
+      let!(:package_with_maintainer) do
+        create(:package_with_maintainer, maintainer: other_user, project: project, name: 'package_1')
+      end
 
       before do
         login other_user
@@ -630,7 +669,10 @@ RSpec.describe Webui::PackageController, :vcr do
         post :abort_build, params: { project: source_project, package: source_package }
       end
 
-      it { expect(flash[:success]).to eq("Triggered abort build for #{source_project.name}/#{source_package.name} successfully.") }
+      it {
+        expect(flash[:success]).to eq("Triggered abort build for #{source_project.name}/#{source_package.name} successfully.")
+      }
+
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
     end
   end
@@ -654,15 +696,24 @@ RSpec.describe Webui::PackageController, :vcr do
           .with(source_project.name, source_package.name, repository.name, 'i586')
           .and_return('<buildstatistics><disk><usage><size unit="M">30</size></usage></disk></buildstatistics>')
 
-        get :statistics, params: { project: source_project.name, package: source_package.name, arch: 'i586', repository: repository.name }
+        get :statistics,
+            params: { project: source_project.name, package: source_package.name, arch: 'i586',
+                      repository: repository.name }
       end
 
-      it { expect(assigns(:statistics).disk).to have_attributes(size: '30', unit: 'M', io_requests: nil, io_sectors: nil) }
+      it {
+        expect(assigns(:statistics).disk).to have_attributes(size: '30', unit: 'M', io_requests: nil, io_sectors: nil)
+      }
+
       it { expect(response).to have_http_status(:success) }
     end
 
     context 'when backend does not return statistics' do
-      let(:get_statistics) { get :statistics, params: { project: source_project.name, package: source_package.name, arch: 'i586', repository: repository.name } }
+      let(:get_statistics) do
+        get :statistics,
+            params: { project: source_project.name, package: source_package.name, arch: 'i586',
+                      repository: repository.name }
+      end
 
       it { expect(assigns(:statistics)).to be_nil }
     end
@@ -674,7 +725,11 @@ RSpec.describe Webui::PackageController, :vcr do
           .and_raise(Backend::NotFoundError)
       end
 
-      let(:get_statistics) { get :statistics, params: { project: source_project.name, package: source_package.name, arch: 'i586', repository: repository.name } }
+      let(:get_statistics) do
+        get :statistics,
+            params: { project: source_project.name, package: source_package.name, arch: 'i586',
+                      repository: repository.name }
+      end
 
       it { expect(assigns(:statistics)).to be_nil }
     end
@@ -716,7 +771,9 @@ RSpec.describe Webui::PackageController, :vcr do
       render_views
 
       subject do
-        get :rpmlint_log, params: { project: source_project, package: source_package, repository: repo_for_source_project.name, architecture: 'i586' }
+        get :rpmlint_log,
+            params: { project: source_project, package: source_package, repository: repo_for_source_project.name,
+                      architecture: 'i586' }
       end
 
       it { is_expected.to have_http_status(:success) }
@@ -731,7 +788,9 @@ RSpec.describe Webui::PackageController, :vcr do
       end
 
       subject do
-        get :rpmlint_log, params: { project: source_project, package: source_package, repository: repo_for_source_project.name, architecture: 'i586' }
+        get :rpmlint_log,
+            params: { project: source_project, package: source_package, repository: repo_for_source_project.name,
+                      architecture: 'i586' }
       end
 
       it { is_expected.to have_http_status(:success) }

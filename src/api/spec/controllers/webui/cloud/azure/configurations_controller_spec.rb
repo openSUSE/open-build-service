@@ -35,7 +35,9 @@ RSpec.describe Webui::Cloud::Azure::ConfigurationsController, :vcr do
     context 'with valid parameters' do
       before do
         login(user)
-        put :update, params: { cloud_azure_configuration: { application_id: 'random_string', application_key: 'random_string_2' } }
+        put :update,
+            params: { cloud_azure_configuration: { application_id: 'random_string',
+                                                   application_key: 'random_string_2' } }
         azure_configuration.reload
       end
 

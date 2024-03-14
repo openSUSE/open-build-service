@@ -63,7 +63,8 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
     Backend::Api::Sources::Package.write_link(target_project_name,
                                               target_package_name,
                                               @token.executor,
-                                              link_xml(project: step_instructions[:source_project], package: step_instructions[:source_package]))
+                                              link_xml(project: step_instructions[:source_project],
+                                                       package: step_instructions[:source_package]))
   end
 
   def link_xml(opts = {})
@@ -72,7 +73,13 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
   end
 
   def validate_source_project_or_package_are_not_scmsynced
-    errors.add(:base, "project '#{step_instructions[:source_project]}' is developed in SCM. Branch it instead.") if scm_synced_project?
-    errors.add(:base, "package '#{step_instructions[:source_package]}' is developed in SCM. Branch it instead.") if scm_synced_package?
+    if scm_synced_project?
+      errors.add(:base,
+                 "project '#{step_instructions[:source_project]}' is developed in SCM. Branch it instead.")
+    end
+    return unless scm_synced_package?
+
+    errors.add(:base,
+               "package '#{step_instructions[:source_package]}' is developed in SCM. Branch it instead.")
   end
 end

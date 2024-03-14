@@ -1,8 +1,14 @@
 RSpec.describe Comment do
   let(:comment_package) { create(:comment_package) }
-  let(:comment_package_with_parent) { create(:comment_package, parent: comment_package, commentable: comment_package.commentable) }
-  let(:comment_package_with_parent_2) { create(:comment_package, parent: comment_package, commentable: comment_package.commentable) }
-  let(:comment_package_with_grandparent) { create(:comment_package, parent: comment_package_with_parent, commentable: comment_package.commentable) }
+  let(:comment_package_with_parent) do
+    create(:comment_package, parent: comment_package, commentable: comment_package.commentable)
+  end
+  let(:comment_package_with_parent_2) do
+    create(:comment_package, parent: comment_package, commentable: comment_package.commentable)
+  end
+  let(:comment_package_with_grandparent) do
+    create(:comment_package, parent: comment_package_with_parent, commentable: comment_package.commentable)
+  end
 
   describe 'has a valid Factory' do
     it { expect(comment_package).to be_valid }

@@ -10,7 +10,9 @@ class Review < ApplicationRecord
   VALID_REVIEW_STATES = %i[new declined accepted superseded obsoleted].freeze
 
   belongs_to :bs_request, touch: true, optional: true
-  has_many :history_elements, -> { order(:created_at) }, class_name: 'HistoryElement::Review', foreign_key: :op_object_id
+  has_many :history_elements, lambda {
+                                order(:created_at)
+                              }, class_name: 'HistoryElement::Review', foreign_key: :op_object_id
   has_many :history_elements_assigned, class_name: 'HistoryElement::ReviewAssigned', foreign_key: :op_object_id
   has_many :notifications, as: :notifiable, dependent: :delete_all
 
@@ -52,9 +54,15 @@ class Review < ApplicationRecord
     left_outer_joins(:history_elements_assigned).having('COUNT(history_elements.id) = 0').group('reviews.id')
   }
 
-  scope :bs_request_ids_of_involved_projects, ->(project_ids) { where(project_id: project_ids, state: :new).select(:bs_request_id) }
-  scope :bs_request_ids_of_involved_packages, ->(package_ids) { where(package_id: package_ids, state: :new).select(:bs_request_id) }
-  scope :bs_request_ids_of_involved_groups, ->(group_ids) { where(group_id: group_ids, state: :new).select(:bs_request_id) }
+  scope :bs_request_ids_of_involved_projects, lambda { |project_ids|
+                                                where(project_id: project_ids, state: :new).select(:bs_request_id)
+                                              }
+  scope :bs_request_ids_of_involved_packages, lambda { |package_ids|
+                                                where(package_id: package_ids, state: :new).select(:bs_request_id)
+                                              }
+  scope :bs_request_ids_of_involved_groups, lambda { |group_ids|
+                                              where(group_id: group_ids, state: :new).select(:bs_request_id)
+                                            }
   scope :bs_request_ids_of_involved_users, ->(user_ids) { where(user_id: user_ids).select(:bs_request_id) }
 
   scope :opened, -> { where(state: :new) }
@@ -66,7 +74,9 @@ class Review < ApplicationRecord
                                }
   scope :for_non_staging_projects, ->(project) { where.not(id: for_staging_projects(project)) }
 
-  scope :staging, ->(project) { for_staging_projects(project).or(where(group: Staging::Workflow.find_by(project:).managers_group)) }
+  scope :staging, lambda { |project|
+                    for_staging_projects(project).or(where(group: Staging::Workflow.find_by(project:).managers_group))
+                  }
 
   before_validation(on: :create) do
     self.state = :new if self[:state].nil?
@@ -79,7 +89,10 @@ class Review < ApplicationRecord
 
   def review_assignment
     errors.add(:unknown, 'no reviewer defined') unless by_user || by_group || by_project
-    errors.add(:base, 'it is not allowed to have more than one reviewer entity: by_user, by_group, by_project') if invalid_reviewers?
+    return unless invalid_reviewers?
+
+    errors.add(:base,
+               'it is not allowed to have more than one reviewer entity: by_user, by_group, by_project')
   end
 
   def validate_non_symmetric_assignment
@@ -305,7 +318,11 @@ class Review < ApplicationRecord
 
   def check_reviewer!
     selected_errors = errors.select { |error| error.attribute.in?(%i[user group project package]) }
-    raise ::NotFoundError, selected_errors.map { |error| "#{error.attribute.capitalize} not found" }.to_sentence if selected_errors.any?
+    return unless selected_errors.any?
+
+    raise ::NotFoundError, selected_errors.map { |error|
+                             "#{error.attribute.capitalize} not found"
+                           }.to_sentence
   end
 
   private

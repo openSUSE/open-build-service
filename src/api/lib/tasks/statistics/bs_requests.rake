@@ -12,7 +12,9 @@ namespace :statistics do
     # date = Date.new(2008,4,1)
     old_bs_requests = 0
     while date < Time.zone.today
-      num_bs_requests = BsRequestAction.joins(:bs_request).where('bs_requests.created_at < ? AND bs_requests.creator != ?', date, 'Admin').count
+      num_bs_requests = BsRequestAction.joins(:bs_request).where(
+        'bs_requests.created_at < ? AND bs_requests.creator != ?', date, 'Admin'
+      ).count
       information += "#{date}, #{num_bs_requests}, #{num_bs_requests - old_bs_requests}\n"
       # granularity, currently it is one month. Adjust it as needed
       date += 1.month
@@ -62,7 +64,8 @@ namespace :statistics do
     # as BsRequestAction was introduced at the end of 2012
     date = Date.new(2013, 1, 1)
     while date < Time.zone.today
-      num_bs_requests = BsRequestAction.where('created_at < ? AND created_at >= ?', date, date - 1.month).group('target_project').count.length
+      num_bs_requests = BsRequestAction.where('created_at < ? AND created_at >= ?', date,
+                                              date - 1.month).group('target_project').count.length
       information += "#{date}, #{num_bs_requests}\n"
       # granularity, currently it is one month. Adjust it as needed
       date += 1.month

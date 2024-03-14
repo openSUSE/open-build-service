@@ -43,7 +43,10 @@ class StatisticsController < ApplicationController
   # FIXME3.0: remove route - activity is a completely useless value and only stored for sorting
   def activity
     @project = Project.get_by_name(params[:project])
-    @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: false) if params[:package]
+    return unless params[:package]
+
+    @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false,
+                                                                                   follow_project_links: false)
   end
 
   def latest_added

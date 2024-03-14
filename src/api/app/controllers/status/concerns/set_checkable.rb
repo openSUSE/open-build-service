@@ -25,7 +25,8 @@ module Status
         @event_class = Event::StatusCheckForPublished
         return if @checkable
 
-        raise ActiveRecord::RecordNotFound, "Repository '#{params[:project_name]}/#{params[:repository_name]}' not found."
+        raise ActiveRecord::RecordNotFound,
+              "Repository '#{params[:project_name]}/#{params[:repository_name]}' not found."
       end
 
       def set_repository_architecture
@@ -34,7 +35,8 @@ module Status
         @event_class = Event::StatusCheckForBuild
         return if @checkable
 
-        raise ActiveRecord::RecordNotFound, "Repository '#{params[:project_name]}/#{params[:repository_name]}/#{params[:arch]}' not found."
+        raise ActiveRecord::RecordNotFound,
+              "Repository '#{params[:project_name]}/#{params[:repository_name]}/#{params[:arch]}' not found."
       end
 
       def set_bs_request

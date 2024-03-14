@@ -79,7 +79,8 @@ module Backend
       else
         @file.open
         backend_response = Connection.put(full_path(query), @file)
-        @response = { type: backend_response['Content-Type'], status: backend_response.code, size: backend_response.content_length }
+        @response = { type: backend_response['Content-Type'], status: backend_response.code,
+                      size: backend_response.content_length }
         @file.close
       end
       backend_response
@@ -97,7 +98,8 @@ module Backend
     # Tries to destroy the file from the backend, freeze the object and return the response, otherwise will raise an StandardError
     def destroy!(query = {})
       backend_response = Connection.delete(full_path(query))
-      @response = { type: backend_response['Content-Type'], status: backend_response.code, size: backend_response.content_length }
+      @response = { type: backend_response['Content-Type'], status: backend_response.code,
+                    size: backend_response.content_length }
       freeze
       @response
     end

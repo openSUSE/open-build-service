@@ -86,7 +86,8 @@ RSpec.describe Webui::RequestController, :vcr do
 
       shared_examples 'a full diff not requested for' do |file_name|
         before do
-          get :request_action, params: { number: bs_request.number, index: 0, id: bs_request.bs_request_actions.first.id, format: :js }, xhr: true
+          get :request_action,
+              params: { number: bs_request.number, index: 0, id: bs_request.bs_request_actions.first.id, format: :js }, xhr: true
         end
 
         it 'shows a hint' do
@@ -126,7 +127,8 @@ RSpec.describe Webui::RequestController, :vcr do
 
       shared_examples 'a full diff requested for' do
         before do
-          get :request_action, params: { number: bs_request.number, full_diff: true, index: 0, id: bs_request.bs_request_actions.first.id, format: :js }, xhr: true
+          get :request_action,
+              params: { number: bs_request.number, full_diff: true, index: 0, id: bs_request.bs_request_actions.first.id, format: :js }, xhr: true
         end
 
         it 'does not show a hint' do
@@ -149,7 +151,8 @@ RSpec.describe Webui::RequestController, :vcr do
           let(:expected_diff_size) { archive_content_diff_size + diff_header_size }
           let(:target_package) { create(:package_with_binary, name: 'test-package-binary', project: target_project) }
           let(:source_package) do
-            create(:package_with_binary, name: 'test-source-package-binary', project: source_project, file_name: 'bigfile_archive_2.tar.gz')
+            create(:package_with_binary, name: 'test-source-package-binary', project: source_project,
+                                         file_name: 'bigfile_archive_2.tar.gz')
           end
 
           it_behaves_like 'a full diff requested for'
@@ -320,7 +323,9 @@ RSpec.describe Webui::RequestController, :vcr do
   end
 
   describe 'POST #set_bugowner_request' do
-    let(:bs_request) { BsRequest.find_by(creator: submitter_with_group.login, description: 'blah blah blash', state: 'new') }
+    let(:bs_request) do
+      BsRequest.find_by(creator: submitter_with_group.login, description: 'blah blah blash', state: 'new')
+    end
 
     context 'with valid parameters' do
       before do

@@ -12,10 +12,12 @@ namespace :dev do
       User.session = admin
       project = RakeSupport.find_or_create_project(admin.home_project_name, admin)
 
-      workflow_token = Token::Workflow.find_by(description: 'Testing token') || create(:workflow_token, executor: admin, description: 'Testing token')
+      workflow_token = Token::Workflow.find_by(description: 'Testing token') || create(:workflow_token,
+                                                                                       executor: admin, description: 'Testing token')
 
       # This automatically subscribes everyone to the workflow run related events
-      EventSubscription.create!(eventtype: Event::WorkflowRunFail.name, channel: :web, receiver_role: :token_executor, enabled: true)
+      EventSubscription.create!(eventtype: Event::WorkflowRunFail.name, channel: :web, receiver_role: :token_executor,
+                                enabled: true)
 
       # GitHub
       create(:workflow_run, token: workflow_token)
@@ -41,11 +43,16 @@ namespace :dev do
       target_project_name = "#{project.name}:CI:repo:PR-1"
 
       workflow_runs_with_artifacts.each do |workflow_run|
-        create(:workflow_artifacts_per_step_branch_package, workflow_run: workflow_run, source_project_name: source_project_name, target_project_name: target_project_name)
-        create(:workflow_artifacts_per_step_link_package, workflow_run: workflow_run, source_project_name: source_project_name, target_project_name: target_project_name)
-        create(:workflow_artifacts_per_step_rebuild_package, workflow_run: workflow_run, source_project_name: source_project_name, target_project_name: target_project_name)
-        create(:workflow_artifacts_per_step_config_repositories, workflow_run: workflow_run, source_project_name: source_project_name, target_project_name: target_project_name)
-        create(:workflow_artifacts_per_step_set_flags, workflow_run: workflow_run, source_project_name: source_project_name, target_project_name: target_project_name)
+        create(:workflow_artifacts_per_step_branch_package, workflow_run: workflow_run,
+                                                            source_project_name: source_project_name, target_project_name: target_project_name)
+        create(:workflow_artifacts_per_step_link_package, workflow_run: workflow_run,
+                                                          source_project_name: source_project_name, target_project_name: target_project_name)
+        create(:workflow_artifacts_per_step_rebuild_package, workflow_run: workflow_run,
+                                                             source_project_name: source_project_name, target_project_name: target_project_name)
+        create(:workflow_artifacts_per_step_config_repositories, workflow_run: workflow_run,
+                                                                 source_project_name: source_project_name, target_project_name: target_project_name)
+        create(:workflow_artifacts_per_step_set_flags, workflow_run: workflow_run,
+                                                       source_project_name: source_project_name, target_project_name: target_project_name)
       end
     end
 
@@ -80,5 +87,7 @@ end
 # If the name of the project created by the workflow is "home:Iggy:iggy:hello_world:PR-68", its postfix
 # is "iggy:hello_world:PR-68". This is the only information we can extract from the workflow_run.
 def target_project_name_postfix(workflow_run)
-  ":#{workflow_run.repository_owner}:#{workflow_run.repository_name}:PR-#{workflow_run.event_source_name}" if workflow_run.repository_name && workflow_run.event_source_name
+  return unless workflow_run.repository_name && workflow_run.event_source_name
+
+  ":#{workflow_run.repository_owner}:#{workflow_run.repository_name}:PR-#{workflow_run.event_source_name}"
 end

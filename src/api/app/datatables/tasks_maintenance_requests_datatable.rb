@@ -1,5 +1,6 @@
 class TasksMaintenanceRequestsDatatable < Datatable
-  def_delegators :@view_context, :elide_two, :link_to, :package_show_path, :project_monitor_path, :project_show_path, :safe_join, :tag
+  def_delegators :@view_context, :elide_two, :link_to, :package_show_path, :project_monitor_path, :project_show_path,
+                 :safe_join, :tag
 
   def initialize(current_user:, view_context:)
     @current_user = current_user

@@ -17,13 +17,19 @@ RSpec.describe Webui::Packages::JobHistoryController, :vcr do
       end
 
       it { expect(flash[:error]).not_to be_empty }
-      it { expect(response).to redirect_to(project_package_repository_binaries_path(package_name: package, project_name: source_project, repository_name: 'fake_repo')) }
+
+      it {
+        expect(response).to redirect_to(project_package_repository_binaries_path(package_name: package,
+                                                                                 project_name: source_project, repository_name: 'fake_repo'))
+      }
     end
 
     context 'without a valid architecture' do
       before do
         login(user)
-        get :index, params: { package_name: package, project: source_project, repository: repo_for_source_project.name, arch: 'i58' }
+        get :index,
+            params: { package_name: package, project: source_project, repository: repo_for_source_project.name,
+                      arch: 'i58' }
       end
 
       it { expect(flash[:error]).not_to be_empty }
@@ -60,7 +66,9 @@ RSpec.describe Webui::Packages::JobHistoryController, :vcr do
           starttime='1492687470' endtime='1492687507' code='succeed' uri='http://127.0.0.1:41355' workerid='vagrant-openSUSE-Leap:1'
           hostarch='x86_64' reason='new build' verifymd5='2ac8bd685591b40e412ee99b182f94c2'/>
         </jobhistlist>))
-        get :index, params: { package_name: package, project: source_project, repository: repo_for_source_project.name, arch: 'i586' }
+        get :index,
+            params: { package_name: package, project: source_project, repository: repo_for_source_project.name,
+                      arch: 'i586' }
       end
 
       it { expect(response).to have_http_status(:success) }

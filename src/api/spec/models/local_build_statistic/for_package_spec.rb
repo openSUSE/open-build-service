@@ -45,7 +45,8 @@ RSpec.describe LocalBuildStatistic::ForPackage do
   describe '#statistic' do
     let(:results) { local_statistics.results }
     let(:local_statistics) do
-      LocalBuildStatistic::ForPackage.new(package: 'fake_package', project: 'fake_project', repository: 'SLE_12_SP2', architecture: 'x86_64')
+      LocalBuildStatistic::ForPackage.new(package: 'fake_package', project: 'fake_project', repository: 'SLE_12_SP2',
+                                          architecture: 'x86_64')
     end
 
     context 'with results' do

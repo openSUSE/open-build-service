@@ -18,7 +18,8 @@ class Staging::Workflow < ApplicationRecord
   has_many :target_of_bs_requests, through: :project, foreign_key: 'staging_workflow_id' do
     def stageable(managers_group_title = nil)
       managers_group_title ||= proxy_association.owner.managers_group.try(:title)
-      includes(:reviews).where(state: :review, staging_project_id: nil, reviews: { state: :new, by_group: managers_group_title })
+      includes(:reviews).where(state: :review, staging_project_id: nil,
+                               reviews: { state: :new, by_group: managers_group_title })
     end
 
     def ready_to_stage
@@ -27,7 +28,8 @@ class Staging::Workflow < ApplicationRecord
   end
 
   has_many :staged_requests, class_name: 'BsRequest', through: :staging_projects
-  has_many :request_exclusions, class_name: 'Staging::RequestExclusion', foreign_key: 'staging_workflow_id', dependent: :destroy
+  has_many :request_exclusions, class_name: 'Staging::RequestExclusion', foreign_key: 'staging_workflow_id',
+                                dependent: :destroy
   has_many :excluded_requests, through: :request_exclusions, source: :bs_request
 
   after_create :create_staging_projects
@@ -115,7 +117,8 @@ class Staging::Workflow < ApplicationRecord
     # update reviewer group in backlog requests
     target_of_bs_requests.stageable(old_managers_group.title).each do |bs_request|
       bs_request.addreview(by_group: new_managers_group.title, comment: 'Staging manager group changed')
-      bs_request.change_review_state(:accepted, by_group: old_managers_group.title, comment: 'Staging manager group changed')
+      bs_request.change_review_state(:accepted, by_group: old_managers_group.title,
+                                                comment: 'Staging manager group changed')
     end
 
     # update managers group in staging projects

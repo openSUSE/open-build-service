@@ -11,7 +11,9 @@ RSpec.describe BackfillScmVendorAndHookEventInWorkflowRun, type: :migration do
     end
     # Simulate old workflow runs' entries where scm_vendor and hook_event where nil
     let!(:github_workflow_run) { create(:workflow_run, scm_vendor: nil, hook_event: nil) }
-    let!(:gitlab_workflow_run) { create(:workflow_run, request_headers: request_headers, scm_vendor: nil, hook_event: nil) }
+    let!(:gitlab_workflow_run) do
+      create(:workflow_run, request_headers: request_headers, scm_vendor: nil, hook_event: nil)
+    end
     # Simulate new workflow run entry where scm_vendor and hook_event was set in creation time
     let!(:gitea_workflow_run) { create(:workflow_run, scm_vendor: 'gitea', hook_event: 'push') }
 

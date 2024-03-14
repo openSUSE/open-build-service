@@ -18,7 +18,8 @@ class Webui::UsersController < Webui::WebuiController
 
   def show
     @groups = @displayed_user.groups
-    @involved_items_service = UserService::Involved.new(user: @displayed_user, filters: extract_filter_params, page: params[:page])
+    @involved_items_service = UserService::Involved.new(user: @displayed_user, filters: extract_filter_params,
+                                                        page: params[:page])
     @comments = paged_comments
 
     return if CONFIG['contribution_graph'] == :off
@@ -138,7 +139,8 @@ class Webui::UsersController < Webui::WebuiController
         redirect_back fallback_location: root_path
       end
     else
-      flash[:error] = 'The value of current password does not match your current password. Please enter the password and try again.'
+      flash[:error] =
+        'The value of current password does not match your current password. Please enter the password and try again.'
       redirect_back fallback_location: root_path
       nil
     end
@@ -190,7 +192,9 @@ class Webui::UsersController < Webui::WebuiController
 
   def assign_admin_attributes
     @displayed_user.assign_attributes(params[:user].slice(:state, :ignore_auth_services).permit!)
-    @displayed_user.update_globalroles(Role.global.where(id: params[:user][:role_ids])) unless params[:user][:role_ids].nil?
+    return if params[:user][:role_ids].nil?
+
+    @displayed_user.update_globalroles(Role.global.where(id: params[:user][:role_ids]))
   end
 
   def handle_notification

@@ -32,13 +32,15 @@ module Backend
         # @option options [Integer / String] :deleted Search also on deleted projects (Needs to be a 1).
         # @return [String]
         def self.meta(project_name, options = {})
-          http_get(['/source/:project/_project/_meta', project_name], params: options, accepted: %i[revision deleted], rename: { revision: :rev })
+          http_get(['/source/:project/_project/_meta', project_name], params: options, accepted: %i[revision deleted],
+                                                                      rename: { revision: :rev })
         end
 
         # Writes a Project meta
         # @return [String]
         def self.write_meta(project_name, meta, options = {})
-          http_put(['/source/:project/_meta', project_name], data: meta, params: options, accepted: %i[user comment requestid lowprio])
+          http_put(['/source/:project/_meta', project_name], data: meta, params: options,
+                                                             accepted: %i[user comment requestid lowprio])
         end
 
         # Writes a Project configuration
@@ -107,7 +109,8 @@ module Backend
         # Writes the staging workflow of a project
         # @return [String]
         def self.write_staging_workflow(project_name, user_login, content)
-          http_put(['/source/:project/_project/_staging_workflow', project_name], data: content, params: { user: user_login })
+          http_put(['/source/:project/_project/_staging_workflow', project_name], data: content,
+                                                                                  params: { user: user_login })
         end
       end
     end

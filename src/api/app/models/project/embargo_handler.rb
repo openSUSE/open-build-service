@@ -24,16 +24,25 @@ class Project
 
       value = attrib_value.value
 
-      raise BsRequest::Errors::InvalidDate, "Unable to parse the date in OBS:EmbargoDate of project #{@project.name}: #{value}" unless attrib_value.attrib.valid?
+      unless attrib_value.attrib.valid?
+        raise BsRequest::Errors::InvalidDate,
+              "Unable to parse the date in OBS:EmbargoDate of project #{@project.name}: #{value}"
+      end
 
       embargo = Time.zone.parse(value)
 
-      raise BsRequest::Errors::InvalidDate, "Unable to parse the date in OBS:EmbargoDate of project #{@project.name}: #{value}" if embargo.nil?
+      if embargo.nil?
+        raise BsRequest::Errors::InvalidDate,
+              "Unable to parse the date in OBS:EmbargoDate of project #{@project.name}: #{value}"
+      end
 
       # no time specified, allow it next day
       embargo = embargo.tomorrow if /^\d{4}-\d\d?-\d\d?$/.match?(value)
 
-      raise BsRequest::Errors::UnderEmbargo, "The project #{@project.name} is under embargo until #{attrib_value.value}" if embargo > Time.now.utc
+      return unless embargo > Time.now.utc
+
+      raise BsRequest::Errors::UnderEmbargo,
+            "The project #{@project.name} is under embargo until #{attrib_value.value}"
     end
   end
 end

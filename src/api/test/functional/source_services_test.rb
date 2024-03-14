@@ -38,7 +38,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     put '/source/BaseDistro2.0/_project/_service',
         params: '<services> <service name="set_version" > <param name="version">0815</param> </service> </services>'
     assert_response :success
-    put '/source/BaseDistro2.0:LinkedUpdateProject/_project/_service', params: '<services> <service name="download_files" /> </services>'
+    put '/source/BaseDistro2.0:LinkedUpdateProject/_project/_service',
+        params: '<services> <service name="download_files" /> </services>'
     assert_response :success
 
     login_tom
@@ -71,7 +72,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     (ActiveJob::Base.descendants << ActiveJob::Base).each(&:disable_test_adapter)
     ActiveJob::Base.queue_adapter = :inline
     login_tom
-    put '/source/home:tom/service/_meta', params: "<package project='home:tom' name='service'> <title /> <description /> </package>"
+    put '/source/home:tom/service/_meta',
+        params: "<package project='home:tom' name='service'> <title /> <description /> </package>"
     assert_response :success
     put '/source/home:tom/service/pack.spec', params: "# Comment \nName: pack\nVersion: 12\nRelease: 9\nSummary: asd"
     assert_response :success
@@ -172,7 +174,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     get '/source/home:tom/service/_service:download_url:file?expand=1'
     assert_response :success
     original_file = @response.body
-    post '/source/home:tom/copied_service', params: { cmd: 'copy', noservice: '1', opackage: 'service', oproject: 'home:tom' }
+    post '/source/home:tom/copied_service',
+         params: { cmd: 'copy', noservice: '1', opackage: 'service', oproject: 'home:tom' }
     assert_response :success
     get '/source/home:tom/copied_service?expand=1'
     assert_response :success
@@ -248,7 +251,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
   def test_service_merge_invalid
     login_tom
     # Setup package
-    put '/source/home:tom/service/_meta', params: "<package project='home:tom' name='service'> <title /> <description /> </package>"
+    put '/source/home:tom/service/_meta',
+        params: "<package project='home:tom' name='service'> <title /> <description /> </package>"
     assert_response :success
     put '/source/home:tom/service/pack.spec', params: "# Comment \nName: pack\nVersion: 12\nRelease: 9\nSummary: asd"
     assert_response :success
@@ -273,7 +277,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
   def test_service_merge_valid
     login_tom
     # Setup package
-    put '/source/home:tom/service/_meta', params: "<package project='home:tom' name='service'> <title /> <description /> </package>"
+    put '/source/home:tom/service/_meta',
+        params: "<package project='home:tom' name='service'> <title /> <description /> </package>"
     assert_response :success
     put '/source/home:tom/service/pack.spec', params: "# Comment \nName: pack\nVersion: 12\nRelease: 9\nSummary: asd"
     assert_response :success
@@ -315,7 +320,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
   def test_service_merge_with_buildtime_service
     login_tom
     # Setup package
-    put '/source/home:tom/service/_meta', params: "<package project='home:tom' name='service'> <title /> <description /> </package>"
+    put '/source/home:tom/service/_meta',
+        params: "<package project='home:tom' name='service'> <title /> <description /> </package>"
     assert_response :success
     put '/source/home:tom/service/pack.spec', params: "# Comment \nName: pack\nVersion: 12\nRelease: 9\nSummary: asd"
     assert_response :success
@@ -403,7 +409,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
 
   def test_source_commit_with_service
     login_tom
-    put '/source/home:tom/service/_meta', params: "<package project='home:tom' name='service'> <title /> <description /> </package>"
+    put '/source/home:tom/service/_meta',
+        params: "<package project='home:tom' name='service'> <title /> <description /> </package>"
     assert_response :success
     post '/source/home:tom/service?cmd=waitservice'
     assert_response :success
@@ -466,7 +473,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
 
   def test_run_project_source_service
     login_tom
-    put '/source/home:tom/service/_meta', params: "<package project='home:tom' name='service'> <title /> <description /> </package>"
+    put '/source/home:tom/service/_meta',
+        params: "<package project='home:tom' name='service'> <title /> <description /> </package>"
     assert_response :success
     put '/source/home:tom/service/pack.spec', params: "# Comment \nVersion: 12\nRelease: 9\nSummary: asd"
     assert_response :success
@@ -497,7 +505,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_match(/service parameter &quot;INVALID&quot; is not defined/, @response.body)
 
     # invalid names
-    put '/source/home:tom/_project/_service', params: '<services> <service name="set_version ; `ls`" ></service> </services>'
+    put '/source/home:tom/_project/_service',
+        params: '<services> <service name="set_version ; `ls`" ></service> </services>'
     assert_response 400
     assert_match(/service name.*contains invalid chars/, @response.body)
     put '/source/home:tom/_project/_service', params: '<services> <service name="../blahfasel" ></service> </services>'
@@ -514,7 +523,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
                 '</services>'
     assert_response :success
 
-    put '/source/home:tom/service2/_meta', params: "<package project='home:tom' name='service2'> <title /> <description /> </package>"
+    put '/source/home:tom/service2/_meta',
+        params: "<package project='home:tom' name='service2'> <title /> <description /> </package>"
     assert_response :success
     put '/source/home:tom/service2/pack.spec', params: "# Comment \nVersion: 12\nRelease: 9\nSummary: asd"
     assert_response :success
@@ -543,7 +553,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response 401
 
     login_tom
-    put '/source/home:tom/service/_meta', params: "<package project='home:tom' name='service'> <title /> <description /> </package>"
+    put '/source/home:tom/service/_meta',
+        params: "<package project='home:tom' name='service'> <title /> <description /> </package>"
     assert_response :success
 
     post '/person/tom/token?operation=runservice'

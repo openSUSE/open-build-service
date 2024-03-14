@@ -51,7 +51,8 @@ class DiffParser
   end
 
   def create_line(line, line_index)
-    DiffParser::Line.new(content: line, state: @state, index: line_index + 1, original_index: final_original_index, changed_index: final_changed_index)
+    DiffParser::Line.new(content: line, state: @state, index: line_index + 1, original_index: final_original_index,
+                         changed_index: final_changed_index)
   end
 
   def final_original_index

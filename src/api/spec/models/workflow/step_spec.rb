@@ -1,6 +1,8 @@
 RSpec.describe Workflow::Step do
   describe '#target_package_name' do
-    subject { described_class.new(step_instructions: step_instructions, scm_webhook: scm_webhook).send(:target_package_name) }
+    subject do
+      described_class.new(step_instructions: step_instructions, scm_webhook: scm_webhook).send(:target_package_name)
+    end
 
     context 'for a pull request_event when target_package is in the step instructions' do
       let(:step_instructions) { { target_package: 'hello_world' } }
@@ -22,7 +24,9 @@ RSpec.describe Workflow::Step do
 
     context 'with a push event for a commit when target_package is in the step instructions' do
       let(:step_instructions) { { target_package: 'hello_world' } }
-      let(:scm_webhook) { SCMWebhook.new(payload: { scm: 'github', event: 'push', ref: 'refs/heads/main', commit_sha: '456' }) }
+      let(:scm_webhook) do
+        SCMWebhook.new(payload: { scm: 'github', event: 'push', ref: 'refs/heads/main', commit_sha: '456' })
+      end
 
       it 'returns the value of target_package with the commit SHA as a suffix' do
         expect(subject).to eq('hello_world-456')
@@ -31,7 +35,9 @@ RSpec.describe Workflow::Step do
 
     context 'with a push event for a commit when target_package is not in the step instructions' do
       let(:step_instructions) { { source_package: 'package123' } }
-      let(:scm_webhook) { SCMWebhook.new(payload: { scm: 'github', event: 'push', ref: 'refs/heads/main', commit_sha: '456' }) }
+      let(:scm_webhook) do
+        SCMWebhook.new(payload: { scm: 'github', event: 'push', ref: 'refs/heads/main', commit_sha: '456' })
+      end
 
       it 'returns the name of the source package with the commit SHA as a suffix' do
         expect(subject).to eq('package123-456')
@@ -40,7 +46,9 @@ RSpec.describe Workflow::Step do
 
     context 'with a push event for a tag when target_package is in the step instructions' do
       let(:step_instructions) { { target_package: 'hello_world' } }
-      let(:scm_webhook) { SCMWebhook.new(payload: { scm: 'github', event: 'push', ref: 'refs/tags/release_abc', tag_name: 'release_abc' }) }
+      let(:scm_webhook) do
+        SCMWebhook.new(payload: { scm: 'github', event: 'push', ref: 'refs/tags/release_abc', tag_name: 'release_abc' })
+      end
 
       it 'returns the value of target_package with the tag name as a suffix' do
         expect(subject).to eq('hello_world-release_abc')
@@ -49,7 +57,9 @@ RSpec.describe Workflow::Step do
 
     context 'with a push event for a tag when target_package is not in the step instructions' do
       let(:step_instructions) { { source_package: 'package123' } }
-      let(:scm_webhook) { SCMWebhook.new(payload: { scm: 'github', event: 'push', ref: 'refs/tags/release_abc', tag_name: 'release_abc' }) }
+      let(:scm_webhook) do
+        SCMWebhook.new(payload: { scm: 'github', event: 'push', ref: 'refs/tags/release_abc', tag_name: 'release_abc' })
+      end
 
       it 'returns the name of the source package with the tag name as a suffix' do
         expect(subject).to eq('package123-release_abc')
@@ -175,7 +185,10 @@ RSpec.describe Workflow::Step do
     end
 
     context 'when the source project is invalid' do
-      subject { Workflow::Step::BranchPackageStep.new(step_instructions: { source_project: 'Invalid/format', source_package: 'hans', target_project: 'franz' }) }
+      subject do
+        Workflow::Step::BranchPackageStep.new(step_instructions: { source_project: 'Invalid/format', source_package: 'hans',
+                                                                   target_project: 'franz' })
+      end
 
       it 'gives an error for invalid name' do
         expect(subject.errors.full_messages.to_sentence).to eq("invalid source_project: 'Invalid/format'")
@@ -183,7 +196,10 @@ RSpec.describe Workflow::Step do
     end
 
     context 'when the target project is invalid' do
-      subject { Workflow::Step::BranchPackageStep.new(step_instructions: { source_project: 'hans', source_package: 'franz', target_project: 'Invalid/format' }) }
+      subject do
+        Workflow::Step::BranchPackageStep.new(step_instructions: { source_project: 'hans', source_package: 'franz',
+                                                                   target_project: 'Invalid/format' })
+      end
 
       it 'gives an error for invalid name' do
         expect(subject.errors.full_messages.to_sentence).to eq("invalid target_project: 'Invalid/format'")
@@ -205,7 +221,10 @@ RSpec.describe Workflow::Step do
     end
 
     context 'when the source package is invalid' do
-      subject { Workflow::Step::BranchPackageStep.new(step_instructions: { source_project: 'hans', source_package: 'Invalid/format', target_project: 'franz' }) }
+      subject do
+        Workflow::Step::BranchPackageStep.new(step_instructions: { source_project: 'hans', source_package: 'Invalid/format',
+                                                                   target_project: 'franz' })
+      end
 
       it 'gives an error for invalid name' do
         expect(subject.errors.full_messages.to_sentence).to eq("invalid source_package: 'Invalid/format'")
@@ -213,7 +232,10 @@ RSpec.describe Workflow::Step do
     end
 
     context 'when the target package is invalid' do
-      subject { Workflow::Step::BranchPackageStep.new(step_instructions: { source_project: 'hans', source_package: 'franz', target_project: 'peter', target_package: 'Invalid/format' }) }
+      subject do
+        Workflow::Step::BranchPackageStep.new(step_instructions: { source_project: 'hans', source_package: 'franz',
+                                                                   target_project: 'peter', target_package: 'Invalid/format' })
+      end
 
       it 'gives an error for invalid name' do
         expect(subject.errors.full_messages.to_sentence).to eq("invalid target_package: 'Invalid/format'")

@@ -56,7 +56,8 @@ RSpec.describe AdaptReviewAndDuplicatedNotifications, type: :migration do
       end
 
       it 'keeps the latest request notifications for the subscriber' do
-        expect(Notification.find_by(notifiable: bs_request_with_submit_action, subscriber: subscriber)).to eq(second_request_notification)
+        expect(Notification.find_by(notifiable: bs_request_with_submit_action,
+                                    subscriber: subscriber)).to eq(second_request_notification)
       end
 
       it 'removes duplicated request notifications for the subscriber' do
@@ -64,7 +65,8 @@ RSpec.describe AdaptReviewAndDuplicatedNotifications, type: :migration do
       end
 
       it 'keeps the latest comment notifications for the subscriber' do
-        expect(Notification.find_by(notifiable_type: 'Comment', subscriber: subscriber)).to eq(second_comment_notification)
+        expect(Notification.find_by(notifiable_type: 'Comment',
+                                    subscriber: subscriber)).to eq(second_comment_notification)
       end
 
       it 'removes duplicated comment notifications for the subscriber' do

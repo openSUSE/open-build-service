@@ -17,7 +17,8 @@ RSpec.describe Webui::Projects::StatusController do
         create(:project, name: 'Apache22', title: 'Apache WebServer', description: 'The best webserver ever.')
       end
       let!(:package) do
-        create(:package, project: project, name: 'mod_rewrite3', title: 'mod_rewrite', description: 'url rewrite module')
+        create(:package, project: project, name: 'mod_rewrite3', title: 'mod_rewrite',
+                         description: 'url rewrite module')
       end
 
       it_behaves_like 'a project status controller'
@@ -28,7 +29,8 @@ RSpec.describe Webui::Projects::StatusController do
         create(:project, name: 'Apache3', title: 'Apache WebServer', description: 'The best webserver ever.')
       end
       let!(:package) do
-        create(:package, project: project, name: 'mod_rewrite3', title: 'mod_rewrite', description: 'url rewrite module')
+        create(:package, project: project, name: 'mod_rewrite3', title: 'mod_rewrite',
+                         description: 'url rewrite module')
       end
       let(:params) { { project_name: project.name, format: 'json' } }
 
@@ -40,7 +42,8 @@ RSpec.describe Webui::Projects::StatusController do
         create(:project, name: 'Apache4', title: 'Apache WebServer', description: 'The best webserver ever.')
       end
       let!(:package) do
-        create(:package, project: project, name: 'mod_rewrite4', title: 'mod_rewrite', description: 'url rewrite module')
+        create(:package, project: project, name: 'mod_rewrite4', title: 'mod_rewrite',
+                         description: 'url rewrite module')
       end
       let(:params) { { project_name: project.name, filter_devel: 'No Project' } }
 
@@ -52,7 +55,8 @@ RSpec.describe Webui::Projects::StatusController do
         create(:project, name: 'Apache5', title: 'Apache WebServer', description: 'The best webserver ever.')
       end
       let!(:package) do
-        create(:package, project: project, name: 'mod_rewrite5', title: 'mod_rewrite', description: 'url rewrite module')
+        create(:package, project: project, name: 'mod_rewrite5', title: 'mod_rewrite',
+                         description: 'url rewrite module')
       end
       let(:params) { { project_name: project.name, ignore_pending: true } }
 
@@ -64,7 +68,8 @@ RSpec.describe Webui::Projects::StatusController do
         create(:project, name: 'Apache6', title: 'Apache WebServer', description: 'The best webserver ever.')
       end
       let!(:package) do
-        create(:package, project: project, name: 'mod_rewrite6', title: 'mod_rewrite', description: 'url rewrite module')
+        create(:package, project: project, name: 'mod_rewrite6', title: 'mod_rewrite',
+                         description: 'url rewrite module')
       end
       let(:params) { { project_name: project.name, limit_to_fails: 'false' } }
 
@@ -76,7 +81,8 @@ RSpec.describe Webui::Projects::StatusController do
         create(:project, name: 'Apache7', title: 'Apache WebServer', description: 'The best webserver ever.')
       end
       let!(:package) do
-        create(:package, project: project, name: 'mod_rewrite7', title: 'mod_rewrite', description: 'url rewrite module')
+        create(:package, project: project, name: 'mod_rewrite7', title: 'mod_rewrite',
+                         description: 'url rewrite module')
       end
       let(:params) { { project_name: project.name, limit_to_old: 'true' } }
 
@@ -88,7 +94,8 @@ RSpec.describe Webui::Projects::StatusController do
         create(:project, name: 'Apache8', title: 'Apache WebServer', description: 'The best webserver ever.')
       end
       let!(:package) do
-        create(:package, project: project, name: 'mod_rewrite8', title: 'mod_rewrite', description: 'url rewrite module')
+        create(:package, project: project, name: 'mod_rewrite8', title: 'mod_rewrite',
+                         description: 'url rewrite module')
       end
       let(:params) { { project_name: project.name, include_versions: 'true' } }
 
@@ -100,7 +107,8 @@ RSpec.describe Webui::Projects::StatusController do
         create(:project, name: 'Apache9', title: 'Apache WebServer', description: 'The best webserver ever.')
       end
       let!(:package) do
-        create(:package, project: project, name: 'mod_rewrite9', title: 'mod_rewrite', description: 'url rewrite module')
+        create(:package, project: project, name: 'mod_rewrite9', title: 'mod_rewrite',
+                         description: 'url rewrite module')
       end
       let(:params) { { project_name: project.name, filter_for_user: admin_user.login } }
 

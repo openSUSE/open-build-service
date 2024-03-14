@@ -3,7 +3,9 @@ require 'browser_helper'
 RSpec.describe 'Kiwi_Images', :js, :vcr do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:project) { user.home_project }
-  let(:kiwi_image) { create(:kiwi_image_with_package, with_kiwi_file: true, project: project, package_name: 'package_with_kiwi_file') }
+  let(:kiwi_image) do
+    create(:kiwi_image_with_package, with_kiwi_file: true, project: project, package_name: 'package_with_kiwi_file')
+  end
 
   before do
     login(user)
@@ -40,7 +42,9 @@ RSpec.describe 'Kiwi_Images', :js, :vcr do
         </availablebinaries>
       XML
     end
-    let(:other_backend_url) { "#{CONFIG['source_url']}/_command?prpa=#{project}/#{repository}/x86_64&cmd=availablebinaries" }
+    let(:other_backend_url) do
+      "#{CONFIG['source_url']}/_command?prpa=#{project}/#{repository}/x86_64&cmd=availablebinaries"
+    end
     let(:available) do
       <<~XML
         {"perl-Citrix"=>["noarch"] }

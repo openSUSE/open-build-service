@@ -83,7 +83,9 @@ class Workflow
   end
 
   def supported_filters
-    @supported_filters ||= workflow_instructions.fetch(:filters, {}).select { |key, _value| SUPPORTED_FILTERS.include?(key.to_sym) }
+    @supported_filters ||= workflow_instructions.fetch(:filters, {}).select do |key, _value|
+      SUPPORTED_FILTERS.include?(key.to_sym)
+    end
   end
 
   def event_matches_event_filter?
@@ -97,7 +99,9 @@ class Workflow
     when 'pull_request'
       scm_webhook.pull_request_event?
     when 'merge_request'
-      scm_webhook.pull_request_event? && feature_available_for_workflow_version?(workflow_version: workflow_version_number, feature_name: 'event_aliases')
+      scm_webhook.pull_request_event? && feature_available_for_workflow_version?(
+        workflow_version: workflow_version_number, feature_name: 'event_aliases'
+      )
     else
       false
     end

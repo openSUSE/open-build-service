@@ -260,7 +260,9 @@ RSpec.describe Kiwi::Image, :vcr do
     end
 
     context 'with kiwi image file' do
-      let(:kiwi_image) { create(:kiwi_image_with_package, project: project, with_kiwi_file: true, file_content: kiwi_xml) }
+      let(:kiwi_image) do
+        create(:kiwi_image_with_package, project: project, with_kiwi_file: true, file_content: kiwi_xml)
+      end
 
       after do
         login user
@@ -286,7 +288,10 @@ RSpec.describe Kiwi::Image, :vcr do
         logout
       end
 
-      subject { create(:kiwi_image_with_package, project: project, with_kiwi_file: true, file_content: 'Invalid content for a xml file') }
+      subject do
+        create(:kiwi_image_with_package, project: project, with_kiwi_file: true,
+                                         file_content: 'Invalid content for a xml file')
+      end
 
       it { expect(subject.to_xml).to be_nil }
     end
@@ -375,7 +380,10 @@ RSpec.describe Kiwi::Image, :vcr do
       end
 
       context 'with a kiwi file' do
-        subject { create(:kiwi_image_with_package, project: project, with_kiwi_file: true, kiwi_file_name: 'other_file_name.kiwi') }
+        subject do
+          create(:kiwi_image_with_package, project: project, with_kiwi_file: true,
+                                           kiwi_file_name: 'other_file_name.kiwi')
+        end
 
         it { expect(subject.outdated?).to be(false) }
         it { expect(subject.package.kiwi_image_file).to eq('other_file_name.kiwi') }
@@ -390,14 +398,17 @@ RSpec.describe Kiwi::Image, :vcr do
 
     context 'with a package' do
       context 'without a kiwi file' do
-        let(:kiwi_image_with_package) { create(:kiwi_image_with_package, project: project, package_name: 'package_without_kiwi_file') }
+        let(:kiwi_image_with_package) do
+          create(:kiwi_image_with_package, project: project, package_name: 'package_without_kiwi_file')
+        end
 
         it { expect(kiwi_image_with_package.outdated?).to be(true) }
       end
 
       context 'with a kiwi file' do
         let(:kiwi_image_with_package_with_kiwi_file) do
-          create(:kiwi_image_with_package, project: project, package_name: 'package_with_kiwi_file', with_kiwi_file: true)
+          create(:kiwi_image_with_package, project: project, package_name: 'package_with_kiwi_file',
+                                           with_kiwi_file: true)
         end
 
         context 'different md5' do
@@ -479,15 +490,27 @@ RSpec.describe Kiwi::Image, :vcr do
 
     subject { Kiwi::Image }
 
-    it { expect(subject.find_binaries_by_name('', 'project', [], use_project_repositories: true)).to eq(binaries_available_sample) }
+    it {
+      expect(subject.find_binaries_by_name('', 'project', [],
+                                           use_project_repositories: true)).to eq(binaries_available_sample)
+    }
 
     it do
-      expect(subject.find_binaries_by_name('ap', 'project', [], use_project_repositories: true)).to eq('apache' => %w[i586 x86_64],
-                                                                                                       'apache2' => ['x86_64'], 'appArmor' => %w[i586 x86_64])
+      expect(subject.find_binaries_by_name('ap', 'project', [],
+                                           use_project_repositories: true)).to eq('apache' => %w[i586 x86_64],
+                                                                                  'apache2' => ['x86_64'], 'appArmor' => %w[i586 x86_64])
     end
 
-    it { expect(subject.find_binaries_by_name('app', 'project', [], use_project_repositories: true)).to eq('appArmor' => %w[i586 x86_64]) }
-    it { expect(subject.find_binaries_by_name('b', 'project', [], use_project_repositories: true)).to eq('bcrypt' => ['x86_64']) }
+    it {
+      expect(subject.find_binaries_by_name('app', 'project', [],
+                                           use_project_repositories: true)).to eq('appArmor' => %w[i586 x86_64])
+    }
+
+    it {
+      expect(subject.find_binaries_by_name('b', 'project', [],
+                                           use_project_repositories: true)).to eq('bcrypt' => ['x86_64'])
+    }
+
     it { expect(subject.find_binaries_by_name('c', 'project', [], use_project_repositories: true)).to be_empty }
   end
 

@@ -8,7 +8,8 @@ module Webui
       after_action :verify_authorized
 
       def new
-        bs_request_action = BsRequestAction.new(role: 'maintainer', target_package: @package, target_project: @project, type: 'add_role')
+        bs_request_action = BsRequestAction.new(role: 'maintainer', target_package: @package, target_project: @project,
+                                                type: 'add_role')
         @bs_request = BsRequest.new(bs_request_actions: [bs_request_action])
         authorize @bs_request, :create?
       end
@@ -16,7 +17,9 @@ module Webui
       private
 
       def bs_request_params
-        params.require(:bs_request).permit(:description, bs_request_actions_attributes: %i[group_name person_name role target_project target_package type])
+        params.require(:bs_request).permit(:description,
+                                           bs_request_actions_attributes: %i[group_name person_name role target_project
+                                                                             target_package type])
       end
     end
   end

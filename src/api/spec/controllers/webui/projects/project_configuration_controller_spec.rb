@@ -25,7 +25,11 @@ RSpec.describe Webui::Projects::ProjectConfigurationController, :vcr do
         }
       end
 
-      it { expect { get :show, params: { project_name: apache_project.name } }.to raise_error(ActiveRecord::RecordNotFound) }
+      it {
+        expect do
+          get :show, params: { project_name: apache_project.name }
+        end.to raise_error(ActiveRecord::RecordNotFound)
+      }
     end
   end
 

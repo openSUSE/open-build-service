@@ -15,7 +15,9 @@ RSpec.describe ProjectPolicy, :vcr do
     end
     let(:source_project) { create(:project, name: 'devel:base') }
     let(:source_package) { create(:package_with_file, name: 'aaa_base', project: source_project) }
-    let(:target_project) { create(:project_with_package, name: 'openSUSE:Factory', package_name: 'aaa_base', maintainer: code_stream_manager) }
+    let(:target_project) do
+      create(:project_with_package, name: 'openSUSE:Factory', package_name: 'aaa_base', maintainer: code_stream_manager)
+    end
     let(:staging_workflow) do
       workflow = create(:staging_workflow, project: target_project, managers_group: group)
       submit_request = create(:bs_request_with_submit_action, target_project: target_project,

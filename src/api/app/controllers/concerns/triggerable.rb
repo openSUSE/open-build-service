@@ -6,7 +6,10 @@ module Triggerable
     @project ||= Project.get_by_name(@project_name)
     # Remote projects are read-only, can't trigger something for them.
     # See https://github.com/openSUSE/open-build-service/wiki/Links#project-links
-    raise Project::Errors::UnknownObjectError, "Sorry, triggering tokens for remote project \"#{@project_name}\" is not possible." unless @project.is_a?(Project)
+    return if @project.is_a?(Project)
+
+    raise Project::Errors::UnknownObjectError,
+          "Sorry, triggering tokens for remote project \"#{@project_name}\" is not possible."
   end
 
   def set_package(package_find_options: {})

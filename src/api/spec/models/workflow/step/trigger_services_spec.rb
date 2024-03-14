@@ -40,7 +40,8 @@ RSpec.describe Workflow::Step::TriggerServices do
 
       it 'triggers the service on the backend' do
         subject.call
-        expect(Backend::Api::Sources::Package).to have_received(:trigger_services).with('openSUSE:Factory', 'hello_world', 'Iggy', comment)
+        expect(Backend::Api::Sources::Package).to have_received(:trigger_services).with('openSUSE:Factory',
+                                                                                        'hello_world', 'Iggy', comment)
       end
     end
   end

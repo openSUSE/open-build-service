@@ -2,7 +2,10 @@ class Worker::CommandController < ApplicationController
   def run
     required_parameters :cmd, :project, :package, :repository, :arch
 
-    raise UnknownCommandError, "Unknown command '#{params[:cmd]}' for path #{request.path}" unless params[:cmd] == 'checkconstraints'
+    unless params[:cmd] == 'checkconstraints'
+      raise UnknownCommandError,
+            "Unknown command '#{params[:cmd]}' for path #{request.path}"
+    end
 
     # read permission checking
     Package.get_by_project_and_name(params[:project], params[:package], { follow_multibuild: true })

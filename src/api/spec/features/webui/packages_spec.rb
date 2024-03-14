@@ -15,8 +15,12 @@ RSpec.describe 'Packages', :js, :vcr do
   let!(:user) { create(:confirmed_user, :with_home, login: 'package_test_user') }
   let!(:package) { create(:package_with_file, name: 'test_package', project: user.home_project) }
   let(:other_user) { create(:confirmed_user, :with_home, login: 'other_package_test_user') }
-  let!(:other_users_package) { create(:package_with_file, name: 'branch_test_package', project: other_user.home_project) }
-  let(:package_with_develpackage) { create(:package, name: 'develpackage', project: user.home_project, develpackage: other_users_package) }
+  let!(:other_users_package) do
+    create(:package_with_file, name: 'branch_test_package', project: other_user.home_project)
+  end
+  let(:package_with_develpackage) do
+    create(:package, name: 'develpackage', project: user.home_project, develpackage: other_users_package)
+  end
   let(:third_project) { create(:project_with_package, package_name: 'develpackage') }
 
   describe 'Viewing a package that' do
@@ -54,12 +58,16 @@ RSpec.describe 'Packages', :js, :vcr do
       click_link('home:package_test_user...ome:package_test_user')
       # Wait for the new page being loaded (aka. the ajax request to finish)
       expect(page).to have_text("Links to #{user.home_project} / #{package}")
-      expect(page).to have_current_path(package_show_path(project: branched_project, package: branched_project.packages.first), ignore_query: true)
+      expect(page).to have_current_path(
+        package_show_path(project: branched_project, package: branched_project.packages.first), ignore_query: true
+      )
     end
   end
 
   describe 'editing package files' do
-    let(:file_edit_test_package) { create(:package_with_file, name: 'file_edit_test_package', project: user.home_project) }
+    let(:file_edit_test_package) do
+      create(:package_with_file, name: 'file_edit_test_package', project: user.home_project)
+    end
 
     before do
       login(user)
@@ -99,7 +107,9 @@ RSpec.describe 'Packages', :js, :vcr do
   end
 
   context 'triggering package rebuild' do
-    let(:repository) { create(:repository, name: 'package_test_repository', project: user.home_project, architectures: ['x86_64']) }
+    let(:repository) do
+      create(:repository, name: 'package_test_repository', project: user.home_project, architectures: ['x86_64'])
+    end
     let(:rebuild_url) do
       "#{CONFIG['source_url']}/build/#{user.home_project.name}?cmd=rebuild&arch=x86_64&package=#{package.name}&repository=#{repository.name}"
     end
@@ -120,28 +130,34 @@ RSpec.describe 'Packages', :js, :vcr do
     end
 
     it 'via live build log' do
-      visit package_live_build_log_path(project: user.home_project, package: package, repository: repository.name, arch: 'x86_64')
+      visit package_live_build_log_path(project: user.home_project, package: package, repository: repository.name,
+                                        arch: 'x86_64')
       click_link('Trigger Rebuild', match: :first)
       expect(a_request(:post, rebuild_url)).to have_been_made.once
     end
 
     it 'via binaries view' do
       allow(Buildresult).to receive(:find_hashed)
-        .with(project: user.home_project.name, package: package.name, repository: repository.name, view: %w[binarylist status])
+        .with(project: user.home_project.name, package: package.name, repository: repository.name, view: %w[binarylist
+                                                                                                            status])
         .and_return(Xmlhash.parse(fake_buildresult))
 
-      visit project_package_repository_binaries_path(project_name: user.home_project, package_name: package, repository_name: repository.name)
+      visit project_package_repository_binaries_path(project_name: user.home_project, package_name: package,
+                                                     repository_name: repository.name)
       click_link('Trigger')
       expect(a_request(:post, rebuild_url)).to have_been_made.once
     end
   end
 
   context 'log' do
-    let(:repository) { create(:repository, name: 'package_test_repository', project: user.home_project, architectures: ['i586']) }
+    let(:repository) do
+      create(:repository, name: 'package_test_repository', project: user.home_project, architectures: ['i586'])
+    end
 
     before do
       login(user)
-      stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/#{package}/_log?end=1&nostream=1&start=0")
+      stub_request(:get,
+                   "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/#{package}/_log?end=1&nostream=1&start=0")
         .and_return(body: '[1] this is my dummy logfile -> ümlaut')
       result = %(<resultlist state="8da2ae1e32481175f43dc30b811ad9b5">
                               <result project="#{user.home_project}" repository="#{repository.name}" arch="i586" code="published" state="published">
@@ -163,7 +179,8 @@ RSpec.describe 'Packages', :js, :vcr do
     end
 
     it 'live build finishes succesfully' do
-      visit package_live_build_log_path(project: user.home_project, package: package, repository: repository.name, arch: 'i586')
+      visit package_live_build_log_path(project: user.home_project, package: package, repository: repository.name,
+                                        arch: 'i586')
 
       find_by_id('status', text: 'Build') # to wait until it loads
       expect(page).to have_text('Build')
@@ -380,7 +397,8 @@ RSpec.describe 'Packages', :js, :vcr do
         click_button('Create')
 
         expect(page).to have_text("Package 'coolstuff' was created successfully")
-        expect(page).to have_current_path(package_show_path(project: global_project.to_s, package: 'coolstuff'), ignore_query: true)
+        expect(page).to have_current_path(package_show_path(project: global_project.to_s, package: 'coolstuff'),
+                                          ignore_query: true)
       end
     end
   end

@@ -25,7 +25,8 @@ RSpec.describe Webui::Packages::BuildLogController, :vcr do
                <binarylist/>
              </result>
             </resultlist>))
-        do_request project: source_project, package: source_package, repository: repo_leap_42_2.name, arch: 'i586', format: 'js'
+        do_request project: source_project, package: source_package, repository: repo_leap_42_2.name, arch: 'i586',
+                   format: 'js'
       end
 
       it { expect(response).to have_http_status(:ok) }
@@ -41,14 +42,17 @@ RSpec.describe Webui::Packages::BuildLogController, :vcr do
                <binarylist/>
              </result>
             </resultlist>))
-        do_request project: source_project, package: source_package_with_plus, repository: repo_leap_42_2.name, arch: 'i586', format: 'js'
+        do_request project: source_project, package: source_package_with_plus, repository: repo_leap_42_2.name,
+                   arch: 'i586', format: 'js'
       end
 
       it { expect(response).to have_http_status(:ok) }
     end
 
     context "successfully with a project which name that includes '+'" do
-      let(:repo_leap_45_1) { create(:repository, name: 'leap_45.1', project: source_project_with_plus, architectures: ['i586']) }
+      let(:repo_leap_45_1) do
+        create(:repository, name: 'leap_45.1', project: source_project_with_plus, architectures: ['i586'])
+      end
 
       before do
         repo_leap_45_1
@@ -73,7 +77,8 @@ RSpec.describe Webui::Packages::BuildLogController, :vcr do
       let!(:flag) { create(:sourceaccess_flag, project: source_project) }
 
       before do
-        do_request project: source_project, package: source_package, repository: repo_leap_42_2.name, arch: 'i586', format: 'js'
+        do_request project: source_project, package: source_package, repository: repo_leap_42_2.name, arch: 'i586',
+                   format: 'js'
       end
 
       it { expect(flash[:error]).to eq('Could not access build log') }
@@ -85,7 +90,10 @@ RSpec.describe Webui::Packages::BuildLogController, :vcr do
         do_request project: source_project, package: 'nonexistent', repository: repo_leap_42_2.name, arch: 'i586'
       end
 
-      it { expect(flash[:error]).to eq("Couldn't find package 'nonexistent' in project '#{source_project}'. Are you sure it exists?") }
+      it {
+        expect(flash[:error]).to eq("Couldn't find package 'nonexistent' in project '#{source_project}'. Are you sure it exists?")
+      }
+
       it { expect(response).to redirect_to(project_show_path(project: source_project)) }
     end
 

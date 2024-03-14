@@ -25,7 +25,8 @@ module Cloud
       validates :external_id, uniqueness: { case_sensitive: true }
       validates :arn, uniqueness: { case_sensitive: true }, allow_nil: true
       # http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html
-      validates :arn, format: { with: %r{\Aarn:([\w/:* +=,.@\-_])+\z}, message: 'not a valid format', allow_blank: true }
+      validates :arn,
+                format: { with: %r{\Aarn:([\w/:* +=,.@\-_])+\z}, message: 'not a valid format', allow_blank: true }
 
       def self.table_name_prefix
         'cloud_ec2_'

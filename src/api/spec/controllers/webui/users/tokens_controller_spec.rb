@@ -75,7 +75,9 @@ RSpec.describe Webui::Users::TokensController do
     end
 
     context 'type is rebuild but project does not exist' do
-      let(:form_parameters) { { token: { type: 'rebuild' }, description: 'token description', project_name: 'non-existing project' } }
+      let(:form_parameters) do
+        { token: { type: 'rebuild' }, description: 'token description', project_name: 'non-existing project' }
+      end
 
       include_examples 'check for flashing an error'
 
@@ -108,7 +110,9 @@ RSpec.describe Webui::Users::TokensController do
 
     context 'updates a workflow token belonging to the logged-in user' do
       let(:token) { create(:workflow_token, executor: user, scm_token: 'something') }
-      let(:update_parameters) { { id: token.id, token: { description: 'My first token', scm_token: 'something_else' } } }
+      let(:update_parameters) do
+        { id: token.id, token: { description: 'My first token', scm_token: 'something_else' } }
+      end
 
       include_examples 'check for flashing a success'
 

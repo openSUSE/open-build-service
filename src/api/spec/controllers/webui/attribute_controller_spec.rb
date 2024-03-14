@@ -50,7 +50,9 @@ RSpec.describe Webui::AttributeController do
       context 'with more values, nothing changes' do
         let(:attrib_type) { create(:attrib_type, value_count: 2) }
         let(:attrib_value_2) { build(:attrib_value, value: Faker::Lorem.sentence) }
-        let!(:attrib) { create(:attrib, project: user.home_project, attrib_type: attrib_type, values: [attrib_value, attrib_value_2]) }
+        let!(:attrib) do
+          create(:attrib, project: user.home_project, attrib_type: attrib_type, values: [attrib_value, attrib_value_2])
+        end
 
         before do
           attrib_type.value_count -= 1
@@ -91,7 +93,10 @@ RSpec.describe Webui::AttributeController do
 
     context 'when attribute is not added to the project' do
       it 'renders the 404 page (production mode)' do
-        expect { get :edit, params: { project: user.home_project, attribute: 'OBS:Issues' } }.to raise_error(ActiveRecord::RecordNotFound)
+        expect do
+          get :edit,
+              params: { project: user.home_project, attribute: 'OBS:Issues' }
+        end.to raise_error(ActiveRecord::RecordNotFound)
       end
     end
   end
@@ -110,7 +115,11 @@ RSpec.describe Webui::AttributeController do
         post :create, params: { attrib: { project_id: user.home_project.id, attrib_type_id: attribute_type_1.id } }
       end
 
-      it { expect(response).to redirect_to(edit_attribs_path(project: user.home_project_name, package: '', attribute: attribute_type_1_name)) }
+      it {
+        expect(response).to redirect_to(edit_attribs_path(project: user.home_project_name, package: '',
+                                                          attribute: attribute_type_1_name))
+      }
+
       it { expect(flash[:success]).to eq('Attribute was successfully created.') }
     end
 
@@ -148,7 +157,11 @@ RSpec.describe Webui::AttributeController do
         attrib.reload
       end
 
-      it { expect(response).to redirect_to(edit_attribs_path(attribute: attrib.fullname, project: user.home_project.to_s, package: '')) }
+      it {
+        expect(response).to redirect_to(edit_attribs_path(attribute: attrib.fullname, project: user.home_project.to_s,
+                                                          package: ''))
+      }
+
       it { expect(flash[:success]).to eq('Attribute was successfully updated.') }
       it { expect(attrib.attrib_type_id).to eq(new_attrib_type.id) }
     end

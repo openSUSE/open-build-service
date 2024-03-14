@@ -19,10 +19,16 @@ class Service
 
   def self.verify_xml!(raw_post)
     Xmlhash.parse(raw_post).elements('service').each do |s|
-      raise InvalidParameter, "service name #{s['name']} contains invalid chars" unless Service::NameValidator.new(s['name']).valid?
+      unless Service::NameValidator.new(s['name']).valid?
+        raise InvalidParameter,
+              "service name #{s['name']} contains invalid chars"
+      end
 
       s.elements('param').each do |p|
-        raise InvalidParameter, "service parameter #{p['name']} contains invalid chars" unless Service::NameValidator.new(p['name']).valid?
+        unless Service::NameValidator.new(p['name']).valid?
+          raise InvalidParameter,
+                "service parameter #{p['name']} contains invalid chars"
+        end
       end
     end
   end
@@ -94,7 +100,8 @@ class Service
       service_package = Package.get_by_project_and_name(project.name, package.name, follow_project_links: false)
       return false unless User.session!.can_modify?(service_package)
 
-      Backend::Api::Sources::Package.trigger_services(service_package.project.name, service_package.name, User.session!.login)
+      Backend::Api::Sources::Package.trigger_services(service_package.project.name, service_package.name,
+                                                      User.session!.login)
       service_package.sources_changed
     end
     true

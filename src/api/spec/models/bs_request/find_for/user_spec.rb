@@ -61,13 +61,17 @@ RSpec.describe BsRequest::FindFor::User do
 
       context 'to a project with a request' do
         it_behaves_like 'has a request' do
-          let!(:relationship_project_group) { create(:relationship_project_group, project: target_project, group: group) }
+          let!(:relationship_project_group) do
+            create(:relationship_project_group, project: target_project, group: group)
+          end
         end
       end
 
       context 'to a package with a request' do
         it_behaves_like 'has a request' do
-          let!(:relationship_package_group) { create(:relationship_package_group, package: target_package, group: group) }
+          let!(:relationship_package_group) do
+            create(:relationship_package_group, package: target_package, group: group)
+          end
         end
       end
     end
@@ -154,7 +158,9 @@ RSpec.describe BsRequest::FindFor::User do
           let!(:review) { create(:review, by_project: target_project, bs_request: request) }
           let!(:relationship_project_user) { create(:relationship_project_user, project: target_project, user: user) }
 
-          let(:another_request) { create(:set_bugowner_request, creator: another_user, review_by_project: another_target_project) }
+          let(:another_request) do
+            create(:set_bugowner_request, creator: another_user, review_by_project: another_target_project)
+          end
         end
       end
 
@@ -163,7 +169,9 @@ RSpec.describe BsRequest::FindFor::User do
           let!(:request) { create(:set_bugowner_request, creator: another_user, review_by_package: target_package) }
           let!(:relationship_package_group) { create(:relationship_package_user, package: target_package, user: user) }
 
-          let!(:another_request) { create(:set_bugowner_request, creator: another_user, review_by_package: another_target_package) }
+          let!(:another_request) do
+            create(:set_bugowner_request, creator: another_user, review_by_package: another_target_package)
+          end
         end
       end
     end

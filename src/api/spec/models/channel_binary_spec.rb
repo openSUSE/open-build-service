@@ -4,7 +4,10 @@ RSpec.describe ChannelBinary, :vcr do
   let(:repository) { create(:repository, architectures: ['i586'], project: project) }
   let(:package) { create(:package, project: project, name: 'zaz') }
   let(:channel) { create(:channel, package: package) }
-  let(:channel_binary_list) { create(:channel_binary_list, channel: channel, repository: repository, project: project, architecture: repository.architectures.first) }
+  let(:channel_binary_list) do
+    create(:channel_binary_list, channel: channel, repository: repository, project: project,
+                                 architecture: repository.architectures.first)
+  end
 
   before do
     login user

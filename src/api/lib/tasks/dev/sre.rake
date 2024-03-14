@@ -13,7 +13,8 @@ namespace :dev do
       options_yml = YAML.load_file('config/options.yml', aliases: true) || {}
       options_yml['development']['influxdb_hosts'] = ['influx']
       options_yml['development']['amqp_namespace'] = 'opensuse.obs'
-      options_yml['development']['amqp_options'] = { host: 'rabbit', port: '5672', user: 'guest', pass: 'guest', vhost: '/' }
+      options_yml['development']['amqp_options'] =
+        { host: 'rabbit', port: '5672', user: 'guest', pass: 'guest', vhost: '/' }
       options_yml['development']['amqp_exchange_name'] = 'pubsub'
       options_yml['development']['amqp_exchange_options'] = { type: :topic, persistent: 'true', passive: 'true' }
       File.write('config/options.yml', YAML.dump(options_yml))

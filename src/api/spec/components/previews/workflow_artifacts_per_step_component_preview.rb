@@ -34,12 +34,14 @@ class WorkflowArtifactsPerStepComponentPreview < ViewComponent::Preview
                                                            {
                                                              name: 'openSUSE_Tumbleweed',
                                                              paths: [{ target_project: 'openSUSE:Factory', target_repository: 'snapshot' },
-                                                                     { target_project: 'devel:tools', target_repository: 'openSUSE_Factory_ARM' }],
+                                                                     { target_project: 'devel:tools',
+                                                                       target_repository: 'openSUSE_Factory_ARM' }],
                                                              architectures: %w[x86_64 ppc]
                                                            },
                                                            {
                                                              name: 'openSUSE_Leap_15.3',
-                                                             paths: [{ target_project: 'openSUSE:Leap:15.3', target_repository: 'standard' }],
+                                                             paths: [{ target_project: 'openSUSE:Leap:15.3',
+                                                                       target_repository: 'standard' }],
                                                              architectures: ['x86_64']
                                                            }
                                                          ]
@@ -113,7 +115,8 @@ class WorkflowArtifactsPerStepComponentPreview < ViewComponent::Preview
   end
 
   def render_artifacts_per_step(step, artifacts)
-    artifacts_per_step = WorkflowArtifactsPerStep.new(workflow_run: workflow_run, artifacts: artifacts, step: step.class.name)
+    artifacts_per_step = WorkflowArtifactsPerStep.new(workflow_run: workflow_run, artifacts: artifacts,
+                                                      step: step.class.name)
     render(WorkflowArtifactsPerStepComponent.new(artifacts_per_step: artifacts_per_step))
   end
 end

@@ -135,7 +135,8 @@ RSpec.describe Cloud::UploadJobsController, :vcr do
         }
       end
       let(:post_body) do
-        user_with_ec2_configuration.ec2_configuration.attributes.except('id', 'created_at', 'updated_at').merge(additional_data).to_json
+        user_with_ec2_configuration.ec2_configuration.attributes.except('id', 'created_at',
+                                                                        'updated_at').merge(additional_data).to_json
       end
 
       before do

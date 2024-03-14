@@ -112,7 +112,9 @@ RSpec.describe 'Projects', :js, :vcr do
 
   describe 'branching' do
     let(:other_user) { create(:confirmed_user, :with_home, login: 'other_user') }
-    let!(:package_of_another_project) { create(:package_with_file, name: 'branch_test_package', project: other_user.home_project) }
+    let!(:package_of_another_project) do
+      create(:package_with_file, name: 'branch_test_package', project: other_user.home_project)
+    end
 
     before do
       login user
@@ -142,7 +144,8 @@ RSpec.describe 'Projects', :js, :vcr do
       click_button('Branch')
 
       expect(page).to have_text('Successfully branched package')
-      expect(page).to have_current_path("/package/show/#{user.home_project_name}/some_different_name", ignore_query: true)
+      expect(page).to have_current_path("/package/show/#{user.home_project_name}/some_different_name",
+                                        ignore_query: true)
     end
 
     it 'an existing package were the target package already exists' do
@@ -191,7 +194,8 @@ RSpec.describe 'Projects', :js, :vcr do
       expect(page).to have_css('#project-title', text: "#{maintenance_project}:0", wait: 12)
 
       # We can not create this via the Bootstrap UI, except by adding plain XML to the meta editor
-      repository = create(:repository, project: Project.find_by(name: "#{project.name}:maintenance_project:0"), name: 'target')
+      repository = create(:repository, project: Project.find_by(name: "#{project.name}:maintenance_project:0"),
+                                       name: 'target')
       create(:release_target, repository: repository, target_repository: target_repository, trigger: 'maintenance')
 
       visit project_show_path(maintenance_project)

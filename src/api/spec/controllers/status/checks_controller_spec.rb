@@ -30,12 +30,14 @@ RSpec.describe Status::ChecksController do
       end
 
       it 'gives 404 for invalid project' do
-        expect(post(:update, body: xml, params: { project_name: "#{project.name}_", report_uuid: 'nada', repository_name: repository.name }, format: :xml)).to have_http_status(:not_found)
+        expect(post(:update, body: xml,
+                             params: { project_name: "#{project.name}_", report_uuid: 'nada', repository_name: repository.name }, format: :xml)).to have_http_status(:not_found)
         expect(Xmlhash.parse(response.body)['summary']).to match(/Couldn't find Project/)
       end
 
       it 'gives 404 for invalid repository' do
-        expect(post(:update, body: xml, params: { project_name: project.name, report_uuid: 'nada', repository_name: "#{repository.name}_" }, format: :xml)).to have_http_status(:not_found)
+        expect(post(:update, body: xml,
+                             params: { project_name: project.name, report_uuid: 'nada', repository_name: "#{repository.name}_" }, format: :xml)).to have_http_status(:not_found)
         expect(Xmlhash.parse(response.body)['summary']).to match(/Repository.*not found/)
       end
 
@@ -105,14 +107,16 @@ RSpec.describe Status::ChecksController do
 
         it 'creates the proper event' do
           post :update, body: xml, params: params, format: :xml
-          expect(Event::StatusCheckForPublished.first.payload).to include('who' => user.login, 'project' => project.name, 'repo' => repository.name, 'state' => 'pending')
+          expect(Event::StatusCheckForPublished.first.payload).to include('who' => user.login,
+                                                                          'project' => project.name, 'repo' => repository.name, 'state' => 'pending')
         end
       end
 
       context 'for a repository architecture' do
         let(:status_report) { create(:status_report, checkable: repository_architecture) }
         let(:params) do
-          { report_uuid: status_report.uuid, repository_name: repository.name, project_name: project.name, arch: repository_architecture.architecture.name }
+          { report_uuid: status_report.uuid, repository_name: repository.name, project_name: project.name,
+            arch: repository_architecture.architecture.name }
         end
 
         include_context 'does create the check'
@@ -127,7 +131,9 @@ RSpec.describe Status::ChecksController do
       context 'for a request' do
         let(:source_package) { create(:package) }
         let(:source_project) { source_package.project }
-        let(:bs_request) { create(:bs_request_with_submit_action, target_project: project, source_package: source_package) }
+        let(:bs_request) do
+          create(:bs_request_with_submit_action, target_project: project, source_package: source_package)
+        end
         let!(:status_report) { create(:status_report, checkable: bs_request) }
         let(:params) do
           { bs_request_number: bs_request.number }
@@ -136,7 +142,8 @@ RSpec.describe Status::ChecksController do
         include_context 'does create the check'
         it 'creates the proper event' do
           post :update, body: xml, params: params, format: :xml
-          expect(Event::StatusCheckForRequest.first.payload).to include('who' => user.login, 'number' => bs_request.number, 'state' => 'pending')
+          expect(Event::StatusCheckForRequest.first.payload).to include('who' => user.login,
+                                                                        'number' => bs_request.number, 'state' => 'pending')
         end
       end
     end
@@ -166,7 +173,10 @@ RSpec.describe Status::ChecksController do
         let(:repository) { create(:repository, project: project) }
         let!(:relationship) { create(:relationship_project_user, user: user, project: project) }
 
-        subject! { post :update, body: xml, params: { project_name: project.name, repository_name: repository.name, report_uuid: '1234' }, format: :xml }
+        subject! do
+          post :update, body: xml,
+                        params: { project_name: project.name, repository_name: repository.name, report_uuid: '1234' }, format: :xml
+        end
 
         it 'creates a new status report' do
           expect(repository.status_reports.where(uuid: '1234')).to exist
@@ -232,7 +242,8 @@ RSpec.describe Status::ChecksController do
         let(:status_report) { create(:status_report, checkable: repository_architecture) }
         let!(:check) { create(:check, name: 'openQA', state: 'pending', status_report: status_report) }
         let(:params) do
-          { report_uuid: status_report.uuid, repository_name: repository.name, project_name: project.name, arch: repository_architecture.architecture.name }
+          { report_uuid: status_report.uuid, repository_name: repository.name, project_name: project.name,
+            arch: repository_architecture.architecture.name }
         end
 
         include_context 'does update the check'
@@ -241,7 +252,9 @@ RSpec.describe Status::ChecksController do
       context 'for a request' do
         let(:source_package) { create(:package) }
         let(:source_project) { source_package.project }
-        let(:bs_request) { create(:bs_request_with_submit_action, target_project: project, source_package: source_package) }
+        let(:bs_request) do
+          create(:bs_request_with_submit_action, target_project: project, source_package: source_package)
+        end
         let(:status_report) { create(:status_report, checkable: bs_request) }
         let!(:check) { create(:check, name: 'openQA', state: 'pending', status_report: status_report) }
         let(:params) do

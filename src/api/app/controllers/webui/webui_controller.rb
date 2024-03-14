@@ -104,7 +104,8 @@ class Webui::WebuiController < ActionController::Base
     User.session = nil # reset old users hanging around
 
     unless WebuiControllerService::UserChecker.new(http_request: request).call
-      redirect_to(CONFIG['proxy_auth_logout_page'], error: 'Your account is disabled. Please contact the administrator for details.')
+      redirect_to(CONFIG['proxy_auth_logout_page'],
+                  error: 'Your account is disabled. Please contact the administrator for details.')
       return
     end
 

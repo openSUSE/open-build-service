@@ -390,7 +390,8 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     delete '/source/RemoteInstance:BaseDistro2.0/pack2'
     assert_response 403
     assert_xml_tag tag: 'status', attributes: { code: 'delete_package_no_permission' }
-    post '/source/RemoteInstance:BaseDistro2.0/package', params: { cmd: :copy, oproject: 'BaseDistro2.0', opackage: 'pack2' }
+    post '/source/RemoteInstance:BaseDistro2.0/package',
+         params: { cmd: :copy, oproject: 'BaseDistro2.0', opackage: 'pack2' }
     assert_response 403
     assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
     put '/source/RemoteInstance:BaseDistro2.0/pack/_meta', params: '<package name="pack" project="RemoteInstance:BaseDistro2.0">
@@ -414,7 +415,8 @@ class InterConnectTests < ActionDispatch::IntegrationTest
 
   def test_submit_requests_from_remote
     login_king
-    post '/source/LocalProject/pack2.linked', params: { cmd: :copy, oproject: 'LocalProject', opackage: 'remotepackage' }
+    post '/source/LocalProject/pack2.linked',
+         params: { cmd: :copy, oproject: 'LocalProject', opackage: 'remotepackage' }
     assert_response :success
 
     login_tom
@@ -454,14 +456,17 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :success
     delete '/source/LocalProject/temporary'
     assert_response :success
-    post '/source/LocalProject/temporary', params: { cmd: :copy, oproject: 'UseRemoteInstance', opackage: 'pack2.linked' }
+    post '/source/LocalProject/temporary',
+         params: { cmd: :copy, oproject: 'UseRemoteInstance', opackage: 'pack2.linked' }
     assert_response :success
-    post '/source/LocalProject/temporary', params: { cmd: :copy, oproject: 'RemoteInstance:BaseDistro', opackage: 'pack1' }
+    post '/source/LocalProject/temporary',
+         params: { cmd: :copy, oproject: 'RemoteInstance:BaseDistro', opackage: 'pack1' }
     assert_response :success
 
     post '/source/LocalProject/temporary', params: { cmd: :diff, oproject: 'LocalProject', opackage: 'remotepackage' }
     assert_response :success
-    post '/source/LocalProject/temporary', params: { cmd: :diff, oproject: 'UseRemoteInstance', opackage: 'pack2.linked' }
+    post '/source/LocalProject/temporary',
+         params: { cmd: :diff, oproject: 'UseRemoteInstance', opackage: 'pack2.linked' }
     assert_response :success
 
     login_king
@@ -479,7 +484,8 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     Backend::Connection.put('/source/LocalProject/newpackage/_meta?user=king',
                             Package.find_by_project_and_name('LocalProject', 'newpackage').to_axml)
     Backend::Connection.put('/source/LocalProject/newpackage/new_file?user=king', 'adding stuff')
-    post '/source/LocalProject/newpackage', params: { cmd: :diff, oproject: 'RemoteInstance:BaseDistro', opackage: 'pack1' }
+    post '/source/LocalProject/newpackage',
+         params: { cmd: :diff, oproject: 'RemoteInstance:BaseDistro', opackage: 'pack1' }
     assert_response :success
   end
 
@@ -582,9 +588,11 @@ class InterConnectTests < ActionDispatch::IntegrationTest
 
   def test_remove_broken_link
     login_Iggy
-    put '/source/home:Iggy/TestLinkPack/_meta', params: "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
+    put '/source/home:Iggy/TestLinkPack/_meta',
+        params: "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"
     assert_response :success
-    put '/source/home:Iggy/TestLinkPack/_link', params: "<link project='RemoteInstance:home:Iggy' package='TestPack' rev='invalid' />"
+    put '/source/home:Iggy/TestLinkPack/_link',
+        params: "<link project='RemoteInstance:home:Iggy' package='TestPack' rev='invalid' />"
     assert_response :success
     get '/source/home:Iggy/TestLinkPack'
     assert_response :success

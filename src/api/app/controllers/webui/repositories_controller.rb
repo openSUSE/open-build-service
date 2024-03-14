@@ -109,8 +109,10 @@ class Webui::RepositoriesController < Webui::WebuiController
     begin
       ActiveRecord::Base.transaction do
         @new_repository = @project.repositories.create!(name: params[:name])
-        @new_repository.repository_architectures.create!(architecture: Architecture.find_by(name: params[:arch]), position: 1)
-        @new_repository.download_repositories.create!(arch: params[:arch], url: params[:url], repotype: params[:repotype])
+        @new_repository.repository_architectures.create!(architecture: Architecture.find_by(name: params[:arch]),
+                                                         position: 1)
+        @new_repository.download_repositories.create!(arch: params[:arch], url: params[:url],
+                                                      repotype: params[:repotype])
         @project.store
       end
     rescue ::Timeout::Error, ActiveRecord::RecordInvalid => e
@@ -176,7 +178,8 @@ class Webui::RepositoriesController < Webui::WebuiController
     when 'remove'
       @main_object.flags.of_type(flag_type).where(repo: params[:repository], architecture: architecture).delete_all
     when /^set-(?<status>disable|enable)$/
-      flag = @main_object.flags.find_or_create_by(flag: flag_type, repo: params[:repository], architecture: architecture)
+      flag = @main_object.flags.find_or_create_by(flag: flag_type, repo: params[:repository],
+                                                  architecture: architecture)
       flag.update(status: $LAST_MATCH_INFO['status'])
     end
     @main_object.store

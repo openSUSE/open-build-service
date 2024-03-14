@@ -43,7 +43,13 @@ class SourceAttributeController < SourceController
 
     # checks
     raise ActiveRecord::RecordNotFound, "Attribute #{params[:attribute]} does not exist" unless attrib
-    raise ChangeAttributeNoPermission, "User #{User.possibly_nobody.login} has no permission to change attribute" unless User.possibly_nobody.can_create_attribute_in?(@attribute_container, @at)
+
+    unless User.possibly_nobody.can_create_attribute_in?(
+      @attribute_container, @at
+    )
+      raise ChangeAttributeNoPermission,
+            "User #{User.possibly_nobody.login} has no permission to change attribute"
+    end
 
     # exec
     attrib.destroy
@@ -69,7 +75,8 @@ class SourceAttributeController < SourceController
       attrib.container = @attribute_container
 
       unless attrib.valid?
-        render_error(message: attrib.errors.full_messages.join('\n'), status: 400, errorcode: attrib.errors.filter_map(&:type).first&.to_s)
+        render_error(message: attrib.errors.full_messages.join('\n'), status: 400,
+                     errorcode: attrib.errors.filter_map(&:type).first&.to_s)
         return false
       end
 

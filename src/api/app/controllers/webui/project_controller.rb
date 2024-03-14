@@ -136,7 +136,8 @@ class Webui::ProjectController < Webui::WebuiController
         redirect_to(action: :index)
       end
     else
-      redirect_to project_show_path(@project), error: "Project can't be removed: #{@project.errors.full_messages.to_sentence}"
+      redirect_to project_show_path(@project),
+                  error: "Project can't be removed: #{@project.errors.full_messages.to_sentence}"
     end
   end
 
@@ -169,7 +170,9 @@ class Webui::ProjectController < Webui::WebuiController
       @current_notification = Notification.find(params[:notification_id])
       authorize @current_notification, :update?, policy_class: NotificationPolicy
     end
-    @current_request_action = BsRequestAction.find(params[:request_action_id]) if User.session && params[:request_action_id]
+    return unless User.session && params[:request_action_id]
+
+    @current_request_action = BsRequestAction.find(params[:request_action_id])
   end
 
   def subprojects
@@ -281,9 +284,11 @@ class Webui::ProjectController < Webui::WebuiController
     path_element.destroy
     if @project.valid?
       @project.store
-      redirect_to({ action: :index, controller: :repositories, project: @project }, success: 'Successfully removed path')
+      redirect_to({ action: :index, controller: :repositories, project: @project },
+                  success: 'Successfully removed path')
     else
-      redirect_back(fallback_location: root_path, error: "Can not remove path: #{@project.errors.full_messages.to_sentence}")
+      redirect_back(fallback_location: root_path,
+                    error: "Can not remove path: #{@project.errors.full_messages.to_sentence}")
     end
   end
 
@@ -306,7 +311,8 @@ class Webui::ProjectController < Webui::WebuiController
     end
 
     @project.store
-    redirect_to({ action: :index, controller: :repositories, project: @project }, success: "Path moved #{params[:direction]} successfully")
+    redirect_to({ action: :index, controller: :repositories, project: @project },
+                success: "Path moved #{params[:direction]} successfully")
   end
 
   def monitor
@@ -333,7 +339,8 @@ class Webui::ProjectController < Webui::WebuiController
 
     packages = Package.where(project: @project, name: params[:package])
     packages.each do |package|
-      package.attribs.where(attrib_type: AttribType.find_by_namespace_and_name('OBS', 'ProjectStatusPackageFailComment')).destroy_all
+      package.attribs.where(attrib_type: AttribType.find_by_namespace_and_name('OBS',
+                                                                               'ProjectStatusPackageFailComment')).destroy_all
     end
 
     flash.now[:success] = 'Cleared comments for packages'
@@ -369,7 +376,8 @@ class Webui::ProjectController < Webui::WebuiController
     if @project.unlock(params[:comment])
       redirect_to project_show_path(@project), success: 'Successfully unlocked project'
     else
-      redirect_to project_show_path(@project), error: "Project can't be unlocked: #{@project.errors.full_messages.to_sentence}"
+      redirect_to project_show_path(@project),
+                  error: "Project can't be unlocked: #{@project.errors.full_messages.to_sentence}"
     end
   end
 
@@ -423,7 +431,9 @@ class Webui::ProjectController < Webui::WebuiController
     find_maintenance_infos
 
     @packages = @project.packages.pluck(:name)
-    @inherited_packages = @project.expand_all_packages.find_all { |inherited_package| @packages.exclude?(inherited_package[0]) }
+    @inherited_packages = @project.expand_all_packages.find_all do |inherited_package|
+      @packages.exclude?(inherited_package[0])
+    end
     @linking_projects = @project.linked_by_projects.pluck(:name)
 
     reqs = @project.open_requests

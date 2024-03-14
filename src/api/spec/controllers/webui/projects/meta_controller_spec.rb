@@ -22,7 +22,8 @@ RSpec.describe Webui::Projects::MetaController, :vcr do
             -> { OpenStruct.new(valid?: false, errors: 'yada') }
           }
 
-          post :update, params: { project_name: user.home_project, meta: '<project name="home:tom"><title/></project>' }, xhr: true
+          post :update,
+               params: { project_name: user.home_project, meta: '<project name="home:tom"><title/></project>' }, xhr: true
         end
 
         it { expect(flash.now[:error]).not_to be_nil }
@@ -34,7 +35,8 @@ RSpec.describe Webui::Projects::MetaController, :vcr do
           allow(MetaControllerService::ProjectUpdater).to receive(:new) {
             -> { OpenStruct.new(valid?: true, errors: '') }
           }
-          post :update, params: { project_name: user.home_project, meta: '<project name="home:tom"><title/><description/></project>' }, xhr: true
+          post :update,
+               params: { project_name: user.home_project, meta: '<project name="home:tom"><title/><description/></project>' }, xhr: true
         end
 
         it { expect(flash.now[:success]).not_to be_nil }

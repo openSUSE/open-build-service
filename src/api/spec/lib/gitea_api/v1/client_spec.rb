@@ -15,7 +15,9 @@ RSpec.describe GiteaAPI::V1::Client do
       end
 
       it 'sends a post request to the correct api endpoint' do
-        expect(faraday).to have_received(:post).with(url, { context: nil, description: nil, state: 'succeeded', target_url: nil })
+        expect(faraday).to have_received(:post).with(url,
+                                                     { context: nil, description: nil, state: 'succeeded',
+                                                       target_url: nil })
       end
     end
 
@@ -27,7 +29,10 @@ RSpec.describe GiteaAPI::V1::Client do
       end
 
       it 'sends a post request and returns the correct exception class' do
-        expect { client.create_commit_status(owner: 'krauselukas', repo: 'hello_world', sha: 'abc123cdf', state: 'succeeded') }.to raise_error(GiteaAPI::V1::Client::BadRequestError)
+        expect do
+          client.create_commit_status(owner: 'krauselukas', repo: 'hello_world', sha: 'abc123cdf',
+                                      state: 'succeeded')
+        end.to raise_error(GiteaAPI::V1::Client::BadRequestError)
       end
     end
   end

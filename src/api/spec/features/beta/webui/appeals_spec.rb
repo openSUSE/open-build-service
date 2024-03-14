@@ -10,7 +10,10 @@ RSpec.describe 'Appeals', :js, :vcr do
     let(:user) { create(:confirmed_user) }
     let(:comment) { create(:comment_package, user: user) }
     let(:report) { create(:report, reportable: comment) }
-    let!(:decision) { Decision.create!(kind: Decision.kinds['favor'], reason: "It's spam indeed", reports: [report], moderator: moderator) }
+    let!(:decision) do
+      Decision.create!(kind: Decision.kinds['favor'], reason: "It's spam indeed", reports: [report],
+                       moderator: moderator)
+    end
 
     before do
       EventSubscription.create!(eventtype: Event::FavoredDecision.name,

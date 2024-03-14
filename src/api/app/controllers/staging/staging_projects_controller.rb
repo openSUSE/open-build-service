@@ -42,7 +42,8 @@ class Staging::StagingProjectsController < Staging::StagingController
   def copy
     authorize @project.staging
 
-    StagingProjectCopyJob.perform_later(params[:staging_workflow_project], params[:staging_project_name], params[:staging_project_copy_name], User.session!.id)
+    StagingProjectCopyJob.perform_later(params[:staging_workflow_project], params[:staging_project_name],
+                                        params[:staging_project_copy_name], User.session!.id)
     render_ok
   end
 
@@ -67,9 +68,13 @@ class Staging::StagingProjectsController < Staging::StagingController
     @acceptable_error = 'has reviews open' unless @staging_project.missing_reviews.empty?
 
     if force
-      @acceptable_error = "is not in state #{StagingProject::FORCEABLE_STATES.to_sentence(last_word_connector: ' or ')}" unless @staging_project.overall_state.in?(StagingProject::FORCEABLE_STATES)
+      unless @staging_project.overall_state.in?(StagingProject::FORCEABLE_STATES)
+        @acceptable_error = "is not in state #{StagingProject::FORCEABLE_STATES.to_sentence(last_word_connector: ' or ')}"
+      end
     else
-      @acceptable_error = "#{@staging_project.overall_state} is not an acceptable state" unless @staging_project.overall_state == :acceptable
+      unless @staging_project.overall_state == :acceptable
+        @acceptable_error = "#{@staging_project.overall_state} is not an acceptable state"
+      end
     end
     @acceptable_error.blank?
   end
@@ -82,7 +87,10 @@ class Staging::StagingProjectsController < Staging::StagingController
   end
 
   def set_staging_project
-    raise StagingWorkflowNotFound, "Staging Workflow for project \"#{@project.name}\" does not exist." unless @project.staging
+    unless @project.staging
+      raise StagingWorkflowNotFound,
+            "Staging Workflow for project \"#{@project.name}\" does not exist."
+    end
 
     included_associations = []
     included_associations << :staged_requests if @options && @options.key?(:requests)

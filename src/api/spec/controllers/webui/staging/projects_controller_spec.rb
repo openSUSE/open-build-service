@@ -17,7 +17,8 @@ RSpec.describe Webui::Staging::ProjectsController do
     context 'a staging_project' do
       before do
         login(user)
-        post :create, params: { workflow_project: staging_workflow.project, staging_project_name: 'home:tom:My:Projects' }
+        post :create,
+             params: { workflow_project: staging_workflow.project, staging_project_name: 'home:tom:My:Projects' }
       end
 
       subject { staging_workflow }
@@ -26,7 +27,8 @@ RSpec.describe Webui::Staging::ProjectsController do
 
       it 'create a new staging project' do
         subject.reload
-        expect(subject.staging_projects.map(&:name)).to contain_exactly('home:tom:Staging:A', 'home:tom:Staging:B', 'home:tom:My:Projects')
+        expect(subject.staging_projects.map(&:name)).to contain_exactly('home:tom:Staging:A', 'home:tom:Staging:B',
+                                                                        'home:tom:My:Projects')
       end
 
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject.project)) }
@@ -43,13 +45,19 @@ RSpec.describe Webui::Staging::ProjectsController do
 
       before do
         login(user)
-        post :create, params: { workflow_project: staging_workflow.project, staging_project_name: existent_project.name }
+        post :create,
+             params: { workflow_project: staging_workflow.project, staging_project_name: existent_project.name }
       end
 
       subject { staging_workflow }
 
       it { expect(Project.count).to eq(4) }
-      it { expect(subject.staging_projects.map(&:name)).to contain_exactly('home:tom:Staging:A', 'home:tom:Staging:B', existent_project.name) }
+
+      it {
+        expect(subject.staging_projects.map(&:name)).to contain_exactly('home:tom:Staging:A', 'home:tom:Staging:B',
+                                                                        existent_project.name)
+      }
+
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject.project)) }
       it { expect(flash[:success]).not_to be_nil }
       it { expect(CreateProjectLogEntryJob).to have_been_enqueued }
@@ -90,7 +98,8 @@ RSpec.describe Webui::Staging::ProjectsController do
         staging_workflow
         allow_any_instance_of(Project).to receive(:valid?).and_return(false)
         login(user)
-        post :create, params: { workflow_project: staging_workflow.project, staging_project_name: 'home:tom:My:Projects' }
+        post :create,
+             params: { workflow_project: staging_workflow.project, staging_project_name: 'home:tom:My:Projects' }
       end
 
       subject { staging_workflow }
@@ -238,10 +247,12 @@ RSpec.describe Webui::Staging::ProjectsController do
     it 'queues a StagingProjectCopyJob job' do
       login(user)
 
-      expect { post :copy, params: params }.to have_enqueued_job(StagingProjectCopyJob).with(staging_workflow.project.name,
-                                                                                             original_staging_project_name,
-                                                                                             staging_project_copy_name,
-                                                                                             user.id)
+      expect do
+        post :copy, params: params
+      end.to have_enqueued_job(StagingProjectCopyJob).with(staging_workflow.project.name,
+                                                           original_staging_project_name,
+                                                           staging_project_copy_name,
+                                                           user.id)
     end
   end
 end

@@ -32,8 +32,14 @@ module UserService
       involved_items.concat(involved_items_as_owner) if filter_by_owner?
 
       if filter_by_role?
-        involved_items.concat(pkg_or_prj_filtered_by_roles(user: @user, klass: Project, roles: roles)) if consider_involved_projects?
-        involved_items.concat(pkg_or_prj_filtered_by_roles(user: @user, klass: Package, roles: roles)) if consider_involved_packages?
+        if consider_involved_projects?
+          involved_items.concat(pkg_or_prj_filtered_by_roles(user: @user, klass: Project,
+                                                             roles: roles))
+        end
+        if consider_involved_packages?
+          involved_items.concat(pkg_or_prj_filtered_by_roles(user: @user, klass: Package,
+                                                             roles: roles))
+        end
       else
         involved_items.concat(pkg_or_prj_unfiltered(user: @user, klass: Package)) if consider_involved_packages?
         involved_items.concat(pkg_or_prj_unfiltered(user: @user, klass: Project)) if consider_involved_projects?
@@ -115,7 +121,9 @@ module UserService
     end
 
     def roles_to_filter
-      @filters.keys.select { |key| key != 'role_owner' && key =~ /^role_/ }.map { |key| Role.hashed[key.delete_prefix('role_')] }
+      @filters.keys.select do |key|
+        key != 'role_owner' && key =~ /^role_/
+      end.map { |key| Role.hashed[key.delete_prefix('role_')] }
     end
 
     def pkg_or_prj_unfiltered(user:, klass:)

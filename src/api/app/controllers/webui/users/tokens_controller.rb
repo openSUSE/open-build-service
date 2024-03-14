@@ -23,7 +23,8 @@ class Webui::Users::TokensController < Webui::WebuiController
   end
 
   def create
-    @token = Token.token_type(@params[:type]).new(@params.except(:type).merge(executor: User.session, package: @package))
+    @token = Token.token_type(@params[:type]).new(@params.except(:type).merge(executor: User.session,
+                                                                              package: @package))
 
     authorize @token
 
@@ -47,7 +48,8 @@ class Webui::Users::TokensController < Webui::WebuiController
     respond_to do |format|
       format.js do
         if @token.regenerate_string
-          flash.now[:success] = "Token string successfully regenerated! Make sure you save it - you won't be able to access it again."
+          flash.now[:success] =
+            "Token string successfully regenerated! Make sure you save it - you won't be able to access it again."
           render partial: 'update', locals: { string: @token.string }
         else
           flash.now[:error] = "Failed to regenerate Token string: #{@token.errors.full_messages.to_sentence}"
@@ -87,13 +89,19 @@ class Webui::Users::TokensController < Webui::WebuiController
                     .permit(:type, :description, :scm_token, :workflow_configuration_path, :workflow_configuration_url).tap do |token_parameters|
       token_parameters.require(:type)
     end
-    @params = @params.except(:scm_token, :workflow_configuration_path, :workflow_configuration_url) unless @params[:type] == 'workflow'
+    unless @params[:type] == 'workflow'
+      @params = @params.except(:scm_token, :workflow_configuration_path,
+                               :workflow_configuration_url)
+    end
     @extra_params = params.slice(:project_name, :package_name).permit!
   end
 
   def update_parameters
-    params.require(:token).except(:string_readonly).permit(:description, :scm_token, :workflow_configuration_path, :workflow_configuration_url)
-          .reject! { |k, v| k == 'scm_token' && (@token.type != 'Token::Workflow' || v.empty?) }
+    params.require(:token).except(:string_readonly).permit(:description, :scm_token, :workflow_configuration_path,
+                                                           :workflow_configuration_url)
+          .reject! do |k, v|
+      k == 'scm_token' && (@token.type != 'Token::Workflow' || v.empty?)
+    end
   end
 
   def set_package
@@ -115,7 +123,8 @@ class Webui::Users::TokensController < Webui::WebuiController
     begin
       @package = Package.get_by_project_and_name(@extra_params[:project_name], @extra_params[:package_name])
     rescue Project::UnknownObjectError
-      flash[:error] = "When providing an optional package, the package must exist. Project '#{elide(@extra_params[:project_name])}' does not exist."
+      flash[:error] =
+        "When providing an optional package, the package must exist. Project '#{elide(@extra_params[:project_name])}' does not exist."
       render :new
     rescue Package::UnknownObjectError
       flash[:error] = 'When providing an optional package, the package must exist. ' \

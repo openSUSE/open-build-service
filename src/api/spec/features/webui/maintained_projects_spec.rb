@@ -4,7 +4,9 @@ RSpec.describe 'MaintainedProjects', :js do
   let!(:admin_user) { create(:admin_user) }
   let(:opensuse_project) { create(:project, name: 'openSUSE') }
   let(:opensuse_project_update) { create(:project, name: 'openSUSE_Update') }
-  let(:maintenance_project) { create(:maintenance_project, name: 'maintenance_project', target_project: opensuse_project) }
+  let(:maintenance_project) do
+    create(:maintenance_project, name: 'maintenance_project', target_project: opensuse_project)
+  end
 
   describe 'index page' do
     context 'without login' do

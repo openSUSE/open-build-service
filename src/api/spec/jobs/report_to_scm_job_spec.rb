@@ -4,7 +4,10 @@ RSpec.describe ReportToSCMJob do
   let(:project) { create(:project, name: 'project_1', maintainer: user) }
   let(:package) { create(:package, name: 'package_1', project: project) }
   let(:repository) { create(:repository, name: 'repository_1', project: project) }
-  let(:event) { Event::BuildSuccess.create({ project: project.name, package: package.name, repository: repository.name, reason: 'foo' }) }
+  let(:event) do
+    Event::BuildSuccess.create({ project: project.name, package: package.name, repository: repository.name,
+                                 reason: 'foo' })
+  end
   let(:event_subscription) do
     EventSubscription.create(token: token,
                              user: user,
@@ -71,7 +74,10 @@ RSpec.describe ReportToSCMJob do
     end
 
     context 'when the event is for some other project than the subscribed one' do
-      let(:event) { Event::BuildSuccess.create(project: 'some:other:project', package: package.name, repository: repository.name, reason: 'foo') }
+      let(:event) do
+        Event::BuildSuccess.create(project: 'some:other:project', package: package.name, repository: repository.name,
+                                   reason: 'foo')
+      end
 
       before do
         event
@@ -83,7 +89,10 @@ RSpec.describe ReportToSCMJob do
     end
 
     context 'when the event is for some other package than the subscribed one' do
-      let(:event) { Event::BuildSuccess.create(project: project.name, package: 'some_other_package', repository: repository.name, reason: 'foo') }
+      let(:event) do
+        Event::BuildSuccess.create(project: project.name, package: 'some_other_package', repository: repository.name,
+                                   reason: 'foo')
+      end
 
       before do
         event
@@ -95,7 +104,10 @@ RSpec.describe ReportToSCMJob do
     end
 
     context 'when the reporting raises an error' do
-      let(:event) { Event::BuildSuccess.create(project: project.name, package: package.name, repository: repository.name, reason: 'foo') }
+      let(:event) do
+        Event::BuildSuccess.create(project: project.name, package: package.name, repository: repository.name,
+                                   reason: 'foo')
+      end
 
       before do
         allow_any_instance_of(Octokit::Client).to receive(:create_status).and_raise(StandardError, '42') # rubocop:disable RSpec/AnyInstance

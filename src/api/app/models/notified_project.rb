@@ -2,7 +2,8 @@ class NotifiedProject < ApplicationRecord
   belongs_to :notification
   belongs_to :project
 
-  validates :notification_id, uniqueness: { scope: :project_id, message: 'These notification and project are already associated' }
+  validates :notification_id,
+            uniqueness: { scope: :project_id, message: 'These notification and project are already associated' }
 end
 
 # == Schema Information

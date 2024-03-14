@@ -56,7 +56,10 @@ class CommentsController < ApplicationController
     return unless params.key?(:parent_id)
 
     parent_comment = Comment.find_by(id: params[:parent_id])
-    raise ActiveRecord::RecordNotFound, "Couldn't find the parent comment with ID #{params[:parent_id]}" if parent_comment.nil?
+    if parent_comment.nil?
+      raise ActiveRecord::RecordNotFound,
+            "Couldn't find the parent comment with ID #{params[:parent_id]}"
+    end
 
     # We don't want users to have to know if a parent comment is on a BsRequestAction or a BsRequest.
     # They can simply pass the BsRequest number and we handle this.

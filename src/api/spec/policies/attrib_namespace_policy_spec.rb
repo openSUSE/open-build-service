@@ -16,7 +16,8 @@ RSpec.describe AttribNamespacePolicy do
 
   context 'with explicit permissions for a group' do
     before do
-      create(:attrib_namespace_modifiable_by, attrib_namespace: attrib_namespace, group: user_in_a_group.groups.first, user: nil)
+      create(:attrib_namespace_modifiable_by, attrib_namespace: attrib_namespace, group: user_in_a_group.groups.first,
+                                              user: nil)
     end
 
     permissions :create?, :update?, :destroy? do

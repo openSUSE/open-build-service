@@ -21,7 +21,8 @@ module Webui::RescueHandler
       end
     end
 
-    rescue_from Project::Errors::UnknownObjectError, Package::Errors::UnknownObjectError, Package::Errors::ReadSourceAccessError, Package::Errors::ScmsyncReadOnly do |exception|
+    rescue_from Project::Errors::UnknownObjectError, Package::Errors::UnknownObjectError,
+                Package::Errors::ReadSourceAccessError, Package::Errors::ScmsyncReadOnly do |exception|
       message = exception.message || exception.default_message
       if request.xhr?
         head :not_found

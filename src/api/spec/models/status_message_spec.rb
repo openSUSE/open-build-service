@@ -36,7 +36,10 @@ RSpec.describe StatusMessage do
         login(user)
       end
 
-      it { expect(StatusMessage.communication_scopes_for_current_user).to contain_exactly(:all_users, :in_beta_users, :in_rollout_users, :logged_in_users) }
+      it {
+        expect(StatusMessage.communication_scopes_for_current_user).to contain_exactly(:all_users, :in_beta_users,
+                                                                                       :in_rollout_users, :logged_in_users)
+      }
     end
 
     context 'when user is admin' do
@@ -46,7 +49,10 @@ RSpec.describe StatusMessage do
         login(user)
       end
 
-      it { expect(StatusMessage.communication_scopes_for_current_user).to contain_exactly(:all_users, :in_beta_users, :admin_users, :logged_in_users) }
+      it {
+        expect(StatusMessage.communication_scopes_for_current_user).to contain_exactly(:all_users, :in_beta_users,
+                                                                                       :admin_users, :logged_in_users)
+      }
     end
   end
 
@@ -59,7 +65,9 @@ RSpec.describe StatusMessage do
       end
 
       context 'when there are not announcements in her scope' do
-        let!(:status_message_for_logged_in) { create(:status_message, severity: 'announcement', communication_scope: :logged_in_users) }
+        let!(:status_message_for_logged_in) do
+          create(:status_message, severity: 'announcement', communication_scope: :logged_in_users)
+        end
 
         it 'returns nil' do
           expect(StatusMessage.latest_for_current_user).to be_nil
@@ -67,8 +75,14 @@ RSpec.describe StatusMessage do
       end
 
       context 'when there is more than one announcement in her scope' do
-        let!(:first_status_message) { travel_to(1.day.ago) { create(:status_message, severity: 'announcement', communication_scope: :all_users) } }
-        let!(:second_status_message) { create(:status_message, severity: 'announcement', communication_scope: :all_users) }
+        let!(:first_status_message) do
+          travel_to(1.day.ago) do
+            create(:status_message, severity: 'announcement', communication_scope: :all_users)
+          end
+        end
+        let!(:second_status_message) do
+          create(:status_message, severity: 'announcement', communication_scope: :all_users)
+        end
 
         it 'returns the newest one' do
           expect(StatusMessage.latest_for_current_user).to eq(second_status_message)
@@ -86,8 +100,15 @@ RSpec.describe StatusMessage do
       end
 
       context 'when there is more than one announcement in her scope' do
-        let!(:status_message_for_in_beta) { travel_to(1.day.ago) { create(:status_message, severity: 'announcement', communication_scope: :in_beta_users) } }
-        let!(:status_message_for_all) { create(:status_message, severity: 'announcement', communication_scope: :all_users) } # now
+        let!(:status_message_for_in_beta) do
+          travel_to(1.day.ago) do
+            create(:status_message, severity: 'announcement', communication_scope: :in_beta_users)
+          end
+        end
+        # now
+        let!(:status_message_for_all) do
+          create(:status_message, severity: 'announcement', communication_scope: :all_users)
+        end
 
         before do
           login(user)
@@ -111,8 +132,15 @@ RSpec.describe StatusMessage do
       end
 
       context 'when the newest announcement is not in her scope' do
-        let!(:status_message_for_in_beta) { travel_to(1.day.ago) { create(:status_message, severity: 'announcement', communication_scope: :in_beta_users) } }
-        let!(:status_message_for_rollout) { create(:status_message, severity: 'announcement', communication_scope: :in_rollout_users) } # now
+        let!(:status_message_for_in_beta) do
+          travel_to(1.day.ago) do
+            create(:status_message, severity: 'announcement', communication_scope: :in_beta_users)
+          end
+        end
+        # now
+        let!(:status_message_for_rollout) do
+          create(:status_message, severity: 'announcement', communication_scope: :in_rollout_users)
+        end
 
         before do
           login(user)

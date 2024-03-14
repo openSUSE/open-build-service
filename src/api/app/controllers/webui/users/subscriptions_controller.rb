@@ -20,7 +20,9 @@ class Webui::Users::SubscriptionsController < Webui::WebuiController
     @subscriptions_form = authorize(subscriptions_form)
 
     begin
-      groups_users = User.session!.groups_users.includes(:group).find_by(groups: { title: params[:groups].keys }) if params[:groups]
+      if params[:groups]
+        groups_users = User.session!.groups_users.includes(:group).find_by(groups: { title: params[:groups].keys })
+      end
       groups_users.update!(params[:groups][groups_users.group.title].slice(:web, :email).permit!) if groups_users
 
       @subscriptions_form.update!(params[:subscriptions]) if params[:subscriptions]

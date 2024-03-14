@@ -38,7 +38,9 @@ RSpec.describe Webui::DistributionsController do
   end
 
   describe 'PATCH #toggle' do
-    let(:distribution) { create(:distribution, project: apache_project, repository: apache_project.repositories.first.name) }
+    let(:distribution) do
+      create(:distribution, project: apache_project, repository: apache_project.repositories.first.name)
+    end
 
     context 'with an existing distribution repository' do
       before do

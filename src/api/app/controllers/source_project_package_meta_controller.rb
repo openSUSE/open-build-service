@@ -60,7 +60,10 @@ class SourceProjectPackageMetaController < SourceController
 
   def change_package_protection_level?(pkg)
     # TODO: use pundit
-    raise ChangePackageProtectionLevelError if pkg && !pkg.disabled_for?('sourceaccess', nil, nil) && (FlagHelper.xml_disabled_for?(@request_data, 'sourceaccess') && !User.admin_session?)
+    raise ChangePackageProtectionLevelError if pkg && !pkg.disabled_for?('sourceaccess', nil,
+                                                                         nil) && (FlagHelper.xml_disabled_for?(
+                                                                           @request_data, 'sourceaccess'
+                                                                         ) && !User.admin_session?)
   end
 
   def require_package_name

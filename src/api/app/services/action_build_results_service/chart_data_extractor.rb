@@ -45,7 +45,10 @@ module ActionBuildResultsService
 
     def sources_from_action(action)
       source_project = project_from_action(action)
-      source_package = source_project.present? ? Package.find_by_project_and_name(source_project.name, action.source_package) : nil
+      source_package = if source_project.present?
+                         Package.find_by_project_and_name(source_project.name,
+                                                          action.source_package)
+                       end
       { source_project: source_project, source_package: source_package }
     end
 

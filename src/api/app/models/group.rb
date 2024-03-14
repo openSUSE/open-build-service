@@ -139,7 +139,8 @@ class Group < ApplicationRecord
     projects << -1 if projects.empty?
 
     # all packages where group is maintainer
-    packages = Relationship.where(group_id: id, role_id: role.id).joins(:package).where.not('packages.project_id' => projects).pluck(:package_id)
+    packages = Relationship.where(group_id: id,
+                                  role_id: role.id).joins(:package).where.not('packages.project_id' => projects).pluck(:package_id)
 
     Package.where(id: packages).where.not(project_id: projects)
   end
@@ -207,7 +208,8 @@ class Group < ApplicationRecord
   end
 
   def delete_user(klass, login_id, group_id)
-    klass.where('user_id = ? AND group_id = ?', login_id, group_id).delete_all if [GroupMaintainer, GroupsUser].include?(klass)
+    klass.where('user_id = ? AND group_id = ?', login_id, group_id).delete_all if [GroupMaintainer,
+                                                                                   GroupsUser].include?(klass)
   end
 
   def involved_projects_ids

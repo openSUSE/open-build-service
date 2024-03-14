@@ -103,7 +103,8 @@ class BinaryRelease < ApplicationRecord
       end
 
       # and mark all not processed binaries as removed
-      where(repository: repository, obsolete_time: nil, modify_time: nil).where.not(id: processed_item.keys).update_all(obsolete_time: time)
+      where(repository: repository, obsolete_time: nil,
+            modify_time: nil).where.not(id: processed_item.keys).update_all(obsolete_time: time)
     end
   end
 

@@ -1,10 +1,23 @@
 RSpec.describe 'RoutesHelper::APIMatcher' do
-  it { expect(get('/distributions?format=xml')).to route_to(controller: 'distributions', action: 'index', format: 'xml') }
+  it {
+    expect(get('/distributions?format=xml')).to route_to(controller: 'distributions', action: 'index', format: 'xml')
+  }
 
   RSpec.shared_examples '/public routes to PublicController independent of format' do |format|
-    it { expect(get("/public/distributions?format=#{format}")).to route_to(controller: 'public', action: 'distributions', format: format) }
-    it { expect(get("/public/request/1?format=#{format}")).to route_to(controller: 'public', action: 'show_request', number: '1', format: format) }
-    it { expect(get("/public/configuration?format=#{format}")).to route_to(controller: 'public', action: 'configuration_show', format: format) }
+    it {
+      expect(get("/public/distributions?format=#{format}")).to route_to(controller: 'public', action: 'distributions',
+                                                                        format: format)
+    }
+
+    it {
+      expect(get("/public/request/1?format=#{format}")).to route_to(controller: 'public', action: 'show_request',
+                                                                    number: '1', format: format)
+    }
+
+    it {
+      expect(get("/public/configuration?format=#{format}")).to route_to(controller: 'public', action: 'configuration_show',
+                                                                        format: format)
+    }
 
     it {
       expect(get("/public/build/project/repository/arch/package/filename?format=#{format}"))
@@ -35,22 +48,26 @@ RSpec.describe 'RoutesHelper::APIMatcher' do
 
     it {
       expect(get("/public/source/project/package?format=#{format}"))
-        .to route_to(controller: 'public', action: 'package_index', project: 'project', package: 'package', format: format)
+        .to route_to(controller: 'public', action: 'package_index', project: 'project', package: 'package',
+                     format: format)
     }
 
     it {
       expect(get("/public/source/project/package/_meta?format=#{format}"))
-        .to route_to(controller: 'public', action: 'package_meta', project: 'project', package: 'package', format: format)
+        .to route_to(controller: 'public', action: 'package_meta', project: 'project', package: 'package',
+                     format: format)
     }
 
     it {
       expect(get("/public/source/project/package/file?format=#{format}"))
-        .to route_to(controller: 'public', action: 'source_file', project: 'project', package: 'package', filename: 'file', format: format)
+        .to route_to(controller: 'public', action: 'source_file', project: 'project', package: 'package',
+                     filename: 'file', format: format)
     }
 
     it {
       expect(get("/public/binary_packages/project/package?format=#{format}"))
-        .to route_to(controller: 'public', action: 'binary_packages', project: 'project', package: 'package', format: format)
+        .to route_to(controller: 'public', action: 'binary_packages', project: 'project', package: 'package',
+                     format: format)
     }
   end
 

@@ -9,7 +9,8 @@ module PackageControllerService
     end
 
     def rebuild?
-      @package_object.rebuild(package: @package_name_with_multibuild_suffix, project: @project, repository: @repository, arch: @arch)
+      @package_object.rebuild(package: @package_name_with_multibuild_suffix, project: @project,
+                              repository: @repository, arch: @arch)
     end
 
     # When we're in a linked project, the package's project points to some other

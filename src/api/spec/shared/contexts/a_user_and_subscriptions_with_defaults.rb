@@ -54,8 +54,10 @@ RSpec.shared_context 'a user and subscriptions with defaults' do
     {
       '0' => { channel: 'instant_email', eventtype: 'Event::RequestStatechange', receiver_role: 'source_maintainer' },
       '1' => { channel: 'instant_email', eventtype: 'Event::RequestStatechange', receiver_role: 'target_maintainer' },
-      '2' => { enabled: 'true', channel: 'instant_email', eventtype: 'Event::RequestStatechange', receiver_role: 'creator' },
-      '3' => { enabled: 'true', channel: 'instant_email', eventtype: 'Event::RequestStatechange', receiver_role: 'reviewer' },
+      '2' => { enabled: 'true', channel: 'instant_email', eventtype: 'Event::RequestStatechange',
+               receiver_role: 'creator' },
+      '3' => { enabled: 'true', channel: 'instant_email', eventtype: 'Event::RequestStatechange',
+               receiver_role: 'reviewer' },
       '4' => { enabled: 'true', channel: 'rss', eventtype: 'Event::RequestStatechange', receiver_role: 'creator' },
       '5' => { enabled: 'true', channel: 'web', eventtype: 'Event::RequestStatechange', receiver_role: 'reviewer' },
       '6' => { enabled: 'true', channel: 'web', eventtype: 'Event::BuildFailure', receiver_role: 'source_maintainer' }

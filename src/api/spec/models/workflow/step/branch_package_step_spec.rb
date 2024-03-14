@@ -69,7 +69,11 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
 
     it { expect { subject.call }.to(change(Package, :count).by(1)) }
     it { expect(subject.call.project.name).to eq(target_project_final_name) }
-    it { expect(subject.call.project.repositories.map(&:name).sort).to eq(Project.find_by(name: target_project_final_name).repositories.map(&:name).sort) }
+
+    it {
+      expect(subject.call.project.repositories.map(&:name).sort).to eq(Project.find_by(name: target_project_final_name).repositories.map(&:name).sort)
+    }
+
     it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
     it { expect(subject.call.source_file('_branch_request')).to include('123') }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
@@ -86,7 +90,9 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
     end
 
     # Emulate the branched project/package and the subcription created in a previous new PR/MR event
-    let!(:branched_project) { create(:project, name: "home:#{user.login}:openSUSE:open-build-service:PR-1", maintainer: user) }
+    let!(:branched_project) do
+      create(:project, name: "home:#{user.login}:openSUSE:open-build-service:PR-1", maintainer: user)
+    end
     let!(:branched_package) { create(:package_with_file, name: package.name, project: branched_project) }
 
     ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
@@ -115,7 +121,12 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
 
     it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count)) }
     it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count)) }
-    it { expect { subject.call }.to(change { EventSubscription.where(eventtype: 'Event::BuildSuccess').last.payload }.from(creation_payload).to(update_payload)) }
+
+    it {
+      expect { subject.call }.to(change do
+                                   EventSubscription.where(eventtype: 'Event::BuildSuccess').last.payload
+                                 end.from(creation_payload).to(update_payload))
+    }
   end
 
   RSpec.shared_context 'non-existent branched package' do
@@ -241,7 +252,8 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       end
 
       it 'adds repositories to target project' do
-        expect(Project.find_by(name: target_project_final_name).repositories.map(&:name).sort).to eq(%w[Unicorn_123 openSUSE_Tumbleweed])
+        expect(Project.find_by(name: target_project_final_name).repositories.map(&:name).sort).to eq(%w[Unicorn_123
+                                                                                                        openSUSE_Tumbleweed])
       end
     end
 
@@ -421,7 +433,12 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
         it { expect { subject.call }.to(change(Package, :count).by(1)) }
         it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
         it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
-        it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
+
+        it {
+          expect do
+            subject.call
+          end.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1))
+        }
       end
 
       context 'on package level' do
@@ -433,7 +450,12 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
         it { expect { subject.call }.to(change(Package, :count).by(1)) }
         it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
         it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
-        it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
+
+        it {
+          expect do
+            subject.call
+          end.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1))
+        }
       end
 
       context 'on a package level with a subdir query' do
@@ -485,19 +507,27 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
     end
 
     context 'when add_repositories is enabled' do
-      let(:step_instructions) { { source_project: package.project.name, source_package: package.name, target_project: target_project_name, add_repositories: 'enabled' } }
+      let(:step_instructions) do
+        { source_project: package.project.name, source_package: package.name, target_project: target_project_name,
+          add_repositories: 'enabled' }
+      end
 
       it { expect(subject.send(:skip_repositories?)).not_to be_truthy }
     end
 
     context 'when add_repositories is disabled' do
-      let(:step_instructions) { { source_project: package.project.name, source_package: package.name, target_project: target_project_name, add_repositories: 'disabled' } }
+      let(:step_instructions) do
+        { source_project: package.project.name, source_package: package.name, target_project: target_project_name,
+          add_repositories: 'disabled' }
+      end
 
       it { expect(subject.send(:skip_repositories?)).to be_truthy }
     end
 
     context 'when add_repositories is blank' do
-      let(:step_instructions) { { source_project: package.project.name, source_package: package.name, target_project: target_project_name } }
+      let(:step_instructions) do
+        { source_project: package.project.name, source_package: package.name, target_project: target_project_name }
+      end
 
       it { expect(subject.send(:skip_repositories?)).not_to be_truthy }
     end

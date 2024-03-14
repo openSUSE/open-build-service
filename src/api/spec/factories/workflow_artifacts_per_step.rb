@@ -11,11 +11,23 @@ FactoryBot.define do
     end
 
     before(:create) do |workflow_artifacts_per_step, evaluator|
-      source_project = Project.find_by(name: evaluator.source_project_name) || create(:project, name: evaluator.source_project_name)
-      target_project = Project.find_by(name: evaluator.target_project_name) || create(:project, name: evaluator.target_project_name)
+      source_project = Project.find_by(name: evaluator.source_project_name) || create(:project,
+                                                                                      name: evaluator.source_project_name)
+      target_project = Project.find_by(name: evaluator.target_project_name) || create(:project,
+                                                                                      name: evaluator.target_project_name)
 
-      create(:package, name: evaluator.source_package_name, project: source_project) unless Package.find_by_project_and_name(evaluator.source_project_name, evaluator.source_package_name)
-      create(:package, name: evaluator.target_package_name, project: target_project) unless Package.find_by_project_and_name(evaluator.target_project_name, evaluator.target_package_name)
+      unless Package.find_by_project_and_name(
+        evaluator.source_project_name, evaluator.source_package_name
+      )
+        create(:package, name: evaluator.source_package_name,
+                         project: source_project)
+      end
+      unless Package.find_by_project_and_name(
+        evaluator.target_project_name, evaluator.target_package_name
+      )
+        create(:package, name: evaluator.target_package_name,
+                         project: target_project)
+      end
 
       workflow_artifacts_per_step.artifacts = { source_project: evaluator.source_project_name,
                                                 source_package: evaluator.source_package_name,

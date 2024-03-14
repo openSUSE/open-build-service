@@ -2,7 +2,9 @@ RSpec.describe NotificationAvatarsComponent, type: :component do
   context 'when a notification has more avatars to display than defined in MAXIMUM_DISPLAYED_AVATARS' do
     let(:project) { create(:project) }
     let(:comment_for_project) { create(:comment, commentable: project) }
-    let(:notification) { create(:notification, :comment_for_project, notifiable: comment_for_project, last_seen_at: 1.day.ago) }
+    let(:notification) do
+      create(:notification, :comment_for_project, notifiable: comment_for_project, last_seen_at: 1.day.ago)
+    end
 
     before do
       # Comment which was already read (it's older than the notification), so it's not taken into account in the notification

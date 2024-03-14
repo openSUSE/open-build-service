@@ -303,7 +303,9 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     get "/request/#{id}?withhistory=1"
     assert_response :success
     node = Xmlhash.parse(@response.body)
-    assert_xml_tag(tag: 'acceptinfo', attributes: { rev: '1', srcmd5: '1ded65e42c0f04bd08075dfd1fd08105', osrcmd5: 'd41d8cd98f00b204e9800998ecf8427e' })
+    assert_xml_tag(tag: 'acceptinfo',
+                   attributes: { rev: '1', srcmd5: '1ded65e42c0f04bd08075dfd1fd08105',
+                                 osrcmd5: 'd41d8cd98f00b204e9800998ecf8427e' })
     assert_xml_tag(tag: 'state', attributes: { name: 'accepted', who: 'Iggy' })
     assert_xml_tag(tag: 'history', attributes: { who: 'Iggy' })
     assert_equal({
@@ -314,26 +316,37 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                      'source' => { 'project' => 'home:Iggy:branches:home:Iggy', 'package' => 'NEW_PACKAGE' },
                      'target' => { 'project' => 'home:Iggy', 'package' => 'NEW_PACKAGE' },
                      'options' => { 'sourceupdate' => 'cleanup' },
-                     'acceptinfo' => { 'rev' => '1', 'srcmd5' => '1ded65e42c0f04bd08075dfd1fd08105', 'osrcmd5' => 'd41d8cd98f00b204e9800998ecf8427e' }
+                     'acceptinfo' => { 'rev' => '1', 'srcmd5' => '1ded65e42c0f04bd08075dfd1fd08105',
+                                       'osrcmd5' => 'd41d8cd98f00b204e9800998ecf8427e' }
                    },
                    'priority' => 'low',
-                   'state' => { 'name' => 'accepted', 'who' => 'Iggy', 'when' => '2010-07-12T00:00:04', 'created' => '2010-07-12T00:00:00', 'comment' => 'approved' },
+                   'state' => { 'name' => 'accepted', 'who' => 'Iggy', 'when' => '2010-07-12T00:00:04',
+                                'created' => '2010-07-12T00:00:00', 'comment' => 'approved' },
                    'history' => [
-                     { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:00', 'description' => 'Request created', 'comment' => 'DESCRIPTION IS HERE' },
-                     { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:01', 'description' => 'Request got a new priority: critical => low', 'comment' => 'dontcare' },
-                     { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:02', 'description' => 'Request got declined', 'comment' => 'notgood' },
-                     { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:03', 'description' => 'Request got reopened', 'comment' => 'oops' },
-                     { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:04', 'description' => 'Request got accepted', 'comment' => 'approved' }
+                     { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:00', 'description' => 'Request created',
+                       'comment' => 'DESCRIPTION IS HERE' },
+                     { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:01',
+                       'description' => 'Request got a new priority: critical => low', 'comment' => 'dontcare' },
+                     { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:02', 'description' => 'Request got declined',
+                       'comment' => 'notgood' },
+                     { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:03', 'description' => 'Request got reopened',
+                       'comment' => 'oops' },
+                     { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:04', 'description' => 'Request got accepted',
+                       'comment' => 'approved' }
                    ],
                    'description' => 'DESCRIPTION IS HERE'
                  }, node)
 
     # compare times
     node = Xmlhash.parse(@response.body)
-    assert_equal(node.elements('state').first.value('when'), node.elements('history').last.value('when'), 'Current state is has NOT same time as last history item')
+    assert_equal(node.elements('state').first.value('when'), node.elements('history').last.value('when'),
+                 'Current state is has NOT same time as last history item')
     oldhistory = nil
     node.elements('history') do |h|
-      assert((h.value('when') > oldhistory.value('when')), 'Current history is not newer than the former history') unless h
+      unless h
+        assert((h.value('when') > oldhistory.value('when')),
+               'Current history is not newer than the former history')
+      end
       oldhistory = h
     end
 
@@ -356,7 +369,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     post '/source/home:Iggy/TestPack?target_project=home:Iggy&target_package=TestPack.DELETE', params: { cmd: :branch }
     assert_response :success
-    post '/source/home:Iggy/TestPack.DELETE?target_project=home:Iggy&target_package=TestPack.DELETE2', params: { cmd: :branch }
+    post '/source/home:Iggy/TestPack.DELETE?target_project=home:Iggy&target_package=TestPack.DELETE2',
+         params: { cmd: :branch }
     assert_response :success
     put '/source/home:Iggy/TestPack.DELETE2/file', params: 'some'
     assert_response :success
@@ -402,7 +416,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     post '/source/home:Iggy/TestPack?target_project=home:Iggy&target_package=TestPack.DELETE', params: { cmd: :branch }
     assert_response :success
-    post '/source/home:Iggy/TestPack.DELETE?target_project=home:Iggy&target_package=TestPack.DELETE2', params: { cmd: :branch }
+    post '/source/home:Iggy/TestPack.DELETE?target_project=home:Iggy&target_package=TestPack.DELETE2',
+         params: { cmd: :branch }
     assert_response :success
 
     # create working requests
@@ -579,7 +594,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
   def test_invalid_bugowner_requests
     login_Iggy
-    put '/source/home:Iggy:Test/_meta', params: "<project name='home:Iggy:Test'><title></title><description></description> </project>"
+    put '/source/home:Iggy:Test/_meta',
+        params: "<project name='home:Iggy:Test'><title></title><description></description> </project>"
     assert_response :success
 
     login_adrian
@@ -620,7 +636,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
   def test_set_bugowner_request_locked_project
     login_Iggy
-    put '/source/home:Iggy:Test/_meta', params: "<project name='home:Iggy:Test'><title></title><description></description>  <lock><enable/></lock></project>"
+    put '/source/home:Iggy:Test/_meta',
+        params: "<project name='home:Iggy:Test'><title></title><description></description>  <lock><enable/></lock></project>"
     assert_response :success
 
     login_adrian
@@ -655,7 +672,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/source/home:Iggy:Test', params: { cmd: 'unlock', comment: 'cleanup' }
     assert_response :success
 
-    put '/source/home:Iggy:Test/pack/_meta', params: "<package project='home:Iggy:Test' name='pack'><title></title><description></description>  <lock><enable/></lock></package>"
+    put '/source/home:Iggy:Test/pack/_meta',
+        params: "<package project='home:Iggy:Test' name='pack'><title></title><description></description>  <lock><enable/></lock></package>"
     assert_response :success
 
     login_adrian
@@ -698,7 +716,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response 401
 
     # now try as webui if we get a different error
-    post '/request?cmd=create', params: load_backend_file('request/add_role'), headers: { 'HTTP_USER_AGENT' => 'obs-webui-something' }
+    post '/request?cmd=create', params: load_backend_file('request/add_role'),
+                                headers: { 'HTTP_USER_AGENT' => 'obs-webui-something' }
     assert_xml_tag tag: 'status', attributes: { code: 'anonymous_user' }
     assert_response 401
   end
@@ -786,7 +805,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(parent: { tag: 'review', attributes: { by_user: 'tom', when: '2010-07-12T00:00:00' } }, tag: 'comment', content: 'blahfasel')
+    assert_xml_tag(parent: { tag: 'review', attributes: { by_user: 'tom', when: '2010-07-12T00:00:00' } },
+                   tag: 'comment', content: 'blahfasel')
     request = BsRequest.find_by_number(id)
     h2 = request.request_history_elements
     hr2 = request.history_elements
@@ -1070,8 +1090,10 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     assert_xml_tag(tag: 'state', attributes: { name: 'review' })
-    assert_xml_tag(parent: { tag: 'review', attributes: { state: 'accepted', by_user: 'tom' } }, tag: 'comment', content: 'review1')
-    assert_xml_tag(parent: { tag: 'review', attributes: { state: 'new', by_user: 'tom' } }, tag: 'comment', content: 'reopen2')
+    assert_xml_tag(parent: { tag: 'review', attributes: { state: 'accepted', by_user: 'tom' } }, tag: 'comment',
+                   content: 'review1')
+    assert_xml_tag(parent: { tag: 'review', attributes: { state: 'new', by_user: 'tom' } }, tag: 'comment',
+                   content: 'reopen2')
     node = Xmlhash.parse(@response.body)
     assert_equal({ 'id' => id.to_s,
                    'creator' => 'Iggy',
@@ -1191,7 +1213,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag(tag: 'review', attributes: { state: 'new', by_user: 'adrian_downloader' })
     assert_xml_tag(tag: 'review', attributes: { state: 'new', by_user: 'king' })
     assert_xml_tag(tag: 'review', attributes: { state: 'new', by_group: 'test_group' })
-    post "/request/#{id}?by_group=test_group&cmd=assignreview&reviewer=adrian_downloader", params: 'adrian_downloader, please have a look'
+    post "/request/#{id}?by_group=test_group&cmd=assignreview&reviewer=adrian_downloader",
+         params: 'adrian_downloader, please have a look'
     assert_response :success
     get "/request/#{id}"
     assert_response :success
@@ -1207,7 +1230,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'review', attributes: { state: 'accepted', by_user: 'adrian_downloader' })
 
     # adrian_downloader assigns to himself
-    post "/request/#{id}?by_group=test_group_b&cmd=assignreview&reviewer=adrian_downloader", params: 'I will work on it as well'
+    post "/request/#{id}?by_group=test_group_b&cmd=assignreview&reviewer=adrian_downloader",
+         params: 'I will work on it as well'
     assert_response :success
     get "/request/#{id}"
     assert_response :success
@@ -1322,12 +1346,14 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     # via GET
     login_Iggy
-    get '/search/request', params: { match: "(state/@name='new' or state/@name='review') and (action/target/@project='kde4' and action/target/@package='wpa_supplicant')" }
+    get '/search/request',
+        params: { match: "(state/@name='new' or state/@name='review') and (action/target/@project='kde4' and action/target/@package='wpa_supplicant')" }
     assert_response :success
     assert_xml_tag(tag: 'request', attributes: { id: id })
 
     # via POST
-    post '/search/request', params: Addressable::URI.encode("match=(state/@name='new' or state/@name='review') and (action/target/@project='kde4' and action/target/@package='wpa_supplicant')")
+    post '/search/request',
+         params: Addressable::URI.encode("match=(state/@name='new' or state/@name='review') and (action/target/@project='kde4' and action/target/@package='wpa_supplicant')")
     assert_response :success
     assert_xml_tag(tag: 'request', attributes: { id: id })
 
@@ -1543,7 +1569,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
 
     # block request creation in project
-    post '/source/home:Iggy/_attribute', params: "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Go Away</value> </attribute> </attributes>"
+    post '/source/home:Iggy/_attribute',
+         params: "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Go Away</value> </attribute> </attributes>"
     assert_response :success
 
     rq = '<request>
@@ -1560,20 +1587,23 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'status', attributes: { code: 'request_rejected' }
 
     # just for submit actions
-    post '/source/home:Iggy/_attribute', params: "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>No Submits</value> <value>submit</value> </attribute> </attributes>"
+    post '/source/home:Iggy/_attribute',
+         params: "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>No Submits</value> <value>submit</value> </attribute> </attributes>"
     assert_response :success
     post '/request?cmd=create', params: rq
     assert_response 403
     assert_match(/No Submits/, @response.body)
     assert_xml_tag tag: 'status', attributes: { code: 'request_rejected' }
     # but it works when blocking only for others
-    post '/source/home:Iggy/_attribute', params: "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Submits welcome</value> <value>delete</value> <value>set_bugowner</value> </attribute> </attributes>"
+    post '/source/home:Iggy/_attribute',
+         params: "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Submits welcome</value> <value>delete</value> <value>set_bugowner</value> </attribute> </attributes>"
     assert_response :success
     post '/request?cmd=create', params: rq
     assert_response :success
 
     # block request creation in package
-    post '/source/home:Iggy/TestPack/_attribute', params: "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Package blocked</value> </attribute> </attributes>"
+    post '/source/home:Iggy/TestPack/_attribute',
+         params: "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Package blocked</value> </attribute> </attributes>"
     assert_response :success
 
     post '/request?cmd=create', params: rq
@@ -1590,14 +1620,16 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'status', attributes: { code: 'request_rejected' }
 
     # just for submit actions
-    post '/source/home:Iggy/TestPack/_attribute', params: "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>No Submits</value> <value>submit</value> </attribute> </attributes>"
+    post '/source/home:Iggy/TestPack/_attribute',
+         params: "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>No Submits</value> <value>submit</value> </attribute> </attributes>"
     assert_response :success
     post '/request?cmd=create', params: rq
     assert_response 403
     assert_match(/No Submits/, @response.body)
     assert_xml_tag tag: 'status', attributes: { code: 'request_rejected' }
     # but it works when blocking only for others
-    post '/source/home:Iggy/TestPack/_attribute', params: "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Submits welcome</value> <value>delete</value> <value>set_bugowner</value> </attribute> </attributes>"
+    post '/source/home:Iggy/TestPack/_attribute',
+         params: "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Submits welcome</value> <value>delete</value> <value>set_bugowner</value> </attribute> </attributes>"
     assert_response :success
     post '/request?cmd=create', params: rq
     assert_response :success
@@ -1821,7 +1853,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'review', attributes: { by_project: 'home:Iggy', by_package: 'TestPack' })
 
     # test search via xpath as well
-    get '/search/request', params: { match: "state/@name='review' and review[@by_project='home:Iggy' and @state='new']" }
+    get '/search/request',
+        params: { match: "state/@name='review' and review[@by_project='home:Iggy' and @state='new']" }
     assert_response :success
     assert_xml_tag(tag: 'collection', child: { tag: 'request' })
     assert_xml_tag(tag: 'review', attributes: { by_project: 'home:Iggy', by_package: 'TestPack' })
@@ -1920,7 +1953,9 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     get "/request/#{id_by_package}"
     assert_response :success
-    assert_xml_tag(tag: 'review', attributes: { state: 'declined', by_project: 'home:Iggy', by_package: 'TestPack', who: 'Iggy' })
+    assert_xml_tag(tag: 'review',
+                   attributes: { state: 'declined', by_project: 'home:Iggy', by_package: 'TestPack',
+                                 who: 'Iggy' })
     assert_xml_tag(tag: 'review', attributes: { state: 'new', by_user: 'adrian' })
     assert_xml_tag(tag: 'review', attributes: { state: 'new', by_group: 'test_group' })
     assert_xml_tag(tag: 'state', attributes: { name: 'declined' })
@@ -2251,7 +2286,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     # We need to set permissions on the source because of the InitializeDevelPackage attribute on kde4 project
     login_king
-    put '/source/home:Iggy:branches:kde4/_meta', params: "<project name='home:Iggy:branches:kde4'><title/><description/><person userid='fred' role='maintainer'/></project>"
+    put '/source/home:Iggy:branches:kde4/_meta',
+        params: "<project name='home:Iggy:branches:kde4'><title/><description/><person userid='fred' role='maintainer'/></project>"
     assert_response :success
 
     # Successful accept the request
@@ -2368,7 +2404,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     get '/source/home:Iggy/_meta'
     iggy_meta = @response.body
-    put '/source/home:Iggy/_meta', params: "<project name='home:Iggy'><title/><description/><person userid='adrian' role='maintainer'/></project>"
+    put '/source/home:Iggy/_meta',
+        params: "<project name='home:Iggy'><title/><description/><person userid='adrian' role='maintainer'/></project>"
 
     assert_response :success
 
@@ -2414,7 +2451,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     # set project to approve it
     login_king
-    post '/source/BaseDistro2.0/_attribute', params: "<attributes><attribute namespace='OBS' name='ApprovedRequestSource' /></attributes>"
+    post '/source/BaseDistro2.0/_attribute',
+         params: "<attributes><attribute namespace='OBS' name='ApprovedRequestSource' /></attributes>"
     assert_response :success
 
     # create request again
@@ -2447,7 +2485,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   def test_submit_unchanged_sources
     # create ower playground
     login_king
-    put '/source/DummY/_meta', params: "<project name='DummY'><title/><description/><link project='BaseDistro2.0'/></project>"
+    put '/source/DummY/_meta',
+        params: "<project name='DummY'><title/><description/><link project='BaseDistro2.0'/></project>"
     assert_response :success
 
     # branch a package which does not exist in project, but project is linked
@@ -2554,7 +2593,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     # now with modified sources
     login_tom
-    put '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/new_file', params: 'just to have changed source'
+    put '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/new_file',
+        params: 'just to have changed source'
     assert_response :success
     req = "<request>
             <action type='submit'>
@@ -2594,7 +2634,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   def test_branch_and_submit_request_to_linked_project_and_delete_it_again
     # create ower playground
     login_king
-    put '/source/DummY/_meta', params: "<project name='DummY'><title/><description/><link project='BaseDistro2.0'/></project>"
+    put '/source/DummY/_meta',
+        params: "<project name='DummY'><title/><description/><link project='BaseDistro2.0'/></project>"
     assert_response :success
 
     # branch a package which does not exist in project, but project is linked
@@ -2697,13 +2738,15 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # the diff is still working due to acceptinfo
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(parent: { tag: 'action', attributes: { type: 'submit' } }, tag: 'acceptinfo', attributes: { rev: '3' })
+    assert_xml_tag(parent: { tag: 'action', attributes: { type: 'submit' } }, tag: 'acceptinfo',
+                   attributes: { rev: '3' })
     post "/request/#{id}?cmd=diff"
     assert_response :success
     assert_match 'NEW_FILE', @response.body
     post "/request/#{id}?cmd=diff&view=xml"
     assert_response :success
-    assert_xml_tag(parent: { tag: 'file', attributes: { state: 'changed' } }, tag: 'new', attributes: { name: 'NEW_FILE' })
+    assert_xml_tag(parent: { tag: 'file', attributes: { state: 'changed' } }, tag: 'new',
+                   attributes: { name: 'NEW_FILE' })
 
     # create request
     req = "<request>
@@ -3035,7 +3078,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     delete '/source/home:tom:branches:home:Iggy'
     assert_response :success
     # restore original spec file
-    Backend::Connection.put('/source/home:Iggy/TestPack/TestPack.spec?user=king', File.read("#{Rails.root}/test/fixtures/backend/source/home:Iggy/TestPack/TestPack.spec"))
+    Backend::Connection.put('/source/home:Iggy/TestPack/TestPack.spec?user=king',
+                            File.read("#{Rails.root}/test/fixtures/backend/source/home:Iggy/TestPack/TestPack.spec"))
     assert_response :success
   end
 
@@ -3314,7 +3358,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     meta = "<package name='realfun' project='home:Iggy:todo'><title/><description/></package>"
-    put url_for(controller: :source_project_package_meta, action: :update, project: 'home:Iggy:todo', package: 'realfun'), params: meta
+    put url_for(controller: :source_project_package_meta, action: :update, project: 'home:Iggy:todo', package: 'realfun'),
+        params: meta
     assert_response :success
 
     login_tom
@@ -3395,7 +3440,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     meta = "<package name='realfun' project='home:Iggy:todo'><title/><description/></package>"
-    put url_for(controller: :source_project_package_meta, action: :update, project: 'home:Iggy:todo', package: 'realfun'), params: meta
+    put url_for(controller: :source_project_package_meta, action: :update, project: 'home:Iggy:todo', package: 'realfun'),
+        params: meta
     assert_response :success
 
     login_tom
@@ -3503,10 +3549,12 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
 
     travel_to(Date.new(2010, 7, 12))
-    put '/source/home:Iggy:fordecline/_meta', params: "<project name='home:Iggy:fordecline'><title></title><description></description></project>"
+    put '/source/home:Iggy:fordecline/_meta',
+        params: "<project name='home:Iggy:fordecline'><title></title><description></description></project>"
     assert_response :success
 
-    post '/request?cmd=create', params: "<request><action type='add_role'><target project='home:Iggy:fordecline'/><person name='Iggy' role='reviewer'/></action></request>"
+    post '/request?cmd=create',
+         params: "<request><action type='add_role'><target project='home:Iggy:fordecline'/><person name='Iggy' role='reviewer'/></action></request>"
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
 
@@ -3564,7 +3612,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
   def test_check_target_maintainer
     login_tom
-    post '/request?cmd=create', params: "<request><action type='submit'><source project='Apache' package='apache2'/><target project='kde4' package='apache2'/></action></request>"
+    post '/request?cmd=create',
+         params: "<request><action type='submit'><source project='Apache' package='apache2'/><target project='kde4' package='apache2'/></action></request>"
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
 
@@ -3596,7 +3645,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     packages(:Devel_BaseDistro_Update_pack2).relationships.create(role: roles(:maintainer), user: users(:Iggy))
 
     login_tom
-    post '/request?cmd=create', params: "<request><action type='delete'><target project='Devel:BaseDistro:Update' package='pack2'/></action></request>"
+    post '/request?cmd=create',
+         params: "<request><action type='delete'><target project='Devel:BaseDistro:Update' package='pack2'/></action></request>"
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
 
@@ -3604,7 +3654,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response 400
-    assert_xml_tag tag: 'summary', content: 'Package is used by following packages as devel package: BaseDistro:Update/pack2'
+    assert_xml_tag tag: 'summary',
+                   content: 'Package is used by following packages as devel package: BaseDistro:Update/pack2'
 
     # but they should be able to add reviewers
     post "/request/#{id}?cmd=addreview&by_user=tom"
@@ -3631,7 +3682,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # Submit apache2 back. It is not the last project.
-    post '/request?cmd=create', params: "<request><action type='submit'><source project='#{bprj}' package='apache2'/><target project='#{sprj}' package='apache2'/></action></request>"
+    post '/request?cmd=create',
+         params: "<request><action type='submit'><source project='#{bprj}' package='apache2'/><target project='#{sprj}' package='apache2'/></action></request>"
     assert_response :success
     # Accept our own request :-)
     id = Xmlhash.parse(@response.body)['id']
@@ -3644,7 +3696,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'entry', attributes: { name: 'Tidy' }
 
     # Submit Tidy back. It *is* the last project.
-    post '/request?cmd=create', params: "<request><action type='submit'><source project='#{bprj}' package='Tidy'/><target project='#{sprj}' package='Tidy'/></action></request>"
+    post '/request?cmd=create',
+         params: "<request><action type='submit'><source project='#{bprj}' package='Tidy'/><target project='#{sprj}' package='Tidy'/></action></request>"
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
     post "/request/#{id}?cmd=changestate&newstate=accepted"

@@ -71,7 +71,10 @@ RSpec.describe BsRequestCommentComponent, type: :component do
   end
 
   context 'when rendering a comment thread' do
-    let!(:comment_b) { create(:comment_request, commentable: commentable, body: 'Comment B', parent: comment_a) } # level 1 => 2 nested .timeline-item-comment
+    # level 1 => 2 nested .timeline-item-comment
+    let!(:comment_b) do
+      create(:comment_request, commentable: commentable, body: 'Comment B', parent: comment_a)
+    end
     let(:comment_c) { create(:comment_request, commentable: commentable, body: 'Comment C', parent: comment_b) }
     let(:comment_d) { create(:comment_request, commentable: commentable, body: 'Comment D', parent: comment_c) }
     let!(:comment_e) { create(:comment_request, commentable: commentable, body: 'Comment E', parent: comment_d) }
@@ -86,16 +89,24 @@ RSpec.describe BsRequestCommentComponent, type: :component do
     end
 
     it 'displays the third child comment on the third children level' do
-      expect(rendered_content).to have_css("#{(['.d-flex > .timeline-item-comment'] * 4).join(' > ')} > .comment-bubble", text: "(#{comment_d.user.login})\ncommented")
-      expect(rendered_content).to have_css("#{(['.d-flex > .timeline-item-comment'] * 4).join(' > ')} > .comment-bubble", text: 'Comment D')
+      expect(rendered_content).to have_css(
+        "#{(['.d-flex > .timeline-item-comment'] * 4).join(' > ')} > .comment-bubble", text: "(#{comment_d.user.login})\ncommented"
+      )
+      expect(rendered_content).to have_css(
+        "#{(['.d-flex > .timeline-item-comment'] * 4).join(' > ')} > .comment-bubble", text: 'Comment D'
+      )
     end
 
     it 'does not display the fourth child comment on the fourth children level' do
-      expect(rendered_content).to have_no_css("#{(['.d-flex > .timeline-item-comment'] * 5).join(' > ')} > .comment-bubble", text: 'Comment E')
+      expect(rendered_content).to have_no_css(
+        "#{(['.d-flex > .timeline-item-comment'] * 5).join(' > ')} > .comment-bubble", text: 'Comment E'
+      )
     end
 
     it 'does not display the fourth child comment on the third children level' do
-      expect(rendered_content).to have_css("#{(['.d-flex > .timeline-item-comment'] * 4).join(' > ')} > .comment-bubble", text: 'Comment E')
+      expect(rendered_content).to have_css(
+        "#{(['.d-flex > .timeline-item-comment'] * 4).join(' > ')} > .comment-bubble", text: 'Comment E'
+      )
     end
   end
 end

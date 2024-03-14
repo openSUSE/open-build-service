@@ -8,7 +8,8 @@ FactoryBot.define do
     factory :patchinfo do
       initialize_with do
         new(**attributes.slice(:data))
-          .create_patchinfo(attributes[:project_name], attributes[:package_name], **attributes.except(:data, :project_name, :package_name))
+          .create_patchinfo(attributes[:project_name], attributes[:package_name], **attributes.except(:data,
+                                                                                                      :project_name, :package_name))
       end
     end
   end

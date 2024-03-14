@@ -75,7 +75,9 @@ RSpec.describe Project::UpdateFromXmlCommand do
             </project>
           EOF
         )
-        expect { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }.to raise_error(
+        expect do
+          Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
+        end.to raise_error(
           Project::SaveError, "Unknown target repository 'target_project/nonexistent_repo'"
         )
       end
@@ -90,7 +92,9 @@ RSpec.describe Project::UpdateFromXmlCommand do
             </project>
           EOF
         )
-        expect { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }.to raise_error(
+        expect do
+          Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
+        end.to raise_error(
           Project::SaveError, "Can not use remote repository as release target '#{remote_project.name}/remote_repo'"
         )
       end
@@ -111,7 +115,9 @@ RSpec.describe Project::UpdateFromXmlCommand do
         Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
 
         expect(repository_1.architectures.map(&:name)).to eq(%w[x86_64 i586])
-        expect(repository_1.repository_architectures.map { |repoarch| repoarch.architecture.name }).to eq(%w[x86_64 i586])
+        expect(repository_1.repository_architectures.map do |repoarch|
+                 repoarch.architecture.name
+               end).to eq(%w[x86_64 i586])
       end
 
       it 'raises an error for unknown architectures' do
@@ -124,7 +130,9 @@ RSpec.describe Project::UpdateFromXmlCommand do
             </project>
           EOF
         )
-        expect { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }.to raise_error(
+        expect do
+          Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
+        end.to raise_error(
           ActiveRecord::RecordNotFound, "unknown architecture: 'foo'"
         )
       end
@@ -140,14 +148,17 @@ RSpec.describe Project::UpdateFromXmlCommand do
             </project>
           EOF
         )
-        expect { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }.to raise_error(
+        expect do
+          Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
+        end.to raise_error(
           Project::SaveError, "double use of architecture: 'i586'"
         )
       end
 
       it 'preserves IDs' do
         create(:repository_architecture, repository: repository_1, architecture: Architecture.find_by_name('i586'))
-        arch2 = create(:repository_architecture, repository: repository_1, architecture: Architecture.find_by_name('x86_64'))
+        arch2 = create(:repository_architecture, repository: repository_1,
+                                                 architecture: Architecture.find_by_name('x86_64'))
 
         ids = repository_1.repository_architectures.pluck(:id)
         xml = "<project name='#{project.name}'><repository name='repo_1'><arch>i586</arch><arch>x86_64</arch></repository></project>"
@@ -290,7 +301,9 @@ RSpec.describe Project::UpdateFromXmlCommand do
               </project>
             EOF
           )
-          expect { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }.to raise_error(
+          expect do
+            Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
+          end.to raise_error(
             Project::SaveError, 'Using same repository as path element is not allowed'
           )
         end
@@ -305,7 +318,9 @@ RSpec.describe Project::UpdateFromXmlCommand do
               </project>
             EOF
           )
-          expect { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }.to raise_error(
+          expect do
+            Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
+          end.to raise_error(
             Project::SaveError, "Cannot find repository 'other_project/nonexistent'"
           )
         end

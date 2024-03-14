@@ -25,7 +25,9 @@ RSpec.configure do |config|
     if example.metadata[:rabbitmq]
       config.include RabbitMQHelpers
       # define config - not taken into account though due to mocking
-      stub_const('CONFIG', CONFIG.merge('amqp_options' => { dummy: 1 }, 'amqp_exchange_name' => 'pubsub', 'amqp_exchange_options' => { type: :topic }))
+      stub_const('CONFIG',
+                 CONFIG.merge('amqp_options' => { dummy: 1 }, 'amqp_exchange_name' => 'pubsub',
+                              'amqp_exchange_options' => { type: :topic }))
 
       connection = BunnyMock.new
       RabbitmqBus.connection = connection

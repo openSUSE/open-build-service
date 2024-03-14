@@ -354,7 +354,8 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # create sub project of home
-    put '/source/home:lost_guy:subproject/_meta', params: '<project name="home:lost_guy:subproject"><title/><description/></project>'
+    put '/source/home:lost_guy:subproject/_meta',
+        params: '<project name="home:lost_guy:subproject"><title/><description/></project>'
     assert_response :success
 
     # only admins, not even the user itself can lock himself
@@ -432,7 +433,8 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     post '/person?cmd=register', params: data
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'err_register_save' }
-    assert_xml_tag tag: 'summary', content: 'Thank you for signing up! An admin has to confirm your account now. Please be patient.'
+    assert_xml_tag tag: 'summary',
+                   content: 'Thank you for signing up! An admin has to confirm your account now. Please be patient.'
 
     # we tried to register as confirmed up there, ensure that we are not...
     login_king

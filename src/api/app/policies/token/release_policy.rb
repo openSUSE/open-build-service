@@ -13,7 +13,12 @@ class Token::ReleasePolicy < TokenPolicy
   def sufficient_permission_on_all_release_targets?
     project = record.object_to_authorize.is_a?(Package) ? record.object_to_authorize.project : record.object_to_authorize
     project.release_targets.where(trigger: 'manual').each do |release_target|
-      raise Pundit::NotAuthorizedError, query: :trigger?, record: release_target.target_repository.project, reason: :unsufficient_permission_on_release_target unless ProjectPolicy.new(user, release_target.target_repository.project).update?
+      next if ProjectPolicy.new(
+        user, release_target.target_repository.project
+      ).update?
+
+      raise Pundit::NotAuthorizedError, query: :trigger?, record: release_target.target_repository.project,
+                                        reason: :unsufficient_permission_on_release_target
     end
   end
 end

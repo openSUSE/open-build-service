@@ -17,7 +17,8 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
 
     context 'with a failure in the backend' do
       before do
-        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_raise(Backend::Error, 'fake message')
+        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_raise(Backend::Error,
+                                                                                            'fake message')
         get :index, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom }
       end
 
@@ -30,7 +31,9 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
         allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_raise(Backend::NotFoundError)
       end
 
-      let(:get_binaries) { get :index, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom } }
+      let(:get_binaries) do
+        get :index, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom }
+      end
 
       it { expect { get_binaries }.to raise_error(ActiveRecord::RecordNotFound) }
     end
@@ -38,7 +41,10 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
 
   describe 'GET #show' do
     let(:architecture) { 'x86_64' }
-    let(:package_binaries_page) { project_package_repository_binaries_path(package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom) }
+    let(:package_binaries_page) do
+      project_package_repository_binaries_path(package_name: toms_package, project_name: home_tom,
+                                               repository_name: repo_for_home_tom)
+    end
     let(:fake_fileinfo) { { sumary: 'fileinfo', description: 'fake' } }
 
     before do
@@ -84,7 +90,9 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
 
     context 'without a valid architecture' do
       before do
-        get :show, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom, arch: 'fake_arch', filename: 'filename.txt' }
+        get :show,
+            params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom, arch: 'fake_arch',
+                      filename: 'filename.txt' }
       end
 
       it { expect(flash[:error]).to eq("Couldn't find architecture 'fake_arch'.") }
@@ -94,12 +102,15 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
     context 'with a valid download url' do
       before do
         # We want to use the backend path here
-        allow(Backend::Api::BuildResults::Binaries).to receive_messages(fileinfo_ext: fake_fileinfo, download_url_for_file: nil)
+        allow(Backend::Api::BuildResults::Binaries).to receive_messages(fileinfo_ext: fake_fileinfo,
+                                                                        download_url_for_file: nil)
       end
 
       context 'and normal html request' do
         before do
-          get :show, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom, arch: 'x86_64', filename: 'filename.txt', format: :html }
+          get :show,
+              params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom, arch: 'x86_64',
+                        filename: 'filename.txt', format: :html }
         end
 
         it { expect(response).to have_http_status(:success) }
@@ -108,7 +119,9 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
 
       context 'and a non html request' do
         before do
-          get :show, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom, arch: 'x86_64', filename: 'filename.txt' }
+          get :show,
+              params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom, arch: 'x86_64',
+                        filename: 'filename.txt' }
         end
 
         it { expect(response).to have_http_status(:redirect) }

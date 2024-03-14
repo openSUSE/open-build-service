@@ -136,8 +136,15 @@ namespace :db do
             end
           end
           if table_name == 'taggings'
-            record['taggable_id'] = ActiveRecord::FixtureSet.identify(Project.find(record['taggable_id']).name.tr(':', '_')) if record['taggable_type'] == 'Project'
-            record['taggable_id'] = ActiveRecord::FixtureSet.identify(Package.find(record['taggable_id']).fixtures_name) if record['taggable_type'] == 'Package'
+            if record['taggable_type'] == 'Project'
+              record['taggable_id'] =
+                ActiveRecord::FixtureSet.identify(Project.find(record['taggable_id']).name.tr(':',
+                                                                                              '_'))
+            end
+            if record['taggable_type'] == 'Package'
+              record['taggable_id'] =
+                ActiveRecord::FixtureSet.identify(Package.find(record['taggable_id']).fixtures_name)
+            end
           end
 
           if table_name == 'distributions'
@@ -155,7 +162,9 @@ namespace :db do
             key = record['name'].tr(':', '_')
             record.delete(primary)
           end
-          key = classname.find(record.delete(primary)).fixtures_name if static_permissions_or_packages.include?(table_name)
+          if static_permissions_or_packages.include?(table_name)
+            key = classname.find(record.delete(primary)).fixtures_name
+          end
           defaultkey = record['package'] if table_name == 'backend_packages'
           if various_table_names.include?(table_name)
 

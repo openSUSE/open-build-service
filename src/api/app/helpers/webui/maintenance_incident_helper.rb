@@ -25,7 +25,8 @@ module Webui::MaintenanceIncidentHelper
   end
 
   def outgoing_requests_icons(incident)
-    requests = BsRequest.list(roles: %w[source], states: %w[new review declined], types: %w[maintenance_release], project: incident.name)
+    requests = BsRequest.list(roles: %w[source], states: %w[new review declined], types: %w[maintenance_release],
+                              project: incident.name)
     if requests.present?
       safe_join(outgoing_request_links(requests), '<div/>'.html_safe)
     elsif incident.is_locked?
@@ -65,7 +66,8 @@ module Webui::MaintenanceIncidentHelper
 
     first_package = packages.first
     safe_join([
-                link_to(first_package.split('.', 2)[0], package_show_path(project: incident.name, package: first_package)),
+                link_to(first_package.split('.', 2)[0],
+                        package_show_path(project: incident.name, package: first_package)),
                 (', ...' if packages.length > 1)
               ])
   end
@@ -90,7 +92,8 @@ module Webui::MaintenanceIncidentHelper
             safe_join(
               [
                 link_to(project_show_path(project: incident.name)) do
-                  tag.i(nil, class: "fas pe-1 #{incident_build_icon_class(incident, target_repo.name)}", title: 'Build results')
+                  tag.i(nil, class: "fas pe-1 #{incident_build_icon_class(incident, target_repo.name)}",
+                             title: 'Build results')
                 end,
                 link_to(target_repo.project, project_show_path(project: target_repo.project))
               ]
@@ -108,7 +111,8 @@ module Webui::MaintenanceIncidentHelper
       safe_join(
         [
           link_to(request_show_path(request['number'])) do
-            tag.i(nil, class: "fas fa-flag pe-1 request-flag-#{request['state']}", title: "Release request in state '#{request['state']}'")
+            tag.i(nil, class: "fas fa-flag pe-1 request-flag-#{request['state']}",
+                       title: "Release request in state '#{request['state']}'")
           end,
           # rubocop:disable Rails/OutputSafety
           TimeComponent.new(time: request.created_at).human_time.html_safe

@@ -2,7 +2,9 @@ require 'webmock/rspec'
 
 RSpec.describe Webui::Cloud::Azure::UploadJobsController, :vcr do
   let(:azure_configuration) { build(:azure_configuration, application_id: 'Hey OBS!', application_key: 'Hey OBS?') }
-  let(:user_with_azure_configuration) { create(:confirmed_user, login: 'tom', azure_configuration: azure_configuration) }
+  let(:user_with_azure_configuration) do
+    create(:confirmed_user, login: 'tom', azure_configuration: azure_configuration)
+  end
   let(:project) { create(:project, name: 'AzureImages') }
   let!(:package) { create(:package, name: 'MyAzureImage', project: project) }
   let(:upload_job) { create(:upload_job, user: user_with_azure_configuration) }
@@ -33,14 +35,17 @@ RSpec.describe Webui::Cloud::Azure::UploadJobsController, :vcr do
   describe 'GET #new' do
     context 'with valid parameters' do
       before do
-        get :new, params: { project: 'AzureImages', package: 'MyAzureImage', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz' }
+        get :new,
+            params: { project: 'AzureImages', package: 'MyAzureImage', repository: 'standard', arch: 'x86_64',
+                      filename: 'appliance.raw.xz' }
       end
 
       it { expect(response).to have_http_status(:success) }
 
       it {
         expect(assigns(:upload_job))
-          .to have_attributes(project: 'AzureImages', package: 'MyAzureImage', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz')
+          .to have_attributes(project: 'AzureImages', package: 'MyAzureImage', repository: 'standard', arch: 'x86_64',
+                              filename: 'appliance.raw.xz')
       }
     end
 
@@ -55,19 +60,28 @@ RSpec.describe Webui::Cloud::Azure::UploadJobsController, :vcr do
       end
 
       context 'with a not existing package' do
-        let(:params) { { project: 'AzureImages', package: 'not-existent', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz' } }
+        let(:params) do
+          { project: 'AzureImages', package: 'not-existent', repository: 'standard', arch: 'x86_64',
+            filename: 'appliance.raw.xz' }
+        end
 
         include_context 'it redirects and assigns flash error'
       end
 
       context 'with an invalid filename' do
-        let(:params) { { project: 'AzureImages', package: 'MyAzureImage', repository: 'standard', arch: 'x86_64', filename: 'appliance.rpm' } }
+        let(:params) do
+          { project: 'AzureImages', package: 'MyAzureImage', repository: 'standard', arch: 'x86_64',
+            filename: 'appliance.rpm' }
+        end
 
         include_context 'it redirects and assigns flash error'
       end
 
       context 'with an invalid architecture' do
-        let(:params) { { project: 'AzureImages', package: 'MyAzureImage', repository: 'standard', arch: 'i386', filename: 'appliance.raw.xz' } }
+        let(:params) do
+          { project: 'AzureImages', package: 'MyAzureImage', repository: 'standard', arch: 'i386',
+            filename: 'appliance.raw.xz' }
+        end
 
         include_context 'it redirects and assigns flash error'
       end
@@ -140,7 +154,8 @@ RSpec.describe Webui::Cloud::Azure::UploadJobsController, :vcr do
         }
       end
       let(:post_body) do
-        user_with_azure_configuration.azure_configuration.attributes.except('id', 'created_at', 'updated_at').merge(additional_data).to_json
+        user_with_azure_configuration.azure_configuration.attributes.except('id', 'created_at',
+                                                                            'updated_at').merge(additional_data).to_json
       end
 
       before do

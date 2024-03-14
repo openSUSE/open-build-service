@@ -86,16 +86,24 @@ class Project < ApplicationRecord
   default_scope { where.not('projects.id' => Relationship.forbidden_project_ids) }
 
   scope :filtered_for_list, lambda {
-    where.not('name rlike ?', ::Configuration.unlisted_projects_filter) if ::Configuration.unlisted_projects_filter.present?
+    if ::Configuration.unlisted_projects_filter.present?
+      where.not('name rlike ?', ::Configuration.unlisted_projects_filter)
+    end
   }
 
   scope :remote, -> { where('NOT ISNULL(projects.remoteurl)') }
   scope :local, -> { where('ISNULL(projects.remoteurl)') }
 
-  scope :autocomplete, ->(search, local = false) { AutocompleteFinder::Project.new(local ? Project.local : Project.default_scoped, search).call }
-  scope :for_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id, role_id: Role.hashed['maintainer'] }) }
+  scope :autocomplete, lambda { |search, local = false|
+                         AutocompleteFinder::Project.new(local ? Project.local : Project.default_scoped, search).call
+                       }
+  scope :for_user, lambda { |user_id|
+                     joins(:relationships).where(relationships: { user_id: user_id, role_id: Role.hashed['maintainer'] })
+                   }
   scope :related_to_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id }) }
-  scope :for_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] }) }
+  scope :for_group, lambda { |group_id|
+                      joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] })
+                    }
   scope :related_to_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id }) }
 
   validates :name, presence: true, length: { maximum: 200 }, uniqueness: { case_sensitive: true }
@@ -356,7 +364,9 @@ class Project < ApplicationRecord
             begin
               target_project = Project.get_by_name(target_project_name)
               # user can access tprj, but backend would refuse to take binaries from there
-              return { error: "The current backend implementation is not using binaries from read access protected projects #{target_project_name}" } if target_project.instance_of?(Project) && target_project.disabled_for?('access', nil, nil)
+              return { error: "The current backend implementation is not using binaries from read access protected projects #{target_project_name}" } if target_project.instance_of?(Project) && target_project.disabled_for?(
+                'access', nil, nil
+              )
             rescue Project::Errors::UnknownObjectError
               return { error: "A project with the name #{target_project_name} does not exist. Please update the repository path elements." }
             end
@@ -498,7 +508,8 @@ class Project < ApplicationRecord
       request.bs_request_actions.each do |action|
         if action.source_project == name
           begin
-            request.change_state(newstate: 'revoked', comment: "The source project '#{name}' has been removed", override_creator: request.creator)
+            request.change_state(newstate: 'revoked', comment: "The source project '#{name}' has been removed",
+                                 override_creator: request.creator)
           rescue PostRequestNoPermission
             logger.debug "#{User.session!.login} tried to revoke request #{request.number} but had no permissions"
           end
@@ -540,7 +551,8 @@ class Project < ApplicationRecord
       update_instance = Project.find_by_name(a.values[0].value)
       return update_instance if update_instance
 
-      raise Project::Errors::UnknownObjectError, "Update project configured in #{name} but not found: #{a.values[0].value}"
+      raise Project::Errors::UnknownObjectError,
+            "Update project configured in #{name} but not found: #{a.values[0].value}"
     end
 
     self
@@ -556,7 +568,8 @@ class Project < ApplicationRecord
     project = Project.find_by(name: update_project_name)
     return project if project
 
-    raise Project::Errors::UnknownObjectError, "Update project configured in #{name} but not found: #{update_project_name}"
+    raise Project::Errors::UnknownObjectError,
+          "Update project configured in #{name} but not found: #{update_project_name}"
   end
 
   def cleanup_linking_repos
@@ -671,7 +684,8 @@ class Project < ApplicationRecord
   def can_be_unlocked?(with_exception = true)
     if is_maintenance_incident?
       requests = BsRequest.where(state: %i[new review declined]).joins(:bs_request_actions)
-      maintenance_release_requests = requests.where(bs_request_actions: { type: 'maintenance_release', source_project: name })
+      maintenance_release_requests = requests.where(bs_request_actions: { type: 'maintenance_release',
+                                                                          source_project: name })
       if maintenance_release_requests.exists?
         if with_exception
           raise OpenReleaseRequest, "Unlock of maintenance incident #{name} is not possible, " \
@@ -707,7 +721,10 @@ class Project < ApplicationRecord
     # expire cache
     reset_cache
 
-    raise ArgumentError, 'no commit_user set' unless @commit_opts[:no_backend_write] || @commit_opts[:login] || @commit_user
+    unless @commit_opts[:no_backend_write] || @commit_opts[:login] || @commit_user
+      raise ArgumentError,
+            'no commit_user set'
+    end
 
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       login = @commit_opts[:login] || @commit_user.login
@@ -866,7 +883,10 @@ class Project < ApplicationRecord
 
     # add repository targets
     add_target_repos.each do |repo|
-      trepo.release_targets.create(target_repository: repo, trigger: trigger) unless trepo.release_targets.exists?(target_repository: repo)
+      unless trepo.release_targets.exists?(target_repository: repo)
+        trepo.release_targets.create(target_repository: repo,
+                                     trigger: trigger)
+      end
     end
   end
 
@@ -1012,7 +1032,8 @@ class Project < ApplicationRecord
 
             # is this path pointing to some repository which is used in another
             # of my repositories?
-            repositories.joins(:path_elements).where('path_elements.repository_id': ipe.link, 'path_elements.kind': path_kind).find_each do |my_repo|
+            repositories.joins(:path_elements).where('path_elements.repository_id': ipe.link,
+                                                     'path_elements.kind': path_kind).find_each do |my_repo|
               next if my_repo == repo # do not add my self
               next if repo.path_elements.where(link: my_repo).count.positive?
 
@@ -1026,7 +1047,8 @@ class Project < ApplicationRecord
               cycle_detection[elements.first.id] = true
               if elements.count > 1
                 # note: we don't enforce a unique entry by position atm....
-                repo.path_elements.where('position = ipe.position AND kind = ? AND NOT id = ?', [path_kind, elements.first.id]).delete_all
+                repo.path_elements.where('position = ipe.position AND kind = ? AND NOT id = ?',
+                                         [path_kind, elements.first.id]).delete_all
               end
             end
           end

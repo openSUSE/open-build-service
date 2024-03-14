@@ -102,10 +102,13 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
 
     # verify meta data created by create_package_descr
     package_seen = {}
-    IO.popen("gunzip -cd #{ENV.fetch('OBS_BACKEND_TEMP', nil)}/data/repos/BaseDistro3/BaseDistro3_repo/repodata/*-primary.xml.gz") do |io|
+    IO.popen("gunzip -cd #{ENV.fetch('OBS_BACKEND_TEMP',
+                                     nil)}/data/repos/BaseDistro3/BaseDistro3_repo/repodata/*-primary.xml.gz") do |io|
       hashed = Xmlhash.parse(io.read)
       hashed.elements('package').each do |p|
-        next unless (p['name'] == 'package' && p['arch'] == 'i586') || (p['name'] == 'package_newweaktags' && p['arch'] == 'x86_64')
+        unless (p['name'] == 'package' && p['arch'] == 'i586') || (p['name'] == 'package_newweaktags' && p['arch'] == 'x86_64')
+          next
+        end
 
         package_seen[p['name']] = true
         assert_not_nil p
@@ -133,7 +136,9 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
         next unless File.exist?('/var/adm/fillup-templates') || File.exist?('/usr/share/fillup-templates/')
 
         # seems to be a SUSE system
-        print 'createrepo seems not to create week dependencies, we need this at least on SUSE systems' if p['format']['rpm:suggests'].nil?
+        if p['format']['rpm:suggests'].nil?
+          print 'createrepo seems not to create week dependencies, we need this at least on SUSE systems'
+        end
         assert_equal 'pure_optional', p['format']['rpm:suggests']['rpm:entry']['name']
         assert_equal 'would_be_nice', p['format']['rpm:recommends']['rpm:entry']['name']
         assert_equal 'other_package_likes_it', p['format']['rpm:supplements']['rpm:entry']['name']
@@ -145,7 +150,8 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
 
     # master tags
     hashed = nil
-    IO.popen("cat #{ENV.fetch('OBS_BACKEND_TEMP', nil)}/data/repos/BaseDistro3/BaseDistro3_repo/repodata/repomd.xml") do |io|
+    IO.popen("cat #{ENV.fetch('OBS_BACKEND_TEMP',
+                              nil)}/data/repos/BaseDistro3/BaseDistro3_repo/repodata/repomd.xml") do |io|
       hashed = Xmlhash.parse(io.read)
     end
     if File.exist?('/var/adm/fillup-templates') || File.exist?('/usr/share/fillup-templates/')

@@ -87,9 +87,13 @@ class Package < ApplicationRecord
   end
 
   scope :order_by_name, -> { order('LOWER(name)') }
-  scope :for_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id, role_id: Role.hashed['maintainer'] }) }
+  scope :for_user, lambda { |user_id|
+                     joins(:relationships).where(relationships: { user_id: user_id, role_id: Role.hashed['maintainer'] })
+                   }
   scope :related_to_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id }) }
-  scope :for_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] }) }
+  scope :for_group, lambda { |group_id|
+                      joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] })
+                    }
   scope :related_to_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id }) }
 
   scope :with_product_name, -> { where(name: '_product') }
@@ -185,7 +189,8 @@ class Package < ApplicationRecord
   # Project by setting in the opts hash:
   #   check_update_project: true
   def self.get_by_project_and_name(project_name_or_object, package_name, opts = {})
-    get_by_project_and_name_defaults = { use_source: true, follow_project_links: true, follow_multibuild: false, check_update_project: false }
+    get_by_project_and_name_defaults = { use_source: true, follow_project_links: true, follow_multibuild: false,
+                                         check_update_project: false }
     opts = get_by_project_and_name_defaults.merge(opts)
 
     package_name = striping_multibuild_suffix(package_name) if opts[:follow_multibuild]
@@ -227,7 +232,8 @@ class Package < ApplicationRecord
 
   # to check existence of a project (local or remote)
   def self.exists_by_project_and_name(project, package, opts = {})
-    exists_by_project_and_name_defaults = { follow_project_links: true, allow_remote_packages: false, follow_multibuild: false }
+    exists_by_project_and_name_defaults = { follow_project_links: true, allow_remote_packages: false,
+                                            follow_multibuild: false }
     opts = exists_by_project_and_name_defaults.merge(opts)
     package = striping_multibuild_suffix(package) if opts[:follow_multibuild]
     begin
@@ -268,7 +274,9 @@ class Package < ApplicationRecord
   end
 
   def check_source_access?
-    return false if (disabled_for?('sourceaccess', nil, nil) || project.disabled_for?('sourceaccess', nil, nil)) && !User.possibly_nobody.can_source_access?(self)
+    return false if (disabled_for?('sourceaccess', nil,
+                                   nil) || project.disabled_for?('sourceaccess', nil,
+                                                                 nil)) && !User.possibly_nobody.can_source_access?(self)
 
     true
   end
@@ -313,7 +321,8 @@ class Package < ApplicationRecord
     result = ''
     changes_files.each do |changes_file|
       source_changes = PackageFile.new(package_name: name, project_name: project.name, name: changes_file).content
-      target_changes = PackageFile.new(package_name: target_package, project_name: target_project, name: changes_file).content
+      target_changes = PackageFile.new(package_name: target_package, project_name: target_project,
+                                       name: changes_file).content
       result << source_changes.try(:chomp, target_changes)
     end
     # Remove header and empty lines
@@ -716,10 +725,16 @@ class Package < ApplicationRecord
         prj_name = devel['project'] || xmlhash['project']
         pkg_name = devel['package'] || xmlhash['name']
         develprj = Project.find_by_name(prj_name)
-        raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)" unless develprj
+        unless develprj
+          raise SaveError,
+                "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
+        end
 
         develpkg = develprj.packages.find_by_name(pkg_name)
-        raise SaveError, "value of develpackage has to be a existing package (package '#{pkg_name}' does not exist)" unless develpkg
+        unless develpkg
+          raise SaveError,
+                "value of develpackage has to be a existing package (package '#{pkg_name}' does not exist)"
+        end
 
         self.develpackage = develpkg
       end
@@ -771,7 +786,9 @@ class Package < ApplicationRecord
     elsif @commit_opts[:no_backend_write]
       logger.tagged('backend_sync') { logger.warn "Not saving Package #{project.name}/#{name}, backend_write is off " }
     else
-      logger.tagged('backend_sync') { logger.warn "Not saving Package #{project.name}/#{name}, global_write_through is off" }
+      logger.tagged('backend_sync') do
+        logger.warn "Not saving Package #{project.name}/#{name}, global_write_through is off"
+      end
     end
   end
 
@@ -798,13 +815,21 @@ class Package < ApplicationRecord
         Backend::Connection.delete path
       rescue Backend::NotFoundError
         # ignore this error, backend was out of sync
-        logger.tagged('backend_sync') { logger.warn("Package #{project.name}/#{name} was already missing on backend on removal") }
+        logger.tagged('backend_sync') do
+          logger.warn("Package #{project.name}/#{name} was already missing on backend on removal")
+        end
       end
       logger.tagged('backend_sync') { logger.warn("Deleted Package #{project.name}/#{name}") }
     elsif @commit_opts[:no_backend_write]
-      logger.tagged('backend_sync') { logger.warn "Not deleting Package #{project.name}/#{name}, backend_write is off " } unless @commit_opts[:project_destroy_transaction]
+      unless @commit_opts[:project_destroy_transaction]
+        logger.tagged('backend_sync') do
+          logger.warn "Not deleting Package #{project.name}/#{name}, backend_write is off "
+        end
+      end
     else
-      logger.tagged('backend_sync') { logger.warn "Not deleting Package #{project.name}/#{name}, global_write_through is off" }
+      logger.tagged('backend_sync') do
+        logger.warn "Not deleting Package #{project.name}/#{name}, global_write_through is off"
+      end
     end
   end
 
@@ -839,19 +864,22 @@ class Package < ApplicationRecord
 
   def open_requests_with_package_as_target
     rel = BsRequest.where(state: %i[new review declined]).joins(:bs_request_actions)
-    rel = rel.where('(bs_request_actions.target_project = ? and bs_request_actions.target_package = ?)', project.name, name)
+    rel = rel.where('(bs_request_actions.target_project = ? and bs_request_actions.target_package = ?)', project.name,
+                    name)
     BsRequest.where(id: rel.select('bs_requests.id'))
   end
 
   def open_requests_with_package_as_source
     rel = BsRequest.where(state: %i[new review declined]).joins(:bs_request_actions)
-    rel = rel.where('(bs_request_actions.source_project = ? and bs_request_actions.source_package = ?)', project.name, name)
+    rel = rel.where('(bs_request_actions.source_project = ? and bs_request_actions.source_package = ?)', project.name,
+                    name)
     BsRequest.where(id: rel.select('bs_requests.id'))
   end
 
   def open_requests_with_by_package_review
     rel = BsRequest.where(state: %i[new review])
-    rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? and reviews.by_package = ? ", project.name, name)
+    rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? and reviews.by_package = ? ",
+                                    project.name, name)
     BsRequest.where(id: rel.select('bs_requests.id'))
   end
 
@@ -885,7 +913,8 @@ class Package < ApplicationRecord
   end
 
   # FIXME: That you can overwrite package_name is rather confusing, but needed because of multibuild :-/
-  def jobhistory(repository_name:, arch_name:, package_name: name, project_name: project.name, filter: { limit: 100, start_epoch: nil, end_epoch: nil, code: [] })
+  def jobhistory(repository_name:, arch_name:, package_name: name, project_name: project.name,
+                 filter: { limit: 100, start_epoch: nil, end_epoch: nil, code: [] })
     Backend::Api::BuildResults::JobHistory.for_package(project_name: project_name,
                                                        package_name: package_name,
                                                        repository_name: repository_name,
@@ -945,7 +974,9 @@ class Package < ApplicationRecord
     # rubocop:enable Rails/SkipsModelValidations
 
     # and all possible existing local links
-    opkg = opkg.project.packages.find_by_name(opkg.linkinfo['package']) if opkg.project.is_maintenance_release? && opkg.is_link?
+    if opkg.project.is_maintenance_release? && opkg.is_link?
+      opkg = opkg.project.packages.find_by_name(opkg.linkinfo['package'])
+    end
 
     opkg.find_project_local_linking_packages.each do |p|
       name = p.name
@@ -1223,7 +1254,10 @@ class Package < ApplicationRecord
     logger.debug "storing file: filename: #{opt[:filename]}, comment: #{opt[:comment]}"
 
     Package.verify_file!(self, opt[:filename], content)
-    raise PutFileNoPermission, "Insufficient permissions to store file in package #{name}, project #{project.name}" unless User.session!.can_modify?(self)
+    unless User.session!.can_modify?(self)
+      raise PutFileNoPermission,
+            "Insufficient permissions to store file in package #{name}, project #{project.name}"
+    end
 
     params = opt.slice(:comment, :rev) || {}
     params[:user] = User.session!.login
@@ -1239,7 +1273,8 @@ class Package < ApplicationRecord
     # update package timestamp and reindex sources
     return if opt[:rev] == 'repository' || %w[_project _pattern].include?(name)
 
-    sources_changed(wait_for_update: %w[_aggregate _constraints _link _service _patchinfo _channel].include?(opt[:filename]))
+    sources_changed(wait_for_update: %w[_aggregate _constraints _link _service _patchinfo
+                                        _channel].include?(opt[:filename]))
   end
 
   def to_param

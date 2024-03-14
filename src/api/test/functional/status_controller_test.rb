@@ -25,7 +25,8 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
     assert_response 400
     assert_xml_tag attributes: { code: 'validation_failed' }
 
-    post '/status/messages', params: '<status_message><message>I have nothing to say</message><severity>yellow</severity></status_message>'
+    post '/status/messages',
+         params: '<status_message><message>I have nothing to say</message><severity>yellow</severity></status_message>'
     assert_response :success
 
     # delete it again

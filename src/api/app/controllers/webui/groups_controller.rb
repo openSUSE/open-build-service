@@ -33,7 +33,8 @@ class Webui::GroupsController < Webui::WebuiController
     flash[:success] = "Group '#{group}' successfully created."
     redirect_to controller: :groups, action: :index
   rescue ActiveRecord::RecordInvalid
-    redirect_back(fallback_location: root_path, error: "Group can't be saved: #{group.errors.full_messages.to_sentence}")
+    redirect_back(fallback_location: root_path,
+                  error: "Group can't be saved: #{group.errors.full_messages.to_sentence}")
   end
 
   def autocomplete

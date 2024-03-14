@@ -45,7 +45,8 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'definition', attributes: { name: 'UpdateProject', namespace: 'OBS' }
     assert_xml_tag child: { tag: 'modifiable_by', attributes: { user: 'maintenance_coord' } }
     assert_xml_tag child: { tag: 'count', content: '1' }
-    assert_xml_tag child: { tag: 'description', content: 'Project is frozen and updates are released via the other project' }
+    assert_xml_tag child: { tag: 'description',
+                            content: 'Project is frozen and updates are released via the other project' }
   end
 
   def test_create_namespace_old
@@ -468,7 +469,8 @@ ription</description>
     assert_response :success
     get '/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained'
     assert_response :success
-    assert_equal({ 'attribute' => { 'name' => 'Maintained', 'namespace' => 'OBS', 'binary' => 'kdelibs-devel' } }, Xmlhash.parse(@response.body))
+    assert_equal({ 'attribute' => { 'name' => 'Maintained', 'namespace' => 'OBS', 'binary' => 'kdelibs-devel' } },
+                 Xmlhash.parse(@response.body))
 
     get '/source/kde4/NOT_EXISTING/_attribute'
     assert_response 404

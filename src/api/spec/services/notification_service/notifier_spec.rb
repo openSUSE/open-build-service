@@ -3,9 +3,15 @@ RSpec.describe NotificationService::Notifier do
   let(:user_kim) { create(:confirmed_user, login: 'kim') }
   let(:commenter) { create(:confirmed_user, login: 'ann') }
 
-  let(:create_bob_subscription) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user_bob, channel: :rss) }
-  let(:create_bob_web_subscription) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user_bob, channel: :web) }
-  let(:create_kim_subscription) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user_kim, channel: :rss) }
+  let(:create_bob_subscription) do
+    create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user_bob, channel: :rss)
+  end
+  let(:create_bob_web_subscription) do
+    create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user_bob, channel: :web)
+  end
+  let(:create_kim_subscription) do
+    create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user_kim, channel: :rss)
+  end
 
   let(:project) { create(:project, name: 'bobkim_project') }
   let(:create_relationship_bob) { create(:relationship_project_user, user: user_bob, project: project) }
@@ -37,7 +43,9 @@ RSpec.describe NotificationService::Notifier do
       end
 
       it 'subscribes bob and kim to the rss notifications' do
-        expect(Notification.where(event_type: 'Event::CommentForProject').pluck(:subscriber_id)).to contain_exactly(user_bob.id, user_kim.id)
+        expect(Notification.where(event_type: 'Event::CommentForProject').pluck(:subscriber_id)).to contain_exactly(
+          user_bob.id, user_kim.id
+        )
       end
 
       it 'creates one notification with rss checked for bob' do
@@ -82,7 +90,10 @@ RSpec.describe NotificationService::Notifier do
 
         context 'and the event triggers for a user' do
           let(:user) { create(:confirmed_user) }
-          let(:event) { Event::RelationshipCreate.create!(who: owner.login, user: user.login, project: project.name, notifiable_id: project.id) }
+          let(:event) do
+            Event::RelationshipCreate.create!(who: owner.login, user: user.login, project: project.name,
+                                              notifiable_id: project.id)
+          end
 
           context 'and a user is subscribed to the event' do
             before do
@@ -112,7 +123,10 @@ RSpec.describe NotificationService::Notifier do
         context 'and the event triggers for a group' do
           let(:group) { create(:group_with_user) }
           let(:user) { group.users.first }
-          let(:event) { Event::RelationshipCreate.create!(who: owner.login, group: group.title, project: project.name, notifiable_id: project.id) }
+          let(:event) do
+            Event::RelationshipCreate.create!(who: owner.login, group: group.title, project: project.name,
+                                              notifiable_id: project.id)
+          end
 
           context 'and a group member is subscribed to the event' do
             before do
@@ -147,7 +161,10 @@ RSpec.describe NotificationService::Notifier do
 
         context 'and the event triggers for a user' do
           let(:user) { create(:confirmed_user) }
-          let(:event) { Event::RelationshipCreate.create!(who: owner.login, user: user.login, package: package.name, project: project.name, notifiable_id: package.id) }
+          let(:event) do
+            Event::RelationshipCreate.create!(who: owner.login, user: user.login, package: package.name, project: project.name,
+                                              notifiable_id: package.id)
+          end
 
           context 'and a user is subscribed to the event' do
             before do
@@ -177,7 +194,10 @@ RSpec.describe NotificationService::Notifier do
         context 'and the event triggers for a group' do
           let(:group) { create(:group_with_user) }
           let(:user) { group.users.first }
-          let(:event) { Event::RelationshipCreate.create!(who: owner.login, group: group.title, package: package.name, project: project.name, notifiable_id: package.id) }
+          let(:event) do
+            Event::RelationshipCreate.create!(who: owner.login, group: group.title, package: package.name, project: project.name,
+                                              notifiable_id: package.id)
+          end
 
           context 'and a group is subscribed to the event' do
             before do
@@ -214,7 +234,10 @@ RSpec.describe NotificationService::Notifier do
 
         context 'and the event triggers for a user' do
           let(:user) { create(:confirmed_user) }
-          let(:event) { Event::RelationshipDelete.create!(who: owner.login, user: user.login, project: project.name, notifiable_id: project.id) }
+          let(:event) do
+            Event::RelationshipDelete.create!(who: owner.login, user: user.login, project: project.name,
+                                              notifiable_id: project.id)
+          end
 
           context 'and a user is subscribed to the event' do
             before do
@@ -244,7 +267,10 @@ RSpec.describe NotificationService::Notifier do
         context 'and the event triggers for a group' do
           let(:group) { create(:group_with_user) }
           let(:user) { group.users.first }
-          let(:event) { Event::RelationshipDelete.create!(who: owner.login, group: group.title, project: project.name, notifiable_id: project.id) }
+          let(:event) do
+            Event::RelationshipDelete.create!(who: owner.login, group: group.title, project: project.name,
+                                              notifiable_id: project.id)
+          end
 
           context 'and a group member is subscribed to the event' do
             before do
@@ -278,7 +304,10 @@ RSpec.describe NotificationService::Notifier do
 
         context 'and the event triggers for a user' do
           let(:user) { create(:confirmed_user) }
-          let(:event) { Event::RelationshipDelete.create!(who: owner.login, user: user.login, package: package.name, project: project.name, notifiable_id: package.id) }
+          let(:event) do
+            Event::RelationshipDelete.create!(who: owner.login, user: user.login, package: package.name, project: project.name,
+                                              notifiable_id: package.id)
+          end
 
           context 'and a user is subscribed to the event' do
             before do
@@ -308,7 +337,10 @@ RSpec.describe NotificationService::Notifier do
         context 'and the event triggers for a group' do
           let(:group) { create(:group_with_user) }
           let(:user) { group.users.first }
-          let(:event) { Event::RelationshipDelete.create!(who: owner.login, group: group.title, package: package.name, project: project.name, notifiable_id: package.id) }
+          let(:event) do
+            Event::RelationshipDelete.create!(who: owner.login, group: group.title, package: package.name, project: project.name,
+                                              notifiable_id: package.id)
+          end
 
           context 'and a group is subscribed to the event' do
             before do

@@ -7,7 +7,9 @@ RSpec.describe 'Repositories', :js do
   describe 'DoD Repositories' do
     let(:project_with_dod_repo) { create(:project) }
     let(:repository) { create(:repository, project: project_with_dod_repo) }
-    let!(:repo_arch) { create(:repository_architecture, repository: repository, architecture: Architecture.find_by_name('armv7l')) }
+    let!(:repo_arch) do
+      create(:repository_architecture, repository: repository, architecture: Architecture.find_by_name('armv7l'))
+    end
     let!(:download_repository_source) { create(:download_repository, repository: repository) }
     let!(:download_repository_source_2) { create(:download_repository, repository: repository, arch: 'armv7l') }
     let(:dod_repository) { download_repository_source.repository }

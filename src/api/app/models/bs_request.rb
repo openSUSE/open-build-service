@@ -50,7 +50,9 @@ class BsRequest < ApplicationRecord
       )
   }
 
-  scope :with_actions_and_reviews, -> { joins(:bs_request_actions).left_outer_joins(:reviews).distinct.order(priority: :asc, id: :desc) }
+  scope :with_actions_and_reviews, lambda {
+                                     joins(:bs_request_actions).left_outer_joins(:reviews).distinct.order(priority: :asc, id: :desc)
+                                   }
   scope :with_submit_requests, -> { joins(:bs_request_actions).where(bs_request_actions: { type: 'submit' }) }
 
   scope :by_user_reviews, ->(user_ids) { where(reviews: { user: user_ids }) }
@@ -74,7 +76,9 @@ class BsRequest < ApplicationRecord
   has_many :reviews, dependent: :delete_all
   has_many :comments, as: :commentable, dependent: :destroy
   has_one :comment_lock, as: :commentable, dependent: :destroy
-  has_many :request_history_elements, -> { order(:created_at) }, class_name: 'HistoryElement::Request', foreign_key: :op_object_id
+  has_many :request_history_elements, lambda {
+                                        order(:created_at)
+                                      }, class_name: 'HistoryElement::Request', foreign_key: :op_object_id
   has_many :review_history_elements, through: :reviews, source: :history_elements
   has_many :status_reports, as: :checkable, class_name: 'Status::Report', dependent: :destroy
   has_many :target_project_objects, through: :bs_request_actions
@@ -92,7 +96,11 @@ class BsRequest < ApplicationRecord
   validates :comment, length: { maximum: 65_535 }
   validates :description, length: { maximum: 65_535 }
   validates :number, uniqueness: true
-  validates_associated :bs_request_actions, message: ->(_, record) { record[:value].map { |r| r.errors.full_messages }.flatten.to_sentence }
+  validates_associated :bs_request_actions, message: lambda { |_, record|
+                                                       record[:value].map do |r|
+                                                         r.errors.full_messages
+                                                       end.flatten.to_sentence
+                                                     }
 
   before_validation :sanitize!, if: :sanitize?, on: :create
   before_save :accept_staged_request
@@ -113,7 +121,10 @@ class BsRequest < ApplicationRecord
     # All types means don't pass 'type'
     opts.delete(:types) if [opts[:types]].flatten.include?('all')
     # Do not allow a full collection to avoid server load
-    raise 'This call requires at least one filter, either by user, project or package' if %i[project user package].all? { |filter| opts[filter].blank? }
+    raise 'This call requires at least one filter, either by user, project or package' if %i[project user
+                                                                                             package].all? do |filter|
+                                                                                            opts[filter].blank?
+                                                                                          end
 
     roles = opts[:roles] || []
     states = opts[:states] || []
@@ -315,7 +326,10 @@ class BsRequest < ApplicationRecord
   end
 
   def check_supersede_state
-    errors.add(:superseded_by, 'Superseded_by should be set') if state == :superseded && (!superseded_by.is_a?(Numeric) || superseded_by <= 0)
+    if state == :superseded && (!superseded_by.is_a?(Numeric) || superseded_by <= 0)
+      errors.add(:superseded_by,
+                 'Superseded_by should be set')
+    end
 
     return unless superseded_by && state != :superseded
 
@@ -373,7 +387,8 @@ class BsRequest < ApplicationRecord
       r.priority(priority) unless priority == 'moderate'
 
       # state element
-      attributes = { name: state, who: commenter, when: updated_when.strftime('%Y-%m-%dT%H:%M:%S'), created: created_at.strftime('%Y-%m-%dT%H:%M:%S') }
+      attributes = { name: state, who: commenter, when: updated_when.strftime('%Y-%m-%dT%H:%M:%S'),
+                     created: created_at.strftime('%Y-%m-%dT%H:%M:%S') }
       attributes[:superseded_by] = superseded_by if superseded_by
       attributes[:approver] = approver if approver
       r.state(attributes) do |s|
@@ -503,7 +518,9 @@ class BsRequest < ApplicationRecord
     incident_project = nil # .where(type: 'maintenance_incident')
     bs_request_actions.each do |action|
       source_project = Project.find_by_name(action.source_project)
-      Project::EmbargoHandler.new(source_project).call if action.source_project && action.is_maintenance_release? && source_project.is_a?(Project)
+      if action.source_project && action.is_maintenance_release? && source_project.is_a?(Project)
+        Project::EmbargoHandler.new(source_project).call
+      end
 
       next unless action.is_maintenance_incident?
 
@@ -512,10 +529,14 @@ class BsRequest < ApplicationRecord
       next unless target_project.is_maintenance?
 
       # create incident if it is a maintenance project
-      incident_project ||= MaintenanceIncident.build_maintenance_incident(target_project, source_project.nil?, self).project
+      incident_project ||= MaintenanceIncident.build_maintenance_incident(target_project, source_project.nil?,
+                                                                          self).project
       opts[:check_for_patchinfo] = true
 
-      raise MultipleMaintenanceIncidents, 'This request handles different maintenance incidents, this is not allowed !' unless incident_project.name.start_with?(target_project.name)
+      unless incident_project.name.start_with?(target_project.name)
+        raise MultipleMaintenanceIncidents,
+              'This request handles different maintenance incidents, this is not allowed !'
+      end
 
       action.target_project = incident_project.name
       action.save!
@@ -608,7 +629,11 @@ class BsRequest < ApplicationRecord
         _assignreview_update_reviews(reviewer, opts)
         raise Review::NotFoundError unless user_review
         raise InvalidStateError, 'review is not in new state' unless user_review.state == :new
-        raise Review::NotFoundError, 'Not an assigned review' unless HistoryElement::ReviewAssigned.where(op_object_id: user_review.id).last
+
+        unless HistoryElement::ReviewAssigned.where(op_object_id: user_review.id).last
+          raise Review::NotFoundError,
+                'Not an assigned review'
+        end
 
         user_review.destroy
       elsif user_review
@@ -681,10 +706,20 @@ class BsRequest < ApplicationRecord
     with_lock do
       new_review_state = new_review_state.to_sym
 
-      raise InvalidStateError, 'request is not in a changeable state (new, review or declined)' unless state == :review || (state.in?(%i[new declined]) && new_review_state == :new)
+      unless state == :review || (state.in?(%i[
+                                              new declined
+                                            ]) && new_review_state == :new)
+        raise InvalidStateError,
+              'request is not in a changeable state (new, review or declined)'
+      end
 
       check_if_valid_review!(opts)
-      raise InvalidStateError, "review state must be new, accepted, declined or superseded, was #{new_review_state}" unless new_review_state.in?(%i[new accepted declined superseded])
+      unless new_review_state.in?(%i[
+                                    new accepted declined superseded
+                                  ])
+        raise InvalidStateError,
+              "review state must be new, accepted, declined or superseded, was #{new_review_state}"
+      end
 
       old_request_state = state
       review = find_review_for_opts(opts)
@@ -769,7 +804,8 @@ class BsRequest < ApplicationRecord
   def setpriority(opts)
     permission_check_setpriority!
 
-    raise SaveError, "Illegal priority '#{opts[:priority]}'" unless opts[:priority].in?(%w[low moderate important critical])
+    raise SaveError, "Illegal priority '#{opts[:priority]}'" unless opts[:priority].in?(%w[low moderate important
+                                                                                           critical])
 
     p = { request: self, user_id: User.session!.id, description_extension: "#{priority} => #{opts[:priority]}" }
     p[:comment] = opts[:comment] if opts[:comment]
@@ -813,7 +849,10 @@ class BsRequest < ApplicationRecord
     options = event_parameters
 
     # measure duration unless superseding a final state, like revoked -> superseded
-    options[:duration] = (updated_at - created_at).to_i if FINAL_REQUEST_STATES.exclude?(state_was.to_sym) && FINAL_REQUEST_STATES.include?(state)
+    if FINAL_REQUEST_STATES.exclude?(state_was.to_sym) && FINAL_REQUEST_STATES.include?(state)
+      options[:duration] =
+        (updated_at - created_at).to_i
+    end
 
     Event::RequestStatechange.create(options)
   end
@@ -917,8 +956,14 @@ class BsRequest < ApplicationRecord
     self.creator ||= User.session!.login
     self.commenter ||= User.session!.login
     # FIXME: Move permission checks to controller level
-    raise SaveError, 'Admin permissions required to set request creator to foreign user' unless self.creator == User.session!.login || User.admin_session?
-    raise SaveError, 'Admin permissions required to set request commenter to foreign user' unless self.commenter == User.session!.login || User.admin_session?
+    unless self.creator == User.session!.login || User.admin_session?
+      raise SaveError,
+            'Admin permissions required to set request creator to foreign user'
+    end
+    unless self.commenter == User.session!.login || User.admin_session?
+      raise SaveError,
+            'Admin permissions required to set request commenter to foreign user'
+    end
 
     # ensure correct initial values, no matter what has been sent to us
     self.state = :new
@@ -1040,7 +1085,10 @@ class BsRequest < ApplicationRecord
     when :submit
       action[:name] = "Submit #{action[:spkg]}"
       superseded_bs_request_action = xml.find_action_with_same_target(opts[:diff_to_superseded])
-      action[:sourcediff] = xml.webui_infos(opts.merge(superseded_bs_request_action: superseded_bs_request_action)) if with_diff
+      if with_diff
+        action[:sourcediff] =
+          xml.webui_infos(opts.merge(superseded_bs_request_action: superseded_bs_request_action))
+      end
       creator = User.find_by_login(self.creator)
       target_package = Package.find_by_project_and_name(action[:tprj], action[:tpkg])
       action[:creator_is_target_maintainer] = true if creator.has_local_role?(Role.hashed['maintainer'], target_package)
@@ -1079,7 +1127,8 @@ class BsRequest < ApplicationRecord
                         "Delete #{action[:tprj]}"
                       end
 
-      action[:sourcediff] = xml.webui_infos if action[:tpkg] && with_diff # API / Backend don't support whole project diff currently
+      # API / Backend don't support whole project diff currently
+      action[:sourcediff] = xml.webui_infos if action[:tpkg] && with_diff
     when :add_role
       action[:name] = 'Add Role'
       action[:role] = xml.role
@@ -1093,10 +1142,16 @@ class BsRequest < ApplicationRecord
       action[:group] = xml.group_name
     when :maintenance_incident
       action[:name] = "Incident #{action[:spkg]}"
-      action[:sourcediff] = xml.webui_infos(superseded_bs_request_action: xml.find_action_with_same_target(opts[:diff_to_superseded])) if with_diff
+      if with_diff
+        action[:sourcediff] =
+          xml.webui_infos(superseded_bs_request_action: xml.find_action_with_same_target(opts[:diff_to_superseded]))
+      end
     when :maintenance_release, :release
       action[:name] = "Release #{action[:spkg]}"
-      action[:sourcediff] = xml.webui_infos(superseded_bs_request_action: xml.find_action_with_same_target(opts[:diff_to_superseded])) if with_diff
+      if with_diff
+        action[:sourcediff] =
+          xml.webui_infos(superseded_bs_request_action: xml.find_action_with_same_target(opts[:diff_to_superseded]))
+      end
     end
 
     if action[:sourcediff]
@@ -1212,7 +1267,8 @@ class BsRequest < ApplicationRecord
       review_comment += "review for group #{opts[:by_group]}" if opts[:by_group]
       review_comment += "review for project #{opts[:by_project]}" if opts[:by_project]
       review_comment += "review for package #{opts[:by_project]} / #{opts[:by_package]}" if opts[:by_package]
-      history_class.create(review: review, comment: "review assigned to user #{reviewer.login}", user_id: User.session!.id)
+      history_class.create(review: review, comment: "review assigned to user #{reviewer.login}",
+                           user_id: User.session!.id)
     end
     raise Review::NotFoundError unless review_comment
 

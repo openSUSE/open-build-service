@@ -1,14 +1,20 @@
 RSpec.describe DeleteConfirmationDialogComponent, type: :component do
   it 'fails when modal_id is not passed' do
-    expect { render_inline(described_class.new(method: :put)) }.to raise_error(ArgumentError, 'missing keyword: :modal_id')
+    expect do
+      render_inline(described_class.new(method: :put))
+    end.to raise_error(ArgumentError, 'missing keyword: :modal_id')
   end
 
   it 'fails when method is not passed' do
-    expect { render_inline(described_class.new(modal_id: 'delete-spec-modal')) }.to raise_error(ArgumentError, 'missing keyword: :method')
+    expect do
+      render_inline(described_class.new(modal_id: 'delete-spec-modal'))
+    end.to raise_error(ArgumentError,
+                       'missing keyword: :method')
   end
 
   it 'contains all the default values when options are not passed' do
-    expect(render_inline(described_class.new(modal_id: 'delete-spec-modal', method: :put))).to have_text('Do you really want to remove this item?')
+    expect(render_inline(described_class.new(modal_id: 'delete-spec-modal',
+                                             method: :put))).to have_text('Do you really want to remove this item?')
   end
 
   it 'contains the values specifically passed' do

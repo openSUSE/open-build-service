@@ -13,7 +13,8 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     end
 
     it 'renders a link to the BsRequest with a generic text and its number' do
-      expect(rendered_content).to have_link('Multiple Actions Request #456345', href: "/request/show/456345?notification_id=#{notification.id}")
+      expect(rendered_content).to have_link('Multiple Actions Request #456345',
+                                            href: "/request/show/456345?notification_id=#{notification.id}")
     end
   end
 
@@ -26,7 +27,8 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     end
 
     it 'renders a link to the BsRequest with the text containing its action and number' do
-      expect(rendered_content).to have_link('Submit Request #123456', href: "/request/show/123456?notification_id=#{notification.id}")
+      expect(rendered_content).to have_link('Submit Request #123456',
+                                            href: "/request/show/123456?notification_id=#{notification.id}")
     end
   end
 
@@ -39,7 +41,8 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     end
 
     it 'renders a link to the BsRequest with the text containing its action and number' do
-      expect(rendered_content).to have_link('Add Role Request #123789', href: "/request/show/123789?notification_id=#{notification.id}")
+      expect(rendered_content).to have_link('Add Role Request #123789',
+                                            href: "/request/show/123789?notification_id=#{notification.id}")
     end
   end
 
@@ -52,7 +55,8 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     end
 
     it 'renders a link to the BsRequest with the text containing its action and number' do
-      expect(rendered_content).to have_link('Delete Request #123670', href: "/request/show/123670?notification_id=#{notification.id}")
+      expect(rendered_content).to have_link('Delete Request #123670',
+                                            href: "/request/show/123670?notification_id=#{notification.id}")
     end
   end
 
@@ -66,7 +70,8 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     end
 
     it "renders a link to the comment's BsRequest with the text containing its action and number" do
-      expect(rendered_content).to have_link('Comment on Delete Request #123671', href: "/request/show/123671?notification_id=#{notification.id}#comments-list")
+      expect(rendered_content).to have_link('Comment on Delete Request #123671',
+                                            href: "/request/show/123671?notification_id=#{notification.id}#comments-list")
     end
   end
 
@@ -80,7 +85,8 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     end
 
     it "renders a link to the comment's project" do
-      expect(rendered_content).to have_link('Comment on Project', href: "/project/show/projet_de_societe?notification_id=#{notification.id}#comments-list")
+      expect(rendered_content).to have_link('Comment on Project',
+                                            href: "/project/show/projet_de_societe?notification_id=#{notification.id}#comments-list")
     end
   end
 
@@ -95,7 +101,8 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     end
 
     it "renders a link to the comment's package" do
-      expect(rendered_content).to have_link('Comment on Package', href: "/package/show/projet_de_societe/oui?notification_id=#{notification.id}#comments-list")
+      expect(rendered_content).to have_link('Comment on Package',
+                                            href: "/package/show/projet_de_societe/oui?notification_id=#{notification.id}#comments-list")
     end
   end
 
@@ -109,7 +116,8 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     end
 
     it 'renders a link to the reported content' do
-      expect(rendered_content).to have_link('Report for a Comment', href: "/package/show/#{project.name}/#{package.name}?notification_id=#{notification.id}#comments-list")
+      expect(rendered_content).to have_link('Report for a Comment',
+                                            href: "/package/show/#{project.name}/#{package.name}?notification_id=#{notification.id}#comments-list")
     end
   end
 
@@ -122,7 +130,8 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     end
 
     it 'renders a link to the reportable' do
-      expect(rendered_content).to have_link('Cleared Comment Report', href: "/package/show/#{package.project.name}/#{package.name}?notification_id=#{notification.id}#comments-list")
+      expect(rendered_content).to have_link('Cleared Comment Report',
+                                            href: "/package/show/#{package.project.name}/#{package.name}?notification_id=#{notification.id}#comments-list")
     end
   end
 
@@ -135,7 +144,8 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     end
 
     it 'renders a link to the reportable' do
-      expect(rendered_content).to have_link('Favored Comment Report', href: "/package/show/#{package.project.name}/#{package.name}?notification_id=#{notification.id}#comments-list")
+      expect(rendered_content).to have_link('Favored Comment Report',
+                                            href: "/package/show/#{package.project.name}/#{package.name}?notification_id=#{notification.id}#comments-list")
     end
   end
 end

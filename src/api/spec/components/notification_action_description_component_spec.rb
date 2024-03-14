@@ -37,7 +37,8 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
     let(:target_project) { create(:project, name: 'project_123') }
     let(:target_package) { create(:package, project: target_project, name: 'package_123') }
     let(:bs_request) do
-      create(:bs_request_with_submit_action, source_project: source_project, source_package: source_package, target_project: target_project, target_package: target_package)
+      create(:bs_request_with_submit_action, source_project: source_project, source_package: source_package,
+                                             target_project: target_project, target_package: target_package)
     end
     let(:notification) { create(:notification, :request_created, notifiable: bs_request) }
 
@@ -46,7 +47,8 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
     end
 
     it 'renders a div containing the source and target project/package names' do
-      expect(rendered_content).to have_css('div.smart-overflow', text: 'source_project_123 / source_package_123project_123 / package_123')
+      expect(rendered_content).to have_css('div.smart-overflow',
+                                           text: 'source_project_123 / source_package_123project_123 / package_123')
     end
   end
 
@@ -114,7 +116,8 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
     context 'with the recipient being a user' do
       let(:project) { create(:project, name: 'some_awesome_project') }
       let(:notification) do
-        create(:notification, :relationship_create_for_project, notifiable: project, originator: 'Jane', role: 'maintainer')
+        create(:notification, :relationship_create_for_project, notifiable: project, originator: 'Jane',
+                                                                role: 'maintainer')
       end
 
       before do
@@ -122,14 +125,16 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
       end
 
       it 'renders a div containing who added the recipient and their new role in the project' do
-        expect(rendered_content).to have_css('div.smart-overflow', text: 'Jane made you maintainer of some_awesome_project')
+        expect(rendered_content).to have_css('div.smart-overflow',
+                                             text: 'Jane made you maintainer of some_awesome_project')
       end
     end
 
     context 'with the recipient being a group' do
       let(:project) { create(:project, name: 'some_awesome_project') }
       let(:notification) do
-        create(:notification, :relationship_create_for_project, notifiable: project, originator: 'Jane', recipient_group: 'group_1', role: 'maintainer')
+        create(:notification, :relationship_create_for_project, notifiable: project, originator: 'Jane',
+                                                                recipient_group: 'group_1', role: 'maintainer')
       end
 
       before do
@@ -137,7 +142,8 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
       end
 
       it "renders a div containing who added the recipient's group and their new role in the project" do
-        expect(rendered_content).to have_css('div.smart-overflow', text: 'Jane made group_1 maintainer of some_awesome_project')
+        expect(rendered_content).to have_css('div.smart-overflow',
+                                             text: 'Jane made group_1 maintainer of some_awesome_project')
       end
     end
   end
@@ -146,7 +152,8 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
     context 'with the recipient being a user' do
       let(:project) { create(:project, name: 'some_awesome_project') }
       let(:notification) do
-        create(:notification, :relationship_delete_for_project, notifiable: project, originator: 'Jane', role: 'maintainer')
+        create(:notification, :relationship_delete_for_project, notifiable: project, originator: 'Jane',
+                                                                role: 'maintainer')
       end
 
       before do
@@ -154,14 +161,16 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
       end
 
       it "renders a div containing who removed the recipient's role in the project" do
-        expect(rendered_content).to have_css('div.smart-overflow', text: 'Jane removed you as maintainer of some_awesome_project')
+        expect(rendered_content).to have_css('div.smart-overflow',
+                                             text: 'Jane removed you as maintainer of some_awesome_project')
       end
     end
 
     context 'with the recipient being a group' do
       let(:project) { create(:project, name: 'some_awesome_project') }
       let(:notification) do
-        create(:notification, :relationship_delete_for_project, notifiable: project, originator: 'Jane', recipient_group: 'group_1', role: 'maintainer')
+        create(:notification, :relationship_delete_for_project, notifiable: project, originator: 'Jane',
+                                                                recipient_group: 'group_1', role: 'maintainer')
       end
 
       before do
@@ -169,7 +178,8 @@ RSpec.describe NotificationActionDescriptionComponent, type: :component do
       end
 
       it "renders a div containing who removed the recipient's group role in the project" do
-        expect(rendered_content).to have_css('div.smart-overflow', text: 'Jane removed group_1 as maintainer of some_awesome_project')
+        expect(rendered_content).to have_css('div.smart-overflow',
+                                             text: 'Jane removed group_1 as maintainer of some_awesome_project')
       end
     end
   end

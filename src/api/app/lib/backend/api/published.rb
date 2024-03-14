@@ -16,7 +16,8 @@ module Backend
       # @return [String]
       def self.build_id(project_name, repository_name)
         Rails.cache.fetch("build_id-#{project_name}-#{repository_name}") do
-          response = http_get(['/published/:project/:repository', project_name, repository_name], params: { view: :status })
+          response = http_get(['/published/:project/:repository', project_name, repository_name],
+                              params: { view: :status })
           Xmlhash.parse(response)['buildid']
         end
       end

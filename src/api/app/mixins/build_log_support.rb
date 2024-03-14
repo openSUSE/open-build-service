@@ -39,7 +39,9 @@ module BuildLogSupport
     return '' unless data
 
     doc = Xmlhash.parse(data)
-    return doc['result']['status']['code'] if doc['result'] && doc['result']['status'] && doc['result']['status']['code']
+    if doc['result'] && doc['result']['status'] && doc['result']['status']['code']
+      return doc['result']['status']['code']
+    end
 
     ''
   end

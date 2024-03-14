@@ -28,7 +28,8 @@ RSpec.describe StatusMessagesController do
 
     it 'returns all status messages' do
       status_messages.each do |status_message|
-        expect(response.body).to have_css('status_messages[count=3] > status_message > message', text: status_message.message)
+        expect(response.body).to have_css('status_messages[count=3] > status_message > message',
+                                          text: status_message.message)
       end
     end
   end

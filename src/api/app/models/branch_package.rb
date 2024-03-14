@@ -86,7 +86,10 @@ class BranchPackage
     # create branch project
     tprj = create_branch_project
 
-    raise Project::WritePermissionError, "no permission to modify project '#{@target_project}' while executing branch project command" unless User.session!.can_modify?(tprj)
+    unless User.session!.can_modify?(tprj)
+      raise Project::WritePermissionError,
+            "no permission to modify project '#{@target_project}' while executing branch project command"
+    end
 
     # special fork handling
     return { data: create_fork(tprj) } if @scmsync.present?
@@ -154,15 +157,22 @@ class BranchPackage
     project.sync_repository_pathes
 
     project.store
-    { targetproject: package.project.name, targetpackage: package.name, sourceproject: params[:project], sourcepackage: params[:package] }
+    { targetproject: package.project.name, targetpackage: package.name, sourceproject: params[:project],
+      sourcepackage: params[:package] }
   end
 
   def create_branch_packages(tprj)
     # collect also the needed repositories here
     response = nil
     @packages.each do |p|
-      raise CanNotBranchPackage, "project is developed at #{p[:link_target_project].scmsync}. Fork it instead." if p[:link_target_project].try(:scmsync).present?
-      raise CanNotBranchPackage, "package is developed at #{p[:package].scmsync}. Fork it instead" if p[:package].try(:scmsync).present?
+      if p[:link_target_project].try(:scmsync).present?
+        raise CanNotBranchPackage,
+              "project is developed at #{p[:link_target_project].scmsync}. Fork it instead."
+      end
+      if p[:package].try(:scmsync).present?
+        raise CanNotBranchPackage,
+              "package is developed at #{p[:package].scmsync}. Fork it instead"
+      end
 
       pac = p[:package]
 
@@ -174,7 +184,10 @@ class BranchPackage
       tpkg = tprj.packages.find_by_name(pack_name)
 
       if tpkg
-        raise DoubleBranchPackageError.new(tprj.name, tpkg.name), "branch target package already exists: #{tprj.name}/#{tpkg.name}" unless params[:force]
+        unless params[:force]
+          raise DoubleBranchPackageError.new(tprj.name, tpkg.name),
+                "branch target package already exists: #{tprj.name}/#{tpkg.name}"
+        end
       else
         if pac.is_a?(Package)
           tpkg = tprj.packages.new(name: pack_name, title: pac.title, description: pac.description, url: pac.url)
@@ -189,7 +202,8 @@ class BranchPackage
 
       if p[:local_link]
         # copy project local linked packages
-        Backend::Api::Sources::Package.copy(tpkg.project.name, tpkg.name, p[:link_target_project].name, p[:package].name, User.session!.login)
+        Backend::Api::Sources::Package.copy(tpkg.project.name, tpkg.name, p[:link_target_project].name,
+                                            p[:package].name, User.session!.login)
         # and fix the link
         ret = Nokogiri::XML(tpkg.source_file('_link'), &:strict).root
         ret.remove_attribute('project') # its a local link, project name not needed
@@ -222,7 +236,8 @@ class BranchPackage
                      { targetproject: tpkg.project.name }
                    else
                      # just a single package transfer, detailed answer
-                     { targetproject: tpkg.project.name, targetpackage: tpkg.name, sourceproject: oproject, sourcepackage: opackage }
+                     { targetproject: tpkg.project.name, targetpackage: tpkg.name, sourceproject: oproject,
+                       sourcepackage: opackage }
                    end
 
         # fetch newer sources from devel package, if defined
@@ -254,12 +269,18 @@ class BranchPackage
 
   def create_branch_project
     if Project.exists_by_name(@target_project)
-      raise CreateProjectNoPermission, "The destination project already exists, so the api can't make it not readable" if @noaccess
+      if @noaccess
+        raise CreateProjectNoPermission,
+              "The destination project already exists, so the api can't make it not readable"
+      end
 
       tprj = Project.get_by_name(@target_project)
     else
       # permission check
-      raise CreateProjectNoPermission, "no permission to create project '#{@target_project}' while executing branch command" unless User.session!.can_create_project?(@target_project)
+      unless User.session!.can_create_project?(@target_project)
+        raise CreateProjectNoPermission,
+              "no permission to create project '#{@target_project}' while executing branch command"
+      end
 
       title = "Branch project for package #{params[:package]}"
       description = "This project was created for package #{params[:package]} via attribute #{@attribute}"
@@ -354,7 +375,10 @@ class BranchPackage
       # is the package itself a local link ?
       link = Backend::Api::Sources::Package.link_info(p[:package].project.name, p[:package].name)
       ret = Xmlhash.parse(link)
-      pkg = Package.get_by_project_and_name(p[:package].project.name, ret['package']) if !ret['project'] || ret['project'] == p[:package].project.name
+      if !ret['project'] || ret['project'] == p[:package].project.name
+        pkg = Package.get_by_project_and_name(p[:package].project.name,
+                                              ret['package'])
+      end
     end
 
     pkg.find_project_local_linking_packages.each do |llp|
@@ -408,15 +432,22 @@ class BranchPackage
       req.bs_request_actions.each do |action|
         pkg = Package.get_by_project_and_name(action.source_project, action.source_package) if action.source_package
 
-        @packages.push(link_target_project: action.source_project, package: pkg, target_package: "#{pkg.name}.#{pkg.project.name}")
+        @packages.push(link_target_project: action.source_project, package: pkg,
+                       target_package: "#{pkg.name}.#{pkg.project.name}")
       end
     elsif params[:project] && params[:package]
       pkg = nil
       prj = Project.get_by_name(params[:project])
       if params[:missingok]
-        raise NotMissingError, "Branch call with missingok parameter but branched source (#{params[:project]}/#{params[:package]}) exists." if Package.exists_by_project_and_name(params[:project], params[:package], allow_remote_packages: true)
+        if Package.exists_by_project_and_name(
+          params[:project], params[:package], allow_remote_packages: true
+        )
+          raise NotMissingError,
+                "Branch call with missingok parameter but branched source (#{params[:project]}/#{params[:package]}) exists."
+        end
       else
-        pkg = Package.get_by_project_and_name(params[:project], params[:package], check_update_project: params[:ignoredevel].blank?)
+        pkg = Package.get_by_project_and_name(params[:project], params[:package],
+                                              check_update_project: params[:ignoredevel].blank?)
         if prj.is_a?(Project) && prj.find_attribute('OBS', 'BranchTarget')
           @copy_from_devel = true
         elsif pkg
@@ -428,7 +459,8 @@ class BranchPackage
       tpkg_name += ".#{prj.name}" if @extend_names
       if pkg
         # local package
-        @packages.push(base_project: prj, link_target_project: prj, package: pkg, rev: params[:rev], target_package: tpkg_name)
+        @packages.push(base_project: prj, link_target_project: prj, package: pkg, rev: params[:rev],
+                       target_package: tpkg_name)
       else
         # remote or not existing package
         @packages.push(base_project: prj,
@@ -444,7 +476,8 @@ class BranchPackage
       if params[:value]
         Package.find_by_attribute_type_and_value(at, params[:value], params[:package]) do |p|
           logger.info "Found package instance #{p.project.name}/#{p.name} for attribute #{at.name} with value #{params[:value]}"
-          @packages.push(base_project: p.project, link_target_project: p.project, package: p, target_package: "#{p.name}.#{p.project.name}")
+          @packages.push(base_project: p.project, link_target_project: p.project, package: p,
+                         target_package: "#{p.name}.#{p.project.name}")
         end
         # FIXME: how to handle linked projects here ? shall we do at all or has the tagger
         # (who creates the attribute) to create the package instance ?
@@ -452,7 +485,8 @@ class BranchPackage
         # Find all direct instances of a package
         Package.find_by_attribute_type(at, params[:package]).each do |p|
           logger.info "Found package instance #{p.project.name}/#{p.name} for attribute #{at.name} and given package name #{params[:package]}"
-          @packages.push(base_project: p.project, link_target_project: p.project, package: p, target_package: "#{p.name}.#{p.project.name}")
+          @packages.push(base_project: p.project, link_target_project: p.project, package: p,
+                         target_package: "#{p.name}.#{p.project.name}")
         end
         # Find all indirect instance via project links
         ltprj = nil

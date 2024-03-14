@@ -8,7 +8,9 @@ class ExplicitlySetCharset < ActiveRecord::Migration[5.1]
       group_maintainers history_elements kiwi_descriptions notifications product_media
       bs_request_counter
     ].each do |table|
-      execute("ALTER TABLE #{table} CONVERT TO CHARACTER SET utf8") if ActiveRecord::Base.connection.table_exists?(table)
+      if ActiveRecord::Base.connection.table_exists?(table)
+        execute("ALTER TABLE #{table} CONVERT TO CHARACTER SET utf8")
+      end
     end
 
     %w[delayed_jobs flags].each do |table|

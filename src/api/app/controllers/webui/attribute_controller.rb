@@ -34,7 +34,11 @@ class Webui::AttributeController < Webui::WebuiController
 
     value_count = @attribute.attrib_type.value_count
     values_length = @attribute.values.length
-    (value_count - values_length).times { @attribute.values.build(attrib: @attribute) } if value_count && (value_count > values_length)
+    if value_count && (value_count > values_length)
+      (value_count - values_length).times do
+        @attribute.values.build(attrib: @attribute)
+      end
+    end
 
     @issue_trackers = IssueTracker.order(:name).all if @attribute.attrib_type.issue_list
 
@@ -63,7 +67,8 @@ class Webui::AttributeController < Webui::WebuiController
                     success: 'Attribute was successfully created.'
       end
     else
-      redirect_back(fallback_location: root_path, error: "Saving attribute failed: #{@attribute.errors.full_messages.join(', ')}")
+      redirect_back(fallback_location: root_path,
+                    error: "Saving attribute failed: #{@attribute.errors.full_messages.join(', ')}")
     end
   end
 
@@ -74,7 +79,8 @@ class Webui::AttributeController < Webui::WebuiController
       redirect_to edit_attribs_path(project: @attribute.project.to_s, package: @attribute.package.to_s, attribute: @attribute.fullname),
                   success: 'Attribute was successfully updated.'
     else
-      redirect_back(fallback_location: root_path, error: "Updating attribute failed: #{@attribute.errors.full_messages.join(', ')}")
+      redirect_back(fallback_location: root_path,
+                    error: "Updating attribute failed: #{@attribute.errors.full_messages.join(', ')}")
     end
   end
 

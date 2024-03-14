@@ -19,17 +19,21 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
     Pundit.authorize(@token.executor, target_project, :update?)
 
     step_instructions[:repositories].each do |repository_instructions|
-      repository = Repository.includes(:architectures).find_or_create_by(name: repository_instructions[:name], project: target_project)
+      repository = Repository.includes(:architectures).find_or_create_by(name: repository_instructions[:name],
+                                                                         project: target_project)
 
       repository_instructions[:paths].each do |repository_path|
-        target_repository = Repository.find_by_project_and_name(repository_path[:target_project], repository_path[:target_repository])
+        target_repository = Repository.find_by_project_and_name(repository_path[:target_project],
+                                                                repository_path[:target_repository])
         repository.path_elements.find_or_create_by(link: target_repository)
       end
 
       repository.repository_architectures.destroy_all
 
       repository_instructions[:architectures].uniq.each do |architecture_name|
-        repository.architectures << @supported_architectures.select { |architecture| architecture.name == architecture_name }
+        repository.architectures << @supported_architectures.select do |architecture|
+          architecture.name == architecture_name
+        end
       end
     end
 
@@ -56,19 +60,25 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
     end
 
     required_repository_keys_sentence ||= REQUIRED_REPOSITORY_KEYS.map { |key| "'#{key}'" }.to_sentence
-    errors.add(:base, "configure_repositories step: All repositories must have the #{required_repository_keys_sentence} keys")
+    errors.add(:base,
+               "configure_repositories step: All repositories must have the #{required_repository_keys_sentence} keys")
   end
 
   def validate_repository_paths
     repository_path_has_all_keys = ->(repository_path) { repository_path.keys.sort == REQUIRED_REPOSITORY_PATH_KEYS }
-    return if step_instructions[:repositories].all? { |repository| repository.fetch(:paths, [{}]).all?(&repository_path_has_all_keys) }
+    return if step_instructions[:repositories].all? do |repository|
+                repository.fetch(:paths, [{}]).all?(&repository_path_has_all_keys)
+              end
 
     required_repository_path_keys_sentence ||= REQUIRED_REPOSITORY_PATH_KEYS.map { |key| "'#{key}'" }.to_sentence
-    errors.add(:base, "configure_repositories step: All repository paths must have the #{required_repository_path_keys_sentence} keys")
+    errors.add(:base,
+               "configure_repositories step: All repository paths must have the #{required_repository_path_keys_sentence} keys")
   end
 
   def validate_architectures
-    architectures = step_instructions[:repositories].map { |repository| repository.fetch(:architectures, []) }.flatten.uniq
+    architectures = step_instructions[:repositories].map do |repository|
+      repository.fetch(:architectures, [])
+    end.flatten.uniq
 
     # Store architectures to avoid fetching them again later in #call
     @supported_architectures = Architecture.where(name: architectures).to_a

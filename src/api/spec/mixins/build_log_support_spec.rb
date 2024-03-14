@@ -22,13 +22,19 @@ RSpec.describe BuildLogSupport do
     end
 
     describe '#raw_log_chunk' do
-      subject { instance_with_build_log_support.raw_log_chunk('project_1', 'package_1', 'repository_1', 'architecture_1', 0, 65_536) }
+      subject do
+        instance_with_build_log_support.raw_log_chunk('project_1', 'package_1', 'repository_1', 'architecture_1', 0,
+                                                      65_536)
+      end
 
       it { is_expected.to eq(build_log) }
     end
 
     describe '#get_log_chunk' do
-      subject { instance_with_build_log_support.get_log_chunk('project_1', 'package_1', 'repository_1', 'architecture_1', 0, 65_536) }
+      subject do
+        instance_with_build_log_support.get_log_chunk('project_1', 'package_1', 'repository_1', 'architecture_1', 0,
+                                                      65_536)
+      end
 
       context 'without special characters' do
         it { is_expected.to eq(build_log) }
@@ -46,7 +52,9 @@ RSpec.describe BuildLogSupport do
   end
 
   describe '#get_size_of_log' do
-    subject { instance_with_build_log_support.get_size_of_log('project_1', 'package_1', 'repository_1', 'architecture_1') }
+    subject do
+      instance_with_build_log_support.get_size_of_log('project_1', 'package_1', 'repository_1', 'architecture_1')
+    end
 
     let(:path) { "#{CONFIG['source_url']}/build/project_1/repository_1/architecture_1/package_1/_log?view=entry" }
 
@@ -68,7 +76,9 @@ RSpec.describe BuildLogSupport do
   end
 
   describe '#get_job_status' do
-    subject { instance_with_build_log_support.get_job_status('project_1', 'package_1', 'repository_1', 'architecture_1') }
+    subject do
+      instance_with_build_log_support.get_job_status('project_1', 'package_1', 'repository_1', 'architecture_1')
+    end
 
     before do
       path = "#{CONFIG['source_url']}/build/project_1/repository_1/architecture_1/package_1/_jobstatus"
@@ -81,7 +91,9 @@ RSpec.describe BuildLogSupport do
   describe '#get_status' do
     subject { instance_with_build_log_support.get_status('project_1', 'package_1', 'repository_1', 'architecture_1') }
 
-    let(:path) { "#{CONFIG['source_url']}/build/project_1/_result?arch=architecture_1&package=package_1&repository=repository_1&view=status" }
+    let(:path) do
+      "#{CONFIG['source_url']}/build/project_1/_result?arch=architecture_1&package=package_1&repository=repository_1&view=status"
+    end
 
     context 'with a code' do
       let(:status_body) do

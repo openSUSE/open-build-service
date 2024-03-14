@@ -17,7 +17,10 @@ RSpec.describe BsRequestAction do
       create(:package_with_file, name: 'package_encoding_2',
                                  file_content: 'test', project: project)
     end
-    let(:bs_request) { create(:bs_request_with_submit_action, creator: user, target_package: target_package, source_package: source_package) }
+    let(:bs_request) do
+      create(:bs_request_with_submit_action, creator: user, target_package: target_package,
+                                             source_package: source_package)
+    end
     let(:bs_request_action) { bs_request.bs_request_actions.first }
 
     it { expect(bs_request_action.sourcediff.valid_encoding?).to be(true) }
@@ -125,7 +128,9 @@ RSpec.describe BsRequestAction do
           another_bs_request.bs_request_actions << another_bs_request_action
         end
 
-        it { expect(bs_request_action.find_action_with_same_target(another_bs_request)).to eq(another_bs_request_action) }
+        it {
+          expect(bs_request_action.find_action_with_same_target(another_bs_request)).to eq(another_bs_request_action)
+        }
       end
     end
   end
@@ -210,7 +215,11 @@ RSpec.describe BsRequestAction do
         allow(Directory).to receive(:hashed).and_return('srcmd5' => 'ef521827053c2e3b3cc735662c5d5bb0')
       end
 
-      it { expect { bs_request_action.check_maintenance_release(source_pkg, repository, architecture) }.not_to raise_error }
+      it {
+        expect do
+          bs_request_action.check_maintenance_release(source_pkg, repository, architecture)
+        end.not_to raise_error
+      }
     end
 
     context 'patchinfo is not build' do
@@ -218,7 +227,12 @@ RSpec.describe BsRequestAction do
         allow(Backend::Api::BuildResults::Binaries).to receive(:files).and_return("<binarylist></binarylist>\n")
       end
 
-      it { expect { bs_request_action.check_maintenance_release(source_pkg, repository, architecture) }.to raise_error(BsRequestAction::Errors::BuildNotFinished) }
+      it {
+        expect do
+          bs_request_action.check_maintenance_release(source_pkg, repository,
+                                                      architecture)
+        end.to raise_error(BsRequestAction::Errors::BuildNotFinished)
+      }
     end
 
     context 'last patchinfo is not build', :vcr do
@@ -226,7 +240,12 @@ RSpec.describe BsRequestAction do
         allow(Backend::Api::BuildResults::Binaries).to receive_messages(files: binary_list, history: build_history)
       end
 
-      it { expect { bs_request_action.check_maintenance_release(source_pkg, repository, architecture) }.to raise_error(BsRequestAction::Errors::BuildNotFinished) }
+      it {
+        expect do
+          bs_request_action.check_maintenance_release(source_pkg, repository,
+                                                      architecture)
+        end.to raise_error(BsRequestAction::Errors::BuildNotFinished)
+      }
     end
   end
 
@@ -305,7 +324,10 @@ RSpec.describe BsRequestAction do
     let(:source_package) do
       create(:package_with_file, name: 'spackage', file_content: 'Trick', project: project)
     end
-    let(:bs_request) { create(:bs_request_with_submit_action, creator: user, target_package: target_package, source_package: source_package) }
+    let(:bs_request) do
+      create(:bs_request_with_submit_action, creator: user, target_package: target_package,
+                                             source_package: source_package)
+    end
     let(:bs_request_action) { bs_request.bs_request_actions.first }
 
     context 'RevisionEnforcing enabled' do
@@ -321,13 +343,17 @@ RSpec.describe BsRequestAction do
 
       context 'with _link in submitted source' do
         let!(:hacker_package) do
-          create(:package_with_file, name: 'hpackage', file_content: 'Evil Content', file_name: '0wnyou.txt', project: project)
+          create(:package_with_file, name: 'hpackage', file_content: 'Evil Content', file_name: '0wnyou.txt',
+                                     project: project)
         end
         let(:source_package) do
           link_content = "<link package='hpackage'/>"
           create(:package_with_file, name: 'spackage', file_name: '_link', file_content: link_content, project: project)
         end
-        let(:bs_request) { create(:bs_request_with_submit_action, creator: user, target_package: target_package, source_package: source_package, source_rev: '2') }
+        let(:bs_request) do
+          create(:bs_request_with_submit_action, creator: user, target_package: target_package, source_package: source_package,
+                                                 source_rev: '2')
+        end
 
         # make sure we do not trust the submitted source revision for longer than the creation time
         it 'freezes revision' do
@@ -336,7 +362,10 @@ RSpec.describe BsRequestAction do
         end
 
         context 'with updatelink' do
-          let(:bs_request) { create(:bs_request_with_submit_action, creator: user, target_package: target_package, source_package: source_package, updatelink: true) }
+          let(:bs_request) do
+            create(:bs_request_with_submit_action, creator: user, target_package: target_package, source_package: source_package,
+                                                   updatelink: true)
+          end
 
           it 'throws exception' do
             expect { bs_request.sanitize! }.to raise_error do |exception|
@@ -363,7 +392,10 @@ RSpec.describe BsRequestAction do
     let(:source_package) do
       create(:package_with_file, name: 'package_encoding_2', project: project)
     end
-    let(:bs_request) { create(:bs_request_with_submit_action, creator: user, target_package: target_package, source_package: source_package) }
+    let(:bs_request) do
+      create(:bs_request_with_submit_action, creator: user, target_package: target_package,
+                                             source_package: source_package)
+    end
     let(:bs_request_action) { bs_request.bs_request_actions.first }
 
     context 'when there is a problem with the backend' do
@@ -378,7 +410,8 @@ RSpec.describe BsRequestAction do
 
         it 'returns an error message' do
           expect { bs_request_action.send(:check_for_expand_errors!, true) }
-            .to raise_error(ExpandError, 'The source of package home:request_user/package_encoding_2 for revision 1234 is broken')
+            .to raise_error(ExpandError,
+                            'The source of package home:request_user/package_encoding_2 for revision 1234 is broken')
         end
       end
 

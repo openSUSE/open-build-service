@@ -3,11 +3,16 @@ RSpec.describe ChartComponent, type: :component do
 
   let(:fake_raw_data) do
     [
-      { architecture: 'x86_64', repository: 'openSUSE_Leap_42.2', status: 'excluded', package_name: 'source_package', project_name: 'source_project' },
-      { architecture: 'i586', repository: 'openSUSE_Tumbleweed', status: 'unresolvable', package_name: 'source_package', project_name: 'source_project' },
-      { architecture: 's390', repository: 'Debian_Stable', status: 'succeeded', package_name: 'source_package', project_name: 'source_project' },
-      { architecture: 'x86_64', repository: 'Debian_Stable', status: 'succeeded', package_name: 'source_package', project_name: 'source_project' },
-      { architecture: 's390', repository: 'openSUSE_Tumbleweed', status: 'building', package_name: 'source_package', project_name: 'source_project' }
+      { architecture: 'x86_64', repository: 'openSUSE_Leap_42.2', status: 'excluded', package_name: 'source_package',
+        project_name: 'source_project' },
+      { architecture: 'i586', repository: 'openSUSE_Tumbleweed', status: 'unresolvable',
+        package_name: 'source_package', project_name: 'source_project' },
+      { architecture: 's390', repository: 'Debian_Stable', status: 'succeeded', package_name: 'source_package',
+        project_name: 'source_project' },
+      { architecture: 'x86_64', repository: 'Debian_Stable', status: 'succeeded', package_name: 'source_package',
+        project_name: 'source_project' },
+      { architecture: 's390', repository: 'openSUSE_Tumbleweed', status: 'building', package_name: 'source_package',
+        project_name: 'source_project' }
     ]
   end
 

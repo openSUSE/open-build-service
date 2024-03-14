@@ -4,7 +4,8 @@ RSpec.describe Workflow, :vcr do
   let!(:workflow_run) { create(:workflow_run, token: token) }
 
   subject do
-    described_class.new(workflow_instructions: yaml, scm_webhook: SCMWebhook.new(payload: extractor_payload), token: token, workflow_run: workflow_run)
+    described_class.new(workflow_instructions: yaml, scm_webhook: SCMWebhook.new(payload: extractor_payload),
+                        token: token, workflow_run: workflow_run)
   end
 
   describe '#call' do
@@ -42,7 +43,9 @@ RSpec.describe Workflow, :vcr do
           target_repository_full_name: 'openSUSE/open-build-service'
         }
       end
-      let!(:target_project) { create(:project, name: 'test-target-project:openSUSE:open-build-service:PR-4', maintainer: user) }
+      let!(:target_project) do
+        create(:project, name: 'test-target-project:openSUSE:open-build-service:PR-4', maintainer: user)
+      end
       let!(:target_package) { create(:package, name: 'test-target-package', project: target_project) }
 
       context 'we are dealing with a branch package step' do
@@ -53,7 +56,8 @@ RSpec.describe Workflow, :vcr do
         end
 
         it 'deletes event subscriptions' do
-          EventSubscription.create!(channel: 'scm', token: token, receiver_role: 'maintainer', eventtype: 'Event::BuildFail', package: target_package)
+          EventSubscription.create!(channel: 'scm', token: token, receiver_role: 'maintainer',
+                                    eventtype: 'Event::BuildFail', package: target_package)
           expect { subject.call }.to change(EventSubscription, :count).from(1).to(0)
         end
       end
@@ -76,7 +80,8 @@ RSpec.describe Workflow, :vcr do
         end
 
         it 'does not delete event subscriptions' do
-          EventSubscription.create!(channel: 'scm', token: token, receiver_role: 'maintainer', eventtype: 'Event::BuildFail', package: target_package)
+          EventSubscription.create!(channel: 'scm', token: token, receiver_role: 'maintainer',
+                                    eventtype: 'Event::BuildFail', package: target_package)
           expect { subject.call }.not_to change(EventSubscription, :count)
         end
       end
@@ -186,7 +191,8 @@ RSpec.describe Workflow, :vcr do
 
     context 'with GitHub "push" event for a tag' do
       let(:yaml) do
-        { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }] }
+        { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project',
+                                              'source_package' => 'test-package' } }] }
       end
       let(:extractor_payload) do
         {
@@ -209,7 +215,8 @@ RSpec.describe Workflow, :vcr do
 
     context 'with GitLab "Tag Push Hook" event' do
       let(:yaml) do
-        { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }] }
+        { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project',
+                                              'source_package' => 'test-package' } }] }
       end
       let(:extractor_payload) do
         {
@@ -406,7 +413,8 @@ RSpec.describe Workflow, :vcr do
 
     context 'with a supported step' do
       let(:yaml) do
-        { 'steps' => [{ branch_package: { source_project: project.name, source_package: package.name, target_project: project.name } }] }
+        { 'steps' => [{ branch_package: { source_project: project.name, source_package: package.name,
+                                          target_project: project.name } }] }
       end
 
       it 'initializes the supported step objects' do

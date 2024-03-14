@@ -43,7 +43,8 @@ class MeasurementsJob < ApplicationJob
   end
 
   def subscription_measurements
-    RabbitmqBus.send_to_bus('metrics', "event_subscription_count,default=true value=#{EventSubscription.where(user_id: nil).count}")
+    RabbitmqBus.send_to_bus('metrics',
+                            "event_subscription_count,default=true value=#{EventSubscription.where(user_id: nil).count}")
 
     EventSubscription.group(:channel).count.each do |type|
       RabbitmqBus.send_to_bus('metrics', "event_subscription_count,channel=#{type.first} value=#{type.second}")
@@ -81,7 +82,8 @@ class MeasurementsJob < ApplicationJob
 
   def beta_features_measurements
     ENABLED_FEATURE_TOGGLES.pluck(:name).each do |feature_name|
-      RabbitmqBus.send_to_bus('metrics', "beta_feature_count,feature=#{feature_name},status=disabled value=#{DisabledBetaFeature.where(name: feature_name).count}")
+      RabbitmqBus.send_to_bus('metrics',
+                              "beta_feature_count,feature=#{feature_name},status=disabled value=#{DisabledBetaFeature.where(name: feature_name).count}")
     end
   end
 end

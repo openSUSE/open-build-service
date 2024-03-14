@@ -14,7 +14,10 @@ RSpec.describe 'CommentLocks', :vcr do
     let(:target_package) { create(:package, name: 'goal', project_id: target_project.id) }
     let(:source_project) { submitter.home_project }
     let(:source_package) { create(:package, name: 'ball', project_id: source_project.id) }
-    let(:bs_request) { create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter) }
+    let(:bs_request) do
+      create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200,
+                                 creator: submitter)
+    end
     let(:user) { create(:confirmed_user, :with_home, login: 'burdenski') }
 
     describe 'with comments unlocked' do

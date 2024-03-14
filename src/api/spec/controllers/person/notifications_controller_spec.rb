@@ -40,7 +40,9 @@ RSpec.describe Person::NotificationsController do
       it { expect(response.body).to include('<notifications count="2">') }
 
       context 'filter by notifications_type' do
-        let!(:notifications) { create_list(:web_notification, 2, :request_state_change, subscriber: user, delivered: true) }
+        let!(:notifications) do
+          create_list(:web_notification, 2, :request_state_change, subscriber: user, delivered: true)
+        end
 
         before do
           login user

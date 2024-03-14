@@ -12,7 +12,8 @@ RSpec.describe OwnerSearch do
 
   before do
     login user
-    create(:attrib, attrib_type: AttribType.where(name: 'OwnerRootProject').first, project: Project.find_by(name: 'home:Iggy'))
+    create(:attrib, attrib_type: AttribType.where(name: 'OwnerRootProject').first,
+                    project: Project.find_by(name: 'home:Iggy'))
   end
 
   describe '#search' do
@@ -113,7 +114,9 @@ RSpec.describe OwnerSearch do
       let!(:kind_patchinfo) { PackageKind.create(package_id: patchinfo_42.id, kind: 'patchinfo') }
       let(:maintenance_user) { create(:confirmed_user, login: 'MaintenanceIggy') }
       # FIXME: bugowner should be a transitive argument to the package factory
-      let!(:maintenance_bugowner) { create(:relationship_package_user_as_bugowner, user: maintenance_user, package: patchinfo_42) }
+      let!(:maintenance_bugowner) do
+        create(:relationship_package_user_as_bugowner, user: maintenance_user, package: patchinfo_42)
+      end
 
       before do
         allow(Backend::Api::Search).to receive(:binary).and_return(maintenance_collection)

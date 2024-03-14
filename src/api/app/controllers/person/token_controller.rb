@@ -19,7 +19,8 @@ module Person
 
       set_package
 
-      @token = Token.token_type(params[:operation]).create(description: params[:description], executor: @user, package: @package, scm_token: params[:scm_token])
+      @token = Token.token_type(params[:operation]).create(description: params[:description], executor: @user,
+                                                           package: @package, scm_token: params[:scm_token])
       return if @token.valid?
 
       render_error status: 400,

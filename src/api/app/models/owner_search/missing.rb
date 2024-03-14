@@ -38,12 +38,14 @@ module OwnerSearch
     end
 
     def packages_with_maintained_group
-      Package.where(project_id: @projects).joins(:relationships).where(relationships: { group: @maintained_groups, role: @roles }).pluck(:name)
+      Package.where(project_id: @projects).joins(:relationships).where(relationships: { group: @maintained_groups,
+                                                                                        role: @roles }).pluck(:name)
     end
 
     def packages_with_maintainer_user_in_project
       ret = []
-      Project.where(id: @projects).joins(relationships: :user).where(relationships: { role: @roles, users: { state: 'confirmed' } }).find_each do |prj|
+      Project.where(id: @projects).joins(relationships: :user).where(relationships: { role: @roles,
+                                                                                      users: { state: 'confirmed' } }).find_each do |prj|
         ret += prj.packages.pluck(:name)
       end
       ret
@@ -82,8 +84,11 @@ module OwnerSearch
       ret = Package.joins(:project).where(project_id: @projects).where.not(projects: { kind: 'maintenance_release' }).pluck(:name)
       # package names from maintenance release projects need to be reduced to main package name.
       # Like: PACKAGE_NAME.INCIDENT_NUMBER -> PACKAGE_NAME
-      ret += Package.joins(:project).where(project_id: @projects, projects: { kind: 'maintenance_release' }).pluck(:name)
-                    .map { |name| name.gsub(/.[^.]*$/, '') }
+      ret += Package.joins(:project).where(project_id: @projects,
+                                           projects: { kind: 'maintenance_release' }).pluck(:name)
+                    .map do |name|
+        name.gsub(/.[^.]*$/, '')
+      end
       # Remove packages in the _product "sub-directory"
       ret.sort.uniq.reject { |p| p.blank? || p =~ /\A_product:\w[-+\w.]*\z/ }
     end

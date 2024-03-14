@@ -5,7 +5,8 @@ RSpec.describe Project do
 
     before do
       allow(Project).to receive(:get_maintenance_project).and_return(maintenance_project)
-      allow(maintenance_project).to receive(:maintained_project_names).and_return(['franz', 'franz:is', 'franz:is:cool'])
+      allow(maintenance_project).to receive(:maintained_project_names).and_return(['franz', 'franz:is',
+                                                                                   'franz:is:cool'])
     end
 
     it 'returns first field by default' do

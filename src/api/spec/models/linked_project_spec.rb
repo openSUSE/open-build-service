@@ -12,7 +12,9 @@ RSpec.describe LinkedProject do
         linked_project.valid?
       end
 
-      it { expect(linked_project.errors).to contain_exactly('can not have both linked_db_project and linked_remote_project_name') }
+      it {
+        expect(linked_project.errors).to contain_exactly('can not have both linked_db_project and linked_remote_project_name')
+      }
     end
 
     describe '.validate_duplicates local' do
@@ -30,7 +32,9 @@ RSpec.describe LinkedProject do
 
     describe '.validate_duplicates remote' do
       let(:project) { create(:project) }
-      let!(:duplicated_linked_project) { create(:linked_project, project: project, linked_remote_project_name: 'link_target') }
+      let!(:duplicated_linked_project) do
+        create(:linked_project, project: project, linked_remote_project_name: 'link_target')
+      end
       let(:linked_project) { build(:linked_project, project: project, linked_remote_project_name: 'link_target') }
 
       before do
@@ -48,7 +52,9 @@ RSpec.describe LinkedProject do
         linked_project.valid?
       end
 
-      it { expect(linked_project.errors).to contain_exactly("The link target '#{project}' links to a project that links to us, cycles are not allowed") }
+      it {
+        expect(linked_project.errors).to contain_exactly("The link target '#{project}' links to a project that links to us, cycles are not allowed")
+      }
     end
 
     describe '.validate_cycles' do
@@ -60,7 +66,9 @@ RSpec.describe LinkedProject do
         linked_project.valid?
       end
 
-      it { expect(linked_project.errors).to contain_exactly("The link target '#{link_of_link.project}' links to a project that links to us, cycles are not allowed") }
+      it {
+        expect(linked_project.errors).to contain_exactly("The link target '#{link_of_link.project}' links to a project that links to us, cycles are not allowed")
+      }
     end
 
     describe '.validate_access_flag_equality flag enable' do
@@ -77,7 +85,9 @@ RSpec.describe LinkedProject do
         linked_project.valid?
       end
 
-      it { expect(linked_project.errors).to contain_exactly("The link target '#{link_target}' needs to have the same read access protection level") }
+      it {
+        expect(linked_project.errors).to contain_exactly("The link target '#{link_target}' needs to have the same read access protection level")
+      }
     end
 
     describe '.validate_access_flag_equality flag disable' do

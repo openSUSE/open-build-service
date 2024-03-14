@@ -1,5 +1,8 @@
 RSpec.describe GithubStatusReporter, type: :service do
-  let(:scm_status_reporter) { GithubStatusReporter.new(event_payload, event_subscription_payload, token, state, workflow_run, event_type, initial_report: initial_report) }
+  let(:scm_status_reporter) do
+    GithubStatusReporter.new(event_payload, event_subscription_payload, token, state, workflow_run, event_type,
+                             initial_report: initial_report)
+  end
 
   describe '.new' do
     context 'status pending when event_type is missing' do
@@ -19,7 +22,9 @@ RSpec.describe GithubStatusReporter, type: :service do
     context 'status failed on github' do
       subject { scm_status_reporter }
 
-      let(:event_payload) { { project: 'home:john_doe', package: 'hello', repository: 'openSUSE_Tumbleweed', arch: 'i586' } }
+      let(:event_payload) do
+        { project: 'home:john_doe', package: 'hello', repository: 'openSUSE_Tumbleweed', arch: 'i586' }
+      end
       let(:event_subscription_payload) { { scm: 'github' } }
       let(:token) { 'XYCABC' }
       let(:event_type) { 'Event::BuildFail' }
@@ -35,7 +40,10 @@ RSpec.describe GithubStatusReporter, type: :service do
     context 'when sending a report back to SCM fails' do
       subject { scm_status_reporter.call }
 
-      let(:scm_status_reporter) { GithubStatusReporter.new(event_payload, event_subscription_payload, token, state, workflow_run, initial_report: false) }
+      let(:scm_status_reporter) do
+        GithubStatusReporter.new(event_payload, event_subscription_payload, token, state, workflow_run,
+                                 initial_report: false)
+      end
 
       let!(:user) { create(:confirmed_user, :with_home, login: 'jane_doe') }
       let!(:package) { create(:package, name: 'bye', project: user.home_project) }
@@ -53,7 +61,8 @@ RSpec.describe GithubStatusReporter, type: :service do
       let(:state) { 'success' }
 
       let!(:event_subscription) do
-        EventSubscription.create(channel: 'scm', package: package, eventtype: event_type, receiver_role: 'reader', token: workflow_token, workflow_run: workflow_run)
+        EventSubscription.create(channel: 'scm', package: package, eventtype: event_type, receiver_role: 'reader',
+                                 token: workflow_token, workflow_run: workflow_run)
       end
 
       let(:octokit_client) { Octokit::Client.new }
@@ -135,7 +144,8 @@ RSpec.describe GithubStatusReporter, type: :service do
         end
 
         it 'creates a commit status' do
-          expect(octokit_client).to have_received(:create_status).with('danidoni/hello_world', '123456789', state, expected_status_options)
+          expect(octokit_client).to have_received(:create_status).with('danidoni/hello_world', '123456789', state,
+                                                                       expected_status_options)
         end
       end
 
@@ -169,7 +179,8 @@ RSpec.describe GithubStatusReporter, type: :service do
         end
 
         it 'creates a commit status' do
-          expect(octokit_client).to have_received(:create_status).with('danidoni/hello_world', '123456789', state, expected_status_options)
+          expect(octokit_client).to have_received(:create_status).with('danidoni/hello_world', '123456789', state,
+                                                                       expected_status_options)
         end
       end
     end

@@ -121,7 +121,9 @@ class AttribType < ApplicationRecord
   private
 
   def create_one_rule(node)
-    raise "attribute type '#{node.name}' modifiable_by element has no valid rules set" if node['user'].blank? && node['group'].blank? && node['role'].blank?
+    if node['user'].blank? && node['group'].blank? && node['role'].blank?
+      raise "attribute type '#{node.name}' modifiable_by element has no valid rules set"
+    end
 
     new_rule = {}
     new_rule[:user] = User.find_by_login!(node['user']) if node['user']

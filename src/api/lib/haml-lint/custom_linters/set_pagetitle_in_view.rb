@@ -28,7 +28,9 @@ module HamlLint
     # @param [HamlLint::Document] a parsed Haml document and its associated metadata
     def instance_variable_pagetitle_is_defined?(document)
       chunks = HamlLint::RubyExtraction::ChunkExtractor.new(document, script_output_prefix: '').extract
-      ruby_source_code = chunks.select { |c| CHUNKS_WITH_POSSIBLE_PAGETITLES.member?(c.class) }.map(&:ruby_lines).join("\n")
+      ruby_source_code = chunks.select do |c|
+        CHUNKS_WITH_POSSIBLE_PAGETITLES.member?(c.class)
+      end.map(&:ruby_lines).join("\n")
       parsed_ruby = HamlLint::RubyParser.new.parse(ruby_source_code)
 
       parsed_ruby.each_node.find do |descendant_node|

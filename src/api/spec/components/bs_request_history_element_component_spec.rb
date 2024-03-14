@@ -64,7 +64,9 @@ RSpec.describe BsRequestHistoryElementComponent, type: :component do
     end
 
     context 'without review' do
-      let(:element) { create(:history_element_request_review_added_without_review, user: user, description_extension: nil) }
+      let(:element) do
+        create(:history_element_request_review_added_without_review, user: user, description_extension: nil)
+      end
 
       it 'displays the right icon' do
         expect(rendered_content).to have_css('i.fa-circle')

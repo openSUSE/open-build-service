@@ -47,15 +47,19 @@ namespace :dev do
       puts 'Taking decisions regarding some reports'
 
       # This automatically subscribes everyone to the cleared and favored decision events
-      EventSubscription.create!(eventtype: Event::ClearedDecision.name, channel: :web, receiver_role: :reporter, enabled: true)
-      EventSubscription.create!(eventtype: Event::FavoredDecision.name, channel: :web, receiver_role: :reporter, enabled: true)
-      EventSubscription.create!(eventtype: Event::FavoredDecision.name, channel: :web, receiver_role: :offender, enabled: true)
+      EventSubscription.create!(eventtype: Event::ClearedDecision.name, channel: :web, receiver_role: :reporter,
+                                enabled: true)
+      EventSubscription.create!(eventtype: Event::FavoredDecision.name, channel: :web, receiver_role: :reporter,
+                                enabled: true)
+      EventSubscription.create!(eventtype: Event::FavoredDecision.name, channel: :web, receiver_role: :offender,
+                                enabled: true)
 
       admin = User.get_default_admin
 
       Report.find_each do |report|
         # Reports with even id will be 'cleared' (0). Those with odd id will be 'favor' (1).
-        Decision.create!(reason: "Just because! #{report.id}", moderator: admin, kind: (report.id % 2), reports: [report])
+        Decision.create!(reason: "Just because! #{report.id}", moderator: admin, kind: (report.id % 2),
+                         reports: [report])
       end
 
       # The same decision applies to more than one report about the same object/reportable.

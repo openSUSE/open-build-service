@@ -14,7 +14,9 @@ RSpec.describe PackageService::FileVerifier do
   describe '.new' do
     let(:package) { project.packages.first }
     let(:file_name) { 'foo.txt' }
-    let(:content) { ActionDispatch::Http::UploadedFile.new(filename: file_name, type: 'text/plain', tempfile: temp_file) }
+    let(:content) do
+      ActionDispatch::Http::UploadedFile.new(filename: file_name, type: 'text/plain', tempfile: temp_file)
+    end
 
     context 'content upload file' do
       it { expect { file_verifier }.not_to raise_error }
@@ -52,14 +54,18 @@ RSpec.describe PackageService::FileVerifier do
       subject { file_verifier.call }
 
       let(:file_name) { 'foo.txt' }
-      let(:content) { ActionDispatch::Http::UploadedFile.new(filename: file_name, type: 'text/plain', tempfile: temp_file) }
+      let(:content) do
+        ActionDispatch::Http::UploadedFile.new(filename: file_name, type: 'text/plain', tempfile: temp_file)
+      end
 
       it { expect { subject }.not_to raise_error }
     end
 
     context 'valid uploaded file has the right content' do
       let(:file_name) { 'foo.txt' }
-      let(:content) { ActionDispatch::Http::UploadedFile.new(filename: file_name, type: 'text/plain', tempfile: temp_file) }
+      let(:content) do
+        ActionDispatch::Http::UploadedFile.new(filename: file_name, type: 'text/plain', tempfile: temp_file)
+      end
 
       before { file_verifier.call }
 

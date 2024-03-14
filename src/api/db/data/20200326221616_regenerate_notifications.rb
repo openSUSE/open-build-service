@@ -91,7 +91,8 @@ class RegenerateNotifications < ActiveRecord::Migration[5.2]
   # CommentForRequest Notifications
 
   def create_comment_for_request_notifications
-    recent_request_comments = Comment.where('commentable_type = ? AND created_at >= ?', 'BsRequest', 2.weeks.ago.midnight)
+    recent_request_comments = Comment.where('commentable_type = ? AND created_at >= ?', 'BsRequest',
+                                            2.weeks.ago.midnight)
 
     recent_request_comments.each do |comment|
       event = Event::CommentForRequest.new(comment.event_parameters)

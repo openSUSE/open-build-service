@@ -44,7 +44,8 @@ RSpec.describe TriggerController do
     let(:source_project) do
       project = create(:project, name: 'source_project', maintainer: user)
       repository = create(:repository, name: 'source_repository', project: project, architectures: ['x86_64'])
-      create(:release_target, repository: repository, target_repository: target_project.repositories.first, trigger: 'manual')
+      create(:release_target, repository: repository, target_repository: target_project.repositories.first,
+                              trigger: 'manual')
       create(:package, name: 'source_package', project: project)
 
       project

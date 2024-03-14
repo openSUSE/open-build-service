@@ -1,5 +1,8 @@
 RSpec.describe GitlabStatusReporter, type: :service do
-  let(:scm_status_reporter) { GitlabStatusReporter.new(event_payload, event_subscription_payload, token, state, workflow_run, event_type, initial_report: initial_report) }
+  let(:scm_status_reporter) do
+    GitlabStatusReporter.new(event_payload, event_subscription_payload, token, state, workflow_run, event_type,
+                             initial_report: initial_report)
+  end
 
   describe '.new' do
     context 'status pending when event_type is missing' do
@@ -61,7 +64,8 @@ RSpec.describe GitlabStatusReporter, type: :service do
       end
 
       it 'sends a short commit sha' do
-        expect(gitlab_instance).to have_received(:update_commit_status).with('26_212_710', '123456789', state, status_options)
+        expect(gitlab_instance).to have_received(:update_commit_status).with('26_212_710', '123456789', state,
+                                                                             status_options)
       end
     end
 
@@ -95,7 +99,8 @@ RSpec.describe GitlabStatusReporter, type: :service do
       end
 
       it 'creates a commit status' do
-        expect(gitlab_instance).to have_received(:update_commit_status).with('danidoni/hello_world', '123456789', state, status_options)
+        expect(gitlab_instance).to have_received(:update_commit_status).with('danidoni/hello_world', '123456789',
+                                                                             state, status_options)
       end
     end
   end

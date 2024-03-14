@@ -60,7 +60,10 @@ RSpec.describe PackagesFinder, :vcr do
     let(:embargo_date_attrib) { create(:embargo_date_attrib, project: project, package: package) }
 
     context 'when package is nil' do
-      subject { PackagesFinder.new.find_by_attribute_type_and_value(embargo_date_attrib.attrib_type, embargo_date_attrib.values.first) }
+      subject do
+        PackagesFinder.new.find_by_attribute_type_and_value(embargo_date_attrib.attrib_type,
+                                                            embargo_date_attrib.values.first)
+      end
 
       before do
         User.session = admin_user

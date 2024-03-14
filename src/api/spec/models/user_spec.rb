@@ -26,7 +26,9 @@ RSpec.describe User do
 
     it { expect(user.state).to eq('unconfirmed') }
 
-    it { expect(create(:user)).to validate_uniqueness_of(:login).with_message('is the name of an already existing user') }
+    it {
+      expect(create(:user)).to validate_uniqueness_of(:login).with_message('is the name of an already existing user')
+    }
   end
 
   context 'seen_since' do
@@ -212,16 +214,24 @@ RSpec.describe User do
     let!(:groups_user) { create(:groups_user, user: confirmed_user, group: group) }
 
     let(:maintained_package) { create(:package) }
-    let!(:relationship_package_user) { create(:relationship_package_user, user: confirmed_user, package: maintained_package) }
+    let!(:relationship_package_user) do
+      create(:relationship_package_user, user: confirmed_user, package: maintained_package)
+    end
 
     let(:group_maintained_package) { create(:package) }
-    let!(:relationship_package_group) { create(:relationship_package_group, group: group, package: group_maintained_package) }
+    let!(:relationship_package_group) do
+      create(:relationship_package_group, group: group, package: group_maintained_package)
+    end
 
     let(:project_maintained_package) { create(:package) }
-    let!(:relationship_project_user) { create(:relationship_project_user, user: confirmed_user, project: project_maintained_package.project) }
+    let!(:relationship_project_user) do
+      create(:relationship_project_user, user: confirmed_user, project: project_maintained_package.project)
+    end
 
     let(:group_project_maintained_package) { create(:package) }
-    let!(:relationship_project_group) { create(:relationship_project_group, group: group, project: group_project_maintained_package.project) }
+    let!(:relationship_project_group) do
+      create(:relationship_project_group, group: group, project: group_project_maintained_package.project)
+    end
 
     subject { confirmed_user.involved_packages }
 
@@ -279,10 +289,14 @@ RSpec.describe User do
       it_behaves_like 'involved_reviews' do
         let!(:subject_request) { create(:set_bugowner_request, creator: admin_user, review_by_user: confirmed_user) }
 
-        let!(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user, review_by_user: confirmed_user) }
+        let!(:request_with_same_creator_and_reviewer) do
+          create(:set_bugowner_request, creator: confirmed_user, review_by_user: confirmed_user)
+        end
 
         let(:other_project) { create(:project) }
-        let!(:request_of_another_subject) { create(:set_bugowner_request, creator: confirmed_user, review_by_user: admin_user) }
+        let!(:request_of_another_subject) do
+          create(:set_bugowner_request, creator: confirmed_user, review_by_user: admin_user)
+        end
       end
     end
 
@@ -292,10 +306,14 @@ RSpec.describe User do
         let!(:groups_user) { create(:groups_user, user: confirmed_user, group: group) }
 
         let!(:subject_request) { create(:set_bugowner_request, creator: admin_user, review_by_group: group) }
-        let!(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user, review_by_group: group) }
+        let!(:request_with_same_creator_and_reviewer) do
+          create(:set_bugowner_request, creator: confirmed_user, review_by_group: group)
+        end
 
         let(:other_group) { create(:group) }
-        let!(:request_of_another_subject) { create(:set_bugowner_request, creator: admin_user, review_by_group: other_group) }
+        let!(:request_of_another_subject) do
+          create(:set_bugowner_request, creator: admin_user, review_by_group: other_group)
+        end
       end
     end
 
@@ -305,10 +323,14 @@ RSpec.describe User do
         let!(:relationship_project_user) { create(:relationship_project_user, user: confirmed_user, project: project) }
 
         let!(:subject_request) { create(:set_bugowner_request, creator: admin_user, review_by_project: project) }
-        let!(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user, review_by_project: project) }
+        let!(:request_with_same_creator_and_reviewer) do
+          create(:set_bugowner_request, creator: confirmed_user, review_by_project: project)
+        end
 
         let(:other_project) { create(:project) }
-        let!(:request_of_another_subject) { create(:set_bugowner_request, creator: admin_user, review_by_project: other_project) }
+        let!(:request_of_another_subject) do
+          create(:set_bugowner_request, creator: admin_user, review_by_project: other_project)
+        end
       end
     end
 
@@ -319,12 +341,18 @@ RSpec.describe User do
 
         let!(:subject_request) { create(:set_bugowner_request, creator: admin_user, review_by_package: package) }
 
-        let!(:request_with_same_creator_and_reviewer) { create(:set_bugowner_request, creator: confirmed_user, review_by_package: package) }
+        let!(:request_with_same_creator_and_reviewer) do
+          create(:set_bugowner_request, creator: confirmed_user, review_by_package: package)
+        end
 
         let(:other_package) { create(:package) }
-        let!(:request_of_another_subject) { create(:set_bugowner_request, creator: admin_user, review_by_package: other_package) }
+        let!(:request_of_another_subject) do
+          create(:set_bugowner_request, creator: admin_user, review_by_package: other_package)
+        end
 
-        let!(:relationship_project_user) { create(:relationship_project_user, user: admin_user, project: package.project) }
+        let!(:relationship_project_user) do
+          create(:relationship_project_user, user: admin_user, project: package.project)
+        end
         it 'show the reviews for project maintainer' do
           expect(admin_user.involved_reviews).to include(request_with_same_creator_and_reviewer)
         end
@@ -500,7 +528,8 @@ RSpec.describe User do
       end
 
       let(:user) do
-        create(:user, login: 'tux', realname: 'penguin', login_failure_count: 7, last_logged_in_at: Time.zone.yesterday, email: 'tux@suse.de')
+        create(:user, login: 'tux', realname: 'penguin', login_failure_count: 7,
+                      last_logged_in_at: Time.zone.yesterday, email: 'tux@suse.de')
       end
 
       before do

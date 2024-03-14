@@ -107,7 +107,9 @@ RSpec.describe StatusProjectController, :vcr do
           get :show, params: { project: project.name, format: :xml }
         end
 
-        it { expect(response.body).to include("<link project=\"#{project.name}\" package=\"#{package_link.name}\"/>\n") }
+        it {
+          expect(response.body).to include("<link project=\"#{project.name}\" package=\"#{package_link.name}\"/>\n")
+        }
       end
 
       context 'to a package in a different project' do
@@ -121,7 +123,9 @@ RSpec.describe StatusProjectController, :vcr do
           get :show, params: { project: project.name, format: :xml }
         end
 
-        it { expect(response.body).not_to include("<link project=\"#{package_link.project.name}\" package=\"#{package_link.name}\"/>\n") }
+        it {
+          expect(response.body).not_to include("<link project=\"#{package_link.project.name}\" package=\"#{package_link.name}\"/>\n")
+        }
       end
     end
   end

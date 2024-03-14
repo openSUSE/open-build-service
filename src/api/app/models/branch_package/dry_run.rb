@@ -11,7 +11,10 @@ module BranchPackage::DryRun
       builder.collection do
         @packages.each do |p|
           builder.package(generate_build_for_package(p)) do
-            builder.devel(project: p[:copy_from_devel].project.name, package: p[:copy_from_devel].name) if p[:copy_from_devel]
+            if p[:copy_from_devel]
+              builder.devel(project: p[:copy_from_devel].project.name,
+                            package: p[:copy_from_devel].name)
+            end
             builder.target(project: @target_project, package: p[:target_package])
           end
         end

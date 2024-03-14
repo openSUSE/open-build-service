@@ -32,7 +32,8 @@ class CommentComponent < ApplicationComponent
   attr_accessor :comment
 
   def inline_comment_body
-    sourcediff = comment.commentable.bs_request.webui_actions(action_id: comment.commentable, diffs: true, cacheonly: 1).first[:sourcediff].first
+    sourcediff = comment.commentable.bs_request.webui_actions(action_id: comment.commentable, diffs: true,
+                                                              cacheonly: 1).first[:sourcediff].first
 
     return comment.body if sourcediff[:error]
 

@@ -103,7 +103,10 @@ RSpec.describe Webui::CommentsController do
     end
 
     context "does not allow to overwrite the comment's user" do
-      let(:comment_params) { { comment: { body: 'This project is AWESOME!', user_id: user }, commentable_type: project.class, commentable_id: project.id } }
+      let(:comment_params) do
+        { comment: { body: 'This project is AWESOME!', user_id: user }, commentable_type: project.class,
+          commentable_id: project.id }
+      end
 
       subject { post :create, params: comment_params }
 
@@ -167,7 +170,9 @@ RSpec.describe Webui::CommentsController do
 
         context 'and having a reply' do
           let(:commentable) { root_comment.commentable }
-          let!(:root_reply) { create(:comment_request, commentable: commentable, body: 'This is a reply', parent_id: root_comment.id) }
+          let!(:root_reply) do
+            create(:comment_request, commentable: commentable, body: 'This is a reply', parent_id: root_comment.id)
+          end
 
           before do
             login admin
@@ -187,7 +192,10 @@ RSpec.describe Webui::CommentsController do
 
       context 'deleting a reply' do
         context 'with no replies' do
-          let!(:leaf) { create(:comment_request, commentable: root_comment.commentable, body: 'This is a leaf comment', parent_id: root_comment.id) }
+          let!(:leaf) do
+            create(:comment_request, commentable: root_comment.commentable, body: 'This is a leaf comment',
+                                     parent_id: root_comment.id)
+          end
 
           before do
             login admin
@@ -204,8 +212,14 @@ RSpec.describe Webui::CommentsController do
         end
 
         context 'with replies' do
-          let(:reply) { create(:comment_request, commentable: root_comment.commentable, body: 'This is a reply comment', parent_id: root_comment.id) }
-          let!(:leaf) { create(:comment_request, commentable: root_comment.commentable, body: 'This is a leaf comment', parent_id: reply.id) }
+          let(:reply) do
+            create(:comment_request, commentable: root_comment.commentable, body: 'This is a reply comment',
+                                     parent_id: root_comment.id)
+          end
+          let!(:leaf) do
+            create(:comment_request, commentable: root_comment.commentable, body: 'This is a leaf comment',
+                                     parent_id: reply.id)
+          end
 
           before do
             login admin
@@ -226,7 +240,10 @@ RSpec.describe Webui::CommentsController do
         end
 
         context 'with a deleted parent that is the root comment' do
-          let!(:leaf) { create(:comment_request, commentable: root_comment.commentable, body: 'This is a leaf comment', parent_id: root_comment.id) }
+          let!(:leaf) do
+            create(:comment_request, commentable: root_comment.commentable, body: 'This is a leaf comment',
+                                     parent_id: root_comment.id)
+          end
 
           before do
             root_comment.blank_or_destroy
@@ -246,8 +263,14 @@ RSpec.describe Webui::CommentsController do
         end
 
         context 'with all parents deleted' do
-          let!(:reply) { create(:comment_request, commentable: root_comment.commentable, body: 'This is a reply comment', parent_id: root_comment.id) }
-          let!(:leaf) { create(:comment_request, commentable: root_comment.commentable, body: 'This is a leaf comment', parent_id: reply.id) }
+          let!(:reply) do
+            create(:comment_request, commentable: root_comment.commentable, body: 'This is a reply comment',
+                                     parent_id: root_comment.id)
+          end
+          let!(:leaf) do
+            create(:comment_request, commentable: root_comment.commentable, body: 'This is a leaf comment',
+                                     parent_id: reply.id)
+          end
 
           before do
             root_comment.blank_or_destroy
@@ -378,7 +401,8 @@ RSpec.describe Webui::CommentsController do
 
     context "does not allow to overwrite the comment's user" do
       it 'raises an error' do
-        params = { id: comment.id, comment: { body: 'This project is AWESOME!', user_id: user }, commentable_type: project.class, commentable_id: project.id }
+        params = { id: comment.id, comment: { body: 'This project is AWESOME!', user_id: user },
+                   commentable_type: project.class, commentable_id: project.id }
         expect { put :update, params: params }.to raise_error(ActionController::UnpermittedParameters)
       end
     end

@@ -27,7 +27,9 @@ RSpec.describe Staging::StagedRequestsController do
       login(user)
       bs_request.staging_project = staging_project
       bs_request.save
-      get :index, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml }
+      get :index,
+          params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name,
+                    format: :xml }
     end
 
     it { expect(response).to have_http_status(:success) }
@@ -138,7 +140,10 @@ RSpec.describe Staging::StagedRequestsController do
 
         it { expect(response).to have_http_status(:bad_request) }
         it { expect(response.body).to match(/invalid_request/) }
-        it { expect(response.body).to match(/Request #{bs_request.number} currently excluded from project #{staging_workflow.project.name}. Use --remove-exclusion if you want to force this action./) }
+
+        it {
+          expect(response.body).to match(/Request #{bs_request.number} currently excluded from project #{staging_workflow.project.name}. Use --remove-exclusion if you want to force this action./)
+        }
       end
 
       context 'when providing the remove exclusion parameter' do
@@ -206,7 +211,9 @@ RSpec.describe Staging::StagedRequestsController do
             format: :xml
           }
         end
-        let(:body) { "<requests><request id='#{bs_request.number}'/><request id='#{another_bs_request.number}'/></requests>" }
+        let(:body) do
+          "<requests><request id='#{bs_request.number}'/><request id='#{another_bs_request.number}'/></requests>"
+        end
 
         before { subject }
 
@@ -268,7 +275,9 @@ RSpec.describe Staging::StagedRequestsController do
               format: :xml
             }
           end
-          let(:body) { "<requests><request id='#{bs_request.number}'/><request id='#{request_to_exclude.number}'/></requests>" }
+          let(:body) do
+            "<requests><request id='#{bs_request.number}'/><request id='#{request_to_exclude.number}'/></requests>"
+          end
 
           before do
             create(:request_exclusion,
@@ -303,7 +312,9 @@ RSpec.describe Staging::StagedRequestsController do
               format: :xml
             }
           end
-          let(:body) { "<requests><request id='#{bs_request.number}'/><request id='#{request_to_exclude.number}'/></requests>" }
+          let(:body) do
+            "<requests><request id='#{bs_request.number}'/><request id='#{request_to_exclude.number}'/></requests>"
+          end
 
           before do
             create(:request_exclusion,

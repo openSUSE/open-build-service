@@ -434,7 +434,8 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'status', attributes: { code: 'unknown_package' }
 
     # check this works with remote projects also
-    get url_for(controller: :source_project_package_meta, action: :show, project: 'HiddenProject', package: 'temporary4')
+    get url_for(controller: :source_project_package_meta, action: :show, project: 'HiddenProject',
+                package: 'temporary4')
     assert_response 404
     put url_for(controller: :source_project_package_meta, action: :update, project: 'HiddenProject', package: 'temporary4'),
         params: '<package project="HiddenProject" name="temporary4"> <title/> <description/> </package>'
@@ -561,7 +562,8 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
       post '/source/home:tom:temp/ProtectedPackage', params: { cmd: c }
       assert_response 403
     end
-    post '/source/home:tom:temp/ProtectedPackage', params: { cmd: :copy, oproject: 'home:tom:temp', opackage: 'ProtectedPackage' }
+    post '/source/home:tom:temp/ProtectedPackage',
+         params: { cmd: :copy, oproject: 'home:tom:temp', opackage: 'ProtectedPackage' }
     assert_response 403
     get '/source/home:tom:temp/ProtectedPackage/dummy_file'
     assert_response 403

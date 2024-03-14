@@ -184,7 +184,9 @@ RSpec.describe Webui::UsersController do
       context 'with invalid data' do
         before do
           login user
-          post :update, params: { user: { login: user.login, realname: 'another real name', email: 'invalid' }, login: user.login }
+          post :update,
+               params: { user: { login: user.login, realname: 'another real name', email: 'invalid' },
+                         login: user.login }
           user.reload
         end
 
@@ -199,7 +201,9 @@ RSpec.describe Webui::UsersController do
     context "when user is trying to update another user's profile" do
       before do
         login user
-        post :update, params: { user: { login: non_admin_user.login, realname: 'another real name', email: 'new_valid@email.es' }, login: non_admin_user.login }
+        post :update,
+             params: { user: { login: non_admin_user.login, realname: 'another real name', email: 'new_valid@email.es' },
+                       login: non_admin_user.login }
         non_admin_user.reload
       end
 
@@ -212,7 +216,9 @@ RSpec.describe Webui::UsersController do
     context 'when user is trying to do some privilege escalation to another user' do
       before do
         login user
-        post :update, params: { user: { login: non_admin_user.login, realname: 'hacked', email: 'hacked@example.org' }, login: user.login }
+        post :update,
+             params: { user: { login: non_admin_user.login, realname: 'hacked', email: 'hacked@example.org' },
+                       login: user.login }
         non_admin_user.reload
       end
 
@@ -287,7 +293,8 @@ RSpec.describe Webui::UsersController do
 
         login admin_user
         # Rails form helper sends an empty string in an array if no checkbox was marked
-        post :update, params: { user: { login: user.login, email: 'new_valid@email.es', role_ids: [''] }, login: user.login }
+        post :update,
+             params: { user: { login: user.login, email: 'new_valid@email.es', role_ids: [''] }, login: user.login }
         user.reload
       end
 
@@ -320,7 +327,9 @@ RSpec.describe Webui::UsersController do
       let!(:old_realname) { user.realname }
       let!(:old_email) { user.email }
       let(:http_request) do
-        post :update, params: { user: { login: user.login, realname: 'another real name', email: 'new_valid@email.es' }, login: user.login }
+        post :update,
+             params: { user: { login: user.login, realname: 'another real name', email: 'new_valid@email.es' },
+                       login: user.login }
       end
 
       before do

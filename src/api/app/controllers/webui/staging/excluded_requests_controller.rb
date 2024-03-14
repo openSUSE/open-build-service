@@ -25,7 +25,8 @@ module Webui
 
         request = @staging_workflow.target_of_bs_requests.find_by(number: staging_request_exclusion[:number])
         unless request
-          redirect_back(fallback_location: root_path, error: "Request #{staging_request_exclusion[:number]} doesn't exist or it doesn't belong to this project")
+          redirect_back(fallback_location: root_path,
+                        error: "Request #{staging_request_exclusion[:number]} doesn't exist or it doesn't belong to this project")
           return
         end
         if request.staging_project
@@ -34,7 +35,8 @@ module Webui
           return
         end
 
-        request_exclusion = @staging_workflow.request_exclusions.build(bs_request: request, description: staging_request_exclusion[:description])
+        request_exclusion = @staging_workflow.request_exclusions.build(bs_request: request,
+                                                                       description: staging_request_exclusion[:description])
 
         if request_exclusion.save
           flash[:success] = 'The request was successfully excluded'

@@ -3,9 +3,13 @@ require 'webmock/rspec'
 RSpec.describe BsRequestActionWebuiInfosJob, :vcr do
   include ActiveJob::TestHelper
   let(:source_project) { create(:project, name: 'source_project') }
-  let(:source_package) { create(:package_with_file, name: 'source_package', project: source_project, file_content: 'b') }
+  let(:source_package) do
+    create(:package_with_file, name: 'source_package', project: source_project, file_content: 'b')
+  end
   let(:target_project) { create(:project, name: 'target_project') }
-  let(:target_package) { create(:package_with_file, name: 'target_package', project: target_project, file_content: 'a') }
+  let(:target_package) do
+    create(:package_with_file, name: 'target_package', project: target_project, file_content: 'a')
+  end
   let(:request) do
     create(:bs_request_with_submit_action,
            source_package: source_package,
@@ -76,7 +80,9 @@ RSpec.describe BsRequestActionWebuiInfosJob, :vcr do
 
     context 'for a superseded request' do
       let(:another_source_project) { create(:project, name: 'another_source_project') }
-      let(:another_source_package) { create(:package_with_file, name: 'another_source_package', project: another_source_project, file_content: 'c') }
+      let(:another_source_package) do
+        create(:package_with_file, name: 'another_source_package', project: another_source_project, file_content: 'c')
+      end
       let(:superseding_request) do
         create(:bs_request_with_submit_action,
                source_package: another_source_package,
@@ -98,7 +104,9 @@ RSpec.describe BsRequestActionWebuiInfosJob, :vcr do
         }
       end
 
-      let(:path) { "#{CONFIG['source_url']}/source/#{another_source_project}/#{another_source_package}?#{params.to_param}" }
+      let(:path) do
+        "#{CONFIG['source_url']}/source/#{another_source_project}/#{another_source_package}?#{params.to_param}"
+      end
 
       before do
         request.update(superseded_by: superseding_request.number, state: :superseded)

@@ -38,7 +38,8 @@ RSpec.describe UpdateNotificationEvents do
       expect_message('opensuse.obs.metrics', 'project.create,home=false value=1')
 
       # SRCSRV_CREATE_PACKAGE
-      expect_message('opensuse.obs.package.create', '{"project":"project_1","package":"multibuild","sender":"_nobody_"}')
+      expect_message('opensuse.obs.package.create',
+                     '{"project":"project_1","package":"multibuild","sender":"_nobody_"}')
       expect_message('opensuse.obs.metrics', 'package.create,home=false value=1')
 
       expect_no_message

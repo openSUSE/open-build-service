@@ -71,7 +71,9 @@ class Comment < ApplicationRecord
   end
 
   def body
-    return "*This content was considered problematic and has been moderated at #{moderated_at} by @#{moderator}*" if moderated?
+    if moderated?
+      return "*This content was considered problematic and has been moderated at #{moderated_at} by @#{moderator}*"
+    end
 
     super
   end

@@ -48,7 +48,8 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
     authorize @download_on_demand
 
     if @download_on_demand.repository.download_repositories.count <= 1
-      redirect_back(fallback_location: root_path, error: "Download on Demand can't be removed: DoD Repositories must have at least one repository.")
+      redirect_back(fallback_location: root_path,
+                    error: "Download on Demand can't be removed: DoD Repositories must have at least one repository.")
       return
     end
 
@@ -68,6 +69,7 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
   private
 
   def permitted_params
-    params.require(:download_repository).permit(:arch, :repotype, :url, :repository_id, :archfilter, :masterurl, :mastersslfingerprint, :pubkey)
+    params.require(:download_repository).permit(:arch, :repotype, :url, :repository_id, :archfilter, :masterurl,
+                                                :mastersslfingerprint, :pubkey)
   end
 end

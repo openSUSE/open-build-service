@@ -34,7 +34,9 @@ module Event
     def review_headers
       return { 'X-OBS-Review-By_User' => payload['by_user'] } if payload['by_user']
       return { 'X-OBS-Review-By_Group' => payload['by_group'] } if payload['by_group']
-      return { 'X-OBS-Review-By_Package' => "#{payload['by_project']}/#{payload['by_package']}" } if payload['by_package']
+      if payload['by_package']
+        return { 'X-OBS-Review-By_Package' => "#{payload['by_project']}/#{payload['by_package']}" }
+      end
 
       { 'X-OBS-Review-By_Project' => payload['by_project'] }
     end

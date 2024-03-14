@@ -7,7 +7,10 @@ RSpec.describe EventSubscription::ForRoleForm do
     let(:subscription) { channel.subscription }
 
     RSpec.shared_examples 'a channel with subscription' do |channel_name|
-      it { expect(subject.channels.map(&:name)).to match_array(EventSubscription.without_disabled_or_internal_channels) }
+      it {
+        expect(subject.channels.map(&:name)).to match_array(EventSubscription.without_disabled_or_internal_channels)
+      }
+
       it { expect(channel.name).to eq(channel_name) }
       it { expect(subscription.eventtype).to eq(event_class.to_s) }
       it { expect(subscription.receiver_role).to eq(role) }

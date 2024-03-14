@@ -273,7 +273,10 @@ class SearchController < ApplicationController
   def find_attribs(attrib, project_name, package_name)
     return attrib.attribs if project_name.blank? && package_name.blank?
 
-    return Package.get_by_project_and_name(project_name, package_name).attribs if project_name.present? && package_name.present?
+    if project_name.present? && package_name.present?
+      return Package.get_by_project_and_name(project_name,
+                                             package_name).attribs
+    end
 
     if package_name
       attrib.attribs.where(package_id: Package.where(name: package_name))

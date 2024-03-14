@@ -151,6 +151,7 @@ module OBSApi
     config.view_component.show_previews_source = true
 
     # Classes required by YAML.safe_load used by paper_trail for loading date and time values
-    config.active_record.yaml_column_permitted_classes = [Date, Time, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone]
+    config.active_record.yaml_column_permitted_classes = [Date, Time, ActiveSupport::TimeWithZone,
+                                                          ActiveSupport::TimeZone]
   end
 end

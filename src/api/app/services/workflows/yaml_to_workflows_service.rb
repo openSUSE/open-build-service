@@ -23,7 +23,8 @@ module Workflows
       begin
         parsed_workflow_configuration = YAML.safe_load(parse_workflow_configuration(@workflow_run.workflow_configuration))
       rescue Psych::SyntaxError, Token::Errors::WorkflowsYamlFormatError => e
-        raise Token::Errors::WorkflowsYamlNotParsable, "Unable to parse #{@token.workflow_configuration_path}: #{e.message}"
+        raise Token::Errors::WorkflowsYamlNotParsable,
+              "Unable to parse #{@token.workflow_configuration_path}: #{e.message}"
       end
 
       parsed_workflow_configuration = extract_and_set_workflow_version(parsed_workflow_configuration: parsed_workflow_configuration)
@@ -35,7 +36,8 @@ module Workflows
     end
 
     def parse_workflow_configuration(workflow_configuration)
-      target_repository_full_name = @scm_webhook.payload.values_at(:target_repository_full_name, :path_with_namespace).compact.first
+      target_repository_full_name = @scm_webhook.payload.values_at(:target_repository_full_name,
+                                                                   :path_with_namespace).compact.first
       scm_organization_name, scm_repository_name = target_repository_full_name.split('/')
 
       # The PR number is only present in webhook events for pull requests, so we have a default value in case someone doesn't use
@@ -47,7 +49,8 @@ module Workflows
       track_placeholder_variables(workflow_configuration)
 
       # Mapping the placeholder variables to their values from the webhook event payload
-      placeholder_variables = SUPPORTED_PLACEHOLDER_VARIABLES.zip([scm_organization_name, scm_repository_name, pr_number, commit_sha]).to_h
+      placeholder_variables = SUPPORTED_PLACEHOLDER_VARIABLES.zip([scm_organization_name, scm_repository_name,
+                                                                   pr_number, commit_sha]).to_h
       begin
         format(workflow_configuration, placeholder_variables)
       rescue ArgumentError => e
@@ -59,7 +62,9 @@ module Workflows
       # Receive and delete the version key from the parsed yaml, so it is not
       # confused with a workflow name. Check if the version key points to a hash
       # incase 'version' is the name of a workflow e.g. {"version"=>1.1, "version"=>{"steps"=>[{"trigger_services"...
-      @workflow_version_number ||= parsed_workflow_configuration.delete('version') unless parsed_workflow_configuration['version'].is_a?(Hash)
+      unless parsed_workflow_configuration['version'].is_a?(Hash)
+        @workflow_version_number ||= parsed_workflow_configuration.delete('version')
+      end
       parsed_workflow_configuration
     end
   end

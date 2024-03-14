@@ -30,7 +30,9 @@ class WorkflowFiltersValidator < ActiveModel::Validator
     return if unsupported_filter_values.blank?
 
     @workflow.errors.add(:filters, "#{unsupported_filter_values.to_sentence} have unsupported values, " \
-                                   "#{SUPPORTED_FILTER_VALUES.map { |key| "'#{key}'" }.to_sentence} are the only supported values.")
+                                   "#{SUPPORTED_FILTER_VALUES.map do |key|
+                                        "'#{key}'"
+                                      end.to_sentence} are the only supported values.")
   end
 
   # FIXME: Remove once we have general workflow.yml validation
@@ -39,7 +41,9 @@ class WorkflowFiltersValidator < ActiveModel::Validator
   end
 
   def unsupported_filters
-    @unsupported_filters ||= @workflow_instructions[:filters].select { |key, _value| Workflow::SUPPORTED_FILTERS.exclude?(key.to_sym) }
+    @unsupported_filters ||= @workflow_instructions[:filters].select do |key, _value|
+      Workflow::SUPPORTED_FILTERS.exclude?(key.to_sym)
+    end
   end
 
   def unsupported_filter_values
@@ -50,7 +54,9 @@ class WorkflowFiltersValidator < ActiveModel::Validator
         if filter == :event
           @workflow.errors.add(:filter, 'event only supports a string value') unless value.is_a?(String)
         else
-          unsupported_filter_values << filter unless value.keys.all? { |filter_type| SUPPORTED_FILTER_VALUES.include?(filter_type.to_sym) }
+          unsupported_filter_values << filter unless value.keys.all? do |filter_type|
+                                                       SUPPORTED_FILTER_VALUES.include?(filter_type.to_sym)
+                                                     end
         end
       end
       unsupported_filter_values

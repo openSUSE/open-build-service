@@ -2,7 +2,8 @@ RSpec.describe Webui::Kiwi::ImagesController, :vcr do
   let(:project) { create(:project, name: 'fake_project') }
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:kiwi_image_with_package_with_kiwi_file) do
-    create(:kiwi_image_with_package, name: 'package_with_valid_kiwi_file', project: user.home_project, with_kiwi_file: true)
+    create(:kiwi_image_with_package, name: 'package_with_valid_kiwi_file', project: user.home_project,
+                                     with_kiwi_file: true)
   end
 
   describe 'GET #import_from_package' do
@@ -39,7 +40,8 @@ RSpec.describe Webui::Kiwi::ImagesController, :vcr do
 
       context 'that is an invalid kiwi file' do
         let(:package_with_kiwi_file) do
-          create(:package_with_kiwi_file, name: 'package_with_invalid_kiwi_file', project: project, kiwi_file_content: invalid_kiwi_xml)
+          create(:package_with_kiwi_file, name: 'package_with_invalid_kiwi_file', project: project,
+                                          kiwi_file_content: invalid_kiwi_xml)
         end
 
         before do
@@ -159,8 +161,12 @@ RSpec.describe Webui::Kiwi::ImagesController, :vcr do
 
   describe 'POST #update' do
     let(:kiwi_repository) { create(:kiwi_repository, image: kiwi_image_with_package_with_kiwi_file) }
-    let(:kiwi_package_group) { create(:kiwi_package_group, kiwi_type: 'image', image: kiwi_image_with_package_with_kiwi_file) }
-    let!(:kiwi_package) { create(:kiwi_package, package_group: kiwi_package_group, image: kiwi_image_with_package_with_kiwi_file) }
+    let(:kiwi_package_group) do
+      create(:kiwi_package_group, kiwi_type: 'image', image: kiwi_image_with_package_with_kiwi_file)
+    end
+    let!(:kiwi_package) do
+      create(:kiwi_package, package_group: kiwi_package_group, image: kiwi_image_with_package_with_kiwi_file)
+    end
 
     before do
       login user
@@ -363,7 +369,9 @@ RSpec.describe Webui::Kiwi::ImagesController, :vcr do
     context 'for the term "app"' do
       let(:term) { 'app' }
 
-      it { expect(JSON.parse(subject.body)).to eq([{ 'id' => 'appArmor', 'label' => 'appArmor', 'value' => 'appArmor' }]) }
+      it {
+        expect(JSON.parse(subject.body)).to eq([{ 'id' => 'appArmor', 'label' => 'appArmor', 'value' => 'appArmor' }])
+      }
     end
 
     context 'for the term "b"' do

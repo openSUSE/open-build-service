@@ -44,7 +44,8 @@ RSpec.describe Package, '#get_by_project_and_name' do
       context 'and remote project link' do
         let(:project) do
           project = create(:project, name: 'project_1')
-          create(:linked_project, project: project, linked_remote_project_name: 'openSUSE.org:home:hennevogel:myfirstproject')
+          create(:linked_project, project: project,
+                                  linked_remote_project_name: 'openSUSE.org:home:hennevogel:myfirstproject')
           project
         end
         let(:package) { build(:package, name: 'i_might_exist_remote') }
@@ -96,7 +97,8 @@ RSpec.describe Package, '#get_by_project_and_name' do
       context 'and remote project link' do
         let(:project) do
           project = create(:project, name: 'project_1')
-          create(:linked_project, project: project, linked_remote_project_name: 'openSUSE.org:home:hennevogel:myfirstproject')
+          create(:linked_project, project: project,
+                                  linked_remote_project_name: 'openSUSE.org:home:hennevogel:myfirstproject')
           project
         end
         let(:package) { build(:package, name: 'i_might_exist_remote') }

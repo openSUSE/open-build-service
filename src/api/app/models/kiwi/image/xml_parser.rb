@@ -9,7 +9,8 @@ module Kiwi
       def parse
         return blank_image if @xml_document.xpath('image').blank?
 
-        new_image = Kiwi::Image.new(name: @xml_document.xpath('image').attribute('name')&.value, md5_last_revision: @md5)
+        new_image = Kiwi::Image.new(name: @xml_document.xpath('image').attribute('name')&.value,
+                                    md5_last_revision: @md5)
 
         new_image.use_project_repositories = use_project_repositories?
         new_image.repositories = repositories
@@ -39,7 +40,9 @@ module Kiwi
 
       # Return an array of Kiwi::Repository models from the parsed xml
       def repositories
-        repositories_from_xml.reject { |repository| repository.xpath('source').attribute('path')&.value == 'obsrepositories:/' }.map.with_index(1) do |repository, index|
+        repositories_from_xml.reject do |repository|
+          repository.xpath('source').attribute('path')&.value == 'obsrepositories:/'
+        end.map.with_index(1) do |repository, index|
           attributes = {
             repo_type: repository.attribute('type')&.value,
             source_path: repository.xpath('source').attribute('path')&.value,

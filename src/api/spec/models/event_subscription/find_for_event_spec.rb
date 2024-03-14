@@ -14,7 +14,10 @@ RSpec.shared_context 'it returns subscriptions for an event' do
     let!(:comment) { create(:comment_project, commentable: project) }
 
     context 'which is enabled' do
-      let!(:subscription) { create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer', subscriber: maintainer) }
+      let!(:subscription) do
+        create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer',
+                                                                           subscriber: maintainer)
+      end
 
       it 'returns the subscription for that user/group' do
         expect(maintainer_subscription_result).to eq(subscription)
@@ -23,7 +26,8 @@ RSpec.shared_context 'it returns subscriptions for an event' do
 
     context 'which is disabled' do
       let!(:subscription) do
-        create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer', subscriber: maintainer, enabled: false)
+        create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer',
+                                                                           subscriber: maintainer, enabled: false)
       end
 
       it 'does not include that user/group' do
@@ -48,7 +52,8 @@ RSpec.shared_context 'it returns subscriptions for an event' do
 
     context 'and a default maintainer subscription is disabled' do
       let!(:default_subscription) do
-        create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: nil, enabled: false)
+        create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: nil,
+                                                        enabled: false)
       end
 
       it 'does not include that user/group' do
@@ -66,7 +71,10 @@ RSpec.shared_context 'it returns subscriptions for an event' do
     end
 
     context 'and the maintainer subscription is enabled' do
-      let!(:subscription) { create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer', subscriber: maintainer) }
+      let!(:subscription) do
+        create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer',
+                                                                           subscriber: maintainer)
+      end
 
       it 'returns the subscription for that user/group' do
         expect(maintainer_subscription_result).to eq(subscription)
@@ -75,7 +83,8 @@ RSpec.shared_context 'it returns subscriptions for an event' do
 
     context 'and the maintainer subscription is disabled' do
       let!(:subscription) do
-        create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer', subscriber: maintainer, enabled: false)
+        create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer',
+                                                                           subscriber: maintainer, enabled: false)
       end
 
       it 'does not include that user/group' do
@@ -176,13 +185,17 @@ RSpec.describe EventSubscription::FindForEvent do
         context 'and the user has a maintainer and commenter subscriptions, which are both enabled' do
           let!(:maintainer) { create(:confirmed_user) }
           let!(:project) { create(:project, maintainer: [maintainer]) }
-          let!(:comment) { create(:comment_project, commentable: project, body: "Hey @#{maintainer.login} hows it going?") }
+          let!(:comment) do
+            create(:comment_project, commentable: project, body: "Hey @#{maintainer.login} hows it going?")
+          end
 
           let!(:subscription_maintainer) do
-            create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer', subscriber: maintainer)
+            create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer',
+                                                                               subscriber: maintainer)
           end
           let!(:subscription_commenter) do
-            create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'commenter', subscriber: maintainer)
+            create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'commenter',
+                                                                               subscriber: maintainer)
           end
 
           it 'returns a subscription for that user/group' do
@@ -216,7 +229,10 @@ RSpec.describe EventSubscription::FindForEvent do
 
         context 'and the user has a maintainer subscription' do
           context 'which is enabled' do
-            let!(:subscription) { create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer', subscriber: user) }
+            let!(:subscription) do
+              create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer',
+                                                                                 subscriber: user)
+            end
 
             context 'and the user has emails enabled for the group' do
               it 'returns the subscription for that user/group' do
@@ -241,7 +257,8 @@ RSpec.describe EventSubscription::FindForEvent do
 
           context 'which is disabled' do
             let!(:subscription) do
-              create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer', subscriber: user, enabled: false)
+              create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer',
+                                                                                 subscriber: user, enabled: false)
             end
 
             it 'does not include that user/group' do
@@ -263,7 +280,8 @@ RSpec.describe EventSubscription::FindForEvent do
 
           context 'and a default maintainer subscription is disabled' do
             let!(:default_subscription) do
-              create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: nil, enabled: false)
+              create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: nil,
+                                                              enabled: false)
             end
 
             it 'does not include that user/group' do

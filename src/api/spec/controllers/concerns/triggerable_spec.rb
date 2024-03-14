@@ -74,7 +74,9 @@ RSpec.describe Triggerable do
       let(:project_name) { 'project_with_a_link' }
       let(:package_name) { 'remote_package_trigger' }
 
-      let(:project_with_a_link) { create(:project, name: project_name, maintainer: user, link_to: 'some:remote:project') }
+      let(:project_with_a_link) do
+        create(:project, name: project_name, maintainer: user, link_to: 'some:remote:project')
+      end
 
       it 'assigns remote package string' do
         stub_params(project_name: project_with_a_link.name, package_name: package_name)
@@ -135,7 +137,9 @@ RSpec.describe Triggerable do
     context 'project with remote project-link' do
       let(:token) { Token::Rebuild.create(executor: user) }
       let(:package_name) { 'some-remote-package-that-might-exist' }
-      let(:project_with_a_link) { create(:project, name: 'project_with_a_link', maintainer: user, link_to: 'some:remote:project') }
+      let(:project_with_a_link) do
+        create(:project, name: 'project_with_a_link', maintainer: user, link_to: 'some:remote:project')
+      end
 
       before do
         fake_controller_instance.instance_variable_set(:@project_name, 'project_with_a_link')
@@ -152,7 +156,9 @@ RSpec.describe Triggerable do
 
     context 'project with remote project-link and local package' do
       let(:token) { Token::Rebuild.create(executor: user) }
-      let(:project_with_a_link) { create(:project, name: 'project_with_a_link', maintainer: user, link_to: 'some:remote:project') }
+      let(:project_with_a_link) do
+        create(:project, name: 'project_with_a_link', maintainer: user, link_to: 'some:remote:project')
+      end
 
       before do
         fake_controller_instance.instance_variable_set(:@project_name, 'project_with_a_link')
@@ -170,14 +176,17 @@ RSpec.describe Triggerable do
   end
 
   describe '#set_multibuild_flavor' do
-    let(:multibuild_package) { create(:multibuild_package, name: 'package_a', project: project, flavors: %w[libfoo1 libfoo2]) }
+    let(:multibuild_package) do
+      create(:multibuild_package, name: 'package_a', project: project, flavors: %w[libfoo1 libfoo2])
+    end
     let(:multibuild_flavor) { 'libfoo2' }
 
     context 'with a token that allows multibuild' do
       let(:token) { Token::Rebuild.create(executor: user) }
 
       before do
-        fake_controller_instance.instance_variable_set(:@package_name, "#{multibuild_package.name}:#{multibuild_flavor}")
+        fake_controller_instance.instance_variable_set(:@package_name,
+                                                       "#{multibuild_package.name}:#{multibuild_flavor}")
         stub_params(project_name: project.name, package_name: "#{multibuild_package.name}:#{multibuild_flavor}")
       end
 

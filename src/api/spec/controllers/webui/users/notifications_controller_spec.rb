@@ -122,7 +122,9 @@ RSpec.describe Webui::Users::NotificationsController do
                creator: admin_user)
       end
 
-      let!(:request_created_notification) { create(:web_notification, :request_created, notifiable: maintained_request, subscriber: user) }
+      let!(:request_created_notification) do
+        create(:web_notification, :request_created, notifiable: maintained_request, subscriber: user)
+      end
       let!(:review_wanted_notification) { review_notification }
 
       let(:params) { default_params.merge(type: 'incoming_requests') }
@@ -160,8 +162,12 @@ RSpec.describe Webui::Users::NotificationsController do
                creator: admin_user)
       end
 
-      let!(:state_change_to_declined_notification) { create(:web_notification, :request_state_change, notifiable: declined_bs_request, subscriber: user) }
-      let(:request_created_notification) { create(:web_notification, :request_created, notifiable: maintained_request, subscriber: user) }
+      let!(:state_change_to_declined_notification) do
+        create(:web_notification, :request_state_change, notifiable: declined_bs_request, subscriber: user)
+      end
+      let(:request_created_notification) do
+        create(:web_notification, :request_created, notifiable: maintained_request, subscriber: user)
+      end
 
       let(:params) { default_params.merge(type: 'outgoing_requests') }
 
@@ -187,7 +193,8 @@ RSpec.describe Webui::Users::NotificationsController do
     context 'when a user marks one of their unread notifications as read' do
       subject! do
         login user_to_log_in
-        put :update, params: { notification_ids: [state_change_notification.id], user_login: user_to_log_in.login }, xhr: true
+        put :update, params: { notification_ids: [state_change_notification.id], user_login: user_to_log_in.login },
+                     xhr: true
       end
 
       let(:user_to_log_in) { user }
@@ -204,7 +211,8 @@ RSpec.describe Webui::Users::NotificationsController do
     context 'when a user tries to mark other user notifications as read' do
       subject! do
         login user_to_log_in
-        put :update, params: { notification_ids: [state_change_notification.id], user_login: user_to_log_in.login }, xhr: true
+        put :update, params: { notification_ids: [state_change_notification.id], user_login: user_to_log_in.login },
+                     xhr: true
       end
 
       let(:user_to_log_in) { other_user }
@@ -217,11 +225,14 @@ RSpec.describe Webui::Users::NotificationsController do
     context 'when a user marks one of their read notifications as unread' do
       subject! do
         login user_to_log_in
-        put :update, params: { notification_ids: [read_notification.id], type: 'read', user_login: user_to_log_in.login }, xhr: true
+        put :update,
+            params: { notification_ids: [read_notification.id], type: 'read', user_login: user_to_log_in.login }, xhr: true
       end
 
       let(:user_to_log_in) { user }
-      let(:read_notification) { create(:web_notification, :request_state_change, subscriber: user_to_log_in, delivered: true) }
+      let(:read_notification) do
+        create(:web_notification, :request_state_change, subscriber: user_to_log_in, delivered: true)
+      end
 
       it 'succeeds' do
         expect(response).to have_http_status(:ok)

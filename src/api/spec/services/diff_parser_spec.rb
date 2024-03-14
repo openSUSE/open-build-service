@@ -4,7 +4,12 @@ RSpec.describe DiffParser, type: :service do
   let(:content) { file_fixture("#{file}") }
   let(:parser) { described_class.new(content: content) }
 
-  let(:result) { result_array.map { |line| DiffParser::Line.new(content: line[0], state: line[1], index: line[2], original_index: line[3], changed_index: line[4]) } }
+  let(:result) do
+    result_array.map do |line|
+      DiffParser::Line.new(content: line[0], state: line[1], index: line[2], original_index: line[3],
+                           changed_index: line[4])
+    end
+  end
 
   describe '#call' do
     context 'nil diff' do

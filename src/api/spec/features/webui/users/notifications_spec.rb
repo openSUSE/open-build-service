@@ -18,7 +18,9 @@ RSpec.describe 'User notifications', :js do
 
   describe 'when having notifications' do
     let!(:notification_for_projects_comment) { create(:web_notification, :comment_for_package, subscriber: user) }
-    let!(:another_notification_for_projects_comment) { create(:web_notification, :comment_for_package, subscriber: user) }
+    let!(:another_notification_for_projects_comment) do
+      create(:web_notification, :comment_for_package, subscriber: user)
+    end
     let(:notifiable) { notification_for_projects_comment.notifiable }
     let(:another_notifiable) { another_notification_for_projects_comment.notifiable }
     let(:project) { notifiable.commentable.project }

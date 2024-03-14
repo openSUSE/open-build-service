@@ -24,7 +24,8 @@ class Workflow::Step::SetFlags < Workflow::Step
         main_object = project_or_package(flag)
         check_access(main_object)
         architecture_id = Architecture.find_by_name(flag[:architecture]).id if flag[:architecture]
-        existing_flag = main_object.flags.find_by(flag: flag[:type], repo: flag[:repository], architecture_id: architecture_id)
+        existing_flag = main_object.flags.find_by(flag: flag[:type], repo: flag[:repository],
+                                                  architecture_id: architecture_id)
 
         # We have to update the flag status if the flag already exist and only the status differs
         existing_flag.update!(status: flag[:status]) if existing_flag.present? && existing_flag.status != flag[:status]
@@ -38,7 +39,9 @@ class Workflow::Step::SetFlags < Workflow::Step
 
   def project_or_package(flag)
     project = Project.find_by!(name: target_project_name(project_name: flag[:project]))
-    package = project.packages.find_by(name: target_package_name(package_name: flag[:package])) if flag[:package].present?
+    if flag[:package].present?
+      package = project.packages.find_by(name: target_package_name(package_name: flag[:package]))
+    end
     package.presence || project
   end
 

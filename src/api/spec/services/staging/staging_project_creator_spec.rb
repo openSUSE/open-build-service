@@ -2,7 +2,9 @@ RSpec.describe Staging::StagingProjectCreator do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:project) { user.home_project }
   let!(:staging_workflow) { create(:staging_workflow, project: project) }
-  let(:staging_project_creator) { Staging::StagingProjectCreator.new(staging_projects[project_names], staging_workflow, user) }
+  let(:staging_project_creator) do
+    Staging::StagingProjectCreator.new(staging_projects[project_names], staging_workflow, user)
+  end
 
   let(:staging_projects) do
     lambda do |project_names|

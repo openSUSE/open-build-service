@@ -16,7 +16,10 @@ module ValidationHelper
   end
 
   def valid_multibuild_package_name!(package_name)
-    raise InvalidPackageNameError, "invalid package name '#{package_name}'" unless Package.valid_multibuild_name?(package_name)
+    return if Package.valid_multibuild_name?(package_name)
+
+    raise InvalidPackageNameError,
+          "invalid package name '#{package_name}'"
   end
 
   # load last package meta file and just check if sourceaccess flag was used at all, no per user checking atm
@@ -24,7 +27,9 @@ module ValidationHelper
     prj = Project.get_by_name(project)
     if prj.is_a?(Project)
       raise Project::ReadAccessError, project.to_s if prj.disabled_for?('access', nil, nil)
-      raise Package::ReadSourceAccessError, "#{target_project_name}/#{target_package_name}" if prj.disabled_for?('sourceaccess', nil, nil)
+      raise Package::ReadSourceAccessError, "#{target_project_name}/#{target_package_name}" if prj.disabled_for?(
+        'sourceaccess', nil, nil
+      )
     end
 
     begin
@@ -41,7 +46,8 @@ module ValidationHelper
     raise Package::UnknownObjectError, "Package not found: #{project}/#{name}" unless meta
 
     return true if User.admin_session?
-    raise Package::ReadSourceAccessError, "#{project}/#{name}" if FlagHelper.xml_disabled_for?(Xmlhash.parse(meta), 'sourceaccess')
+    raise Package::ReadSourceAccessError, "#{project}/#{name}" if FlagHelper.xml_disabled_for?(Xmlhash.parse(meta),
+                                                                                               'sourceaccess')
 
     true
   end
@@ -60,6 +66,8 @@ module ValidationHelper
     raise Project::UnknownObjectError, "Project not found: #{project}" unless meta
     return true if User.admin_session?
     # FIXME: actually a per user checking would be more accurate here
-    raise Project::UnknownObjectError, "Project not found: #{project}" if FlagHelper.xml_disabled_for?(Xmlhash.parse(meta), 'access')
+    raise Project::UnknownObjectError, "Project not found: #{project}" if FlagHelper.xml_disabled_for?(
+      Xmlhash.parse(meta), 'access'
+    )
   end
 end

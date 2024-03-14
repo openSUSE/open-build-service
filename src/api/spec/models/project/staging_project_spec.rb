@@ -7,10 +7,14 @@ RSpec.describe Project, :vcr do
     let(:managers_group) { create(:group) }
     let(:other_managers_group) { create(:group) }
 
-    let(:staging_workflow) { create(:staging_workflow_with_staging_projects, project: user.home_project, managers_group: managers_group) }
+    let(:staging_workflow) do
+      create(:staging_workflow_with_staging_projects, project: user.home_project, managers_group: managers_group)
+    end
     let(:staging_project) { staging_workflow.staging_projects.first }
 
-    let!(:repository) { create(:repository, architectures: ['x86_64'], project: staging_project, name: 'staging_repository') }
+    let!(:repository) do
+      create(:repository, architectures: ['x86_64'], project: staging_project, name: 'staging_repository')
+    end
     let!(:repository_arch) { repository.repository_architectures.first }
     let!(:architecture) { repository_arch.architecture }
     let!(:package) { create(:package_with_file, name: 'package_with_file', project: staging_project) }
@@ -32,12 +36,16 @@ RSpec.describe Project, :vcr do
       }
     end
 
-    let(:submit_request) { create(:bs_request_with_submit_action, request_attributes.merge(staging_project: staging_project)) }
+    let(:submit_request) do
+      create(:bs_request_with_submit_action, request_attributes.merge(staging_project: staging_project))
+    end
 
     before do
       login(user)
-      allow(Backend::Api::Published).to receive(:build_id).with(staging_project.name, repository.name).and_return(repository_uuid)
-      allow(Backend::Api::Build::Repository).to receive(:build_id).with(staging_project.name, repository.name, architecture.name).and_return(build_uuid)
+      allow(Backend::Api::Published).to receive(:build_id).with(staging_project.name,
+                                                                repository.name).and_return(repository_uuid)
+      allow(Backend::Api::Build::Repository).to receive(:build_id).with(staging_project.name, repository.name,
+                                                                        architecture.name).and_return(build_uuid)
     end
 
     describe '#missing_reviews' do
@@ -47,16 +55,23 @@ RSpec.describe Project, :vcr do
       let!(:review_1) { create(:review, creator: user, by_user: other_user, bs_request: submit_request) }
       let!(:review_2) { create(:review, creator: user, by_group: group, bs_request: submit_request) }
       let!(:review_3) { create(:review, creator: user, by_project: other_package.project, bs_request: submit_request) }
-      let!(:review_4) { create(:review, creator: user, by_package: other_package, by_project: other_package.project, bs_request: submit_request) }
+      let!(:review_4) do
+        create(:review, creator: user, by_package: other_package, by_project: other_package.project,
+                        bs_request: submit_request)
+      end
 
       subject { staging_project.missing_reviews }
 
       it 'contains all open reviews of staged requests' do
         expect(subject).to contain_exactly(
-          { id: review_1.id, request: submit_request.number, state: 'new', package: target_package.name, creator: user.login, by: other_user.login, review_type: 'by_user' },
-          { id: review_2.id, request: submit_request.number, state: 'new', package: target_package.name, creator: user.login, by: group.title, review_type: 'by_group' },
-          { id: review_3.id, request: submit_request.number, state: 'new', package: target_package.name, creator: user.login, by: other_package.project.name, review_type: 'by_project' },
-          { id: review_4.id, request: submit_request.number, state: 'new', package: target_package.name, creator: user.login, by: other_package.name, review_type: 'by_package' }
+          { id: review_1.id, request: submit_request.number, state: 'new', package: target_package.name,
+            creator: user.login, by: other_user.login, review_type: 'by_user' },
+          { id: review_2.id, request: submit_request.number, state: 'new', package: target_package.name,
+            creator: user.login, by: group.title, review_type: 'by_group' },
+          { id: review_3.id, request: submit_request.number, state: 'new', package: target_package.name,
+            creator: user.login, by: other_package.project.name, review_type: 'by_project' },
+          { id: review_4.id, request: submit_request.number, state: 'new', package: target_package.name,
+            creator: user.login, by: other_package.name, review_type: 'by_package' }
         )
       end
 
@@ -213,7 +228,8 @@ RSpec.describe Project, :vcr do
 
     describe '#copy' do
       let(:staging_project) do
-        create(:staging_project, staging_workflow: staging_workflow, project_config: 'Prefer: foo', name: "home:#{user}:Staging:XYZ")
+        create(:staging_project, staging_workflow: staging_workflow, project_config: 'Prefer: foo',
+                                 name: "home:#{user}:Staging:XYZ")
       end
       let(:new_project_name) { "#{user.home_project}:new_project" }
       let!(:group_relationship) { create(:relationship_project_group, project: staging_project) }
@@ -253,7 +269,8 @@ RSpec.describe Project, :vcr do
 
       context 'when the repository contains path elements that link to repositories of the same project' do
         let(:other_repository) do
-          create(:repository, architectures: ['x86_64'], project: staging_project, name: "#{staging_project.name.tr(':', '_')}_sles_12")
+          create(:repository, architectures: ['x86_64'], project: staging_project,
+                              name: "#{staging_project.name.tr(':', '_')}_sles_12")
         end
         let!(:path_element) { create(:path_element, repository: repository, link: other_repository) }
 
@@ -266,7 +283,8 @@ RSpec.describe Project, :vcr do
         end
 
         it 'renames the repository link if it contains a reference to the project' do
-          expect(PathElement.find_by(parent_id: subject.repositories, link: subject.repositories).link.name).to eq("home_#{user}_new_project_sles_12")
+          expect(PathElement.find_by(parent_id: subject.repositories,
+                                     link: subject.repositories).link.name).to eq("home_#{user}_new_project_sles_12")
         end
       end
     end
@@ -278,7 +296,9 @@ RSpec.describe Project, :vcr do
       let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }
       let(:target_package) { create(:package, name: 'target_package', project: target_project) }
       let(:source_package) { create(:package, name: 'source_package', project: source_project) }
-      let(:staging_workflow) { create(:staging_workflow_with_staging_projects, project: user.home_project, managers_group: managers_group) }
+      let(:staging_workflow) do
+        create(:staging_workflow_with_staging_projects, project: user.home_project, managers_group: managers_group)
+      end
       let(:staging_project) { staging_workflow.staging_projects.first }
 
       let!(:package) { create(:package_with_file, name: 'package_with_file', project: staging_project) }
@@ -354,7 +374,12 @@ RSpec.describe Project, :vcr do
 
         context 'should remove staging project log entries' do
           it { expect { subject }.to change { staging_project.project_log_entries.count }.from(4).to(1) }
-          it { expect { subject }.to change { staging_project.project_log_entries.staging_history.count }.from(3).to(0) }
+
+          it {
+            expect { subject }.to change {
+                                    staging_project.project_log_entries.staging_history.count
+                                  }.from(3).to(0)
+          }
         end
       end
 
@@ -411,8 +436,14 @@ RSpec.describe Project, :vcr do
           it { expect(staging_project.reload.packages).to contain_exactly(package) }
           it { expect(staged_request_with_by_project_review.reload.state).to eq(:accepted) }
           it { expect(staged_request_with_by_project_review.reviews.where.not(state: 'accepted')).not_to exist }
-          it { expect(staged_request_with_by_project_review.history_elements.find_by(type: 'HistoryElement::RequestAllReviewsApproved').user).to eq(user) }
-          it { expect(staged_request_with_by_project_review.history_elements.find_by(type: 'HistoryElement::RequestAccepted').user).to eq(approver) }
+
+          it {
+            expect(staged_request_with_by_project_review.history_elements.find_by(type: 'HistoryElement::RequestAllReviewsApproved').user).to eq(user)
+          }
+
+          it {
+            expect(staged_request_with_by_project_review.history_elements.find_by(type: 'HistoryElement::RequestAccepted').user).to eq(approver)
+          }
         end
       end
     end

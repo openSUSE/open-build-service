@@ -22,7 +22,9 @@ class Token < ApplicationRecord
   # TODO: move to Token::Workflow model
   scope :owned_tokens, ->(user) { where(executor: user) }
   scope :shared_tokens, ->(user) { user.shared_workflow_tokens }
-  scope :group_shared_tokens, ->(user) { user.groups.map(&:shared_workflow_tokens).flatten } # TODO: transform to ActiveRecord_Relation
+  scope :group_shared_tokens, lambda { |user|
+                                user.groups.map(&:shared_workflow_tokens).flatten
+                              } # TODO: transform to ActiveRecord_Relation
 
   OPERATIONS = %w[Rebuild Release Service Workflow].freeze
 

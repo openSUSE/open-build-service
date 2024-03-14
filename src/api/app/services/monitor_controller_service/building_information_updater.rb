@@ -23,7 +23,9 @@ module MonitorControllerService
     end
 
     def update_workers
-      @workers.merge!(@worker_status.elements('building').collect { |b| [worker_id(b), workers_hash(b, calculate_delta(b['starttime'].to_i))] }.to_h)
+      @workers.merge!(@worker_status.elements('building').collect do |b|
+                        [worker_id(b), workers_hash(b, calculate_delta(b['starttime'].to_i))]
+                      end.to_h)
     end
 
     def workers_hash(b, delta)

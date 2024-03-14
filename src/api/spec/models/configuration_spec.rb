@@ -43,7 +43,9 @@ RSpec.describe Configuration do
     context 'external authentication services' do
       context 'in proxy auth mode' do
         before do
-          stub_const('CONFIG', { proxy_auth_mode: :on, proxy_auth_login_page: '/', proxy_auth_logout_page: '/' }.with_indifferent_access)
+          stub_const('CONFIG',
+                     { proxy_auth_mode: :on, proxy_auth_login_page: '/',
+                       proxy_auth_logout_page: '/' }.with_indifferent_access)
         end
 
         it 'returns false if config option `proxy_auth_mode` is set to :on' do
@@ -85,7 +87,9 @@ RSpec.describe Configuration do
 
     context 'proxy_auth_mode is enabled' do
       it 'returns false if proxy_auth_account_page is not present' do
-        stub_const('CONFIG', { proxy_auth_mode: :on, proxy_auth_login_page: '/', proxy_auth_logout_page: '/' }.with_indifferent_access)
+        stub_const('CONFIG',
+                   { proxy_auth_mode: :on, proxy_auth_login_page: '/',
+                     proxy_auth_logout_page: '/' }.with_indifferent_access)
         expect(config.accounts_editable?).to be(false)
       end
 

@@ -5,7 +5,10 @@ RSpec.describe Webui::Projects::MaintenanceIncidentsController do
 
   describe 'GET #index' do
     context 'with maintenance incident' do
-      let(:maintenance_incident) { create(:maintenance_incident_project, name: "#{maintenance_project}:incident", maintenance_project: maintenance_project) }
+      let(:maintenance_incident) do
+        create(:maintenance_incident_project, name: "#{maintenance_project}:incident",
+                                              maintenance_project: maintenance_project)
+      end
       let(:maintenance_incident_repo) { create(:repository, project: maintenance_incident) }
       let(:release_target) { create(:release_target, repository: maintenance_incident_repo, trigger: 'maintenance') }
 
@@ -45,7 +48,10 @@ RSpec.describe Webui::Projects::MaintenanceIncidentsController do
       end
 
       it { is_expected.to redirect_to(project_show_path(project: new_maintenance_incident_project.name)) }
-      it { expect(flash[:success]).to start_with("Created maintenance incident project #{elided_maintenance_incident_project_name}") }
+
+      it {
+        expect(flash[:success]).to start_with("Created maintenance incident project #{elided_maintenance_incident_project_name}")
+      }
     end
 
     context 'without a Maintenance project' do

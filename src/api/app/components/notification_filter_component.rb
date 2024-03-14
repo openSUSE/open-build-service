@@ -1,5 +1,6 @@
 class NotificationFilterComponent < ApplicationComponent
-  def initialize(selected_filter:, user:, projects_for_filter: ProjectsForFilterFinder.new.call, groups_for_filter: GroupsForFilterFinder.new.call)
+  def initialize(selected_filter:, user:, projects_for_filter: ProjectsForFilterFinder.new.call,
+                 groups_for_filter: GroupsForFilterFinder.new.call)
     super
 
     @user = user

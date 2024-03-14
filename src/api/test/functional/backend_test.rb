@@ -46,7 +46,8 @@ class BackendTests < ActionDispatch::IntegrationTest
         schema = 'person'
       end
 
-      r = system("cd #{ENV.fetch('OBS_BACKEND_TEMP', nil)}/config; exec perl #{perlopts} -mXML::Structured -mBSXML -mBSUtil -e \"use XML::Structured ':bytes'; BSUtil::readxml('#{dir}#{f}', \\$BSXML::#{schema}, 0);\" 2>&1")
+      r = system("cd #{ENV.fetch('OBS_BACKEND_TEMP',
+                                 nil)}/config; exec perl #{perlopts} -mXML::Structured -mBSXML -mBSUtil -e \"use XML::Structured ':bytes'; BSUtil::readxml('#{dir}#{f}', \\$BSXML::#{schema}, 0);\" 2>&1")
       assert_equal true, r
     end
   end

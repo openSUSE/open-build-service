@@ -6,7 +6,8 @@ class BsRequestAction
       attr_writer :options
 
       def all
-        return [bs_request_action.source_package] if bs_request_action.bs_request_action_accept_info # the old package can be gone
+        # the old package can be gone
+        return [bs_request_action.source_package] if bs_request_action.bs_request_action_accept_info
 
         if bs_request_action.source_package
           bs_request_action.source_access_check! unless skip_access_check?

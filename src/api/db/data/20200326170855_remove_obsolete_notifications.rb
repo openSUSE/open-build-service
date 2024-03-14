@@ -31,7 +31,8 @@ class RemoveObsoleteNotifications < ActiveRecord::Migration[5.2]
   end
 
   def delete_obsolete_notifications
-    Notification.where(notifiable_type: nil, notifiable_id: nil, event_type: EVENTS_WITHOUT_NOTIFIABLE_TO_BE_REMOVED).delete_all
+    Notification.where(notifiable_type: nil, notifiable_id: nil,
+                       event_type: EVENTS_WITHOUT_NOTIFIABLE_TO_BE_REMOVED).delete_all
     Notification.where(event_type: EVENTS_TO_BE_REMOVED).delete_all
   end
 end

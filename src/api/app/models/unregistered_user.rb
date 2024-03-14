@@ -57,7 +57,10 @@ class UnregisteredUser < User
       ignore_auth_services: Configuration.ldap_enabled?
     )
 
-    raise ErrRegisterSave, "Could not save the registration, details: #{newuser.errors.full_messages.to_sentence}" unless newuser.save
+    unless newuser.save
+      raise ErrRegisterSave,
+            "Could not save the registration, details: #{newuser.errors.full_messages.to_sentence}"
+    end
 
     return unless newuser.state == 'unconfirmed'
 

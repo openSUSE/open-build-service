@@ -18,7 +18,8 @@ class RequestController < ApplicationController
   end
 
   class RequireFilter < APIError
-    setup 404, 'This call requires at least one filter, either by user, project or package or states or types or reviewstates'
+    setup 404,
+          'This call requires at least one filter, either by user, project or package or states or types or reviewstates'
   end
 
   class SaveError < APIError
@@ -37,7 +38,8 @@ class RequestController < ApplicationController
     params[:ids] = params[:ids].split(',').map(&:to_i) if params[:ids]
 
     rel = BsRequest.find_for(params)
-    rel = BsRequest.where(id: rel.select(:id)).preload([{ bs_request_actions: :bs_request_action_accept_info, reviews: { history_elements: :user } }])
+    rel = BsRequest.where(id: rel.select(:id)).preload([{ bs_request_actions: :bs_request_action_accept_info,
+                                                          reviews: { history_elements: :user } }])
     rel = rel.limit(params[:limit].to_i) if params[:limit].to_i.positive?
     rel = rel.offset(params[:offset].to_i) if params[:offset].to_i.positive?
 
@@ -62,7 +64,10 @@ class RequestController < ApplicationController
 
   # POST /request?cmd=create
   def global_command
-    raise UnknownCommandError, "Unknown command '#{params[:cmd]}' for path #{request.path}" unless params[:cmd] == 'create'
+    unless params[:cmd] == 'create'
+      raise UnknownCommandError,
+            "Unknown command '#{params[:cmd]}' for path #{request.path}"
+    end
 
     # refuse request creation for anonymous users
     require_login

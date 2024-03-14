@@ -36,7 +36,8 @@ module ScmSyncEnabledStep
   end
 
   def scm_synced_package_url
-    Package.get_by_project_and_name(step_instructions[:source_project], step_instructions[:source_package]).try(:scmsync)
+    Package.get_by_project_and_name(step_instructions[:source_project],
+                                    step_instructions[:source_package]).try(:scmsync)
   rescue Project::Errors::UnknownObjectError, Package::Errors::UnknownObjectError
     nil
   end

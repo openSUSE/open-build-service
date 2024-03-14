@@ -50,7 +50,10 @@ RSpec.describe Status::RequiredChecksController do
 
     context 'for repository_architecture' do
       let(:checkable) { repository_architecture }
-      let(:params) { { project_name: project.name, repository_name: repository.name, architecture_name: repository_architecture.architecture.name } }
+      let(:params) do
+        { project_name: project.name, repository_name: repository.name,
+          architecture_name: repository_architecture.architecture.name }
+      end
 
       include_context 'required check'
     end
@@ -171,7 +174,10 @@ RSpec.describe Status::RequiredChecksController do
 
     context 'for repository_architecture' do
       let(:checkable) { repository_architecture }
-      let(:params) { { project_name: project.name, repository_name: repository.name, architecture_name: repository_architecture.architecture.name } }
+      let(:params) do
+        { project_name: project.name, repository_name: repository.name,
+          architecture_name: repository_architecture.architecture.name }
+      end
 
       it_behaves_like 'for logged in user'
       it_behaves_like 'with additional elements in body'
@@ -292,7 +298,10 @@ RSpec.describe Status::RequiredChecksController do
 
     context 'for repository_architecture' do
       let(:checkable) { repository_architecture }
-      let(:params) { { project_name: project.name, repository_name: repository.name, architecture_name: repository_architecture.architecture.name } }
+      let(:params) do
+        { project_name: project.name, repository_name: repository.name,
+          architecture_name: repository_architecture.architecture.name }
+      end
 
       it_behaves_like 'for logged in user'
       it_behaves_like 'for an anonymous user'

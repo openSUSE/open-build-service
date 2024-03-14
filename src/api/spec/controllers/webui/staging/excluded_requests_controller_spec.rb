@@ -20,7 +20,11 @@ RSpec.describe Webui::Staging::ExcludedRequestsController do
     let(:description) { Faker::Lorem.sentence }
 
     context 'succeeds' do
-      subject { post :create, params: { workflow_project: staging_workflow.project, staging_request_exclusion: { number: bs_request, description: description } } }
+      subject do
+        post :create,
+             params: { workflow_project: staging_workflow.project,
+                       staging_request_exclusion: { number: bs_request, description: description } }
+      end
 
       it { expect { subject }.to(change { staging_workflow.request_exclusions.count }.by(1)) }
 
@@ -34,7 +38,10 @@ RSpec.describe Webui::Staging::ExcludedRequestsController do
     end
 
     context 'fails: invalid exclusion request' do
-      subject { post :create, params: { workflow_project: staging_workflow.project, staging_request_exclusion: { number: bs_request } } }
+      subject do
+        post :create,
+             params: { workflow_project: staging_workflow.project, staging_request_exclusion: { number: bs_request } }
+      end
 
       it { expect { subject }.not_to(change { staging_workflow.request_exclusions.count }) }
 
@@ -47,7 +54,11 @@ RSpec.describe Webui::Staging::ExcludedRequestsController do
     end
 
     context "fails: user doesn't have permissions" do
-      subject { post :create, params: { workflow_project: staging_workflow.project, staging_request_exclusion: { number: bs_request, description: description } } }
+      subject do
+        post :create,
+             params: { workflow_project: staging_workflow.project,
+                       staging_request_exclusion: { number: bs_request, description: description } }
+      end
 
       before do
         login(another_user)
@@ -64,7 +75,11 @@ RSpec.describe Webui::Staging::ExcludedRequestsController do
     end
 
     context 'fails: request belongs to a staging project' do
-      subject { post :create, params: { workflow_project: staging_workflow.project, staging_request_exclusion: { number: bs_request, description: description } } }
+      subject do
+        post :create,
+             params: { workflow_project: staging_workflow.project,
+                       staging_request_exclusion: { number: bs_request, description: description } }
+      end
 
       before do
         bs_request.staging_project = staging_workflow.staging_projects.first

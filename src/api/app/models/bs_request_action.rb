@@ -21,9 +21,15 @@ class BsRequestAction < ApplicationRecord
   has_many :bs_request_actions_seen_by_users, dependent: :nullify
   has_many :seen_by_users, through: :bs_request_actions_seen_by_users, source: :user
 
-  scope :bs_request_ids_of_involved_projects, ->(project_ids) { where(target_project_id: project_ids).select(:bs_request_id) }
-  scope :bs_request_ids_of_involved_packages, ->(package_ids) { where(target_package_id: package_ids).select(:bs_request_id) }
-  scope :bs_request_ids_by_source_projects, ->(project_name) { where(source_project: project_name).select(:bs_request_id) }
+  scope :bs_request_ids_of_involved_projects, lambda { |project_ids|
+                                                where(target_project_id: project_ids).select(:bs_request_id)
+                                              }
+  scope :bs_request_ids_of_involved_packages, lambda { |package_ids|
+                                                where(target_package_id: package_ids).select(:bs_request_id)
+                                              }
+  scope :bs_request_ids_by_source_projects, lambda { |project_name|
+                                              where(source_project: project_name).select(:bs_request_id)
+                                            }
 
   scope :with_target_package, -> { where.not(target_package_id: nil) }
   scope :with_target_project, -> { where.not(target_project_id: nil) }
@@ -72,9 +78,15 @@ class BsRequestAction < ApplicationRecord
   def check_sanity
     if action_type.in?(%i[submit release maintenance_incident maintenance_release change_devel])
       errors.add(:source_project, "should not be empty for #{action_type} requests") if source_project.blank?
-      errors.add(:source_package, "should not be empty for #{action_type} requests") if !is_maintenance_incident? && source_package.blank?
+      if !is_maintenance_incident? && source_package.blank?
+        errors.add(:source_package,
+                   "should not be empty for #{action_type} requests")
+      end
       errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
-      errors.add(:target_package, 'No source changes are allowed, if source and target is identical') if source_package == target_package && source_project == target_project && (sourceupdate || updatelink)
+      if source_package == target_package && source_project == target_project && (sourceupdate || updatelink)
+        errors.add(:target_package,
+                   'No source changes are allowed, if source and target is identical')
+      end
     end
     errors.add(:target_package, 'is invalid package name') if target_package && !Package.valid_name?(target_package)
     errors.add(:source_package, 'is invalid package name') if source_package && !Package.valid_name?(source_package)
@@ -284,7 +296,10 @@ class BsRequestAction < ApplicationRecord
     return reviews unless target_project
 
     tprj = Project.get_by_name(target_project)
-    raise RemoteTarget, 'No support to target to remote projects. Create a request in remote instance instead.' if tprj.instance_of?(String)
+    if tprj.instance_of?(String)
+      raise RemoteTarget,
+            'No support to target to remote projects. Create a request in remote instance instead.'
+    end
 
     tpkg = nil
     if target_package
@@ -309,7 +324,9 @@ class BsRequestAction < ApplicationRecord
 
     if source_project
       # if the user is not a maintainer if current devel package, the current maintainer gets added as reviewer of this request
-      reviews.push(tpkg.develpackage) if action_type == :change_devel && tpkg.develpackage && !User.session!.can_modify?(tpkg.develpackage, 1)
+      reviews.push(tpkg.develpackage) if action_type == :change_devel && tpkg.develpackage && !User.session!.can_modify?(
+        tpkg.develpackage, 1
+      )
 
       unless is_maintenance_release?
         # Creating requests from packages where no maintainer right exists will enforce a maintainer review
@@ -317,13 +334,17 @@ class BsRequestAction < ApplicationRecord
         # projects may skip this by setting OBS:ApprovedRequestSource attributes
         if source_package
           spkg = Package.find_by_project_and_name(source_project, source_package)
-          if spkg && !User.session!.can_modify?(spkg) && (!spkg.project.find_attribute('OBS', 'ApprovedRequestSource') &&
+          if spkg && !User.session!.can_modify?(spkg) && (!spkg.project.find_attribute('OBS',
+                                                                                       'ApprovedRequestSource') &&
                 !spkg.find_attribute('OBS', 'ApprovedRequestSource'))
             reviews.push(spkg)
           end
         else
           sprj = Project.find_by_name(source_project)
-          reviews.push(sprj) if sprj && !User.session!.can_modify?(sprj) && !sprj.find_attribute('OBS', 'ApprovedRequestSource') && !sprj.find_attribute('OBS', 'ApprovedRequestSource')
+          reviews.push(sprj) if sprj && !User.session!.can_modify?(sprj) && !sprj.find_attribute('OBS',
+                                                                                                 'ApprovedRequestSource') && !sprj.find_attribute(
+                                                                                                   'OBS', 'ApprovedRequestSource'
+                                                                                                 )
         end
       end
     end
@@ -345,15 +366,20 @@ class BsRequestAction < ApplicationRecord
   end
 
   def check_maintenance_release(pkg, repo, arch)
-    binaries = Xmlhash.parse(Backend::Api::BuildResults::Binaries.files(pkg.project.name, repo.name, arch.name, pkg.name))
+    binaries = Xmlhash.parse(Backend::Api::BuildResults::Binaries.files(pkg.project.name, repo.name, arch.name,
+                                                                        pkg.name))
     binary_elements = binaries.elements('binary')
 
-    raise BuildNotFinished, "patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'" if binary_elements.empty?
+    if binary_elements.empty?
+      raise BuildNotFinished,
+            "patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'"
+    end
 
     # check that we did not skip a source change of patchinfo
     data = Directory.hashed(project: pkg.project.name, package: pkg.name, expand: 1)
     verifymd5 = data['srcmd5']
-    history = Xmlhash.parse(Backend::Api::BuildResults::Binaries.history(pkg.project.name, repo.name, pkg.name, arch.name))
+    history = Xmlhash.parse(Backend::Api::BuildResults::Binaries.history(pkg.project.name, repo.name, pkg.name,
+                                                                         arch.name))
     last = history.elements('entry').last
     return if last && last['srcmd5'].to_s == verifymd5.to_s
 
@@ -460,7 +486,10 @@ class BsRequestAction < ApplicationRecord
 
       # overwrite target if defined
       tprj = Project.get_by_name(target_project) if target_project
-      raise UnknownTargetProject, "Package #{pkg.project.name} / #{pkg.name} has no target" unless tprj || is_maintenance_release? || is_release?
+      unless tprj || is_maintenance_release? || is_release?
+        raise UnknownTargetProject,
+              "Package #{pkg.project.name} / #{pkg.name} has no target"
+      end
 
       # do not allow release requests without binaries
       if is_maintenance_release? && pkg.is_patchinfo? && data && !opts[:ignore_build_state]
@@ -488,7 +517,10 @@ class BsRequestAction < ApplicationRecord
             next unless status.attributes['versrel']
 
             vrel = status.attributes['versrel'].value
-            raise VersionReleaseDiffers, "#{package} has a different version release in same repository" if versrel[repo][package] && versrel[repo][package] != vrel
+            if versrel[repo][package] && versrel[repo][package] != vrel
+              raise VersionReleaseDiffers,
+                    "#{package} has a different version release in same repository"
+            end
 
             versrel[repo][package] ||= vrel
           end
@@ -518,7 +550,8 @@ class BsRequestAction < ApplicationRecord
       # Will this be a new package ?
       # check if the main package container exists in target.
       # take into account that an additional local link with spec file might got added
-      if !missing_ok_link && !(data_linkinfo && tprj && tprj.exists_package?(ltpkg, follow_project_links: true, allow_remote_packages: false))
+      if !missing_ok_link && !(data_linkinfo && tprj && tprj.exists_package?(ltpkg, follow_project_links: true,
+                                                                                    allow_remote_packages: false))
         if is_maintenance_release? || is_release?
           pkg.project.repositories.includes(:release_targets).find_each do |repo|
             repo.release_targets.each do |rt|
@@ -546,7 +579,8 @@ class BsRequestAction < ApplicationRecord
 
           if new_action.source_rev.blank?
             # set revision
-            dir = Xmlhash.parse(Backend::Api::Sources::Package.files(new_action.source_project, new_action.source_package, { expand: 1 }))
+            dir = Xmlhash.parse(Backend::Api::Sources::Package.files(new_action.source_project,
+                                                                     new_action.source_package, { expand: 1 }))
             new_action.source_rev = dir['srcmd5']
           end
 
@@ -660,7 +694,12 @@ class BsRequestAction < ApplicationRecord
 
         # validate project type
         prj = Project.get_by_name(target_project)
-        raise IncidentHasNoMaintenanceProject, 'incident projects shall only create below maintenance projects' unless prj.kind.in?(%w[maintenance maintenance_incident])
+        unless prj.kind.in?(%w[
+                              maintenance maintenance_incident
+                            ])
+          raise IncidentHasNoMaintenanceProject,
+                'incident projects shall only create below maintenance projects'
+        end
       end
 
       if action_type == :submit && tprj.is_a?(Project)
@@ -668,7 +707,10 @@ class BsRequestAction < ApplicationRecord
         self.makeoriginolder = true if tprj.attribs.find_by(attrib_type: at)
       end
       # allow cleanup only, if no devel package reference
-      raise NotSupported, "Source project #{source_project} is not a local project. cleanup is not supported." if sourceupdate == 'cleanup' && sprj.class != Project && !skip_source
+      if sourceupdate == 'cleanup' && sprj.class != Project && !skip_source
+        raise NotSupported,
+              "Source project #{source_project} is not a local project. cleanup is not supported."
+      end
 
       raise UnknownPackage, 'No target package specified' if action_type == :change_devel && !target_package
     end
@@ -773,7 +815,10 @@ class BsRequestAction < ApplicationRecord
       # Enforce revisions?
       tprj = Project.get_by_name(target_project)
       if tprj.instance_of?(Project) && tprj.find_attribute('OBS', 'EnforceRevisionsInRequests').present?
-        raise ExpandError, 'updatelink option is forbidden for requests against projects with the attribute OBS:EnforceRevisionsInRequests' if updatelink
+        if updatelink
+          raise ExpandError,
+                'updatelink option is forbidden for requests against projects with the attribute OBS:EnforceRevisionsInRequests'
+        end
 
         # fix the revision to the expanded sources at the time of submission
         self.source_rev = dir['srcmd5']
@@ -898,9 +943,19 @@ class BsRequestAction < ApplicationRecord
   end
 
   def check_repository_published!(state, pkg, repo, arch)
-    raise BuildNotFinished, check_repository_published_error_message('publish', pkg.project.name, repo, arch) if state.in?(%w[finished publishing])
+    if state.in?(%w[
+                   finished publishing
+                 ])
+      raise BuildNotFinished,
+            check_repository_published_error_message('publish', pkg.project.name, repo, arch)
+    end
 
-    raise BuildNotFinished, check_repository_published_error_message('build', pkg.project.name, repo, arch) unless state.in?(%w[published unpublished])
+    unless state.in?(%w[
+                       published unpublished
+                     ])
+      raise BuildNotFinished,
+            check_repository_published_error_message('build', pkg.project.name, repo, arch)
+    end
   end
 
   def check_repository_published_error_message(state, prj, repo, arch)
@@ -918,7 +973,13 @@ class BsRequestAction < ApplicationRecord
 
     sprj = Project.get_by_name(source_project)
     raise UnknownProject, "Unknown source project #{source_project}" unless sprj
-    raise NotSupported, "Source project #{source_project} is not a local project. This is not supported yet." unless sprj.instance_of?(Project) || action_type.in?(%i[submit maintenance_incident])
+
+    unless sprj.instance_of?(Project) || action_type.in?(%i[
+                                                           submit maintenance_incident
+                                                         ])
+      raise NotSupported,
+            "Source project #{source_project} is not a local project. This is not supported yet."
+    end
 
     if source_package
       spkg = Package.get_by_project_and_name(source_project, source_package)
@@ -947,7 +1008,10 @@ class BsRequestAction < ApplicationRecord
       end
 
       a = tprj.find_attribute('OBS', 'RejectRequests')
-      raise RequestRejected, "The target project #{target_project} is not accepting requests because: #{a.values.first.value}" if a && a.values.first && (a.values.length < 2 || a.values.find_by_value(action_type))
+      if a && a.values.first && (a.values.length < 2 || a.values.find_by_value(action_type))
+        raise RequestRejected,
+              "The target project #{target_project} is not accepting requests because: #{a.values.first.value}"
+      end
     end
     if target_package
       if Package.exists_by_project_and_name(target_project, target_package) ||

@@ -143,8 +143,10 @@ RSpec.describe Webui::RequestHelper do
 
         let(:target_repository) { create(:repository, project: target_package.project) }
         let(:expected_regex) do
-          Regexp.new("Delete repository .*#{Regexp.escape(repositories_path(project: target_repository.project, repository: target_repository.name))}.* for package .*" \
-                     "#{project_show_path(target_package.project)}.* / .*#{package_show_path(target_package.project, target_package)}")
+          Regexp.new("Delete repository .*#{Regexp.escape(repositories_path(project: target_repository.project,
+                                                                            repository: target_repository.name))}.* for package .*" \
+                     "#{project_show_path(target_package.project)}.* / .*#{package_show_path(target_package.project,
+                                                                                             target_package)}")
         end
 
         it { is_expected.to match(expected_regex) }
@@ -152,7 +154,9 @@ RSpec.describe Webui::RequestHelper do
     end
 
     context 'when action is :add_role' do
-      subject { request_action_header(action.merge(type: :add_role, user: requester.login, role: 'maintainer'), creator.login) }
+      subject do
+        request_action_header(action.merge(type: :add_role, user: requester.login, role: 'maintainer'), creator.login)
+      end
 
       let(:expected_regex) do
         Regexp.new("#{creator.realname} \\(request_creator\\).* wants the user .*#{requester.realname} \\(requester\\).* " \
@@ -202,11 +206,17 @@ RSpec.describe Webui::RequestHelper do
     end
 
     context 'when user is on build results page' do
-      it { expect(next_prev_path(number: 10, request_action_id: 30, page_name: 'request_build_results')).to eq('/request/show/10/request_action/30/build_results') }
+      it {
+        expect(next_prev_path(number: 10, request_action_id: 30,
+                              page_name: 'request_build_results')).to eq('/request/show/10/request_action/30/build_results')
+      }
     end
 
     context 'when user is on rpm lint page' do
-      it { expect(next_prev_path(number: 10, request_action_id: 30, page_name: 'request_rpm_lint')).to eq('/request/show/10/request_action/30/rpm_lint') }
+      it {
+        expect(next_prev_path(number: 10, request_action_id: 30,
+                              page_name: 'request_rpm_lint')).to eq('/request/show/10/request_action/30/rpm_lint')
+      }
     end
   end
 end

@@ -10,7 +10,8 @@ module Webui::Projects::StatusHelper
         case problem
         when 'different_changes'
           outs << link_to("Different changes in devel project (since #{age})",
-                          package_rdiff_path(project: package['develproject'], package: package['develpackage'], oproject: project_name, opackage: package['name']))
+                          package_rdiff_path(project: package['develproject'], package: package['develpackage'],
+                                             oproject: project_name, opackage: package['name']))
           sortkey = "5-changes-#{package['develmtime']}-#{package['name']}"
         when 'different_sources'
           outs << link_to("Different sources in devel project (since #{age})", package_rdiff_path(project: package['develproject'], package: package['develpackage'],
@@ -21,21 +22,24 @@ module Webui::Projects::StatusHelper
                                                                             project: project_name, package: package['name']))
           sortkey = "7-changes-#{package['name']}"
         when /^error-/
-          outs << link_to(problem[6..-1], package_show_path(project: package['develproject'], package: package['develpackage']))
+          outs << link_to(problem[6..-1],
+                          package_show_path(project: package['develproject'], package: package['develpackage']))
           sortkey = "1-problem-#{package['name']}"
         when 'currently_declined'
           outs << link_to("Current sources were declined: request #{package['currently_declined']}",
                           request_show_path(number: package['currently_declined']))
           sortkey = "2-declines-#{package['name']}"
         else
-          outs << link_to(problem, package_show_path(project: package['develproject'], package: package['develpackage']))
+          outs << link_to(problem,
+                          package_show_path(project: package['develproject'], package: package['develpackage']))
           sortkey = "1-changes-#{package['name']}"
         end
       end
     end
     # rubocop:disable Rails/OutputSafety
     package['requests_to'].each do |number|
-      outs.prepend("Request #{link_to(number, request_show_path(number: number))} to #{h(package['develproject'])}".html_safe)
+      outs.prepend("Request #{link_to(number,
+                                      request_show_path(number: number))} to #{h(package['develproject'])}".html_safe)
       sortkey = "3-request-#{999_999 - number}-#{package['name']}"
     end
     package['requests_from'].each do |number|
@@ -54,7 +58,8 @@ module Webui::Projects::StatusHelper
     if package['firstfail']
       url = package_live_build_log_path(arch: h(package['failedarch']), repository: h(package['failedrepo']),
                                         project: h(project_name), package: h(package['name']))
-      outs.prepend("#{link_to('Fails', url)} since #{distance_of_time_in_words_to_now(package['firstfail'].to_i)}".html_safe)
+      outs.prepend("#{link_to('Fails',
+                              url)} since #{distance_of_time_in_words_to_now(package['firstfail'].to_i)}".html_safe)
 
       sortkey = "1-fails-#{Time.now.to_i - package['firstfail']}-#{package['name']}"
     elsif package['failedcomment']

@@ -58,7 +58,8 @@ class User < ApplicationRecord
   has_many :commit_activities
 
   has_many :status_message_acknowledgements, dependent: :destroy
-  has_many :acknowledged_status_messages, through: :status_message_acknowledgements, class_name: 'StatusMessage', source: 'status_message'
+  has_many :acknowledged_status_messages, through: :status_message_acknowledgements, class_name: 'StatusMessage',
+                                          source: 'status_message'
 
   has_many :disabled_beta_features, dependent: :destroy
   has_many :reports, as: :reportable, dependent: :nullify
@@ -117,7 +118,8 @@ class User < ApplicationRecord
 
   # we disabled has_secure_password's validations. therefore we need to do manual validations
   validate :password_validation
-  validates :password, length: { minimum: 6, maximum: ActiveModel::SecurePassword::MAX_PASSWORD_LENGTH_ALLOWED }, allow_nil: true
+  validates :password, length: { minimum: 6, maximum: ActiveModel::SecurePassword::MAX_PASSWORD_LENGTH_ALLOWED },
+                       allow_nil: true
   validates :password, confirmation: true, allow_blank: true
   validates :biography, length: { maximum: MAX_BIOGRAPHY_LENGTH_ALLOWED }
   validates :rss_secret, uniqueness: true, length: { maximum: 200 }, allow_blank: true
@@ -302,7 +304,8 @@ class User < ApplicationRecord
 
   def validate_state
     # check that the state transition is valid
-    errors.add(:state, 'must be a valid new state from the current state') unless state_transition_allowed?(state_was, state)
+    errors.add(:state, 'must be a valid new state from the current state') unless state_transition_allowed?(state_was,
+                                                                                                            state)
   end
 
   # This method returns true if the user is assigned the role with one of the
@@ -326,7 +329,8 @@ class User < ApplicationRecord
     # the password to a bcrypt one
     if deprecated_password
       if deprecated_password_equals?(unencrypted_password)
-        update(password: unencrypted_password, deprecated_password: nil, deprecated_password_salt: nil, deprecated_password_hash_type: nil)
+        update(password: unencrypted_password, deprecated_password: nil, deprecated_password_salt: nil,
+               deprecated_password_hash_type: nil)
         return self
       end
 
@@ -464,7 +468,10 @@ class User < ApplicationRecord
   # FIXME: This should be a policy
   # project is instance of Project
   def can_modify_project?(project, ignore_lock = nil)
-    raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}" unless project.is_a?(Project)
+    unless project.is_a?(Project)
+      raise ArgumentError,
+            "illegal parameter type to User#can_modify_project?: #{project.class.name}"
+    end
 
     if project.new_record?
       # Project.check_write_access(!) should have been used?
@@ -478,7 +485,11 @@ class User < ApplicationRecord
   # package is instance of Package
   def can_modify_package?(package, ignore_lock = nil)
     return false if package.nil? # happens with remote packages easily
-    raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}" unless package.is_a?(Package)
+
+    unless package.is_a?(Package)
+      raise ArgumentError,
+            "illegal parameter type to User#can_modify_package?: #{package.class.name}"
+    end
     return false if !ignore_lock && package.is_locked?
     return true if is_admin?
     return true if has_global_permission?('change_package')
@@ -523,7 +534,10 @@ class User < ApplicationRecord
   # FIXME: This should be a policy
   def can_create_attribute_definition?(object)
     object = object.attrib_namespace if object.is_a?(AttribType)
-    raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}" unless object.is_a?(AttribNamespace)
+    unless object.is_a?(AttribNamespace)
+      raise ArgumentError,
+            "illegal parameter type to User#can_change?: #{object.class.name}"
+    end
 
     return true if is_admin?
 
@@ -540,7 +554,10 @@ class User < ApplicationRecord
 
   # FIXME: This should be a policy
   def can_create_attribute_in?(object, atype)
-    raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}" if !object.is_a?(Project) && !object.is_a?(Package)
+    if !object.is_a?(Project) && !object.is_a?(Package)
+      raise ArgumentError,
+            "illegal parameter type to User#can_change?: #{object.class.name}"
+    end
 
     return true if is_admin?
 
@@ -674,7 +691,8 @@ class User < ApplicationRecord
   end
 
   def destroy_home_projects(reason:)
-    Project.where('name LIKE ?', "#{home_project_name}:%").or(Project.where(name: home_project_name)).find_each do |project|
+    Project.where('name LIKE ?',
+                  "#{home_project_name}:%").or(Project.where(name: home_project_name)).find_each do |project|
       project.commit_opts = { comment: "#{reason}" }
       project.destroy
     end
@@ -837,7 +855,9 @@ class User < ApplicationRecord
     self.login_failure_count = 0
 
     if changes.any?
-      logger.info "updating email for user #{login} from proxy header: old:#{email}|new:#{env['HTTP_X_EMAIL']}" if changes.key?('email')
+      if changes.key?('email')
+        logger.info "updating email for user #{login} from proxy header: old:#{email}|new:#{env['HTTP_X_EMAIL']}"
+      end
 
       # At this point some login value changed, so a successful log in is tracked
       RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui value=1')

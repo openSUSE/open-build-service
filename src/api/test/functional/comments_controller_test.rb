@@ -95,7 +95,8 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     end
 
     email = ActionMailer::Base.deliveries.last
-    assert_equal 'Request 2 commented by adrian (submit NeitherExisting/unknown, delete NeitherExisting/unknown2)', email.subject
+    assert_equal 'Request 2 commented by adrian (submit NeitherExisting/unknown, delete NeitherExisting/unknown2)',
+                 email.subject
     assert_equal ['tschmidt@example.com'], email.to
 
     get comments_request_path(request_number: 2)
@@ -179,7 +180,8 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
     email = ActionMailer::Base.deliveries.last
     assert_equal 'New comment in package kde4/kdebase by tom', email.subject
-    assert_equal ['fred@feuerstein.de', 'king@all-the-kings.org', 'fred@feuerstein.de', 'test_group@testsuite.org'].sort, email.to.sort
+    assert_equal ['fred@feuerstein.de', 'king@all-the-kings.org', 'fred@feuerstein.de', 'test_group@testsuite.org'].sort,
+                 email.to.sort
 
     get comments_package_path(project: 'kde4', package: 'kdebase')
     assert_xml_tag tag: 'comment', attributes: { who: 'tom' }, content: 'Hola, estoy aprendiendo español'
@@ -190,7 +192,8 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     SendEventEmailsJob.new.perform
     assert_difference('ActionMailer::Base.deliveries.size', +1) do
       # Trolling
-      post create_package_comment_path(project: 'BaseDistro', package: 'pack1'), params: "I preffer Apache1, don't you? @fred"
+      post create_package_comment_path(project: 'BaseDistro', package: 'pack1'),
+           params: "I preffer Apache1, don't you? @fred"
       assert_response :success
       SendEventEmailsJob.new.perform
     end

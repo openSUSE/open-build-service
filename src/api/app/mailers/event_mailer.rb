@@ -15,9 +15,21 @@ class EventMailer < ActionMailer::Base
          from: email_address_with_name(@configuration.admin_email, sender_realname),
          subject: @event.subject,
          date: @event.created_at) do |format|
-      format.html { render @event.template_name, locals: { event: @event.expanded_payload } } if template_exists?("event_mailer/#{@event.template_name}", formats: [:html])
+      if template_exists?(
+        "event_mailer/#{@event.template_name}", formats: [:html]
+      )
+        format.html do
+          render @event.template_name, locals: { event: @event.expanded_payload }
+        end
+      end
 
-      format.text { render @event.template_name, locals: { event: @event.expanded_payload } } if template_exists?("event_mailer/#{@event.template_name}", formats: [:text])
+      if template_exists?(
+        "event_mailer/#{@event.template_name}", formats: [:text]
+      )
+        format.text do
+          render @event.template_name, locals: { event: @event.expanded_payload }
+        end
+      end
     end
   end
 
@@ -40,7 +52,9 @@ class EventMailer < ActionMailer::Base
   def set_default_headers
     headers['Precedence'] = 'bulk'
     headers['X-Mailer'] = 'OBS Notification System'
-    headers['X-OBS-URL'] = ActionDispatch::Http::URL.url_for(controller: :main, action: :index, only_path: false, host: @configuration.obs_url)
+    headers['X-OBS-URL'] =
+      ActionDispatch::Http::URL.url_for(controller: :main, action: :index, only_path: false,
+                                        host: @configuration.obs_url)
     headers['Auto-Submitted'] = 'auto-generated'
     headers['Sender'] = email_address_with_name(@configuration.admin_email, 'OBS Notification')
     headers['Message-ID'] = message_id

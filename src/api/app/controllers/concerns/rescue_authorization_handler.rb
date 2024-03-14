@@ -13,8 +13,14 @@ module RescueAuthorizationHandler
             redirect_back(fallback_location: root_path)
           end
         end
-        format.json { render json: { errorcode: authorization_errorcode(exception), summary: authorization_message(exception) }, status: :forbidden }
-        format.js { render json: { errorcode: authorization_errorcode(exception), summary: authorization_message(exception) }, status: :forbidden }
+        format.json do
+          render json: { errorcode: authorization_errorcode(exception), summary: authorization_message(exception) },
+                 status: :forbidden
+        end
+        format.js do
+          render json: { errorcode: authorization_errorcode(exception), summary: authorization_message(exception) },
+                 status: :forbidden
+        end
         # Consider everything else an XML request...
         format.any do
           @errorcode = authorization_errorcode(exception)

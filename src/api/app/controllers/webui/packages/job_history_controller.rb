@@ -8,7 +8,8 @@ module Webui
 
       def index
         @is_link = @package.is_link? || @package.is_local_link?
-        @jobshistory = @package.jobhistory(repository_name: @repository.name, arch_name: @architecture.name, package_name: @package_name, project_name: @project.name)
+        @jobshistory = @package.jobhistory(repository_name: @repository.name, arch_name: @architecture.name,
+                                           package_name: @package_name, project_name: @project.name)
       end
     end
   end

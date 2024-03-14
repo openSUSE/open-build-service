@@ -37,6 +37,7 @@ class AppealPolicy < ApplicationPolicy
   def decision_favored_report_of_action_from_user?
     return false unless record.appellant == user
 
-    record.decision.kind == 'favor' && "#{@report.reportable_type}Policy".constantize.new(user, @report.reportable).update?
+    record.decision.kind == 'favor' && "#{@report.reportable_type}Policy".constantize.new(user,
+                                                                                          @report.reportable).update?
   end
 end

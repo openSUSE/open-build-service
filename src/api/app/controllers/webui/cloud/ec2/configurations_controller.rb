@@ -15,7 +15,8 @@ module Webui
             flash[:success] = 'Successfully updated your EC2 configuration.'
             redirect_to cloud_upload_index_path
           else
-            flash[:error] = "Failed to updated your EC2 configuration: #{@ec2_configuration.errors.full_messages.to_sentence}."
+            flash[:error] =
+              "Failed to updated your EC2 configuration: #{@ec2_configuration.errors.full_messages.to_sentence}."
             redirect_back(fallback_location: root_path)
           end
         end

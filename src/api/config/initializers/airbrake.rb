@@ -75,7 +75,9 @@ end
 
 def ignore_by_class_and_message?(notice)
   notice[:errors].each do |error|
-    return true if error[:type] == 'ActionController::RoutingError' && error[:message].match?(/Required Parameter|\[GET\]|Expected AJAX call/)
+    if error[:type] == 'ActionController::RoutingError' && error[:message].match?(/Required Parameter|\[GET\]|Expected AJAX call/)
+      return true
+    end
     return true if error[:type] == 'Backend::Error' && ignore_by_backend_400_message?(error[:message])
     return true if ignore_by_message?(error[:message])
   end

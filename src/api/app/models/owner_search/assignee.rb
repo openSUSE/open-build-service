@@ -22,7 +22,8 @@ module OwnerSearch
     protected
 
     def create_owner(package)
-      Owner.new(rootproject: @rootproject.name, filter: @rolefilter, project: package.project.name, package: package.name)
+      Owner.new(rootproject: @rootproject.name, filter: @rolefilter, project: package.project.name,
+                package: package.name)
     end
 
     def extract_maintainer_project_level(owner, package)
