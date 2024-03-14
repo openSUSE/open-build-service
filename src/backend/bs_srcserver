@@ -6151,7 +6151,7 @@ sub getkeyinfo {
     $pk = readstr($BSConfig::keyfile, 1);
   }
   my $keyinfo = {};
-  $keyinfo->{'project'} = $skprojid if $skprojid;
+  $keyinfo->{'project'} = $skprojid ? $skprojid : $projid;
   if ($pk) {
     $keyinfo->{'pubkey'} = BSSrcServer::Signkey::pubkeyinfo($pk);
     $keyinfo->{'pubkey'}->{'_content'} = $pk;
