@@ -15,6 +15,8 @@ RSpec.describe BsRequestActionWebuiInfosJob, :vcr do
 
   describe '#perform' do
     context 'for a target package' do
+      subject { BsRequestActionWebuiInfosJob.new.perform(request_action) }
+
       let(:diff_result) do
         <<-DIFF
           @@ -1,1 +1,1 @@
@@ -25,8 +27,6 @@ RSpec.describe BsRequestActionWebuiInfosJob, :vcr do
         DIFF
       end
 
-      subject { BsRequestActionWebuiInfosJob.new.perform(request_action) }
-
       it 'creates the diff' do
         # gsub because of rubocop Lint/Syntax error when using <<~
         # we need to upgrade to use ruby 2.5 parser first
@@ -35,6 +35,8 @@ RSpec.describe BsRequestActionWebuiInfosJob, :vcr do
     end
 
     context 'with non existing target project' do
+      subject { BsRequestActionWebuiInfosJob.new.perform(request_action) }
+
       let(:request) do
         request = build(:bs_request_with_submit_action,
                         source_package: source_package,
@@ -48,13 +50,13 @@ RSpec.describe BsRequestActionWebuiInfosJob, :vcr do
       end
       let(:request_action) { request.bs_request_actions.first }
 
-      subject { BsRequestActionWebuiInfosJob.new.perform(request_action) }
-
       it { expect { subject }.not_to raise_error }
       it { expect(subject).to be_nil }
     end
 
     context 'with non existing source package' do
+      subject { BsRequestActionWebuiInfosJob.new.perform(request_action) }
+
       let(:request) do
         request = build(:bs_request_with_submit_action,
                         source_project: 'does-not-exist',
@@ -67,8 +69,6 @@ RSpec.describe BsRequestActionWebuiInfosJob, :vcr do
         request
       end
       let(:request_action) { request.bs_request_actions.first }
-
-      subject { BsRequestActionWebuiInfosJob.new.perform(request_action) }
 
       it { expect { subject }.not_to raise_error }
       it { expect(subject).to be_nil }

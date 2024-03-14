@@ -3,10 +3,10 @@ RSpec.describe UpdatePackagesIfDirtyJob, :vcr do
 
   describe '#perform' do
     context 'the project is found' do
+      subject { UpdatePackagesIfDirtyJob.new.perform(project.id) }
+
       let!(:project) { create(:project, name: 'apache') }
       let!(:package) { create(:package_with_file, project: project, name: 'mod_ssl') }
-
-      subject { UpdatePackagesIfDirtyJob.new.perform(project.id) }
 
       it 'creates a BackendPackge for the Package' do
         expect { subject }.to change(BackendPackage, :count).by(1)
