@@ -8,7 +8,7 @@
     = render partial: 'request_header',
         locals: { bs_request: @bs_request, staging_status: @staging_status, action: @action, active_action: @active_action,
                   prev_action: @prev_action, next_action: @next_action, supported_actions: @supported_actions,
-                  diff_to_superseded_id: @diff_to_superseded_id, diff_limit: @diff_limit, page_name: 'request_build_results',
+                  diff_to_superseded_id: @diff_to_superseded_id, page_name: 'request_build_results',
                   bs_requests: @watched_requests, packages: @watched_packages, projects: @watched_projects }
     = render partial: 'request_tabs',
         locals: { bs_request: @bs_request, bs_request_action: @bs_request_action, issues: @issues, active_action: @active_action,
