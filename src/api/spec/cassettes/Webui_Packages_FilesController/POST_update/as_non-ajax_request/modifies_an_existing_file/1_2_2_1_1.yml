@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Tue, 14 Feb 2023 14:12:05 GMT
+  recorded_at: Thu, 14 Mar 2024 13:19:38 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>For a Breath I Tarry</title>
-          <description>Mollitia tenetur voluptates aut.</description>
+          <title>This Lime Tree Bower</title>
+          <description>Alias fugit aliquid consequuntur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,44 +69,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '158'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>For a Breath I Tarry</title>
-          <description>Mollitia tenetur voluptates aut.</description>
+          <title>This Lime Tree Bower</title>
+          <description>Alias fugit aliquid consequuntur.</description>
         </package>
-  recorded_at: Tue, 14 Feb 2023 14:12:05 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:tom/my_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '308'
-    body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjEyIiB2cmV2PSIxMiIgc3JjbWQ1PSIyNTA2ZGJhY2EyMGNkOWZlYzgwZDMwZDdhMGM1MDlhYyI+CiAgPGVudHJ5IG5hbWU9Im5ld2x5X2NyZWF0ZWRfZmlsZSIgbWQ1PSJkNDFkOGNkOThmMDBiMjA0ZTk4MDA5OThlY2Y4NDI3ZSIgc2l6ZT0iMCIgbXRpbWU9IjE2NzQ4MjY2MzIiLz4KICA8ZW50cnkgbmFtZT0i5a2m5Lmg5oC757uTIiBtZDU9IjZiYTE2N2Q3MmU5Y2M2MDEwOGE3NTY3Y2RhZWM3MjBmIiBzaXplPSI5NzciIG10aW1lPSIxNjc0ODI5MTU3Ii8+CjwvZGlyZWN0b3J5Pgo=
-  recorded_at: Tue, 14 Feb 2023 14:12:05 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Thu, 14 Mar 2024 13:19:38 GMT
+recorded_with: VCR 6.2.0

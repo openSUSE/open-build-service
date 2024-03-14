@@ -2,12 +2,52 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/fake_project/_meta
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 14 Mar 2024 13:14:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/fake_project/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>Infinite Jest</title>
+          <title>The Violent Bear It Away</title>
           <description/>
         </project>
     headers:
@@ -29,60 +69,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '102'
+      - '113'
     body:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>Infinite Jest</title>
+          <title>The Violent Bear It Away</title>
           <description></description>
         </project>
-    http_version: 
-  recorded_at: Mon, 19 Mar 2018 15:50:04 GMT
+  recorded_at: Thu, 14 Mar 2024 13:14:47 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/fake_project/_config
-    body:
-      encoding: UTF-8
-      string: Nesciunt officia est et. Sit et repellat perspiciatis nisi cupiditate
-        qui eligendi. Sed aut maxime tenetur asperiores. Ut reprehenderit quisquam
-        molestiae dolorum aut.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Mon, 19 Mar 2018 15:50:04 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/_meta?user=_nobody_
+    uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_a_kiwi_file" project="fake_project">
-          <title>Many Waters</title>
-          <description>Sit aut beatae quasi provident dignissimos.</description>
+          <title>To Sail Beyond the Sunset</title>
+          <description>Unde eaque sit repellat.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -103,55 +107,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '178'
+      - '173'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_a_kiwi_file" project="fake_project">
-          <title>Many Waters</title>
-          <description>Sit aut beatae quasi provident dignissimos.</description>
+          <title>To Sail Beyond the Sunset</title>
+          <description>Unde eaque sit repellat.</description>
         </package>
-    http_version: 
-  recorded_at: Mon, 19 Mar 2018 15:50:04 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_a_kiwi_file" project="fake_project">
-          <title>Many Waters</title>
-          <description>Sit aut beatae quasi provident dignissimos.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '178'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_a_kiwi_file" project="fake_project">
-          <title>Many Waters</title>
-          <description>Sit aut beatae quasi provident dignissimos.</description>
-        </package>
-    http_version: 
-  recorded_at: Mon, 19 Mar 2018 15:50:04 GMT
+  recorded_at: Thu, 14 Mar 2024 13:14:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/package_with_a_kiwi_file.kiwi
@@ -225,13 +189,12 @@ http_interactions:
         <revision rev="1" vrev="1">
           <srcmd5>b7a6e8f3d8eb6f018faca857359eed87</srcmd5>
           <version>unknown</version>
-          <time>1521474604</time>
+          <time>1710422087</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Mon, 19 Mar 2018 15:50:04 GMT
+  recorded_at: Thu, 14 Mar 2024 13:14:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file
@@ -257,15 +220,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '235'
+      - '234'
     body:
       encoding: UTF-8
       string: |
         <directory name="package_with_a_kiwi_file" rev="1" vrev="1" srcmd5="b7a6e8f3d8eb6f018faca857359eed87">
-          <entry name="package_with_a_kiwi_file.kiwi" md5="c38370593c38dcc2632f2d19af116afb" size="1403" mtime="1521474604" />
+          <entry name="package_with_a_kiwi_file.kiwi" md5="c38370593c38dcc2632f2d19af116afb" size="1403" mtime="1710422087"/>
         </directory>
-    http_version: 
-  recorded_at: Mon, 19 Mar 2018 15:50:04 GMT
+  recorded_at: Thu, 14 Mar 2024 13:14:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/package_with_a_kiwi_file.kiwi
@@ -336,8 +298,7 @@ http_interactions:
             <version>2.0.0</version>
           </preferences>
         </image>
-    http_version: 
-  recorded_at: Mon, 19 Mar 2018 15:50:04 GMT
+  recorded_at: Thu, 14 Mar 2024 13:14:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file
@@ -363,24 +324,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '235'
+      - '234'
     body:
       encoding: UTF-8
       string: |
         <directory name="package_with_a_kiwi_file" rev="1" vrev="1" srcmd5="b7a6e8f3d8eb6f018faca857359eed87">
-          <entry name="package_with_a_kiwi_file.kiwi" md5="c38370593c38dcc2632f2d19af116afb" size="1403" mtime="1521474604" />
+          <entry name="package_with_a_kiwi_file.kiwi" md5="c38370593c38dcc2632f2d19af116afb" size="1403" mtime="1710422087"/>
         </directory>
-    http_version: 
-  recorded_at: Mon, 19 Mar 2018 15:50:04 GMT
+  recorded_at: Thu, 14 Mar 2024 13:14:47 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/_meta?user=_nobody_
+    uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_a_kiwi_file" project="fake_project">
-          <title>Many Waters</title>
-          <description>Sit aut beatae quasi provident dignissimos.</description>
+          <title>To Sail Beyond the Sunset</title>
+          <description>Unde eaque sit repellat.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -401,14 +361,51 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '178'
+      - '173'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_a_kiwi_file" project="fake_project">
-          <title>Many Waters</title>
-          <description>Sit aut beatae quasi provident dignissimos.</description>
+          <title>To Sail Beyond the Sunset</title>
+          <description>Unde eaque sit repellat.</description>
         </package>
-    http_version: 
-  recorded_at: Mon, 19 Mar 2018 15:50:04 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Thu, 14 Mar 2024 13:14:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/fake_project/package_with_a_kiwi_file/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_a_kiwi_file" project="fake_project">
+          <title>To Sail Beyond the Sunset</title>
+          <description>Unde eaque sit repellat.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '173'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_a_kiwi_file" project="fake_project">
+          <title>To Sail Beyond the Sunset</title>
+          <description>Unde eaque sit repellat.</description>
+        </package>
+  recorded_at: Thu, 14 Mar 2024 13:14:47 GMT
+recorded_with: VCR 6.2.0
