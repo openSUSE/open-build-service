@@ -26,8 +26,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
     end
 
     it { expect { subject.call }.to(change(Package, :count).by(1)) }
-    it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
-    it { expect(subject.call.source_file('_branch_request')).to include('123') }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
   end
@@ -67,6 +65,20 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
     end
 
     context 'for a new_commit SCM webhook event' do
+      context 'it creates the _branch_request file' do
+        let(:action) { 'synchronize' }
+        let(:step_instructions) do
+          {
+            source_project: package.project.name,
+            source_package: package.name,
+            target_project: target_project_name
+          }
+        end
+
+        it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
+        it { expect(subject.call.source_file('_branch_request')).to include('123') }
+      end
+
       context 'without branch permissions' do
         let(:action) { 'opened' }
         let(:octokit_client) { instance_double(Octokit::Client) }
@@ -98,17 +110,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
             'scm' => 'github', 'source_repository_full_name' => 'reponame',
             'target_repository_full_name' => 'openSUSE/open-build-service' }
         end
-        let(:existing_branch_request_file) do
-          {
-            action: 'synchronize',
-            pull_request: {
-              head: {
-                repo: { full_name: 'source_repository_full_name' },
-                sha: '123'
-              }
-            }
-          }.to_json
-        end
         let(:step_instructions) do
           {
             source_project: package.project.name,
@@ -134,17 +135,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
           end
         end
 
-        before do
-          package.save_file({ file: existing_branch_request_file, filename: '_branch_request' })
-        end
-
         it { expect { subject.call }.not_to(change(Package, :count)) }
-        it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
-
-        it 'updates _branch_request file including new commit sha' do
-          expect(subject.call.source_file('_branch_request')).to include('456')
-        end
-
         it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count)) }
         it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count)) }
         it { expect { subject.call }.to(change { EventSubscription.where(eventtype: 'Event::BuildSuccess').last.payload }.from(creation_payload).to(update_payload)) }
