@@ -1295,4 +1295,4 @@ ViewComponent/MissingPreviewFile:
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, AllowedPatterns.
 # URISchemes: http, https
 Layout/LineLength:
-  Max: 264
+  Max: 220

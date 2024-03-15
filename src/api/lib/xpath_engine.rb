@@ -220,7 +220,9 @@ class XpathEngine
         'review/@by_package' => { cpart: 'r.by_package', joins: 'LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id' },
         'review/@when' => { cpart: 'bs_requests.updated_at', joins: 'LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id' },
         'review/@state' => { cpart: 'r.state', joins: 'LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id' },
-        'review/history/@when' => { cpart: 'he.created_at', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id LEFT JOIN history_elements he ON (he.op_object_id = r.id AND he.type IN (\"#{HistoryElement::Review.descendants.join('","')}\") )" },
+        'review/history/@when' => { cpart: 'he.created_at',
+                                    joins: 'LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id ' \
+                                           "LEFT JOIN history_elements he ON (he.op_object_id = r.id AND he.type IN (\"#{HistoryElement::Review.descendants.join('","')}\") )" },
         'history/@when' => { cpart: 'he.created_at', joins: "LEFT JOIN history_elements he ON (he.op_object_id = bs_requests.id AND he.type IN (\"#{HistoryElement::Request.descendants.join('","')}\") )" },
         'history/@who' => { cpart: 'husers.login', joins: ["LEFT JOIN history_elements he ON (he.op_object_id = bs_requests.id AND he.type IN (\"#{HistoryElement::Request.descendants.join('","')}\") )",
                                                            'LEFT JOIN users husers ON he.user_id = husers.id'] },

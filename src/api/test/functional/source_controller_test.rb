@@ -1121,7 +1121,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag tag: 'path', attributes: { project: 'home:tom:projecta' }
 
     # change back using remote project
-    put '/source/home:tom:projectB/_meta', params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='RemoteInstance:home:tom:projectA' repository='repoA' /> </repository> </project>"
+    put '/source/home:tom:projectB/_meta',
+        params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='RemoteInstance:home:tom:projectA' repository='repoA' /> </repository> </project>"
     assert_response :success
     get '/source/home:tom:projectB/_meta'
     assert_response :success
@@ -1131,7 +1132,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     if @ENABLE_BROKEN_TEST
       # FIXME: the case insensitive database select is not okay.
       # and switch letter again
-      put '/source/home:tom:projectB/_meta', params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='RemoteInstance:home:tom:projecta' repository='repoA' /> </repository> </project>"
+      put '/source/home:tom:projectB/_meta',
+          params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='RemoteInstance:home:tom:projecta' repository='repoA' /> </repository> </project>"
       assert_response 404
       assert_xml_tag tag: 'status', attributes: { code: 'unknown_project' }
       get '/source/home:tom:projectB/_meta'
@@ -1242,7 +1244,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_tom
     put '/source/home:tom:projectA/_meta', params: "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'> <arch>i586</arch> </repository> </project>"
     assert_response :success
-    put '/source/home:tom:projectB/_meta', params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> <arch>i586</arch> </repository> </project>"
+    put '/source/home:tom:projectB/_meta',
+        params: "<project name='home:tom:projectB'> <title/> <description/> <repository name='repoB'> <path project='home:tom:projectA' repository='repoA' /> <arch>i586</arch> </repository> </project>"
     assert_response :success
     # delete the project including the repository
     delete '/source/home:tom:projectA'

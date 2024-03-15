@@ -159,6 +159,10 @@ RSpec.describe CommentsController do
     end
 
     it { expect(response.body).to include("<comment_history comment=\"#{comment.id}\">") }
-    it { expect(response.body).to include("<comment who=\"#{comment.paper_trail.previous_version.user}\" when=\"#{comment.paper_trail.previous_version.created_at}\" id=\"#{comment.id}\">#{comment.paper_trail.previous_version.body}</comment>") }
+
+    it {
+      expect(response.body).to include("<comment who=\"#{comment.paper_trail.previous_version.user}\" when=\"#{comment.paper_trail.previous_version.created_at}\" " \
+                                       "id=\"#{comment.id}\">#{comment.paper_trail.previous_version.body}</comment>")
+    }
   end
 end

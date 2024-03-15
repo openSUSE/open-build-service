@@ -192,7 +192,9 @@ class BsRequestPermissionCheck
     end
 
     # target must exist
-    raise NotExistingTarget, "Unable to process package #{action.target_project}/#{action.target_package}; it does not exist." if action.action_type.in?(%i[delete add_role set_bugowner]) && action.target_package && !@target_package
+    if action.action_type.in?(%i[delete add_role set_bugowner]) && action.target_package && !@target_package
+      raise NotExistingTarget, "Unable to process package #{action.target_project}/#{action.target_package}; it does not exist."
+    end
 
     check_delete_accept(action, opts) if action.action_type == :delete
 

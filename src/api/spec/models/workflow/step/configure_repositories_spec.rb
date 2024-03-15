@@ -87,8 +87,10 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
         end
 
         it 'configures the path elements with the right attributes' do
-          expect(configured_path_elements).to contain_exactly(have_attributes(parent_id: configured_repositories.first.id, repository_id: path_repository1.id, position: 1,
-                                                                              kind: 'standard'), have_attributes(parent_id: configured_repositories.first.id, repository_id: path_repository2.id, position: 2, kind: 'standard'))
+          expect(configured_path_elements).to contain_exactly(
+            have_attributes(parent_id: configured_repositories.first.id, repository_id: path_repository1.id, position: 1, kind: 'standard'),
+            have_attributes(parent_id: configured_repositories.first.id, repository_id: path_repository2.id, position: 2, kind: 'standard')
+          )
         end
 
         it 'overwrites previously configured architectures with those in the step instructions' do
