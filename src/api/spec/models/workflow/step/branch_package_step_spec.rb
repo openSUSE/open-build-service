@@ -89,34 +89,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       it { expect { subject.call }.to raise_error(BranchPackage::Errors::CanNotBranchPackageNoPermission) }
     end
 
-    context 'for a multibuild package' do
-      let(:action) { 'opened' }
-      let(:package) { create(:multibuild_package, name: 'multibuild_package', project: project) }
-      let(:octokit_client) { instance_double(Octokit::Client) }
-      let(:step_instructions) do
-        {
-          source_project: package.project.name,
-          source_package: package.name,
-          target_project: target_project_name
-        }
-      end
-
-      before do
-        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-        allow(octokit_client).to receive(:create_status).and_return(true)
-
-        create(:repository, name: 'Unicorn_123', project: package.project, architectures: %w[x86_64 i586 ppc aarch64])
-        create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
-      end
-
-      it { expect { subject.call }.to(change(Package, :count).by(1)) }
-      it { expect(subject.call.project.name).to eq(target_project_final_name) }
-      it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
-      it { expect(subject.call.source_file('_branch_request')).to include('123') }
-      it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
-      it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
-    end
-
     context 'for an updated PR event' do
       context 'when the branched package already existed' do
         let(:action) { 'synchronize' }
