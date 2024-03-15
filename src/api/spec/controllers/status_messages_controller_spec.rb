@@ -94,13 +94,13 @@ RSpec.describe StatusMessagesController do
     end
 
     context 'when requester is admin' do
+      subject { delete :destroy, params: { id: status_message.id }, format: :xml }
+
       let(:admin) { create(:admin_user) }
 
       before do
         login admin
       end
-
-      subject { delete :destroy, params: { id: status_message.id }, format: :xml }
 
       it { expect(subject).to have_http_status(:success) }
       it { expect { subject }.to change(StatusMessage, :count).by(-1) }

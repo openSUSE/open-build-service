@@ -180,6 +180,8 @@ RSpec.describe Webui::RequestController, :vcr do
 
   describe 'POST #modify_review' do
     RSpec.shared_examples 'a valid review' do |new_state|
+      subject { request_with_review.reviews.last }
+
       let(:params_hash) do
         {
           comment: 'yeah',
@@ -192,8 +194,6 @@ RSpec.describe Webui::RequestController, :vcr do
         post :modify_review, params: params_hash.update(new_state: new_state)
         request_with_review.reload
       end
-
-      subject { request_with_review.reviews.last }
 
       it { expect(response).to redirect_to(request_show_path(number: request_with_review.number)) }
       it { expect(subject.state).to eq(expected_state) }

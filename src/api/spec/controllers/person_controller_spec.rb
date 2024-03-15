@@ -129,12 +129,12 @@ RSpec.describe PersonController do
     end
 
     context 'when in LDAP mode' do
+      subject { put :put_userinfo, params: { login: user.login, format: :xml } }
+
       before do
         stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
         request.env['RAW_POST_DATA'] = xml
       end
-
-      subject { put :put_userinfo, params: { login: user.login, format: :xml } }
 
       context 'as an admin' do
         before do

@@ -17,11 +17,11 @@ RSpec.describe TriggerController do
     let(:package) { create(:package, name: 'package_trigger', project: project) }
 
     context 'with token.package' do
+      subject { post :rebuild, params: { format: :xml } }
+
       before do
         token.update!(package: package)
       end
-
-      subject { post :rebuild, params: { format: :xml } }
 
       it { expect(subject).to have_http_status(:success) }
     end
@@ -69,11 +69,11 @@ RSpec.describe TriggerController do
     end
 
     context 'with token.package' do
+      subject { post :release, params: { format: :xml } }
+
       before do
         token.update!(package: source_package)
       end
-
-      subject { post :release, params: { format: :xml } }
 
       it { expect(subject).to have_http_status(:success) }
     end
@@ -85,13 +85,13 @@ RSpec.describe TriggerController do
     end
 
     context 'with project parameter' do
+      subject { post :release, params: { project: source_project.name, format: :xml } }
+
       let(:backend_url) do
         '/build/target_project/target_repository/x86_64/source_package' \
           '?cmd=copy&oproject=source_project&orepository=source_repository' \
           '&resign=1&multibuild=1'
       end
-
-      subject { post :release, params: { project: source_project.name, format: :xml } }
 
       it { expect(subject).to have_http_status(:success) }
     end
@@ -103,9 +103,9 @@ RSpec.describe TriggerController do
     let(:package) { create(:package_with_service, name: 'package_with_service', project: project) }
 
     context 'with token.package' do
-      let(:token) { create(:service_token, executor: user, package: package) }
-
       subject { post :runservice, params: { format: :xml } }
+
+      let(:token) { create(:service_token, executor: user, package: package) }
 
       it { expect(subject).to have_http_status(:success) }
     end
@@ -129,17 +129,17 @@ RSpec.describe TriggerController do
     let(:package) { create(:package, name: 'package_trigger', project: project) }
 
     context 'invalid token' do
-      let(:token) { nil }
-
       subject { post :create, params: { format: :xml } }
+
+      let(:token) { nil }
 
       it { expect(Xmlhash.parse(subject.body)['code']).to eq('invalid_token') }
     end
 
     context 'workflow token' do
-      let(:token) { create(:workflow_token, executor: user) }
-
       subject { post :create, params: { format: :xml } }
+
+      let(:token) { create(:workflow_token, executor: user) }
 
       it { expect(Xmlhash.parse(subject.body)['code']).to eq('invalid_token') }
     end

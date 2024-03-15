@@ -724,14 +724,14 @@ RSpec.describe Webui::PackageController, :vcr do
     end
 
     describe 'when there is a rpmlint log' do
+      subject do
+        get :rpmlint_log, params: { project: source_project, package: source_package, repository: repo_for_source_project.name, architecture: 'i586' }
+      end
+
       before do
         allow(Backend::Api::BuildResults::Binaries).to receive(:rpmlint_log)
           .with(source_project.name, source_package.name, repo_for_source_project.name, 'i586')
           .and_return('test_package.i586: W: description-shorter-than-summary\ntest_package.src: W: description-shorter-than-summary')
-      end
-
-      subject do
-        get :rpmlint_log, params: { project: source_project, package: source_package, repository: repo_for_source_project.name, architecture: 'i586' }
       end
 
       it { is_expected.to have_http_status(:success) }

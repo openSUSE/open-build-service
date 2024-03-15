@@ -84,22 +84,22 @@ RSpec.describe Webui::StatusMessagesController do
     it { is_expected.to use_after_action(:verify_authorized) }
 
     context 'as an admin' do
+      subject { delete :destroy, params: { id: message.id } }
+
       before do
         login(admin_user)
       end
-
-      subject { delete :destroy, params: { id: message.id } }
 
       it { is_expected.to redirect_to(news_items_path) }
       it { expect { subject }.to change(StatusMessage, :count).by(-1) }
     end
 
     context 'non-admin users' do
+      subject { delete :destroy, params: { id: message.id } }
+
       before do
         login(user)
       end
-
-      subject { delete :destroy, params: { id: message.id } }
 
       it 'is not authorized to delete a status message' do
         expect(subject).to redirect_to(root_path)
