@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 14 Mar 2024 16:36:28 GMT
+  recorded_at: Fri, 15 Mar 2024 12:39:44 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_111
+    uri: http://backend:5352/source/foo_project/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Clouds of Witness</title>
+          <title>The Far-Distant Oxus</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,14 +70,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '149'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Clouds of Witness</title>
+          <title>The Far-Distant Oxus</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Thu, 14 Mar 2024 16:36:28 GMT
+  recorded_at: Fri, 15 Mar 2024 12:39:44 GMT
 recorded_with: VCR 6.2.0
