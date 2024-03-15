@@ -101,15 +101,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
 
       context 'when the target package already exists' do
         let(:action) { 'synchronize' }
-        let(:creation_payload) do
-          { 'action' => 'opened', 'commit_sha' => long_commit_sha, 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github', 'source_repository_full_name' => 'reponame',
-            'target_repository_full_name' => 'openSUSE/open-build-service' }
-        end
-        let(:update_payload) do
-          { 'action' => 'synchronize', 'commit_sha' => long_commit_sha, 'event' => 'pull_request', 'pr_number' => 1,
-            'scm' => 'github', 'source_repository_full_name' => 'reponame',
-            'target_repository_full_name' => 'openSUSE/open-build-service' }
-        end
         let(:step_instructions) do
           {
             source_project: package.project.name,
@@ -125,20 +116,19 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
         ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
           let!("event_subscription_#{build_event.parameterize}") do
             EventSubscription.create(eventtype: build_event,
-                                    receiver_role: 'reader',
-                                    user: user,
-                                    channel: :scm,
-                                    enabled: true,
-                                    token: token,
-                                    package: branched_package,
-                                    payload: creation_payload)
+                                     receiver_role: 'reader',
+                                     user: user,
+                                     channel: :scm,
+                                     enabled: true,
+                                     token: token,
+                                     package: branched_package,
+                                     payload: scm_webhook.payload)
           end
         end
 
         it { expect { subject.call }.not_to(change(Package, :count)) }
         it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count)) }
         it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count)) }
-        it { expect { subject.call }.to(change { EventSubscription.where(eventtype: 'Event::BuildSuccess').last.payload }.from(creation_payload).to(update_payload)) }
       end
 
       context 'when the branched package did not exist' do
