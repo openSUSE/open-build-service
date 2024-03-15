@@ -623,6 +623,7 @@ RSpec/AnyInstance:
     - 'spec/controllers/webui/attribute_controller_spec.rb'
     - 'spec/controllers/webui/package_controller_spec.rb'
     - 'spec/controllers/webui/packages/files_controller_spec.rb'
+    - 'spec/controllers/webui/packages/meta_controller_spec.rb'
     - 'spec/controllers/webui/patchinfo_controller_spec.rb'
     - 'spec/controllers/webui/project_controller_spec.rb'
     - 'spec/controllers/webui/projects/maintenance_incident_requests_controller_spec.rb'
