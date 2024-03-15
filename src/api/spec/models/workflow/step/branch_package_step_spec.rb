@@ -86,83 +86,81 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       it { expect { subject.call }.to raise_error(BranchPackage::Errors::CanNotBranchPackageNoPermission) }
     end
 
-    context 'for an updated PR event' do
-      context 'when the branched package already existed' do
-        let(:action) { 'synchronize' }
-        let(:creation_payload) do
-          { 'action' => 'opened', 'commit_sha' => long_commit_sha, 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github', 'source_repository_full_name' => 'reponame',
-            'target_repository_full_name' => 'openSUSE/open-build-service' }
-        end
-        let(:update_payload) do
-          { 'action' => 'synchronize', 'commit_sha' => long_commit_sha, 'event' => 'pull_request', 'pr_number' => 1,
-            'scm' => 'github', 'source_repository_full_name' => 'reponame',
-            'target_repository_full_name' => 'openSUSE/open-build-service' }
-        end
-        let(:existing_branch_request_file) do
-          {
-            action: 'synchronize',
-            pull_request: {
-              head: {
-                repo: { full_name: 'source_repository_full_name' },
-                sha: '123'
-              }
+    context 'when the target package already exists' do
+      let(:action) { 'synchronize' }
+      let(:creation_payload) do
+        { 'action' => 'opened', 'commit_sha' => long_commit_sha, 'event' => 'pull_request', 'pr_number' => 1, 'scm' => 'github', 'source_repository_full_name' => 'reponame',
+          'target_repository_full_name' => 'openSUSE/open-build-service' }
+      end
+      let(:update_payload) do
+        { 'action' => 'synchronize', 'commit_sha' => long_commit_sha, 'event' => 'pull_request', 'pr_number' => 1,
+          'scm' => 'github', 'source_repository_full_name' => 'reponame',
+          'target_repository_full_name' => 'openSUSE/open-build-service' }
+      end
+      let(:existing_branch_request_file) do
+        {
+          action: 'synchronize',
+          pull_request: {
+            head: {
+              repo: { full_name: 'source_repository_full_name' },
+              sha: '123'
             }
-          }.to_json
-        end
-        let(:step_instructions) do
-          {
-            source_project: package.project.name,
-            source_package: package.name,
-            target_project: target_project_name
           }
-        end
-
-        # Emulate the branched project/package and the subcription created in a previous new PR/MR event
-        let!(:branched_project) { create(:project, name: "home:#{user.login}:openSUSE:open-build-service:PR-1", maintainer: user) }
-        let!(:branched_package) { create(:package_with_file, name: package.name, project: branched_project) }
-
-        ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
-          let!("event_subscription_#{build_event.parameterize}") do
-            EventSubscription.create(eventtype: build_event,
-                                     receiver_role: 'reader',
-                                     user: user,
-                                     channel: :scm,
-                                     enabled: true,
-                                     token: token,
-                                     package: branched_package,
-                                     payload: creation_payload)
-          end
-        end
-
-        before do
-          package.save_file({ file: existing_branch_request_file, filename: '_branch_request' })
-        end
-
-        it { expect { subject.call }.not_to(change(Package, :count)) }
-        it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
-
-        it 'updates _branch_request file including new commit sha' do
-          expect(subject.call.source_file('_branch_request')).to include('456')
-        end
-
-        it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count)) }
-        it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count)) }
-        it { expect { subject.call }.to(change { EventSubscription.where(eventtype: 'Event::BuildSuccess').last.payload }.from(creation_payload).to(update_payload)) }
+        }.to_json
+      end
+      let(:step_instructions) do
+        {
+          source_project: package.project.name,
+          source_package: package.name,
+          target_project: target_project_name
+        }
       end
 
-      context 'when the branched package did not exist' do
-        let(:action) { 'synchronize' }
-        let(:step_instructions) do
-          {
-            source_project: package.project.name,
-            source_package: package.name,
-            target_project: target_project_name
-          }
-        end
+      # Emulate the branched project/package and the subcription created in a previous new PR/MR event
+      let!(:branched_project) { create(:project, name: "home:#{user.login}:openSUSE:open-build-service:PR-1", maintainer: user) }
+      let!(:branched_package) { create(:package_with_file, name: package.name, project: branched_project) }
 
-        it { expect { subject.call }.to(change(Package, :count).by(1)) }
-        it { expect { subject.call }.to(change(EventSubscription, :count).from(0).to(2)) }
+      ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
+        let!("event_subscription_#{build_event.parameterize}") do
+          EventSubscription.create(eventtype: build_event,
+                                   receiver_role: 'reader',
+                                   user: user,
+                                   channel: :scm,
+                                   enabled: true,
+                                   token: token,
+                                   package: branched_package,
+                                   payload: creation_payload)
+        end
       end
+
+      before do
+        package.save_file({ file: existing_branch_request_file, filename: '_branch_request' })
+      end
+
+      it { expect { subject.call }.not_to(change(Package, :count)) }
+      it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
+
+      it 'updates _branch_request file including new commit sha' do
+        expect(subject.call.source_file('_branch_request')).to include('456')
+      end
+
+      it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count)) }
+      it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count)) }
+      it { expect { subject.call }.to(change { EventSubscription.where(eventtype: 'Event::BuildSuccess').last.payload }.from(creation_payload).to(update_payload)) }
+    end
+
+    context 'when the branched package did not exist' do
+      let(:action) { 'synchronize' }
+      let(:step_instructions) do
+        {
+          source_project: package.project.name,
+          source_package: package.name,
+          target_project: target_project_name
+        }
+      end
+
+      it { expect { subject.call }.to(change(Package, :count).by(1)) }
+      it { expect { subject.call }.to(change(EventSubscription, :count).from(0).to(2)) }
     end
 
     context 'with a push event for a commit' do
