@@ -51,7 +51,7 @@ RSpec.describe BsRequestAction do
 
     it 'does not validate uniqueness for different types' do
       bs_request.bs_request_actions << build(:bs_request_action_add_bugowner_role)
-      expect { bs_request.send(:check_uniq_actions!) }.not_to raise_error(BsRequest::Errors::ConflictingActions)
+      expect { bs_request.send(:check_uniq_actions!) }.not_to raise_error
     end
   end
 
