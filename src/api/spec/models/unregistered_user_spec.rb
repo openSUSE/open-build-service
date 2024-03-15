@@ -102,9 +102,9 @@ RSpec.describe UnregisteredUser do
       context 'when admin user is logged in' do
         before do
           login admin_user
-        end
 
-        subject! { UnregisteredUser.register(user_attributes) }
+          UnregisteredUser.register(user_attributes)
+        end
 
         it 'creates a new user' do
           expect(User.where(attributes_for_query)).to exist

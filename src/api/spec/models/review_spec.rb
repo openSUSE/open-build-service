@@ -298,9 +298,11 @@ RSpec.describe Review do
     let!(:review) { create(:review, by_user: user.login) }
 
     context 'assigned to itself' do
-      before { review.review_id = review.id }
+      before do
+        review.review_id = review.id
 
-      subject! { review.valid? }
+        review.valid?
+      end
 
       it { expect(review.errors[:review_id].count).to eq(1) }
     end
@@ -308,9 +310,11 @@ RSpec.describe Review do
     context 'assigned to a different review' do
       let!(:review2) { create(:review, by_user: user.login) }
 
-      before { review.review_id = review2.id }
+      before do
+        review.review_id = review2.id
 
-      subject! { review.valid? }
+        review.valid?
+      end
 
       it { expect(review.errors[:review_id].count).to eq(0) }
     end
@@ -322,9 +326,11 @@ RSpec.describe Review do
     let!(:review2) { create(:review, by_user: user.login, review_id: review.id) }
 
     context 'review1 is assigned to review2 which is already assigned to review1' do
-      before { review.review_id = review2.id }
+      before do
+        review.review_id = review2.id
 
-      subject! { review.valid? }
+        review.valid?
+      end
 
       it { expect(review.errors[:review_id].count).to eq(1) }
     end
@@ -332,9 +338,11 @@ RSpec.describe Review do
     context 'review1 is assigned to review3' do
       let!(:review3) { create(:review, by_user: user.login) }
 
-      before { review.review_id = review3.id }
+      before do
+        review.review_id = review3.id
 
-      subject! { review.valid? }
+        review.valid?
+      end
 
       it { expect(review.errors[:review_id].count).to eq(0) }
     end

@@ -72,9 +72,9 @@ RSpec.describe BsRequest, :vcr do
 
       before do
         login(reviewer)
-      end
 
-      subject! { request.assignreview(by_group: group.title, reviewer: reviewer.login) }
+        request.assignreview(by_group: group.title, reviewer: reviewer.login)
+      end
 
       it { expect(request.reviews.count).to eq(2) }
 

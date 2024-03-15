@@ -7,9 +7,9 @@ RSpec.describe IssueTracker do
     before do
       allow(IssueTracker).to receive(:find_by).and_return(issue_tracker)
       allow(issue_tracker).to receive(:update_issues)
-    end
 
-    subject! { IssueTracker.update_all_issues }
+      IssueTracker.update_all_issues
+    end
 
     it 'updates the issues' do
       expect(issue_tracker).to have_received(:update_issues)
@@ -29,9 +29,7 @@ RSpec.describe IssueTracker do
 
       before do
         stub_request(:get, /api.a-fake-url.com*/).to_return(body: github_issues_json, status: 200)
-      end
 
-      subject! do
         issue_tracker.update_issues_github
       end
 
@@ -42,12 +40,12 @@ RSpec.describe IssueTracker do
     end
 
     context 'with a 404 response from github' do
-      before do
-        stub_request(:get, /api.a-fake-url.com*/).to_return(status: 404)
+      subject do
+        issue_tracker.update_issues_github
       end
 
-      subject! do
-        issue_tracker.update_issues_github
+      before do
+        stub_request(:get, /api.a-fake-url.com*/).to_return(status: 404)
       end
 
       it 'returns nil' do
@@ -58,6 +56,8 @@ RSpec.describe IssueTracker do
 
   describe '#fetch_issues' do
     context 'for an IssueTracker with kind == "bugzilla"' do
+      subject { issue_tracker.fetch_issues }
+
       let!(:issue_tracker) do
         create(
           :issue_tracker,
@@ -81,8 +81,6 @@ RSpec.describe IssueTracker do
         allow(xmlrpc_client).to receive(:proxy).and_return(xmlrpc_client)
         allow(xmlrpc_client).to receive(:get).and_raise(Errno::ECONNRESET)
       end
-
-      subject! { issue_tracker.fetch_issues }
 
       it { is_expected.to be_falsey }
     end

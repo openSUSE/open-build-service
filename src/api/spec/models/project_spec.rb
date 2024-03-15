@@ -514,9 +514,9 @@ RSpec.describe Project, :vcr do
     before do
       allow(xml).to receive(:person)
       allow(xml).to receive(:group)
-    end
 
-    subject! { project.render_relationships(xml) }
+      project.render_relationships(xml)
+    end
 
     it { expect(xml).to have_received(:person).with(userid: user.login, role: 'bugowner') }
     it { expect(xml).to have_received(:group).with(groupid: group.title, role: 'bugowner') }
@@ -567,9 +567,9 @@ RSpec.describe Project, :vcr do
 
     before do
       login(user)
-    end
 
-    subject! { project.remove_all_persons }
+      project.remove_all_persons
+    end
 
     it 'deletes the relationship' do
       expect(Relationship).not_to exist(relationship.id)
@@ -586,9 +586,9 @@ RSpec.describe Project, :vcr do
 
     before do
       login(groups_user.user)
-    end
 
-    subject! { project.remove_all_groups }
+      project.remove_all_groups
+    end
 
     it 'deletes the relationship' do
       expect(Relationship).not_to exist(relationship.id)
