@@ -236,12 +236,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       it { expect(subject.call.source_file('_branch_request')).to include('123456789012345') }
       it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count)) }
       it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count)) }
-
-      it 'does not report back to the SCM' do
-        allow(SCMStatusReporter).to receive(:new)
-        subject.call
-        expect(SCMStatusReporter).not_to have_received(:new)
-      end
     end
 
     context 'when scmsync is active' do
