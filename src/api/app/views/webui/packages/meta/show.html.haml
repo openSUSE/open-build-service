@@ -8,7 +8,7 @@
     %h3= @pagetitle
     - if User.possibly_nobody.can_modify? @package
       = render partial: 'webui/shared/editor', locals: { text: @meta, mode: 'xml',
-        save: { url: package_save_meta_path, method: :post,
-        data: { project: @project.name, package: @package.name, submit: 'meta' } } }
+        save: { url: project_package_meta_path, method: :put,
+        data: { project_name: @project.name, package_name: @package.name, submit: 'meta' } } }
     - else
       = render partial: 'webui/shared/editor', locals: { text: @meta, mode: 'xml', style: { read_only: true } }
