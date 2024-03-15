@@ -11,25 +11,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
                         token: token)
   end
 
-  RSpec.shared_context 'successful new PR or MR event' do
-    before do
-      create(:repository, name: 'Unicorn_123', project: package.project, architectures: %w[x86_64 i586 ppc aarch64])
-      create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
-    end
-
-    let(:step_instructions) do
-      {
-        source_project: package.project.name,
-        source_package: package.name,
-        target_project: target_project_name
-      }
-    end
-
-    it { expect { subject.call }.to(change(Package, :count).by(1)) }
-    it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
-    it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
-  end
-
   describe '#call' do
     let(:project) { create(:project, name: 'foo_project', maintainer: user) }
     let(:package) { create(:package_with_file, name: 'bar_package', project: project) }
@@ -50,18 +31,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       project
       package
       login(user)
-    end
-
-    context 'for a new PR event' do
-      let(:action) { 'opened' }
-      let(:octokit_client) { instance_double(Octokit::Client) }
-
-      before do
-        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-        allow(octokit_client).to receive(:create_status).and_return(true)
-      end
-
-      it_behaves_like 'successful new PR or MR event'
     end
 
     context 'for a new_commit SCM webhook event' do
@@ -99,7 +68,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
         it { expect { subject.call }.to raise_error(BranchPackage::Errors::CanNotBranchPackageNoPermission) }
       end
 
-      context 'when the target package already exists' do
+      context 'when the branch target package already exists' do
         let(:action) { 'synchronize' }
         let(:step_instructions) do
           {
@@ -131,7 +100,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
         it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count)) }
       end
 
-      context 'when the branched package did not exist' do
+      context 'when the branch target package does not exist' do
         let(:action) { 'synchronize' }
         let(:step_instructions) do
           {
@@ -142,7 +111,8 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
         end
 
         it { expect { subject.call }.to(change(Package, :count).by(1)) }
-        it { expect { subject.call }.to(change(EventSubscription, :count).from(0).to(2)) }
+        it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
+        it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
       end
 
       context 'when scmsync is active' do
