@@ -158,9 +158,9 @@ RSpec.describe PersonController do
     context 'when in LDAP mode' do
       before do
         stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
-      end
 
-      subject! { post :register }
+        post :register
+      end
 
       it 'sets an error code' do
         expect(response.header['X-Opensuse-Errorcode']).to eq('permission_denied')
@@ -173,9 +173,9 @@ RSpec.describe PersonController do
       context 'when in LDAP mode' do
         before do
           stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
-        end
 
-        subject! { post :command, params: { cmd: 'register' } }
+          post :command, params: { cmd: 'register' }
+        end
 
         it 'sets an error code' do
           expect(response.header['X-Opensuse-Errorcode']).to eq('permission_denied')
@@ -205,9 +205,9 @@ RSpec.describe PersonController do
         user.watched_items.create(watchable: package)
         user.watched_items.create(watchable: delete_request)
         login user
-      end
 
-      subject! { get :get_watchlist, params: { login: user.login } }
+        get :get_watchlist, params: { login: user.login }
+      end
 
       it 'returns watchlist' do
         expect(Xmlhash.parse(response.body)).to eq(Xmlhash.parse(xml))

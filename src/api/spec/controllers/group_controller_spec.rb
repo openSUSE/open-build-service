@@ -12,11 +12,9 @@ RSpec.describe GroupController do
     let!(:group_maintainer) { create(:group_maintainer, group: group).user }
 
     context 'when the group exist' do
-      subject! do
-        get :show, params: { title: group.title, format: :xml }
-      end
+      before { get :show, params: { title: group.title, format: :xml } }
 
-      it { is_expected.to have_http_status(:success) }
+      it { expect(response).to have_http_status(:success) }
 
       it 'returns with the xml representation of that group' do
         expect(response.body).to have_css('group > title', text: group.title)
@@ -26,11 +24,9 @@ RSpec.describe GroupController do
     end
 
     context 'when the group does not exist' do
-      subject do
-        get :show, params: { title: 'foo', format: :xml }
-      end
+      before { get :show, params: { title: 'foo', format: :xml } }
 
-      it { is_expected.to have_http_status(:not_found) }
+      it { expect(response).to have_http_status(:not_found) }
     end
   end
 
@@ -39,11 +35,9 @@ RSpec.describe GroupController do
 
     let!(:groups) { create_list(:group, 3) }
 
-    subject! do
-      get :index, format: :xml
-    end
+    before { get :index, format: :xml }
 
-    it { is_expected.to have_http_status(:success) }
+    it { expect(response).to have_http_status(:success) }
 
     it 'returns with the group xml representation' do
       groups.each do |group|
@@ -53,9 +47,7 @@ RSpec.describe GroupController do
   end
 
   describe 'DELETE #delete' do
-    before do
-      delete :delete, params: { title: group.title, format: :xml }
-    end
+    before { delete :delete, params: { title: group.title, format: :xml } }
 
     shared_examples 'successful group deletion' do
       it 'responds with 200 OK' do
@@ -100,11 +92,9 @@ RSpec.describe GroupController do
     end
 
     context 'with a valid request' do
-      subject! do
-        put :update, body: valid_xml, params: { title: group.title, format: :xml }
-      end
+      before { put :update, body: valid_xml, params: { title: group.title, format: :xml } }
 
-      it { is_expected.to have_http_status(:success) }
+      it { expect(response).to have_http_status(:success) }
 
       it 'updates the group' do
         group.reload
@@ -115,20 +105,16 @@ RSpec.describe GroupController do
     end
 
     context 'when the group does not exist' do
-      subject! do
-        put :update, body: '<group><title>new_group</title></group>', params: { title: 'new_group', format: :xml }
-      end
+      before { put :update, body: '<group><title>new_group</title></group>', params: { title: 'new_group', format: :xml } }
 
-      it { is_expected.to have_http_status(:success) }
+      it { expect(response).to have_http_status(:success) }
       it { expect(Group.where(title: 'new_group')).to exist }
     end
 
     context 'when the group title does not match with the request body' do
-      subject! do
-        put :update, body: valid_xml, params: { title: 'foo', format: :xml }
-      end
+      before { put :update, body: valid_xml, params: { title: 'foo', format: :xml } }
 
-      it { is_expected.to have_http_status(:bad_request) }
+      it { expect(response).to have_http_status(:bad_request) }
     end
 
     context 'when the user does not have permissions for changing the group' do
@@ -136,13 +122,10 @@ RSpec.describe GroupController do
 
       before do
         login(user)
-      end
-
-      subject do
         put :update, body: valid_xml, params: { title: group.title, format: :xml }
       end
 
-      it { is_expected.to have_http_status(:forbidden) }
+      it { expect(response).to have_http_status(:forbidden) }
     end
   end
 end
