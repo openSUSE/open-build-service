@@ -113,6 +113,7 @@ module Webui::RequestHelper
     "#{diff['project']} / #{diff['package']} (rev #{diff['rev']})"
   end
 
+  # [DEPRECATED] TODO: drop this helper function after request_workflow_redesign is rolled out
   # rubocop:disable Style/FormatString
   def request_action_header(action, creator)
     source_project_hash = { project: action[:sprj], package: action[:spkg], trim_to: nil }
@@ -159,35 +160,6 @@ module Webui::RequestHelper
                       target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
                     }
                   end
-
-    # TODO: merge these extra conditions when request_show_redesign is rolled out.
-    if Flipper.enabled?(:request_show_redesign, User.session)
-      description = case action[:type]
-                    when :submit
-                      'Submit %{source_container} to %{target_container}' % {
-                        source_container: project_or_package_link(source_project_hash),
-                        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
-                      }
-                    when :change_devel
-                      'Set %{source_container} to be devel project/package of %{target_container}' % {
-                        source_container: project_or_package_link(source_project_hash),
-                        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
-                      }
-                    when :maintenance_incident
-                      source_project_hash.update(homeproject: creator)
-                      'Submit update from %{source_container} to %{target_container}' % {
-                        source_container: project_or_package_link(source_project_hash),
-                        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg], trim_to: nil)
-                      }
-                    when :maintenance_release
-                      'Maintenance release %{source_container} to %{target_container}' % {
-                        source_container: project_or_package_link(source_project_hash),
-                        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg], trim_to: nil)
-                      }
-                    else
-                      description
-                    end
-    end
 
     description.html_safe
   end

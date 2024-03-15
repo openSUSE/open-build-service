@@ -41,7 +41,8 @@
     %span#action-seen-by-user-wrapper
       = render ActionSeenByUserComponent.new(action: active_action, user: User.session!)
 
-%p.fst-italic= request_action_header(action, bs_request.creator)
+%p.fst-italic
+  = render BsRequestActionDescriptionComponent.new(action: action, creator: bs_request.creator)
 - if active_action.target_releaseproject
   %p.fst-italic Release in #{project_or_package_link(project: active_action.target_releaseproject)}
 
