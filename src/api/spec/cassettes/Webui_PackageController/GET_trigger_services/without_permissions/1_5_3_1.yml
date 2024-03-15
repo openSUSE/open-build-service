@@ -1,0 +1,240 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Fri, 15 Mar 2024 09:54:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=user_7
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title>The Torment of Others</title>
+          <description>Reiciendis iusto maxime nulla.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '164'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title>The Torment of Others</title>
+          <description>Reiciendis iusto maxime nulla.</description>
+        </package>
+  recorded_at: Fri, 15 Mar 2024 09:54:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/_config
+    body:
+      encoding: UTF-8
+      string: Sapiente sed voluptate. Quibusdam tempore excepturi. Nesciunt enim modi.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="33" vrev="33">
+          <srcmd5>b7c7bca684e0b7510ad8e21e47bacf78</srcmd5>
+          <version>unknown</version>
+          <time>1710496473</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 15 Mar 2024 09:54:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Adipisci unde rerum. Cupiditate ipsum explicabo. Qui consequatur nemo.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="34" vrev="34">
+          <srcmd5>74d5980e6f2ccc8cf7d7ca93d1e0c1bf</srcmd5>
+          <version>unknown</version>
+          <time>1710496473</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 15 Mar 2024 09:54:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_service/_meta?user=user_7
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_service" project="home:tom">
+          <title>Vanity Fair</title>
+          <description>Rerum assumenda molestiae et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_service" project="home:tom">
+          <title>Vanity Fair</title>
+          <description>Rerum assumenda molestiae et.</description>
+        </package>
+  recorded_at: Fri, 15 Mar 2024 09:54:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_service/_service
+    body:
+      encoding: UTF-8
+      string: |
+        <services>
+          <service name="download_url">
+            <param name="host">openbuildservice.org</param>
+            <param name="protocol">https</param>
+            <param name="path">/images/obs-logo.svg</param>
+          </service>
+        </services>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="14" vrev="14">
+          <srcmd5>914f36d53c393586d40e3b5329d7af1a</srcmd5>
+          <version>unknown</version>
+          <time>1710496474</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 15 Mar 2024 09:54:34 GMT
+recorded_with: VCR 6.2.0
