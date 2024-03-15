@@ -46,7 +46,7 @@ RSpec.describe SourceController, :vcr do
       end
 
       it { expect(flash[:error]).to eq("invalid package name '#{multibuild_package.name}:one' (invalid_package_name)") }
-      it { expect(response.status).to eq(302) }
+      it { expect(response).to have_http_status(:found) }
     end
   end
 
@@ -63,7 +63,7 @@ RSpec.describe SourceController, :vcr do
         }
       end
 
-      it { expect(response.status).to eq(302) }
+      it { expect(response).to have_http_status(:found) }
       it { expect(flash[:error]).to have_text('no permission to create package') }
     end
 
@@ -79,7 +79,7 @@ RSpec.describe SourceController, :vcr do
         }
       end
 
-      it { expect(response.status).to eq(200) }
+      it { expect(response).to have_http_status(:ok) }
     end
 
     context 'when not having permissions to set the time' do
@@ -94,7 +94,7 @@ RSpec.describe SourceController, :vcr do
         }
       end
 
-      it { expect(response.status).to eq(302) }
+      it { expect(response).to have_http_status(:found) }
       it { expect(flash[:error]).to have_text('Only administrators are allowed to set the time') }
     end
 
@@ -112,7 +112,7 @@ RSpec.describe SourceController, :vcr do
         }
       end
 
-      it { expect(response.status).to eq(200) }
+      it { expect(response).to have_http_status(:ok) }
     end
   end
 end

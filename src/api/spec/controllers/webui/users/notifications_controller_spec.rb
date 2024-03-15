@@ -14,7 +14,7 @@ RSpec.describe Webui::Users::NotificationsController do
 
   shared_examples 'returning success' do
     it 'returns ok status' do
-      expect(response.status).to be 200
+      expect(response).to have_http_status(:ok)
     end
   end
 
