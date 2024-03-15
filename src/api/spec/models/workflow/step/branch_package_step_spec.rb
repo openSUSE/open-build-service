@@ -195,11 +195,34 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
     end
 
     context 'for a closed_merged SCM webhook event' do
-      skip('WIP')
+      let!(:other_project) { create(:project, name: 'hans:openSUSE:open-build-service:PR-1') }
+      let(:action) { 'closed' }
+      let(:step_instructions) do
+        {
+          source_project: package.project.name,
+          source_package: package.name,
+          target_project: other_project.name.split(':').first
+        }
+      end
+
+      context 'without target_project permission' do
+        it { expect { subject.call }.to raise_error(Pundit::NotAuthorizedError, 'not allowed to destroy? this Project') }
+      end
     end
 
     context 'for a reopened event SCM webhook event' do
-      skip('WIP')
+      let(:action) { 'reopened' }
+      let(:step_instructions) do
+        {
+          source_project: package.project.name,
+          source_package: package.name,
+          target_project: 'hans'
+        }
+      end
+
+      context 'without target_project permission' do
+        it { expect { subject.call }.to raise_error(Pundit::NotAuthorizedError, 'not allowed to create? this Project') }
+      end
     end
   end
 
