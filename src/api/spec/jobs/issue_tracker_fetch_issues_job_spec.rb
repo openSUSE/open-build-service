@@ -9,9 +9,9 @@ RSpec.describe IssueTrackerFetchIssuesJob, :vcr do
     before do
       allow(IssueTracker).to receive(:find_by).and_return(issue_tracker)
       allow(issue_tracker).to receive(:fetch_issues)
-    end
 
-    subject! { IssueTrackerFetchIssuesJob.new.perform(issue_tracker.id) }
+      IssueTrackerFetchIssuesJob.new.perform(issue_tracker.id)
+    end
 
     it 'fetches the issues' do
       expect(issue_tracker).to have_received(:fetch_issues)
