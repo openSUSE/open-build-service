@@ -5,7 +5,8 @@ class UserLdapStrategyTest < ActiveSupport::TestCase
     # Rails.logger = Logger.new(STDOUT)
   end
 
-  def test_authenticate_with_local # spec/models/user_ldap_strategy_spec.rb
+  # spec/models/user_ldap_strategy_spec.rb
+  def test_authenticate_with_local
     a = UserLdapStrategy.authenticate_with_local('', {})
     assert a == false
 
@@ -36,7 +37,8 @@ class UserLdapStrategyTest < ActiveSupport::TestCase
     assert a == true
   end
 
-  def test_dn2user_principal_name # spec/models/user_ldap_strategy_spec.rb
+  # spec/models/user_ldap_strategy_spec.rb
+  def test_dn2user_principal_name
     a = UserLdapStrategy.dn2user_principal_name(['uid=jdoe', 'ou=People', 'dc=opensuse', 'dc=org'])
     assert a == 'jdoe@opensuse.org'
 
