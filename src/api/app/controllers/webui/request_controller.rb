@@ -60,6 +60,8 @@ class Webui::RequestController < Webui::WebuiController
       @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: false)
       @action = @actions.first
       @active = @action[:name]
+      # TODO: this is the last instance of the @not_full_diff variable in the request scope, once request_workflow_redesign beta is rolled out,
+      # let's get rid of this variable and also of `BsRequest.truncated_diffs` as it is no longer used anywhere else
       # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
       @not_full_diff = BsRequest.truncated_diffs?(@actions)
 
