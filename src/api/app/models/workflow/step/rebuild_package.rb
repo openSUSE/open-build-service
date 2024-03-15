@@ -17,7 +17,7 @@ class Workflow::Step::RebuildPackage < Workflow::Step
     set_object_to_authorize
     set_multibuild_flavor
 
-    Pundit.authorize(@token.executor, @token, :rebuild?)
+    Pundit.authorize(@token.executor, @token.object_to_authorize, :update?)
     rebuild_package
     Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, @package).call
   end

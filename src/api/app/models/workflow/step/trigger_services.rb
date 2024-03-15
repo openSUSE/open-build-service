@@ -15,7 +15,7 @@ class Workflow::Step::TriggerServices < Workflow::Step
     set_object_to_authorize
     set_multibuild_flavor
 
-    Pundit.authorize(@token.executor, @token, :trigger_service?)
+    Pundit.authorize(@token.executor, @token.object_to_authorize, :update?)
 
     begin
       Backend::Api::Sources::Package.trigger_services(@project_name, @package_name, @token.executor.login, trigger_service_comment)

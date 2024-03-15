@@ -30,7 +30,7 @@ class TokenPolicy < ApplicationPolicy
   end
 
   def create?
-    record.executor == user
+    record.owned_by?(user)
   end
 
   def destroy?

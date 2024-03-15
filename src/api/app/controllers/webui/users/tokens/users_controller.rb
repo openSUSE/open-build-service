@@ -4,7 +4,7 @@ class Webui::Users::Tokens::UsersController < Webui::WebuiController
   before_action :set_user, only: :destroy
 
   def index
-    authorize @token
+    authorize @token, :update?
 
     @users = @token.users
     @groups = @token.groups
