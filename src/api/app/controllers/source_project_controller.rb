@@ -27,11 +27,11 @@ class SourceProjectController < SourceController
       case params[:view]
       when 'verboseproductlist'
         @products = Product.all_products(@project, params[:expand])
-        render 'source/verboseproductlist'
+        render 'source/verboseproductlist', formats: [:xml]
         return
       when 'productlist'
         @products = Product.all_products(@project, params[:expand])
-        render 'source/productlist'
+        render 'source/productlist', formats: [:xml]
         return
       when 'issues'
         render_project_issues
@@ -48,7 +48,7 @@ class SourceProjectController < SourceController
 
   def render_project_issues
     set_issues_defaults
-    render partial: 'source/project_issues'
+    render partial: 'source/project_issues', formats: [:xml]
   end
 
   def render_project_packages
