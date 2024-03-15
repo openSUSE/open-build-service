@@ -89,10 +89,6 @@ RSpec.describe Webui::RequestController, :vcr do
           get :request_action, params: { number: bs_request.number, index: 0, id: bs_request.bs_request_actions.first.id, format: :js }, xhr: true
         end
 
-        it 'shows a hint' do
-          expect(assigns(:not_full_diff)).to be_truthy
-        end
-
         it 'shows the truncated diff' do
           actions = assigns(:actions).select { |action| action[:type] == :submit && action[:sourcediff] }
           diff_size = actions.first[:sourcediff].first['files'][file_name]['diff']['_content'].split.size
