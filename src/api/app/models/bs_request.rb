@@ -230,6 +230,8 @@ class BsRequest < ApplicationRecord
     request
   end
 
+  # [DEPRECATED] TODO: there is only one instance of the @not_full_diff variable in the request scope which is using this method.
+  # Once request_workflow_redesign beta is rolled out, let's drop this method
   # TODO: refactor this method as soon as the request_show_redesign feature is rolled out.
   # Now it expects an array of action hashes we'll never display more than one action at a time.
   def self.truncated_diffs?(actions)
