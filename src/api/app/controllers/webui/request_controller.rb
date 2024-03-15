@@ -23,7 +23,10 @@ class Webui::RequestController < Webui::WebuiController
   before_action :cache_diff_data, only: %i[show build_results rpm_lint changes mentioned_issues],
                                   if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :check_beta_user_redirect, only: %i[build_results rpm_lint changes mentioned_issues]
-  before_action :set_webui_actions, only: %i[request_action request_action_changes]
+  before_action :set_webui_actions, only: %i[request_action request_action_changes changes]
+  before_action :set_source_package, only: %i[request_action_changes changes]
+  before_action :set_target_package, only: %i[request_action_changes changes]
+  before_action :set_commentable, only: %i[request_action_changes changes]
 
   after_action :verify_authorized, only: [:create]
 
@@ -561,5 +564,16 @@ class Webui::RequestController < Webui::WebuiController
                                          action_id: params['id'].to_i,
                                          cacheonly: 1)
     @action = @actions.find { |action| action[:id] == params['id'].to_i }
+  end
+
+  def source_package
+    Package.get_by_project_and_name(@action.source_project, @action.source_package, { follow_multibuild: true })
+  end
+
+  def target_package
+    # For not accepted maintenance incident requests, the package is not there.
+    return nil unless @action.target_package
+
+    Package.get_by_project_and_name(@action.target_project, @action.target_package, { follow_multibuild: true })
   end
 end

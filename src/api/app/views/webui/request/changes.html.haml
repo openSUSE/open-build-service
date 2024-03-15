@@ -25,7 +25,8 @@
           - @bs_request.superseding.each do |supersed|
             See the changes from
             = link_to "superseded request ##{supersed.number}", request_changes_path(@bs_request, diff_to_superseded: supersed)
-        = render SourcediffComponent.new(bs_request: @bs_request, action: @action)
+        = render SourcediffComponent.new(bs_request: @bs_request, action: @action, commentable: @commentable,
+                                         source_package: @source_package, target_package: @target_package)
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',
                                                  method: :delete,
                                                  options: { modal_title: 'Delete comment?', remote: true })

@@ -1,30 +1,16 @@
 class SourcediffComponent < ApplicationComponent
-  attr_accessor :bs_request, :action, :refresh
+  attr_accessor :bs_request, :action, :refresh, :commentable, :source_package, :target_package
 
   delegate :diff_label, to: :helpers
   delegate :diff_data, to: :helpers
 
-  def initialize(bs_request:, action:)
+  def initialize(bs_request:, action:, commentable:, source_package:, target_package:)
     super
 
     @bs_request = bs_request
     @action = action
-  end
-
-  def commentable
-    BsRequestAction.find(@action.id)
-  end
-
-  def source_package
-    Package.get_by_project_and_name(@action.source_project, @action.source_package, { follow_multibuild: true })
-  rescue Package::UnknownObjectError, Project::Errors::UnknownObjectError
-  end
-
-  def target_package
-    # For not accepted maintenance incident requests, the package is not there.
-    return nil unless @action.target_package
-
-    Package.get_by_project_and_name(@action.target_project, @action.target_package, { follow_multibuild: true })
-  rescue Package::UnknownObjectError, Project::Errors::UnknownObjectError
+    @commentable = commentable
+    @source_package = source_package
+    @target_package = target_package
   end
 end
