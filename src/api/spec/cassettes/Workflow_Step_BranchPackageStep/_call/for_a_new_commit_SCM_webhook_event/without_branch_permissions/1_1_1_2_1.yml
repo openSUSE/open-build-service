@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Mar 2024 12:40:47 GMT
+  recorded_at: Fri, 15 Mar 2024 12:40:46 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_56
+    uri: http://backend:5352/source/foo_project/_meta?user=user_50
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Precious Bane</title>
+          <title>The House of Mirth</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '145'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Precious Bane</title>
+          <title>The House of Mirth</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Mar 2024 12:40:47 GMT
+  recorded_at: Fri, 15 Mar 2024 12:40:46 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_57
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_51
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Have His Carcase</title>
-          <description>Quidem autem necessitatibus ut.</description>
+          <title>For a Breath I Tarry</title>
+          <description>Dolores est et iusto.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Have His Carcase</title>
-          <description>Quidem autem necessitatibus ut.</description>
+          <title>For a Breath I Tarry</title>
+          <description>Dolores est et iusto.</description>
         </package>
-  recorded_at: Fri, 15 Mar 2024 12:40:47 GMT
+  recorded_at: Fri, 15 Mar 2024 12:40:46 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Nisi beatae sit. Numquam asperiores dignissimos. Modi illum est.
+      string: Numquam officiis dolore. Dolores sed vel. Illo occaecati quia.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -147,21 +147,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="23" vrev="23">
-          <srcmd5>11726616d2a5881867193b7ba73d3c26</srcmd5>
+        <revision rev="17" vrev="17">
+          <srcmd5>eb2b5a279af9f4f257fd93d0e6fe0938</srcmd5>
           <version>unknown</version>
-          <time>1710506447</time>
+          <time>1710506446</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Mar 2024 12:40:47 GMT
+  recorded_at: Fri, 15 Mar 2024 12:40:46 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Repellat optio ut. Reprehenderit quis in. Aperiam labore numquam.
+      string: Accusantium sed molestiae. Suscipit molestias quas. Temporibus voluptate
+        enim.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,13 +186,47 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="24" vrev="24">
-          <srcmd5>a60022205129c258a750cdb1c66d172e</srcmd5>
+        <revision rev="18" vrev="18">
+          <srcmd5>4b198025f49039b1a34226a0125327f8</srcmd5>
           <version>unknown</version>
-          <time>1710506447</time>
+          <time>1710506446</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Mar 2024 12:40:47 GMT
+  recorded_at: Fri, 15 Mar 2024 12:40:46 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/foo_project/bar_package?cmd=waitservice
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Fri, 15 Mar 2024 12:40:46 GMT
 recorded_with: VCR 6.2.0
