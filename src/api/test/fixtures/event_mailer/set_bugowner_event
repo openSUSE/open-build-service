@@ -12,6 +12,7 @@ X-Mailer: OBS Notification System
 X-OBS-URL: http://localhost
 Auto-Submitted: auto-generated
 X-OBS-event-type: request_create
+List-ID: OBS Notification System <new.request.localhost>
 X-OBS-Request-Creator: Iggy
 X-OBS-Request-Id: REQUESTID
 X-OBS-Request-State: new
