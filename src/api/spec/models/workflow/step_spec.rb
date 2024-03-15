@@ -220,4 +220,28 @@ RSpec.describe Workflow::Step do
       end
     end
   end
+
+  describe '#validate_required_keys_in_step_instructions' do
+    subject { Workflow::Step::RebuildPackage.new(step_instructions: step_instructions) }
+
+    before do
+      subject.valid?
+    end
+
+    context 'key not provided' do
+      let(:step_instructions) { { package: 'hans' } }
+
+      it 'gives an error for invalid name' do
+        expect(subject.errors[:base]).to include("The 'project' key is missing")
+      end
+    end
+
+    context 'value not provided' do
+      let(:step_instructions) { { project: '', package: 'hans' } }
+
+      it 'gives an error for invalid name' do
+        expect(subject.errors[:base]).to include("The 'project' key must provide a value")
+      end
+    end
+  end
 end
