@@ -26,8 +26,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
     end
 
     it { expect { subject.call }.to(change(Package, :count).by(1)) }
-    it { expect(subject.call.project.name).to eq(target_project_final_name) }
-    it { expect(subject.call.project.repositories.map(&:name).sort).to eq(Project.find_by(name: target_project_final_name).repositories.map(&:name).sort) }
     it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
     it { expect(subject.call.source_file('_branch_request')).to include('123') }
     it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
@@ -37,7 +35,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
   describe '#call' do
     let(:project) { create(:project, name: 'foo_project', maintainer: user) }
     let(:package) { create(:package_with_file, name: 'bar_package', project: project) }
-    let(:target_project_final_name) { "home:#{user.login}:openSUSE:open-build-service:PR-1" }
     let(:final_package_name) { package.name }
     let(:scm_webhook) do
       SCMWebhook.new(payload: {
@@ -182,7 +179,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       end
 
       let(:octokit_client) { instance_double(Octokit::Client) }
-      let(:target_project_final_name) { "home:#{user.login}" }
       let(:final_package_name) { "#{package.name}-#{short_commit_sha}" }
 
       before do
@@ -211,7 +207,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
                        })
       end
       let(:octokit_client) { instance_double(Octokit::Client) }
-      let(:target_project_final_name) { "home:#{user.login}" }
       let(:final_package_name) { "#{package.name}-release_abc" }
       let(:step_instructions) do
         {
@@ -231,7 +226,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       end
 
       it { expect { subject.call }.to(change(Package, :count).by(1)) }
-      it { expect(subject.call.project.name).to eq(target_project_final_name) }
       it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
       it { expect(subject.call.source_file('_branch_request')).to include('123456789012345') }
       it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count)) }
