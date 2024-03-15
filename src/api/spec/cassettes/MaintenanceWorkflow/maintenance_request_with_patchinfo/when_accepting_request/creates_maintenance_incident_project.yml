@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="user_7" role="maintainer"/>
         </project>
-  recorded_at: Thu, 23 Nov 2023 10:04:57 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_meta?user=tom
@@ -79,7 +79,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Thu, 23 Nov 2023 10:04:58 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:Update/_meta?user=tom
@@ -87,7 +87,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="home:tom:branches:Update">
-          <title>Nine Coaches Waiting</title>
+          <title>The Wind's Twelve Quarters</title>
           <description/>
         </project>
     headers:
@@ -109,15 +109,59 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '121'
+      - '127'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom:branches:Update">
-          <title>Nine Coaches Waiting</title>
+          <title>The Wind's Twelve Quarters</title>
           <description></description>
         </project>
-  recorded_at: Thu, 23 Nov 2023 10:04:58 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:Update/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:Update">
+          <title>The Wind's Twelve Quarters</title>
+          <description/>
+          <repository name="repository_16">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '201'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:Update">
+          <title>The Wind's Twelve Quarters</title>
+          <description></description>
+          <repository name="repository_16">
+            <arch>i586</arch>
+          </repository>
+        </project>
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update/_meta?user=tom
@@ -125,8 +169,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="cacti.openSUSE_11.4_Update" project="home:tom:branches:Update">
-          <title>Rosemary Sutcliff</title>
-          <description>Odio vel sed at.</description>
+          <title>A Glass of Blessings</title>
+          <description>Sit excepturi aliquam est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -147,21 +191,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '184'
     body:
       encoding: UTF-8
       string: |
         <package name="cacti.openSUSE_11.4_Update" project="home:tom:branches:Update">
-          <title>Rosemary Sutcliff</title>
-          <description>Odio vel sed at.</description>
+          <title>A Glass of Blessings</title>
+          <description>Sit excepturi aliquam est.</description>
         </package>
-  recorded_at: Thu, 23 Nov 2023 10:04:58 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update/_config
     body:
       encoding: UTF-8
-      string: Sit voluptatem qui. Perferendis exercitationem minus. Commodi est possimus.
+      string: Minima perferendis et. Qui perspiciatis consequatur. Et velit consequatur.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,19 +225,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="15" vrev="15">
-          <srcmd5>f2c12c880e40ec9e41e740d74d86ce6a</srcmd5>
+        <revision rev="7" vrev="7">
+          <srcmd5>49f3516f7c81d21a045112e0e9566f50</srcmd5>
           <version>unknown</version>
-          <time>1700733898</time>
+          <time>1710523809</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 23 Nov 2023 10:04:58 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update/DUMMY_FILE
@@ -219,19 +263,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="16" vrev="16">
-          <srcmd5>f2c12c880e40ec9e41e740d74d86ce6a</srcmd5>
+        <revision rev="8" vrev="8">
+          <srcmd5>49f3516f7c81d21a045112e0e9566f50</srcmd5>
           <version>unknown</version>
-          <time>1700733898</time>
+          <time>1710523809</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 23 Nov 2023 10:04:58 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.5_Update/_meta?user=tom
@@ -239,8 +283,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="cacti.openSUSE_11.5_Update" project="home:tom:branches:Update">
-          <title>A Handful of Dust</title>
-          <description>Magnam et sed optio.</description>
+          <title>For a Breath I Tarry</title>
+          <description>Sequi ut nobis minus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -261,21 +305,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '175'
+      - '179'
     body:
       encoding: UTF-8
       string: |
         <package name="cacti.openSUSE_11.5_Update" project="home:tom:branches:Update">
-          <title>A Handful of Dust</title>
-          <description>Magnam et sed optio.</description>
+          <title>For a Breath I Tarry</title>
+          <description>Sequi ut nobis minus.</description>
         </package>
-  recorded_at: Thu, 23 Nov 2023 10:04:58 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.5_Update/_config
     body:
       encoding: UTF-8
-      string: Debitis totam eum. Accusantium sit perspiciatis. Rerum consequatur ut.
+      string: Vero atque nobis. Explicabo vel et. Consectetur ea consequatur.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -295,19 +339,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="15" vrev="15">
-          <srcmd5>01b350b908add76a355543855f41cf57</srcmd5>
+        <revision rev="7" vrev="7">
+          <srcmd5>640e86736757ea6f8091963b6f98c537</srcmd5>
           <version>unknown</version>
-          <time>1700733898</time>
+          <time>1710523809</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 23 Nov 2023 10:04:58 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.5_Update/DUMMY_FILE
@@ -333,19 +377,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="16" vrev="16">
-          <srcmd5>01b350b908add76a355543855f41cf57</srcmd5>
+        <revision rev="8" vrev="8">
+          <srcmd5>640e86736757ea6f8091963b6f98c537</srcmd5>
           <version>unknown</version>
-          <time>1700733898</time>
+          <time>1710523809</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 23 Nov 2023 10:04:58 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:Update/patchinfo/_meta?user=tom
@@ -401,7 +445,7 @@ http_interactions:
             <disable/>
           </useforbuild>
         </package>
-  recorded_at: Thu, 23 Nov 2023 10:04:59 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:Update/patchinfo/_patchinfo?comment=generated%20by%20createpatchinfo%20call&user=tom
@@ -438,15 +482,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="8" vrev="8">
+        <revision rev="4" vrev="4">
           <srcmd5>e45d013f24b032bd54480cfc08ca5401</srcmd5>
           <version>unknown</version>
-          <time>1700733899</time>
+          <time>1710523809</time>
           <user>tom</user>
           <comment>generated by createpatchinfo call</comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 23 Nov 2023 10:04:59 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:Update/patchinfo/_meta?user=tom
@@ -502,7 +546,7 @@ http_interactions:
             <disable/>
           </useforbuild>
         </package>
-  recorded_at: Thu, 23 Nov 2023 10:04:59 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/patchinfo
@@ -532,10 +576,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="patchinfo" rev="8" vrev="8" srcmd5="e45d013f24b032bd54480cfc08ca5401">
-          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1700733750"/>
+        <directory name="patchinfo" rev="4" vrev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1710523795"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:04:59 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/patchinfo?view=info
@@ -565,10 +609,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="patchinfo" rev="8" vrev="8" srcmd5="e45d013f24b032bd54480cfc08ca5401" verifymd5="e45d013f24b032bd54480cfc08ca5401">
+        <sourceinfo package="patchinfo" rev="4" vrev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401" verifymd5="e45d013f24b032bd54480cfc08ca5401">
           <filename>_patchinfo</filename>
         </sourceinfo>
-  recorded_at: Thu, 23 Nov 2023 10:04:59 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/patchinfo
@@ -598,10 +642,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="patchinfo" rev="8" vrev="8" srcmd5="e45d013f24b032bd54480cfc08ca5401">
-          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1700733750"/>
+        <directory name="patchinfo" rev="4" vrev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1710523795"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:04:59 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/patchinfo/_patchinfo
@@ -638,7 +682,7 @@ http_interactions:
           <summary/>
           <description/>
         </patchinfo>
-  recorded_at: Thu, 23 Nov 2023 10:04:59 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:11.4/_meta?user=user_7
@@ -646,7 +690,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE:11.4">
-          <title>Great Work of Time</title>
+          <title>Precious Bane</title>
           <description/>
         </project>
     headers:
@@ -668,15 +712,59 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '108'
+      - '103'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:11.4">
-          <title>Great Work of Time</title>
+          <title>Precious Bane</title>
           <description></description>
         </project>
-  recorded_at: Thu, 23 Nov 2023 10:04:59 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:11.4/_meta?user=user_7
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:11.4">
+          <title>Precious Bane</title>
+          <description/>
+          <repository name="repository_17">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '177'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:11.4">
+          <title>Precious Bane</title>
+          <description></description>
+          <repository name="repository_17">
+            <arch>i586</arch>
+          </repository>
+        </project>
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:11.4/cacti/_meta?user=user_7
@@ -684,8 +772,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="cacti" project="openSUSE:11.4">
-          <title>To Your Scattered Bodies Go</title>
-          <description>Quaerat numquam aperiam incidunt.</description>
+          <title>The Daffodil Sky</title>
+          <description>Vitae ab est omnis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -706,22 +794,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '141'
     body:
       encoding: UTF-8
       string: |
         <package name="cacti" project="openSUSE:11.4">
-          <title>To Your Scattered Bodies Go</title>
-          <description>Quaerat numquam aperiam incidunt.</description>
+          <title>The Daffodil Sky</title>
+          <description>Vitae ab est omnis.</description>
         </package>
-  recorded_at: Thu, 23 Nov 2023 10:04:59 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:11.4/cacti/_config
     body:
       encoding: UTF-8
-      string: Adipisci officiis doloremque. Sapiente voluptatum deleniti. Ullam perspiciatis
-        quod.
+      string: Natus aperiam recusandae. Iure enim illo. Animi nemo illo.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -741,26 +828,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="15" vrev="15">
-          <srcmd5>12523657d1c93b6a2d91edf5939713d0</srcmd5>
+        <revision rev="7" vrev="7">
+          <srcmd5>9fc6eaf4097ef974cdc5ab8a2ddf9bde</srcmd5>
           <version>unknown</version>
-          <time>1700733899</time>
+          <time>1710523809</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 23 Nov 2023 10:04:59 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:11.4/cacti/somefile.txt
     body:
       encoding: UTF-8
-      string: Voluptates laudantium numquam. Consequatur fuga consectetur. Eveniet
-        est ullam.
+      string: Nemo quaerat quo. Voluptatem est reprehenderit. Aut aut ea.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -780,19 +866,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="16" vrev="16">
-          <srcmd5>4ff2a63be65badd60eb145a168fafec2</srcmd5>
+        <revision rev="8" vrev="8">
+          <srcmd5>af644bcc09da5e608c1523641c40b77e</srcmd5>
           <version>unknown</version>
-          <time>1700733899</time>
+          <time>1710523809</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 23 Nov 2023 10:04:59 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:11.4:Update/_meta?user=user_7
@@ -800,7 +886,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE:11.4:Update" kind="maintenance_release">
-          <title>Of Mice and Men</title>
+          <title>Number the Stars</title>
           <description/>
         </project>
     headers:
@@ -822,15 +908,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '139'
+      - '140'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:11.4:Update" kind="maintenance_release">
-          <title>Of Mice and Men</title>
+          <title>Number the Stars</title>
           <description></description>
         </project>
-  recorded_at: Thu, 23 Nov 2023 10:04:59 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:11.4:Update/_project/_attribute?meta=1&user=user_7
@@ -863,14 +949,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="23">
-          <srcmd5>7bf9e769f4549101338bb500134ae183</srcmd5>
-          <time>1700733899</time>
+        <revision rev="11">
+          <srcmd5>db78bf2e0c985625a270ac4970f441f5</srcmd5>
+          <time>1710523809</time>
           <user>user_7</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 23 Nov 2023 10:04:59 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:11.4/_project/_attribute?meta=1&user=user_7
@@ -905,14 +991,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="16">
-          <srcmd5>ee81493d81bb9eb66faedb98b08592a4</srcmd5>
-          <time>1700733899</time>
+        <revision rev="12">
+          <srcmd5>df1b017c1f6f424992c91fdda604087d</srcmd5>
+          <time>1710523809</time>
           <user>user_7</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 23 Nov 2023 10:04:59 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:11.4:Update/_meta?user=user_7
@@ -920,7 +1006,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE:11.4:Update" kind="maintenance_release">
-          <title>Of Mice and Men</title>
+          <title>Number the Stars</title>
           <description/>
           <link project="openSUSE:11.4"/>
         </project>
@@ -943,16 +1029,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '173'
+      - '174'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:11.4:Update" kind="maintenance_release">
-          <title>Of Mice and Men</title>
+          <title>Number the Stars</title>
           <description></description>
           <link project="openSUSE:11.4"/>
         </project>
-  recorded_at: Thu, 23 Nov 2023 10:05:00 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:11.5/_meta?user=user_7
@@ -960,7 +1046,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE:11.5">
-          <title>Jacob Have I Loved</title>
+          <title>That Hideous Strength</title>
           <description/>
         </project>
     headers:
@@ -982,15 +1068,59 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '108'
+      - '111'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:11.5">
-          <title>Jacob Have I Loved</title>
+          <title>That Hideous Strength</title>
           <description></description>
         </project>
-  recorded_at: Thu, 23 Nov 2023 10:05:00 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:11.5/_meta?user=user_7
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:11.5">
+          <title>That Hideous Strength</title>
+          <description/>
+          <repository name="repository_19">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '185'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:11.5">
+          <title>That Hideous Strength</title>
+          <description></description>
+          <repository name="repository_19">
+            <arch>i586</arch>
+          </repository>
+        </project>
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:11.5/cacti/_meta?user=user_7
@@ -998,8 +1128,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="cacti" project="openSUSE:11.5">
-          <title>The House of Mirth</title>
-          <description>Saepe velit aut minus.</description>
+          <title>The Road Less Traveled</title>
+          <description>Natus nostrum distinctio voluptate.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -1020,21 +1150,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '163'
     body:
       encoding: UTF-8
       string: |
         <package name="cacti" project="openSUSE:11.5">
-          <title>The House of Mirth</title>
-          <description>Saepe velit aut minus.</description>
+          <title>The Road Less Traveled</title>
+          <description>Natus nostrum distinctio voluptate.</description>
         </package>
-  recorded_at: Thu, 23 Nov 2023 10:05:00 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:11.5/cacti/_config
     body:
       encoding: UTF-8
-      string: Laborum qui accusantium. Minima veritatis maiores. Laborum et voluptas.
+      string: Et laborum sunt. Quidem sed minus. Eos fuga nihil.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -1054,25 +1184,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="15" vrev="15">
-          <srcmd5>eda3ad5e1131ab0cc7d366f6fb0c0b62</srcmd5>
+        <revision rev="7" vrev="7">
+          <srcmd5>499bb2a3aacbb843cb969b65a4e3c439</srcmd5>
           <version>unknown</version>
-          <time>1700733900</time>
+          <time>1710523810</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 23 Nov 2023 10:05:00 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:11.5/cacti/somefile.txt
     body:
       encoding: UTF-8
-      string: Architecto nihil accusamus. Dicta nobis recusandae. Velit minima est.
+      string: Eum nam est. Tempora rerum eligendi. Nemo explicabo qui.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -1092,19 +1222,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="16" vrev="16">
-          <srcmd5>a64f3b2c69fab3b8816e52e65d2a1672</srcmd5>
+        <revision rev="8" vrev="8">
+          <srcmd5>23432e8a98b0e01bd33186363f12aecd</srcmd5>
           <version>unknown</version>
-          <time>1700733900</time>
+          <time>1710523810</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 23 Nov 2023 10:05:00 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:11.5:Update/_meta?user=user_7
@@ -1112,7 +1242,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE:11.5:Update" kind="maintenance_release">
-          <title>The Way of All Flesh</title>
+          <title>O Jerusalem!</title>
           <description/>
         </project>
     headers:
@@ -1134,15 +1264,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '136'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:11.5:Update" kind="maintenance_release">
-          <title>The Way of All Flesh</title>
+          <title>O Jerusalem!</title>
           <description></description>
         </project>
-  recorded_at: Thu, 23 Nov 2023 10:05:00 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:11.5:Update/_project/_attribute?meta=1&user=user_7
@@ -1175,14 +1305,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="23">
-          <srcmd5>8988c335b76d47746dfc0328135499cd</srcmd5>
-          <time>1700733900</time>
+        <revision rev="11">
+          <srcmd5>7cacf82801d09efb57ad5c7b1de363ad</srcmd5>
+          <time>1710523810</time>
           <user>user_7</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 23 Nov 2023 10:05:00 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:11.5/_project/_attribute?meta=1&user=user_7
@@ -1217,14 +1347,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="16">
-          <srcmd5>7c179b88745aa05bf70f94c3b560e33f</srcmd5>
-          <time>1700733900</time>
+        <revision rev="12">
+          <srcmd5>100981b2b869590219ffa81c3c367a51</srcmd5>
+          <time>1710523810</time>
           <user>user_7</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 23 Nov 2023 10:05:00 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:11.5:Update/_meta?user=user_7
@@ -1232,7 +1362,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE:11.5:Update" kind="maintenance_release">
-          <title>The Way of All Flesh</title>
+          <title>O Jerusalem!</title>
           <description/>
           <link project="openSUSE:11.5"/>
         </project>
@@ -1255,16 +1385,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '178'
+      - '170'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:11.5:Update" kind="maintenance_release">
-          <title>The Way of All Flesh</title>
+          <title>O Jerusalem!</title>
           <description></description>
           <link project="openSUSE:11.5"/>
         </project>
-  recorded_at: Thu, 23 Nov 2023 10:05:00 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:maintenance_coord/_meta?user=maintenance_coord
@@ -1304,7 +1434,7 @@ http_interactions:
           <description></description>
           <person userid="maintenance_coord" role="maintainer"/>
         </project>
-  recorded_at: Thu, 23 Nov 2023 10:05:00 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject/_meta?user=user_7
@@ -1350,7 +1480,7 @@ http_interactions:
             <disable/>
           </build>
         </project>
-  recorded_at: Thu, 23 Nov 2023 10:05:01 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject/_project/_attribute?meta=1&user=user_7
@@ -1383,14 +1513,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="23">
+        <revision rev="20">
           <srcmd5>b5ac59f5d2a72c7f98586b6c1dbf55de</srcmd5>
-          <time>1700733901</time>
+          <time>1710523810</time>
           <user>user_7</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 23 Nov 2023 10:05:01 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject/_meta?user=user_7
@@ -1436,7 +1566,7 @@ http_interactions:
             <disable/>
           </build>
         </project>
-  recorded_at: Thu, 23 Nov 2023 10:05:01 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update
@@ -1462,15 +1592,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '310'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.4_Update" rev="16" vrev="16" srcmd5="f2c12c880e40ec9e41e740d74d86ce6a">
-          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1700733749"/>
-          <entry name="_config" md5="fff01f3b0d53b6810600c04dedf14055" size="75" mtime="1700733898"/>
+        <directory name="cacti.openSUSE_11.4_Update" rev="8" vrev="8" srcmd5="49f3516f7c81d21a045112e0e9566f50">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1710523794"/>
+          <entry name="_config" md5="2168eda3a92b381b07a84cc54ca20f12" size="74" mtime="1710523809"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:01 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update
@@ -1496,18 +1626,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '310'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.4_Update" rev="16" vrev="16" srcmd5="f2c12c880e40ec9e41e740d74d86ce6a">
-          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1700733749"/>
-          <entry name="_config" md5="fff01f3b0d53b6810600c04dedf14055" size="75" mtime="1700733898"/>
+        <directory name="cacti.openSUSE_11.4_Update" rev="8" vrev="8" srcmd5="49f3516f7c81d21a045112e0e9566f50">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1710523794"/>
+          <entry name="_config" md5="2168eda3a92b381b07a84cc54ca20f12" size="74" mtime="1710523809"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:01 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update?cmd=diff&expand=1&filelimit=10000&orev=0&rev=16&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update?cmd=diff&expand=1&filelimit=10000&orev=0&rev=8&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -1532,13 +1662,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '839'
+      - '837'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="78a53ea253dc54352bc86ff50c668a86">
+        <sourcediff key="32d19e00adb6f236b2871280e78dfb56">
           <old project="home:tom:branches:Update" package="cacti.openSUSE_11.4_Update" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:tom:branches:Update" package="cacti.openSUSE_11.4_Update" rev="16" srcmd5="f2c12c880e40ec9e41e740d74d86ce6a"/>
+          <new project="home:tom:branches:Update" package="cacti.openSUSE_11.4_Update" rev="8" srcmd5="49f3516f7c81d21a045112e0e9566f50"/>
           <files>
             <file state="added">
               <new name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9"/>
@@ -1548,9 +1678,9 @@ http_interactions:
         </diff>
             </file>
             <file state="added">
-              <new name="_config" md5="fff01f3b0d53b6810600c04dedf14055" size="75"/>
+              <new name="_config" md5="2168eda3a92b381b07a84cc54ca20f12" size="74"/>
               <diff lines="3">@@ -0,0 +1,1 @@
-        +Sit voluptatem qui. Perferendis exercitationem minus. Commodi est possimus.
+        +Minima perferendis et. Qui perspiciatis consequatur. Et velit consequatur.
         \ No newline at end of file
         </diff>
             </file>
@@ -1558,7 +1688,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 23 Nov 2023 10:05:01 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.5_Update
@@ -1584,15 +1714,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '310'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.5_Update" rev="16" vrev="16" srcmd5="01b350b908add76a355543855f41cf57">
-          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1700733749"/>
-          <entry name="_config" md5="05320a630ff5e32a39efc5f6b0fadbf0" size="70" mtime="1700733898"/>
+        <directory name="cacti.openSUSE_11.5_Update" rev="8" vrev="8" srcmd5="640e86736757ea6f8091963b6f98c537">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1710523794"/>
+          <entry name="_config" md5="c2fd967cd115fbd3772d01c25e639fc4" size="63" mtime="1710523809"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:01 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.5_Update
@@ -1618,18 +1748,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '310'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.5_Update" rev="16" vrev="16" srcmd5="01b350b908add76a355543855f41cf57">
-          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1700733749"/>
-          <entry name="_config" md5="05320a630ff5e32a39efc5f6b0fadbf0" size="70" mtime="1700733898"/>
+        <directory name="cacti.openSUSE_11.5_Update" rev="8" vrev="8" srcmd5="640e86736757ea6f8091963b6f98c537">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1710523794"/>
+          <entry name="_config" md5="c2fd967cd115fbd3772d01c25e639fc4" size="63" mtime="1710523809"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:01 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.5_Update?cmd=diff&expand=1&filelimit=10000&orev=0&rev=16&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.5_Update?cmd=diff&expand=1&filelimit=10000&orev=0&rev=8&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -1654,13 +1784,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '834'
+      - '826'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="0591236a1cc19700b9084547c89d4bd5">
+        <sourcediff key="6d7157e6c8fd98108e497aa72aa1b0a9">
           <old project="home:tom:branches:Update" package="cacti.openSUSE_11.5_Update" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:tom:branches:Update" package="cacti.openSUSE_11.5_Update" rev="16" srcmd5="01b350b908add76a355543855f41cf57"/>
+          <new project="home:tom:branches:Update" package="cacti.openSUSE_11.5_Update" rev="8" srcmd5="640e86736757ea6f8091963b6f98c537"/>
           <files>
             <file state="added">
               <new name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9"/>
@@ -1670,9 +1800,9 @@ http_interactions:
         </diff>
             </file>
             <file state="added">
-              <new name="_config" md5="05320a630ff5e32a39efc5f6b0fadbf0" size="70"/>
+              <new name="_config" md5="c2fd967cd115fbd3772d01c25e639fc4" size="63"/>
               <diff lines="3">@@ -0,0 +1,1 @@
-        +Debitis totam eum. Accusantium sit perspiciatis. Rerum consequatur ut.
+        +Vero atque nobis. Explicabo vel et. Consectetur ea consequatur.
         \ No newline at end of file
         </diff>
             </file>
@@ -1680,7 +1810,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 23 Nov 2023 10:05:01 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/patchinfo
@@ -1710,10 +1840,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="patchinfo" rev="8" vrev="8" srcmd5="e45d013f24b032bd54480cfc08ca5401">
-          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1700733750"/>
+        <directory name="patchinfo" rev="4" vrev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1710523795"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:01 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/patchinfo
@@ -1743,13 +1873,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="patchinfo" rev="8" vrev="8" srcmd5="e45d013f24b032bd54480cfc08ca5401">
-          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1700733750"/>
+        <directory name="patchinfo" rev="4" vrev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1710523795"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:01 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom:branches:Update/patchinfo?cmd=diff&expand=1&filelimit=10000&orev=0&rev=8&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/home:tom:branches:Update/patchinfo?cmd=diff&expand=1&filelimit=10000&orev=0&rev=4&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -1778,9 +1908,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="af3a1bdfe1861bd12fc6b5eb5fe82389">
+        <sourcediff key="212b6be0d7b6f384c9fac1a814c768e5">
           <old project="home:tom:branches:Update" package="patchinfo" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:tom:branches:Update" package="patchinfo" rev="8" srcmd5="e45d013f24b032bd54480cfc08ca5401"/>
+          <new project="home:tom:branches:Update" package="patchinfo" rev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401"/>
           <files>
             <file state="added">
               <new name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139"/>
@@ -1799,16 +1929,16 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 23 Nov 2023 10:05:01 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:10 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update
+    uri: http://backend:5352/build/home:tom:branches:Update/_result?lastbuild=0&locallink=1&multibuild=1&package=cacti.openSUSE_11.4_Update&view=status
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - f35d6bb6-f02c-4910-8996-14c378a2e698
+      - 92ca1729-c94d-4e39-9f56-a7e28bb1757a
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1827,24 +1957,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '310'
+      - '234'
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.4_Update" rev="16" vrev="16" srcmd5="f2c12c880e40ec9e41e740d74d86ce6a">
-          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1700733749"/>
-          <entry name="_config" md5="fff01f3b0d53b6810600c04dedf14055" size="75" mtime="1700733898"/>
-        </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:01 GMT
+        <resultlist state="27c2f1ae92f0d07a896bef5c212524b3">
+          <result project="home:tom:branches:Update" repository="repository_16" arch="i586" code="broken" state="broken" details="no build type (home:tom:branches:Update)"/>
+        </resultlist>
+  recorded_at: Fri, 15 Mar 2024 17:30:11 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update
+    uri: http://backend:5352/build/home:tom:branches:Update/_result?lastbuild=0&locallink=1&multibuild=1&package=cacti.openSUSE_11.5_Update&view=status
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - f35d6bb6-f02c-4910-8996-14c378a2e698
+      - 92ca1729-c94d-4e39-9f56-a7e28bb1757a
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1863,18 +1992,124 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '310'
+      - '234'
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.4_Update" rev="16" vrev="16" srcmd5="f2c12c880e40ec9e41e740d74d86ce6a">
-          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1700733749"/>
-          <entry name="_config" md5="fff01f3b0d53b6810600c04dedf14055" size="75" mtime="1700733898"/>
+        <resultlist state="27c2f1ae92f0d07a896bef5c212524b3">
+          <result project="home:tom:branches:Update" repository="repository_16" arch="i586" code="broken" state="broken" details="no build type (home:tom:branches:Update)"/>
+        </resultlist>
+  recorded_at: Fri, 15 Mar 2024 17:30:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:Update/_result?lastbuild=0&locallink=1&multibuild=1&package=patchinfo&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 92ca1729-c94d-4e39-9f56-a7e28bb1757a
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '234'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="27c2f1ae92f0d07a896bef5c212524b3">
+          <result project="home:tom:branches:Update" repository="repository_16" arch="i586" code="broken" state="broken" details="no build type (home:tom:branches:Update)"/>
+        </resultlist>
+  recorded_at: Fri, 15 Mar 2024 17:30:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 92ca1729-c94d-4e39-9f56-a7e28bb1757a
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '308'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="cacti.openSUSE_11.4_Update" rev="8" vrev="8" srcmd5="49f3516f7c81d21a045112e0e9566f50">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1710523794"/>
+          <entry name="_config" md5="2168eda3a92b381b07a84cc54ca20f12" size="74" mtime="1710523809"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:01 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 92ca1729-c94d-4e39-9f56-a7e28bb1757a
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '308'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="cacti.openSUSE_11.4_Update" rev="8" vrev="8" srcmd5="49f3516f7c81d21a045112e0e9566f50">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1710523794"/>
+          <entry name="_config" md5="2168eda3a92b381b07a84cc54ca20f12" size="74" mtime="1710523809"/>
+        </directory>
+  recorded_at: Fri, 15 Mar 2024 17:30:11 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update?cmd=diff&expand=1&filelimit=10000&orev=0&rev=16&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update?cacheonly=1&cmd=diff&expand=1&filelimit=10000&orev=0&rev=8&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -1882,7 +2117,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Request-Id:
-      - f35d6bb6-f02c-4910-8996-14c378a2e698
+      - 92ca1729-c94d-4e39-9f56-a7e28bb1757a
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1897,7 +2132,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '839'
+      - '837'
       Cache-Control:
       - no-cache
       Connection:
@@ -1905,9 +2140,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="78a53ea253dc54352bc86ff50c668a86">
+        <sourcediff key="32d19e00adb6f236b2871280e78dfb56">
           <old project="home:tom:branches:Update" package="cacti.openSUSE_11.4_Update" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:tom:branches:Update" package="cacti.openSUSE_11.4_Update" rev="16" srcmd5="f2c12c880e40ec9e41e740d74d86ce6a"/>
+          <new project="home:tom:branches:Update" package="cacti.openSUSE_11.4_Update" rev="8" srcmd5="49f3516f7c81d21a045112e0e9566f50"/>
           <files>
             <file state="added">
               <new name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9"/>
@@ -1917,9 +2152,9 @@ http_interactions:
         </diff>
             </file>
             <file state="added">
-              <new name="_config" md5="fff01f3b0d53b6810600c04dedf14055" size="75"/>
+              <new name="_config" md5="2168eda3a92b381b07a84cc54ca20f12" size="74"/>
               <diff lines="3">@@ -0,0 +1,1 @@
-        +Sit voluptatem qui. Perferendis exercitationem minus. Commodi est possimus.
+        +Minima perferendis et. Qui perspiciatis consequatur. Et velit consequatur.
         \ No newline at end of file
         </diff>
             </file>
@@ -1927,7 +2162,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 23 Nov 2023 10:05:01 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:11 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/patchinfo
@@ -1936,7 +2171,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - f35d6bb6-f02c-4910-8996-14c378a2e698
+      - 92ca1729-c94d-4e39-9f56-a7e28bb1757a
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1959,13 +2194,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="patchinfo" rev="8" vrev="8" srcmd5="e45d013f24b032bd54480cfc08ca5401">
-          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1700733750"/>
+        <directory name="patchinfo" rev="4" vrev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1710523795"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:01 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:11 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom:branches:Update/patchinfo/_patchinfo?rev=8
+    uri: http://backend:5352/source/home:tom:branches:Update/patchinfo/_patchinfo?rev=4
     body:
       encoding: US-ASCII
       string: ''
@@ -1999,7 +2234,7 @@ http_interactions:
           <summary/>
           <description/>
         </patchinfo>
-  recorded_at: Thu, 23 Nov 2023 10:05:01 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:11 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:Update/_result?lastbuild=0&locallink=1&multibuild=1&package=cacti.openSUSE_11.4_Update&view=status
@@ -2008,7 +2243,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - f35d6bb6-f02c-4910-8996-14c378a2e698
+      - 3ca9a0f8-0cc3-4a17-812f-581f58d89111
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2027,13 +2262,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '55'
+      - '234'
     body:
       encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-  recorded_at: Thu, 23 Nov 2023 10:05:01 GMT
+      string: |
+        <resultlist state="27c2f1ae92f0d07a896bef5c212524b3">
+          <result project="home:tom:branches:Update" repository="repository_16" arch="i586" code="broken" state="broken" details="no build type (home:tom:branches:Update)"/>
+        </resultlist>
+  recorded_at: Fri, 15 Mar 2024 17:30:11 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:Update/_result?lastbuild=0&locallink=1&multibuild=1&package=cacti.openSUSE_11.5_Update&view=status
@@ -2042,7 +2278,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - f35d6bb6-f02c-4910-8996-14c378a2e698
+      - 3ca9a0f8-0cc3-4a17-812f-581f58d89111
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2061,13 +2297,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '55'
+      - '234'
     body:
       encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-  recorded_at: Thu, 23 Nov 2023 10:05:02 GMT
+      string: |
+        <resultlist state="27c2f1ae92f0d07a896bef5c212524b3">
+          <result project="home:tom:branches:Update" repository="repository_16" arch="i586" code="broken" state="broken" details="no build type (home:tom:branches:Update)"/>
+        </resultlist>
+  recorded_at: Fri, 15 Mar 2024 17:30:11 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:Update/_result?lastbuild=0&locallink=1&multibuild=1&package=patchinfo&view=status
@@ -2076,7 +2313,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - f35d6bb6-f02c-4910-8996-14c378a2e698
+      - 3ca9a0f8-0cc3-4a17-812f-581f58d89111
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2095,13 +2332,119 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '55'
+      - '234'
     body:
       encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-  recorded_at: Thu, 23 Nov 2023 10:05:02 GMT
+      string: |
+        <resultlist state="27c2f1ae92f0d07a896bef5c212524b3">
+          <result project="home:tom:branches:Update" repository="repository_16" arch="i586" code="broken" state="broken" details="no build type (home:tom:branches:Update)"/>
+        </resultlist>
+  recorded_at: Fri, 15 Mar 2024 17:30:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:Update/_result?lastbuild=0&locallink=1&multibuild=1&package=cacti.openSUSE_11.4_Update&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 2a103b49-2d03-4e24-8e96-df400569e6c6
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '234'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="27c2f1ae92f0d07a896bef5c212524b3">
+          <result project="home:tom:branches:Update" repository="repository_16" arch="i586" code="broken" state="broken" details="no build type (home:tom:branches:Update)"/>
+        </resultlist>
+  recorded_at: Fri, 15 Mar 2024 17:30:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:Update/_result?lastbuild=0&locallink=1&multibuild=1&package=cacti.openSUSE_11.5_Update&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 2a103b49-2d03-4e24-8e96-df400569e6c6
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '234'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="27c2f1ae92f0d07a896bef5c212524b3">
+          <result project="home:tom:branches:Update" repository="repository_16" arch="i586" code="broken" state="broken" details="no build type (home:tom:branches:Update)"/>
+        </resultlist>
+  recorded_at: Fri, 15 Mar 2024 17:30:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:Update/_result?lastbuild=0&locallink=1&multibuild=1&package=patchinfo&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 2a103b49-2d03-4e24-8e96-df400569e6c6
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '234'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="27c2f1ae92f0d07a896bef5c212524b3">
+          <result project="home:tom:branches:Update" repository="repository_16" arch="i586" code="broken" state="broken" details="no build type (home:tom:branches:Update)"/>
+        </resultlist>
+  recorded_at: Fri, 15 Mar 2024 17:30:12 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update
@@ -2110,7 +2453,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 70c62f5a-3a2c-401e-9f5e-f9685cd0e307
+      - 2a103b49-2d03-4e24-8e96-df400569e6c6
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2129,15 +2472,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '310'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.4_Update" rev="16" vrev="16" srcmd5="f2c12c880e40ec9e41e740d74d86ce6a">
-          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1700733749"/>
-          <entry name="_config" md5="fff01f3b0d53b6810600c04dedf14055" size="75" mtime="1700733898"/>
+        <directory name="cacti.openSUSE_11.4_Update" rev="8" vrev="8" srcmd5="49f3516f7c81d21a045112e0e9566f50">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1710523794"/>
+          <entry name="_config" md5="2168eda3a92b381b07a84cc54ca20f12" size="74" mtime="1710523809"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:03 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:12 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update
@@ -2146,7 +2489,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 70c62f5a-3a2c-401e-9f5e-f9685cd0e307
+      - 2a103b49-2d03-4e24-8e96-df400569e6c6
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2165,18 +2508,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '310'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.4_Update" rev="16" vrev="16" srcmd5="f2c12c880e40ec9e41e740d74d86ce6a">
-          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1700733749"/>
-          <entry name="_config" md5="fff01f3b0d53b6810600c04dedf14055" size="75" mtime="1700733898"/>
+        <directory name="cacti.openSUSE_11.4_Update" rev="8" vrev="8" srcmd5="49f3516f7c81d21a045112e0e9566f50">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1710523794"/>
+          <entry name="_config" md5="2168eda3a92b381b07a84cc54ca20f12" size="74" mtime="1710523809"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:03 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:12 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update?cmd=diff&expand=1&filelimit=10000&orev=0&rev=16&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update?cacheonly=1&cmd=diff&expand=1&filelimit=10000&orev=0&rev=8&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -2184,7 +2527,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Request-Id:
-      - 70c62f5a-3a2c-401e-9f5e-f9685cd0e307
+      - 2a103b49-2d03-4e24-8e96-df400569e6c6
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2199,7 +2542,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '839'
+      - '837'
       Cache-Control:
       - no-cache
       Connection:
@@ -2207,9 +2550,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="78a53ea253dc54352bc86ff50c668a86">
+        <sourcediff key="32d19e00adb6f236b2871280e78dfb56">
           <old project="home:tom:branches:Update" package="cacti.openSUSE_11.4_Update" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:tom:branches:Update" package="cacti.openSUSE_11.4_Update" rev="16" srcmd5="f2c12c880e40ec9e41e740d74d86ce6a"/>
+          <new project="home:tom:branches:Update" package="cacti.openSUSE_11.4_Update" rev="8" srcmd5="49f3516f7c81d21a045112e0e9566f50"/>
           <files>
             <file state="added">
               <new name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9"/>
@@ -2219,9 +2562,9 @@ http_interactions:
         </diff>
             </file>
             <file state="added">
-              <new name="_config" md5="fff01f3b0d53b6810600c04dedf14055" size="75"/>
+              <new name="_config" md5="2168eda3a92b381b07a84cc54ca20f12" size="74"/>
               <diff lines="3">@@ -0,0 +1,1 @@
-        +Sit voluptatem qui. Perferendis exercitationem minus. Commodi est possimus.
+        +Minima perferendis et. Qui perspiciatis consequatur. Et velit consequatur.
         \ No newline at end of file
         </diff>
             </file>
@@ -2229,7 +2572,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 23 Nov 2023 10:05:03 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:12 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/patchinfo
@@ -2238,7 +2581,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 70c62f5a-3a2c-401e-9f5e-f9685cd0e307
+      - 2a103b49-2d03-4e24-8e96-df400569e6c6
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2261,13 +2604,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="patchinfo" rev="8" vrev="8" srcmd5="e45d013f24b032bd54480cfc08ca5401">
-          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1700733750"/>
+        <directory name="patchinfo" rev="4" vrev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1710523795"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:03 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:12 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom:branches:Update/patchinfo/_patchinfo?rev=8
+    uri: http://backend:5352/source/home:tom:branches:Update/patchinfo/_patchinfo?rev=4
     body:
       encoding: US-ASCII
       string: ''
@@ -2301,7 +2644,7 @@ http_interactions:
           <summary/>
           <description/>
         </patchinfo>
-  recorded_at: Thu, 23 Nov 2023 10:05:03 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:12 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:Update/_result?lastbuild=0&locallink=1&multibuild=1&package=cacti.openSUSE_11.4_Update&view=status
@@ -2310,7 +2653,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 70c62f5a-3a2c-401e-9f5e-f9685cd0e307
+      - 21130894-d00b-4cc1-b05c-a97d24e6f410
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2329,13 +2672,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '55'
+      - '234'
     body:
       encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-  recorded_at: Thu, 23 Nov 2023 10:05:03 GMT
+      string: |
+        <resultlist state="27c2f1ae92f0d07a896bef5c212524b3">
+          <result project="home:tom:branches:Update" repository="repository_16" arch="i586" code="broken" state="broken" details="no build type (home:tom:branches:Update)"/>
+        </resultlist>
+  recorded_at: Fri, 15 Mar 2024 17:30:12 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:Update/_result?lastbuild=0&locallink=1&multibuild=1&package=cacti.openSUSE_11.5_Update&view=status
@@ -2344,7 +2688,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 70c62f5a-3a2c-401e-9f5e-f9685cd0e307
+      - 21130894-d00b-4cc1-b05c-a97d24e6f410
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2363,13 +2707,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '55'
+      - '234'
     body:
       encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-  recorded_at: Thu, 23 Nov 2023 10:05:03 GMT
+      string: |
+        <resultlist state="27c2f1ae92f0d07a896bef5c212524b3">
+          <result project="home:tom:branches:Update" repository="repository_16" arch="i586" code="broken" state="broken" details="no build type (home:tom:branches:Update)"/>
+        </resultlist>
+  recorded_at: Fri, 15 Mar 2024 17:30:12 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom:branches:Update/_result?lastbuild=0&locallink=1&multibuild=1&package=patchinfo&view=status
@@ -2378,7 +2723,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 70c62f5a-3a2c-401e-9f5e-f9685cd0e307
+      - 21130894-d00b-4cc1-b05c-a97d24e6f410
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2397,13 +2742,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '55'
+      - '234'
     body:
       encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-  recorded_at: Thu, 23 Nov 2023 10:05:03 GMT
+      string: |
+        <resultlist state="27c2f1ae92f0d07a896bef5c212524b3">
+          <result project="home:tom:branches:Update" repository="repository_16" arch="i586" code="broken" state="broken" details="no build type (home:tom:branches:Update)"/>
+        </resultlist>
+  recorded_at: Fri, 15 Mar 2024 17:30:12 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update
@@ -2412,7 +2758,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2431,15 +2777,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '310'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.4_Update" rev="16" vrev="16" srcmd5="f2c12c880e40ec9e41e740d74d86ce6a">
-          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1700733749"/>
-          <entry name="_config" md5="fff01f3b0d53b6810600c04dedf14055" size="75" mtime="1700733898"/>
+        <directory name="cacti.openSUSE_11.4_Update" rev="8" vrev="8" srcmd5="49f3516f7c81d21a045112e0e9566f50">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1710523794"/>
+          <entry name="_config" md5="2168eda3a92b381b07a84cc54ca20f12" size="74" mtime="1710523809"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:04 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:12 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update?expand=1
@@ -2448,7 +2794,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2467,15 +2813,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '310'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.4_Update" rev="16" vrev="16" srcmd5="f2c12c880e40ec9e41e740d74d86ce6a">
-          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1700733749"/>
-          <entry name="_config" md5="fff01f3b0d53b6810600c04dedf14055" size="75" mtime="1700733898"/>
+        <directory name="cacti.openSUSE_11.4_Update" rev="8" vrev="8" srcmd5="49f3516f7c81d21a045112e0e9566f50">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1710523794"/>
+          <entry name="_config" md5="2168eda3a92b381b07a84cc54ca20f12" size="74" mtime="1710523809"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:04 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:12 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.5_Update
@@ -2484,7 +2830,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2503,15 +2849,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '310'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.5_Update" rev="16" vrev="16" srcmd5="01b350b908add76a355543855f41cf57">
-          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1700733749"/>
-          <entry name="_config" md5="05320a630ff5e32a39efc5f6b0fadbf0" size="70" mtime="1700733898"/>
+        <directory name="cacti.openSUSE_11.5_Update" rev="8" vrev="8" srcmd5="640e86736757ea6f8091963b6f98c537">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1710523794"/>
+          <entry name="_config" md5="c2fd967cd115fbd3772d01c25e639fc4" size="63" mtime="1710523809"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:04 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:12 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.5_Update?expand=1
@@ -2520,7 +2866,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2539,15 +2885,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '310'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.5_Update" rev="16" vrev="16" srcmd5="01b350b908add76a355543855f41cf57">
-          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1700733749"/>
-          <entry name="_config" md5="05320a630ff5e32a39efc5f6b0fadbf0" size="70" mtime="1700733898"/>
+        <directory name="cacti.openSUSE_11.5_Update" rev="8" vrev="8" srcmd5="640e86736757ea6f8091963b6f98c537">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1710523794"/>
+          <entry name="_config" md5="c2fd967cd115fbd3772d01c25e639fc4" size="63" mtime="1710523809"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:04 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:12 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/patchinfo
@@ -2556,7 +2902,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2579,10 +2925,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="patchinfo" rev="8" vrev="8" srcmd5="e45d013f24b032bd54480cfc08ca5401">
-          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1700733750"/>
+        <directory name="patchinfo" rev="4" vrev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1710523795"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:04 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:12 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/patchinfo?expand=1
@@ -2591,7 +2937,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2614,10 +2960,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="patchinfo" rev="8" vrev="8" srcmd5="e45d013f24b032bd54480cfc08ca5401">
-          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1700733750"/>
+        <directory name="patchinfo" rev="4" vrev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1710523795"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:04 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:12 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update?expand=1
@@ -2626,7 +2972,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2645,15 +2991,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '310'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.4_Update" rev="16" vrev="16" srcmd5="f2c12c880e40ec9e41e740d74d86ce6a">
-          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1700733749"/>
-          <entry name="_config" md5="fff01f3b0d53b6810600c04dedf14055" size="75" mtime="1700733898"/>
+        <directory name="cacti.openSUSE_11.4_Update" rev="8" vrev="8" srcmd5="49f3516f7c81d21a045112e0e9566f50">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1710523794"/>
+          <entry name="_config" md5="2168eda3a92b381b07a84cc54ca20f12" size="74" mtime="1710523809"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:04 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:12 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.5_Update?expand=1
@@ -2662,7 +3008,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2681,15 +3027,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '310'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.5_Update" rev="16" vrev="16" srcmd5="01b350b908add76a355543855f41cf57">
-          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1700733749"/>
-          <entry name="_config" md5="05320a630ff5e32a39efc5f6b0fadbf0" size="70" mtime="1700733898"/>
+        <directory name="cacti.openSUSE_11.5_Update" rev="8" vrev="8" srcmd5="640e86736757ea6f8091963b6f98c537">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1710523794"/>
+          <entry name="_config" md5="c2fd967cd115fbd3772d01c25e639fc4" size="63" mtime="1710523809"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:04 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:12 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/patchinfo?expand=1
@@ -2698,7 +3044,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2721,10 +3067,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="patchinfo" rev="8" vrev="8" srcmd5="e45d013f24b032bd54480cfc08ca5401">
-          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1700733750"/>
+        <directory name="patchinfo" rev="4" vrev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1710523795"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:04 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/_meta?requestid=1&user=maintenance_coord
@@ -2745,7 +3091,7 @@ http_interactions:
         </project>
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2780,7 +3126,7 @@ http_interactions:
             <disable/>
           </publish>
         </project>
-  recorded_at: Thu, 23 Nov 2023 10:05:04 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.4_Update
@@ -2789,7 +3135,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -2808,15 +3154,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '310'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.4_Update" rev="16" vrev="16" srcmd5="f2c12c880e40ec9e41e740d74d86ce6a">
-          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1700733749"/>
-          <entry name="_config" md5="fff01f3b0d53b6810600c04dedf14055" size="75" mtime="1700733898"/>
+        <directory name="cacti.openSUSE_11.4_Update" rev="8" vrev="8" srcmd5="49f3516f7c81d21a045112e0e9566f50">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1710523794"/>
+          <entry name="_config" md5="2168eda3a92b381b07a84cc54ca20f12" size="74" mtime="1710523809"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:04 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/openSUSE:11.4:Update/cacti.openSUSE_11.4_Update
@@ -2850,7 +3196,7 @@ http_interactions:
           <summary>package 'cacti.openSUSE_11.4_Update' does not exist</summary>
           <details>404 package 'cacti.openSUSE_11.4_Update' does not exist</details>
         </status>
-  recorded_at: Thu, 23 Nov 2023 10:05:04 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.4_Update.openSUSE_11.4_Update/_meta?user=maintenance_coord
@@ -2890,7 +3236,7 @@ http_interactions:
           <description></description>
           <releasename>cacti.openSUSE_11.4_Update</releasename>
         </package>
-  recorded_at: Thu, 23 Nov 2023 10:05:04 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: post
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.4_Update.openSUSE_11.4_Update?cmd=branch&missingok=1&noservice=1&opackage=cacti.openSUSE_11.4_Update&oproject=openSUSE:11.4:Update&user=maintenance_coord
@@ -2922,15 +3268,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="7" vrev="7">
+        <revision rev="3" vrev="3">
           <srcmd5>1062589906c6eb53389501c6582ca7fe</srcmd5>
           <version>unknown</version>
-          <time>1700733904</time>
+          <time>1710523813</time>
           <user>maintenance_coord</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 23 Nov 2023 10:05:05 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.4_Update.openSUSE_11.4_Update/_meta?user=maintenance_coord
@@ -2970,7 +3316,7 @@ http_interactions:
           <description></description>
           <releasename>cacti.openSUSE_11.4_Update</releasename>
         </package>
-  recorded_at: Thu, 23 Nov 2023 10:05:05 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.4_Update.openSUSE_11.4_Update
@@ -3000,11 +3346,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="7" vrev="7" srcmd5="1062589906c6eb53389501c6582ca7fe">
+        <directory name="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="3" vrev="3" srcmd5="1062589906c6eb53389501c6582ca7fe">
           <linkinfo project="openSUSE:11.4:Update" package="cacti.openSUSE_11.4_Update" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" missingok="true" xsrcmd5="c87739c700845785205cfcc81d12a272" lsrcmd5="1062589906c6eb53389501c6582ca7fe"/>
-          <entry name="_link" md5="129fa54b79aba2ae80fb6bbf0e0603bb" size="182" mtime="1700733772"/>
+          <entry name="_link" md5="129fa54b79aba2ae80fb6bbf0e0603bb" size="182" mtime="1710523805"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:05 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.4_Update.openSUSE_11.4_Update?view=info
@@ -3013,7 +3359,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3036,12 +3382,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="7" vrev="7" srcmd5="c87739c700845785205cfcc81d12a272" lsrcmd5="1062589906c6eb53389501c6582ca7fe" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+        <sourceinfo package="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="3" vrev="3" srcmd5="c87739c700845785205cfcc81d12a272" lsrcmd5="1062589906c6eb53389501c6582ca7fe" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="openSUSE:11.4:Update" package="cacti.openSUSE_11.4_Update"/>
           <linked project="openSUSE:11.4" package="cacti.openSUSE_11.4_Update"/>
         </sourceinfo>
-  recorded_at: Thu, 23 Nov 2023 10:05:05 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.4_Update.openSUSE_11.4_Update
@@ -3050,7 +3396,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3073,11 +3419,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="7" vrev="7" srcmd5="1062589906c6eb53389501c6582ca7fe">
+        <directory name="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="3" vrev="3" srcmd5="1062589906c6eb53389501c6582ca7fe">
           <linkinfo project="openSUSE:11.4:Update" package="cacti.openSUSE_11.4_Update" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" missingok="true" xsrcmd5="c87739c700845785205cfcc81d12a272" lsrcmd5="1062589906c6eb53389501c6582ca7fe"/>
-          <entry name="_link" md5="129fa54b79aba2ae80fb6bbf0e0603bb" size="182" mtime="1700733772"/>
+          <entry name="_link" md5="129fa54b79aba2ae80fb6bbf0e0603bb" size="182" mtime="1710523805"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:05 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: post
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.4_Update.openSUSE_11.4_Update?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -3109,14 +3455,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="8c749a57ae34f58ccc3ca8d5ea7c8ed0">
+        <sourcediff key="197d806adb5b0aec61a845b46915e4ff">
           <old project="MaintenanceProject:0" package="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="MaintenanceProject:0" package="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="7" srcmd5="1062589906c6eb53389501c6582ca7fe"/>
+          <new project="MaintenanceProject:0" package="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="3" srcmd5="1062589906c6eb53389501c6582ca7fe"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 23 Nov 2023 10:05:05 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: post
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.4_Update.openSUSE_11.4_Update?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -3148,14 +3494,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="3ac5ce43ad58fe04faeae600481e724c">
+        <sourcediff key="135b5b2ff117469736ecb33881aeef58">
           <old project="openSUSE:11.4:Update" package="cacti.openSUSE_11.4_Update" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <new project="MaintenanceProject:0" package="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="c87739c700845785205cfcc81d12a272" srcmd5="c87739c700845785205cfcc81d12a272"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 23 Nov 2023 10:05:05 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.4_Update.openSUSE_11.4_Update/_meta?user=maintenance_coord
@@ -3201,7 +3547,7 @@ http_interactions:
             <enable repository="openSUSE_11.4_Update"/>
           </build>
         </package>
-  recorded_at: Thu, 23 Nov 2023 10:05:05 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.4_Update.openSUSE_11.4_Update
@@ -3210,7 +3556,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3233,11 +3579,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="7" vrev="7" srcmd5="1062589906c6eb53389501c6582ca7fe">
+        <directory name="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="3" vrev="3" srcmd5="1062589906c6eb53389501c6582ca7fe">
           <linkinfo project="openSUSE:11.4:Update" package="cacti.openSUSE_11.4_Update" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" missingok="true" xsrcmd5="c87739c700845785205cfcc81d12a272" lsrcmd5="1062589906c6eb53389501c6582ca7fe"/>
-          <entry name="_link" md5="129fa54b79aba2ae80fb6bbf0e0603bb" size="182" mtime="1700733772"/>
+          <entry name="_link" md5="129fa54b79aba2ae80fb6bbf0e0603bb" size="182" mtime="1710523805"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:05 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/_meta?user=maintenance_coord
@@ -3263,7 +3609,7 @@ http_interactions:
         </project>
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3303,7 +3649,7 @@ http_interactions:
             <arch>i586</arch>
           </repository>
         </project>
-  recorded_at: Thu, 23 Nov 2023 10:05:05 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: post
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.4_Update.openSUSE_11.4_Update?cmd=copy&comment=Maintenance%20incident%20copy%20from%20project%20home:tom:branches:Update&expand=1&keeplink=1&opackage=cacti.openSUSE_11.4_Update&oproject=home:tom:branches:Update&requestid=1&user=maintenance_coord&withacceptinfo=1
@@ -3314,7 +3660,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3337,16 +3683,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="8" vrev="8">
-          <srcmd5>2c18d81e2ee8cb1c39e8b43d6fc6b666</srcmd5>
+        <revision rev="4" vrev="4">
+          <srcmd5>71681614a9b735d963bc7587260cbbf2</srcmd5>
           <version>unknown</version>
-          <time>1700733905</time>
+          <time>1710523813</time>
           <user>maintenance_coord</user>
           <comment>Maintenance incident copy from project home:tom:branches:Update</comment>
           <requestid>1</requestid>
-          <acceptinfo rev="8" srcmd5="2c18d81e2ee8cb1c39e8b43d6fc6b666" osrcmd5="1062589906c6eb53389501c6582ca7fe" xsrcmd5="ccb7a40f769c0b808d4042cdbcb40e42" oxsrcmd5="c87739c700845785205cfcc81d12a272"/>
+          <acceptinfo rev="4" srcmd5="71681614a9b735d963bc7587260cbbf2" osrcmd5="1062589906c6eb53389501c6582ca7fe" xsrcmd5="8008c2502684f943277093366b772ac5" oxsrcmd5="c87739c700845785205cfcc81d12a272"/>
         </revision>
-  recorded_at: Thu, 23 Nov 2023 10:05:05 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.4_Update.openSUSE_11.4_Update/_meta?user=maintenance_coord
@@ -3392,7 +3738,7 @@ http_interactions:
             <enable repository="openSUSE_11.4_Update"/>
           </build>
         </package>
-  recorded_at: Thu, 23 Nov 2023 10:05:05 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.4_Update.openSUSE_11.4_Update
@@ -3422,13 +3768,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="8" vrev="8" srcmd5="2c18d81e2ee8cb1c39e8b43d6fc6b666">
-          <linkinfo project="openSUSE:11.4:Update" package="cacti.openSUSE_11.4_Update" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" missingok="true" xsrcmd5="ccb7a40f769c0b808d4042cdbcb40e42" lsrcmd5="2c18d81e2ee8cb1c39e8b43d6fc6b666"/>
-          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1700733749"/>
-          <entry name="_config" md5="fff01f3b0d53b6810600c04dedf14055" size="75" mtime="1700733898"/>
-          <entry name="_link" md5="129fa54b79aba2ae80fb6bbf0e0603bb" size="182" mtime="1700733772"/>
+        <directory name="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="4" vrev="4" srcmd5="71681614a9b735d963bc7587260cbbf2">
+          <linkinfo project="openSUSE:11.4:Update" package="cacti.openSUSE_11.4_Update" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" missingok="true" xsrcmd5="8008c2502684f943277093366b772ac5" lsrcmd5="71681614a9b735d963bc7587260cbbf2"/>
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1710523794"/>
+          <entry name="_config" md5="2168eda3a92b381b07a84cc54ca20f12" size="74" mtime="1710523809"/>
+          <entry name="_link" md5="129fa54b79aba2ae80fb6bbf0e0603bb" size="182" mtime="1710523805"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:05 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.4_Update.openSUSE_11.4_Update?view=info
@@ -3437,7 +3783,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3460,12 +3806,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="8" vrev="8" srcmd5="ccb7a40f769c0b808d4042cdbcb40e42" lsrcmd5="2c18d81e2ee8cb1c39e8b43d6fc6b666" verifymd5="f2c12c880e40ec9e41e740d74d86ce6a">
+        <sourceinfo package="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="4" vrev="4" srcmd5="8008c2502684f943277093366b772ac5" lsrcmd5="71681614a9b735d963bc7587260cbbf2" verifymd5="49f3516f7c81d21a045112e0e9566f50">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="openSUSE:11.4:Update" package="cacti.openSUSE_11.4_Update"/>
           <linked project="openSUSE:11.4" package="cacti.openSUSE_11.4_Update"/>
         </sourceinfo>
-  recorded_at: Thu, 23 Nov 2023 10:05:05 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.4_Update.openSUSE_11.4_Update
@@ -3474,7 +3820,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3497,13 +3843,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="8" vrev="8" srcmd5="2c18d81e2ee8cb1c39e8b43d6fc6b666">
-          <linkinfo project="openSUSE:11.4:Update" package="cacti.openSUSE_11.4_Update" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" missingok="true" xsrcmd5="ccb7a40f769c0b808d4042cdbcb40e42" lsrcmd5="2c18d81e2ee8cb1c39e8b43d6fc6b666"/>
-          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1700733749"/>
-          <entry name="_config" md5="fff01f3b0d53b6810600c04dedf14055" size="75" mtime="1700733898"/>
-          <entry name="_link" md5="129fa54b79aba2ae80fb6bbf0e0603bb" size="182" mtime="1700733772"/>
+        <directory name="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="4" vrev="4" srcmd5="71681614a9b735d963bc7587260cbbf2">
+          <linkinfo project="openSUSE:11.4:Update" package="cacti.openSUSE_11.4_Update" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" missingok="true" xsrcmd5="8008c2502684f943277093366b772ac5" lsrcmd5="71681614a9b735d963bc7587260cbbf2"/>
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1710523794"/>
+          <entry name="_config" md5="2168eda3a92b381b07a84cc54ca20f12" size="74" mtime="1710523809"/>
+          <entry name="_link" md5="129fa54b79aba2ae80fb6bbf0e0603bb" size="182" mtime="1710523805"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:05 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: post
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.4_Update.openSUSE_11.4_Update?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -3535,14 +3881,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="df3d8e7e7ba80cb11dc86ac0db22998e">
+        <sourcediff key="10a2408f8ba8089b9ec3a84718ccf55f">
           <old project="MaintenanceProject:0" package="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="MaintenanceProject:0" package="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="8" srcmd5="2c18d81e2ee8cb1c39e8b43d6fc6b666"/>
+          <new project="MaintenanceProject:0" package="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="4" srcmd5="71681614a9b735d963bc7587260cbbf2"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 23 Nov 2023 10:05:05 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: post
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.4_Update.openSUSE_11.4_Update?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -3574,14 +3920,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="1091288371eab46d97a58eaccfd953b0">
+        <sourcediff key="cc647ce392e990688960557f110494ff">
           <old project="openSUSE:11.4:Update" package="cacti.openSUSE_11.4_Update" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="MaintenanceProject:0" package="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="ccb7a40f769c0b808d4042cdbcb40e42" srcmd5="ccb7a40f769c0b808d4042cdbcb40e42"/>
+          <new project="MaintenanceProject:0" package="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="8008c2502684f943277093366b772ac5" srcmd5="8008c2502684f943277093366b772ac5"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 23 Nov 2023 10:05:05 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/_meta?comment=maintenance_incident%20request%201&requestid=1&user=maintenance_coord
@@ -3607,7 +3953,7 @@ http_interactions:
         </project>
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3647,7 +3993,7 @@ http_interactions:
             <arch>i586</arch>
           </repository>
         </project>
-  recorded_at: Thu, 23 Nov 2023 10:05:05 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_meta?user=maintenance_coord
@@ -3703,7 +4049,7 @@ http_interactions:
             <disable/>
           </useforbuild>
         </package>
-  recorded_at: Thu, 23 Nov 2023 10:05:06 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo?comment=generated%20by%20request%20id%201%20accept%20call&user=maintenance_coord
@@ -3714,12 +4060,12 @@ http_interactions:
           <category>recommended</category>
           <rating>low</rating>
           <packager>user_8</packager>
-          <summary>Tempore odio consequuntur. Voluptatem ipsam deserunt. Sunt beatae soluta.</summary>
-          <description>Tempore odio consequuntur. Voluptatem ipsam deserunt. Sunt beatae soluta.</description>
+          <summary>Excepturi voluptatem corporis. Quo repellendus beatae. Quam quod quibusdam.</summary>
+          <description>Excepturi voluptatem corporis. Quo repellendus beatae. Quam quod quibusdam.</description>
         </patchinfo>
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3742,15 +4088,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="7" vrev="7">
-          <srcmd5>ca4c4f9fe0dcb77752afc1f403089470</srcmd5>
+        <revision rev="3" vrev="3">
+          <srcmd5>29938d3f272578110a50d54c23d23398</srcmd5>
           <version>unknown</version>
-          <time>1700733906</time>
+          <time>1710523813</time>
           <user>maintenance_coord</user>
           <comment>generated by request id 1 accept call</comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 23 Nov 2023 10:05:06 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_meta?user=maintenance_coord
@@ -3806,7 +4152,7 @@ http_interactions:
             <disable/>
           </useforbuild>
         </package>
-  recorded_at: Thu, 23 Nov 2023 10:05:06 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
@@ -3836,10 +4182,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="patchinfo" rev="7" vrev="7" srcmd5="ca4c4f9fe0dcb77752afc1f403089470">
-          <entry name="_patchinfo" md5="18d545117684a238acf18a83fd03b1f8" size="323" mtime="1700733906"/>
+        <directory name="patchinfo" rev="3" vrev="3" srcmd5="29938d3f272578110a50d54c23d23398">
+          <entry name="_patchinfo" md5="6dce9cf7942baa369a401fc21c1e6275" size="327" mtime="1710523813"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:06 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo?view=info
@@ -3848,7 +4194,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3871,10 +4217,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="patchinfo" rev="7" vrev="7" srcmd5="ca4c4f9fe0dcb77752afc1f403089470" verifymd5="ca4c4f9fe0dcb77752afc1f403089470">
+        <sourceinfo package="patchinfo" rev="3" vrev="3" srcmd5="29938d3f272578110a50d54c23d23398" verifymd5="29938d3f272578110a50d54c23d23398">
           <filename>_patchinfo</filename>
         </sourceinfo>
-  recorded_at: Thu, 23 Nov 2023 10:05:06 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
@@ -3883,7 +4229,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3906,10 +4252,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="patchinfo" rev="7" vrev="7" srcmd5="ca4c4f9fe0dcb77752afc1f403089470">
-          <entry name="_patchinfo" md5="18d545117684a238acf18a83fd03b1f8" size="323" mtime="1700733906"/>
+        <directory name="patchinfo" rev="3" vrev="3" srcmd5="29938d3f272578110a50d54c23d23398">
+          <entry name="_patchinfo" md5="6dce9cf7942baa369a401fc21c1e6275" size="327" mtime="1710523813"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:06 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
@@ -3931,7 +4277,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       Content-Length:
-      - '323'
+      - '327'
       Cache-Control:
       - no-cache
       Connection:
@@ -3943,10 +4289,10 @@ http_interactions:
           <category>recommended</category>
           <rating>low</rating>
           <packager>user_8</packager>
-          <summary>Tempore odio consequuntur. Voluptatem ipsam deserunt. Sunt beatae soluta.</summary>
-          <description>Tempore odio consequuntur. Voluptatem ipsam deserunt. Sunt beatae soluta.</description>
+          <summary>Excepturi voluptatem corporis. Quo repellendus beatae. Quam quod quibusdam.</summary>
+          <description>Excepturi voluptatem corporis. Quo repellendus beatae. Quam quod quibusdam.</description>
         </patchinfo>
-  recorded_at: Thu, 23 Nov 2023 10:05:06 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/cacti.openSUSE_11.5_Update
@@ -3955,7 +4301,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -3974,15 +4320,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '310'
+      - '308'
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.5_Update" rev="16" vrev="16" srcmd5="01b350b908add76a355543855f41cf57">
-          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1700733749"/>
-          <entry name="_config" md5="05320a630ff5e32a39efc5f6b0fadbf0" size="70" mtime="1700733898"/>
+        <directory name="cacti.openSUSE_11.5_Update" rev="8" vrev="8" srcmd5="640e86736757ea6f8091963b6f98c537">
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1710523794"/>
+          <entry name="_config" md5="c2fd967cd115fbd3772d01c25e639fc4" size="63" mtime="1710523809"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:06 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/openSUSE:11.5:Update/cacti.openSUSE_11.5_Update
@@ -4016,7 +4362,7 @@ http_interactions:
           <summary>package 'cacti.openSUSE_11.5_Update' does not exist</summary>
           <details>404 package 'cacti.openSUSE_11.5_Update' does not exist</details>
         </status>
-  recorded_at: Thu, 23 Nov 2023 10:05:06 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.5_Update.openSUSE_11.5_Update/_meta?user=maintenance_coord
@@ -4056,7 +4402,7 @@ http_interactions:
           <description></description>
           <releasename>cacti.openSUSE_11.5_Update</releasename>
         </package>
-  recorded_at: Thu, 23 Nov 2023 10:05:07 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:13 GMT
 - request:
     method: post
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.5_Update.openSUSE_11.5_Update?cmd=branch&missingok=1&noservice=1&opackage=cacti.openSUSE_11.5_Update&oproject=openSUSE:11.5:Update&user=maintenance_coord
@@ -4088,15 +4434,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="7" vrev="7">
+        <revision rev="3" vrev="3">
           <srcmd5>45cd08fc62522ad1df0dcc0f3443e482</srcmd5>
           <version>unknown</version>
-          <time>1700733907</time>
+          <time>1710523814</time>
           <user>maintenance_coord</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 23 Nov 2023 10:05:07 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.5_Update.openSUSE_11.5_Update/_meta?user=maintenance_coord
@@ -4136,7 +4482,7 @@ http_interactions:
           <description></description>
           <releasename>cacti.openSUSE_11.5_Update</releasename>
         </package>
-  recorded_at: Thu, 23 Nov 2023 10:05:07 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.5_Update.openSUSE_11.5_Update
@@ -4166,11 +4512,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="7" vrev="7" srcmd5="45cd08fc62522ad1df0dcc0f3443e482">
+        <directory name="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="3" vrev="3" srcmd5="45cd08fc62522ad1df0dcc0f3443e482">
           <linkinfo project="openSUSE:11.5:Update" package="cacti.openSUSE_11.5_Update" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" missingok="true" xsrcmd5="8ead471c01e867b0e79e601e85e538f7" lsrcmd5="45cd08fc62522ad1df0dcc0f3443e482"/>
-          <entry name="_link" md5="b0c56c12998ca82dfa47cf9520cd5ae4" size="182" mtime="1700733774"/>
+          <entry name="_link" md5="b0c56c12998ca82dfa47cf9520cd5ae4" size="182" mtime="1710523806"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:07 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.5_Update.openSUSE_11.5_Update?view=info
@@ -4179,7 +4525,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -4202,12 +4548,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="7" vrev="7" srcmd5="8ead471c01e867b0e79e601e85e538f7" lsrcmd5="45cd08fc62522ad1df0dcc0f3443e482" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+        <sourceinfo package="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="3" vrev="3" srcmd5="8ead471c01e867b0e79e601e85e538f7" lsrcmd5="45cd08fc62522ad1df0dcc0f3443e482" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="openSUSE:11.5:Update" package="cacti.openSUSE_11.5_Update"/>
           <linked project="openSUSE:11.5" package="cacti.openSUSE_11.5_Update"/>
         </sourceinfo>
-  recorded_at: Thu, 23 Nov 2023 10:05:07 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.5_Update.openSUSE_11.5_Update
@@ -4216,7 +4562,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -4239,11 +4585,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="7" vrev="7" srcmd5="45cd08fc62522ad1df0dcc0f3443e482">
+        <directory name="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="3" vrev="3" srcmd5="45cd08fc62522ad1df0dcc0f3443e482">
           <linkinfo project="openSUSE:11.5:Update" package="cacti.openSUSE_11.5_Update" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" missingok="true" xsrcmd5="8ead471c01e867b0e79e601e85e538f7" lsrcmd5="45cd08fc62522ad1df0dcc0f3443e482"/>
-          <entry name="_link" md5="b0c56c12998ca82dfa47cf9520cd5ae4" size="182" mtime="1700733774"/>
+          <entry name="_link" md5="b0c56c12998ca82dfa47cf9520cd5ae4" size="182" mtime="1710523806"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:07 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: post
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.5_Update.openSUSE_11.5_Update?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -4275,14 +4621,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="f08e7fd938259819e5c6eec073ba1a8f">
+        <sourcediff key="d71afbeaec4acb9a4ba6385f9d8952f2">
           <old project="MaintenanceProject:0" package="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="MaintenanceProject:0" package="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="7" srcmd5="45cd08fc62522ad1df0dcc0f3443e482"/>
+          <new project="MaintenanceProject:0" package="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="3" srcmd5="45cd08fc62522ad1df0dcc0f3443e482"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 23 Nov 2023 10:05:07 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: post
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.5_Update.openSUSE_11.5_Update?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -4314,14 +4660,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="fbccec45cd3a01c7336cec2ad1ec76a4">
+        <sourcediff key="dfd037f9906fd163f627eb24b023be52">
           <old project="openSUSE:11.5:Update" package="cacti.openSUSE_11.5_Update" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <new project="MaintenanceProject:0" package="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="8ead471c01e867b0e79e601e85e538f7" srcmd5="8ead471c01e867b0e79e601e85e538f7"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 23 Nov 2023 10:05:07 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.5_Update.openSUSE_11.5_Update/_meta?user=maintenance_coord
@@ -4367,7 +4713,7 @@ http_interactions:
             <enable repository="openSUSE_11.5_Update"/>
           </build>
         </package>
-  recorded_at: Thu, 23 Nov 2023 10:05:07 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.5_Update.openSUSE_11.5_Update
@@ -4376,7 +4722,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -4399,11 +4745,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="7" vrev="7" srcmd5="45cd08fc62522ad1df0dcc0f3443e482">
+        <directory name="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="3" vrev="3" srcmd5="45cd08fc62522ad1df0dcc0f3443e482">
           <linkinfo project="openSUSE:11.5:Update" package="cacti.openSUSE_11.5_Update" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" missingok="true" xsrcmd5="8ead471c01e867b0e79e601e85e538f7" lsrcmd5="45cd08fc62522ad1df0dcc0f3443e482"/>
-          <entry name="_link" md5="b0c56c12998ca82dfa47cf9520cd5ae4" size="182" mtime="1700733774"/>
+          <entry name="_link" md5="b0c56c12998ca82dfa47cf9520cd5ae4" size="182" mtime="1710523806"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:07 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/_meta?user=maintenance_coord
@@ -4434,7 +4780,7 @@ http_interactions:
         </project>
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -4479,7 +4825,7 @@ http_interactions:
             <arch>i586</arch>
           </repository>
         </project>
-  recorded_at: Thu, 23 Nov 2023 10:05:07 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: post
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.5_Update.openSUSE_11.5_Update?cmd=copy&comment=Maintenance%20incident%20copy%20from%20project%20home:tom:branches:Update&expand=1&keeplink=1&opackage=cacti.openSUSE_11.5_Update&oproject=home:tom:branches:Update&requestid=1&user=maintenance_coord&withacceptinfo=1
@@ -4490,7 +4836,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -4513,16 +4859,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="8" vrev="8">
-          <srcmd5>d05689345f4f0f9c5cec59c685866aab</srcmd5>
+        <revision rev="4" vrev="4">
+          <srcmd5>5cdd7fa5b923fa8434f3bbaff433d3b5</srcmd5>
           <version>unknown</version>
-          <time>1700733907</time>
+          <time>1710523814</time>
           <user>maintenance_coord</user>
           <comment>Maintenance incident copy from project home:tom:branches:Update</comment>
           <requestid>1</requestid>
-          <acceptinfo rev="8" srcmd5="d05689345f4f0f9c5cec59c685866aab" osrcmd5="45cd08fc62522ad1df0dcc0f3443e482" xsrcmd5="ee82fac1f9ae8ecf3be8379ac96e8e62" oxsrcmd5="8ead471c01e867b0e79e601e85e538f7"/>
+          <acceptinfo rev="4" srcmd5="5cdd7fa5b923fa8434f3bbaff433d3b5" osrcmd5="45cd08fc62522ad1df0dcc0f3443e482" xsrcmd5="edf5a5e3d5f711a3671d25978a4caf75" oxsrcmd5="8ead471c01e867b0e79e601e85e538f7"/>
         </revision>
-  recorded_at: Thu, 23 Nov 2023 10:05:07 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.5_Update.openSUSE_11.5_Update/_meta?user=maintenance_coord
@@ -4568,7 +4914,7 @@ http_interactions:
             <enable repository="openSUSE_11.5_Update"/>
           </build>
         </package>
-  recorded_at: Thu, 23 Nov 2023 10:05:07 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.5_Update.openSUSE_11.5_Update
@@ -4598,13 +4944,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="8" vrev="8" srcmd5="d05689345f4f0f9c5cec59c685866aab">
-          <linkinfo project="openSUSE:11.5:Update" package="cacti.openSUSE_11.5_Update" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" missingok="true" xsrcmd5="ee82fac1f9ae8ecf3be8379ac96e8e62" lsrcmd5="d05689345f4f0f9c5cec59c685866aab"/>
-          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1700733749"/>
-          <entry name="_config" md5="05320a630ff5e32a39efc5f6b0fadbf0" size="70" mtime="1700733898"/>
-          <entry name="_link" md5="b0c56c12998ca82dfa47cf9520cd5ae4" size="182" mtime="1700733774"/>
+        <directory name="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="4" vrev="4" srcmd5="5cdd7fa5b923fa8434f3bbaff433d3b5">
+          <linkinfo project="openSUSE:11.5:Update" package="cacti.openSUSE_11.5_Update" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" missingok="true" xsrcmd5="edf5a5e3d5f711a3671d25978a4caf75" lsrcmd5="5cdd7fa5b923fa8434f3bbaff433d3b5"/>
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1710523794"/>
+          <entry name="_config" md5="c2fd967cd115fbd3772d01c25e639fc4" size="63" mtime="1710523809"/>
+          <entry name="_link" md5="b0c56c12998ca82dfa47cf9520cd5ae4" size="182" mtime="1710523806"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:07 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.5_Update.openSUSE_11.5_Update?view=info
@@ -4613,7 +4959,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -4636,12 +4982,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="8" vrev="8" srcmd5="ee82fac1f9ae8ecf3be8379ac96e8e62" lsrcmd5="d05689345f4f0f9c5cec59c685866aab" verifymd5="01b350b908add76a355543855f41cf57">
+        <sourceinfo package="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="4" vrev="4" srcmd5="edf5a5e3d5f711a3671d25978a4caf75" lsrcmd5="5cdd7fa5b923fa8434f3bbaff433d3b5" verifymd5="640e86736757ea6f8091963b6f98c537">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="openSUSE:11.5:Update" package="cacti.openSUSE_11.5_Update"/>
           <linked project="openSUSE:11.5" package="cacti.openSUSE_11.5_Update"/>
         </sourceinfo>
-  recorded_at: Thu, 23 Nov 2023 10:05:07 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.5_Update.openSUSE_11.5_Update
@@ -4650,7 +4996,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -4673,13 +5019,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="8" vrev="8" srcmd5="d05689345f4f0f9c5cec59c685866aab">
-          <linkinfo project="openSUSE:11.5:Update" package="cacti.openSUSE_11.5_Update" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" missingok="true" xsrcmd5="ee82fac1f9ae8ecf3be8379ac96e8e62" lsrcmd5="d05689345f4f0f9c5cec59c685866aab"/>
-          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1700733749"/>
-          <entry name="_config" md5="05320a630ff5e32a39efc5f6b0fadbf0" size="70" mtime="1700733898"/>
-          <entry name="_link" md5="b0c56c12998ca82dfa47cf9520cd5ae4" size="182" mtime="1700733774"/>
+        <directory name="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="4" vrev="4" srcmd5="5cdd7fa5b923fa8434f3bbaff433d3b5">
+          <linkinfo project="openSUSE:11.5:Update" package="cacti.openSUSE_11.5_Update" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" missingok="true" xsrcmd5="edf5a5e3d5f711a3671d25978a4caf75" lsrcmd5="5cdd7fa5b923fa8434f3bbaff433d3b5"/>
+          <entry name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9" mtime="1710523794"/>
+          <entry name="_config" md5="c2fd967cd115fbd3772d01c25e639fc4" size="63" mtime="1710523809"/>
+          <entry name="_link" md5="b0c56c12998ca82dfa47cf9520cd5ae4" size="182" mtime="1710523806"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:07 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: post
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.5_Update.openSUSE_11.5_Update?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -4711,14 +5057,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="7064236a80056b7acb0dd8c61ec7df83">
+        <sourcediff key="d1178084659ea708c26612a60ee798c9">
           <old project="MaintenanceProject:0" package="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="MaintenanceProject:0" package="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="8" srcmd5="d05689345f4f0f9c5cec59c685866aab"/>
+          <new project="MaintenanceProject:0" package="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="4" srcmd5="5cdd7fa5b923fa8434f3bbaff433d3b5"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 23 Nov 2023 10:05:07 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: post
     uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.5_Update.openSUSE_11.5_Update?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -4750,14 +5096,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="c131cfe41b5bbb5a4fde0af4a0422ede">
+        <sourcediff key="54cde06aba1515d5b165966e2c85e1c4">
           <old project="openSUSE:11.5:Update" package="cacti.openSUSE_11.5_Update" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="MaintenanceProject:0" package="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="ee82fac1f9ae8ecf3be8379ac96e8e62" srcmd5="ee82fac1f9ae8ecf3be8379ac96e8e62"/>
+          <new project="MaintenanceProject:0" package="cacti.openSUSE_11.5_Update.openSUSE_11.5_Update" rev="edf5a5e3d5f711a3671d25978a4caf75" srcmd5="edf5a5e3d5f711a3671d25978a4caf75"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 23 Nov 2023 10:05:07 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/_meta?comment=maintenance_incident%20request%201&requestid=1&user=maintenance_coord
@@ -4788,7 +5134,7 @@ http_interactions:
         </project>
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -4833,7 +5179,7 @@ http_interactions:
             <arch>i586</arch>
           </repository>
         </project>
-  recorded_at: Thu, 23 Nov 2023 10:05:08 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/patchinfo
@@ -4842,7 +5188,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -4865,10 +5211,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="patchinfo" rev="8" vrev="8" srcmd5="e45d013f24b032bd54480cfc08ca5401">
-          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1700733750"/>
+        <directory name="patchinfo" rev="4" vrev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1710523795"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:08 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: post
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo?cmd=copy&comment=Maintenance%20incident%20copy%20from%20project%20home:tom:branches:Update&expand=1&keeplink=1&opackage=patchinfo&oproject=home:tom:branches:Update&requestid=1&user=maintenance_coord&withacceptinfo=1
@@ -4879,7 +5225,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -4902,16 +5248,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="8" vrev="8">
+        <revision rev="4" vrev="4">
           <srcmd5>e45d013f24b032bd54480cfc08ca5401</srcmd5>
           <version>unknown</version>
-          <time>1700733908</time>
+          <time>1710523814</time>
           <user>maintenance_coord</user>
           <comment>Maintenance incident copy from project home:tom:branches:Update</comment>
           <requestid>1</requestid>
-          <acceptinfo rev="8" srcmd5="e45d013f24b032bd54480cfc08ca5401" osrcmd5="ca4c4f9fe0dcb77752afc1f403089470"/>
+          <acceptinfo rev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401" osrcmd5="29938d3f272578110a50d54c23d23398"/>
         </revision>
-  recorded_at: Thu, 23 Nov 2023 10:05:08 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_meta?user=maintenance_coord
@@ -4967,7 +5313,7 @@ http_interactions:
             <disable/>
           </useforbuild>
         </package>
-  recorded_at: Thu, 23 Nov 2023 10:05:08 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
@@ -4997,10 +5343,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="patchinfo" rev="8" vrev="8" srcmd5="e45d013f24b032bd54480cfc08ca5401">
-          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1700733750"/>
+        <directory name="patchinfo" rev="4" vrev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1710523795"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:08 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo?view=info
@@ -5009,7 +5355,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -5032,10 +5378,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="patchinfo" rev="8" vrev="8" srcmd5="e45d013f24b032bd54480cfc08ca5401" verifymd5="e45d013f24b032bd54480cfc08ca5401">
+        <sourceinfo package="patchinfo" rev="4" vrev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401" verifymd5="e45d013f24b032bd54480cfc08ca5401">
           <filename>_patchinfo</filename>
         </sourceinfo>
-  recorded_at: Thu, 23 Nov 2023 10:05:08 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
@@ -5044,7 +5390,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -5067,10 +5413,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="patchinfo" rev="8" vrev="8" srcmd5="e45d013f24b032bd54480cfc08ca5401">
-          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1700733750"/>
+        <directory name="patchinfo" rev="4" vrev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1710523795"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:08 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: get
     uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
@@ -5107,7 +5453,7 @@ http_interactions:
           <summary/>
           <description/>
         </patchinfo>
-  recorded_at: Thu, 23 Nov 2023 10:05:08 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/MaintenanceProject:0/_meta?comment=maintenance_incident%20request%201&requestid=1&user=maintenance_coord
@@ -5138,7 +5484,7 @@ http_interactions:
         </project>
     headers:
       X-Request-Id:
-      - de6d1911-9305-4a80-beb7-12677dc0c22f
+      - 21b5f7ae-2c13-4b7b-b332-21a4f036d5ee
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -5183,18 +5529,16 @@ http_interactions:
             <arch>i586</arch>
           </repository>
         </project>
-  recorded_at: Thu, 23 Nov 2023 10:05:08 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
 - request:
-    method: post
-    uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.4_Update.openSUSE_11.4_Update?cmd=diff&filelimit=10000&orev=c87739c700845785205cfcc81d12a272&rev=ccb7a40f769c0b808d4042cdbcb40e42&tarlimit=10000&view=xml&withissues=1
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:Update/_result?lastbuild=0&locallink=1&multibuild=1&package=cacti.openSUSE_11.4_Update&view=status
     body:
-      encoding: UTF-8
+      encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - application/octet-stream
       X-Request-Id:
-      - 2132e843-00b6-42e3-8cee-8c12704eac42
+      - af1259d6-2349-4edc-bbaa-0351f09e3802
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -5213,13 +5557,158 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '934'
+      - '234'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="fcef30c0c86d605105612dd4224aa7fb">
+        <resultlist state="27c2f1ae92f0d07a896bef5c212524b3">
+          <result project="home:tom:branches:Update" repository="repository_16" arch="i586" code="broken" state="broken" details="no build type (home:tom:branches:Update)"/>
+        </resultlist>
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:Update/_result?lastbuild=0&locallink=1&multibuild=1&package=cacti.openSUSE_11.5_Update&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - af1259d6-2349-4edc-bbaa-0351f09e3802
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '234'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="27c2f1ae92f0d07a896bef5c212524b3">
+          <result project="home:tom:branches:Update" repository="repository_16" arch="i586" code="broken" state="broken" details="no build type (home:tom:branches:Update)"/>
+        </resultlist>
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:Update/_result?lastbuild=0&locallink=1&multibuild=1&package=patchinfo&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - af1259d6-2349-4edc-bbaa-0351f09e3802
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '234'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="27c2f1ae92f0d07a896bef5c212524b3">
+          <result project="home:tom:branches:Update" repository="repository_16" arch="i586" code="broken" state="broken" details="no build type (home:tom:branches:Update)"/>
+        </resultlist>
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.4_Update.openSUSE_11.4_Update?cacheonly=1&cmd=diff&filelimit=10000&orev=c87739c700845785205cfcc81d12a272&rev=8008c2502684f943277093366b772ac5&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Request-Id:
+      - af1259d6-2349-4edc-bbaa-0351f09e3802
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 412
+      message: diff not yet in cache
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '120'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="412">
+          <summary>diff not yet in cache</summary>
+          <details>412 diff not yet in cache</details>
+        </status>
+  recorded_at: Fri, 15 Mar 2024 17:30:14 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/MaintenanceProject:0/cacti.openSUSE_11.4_Update.openSUSE_11.4_Update?cmd=diff&filelimit=10000&orev=c87739c700845785205cfcc81d12a272&rev=8008c2502684f943277093366b772ac5&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Request-Id:
+      - af1259d6-2349-4edc-bbaa-0351f09e3802
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '933'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="205a062fe5bbd3e94db2720b463513fb">
           <old project="MaintenanceProject:0" package="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="c87739c700845785205cfcc81d12a272" srcmd5="c87739c700845785205cfcc81d12a272"/>
-          <new project="MaintenanceProject:0" package="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="ccb7a40f769c0b808d4042cdbcb40e42" srcmd5="ccb7a40f769c0b808d4042cdbcb40e42"/>
+          <new project="MaintenanceProject:0" package="cacti.openSUSE_11.4_Update.openSUSE_11.4_Update" rev="8008c2502684f943277093366b772ac5" srcmd5="8008c2502684f943277093366b772ac5"/>
           <files>
             <file state="added">
               <new name="DUMMY_FILE" md5="87b43dcf63dc45ed2b813df3d31e6718" size="9"/>
@@ -5229,9 +5718,9 @@ http_interactions:
         </diff>
             </file>
             <file state="added">
-              <new name="_config" md5="fff01f3b0d53b6810600c04dedf14055" size="75"/>
+              <new name="_config" md5="2168eda3a92b381b07a84cc54ca20f12" size="74"/>
               <diff lines="3">@@ -0,0 +1,1 @@
-        +Sit voluptatem qui. Perferendis exercitationem minus. Commodi est possimus.
+        +Minima perferendis et. Qui perspiciatis consequatur. Et velit consequatur.
         \ No newline at end of file
         </diff>
             </file>
@@ -5239,7 +5728,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 23 Nov 2023 10:05:08 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:15 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:Update/patchinfo
@@ -5248,7 +5737,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 2132e843-00b6-42e3-8cee-8c12704eac42
+      - af1259d6-2349-4edc-bbaa-0351f09e3802
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -5271,13 +5760,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="patchinfo" rev="8" vrev="8" srcmd5="e45d013f24b032bd54480cfc08ca5401">
-          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1700733750"/>
+        <directory name="patchinfo" rev="4" vrev="4" srcmd5="e45d013f24b032bd54480cfc08ca5401">
+          <entry name="_patchinfo" md5="1cbe44b4ca6b451510f27939bb59e0ec" size="139" mtime="1710523795"/>
         </directory>
-  recorded_at: Thu, 23 Nov 2023 10:05:09 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:15 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom:branches:Update/patchinfo/_patchinfo?rev=8
+    uri: http://backend:5352/source/home:tom:branches:Update/patchinfo/_patchinfo?rev=4
     body:
       encoding: US-ASCII
       string: ''
@@ -5311,107 +5800,5 @@ http_interactions:
           <summary/>
           <description/>
         </patchinfo>
-  recorded_at: Thu, 23 Nov 2023 10:05:09 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/home:tom:branches:Update/_result?lastbuild=0&locallink=1&multibuild=1&package=cacti.openSUSE_11.4_Update&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - 2132e843-00b6-42e3-8cee-8c12704eac42
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '55'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-  recorded_at: Thu, 23 Nov 2023 10:05:09 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/home:tom:branches:Update/_result?lastbuild=0&locallink=1&multibuild=1&package=cacti.openSUSE_11.5_Update&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - 2132e843-00b6-42e3-8cee-8c12704eac42
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '55'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-  recorded_at: Thu, 23 Nov 2023 10:05:09 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/home:tom:branches:Update/_result?lastbuild=0&locallink=1&multibuild=1&package=patchinfo&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - 2132e843-00b6-42e3-8cee-8c12704eac42
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '55'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-  recorded_at: Thu, 23 Nov 2023 10:05:09 GMT
+  recorded_at: Fri, 15 Mar 2024 17:30:15 GMT
 recorded_with: VCR 6.2.0
