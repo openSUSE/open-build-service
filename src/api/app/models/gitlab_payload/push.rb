@@ -7,6 +7,10 @@ class GitlabPayload::Push < GitlabPayload
                           target_branch: webhook_payload[:ref].sub('refs/heads/', ''),
                           # We need this for Workflows::YAMLDownloader#download_url
                           path_with_namespace: webhook_payload.dig(:project, :path_with_namespace),
+                          # We need this for Workflow::Step#branch_request_content_github
+                          source_repository_full_name: webhook_payload.dig(:project, :path_with_namespace),
+                          # We need this for SCMStatusReporter#call
+                          target_repository_full_name: webhook_payload.dig(:project, :path_with_namespace),
                           # We need this for SCMStatusReporter#call
                           project_id: webhook_payload[:project_id],
                           # We need this for SCMWebhookEventValidator#valid_push_event

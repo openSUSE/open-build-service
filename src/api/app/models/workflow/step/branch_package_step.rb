@@ -105,6 +105,10 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
     project.store
   end
 
+  # FIXME: Just because the tar_scm service accepts different formats for the _branch_request file, we don't need to have code
+  # to generate those different formats. We can just generate one format, should be the gitlab format because it provides more
+  # flexibility regarding the URL.
+  # https://github.com/openSUSE/obs-service-tar_scm/blob/2319f50e741e058ad599a6890ac5c710112d5e48/TarSCM/tasks.py#L145
   def branch_request_content
     case scm_webhook.payload[:scm]
     when 'github'
@@ -118,9 +122,6 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
 
   def branch_request_content_github
     {
-      # TODO: change to scm_webhook.payload[:action]
-      # when check_for_branch_request method in obs-service-tar_scm accepts other actions than 'opened'
-      # https://github.com/openSUSE/obs-service-tar_scm/blob/2319f50e741e058ad599a6890ac5c710112d5e48/TarSCM/tasks.py#L145
       action: 'opened',
       pull_request: {
         head: {
