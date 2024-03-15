@@ -16,23 +16,23 @@ RSpec.describe MultibuildPackage do
       end
 
       context 'valid multibuild name' do
+        subject { test_class.valid_multibuild_name?(package_name) }
+
         let(:package_name) { 'foo:bar' }
         let(:package_name_validation) do
           Package.valid_name?(package_name, true)
         end
 
-        subject { test_class.valid_multibuild_name?(package_name) }
-
         it { expect(subject).to be_truthy }
       end
 
       context 'invalid multibuild name' do
+        subject { test_class.valid_multibuild_name?(package_name) }
+
         let(:package_name) { 'foo:bar' }
         let(:package_name_validation) do
           Package.valid_name?(package_name, false)
         end
-
-        subject { test_class.valid_multibuild_name?(package_name) }
 
         it { expect(subject).to be_falsey }
       end

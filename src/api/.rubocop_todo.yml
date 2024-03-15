@@ -775,11 +775,6 @@ RSpec/IteratedExpectation:
   Exclude:
     - 'spec/models/user_spec.rb'
 
-# Offense count: 296
-# This cop supports safe autocorrection (--autocorrect).
-RSpec/LeadingSubject:
-  Enabled: false
-
 # Offense count: 2
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: have_received, receive

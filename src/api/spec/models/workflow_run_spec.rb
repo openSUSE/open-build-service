@@ -1,8 +1,8 @@
 RSpec.describe WorkflowRun, :vcr do
   describe '#save_scm_report_success' do
-    let(:workflow_run) { create(:workflow_run) }
-
     subject { workflow_run.save_scm_report_success(options) }
+
+    let(:workflow_run) { create(:workflow_run) }
 
     context 'when providing a permitted key' do
       let(:options) { { api_endpoint: 'https://api.github.com' } }
@@ -38,9 +38,9 @@ RSpec.describe WorkflowRun, :vcr do
   end
 
   describe '#save_scm_report_failure' do
-    let(:workflow_run) { create(:workflow_run) }
-
     subject { workflow_run.save_scm_report_failure('oops it failed', options) }
+
+    let(:workflow_run) { create(:workflow_run) }
 
     context 'when providing a permitted key' do
       let(:options) { { api_endpoint: 'https://api.github.com' } }

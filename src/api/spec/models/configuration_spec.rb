@@ -9,9 +9,9 @@ RSpec.describe Configuration do
     before do
       allow(Configuration).to receive(:find).and_return(configuration)
       allow(configuration).to receive(:write_to_backend)
-    end
 
-    subject! { configuration.delayed_write_to_backend }
+      configuration.delayed_write_to_backend
+    end
 
     it 'writes to the backend' do
       expect(configuration).to have_received(:write_to_backend)

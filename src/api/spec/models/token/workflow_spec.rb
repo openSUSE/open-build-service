@@ -31,6 +31,8 @@ RSpec.describe Token::Workflow do
     end
 
     context 'without validation errors' do
+      subject { workflow_token.call(workflow_run: workflow_run, scm_webhook: scm_extractor.call) }
+
       let(:scm) { 'github' }
       let(:event) { 'pull_request' }
       let(:github_payload) do
@@ -90,8 +92,6 @@ RSpec.describe Token::Workflow do
         allow(SCMStatusReporter).to receive(:new).and_return(proc { true })
       end
 
-      subject { workflow_token.call(workflow_run: workflow_run, scm_webhook: scm_extractor.call) }
-
       it 'returns no validation errors' do
         expect(subject).to eq([])
       end
@@ -105,6 +105,8 @@ RSpec.describe Token::Workflow do
     end
 
     context 'with validation errors' do
+      subject { workflow_token.call(workflow_run: workflow_run, scm_webhook: scm_extractor.call) }
+
       let(:scm) { 'github' }
       let(:event) { 'wrong_event' }
       let(:github_payload) do
@@ -149,8 +151,6 @@ RSpec.describe Token::Workflow do
         allow(yaml_to_workflows_service).to receive(:call).and_return(workflows)
       end
 
-      subject { workflow_token.call(workflow_run: workflow_run, scm_webhook: scm_extractor.call) }
-
       it 'returns the validation errors' do
         expect(subject).to eq(['Event not supported.', 'Steps are mandatory in a workflow', "Documentation for steps: #{WorkflowStepsValidator::DOCUMENTATION_LINK}"])
       end
@@ -159,6 +159,8 @@ RSpec.describe Token::Workflow do
     end
 
     context 'with a ping event' do
+      subject { workflow_token.call(workflow_run: workflow_run, scm_webhook: scm_extractor.call) }
+
       let(:scm) { 'github' }
       let(:event) { 'ping' }
       let(:github_payload) { { sender: { url: 'https://api.github.com' } } }
@@ -185,8 +187,6 @@ RSpec.describe Token::Workflow do
         allow(scm_extractor).to receive(:call).and_return(scm_webhook)
         allow(SCMStatusReporter).to receive(:new).and_return(proc { true })
       end
-
-      subject { workflow_token.call(workflow_run: workflow_run, scm_webhook: scm_extractor.call) }
 
       it 'returns before checking for validation errors' do
         expect(subject).to be_empty

@@ -58,6 +58,10 @@ RSpec.describe Workflow::Step do
   end
 
   describe '#target_project_name' do
+    subject do
+      step.new(step_instructions: step_instructions, scm_webhook: scm_webhook).target_project_name
+    end
+
     let(:step) do
       Class.new(described_class) do
         def self.name
@@ -88,10 +92,6 @@ RSpec.describe Workflow::Step do
       }
     end
     let(:scm_webhook) { SCMWebhook.new(payload: payload) }
-
-    subject do
-      step.new(step_instructions: step_instructions, scm_webhook: scm_webhook).target_project_name
-    end
 
     context 'for an unsupported event' do
       let(:payload) do

@@ -169,6 +169,8 @@ RSpec.describe BsRequest::FindFor::User do
     end
 
     context 'as maintainer or reviewer or creator' do
+      subject { klass.new(user: user.login).all }
+
       let(:review_request) { create(:set_bugowner_request, creator: another_user) }
       let!(:review) { create(:review, by_user: user, bs_request: review_request) }
 
@@ -181,8 +183,6 @@ RSpec.describe BsRequest::FindFor::User do
       end
 
       let(:creator_request) { create(:set_bugowner_request, creator: user) }
-
-      subject { klass.new(user: user.login).all }
 
       it { expect(subject).to include(review_request) }
       it { expect(subject).to include(maintainer_request) }

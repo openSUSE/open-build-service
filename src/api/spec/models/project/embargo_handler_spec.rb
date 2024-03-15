@@ -1,9 +1,9 @@
 RSpec.describe 'Project::EmbargoHandler' do
+  subject { Project::EmbargoHandler.new(project).call }
+
   let(:user) { create(:confirmed_user, login: 'bar') }
   let(:project) { create(:project, name: 'foo', maintainer: user) }
   let(:attrib) { create(:embargo_date_attrib, project: project, values: [attrib_value]) }
-
-  subject { Project::EmbargoHandler.new(project).call }
 
   before do
     login user

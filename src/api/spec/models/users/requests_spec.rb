@@ -7,6 +7,8 @@ RSpec.describe User do
 
   describe '#requests' do
     shared_examples 'all_my_requests' do
+      subject { confirmed_user.requests }
+
       let(:source_package) { create(:package, :as_submission_source) }
 
       let!(:maintained_request) do
@@ -29,8 +31,6 @@ RSpec.describe User do
 
       let(:not_maintained_target_package) { create(:package) }
       let!(:relationship_project_admin) { create(:relationship_project_user, user: admin_user, project: target_package.project) }
-
-      subject { confirmed_user.requests }
 
       before do
         # Setting state in create will be overwritten by BsRequest#sanitize!
@@ -147,6 +147,8 @@ RSpec.describe User do
   end
 
   describe '#declined_requests' do
+    subject { confirmed_user.declined_requests }
+
     let(:target_package) { create(:package) }
     let(:source_package) { create(:package, :as_submission_source) }
     let!(:new_bs_request) { create(:set_bugowner_request, creator: confirmed_user) }
@@ -162,8 +164,6 @@ RSpec.describe User do
              source_package: source_package,
              creator: admin_user)
     end
-
-    subject { confirmed_user.declined_requests }
 
     it 'does include requests created by the user and in state :declined' do
       expect(subject).to include(declined_bs_request)
@@ -187,6 +187,8 @@ RSpec.describe User do
   end
 
   describe '#outgoing_requests' do
+    subject { confirmed_user.outgoing_requests }
+
     let(:target_package) { create(:package) }
     let(:source_package) { create(:package) }
     let!(:new_bs_request) { create(:set_bugowner_request, creator: confirmed_user) }
@@ -209,8 +211,6 @@ RSpec.describe User do
              source_package: source_package,
              creator: admin_user)
     end
-
-    subject { confirmed_user.outgoing_requests }
 
     it 'does include requests created by the user and in state :new' do
       expect(subject).to include(new_bs_request)
@@ -247,6 +247,8 @@ RSpec.describe User do
 
   describe '#incoming_requests' do
     shared_examples 'incoming_requests' do
+      subject { confirmed_user.incoming_requests }
+
       let(:source_package) { create(:package, :as_submission_source) }
 
       let!(:maintained_request) do
@@ -269,8 +271,6 @@ RSpec.describe User do
                source_package: source_package,
                creator: admin_user)
       end
-
-      subject { confirmed_user.incoming_requests }
 
       it 'does include requests of maintained subject' do
         expect(subject).to include(maintained_request)

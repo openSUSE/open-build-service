@@ -1,4 +1,6 @@
 RSpec.describe Token::Release, :vcr do
+  subject { token.call(package: package) }
+
   let(:user) { create(:user, login: 'foo') }
 
   let(:project_staging) { create(:project_with_package, name: 'Bar:Staging', package_name: 'bar_package', maintainer: user) }
@@ -9,8 +11,6 @@ RSpec.describe Token::Release, :vcr do
   let(:target_repository) { create(:repository, name: 'target_repository', architectures: ['x86_64'], project: target_project) }
 
   let(:token) { create(:release_token, package: package, executor: user) }
-
-  subject { token.call(package: package) }
 
   describe '#call' do
     context 'when no release target is set' do
@@ -85,12 +85,12 @@ RSpec.describe Token::Release, :vcr do
       end
 
       context 'when the user can not modify the target_repository' do
-        let(:other_target_project) { create(:project, name: 'Foo') }
-        let(:other_target_repository) { create(:repository, name: 'other_target_repository', project: other_target_project) }
-
         subject do
           token.call(package: package, project: project_staging, targetproject: 'Foo', targetrepository: 'other_target_repository', filter_source_repository: 'other_source_repository')
         end
+
+        let(:other_target_project) { create(:project, name: 'Foo') }
+        let(:other_target_repository) { create(:repository, name: 'other_target_repository', project: other_target_project) }
 
         it 'does not trigger the release process in the backend' do
           user.run_as do

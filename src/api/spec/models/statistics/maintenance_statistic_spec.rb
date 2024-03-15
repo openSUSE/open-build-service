@@ -1,9 +1,9 @@
 RSpec.describe Statistics::MaintenanceStatistic do
   describe '.find_by_project' do
     context 'with a review assigned by a user' do
-      include_context 'a project with maintenance statistics'
-
       subject(:maintenance_statistics) { Statistics::MaintenanceStatistic.find_by_project(project) }
+
+      include_context 'a project with maintenance statistics'
 
       it 'contains issue_created' do
         expect(maintenance_statistics[-6].type).to eq(:issue_created)
@@ -39,6 +39,8 @@ RSpec.describe Statistics::MaintenanceStatistic do
     end
 
     context 'with a revoked bs_request' do
+      subject(:maintenance_statistics) { Statistics::MaintenanceStatistic.find_by_project(project) }
+
       let(:user) { create(:confirmed_user) }
       let!(:project) do
         travel_to(10.days.ago) do
@@ -85,8 +87,6 @@ RSpec.describe Statistics::MaintenanceStatistic do
         end
       end
 
-      subject(:maintenance_statistics) { Statistics::MaintenanceStatistic.find_by_project(project) }
-
       it 'contains release_request_request_accepted for accepted request' do
         expect(maintenance_statistics[0].type).to eq('release_request_accepted')
         expect(maintenance_statistics[0].when).to eq(accepted_history_element.created_at)
@@ -113,6 +113,8 @@ RSpec.describe Statistics::MaintenanceStatistic do
     end
 
     context 'with a review by a group assigned to a user' do
+      subject(:maintenance_statistics) { Statistics::MaintenanceStatistic.find_by_project(project) }
+
       let!(:user) { create(:confirmed_user) }
       let!(:group) { create(:group) }
 
@@ -161,8 +163,6 @@ RSpec.describe Statistics::MaintenanceStatistic do
         new_review.state = :accepted
         new_review.save!
       end
-
-      subject(:maintenance_statistics) { Statistics::MaintenanceStatistic.find_by_project(project) }
 
       it 'contains review_accepted for the review assigned to the user' do
         new_review = Review.last

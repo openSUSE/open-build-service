@@ -311,6 +311,8 @@ RSpec.describe Project, :vcr do
 
   describe '#open_requests' do
     shared_examples 'with_open_requests' do
+      subject { project.open_requests }
+
       let(:admin_user) { create(:admin_user, login: 'king') }
       let(:confirmed_user) { create(:confirmed_user, login: 'confirmed_user') }
       let(:source_package) { create(:package, :as_submission_source) }
@@ -345,8 +347,6 @@ RSpec.describe Project, :vcr do
         accepted_incident.state = :accepted
         accepted_incident.save!
       end
-
-      subject { project.open_requests }
 
       it 'does include reviews' do
         expect(subject[:reviews]).to eq([review.number])
@@ -459,6 +459,8 @@ RSpec.describe Project, :vcr do
     end
 
     context 'on a project with packages' do
+      subject { Project.restore('project_used_for_restoration', user: admin_user.login) }
+
       let(:package1) { deleted_project.packages.first }
       let(:package1_meta_before_deletion) { package1.render_xml }
       let(:package2) { deleted_project.packages.last }
@@ -468,8 +470,6 @@ RSpec.describe Project, :vcr do
         reset_project_in_backend
         deleted_project.destroy!
       end
-
-      subject { Project.restore('project_used_for_restoration', user: admin_user.login) }
 
       it 'creates package records in the database' do
         expect(subject.packages.size).to eq(2)
@@ -524,14 +524,14 @@ RSpec.describe Project, :vcr do
 
   # NOTE: the code deletes a user with user.delete (not user.destroy) which has a customized behaviour, setting the user to `state=delete`.
   describe '#maintainers' do
+    subject { user_1.home_project }
+
     let(:user_1) { create(:confirmed_user, :with_home) }
     let(:user_2) { create(:confirmed_user) }
     let(:group_user) { create(:confirmed_user) }
     let(:group) { create(:group_with_user, user: group_user) }
     let!(:user_relationship) { create(:relationship_project_user, project: subject, user: user_2) }
     let!(:group_relationship) { create(:relationship_project_group, project: subject, group: group) }
-
-    subject { user_1.home_project }
 
     before { group.users << user_2 }
 
@@ -669,12 +669,12 @@ RSpec.describe Project, :vcr do
   end
 
   describe '#categories' do
-    let(:project) { create(:project) }
-    let(:attrib_namespace) { AttribNamespace.create!(name: 'OBS') }
-
     subject do
       project.categories
     end
+
+    let(:project) { create(:project) }
+    let(:attrib_namespace) { AttribNamespace.create!(name: 'OBS') }
 
     context 'when there are quality categories attributes set for the project' do
       let(:category_attrib_type) do
@@ -704,12 +704,12 @@ RSpec.describe Project, :vcr do
   end
 
   describe '#very_important_projects_with_categories' do
-    let(:project) { create(:project) }
-    let(:attrib_namespace) { AttribNamespace.create!(name: 'OBS') }
-
     subject do
       Project.very_important_projects_with_categories
     end
+
+    let(:project) { create(:project) }
+    let(:attrib_namespace) { AttribNamespace.create!(name: 'OBS') }
 
     context 'when there are Very Important Projects' do
       context 'with quality categories' do
@@ -761,19 +761,19 @@ RSpec.describe Project, :vcr do
   end
 
   describe '#expand_maintained_projects' do
+    subject { maintenance_project.expand_maintained_projects }
+
     let(:link_target_project) { create(:project, name: 'openSUSE:Maintenance') }
     let(:maintenance_project) { create(:maintenance_project, target_project: link_target_project) }
-
-    subject { maintenance_project.expand_maintained_projects }
 
     it { expect(subject).not_to be_empty }
     it { expect(subject).to include(link_target_project) }
   end
 
   describe '#expand_all_repositories' do
-    let!(:project) { create(:project_with_repository, name: 'super_project') }
-
     subject { project.expand_all_repositories }
+
+    let!(:project) { create(:project_with_repository, name: 'super_project') }
 
     it { expect(subject).not_to be_empty }
     it { expect(subject).to include(project.repositories.first) }

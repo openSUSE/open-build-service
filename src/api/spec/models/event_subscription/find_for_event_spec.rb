@@ -88,6 +88,11 @@ end
 RSpec.describe EventSubscription::FindForEvent do
   describe '#subscriptions' do
     context 'with a request' do
+      subject do
+        event = Event::RequestCreate.first
+        EventSubscription::FindForEvent.new(event).subscriptions
+      end
+
       let!(:watcher) { create(:confirmed_user) }
       let!(:watcher2) { create(:confirmed_user) }
       let!(:source_project) { create(:project, name: 'TheSource') }
@@ -115,11 +120,6 @@ RSpec.describe EventSubscription::FindForEvent do
       before do
         watcher.watched_items.create(watchable: source_project)
         request
-      end
-
-      subject do
-        event = Event::RequestCreate.first
-        EventSubscription::FindForEvent.new(event).subscriptions
       end
 
       it 'returns a new subscription for the watcher based on the default subscription' do
@@ -275,16 +275,16 @@ RSpec.describe EventSubscription::FindForEvent do
     end
 
     context 'with an added relationship' do
+      subject do
+        EventSubscription::FindForEvent.new(event).subscriptions(channel)
+      end
+
       let(:owner) { create(:confirmed_user) }
       let(:group) { create(:group_with_user) }
       let(:user) { create(:confirmed_user) }
       let(:project) { create(:project_with_package) }
       let(:package) { project.packages.first }
       let(:channel) { :web }
-
-      subject do
-        EventSubscription::FindForEvent.new(event).subscriptions(channel)
-      end
 
       context 'when dealing with projects' do
         context 'and there is a subscription for the target user' do
@@ -426,15 +426,15 @@ RSpec.describe EventSubscription::FindForEvent do
     end
 
     context 'with a removed relationship' do
+      subject do
+        EventSubscription::FindForEvent.new(event).subscriptions(:web)
+      end
+
       let(:owner) { create(:confirmed_user) }
       let(:user) { create(:confirmed_user) }
       let(:group) { create(:group_with_user) }
       let(:project) { create(:project_with_package) }
       let(:package) { project.packages.first }
-
-      subject do
-        EventSubscription::FindForEvent.new(event).subscriptions(:web)
-      end
 
       context 'when dealing with projects' do
         context 'and there is a subscription for the target user' do

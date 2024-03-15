@@ -21,9 +21,9 @@ RSpec.describe Project do
   end
 
   describe '#possible_ancestor_names' do
-    let(:subproject) { create(:project, name: 'A:B:C:D') }
-
     subject { subproject.possible_ancestor_names }
+
+    let(:subproject) { create(:project, name: 'A:B:C:D') }
 
     it 'returns an ordered list of possible parent project names' do
       expect(subject).to contain_exactly('A', 'A:B', 'A:B:C')

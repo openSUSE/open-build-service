@@ -392,13 +392,13 @@ RSpec.describe BsRequestAction do
   end
 
   describe '#toggle_seen_by' do
-    let(:bs_request) { create(:bs_request_with_submit_action, creator: user) }
-    let(:bs_request_action) { bs_request.bs_request_actions.first }
-
     subject do
       bs_request_action.toggle_seen_by(user)
       bs_request_action.seen_by_users
     end
+
+    let(:bs_request) { create(:bs_request_with_submit_action, creator: user) }
+    let(:bs_request_action) { bs_request.bs_request_actions.first }
 
     context 'mark the action as seen by the user' do
       it 'adds the user to the seen_by_users association' do

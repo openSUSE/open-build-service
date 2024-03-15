@@ -1,4 +1,10 @@
 RSpec.describe Workflow::Step::RebuildPackage, :vcr do
+  subject do
+    described_class.new(step_instructions: step_instructions,
+                        scm_webhook: scm_webhook,
+                        token: token)
+  end
+
   let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
   let(:token) { create(:workflow_token, executor: user) }
   let(:project) { create(:project, name: 'openSUSE:Factory', maintainer: user) }
@@ -17,12 +23,6 @@ RSpec.describe Workflow::Step::RebuildPackage, :vcr do
                      source_repository_full_name: 'reponame',
                      commit_sha: '123'
                    })
-  end
-
-  subject do
-    described_class.new(step_instructions: step_instructions,
-                        scm_webhook: scm_webhook,
-                        token: token)
   end
 
   before do
