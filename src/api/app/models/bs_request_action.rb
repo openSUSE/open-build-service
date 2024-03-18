@@ -253,7 +253,10 @@ class BsRequestAction < ApplicationRecord
     ''
   end
 
-  def webui_infos(opts = {})
+  # Serve the sourcediff to the webui
+  def webui_sourcediff(opts = {})
+    opts.merge(superseded_bs_request_action: find_action_with_same_target(opts[:diff_to_superseded])) if opts[:diff_to_superseded]
+
     begin
       opts[:view] = 'xml'
       opts[:withissues] = 1
@@ -262,12 +265,8 @@ class BsRequestAction < ApplicationRecord
     rescue DiffError, Project::UnknownObjectError, Package::UnknownObjectError => e
       return [{ error: e.message }]
     end
-    diff = sorted_filenames_from_sourcediff(sd)
-    if diff[0].empty?
-      nil
-    else
-      diff
-    end
+
+    sorted_filenames_from_sourcediff(sd)
   end
 
   def find_action_with_same_target(other_bs_request)
