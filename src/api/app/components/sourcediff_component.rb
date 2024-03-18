@@ -1,15 +1,14 @@
 class SourcediffComponent < ApplicationComponent
-  attr_accessor :bs_request, :action, :index, :refresh
+  attr_accessor :bs_request, :action, :refresh
 
   delegate :diff_label, to: :helpers
   delegate :diff_data, to: :helpers
 
-  def initialize(bs_request:, action:, index:)
+  def initialize(bs_request:, action:)
     super
 
     @bs_request = bs_request
     @action = action
-    @index = index
   end
 
   def commentable

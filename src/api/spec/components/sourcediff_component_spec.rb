@@ -14,7 +14,7 @@ RSpec.describe SourcediffComponent, :vcr, type: :component do
   context 'with a request with a submit action' do
     before do
       action = bs_request.send(:action_details, bs_request_opts, xml: bs_request.bs_request_actions.last)
-      render_inline(described_class.new(bs_request: bs_request, action: action, index: 0))
+      render_inline(described_class.new(bs_request: bs_request, action: action))
     end
 
     it 'renders the diff' do
