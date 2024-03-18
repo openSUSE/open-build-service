@@ -224,5 +224,57 @@ namespace :dev do
         puts "* Request with delete action #{request.number} has been created."
       end
     end
+
+    desc 'Copy 10 requests from openSUSE:Factory'
+    task requests_from_opensuse_factory: :development_environment do
+      require 'factory_bot'
+      include FactoryBot::Syntax::Methods
+
+      admin = User.get_default_admin
+      admin.run_as do
+        # Setup interconnect
+        remote_proj = Project.find_or_create_by(name: 'openSUSE.org', remoteurl: 'https://api.opensuse.org/public')
+        remote_proj.store
+        FetchRemoteDistributionsJob.perform_now
+
+        clone_project(project_name: 'openSUSE:Factory')
+      end
+    end
+
+    def clone_project(project_name:)
+      project = Project.find_or_create_by(name: project_name)
+      config = make_api_request(url: "#{base_api_url}/source/#{project.name}/_config")
+      clone_prj_configs(config: config, project: project, comment: "Cloned from #{project.name}")
+
+      request = make_api_request(url: "#{base_api_url}/source/#{project.name}/_meta")
+      request_data = Xmlhash.parse(request)
+    end
+
+    def clone_prj_configs(config:, comment:, project:)
+      project.config.save({ user: User.session!.login, comment: comment }, config)
+    end
+
+    def make_api_request(url:, params: {}, headers: { 'Content-Type' => 'application/xml' })
+      username = ''
+      password = ''
+      conn = Faraday.new(
+        url: url,
+        params: params,
+        headers: headers
+      )
+      conn.set_basic_auth(username, password)
+      request = conn.get
+
+      request.body
+    end
+
+    def base_api_url
+      'https://api.opensuse.org'
+    end
+
+    def print_message(message)
+      puts '=' * 50
+      puts message
+    end
   end
 end
