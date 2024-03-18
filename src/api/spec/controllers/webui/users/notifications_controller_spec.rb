@@ -19,13 +19,13 @@ RSpec.describe Webui::Users::NotificationsController do
   end
 
   describe 'GET #index' do
-    let(:user_to_log_in) { user }
-    let(:default_params) { { user_login: username } }
-
     subject do
       login user_to_log_in
       get :index, params: params
     end
+
+    let(:user_to_log_in) { user }
+    let(:default_params) { { user_login: username } }
 
     context 'when no param type is provided' do
       let(:params) { default_params }

@@ -16,9 +16,9 @@ RSpec.describe Status::ReportsController do
       let(:status_report) { create(:status_report, checkable: bs_request) }
       let!(:check) { create(:check, status_report: status_report, name: 'ExampleCI') }
 
-      subject! { get :show, params: { bs_request_number: bs_request.number }, format: :xml }
+      before { get :show, params: { bs_request_number: bs_request.number }, format: :xml }
 
-      it { is_expected.to have_http_status(:success) }
+      it { expect(response).to have_http_status(:success) }
       it { expect(assigns(:checks)).to contain_exactly(check) }
       it { expect(assigns(:missing_checks)).to contain_exactly('openQA') }
     end
@@ -31,11 +31,11 @@ RSpec.describe Status::ReportsController do
 
       before do
         repository.update!(required_checks: ['openQA'])
+
+        get :show, params: { project_name: project.name, repository_name: repository.name, report_uuid: status_report.uuid }, format: :xml
       end
 
-      subject! { get :show, params: { project_name: project.name, repository_name: repository.name, report_uuid: status_report.uuid }, format: :xml }
-
-      it { is_expected.to have_http_status(:success) }
+      it { expect(response).to have_http_status(:success) }
       it { expect(assigns(:checks)).to contain_exactly(check) }
       it { expect(assigns(:missing_checks)).to contain_exactly('openQA') }
     end
@@ -49,14 +49,12 @@ RSpec.describe Status::ReportsController do
 
       before do
         repository_architecture.update!(required_checks: ['openQA'])
-      end
 
-      subject! do
         get :show, params: { project_name: project.name, repository_name: repository.name,
                              arch: repository_architecture.architecture.name, report_uuid: status_report.uuid }, format: :xml
       end
 
-      it { is_expected.to have_http_status(:success) }
+      it { expect(response).to have_http_status(:success) }
       it { expect(assigns(:checks)).to contain_exactly(check) }
       it { expect(assigns(:missing_checks)).to contain_exactly('openQA') }
     end

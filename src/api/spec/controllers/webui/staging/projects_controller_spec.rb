@@ -15,12 +15,12 @@ RSpec.describe Webui::Staging::ProjectsController do
     it { is_expected.to use_after_action(:verify_authorized) }
 
     context 'a staging_project' do
+      subject { staging_workflow }
+
       before do
         login(user)
         post :create, params: { workflow_project: staging_workflow.project, staging_project_name: 'home:tom:My:Projects' }
       end
-
-      subject { staging_workflow }
 
       it { expect(Project.count).to eq(4) }
 
@@ -39,14 +39,14 @@ RSpec.describe Webui::Staging::ProjectsController do
     end
 
     context 'an existent non-staging project' do
+      subject { staging_workflow }
+
       let!(:existent_project) { create(:project, name: "#{project}:new-staging", maintainer: user) }
 
       before do
         login(user)
         post :create, params: { workflow_project: staging_workflow.project, staging_project_name: existent_project.name }
       end
-
-      subject { staging_workflow }
 
       it { expect(Project.count).to eq(4) }
       it { expect(subject.staging_projects.map(&:name)).to contain_exactly('home:tom:Staging:A', 'home:tom:Staging:B', existent_project.name) }
@@ -60,12 +60,12 @@ RSpec.describe Webui::Staging::ProjectsController do
     end
 
     context 'an existent staging project' do
+      subject { staging_workflow }
+
       before do
         login(user)
         post :create, params: { workflow_project: staging_workflow.project, staging_project_name: 'home:tom:Staging:A' }
       end
-
-      subject { staging_workflow }
 
       it { expect(Project.count).to eq(3) }
       it { expect(subject.staging_projects.map(&:name)).to contain_exactly('home:tom:Staging:A', 'home:tom:Staging:B') }
@@ -86,14 +86,14 @@ RSpec.describe Webui::Staging::ProjectsController do
     end
 
     context 'when it fails to save' do
+      subject { staging_workflow }
+
       before do
         staging_workflow
         allow_any_instance_of(Project).to receive(:valid?).and_return(false)
         login(user)
         post :create, params: { workflow_project: staging_workflow.project, staging_project_name: 'home:tom:My:Projects' }
       end
-
-      subject { staging_workflow }
 
       it { expect(Project.count).to eq(3) }
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject.project)) }
@@ -149,26 +149,26 @@ RSpec.describe Webui::Staging::ProjectsController do
     it { is_expected.to use_after_action(:verify_authorized) }
 
     context 'non existent staging project' do
+      subject { staging_workflow }
+
       before do
         login(user)
         delete :destroy, params: { workflow_project: staging_workflow.project, project_name: 'fake_name' }
       end
-
-      subject { staging_workflow }
 
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject.project)) }
       it { expect(flash[:error]).not_to be_nil }
     end
 
     context 'with an existent staging_workflow for project' do
+      subject { staging_workflow }
+
       let(:staging_project) { staging_workflow.staging_projects.first }
 
       before do
         login(user)
         delete :destroy, params: { workflow_project: staging_workflow.project, project_name: staging_project.name }
       end
-
-      subject { staging_workflow }
 
       it 'destroy a staging project' do
         subject.reload
@@ -180,6 +180,8 @@ RSpec.describe Webui::Staging::ProjectsController do
     end
 
     context 'with a staged requests' do
+      subject { staging_workflow }
+
       let(:staging_project) { staging_workflow.staging_projects.first }
       let(:group) { staging_workflow.managers_group }
       let(:source_project) { create(:project, name: 'source_project') }
@@ -202,8 +204,6 @@ RSpec.describe Webui::Staging::ProjectsController do
         login(user)
         delete :destroy, params: { workflow_project: staging_workflow.project, project_name: staging_project.name }
       end
-
-      subject { staging_workflow }
 
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject.project)) }
       it { expect(flash[:error]).to include('could not be deleted because it has staged requests.') }

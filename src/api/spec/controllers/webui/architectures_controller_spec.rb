@@ -21,11 +21,11 @@ RSpec.describe Webui::ArchitecturesController, :js do
     context 'enabling availability' do
       before do
         arch.update!(available: false)
+
+        patch :update, params: { id: arch.id, available: 'true', format: :js }
       end
 
-      subject! { patch :update, params: { id: arch.id, available: 'true', format: :js } }
-
-      it { is_expected.to have_http_status(:success) }
+      it { expect(response).to have_http_status(:success) }
       it { expect(flash[:success]).to eq("Updated architecture 'x86_64'") }
       it { expect(arch.reload).to have_attributes(available: true) }
     end
@@ -33,11 +33,11 @@ RSpec.describe Webui::ArchitecturesController, :js do
     context 'disabling availability' do
       before do
         arch.update!(available: true)
+
+        patch :update, params: { id: arch.id, available: 'false', format: :js }
       end
 
-      subject! { patch :update, params: { id: arch.id, available: 'false', format: :js } }
-
-      it { is_expected.to have_http_status(:success) }
+      it { expect(response).to have_http_status(:success) }
       it { expect(flash[:success]).to eq("Updated architecture 'x86_64'") }
       it { expect(arch.reload).to have_attributes(available: false) }
     end

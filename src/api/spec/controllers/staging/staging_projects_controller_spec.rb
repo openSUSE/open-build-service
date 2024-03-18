@@ -250,22 +250,22 @@ RSpec.describe Staging::StagingProjectsController do
     end
 
     context 'when staging project does not exist' do
-      let(:staging_project_name) { 'non-existent' }
-
       subject! do
         post :accept, params: params, format: :xml
       end
+
+      let(:staging_project_name) { 'non-existent' }
 
       it { is_expected.to have_http_status(:not_found) }
       it { expect(response.body).to match('Staging Project "non-existent" does not exist.') }
     end
 
     context 'when staging project is empty' do
-      let(:staging_project_name) { staging_project.name }
-
       subject! do
         post :accept, params: params, format: :xml
       end
+
+      let(:staging_project_name) { staging_project.name }
 
       it { is_expected.to have_http_status(:bad_request) }
       it { expect(response.body).to match('Staging Project is not acceptable: empty is not an acceptable state') }
@@ -283,6 +283,10 @@ RSpec.describe Staging::StagingProjectsController do
     end
 
     context 'when project has a request', :vcr do
+      subject do
+        post :accept, params: params, format: :xml
+      end
+
       let(:staging_owner) { create(:confirmed_user, login: 'staging-hero') }
       let(:staging_project_name) { staging_project.name }
       let(:requester) { create(:confirmed_user, login: 'requester') }
@@ -306,10 +310,6 @@ RSpec.describe Staging::StagingProjectsController do
         )
       end
 
-      subject do
-        post :accept, params: params, format: :xml
-      end
-
       context 'with nothing missing' do
         it { is_expected.to have_http_status(:success) }
       end
@@ -328,14 +328,14 @@ RSpec.describe Staging::StagingProjectsController do
   end
 
   describe 'POST #create' do
+    subject { post :create, params: { staging_workflow_project: staging_workflow_project, format: :xml }, body: body }
+
     let(:staging_workflow_project) { staging_workflow.project.name }
     let!(:other_project) { create(:project, name: "#{project}:other_project") }
 
     before do
       staging_workflow
     end
-
-    subject { post :create, params: { staging_workflow_project: staging_workflow_project, format: :xml }, body: body }
 
     context 'succeeds' do
       let(:body) do

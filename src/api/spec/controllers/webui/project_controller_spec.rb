@@ -906,17 +906,17 @@ RSpec.describe Webui::ProjectController, :vcr do
     let(:input) { 'ThisIsAPackage' }
 
     context 'a filter_string that matches' do
-      let(:filter_string) { 'Package' }
-
       subject { Webui::ProjectController.new.send(:filter_matches?, input, filter_string) }
+
+      let(:filter_string) { 'Package' }
 
       it { is_expected.to be_truthy }
     end
 
     context 'a filter_string does not match' do
-      let(:filter_string) { '!Package' }
-
       subject { Webui::ProjectController.new.send(:filter_matches?, input, filter_string) }
+
+      let(:filter_string) { '!Package' }
 
       it { is_expected.to be_falsey }
     end

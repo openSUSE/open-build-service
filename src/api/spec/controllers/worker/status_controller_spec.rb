@@ -12,11 +12,11 @@ RSpec.describe Worker::StatusController, :vcr do
 
     before do
       stub_request(:get, "#{CONFIG['source_url']}/build/_workerstatus").and_return(body: worker_status_response)
+
+      get :index, params: { format: :xml }
     end
 
-    subject! { get :index, params: { format: :xml } }
-
-    it { is_expected.to have_http_status(:success) }
+    it { expect(response).to have_http_status(:success) }
 
     it 'finds 2 workers' do
       expect(response.body).to have_css('workerstatus[clients=2]')

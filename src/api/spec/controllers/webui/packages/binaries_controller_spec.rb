@@ -46,16 +46,16 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
     end
 
     context 'with a failure in the backend' do
-      before do
-        allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_raise(Backend::Error, 'fake message')
-      end
-
       subject do
         get :show, params: { package_name: toms_package,
                              project_name: home_tom,
                              repository_name: repo_for_home_tom,
                              arch: 'x86_64',
                              filename: 'filename.txt' }
+      end
+
+      before do
+        allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_raise(Backend::Error, 'fake message')
       end
 
       it { expect(response).to have_http_status(:success) }
@@ -67,16 +67,16 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
     end
 
     context 'without file info' do
-      before do
-        allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_return(nil)
-      end
-
       subject do
         get :show, params: { package_name: toms_package,
                              project_name: home_tom,
                              repository_name: repo_for_home_tom,
                              arch: 'x86_64',
                              filename: 'filename.txt' }
+      end
+
+      before do
+        allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_return(nil)
       end
 
       it { expect { subject }.to raise_error(ActiveRecord::RecordNotFound) }

@@ -35,12 +35,12 @@ RSpec.describe Webui::Staging::WorkflowsController do
     it { is_expected.to use_after_action(:verify_authorized) }
 
     context 'a staging_workflow and staging_projects' do
+      subject { project.staging }
+
       before do
         login(user)
         post :create, params: { project: project.name, managers_title: managers_group.title }
       end
-
-      subject { project.staging }
 
       it { expect(Staging::Workflow.count).to eq(1) }
       it { expect(subject.staging_projects.map(&:name)).to contain_exactly('home:tom:Staging:A', 'home:tom:Staging:B') }
@@ -50,6 +50,8 @@ RSpec.describe Webui::Staging::WorkflowsController do
     end
 
     context 'with existent stagings projects' do
+      subject { project.staging }
+
       let!(:staging_a) { create(:project, name: "#{project}:Staging:A") }
       let!(:staging_b) { create(:project, name: "#{project}:Staging:B") }
 
@@ -57,8 +59,6 @@ RSpec.describe Webui::Staging::WorkflowsController do
         login(user)
         post :create, params: { project: project.name, managers_title: managers_group.title }
       end
-
-      subject { project.staging }
 
       it { expect(Staging::Workflow.count).to eq(1) }
       it { expect(subject.staging_projects.map(&:name)).to contain_exactly('home:tom:Staging:A', 'home:tom:Staging:B') }
@@ -130,13 +130,13 @@ RSpec.describe Webui::Staging::WorkflowsController do
     it { is_expected.to use_after_action(:verify_authorized) }
 
     context 'a staging workflow and staging projects' do
+      subject { project.staging }
+
       before do
         login(user)
         params = { workflow_project: project, staging_workflow: { staging_project_ids: project.staging.staging_projects.ids }, format: :js }
         delete :destroy, params: params
       end
-
-      subject { project.staging }
 
       it { expect(Staging::Workflow.count).to eq(0) }
       it { expect(subject.staging_projects.count).to eq(0) }
@@ -146,13 +146,13 @@ RSpec.describe Webui::Staging::WorkflowsController do
     end
 
     context 'a staging workflow and one staging project' do
+      subject { project.staging }
+
       before do
         login(user)
         params = { workflow_project: project, staging_workflow: { staging_project_ids: project.staging.staging_projects.ids.first }, format: :js }
         delete :destroy, params: params
       end
-
-      subject { project.staging }
 
       it { expect(Staging::Workflow.count).to eq(0) }
       it { expect(subject.staging_projects.count).to eq(0) }

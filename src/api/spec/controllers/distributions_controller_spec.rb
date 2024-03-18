@@ -45,11 +45,11 @@ RSpec.describe DistributionsController do
   end
 
   describe '#create' do
+    subject { post :create, body: distribution_xml, format: :xml }
+
     before do
       login admin
     end
-
-    subject { post :create, body: distribution_xml, format: :xml }
 
     it { is_expected.to have_http_status(:ok) }
     it { expect { subject }.to change(Distribution, :count).by(1) }
@@ -70,13 +70,13 @@ RSpec.describe DistributionsController do
   end
 
   describe '#update' do
+    subject { post :update, params: { id: distribution.id }, body: distribution_xml, format: :xml }
+
     let(:distribution) { create(:distribution, vendor: 'debian') }
 
     before do
       login admin
     end
-
-    subject { post :update, params: { id: distribution.id }, body: distribution_xml, format: :xml }
 
     it { is_expected.to have_http_status(:ok) }
 
@@ -86,11 +86,11 @@ RSpec.describe DistributionsController do
     end
 
     context 'when xml is empty' do
+      subject { post :update, params: { id: distribution.id }, format: :xml }
+
       before do
         distribution
       end
-
-      subject { post :update, params: { id: distribution.id }, format: :xml }
 
       it { expect { subject }.not_to change(Distribution, :count) }
       it { is_expected.to have_http_status(:bad_request) }
@@ -105,13 +105,13 @@ RSpec.describe DistributionsController do
   end
 
   describe '#bulk_replace' do
+    subject { put :bulk_replace, body: distributions_xml, format: :xml }
+
     let!(:distributions) { create_list(:distribution, 3) }
 
     before do
       login admin
     end
-
-    subject { put :bulk_replace, body: distributions_xml, format: :xml }
 
     it { is_expected.to have_http_status(:ok) }
 
