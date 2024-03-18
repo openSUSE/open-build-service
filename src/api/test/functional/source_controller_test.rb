@@ -58,7 +58,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                    children: { count: 2, only: { tag: 'entry' } }
   end
 
-  def test_post_orderkiwirepos # spec/controllers/source_controller_spec.rb
+  # spec/controllers/source_controller_spec.rb
+  def test_post_orderkiwirepos
     # urls with http protocol
     kiwi_config_http = <<~EOF
       <?xml version='1.0' encoding='UTF-8'?>
@@ -102,7 +103,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_equal second['source']['path'], 'obs://BaseDistro2.0/BaseDistro2_repo'
   end
 
-  def test_anonymous_access_for_global_commands # spec/controllers/source_controller_spec.rb
+  # spec/controllers/source_controller_spec.rb
+  def test_anonymous_access_for_global_commands
     post '/source?cmd=orderkiwirepos'
     # anonymous access allowed here, just forwarding the request to backend fails
     assert_response 400

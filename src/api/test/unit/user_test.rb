@@ -8,7 +8,8 @@ class UserTest < ActiveSupport::TestCase
     @user = User.find_by_login('Iggy')
   end
 
-  def test_create_home_project # spec/models/user_spec.rb
+  # spec/models/user_spec.rb
+  def test_create_home_project
     User.create(login: 'moises', email: 'moises@home.com', password: '123456')
     assert Project.find_by(name: 'home:moises')
     # cleanup

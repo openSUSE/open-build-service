@@ -1075,14 +1075,6 @@ Style/CombinableLoops:
     - 'spec/factories/staging_workflow.rb'
     - 'test/functional/release_management_test.rb'
 
-# Offense count: 5
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/CommentedKeyword:
-  Exclude:
-    - 'test/functional/source_controller_test.rb'
-    - 'test/unit/user_ldap_strategy_test.rb'
-    - 'test/unit/user_test.rb'
-
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: EnforcedStyle, SingleLineConditionsOnly, IncludeTernaryExpressions.
