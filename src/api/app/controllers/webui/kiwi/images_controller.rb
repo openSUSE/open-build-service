@@ -23,7 +23,7 @@ module Webui
           unless package.save
             errors = package.kiwi_image.nested_error_messages.merge(title: "Kiwi File '#{kiwi_file}' has errors:")
 
-            redirect_to package_view_file_path(project: package.project, package: package, filename: kiwi_file), error: errors
+            redirect_to project_package_file_path(project_name: package.project, package_name: package, filename: kiwi_file), error: errors
             return
           end
         end

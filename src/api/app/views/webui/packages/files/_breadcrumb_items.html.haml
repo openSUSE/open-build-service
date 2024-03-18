@@ -1,3 +1,7 @@
 = render partial: 'webui/package/breadcrumb_items'
-%li.breadcrumb-item.active{ 'aria-current' => 'page' }
-  Add File
+- if action_name == 'new'
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Add File
+- if action_name == 'show'
+  %li.breadcrumb-item.active.text-word-break-all{ 'aria-current' => 'page' }
+    = truncate(@filename, length: 50)

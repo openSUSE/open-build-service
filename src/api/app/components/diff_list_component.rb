@@ -32,13 +32,13 @@ class DiffListComponent < ApplicationComponent
     return nil unless @source_package
     return nil unless @source_package.file_exists?(filename, { rev: @source_rev, expand: 1 }.compact)
 
-    package_view_file_path(@source_package.project, @source_package, filename, rev: @source_rev, expand: 1)
+    project_package_file_path(@source_package.project, @source_package, filename, rev: @source_rev, expand: 1)
   end
 
   def target_file(filename)
     return nil unless @target_package
     return nil unless @target_package.file_exists?(filename, expand: 1)
 
-    package_view_file_path(@target_package.project, @target_package, filename, expand: 1)
+    project_package_file_path(@target_package.project, @target_package, filename, expand: 1)
   end
 end

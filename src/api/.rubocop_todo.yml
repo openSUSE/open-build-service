@@ -194,7 +194,7 @@ Metrics/BlockNesting:
     - 'app/models/bs_request_action.rb'
     - 'lib/xpath_engine.rb'
 
-# Offense count: 85
+# Offense count: 86
 # Configuration parameters: CountComments, Max, CountAsOne.
 Metrics/ClassLength:
   Exclude:
@@ -209,6 +209,7 @@ Metrics/ClassLength:
     - 'app/controllers/webui/kiwi/images_controller.rb'
     - 'app/controllers/webui/package_controller.rb'
     - 'app/controllers/webui/packages/build_log_controller.rb'
+    - 'app/controllers/webui/packages/files_controller.rb'
     - 'app/controllers/webui/patchinfo_controller.rb'
     - 'app/controllers/webui/project_controller.rb'
     - 'app/controllers/webui/packages/binaries_controller.rb'

@@ -1,7 +1,8 @@
 - can_be_removed = removable_file?(file_name: file['name'], package: package) && can_modify
 %tr{ id: "file-#{valid_xml_id(file['name'])}" }
   %td.text-word-break-all
-    - link_opts = { action: :view_file, project: project, package: package, filename: file['name'], expand: expand }
+    - link_opts = { action: :show, controller: 'webui/packages/files', project_name: project,
+                    package_name: package, filename: file['name'], expand: expand }
     - unless is_current_rev
       - link_opts[:rev] = srcmd5
     = link_to_if(viewable_file?(file['name'], file['size'].to_i), nbsp(file['name']), link_opts)
