@@ -21,6 +21,10 @@ class Workflow::Step
     raise AbstractMethodCalled
   end
 
+  def target_project
+    Project.find_by(name: target_project_name)
+  end
+
   def target_project_name
     return target_project_base_name if scm_webhook.push_event? || scm_webhook.tag_push_event?
 

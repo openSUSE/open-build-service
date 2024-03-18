@@ -22,7 +22,8 @@ class Workflow::Step::SetFlags < Workflow::Step
     ActiveRecord::Base.transaction do
       flags.each do |flag|
         main_object = project_or_package(flag)
-        check_access(main_object)
+        Pundit.authorize(token.executor, main_object, :update?)
+
         architecture_id = Architecture.find_by_name(flag[:architecture]).id if flag[:architecture]
         existing_flag = main_object.flags.find_by(flag: flag[:type], repo: flag[:repository], architecture_id: architecture_id)
 
@@ -40,10 +41,6 @@ class Workflow::Step::SetFlags < Workflow::Step
     project = Project.find_by!(name: target_project_name(project_name: flag[:project]))
     package = project.packages.find_by(name: target_package_name(package_name: flag[:package])) if flag[:package].present?
     package.presence || project
-  end
-
-  def check_access(object)
-    raise Pundit::NotAuthorizedError unless Pundit.policy(token.executor, object).update?
   end
 
   def validate_flags
