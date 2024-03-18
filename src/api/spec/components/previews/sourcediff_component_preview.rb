@@ -4,6 +4,6 @@ class SourcediffComponentPreview < ViewComponent::Preview
     bs_request = BsRequest.last
     opts = { filelimit: nil, tarlimit: nil, diff_to_superseded: nil, diffs: true, cacheonly: 1 }
     action = bs_request.send(:action_details, opts, xml: bs_request.bs_request_actions.last)
-    render(SourcediffComponent.new(bs_request: bs_request, action: action, index: 0))
+    render(SourcediffComponent.new(bs_request: bs_request, action: action))
   end
 end
