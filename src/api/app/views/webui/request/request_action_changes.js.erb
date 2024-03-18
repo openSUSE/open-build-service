@@ -1,1 +1,1 @@
-$('.tab-content.sourcediff').html("<%= escape_javascript(render(SourcediffComponent.new(bs_request: @bs_request, action: @action, index: 0, commentable: @commentable, source_package: @source_package, target_package: @target_package))) %>");
+$('.tab-content.sourcediff').html("<%= escape_javascript(render(SourcediffComponent.new(bs_request: @bs_request, action: @action, commentable: @commentable, source_package: @source_package, target_package: @target_package))) %>");
