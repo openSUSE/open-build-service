@@ -1,0 +1,48 @@
+name: Warn about migrations
+on:
+  workflow_run:
+    workflows: ['Set warnings about migrations']
+    types:
+      - completed
+permissions:
+  contents: read
+jobs:
+  comment_on_pr:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Download artifacts
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: ${{ github.event.workflow_run.workflow_id }}
+          workflow_conclusion: success
+
+      - name: Fetch PR number from artifacts
+        run: |
+          echo "pr_number=$(cat migrations_artifacts/pr_number.txt)" >> $GITHUB_ENV
+
+      - name: Add comment about migration to PR
+        uses: thollander/actions-comment-pull-request@v2
+        if: ${{ hashFiles('migrations_artifacts/comment_text_migrations.txt') != '' }}
+        with:
+          filePath: migrations_artifacts/comment_text_migrations.txt
+          pr_number: ${{ env.pr_number }}
+          comment_tag: comment_about_migrations
+
+      - name: Add comment about missing db schema to PR
+        uses: thollander/actions-comment-pull-request@v2
+        if: ${{ hashFiles('migrations_artifacts/comment_text_db_schema.txt') != '' }}
+        with:
+          filePath: migrations_artifacts/comment_text_db_schema.txt
+          pr_number: ${{ env.pr_number }}
+          comment_tag: comment_about_db_schema
+
+      - name: Add comment about missing data schema to PR
+        uses: thollander/actions-comment-pull-request@v2
+        if: ${{ hashFiles('migrations_artifacts/comment_text_data_schema.txt') != '' }}
+        with:
+          filePath: migrations_artifacts/comment_text_data_schema.txt
+          pr_number: ${{ env.pr_number }}
+          comment_tag: comment_about_data_schema
+
