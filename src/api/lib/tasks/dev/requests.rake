@@ -248,6 +248,129 @@ namespace :dev do
 
       request = make_api_request(url: "#{base_api_url}/source/#{project.name}/_meta")
       request_data = Xmlhash.parse(request)
+
+      create_users_and_groups_from_meta(request_data: request_data)
+      create_repositories_from_meta(request_data: request_data, target_project: project)
+      clone_meta(meta: request, comment: "Cloned _meta from #{project.name}", project: project)
+    end
+
+    def clone_meta(meta:, comment:, project:)
+      params = ActionController::Parameters.new({ meta: meta, comment: comment, project: project.name })
+      meta_validator = MetaControllerService::MetaXMLValidator.new(params)
+      meta_validator.call
+      updater = MetaControllerService::ProjectUpdater.new(project: project, request_data: meta_validator.request_data).call
+      print_message(updater.errors) if updater.errors
+    end
+
+    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
+    def create_repositories_from_meta(request_data:, target_project:)
+      [request_data['repository']].flatten.each do |repository|
+        if repository['releasetarget'] && repository['releasetarget']['project']
+          project = Project.find_or_create_by(name: repository['releasetarget']['project'])
+          proj_repo = project.repositories.find_or_initialize_by(name: repository['releasetarget']['repository'])
+        elsif repository['path'].is_a?(Array)
+          repository['path'].each do |path|
+            project = Project.find_or_create_by(name: path['project'])
+            proj_repo = project.repositories.find_or_initialize_by(name: path['repository'])
+
+            target_repo = repository['name']
+            target_repository = Repository.find_by_project_and_name(target_project.name, target_repo)
+            target_repository = create(:repository, project: target_project, name: target_repo) if target_repository.nil?
+            proj_repo.path_elements.find_or_initialize_by(link: target_repository)
+
+            if repository['arch'].is_a?(Array)
+              repository['arch'].each do |architecture|
+                proj_repo.repository_architectures.find_or_initialize_by(architecture: Architecture.find_by(name: architecture))
+              end
+            else
+              proj_repo.repository_architectures.find_or_initialize_by(architecture: Architecture.find_by(name: repository['arch']))
+            end
+            proj_repo.save!
+            project.store(comment: "Added #{proj_repo.name} repository")
+          end
+
+          next
+        elsif repository['path']
+          project = Project.find_or_create_by(name: repository['path']['project'])
+          proj_repo = project.repositories.find_or_initialize_by(name: repository['path']['repository'])
+        else
+          next
+        end
+        target_repo = repository['name']
+        target_repository = Repository.find_by_project_and_name(target_project.name, target_repo)
+        target_repository = create(:repository, project: target_project, name: target_repo) if target_repository.nil?
+        proj_repo.path_elements.find_or_initialize_by(link: target_repository)
+
+        if repository['arch'].is_a?(Array)
+          repository['arch'].each do |architecture|
+            proj_repo.repository_architectures.find_or_initialize_by(architecture: Architecture.find_by(name: architecture))
+          end
+        elsif repository['arch']
+          proj_repo.repository_architectures.find_or_initialize_by(architecture: Architecture.find_by(name: repository['arch']))
+        end
+
+        proj_repo.save!
+        project.store(comment: "Added #{proj_repo.name} repository")
+      end
+    end
+    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/PerceivedComplexity
+
+    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
+    def create_users_and_groups_from_meta(request_data:)
+      # create users
+      if request_data['person'].present?
+        [request_data['person']].flatten.each do |person|
+          find_user(person['userid'])
+        end
+      end
+
+      return if request_data['group'].nil?
+
+      if request_data['group'].is_a?(Array)
+        request_data['group'].each do |group|
+          next if Group.find_by(title: group['groupid'])
+
+          create(:group, title: group['groupid'])
+        end
+      else
+        group = Group.find_by(title: request_data['group']['groupid'])
+
+        create(:group, title: request_data['group']['groupid']) if group.nil?
+      end
+    end
+    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/PerceivedComplexity
+
+    def find_user(login)
+      user = User.find_by_login(login)
+      return user if user
+
+      create(:confirmed_user, login: login)
+    end
+
+    def find_group(title)
+      return if title.nil?
+
+      Group.find_or_create_by!(title: title)
+    end
+
+    def find_project(project_name)
+      return if project_name.nil?
+
+      Project.find_or_create_by(name: project_name)
+    end
+
+    def find_package(project_name, package_name)
+      return if project_name.nil? || package_name.nil?
+
+      package = Package.find_by_project_and_name(project_name, package_name)
+      return package if package
+
+      project = Project.find_or_create_by(name: project_name)
+      create(:package, name: package_name, project: project)
     end
 
     def clone_prj_configs(config:, comment:, project:)
