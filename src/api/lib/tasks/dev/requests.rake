@@ -238,6 +238,140 @@ namespace :dev do
         FetchRemoteDistributionsJob.perform_now
 
         clone_project(project_name: 'openSUSE:Factory')
+
+        # Get the list of requests from openSUSE:Factory
+        url = "#{base_api_url}/search/request"
+        params = { match: "target/@project='openSUSE:Factory' and state/@name='review'", project: 'openSUSE:Factory', limit: '10', withhistory: '1', withfullhistory: '1' }
+        temp_request = make_api_request(url: url, params: params.merge(limit: '1'))
+        offset = Xmlhash.parse(temp_request)['matches'].to_i / 2
+        request = make_api_request(url: url, params: params.merge(offset: offset.to_s))
+        requests_list = Xmlhash.parse(request)
+        print_message 'Successfully got the requests list'
+
+        requests_list['request'].each do |req|
+          next if req['action']['type'] != 'submit'
+
+          branch_package(
+            source_project_name: 'openSUSE.org:openSUSE:Factory',
+            source_package_name: req['action']['target']['package'],
+            target_project: 'openSUSE:Factory'
+          )
+
+          find_user(req['creator']) if req['creator']
+          clone_project(project_name: req['action']['source']['project'])
+          branch_package(
+            source_project_name: "openSUSE.org:#{req['action']['source']['project']}",
+            source_package_name: req['action']['source']['package'],
+            target_project: req['action']['source']['project']
+          )
+
+          request_params = {
+            bs_request: {
+              description: "Bs request ##{req['id']}",
+              creator: req['creator'],
+              state: req['state']['name']
+            },
+            bs_request_actions: {
+              target_project: 'openSUSE:Factory',
+              source_project: req['action']['source']['project'],
+              source_package: req['action']['source']['package'],
+              type: req['action']['type']
+            }
+          }
+          bs_request = create_bs_request(request_params)
+          create_reviews(bs_request: bs_request, reviews: req['review'])
+        end
+      end
+    end
+
+    def branch_package(source_project_name:, source_package_name:, target_project:)
+      branch_params = {
+        project: source_project_name,
+        package: source_package_name,
+        target_project: target_project,
+        force: 1
+      }
+
+      BranchPackage.new(branch_params).branch
+    end
+
+    def create_bs_request(params)
+      bs_request = BsRequest.new(params[:bs_request])
+      bs_request.bs_request_actions.new(params[:bs_request_actions])
+
+      bs_request.save!
+      print_message("Successfully created request##{bs_request.number}")
+
+      bs_request
+    end
+
+    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
+    def create_reviews(bs_request:, reviews:)
+      review_params = reviews.filter_map do |params|
+        next if params['by_project'] && params['by_project'].match?('openSUSE:Factory:Staging')
+
+        reviewer = find_user(params['who'] || params['by_user']).login if params['who'] || params['by_user']
+        user_id = find_user(params['by_user']).id if params['by_user']
+
+        {
+          review: {
+            reviewer: reviewer,
+            by_user: params['by_user'],
+            state: params['state'],
+            reason: params['comment'],
+            by_group: params['by_group'],
+            by_project: params['by_project'],
+            by_package: params['by_package'],
+            user_id: user_id,
+            group_id: find_group(params['by_group']).try(:id),
+            project_id: find_project(params['by_project']).try(:id),
+            package_id: find_package(params['by_project'], params['by_package']).try(:id)
+          },
+          history_elements: prepare_history_elements_data(params['history'])
+        }
+      end
+
+      bs_request.reviews.destroy_all
+      review_params.each do |params|
+        review = bs_request.reviews.create!(params[:review])
+        create_history_elements(review, params[:history_elements])
+      end
+    end
+    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/PerceivedComplexity
+
+    def create_history_elements(review, params)
+      case review.state
+      when :accepted
+        klass = HistoryElement::ReviewAccepted
+      when :declined
+        klass = HistoryElement::ReviewDeclined
+      end
+      params.each do |param|
+        klass.create!(op_object_id: review.id, user_id: param[:user_id], comment: param[:comment])
+      end
+    end
+
+    def prepare_history_elements_data(params)
+      return [] if params.nil?
+
+      if params.is_a?(Array)
+        params.map do |param|
+          user_id = find_user(param['who']).id if param['who']
+          {
+            user_id: user_id,
+            description: param['description'],
+            comment: param['comment']
+          }
+        end
+      else
+        user_id = find_user(params['who']).id if params['who']
+        [{
+          user_id: user_id,
+          description: params['description'],
+          comment: params['comment']
+        }]
       end
     end
 
@@ -323,7 +457,7 @@ namespace :dev do
       # create users
       if request_data['person'].present?
         [request_data['person']].flatten.each do |person|
-          find_user(person['userid'])
+          find_user(person['userid']) if person['userid']
         end
       end
 
