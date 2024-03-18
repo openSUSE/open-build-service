@@ -792,18 +792,6 @@ RSpec/MessageSpies:
 RSpec/MultipleMemoizedHelpers:
   Max: 28
 
-# Offense count: 12
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: ResponseMethods.
-# ResponseMethods: response, last_response
-RSpec/Rails/HaveHttpStatus:
-  Exclude:
-    - 'spec/controllers/attribute_controller_spec.rb'
-    - 'spec/controllers/source_controller_spec.rb'
-    - 'spec/controllers/webui/projects/project_configuration_controller_spec.rb'
-    - 'spec/controllers/webui/session_controller_spec.rb'
-    - 'spec/controllers/webui/users/notifications_controller_spec.rb'
-
 # Offense count: 1
 RSpec/SubjectStub:
   Exclude:
