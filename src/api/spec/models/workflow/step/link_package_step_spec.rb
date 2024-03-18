@@ -1,13 +1,13 @@
 RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
-  let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
-  let(:token) { create(:workflow_token, executor: user) }
-  let(:target_project_name) { "home:#{user.login}" }
-
   subject do
     described_class.new(step_instructions: step_instructions,
                         scm_webhook: scm_webhook,
                         token: token)
   end
+
+  let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
+  let(:token) { create(:workflow_token, executor: user) }
+  let(:target_project_name) { "home:#{user.login}" }
 
   RSpec.shared_context 'insufficient permission on target project' do
     let(:step_instructions) do

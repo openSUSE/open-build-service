@@ -4,6 +4,8 @@ RSpec.describe Kiwi::Image::XmlBuilder do
   include_context 'a kiwi image xml'
 
   describe '#build' do
+    subject { Kiwi::Image::XmlBuilder.new(kiwi_image).build }
+
     let(:original_xml) do
       <<~XML
         <?xml version="1.0" encoding="UTF-8"?>
@@ -45,8 +47,6 @@ RSpec.describe Kiwi::Image::XmlBuilder do
       kiwi_image.preferences.first.type_containerconfig_name = 'hello'
       kiwi_image.preferences.first.type_containerconfig_tag = 'world'
     end
-
-    subject { Kiwi::Image::XmlBuilder.new(kiwi_image).build }
 
     it { is_expected.to eq(expected_xml) }
   end

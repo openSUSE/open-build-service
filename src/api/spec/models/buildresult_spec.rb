@@ -12,6 +12,8 @@ RSpec.describe Buildresult, :vcr do
   end
 
   describe '#summary' do
+    subject { Buildresult.summary(home_project) }
+
     let(:user) { create(:confirmed_user, login: 'tom') }
     let(:home_project) { user.home_project }
     let(:backend_url) { "#{CONFIG['source_url']}/build/#{home_project}/_result?view=summary" }
@@ -19,8 +21,6 @@ RSpec.describe Buildresult, :vcr do
     let(:local_build_result) { subject['openSUSE'].first }
     let(:result) { { architecture: 'i586', code: 'published', repository: 'openSUSE', state: 'published' } }
     let(:status_count) { local_build_result.summary.first }
-
-    subject { Buildresult.summary(home_project) }
 
     before do
       stub_request(:get, backend_url).and_return(body:

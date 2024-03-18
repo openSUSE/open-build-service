@@ -47,17 +47,17 @@ RSpec.describe Review do
   end
 
   describe '.assigned' do
-    include_context 'some assigned reviews and some unassigned reviews'
-
     subject { Review.assigned }
+
+    include_context 'some assigned reviews and some unassigned reviews'
 
     it { is_expected.to contain_exactly(review_assigned1, review_assigned2) }
   end
 
   describe '.unassigned' do
-    include_context 'some assigned reviews and some unassigned reviews'
-
     subject { Review.unassigned }
+
+    include_context 'some assigned reviews and some unassigned reviews'
 
     it { is_expected.to contain_exactly(review_unassigned1, review_unassigned2) }
   end
@@ -167,6 +167,8 @@ RSpec.describe Review do
     end
 
     context 'with a review assigned to and assigned to state = accepted' do
+      subject { review.accepted_at }
+
       let!(:review2) do
         create(
           :review,
@@ -184,12 +186,12 @@ RSpec.describe Review do
         )
       end
 
-      subject { review.accepted_at }
-
       it { is_expected.to eq(history_element_review_accepted2.created_at) }
     end
 
     context 'with a review assigned to and assigned to state != accepted' do
+      subject { review.accepted_at }
+
       let!(:review2) do
         create(
           :review,
@@ -199,8 +201,6 @@ RSpec.describe Review do
           state: :new
         )
       end
-
-      subject { review.accepted_at }
 
       it { is_expected.to be_nil }
     end
@@ -212,9 +212,9 @@ RSpec.describe Review do
     end
 
     context 'with no reviewed assigned to and state != accepted' do
-      let(:review_state) { :new }
-
       subject { review.accepted_at }
+
+      let(:review_state) { :new }
 
       it { is_expected.to be_nil }
     end
@@ -240,6 +240,8 @@ RSpec.describe Review do
     end
 
     context 'with a review assigned to and assigned to state = declined' do
+      subject { review.declined_at }
+
       let!(:review2) do
         create(
           :review,
@@ -257,12 +259,12 @@ RSpec.describe Review do
         )
       end
 
-      subject { review.declined_at }
-
       it { is_expected.to eq(history_element_review_declined2.created_at) }
     end
 
     context 'with a review assigned to and assigned to state != declined' do
+      subject { review.declined_at }
+
       let!(:review2) do
         create(
           :review,
@@ -272,8 +274,6 @@ RSpec.describe Review do
           state: :new
         )
       end
-
-      subject { review.declined_at }
 
       it { is_expected.to be_nil }
     end
@@ -285,9 +285,9 @@ RSpec.describe Review do
     end
 
     context 'with no reviewed assigned to and state != declined' do
-      let(:review_state) { :new }
-
       subject { review.declined_at }
+
+      let(:review_state) { :new }
 
       it { is_expected.to be_nil }
     end
@@ -298,9 +298,11 @@ RSpec.describe Review do
     let!(:review) { create(:review, by_user: user.login) }
 
     context 'assigned to itself' do
-      before { review.review_id = review.id }
+      before do
+        review.review_id = review.id
 
-      subject! { review.valid? }
+        review.valid?
+      end
 
       it { expect(review.errors[:review_id].count).to eq(1) }
     end
@@ -308,9 +310,11 @@ RSpec.describe Review do
     context 'assigned to a different review' do
       let!(:review2) { create(:review, by_user: user.login) }
 
-      before { review.review_id = review2.id }
+      before do
+        review.review_id = review2.id
 
-      subject! { review.valid? }
+        review.valid?
+      end
 
       it { expect(review.errors[:review_id].count).to eq(0) }
     end
@@ -322,9 +326,11 @@ RSpec.describe Review do
     let!(:review2) { create(:review, by_user: user.login, review_id: review.id) }
 
     context 'review1 is assigned to review2 which is already assigned to review1' do
-      before { review.review_id = review2.id }
+      before do
+        review.review_id = review2.id
 
-      subject! { review.valid? }
+        review.valid?
+      end
 
       it { expect(review.errors[:review_id].count).to eq(1) }
     end
@@ -332,9 +338,11 @@ RSpec.describe Review do
     context 'review1 is assigned to review3' do
       let!(:review3) { create(:review, by_user: user.login) }
 
-      before { review.review_id = review3.id }
+      before do
+        review.review_id = review3.id
 
-      subject! { review.valid? }
+        review.valid?
+      end
 
       it { expect(review.errors[:review_id].count).to eq(0) }
     end
@@ -354,9 +362,9 @@ RSpec.describe Review do
     end
 
     context 'by_user' do
-      let!(:review) { create(:user_review) }
-
       subject { review.user }
+
+      let!(:review) { create(:user_review) }
 
       it_behaves_like "the subject's cache is reset when it's review changes"
     end
@@ -376,11 +384,11 @@ RSpec.describe Review do
     end
 
     context 'by_package with a direct relationship' do
+      subject { relationship_package_user.user }
+
       let(:relationship_package_user) { create(:relationship_package_user) }
       let(:package) { relationship_package_user.package }
       let!(:review) { create(:review, by_package: package, by_project: package.project) }
-
-      subject { relationship_package_user.user }
 
       it_behaves_like "the subject's cache is reset when it's review changes"
     end
@@ -402,11 +410,11 @@ RSpec.describe Review do
     end
 
     context 'by_project with a direct relationship' do
+      subject { relationship_project_user.user }
+
       let(:relationship_project_user) { create(:relationship_project_user) }
       let(:project) { relationship_project_user.project }
       let!(:review) { create(:review, by_project: project) }
-
-      subject { relationship_project_user.user }
 
       it_behaves_like "the subject's cache is reset when it's review changes"
     end
@@ -457,6 +465,8 @@ RSpec.describe Review do
   end
 
   describe '.new_from_xml_hash' do
+    subject { Review.new_from_xml_hash(review_hash) }
+
     let(:request_xml) do
       "<request>
         <review state='accepted' by_user='#{user}'/>
@@ -464,8 +474,6 @@ RSpec.describe Review do
     end
     let(:request_hash) { Xmlhash.parse(request_xml) }
     let(:review_hash) { request_hash['review'] }
-
-    subject { Review.new_from_xml_hash(review_hash) }
 
     it 'initalizes the review in state :new' do
       expect(subject.state).to eq(:new)

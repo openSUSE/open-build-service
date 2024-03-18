@@ -8,13 +8,13 @@ RSpec.describe Kiwi::Preference do
   end
 
   describe '#containerconfig_xml' do
+    subject { preference.containerconfig_xml }
+
     let(:expected_xml) do
       <<~XML
         <containerconfig name="my_container" type_containerconfig_tag="latest"/>
       XML
     end
-
-    subject { preference.containerconfig_xml }
 
     it { expect(subject).to eq(expected_xml) }
   end

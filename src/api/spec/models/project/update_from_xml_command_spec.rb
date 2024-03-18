@@ -171,6 +171,8 @@ RSpec.describe Project::UpdateFromXmlCommand do
 
     describe 'download repositories' do
       context 'valid usecase' do
+        subject! { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }
+
         let(:xml_hash) do
           Xmlhash.parse(
             <<-EOF
@@ -188,8 +190,6 @@ RSpec.describe Project::UpdateFromXmlCommand do
             EOF
           )
         end
-
-        subject! { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }
 
         it 'updates download repositories of a repository' do
           expect(repository_1.download_repositories).to be_empty
@@ -212,6 +212,8 @@ RSpec.describe Project::UpdateFromXmlCommand do
       end
 
       context 'invalid usecase' do
+        subject { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }
+
         let(:xml_hash) do
           Xmlhash.parse(
             <<-EOF
@@ -229,8 +231,6 @@ RSpec.describe Project::UpdateFromXmlCommand do
             EOF
           )
         end
-
-        subject { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }
 
         it 'raises an exception for a wrong repotype' do
           expect { subject }.to raise_error(Project::SaveError, "Repotype 'INVALID' is not a valid repotype")

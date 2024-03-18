@@ -1,8 +1,8 @@
 RSpec.describe Token::Rebuild do
+  subject { token.call(package: 'bar') }
+
   let(:user) { create(:user, login: 'foo') }
   let(:token) { create(:rebuild_token, executor: user) }
-
-  subject { token.call(package: 'bar') }
 
   describe '#call' do
     context 'successful triggered' do

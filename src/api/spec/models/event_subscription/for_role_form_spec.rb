@@ -1,5 +1,7 @@
 RSpec.describe EventSubscription::ForRoleForm do
   describe '#call' do
+    subject { EventSubscription::ForRoleForm.new(role, event_class, subscriber).call }
+
     include_context 'a user and subscriptions'
 
     let(:subscriber) { user }
@@ -12,8 +14,6 @@ RSpec.describe EventSubscription::ForRoleForm do
       it { expect(subscription.eventtype).to eq(event_class.to_s) }
       it { expect(subscription.receiver_role).to eq(role) }
     end
-
-    subject { EventSubscription::ForRoleForm.new(role, event_class, subscriber).call }
 
     context 'with common subscription' do
       let(:role) { :maintainer }

@@ -1,5 +1,7 @@
 RSpec.describe Event::Request do
   describe '#source_package_watcher' do
+    subject { event.source_package_watchers }
+
     let(:bs_request) { create(:bs_request_with_submit_action) }
     let!(:another_source_package) { create(:package, name: 'ruby') }
     let(:source_package) { create(:package, name: 'ruby') }
@@ -22,8 +24,6 @@ RSpec.describe Event::Request do
                                                  target_package: target_package.name)
     end
 
-    subject { event.source_package_watchers }
-
     context 'when the request is being watched' do
       before do
         WatchedItem.create(watchable: source_package, user: user)
@@ -42,6 +42,8 @@ RSpec.describe Event::Request do
   end
 
   describe '#target_package_watcher' do
+    subject { event.target_package_watchers }
+
     let(:bs_request) { create(:bs_request_with_submit_action) }
     let(:source_package) { create(:package) }
     let!(:another_target_package) { create(:package, name: 'ruby') }
@@ -70,8 +72,6 @@ RSpec.describe Event::Request do
                                                  target_project: target_package.project.name,
                                                  target_package: target_package.name)
     end
-
-    subject { event.target_package_watchers }
 
     context 'when the request is being watched' do
       before do

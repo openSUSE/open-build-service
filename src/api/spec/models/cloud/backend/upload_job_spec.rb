@@ -45,11 +45,11 @@ RSpec.describe Cloud::Backend::UploadJob do
     let(:path) { "#{CONFIG['source_url']}/cloudupload?#{backend_params.to_param}" }
 
     context 'with a valid backend response' do
+      subject { Cloud::Backend::UploadJob.create(params) }
+
       before do
         stub_request(:post, path).with(body: post_body).and_return(body: xml_response)
       end
-
-      subject { Cloud::Backend::UploadJob.create(params) }
 
       it { is_expected.to be_valid }
       it { expect(subject.id).to eq('6') }
@@ -92,11 +92,11 @@ RSpec.describe Cloud::Backend::UploadJob do
     end
 
     context 'with Timeout::Error' do
+      subject { Cloud::Backend::UploadJob.create(params) }
+
       before do
         allow(Backend::Api::Cloud).to receive(:upload).with(params).and_raise(Timeout::Error, 'boom')
       end
-
-      subject { Cloud::Backend::UploadJob.create(params) }
 
       it { is_expected.not_to be_valid }
 
@@ -175,6 +175,8 @@ RSpec.describe Cloud::Backend::UploadJob do
       let(:upload_job) { create(:upload_job, user: user) }
 
       context 'with one upload job' do
+        subject { Cloud::Backend::UploadJob.all(user) }
+
         let(:xml_response) do
           <<-HEREDOC
             <clouduploadjoblist>
@@ -200,13 +202,13 @@ RSpec.describe Cloud::Backend::UploadJob do
           stub_request(:get, path).and_return(body: xml_response)
         end
 
-        subject { Cloud::Backend::UploadJob.all(user) }
-
         it { expect(subject.length).to eq(1) }
         it { expect(subject.first.id).to eq('2') }
       end
 
       context 'with more than one upload job' do
+        subject { Cloud::Backend::UploadJob.all(user) }
+
         let(:another_upload_job) { create(:upload_job, user: user) }
         let(:xml_response) do
           <<-HEREDOC
@@ -247,14 +249,14 @@ RSpec.describe Cloud::Backend::UploadJob do
           stub_request(:get, path).and_return(body: xml_response)
         end
 
-        subject { Cloud::Backend::UploadJob.all(user) }
-
         it { expect(subject.length).to eq(2) }
         it { expect(subject.first.id).to eq('2') }
         it { expect(subject.second.id).to eq('3') }
       end
 
       context 'with no upload job' do
+        subject { Cloud::Backend::UploadJob.all(user) }
+
         let(:xml_response) do
           <<-HEREDOC
             <clouduploadjoblist>
@@ -267,8 +269,6 @@ RSpec.describe Cloud::Backend::UploadJob do
           stub_request(:get, path).and_return(body: xml_response)
         end
 
-        subject { Cloud::Backend::UploadJob.all(user) }
-
         it { expect(subject).to be_empty }
       end
     end
@@ -280,11 +280,11 @@ RSpec.describe Cloud::Backend::UploadJob do
     end
 
     context 'with Timeout::Error' do
+      subject { Cloud::Backend::UploadJob.all(user) }
+
       before do
         allow(Backend::Api::Cloud).to receive(:status).with(user).and_raise(Timeout::Error, 'boom')
       end
-
-      subject { Cloud::Backend::UploadJob.all(user) }
 
       it { expect(subject).to be_empty }
     end

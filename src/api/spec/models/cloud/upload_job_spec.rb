@@ -48,22 +48,22 @@ RSpec.describe Cloud::UploadJob do
 
   describe '.create' do
     context 'with a valid backend response' do
+      subject { Cloud::UploadJob.create(params) }
+
       before do
         allow(Backend::Api::Cloud).to receive(:upload).with(params).and_return(response)
       end
-
-      subject { Cloud::UploadJob.create(params) }
 
       it { is_expected.to be_valid }
     end
 
     context 'with an invalid Backend::UploadJob' do
+      subject { Cloud::UploadJob.create(params) }
+
       before do
         exception = Backend::Error.new('no cloud upload server configured')
         allow(Backend::Api::Cloud).to receive(:upload).with(params).and_raise(exception)
       end
-
-      subject { Cloud::UploadJob.create(params) }
 
       it { is_expected.not_to be_valid }
 
@@ -74,13 +74,13 @@ RSpec.describe Cloud::UploadJob do
     end
 
     context 'with an invalid User::UploadJob' do
+      subject { Cloud::UploadJob.create(params) }
+
       let!(:job) { create(:upload_job, job_id: 6) }
 
       before do
         allow(Backend::Api::Cloud).to receive(:upload).with(params).and_return(response)
       end
-
-      subject { Cloud::UploadJob.create(params) }
 
       it { is_expected.not_to be_valid }
 

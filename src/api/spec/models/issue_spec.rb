@@ -6,9 +6,9 @@ RSpec.describe Issue do
     before do
       allow(IssueTracker).to receive(:find_by).and_return(issue_tracker)
       allow(issue_tracker).to receive(:fetch_issues)
-    end
 
-    subject! { issue.fetch_issues }
+      issue.fetch_issues
+    end
 
     it 'fetches the issues' do
       expect(issue_tracker).to have_received(:fetch_issues)

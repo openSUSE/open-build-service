@@ -28,16 +28,16 @@ RSpec.describe BsRequestAction::Differ::QueryBuilderForSuperseded do
     subject { query_builder.build }
 
     context 'for accepted bs_request_actions' do
-      before do
-        superseded_bs_request_action.update(source_rev: 42)
-      end
-
       subject do
         BsRequestAction::Differ::QueryBuilderForSuperseded.new(
           superseded_bs_request_action: superseded_bs_request_action,
           bs_request_action: bs_request_action,
           source_package_name: source_package.name
         ).build
+      end
+
+      before do
+        superseded_bs_request_action.update(source_rev: 42)
       end
 
       context 'with a oxsrcmd5' do

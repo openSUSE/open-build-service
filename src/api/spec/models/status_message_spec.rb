@@ -127,6 +127,8 @@ RSpec.describe StatusMessage do
 
   describe '#acknowledge!' do
     context 'when there is a previous acknowledgement' do
+      subject(:acknowledge) { status_message.acknowledge! }
+
       let(:user) { create(:confirmed_user, in_beta: true, in_rollout: false) }
       let!(:status_message) { create(:status_message, severity: 'announcement', communication_scope: :all_users) }
 
@@ -134,8 +136,6 @@ RSpec.describe StatusMessage do
         login(user)
         status_message.acknowledge!
       end
-
-      subject(:acknowledge) { status_message.acknowledge! }
 
       it 'does not raise an exception while acknowledging the status message twice' do
         expect { acknowledge }.not_to raise_error

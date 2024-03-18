@@ -30,10 +30,10 @@ RSpec.describe User do
   end
 
   context 'seen_since' do
+    subject { User.seen_since(3.months.ago) }
+
     let!(:dead_user) { create(:dead_user, login: 'caspar') }
     let!(:active_user) { create(:confirmed_user, login: 'active_user') }
-
-    subject { User.seen_since(3.months.ago) }
 
     it { expect(subject).not_to include(dead_user) }
     it { expect(subject).to include(active_user) }
@@ -208,6 +208,8 @@ RSpec.describe User do
   end
 
   describe '#involved_packages' do
+    subject { confirmed_user.involved_packages }
+
     let(:group) { create(:group) }
     let!(:groups_user) { create(:groups_user, user: confirmed_user, group: group) }
 
@@ -222,8 +224,6 @@ RSpec.describe User do
 
     let(:group_project_maintained_package) { create(:package) }
     let!(:relationship_project_group) { create(:relationship_project_group, group: group, project: group_project_maintained_package.project) }
-
-    subject { confirmed_user.involved_packages }
 
     it 'does include packages where user is maintainer' do
       expect(subject).to include(maintained_package)
@@ -358,13 +358,13 @@ RSpec.describe User do
     let!(:groups_user) { create(:groups_user, user: confirmed_user, group: group) }
 
     context 'with a lot notifications from the user' do
+      subject { confirmed_user.combined_rss_feed_items }
+
       before do
         create_list(:rss_notification, max_items_per_group, subscriber: group)
         create_list(:rss_notification, max_items_per_user + 5, subscriber: confirmed_user)
         create_list(:rss_notification, 3, subscriber: user)
       end
-
-      subject { confirmed_user.combined_rss_feed_items }
 
       it { expect(subject.count).to be(max_items_per_user) }
       it { is_expected.not_to(be_any { |x| x.subscriber != confirmed_user }) }
@@ -373,13 +373,13 @@ RSpec.describe User do
     end
 
     context 'with a lot notifications from the group' do
+      subject { confirmed_user.combined_rss_feed_items }
+
       before do
         create_list(:rss_notification, 5, subscriber: confirmed_user)
         create_list(:rss_notification, max_items_per_group - 1, subscriber: group)
         create_list(:rss_notification, 3, subscriber: user)
       end
-
-      subject { confirmed_user.combined_rss_feed_items }
 
       it { expect(subject.count).to be(max_items_per_user) }
       it { expect(subject.count { |x| x.subscriber == confirmed_user }).to eq(1) }
@@ -388,6 +388,8 @@ RSpec.describe User do
     end
 
     context 'with a notifications mixed' do
+      subject { confirmed_user.combined_rss_feed_items }
+
       let(:batch) { max_items_per_user / 4 }
 
       before do
@@ -397,8 +399,6 @@ RSpec.describe User do
         create_list(:rss_notification, batch, subscriber: group)
         create_list(:rss_notification, 3, subscriber: user)
       end
-
-      subject { confirmed_user.combined_rss_feed_items }
 
       it { expect(subject.count).to be(max_items_per_user) }
       it { expect(subject.count { |x| x.subscriber == confirmed_user }).to be >= batch * 2 }

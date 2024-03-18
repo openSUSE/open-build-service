@@ -2,6 +2,8 @@ require 'webmock/rspec'
 
 RSpec.describe Project do
   describe '.remote_image_templates' do
+    subject { Project.remote_image_templates }
+
     let!(:remote_instance) { create(:project, name: 'RemoteProject', remoteurl: 'http://example.com/public') }
 
     before do
@@ -17,8 +19,6 @@ RSpec.describe Project do
                           </image_template_projects>
                          ))
     end
-
-    subject { Project.remote_image_templates }
 
     it { expect(subject.class).to eq(Array) }
 

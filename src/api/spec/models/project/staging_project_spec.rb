@@ -41,6 +41,8 @@ RSpec.describe Project, :vcr do
     end
 
     describe '#missing_reviews' do
+      subject { staging_project.missing_reviews }
+
       let(:other_user) { create(:confirmed_user) }
       let(:other_package) { create(:package) }
       let(:group) { create(:group) }
@@ -48,8 +50,6 @@ RSpec.describe Project, :vcr do
       let!(:review_2) { create(:review, creator: user, by_group: group, bs_request: submit_request) }
       let!(:review_3) { create(:review, creator: user, by_project: other_package.project, bs_request: submit_request) }
       let!(:review_4) { create(:review, creator: user, by_package: other_package, by_project: other_package.project, bs_request: submit_request) }
-
-      subject { staging_project.missing_reviews }
 
       it 'contains all open reviews of staged requests' do
         expect(subject).to contain_exactly(
@@ -212,6 +212,8 @@ RSpec.describe Project, :vcr do
     end
 
     describe '#copy' do
+      subject { staging_project.reload.copy(new_project_name) }
+
       let(:staging_project) do
         create(:staging_project, staging_workflow: staging_workflow, project_config: 'Prefer: foo', name: "home:#{user}:Staging:XYZ")
       end
@@ -223,8 +225,6 @@ RSpec.describe Project, :vcr do
       # other custom code that would conflict with what 'deep_cloneable' does
       let!(:path_elements) { create_list(:path_element, 3, repository: repository) }
       let!(:dod_repository) { create(:download_repository, repository: repository) }
-
-      subject { staging_project.reload.copy(new_project_name) }
 
       it 'creates a new staging project' do
         expect(subject).to be_instance_of(Project)
@@ -272,6 +272,8 @@ RSpec.describe Project, :vcr do
     end
 
     describe '.accept' do
+      subject { staging_project.accept }
+
       let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
       let(:managers_group) { create(:group) }
       let(:target_project) { create(:project, name: 'target_project') }
@@ -314,8 +316,6 @@ RSpec.describe Project, :vcr do
         login user
         staged_request_with_by_project_review
       end
-
-      subject { staging_project.accept }
 
       context "when the staging project is in 'acceptable' state" do
         let!(:project_log_entry_comment_for_project) do

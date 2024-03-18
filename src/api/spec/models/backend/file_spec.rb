@@ -1,4 +1,6 @@
 RSpec.describe Backend::File, :vcr do
+  subject { TestBackendFile.new(name: 'fake_filename', somefile: somefile_txt_url) }
+
   let(:user) { create(:user, :with_home, login: 'user') }
   let(:package_with_file) { create(:package_with_file, name: 'package_with_files', project: user.home_project) }
   let(:fake_file) { file_fixture('hello.txt') }
@@ -18,8 +20,6 @@ RSpec.describe Backend::File, :vcr do
   before do
     stub_const('TestBackendFile', backend_file_class)
   end
-
-  subject { TestBackendFile.new(name: 'fake_filename', somefile: somefile_txt_url) }
 
   describe '#initialize' do
     context 'without any param' do

@@ -3,6 +3,12 @@ RSpec.describe Workflow::Step::SetFlags do
   let(:token) { create(:workflow_token, executor: user) }
 
   describe '#call' do
+    subject do
+      described_class.new(step_instructions: step_instructions,
+                          scm_webhook: scm_webhook,
+                          token: token)
+    end
+
     let(:step_instructions) do
       {
         flags:
@@ -18,12 +24,6 @@ RSpec.describe Workflow::Step::SetFlags do
       }
     end
     let!(:target_project) { create(:project, name: 'home:Iggy:openSUSE:repo123:PR-1') }
-
-    subject do
-      described_class.new(step_instructions: step_instructions,
-                          scm_webhook: scm_webhook,
-                          token: token)
-    end
 
     context 'when the token user does not have enough permissions' do
       let(:another_user) { create(:confirmed_user, :with_home, login: 'Pop') }
@@ -213,14 +213,14 @@ RSpec.describe Workflow::Step::SetFlags do
   end
 
   describe '#validate_flags' do
-    let(:payload) { { scm: 'gitlab', event: 'Push Hook' } }
-    let(:scm_webhook) { SCMWebhook.new(payload: payload) }
-
     subject do
       described_class.new(step_instructions: step_instructions,
                           scm_webhook: scm_webhook,
                           token: token)
     end
+
+    let(:payload) { { scm: 'gitlab', event: 'Push Hook' } }
+    let(:scm_webhook) { SCMWebhook.new(payload: payload) }
 
     context 'when a flag is missing a key' do
       let(:step_instructions) do

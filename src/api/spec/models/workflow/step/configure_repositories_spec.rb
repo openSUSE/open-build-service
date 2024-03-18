@@ -3,6 +3,12 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
   let(:token) { create(:workflow_token, executor: user) }
 
   describe '#call' do
+    subject do
+      described_class.new(step_instructions: step_instructions,
+                          scm_webhook: scm_webhook,
+                          token: token)
+    end
+
     let(:path_project1) { create(:project, name: 'openSUSE:Factory') }
     let!(:path_repository1) { create(:repository, project: path_project1, name: 'snapshot', architectures: %w[i586 aarch64]) }
     let(:path_project2) { create(:project, name: 'openSUSE:Leap:15.4') }
@@ -37,12 +43,6 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
                        target_repository_full_name: 'openSUSE/repo123',
                        commit_sha: '123'
                      })
-    end
-
-    subject do
-      described_class.new(step_instructions: step_instructions,
-                          scm_webhook: scm_webhook,
-                          token: token)
     end
 
     context 'when the token user does not have enough permissions' do

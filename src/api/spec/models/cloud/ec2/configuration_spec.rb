@@ -8,9 +8,9 @@ RSpec.describe Cloud::Ec2::Configuration, :vcr do
   end
 
   describe 'upload_parameters' do
-    let(:ec2_config) { create(:ec2_configuration) }
-
     subject { ec2_config.upload_parameters }
+
+    let(:ec2_config) { create(:ec2_configuration) }
 
     it { expect(subject.keys.count).to be(3) }
     it { expect(subject['arn']).to eq(ec2_config.arn) }
