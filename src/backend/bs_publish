@@ -683,7 +683,10 @@ sub createrepo_rpmmd {
     for my $up (@$updateinfos) {
       delete $up->{'patchinforef'};
       for my $cl (@{($up->{'pkglist'} || {})->{'collection'} || []}) {
-	delete $_->{'supportstatus'} for @{$cl->{'package'} || []};
+	for my $pkg (@{$cl->{'package'} || []}) {
+  	  delete $pkg->{'supportstatus'};
+  	  delete $pkg->{'superseded_by'};
+        }
       }
     }
     writexml("$extrep/repodata/updateinfo.xml", undef, {'update' => $updateinfos}, $BSXML::updateinfo);

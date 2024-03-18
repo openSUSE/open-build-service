@@ -131,7 +131,7 @@ class Channel < ApplicationRecord
       arch = nil
       arch = Architecture.find_by_name!(b['arch']) if b['arch']
       hash = { name: b['name'], binaryarch: b['binaryarch'], supportstatus: b['supportstatus'],
-               project: nil, architecture: arch, repository: nil }
+               superseded_by: b['superseded_by'], project: nil, architecture: arch, repository: nil }
       hash[:package] = b['package'].blank? ? nil : b['package'].gsub(/:.*$/, '')
       if b['project']
         hash[:project] = Project.get_by_name(b['project'])

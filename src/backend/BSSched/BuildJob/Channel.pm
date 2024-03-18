@@ -219,12 +219,14 @@ sub check {
         next unless $filter{"$arepoid/$n"};
         my $found;
         my $supportstatus;
+        my $superseded_by;
         my $importedfrom;
         for my $f (@{$filter{"$arepoid/$n"}}) {
           next if $f->{'importedfrom'} && $filename !~ /^::import::\Q$f->{'importedfrom'}\E::/;
           next if $f->{'package'} && $apackid ne $f->{'package'} && $lapackid ne $f->{'package'} && $lapackid2 ne $f->{'package'};
           next if $f->{'binaryarch'} && $bi->{'arch'} ne $f->{'binaryarch'};
           $supportstatus = $f->{'supportstatus'};
+          $superseded_by = $f->{'superseded_by'};
           $found = 1;
           last;
         }
@@ -235,7 +237,7 @@ sub check {
         my $m = Digest::MD5::md5_hex($bi->{'id'})."  $arepoid/$apackid/$n.$bi->{'arch'}";
         push @new_meta, $m;
         $bi->{'filename'} = $filename;  # work around bug in bininfo generation
-        push @channelbins, [ $arepoid, $apackid, $bi, $supportstatus ];
+        push @channelbins, [ $arepoid, $apackid, $bi, $supportstatus, $superseded_by ];
       }
       if (%usedsrc) {
         for my $bi (@sbins) {
@@ -325,7 +327,7 @@ sub build {
   my $checksums = '';
   my %checksums_seen;
   for my $cb (@$channelbins) {
-    my ($arepoid, $apackid, $bi, $supportstatus) = @$cb;
+    my ($arepoid, $apackid, $bi, $supportstatus, $superseded_by) = @$cb;
     my $dir = "$reporoot/$projid/$arepoid/$myarch/$apackid";
     my $file = "$dir/$bi->{'filename'}";
     my @s = stat($file);
@@ -369,6 +371,10 @@ sub build {
     }
     $bininfo->{$tfilename} = $bi;
     my $ci = { 'repository' => $arepoid, 'package' => $apackid };
+    if (defined $superseded_by) {
+      $ci->{'superseded_by'} = $superseded_by;
+      $ci->{'supportstatus'} = 'superseded';
+    }
     $ci->{'supportstatus'} = $supportstatus if defined $supportstatus;
     $channelinfo{$tfilename} = $ci;
   }

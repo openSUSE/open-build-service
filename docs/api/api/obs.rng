@@ -122,6 +122,7 @@
       <value>l1</value>
       <value>acc</value>
       <value>unsupported</value>
+      <value>superseded</value>
     </choice>
   </define>
 

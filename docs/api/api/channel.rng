@@ -104,6 +104,12 @@
            <ref name="supportstatus-choices" />
          </attribute>
        </optional>
+       <optional>
+         <attribute name="superseded_by"/>
+         <a:documentation>
+           specify a package superseeding this one
+         </a:documentation>
+       </optional>
        <empty/>
      </element>
   </define>

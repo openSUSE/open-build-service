@@ -465,6 +465,7 @@ sub build {
   }
 
   my %supportstatus;
+  my %superseded_by;
   my $target;
   my $firstissued = ($updateinfodata || {})->{'firstissued'} || $now;
 
@@ -630,6 +631,10 @@ sub build {
         next unless $ci->{'supportstatus'};
         $upd->{'supportstatus'} = $ci->{'supportstatus'};
         $supportstatus{$bin} = $ci->{'supportstatus'};
+        if ($ci->{'superseded_by'}) {
+          $upd->{'superseded_by'} = $ci->{'superseded_by'};
+          $superseded_by{$bin} = $ci->{'superseded_by'};
+        }
       }
     }
     $metas{$mpackid} = Digest::MD5::md5_hex($m) if $ptype eq 'binary';
@@ -735,6 +740,7 @@ sub build {
     'firstissued' => $firstissued,
   };
   $updateinfodata->{'supportstatus'} = \%supportstatus if %supportstatus;
+  $updateinfodata->{'superseded_by'} = \%superseded_by if %superseded_by;
   $updateinfodata->{'filtered'} = \%filtered if %filtered;
   $updateinfodata->{'target'} = $target if $target;
   BSUtil::store("$jobdatadir/.updateinfodata", undef, $updateinfodata);
