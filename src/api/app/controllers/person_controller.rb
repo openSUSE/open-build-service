@@ -220,6 +220,27 @@ class PersonController < ApplicationController
     raise e
   end
 
+  def change_my_password
+    authorize @user, :update?
+    # FIXME3.0: remove this function
+    xml = REXML::Document.new(request.raw_post)
+
+    logger.debug("changepasswd XML: #{request.raw_post}")
+
+    login = xml.elements['/userchangepasswd/login'].text
+    password = xml.elements['/userchangepasswd/password'].text
+    login = CGI.unescape(login)
+
+    change_password(login, CGI.unescape(password))
+    render_ok
+  end
+
+  private
+
+  def set_user
+    @user = User.find_by(login: params[:login])
+  end
+
   def update_watchlist(user, xml)
     if xml.get('watchlist').empty?
       projects = [xml.get('project')].flatten
@@ -241,8 +262,6 @@ class PersonController < ApplicationController
     end
   end
 
-  private :update_watchlist
-
   def update_globalroles(user, xml)
     new_globalroles = []
     xml.elements('globalrole') do |e|
@@ -250,23 +269,6 @@ class PersonController < ApplicationController
     end
 
     user.update_globalroles(Role.global.where(title: new_globalroles))
-  end
-
-  private :update_globalroles
-
-  def change_my_password
-    authorize @user, :update?
-    # FIXME3.0: remove this function
-    xml = REXML::Document.new(request.raw_post)
-
-    logger.debug("changepasswd XML: #{request.raw_post}")
-
-    login = xml.elements['/userchangepasswd/login'].text
-    password = xml.elements['/userchangepasswd/password'].text
-    login = CGI.unescape(login)
-
-    change_password(login, CGI.unescape(password))
-    render_ok
   end
 
   def change_password(login, password)
@@ -294,12 +296,5 @@ class PersonController < ApplicationController
     # update password in users db
     @user.password = password
     @user.save!
-  end
-  private :change_password
-
-  private
-
-  def set_user
-    @user = User.find_by(login: params[:login])
   end
 end
