@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Mar 2024 12:40:08 GMT
+  recorded_at: Tue, 19 Mar 2024 14:47:57 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/_meta?user=user_28
+    uri: http://backend:5352/source/foo_scm_synced_project/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
         <project name="foo_scm_synced_project">
-          <title>The Sun Also Rises</title>
+          <title>The Waste Land</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_scm_synced_project">
-          <title>The Sun Also Rises</title>
+          <title>The Waste Land</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Mar 2024 12:40:08 GMT
+  recorded_at: Tue, 19 Mar 2024 14:47:57 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_29
+    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>Surprised by Joy</title>
-          <description>Eum et voluptatem rerum.</description>
+          <title>Behold the Man</title>
+          <description>Consequatur ad animi officia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '175'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>Surprised by Joy</title>
-          <description>Eum et voluptatem rerum.</description>
+          <title>Behold the Man</title>
+          <description>Consequatur ad animi officia.</description>
         </package>
-  recorded_at: Fri, 15 Mar 2024 12:40:08 GMT
+  recorded_at: Tue, 19 Mar 2024 14:47:57 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_config
     body:
       encoding: UTF-8
-      string: Provident ullam quasi. Est aliquid et. Sed consequatur omnis.
+      string: Architecto perferendis qui. Sit distinctio accusamus. Est rerum nobis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="35" vrev="35">
-          <srcmd5>06e86166c00ad15540f702b1adb0b18d</srcmd5>
+        <revision rev="6" vrev="6">
+          <srcmd5>8ef2a17b68d42d465b113f48a1013bc7</srcmd5>
           <version>unknown</version>
-          <time>1710506408</time>
+          <time>1710859677</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Mar 2024 12:40:08 GMT
+  recorded_at: Tue, 19 Mar 2024 14:47:57 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Quia porro praesentium. Quis voluptates est. Commodi repellat debitis.
+      string: Et et ratione. Maiores eligendi aut. Aut nihil amet.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,28 +181,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="36" vrev="36">
-          <srcmd5>b2d2519cc124026a47aa3ab3665e347c</srcmd5>
+        <revision rev="7" vrev="7">
+          <srcmd5>3b07b7b00ce8f7083d3adbafd5c627c1</srcmd5>
           <version>unknown</version>
-          <time>1710506408</time>
+          <time>1710859677</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Mar 2024 12:40:08 GMT
+  recorded_at: Tue, 19 Mar 2024 14:47:57 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=user_29
+    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>Surprised by Joy</title>
-          <description>Eum et voluptatem rerum.</description>
+          <title>Behold the Man</title>
+          <description>Consequatur ad animi officia.</description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git</scmsync>
         </package>
     headers:
@@ -224,16 +224,56 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '241'
+      - '244'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="foo_scm_synced_project">
-          <title>Surprised by Joy</title>
-          <description>Eum et voluptatem rerum.</description>
+          <title>Behold the Man</title>
+          <description>Consequatur ad animi officia.</description>
           <scmsync>https://github.com/krauselukas/test_scmsync.git</scmsync>
         </package>
-  recorded_at: Fri, 15 Mar 2024 12:40:09 GMT
+  recorded_at: Tue, 19 Mar 2024 14:47:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_scm_synced_package" project="foo_scm_synced_project">
+          <title>Behold the Man</title>
+          <description>Consequatur ad animi officia.</description>
+          <scmsync>https://github.com/krauselukas/test_scmsync.git?subdir=hello_world01</scmsync>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '265'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_scm_synced_package" project="foo_scm_synced_project">
+          <title>Behold the Man</title>
+          <description>Consequatur ad animi officia.</description>
+          <scmsync>https://github.com/krauselukas/test_scmsync.git?subdir=hello_world01</scmsync>
+        </package>
+  recorded_at: Tue, 19 Mar 2024 14:47:58 GMT
 - request:
     method: post
     uri: http://backend:5352/source/foo_scm_synced_project/bar_scm_synced_package?cmd=waitservice
@@ -267,7 +307,7 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Fri, 15 Mar 2024 12:40:19 GMT
+  recorded_at: Tue, 19 Mar 2024 14:48:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
@@ -307,7 +347,7 @@ http_interactions:
           <description>This project was created for package bar_scm_synced_package via attribute OBS:Maintained</description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Mar 2024 12:40:19 GMT
+  recorded_at: Tue, 19 Mar 2024 14:48:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
@@ -317,7 +357,7 @@ http_interactions:
         <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
           <title/>
           <description/>
-          <scmsync>https://github.com/krauselukas/test_scmsync.git#123456789</scmsync>
+          <scmsync>https://github.com/krauselukas/test_scmsync.git?subdir=hello_world01#123456789</scmsync>
         </package>
     headers:
       Accept-Encoding:
@@ -338,16 +378,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '231'
+      - '252'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
           <title></title>
           <description></description>
-          <scmsync>https://github.com/krauselukas/test_scmsync.git#123456789</scmsync>
+          <scmsync>https://github.com/krauselukas/test_scmsync.git?subdir=hello_world01#123456789</scmsync>
         </package>
-  recorded_at: Fri, 15 Mar 2024 12:40:19 GMT
+  recorded_at: Tue, 19 Mar 2024 14:48:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/_meta?user=Iggy
@@ -415,5 +455,45 @@ http_interactions:
             <arch>aarch64</arch>
           </repository>
         </project>
-  recorded_at: Fri, 15 Mar 2024 12:40:19 GMT
+  recorded_at: Tue, 19 Mar 2024 14:48:01 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Iggy:openSUSE:open-build-service:PR-1/bar_scm_synced_package/_meta?user=Iggy
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
+          <title/>
+          <description/>
+          <scmsync>https://github.com/krauselukas/test_scmsync.git?subdir=hello_world01#123456789</scmsync>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '252'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="bar_scm_synced_package" project="home:Iggy:openSUSE:open-build-service:PR-1">
+          <title></title>
+          <description></description>
+          <scmsync>https://github.com/krauselukas/test_scmsync.git?subdir=hello_world01#123456789</scmsync>
+        </package>
+  recorded_at: Tue, 19 Mar 2024 14:48:01 GMT
 recorded_with: VCR 6.2.0

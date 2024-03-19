@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Mar 2024 16:13:16 GMT
+  recorded_at: Tue, 19 Mar 2024 14:48:09 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_1
+    uri: http://backend:5352/source/foo_project/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Fear and Trembling</title>
+          <title>Blue Remembered Earth</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '153'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Fear and Trembling</title>
+          <title>Blue Remembered Earth</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Mar 2024 16:13:16 GMT
+  recorded_at: Tue, 19 Mar 2024 14:48:09 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_2
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>I Know Why the Caged Bird Sings</title>
-          <description>Similique deleniti sint molestiae.</description>
+          <title>Vanity Fair</title>
+          <description>Aut quibusdam consequatur molestiae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '175'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>I Know Why the Caged Bird Sings</title>
-          <description>Similique deleniti sint molestiae.</description>
+          <title>Vanity Fair</title>
+          <description>Aut quibusdam consequatur molestiae.</description>
         </package>
-  recorded_at: Fri, 15 Mar 2024 16:13:16 GMT
+  recorded_at: Tue, 19 Mar 2024 14:48:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Asperiores ex fuga. Rerum quis ut. Est illum ut.
+      string: Ducimus ut dignissimos. Ut sit quia. Pariatur laborum illum.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -147,21 +147,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>09ba2bfd6f79f633a12c5b7e2e735d21</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>76ebc0255b9c8a808f2e5c8256d346c8</srcmd5>
           <version>unknown</version>
-          <time>1710519196</time>
+          <time>1710859689</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Mar 2024 16:13:16 GMT
+  recorded_at: Tue, 19 Mar 2024 14:48:09 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Dignissimos eum perferendis. Voluptates minus ea. Ut voluptatibus et.
+      string: Voluptas eligendi fugit. At voluptas et. Nemo soluta ut.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,13 +185,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
-          <srcmd5>613d05d4d9ea5ecbe587af28a9172980</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>742cb276b2e8a6e9d1403ac33f28391c</srcmd5>
           <version>unknown</version>
-          <time>1710519196</time>
+          <time>1710859689</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Mar 2024 16:13:16 GMT
+  recorded_at: Tue, 19 Mar 2024 14:48:09 GMT
 recorded_with: VCR 6.2.0

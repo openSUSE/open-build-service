@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Mar 2024 12:39:44 GMT
+  recorded_at: Tue, 19 Mar 2024 14:48:08 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_1
+    uri: http://backend:5352/source/foo_project/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The Far-Distant Oxus</title>
+          <title>I Sing the Body Electric</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,14 +70,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '156'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The Far-Distant Oxus</title>
+          <title>I Sing the Body Electric</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Mar 2024 12:39:44 GMT
+  recorded_at: Tue, 19 Mar 2024 14:48:08 GMT
 recorded_with: VCR 6.2.0
