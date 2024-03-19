@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :azure_configuration, class: 'Cloud::Azure::Configuration' do
-    user { create(:user) }
+    user
     application_id { nil }
     application_key { nil }
 

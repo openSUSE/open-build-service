@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory 'history_element' do
-    user { create(:user) }
+    user
     comment { Faker::Lorem.paragraph }
 
     # Inheriting from HistoryElement::Review

@@ -61,22 +61,18 @@ FactoryBot/ExcessiveCreateList:
   Exclude:
     - 'spec/controllers/webui/monitor_controller_spec.rb'
 
-# Offense count: 33
+
+# Offense count: 24
 # Configuration parameters: Include.
 # Include: **/*_spec.rb, **/spec/**/*, **/test/**/*, **/features/support/factories/**/*.rb
 FactoryBot/FactoryAssociationWithStrategy:
   Exclude:
-    - 'spec/factories/attrib_default_values.rb'
     - 'spec/factories/attribs.rb'
-    - 'spec/factories/azure_configuration.rb'
     - 'spec/factories/bs_request_actions.rb'
     - 'spec/factories/bs_requests.rb'
     - 'spec/factories/comments.rb'
     - 'spec/factories/download_repository_factory.rb'
-    - 'spec/factories/group_maintainers.rb'
     - 'spec/factories/groups.rb'
-    - 'spec/factories/groups_user.rb'
-    - 'spec/factories/history_elements.rb'
     - 'spec/factories/kiwi_package.rb'
     - 'spec/factories/packages.rb'
     - 'spec/factories/path_element.rb'
@@ -86,7 +82,6 @@ FactoryBot/FactoryAssociationWithStrategy:
     - 'spec/factories/status_reports.rb'
     - 'spec/factories/tokens.rb'
     - 'spec/factories/watched_items.rb'
-    - 'spec/factories/workflow_artifacts_per_step.rb'
     - 'spec/factories/workflow_runs.rb'
 
 # Offense count: 3302
