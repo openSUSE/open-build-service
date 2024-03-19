@@ -14,11 +14,8 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
       restore_target_project
     elsif scm_webhook.new_commit_event?
       create_branched_package
-      unless scm_synced?
-        target_package.save_file({ file: branch_request_content,
-                                   filename: '_branch_request',
-                                   comment: BRANCH_REQUEST_COMMIT_MESSAGE })
-      end
+      write_branch_request_file
+      write_scmsync_branch_information
       Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, target_package).call
 
       target_package
@@ -26,6 +23,22 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
   end
 
   private
+
+  def write_branch_request_file
+    return if scm_synced?
+
+    target_package.save_file({ file: branch_request_content,
+                               filename: '_branch_request',
+                               comment: BRANCH_REQUEST_COMMIT_MESSAGE })
+  end
+
+  def write_scmsync_branch_information
+    return unless scm_synced?
+    # BranchPackage takes care of the initial setup of new packages
+    return if target_package.blank?
+
+    target_package.update!(scmsync: parse_scmsync_for_target_package)
+  end
 
   def target_project_base_name
     step_instructions[:target_project]
