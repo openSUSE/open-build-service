@@ -45,10 +45,21 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
 
     context 'for a new_commit SCM webhook event' do
       context 'it creates the _branch_request file' do
-        let(:action) { 'synchronize' }
+        let(:action) { 'opened' }
 
         it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
         it { expect(subject.call.source_file('_branch_request')).to include('123') }
+      end
+
+      context 'it sets the scmsync url' do
+        let(:action) { 'opened' }
+        let(:scmsync_url) { 'https://github.com/krauselukas/test_scmsync.git' }
+
+        before do
+          package.update(scmsync: scmsync_url)
+        end
+
+        it { expect(subject.call.scmsync).to eq("#{scmsync_url}##{long_commit_sha}") }
       end
 
       context 'without branch permissions' do
@@ -65,6 +76,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
 
       context 'when the branch target package already exists' do
         let(:action) { 'synchronize' }
+        let(:long_commit_sha) { 'abcdefghijk' }
 
         # Emulate the branched project/package and the subcription created in a previous new PR/MR event
         let!(:branched_project) { create(:project, name: "home:#{user.login}:openSUSE:open-build-service:PR-1", maintainer: user) }
@@ -86,6 +98,22 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
         it { expect { subject.call }.not_to(change(Package, :count)) }
         it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count)) }
         it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count)) }
+
+        context 'it updates the _branch_request file' do
+          it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
+          it { expect(subject.call.source_file('_branch_request')).to include('abcdefghijk') }
+        end
+
+        context 'it updates the scmsync url' do
+          let(:scmsync_url) { 'https://github.com/krauselukas/test_scmsync.git' }
+          let(:long_commit_sha) { 'abcdefghijk' }
+
+          before do
+            package.update(scmsync: scmsync_url)
+          end
+
+          it { expect(subject.call.scmsync).to eq("#{scmsync_url}##{long_commit_sha}") }
+        end
       end
 
       context 'when the branch target package does not exist' do
