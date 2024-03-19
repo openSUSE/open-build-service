@@ -134,7 +134,7 @@ RSpec.describe 'Requests_Submissions', :js, :vcr do
     describe 'when under the beta program', :beta do
       describe 'submit several packages at once against a factory staging project' do
         let!(:factory) { create(:project, name: 'openSUSE:Factory') }
-        let!(:staging_workflow) { create(:staging_workflow, project: factory) }
+        let!(:staging_workflow) { create(:staging_workflow, project: factory, commit_user: factory.commit_user) }
         # Create another action to submit new files from different packages to package_b
         let!(:another_bs_request_action) do
           receiver.run_as do
