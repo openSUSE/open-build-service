@@ -17,6 +17,8 @@ class SourcediffTabComponent < ApplicationComponent
 
   def file_view_path(filename, sourcediff)
     return if sourcediff['files'][filename]['state'] == 'deleted'
+    return unless (source_package = Package.find_by_project_and_name(@action[:sprj], @action[:spkg]))
+    return unless source_package.file_exists?(filename, { rev: @action[:srev] }.compact)
 
     diff_params = diff_data(@action[:type], sourcediff)
     diff_params[:project_name] = diff_params[:project]
