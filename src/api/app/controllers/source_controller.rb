@@ -1039,29 +1039,6 @@ class SourceController < ApplicationController
     render_ok
   end
 
-  def _package_command_release_manual_target(pkg, multibuild_container, time_now)
-    verify_can_modify_target!
-
-    targetrepo = Repository.find_by_project_and_name(@target_project_name, params[:target_repository])
-    raise UnknownRepository, "Repository does not exist #{params[:target_repository]}" unless targetrepo
-
-    repo = pkg.project.repositories.where(name: params[:repository])
-    raise UnknownRepository, "Repository does not exist #{params[:repository]}" unless repo.count.positive?
-
-    repo = repo.first
-
-    release_package(pkg,
-                    targetrepo,
-                    pkg.release_target_name(targetrepo, time_now),
-                    { filter_source_repository: repo,
-                      multibuild_container: multibuild_container,
-                      filter_architecture: params[:arch],
-                      setrelease: params[:setrelease],
-                      manual: true,
-                      comment: "Releasing package #{pkg.name}" })
-  end
-  private :_package_command_release_manual_target
-
   # POST /source/<project>/<package>?cmd=waitservice
   def package_command_waitservice
     path = request.path_info
@@ -1252,5 +1229,27 @@ class SourceController < ApplicationController
                                         error_message,
                                         rdata_field,
                                         object)
+  end
+
+  def _package_command_release_manual_target(pkg, multibuild_container, time_now)
+    verify_can_modify_target!
+
+    targetrepo = Repository.find_by_project_and_name(@target_project_name, params[:target_repository])
+    raise UnknownRepository, "Repository does not exist #{params[:target_repository]}" unless targetrepo
+
+    repo = pkg.project.repositories.where(name: params[:repository])
+    raise UnknownRepository, "Repository does not exist #{params[:repository]}" unless repo.count.positive?
+
+    repo = repo.first
+
+    release_package(pkg,
+                    targetrepo,
+                    pkg.release_target_name(targetrepo, time_now),
+                    { filter_source_repository: repo,
+                      multibuild_container: multibuild_container,
+                      filter_architecture: params[:arch],
+                      setrelease: params[:setrelease],
+                      manual: true,
+                      comment: "Releasing package #{pkg.name}" })
   end
 end
