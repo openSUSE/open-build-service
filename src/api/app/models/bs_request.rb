@@ -625,22 +625,6 @@ class BsRequest < ApplicationRecord
     end
   end
 
-  def approval_handling(new_approver, opts)
-    raise InvalidStateError, 'request is not in review state' unless state == :review
-
-    # check if User.session! is allowed to potentially accept the request
-    # (note: setting the :force key to true will skip some checks but
-    # none of them is supposed to be crucial wrt. permission checking)
-    my_opts = opts.merge(newstate: 'accepted', force: true)
-    checker = BsRequestPermissionCheck.new(self, my_opts)
-    checker.cmd_changestate_permissions(my_opts)
-    check_bs_request_actions!(skip_source: true)
-
-    self.approver = new_approver
-    save!
-  end
-  private :approval_handling
-
   def approve(opts)
     raise InvalidStateError, "already approved by #{approver}" if approver
 
@@ -723,25 +707,6 @@ class BsRequest < ApplicationRecord
 
     raise InvalidReview
   end
-
-  def create_new_review(opts)
-    newreview = reviews.create(
-      reason: opts[:comment],
-      by_user: opts[:by_user],
-      by_group: opts[:by_group],
-      by_project: opts[:by_project],
-      by_package: opts[:by_package],
-      creator: User.session!.login,
-      reviewer: User.session!.login
-    )
-    return newreview if newreview.valid?
-
-    newreview.check_reviewer!
-
-    raise InvalidReview, "Review invalid: #{newreview.errors.full_messages.join("\n")}"
-  end
-
-  private :create_new_review
 
   def addreview(opts)
     with_lock do
@@ -1220,6 +1185,38 @@ class BsRequest < ApplicationRecord
 
   def update_cache
     BsRequestCleanTasksCacheJob.perform_later(id)
+  end
+
+  def approval_handling(new_approver, opts)
+    raise InvalidStateError, 'request is not in review state' unless state == :review
+
+    # check if User.session! is allowed to potentially accept the request
+    # (note: setting the :force key to true will skip some checks but
+    # none of them is supposed to be crucial wrt. permission checking)
+    my_opts = opts.merge(newstate: 'accepted', force: true)
+    checker = BsRequestPermissionCheck.new(self, my_opts)
+    checker.cmd_changestate_permissions(my_opts)
+    check_bs_request_actions!(skip_source: true)
+
+    self.approver = new_approver
+    save!
+  end
+
+  def create_new_review(opts)
+    newreview = reviews.create(
+      reason: opts[:comment],
+      by_user: opts[:by_user],
+      by_group: opts[:by_group],
+      by_project: opts[:by_project],
+      by_package: opts[:by_package],
+      creator: User.session!.login,
+      reviewer: User.session!.login
+    )
+    return newreview if newreview.valid?
+
+    newreview.check_reviewer!
+
+    raise InvalidReview, "Review invalid: #{newreview.errors.full_messages.join("\n")}"
   end
 end
 
