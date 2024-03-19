@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Mar 2024 12:40:46 GMT
+  recorded_at: Tue, 19 Mar 2024 14:48:28 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_52
+    uri: http://backend:5352/source/foo_project/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Pale Kings and Princes</title>
+          <title>Dying of the Light</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Pale Kings and Princes</title>
+          <title>Dying of the Light</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Fri, 15 Mar 2024 12:40:47 GMT
+  recorded_at: Tue, 19 Mar 2024 14:48:28 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_53
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=Iggy
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Little Hands Clapping</title>
-          <description>Non enim et quia.</description>
+          <title>Stranger in a Strange Land</title>
+          <description>Blanditiis eaque harum ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Little Hands Clapping</title>
-          <description>Non enim et quia.</description>
+          <title>Stranger in a Strange Land</title>
+          <description>Blanditiis eaque harum ut.</description>
         </package>
-  recorded_at: Fri, 15 Mar 2024 12:40:47 GMT
+  recorded_at: Tue, 19 Mar 2024 14:48:28 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Delectus aliquid eum. Error magnam dignissimos. Perspiciatis ex doloribus.
+      string: Quas porro omnis. Asperiores sed fugit. Eum illum provident.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -147,21 +147,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="19" vrev="19">
-          <srcmd5>d293e2b49a22b40df1133509e4c75dc4</srcmd5>
+        <revision rev="36" vrev="36">
+          <srcmd5>d3debb3c2c2eb359c2b069ef7b6cf4ea</srcmd5>
           <version>unknown</version>
-          <time>1710506447</time>
+          <time>1710859708</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Mar 2024 12:40:47 GMT
+  recorded_at: Tue, 19 Mar 2024 14:48:28 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Aut nemo minus. Animi aut nobis. Ratione corporis molestiae.
+      string: Porro doloremque repellendus. Autem laborum quia. Velit sed cupiditate.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,13 +185,13 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="20" vrev="20">
-          <srcmd5>8c6f2872c0db2a63c84dc57673d4bc9e</srcmd5>
+        <revision rev="37" vrev="37">
+          <srcmd5>25389127704d56c0066456f995c8c8cf</srcmd5>
           <version>unknown</version>
-          <time>1710506447</time>
+          <time>1710859708</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 15 Mar 2024 12:40:47 GMT
+  recorded_at: Tue, 19 Mar 2024 14:48:28 GMT
 recorded_with: VCR 6.2.0
