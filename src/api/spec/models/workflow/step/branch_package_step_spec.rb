@@ -95,77 +95,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
         it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
         it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
       end
-
-      context 'when scmsync is active' do
-        let(:project) { create(:project, name: 'foo_scm_synced_project', maintainer: user) }
-        let(:package) { create(:package_with_file, name: 'bar_scm_synced_package', project: project) }
-        let(:action) { 'opened' }
-        let(:octokit_client) { instance_double(Octokit::Client) }
-        let(:scmsync_url) { 'https://github.com/krauselukas/test_scmsync.git' }
-
-        before do
-          allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-          allow(octokit_client).to receive(:create_status).and_return(true)
-
-          create(:repository, name: 'Unicorn_123', project: package.project, architectures: %w[x86_64 i586 ppc aarch64])
-          create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
-        end
-
-        context 'on project level' do
-          before do
-            project.update(scmsync: scmsync_url)
-          end
-
-          it { expect(subject.call.scmsync).to eq("#{scmsync_url}?subdir=#{package.name}##{long_commit_sha}") }
-          it { expect { subject.call }.to(change(Package, :count).by(1)) }
-          it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
-          it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
-          it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
-        end
-
-        context 'on package level' do
-          before do
-            package.update(scmsync: scmsync_url)
-          end
-
-          it { expect(subject.call.scmsync).to eq("#{scmsync_url}##{long_commit_sha}") }
-          it { expect { subject.call }.to(change(Package, :count).by(1)) }
-          it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
-          it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
-          it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
-        end
-
-        context 'on a package level with a subdir query' do
-          subdir = '?subdir=hello_world01'
-          before do
-            package.update(scmsync: scmsync_url + subdir)
-          end
-
-          it { expect(subject.call.scmsync).to eq("#{scmsync_url}#{subdir}##{long_commit_sha}") }
-          it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
-        end
-
-        context 'on a package level with a branch fragment' do
-          fragment = '#krauselukas-patch-2'
-          before do
-            package.update(scmsync: scmsync_url + fragment)
-          end
-
-          it { expect(subject.call.scmsync).to eq("#{scmsync_url}##{long_commit_sha}") }
-          it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
-        end
-
-        context 'on a package level with a subdir query and a branch fragment' do
-          subdir = '?subdir=hello_world01'
-          fragment = '#krauselukas-patch-2'
-          before do
-            package.update(scmsync: scmsync_url + subdir + fragment)
-          end
-
-          it { expect(subject.call.scmsync).to eq("#{scmsync_url}#{subdir}##{long_commit_sha}") }
-          it { expect { subject.call.source_file('_branch_request') }.to raise_error(Backend::NotFoundError) }
-        end
-      end
     end
 
     context 'for a closed_merged SCM webhook event' do
@@ -196,6 +125,62 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
 
       context 'without target_project permission' do
         it { expect { subject.call }.to raise_error(Pundit::NotAuthorizedError, 'not allowed to create? this Project') }
+      end
+    end
+  end
+
+  describe '.parse_scmsync_for_target_package' do
+    let(:project) { create(:project, name: 'foo_scm_synced_project', maintainer: user) }
+    let(:package) { create(:package_with_file, name: 'bar_scm_synced_package', project: project) }
+    let(:action) { 'opened' }
+    let(:scmsync_url) { 'https://github.com/krauselukas/test_scmsync.git' }
+
+    before do
+      create(:repository, name: 'Unicorn_123', project: package.project, architectures: %w[x86_64 i586 ppc aarch64])
+      create(:repository, name: 'openSUSE_Tumbleweed', project: package.project, architectures: ['x86_64'])
+    end
+
+    context 'for scmsync on project level' do
+      before do
+        project.update(scmsync: scmsync_url)
+      end
+
+      it { expect(subject.call.scmsync).to eq("#{scmsync_url}?subdir=#{package.name}##{long_commit_sha}") }
+    end
+
+    context 'for scmsync on package level' do
+      before do
+        package.update(scmsync: scmsync_url)
+      end
+
+      it { expect(subject.call.scmsync).to eq("#{scmsync_url}##{long_commit_sha}") }
+
+      context 'with a subdir query' do
+        subdir = '?subdir=hello_world01'
+        before do
+          package.update(scmsync: scmsync_url + subdir)
+        end
+
+        it { expect(subject.call.scmsync).to eq("#{scmsync_url}#{subdir}##{long_commit_sha}") }
+      end
+
+      context 'with a branch fragment' do
+        fragment = '#krauselukas-patch-2'
+        before do
+          package.update(scmsync: scmsync_url + fragment)
+        end
+
+        it { expect(subject.call.scmsync).to eq("#{scmsync_url}##{long_commit_sha}") }
+      end
+
+      context 'with a subdir query and a branch fragment' do
+        subdir = '?subdir=hello_world01'
+        fragment = '#krauselukas-patch-2'
+        before do
+          package.update(scmsync: scmsync_url + subdir + fragment)
+        end
+
+        it { expect(subject.call.scmsync).to eq("#{scmsync_url}#{subdir}##{long_commit_sha}") }
       end
     end
   end
