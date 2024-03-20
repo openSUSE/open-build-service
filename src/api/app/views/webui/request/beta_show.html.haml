@@ -115,9 +115,7 @@
                 setInterval(updateChartBuildResults, 60000);
 
               = render AccordionReviewsComponent.new(@request_reviews, @bs_request)
-              = render RequestDecisionComponent.new(bs_request: @bs_request, action: @action,
-                                                    is_target_maintainer: @is_target_maintainer,
-                                                    is_author: @is_author)
+              = render RequestDecisionComponent.new(bs_request: @bs_request, action: @action, is_target_maintainer: @is_target_maintainer)
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',
                                                  method: :delete,
                                                  options: { modal_title: 'Delete comment?', remote: true })
