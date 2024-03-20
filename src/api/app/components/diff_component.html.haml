@@ -6,15 +6,15 @@
         %div{ class: "line #{line.state}" }>
           - case line.state
           - when 'range'
-            - if source_file
-              = link_to(source_file, title: 'See original file') do
+            - if target_file
+              = link_to(target_file, title: 'See original file') do
                 .number.p-0.text-center.link-danger<
                   %i.fas.fa-file-arrow-down
             - else
               %a
                 .number
-            - if target_file
-              = link_to(target_file, title: 'See submitted file') do
+            - if source_file
+              = link_to(source_file, title: 'See submitted file') do
                 .number.p-0.text-center.link-success<
                   %i.fas.fa-file-arrow-up
             - else
