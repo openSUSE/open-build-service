@@ -819,6 +819,10 @@ class BsRequestAction < ApplicationRecord
     uniq_key
   end
 
+  def short_name
+    ''
+  end
+
   def commit_details
     package = Package.find_by_project_and_name(source_project, source_package)
 

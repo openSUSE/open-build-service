@@ -48,6 +48,10 @@ class BsRequestActionSetBugowner < BsRequestAction
     uniq_key.gsub('setbugowner/', 'Set Bugowner ')
   end
 
+  def short_name
+    'Set Bugowner'
+  end
+
   #### Alias of methods
 end
 

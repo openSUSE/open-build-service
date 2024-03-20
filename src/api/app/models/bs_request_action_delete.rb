@@ -79,6 +79,10 @@ class BsRequestActionDelete < BsRequestAction
     end
   end
 
+  def short_name
+    name
+  end
+
   private
 
   def remove_repository(opts)

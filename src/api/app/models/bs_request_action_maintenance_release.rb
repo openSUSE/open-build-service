@@ -145,6 +145,10 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     "Release #{uniq_key}"
   end
 
+  def short_name
+    "Release #{source_package}"
+  end
+
   private
 
   def sanity_check!

@@ -111,6 +111,10 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     "Incident #{uniq_key}"
   end
 
+  def short_name
+    "Incident #{source_package}"
+  end
+
   private
 
   def _merge_pkg_into_maintenance_incident(incident_project)
