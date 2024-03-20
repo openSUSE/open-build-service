@@ -313,6 +313,7 @@ sub prpfinished {
   for my $rbin (sort(ls($rdir))) {
     next if exists $origin{$rbin};
     next if $rbin eq '.newchecksums' || $rbin eq '.newchecksums.new' || $rbin eq '.checksums' || $rbin eq '.checksums.new';
+    next if ($rbin eq '.archsync' || $rbin eq '.archsync.new') && $bconf->{'publishflags:archsync'};
     print "      - :repo/$rbin\n";
     if (! -l "$rdir/$rbin" && -d _) {
       BSUtil::cleandir("$rdir/$rbin");
@@ -341,6 +342,14 @@ sub prpfinished {
       }
     }
     BSUtil::store("$rdir/.newchecksums.new", "$rdir/.newchecksums", \%newchecksums);
+  }
+
+  if ($bconf->{'publishflags:archsync'}) {
+    my $oldas = BSUtil::retrieve("$rdir/.archsync", 1) || {};
+    my $as = { 'lastcheck' => time(), 'lastchange' => $oldas->{'lastchange'} };
+    $as->{'lastchange'} = $as->{'lastcheck'} if $changed || !$as->{'lastchange'};
+    $changed = 1 if -e "$rdir/.archsync.new";	# hack, see bs_publish
+    BSUtil::store("$rdir/.archsync.new", "$rdir/.archsync", $as);
   }
 
   # release lock and ping publisher

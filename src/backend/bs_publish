@@ -2139,6 +2139,36 @@ sub publish {
   # we now know that $reporoot/$prp/*/:repo will not change.
   # Build repo by mixing all architectures.
   my @archs = @{$repo->{'arch'} || []};
+
+  if ($config->{'publishflags:archsync'}) {
+    my @bad;
+    my $lastchange = 0;
+    my %as;
+    for my $a (@archs) {
+      my $as = BSUtil::retrieve("$reporoot/$prp/$a/:repo/.archsync", 1) || {};
+      $lastchange = $as->{'lastchange'} if ($as->{'lastchange'} || 0) > $lastchange;
+      $as{$a} = $as;
+    }
+    for my $a (@archs) {
+      my $as = $as{$a};
+      push @bad, $a if !$as->{'lastchange'} || !$as->{'lastcheck'} || $as->{'lastcheck'} < $lastchange;
+      $lastchange++ if $as->{'lastcheck'} && $as->{'lastcheck'} == $lastchange;
+    }
+    if (@bad) {
+      print "    delaying publishing as archirectures ".join(',', @bad)." are not ready\n";
+      for my $a (@bad) {
+	# hack: use the .archsync.new file to signal the scheduler that we are waiting
+	eval { BSUtil::touch("$reporoot/$prp/$a/:repo/.archsync.new") };
+	if (-e "$reporoot/$prp/$a/:repodone") {
+	  unlink("$reporoot/$prp/$a/:repodone");
+	  writerecheckevent($projid, $repoid, $a);
+	}
+      }
+      return "delayed";
+      close(F);
+    }
+  }
+
   my %bins;
   my %bins_id;
   my $binaryorigins = {};
@@ -2246,7 +2276,7 @@ sub publish {
     }
 
     for my $rbin (sort(ls($r))) {
-      next if $rbin eq '.newchecksums' || $rbin eq '.newchecksums.new' || $rbin eq '.checksums' || $rbin eq '.checksums.new';
+      next if $rbin eq '.newchecksums' || $rbin eq '.newchecksums.new' || $rbin eq '.checksums' || $rbin eq '.checksums.new' || $rbin eq '.archsync' || $rbin eq '.archsync.new';
       my $bin = $rbin;
       my $containerinfo;
       my $kiwimedium;
@@ -3431,6 +3461,21 @@ sub writepublishtimeevent {
   BSUtil::ping("$myeventdir/.ping");
 }
 
+sub writerecheckevent {
+  my ($projid, $repoid, $arch) = @_;
+  return unless -d "$eventdir/$arch";	# scheduler not running yet?
+  my $ev = {
+    'type' => 'recheck',
+    'project' => $projid,
+    'repository' => $repoid,
+    'arch' => $arch,
+  };   
+  my $evname = "recheck::${projid}::$repoid";
+  $evname = "recheck::".Digest::MD5::md5_hex($evname) if length($evname) > 200; 
+  writexml("$eventdir/$arch/.$evname$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+  BSUtil::ping("$eventdir/$arch/.ping");
+}
+
 sub clean_publish_retry {
   my $now = time();
   for (sort keys %publish_retry) {
@@ -3515,6 +3560,11 @@ sub publishevent {
     db_sync();
     BSUtil::printlog("publish failed for $prp") if $req->{'forked'};
     return 0;
+  }
+
+  if ($code eq 'delayed') {
+    BSUtil::printlog("publish delayed for $prp") if $req->{'forked'};
+    return 1;
   }
 
   my $now = time();
