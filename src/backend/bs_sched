@@ -713,25 +713,7 @@ if (!$gctx->{'projpacks'} && $startupmode) {
   } else {
     print "cold start, initializing all projects\n";
   }
-
-  my $param = {
-    'uri' => "$BSConfig::srcserver/getprojpack",
-  };
-  my @args = ('withrepos', 'withconfig', "arch=$_myarch", 'withremotemap=1', 'noremote=1');
-  push @args, 'withsrcmd5', 'withdeps' if $startupmode == 1;
-  push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
-  my $projpacksin;
-  while (1) {
-    eval {
-      $projpacksin = BSRPC::rpc($param, $BSXML::projpack, @args);
-    };
-    last unless $@ || !$projpacksin;
-    print $@ if $@;
-    print "retrying in 60 seconds...\n";
-    sleep(60);
-  }
-  BSSched::ProjPacks::update_projpacks($gctx, $projpacksin);
-  BSSched::ProjPacks::get_projpacks_postprocess($gctx);
+  BSSched::ProjPacks::get_projpacks_all_sync($gctx, $startupmode);
   my $projpacks = $gctx->{'projpacks'};
   my $delayedfetchprojpacks = $gctx->{'delayedfetchprojpacks'};
   for my $projid (sort keys %$projpacks) {

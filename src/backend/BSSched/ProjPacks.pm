@@ -107,9 +107,14 @@ sub checkbuildrepoid {
 =cut
 
 sub get_projpacks_all_sync {
-  my ($gctx) = @_;
+  my ($gctx, $startupmode) = @_;
+  die("unsupported startup mode $startupmode\n") if $startupmode && $startupmode != 1 && $startupmode != 2;
   my $myarch = $gctx->{'arch'};
-  my @args = ('withsrcmd5', 'withdeps', 'withrepos', 'withconfig', 'withremotemap', "arch=$myarch");
+  my @args;
+  push @args, 'withsrcmd5', 'withdeps' unless $startupmode == 2;
+  push @args, 'withrepos', 'withconfig', 'withremotemap';
+  push @args, 'noremote=1' if $startupmode;
+  push @args, "arch=$myarch";
   push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
   my $projpacksin;
   while (1) {
