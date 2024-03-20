@@ -27,7 +27,7 @@ class SendEventEmailsJob < ApplicationJob
     email = EventMailer.with(subscribers: subscribers, event: event).notification_email
     email.deliver_now
   rescue StandardError => e
-    Airbrake.notify(e, event_id: event.id, email_body: email.body)
+    Airbrake.notify(e, event_id: event.id, email: email.inspect)
   ensure
     event.update(mails_sent: true)
   end
