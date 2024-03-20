@@ -287,6 +287,40 @@ http_interactions:
         </sourcediff>
   recorded_at: Fri, 22 Oct 2021 08:27:29 GMT
 - request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '300'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="20" vrev="20" srcmd5="77925479a269b31e68c40899ca820cec">
+          <entry name="_config" md5="d593013c5a5bc51a430dab0c536df309" size="74" mtime="1634296877"/>
+          <entry name="somefile.txt" md5="92eb5ffee6ae2fec3ad71c777531578f" size="1" mtime="1634295370"/>
+        </directory>
+  recorded_at: Fri, 22 Oct 2021 08:27:29 GMT
+- request:
     method: put
     uri: http://backend:5352/source/home:user_24/_meta?user=user_24
     body:
@@ -422,6 +456,40 @@ http_interactions:
   recorded_at: Fri, 22 Oct 2021 08:27:30 GMT
 - request:
     method: get
+    uri: http://backend:5352/source/source_project/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '300'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="20" vrev="20" srcmd5="77925479a269b31e68c40899ca820cec">
+          <entry name="_config" md5="d593013c5a5bc51a430dab0c536df309" size="74" mtime="1634296877"/>
+          <entry name="somefile.txt" md5="92eb5ffee6ae2fec3ad71c777531578f" size="1" mtime="1634295370"/>
+        </directory>
+  recorded_at: Fri, 22 Oct 2021 08:27:29 GMT
+- request:
+    method: get
     uri: http://backend:5352/source/target_project/target_package
     body:
       encoding: US-ASCII
@@ -454,4 +522,38 @@ http_interactions:
           <entry name="somefile.txt" md5="0cc175b9c0f1b6a831c399e269772661" size="1" mtime="1634295371"/>
         </directory>
   recorded_at: Fri, 22 Oct 2021 08:27:30 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '300'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="20" vrev="20" srcmd5="77925479a269b31e68c40899ca820cec">
+          <entry name="_config" md5="d593013c5a5bc51a430dab0c536df309" size="74" mtime="1634296877"/>
+          <entry name="somefile.txt" md5="92eb5ffee6ae2fec3ad71c777531578f" size="1" mtime="1634295370"/>
+        </directory>
+  recorded_at: Fri, 22 Oct 2021 08:27:29 GMT
 recorded_with: VCR 6.0.0
