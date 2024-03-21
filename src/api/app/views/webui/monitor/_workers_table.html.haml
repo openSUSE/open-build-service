@@ -33,7 +33,11 @@
                   .progress-bar.progress-bar-striped{ 'aria-valuemax' => '100', 'aria-valuemin' => '0',
                                                       'role' => 'progressbar' }
 
-                    = link_to('', '#', rel: 'nofollow', class: 'monitorpb_text position-absolute no-wrap')
+                    = link_to('', '#', rel: 'nofollow', class: 'monitorpb_text position-absolute no-wrap overflow-hidden')
+                    = link_to(worker_capabilities_path(arch: hash['_arch'], id: id.tr('_', ':')),
+                      { rel: 'nofollow', title: 'Worker capabilities',
+                      class: 'position-absolute no-wrap', style: 'left: 90%' }) do
+                      %i.fas.fa-fw.fa-2xs.fa-server
 
 - content_for :ready_function do
   :plain

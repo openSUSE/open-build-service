@@ -1,0 +1,79 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://backend:5352/worker/x86_64:26704de63694:1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1159'
+    body:
+      encoding: UTF-8
+      string: |
+        <worker hostarch="x86_64" registerserver="http://backend:5252" workerid="26704de63694:1">
+          <hostlabel>OBS_WORKER_SECURITY_LEVEL_</hostlabel>
+          <sandbox>chroot</sandbox>
+          <linux>
+            <version>6.6.12</version>
+            <flavor>linuxkit</flavor>
+          </linux>
+          <hardware>
+            <cpu>
+              <flag>fp</flag>
+              <flag>asimd</flag>
+              <flag>evtstrm</flag>
+              <flag>aes</flag>
+              <flag>pmull</flag>
+              <flag>sha1</flag>
+              <flag>sha2</flag>
+              <flag>crc32</flag>
+              <flag>atomics</flag>
+              <flag>fphp</flag>
+              <flag>asimdhp</flag>
+              <flag>cpuid</flag>
+              <flag>asimdrdm</flag>
+              <flag>jscvt</flag>
+              <flag>fcma</flag>
+              <flag>lrcpc</flag>
+              <flag>dcpop</flag>
+              <flag>sha3</flag>
+              <flag>asimddp</flag>
+              <flag>sha512</flag>
+              <flag>asimdfhm</flag>
+              <flag>dit</flag>
+              <flag>uscat</flag>
+              <flag>ilrcpc</flag>
+              <flag>flagm</flag>
+              <flag>ssbs</flag>
+              <flag>sb</flag>
+              <flag>paca</flag>
+              <flag>pacg</flag>
+              <flag>dcpodp</flag>
+              <flag>flagm2</flag>
+              <flag>frint</flag>
+            </cpu>
+            <processors>4</processors>
+            <jobs>1</jobs>
+          </hardware>
+        </worker>
+  recorded_at: Sun, 17 Mar 2024 18:22:11 GMT
+recorded_with: VCR 6.2.0

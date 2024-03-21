@@ -25,6 +25,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
     return true if link.include?('/live_build_log/SourceprotectedProject')
     return true if link.include?('/live_build_log/home:Iggy/ToBeDeletedTestPack')
     return true if link.include?('/live_build_log')
+    return true if link.include?('/worker_capabilities')
     # we do not really serve binary packages in the test environment
     return true if %r{/projects/.*/packages/.*/repositories/.*/binaries/.*/.*}.match?(link)
     # apidocs is not configured in test environment
