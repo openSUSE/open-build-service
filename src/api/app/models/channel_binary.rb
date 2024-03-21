@@ -57,6 +57,7 @@ class ChannelBinary < ApplicationRecord
   private
 
   # Creates an xml builder object for all binaries
+  # rubocop:disable Metrics/PerceivedComplexity
   def create_xml(options = {})
     channel = channel_binary_list.channel
 
@@ -86,6 +87,7 @@ class ChannelBinary < ApplicationRecord
     builder.to_xml(save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                               Nokogiri::XML::Node::SaveOptions::FORMAT)
   end
+  # rubocop:enable Metrics/PerceivedComplexity
 
   def create_channel_node_element(channel_node, channel_target)
     attributes = {
