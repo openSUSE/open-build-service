@@ -17,6 +17,12 @@ function updateChartBuildResults() {
 function linkBuildSummaryChartToBuildResultsTab() { // jshint ignore:line
   var buildResultSummaryChart = Chartkick.charts['build-summary-chart'].getChartObject();
 
+  // If the mouse hovers a data point, let the cursor tell the user it is clickable
+  $("#build-summary-chart").on('mousemove', function(e) {
+    var points = buildResultSummaryChart.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
+    $(this).css('cursor', points.length ? 'pointer' : 'default');
+  });
+
   $("#build-summary-chart").click(function(e) {
     var points = buildResultSummaryChart.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
     // click was not on a bar in the chart
