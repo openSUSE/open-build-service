@@ -31,32 +31,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
                    })
   end
 
-  RSpec.shared_context 'insufficient permission on target project' do
-    let(:step_instructions) do
-      {
-        source_project: project.name,
-        source_package: package.name,
-        target_project: 'target_project_no_permission'
-      }
-    end
-
-    let!(:target_project_no_permission) { create(:project, name: 'target_project_no_permission') }
-
-    it { expect { subject.call }.to raise_error(Pundit::NotAuthorizedError) }
-  end
-
-  RSpec.shared_context 'insufficient permission to create new target project' do
-    let(:step_instructions) do
-      {
-        source_project: project.name,
-        source_package: package.name,
-        target_project: 'target_project_not_existing'
-      }
-    end
-
-    it { expect { subject.call }.to raise_error(Pundit::NotAuthorizedError) }
-  end
-
   describe '#call' do
     before do
       login(user)
@@ -71,8 +45,31 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
       it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
       it { expect(subject.call.source_file('_link')).to eq('<link project="foo_project" package="bar_package"/>') }
 
-      it_behaves_like 'insufficient permission on target project'
-      it_behaves_like 'insufficient permission to create new target project'
+      context 'insufficient permission on target project' do
+        let(:step_instructions) do
+          {
+            source_project: project.name,
+            source_package: package.name,
+            target_project: 'target_project_no_permission'
+          }
+        end
+
+        let!(:target_project_no_permission) { create(:project, name: 'target_project_no_permission') }
+
+        it { expect { subject.call }.to raise_error(Pundit::NotAuthorizedError) }
+      end
+
+      context 'insufficient permission to create new target project' do
+        let(:step_instructions) do
+          {
+            source_project: project.name,
+            source_package: package.name,
+            target_project: 'target_project_not_existing'
+          }
+        end
+
+        it { expect { subject.call }.to raise_error(Pundit::NotAuthorizedError) }
+      end
     end
   end
 end
