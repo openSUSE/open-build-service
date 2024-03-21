@@ -65,11 +65,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
     context 'for a new PR event' do
       let(:action) { 'opened' }
 
-      before do
-        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-        allow(octokit_client).to receive(:create_status).and_return(true)
-      end
-
       it { expect { subject.call }.to(change(Project, :count).by(1)) }
       it { expect { subject.call }.to(change(Package, :count).by(1)) }
       it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
@@ -138,12 +133,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
                          ref: 'refs/heads/branch_123'
                        })
       end
-      let(:octokit_client) { instance_double(Octokit::Client) }
-
-      before do
-        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-        allow(octokit_client).to receive(:create_status).and_return(true)
-      end
 
       it { expect { subject.call }.not_to(change(Project, :count)) }
       it { expect { subject.call }.to(change(Package, :count).by(1)) }
@@ -168,7 +157,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
                          ref: 'refs/tags/release_abc'
                        })
       end
-      let(:octokit_client) { instance_double(Octokit::Client) }
       let(:target_project_final_name) { "home:#{user.login}" }
       let(:final_package_name) { "#{package.name}-release_abc" }
 
@@ -176,9 +164,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
         # branching a package to an existing project doesn't take over the set repositories
         create(:repository, name: 'Unicorn_123', project: user.home_project, architectures: %w[x86_64 i586 ppc aarch64])
         create(:repository, name: 'openSUSE_Tumbleweed', project: user.home_project, architectures: ['x86_64'])
-
-        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-        allow(octokit_client).to receive(:create_status).and_return(true)
       end
 
       it 'does not report back to the SCM' do
