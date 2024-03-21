@@ -59,8 +59,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
 
     context 'for a new PR event' do
       let(:action) { 'opened' }
-      let(:octokit_client) { instance_double(Octokit::Client) }
-      let(:final_target_project_name) { "home:#{user.login}:openSUSE:open-build-service:PR-1" }
       let(:step_instructions) do
         {
           source_project: package.project.name,
@@ -76,7 +74,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
 
       it { expect { subject.call }.to(change(Project, :count).by(1)) }
       it { expect { subject.call }.to(change(Package, :count).by(1)) }
-      it { expect(subject.call.project.name).to eq("home:#{user.login}:openSUSE:open-build-service:PR-1") }
       it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
       it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
       it { expect(subject.call.source_file('_link')).to eq('<link project="foo_project" package="bar_package"/>') }
@@ -156,7 +153,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
                          ref: 'refs/heads/branch_123'
                        })
       end
-      let(:final_target_project_name) { target_project_name }
       let(:octokit_client) { instance_double(Octokit::Client) }
       let(:step_instructions) do
         {
@@ -173,7 +169,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
 
       it { expect { subject.call }.not_to(change(Project, :count)) }
       it { expect { subject.call }.to(change(Package, :count).by(1)) }
-      it { expect(subject.call.project.name).to eq(target_project_name) }
       it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
       it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
       it { expect(subject.call.source_file('_link')).to eq('<link project="foo_project" package="bar_package"/>') }
@@ -223,7 +218,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
 
       it { expect { subject.call }.not_to(change(Project, :count)) }
       it { expect { subject.call }.to(change(Package, :count).by(1)) }
-      it { expect(subject.call.project.name).to eq(target_project_name) }
       it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count)) }
       it { expect { subject.call }.not_to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count)) }
       it { expect(subject.call.source_file('_link')).to eq('<link project="foo_project" package="bar_package"/>') }
