@@ -137,12 +137,14 @@ RSpec.describe 'Requests_Submissions', :js, :vcr do
         let!(:staging_workflow) { create(:staging_workflow, project: factory) }
         # Create another action to submit new files from different packages to package_b
         let!(:another_bs_request_action) do
-          create(:bs_request_action_submit,
-                 bs_request: bs_request,
-                 source_project: source_project,
-                 source_package: source_package,
-                 target_project: factory,
-                 target_package: target_package_b)
+          receiver.run_as do
+            create(:bs_request_action_submit,
+                   bs_request: bs_request,
+                   source_project: source_project,
+                   source_package: source_package,
+                   target_project: factory,
+                   target_package: target_package_b)
+          end
         end
         let(:bs_request) do
           create(:bs_request_with_submit_action,
@@ -167,7 +169,8 @@ RSpec.describe 'Requests_Submissions', :js, :vcr do
           login receiver
           visit request_show_path(bs_request.number)
 
-          expect(page).to have_text(bs_request.bs_request_actions.first[:name])
+          action = bs_request.bs_request_actions.first
+          expect(page).to have_text("#{action.target_project} / #{action.target_package}")
           expect(page).to have_text('Next')
           expect(page).to have_text("(of #{bs_request.bs_request_actions.count})")
           expect(page).to have_css('.bg-staging')
