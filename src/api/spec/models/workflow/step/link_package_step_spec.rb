@@ -5,14 +5,36 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
                         token: token)
   end
 
-  let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
   let(:token) { create(:workflow_token, executor: user) }
-  let(:target_project_name) { "home:#{user.login}" }
+  let(:target_project) { user.home_project }
+  let!(:project) { create(:project, name: 'foo_project', maintainer: user) }
+  let!(:package) { create(:package_with_file, name: 'bar_package', project: project) }
+  let(:step_instructions) do
+    {
+      source_project: project.name,
+      source_package: package.name,
+      target_project: target_project.name
+    }
+  end
+  let(:action) { 'opened' }
+  let(:commit_sha) { '123' }
+  let(:scm_webhook) do
+    SCMWebhook.new(payload: {
+                     scm: 'github',
+                     event: 'pull_request',
+                     action: action,
+                     pr_number: 1,
+                     source_repository_full_name: 'reponame',
+                     commit_sha: commit_sha,
+                     target_repository_full_name: 'openSUSE/open-build-service'
+                   })
+  end
 
   RSpec.shared_context 'insufficient permission on target project' do
     let(:step_instructions) do
       {
-        source_project: package.project.name,
+        source_project: project.name,
         source_package: package.name,
         target_project: 'target_project_no_permission'
       }
@@ -26,7 +48,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
   RSpec.shared_context 'insufficient permission to create new target project' do
     let(:step_instructions) do
       {
-        source_project: package.project.name,
+        source_project: project.name,
         source_package: package.name,
         target_project: 'target_project_not_existing'
       }
@@ -36,36 +58,12 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
   end
 
   describe '#call' do
-    let(:project) { create(:project, name: 'foo_project', maintainer: user) }
-    let(:package) { create(:package_with_file, name: 'bar_package', project: project) }
-    let(:commit_sha) { '123' }
-    let(:scm_webhook) do
-      SCMWebhook.new(payload: {
-                       scm: 'github',
-                       event: 'pull_request',
-                       action: action,
-                       pr_number: 1,
-                       source_repository_full_name: 'reponame',
-                       commit_sha: commit_sha,
-                       target_repository_full_name: 'openSUSE/open-build-service'
-                     })
-    end
-
     before do
-      project
-      package
       login(user)
     end
 
     context 'for a new PR event' do
       let(:action) { 'opened' }
-      let(:step_instructions) do
-        {
-          source_project: package.project.name,
-          source_package: package.name,
-          target_project: target_project_name
-        }
-      end
 
       before do
         allow(Octokit::Client).to receive(:new).and_return(octokit_client)
@@ -94,13 +92,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
             'source_repository_full_name' => 'reponame', 'target_repository_full_name' => 'openSUSE/open-build-service' }
         end
         let(:commit_sha) { '456' }
-        let(:step_instructions) do
-          {
-            source_project: package.project.name,
-            source_package: package.name,
-            target_project: target_project_name
-          }
-        end
+
 
         # Emulate the linked project/package and the subcription created in a previous new PR/MR event
         let!(:linked_project) { create(:project, name: "home:#{user.login}:openSUSE:open-build-service:PR-1", maintainer: user) }
@@ -128,13 +120,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
 
       context 'when the linked package did not exist' do
         let(:action) { 'synchronize' }
-        let(:step_instructions) do
-          {
-            source_project: package.project.name,
-            source_package: package.name,
-            target_project: target_project_name
-          }
-        end
 
         it { expect { subject.call }.to(change(Package, :count).by(1)) }
         it { expect { subject.call }.to(change(EventSubscription, :count).from(0).to(2)) }
@@ -154,13 +139,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
                        })
       end
       let(:octokit_client) { instance_double(Octokit::Client) }
-      let(:step_instructions) do
-        {
-          source_project: package.project.name,
-          source_package: package.name,
-          target_project: target_project_name
-        }
-      end
 
       before do
         allow(Octokit::Client).to receive(:new).and_return(octokit_client)
@@ -193,13 +171,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
       let(:octokit_client) { instance_double(Octokit::Client) }
       let(:target_project_final_name) { "home:#{user.login}" }
       let(:final_package_name) { "#{package.name}-release_abc" }
-      let(:step_instructions) do
-        {
-          source_project: package.project.name,
-          source_package: package.name,
-          target_project: target_project_name
-        }
-      end
 
       before do
         # branching a package to an existing project doesn't take over the set repositories
