@@ -70,4 +70,3 @@
 //= require Chart.bundle
 //= require webui/report.js
 //= require webui/canned_responses.js
-//= require webui/network.js
