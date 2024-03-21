@@ -4,6 +4,9 @@ class ChannelBinary < ApplicationRecord
   belongs_to :repository, optional: true
   belongs_to :architecture, optional: true
 
+  validates :supportstatus, length: { maximum: 255 }
+  validates :superseded_by, length: { maximum: 255 }
+
   validate do |channel_binary|
     errors.add(:base, :invalid, message: 'Associated project has to match with repository.project') if channel_binary.project && channel_binary.repository && !(channel_binary.repository.project == channel_binary.project)
   end
@@ -54,6 +57,7 @@ class ChannelBinary < ApplicationRecord
   private
 
   # Creates an xml builder object for all binaries
+  # rubocop:disable Metrics/PerceivedComplexity
   def create_xml(options = {})
     channel = channel_binary_list.channel
 
@@ -69,6 +73,7 @@ class ChannelBinary < ApplicationRecord
       binary_data[:package]       = package       if package
       binary_data[:binaryarch]    = binaryarch    if binaryarch
       binary_data[:supportstatus] = supportstatus if supportstatus
+      binary_data[:superseded_by] = superseded_by if superseded_by
       c.binary(binary_data)
 
       # report target repository and products using it.
@@ -82,6 +87,7 @@ class ChannelBinary < ApplicationRecord
     builder.to_xml(save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                               Nokogiri::XML::Node::SaveOptions::FORMAT)
   end
+  # rubocop:enable Metrics/PerceivedComplexity
 
   def create_channel_node_element(channel_node, channel_target)
     attributes = {
@@ -110,6 +116,7 @@ end
 #  name                   :string(255)      not null, indexed => [channel_binary_list_id]
 #  package                :string(255)      indexed => [project_id]
 #  supportstatus          :string(255)
+#  superseded_by          :string(255)
 #  architecture_id        :integer          indexed
 #  channel_binary_list_id :integer          not null, indexed, indexed => [name]
 #  project_id             :integer          indexed => [package]

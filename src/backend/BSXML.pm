@@ -302,6 +302,7 @@ our $channel = [
 		'package',
 		'arch',
 		'supportstatus',
+		'superseded_by',
 	 ]],
      ]],
 ];
@@ -1640,6 +1641,7 @@ our $updateinfoitem = [
 		    'arch',
 		    'src',
 		    'supportstatus',	# extension
+		    'superseded_by',    # extension
 		    [],
 		    'filename',
 		  [ 'sum' =>	# obsolete?
@@ -2036,6 +2038,7 @@ our $report = [
 	    'license',
 	    'binaryid',
 	    'supportstatus',
+	    'superseded_by',
 	    'cpeid',
 	    'summary',
 	    'isbase',

@@ -370,9 +370,14 @@ sub createrepo_rpmmd_hook {
 
   # retrieve supportstatus from updateinfos
   my %supportstatus;
+  my %superseded_by;
   for my $up (@{$data->{'updateinfos'} || []}) {
     for my $cl (@{($up->{'pkglist'} || {})->{'collection'} || []}) {
       for my $pkg (@{$cl->{'package'} || []}) {
+        if ($pkg->{'superseded_by'}) {
+          $superseded_by{"$pkg->{'arch'}/$pkg->{'filename'}"} = $pkg->{'superseded_by'};
+          $supportstatus{"$pkg->{'arch'}/$pkg->{'filename'}"} = 'superseded';
+        }
         if ($pkg->{'supportstatus'}) {
           $supportstatus{"$pkg->{'arch'}/$pkg->{'filename'}"} = $pkg->{'supportstatus'};
         }
@@ -423,7 +428,9 @@ sub createrepo_rpmmd_hook {
 	  unpack_legacy_product("$extrep/$subdir$path", $productdata);
 	}
       }
-      if ($supportstatus{$path}) {
+      if ($superseded_by{$path}) {
+	push @kw, "support_superseded($superseded_by{$path})";
+      } elsif ($supportstatus{$path}) {
 	push @kw, $supportstatus{$path};
       }
       s/^(l\d|unsupported|acc|superseded)$/support_$1/ for @kw;

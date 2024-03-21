@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_03_07_122241) do
+ActiveRecord::Schema[7.0].define(version: 2024_03_19_153505) do
   create_table "appeals", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.text "reason", null: false
     t.integer "appellant_id", null: false
@@ -251,6 +251,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_07_122241) do
     t.string "package"
     t.string "binaryarch"
     t.string "supportstatus"
+    t.string "superseded_by"
     t.index ["architecture_id"], name: "architecture_id"
     t.index ["channel_binary_list_id"], name: "channel_binary_list_id"
     t.index ["name", "channel_binary_list_id"], name: "index_channel_binaries_on_name_and_channel_binary_list_id"
