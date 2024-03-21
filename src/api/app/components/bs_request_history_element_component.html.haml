@@ -20,9 +20,9 @@
       - if element.comment.present?
         = link_to("#collapse-history-element-comment-#{element.id}",
                     data: { 'bs-toggle': 'collapse' },
-                    aria: { expanded: false, controls: "collapse-history-element-comment" }) do
-          %i.fas.fa-sm.fa-chevron-right.expander.py-0{ title: 'Show details' }>
-          %i.fas.fa-sm.fa-chevron-down.collapser.py-0{ title: 'Hide details' }>
+                    aria: { expanded: expand?, controls: "collapse-history-element-comment" }) do
+          %i.fas.fa-sm.fa-chevron-right.expander.py-0{ title: 'Show details' }
+          %i.fas.fa-sm.fa-chevron-down.collapser.py-0{ title: 'Hide details' }
 - if element.comment.present?
-  .timeline-item-comment.collapse{ id: "collapse-history-element-comment-#{element.id}" }
+  .timeline-item-comment.collapse{ class: "#{expand? ? 'show' : nil}",  id: "collapse-history-element-comment-#{element.id}" }
     %p.m-2.mb-4= element.comment

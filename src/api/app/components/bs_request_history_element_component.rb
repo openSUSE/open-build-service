@@ -27,6 +27,15 @@ class BsRequestHistoryElementComponent < ApplicationComponent
     end
   end
 
+  def expand?
+    case @element.type.demodulize
+    when 'RequestDeclined'
+      true
+    else
+      false
+    end
+  end
+
   def pending_reviews?
     request_reviews_for_non_staging_projects.any?(&:new?)
   end
