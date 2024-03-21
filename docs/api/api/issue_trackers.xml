@@ -239,4 +239,14 @@
     <label>bxo#@@@</label>
     <enable-fetch>false</enable-fetch>
   </issue-tracker>
+  <issue-tracker>
+    <name>svg</name>
+    <kind>other</kind>
+    <description>GNU Savannah bug tracker</description>
+    <url>https://savannah.gnu.org/bugs</url>
+    <show-url>https://savannah.gnu.org/bugs/?@@@</show-url>
+    <regex>svg#(\d+)</regex>
+    <label>svg#@@@</label>
+    <enable-fetch>false</enable-fetch>
+  </issue-tracker>
 </issue-trackers>

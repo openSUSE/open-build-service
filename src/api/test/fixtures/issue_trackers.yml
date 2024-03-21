@@ -282,3 +282,13 @@ generic_github:
   label: gh#@@@
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
+savannah_gnu:
+  name: svg
+  kind: other
+  description: GNU savannah bug tracker
+  url: https://savannah.gnu.org/bugs/
+  show_url: https://savannah.gnu.org/bugs/?@@@
+  regex: svg#(\d+)
+  label: svg#@@@
+  issues_updated: 2024-03-11 14:00:21.000000000 Z
+  enable_fetch: 0
