@@ -11,7 +11,7 @@ module Event
     end
 
     def involves_hidden_project?
-      Project.unscoped.find_by(name: payload['project']).disabled_for?('access', nil, nil)
+      Project.unscoped.find_by(name: payload['project'])&.disabled_for?('access', nil, nil)
     end
   end
 end
