@@ -4,6 +4,9 @@ class BsRequestActionDescriptionComponent < ApplicationComponent
   attr_reader :action
 
   delegate :project_or_package_link, to: :helpers
+  delegate :user_with_realname_and_icon, to: :helpers
+  delegate :requester_str, to: :helpers
+  delegate :creator_intentions, to: :helpers
 
   def initialize(action:, creator:)
     super

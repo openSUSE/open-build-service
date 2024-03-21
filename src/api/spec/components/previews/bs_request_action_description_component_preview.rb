@@ -4,4 +4,9 @@ class BsRequestActionDescriptionComponentPreview < ViewComponent::Preview
     bs_request = BsRequest.joins(:bs_request_actions).where(bs_request_actions: { type: :submit }).last
     render(BsRequestActionDescriptionComponent.new(action: bs_request.webui_actions.last, creator: bs_request.creator))
   end
+
+  def add_role_preview
+    bs_request = BsRequest.joins(:bs_request_actions).where(bs_request_actions: { type: :add_role }).last
+    render(BsRequestActionDescriptionComponent.new(action: bs_request.webui_actions.find { |a| a[:type] == :add_role }, creator: bs_request.creator))
+  end
 end
