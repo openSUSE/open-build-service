@@ -21,7 +21,6 @@ jobs:
           files_yaml: |
             migrations:
               - src/api/db/migrate/**
-              - src/api/db/data/**
             not_migrations:
               - '!src/api/db/migrate/**'
               - '!src/api/db/data/**'
