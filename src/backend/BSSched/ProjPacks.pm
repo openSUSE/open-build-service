@@ -107,9 +107,14 @@ sub checkbuildrepoid {
 =cut
 
 sub get_projpacks_all_sync {
-  my ($gctx) = @_;
+  my ($gctx, $startupmode) = @_;
+  die("unsupported startup mode $startupmode\n") if $startupmode && $startupmode != 1 && $startupmode != 2;
   my $myarch = $gctx->{'arch'};
-  my @args = ('withsrcmd5', 'withdeps', 'withrepos', 'withconfig', 'withremotemap', "arch=$myarch");
+  my @args;
+  push @args, 'withsrcmd5', 'withdeps' unless $startupmode == 2;
+  push @args, 'withrepos', 'withconfig', 'withremotemap';
+  push @args, 'noremote=1' if $startupmode;
+  push @args, "arch=$myarch";
   push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
   my $projpacksin;
   while (1) {
@@ -1845,6 +1850,53 @@ sub get_remoteproject {
   BSSched::Remote::remotemap2remoteprojs($gctx, $projpacksin->{'remotemap'});
   get_projpacks_postprocess_projects($gctx);
   $gctx->{'remotemissing'}->{$projid} = 1 if !$gctx->{'projpacks'}->{$projid} && !$gctx->{'remoteprojs'}->{$projid};
+}
+
+# schedule deep checks for all packages excluded on startup:
+#   startupmode 1: noremote option, all remote packages have an error
+#   startupmode 2: no package recipe parsed
+sub do_delayed_startup {
+  my ($gctx, $startupmode) = @_;
+
+  return unless $startupmode && ($startupmode == 1 || $startupmode == 2);
+  my $projpacks = $gctx->{'projpacks'};
+  my $delayedfetchprojpacks = $gctx->{'delayedfetchprojpacks'};
+  for my $projid (sort keys %$projpacks) {
+    my $packs = $projpacks->{$projid}->{'package'} || {};
+    next unless %$packs;
+    if ($startupmode == 1) {
+      my @delayed;
+      my $ok;
+      for my $packid (sort keys %$packs) {
+	my $pdata = $packs->{$packid};
+	if ($pdata->{'error'}) {
+	  if ($pdata->{'error'} =~ /noremote option/) {
+	    $pdata->{'error'} = 'delayed startup';
+	    push @delayed, $packid;
+	  } else {
+	    $ok++;
+	  }
+	} else {
+	  if (grep {$_->{'error'} && $_->{'error'} =~ /noremote option/} @{$pdata->{'info'} || []}) {
+	    $pdata->{'error'} = 'delayed startup';
+	    push @delayed, $packid;
+	  } else {
+	    $ok++;
+	  }
+	}
+      }
+      if (!$ok) {
+	$delayedfetchprojpacks->{$projid} = [ '/all' ]; # hack
+      } else {
+	$delayedfetchprojpacks->{$projid} = [ @delayed ];
+      }
+    } else {
+      $delayedfetchprojpacks->{$projid} = [ '/all' ];   # hack
+      for my $packid (sort keys %$packs) {
+	$packs->{$packid}->{'error'} = 'delayed startup';
+      }
+    }
+  }
 }
 
 1;
