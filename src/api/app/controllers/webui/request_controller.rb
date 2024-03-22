@@ -60,6 +60,8 @@ class Webui::RequestController < Webui::WebuiController
       @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: false)
       @action = @actions.first
       @active = @action[:name]
+      # TODO: this is the last instance of the @not_full_diff variable in the request scope, once request_workflow_redesign beta is rolled out,
+      # let's get rid of this variable and also of `BsRequest.truncated_diffs` as it is no longer used anywhere else
       # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
       @not_full_diff = BsRequest.truncated_diffs?(@actions)
 
@@ -176,12 +178,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def request_action_changes
-    # TODO: Change @diff_limit to a local variable
-    @diff_limit = params[:full_diff] ? 0 : nil
-    # TODO: Change @actions to a local variable
-    @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: true,
-                                         action_id: params['id'].to_i, cacheonly: 1)
-    @action = @actions.find { |action| action[:id] == params['id'].to_i }
+    @action = @bs_request.bs_request_actions.where(id: params['id'].to_i).first
 
     cache_diff_data
 
@@ -287,8 +284,8 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to request_show_path(params[:number], params[:request_action_id]) unless @bs_request_action.tab_visibility.build
 
     @active_tab = 'build_results'
-    @project = @staging_project || @action[:sprj]
-    @buildable = @action[:spkg] || @project
+    @project = @staging_project || @action.source_project
+    @buildable = @action.source_package || @project
   end
 
   def rpm_lint
@@ -296,8 +293,8 @@ class Webui::RequestController < Webui::WebuiController
 
     @active_tab = 'rpm_lint'
     @ajax_data = {}
-    @ajax_data['project'] = @action[:sprj] if @action[:sprj]
-    @ajax_data['package'] = @action[:spkg] if @action[:spkg]
+    @ajax_data['project'] = @action.source_project if @action.source_project
+    @ajax_data['package'] = @action.source_package if @action.source_package
     @ajax_data['is_staged_request'] = true if @staging_project.present?
   end
 
@@ -513,11 +510,10 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def cache_diff_data
-    return unless @action[:diff_not_cached]
+    return unless @action.diff_not_cached
 
-    bs_request_action = BsRequestAction.find(@action[:id])
-    job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{bs_request_action.to_global_id.uri}%").count
-    BsRequestActionWebuiInfosJob.perform_later(bs_request_action) if job.zero?
+    job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{@action.to_global_id.uri}%").count
+    BsRequestActionWebuiInfosJob.perform_later(@action) if job.zero?
   end
 
   def handle_notification
@@ -534,8 +530,8 @@ class Webui::RequestController < Webui::WebuiController
     @diff_to_superseded_id = params[:diff_to_superseded]
 
     # Handling request actions
-    @action = @bs_request.webui_actions(diff_to_superseded: @diff_to_superseded, diffs: true, action_id: @action_id.to_i, cacheonly: 1).first
-    active_action_index = @supported_actions.index(@active_action)
+    @action = @active_action || @bs_request.bs_request_actions.first
+    active_action_index = @supported_actions.index(@action)
     if active_action_index
       @prev_action = @supported_actions[active_action_index - 1] unless active_action_index.zero?
       @next_action = @supported_actions[active_action_index + 1] if active_action_index + 1 < @supported_actions.length
@@ -546,7 +542,7 @@ class Webui::RequestController < Webui::WebuiController
     @staging_status = staging_status(@bs_request, target_project) if Staging::Workflow.find_by(project: target_project)
 
     # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
-    @issues = (@action.fetch(:sourcediff, []) || []).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
+    @issues = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded_id, cacheonly: 1 }).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
 
     # retrieve a list of all package maintainers that are assigned to at least one target package
     @package_maintainers = target_package_maintainers

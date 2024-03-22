@@ -11,8 +11,7 @@ class BsRequestActivityTimelineComponent < ApplicationComponent
     @bs_request = bs_request
     @creator = User.find_by_login(bs_request.creator) || User.nobody
     action_comments = Comment.on_actions_for_request(@bs_request).without_parent.includes(:user)
-    commented_actions = action_comments.map { |c| c.commentable.id }.uniq.compact
-    @diffs = commented_actions.flat_map { |a| @bs_request.webui_actions(action_id: a, diffs: true, cacheonly: 1) }
+    @commented_actions = action_comments.map(&:commentable).uniq.compact
 
     # IDEA: Forge the first item to remove the need of having the hand-crafted "created request" haml fragment
     @timeline = (
@@ -27,7 +26,7 @@ class BsRequestActivityTimelineComponent < ApplicationComponent
     return unless (ref = comment.diff_ref&.match(/diff_([0-9]+)/))
 
     file_index = ref.captures.first
-    sourcediff = @diffs.find { |d| d[:id] == comment.commentable.id }[:sourcediff].first
+    sourcediff = @commented_actions.find(comment.commentable.id).first.webui_sourcediff.first
     filename = sourcediff.dig('filenames', file_index.to_i)
     sourcediff.dig('files', filename)
   end

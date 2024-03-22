@@ -1,17 +1,17 @@
 .row
   .col
-    - if @action[:diff_not_cached]
+    - if @action.diff_not_cached
       .clearfix.mb-2.text-center
-        .btn.btn-outline-primary.cache-refresh{ title: 'Refresh results', onclick: "loadChanges(#{@bs_request.number}, #{@action[:id]});" }
+        .btn.btn-outline-primary.cache-refresh{ title: 'Refresh results', onclick: "loadChanges(#{@bs_request.number}, #{@action.id});" }
           Crunching the latest data. Refresh again in a few seconds
           %i.fas.fa-sync-alt{ id: "cache#0-reload" }
     - else
-      - (@action[:sourcediff] || []).each do |sourcediff|
+      - (@action.webui_sourcediff).each do |sourcediff|
         .clearfix.mb-2
           .btn-group.float-end
-            %button.btn.btn-outline-secondary.expand-diffs{ data: { object: @action[:spkg] } }
+            %button.btn.btn-outline-secondary.expand-diffs{ data: { object: @action.source_package } }
               Expand all
-            %button.btn.btn-outline-secondary.collapse-diffs{ data: { object: @action[:spkg] } }
+            %button.btn.btn-outline-secondary.collapse-diffs{ data: { object: @action.source_package } }
               Collapse all
 
         - if sourcediff[:error]
@@ -19,13 +19,13 @@
             %i.error
               = sourcediff[:error]
         - else
-          - if @action[:sourcediff].length > 1
+          - if @action.webui_sourcediff.length > 1
             %h4
               #{diff_label(sourcediff['new'])} – #{diff_label(sourcediff['old'])}
           - if sourcediff['filenames'].present?
             - diff_list = sourcediff['files'].sort_by { |k, _v| sourcediff['filenames'].find_index(k) }.to_h
-            = render(DiffListComponent.new(diff_list:, view_id: @action[:spkg], commentable:, source_package:,
-                                           target_package:, source_rev: @action[:srev]))
+            = render(DiffListComponent.new(diff_list:, view_id: @action.source_package, commentable:, source_package:,
+                                           target_package:, source_rev: @action.source_rev))
           - else
             .mb-2
               %p.lead

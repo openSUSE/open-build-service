@@ -230,6 +230,8 @@ class BsRequest < ApplicationRecord
     request
   end
 
+  # [DEPRECATED] TODO: there is only one instance of the @not_full_diff variable in the request scope which is using this method.
+  # Once request_workflow_redesign beta is rolled out, let's drop this method
   # TODO: refactor this method as soon as the request_show_redesign feature is rolled out.
   # Now it expects an array of action hashes we'll never display more than one action at a time.
   def self.truncated_diffs?(actions)
@@ -917,6 +919,7 @@ class BsRequest < ApplicationRecord
     end
   end
 
+  # [DEPRECATED] TODO: drop this after request_workflow_redesign beta is rolled_out
   def webui_actions(opts = {})
     actions = []
     action_id = opts.delete(:action_id)
@@ -985,6 +988,7 @@ class BsRequest < ApplicationRecord
     FINAL_REQUEST_STATES.include?(state)
   end
 
+  # [DEPRECATED] TODO: drop this after request_workflow_redesign beta is rolled_out
   def action_details(opts = {}, xml:)
     with_diff = opts.delete(:diffs)
     action = { type: xml.action_type }

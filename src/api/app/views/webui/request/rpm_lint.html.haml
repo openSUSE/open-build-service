@@ -1,5 +1,5 @@
 :ruby
-  @pagetitle = "Request #{@bs_request.number}: #{@action[:name]}"
+  @pagetitle = "Request #{@bs_request.number}: #{@action.name}"
 
 = render partial: 'beta_alert', locals: { bs_request: @bs_request, action: @action }
 
@@ -14,7 +14,7 @@
         locals: { bs_request: @bs_request, bs_request_action: @bs_request_action, issues: @issues, active_action: @active_action,
                   actions_count: @supported_actions.count, active_tab: @active_tab }
     .container.p-4
-      - if @action[:spkg]
+      - if @action.source_package
         .rpm-lint-content{ data: @ajax_data }
           .pt-1.bg-card.d-flex.flex-wrap-reverse.align-items-baseline.sticky-top
             .result
@@ -27,7 +27,7 @@
           - if @staging_project.present?
             %p.fst-italic
               From staging project
-              = link_to(@action[:sprj], project_show_path(@action[:sprj]))
+              = link_to(@action.source_project, project_show_path(@action.source_project))
           %pre.rpmlint-result.text-pre-wrap
 
         :javascript

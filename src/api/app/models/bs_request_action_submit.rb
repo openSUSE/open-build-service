@@ -139,6 +139,50 @@ class BsRequestActionSubmit < BsRequestAction
     "Submit #{uniq_key}"
   end
 
+  def short_name
+    "Submit #{source_package}"
+  end
+
+  def creator_is_target_maintainer
+    request_creator = User.find_by_login(bs_request.creator)
+    target_package_object = Package.find_by_project_and_name(target_project, target_package)
+    request_creator.has_local_role?(Role.hashed['maintainer'], target_package_object)
+  end
+
+  # rubocop:disable Metrics/BlockNesting
+  def forward
+    forward_object = nil
+    target_package_object = Package.find_by_project_and_name(target_project, target_package)
+
+    if target_package_object
+      linkinfo = target_package_object.linkinfo
+      target_package_object.developed_packages.each do |dev_pkg|
+        forward_object ||= []
+        forward_object << { project: dev_pkg.project.name, package: dev_pkg.name, type: 'devel' }
+      end
+      if linkinfo
+        lprj = linkinfo['project']
+        lpkg = linkinfo['package']
+        link_is_already_devel = false
+        if forward_object
+          forward_object.each do |forward|
+            if forward[:project] == lprj && forward[:package] == lpkg
+              link_is_already_devel = true
+              break
+            end
+          end
+        end
+        unless link_is_already_devel
+          forward_object ||= []
+          forward_object << { project: linkinfo['project'], package: linkinfo['package'], type: 'link' }
+        end
+      end
+    end
+
+    forward_object
+  end
+  # rubocop:enable Metrics/BlockNesting
+
   #### Alias of methods
 end
 
