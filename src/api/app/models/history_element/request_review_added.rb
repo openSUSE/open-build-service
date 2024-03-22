@@ -11,7 +11,7 @@ module HistoryElement
     end
 
     def user_action_prefix
-      return 'set' if review&.staging_project?
+      return 'set' if review_by_staging_project?
 
       'added'
     end
@@ -21,7 +21,7 @@ module HistoryElement
     end
 
     def user_action_suffix
-      return 'as a staging project' if review&.staging_project?
+      return 'as a staging project' if review_by_staging_project?
 
       'as a reviewer'
     end
@@ -31,6 +31,10 @@ module HistoryElement
       return if description_extension.blank?
 
       ::Review.find(description_extension)
+    end
+
+    def review_by_staging_project?
+      review&.staging_project?
     end
   end
 end

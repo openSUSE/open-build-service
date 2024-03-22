@@ -9,7 +9,10 @@
       - elsif element.instance_of?(HistoryElement::RequestReviewAdded) && element.review
         = element.user_action_prefix
         %strong
-          = element.action_target
+          - if element.review_by_staging_project?
+            = link_to element.action_target, project_show_path(element.action_target)
+          - else
+            = element.action_target
         = element.user_action_suffix
       - elsif element.instance_of?(HistoryElement::RequestAccepted) && pending_reviews?
         #{element.user_action} and dismissed pending reviews
