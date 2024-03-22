@@ -3,7 +3,7 @@
     %i{ title: 'Comment', class: "fas fa-lg fa-comment #{ level > 1 ? 'd-none' : '' }" }
     = render(AvatarComponent.new(name: comment.user.name, email: comment.user.email, size: 35, shape: :circle, custom_css: 'avatars-counter'))
   .timeline-item-comment.ms-0.flex-fill.overflow-auto
-    .comment-bubble.ms-3.position-relative
+    .comment-bubble.ms-3.position-relative{ id: "comment-#{comment.id}-bubble" }
       - if policy(comment).update? || policy(comment).destroy?
         .dropdown.dropleft.float-end.mx-3.position-absolute.top-0.end-0
           = link_to('#', role: 'button', 'data-bs-toggle': 'dropdown', 'aria-expanded': 'false') do

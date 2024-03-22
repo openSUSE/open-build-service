@@ -86,10 +86,8 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted'
       Rails.application.routes.url_helpers.request_show_path(@notification.notifiable.number, notification_id: @notification.id)
     when 'Event::CommentForRequest'
-      # TODO: It would be better to eager load the commentable association with `includes(...)`,
-      #      but it's complicated since this isn't for all notifications and it's nested 2 levels deep.
-      anchor = if @notification.notifiable.commentable.is_a?(BsRequestAction)
-                 'tab-pane-changes'
+      anchor = if Flipper.enabled?(:request_show_redesign, @current_user)
+                 "comment-#{@notification.notifiable.id}-bubble"
                else
                  'comments-list'
                end
