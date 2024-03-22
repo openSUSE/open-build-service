@@ -74,7 +74,7 @@
   .mt-4
     -# action description, prev + dropdown select + next
         TODO: once we support all types of actions, we have to send @actions instead of @supported_actions
-    = render partial: 'actions_details', locals: { bs_request: bs_request, action: action, active_action: active_action,
+    = render partial: 'actions_details', locals: { bs_request: bs_request, action: action,
                                                     prev_action: prev_action, next_action: next_action,
                                                     actions: supported_actions, actions_count: supported_actions.count,
                                                     diff_to_superseded_id: diff_to_superseded_id,

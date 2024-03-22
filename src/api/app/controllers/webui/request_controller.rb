@@ -19,8 +19,8 @@ class Webui::RequestController < Webui::WebuiController
                                         if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_influxdb_data_request_actions, only: %i[show build_results rpm_lint changes mentioned_issues],
                                                     if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_active_action, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues],
-                                    if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_action, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues],
+                             if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_superseded_request, only: %i[show request_action request_action_changes build_results rpm_lint changes mentioned_issues]
   before_action :check_ajax, only: :sourcediff
   before_action :prepare_request_data, only: %i[show build_results rpm_lint changes mentioned_issues],
@@ -489,8 +489,8 @@ class Webui::RequestController < Webui::WebuiController
     @bs_request_action = @bs_request.bs_request_actions.find(@action_id)
   end
 
-  def set_active_action
-    @active_action = @actions.find(@action_id)
+  def set_action
+    @action = @actions.find(@action_id)
   end
 
   def staging_status(request, target_project)
@@ -530,11 +530,11 @@ class Webui::RequestController < Webui::WebuiController
     @diff_to_superseded_id = params[:diff_to_superseded]
 
     # Handling request actions
-    @action = @active_action || @bs_request.bs_request_actions.first
-    active_action_index = @supported_actions.index(@action)
-    if active_action_index
-      @prev_action = @supported_actions[active_action_index - 1] unless active_action_index.zero?
-      @next_action = @supported_actions[active_action_index + 1] if active_action_index + 1 < @supported_actions.length
+    @action ||= @bs_request.bs_request_actions.first
+    action_index = @supported_actions.index(@action)
+    if action_index
+      @prev_action = @supported_actions[action_index - 1] unless action_index.zero?
+      @next_action = @supported_actions[action_index + 1] if action_index + 1 < @supported_actions.length
     end
 
     target_project = Project.find_by_name(@bs_request.target_project_name)

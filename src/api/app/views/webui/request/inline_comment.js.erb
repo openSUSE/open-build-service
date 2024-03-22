@@ -1,6 +1,6 @@
 $('#flash').empty();
-$('#comment<%= @line %> .diff-comments').html("<%= escape_javascript(render(partial: 'webui/request/inline_comment', locals: { comment: @comment, commentable: @active_action, diff_ref: @line })) %>");
+$('#comment<%= @line %> .diff-comments').html("<%= escape_javascript(render(partial: 'webui/request/inline_comment', locals: { comment: @comment, commentable: @action, diff_ref: @line })) %>");
 $("#comment<%= @line %> .diff-comments textarea").focus();
 $("#comment<%= @line %>").on('click', '.cancel-comment', function (e) {
-  $('#comment<%= @line %> .diff-comments').html("<%= escape_javascript(render(partial: 'webui/request/add_inline_comment', locals: { commentable: @active_action, diff_ref: @line })) %>");
+  $('#comment<%= @line %> .diff-comments').html("<%= escape_javascript(render(partial: 'webui/request/add_inline_comment', locals: { commentable: @action, diff_ref: @line })) %>");
 });
