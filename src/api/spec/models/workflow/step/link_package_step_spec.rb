@@ -45,18 +45,32 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
       it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildSuccess'), :count).by(1)) }
       it { expect(subject.call.source_file('_link')).to eq('<link project="foo_project" package="bar_package"/>') }
 
-      context 'insufficient permission on target project' do
+      context 'insufficient permission for target project' do
         let(:step_instructions) do
           {
             source_project: project.name,
             source_package: package.name,
-            target_project: 'target_project_no_permission'
+            target_project: 'hans'
+          }
+        end
+        let!(:target_project_no_permission) { create(:project, name: 'hans:openSUSE:open-build-service:PR-1') }
+
+        it { expect { subject.call }.to raise_error(Pundit::NotAuthorizedError, 'not allowed to create? this Package') }
+      end
+
+      context 'insufficient permission for target package' do
+        let(:target_project) { create(:project, name: 'hans:openSUSE:open-build-service:PR-1') }
+        let(:target_package) { create(:package, name: 'franz', project: target_project) }
+        let(:step_instructions) do
+          {
+            source_project: project.name,
+            source_package: package.name,
+            target_project: target_project.name.split(':').first,
+            target_package: target_package.name
           }
         end
 
-        let!(:target_project_no_permission) { create(:project, name: 'target_project_no_permission') }
-
-        it { expect { subject.call }.to raise_error(Pundit::NotAuthorizedError) }
+        it { expect { subject.call }.to raise_error(Pundit::NotAuthorizedError, 'not allowed to update? this Package') }
       end
 
       context 'insufficient permission to create new target project' do
@@ -68,7 +82,7 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
           }
         end
 
-        it { expect { subject.call }.to raise_error(Pundit::NotAuthorizedError) }
+        it { expect { subject.call }.to raise_error(Pundit::NotAuthorizedError, 'not allowed to create? this Project') }
       end
     end
   end
