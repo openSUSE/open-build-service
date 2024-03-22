@@ -8,8 +8,9 @@ class Webui::RequestController < Webui::WebuiController
   before_action :require_request,
                 only: %i[changerequest show request_action request_action_changes inline_comment build_results rpm_lint
                          changes mentioned_issues chart_build_results complete_build_results]
-  before_action :set_actions, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues chart_build_results complete_build_results],
+  before_action :set_actions, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues chart_build_results complete_build_results request_action_changes],
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_actions, only: [:show]
   before_action :build_results_data, only: [:show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_supported_actions, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues],
                                         if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
@@ -176,7 +177,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def request_action_changes
-    @action = @bs_request.bs_request_actions.where(id: params['id'].to_i).first
+    @action = @actions.where(id: params['id'].to_i).first
 
     cache_diff_data
 
@@ -342,7 +343,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def any_project_maintained_by_current_user?
-    projects = @bs_request.bs_request_actions.select(:target_project).distinct.pluck(:target_project)
+    projects = @actions.select(:target_project).distinct.pluck(:target_project)
     maintainer_role = Role.find_by_title('maintainer')
     projects.any? { |project| Project.find_by_name(project).user_has_role?(User.possibly_nobody, maintainer_role) }
   end
@@ -371,7 +372,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def target_package_maintainers
-    distinct_bs_request_actions = @bs_request.bs_request_actions.select(:target_project, :target_package).distinct
+    distinct_bs_request_actions = @actions.select(:target_project, :target_package).distinct
     distinct_bs_request_actions.flat_map do |action|
       Package.find_by_project_and_name(action.target_project, action.target_package).try(:maintainers)
     end.compact.uniq
@@ -524,7 +525,7 @@ class Webui::RequestController < Webui::WebuiController
     @diff_to_superseded_id = params[:diff_to_superseded]
 
     # Handling request actions
-    @action ||= @bs_request.bs_request_actions.first
+    @action ||= @actions.first
     action_index = @supported_actions.index(@action)
     if action_index
       @prev_action = @supported_actions[action_index - 1] unless action_index.zero?
