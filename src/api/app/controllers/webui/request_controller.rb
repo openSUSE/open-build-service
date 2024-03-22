@@ -14,8 +14,6 @@ class Webui::RequestController < Webui::WebuiController
   before_action :build_results_data, only: [:show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_supported_actions, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues],
                                         if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_action_id, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues],
-                                if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_action, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues],
                              if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_influxdb_data_request_actions, only: %i[show build_results rpm_lint changes mentioned_issues],
@@ -479,13 +477,10 @@ class Webui::RequestController < Webui::WebuiController
     @supported_actions = @actions.where(type: %i[add_role change_devel delete submit maintenance_incident maintenance_release set_bugowner])
   end
 
-  def set_action_id
-    # In case the request doesn't have supported actions, we display the first unsupported action.
-    @action_id = params[:request_action_id] || @supported_actions.first&.id || @actions.first.id
-  end
-
   def set_action
-    @action = @actions.find(@action_id)
+    # In case the request doesn't have supported actions, we display the first unsupported action.
+    action_id = params[:request_action_id] || @supported_actions.first&.id || @actions.first.id
+    @action = @actions.find(action_id)
   end
 
   def staging_status(request, target_project)
