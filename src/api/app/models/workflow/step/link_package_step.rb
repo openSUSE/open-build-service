@@ -15,6 +15,9 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
       restore_target_project
     elsif scm_webhook.new_commit_event?
       create_target_package
+
+      Pundit.authorize(@token.executor, target_package, :update?)
+
       create_link
       Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, target_package).call
 
@@ -41,14 +44,13 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
       project = Project.new(name: target_project_name)
       Pundit.authorize(@token.executor, project, :create?)
 
-      project.save!
-      project.commit_user = User.session
-      project.relationships.create!(user: User.session, role: Role.find_by_title('maintainer'))
+      project.relationships.new(user: User.session, role: Role.find_by_title('maintainer'))
       project.store
     end
 
-    Pundit.authorize(@token.executor, target_project, :update?)
-    target_project.packages.create(name: target_package_name)
+    package = target_project.packages.new(name: target_package_name)
+    Pundit.authorize(@token.executor, package, :create?)
+    package.save!
   end
 
   # Will raise an exception if the source package is not accesible
