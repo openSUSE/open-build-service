@@ -15,12 +15,10 @@ class Webui::RequestController < Webui::WebuiController
                                         if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_action_id, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues],
                                 if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_bs_request_action, only: %i[show build_results rpm_lint changes mentioned_issues],
-                                        if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_influxdb_data_request_actions, only: %i[show build_results rpm_lint changes mentioned_issues],
-                                                    if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_action, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues],
                              if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_influxdb_data_request_actions, only: %i[show build_results rpm_lint changes mentioned_issues],
+                                                    if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_superseded_request, only: %i[show request_action request_action_changes build_results rpm_lint changes mentioned_issues]
   before_action :check_ajax, only: :sourcediff
   before_action :prepare_request_data, only: %i[show build_results rpm_lint changes mentioned_issues],
@@ -281,7 +279,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def build_results
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @bs_request_action.tab_visibility.build
+    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action.tab_visibility.build
 
     @active_tab = 'build_results'
     @project = @staging_project || @action.source_project
@@ -289,7 +287,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def rpm_lint
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @bs_request_action.tab_visibility.rpm_lint
+    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action.tab_visibility.rpm_lint
 
     @active_tab = 'rpm_lint'
     @ajax_data = {}
@@ -299,13 +297,13 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def changes
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @bs_request_action.tab_visibility.changes
+    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action.tab_visibility.changes
 
     @active_tab = 'changes'
   end
 
   def mentioned_issues
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @bs_request_action.tab_visibility.issues
+    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action.tab_visibility.issues
 
     @active_tab = 'mentioned_issues'
   end
@@ -485,10 +483,6 @@ class Webui::RequestController < Webui::WebuiController
     @action_id = params[:request_action_id] || @supported_actions.first&.id || @actions.first.id
   end
 
-  def set_bs_request_action
-    @bs_request_action = @bs_request.bs_request_actions.find(@action_id)
-  end
-
   def set_action
     @action = @actions.find(@action_id)
   end
@@ -562,7 +556,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def set_influxdb_data_request_actions
     InfluxDB::Rails.current.tags = {
-      bs_request_action_type: @bs_request_action.class.name
+      bs_request_action_type: @action.class.name
     }
   end
 end

@@ -11,7 +11,7 @@
                   diff_to_superseded_id: @diff_to_superseded_id, page_name: 'request_rpm_lint',
                   bs_requests: @watched_requests, packages: @watched_packages, projects: @watched_projects }
     = render partial: 'request_tabs',
-        locals: { bs_request: @bs_request, bs_request_action: @bs_request_action, issues: @issues, action: @action,
+        locals: { bs_request: @bs_request, action: @action, issues: @issues,
                   actions_count: @supported_actions.count, active_tab: @active_tab }
     .container.p-4
       - if @action.source_package
