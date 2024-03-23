@@ -12,8 +12,6 @@ class Webui::RequestController < Webui::WebuiController
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_actions, only: [:show]
   before_action :build_results_data, only: [:show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_supported_actions, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues],
-                                        if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_action, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues],
                              if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_influxdb_data_request_actions, only: %i[show build_results rpm_lint changes mentioned_issues],
@@ -472,14 +470,9 @@ class Webui::RequestController < Webui::WebuiController
     ActionBuildResultsService::ChartDataExtractor.new(actions: @actions).call
   end
 
-  def set_supported_actions
-    # Change supported_actions below into actions here when all actions are supported
-    @supported_actions = @actions.where(type: %i[add_role change_devel delete submit maintenance_incident maintenance_release set_bugowner])
-  end
-
   def set_action
-    # In case the request doesn't have supported actions, we display the first unsupported action.
-    action_id = params[:request_action_id] || @supported_actions.first&.id || @actions.first.id
+    # If no specific request_action_id, take the first
+    action_id = params[:request_action_id] || @actions.first.id
     @action = @actions.find(action_id)
   end
 
@@ -521,10 +514,10 @@ class Webui::RequestController < Webui::WebuiController
 
     # Handling request actions
     @action ||= @actions.first
-    action_index = @supported_actions.index(@action)
+    action_index = @actions.index(@action)
     if action_index
-      @prev_action = @supported_actions[action_index - 1] unless action_index.zero?
-      @next_action = @supported_actions[action_index + 1] if action_index + 1 < @supported_actions.length
+      @prev_action = @actions[action_index - 1] unless action_index.zero?
+      @next_action = @actions[action_index + 1] if action_index + 1 < @actions.length
     end
 
     target_project = Project.find_by_name(@bs_request.target_project_name)
