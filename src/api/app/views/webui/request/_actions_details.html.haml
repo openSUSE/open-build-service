@@ -2,7 +2,7 @@
 :ruby
   page_name ||= ''
 
-- if actions_count > 1
+- if actions.count > 1
   .d-flex.flex-wrap.align-items-center
     .input-group.w-auto
       = link_to('Previous', next_prev_path(number: bs_request.number, request_action_id: prev_action&.id,
@@ -34,10 +34,10 @@
                 id: 'next-action-button')
 
     - action_index = actions.find_index(action) + 1
-    %span.ms-2 Showing ##{action_index} (of #{actions_count})
+    %span.ms-2 Showing ##{action_index} (of #{actions.count})
 %h5.mt-4
   Action details
-  - if actions_count > 1 && User.session
+  - if actions.count > 1 && User.session
     %span#action-seen-by-user-wrapper
       = render ActionSeenByUserComponent.new(action: action, user: User.session!)
 
