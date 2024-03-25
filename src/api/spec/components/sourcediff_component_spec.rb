@@ -9,6 +9,7 @@ RSpec.describe SourcediffComponent, :vcr, type: :component do
            target_package: target_package,
            source_package: source_package)
   end
+  let(:commentable) { bs_request.bs_request_actions.first }
   let(:bs_request_opts) { { filelimit: nil, tarlimit: nil, diff_to_superseded: nil, diffs: true, cacheonly: 1 } }
 
   context 'with a request with a submit action' do
