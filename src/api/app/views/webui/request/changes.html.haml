@@ -21,7 +21,7 @@
             %i.fas.fa-spinner.fa-spin.me-1
             Loading changes...
           :javascript
-            loadChanges('#{@bs_request.number}', '#{@action.id}', '#{@diff_to_superseded&.number}');
+            loadChanges('#{@bs_request.number}', '#{@action.id}', '#{@diff_to_superseded_id}');
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',
                                                  method: :delete,
                                                  options: { modal_title: 'Delete comment?', remote: true })

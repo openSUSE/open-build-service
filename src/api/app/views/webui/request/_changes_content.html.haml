@@ -1,6 +1,6 @@
-- if diff_to_superseded
+- if diff_to_superseded_id
   You're reviewing changes from
-  = link_to("superseded request ##{diff_to_superseded.number}.", request_show_path(number: diff_to_superseded))
+  = link_to("superseded request ##{diff_to_superseded_id}.", request_show_path(number: diff_to_superseded_id))
   This only represents a small part of changes which are included in this request.
   = surround('(', ')') do
     = link_to('See the full changes for request', request_changes_path(number: bs_request.number))
