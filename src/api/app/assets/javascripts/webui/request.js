@@ -185,13 +185,14 @@ function loadDiffs(element){
   });
 }
 
-function loadChanges(requestNumber, requestActionId) { // jshint ignore:line
-  $('.loading-diff').removeClass('invisible');
-  var url = '/request/' + requestNumber + '/request_action/' + requestActionId + '/changes';
+function loadChanges(requestNumber, requestActionId, diffToSupersededId) { // jshint ignore:line
+  $('.tab-content.sourcediff .loading').removeClass('invisible');
+  var queryString = diffToSupersededId ? '?diff_to_superseded=' + diffToSupersededId : '';
+  var url = '/request/' + requestNumber + '/request_action/' + requestActionId + '/changes' + queryString;
   $.ajax({
     url: url,
     success: function() {
-      $('.loading-diff').addClass('invisible');
+      $('.tab-content.sourcediff .loading').addClass('invisible');
     }
   });
 }
