@@ -4,4 +4,7 @@ gem 'capybara'
 gem 'rspec-core'
 gem 'rspec-expectations'
 # as driver for capybara
-gem 'apparition'
+# Until this (https://github.com/twalpole/apparition/issues/80) is fixed, we need to pin a commit to overcome
+#
+#   Unexpected inner loop exception: unknown keyword: :type: unknown keyword: :type:
+gem 'apparition', github: 'twalpole/apparition', ref: 'ca86be4d54af835d531dbcd2b86e7b2c77f85f34'
