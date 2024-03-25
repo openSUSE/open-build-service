@@ -10,7 +10,7 @@ class Webui::RequestController < Webui::WebuiController
                          changes mentioned_issues chart_build_results complete_build_results]
   before_action :set_actions, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues chart_build_results complete_build_results request_action_changes],
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_actions, only: [:show]
+  before_action :set_actions_deprecated, only: [:show]
   before_action :build_results_data, only: [:show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_action, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues],
                              if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
@@ -464,6 +464,12 @@ class Webui::RequestController < Webui::WebuiController
 
   def set_actions
     @actions = @bs_request.bs_request_actions
+  end
+
+  # [DEPRECATED] TODO: remove once request_workflow_redesign beta is rolled out
+  # This method exists in order to have a set_actions in before_action for non beta too
+  def set_actions_deprecated
+    set_actions
   end
 
   def build_results_data
