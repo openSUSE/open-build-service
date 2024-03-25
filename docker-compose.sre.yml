@@ -1,4 +1,3 @@
-version: "2.1"
 services:
   influx:
     image: influxdb:1.7
