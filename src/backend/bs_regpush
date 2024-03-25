@@ -934,7 +934,7 @@ if ($cosign && %digests_to_sign) {
     my ($att_mani, $att_maniid, $att_mani_json) = get_manifest_for_tag($att_tag);
     my $numlayers = ($provenance ? 1 : 0) + ($spdx_json ? 1 : 0) + ($cyclonedx_json ? 1 : 0) + scalar(@intoto_json);
     if ($att_mani && $att_mani->{'mediaType'} && $att_mani->{'mediaType'} eq $BSContar::mt_oci_manifest && @{$att_mani->{'layers'} || []} == $numlayers && $BSConSign::mt_dsse) {
-      next unless grep {$_->{'mediaType'} eq $BSConSign::mt_dsse && (($_->{'annotations'} || {})->{$cosign_cookie_name} || '') eq $cosigncookie} @{$att_mani->{'layers'}};
+      next unless grep {$_->{'mediaType'} ne $BSConSign::mt_dsse || (($_->{'annotations'} || {})->{$cosign_cookie_name} || '') ne $cosigncookie} @{$att_mani->{'layers'}};
     }
     print "creating $numlayers cosign attestations for $gun $digest\n";
     my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
