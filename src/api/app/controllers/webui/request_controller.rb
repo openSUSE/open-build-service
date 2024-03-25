@@ -8,19 +8,14 @@ class Webui::RequestController < Webui::WebuiController
   before_action :require_request,
                 only: %i[changerequest show request_action request_action_changes inline_comment build_results rpm_lint
                          changes mentioned_issues chart_build_results complete_build_results]
-  before_action :set_actions, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues chart_build_results complete_build_results],
+  before_action :set_actions, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues chart_build_results complete_build_results request_action_changes],
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_actions, only: [:show]
   before_action :build_results_data, only: [:show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_supported_actions, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues],
-                                        if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_action_id, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues],
-                                if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_bs_request_action, only: %i[show build_results rpm_lint changes mentioned_issues],
-                                        if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :set_action, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues],
+                             if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_influxdb_data_request_actions, only: %i[show build_results rpm_lint changes mentioned_issues],
                                                     if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_active_action, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues],
-                                    if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_superseded_request, only: %i[show request_action request_action_changes build_results rpm_lint changes mentioned_issues]
   before_action :check_ajax, only: :sourcediff
   before_action :prepare_request_data, only: %i[show build_results rpm_lint changes mentioned_issues],
@@ -178,7 +173,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def request_action_changes
-    @action = @bs_request.bs_request_actions.where(id: params['id'].to_i).first
+    @action = @actions.where(id: params['id'].to_i).first
 
     cache_diff_data
 
@@ -281,7 +276,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def build_results
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @bs_request_action.tab_visibility.build
+    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action.tab_visibility.build
 
     @active_tab = 'build_results'
     @project = @staging_project || @action.source_project
@@ -289,7 +284,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def rpm_lint
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @bs_request_action.tab_visibility.rpm_lint
+    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action.tab_visibility.rpm_lint
 
     @active_tab = 'rpm_lint'
     @ajax_data = {}
@@ -299,13 +294,13 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def changes
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @bs_request_action.tab_visibility.changes
+    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action.tab_visibility.changes
 
     @active_tab = 'changes'
   end
 
   def mentioned_issues
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @bs_request_action.tab_visibility.issues
+    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action.tab_visibility.issues
 
     @active_tab = 'mentioned_issues'
   end
@@ -344,7 +339,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def any_project_maintained_by_current_user?
-    projects = @bs_request.bs_request_actions.select(:target_project).distinct.pluck(:target_project)
+    projects = @actions.select(:target_project).distinct.pluck(:target_project)
     maintainer_role = Role.find_by_title('maintainer')
     projects.any? { |project| Project.find_by_name(project).user_has_role?(User.possibly_nobody, maintainer_role) }
   end
@@ -373,7 +368,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def target_package_maintainers
-    distinct_bs_request_actions = @bs_request.bs_request_actions.select(:target_project, :target_package).distinct
+    distinct_bs_request_actions = @actions.select(:target_project, :target_package).distinct
     distinct_bs_request_actions.flat_map do |action|
       Package.find_by_project_and_name(action.target_project, action.target_package).try(:maintainers)
     end.compact.uniq
@@ -475,22 +470,10 @@ class Webui::RequestController < Webui::WebuiController
     ActionBuildResultsService::ChartDataExtractor.new(actions: @actions).call
   end
 
-  def set_supported_actions
-    # Change supported_actions below into actions here when all actions are supported
-    @supported_actions = @actions.where(type: %i[add_role change_devel delete submit maintenance_incident maintenance_release set_bugowner])
-  end
-
-  def set_action_id
-    # In case the request doesn't have supported actions, we display the first unsupported action.
-    @action_id = params[:request_action_id] || @supported_actions.first&.id || @actions.first.id
-  end
-
-  def set_bs_request_action
-    @bs_request_action = @bs_request.bs_request_actions.find(@action_id)
-  end
-
-  def set_active_action
-    @active_action = @actions.find(@action_id)
+  def set_action
+    # If no specific request_action_id, take the first
+    action_id = params[:request_action_id] || @actions.first.id
+    @action = @actions.find(action_id)
   end
 
   def staging_status(request, target_project)
@@ -530,11 +513,11 @@ class Webui::RequestController < Webui::WebuiController
     @diff_to_superseded_id = params[:diff_to_superseded]
 
     # Handling request actions
-    @action = @active_action || @bs_request.bs_request_actions.first
-    active_action_index = @supported_actions.index(@action)
-    if active_action_index
-      @prev_action = @supported_actions[active_action_index - 1] unless active_action_index.zero?
-      @next_action = @supported_actions[active_action_index + 1] if active_action_index + 1 < @supported_actions.length
+    @action ||= @actions.first
+    action_index = @actions.index(@action)
+    if action_index
+      @prev_action = @actions[action_index - 1] unless action_index.zero?
+      @next_action = @actions[action_index + 1] if action_index + 1 < @actions.length
     end
 
     target_project = Project.find_by_name(@bs_request.target_project_name)
@@ -562,7 +545,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def set_influxdb_data_request_actions
     InfluxDB::Rails.current.tags = {
-      bs_request_action_type: @bs_request_action.class.name
+      bs_request_action_type: @action.class.name
     }
   end
 end
