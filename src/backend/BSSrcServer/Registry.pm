@@ -31,7 +31,7 @@ sub ownrepo {
   # new entry... lock...
   mkdir_p($registrydir) unless -d $registrydir;
   my $lck;
-  open($lck, '>>', "$registrydir/:repos");
+  BSUtil::lockopen($lck, '>>', "$registrydir/:repos");
   if (! -s "$registrydir/:repos") {
     $registries = {};
   } else {
@@ -48,7 +48,7 @@ sub ownrepo {
 sub disownrepo {
   my ($prp, $repo, $dodir) = @_;
   my $lck;
-  open($lck, '>>', "$registrydir/:repos");
+  BSUtil::lockopen($lck, '>>', "$registrydir/:repos");
   my $registries = BSUtil::retrieve("$registrydir/:repos");
   die("repository '$repo' is owned by $registries->{$repo}\n") if $registries->{$repo} && $registries->{$repo} ne $prp;
   delete $registries->{$repo};

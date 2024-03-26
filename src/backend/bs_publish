@@ -1800,7 +1800,7 @@ sub deleterepo {
       next if $bin eq 'media_info';
       my $p = "$arch/$bin";
       print "      - $p\n";
-      if (-d "$r/$bin") {
+      if (! -l "$r/$bin" && -d _) {
         BSUtil::cleandir("$r/$bin");
         rmdir("$r/$bin") || die("rmdir $r/$bin: $!\n");
       } else {
