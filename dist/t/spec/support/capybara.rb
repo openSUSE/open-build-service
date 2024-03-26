@@ -24,7 +24,7 @@ Capybara.automatic_label_click = true
 
 # Set hostname
 begin
-  hostname = Socket.gethostbyname(Socket.gethostname).first
+  hostname = Addrinfo.getaddrinfo(Socket.gethostname, 443, nil, :STREAM).first.getnameinfo[0]
 rescue SocketError
   hostname = ''
 end
