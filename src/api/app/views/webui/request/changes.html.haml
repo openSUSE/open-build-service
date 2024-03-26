@@ -14,14 +14,17 @@
         locals: { bs_request: @bs_request, action: @action, issues: @issues,
                   actions_count: @actions.count, active_tab: @active_tab }
     .container.p-4
-      .tab-content.sourcediff
+      .tab-content.sourcediff{ data: { bs_request_number: @bs_request.number,
+                                       action_id: @action.id,
+                                       diff_to_superseded_id: @diff_to_superseded_id },
+                               id: 'sourcediff-container' }
         .result
           // The content of this div is set by JavaScript which calls the partial ../_changes_content.html.haml
           .text-center.p-4
             %i.fas.fa-spinner.fa-spin.me-1
             Loading changes...
           :javascript
-            loadChanges('#{@bs_request.number}', '#{@action.id}', '#{@diff_to_superseded_id}');
+            loadChanges();
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',
                                                  method: :delete,
                                                  options: { modal_title: 'Delete comment?', remote: true })
