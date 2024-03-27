@@ -880,17 +880,17 @@ class SourceController < ApplicationController
     # check for sources in this or linked project
     unless @package
       # check if this is a package on a remote OBS instance
-      answer = Backend::Connection.get(request.path_info)
+      answer = Package.exists_on_backend?(params[:package], params[:project])
       unless answer
         render_error status: 400, errorcode: 'unknown_package',
-                     message: "Unknown package '#{package_name}'"
+                     message: "Unknown package '#{params[:package]}'"
         return
       end
     end
 
     options = {}
     if repo_name
-      if @package && @package.repositories.find_by_name(repo_name).nil?
+      if @package && @project.repositories.find_by_name(repo_name).nil?
         render_error status: 400, errorcode: 'unknown_repository',
                      message: "Unknown repository '#{repo_name}'"
         return
