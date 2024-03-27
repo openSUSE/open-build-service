@@ -54,4 +54,3 @@ exclude_patterns:
   - "src/api/vendor/cache/"
   - "src/api/vendor/cache.next/"
   - "src/api/public/"
-  - "src/api/app/lib/backend/doc/"
