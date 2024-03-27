@@ -19,6 +19,7 @@ module RescueAuthorizationHandler
         format.any do
           @errorcode = authorization_errorcode(exception)
           @summary = authorization_message(exception)
+          response.headers['X-Opensuse-Errorcode'] = @errorcode
           render template: 'status', status: :forbidden, formats: [:xml]
         end
       end
