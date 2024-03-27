@@ -1,0 +1,454 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 27 Mar 2024 15:33:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/peter/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="peter">
+          <title>The Sun Also Rises</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '100'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="peter">
+          <title>The Sun Also Rises</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 27 Mar 2024 15:33:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/peter/paul/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="paul" project="peter">
+          <title>lala</title>
+          <description>Mollitia error nisi enim.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '126'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="paul" project="peter">
+          <title>lala</title>
+          <description>Mollitia error nisi enim.</description>
+        </package>
+  recorded_at: Wed, 27 Mar 2024 15:33:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/peter/paul/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="paul" project="peter">
+          <title>lala</title>
+          <description>Mollitia error nisi enim.</description>
+          <publish>
+            <enable/>
+          </publish>
+          <debuginfo>
+            <enable/>
+          </debuginfo>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '208'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="paul" project="peter">
+          <title>lala</title>
+          <description>Mollitia error nisi enim.</description>
+          <publish>
+            <enable/>
+          </publish>
+          <debuginfo>
+            <enable/>
+          </debuginfo>
+        </package>
+  recorded_at: Wed, 27 Mar 2024 15:33:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/hans/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hans" project="home:tom">
+          <title>Françoise Sagan</title>
+          <description>Nulla quis placeat similique.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '145'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0iaGFucyIgcHJvamVjdD0iaG9tZTp0b20iPgogIDx0aXRsZT5GcmFuw6dvaXNlIFNhZ2FuPC90aXRsZT4KICA8ZGVzY3JpcHRpb24+TnVsbGEgcXVpcyBwbGFjZWF0IHNpbWlsaXF1ZS48L2Rlc2NyaXB0aW9uPgo8L3BhY2thZ2U+Cg==
+  recorded_at: Wed, 27 Mar 2024 15:33:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/hans/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hans" project="home:tom">
+          <title>Françoise Sagan</title>
+          <description>Nulla quis placeat similique.</description>
+          <useforbuild>
+            <enable/>
+          </useforbuild>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '192'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0iaGFucyIgcHJvamVjdD0iaG9tZTp0b20iPgogIDx0aXRsZT5GcmFuw6dvaXNlIFNhZ2FuPC90aXRsZT4KICA8ZGVzY3JpcHRpb24+TnVsbGEgcXVpcyBwbGFjZWF0IHNpbWlsaXF1ZS48L2Rlc2NyaXB0aW9uPgogIDx1c2Vmb3JidWlsZD4KICAgIDxlbmFibGUvPgogIDwvdXNlZm9yYnVpbGQ+CjwvcGFja2FnZT4K
+  recorded_at: Wed, 27 Mar 2024 15:33:47 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/hans?cmd=copy&opackage=paul&oproject=peter&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
+          <version>unknown</version>
+          <time>1711553628</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 27 Mar 2024 15:33:48 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/hans/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hans" project="home:tom">
+          <title>Françoise Sagan</title>
+          <description>Nulla quis placeat similique.</description>
+          <useforbuild>
+            <enable/>
+          </useforbuild>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '192'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0iaGFucyIgcHJvamVjdD0iaG9tZTp0b20iPgogIDx0aXRsZT5GcmFuw6dvaXNlIFNhZ2FuPC90aXRsZT4KICA8ZGVzY3JpcHRpb24+TnVsbGEgcXVpcyBwbGFjZWF0IHNpbWlsaXF1ZS48L2Rlc2NyaXB0aW9uPgogIDx1c2Vmb3JidWlsZD4KICAgIDxlbmFibGUvPgogIDwvdXNlZm9yYnVpbGQ+CjwvcGFja2FnZT4K
+  recorded_at: Wed, 27 Mar 2024 15:33:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/hans
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '96'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="hans" rev="2" vrev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 27 Mar 2024 15:33:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/hans?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '137'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="hans" rev="2" vrev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+          <error>no source uploaded</error>
+        </sourceinfo>
+  recorded_at: Wed, 27 Mar 2024 15:33:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/hans
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '96'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="hans" rev="2" vrev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 27 Mar 2024 15:33:48 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/hans?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '263'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="84d6c697dc647a6e108e8d8a335378ce">
+          <old project="home:tom" package="hans" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tom" package="hans" rev="2" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files/>
+        </sourcediff>
+  recorded_at: Wed, 27 Mar 2024 15:33:48 GMT
+recorded_with: VCR 6.2.0
