@@ -1647,6 +1647,7 @@ sub workerstate {
   die("cannot get your ip address\n") unless $peerip;
   die("unsupported proto $peerproto\n") unless $peerproto eq 'http' || $peerproto eq 'https';
   my $workerid = defined($cgi->{'workerid'}) ? $cgi->{'workerid'} : "$peerip:$peerport";
+  my $clientip = defined($cgi->{'clientip'}) ? $cgi->{'workerid'} : $peerip;
   my $workerskel;
   if (BSServer::have_content()) {
     my $workerskelxml = BSServer::read_data(10000000);
@@ -1692,9 +1693,9 @@ sub workerstate {
     }
     my $worker = {
       'hostarch' => $harch,
-      'ip' => $peerip,
+      'ip' => $clientip,
       'port' => $peerport,
-      'uri' => "$peerproto://$peerip:$peerport",
+      'uri' => "$peerproto://$clientip:$peerport",
       'workerid' => $workerid,
     };
     $worker = { %$workerskel, %$worker } if $workerskel;
@@ -4513,7 +4514,7 @@ my $dispatches = [
   'POST:/worker cmd=checkconstraints $project $repository $arch $package' => \&checkconstraints,
 
   # worker calls
-  '!worker /worker $arch $port $state: workerid? working:bool? memory:num? disk:num? buildarch:arch* tellnojob:bool? proto:?' => \&workerstate,
+  '!worker /worker $arch $port $state: workerid? clientip:? working:bool? memory:num? disk:num? buildarch:arch* tellnojob:bool? proto:?' => \&workerstate,
   '!worker /getbuildcode' => \&getbuildcode,
   '!worker /getworkercode' => \&getworkercode,
   '!worker POST:/putjob $arch $job $jobid $code:? now:num? kiwitree:bool? workerid?' => \&putjob,
