@@ -14,7 +14,7 @@ module ActionBuildResultsService
         next unless sources[:source_project].present? && sources[:source_package].present?
 
         package_build_results(sources[:source_package], sources[:source_project])
-      end.flatten
+      end.flatten.compact
     end
 
     private
