@@ -703,42 +703,39 @@ class Package < ApplicationRecord
     check_write_access!(ignore_lock)
 
     Package.transaction do
-      self.title = xmlhash.value('title')
-      self.description = xmlhash.value('description')
-      self.bcntsynctag = xmlhash.value('bcntsynctag')
-      self.releasename = xmlhash.value('releasename')
-      self.scmsync = xmlhash.value('scmsync')
-
-      #--- devel project ---#
-      self.develpackage = nil
-      devel = xmlhash['devel']
-      if devel
-        prj_name = devel['project'] || xmlhash['project']
-        pkg_name = devel['package'] || xmlhash['name']
-        develprj = Project.find_by_name(prj_name)
-        raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)" unless develprj
-
-        develpkg = develprj.packages.find_by_name(pkg_name)
-        raise SaveError, "value of develpackage has to be a existing package (package '#{pkg_name}' does not exist)" unless develpkg
-
-        self.develpackage = develpkg
-      end
-      #--- end devel project ---#
+      read_from_xml(xmlhash)
 
       # just for cycle detection
       resolve_devel_package
-
       update_relationships_from_xml(xmlhash)
-
-      #---begin enable / disable flags ---#
       update_all_flags(xmlhash)
-
-      #--- update url ---#
-      self.url = xmlhash.value('url')
-      #--- end update url ---#
 
       save!
     end
+  end
+
+  def read_from_xml(xmlhash)
+    self.title = xmlhash.value('title')
+    self.description = xmlhash.value('description')
+    self.bcntsynctag = xmlhash.value('bcntsynctag')
+    self.releasename = xmlhash.value('releasename')
+    self.scmsync = xmlhash.value('scmsync')
+    self.url = xmlhash.value('url')
+
+    #--- devel project ---#
+    self.develpackage = nil
+    devel = xmlhash['devel']
+    return unless devel
+
+    prj_name = devel['project'] || xmlhash['project']
+    pkg_name = devel['package'] || xmlhash['name']
+    develprj = Project.find_by_name(prj_name)
+    raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)" unless develprj
+
+    develpkg = develprj.packages.find_by_name(pkg_name)
+    raise SaveError, "value of develpackage has to be a existing package (package '#{pkg_name}' does not exist)" unless develpkg
+
+    self.develpackage = develpkg
   end
 
   def store(opts = {})
