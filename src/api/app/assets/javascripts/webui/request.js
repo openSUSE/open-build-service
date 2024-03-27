@@ -199,6 +199,9 @@ function loadChanges() { // jshint ignore:line
     url: url,
     success: function() {
       $('.tab-content.sourcediff .loading').addClass('invisible');
+    },
+    error: function() {
+      $('#sourcediff-container .result').text('Something went wrong while loading changes.');
     }
   });
 }
