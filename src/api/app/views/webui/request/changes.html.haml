@@ -19,9 +19,8 @@
                                id: 'sourcediff-container' }
         .result
           // The content of this div is set by JavaScript which calls the partial ../_changes_content.html.haml
-          .text-center.p-4
-            %i.fas.fa-spinner.fa-spin.me-1
-            Loading changes...
+          = render partial: 'webui/shared/loading', locals: { text: 'Loading changes...' }
+
           :javascript
             loadChanges();
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',

@@ -23,9 +23,8 @@
               = link_to(@project, project_show_path(@project))
           .result{ data: { build_results_url: request_complete_build_results_path } }
             // The content of this div is set by JavaScript which calls the partial ../_build_status.html.haml
-            .text-center.p-4
-              %i.fas.fa-spinner.fa-spin.me-1
-              Loading build results...
+            = render partial: 'webui/shared/loading', locals: { text: 'Loading build results...' }
+
         :javascript
           updateBuildResultBeta();
       - else
