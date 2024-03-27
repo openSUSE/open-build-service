@@ -352,14 +352,19 @@ class BsRequestPermissionCheck
     # meta data change shall also be allowed after freezing a project using force:
     ignore_lock = (new_state == 'declined') ||
                   (opts[:force] && action.action_type == :set_bugowner)
+    target_user = if new_state == 'accepted'
+                    accept_user
+                  else
+                    User.session!
+                  end
     if @target_package
-      if accept_user.can_modify?(@target_package, ignore_lock)
+      if target_user.can_modify?(@target_package, ignore_lock)
         @write_permission_in_target = true
         @write_permission_in_this_action = true
       end
     else
-      @write_permission_in_target = true if @target_project && PackagePolicy.new(accept_user, Package.new(project: @target_project), true).create?
-      @write_permission_in_this_action = true if @target_project && PackagePolicy.new(accept_user, Package.new(project: @target_project), ignore_lock).create?
+      @write_permission_in_target = true if @target_project && PackagePolicy.new(target_user, Package.new(project: @target_project), true).create?
+      @write_permission_in_this_action = true if @target_project && PackagePolicy.new(target_user, Package.new(project: @target_project), ignore_lock).create?
     end
   end
 end
