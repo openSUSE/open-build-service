@@ -16,7 +16,6 @@ class Webui::RequestController < Webui::WebuiController
                              if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_influxdb_data_request_actions, only: %i[show build_results rpm_lint changes mentioned_issues],
                                                     if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_diff_to_superseded_id, only: %i[show request_action request_action_changes build_results rpm_lint changes mentioned_issues]
   before_action :set_superseded_request, only: %i[show request_action request_action_changes build_results rpm_lint changes mentioned_issues]
   before_action :check_ajax, only: :sourcediff
   before_action :prepare_request_data, only: %i[show build_results rpm_lint changes mentioned_issues],
@@ -354,12 +353,8 @@ class Webui::RequestController < Webui::WebuiController
     end
   end
 
-  def set_diff_to_superseded_id
-    @diff_to_superseded_id = params[:diff_to_superseded]
-  end
-
   def set_superseded_request
-    return unless @diff_to_superseded_id
+    return unless (@diff_to_superseded_id = params[:diff_to_superseded])
 
     @diff_to_superseded = @bs_request.superseding.find_by(number: @diff_to_superseded_id)
     return if @diff_to_superseded
