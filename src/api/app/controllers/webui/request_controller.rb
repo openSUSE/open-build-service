@@ -34,7 +34,6 @@ class Webui::RequestController < Webui::WebuiController
       render :beta_show
     else
       @diff_limit = params[:full_diff] ? 0 : nil
-      @diff_to_superseded_id = params[:diff_to_superseded]
       @is_author = @bs_request.creator == User.possibly_nobody.login
 
       @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
@@ -355,12 +354,12 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def set_superseded_request
-    return unless params[:diff_to_superseded]
+    return unless (@diff_to_superseded_id = params[:diff_to_superseded])
 
-    @diff_to_superseded = @bs_request.superseding.find_by(number: params[:diff_to_superseded])
+    @diff_to_superseded = @bs_request.superseding.find_by(number: @diff_to_superseded_id)
     return if @diff_to_superseded
 
-    flash[:error] = "Request #{params[:diff_to_superseded]} does not exist or is not superseded by request #{@bs_request.number}."
+    flash[:error] = "Request #{@diff_to_superseded_id} does not exist or is not superseded by request #{@bs_request.number}."
     nil
   end
 
@@ -516,8 +515,6 @@ class Webui::RequestController < Webui::WebuiController
   def prepare_request_data
     @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
     @my_open_reviews = ReviewsFinder.new(@bs_request.reviews).open_reviews_for_user(User.session).reject(&:staging_project?)
-
-    @diff_to_superseded_id = params[:diff_to_superseded]
 
     # Handling request actions
     @action ||= @actions.first
