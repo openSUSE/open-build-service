@@ -249,16 +249,22 @@ sub sync_project {
 
   # update the project config
   my $config = '';
+  # TEMPORARY HACK: checking for additional project config in project description
+  # we need to find a better place for outside of git overwrites
+  $config = join("\n",$proj->{'description'} =~ /^#!(.*)/mg);
   if ($files{'_config'}) {
+    my $gitconfig;
     eval {
-      $config = cpio_extract($cpiofd, \%files, '_config', 1000000);
+      $gitconfig = cpio_extract($cpiofd, \%files, '_config', 1000000);
     };
     if ($@) {
       warn($@);
-      undef $config;
+      undef $gitconfig;
+    } else {
+      $config = join("\n", $config, $gitconfig);
     }
   }
-  sync_config($cgi, $projid, $config) if defined $config;
+  sync_config($cgi, $projid, $config);
 
   return { 'project' => $projid, 'package' => '_project', 'rev' => 'obsscm' };
 }
