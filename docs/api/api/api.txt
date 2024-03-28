@@ -1030,7 +1030,7 @@ POST /request/<id>?cmd=diff
   Shows the diff of all affected packages.
 
 Parameters:
-  diff_to_superseded: diff relative to a given superseded request
+  superseded_request_number: diff relative to a given superseded request
   view: can be set to "xml" for structured diff
   withissues: included parsed issues
 
