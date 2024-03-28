@@ -40,7 +40,7 @@ class SourceProjectMetaController < SourceController
 
     # Need permission
     logger.debug 'Checking permission for the put'
-    if project
+    if project.is_a?(Project)
       # project exists, change it
       unless User.session!.can_modify?(project)
         if project.is_locked?
@@ -63,11 +63,11 @@ class SourceProjectMetaController < SourceController
 
     ensure_xml_attributes_are_valid(@request_data, @project_name)
 
-    remove_repositories!(project, @request_data, params) if project
+    remove_repositories!(project, @request_data, params) if project.is_a?(Project)
 
     Project.transaction do
       # exec
-      if project
+      if project.is_a?(Project)
         project.update_from_xml!(@request_data)
       else
         project = Project.new(name: @project_name)
