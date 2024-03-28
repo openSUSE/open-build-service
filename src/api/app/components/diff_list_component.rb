@@ -3,7 +3,8 @@
 class DiffListComponent < ApplicationComponent
   attr_reader :diff_list, :view_id, :commentable, :commented_lines, :source_package, :target_package, :source_rev
 
-  def initialize(diff_list:, view_id: nil, commentable: nil, source_package: nil, target_package: nil, source_rev: nil)
+  def initialize(diff_list:, view_id: nil, commentable: nil, source_package: nil, target_package: nil, source_rev: nil,
+                 bs_request_number: nil, action_id: nil, diff_to_superseded_id: nil)
     super
     @diff_list = diff_list
     @view_id = view_id
@@ -12,6 +13,9 @@ class DiffListComponent < ApplicationComponent
     @source_package = source_package
     @target_package = target_package
     @source_rev = source_rev
+    @bs_request_number = bs_request_number
+    @action_id = action_id
+    @diff_to_superseded_id = diff_to_superseded_id
   end
 
   # We expand the diff if the changeset:
