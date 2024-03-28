@@ -11,6 +11,32 @@
                                                 aria: { expanded: 'true', controls: "diff-item-#{name.parameterize}" },
                                                 class: expanded ? '' : 'collapsed' }
           = render(DiffSubjectComponent.new(state:, old_filename:, new_filename: name))
-      .accordion-collapse.collapse{ class: expanded ? 'show' : '', id: "diff-item-#{name.parameterize}", 'data-object': view_id }
-        = render(DiffComponent.new(diff: file_info.dig('diff', '_content'), file_index:, commentable:, commented_lines:,
-                                   source_file: source_file(old_filename), target_file: target_file(name)))
+      .accordion-collapse.collapse{ class: expanded ? 'show' : '',
+                                    id: "diff-item-#{name.parameterize}",
+                                    'data-object': view_id,
+                                    data: {
+                                      bs_request_number: @bs_request_number,
+                                      action_id: @action_id,
+                                      diff_to_superseded_id: @diff_to_superseded_id
+                                    }
+                                  }
+        = render partial: 'webui/shared/loading', locals: { text: 'Loading file changes...' }
+
+        :javascript
+          var filename = '#{name}';
+          // Take the parameters from the container data
+          var requestNumber = $('#diff-item-#{name.parameterize}').data('bs-request-number');
+          var requestActionId = $('#diff-item-#{name.parameterize}').data('action-id');
+          var diffToSupersededId = $('#diff-item-#{name.parameterize}').data('diff-to-superseded-id');
+
+          var queryString = diffToSupersededId ? 'diff_to_superseded=' + diffToSupersededId : '';
+          var url = '/request/' + requestNumber + '/request_action/' + requestActionId + '/changes/files/' + filename + '?' + queryString;
+
+          console.log(url)
+          $.ajax({
+            url: url,
+            success: function() {},
+            error: function() {
+              $('#diff-item-#{name.parameterize} .result').text('Something went wrong while loading file changes.');
+            }
+          });
