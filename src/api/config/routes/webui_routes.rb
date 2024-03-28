@@ -321,6 +321,7 @@ OBSApi::Application.routes.draw do
       post 'request/set_bugowner_request' => :set_bugowner_request
       get 'request/:number/request_action/:id' => :request_action, as: 'request_action'
       get 'request/:number/request_action/:id/changes' => :request_action_changes, as: 'request_action_changes'
+      get 'request/:number/request_action/:id/changes/files/:filename' => :request_action_file_changes, as: 'request_action_file_changes', constraints: cons
       get 'request/:number/request_action/:request_action_id/inline_comment/:line' => :inline_comment, constraints: cons, as: 'request_inline_comment'
       get 'request/:number/chart_build_results' => :chart_build_results, as: 'request_chart_build_results', constraints: cons
       get 'request/:number/complete_build_results' => :complete_build_results, as: 'request_complete_build_results', constraints: cons
