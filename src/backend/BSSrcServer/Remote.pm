@@ -396,12 +396,14 @@ sub getrev_remote {
     die("collect_remote_getrev\n");
   }
   my $dir;
+  my $proj_remoteurl = $proj->{'remoteurl'} // '';
+  my $proj_remoteproject = $proj->{'remoteproject'} // '';
   eval {
-    $dir = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", 'proxy' => $proj->{'remoteproxy'}}, $BSXML::dir, @args, 'withlinked') if $linked;
+    $dir = BSRPC::rpc({'uri' => "($proj_remoteurl/source/$proj_remoteproject/$packid", 'proxy' => $proj->{'remoteproxy'}}, $BSXML::dir, @args, 'withlinked') if $linked;
   };
   if (!$dir || $@) {
     eval {
-      $dir = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", 'proxy' => $proj->{'remoteproxy'}}, $BSXML::dir, @args);
+      $dir = BSRPC::rpc({'uri' => "$proj_remoteurl/source/$proj_remoteproject/$packid", 'proxy' => $proj->{'remoteproxy'}}, $BSXML::dir, @args);
     };
     if ($@) {
       return {'project' => $projid, 'package' => $packid, 'srcmd5' => $BSSrcrep::emptysrcmd5} if $missingok && $@ =~ /^404[^\d]/;
@@ -439,7 +441,7 @@ sub getrev_remote {
     }
     mkdir_p($uploaddir);
     my $param = {
-      'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid/$entry->{'name'}",
+      'uri' => "$proj_remoteurl/source/$proj_remoteproject/$packid/$entry->{'name'}",
       'filename' => "$uploaddir/$$",
       'withmd5' => 1,
       'receiver' => \&BSHTTP::file_receiver,
@@ -482,7 +484,7 @@ sub getrev_remote {
         last unless $li->{'srcmd5'} && !$li->{'error'};
         my $ldir;
         eval {
-          $ldir = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$lprojid/$lpackid", 'proxy' => $proj->{'remoteproxy'}}, $BSXML::dir, "rev=$li->{'srcmd5'}");
+          $ldir = BSRPC::rpc({'uri' => "$proj_remoteurl/source/$lprojid/$lpackid", 'proxy' => $proj->{'remoteproxy'}}, $BSXML::dir, "rev=$li->{'srcmd5'}");
         };
         last if $@ || !$ldir;
         $li = $ldir->{'linkinfo'};
