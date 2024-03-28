@@ -20,7 +20,8 @@ OBSApi::Application.configure do
   sti_classes_to_eager_load = Dir["app/models/status/**.rb",
                                   "app/models/history_element/**.rb",
                                   "app/models/token.rb",
-                                  "app/models/token/**.rb"]
+                                  "app/models/token/**.rb",
+                                  "app/templates/*.rb"]
   config.eager_load_paths += sti_classes_to_eager_load
   ActiveSupport::Reloader.to_prepare do
     sti_classes_to_eager_load.each { |f| require_dependency("#{Dir.pwd}/#{f}") }

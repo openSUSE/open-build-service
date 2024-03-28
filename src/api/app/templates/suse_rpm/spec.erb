@@ -1,0 +1,37 @@
+#
+# spec file for package <%= @package.name %>
+#
+# Copyright (c) <%= Time.new.year %> <%= @user.realname %> <<%= @user.email %>>.
+#
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
+
+# Please submit bugfixes or comments via https://bugs.opensuse.org/
+#
+
+
+Name:           <%= @package.name %>
+Source0:        %{name}-%{version}.tar.xz
+Summary:        <%= @package.title %>
+URL:            <%= @package.url %>
+License:        # https://github.com/openSUSE/obs-service-format_spec_file#spdx-licenses
+Version:        
+Release:        0
+
+%description
+<%= @package.description %>
+
+%prep
+%autosetup
+
+<%= partial(@subtemplate) %>
+
+%files
+
+%changelog
