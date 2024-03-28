@@ -306,7 +306,7 @@ RSpec.describe 'Packages', :js, :vcr do
       end
 
       it 'can edit' do
-        visit package_meta_path(package.project, package)
+        visit project_package_meta_path(package.project, package)
         fill_in_editor_field('<!-- Comment for testing -->')
         find('.save').click
         expect(page).to have_text('The Meta file has been successfully saved.')
@@ -322,7 +322,7 @@ RSpec.describe 'Packages', :js, :vcr do
       end
 
       it 'can not edit' do
-        visit package_meta_path(package.project, package)
+        visit project_package_meta_path(package.project, package)
         within('.card-body') do
           expect(page).to have_no_css('.toolbar')
         end

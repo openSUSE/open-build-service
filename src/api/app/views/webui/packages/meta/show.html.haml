@@ -1,0 +1,14 @@
+- content_for(:content_for_head, javascript_include_tag('webui/cm2/codemirror-xml'))
+- @pagetitle = "Meta Configuration of Package #{@package}"
+
+.card
+  = render(partial: 'webui/package/tabs', locals: { project: @project, package: @package })
+
+  .card-body
+    %h3= @pagetitle
+    - if User.possibly_nobody.can_modify? @package
+      = render partial: 'webui/shared/editor', locals: { text: @meta, mode: 'xml',
+        save: { url: project_package_meta_path, method: :put,
+        data: { project_name: @project.name, package_name: @package.name, submit: 'meta' } } }
+    - else
+      = render partial: 'webui/shared/editor', locals: { text: @meta, mode: 'xml', style: { read_only: true } }
