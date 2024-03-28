@@ -2,13 +2,14 @@ class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
 
   before_action :require_login,
-                except: %i[show sourcediff diff request_action request_action_changes inline_comment build_results rpm_lint changes mentioned_issues]
+                except: %i[show sourcediff diff request_action request_action_changes request_action_file_changes inline_comment build_results rpm_lint changes mentioned_issues]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
   before_action :require_request,
-                only: %i[changerequest show request_action request_action_changes inline_comment build_results rpm_lint
+                only: %i[changerequest show request_action request_action_changes request_action_file_changes inline_comment build_results rpm_lint
                          changes mentioned_issues chart_build_results complete_build_results]
-  before_action :set_actions, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues chart_build_results complete_build_results request_action_changes],
+  before_action :set_actions, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues chart_build_results complete_build_results
+                                       request_action_changes request_action_file_changes],
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_actions_deprecated, only: [:show]
   before_action :build_results_data, only: [:show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
@@ -176,6 +177,25 @@ class Webui::RequestController < Webui::WebuiController
     @action = @actions.where(id: params['id'].to_i).first
 
     cache_diff_data
+
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def request_action_file_changes
+    @action = @actions.where(id: params['id'].to_i).first
+    @filename = params['filename']
+
+    sourcediff = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded, cacheonly: 1 })
+    files = sourcediff.first['files']
+    @file_diff = files[params['filename']]
+
+    @file_index = params['file_index']
+    @commentable = params['commentable'].presence
+    @commented_lines = params['commented_lines'] || []
+    @source_file = params['source_file'] || nil
+    @target_file = params['target_file'] || nil
 
     respond_to do |format|
       format.js
