@@ -189,14 +189,12 @@ function loadChanges() { // jshint ignore:line
   $('.tab-content.sourcediff .loading').removeClass('invisible');
 
   // Take the parameters from the container data
-  var requestNumber = $('#sourcediff-container').data('bs-request-number');
-  var requestActionId = $('#sourcediff-container').data('action-id');
+  var url = $('#sourcediff-container').data('url');
   var diffToSupersededId = $('#sourcediff-container').data('diff-to-superseded-id');
-
   var queryString = diffToSupersededId ? '?diff_to_superseded=' + diffToSupersededId : '';
-  var url = '/request/' + requestNumber + '/request_action/' + requestActionId + '/changes' + queryString;
+
   $.ajax({
-    url: url,
+    url: url + queryString,
     success: function() {
       $('.tab-content.sourcediff .loading').addClass('invisible');
     },

@@ -14,8 +14,7 @@
         locals: { bs_request: @bs_request, action: @action, issues: @issues,
                   actions_count: @actions.count, active_tab: @active_tab }
     .container.p-4
-      .tab-content.sourcediff{ data: { bs_request_number: @bs_request.number,
-                                       action_id: @action.id,
+      .tab-content.sourcediff{ data: { url: request_action_changes_path(@bs_request.number, @action.id),
                                        diff_to_superseded_id: @diff_to_superseded_id },
                                id: 'sourcediff-container' }
         .result
