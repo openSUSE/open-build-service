@@ -29,6 +29,7 @@ class Webui::RequestController < Webui::WebuiController
   def show
     # TODO: Remove this `if` condition, and the `else` clause once request_show_redesign is rolled out
     if Flipper.enabled?(:request_show_redesign, User.session)
+      @history_elements = @bs_request.history_elements.includes(:user)
       @active_tab = 'conversation'
       render :beta_show
     else
