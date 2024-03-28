@@ -26,7 +26,9 @@
           - if sourcediff['filenames'].present?
             - diff_list = sourcediff['files'].sort_by { |k, _v| sourcediff['filenames'].find_index(k) }.to_h
             = render(DiffListComponent.new(diff_list:, view_id: @action.source_package, commentable:, source_package:,
-                                           target_package:, source_rev: @action.source_rev))
+                                           target_package:, source_rev: @action.source_rev,
+                                           bs_request_number: @bs_request.number, action_id: @action.id,
+                                           diff_to_superseded_id: @diff_to_superseded_id ))
           - else
             .mb-2
               %p.lead

@@ -4,11 +4,12 @@ class SourcediffComponent < ApplicationComponent
   delegate :diff_label, to: :helpers
   delegate :diff_data, to: :helpers
 
-  def initialize(bs_request:, action:)
+  def initialize(bs_request:, action:, diff_to_superseded_id:)
     super
 
     @bs_request = bs_request
     @action = action
+    @diff_to_superseded_id = diff_to_superseded_id
   end
 
   def commentable
