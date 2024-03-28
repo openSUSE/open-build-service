@@ -39,7 +39,7 @@
         %strong Supersedes
         - bs_request.superseding.each do |supersed|
           = link_to "##{supersed['number']}", number: supersed['number']
-          = link_to "(changes from superseded)", request_changes_path(bs_request, diff_to_superseded: supersed)
+          = link_to "(changes from superseded)", request_changes_path(bs_request, superseded_request_number: supersed['number'])
     -# staging statement
     - if staging_status
       - staging_project = staging_status[:staging_project]
@@ -75,5 +75,5 @@
     -# action description, prev + dropdown select + next
     = render partial: 'actions_details', locals: { bs_request: bs_request, action: action,
                                                     prev_action: prev_action, next_action: next_action,
-                                                    actions: actions, diff_to_superseded_id: diff_to_superseded_id,
+                                                    actions: actions, superseded_request_number: superseded_request_number,
                                                     page_name: page_name }

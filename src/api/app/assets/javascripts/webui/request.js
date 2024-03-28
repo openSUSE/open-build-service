@@ -165,12 +165,12 @@ function loadDiffs(element){
   var index = element.data('index');
   var url = element.data('url') + '?index=' + index;
   var diffLimit = $('.sourcediff').data('diff-limit');
-  var diffToSuperseded = element.data('diff-to-superseded');
+  var supersededRequestNumber = element.data('superseded-request-number');
   if(diffLimit){
     url = url + '&full_diff=' + diffLimit;
   }
-  if(diffToSuperseded){
-    url = url + '&diff_to_superseded=' + diffToSuperseded;
+  if(supersededRequestNumber){
+    url = url + '&superseded_request_number=' + supersededRequestNumber;
   }
   $.ajax({
     url: url,
@@ -190,8 +190,8 @@ function loadChanges() { // jshint ignore:line
 
   // Take the parameters from the container data
   var url = $('#sourcediff-container').data('url');
-  var diffToSupersededId = $('#sourcediff-container').data('diff-to-superseded-id');
-  var queryString = diffToSupersededId ? '?diff_to_superseded=' + diffToSupersededId : '';
+  var supersededRequestNumber = $('#sourcediff-container').data('superseded-request-number');
+  var queryString = supersededRequestNumber ? '?superseded_request_number=' + supersededRequestNumber : '';
 
   $.ajax({
     url: url + queryString,

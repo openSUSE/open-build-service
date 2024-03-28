@@ -9,7 +9,7 @@ RSpec.describe DiffComponent, :vcr, type: :component do
            target_package: target_package,
            source_package: source_package)
   end
-  let(:bs_request_opts) { { filelimit: nil, tarlimit: nil, diff_to_superseded: nil, diffs: true, cacheonly: 1 } }
+  let(:bs_request_opts) { { filelimit: nil, tarlimit: nil, superseded_request: nil, diffs: true, cacheonly: 1 } }
 
   context 'with a request having a submit action' do
     before do

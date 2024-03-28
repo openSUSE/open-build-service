@@ -52,7 +52,7 @@ class Webui::RequestController < Webui::WebuiController
 
       handle_notification
 
-      @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: false)
+      @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, superseded_request: @superseded_request, diffs: false)
       @action = @actions.first
       @active = @action[:name]
       # TODO: this is the last instance of the @not_full_diff variable in the request scope, once request_workflow_redesign beta is rolled out,
@@ -156,7 +156,7 @@ class Webui::RequestController < Webui::WebuiController
   def request_action
     @diff_limit = params[:full_diff] ? 0 : nil
     @index = params[:index].to_i
-    @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: true,
+    @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, superseded_request: @superseded_request, diffs: true,
                                          action_id: params['id'].to_i, cacheonly: 1)
     @action = @actions.find { |action| action[:id] == params['id'].to_i }
     @active = @action[:name]
@@ -354,12 +354,12 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def set_superseded_request
-    return unless (@diff_to_superseded_id = params[:diff_to_superseded])
+    return unless (@superseded_request_number = params[:superseded_request_number])
 
-    @diff_to_superseded = @bs_request.superseding.find_by(number: @diff_to_superseded_id)
-    return if @diff_to_superseded
+    @superseded_request = @bs_request.superseding.find_by(number: @superseded_request_number)
+    return if @superseded_request
 
-    flash[:error] = "Request #{@diff_to_superseded_id} does not exist or is not superseded by request #{@bs_request.number}."
+    flash[:error] = "Request #{@superseded_request_number} does not exist or is not superseded by request #{@bs_request.number}."
     nil
   end
 
@@ -529,7 +529,7 @@ class Webui::RequestController < Webui::WebuiController
     @staging_status = staging_status(@bs_request, target_project) if Staging::Workflow.find_by(project: target_project)
 
     # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
-    @issues = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded, cacheonly: 1 }).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
+    @issues = @action.webui_sourcediff({ superseded_request: @superseded_request, cacheonly: 1 }).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
 
     # retrieve a list of all package maintainers that are assigned to at least one target package
     @package_maintainers = target_package_maintainers
