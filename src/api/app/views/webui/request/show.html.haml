@@ -10,7 +10,7 @@
 
 = render partial: 'superseded_by_message', locals: { superseded_by: @bs_request.superseded_by,
                                                      number: @bs_request.number,
-                                                     diff_to_superseded: @diff_to_superseded,
+                                                     superseded_request_number: @superseded_request_number,
                                                      superseding: @bs_request.superseding }
 .card.mb-3
   .card-header.d-flex.justify-content-between
@@ -38,7 +38,7 @@
           = link_to(action[:name], "##{valid_xml_id(xml_id)}",
             class: "request-tab nav-link text-nowrap text-truncate #{'active' if index.zero?}",
             data: { 'bs-toggle': 'tab', url: request_action_url(action[:number], action[:id]), tab_pane_id: valid_xml_id(xml_id), index: index,
-                    diff_to_superseded: @diff_to_superseded_id }, role: 'tab')
+                    superseded_request_number: @superseded_request_number }, role: 'tab')
   .card-body
     .d-flex.justify-content-center.loading-diff
       .spinner-border{ role: 'status' }

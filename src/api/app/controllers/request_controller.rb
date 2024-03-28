@@ -158,9 +158,9 @@ class RequestController < ApplicationController
 
   def request_command_diff
     req = BsRequest.find_by_number!(params[:id])
-    superseded_request = req.superseding.find_by_number(params[:diff_to_superseded])
-    if params[:diff_to_superseded].present? && superseded_request.blank?
-      msg = "Request #{params[:diff_to_superseded]} does not exist or is not superseded by request #{req.number}."
+    superseded_request = req.superseding.find_by_number(params[:superseded_request_number])
+    if params[:superseded_request_number].present? && superseded_request.blank?
+      msg = "Request #{params[:superseded_request_number]} does not exist or is not superseded by request #{req.number}."
       render_error(message: msg, status: 404)
       return
     end

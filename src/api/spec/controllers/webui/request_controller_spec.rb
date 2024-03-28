@@ -152,26 +152,26 @@ RSpec.describe Webui::RequestController, :vcr do
         end
       end
 
-      context 'with :diff_to_superseded set' do
+      context 'with :superseded_request set' do
         let(:superseded_bs_request) { create(:set_bugowner_request) }
 
         context 'and the superseded request is superseded' do
           before do
             superseded_bs_request.update(state: :superseded, superseded_by: bs_request.number)
-            get :request_action, params: { number: bs_request.number, diff_to_superseded: superseded_bs_request.number, index: 0,
+            get :request_action, params: { number: bs_request.number, superseded_request_number: superseded_bs_request.number, index: 0,
                                            id: bs_request.bs_request_actions.first.id, format: :js }, xhr: true
           end
 
-          it { expect(assigns(:diff_to_superseded)).to eq(superseded_bs_request) }
+          it { expect(assigns(:superseded_request)).to eq(superseded_bs_request) }
         end
 
         context 'and the superseded request is not superseded' do
           before do
-            get :request_action, params: { number: bs_request.number, diff_to_superseded: superseded_bs_request.number, index: 0,
+            get :request_action, params: { number: bs_request.number, superseded_request_number: superseded_bs_request.number, index: 0,
                                            id: bs_request.bs_request_actions.first.id, format: :js }, xhr: true
           end
 
-          it { expect(assigns(:diff_to_superseded)).to be_nil }
+          it { expect(assigns(:superseded_request)).to be_nil }
           it { expect(flash[:error]).not_to be_nil }
         end
       end

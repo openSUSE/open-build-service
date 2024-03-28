@@ -727,7 +727,7 @@ RSpec.describe BsRequest, :vcr do
   describe '#action_details' do
     context 'when diffs are cached' do
       let!(:request) { submit_request }
-      let!(:opts) { { filelimit: nil, tarlimit: nil, diff_to_superseded: nil, diffs: true, cacheonly: 1 } }
+      let!(:opts) { { filelimit: nil, tarlimit: nil, superseded_request: nil, diffs: true, cacheonly: 1 } }
 
       it 'sets the value for diff_not_cached' do
         action_details = request.send(:action_details, opts, xml: request.bs_request_actions.last)

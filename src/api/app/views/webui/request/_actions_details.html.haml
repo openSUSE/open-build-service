@@ -6,7 +6,7 @@
   .d-flex.flex-wrap.align-items-center
     .input-group.w-auto
       = link_to('Previous', next_prev_path(number: bs_request.number, request_action_id: prev_action&.id,
-                                           diff_to_superseded: diff_to_superseded_id, page_name: page_name),
+                                           superseded_request_number: superseded_request_number, page_name: page_name),
                 class: "btn btn-primary btn-sm #{prev_action ? '' : 'disabled'}",
                 id: 'previous-action-button')
       .dropdown#request-actions
@@ -25,11 +25,11 @@
               = link_to((render partial: 'action_text', locals: { action: action_item, action_index: action_index }),
                                                         next_prev_path(number: bs_request.number,
                                                                        request_action_id: action_item.id,
-                                                                       diff_to_superseded: diff_to_superseded_id, page_name: page_name),
+                                                                       superseded_request_number: superseded_request_number, page_name: page_name),
                                                         class: "dropdown-item #{action_item.id == action.id ? 'active' : ''}",
                                                         'aria-current': 'true')
       = link_to('Next', next_prev_path(number: bs_request.number, request_action_id: next_action&.id,
-                                       diff_to_superseded: diff_to_superseded_id, page_name: page_name),
+                                       superseded_request_number: superseded_request_number, page_name: page_name),
                 class: "btn btn-primary btn-sm #{next_action ? '' : 'disabled'}",
                 id: 'next-action-button')
 
