@@ -822,9 +822,7 @@ class SourceController < ApplicationController
     project = Project.get_by_name(params[:project])
     opackage = Package.get_by_project_and_name(project.name, params[:package], check_update_project: true)
     raise RemoteProjectError, 'Instantiation from remote project is not supported' unless opackage
-    raise CmdExecutionNoPermission, 'package is already intialized here' if project == opackage.project
-    raise CmdExecutionNoPermission, "no permission to execute command 'copy'" unless User.session!.can_modify?(project)
-    raise CmdExecutionNoPermission, 'no permission to modify source package' unless User.session!.can_modify?(opackage, true) # ignore_lock option
+    raise CmdExecutionNoPermission, 'package is already instantiated here' if project == opackage.project
 
     opts = {}
     at = AttribType.find_by_namespace_and_name!('OBS', 'MakeOriginOlder')
@@ -880,17 +878,17 @@ class SourceController < ApplicationController
     # check for sources in this or linked project
     unless @package
       # check if this is a package on a remote OBS instance
-      answer = Backend::Connection.get(request.path_info)
+      answer = Package.exists_on_backend?(params[:package], params[:project])
       unless answer
         render_error status: 400, errorcode: 'unknown_package',
-                     message: "Unknown package '#{package_name}'"
+                     message: "Unknown package '#{params[:package]}'"
         return
       end
     end
 
     options = {}
     if repo_name
-      if @package && @package.repositories.find_by_name(repo_name).nil?
+      if @package && @project.repositories.find_by_name(repo_name).nil?
         render_error status: 400, errorcode: 'unknown_repository',
                      message: "Unknown repository '#{repo_name}'"
         return

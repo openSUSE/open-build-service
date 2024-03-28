@@ -39,16 +39,54 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Tue, 15 Mar 2022 14:59:02 GMT
+  recorded_at: Wed, 27 Mar 2024 15:33:46 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/some_package/_meta?user=user_8
+    uri: http://backend:5352/source/peter/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="some_package" project="home:tom">
-          <title>The Green Bay Tree</title>
-          <description>Incidunt iste voluptas reprehenderit.</description>
+        <project name="peter">
+          <title>The Little Foxes</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '98'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="peter">
+          <title>The Little Foxes</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 27 Mar 2024 15:33:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/peter/paul/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="paul" project="peter">
+          <title>lala</title>
+          <description>Aut nihil aperiam qui.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,18 +107,68 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '123'
     body:
       encoding: UTF-8
       string: |
-        <package name="some_package" project="home:tom">
-          <title>The Green Bay Tree</title>
-          <description>Incidunt iste voluptas reprehenderit.</description>
+        <package name="paul" project="peter">
+          <title>lala</title>
+          <description>Aut nihil aperiam qui.</description>
         </package>
-  recorded_at: Tue, 15 Mar 2022 14:59:02 GMT
+  recorded_at: Wed, 27 Mar 2024 15:33:47 GMT
 - request:
-    method: delete
-    uri: http://backend:5352/source/home:tom/some_package?comment&user=user_8
+    method: put
+    uri: http://backend:5352/source/peter/paul/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="paul" project="peter">
+          <title>lala</title>
+          <description>Aut nihil aperiam qui.</description>
+          <publish>
+            <enable/>
+          </publish>
+          <debuginfo>
+            <enable/>
+          </debuginfo>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '205'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="paul" project="peter">
+          <title>lala</title>
+          <description>Aut nihil aperiam qui.</description>
+          <publish>
+            <enable/>
+          </publish>
+          <debuginfo>
+            <enable/>
+          </debuginfo>
+        </package>
+  recorded_at: Wed, 27 Mar 2024 15:33:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/peter/paul/_meta
     body:
       encoding: US-ASCII
       string: ''
@@ -103,16 +191,124 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '21'
+      - '205'
     body:
       encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-  recorded_at: Tue, 15 Mar 2022 14:59:03 GMT
+      string: |
+        <package name="paul" project="peter">
+          <title>lala</title>
+          <description>Aut nihil aperiam qui.</description>
+          <publish>
+            <enable/>
+          </publish>
+          <debuginfo>
+            <enable/>
+          </debuginfo>
+        </package>
+  recorded_at: Wed, 27 Mar 2024 15:33:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/franz/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="franz" project="home:tom">
+          <title>lala</title>
+          <description>Aut nihil aperiam qui.</description>
+          <publish>
+            <enable/>
+          </publish>
+          <debuginfo>
+            <enable/>
+          </debuginfo>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="franz" project="home:tom">
+          <title>lala</title>
+          <description>Aut nihil aperiam qui.</description>
+          <publish>
+            <enable/>
+          </publish>
+          <debuginfo>
+            <enable/>
+          </debuginfo>
+        </package>
+  recorded_at: Wed, 27 Mar 2024 15:33:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/franz/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="franz" project="home:tom">
+          <title>lala</title>
+          <description>Aut nihil aperiam qui.</description>
+          <publish>
+            <enable/>
+          </publish>
+          <debuginfo>
+            <enable/>
+          </debuginfo>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="franz" project="home:tom">
+          <title>lala</title>
+          <description>Aut nihil aperiam qui.</description>
+          <publish>
+            <enable/>
+          </publish>
+          <debuginfo>
+            <enable/>
+          </debuginfo>
+        </package>
+  recorded_at: Wed, 27 Mar 2024 15:33:47 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom/some_package?cmd=undelete&user=tom
+    uri: http://backend:5352/source/home:tom/franz?cmd=copy&opackage=paul&oproject=peter&user=tom
     body:
       encoding: UTF-8
       string: ''
@@ -137,16 +333,72 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '21'
+      - '203'
     body:
       encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-  recorded_at: Tue, 15 Mar 2022 14:59:03 GMT
+      string: |
+        <revision rev="3" vrev="3">
+          <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
+          <version>unknown</version>
+          <time>1711553627</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 27 Mar 2024 15:33:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/franz/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="franz" project="home:tom">
+          <title>lala</title>
+          <description>Aut nihil aperiam qui.</description>
+          <publish>
+            <enable/>
+          </publish>
+          <debuginfo>
+            <enable/>
+          </debuginfo>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="franz" project="home:tom">
+          <title>lala</title>
+          <description>Aut nihil aperiam qui.</description>
+          <publish>
+            <enable/>
+          </publish>
+          <debuginfo>
+            <enable/>
+          </debuginfo>
+        </package>
+  recorded_at: Wed, 27 Mar 2024 15:33:47 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom/some_package/_meta
+    uri: http://backend:5352/source/home:tom/franz
     body:
       encoding: US-ASCII
       string: ''
@@ -169,164 +421,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '97'
     body:
       encoding: UTF-8
       string: |
-        <package name="some_package" project="home:tom">
-          <title>The Green Bay Tree</title>
-          <description>Incidunt iste voluptas reprehenderit.</description>
-        </package>
-  recorded_at: Tue, 15 Mar 2022 14:59:03 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/some_package/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="some_package" project="home:tom">
-          <title>The Green Bay Tree</title>
-          <description>Incidunt iste voluptas reprehenderit.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '163'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="some_package" project="home:tom">
-          <title>The Green Bay Tree</title>
-          <description>Incidunt iste voluptas reprehenderit.</description>
-        </package>
-  recorded_at: Tue, 15 Mar 2022 14:59:03 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/some_package/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="some_package" project="home:tom">
-          <title>The Green Bay Tree</title>
-          <description>Incidunt iste voluptas reprehenderit.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '163'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="some_package" project="home:tom">
-          <title>The Green Bay Tree</title>
-          <description>Incidunt iste voluptas reprehenderit.</description>
-        </package>
-  recorded_at: Tue, 15 Mar 2022 14:59:03 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/some_package/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="some_package" project="home:tom">
-          <title>The Green Bay Tree</title>
-          <description>Incidunt iste voluptas reprehenderit.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '163'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="some_package" project="home:tom">
-          <title>The Green Bay Tree</title>
-          <description>Incidunt iste voluptas reprehenderit.</description>
-        </package>
-  recorded_at: Tue, 15 Mar 2022 14:59:03 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:tom/some_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '103'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="some_package" rev="4" vrev="" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="franz" rev="3" vrev="3" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Tue, 15 Mar 2022 14:59:03 GMT
+  recorded_at: Wed, 27 Mar 2024 15:33:47 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom/some_package?view=info
+    uri: http://backend:5352/source/home:tom/franz?view=info
     body:
       encoding: US-ASCII
       string: ''
@@ -349,17 +453,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '136'
+      - '138'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="some_package" rev="4" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <sourceinfo package="franz" rev="3" vrev="3" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>no source uploaded</error>
         </sourceinfo>
-  recorded_at: Tue, 15 Mar 2022 14:59:03 GMT
+  recorded_at: Wed, 27 Mar 2024 15:33:47 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom/some_package
+    uri: http://backend:5352/source/home:tom/franz
     body:
       encoding: US-ASCII
       string: ''
@@ -382,16 +486,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '103'
+      - '97'
     body:
       encoding: UTF-8
       string: |
-        <directory name="some_package" rev="4" vrev="" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="franz" rev="3" vrev="3" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Tue, 15 Mar 2022 14:59:03 GMT
+  recorded_at: Wed, 27 Mar 2024 15:33:47 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom/some_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:tom/franz?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -416,14 +520,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '279'
+      - '265'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="854f95dbdbe2cfdfba81491ffbacbe7e">
-          <old project="home:tom" package="some_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:tom" package="some_package" rev="4" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+        <sourcediff key="3624ab4760ecb3717808d537ea9b4f22">
+          <old project="home:tom" package="franz" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tom" package="franz" rev="3" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files/>
         </sourcediff>
-  recorded_at: Tue, 15 Mar 2022 14:59:03 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Wed, 27 Mar 2024 15:33:47 GMT
+recorded_with: VCR 6.2.0

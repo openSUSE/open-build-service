@@ -1,0 +1,533 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 27 Mar 2024 15:33:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/peter/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="peter">
+          <title>Things Fall Apart</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '99'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="peter">
+          <title>Things Fall Apart</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 27 Mar 2024 15:33:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/peter/paul/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="paul" project="peter">
+          <title>lala</title>
+          <description>Neque aperiam quibusdam laudantium.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '136'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="paul" project="peter">
+          <title>lala</title>
+          <description>Neque aperiam quibusdam laudantium.</description>
+        </package>
+  recorded_at: Wed, 27 Mar 2024 15:33:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/peter/paul/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="paul" project="peter">
+          <title>lala</title>
+          <description>Neque aperiam quibusdam laudantium.</description>
+          <publish>
+            <enable/>
+          </publish>
+          <debuginfo>
+            <enable/>
+          </debuginfo>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '218'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="paul" project="peter">
+          <title>lala</title>
+          <description>Neque aperiam quibusdam laudantium.</description>
+          <publish>
+            <enable/>
+          </publish>
+          <debuginfo>
+            <enable/>
+          </debuginfo>
+        </package>
+  recorded_at: Wed, 27 Mar 2024 15:33:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/peter/paul/_meta
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '218'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="paul" project="peter">
+          <title>lala</title>
+          <description>Neque aperiam quibusdam laudantium.</description>
+          <publish>
+            <enable/>
+          </publish>
+          <debuginfo>
+            <enable/>
+          </debuginfo>
+        </package>
+  recorded_at: Wed, 27 Mar 2024 15:33:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/franz/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="franz" project="home:tom">
+          <title>lala</title>
+          <description>Neque aperiam quibusdam laudantium.</description>
+          <publish>
+            <enable/>
+          </publish>
+          <debuginfo>
+            <enable/>
+          </debuginfo>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '222'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="franz" project="home:tom">
+          <title>lala</title>
+          <description>Neque aperiam quibusdam laudantium.</description>
+          <publish>
+            <enable/>
+          </publish>
+          <debuginfo>
+            <enable/>
+          </debuginfo>
+        </package>
+  recorded_at: Wed, 27 Mar 2024 15:33:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/franz/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="franz" project="home:tom">
+          <title>lala</title>
+          <description>Neque aperiam quibusdam laudantium.</description>
+          <publish>
+            <enable/>
+          </publish>
+          <debuginfo>
+            <enable/>
+          </debuginfo>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '222'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="franz" project="home:tom">
+          <title>lala</title>
+          <description>Neque aperiam quibusdam laudantium.</description>
+          <publish>
+            <enable/>
+          </publish>
+          <debuginfo>
+            <enable/>
+          </debuginfo>
+        </package>
+  recorded_at: Wed, 27 Mar 2024 15:33:46 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/franz?cmd=copy&opackage=paul&oproject=peter&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
+          <version>unknown</version>
+          <time>1711553626</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 27 Mar 2024 15:33:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/franz/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="franz" project="home:tom">
+          <title>lala</title>
+          <description>Neque aperiam quibusdam laudantium.</description>
+          <publish>
+            <enable/>
+          </publish>
+          <debuginfo>
+            <enable/>
+          </debuginfo>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '222'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="franz" project="home:tom">
+          <title>lala</title>
+          <description>Neque aperiam quibusdam laudantium.</description>
+          <publish>
+            <enable/>
+          </publish>
+          <debuginfo>
+            <enable/>
+          </debuginfo>
+        </package>
+  recorded_at: Wed, 27 Mar 2024 15:33:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/franz
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '97'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="franz" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 27 Mar 2024 15:33:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/franz?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '138'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="franz" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+          <error>no source uploaded</error>
+        </sourceinfo>
+  recorded_at: Wed, 27 Mar 2024 15:33:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/franz
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '97'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="franz" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 27 Mar 2024 15:33:46 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/franz?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '265'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="40a0de959baead44782e43bb2f28c5f0">
+          <old project="home:tom" package="franz" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tom" package="franz" rev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files/>
+        </sourcediff>
+  recorded_at: Wed, 27 Mar 2024 15:33:46 GMT
+recorded_with: VCR 6.2.0
