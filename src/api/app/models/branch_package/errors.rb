@@ -15,6 +15,10 @@ module BranchPackage::Errors
     setup 404
   end
 
+  class TargetExistsError < APIError
+    setup 404
+  end
+
   class DoubleBranchPackageError < APIError
     attr_reader :project, :package
 

@@ -141,6 +141,11 @@ class BranchPackage
   # would be just the cosmetic parts like title and description. Other elemnts should
   # not be used anyway for scmsync packages.
   def create_fork(project)
+    unless params[:force] || project.packages.find_by(name: params[:package]).nil?
+      raise TargetExistsError,
+            "Fork target already exists: #{params[:project]}, #{params[:package]}"
+    end
+
     package = project.packages.find_or_initialize_by(name: params[:package])
     package.scmsync = @scmsync
     package.store
