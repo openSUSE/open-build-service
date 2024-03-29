@@ -1,1 +1,1 @@
-$('.tab-content.sourcediff').html("<%= escape_javascript(render(partial: 'webui/request/changes_content', locals: { bs_request: @bs_request, action: @action, diff_to_superseded: @diff_to_superseded })) %>");
+$('#sourcediff-container.tab-content.sourcediff').html("<%= escape_javascript(render(partial: 'webui/request/changes_content', locals: { bs_request: @bs_request, action: @action, diff_to_superseded: @diff_to_superseded })) %>");

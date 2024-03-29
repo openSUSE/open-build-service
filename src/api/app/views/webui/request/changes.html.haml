@@ -18,11 +18,7 @@
                                        diff_to_superseded_id: @diff_to_superseded_id },
                                id: 'sourcediff-container' }
         .result
-          // The content of this div is set by JavaScript which calls the partial ../_changes_content.html.haml
-          = render partial: 'webui/shared/loading', locals: { text: 'Loading changes...' }
-
-          :javascript
-            loadChanges();
+          = render(partial: 'webui/request/changes_content', locals: { bs_request: @bs_request, action: @action, diff_to_superseded: @diff_to_superseded })
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',
                                                  method: :delete,
                                                  options: { modal_title: 'Delete comment?', remote: true })

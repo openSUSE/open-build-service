@@ -186,7 +186,7 @@ function loadDiffs(element){
 }
 
 function loadChanges() { // jshint ignore:line
-  $('.tab-content.sourcediff .loading').removeClass('invisible');
+  $('#sourcediff-container .loading').removeClass('invisible');
 
   // Take the parameters from the container data
   var url = $('#sourcediff-container').data('url');
@@ -196,7 +196,7 @@ function loadChanges() { // jshint ignore:line
   $.ajax({
     url: url + queryString,
     success: function() {
-      $('.tab-content.sourcediff .loading').addClass('invisible');
+      $('#sourcediff-container .loading').addClass('invisible');
     },
     error: function() {
       $('#sourcediff-container .result').text('Something went wrong while loading changes.');
