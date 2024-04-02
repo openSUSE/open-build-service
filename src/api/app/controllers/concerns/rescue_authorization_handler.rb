@@ -10,7 +10,7 @@ module RescueAuthorizationHandler
           if redirect_path
             redirect_to(redirect_path)
           else
-            redirect_back(fallback_location: root_path)
+            redirect_back_or_to root_path
           end
         end
         format.json { render json: { errorcode: authorization_errorcode(exception), summary: authorization_message(exception) }, status: :forbidden }

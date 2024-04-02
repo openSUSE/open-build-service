@@ -11,7 +11,7 @@ module Webui
         @staging_project = @staging_workflow.staging_projects.find_by(name: params[:project_name])
 
         unless @staging_project
-          redirect_back(fallback_location: staging_workflow_path(@staging_workflow))
+          redirect_back_or_to staging_workflow_path(@staging_workflow)
           flash[:error] = "Staging Project \"#{elide(params[:project_name])}\" doesn't exist for this Staging."
           return
         end
@@ -57,13 +57,13 @@ module Webui
         staging_project = @staging_workflow.staging_projects.find_by(name: params[:project_name])
 
         unless staging_project
-          redirect_back(fallback_location: edit_staging_workflow_path(@staging_workflow.project))
+          redirect_back_or_to edit_staging_workflow_path(@staging_workflow.project)
           flash[:error] = "Staging Project \"#{elide(params[:project_name])}\" doesn't exist for this Staging"
           return
         end
 
         if staging_project.staged_requests.present?
-          redirect_back(fallback_location: edit_staging_workflow_path(@staging_workflow.project))
+          redirect_back_or_to edit_staging_workflow_path(@staging_workflow.project)
           flash[:error] = "Staging Project \"#{elide(params[:project_name])}\" could not be deleted because it has staged requests."
           return
         end
@@ -109,7 +109,7 @@ module Webui
         @staging_workflow = @project.staging
         return if @staging_workflow
 
-        redirect_back(fallback_location: root_path)
+        redirect_back_or_to root_path
         flash[:error] = 'Staging project not found'
         nil
       end

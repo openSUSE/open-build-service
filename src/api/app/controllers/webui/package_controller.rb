@@ -37,7 +37,7 @@ class Webui::PackageController < Webui::WebuiController
     if @project.scmsync.present?
       flash[:error] = "Package sources for project #{@project.name} are received through scmsync.
                        This is not yet fully supported by the OBS frontend"
-      redirect_back(fallback_location: project_show_path(@project))
+      redirect_back_or_to project_show_path(@project)
       return
     end
 
@@ -71,7 +71,7 @@ class Webui::PackageController < Webui::WebuiController
       end
     elsif @revision_parameter
       flash[:error] = "No such revision: #{@revision_parameter}"
-      redirect_back(fallback_location: { controller: :package, action: :show, project: @project, package: @package })
+      redirect_back_or_to({ controller: :package, action: :show, project: @project, package: @package })
       return
     end
 
@@ -563,7 +563,7 @@ class Webui::PackageController < Webui::WebuiController
         @rdiff = Backend::Api::Sources::Package.source_diff(project, package, options.merge(expand: 0))
       rescue Backend::Error => e
         flash[:error] = "Error getting diff: #{e.summary}"
-        redirect_back(fallback_location: package_show_path(project: @project, package: @package))
+        redirect_back_or_to package_show_path(project: @project, package: @package)
         return false
       end
     end

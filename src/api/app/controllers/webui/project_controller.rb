@@ -101,7 +101,7 @@ class Webui::ProjectController < Webui::WebuiController
       redirect_to action: 'show', project: @project.name
     else
       flash[:error] = "Failed to save project '#{elide(@project.name)}'. #{@project.errors.full_messages.to_sentence}."
-      redirect_back(fallback_location: root_path)
+      redirect_back_or_to root_path
     end
   end
 
@@ -213,10 +213,10 @@ class Webui::ProjectController < Webui::WebuiController
              BsRequestAction::Errors::UnknownTargetProject,
              BsRequestAction::UnknownTargetPackage => e
         flash[:error] = e.message
-        redirect_back(fallback_location: { action: 'show', project: params[:project] }) && return
+        redirect_back_or_to({ action: 'show', project: params[:project] }) && return
       rescue APIError
         flash[:error] = 'Internal problem while release request creation'
-        redirect_back(fallback_location: { action: 'show', project: params[:project] }) && return
+        redirect_back_or_to({ action: 'show', project: params[:project] }) && return
       end
     end
     redirect_to action: 'show', project: params[:project]
@@ -244,7 +244,7 @@ class Webui::ProjectController < Webui::WebuiController
       redirect_to action: 'show', project: project.name
     else
       flash[:error] = 'Project was never deleted.'
-      redirect_back(fallback_location: root_path)
+      redirect_back_or_to root_path
     end
   end
 
@@ -283,7 +283,7 @@ class Webui::ProjectController < Webui::WebuiController
       @project.store
       redirect_to({ action: :index, controller: :repositories, project: @project }, success: 'Successfully removed path')
     else
-      redirect_back(fallback_location: root_path, error: "Can not remove path: #{@project.errors.full_messages.to_sentence}")
+      redirect_back_or_to root_path, error: "Can not remove path: #{@project.errors.full_messages.to_sentence}"
     end
   end
 
@@ -436,7 +436,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   def require_maintenance_project
     unless @is_maintenance_project
-      redirect_back(fallback_location: { action: 'show', project: @project })
+      redirect_back_or_to({ action: 'show', project: @project })
       return false
     end
     true

@@ -48,7 +48,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     else
       flash[:error] = "Can not add repository: #{repository.errors.full_messages.to_sentence}"
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path) }
+        format.html { redirect_back_or_to root_path }
         format.js
       end
     end
@@ -89,7 +89,7 @@ class Webui::RepositoriesController < Webui::WebuiController
       msg << 'Repository not found.' if @project.valid? && !result
       respond_to do |format|
         flash[:error] = msg
-        format.html { redirect_back(fallback_location: root_path) }
+        format.html { redirect_back_or_to root_path }
         format.js
       end
     end
@@ -146,7 +146,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     else
       flash[:error] = "Can not add image repository: #{repository.errors.full_messages.to_sentence}"
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path) }
+        format.html { redirect_back_or_to root_path }
         format.js { render 'create' }
       end
     end
