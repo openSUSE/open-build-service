@@ -31,7 +31,7 @@
               - raw_data.each do |result|
                 - if result[:repository] == repo
                   = render partial: 'webui/shared/build_status_badge', locals: { status: result[:status],
-                                                                                 text: helpers.repository_status(result),
+                                                                                 text: result[:status].humanize,
                                                                                  architecture: result[:architecture],
                                                                                  url: helpers.live_build_log_url(result[:status],
                                                                                                          result[:project_name],
