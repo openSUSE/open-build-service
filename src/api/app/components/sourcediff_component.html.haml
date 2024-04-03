@@ -5,9 +5,7 @@
         .btn.btn-outline-primary.cache-refresh{ title: 'Refresh results', onclick: "loadChanges()" }
           Crunching the latest data. Refresh again in a few seconds
           %i.fas.fa-sync-alt{ id: "cache#0-reload" }
-        .text-center.p-4.loading.invisible
-          %i.fas.fa-spinner.fa-spin.me-1
-          Loading changes...
+        = render partial: 'webui/shared/loading', locals: { text: 'Loading changes...', wrapper_css: ['loading', 'invisible'] }
     - else
       - (@action.webui_sourcediff).each do |sourcediff|
         .clearfix.mb-2
