@@ -6,7 +6,7 @@ post:
   parameters:
     - $ref: '../components/parameters/request.yaml#/RequestId'
     - in: query
-      name: diff_to_superseded
+      name: superseded_request_number
       schema:
         type: integer
       description: |

@@ -12,7 +12,7 @@ RSpec.describe SourcediffTabComponent, :vcr, type: :component do
 
   context 'shows the correct changes' do
     let!(:bs_request) { submit_request }
-    let!(:opts) { { filelimit: nil, tarlimit: nil, diff_to_superseded: nil, diffs: true, cacheonly: 1 } }
+    let!(:opts) { { filelimit: nil, tarlimit: nil, superseded_request: nil, diffs: true, cacheonly: 1 } }
 
     before do
       User.session = create(:user)

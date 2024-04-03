@@ -19,12 +19,12 @@ RSpec.describe RequestController, :vcr do
       it { expect(response).to have_http_status(:success) }
     end
 
-    context 'with diff_to_superseded parameter' do
+    context 'with superseded_request parameter' do
       let(:another_bs_request) { create(:set_bugowner_request) }
 
       context 'of a not superseded request' do
         before do
-          post :request_command, params: { id: bs_request.number, cmd: :diff, format: :xml, diff_to_superseded: another_bs_request }
+          post :request_command, params: { id: bs_request.number, cmd: :diff, format: :xml, superseded_request_number: another_bs_request.number }
         end
 
         it { expect(response).to have_http_status(:not_found) }
@@ -33,7 +33,7 @@ RSpec.describe RequestController, :vcr do
       context 'of a superseded request' do
         before do
           another_bs_request.update(state: :superseded, superseded_by: bs_request.number)
-          post :request_command, params: { id: bs_request.number, cmd: :diff, format: :xml, diff_to_superseded: another_bs_request }
+          post :request_command, params: { id: bs_request.number, cmd: :diff, format: :xml, superseded_request_number: another_bs_request.number }
         end
 
         it { expect(response).to have_http_status(:success) }
