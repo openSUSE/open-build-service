@@ -22,7 +22,7 @@ All specs live under the [spec](https://github.com/openSUSE/open-build-service/t
 Ruby files with custom matchers, macros or configuration belong in [spec/support/](https://github.com/openSUSE/open-build-service/tree/master/src/api/spec/support) and its subdirectories.
 Require them in the individual `*_spec.rb` or `_helper.rb` files.
 
-Shared examples that are shared among different spec files are stored in [spec/support/shared_examples/](https://github.com/openSUSE/open-build-service/tree/master/src/api/spec/support/shared_examples).
+Shared examples that are shared among different spec files are stored in [spec/shared/examples/](https://github.com/openSUSE/open-build-service/tree/master/src/api/spec/shared/examples).
 Use subdirectories to group them depending on the type of specs they are meant for (_features_, _controllers_, etc...).
 
 ## Spec Types
