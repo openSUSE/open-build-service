@@ -47,7 +47,7 @@ class Webui::SessionController < Webui::WebuiController
     if referer_was_login?
       redirect_to user_path(User.session!)
     else
-      redirect_back(fallback_location: root_path)
+      redirect_back_or_to root_path
     end
   end
 
@@ -55,7 +55,7 @@ class Webui::SessionController < Webui::WebuiController
     if ::Configuration.proxy_auth_mode_enabled?
       redirect_to CONFIG['proxy_auth_logout_page']
     elsif ::Configuration.anonymous
-      redirect_back(fallback_location: root_path)
+      redirect_back_or_to root_path
     else
       redirect_to root_path
     end

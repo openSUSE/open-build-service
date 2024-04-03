@@ -17,7 +17,7 @@ module Webui::RescueHandler
         render json: { error: message }, status: :bad_request
       else
         flash[:error] = message
-        redirect_back(fallback_location: root_path)
+        redirect_back_or_to root_path
       end
     end
 
@@ -27,7 +27,7 @@ module Webui::RescueHandler
         head :not_found
       else
         flash[:error] = message
-        redirect_back(fallback_location: root_path)
+        redirect_back_or_to root_path
       end
     end
 

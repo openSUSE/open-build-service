@@ -52,7 +52,7 @@ module Webui
 
           unless branch_params[:rev]
             flash[:error] = dirhash['error'] || 'Package has no source revision yet'
-            redirect_back(fallback_location: root_path)
+            redirect_back_or_to root_path
             return
           end
         end
@@ -83,10 +83,10 @@ module Webui
         redirect_to(package_show_path(project: e.project, package: e.package))
       rescue CreateProjectNoPermission
         flash[:error] = 'Sorry, you are not authorized to create this project.'
-        redirect_back(fallback_location: root_path)
+        redirect_back_or_to root_path
       rescue ArgumentError, Package::UnknownObjectError, Project::UnknownObjectError, APIError, ActiveRecord::RecordInvalid => e
         flash[:error] = "Failed to branch: #{e.message}"
-        redirect_back(fallback_location: root_path)
+        redirect_back_or_to root_path
       end
     end
   end

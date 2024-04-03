@@ -82,13 +82,13 @@ class Webui::WebuiController < ActionController::Base
       rescue Authenticator::AuthenticationRequiredError => e
         logger.info "Authentication via kerberos failed '#{e.message}'"
         flash[:error] = "Authentication failed: '#{e.message}'"
-        redirect_back(fallback_location: root_path)
+        redirect_back_or_to root_path
         return
       end
       if User.session
         logger.info "User '#{User.session!}' has logged in via kerberos"
         session[:login] = User.session!.login
-        redirect_back(fallback_location: root_path)
+        redirect_back_or_to root_path
         true
       end
     else
@@ -121,7 +121,7 @@ class Webui::WebuiController < ActionController::Base
       rescue NotFoundError
         # admins can see deleted users
         @displayed_user = User.find_by_login(param_login) if User.admin_session?
-        redirect_back(fallback_location: root_path, error: "User not found #{param_login}") unless @displayed_user
+        redirect_back_or_to(root_path, error: "User not found #{param_login}") unless @displayed_user
       end
     else
       @displayed_user = User.possibly_nobody
@@ -167,7 +167,7 @@ class Webui::WebuiController < ActionController::Base
     return if User.admin_session?
 
     flash[:error] = 'Requires admin privileges'
-    redirect_back(fallback_location: { controller: 'main', action: 'index' })
+    redirect_back_or_to({ controller: 'main', action: 'index' })
   end
 
   # before filter to only show the frontpage to anonymous users

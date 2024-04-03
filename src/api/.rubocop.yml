@@ -153,7 +153,7 @@ Style/MethodCallWithArgsParentheses:
     - raw_post
     - raw_put
     - read
-    - redirect_back
+    - redirect_back_or_to
     - redirect_to
     - references
     - register_driver

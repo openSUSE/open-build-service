@@ -12,7 +12,7 @@ module Webui
         kiwi_file = package.kiwi_image_file
 
         unless kiwi_file
-          redirect_back fallback_location: root_path, error: 'There is no KIWI file'
+          redirect_back_or_to root_path, error: 'There is no KIWI file'
           return
         end
 
@@ -157,7 +157,7 @@ module Webui
         @image = ::Kiwi::Image.includes(package_groups: :packages).find(params[:id])
       rescue ActiveRecord::RecordNotFound
         flash[:error] = "KIWI image '#{params[:id]}' does not exist"
-        redirect_back(fallback_location: root_path)
+        redirect_back_or_to root_path
       end
 
       def authorize_update

@@ -46,7 +46,7 @@ module Webui
         end
       rescue Backend::Error => e
         flash[:error] = e.message
-        redirect_back(fallback_location: { controller: :package, action: :show, project: @project, package: @package })
+        redirect_back_or_to({ controller: :package, action: :show, project: @project, package: @package })
       end
 
       def show
@@ -66,8 +66,8 @@ module Webui
                                                                       @architecture, params[:dependant_name])
         return if @fileinfo # avoid displaying an error for non-existing packages
 
-        redirect_back(fallback_location: project_package_repository_binary_url(project_name: @project, package_name: @package,
-                                                                               repository: @repository, arch: @architecture, filename: @filename))
+        redirect_back_or_to project_package_repository_binary_url(project_name: @project, package_name: @package,
+                                                                  repository: @repository, arch: @architecture, filename: @filename)
       end
 
       def destroy
@@ -94,7 +94,7 @@ module Webui
         return @dependant_project if @dependant_project
 
         flash[:error] = "Project '#{elide(@dependant_project_name)}' is invalid."
-        redirect_back(fallback_location: root_path)
+        redirect_back_or_to root_path
       end
 
       def set_dependant_repository
@@ -104,7 +104,7 @@ module Webui
         return @dependant_repository if @dependant_repository
 
         flash[:error] = "Repository '#{@dependant_repository_name}' is invalid."
-        redirect_back(fallback_location: project_show_path(project: @project.name))
+        redirect_back_or_to project_show_path(project: @project.name)
       end
 
       def set_filename

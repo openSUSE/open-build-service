@@ -23,7 +23,7 @@ module Webui
           redirect_to cloud_upload_index_path
         else
           flash[:error] = "Failed to create upload job: #{@upload_job.errors.full_messages.to_sentence}."
-          redirect_back(fallback_location: root_path)
+          redirect_back_or_to root_path
         end
       end
 

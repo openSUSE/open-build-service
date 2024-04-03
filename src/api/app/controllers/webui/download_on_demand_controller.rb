@@ -15,7 +15,7 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
         @project.store
       end
     rescue ActiveRecord::RecordInvalid => e
-      redirect_back(fallback_location: root_path, error: "Download on Demand can't be created: #{e.message}")
+      redirect_back_or_to root_path, error: "Download on Demand can't be created: #{e.message}"
       return
     end
 
@@ -36,7 +36,7 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
         @project.store
       end
     rescue ActiveRecord::RecordInvalid => e
-      redirect_back(fallback_location: root_path, error: "Download on Demand can't be updated: #{e.message}")
+      redirect_back_or_to root_path, error: "Download on Demand can't be updated: #{e.message}"
       return
     end
 
@@ -48,7 +48,7 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
     authorize @download_on_demand
 
     if @download_on_demand.repository.download_repositories.count <= 1
-      redirect_back(fallback_location: root_path, error: "Download on Demand can't be removed: DoD Repositories must have at least one repository.")
+      redirect_back_or_to root_path, error: "Download on Demand can't be removed: DoD Repositories must have at least one repository."
       return
     end
 
@@ -58,7 +58,7 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
         @project.store
       end
     rescue ActiveRecord::RecordInvalid => e
-      redirect_back(fallback_location: root_path, error: "Download on Demand can't be removed: #{e.message}")
+      redirect_back_or_to root_path, error: "Download on Demand can't be removed: #{e.message}"
       return
     end
 

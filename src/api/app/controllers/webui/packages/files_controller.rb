@@ -64,8 +64,8 @@ module Webui
           redirect_to(package_show_path(project: @project, package: @package),
                       success: "#{added_files} have been successfully saved.")
         else
-          redirect_back(fallback_location: root_path,
-                        error: "Error while creating #{added_files} files: #{errors.compact_blank.join("\n")}.")
+          redirect_back_or_to root_path,
+                              error: "Error while creating #{added_files} files: #{errors.compact_blank.join("\n")}."
         end
       end
 
@@ -126,14 +126,14 @@ module Webui
         return unless binary_file?(@filename) # We don't want to display binary files
 
         flash[:error] = "Unable to display binary file #{@filename}"
-        redirect_back(fallback_location: package_show_path(project: @project, package: @package))
+        redirect_back_or_to package_show_path(project: @project, package: @package)
       end
 
       def set_file
         @file = @package.source_file(@filename, params.slice(:rev, :expand).permit!.to_h)
       rescue Backend::Error => e
         flash[:error] = "Error: #{e}"
-        redirect_back(fallback_location: package_show_path(project: @project, package: @package))
+        redirect_back_or_to package_show_path(project: @project, package: @package)
       end
     end
   end

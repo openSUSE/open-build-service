@@ -14,7 +14,7 @@ class Webui::GroupsController < Webui::WebuiController
     return if @group
 
     flash[:error] = "Group '#{params[:title]}' does not exist"
-    redirect_back(fallback_location: { controller: 'main', action: 'index' })
+    redirect_back_or_to({ controller: 'main', action: 'index' })
   end
 
   def new
@@ -33,7 +33,7 @@ class Webui::GroupsController < Webui::WebuiController
     flash[:success] = "Group '#{group}' successfully created."
     redirect_to controller: :groups, action: :index
   rescue ActiveRecord::RecordInvalid
-    redirect_back(fallback_location: root_path, error: "Group can't be saved: #{group.errors.full_messages.to_sentence}")
+    redirect_back_or_to root_path, error: "Group can't be saved: #{group.errors.full_messages.to_sentence}"
   end
 
   def autocomplete

@@ -21,7 +21,7 @@ class Webui::InterconnectsController < Webui::WebuiController
       else
         message = "Failed to create project '#{@project}': #{@project.errors.full_messages.to_sentence}"
         format.html do
-          redirect_back(fallback_location: root_path, error: message)
+          redirect_back_or_to root_path, error: message
         end
         format.js do
           flash.now[:error] = message

@@ -47,7 +47,7 @@ class Webui::UsersController < Webui::WebuiController
       UnregisteredUser.register(create_params)
     rescue APIError => e
       flash[:error] = e.message
-      redirect_back(fallback_location: root_path)
+      redirect_back_or_to root_path
       return
     end
 
@@ -88,7 +88,7 @@ class Webui::UsersController < Webui::WebuiController
         format.html { flash[:error] = message }
         format.js { flash.now[:error] = message }
       end
-      redirect_back(fallback_location: user_path(@displayed_user)) if request.format.symbol == :html
+      redirect_back_or_to user_path(@displayed_user) if request.format.symbol == :html
     end
   end
 
@@ -122,7 +122,7 @@ class Webui::UsersController < Webui::WebuiController
 
     unless @configuration.passwords_changable?(user)
       flash[:error] = "You're not authorized to change your password."
-      redirect_back fallback_location: root_path
+      redirect_back_or_to root_path
       return
     end
 
@@ -135,11 +135,11 @@ class Webui::UsersController < Webui::WebuiController
         redirect_to action: :show, login: user
       else
         flash[:error] = "The password could not be changed. #{user.errors.full_messages.to_sentence}"
-        redirect_back fallback_location: root_path
+        redirect_back_or_to root_path
       end
     else
       flash[:error] = 'The value of current password does not match your current password. Please enter the password and try again.'
-      redirect_back fallback_location: root_path
+      redirect_back_or_to root_path
       nil
     end
   end
