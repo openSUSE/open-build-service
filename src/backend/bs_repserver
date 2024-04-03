@@ -992,6 +992,7 @@ sub getbinarylist {
     }
     for (sort @bins) {
       next if %binaries && !$binaries{$_};
+      next if -d "$reporoot/$prp/$arch/$packid/$_";
       if (/\.tar$/ && ! -e "$reporoot/$prp/$arch/$packid/$_") {
 	my $n = $_;
 	my $fd = BSRepServer::Containertar::open_container("$reporoot/$prp/$arch/$packid/$n");
