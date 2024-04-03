@@ -10,6 +10,12 @@ module Backend
         def self.status
           http_get('/build/_workerstatus')
         end
+
+        # Returns the worker capabilities
+        # @return [String]
+        def self.capabilities(arch, worker_id)
+          http_get("/worker/#{arch}:#{worker_id}")
+        end
       end
     end
   end
