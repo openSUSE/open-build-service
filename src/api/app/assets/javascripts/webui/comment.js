@@ -17,7 +17,7 @@ function validateForm(e) {
   submitButton.prop('disabled', !$(e.target).val());
 }
 
-$(document).ready(function(){
+function handlingCommentEvents() {
   // Disable submit button if textarea is empty and enable otherwise
   $('.comments-list,.comment_new,.timeline,.diff').on('input', '.comment-field', function(e) {
     validateForm(e);
@@ -116,4 +116,8 @@ $(document).ready(function(){
   $('body').on('click', '.cancel-comment', function (e) {
     $(e.target).closest('.collapse').collapse('hide');
   });
+}
+
+$(document).ready(function(){
+  handlingCommentEvents();
 });
