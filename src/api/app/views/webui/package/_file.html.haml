@@ -1,4 +1,4 @@
-- can_be_removed = removable_file?(file_name: file['name'], package: package) && can_modify
+- can_be_removed = removable_file?(file_name: file['name'], package: package) && can_modify && is_current_rev
 %tr{ id: "file-#{valid_xml_id(file['name'])}" }
   %td.text-word-break-all
     - link_opts = { action: :show, controller: 'webui/packages/files', project_name: project,
