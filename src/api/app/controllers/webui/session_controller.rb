@@ -1,5 +1,6 @@
 class Webui::SessionController < Webui::WebuiController
   before_action :kerberos_auth, only: [:new]
+  before_action :already_logged_in, only: [:new]
 
   before_action :session_creator, only: [:create]
   before_action :authenticate, only: [:create]
@@ -63,5 +64,11 @@ class Webui::SessionController < Webui::WebuiController
 
   def referer_was_login?
     request.referer && request.referer.end_with?(new_session_path)
+  end
+
+  def already_logged_in
+    return unless User.session
+
+    redirect_to root_path
   end
 end
