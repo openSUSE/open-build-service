@@ -1,7 +1,9 @@
-= link_to(token_workflow_runs_path(@token, @filter_item),
-          class: "list-group-item list-group-item-action #{css_for_link} d-flex justify-content-between") do
-  %span
-    = icon_tag
-    = @text
+- sanitized_key = @text.parameterize.underscore
+%label.form-check-label.form-group.list-group-item.list-group-item-action.d-flex.justify-content-between{ for: sanitized_key }
+  .form-check
+    = check_box_tag sanitized_key, 1, checked = workflow_run_filter_matches?, class: 'form-check-input me-2'
+    %span
+      = icon_tag
+      = @text
   - if @amount.positive?
     %span= @amount
