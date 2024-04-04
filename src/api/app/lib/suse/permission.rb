@@ -8,7 +8,7 @@
 module Suse
   class Permission
     def to_s
-      "OpenSUSE Permissions for user #{@user.login}"
+      "openSUSE Permissions for user #{@user.login}"
     end
 
     def initialize(u)
