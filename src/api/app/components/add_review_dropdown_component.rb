@@ -1,11 +1,10 @@
 class AddReviewDropdownComponent < ApplicationComponent
-  def initialize(bs_request:, user:, my_open_reviews:, history_elements:)
+  def initialize(bs_request:, user:, my_open_reviews:)
     super
 
     @bs_request = bs_request
     @user = user
     @my_open_reviews = my_open_reviews
-    @history_elements = history_elements
   end
 
   def render?
@@ -26,7 +25,8 @@ class AddReviewDropdownComponent < ApplicationComponent
   end
 
   def reason_when_review_was_requested(review:)
-    reason = @history_elements.reverse.find { |history_element| history_element.type == 'HistoryElement::RequestReviewAdded' && history_element.description_extension == review.id.to_s }&.comment
+    history_elements = bs_request.history_elements.includes(user)
+    reason = history_elements.reverse.find { |history_element| history_element.type == 'HistoryElement::RequestReviewAdded' && history_element.description_extension == review.id.to_s }&.comment
 
     reason || ''
   end

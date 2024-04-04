@@ -3,8 +3,7 @@
   - if request_reviews.present?
     .text-end
       = render AddReviewDropdownComponent.new(bs_request: bs_request, user: User.session,
-                                              my_open_reviews: my_open_reviews,
-                                              history_elements: history_elements)
+                                              my_open_reviews: my_open_reviews)
     = render AddReviewCollapsibleComponent.new
     .mb-2
       %h6

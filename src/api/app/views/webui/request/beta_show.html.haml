@@ -25,8 +25,7 @@
                     request_reviews: @request_reviews,
                     package_maintainers: @package_maintainers,
                     project_maintainers: @project_maintainers,
-                    show_project_maintainer_hint: @show_project_maintainer_hint,
-                    history_elements: @history_elements }
+                    show_project_maintainer_hint: @show_project_maintainer_hint }
 
         .col-md-8.order-md-1.order-sm-2
           .row
@@ -79,10 +78,8 @@
                         Collapse history from superseded request ##{superseding_request.number}
                   .collapse.mb-4#collapse-superseding
                     = render BsRequestActivityTimelineComponent.new(bs_request: superseding_request,
-                                                                    history_elements: @history_elements,
                                                                     request_reviews_for_non_staging_projects: @request_reviews)
                 = render BsRequestActivityTimelineComponent.new(bs_request: @bs_request,
-                                                                history_elements: @history_elements,
                                                                 request_reviews_for_non_staging_projects: @request_reviews)
 
               .comment_new
