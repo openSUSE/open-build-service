@@ -4,8 +4,5 @@
     = label_tag text.parameterize.underscore, "#{text}:", class: 'fs-6'
   .col-9.d-flex
     = text_field_tag(text.parameterize.underscore, '',
-                      class: 'form-control form-control-sm mx-2',
+                      class: 'form-control form-control-sm',
                       placeholder: placeholder, value: selected_input_filter)
-    = button_tag(text.parameterize.underscore, type: 'submit', title: 'Filter!',
-                  class: "btn btn-sm px-3 btn-light border") do
-      %i.fas.fa-magnifying-glass
