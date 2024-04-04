@@ -8,6 +8,8 @@
                           <p><b>Pull/Merge request: </b>
                           A pull/merge request got opened against a selected branch</p>
                           <p><b>Push: </b>A push event occured on a selected branch</p>'
+  pr_mr_request_info_text = '<p>Filter your workflow runs by the action type: <b>it applies only</b>
+                             when the Event Type is <b>Pull/Merge Request</b></p>'
   event_source_info_text = '<p>Filter your workflow runs by the event source. The event source
                             is what triggered this workflow on the SCM.</p>
                             <p> A pull/merge request number like <em>12345</em></p>
@@ -37,6 +39,11 @@
                                               filter_item: { generic_event_type: 'push' }, selected_filter: @selected_filter)
   = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Tag Push', amount: @count['tag_push'],
                                               filter_item: { generic_event_type: 'tag_push' }, selected_filter: @selected_filter)
+.list-group.list-group-flush.mt-5.mb-2
+  %h5.mx-3
+    Pull/Merge Request
+    = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: pr_mr_request_info_text }
+  = render WorkflowRunRequestActionFilterComponent.new(token_id: @token.id, request_action: @request_action)
 .list-group.list-group-flush.mt-5.mb-2
   %h5.mx-3
     Event Source
