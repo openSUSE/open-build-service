@@ -255,7 +255,7 @@ class BsRequestAction < ApplicationRecord
 
   # Serve the sourcediff to the webui
   def webui_sourcediff(opts = {})
-    opts.merge(superseded_bs_request_action: find_action_with_same_target(opts[:diff_to_superseded])) if opts[:diff_to_superseded]
+    opts[:superseded_bs_request_action] = find_action_with_same_target(opts[:diff_to_superseded]) if opts[:diff_to_superseded]
 
     begin
       opts[:view] = 'xml'
@@ -269,8 +269,8 @@ class BsRequestAction < ApplicationRecord
     sorted_filenames_from_sourcediff(sd)
   end
 
-  def diff_not_cached
-    sourcediff_results = webui_sourcediff({ cacheonly: 1 })
+  def diff_not_cached(opts = {})
+    sourcediff_results = webui_sourcediff({ cacheonly: 1, diff_to_superseded: opts[:diff_to_superseded] })
 
     return false if sourcediff_results.present?
 
