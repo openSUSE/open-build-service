@@ -15,6 +15,10 @@ $workflow-runs-filter-box-height: 3.5rem;
   .collapse {
     &.show { border-top: 1px solid $gray-300;}
   }
+
+  .form-check-input:checked {
+    @extend .text-bg-info;
+  }
 }
 
 @include media-breakpoint-up(md) {
