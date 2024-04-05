@@ -1,14 +1,16 @@
+:ruby
+  busy_info_text = render(partial: 'system_status_legend',
+                          locals: { building_workers: building_workers,
+                                    overall_workers: overall_workers,
+                                    waiting_packages: waiting_packages,
+                                    host_title: host_title,
+                                    system_stats: system_stats })
+
 .card.mb-3
   %h5.card-header
     System Status
     - if busy
-      %i.fa.fa-question-circle.text-info{ data: { 'bs-placement': 'top', 'bs-toggle': 'popover', 'bs-html': 'true',
-                                                  'bs-content': render(partial: 'system_status_legend',
-                                                                       locals: { building_workers: building_workers,
-                                                                                 overall_workers: overall_workers,
-                                                                                 waiting_packages: waiting_packages,
-                                                                                 host_title: host_title,
-                                                                                 system_stats: system_stats }) } }
+      = render partial: 'webui/shared/info_popover', locals: { position: 'top', text: busy_info_text }
   .card-body
     - if busy
       .aligncenter#overallgraph
