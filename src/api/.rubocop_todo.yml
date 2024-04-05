@@ -1286,7 +1286,7 @@ ViewComponent/MissingPreviewFile:
     - 'app/components/workflow_run_detail_component.rb'
     - 'app/components/workflow_run_filter_component.rb'
     - 'app/components/workflow_run_filter_input_component.rb'
-    - 'app/components/workflow_run_filter_link_component.rb'
+    - 'app/components/workflow_run_filter_checkbox_component.rb'
     - 'app/components/workflow_run_header_component.rb'
     - 'app/components/workflow_run_request_action_filter_component.rb'
     - 'app/components/workflow_run_row_component.rb'
