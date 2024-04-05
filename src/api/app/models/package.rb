@@ -1304,7 +1304,9 @@ class Package < ApplicationRecord
       permitted_params = params.permit(:repository, :arch, :package, :code, :wipe)
 
       # do not use project.name because we missuse the package source container for build container operations
-      Backend::Connection.post(Addressable::URI.escape("/build/#{build_project}?cmd=#{command}&#{permitted_params.to_h.to_query}"))
+      uri = Addressable::URI.parse("/build/#{build_project}")
+      uri.query_values = { cmd: command }.merge(permitted_params.to_h)
+      Backend::Connection.post(uri.to_s)
     rescue Backend::Error, Timeout::Error, Project::WritePermissionError => e
       errors.add(:base, e.message)
       return false
