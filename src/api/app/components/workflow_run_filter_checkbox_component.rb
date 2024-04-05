@@ -1,4 +1,4 @@
-class WorkflowRunFilterLinkComponent < ApplicationComponent
+class WorkflowRunFilterCheckboxComponent < ApplicationComponent
   def initialize(text:, filter_item:, selected_filter:, token:, amount:, icon: '')
     super
 
