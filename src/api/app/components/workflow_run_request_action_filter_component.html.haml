@@ -1,7 +1,6 @@
-= form_with(url: token_workflow_runs_path(@token_id), method: :get, local: true, class: 'row row-cols-auto') do
-  = hidden_field_tag('generic_event_type', @generic_event_type)
+.form-group.px-4.py-1.d-flex.justify-content-between
   = label_tag('request_action', 'Action', class: 'visually-hidden')
-  .input-group.me-sm-2.px-4
+  .input-group
     .input-group-text
       Action
     = select_tag('request_action',
