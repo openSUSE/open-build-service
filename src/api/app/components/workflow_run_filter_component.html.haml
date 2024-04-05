@@ -21,21 +21,22 @@
     %h5.mx-3
       Status
       = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: status_info_text }
-    = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Succeeded', amount: @count['success'], icon: 'fas fa-check text-primary',
+    = render WorkflowRunFilterCheckboxComponent.new(token: @token, text: 'Succeeded', amount: @count['success'], icon: 'fas fa-check text-primary',
                                                 filter_item: { status: 'success' }, selected_filter: @selected_filter)
-    = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Running', amount: @count['running'], icon: 'fas fa-running',
+    = render WorkflowRunFilterCheckboxComponent.new(token: @token, text: 'Running', amount: @count['running'], icon: 'fas fa-running',
                                                 filter_item: { status: 'running' }, selected_filter: @selected_filter)
-    = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Failed', amount: @count['fail'], icon: 'fas fa-exclamation-triangle text-danger',
+    = render WorkflowRunFilterCheckboxComponent.new(token: @token, text: 'Failed', amount: @count['fail'],
+                                                icon: 'fas fa-exclamation-triangle text-danger',
                                                 filter_item: { status: 'fail' }, selected_filter: @selected_filter)
   .list-group.list-group-flush.mt-5.mb-2
     %h5.mx-3
       Event Type
       = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: event_type_info_text }
-    = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Pull/Merge Request', amount: @count['pull_request'],
+    = render WorkflowRunFilterCheckboxComponent.new(token: @token, text: 'Pull/Merge Request', amount: @count['pull_request'],
                                                 filter_item: { generic_event_type: 'pull_request' }, selected_filter: @selected_filter)
-    = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Push', amount: @count['push'],
+    = render WorkflowRunFilterCheckboxComponent.new(token: @token, text: 'Push', amount: @count['push'],
                                                 filter_item: { generic_event_type: 'push' }, selected_filter: @selected_filter)
-    = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Tag Push', amount: @count['tag_push'],
+    = render WorkflowRunFilterCheckboxComponent.new(token: @token, text: 'Tag Push', amount: @count['tag_push'],
                                                 filter_item: { generic_event_type: 'tag_push' }, selected_filter: @selected_filter)
   .list-group.list-group-flush.mt-5.mb-2
     %h5.mx-3
