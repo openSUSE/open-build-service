@@ -1268,15 +1268,27 @@ class Package < ApplicationRecord
   end
 
   def wipe_binaries(params)
-    backend_build_command(:wipe, params[:project], params.slice(:package, :arch, :repository))
+    begin
+      Backend::Api::Build::Project.wipe_binaries(params[:project], { package: params[:package],
+                                                                     repository: params[:repository],
+                                                                     arch: params[:arch] })
+    rescue Backend::Error, Timeout::Error, Project::WritePermissionError => e
+      errors.add(:base, e.message)
+      return false
+    end
+    true
   end
 
   def abort_build(params)
-    backend_build_command(:abortbuild, params[:project], params.slice(:package, :arch, :repository))
-  end
-
-  def send_sysrq(params)
-    backend_build_command(:sendsysrq, params[:project], params.slice(:package, :arch, :repository, :sysrq))
+    begin
+      Backend::Api::Build::Project.abort_build(params[:project], { package: params[:package],
+                                                                   repository: params[:repository],
+                                                                   arch: params[:arch] })
+    rescue Backend::Error, Timeout::Error, Project::WritePermissionError => e
+      errors.add(:base, e.message)
+      return false
+    end
+    true
   end
 
   def release_target_name(target_repo = nil, time = Time.now.utc)
@@ -1295,23 +1307,6 @@ class Package < ApplicationRecord
     return "#{basename}.#{time.strftime('%Y%m%d%H%M%S')}" if target_repo && target_repo.project.is_maintenance_release?
 
     basename
-  end
-
-  def backend_build_command(command, build_project, params)
-    begin
-      Project.find_by(name: build_project).check_write_access!
-      # Note: This list needs to keep in sync with the backend code
-      permitted_params = params.permit(:repository, :arch, :package, :code, :wipe)
-
-      # do not use project.name because we missuse the package source container for build container operations
-      uri = Addressable::URI.parse("/build/#{build_project}")
-      uri.query_values = { cmd: command }.merge(permitted_params.to_h)
-      Backend::Connection.post(uri.to_s)
-    rescue Backend::Error, Timeout::Error, Project::WritePermissionError => e
-      errors.add(:base, e.message)
-      return false
-    end
-    true
   end
 
   def file_exists?(filename, opts = {})
