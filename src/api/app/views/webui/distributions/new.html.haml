@@ -1,5 +1,10 @@
-- @pagetitle = "Add distribution repository to #{@project}"
-
+:ruby
+  - @pagetitle = "Add distribution repository to #{@project}"
+  - variants_info_text = 'Variants are distributions of the same general kind that
+                          only differ in the set of packages they include. You should
+                          consult the distributions documentation to learn more about
+                          the variants. It is only possible to add one distribution
+                          variant as repository.'
 
 .card.mb-3
   = render partial: 'webui/project/tabs', locals: { project: @project }
@@ -20,13 +25,7 @@
                     - if variants.length > 1
                       = variants.first.reponame
                       Variants
-                      %i.fa.fa-question-circle.text-info{ data: { 'bs-placement': 'top',
-                                                                  'bs-toggle': 'popover',
-                                                                  'bs-content': 'Variants are distributions of the same general kind that
-                                                                                 only differ in the set of packages they include. You should
-                                                                                 consult the distributions documentation to learn more about
-                                                                                 the variants. It is only possible to add one distribution
-                                                                                 variant as repository.' } }
+                      = render partial: 'webui/shared/info_popover', locals: { position: 'top', text: variants_info_text }
                       \:
                     - variants.each do |variant|
                       = form_tag(toggle_project_distributions_path, remote: true, id: "distribution-#{variant.id}-form") do
