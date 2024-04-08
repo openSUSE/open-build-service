@@ -538,6 +538,12 @@ sub revcpiofile {
   return BSSrcrep::cpiofile($rev->{'project'}, $rev->{'package'}, $filename, $md5, $forcehandle);
 }
 
+sub revdigest {
+  my ($rev, $filename, $md5, $alg) = @_;
+  die("unsupported algorithm: $alg\n") unless $alg eq 'sha256';
+  return "$alg:" . BSSrcrep::filesha256($rev->{'project'}, $rev->{'package'}, $filename, $md5);
+}
+
 sub lsrev {
   my ($rev, $linkinfo) = @_;
   die("nothing known\n") unless $rev;
