@@ -180,7 +180,7 @@ GEM
       sanitize (< 7)
     flot-rails (0.0.7)
       jquery-rails
-    font-awesome-sass (6.5.1)
+    font-awesome-sass (6.5.2)
       sassc (~> 2.0)
     fuubar (2.5.1)
       rspec-core (~> 3.0)
