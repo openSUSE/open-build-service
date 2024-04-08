@@ -1,14 +1,26 @@
+:ruby
+  status_info_text = '<p>Filter your workflow runs by the current state</p>
+                      <p><b>Succeeded: </b>Workflow run execution was successful</p>
+                      <p><b>Running: </b>Workflow run is still in progress</p>
+                      <p><b>Failed: </b>Workflow run failed at some point</p>'
+  event_type_info_text = '<p>Filter your workflow runs by the event reported by the SCM,
+                          which triggered the execution in the Open Build Service</p>
+                          <p><b>Pull/Merge request: </b>
+                          A pull/merge request got opened against a selected branch</p>
+                          <p><b>Push: </b>A push event occured on a selected branch</p>'
+  event_source_info_text = '<p>Filter your workflow runs by the event source. The event source
+                            is what triggered this workflow on the SCM.</p>
+                            <p> A pull/merge request number like <em>12345</em></p>
+                            <p>or a git commit hash like
+                            <em>97561db8664eaf86a1e4c7b77d5fb5d5bff6681e</em></p>'
+
 .list-group.list-group-flush.my-2
   = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'All', amount: @count['all'],
                                               filter_item: {}, selected_filter: @selected_filter)
 .list-group.list-group-flush.mt-5.mb-2
   %h5.mx-3
     Status
-    %i.fa.fa-question-circle.text-info{ data: { 'bs-placement': 'bottom', 'bs-toggle': 'popover', 'bs-html': 'true',
-                                                'bs-content': '<p>Filter your workflow runs by the current state</p>
-                                                               <p><b>Succeeded: </b>Workflow run execution was successful</p>
-                                                               <p><b>Running: </b>Workflow run is still in progress</p>
-                                                               <p><b>Failed: </b>Workflow run failed at some point</p>' } }
+    = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: status_info_text }
   = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Succeeded', amount: @count['success'], icon: 'fas fa-check text-primary',
                                               filter_item: { status: 'success' }, selected_filter: @selected_filter)
   = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Running', amount: @count['running'], icon: 'fas fa-running',
@@ -18,12 +30,7 @@
 .list-group.list-group-flush.mt-5.mb-2
   %h5.mx-3
     Event Type
-    %i.fa.fa-question-circle.text-info{ data: { 'bs-placement': 'bottom', 'bs-toggle': 'popover', 'bs-html': 'true',
-                                                'bs-content': '<p>Filter your workflow runs by the event reported by the SCM,
-                                                               which triggered the execution in the Open Build Service</p>
-                                                               <p><b>Pull/Merge request: </b>
-                                                               A pull/merge request got opened against a selected branch</p>
-                                                               <p><b>Push: </b>A push event occured on a selected branch</p>' } }
+    = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: event_type_info_text }
   = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Pull/Merge Request', amount: @count['pull_request'],
                                               filter_item: { generic_event_type: 'pull_request' }, selected_filter: @selected_filter)
   = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Push', amount: @count['push'],
@@ -33,12 +40,7 @@
 .list-group.list-group-flush.mt-5.mb-2
   %h5.mx-3
     Event Source
-    %i.fa.fa-question-circle.text-info{ data: { 'bs-placement': 'bottom', 'bs-toggle': 'popover', 'bs-html': 'true',
-                                                'bs-content': '<p>Filter your workflow runs by the event source. The event source
-                                                               is what triggered this workflow on the SCM.</p>
-                                                               <p> A pull/merge request number like <em>12345</em></p>
-                                                               <p>or a git commit hash like
-                                                               <em>97561db8664eaf86a1e4c7b77d5fb5d5bff6681e</em></p>' } }
+    = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: event_source_info_text }
   = render WorkflowRunFilterInputComponent.new(token_id: @token.id, text: 'PR/MR', selected_input_filter: @selected_filter[:pr_number],
                                                placeholder: '12345')
   = render WorkflowRunFilterInputComponent.new(token_id: @token.id, text: 'Commit', selected_input_filter: @selected_filter[:commit_sha],
