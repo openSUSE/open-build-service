@@ -384,4 +384,26 @@ RSpec.describe 'Packages', :js, :vcr do
       end
     end
   end
+
+  describe 'Viewing package with older revision' do
+    let(:revision_package) { create(:package_with_file, name: 'revision_test_package', project: user.home_project) }
+    let(:revision) { revision_package.rev.to_i - 1 }
+    let(:hashed_revision) { revision_package.dir_hash(rev: revision) }
+    let(:srcmd5) { hashed_revision['srcmd5'] }
+    let(:file_in_revision) { hashed_revision.elements('entry')[0]['name'] }
+
+    before do
+      login(user)
+      revision_package.save_file(filename: 'revision_file', file: 'new content')
+      visit package_show_path(project: user.home_project, package: revision_package, rev: revision)
+    end
+
+    it 'contains file from revision including the revision parameter' do
+      expect(page).to have_link(file_in_revision, href: project_package_file_path(revision_package.project, revision_package, file_in_revision, rev: srcmd5, expand: 1))
+    end
+
+    it 'does not display delete buttons for files' do
+      expect(page).to have_no_css('a[title="Delete file"]')
+    end
+  end
 end
