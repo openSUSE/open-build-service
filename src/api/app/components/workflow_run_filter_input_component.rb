@@ -7,6 +7,6 @@ class WorkflowRunFilterInputComponent < ApplicationComponent
     @text = text
     @filter_item = filter_item
     @placeholder = placeholder
-    @selected_input_value = selected_input_filter[filter_item] if selected_input_filter
+    @selected_input_value = selected_input_filter.with_indifferent_access[filter_item] if selected_input_filter
   end
 end
