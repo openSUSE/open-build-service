@@ -93,7 +93,39 @@ class WorkflowRunPayload
     payload['action'] || payload.dig('object_attributes', 'action')
   end
 
+  def api_endpoint
+    github_api_endpoint || gitlab_api_endpoint || gitea_api_endpoint
+  end
+
   private
+
+  def github_api_endpoint
+    sender_url = payload.dig(:sender, :url)
+    return unless sender_url
+
+    host = URI.parse(sender_url).host
+    if host.start_with?('api.github.com')
+      "https://#{host}"
+    else
+      "https://#{host}/api/v3/"
+    end
+  end
+
+  def gitlab_api_endpoint
+    project_url = payload.dig(:project, :http_url)
+    return unless project_url
+
+    uri = URI.parse(project_url)
+    "#{uri.scheme}://#{uri.host}"
+  end
+
+  def gitea_api_endpoint
+    repositoy_url = payload.dig(:repository, :clone_url)
+    return unless repositoy_url
+
+    url = URI.parse(repositoy_url)
+    "#{url.scheme}://#{url.host}"
+  end
 
   def github_push_event?
     scm_vendor == 'github' && payload[:event] == 'push' && payload.fetch(:ref, '').start_with?('refs/heads/')
