@@ -1,6 +1,8 @@
 # rubocop:disable Metrics/ClassLength
 
 class WorkflowRun < ApplicationRecord
+  include WorkflowRunPayload
+
   SOURCE_URL_PAYLOAD_MAPPING = {
     'pull_request' => %w[pull_request html_url],
     'Merge Request Hook' => %w[object_attributes url],
@@ -69,9 +71,9 @@ class WorkflowRun < ApplicationRecord
   end
 
   def payload
-    JSON.parse(request_payload.presence || {})
+    JSON.parse(request_payload.presence || {}).with_indifferent_access
   rescue JSON::ParserError
-    { payload: 'unparseable' }
+    { payload: 'unparseable' }.with_indifferent_access
   end
 
   def repository_full_name
