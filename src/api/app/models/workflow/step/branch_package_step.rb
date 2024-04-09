@@ -115,7 +115,7 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
     project.relationships.build(user: @token.executor,
                                 role: Role.find_by_title('maintainer'))
     project.commit_user = User.session
-    project.store
+    project.store(comment: 'SCI/CI integration, branch_package step')
   end
 
   # FIXME: Just because the tar_scm service accepts different formats for the _branch_request file, we don't need to have code

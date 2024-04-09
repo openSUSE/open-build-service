@@ -45,7 +45,7 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
       Pundit.authorize(@token.executor, project, :create?)
 
       project.relationships.new(user: User.session, role: Role.find_by_title('maintainer'))
-      project.store
+      project.store(comment: 'SCM/CI integration, link_package step')
     end
 
     package = target_project.packages.new(name: target_package_name)
