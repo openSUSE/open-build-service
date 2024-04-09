@@ -6,6 +6,13 @@ class WorkflowRunPayload
   ALLOWED_MERGE_REQUEST_ACTIONS = %w[close merge open reopen update].freeze
   ALL_POSSIBLE_REQUEST_ACTIONS = ['all'] + ALLOWED_PULL_REQUEST_ACTIONS + ALLOWED_MERGE_REQUEST_ACTIONS
 
+  SOURCE_NAME_PAYLOAD_MAPPING = {
+    'pull_request' => %w[pull_request number],
+    'Merge Request Hook' => %w[object_attributes iid],
+    'push' => %w[head_commit id],
+    'Push Hook' => ['commits', 0, 'id']
+  }.freeze
+
   def new_pull_request?
     (github_pull_request? && payload[:action] == 'opened') ||
       (gitlab_merge_request? && payload[:action] == 'open') ||
@@ -56,6 +63,34 @@ class WorkflowRunPayload
 
   def ignored_push_event?
     ignored_github_push_event? || ignored_gitlab_push_event?
+  end
+
+  def payload_generic_event_type
+    # We only have filters for push, tag_push, and pull_request
+    if hook_event == 'Push Hook' || payload.fetch('ref', '').match('refs/heads')
+      'push'
+    elsif hook_event == 'Tag Push Hook' || payload.fetch('ref', '').match('refs/tag')
+      'tag_push'
+    elsif hook_event.in?(['pull_request', 'Merge Request Hook'])
+      'pull_request'
+    end
+  end
+
+  def payload_event_source_name
+    path = SOURCE_NAME_PAYLOAD_MAPPING[hook_event]
+    payload.dig(*path) if path
+  end
+
+  def payload_repository_name
+    payload.dig('repository', 'name') || payload.dig('project', 'path_with_namespace')&.split('/')&.last
+  end
+
+  def payload_repository_owner
+    payload.dig('repository', 'owner', 'login') || payload.dig('project', 'path_with_namespace')&.split('/')&.first
+  end
+
+  def payload_hook_action
+    payload['action'] || payload.dig('object_attributes', 'action')
   end
 
   private

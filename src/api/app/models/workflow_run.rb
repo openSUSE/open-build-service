@@ -23,7 +23,7 @@ class WorkflowRun < ApplicationRecord
             :workflow_configuration_path, :workflow_configuration_url,
             :hook_event, :hook_action, :generic_event_type,
             :repository_name, :repository_owner, :event_source_name, length: { maximum: 255 }
-  validates :request_headers, :status, presence: true
+  validates :request_headers, :status, :scm_vendor, :hook_event, presence: true
   validates :workflow_configuration, length: { maximum: 65_535 }
 
   belongs_to :token, class_name: 'Token::Workflow', optional: true
@@ -32,6 +32,7 @@ class WorkflowRun < ApplicationRecord
   has_many :event_subscriptions, dependent: :destroy
   has_many :notifications, as: :notifiable, dependent: :delete_all
 
+  before_save :set_attributes_from_payload
   after_save :create_event, if: :status_changed_to_fail?
 
   scope :pull_request, -> { where(generic_event_type: 'pull_request') }
@@ -132,6 +133,14 @@ class WorkflowRun < ApplicationRecord
   end
 
   private
+
+  def set_attributes_from_payload
+    self.hook_action = payload_hook_action
+    self.event_source_name = payload_event_source_name
+    self.repository_name = payload_repository_name
+    self.repository_owner = payload_repository_owner
+    self.generic_event_type = payload_generic_event_type
+  end
 
   def event_parameters
     { id: id, token_id: token_id, hook_event: hook_event&.humanize || 'unknown', summary: summary, repository_full_name: repository_full_name }
