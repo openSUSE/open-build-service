@@ -25,23 +25,17 @@ RSpec.describe WorkflowRunsFinder do
     end
   end
 
-  describe '#group_by_generic_event_type' do
-    it 'returns a hash with the amount of workflow runs grouped by event' do
-      expect(subject.group_by_generic_event_type).to include({ 'pull_request' => 7, 'push' => 2, 'tag_push' => 2 })
-    end
-  end
-
   describe '#with_generic_event_type' do
     it 'returns workflows for pull_request generic event' do
-      expect(subject.with_generic_event_type('pull_request').count).to eq(7)
+      expect(subject.with_type('pull_request').count).to eq(7)
     end
 
     it 'returns workflows for push generic event' do
-      expect(subject.with_generic_event_type('push').count).to eq(2)
+      expect(subject.with_type('push').count).to eq(2)
     end
 
     it 'returns workflows for tag push generic event' do
-      expect(subject.with_generic_event_type('tag_push').count).to eq(2)
+      expect(subject.with_type('tag_push').count).to eq(2)
     end
   end
 
@@ -57,19 +51,19 @@ RSpec.describe WorkflowRunsFinder do
 
   describe '#succeeded' do
     it 'returns all workflow runs with status success' do
-      expect(subject.succeeded.count).to eq(9)
+      expect(subject.with_status('success').count).to eq(9)
     end
   end
 
   describe '#running' do
     it 'returns all workflow runs with status running' do
-      expect(subject.running.count).to eq(1)
+      expect(subject.with_status('running').count).to eq(1)
     end
   end
 
   describe '#failed' do
     it 'returns all workflow runs with status fail' do
-      expect(subject.failed.count).to eq(1)
+      expect(subject.with_status('fail').count).to eq(1)
     end
   end
 end

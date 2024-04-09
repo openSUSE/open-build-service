@@ -17,6 +17,12 @@ class WorkflowRunFilterCheckboxComponent < ApplicationComponent
   private
 
   def workflow_run_filter_matches?
-    @selected_filter[@filter_item].present?
+    if @selected_filter[:status].present?
+      @selected_filter[:status].include?(@filter_item[:status])
+    elsif @selected_filter[:event_type].present?
+      @selected_filter[:event_type].include?(@filter_item[:generic_event_type])
+    elsif @selected_filter.empty?
+      @filter_item.empty?
+    end
   end
 end

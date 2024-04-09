@@ -22,22 +22,25 @@
       %b Status
       = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: status_info_text }
     = render WorkflowRunFilterCheckboxComponent.new(text: 'Succeeded', amount: @count['success'], icon: 'fas fa-check text-primary',
-                                                filter_item: { status: 'success' }, selected_filter: @selected_filter)
+                                                filter_item: { status: 'success' }, selected_filter: { status: @selected_filter.status })
     = render WorkflowRunFilterCheckboxComponent.new(text: 'Running', amount: @count['running'], icon: 'fas fa-running',
-                                                filter_item: { status: 'running' }, selected_filter: @selected_filter)
+                                                filter_item: { status: 'running' }, selected_filter: { status: @selected_filter.status })
     = render WorkflowRunFilterCheckboxComponent.new(text: 'Failed', amount: @count['fail'],
                                                 icon: 'fas fa-exclamation-triangle text-danger',
-                                                filter_item: { status: 'fail' }, selected_filter: @selected_filter)
+                                                filter_item: { status: 'fail' }, selected_filter: { status: @selected_filter.status })
   .list-group.list-group-flush.mt-4.mb-4
     %h6.px-3.py-2
       %b Event Type
       = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: event_type_info_text }
     = render WorkflowRunFilterCheckboxComponent.new(text: 'Pull/Merge Request', amount: @count['pull_request'],
-                                                filter_item: { generic_event_type: 'pull_request' }, selected_filter: @selected_filter)
+                                                filter_item: { generic_event_type: 'pull_request' },
+                                                selected_filter: { event_type: @selected_filter.event_types })
     = render WorkflowRunFilterCheckboxComponent.new(text: 'Push', amount: @count['push'],
-                                                filter_item: { generic_event_type: 'push' }, selected_filter: @selected_filter)
+                                                filter_item: { generic_event_type: 'push' },
+                                                selected_filter: { event_type: @selected_filter.event_types })
     = render WorkflowRunFilterCheckboxComponent.new(text: 'Tag Push', amount: @count['tag_push'],
-                                                filter_item: { generic_event_type: 'tag_push' }, selected_filter: @selected_filter)
+                                                filter_item: { generic_event_type: 'tag_push' },
+                                                selected_filter: { event_type: @selected_filter.event_types })
   .list-group.list-group-flush.mt-4.mb-4
     %h6.px-3.py-2
       %b Pull/Merge Request
@@ -47,10 +50,10 @@
     %h6.px-3.py-2
       %b Event Source
       = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: event_source_info_text }
-    = render WorkflowRunFilterInputComponent.new(text: 'PR/MR', selected_input_filter: @selected_filter[:pr_number],
-                                                placeholder: 'e.g. 12345', filter_item: 'pr_mr')
-    = render WorkflowRunFilterInputComponent.new(text: 'Commit', selected_input_filter: @selected_filter[:commit_sha],
-                                                placeholder: 'e.g. 97561db8664eaf86a1e4c7b77d5fb5d5bff6681e', filter_item: 'commit_sha')
+    = render WorkflowRunFilterInputComponent.new(text: 'PR/MR', selected_input_filter: { pr_mr: @selected_filter.pr_mr },
+                                                placeholder: '12345', filter_item: 'pr_mr')
+    = render WorkflowRunFilterInputComponent.new(text: 'Commit', selected_input_filter: { commit_sha: @selected_filter.commit },
+                                                placeholder: '97561db8664eaf86a1e4c7b77d5fb5d5bff6681e', filter_item: 'commit_sha')
 
   .text-center.mt-4.mb-4
     = link_to('Clear', token_workflow_runs_path(@token, []), class: 'btn btn-light border')
