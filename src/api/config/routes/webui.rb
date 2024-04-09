@@ -291,7 +291,7 @@ constraints(RoutesHelper::WebuiMatcher) do
           get :dependency
         end
         # We wipe all binaries at once, so this is resource instead of resources
-        resource :binaries, controller: 'webui/packages/binaries', only: [:destroy]
+        resource :binaries, controller: 'webui/packages/binaries', only: [:destroy], constraints: cons
       end
     end
 
