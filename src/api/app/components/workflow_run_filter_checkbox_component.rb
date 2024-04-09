@@ -1,12 +1,11 @@
 class WorkflowRunFilterCheckboxComponent < ApplicationComponent
-  def initialize(text:, filter_item:, selected_filter:, token:, amount:, icon: '')
+  def initialize(text:, filter_item:, selected_filter:, amount:, icon: '')
     super
 
     @text = text
     @filter_item = filter_item
     @selected_filter = selected_filter
     @amount = amount || 0
-    @token = token
     @icon = icon
   end
 
