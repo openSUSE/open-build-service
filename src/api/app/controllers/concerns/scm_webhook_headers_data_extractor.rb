@@ -22,15 +22,4 @@ module ScmWebhookHeadersDataExtractor
       SCMWebhookEventValidator::ALLOWED_GITLAB_EVENTS.exclude?(hook_event)
     end
   end
-
-  def extract_generic_event_type
-    # We only have filters for push, tag_push, and pull_request
-    if hook_event == 'Push Hook' || payload.fetch('ref', '').match('refs/heads')
-      'push'
-    elsif hook_event == 'Tag Push Hook' || payload.fetch('ref', '').match('refs/tag')
-      'tag_push'
-    elsif hook_event.in?(['pull_request', 'Merge Request Hook'])
-      'pull_request'
-    end
-  end
 end
