@@ -1267,30 +1267,6 @@ class Package < ApplicationRecord
     true
   end
 
-  def wipe_binaries(params)
-    begin
-      Backend::Api::Build::Project.wipe_binaries(params[:project], { package: params[:package],
-                                                                     repository: params[:repository],
-                                                                     arch: params[:arch] })
-    rescue Backend::Error, Timeout::Error, Project::WritePermissionError => e
-      errors.add(:base, e.message)
-      return false
-    end
-    true
-  end
-
-  def abort_build(params)
-    begin
-      Backend::Api::Build::Project.abort_build(params[:project], { package: params[:package],
-                                                                   repository: params[:repository],
-                                                                   arch: params[:arch] })
-    rescue Backend::Error, Timeout::Error, Project::WritePermissionError => e
-      errors.add(:base, e.message)
-      return false
-    end
-    true
-  end
-
   def release_target_name(target_repo = nil, time = Time.now.utc)
     if releasename.nil? && project.is_maintenance_incident? && linkinfo && linkinfo['package']
       # old incidents special case

@@ -73,17 +73,16 @@ module Webui
       def destroy
         authorize @package, :update?
 
-        opts = params.slice(:arch)
-        opts[:repository] = params[:repository_name]
-        opts[:package] = @package_name
-        opts[:project] = @project.name
-        if @package.wipe_binaries(opts)
+        begin
+          Backend::Api::Build::Project.wipe_binaries(@project.name, { package: @package_name,
+                                                                      repository: params[:repository_name],
+                                                                      arch: params[:arch] }.compact)
           flash[:success] = "Triggered wipe binaries for #{elide(@project.name)}/#{elide(@package_name)} successfully."
-        else
-          flash[:error] = "Error while triggering wipe binaries for #{elide(@project.name)}/#{elide(@package_name)}: #{@package.errors.full_messages.to_sentence}."
+        rescue Backend::Error, Timeout::Error, Project::WritePermissionError => e
+          flash[:error] = "Error while triggering wipe binaries for #{elide(@project.name)}/#{elide(@package_name)}: #{e.message}."
         end
 
-        redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package, repository_name: @repository)
+        redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package_name, repository_name: @repository)
       end
 
       private
