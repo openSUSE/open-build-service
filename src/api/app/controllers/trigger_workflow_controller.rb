@@ -14,7 +14,6 @@ class TriggerWorkflowController < ApplicationController
   skip_before_action :validate_xml_request
 
   before_action :set_token
-  before_action :set_scm_event
   before_action :set_scm_extractor
   before_action :extract_scm_webhook
   before_action :verify_event_and_action
