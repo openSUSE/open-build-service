@@ -1,6 +1,5 @@
 class TriggerWorkflowController < ApplicationController
   include ScmWebhookHeadersDataExtractor
-  include ScmWebhookPayloadDataExtractor
   include Trigger::Errors
 
   # Authentication happens with tokens, so extracting the user is not required
@@ -15,6 +14,7 @@ class TriggerWorkflowController < ApplicationController
 
   before_action :validate_scm_vendor
   before_action :set_token
+  before_action :validate_request_body_is_yaml
   before_action :validate_token_type
   before_action :set_scm_extractor
   before_action :extract_scm_webhook
@@ -50,6 +50,16 @@ class TriggerWorkflowController < ApplicationController
     raise InvalidToken, 'No valid token found' unless @token
   end
 
+  def validate_request_body_is_yaml
+    raise Trigger::Errors::BadSCMPayload if request_body.blank?
+
+    begin
+      JSON.parse(request_body)
+    rescue JSON::ParserError
+      raise Trigger::Errors::BadSCMPayload
+    end
+  end
+
   def pundit_user
     @token.executor
   end
@@ -83,12 +93,7 @@ class TriggerWorkflowController < ApplicationController
                                                 workflow_configuration_path: @token.workflow_configuration_path,
                                                 workflow_configuration_url: @token.workflow_configuration_url,
                                                 scm_vendor: scm_vendor,
-                                                hook_event: hook_event,
-                                                hook_action: extract_hook_action,
-                                                repository_name: extract_repository_name,
-                                                repository_owner: extract_repository_owner,
-                                                event_source_name: extract_event_source_name,
-                                                generic_event_type: extract_generic_event_type)
+                                                hook_event: hook_event)
   end
 
   def verify_event_and_action
