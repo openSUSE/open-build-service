@@ -1,26 +1,17 @@
+# Methods to help identify which SCM and webhook we are dealing with based on the request headers
 module ScmWebhookHeadersDataExtractor
   extend ActiveSupport::Concern
 
-  def set_scm_event
-    @gitlab_event = request.env['HTTP_X_GITLAB_EVENT']
-    # Gitea contains the Github headers as well, so we have to check that the Gitea ones are
-    # not present for Github
-    @github_event = request.env['HTTP_X_GITHUB_EVENT'] unless request.env['HTTP_X_GITEA_EVENT']
-    @gitea_event = request.env['HTTP_X_GITEA_EVENT']
+  def hook_event
+    request.env['HTTP_X_GITEA_EVENT'] || request.env['HTTP_X_GITHUB_EVENT'] || request.env['HTTP_X_GITLAB_EVENT'] || 'unknown'
   end
 
   def scm_vendor
-    if @gitlab_event
-      'gitlab'
-    elsif @github_event
-      'github'
-    elsif @gitea_event
-      'gitea'
-    end
-  end
+    return 'gitlab' if request.env['HTTP_X_GITLAB_EVENT']
+    return 'gitea' if request.env['HTTP_X_GITEA_EVENT'] # the order here is important as gitea requests include both headers GITEA_EVENT and GITHUB_EVENT
+    return 'github' if request.env['HTTP_X_GITHUB_EVENT']
 
-  def hook_event
-    @github_event || @gitlab_event || @gitea_event
+    'unknown'
   end
 
   def ignored_event?
