@@ -1,6 +1,6 @@
 # Contains the payload extracted from a SCM webhook and provides helper methods to know which webhook event we're dealing with
-class SCMWebhook
-  include ActiveModel::Model
+class WorkflowRunPayload
+  extend ActiveSupport::Concern
   include SCMWebhookInstrumentation # for run_callbacks
 
   attr_accessor :payload
