@@ -8,9 +8,11 @@ $themed-dark-nav-bg: #121212;
 :root {
   --navbar-themed-bg: #{$gray-800};
   --breadcrumbs-item-text-color: #{$gray-700};
+  --placeholder-text: #{$gray-600};
 }
 
 @include color-mode(dark) {
   --navbar-themed-bg: #{$themed-dark-nav-bg};
   --breadcrumbs-item-text-color: #{$gray-400};
+  --placeholder-text: #{$gray-500};
 }
