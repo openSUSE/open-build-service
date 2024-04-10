@@ -14,6 +14,7 @@ class TriggerWorkflowController < ApplicationController
   skip_before_action :validate_xml_request
 
   before_action :set_token
+  before_action :validate_token_type
   before_action :set_scm_extractor
   before_action :extract_scm_webhook
   before_action :verify_event_and_action
@@ -63,9 +64,11 @@ class TriggerWorkflowController < ApplicationController
     raise Trigger::Errors::MissingExtractor, @scm_extractor.error_message
   end
 
-  def create_workflow_run
+  def validate_token_type
     raise Trigger::Errors::InvalidToken, 'Wrong token type. Please use workflow tokens only.' unless @token.is_a?(Token::Workflow)
+  end
 
+  def create_workflow_run
     request_headers = request.headers.to_h.keys.filter_map { |k| "#{k}: #{request.headers[k]}" if k.match?(/^HTTP_/) }.join("\n")
     @workflow_run = @token.workflow_runs.create(request_headers: request_headers,
                                                 request_payload: request.body.read,
