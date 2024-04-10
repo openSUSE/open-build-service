@@ -80,8 +80,8 @@ GEM
       airbrake-ruby (~> 4.6)
     airbrake-ruby (4.6.0)
       rbtree3 (~> 0.5)
-    ajax-datatables-rails (1.4.0)
-      rails (>= 5.2)
+    ajax-datatables-rails (1.5.0)
+      rails (>= 6.0)
       zeitwerk
     amq-protocol (2.3.2)
     annotate (3.2.0)
