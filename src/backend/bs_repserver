@@ -2708,8 +2708,9 @@ sub copybuild {
   writexml("$eventdir/$arch/.copybuild:$job$$", "$eventdir/$arch/copybuild:$job", $ev, $BSXML::event);
   if (%delayed_linking) {
     # see above
+    my $origarch = $info->{'arch'};
     $ev = {'type' => 'resumeproject', 'project' => $projid, 'job' => "copybuild:$job" };
-    writexml("$eventdir/$arch/.resumeproject:$job$$", "$eventdir/$arch/resumeproject:$job", $ev, $BSXML::event);
+    writexml("$eventdir/$origarch/.resumeproject:$job$$", "$eventdir/$origarch/resumeproject:$job", $ev, $BSXML::event);
   }
   BSUtil::ping("$eventdir/$arch/.ping");
   return $BSStdServer::return_ok;
