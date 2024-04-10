@@ -66,7 +66,7 @@ RSpec.describe Workflow::Step::SetFlags do
 
       context 'when one flag is given' do
         before do
-          login target_project.commit_user
+          login user
         end
 
         it 'adds flag to the project' do
@@ -97,7 +97,7 @@ RSpec.describe Workflow::Step::SetFlags do
         end
 
         before do
-          login target_project.commit_user
+          login user
         end
 
         it 'add flags to the project' do
