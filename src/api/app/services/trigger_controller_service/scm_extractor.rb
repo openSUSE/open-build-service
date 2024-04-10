@@ -37,8 +37,6 @@ module TriggerControllerService
     end
 
     def error_message
-      return 'Only GitHub, GitLab and Gitea are supported. Could not find the required HTTP request headers X-GitHub-Event, X-Gitlab-Event or X-Gitea-Event.' if @scm.nil?
-
       'This SCM event is not supported' if @extractor.nil?
     end
   end
