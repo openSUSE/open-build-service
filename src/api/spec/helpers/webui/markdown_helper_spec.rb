@@ -13,10 +13,11 @@ RSpec.describe Webui::MarkdownHelper do
     end
 
     it 'detects all the mentions to users' do
-      expect(render_as_markdown('@alfie @milo and @Admin, please review. Also you, @test1 and @user.name.')).to eq(
+      expect(render_as_markdown('@alfie @milo @Admin and @ann+factory, please review. Also you, @test1 and @user.name.')).to eq(
         '<p><a href="https://unconfigured.openbuildservice.org/users/alfie" rel="nofollow">@alfie</a> ' \
         '<a href="https://unconfigured.openbuildservice.org/users/milo" rel="nofollow">@milo</a> ' \
-        'and <a href="https://unconfigured.openbuildservice.org/users/Admin" rel="nofollow">@Admin</a>, ' \
+        '<a href="https://unconfigured.openbuildservice.org/users/Admin" rel="nofollow">@Admin</a> ' \
+        'and <a href="https://unconfigured.openbuildservice.org/users/ann+factory" rel="nofollow">@ann+factory</a>, ' \
         'please review. Also you, <a href="https://unconfigured.openbuildservice.org/users/test1" rel="nofollow">@test1</a> ' \
         "and <a href=\"https://unconfigured.openbuildservice.org/users/user.name\" rel=\"nofollow\">@user.name</a>.</p>\n"
       )
