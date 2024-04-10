@@ -13,6 +13,12 @@ class WorkflowRunGithubPayload
     payload.dig(:head_commit, :id) if github_tag_push_event?
   end
 
+  def github_source_repository_full_name
+    return payload.dig(:pull_request, :head, :repo, :full_name) if github_pull_request?
+
+    payload.dig(:repository, :full_name) if github_push_event? || github_tag_push_event?
+  end
+
   def github_repository_name
     payload.dig('repository', 'name')
   end
