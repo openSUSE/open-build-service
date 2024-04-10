@@ -1,7 +1,6 @@
-- sanitized_key = @text.parameterize.underscore
-%label.form-check-label.form-group.px-4.py-1.d-flex.justify-content-between{ for: sanitized_key }
+%label.form-check-label.form-group.px-4.py-1.d-flex.justify-content-between{ for: @sanitized_key }
   .form-check
-    = check_box_tag sanitized_key, 1, checked = workflow_run_filter_matches?, class: 'form-check-input me-2'
+    = check_box_tag @sanitized_key, 1, checked = workflow_run_filter_matches?, class: 'form-check-input me-2'
     %span
       = icon_tag
       = @text
