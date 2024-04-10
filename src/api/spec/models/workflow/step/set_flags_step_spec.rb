@@ -203,6 +203,7 @@ RSpec.describe Workflow::Step::SetFlags do
       before do
         target_project.add_flag('publish', 'disable', 'openSUSE_Tumbleweed', 'x86_64')
         target_project.save!
+        login(user)
       end
 
       it 'does not raise an error and updates the status' do

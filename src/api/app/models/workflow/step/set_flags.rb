@@ -27,11 +27,13 @@ class Workflow::Step::SetFlags < Workflow::Step
         architecture_id = Architecture.find_by_name(flag[:architecture]).id if flag[:architecture]
         existing_flag = main_object.flags.find_by(flag: flag[:type], repo: flag[:repository], architecture_id: architecture_id)
 
-        # We have to update the flag status if the flag already exist and only the status differs
-        existing_flag.update!(status: flag[:status]) if existing_flag.present? && existing_flag.status != flag[:status]
-        next if existing_flag.present?
+        next if existing_flag.present? && existing_flag.status == flag[:status]
 
-        main_object.add_flag(flag[:type], flag[:status], flag[:repository], flag[:architecture])
+        if existing_flag.present?
+          existing_flag.update!(status: flag[:status])
+        else
+          main_object.add_flag(flag[:type], flag[:status], flag[:repository], flag[:architecture])
+        end
         main_object.store(comment: 'SCM/CI integration, set_flags step')
       end
     end
