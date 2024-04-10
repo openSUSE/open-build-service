@@ -51,6 +51,8 @@ class TriggerWorkflowController < ApplicationController
   end
 
   def validate_request_body_is_yaml
+    request_body = request.body.read
+
     raise Trigger::Errors::BadSCMPayload if request_body.blank?
 
     begin
