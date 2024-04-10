@@ -61,6 +61,10 @@ class WorkflowRunPayload
     ignored_github_push_event? || ignored_gitlab_push_event?
   end
 
+  def commit_sha
+    github_commit_sha || gitlab_commit_sha
+  end
+
   private
 
   def payload_generic_event_type

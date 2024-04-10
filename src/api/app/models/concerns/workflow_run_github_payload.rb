@@ -6,6 +6,10 @@ class WorkflowRunGithubPayload
 
   private
 
+  def github_commit_sha
+    payload.dig(:pull_request, :head, :sha)
+  end
+
   def github_repository_name
     payload.dig('repository', 'name')
   end

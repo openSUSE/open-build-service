@@ -6,6 +6,10 @@ class WorkflowRunGitlabPayload
 
   private
 
+  def gitlab_commit_sha
+    payload.dig(:object_attributes, :last_commit, :id)
+  end
+
   def gitlab_repository_name
     payload.dig('project', 'path_with_namespace')&.split('/')&.last
   end
