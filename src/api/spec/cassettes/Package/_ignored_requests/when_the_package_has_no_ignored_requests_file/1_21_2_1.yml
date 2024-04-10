@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Wed, 31 Jan 2024 11:54:06 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:21 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo:Apache/_meta?user=tom
+    uri: http://backend:5352/source/my_project/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="home:foo:Apache">
-          <title>By Grand Central Station I Sat Down and Wept</title>
+        <project name="my_project">
+          <title>Things Fall Apart</title>
           <description/>
         </project>
     headers:
@@ -69,24 +69,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '136'
+      - '104'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:foo:Apache">
-          <title>By Grand Central Station I Sat Down and Wept</title>
+        <project name="my_project">
+          <title>Things Fall Apart</title>
           <description></description>
         </project>
-  recorded_at: Wed, 31 Jan 2024 11:54:06 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:21 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo:Apache/apache2/_meta?user=tom
+    uri: http://backend:5352/source/my_project/dashboard_2/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="apache2" project="home:foo:Apache">
-          <title>Dance Dance Dance</title>
-          <description>Dolore quos id aut.</description>
+        <package name="dashboard_2" project="my_project">
+          <title>Eyeless in Gaza</title>
+          <description>Provident vel repudiandae magnam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -107,18 +107,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '157'
     body:
       encoding: UTF-8
       string: |
-        <package name="apache2" project="home:foo:Apache">
-          <title>Dance Dance Dance</title>
-          <description>Dolore quos id aut.</description>
+        <package name="dashboard_2" project="my_project">
+          <title>Eyeless in Gaza</title>
+          <description>Provident vel repudiandae magnam.</description>
         </package>
-  recorded_at: Wed, 31 Jan 2024 11:54:06 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:21 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:foo:Apache/apache2
+    uri: http://backend:5352/source/my_project/dashboard_2
     body:
       encoding: US-ASCII
       string: ''
@@ -141,11 +141,11 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '82'
+      - '86'
     body:
       encoding: UTF-8
       string: |
-        <directory name="apache2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="dashboard_2" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 31 Jan 2024 11:54:06 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:21 GMT
 recorded_with: VCR 6.2.0

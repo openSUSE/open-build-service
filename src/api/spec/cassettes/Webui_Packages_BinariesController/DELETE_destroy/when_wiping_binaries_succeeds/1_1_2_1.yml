@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 03 Nov 2023 19:13:28 GMT
+  recorded_at: Wed, 10 Apr 2024 10:41:27 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Dulce et Decorum Est</title>
-          <description>Aperiam nostrum dolorem aut.</description>
+          <title>Specimen Days</title>
+          <description>Qui quae enim voluptate.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '143'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Dulce et Decorum Est</title>
-          <description>Aperiam nostrum dolorem aut.</description>
+          <title>Specimen Days</title>
+          <description>Qui quae enim voluptate.</description>
         </package>
-  recorded_at: Fri, 03 Nov 2023 19:13:28 GMT
+  recorded_at: Wed, 10 Apr 2024 10:41:27 GMT
 - request:
     method: post
     uri: http://backend:5352/build/home:tom?cmd=wipe&package=my_package&repository=source_repo
@@ -112,5 +112,5 @@ http_interactions:
         <status code="400">
           <summary>no repository defined</summary>
         </status>
-  recorded_at: Fri, 03 Nov 2023 19:13:28 GMT
+  recorded_at: Wed, 10 Apr 2024 10:41:27 GMT
 recorded_with: VCR 6.2.0

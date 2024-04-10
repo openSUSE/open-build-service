@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Thu, 14 Mar 2024 12:41:23 GMT
+  recorded_at: Wed, 10 Apr 2024 10:39:56 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_meta?user=tom
@@ -50,7 +50,7 @@ http_interactions:
           <title/>
           <description/>
           <person userid="tom" role="maintainer"/>
-          <repository name="repository_1">
+          <repository name="repository_2">
             <arch>i586</arch>
           </repository>
         </project>
@@ -81,11 +81,11 @@ http_interactions:
           <title></title>
           <description></description>
           <person userid="tom" role="maintainer"/>
-          <repository name="repository_1">
+          <repository name="repository_2">
             <arch>i586</arch>
           </repository>
         </project>
-  recorded_at: Thu, 14 Mar 2024 12:41:23 GMT
+  recorded_at: Wed, 10 Apr 2024 10:39:56 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -93,8 +93,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>For Whom the Bell Tolls</title>
-          <description>Tempora quis in modi.</description>
+          <title>I Will Fear No Evil</title>
+          <description>Ea aliquid doloremque enim.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -115,15 +115,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>For Whom the Bell Tolls</title>
-          <description>Tempora quis in modi.</description>
+          <title>I Will Fear No Evil</title>
+          <description>Ea aliquid doloremque enim.</description>
         </package>
-  recorded_at: Thu, 14 Mar 2024 12:41:23 GMT
+  recorded_at: Wed, 10 Apr 2024 10:39:56 GMT
 - request:
     method: post
     uri: http://backend:5352/build/home:tom?cmd=abortbuild&package=my_package
@@ -157,5 +157,5 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Thu, 14 Mar 2024 12:41:23 GMT
+  recorded_at: Wed, 10 Apr 2024 10:39:56 GMT
 recorded_with: VCR 6.2.0

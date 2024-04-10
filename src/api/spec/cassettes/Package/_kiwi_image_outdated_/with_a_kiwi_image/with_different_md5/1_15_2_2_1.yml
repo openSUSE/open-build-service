@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Wed, 31 Jan 2024 11:54:07 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:17 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_file" project="home:tom">
-          <title>The Heart Is a Lonely Hunter</title>
-          <description>Et tempore repudiandae saepe.</description>
+          <title>The Golden Apples of the Sun</title>
+          <description>Eveniet atque deserunt est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '175'
+      - '173'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_file" project="home:tom">
-          <title>The Heart Is a Lonely Hunter</title>
-          <description>Et tempore repudiandae saepe.</description>
+          <title>The Golden Apples of the Sun</title>
+          <description>Eveniet atque deserunt est.</description>
         </package>
-  recorded_at: Wed, 31 Jan 2024 11:54:07 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:17 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file/package_with_kiwi_file.kiwi
@@ -111,15 +111,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
+        <revision rev="1" vrev="1">
           <srcmd5>518486fc563594c5adf33d7651241bc9</srcmd5>
           <version>0.0.1</version>
-          <time>1706702047</time>
+          <time>1712745797</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 31 Jan 2024 11:54:07 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:17 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file/_meta?user=tom
@@ -127,8 +127,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_file" project="home:tom">
-          <title>The Heart Is a Lonely Hunter</title>
-          <description>Et tempore repudiandae saepe.</description>
+          <title>The Golden Apples of the Sun</title>
+          <description>Eveniet atque deserunt est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -149,15 +149,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '175'
+      - '173'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_file" project="home:tom">
-          <title>The Heart Is a Lonely Hunter</title>
-          <description>Et tempore repudiandae saepe.</description>
+          <title>The Golden Apples of the Sun</title>
+          <description>Eveniet atque deserunt est.</description>
         </package>
-  recorded_at: Wed, 31 Jan 2024 11:54:07 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:17 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file
@@ -187,10 +187,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_file" rev="2" vrev="2" srcmd5="518486fc563594c5adf33d7651241bc9">
-          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1706702047"/>
+        <directory name="package_with_kiwi_file" rev="1" vrev="1" srcmd5="518486fc563594c5adf33d7651241bc9">
+          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1712745797"/>
         </directory>
-  recorded_at: Wed, 31 Jan 2024 11:54:07 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:17 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file
@@ -220,10 +220,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_file" rev="2" vrev="2" srcmd5="518486fc563594c5adf33d7651241bc9">
-          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1706702047"/>
+        <directory name="package_with_kiwi_file" rev="1" vrev="1" srcmd5="518486fc563594c5adf33d7651241bc9">
+          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1712745797"/>
         </directory>
-  recorded_at: Wed, 31 Jan 2024 11:54:07 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:17 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file
@@ -253,8 +253,8 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_file" rev="2" vrev="2" srcmd5="518486fc563594c5adf33d7651241bc9">
-          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1706702047"/>
+        <directory name="package_with_kiwi_file" rev="1" vrev="1" srcmd5="518486fc563594c5adf33d7651241bc9">
+          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1712745797"/>
         </directory>
-  recorded_at: Wed, 31 Jan 2024 11:54:07 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:17 GMT
 recorded_with: VCR 6.2.0

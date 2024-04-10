@@ -284,12 +284,15 @@ class Webui::PackageController < Webui::WebuiController
   def abort_build
     authorize @package, :update?
 
-    if @package.abort_build(params)
-      flash[:success] = "Triggered abort build for #{elide(@project.name)}/#{elide(@package.name)} successfully."
-      redirect_to package_show_path(project: @project, package: @package)
-    else
-      flash[:error] = "Error while triggering abort build for #{elide(@project.name)}/#{elide(@package.name)}: #{@package.errors.full_messages.to_sentence}."
-      redirect_to package_live_build_log_path(project: @project, package: @package, repository: params[:repository], arch: params[:arch])
+    begin
+      Backend::Api::Build::Project.abort_build(@project.name, { package: params[:package],
+                                                                repository: params[:repository],
+                                                                arch: params[:arch] }.compact)
+      flash[:success] = "Triggered abort build for #{elide(@project.name)}/#{elide(params[:package])} successfully."
+      redirect_to package_show_path(project: @project, package: params[:package])
+    rescue Backend::Error, Timeout::Error, Project::WritePermissionError => e
+      flash[:error] = "Error while triggering abort build for #{elide(@project.name)}/#{elide(params[:package])}: #{e.message}."
+      redirect_to package_live_build_log_path(project: @project, package: params[:package], repository: params[:repository], arch: params[:arch])
     end
   end
 

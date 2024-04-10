@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Wed, 31 Jan 2024 11:54:05 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:24 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo:Apache/_meta?user=tom
+    uri: http://backend:5352/source/Apache/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="home:foo:Apache">
-          <title>Paths of Glory</title>
+        <project name="Apache">
+          <title>O Pioneers!</title>
           <description/>
         </project>
     headers:
@@ -69,24 +69,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '106'
+      - '94'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:foo:Apache">
-          <title>Paths of Glory</title>
+        <project name="Apache">
+          <title>O Pioneers!</title>
           <description></description>
         </project>
-  recorded_at: Wed, 31 Jan 2024 11:54:05 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:24 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/_meta?user=tom
+    uri: http://backend:5352/source/Apache/package_with_changes_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_changes_file" project="home:foo:Apache">
-          <title>A Many-Splendoured Thing</title>
-          <description>Consequatur error qui dolor.</description>
+        <package name="package_with_changes_file" project="Apache">
+          <title>The Painted Veil</title>
+          <description>Consectetur iusto aut harum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -107,15 +107,134 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '180'
+      - '163'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="Apache">
+          <title>The Painted Veil</title>
+          <description>Consectetur iusto aut harum.</description>
+        </package>
+  recorded_at: Wed, 10 Apr 2024 10:43:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Apache/package_with_changes_file/package_with_changes_file.changes
+    body:
+      encoding: UTF-8
+      string: |+
+        -------------------------------------------------------------------
+        Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
+
+        - Temporary hack
+
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>7c4fdaed1748a8e72e84c2141a00f19d</srcmd5>
+          <version>unknown</version>
+          <time>1712745804</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 10 Apr 2024 10:43:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo:Apache/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:foo:Apache">
+          <title>Gone with the Wind</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '110'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:foo:Apache">
+          <title>Gone with the Wind</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 10 Apr 2024 10:43:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_changes_file" project="home:foo:Apache">
-          <title>A Many-Splendoured Thing</title>
-          <description>Consequatur error qui dolor.</description>
+          <title>Great Work of Time</title>
+          <description>Corporis distinctio nulla in.</description>
         </package>
-  recorded_at: Wed, 31 Jan 2024 11:54:05 GMT
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '175'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="home:foo:Apache">
+          <title>Great Work of Time</title>
+          <description>Corporis distinctio nulla in.</description>
+        </package>
+  recorded_at: Wed, 10 Apr 2024 10:43:24 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/package_with_changes_file.changes
@@ -156,15 +275,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="9" vrev="9">
-          <srcmd5>e15d3c44855294e2604949d98017bec5</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>12a2163a9553f928891173a6ebc749a7</srcmd5>
           <version>unknown</version>
-          <time>1706702045</time>
+          <time>1712745804</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 31 Jan 2024 11:54:05 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:24 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file
@@ -190,45 +309,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '338'
+      - '238'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_changes_file" rev="9" vrev="9" srcmd5="e15d3c44855294e2604949d98017bec5">
-          <entry name="lorem.changes" md5="143070716e28ed45a29514befe95043d" size="19" mtime="1706702043"/>
-          <entry name="package_with_changes_file.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1706702043"/>
+        <directory name="package_with_changes_file" rev="2" vrev="2" srcmd5="12a2163a9553f928891173a6ebc749a7">
+          <entry name="package_with_changes_file.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1712745803"/>
         </directory>
-  recorded_at: Wed, 31 Jan 2024 11:54:05 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/lorem.changes
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Content-Length:
-      - '19'
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-    body:
-      encoding: UTF-8
-      string: Lorem ipsum dolorem
-  recorded_at: Wed, 31 Jan 2024 11:54:05 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:24 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/package_with_changes_file.changes
@@ -269,5 +357,40 @@ http_interactions:
 
         - Temporary hack
 
-  recorded_at: Wed, 31 Jan 2024 11:54:05 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:24 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/Apache/package_with_changes_file/package_with_changes_file.changes
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '136'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |+
+        -------------------------------------------------------------------
+        Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
+
+        - Temporary hack
+
+  recorded_at: Wed, 10 Apr 2024 10:43:24 GMT
 recorded_with: VCR 6.2.0

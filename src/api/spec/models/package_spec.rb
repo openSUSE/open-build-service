@@ -393,53 +393,6 @@ RSpec.describe Package, :vcr do
     end
   end
 
-  describe '#backend_build_command' do
-    subject { package.backend_build_command(:rebuild, package.project.name, params) }
-
-    let(:params) { ActionController::Parameters.new(arch: 'x86') }
-    let(:backend_url) { "#{CONFIG['source_url']}/build/#{package.project.name}?arch=x86&cmd=rebuild" }
-
-    context 'backend response is successful' do
-      before { stub_request(:post, backend_url) }
-
-      it { is_expected.to be_truthy }
-
-      it 'has no errors' do
-        subject
-        expect(package.errors.details).to eq({})
-      end
-    end
-
-    context 'backend response fails' do
-      before { stub_request(:post, backend_url).and_raise(Backend::Error) }
-
-      it { is_expected.to be_falsey }
-
-      it 'has errors' do
-        subject
-        expect(package.errors.details).to eq(base: [{ error: 'Exception from WebMock' }])
-      end
-    end
-
-    context 'user has no access rights for the project' do
-      subject { package.backend_build_command(:rebuild, other_project.name, params) }
-
-      let(:other_project) { create(:project, name: 'other_project') }
-
-      before do
-        # check_write_access! depends on the Rails env. We have to workaround this here.
-        allow(Rails.env).to receive(:test?).and_return false
-      end
-
-      it { is_expected.to be_falsey }
-
-      it 'has errors' do
-        subject
-        expect(package.errors.details).to eq(base: [{ error: "No permission to modify project '#{other_project}' for user '#{user}'" }])
-      end
-    end
-  end
-
   describe '.jobhistory' do
     subject { package.jobhistory(repository_name: 'openSUSE_Tumbleweed', arch_name: 'x86_64') }
 

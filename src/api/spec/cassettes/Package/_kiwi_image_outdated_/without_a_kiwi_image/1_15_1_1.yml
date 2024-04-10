@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Wed, 31 Jan 2024 11:54:07 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:17 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>For a Breath I Tarry</title>
-          <description>Quasi exercitationem enim blanditiis.</description>
+          <title>O Jerusalem!</title>
+          <description>Suscipit est commodi eius.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '165'
+      - '146'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>For a Breath I Tarry</title>
-          <description>Quasi exercitationem enim blanditiis.</description>
+          <title>O Jerusalem!</title>
+          <description>Suscipit est commodi eius.</description>
         </package>
-  recorded_at: Wed, 31 Jan 2024 11:54:07 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:17 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package
@@ -103,13 +103,11 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '296'
+      - '87'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="2" vrev="2" srcmd5="9b1c1ddcaab8327d31b5f9d882782630">
-          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1706702041"/>
-          <entry name="foo.spec" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1706702042"/>
+        <directory name="test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 31 Jan 2024 11:54:07 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:17 GMT
 recorded_with: VCR 6.2.0
