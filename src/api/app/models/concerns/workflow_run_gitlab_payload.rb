@@ -7,7 +7,9 @@ class WorkflowRunGitlabPayload
   private
 
   def gitlab_commit_sha
-    payload.dig(:object_attributes, :last_commit, :id)
+    return payload.dig(:object_attributes, :last_commit, :id) if gitlab_merge_request?
+
+    payload[:after] if gitlab_push_event? || gitlab_tag_push_event?
   end
 
   def gitlab_repository_name

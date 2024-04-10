@@ -7,7 +7,10 @@ class WorkflowRunGithubPayload
   private
 
   def github_commit_sha
-    payload.dig(:pull_request, :head, :sha)
+    return payload.dig(:pull_request, :head, :sha) if github_pull_request?
+    return payload[:after] if github_push_event?
+
+    payload.dig(:head_commit, :id) if github_tag_push_event?
   end
 
   def github_repository_name
