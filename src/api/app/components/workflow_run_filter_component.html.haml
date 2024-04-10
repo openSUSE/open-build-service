@@ -42,6 +42,6 @@
     Event Source
     = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: event_source_info_text }
   = render WorkflowRunFilterInputComponent.new(token_id: @token.id, text: 'PR/MR', selected_input_filter: @selected_filter[:pr_number],
-                                               placeholder: '12345')
+                                               placeholder: 'e.g. 12345')
   = render WorkflowRunFilterInputComponent.new(token_id: @token.id, text: 'Commit', selected_input_filter: @selected_filter[:commit_sha],
-                                               placeholder: '97561db8664eaf86a1e4c7b77d5fb5d5bff6681e')
+                                               placeholder: 'e.g. 97561db8664eaf86a1e4c7b77d5fb5d5bff6681e')
