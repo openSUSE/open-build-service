@@ -28,7 +28,6 @@ RSpec.describe Workflow::Step::SetFlags do
     context 'when the token user does not have enough permissions' do
       let(:another_user) { create(:confirmed_user, :with_home, login: 'Pop') }
       let(:token) { create(:workflow_token, executor: another_user) }
-      let!(:project) { create(:project, name: 'home:Iggy') }
       let(:scm_webhook) do
         SCMWebhook.new(payload: {
                          scm: 'github',
