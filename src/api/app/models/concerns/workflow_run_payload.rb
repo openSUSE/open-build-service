@@ -2,10 +2,6 @@
 class WorkflowRunPayload
   extend ActiveSupport::Concern
 
-  ALLOWED_PULL_REQUEST_ACTIONS = %w[closed opened reopened synchronize synchronized].freeze
-  ALLOWED_MERGE_REQUEST_ACTIONS = %w[close merge open reopen update].freeze
-  ALL_POSSIBLE_REQUEST_ACTIONS = ['all'] + ALLOWED_PULL_REQUEST_ACTIONS + ALLOWED_MERGE_REQUEST_ACTIONS
-
   SOURCE_NAME_PAYLOAD_MAPPING = {
     'pull_request' => %w[pull_request number],
     'Merge Request Hook' => %w[object_attributes iid],
@@ -65,6 +61,8 @@ class WorkflowRunPayload
     ignored_github_push_event? || ignored_gitlab_push_event?
   end
 
+  private
+
   def payload_generic_event_type
     # We only have filters for push, tag_push, and pull_request
     if hook_event == 'Push Hook' || payload.fetch('ref', '').match('refs/heads')
@@ -90,105 +88,10 @@ class WorkflowRunPayload
   end
 
   def payload_hook_action
-    payload['action'] || payload.dig('object_attributes', 'action')
+    github_hook_action || gitlab_hook_action
   end
 
   def api_endpoint
     github_api_endpoint || gitlab_api_endpoint || gitea_api_endpoint
-  end
-
-  private
-
-  def github_api_endpoint
-    sender_url = payload.dig(:sender, :url)
-    return unless sender_url
-
-    host = URI.parse(sender_url).host
-    if host.start_with?('api.github.com')
-      "https://#{host}"
-    else
-      "https://#{host}/api/v3/"
-    end
-  end
-
-  def gitlab_api_endpoint
-    project_url = payload.dig(:project, :http_url)
-    return unless project_url
-
-    uri = URI.parse(project_url)
-    "#{uri.scheme}://#{uri.host}"
-  end
-
-  def gitea_api_endpoint
-    repositoy_url = payload.dig(:repository, :clone_url)
-    return unless repositoy_url
-
-    url = URI.parse(repositoy_url)
-    "#{url.scheme}://#{url.host}"
-  end
-
-  def github_push_event?
-    scm_vendor == 'github' && payload[:event] == 'push' && payload.fetch(:ref, '').start_with?('refs/heads/')
-  end
-
-  def gitlab_push_event?
-    scm_vendor == 'gitlab' && payload[:event] == 'Push Hook'
-  end
-
-  def gitea_push_event?
-    scm_vendor == 'gitea' && payload[:event] == 'push' && payload.fetch(:ref, '').start_with?('refs/heads/')
-  end
-
-  def github_tag_push_event?
-    scm_vendor == 'github' && payload[:event] == 'push' && payload.fetch(:ref, '').starts_with?('refs/tags/')
-  end
-
-  def gitlab_tag_push_event?
-    scm_vendor == 'gitlab' && payload[:event] == 'Tag Push Hook'
-  end
-
-  def gitea_tag_push_event?
-    scm_vendor == 'gitea' && payload[:event] == 'push' && payload.fetch(:ref, '').starts_with?('refs/tags/')
-  end
-
-  def github_pull_request?
-    scm_vendor == 'github' && payload[:event] == 'pull_request'
-  end
-
-  def gitlab_merge_request?
-    scm_vendor == 'gitlab' && payload[:event] == 'Merge Request Hook'
-  end
-
-  def gitea_pull_request?
-    scm_vendor == 'gitea' && payload[:event] == 'pull_request'
-  end
-
-  def github_ping?
-    scm_vendor == 'github' && payload[:event] == 'ping'
-  end
-
-  def gitea_ping?
-    scm_vendor == 'gitea' && payload[:event] == 'ping'
-  end
-
-  def ignored_github_pull_request_action?
-    github_pull_request? && ALLOWED_PULL_REQUEST_ACTIONS.exclude?(payload[:action])
-  end
-
-  def ignored_gitlab_merge_request_action?
-    gitlab_merge_request? && ALLOWED_MERGE_REQUEST_ACTIONS.exclude?(payload[:action])
-  end
-
-  def ignored_gitea_pull_request_action?
-    gitea_pull_request? && ALLOWED_PULL_REQUEST_ACTIONS.exclude?(payload[:action])
-  end
-
-  def ignored_github_push_event?
-    github_push_event? && payload[:deleted]
-  end
-
-  def ignored_gitlab_push_event?
-    # In Push Hook events to delete a branch, the after field is '0000000000000000000000000000000000000000'
-    gitlab_push_event? && payload[:commit_sha].match?(/\A0+\z/)
   end
 end

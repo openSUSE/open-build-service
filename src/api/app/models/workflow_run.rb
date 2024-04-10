@@ -1,6 +1,9 @@
 # rubocop:disable Metrics/ClassLength
 
 class WorkflowRun < ApplicationRecord
+  include WorkflowRunGitlabPayload
+  include WorkflowRunGithubPayload
+  include WorkflowRunGiteaPayload
   include WorkflowRunPayload
 
   SOURCE_URL_PAYLOAD_MAPPING = {
