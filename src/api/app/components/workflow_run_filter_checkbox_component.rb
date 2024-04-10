@@ -3,6 +3,7 @@ class WorkflowRunFilterCheckboxComponent < ApplicationComponent
     super
 
     @text = text
+    @sanitized_key = text.parameterize.underscore
     @filter_item = filter_item
     @selected_filter = selected_filter
     @amount = amount || 0
