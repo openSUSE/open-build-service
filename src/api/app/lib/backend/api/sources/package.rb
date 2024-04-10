@@ -35,7 +35,7 @@ module Backend
         # @return [String]
         def self.revisions(project_name, package_name, options = {})
           http_get(['/source/:project/:package/_history', project_name, package_name], params: options,
-                                                                                       accepted: %i[meta rev deleted limit],
+                                                                                       accepted: %i[meta rev deleted limit startbefore],
                                                                                        defaults: { meta: 1, deleted: 1 })
         end
 

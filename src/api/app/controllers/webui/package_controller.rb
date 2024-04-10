@@ -85,8 +85,6 @@ class Webui::PackageController < Webui::WebuiController
 
     @services = @files.any? { |file| file['name'] == '_service' }
 
-    @package.cache_revisions(@revision)
-
     respond_to do |format|
       format.html
       format.js
@@ -180,7 +178,9 @@ class Webui::PackageController < Webui::WebuiController
     per_page = 20
     revision_count = (params[:rev] || @package.rev).to_i
     per_page = revision_count if User.session && params['show_all']
-    @revisions = Kaminari.paginate_array((1..revision_count).to_a.reverse).page(params[:page]).per(per_page)
+    startbefore = revision_count - (((params[:page] || 1).to_i - 1) * per_page) + 1
+    revisions = Xmlhash.parse(Backend::Api::Sources::Package.revisions(@project.name, params[:package], { startbefore: startbefore, limit: per_page, deleted: 0, meta: 0 })).elements('revision')
+    @revisions = Kaminari.paginate_array(revisions.reverse, total_count: revision_count).page(params[:page]).per(per_page)
   end
 
   def rdiff

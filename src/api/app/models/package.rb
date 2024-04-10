@@ -1179,16 +1179,6 @@ class Package < ApplicationRecord
     {}
   end
 
-  def cache_revisions(revision = nil)
-    opts = { deleted: 0, meta: 0 }
-    opts[:rev] = revision if revision
-    doc = Xmlhash.parse(Backend::Api::Sources::Package.revisions(project.name, name, opts))
-    doc.elements('revision') do |s|
-      Rails.cache.write(['history', self, s['rev']], s)
-      Rails.cache.write(['history_md5', self, s.get('srcmd5')], s)
-    end
-  end
-
   # the revision might match a backend revision that is not in _history
   # e.g. on expanded links - in this case we return nil
   def commit(rev = nil)
@@ -1198,14 +1188,8 @@ class Package < ApplicationRecord
       rev = r.to_s
       return if rev.to_i < 1
     end
-    rev ||= self.rev
 
-    commit = fetch_rev_from_history_cache(rev)
-    return commit if commit
-
-    cache_revisions
-    # now it has to be in cache
-    fetch_rev_from_history_cache(rev)
+    Xmlhash.parse(Backend::Api::Sources::Package.revisions(project.name, name, { rev: rev || self.rev, deleted: 0, meta: 0 })).elements('revision').first
   end
 
   def self.verify_file!(pkg, name, content)
@@ -1355,10 +1339,6 @@ class Package < ApplicationRecord
     [new_activity, 100].min
 
     self.activity_index = new_activity
-  end
-
-  def fetch_rev_from_history_cache(rev)
-    Rails.cache.read(['history', self, rev]) || Rails.cache.read(['history_md5', self, rev])
   end
 
   def populate_to_sphinx
