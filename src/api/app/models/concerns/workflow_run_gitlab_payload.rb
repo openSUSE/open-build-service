@@ -18,6 +18,12 @@ class WorkflowRunGitlabPayload
     payload.dig(:project, :path_with_namespace) if gitlab_push_event? || gitlab_tag_push_event?
   end
 
+  def gitlab_target_repository_full_name
+    return payload.dig(:object_attributes, :target, :path_with_namespace) if gitlab_merge_request?
+
+    payload.dig(:project, :path_with_namespace) if gitlab_push_event? || gitlab_tag_push_event?
+  end
+
   def gitlab_repository_name
     payload.dig('project', 'path_with_namespace')&.split('/')&.last
   end
