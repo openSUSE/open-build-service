@@ -2580,19 +2580,19 @@ sub copybuild {
 
 	if (defined($oldsetrelease)) {
 	  if ($setrelease ne $oldsetrelease) {
-            # kiwi product || appliance
+            # kiwi product || appliance || product composer
 	    if ($oldsetrelease eq '') {
               $nbin =~ s/(-Media\d?(?:\..*?)?)$/$setrelease$1/ ||
                  $nbin =~ s/(^.*-)/$1$setrelease/;
 	    } else {
               $nbin =~ s/(\Q$oldsetrelease\E)(-Media\d?(?:\..*?)?)$/$setrelease$2/ ||
-                 $nbin =~ s/\Q$oldsetrelease\E\./$setrelease./;
+                 $nbin =~ s/\Q$oldsetrelease\E(\.|-|$)/$setrelease$1/;
 	    }
           }
         } else {
-          # kiwi product || appliance
+          # kiwi product || kiwi appliance || product composer
           $nbin =~ s/-([^-]+)(-Media\d?(?:\..*?)?)$/$setrelease$2/ ||
-             $nbin =~ s/-Build[\d.]+\./$setrelease./;
+             $nbin =~ s/-Build[\d.]+(\.|-|$)/$setrelease$1/
         }
 	$nbin =~ s/-([^-.]+).([^.]*.rpm)$/$setrelease.$2/; # rpms
         writestr("$dir/.setrelease", undef, defined($cgi->{'setrelease'}) ? $setrelease : "-");
