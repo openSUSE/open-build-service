@@ -65,6 +65,10 @@ class WorkflowRunPayload
     github_commit_sha || gitlab_commit_sha
   end
 
+  def source_repository_full_name
+    github_source_repository_full_name || gitlab_source_repository_full_name || gitea_source_repository_full_name
+  end
+
   private
 
   def payload_generic_event_type
