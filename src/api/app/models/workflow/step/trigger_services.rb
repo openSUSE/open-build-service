@@ -55,7 +55,7 @@ class Workflow::Step::TriggerServices < Workflow::Step
 
   def push_details
     if workflow_run.scm_vendor == 'github' && workflow_run.payload[:ref].start_with?('refs/tags')
-      "push #{workflow_run.commit_sha&.slice(0, SHORT_COMMIT_SHA_LENGTH)} on #{workflow_run.payload[:tag_name]}"
+      "push #{workflow_run.commit_sha&.slice(0, SHORT_COMMIT_SHA_LENGTH)} on #{workflow_run.tag_name}"
     else
       "push #{workflow_run.commit_sha&.slice(0, SHORT_COMMIT_SHA_LENGTH)} on #{workflow_run.payload[:target_branch]}"
     end

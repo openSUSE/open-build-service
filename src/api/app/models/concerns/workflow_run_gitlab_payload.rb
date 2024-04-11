@@ -32,6 +32,10 @@ class WorkflowRunGitlabPayload
     payload.dig(:project, :http_url)
   end
 
+  def gitlab_tag_name
+    payload[:ref].sub('refs/tags/', '')
+  end
+
   def gitlab_repository_name
     payload.dig('project', 'path_with_namespace')&.split('/')&.last
   end
