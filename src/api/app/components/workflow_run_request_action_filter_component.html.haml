@@ -4,5 +4,5 @@
     .input-group-text
       Action
     = select_tag(@filter_item,
-                  options_for_select(@filter_options),
+                  options_for_select(@filter_options, @selected_value),
                   class: 'form-control form-select')
