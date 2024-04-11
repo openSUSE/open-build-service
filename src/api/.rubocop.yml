@@ -420,7 +420,7 @@ RSpec/NamedSubject:
 RSpec/NestedGroups:
   Enabled: false
 
-RSpec/Rails/AvoidSetupHook:
+RSpecRails/AvoidSetupHook:
   Exclude:
     # Don't parse minitests for RSpec cops
     - 'test/**/*'
