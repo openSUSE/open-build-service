@@ -25,7 +25,7 @@ class TriggerWorkflowController < ApplicationController
   def create
     authorize @token, :trigger?
     @token.executor.run_as do
-      validation_errors = @token.call(workflow_run: @workflow_run, scm_webhook: @scm_webhook)
+      validation_errors = @token.call(workflow_run: @workflow_run)
 
       unless @workflow_run.status == 'fail' # The SCMStatusReporter might already set the status to 'fail', lets not overwrite it
         if validation_errors.none?
@@ -101,11 +101,11 @@ class TriggerWorkflowController < ApplicationController
   def verify_event_and_action
     # There are plenty of different pull/merge request and push events which we don't support.
     # Those should not cause an error, we simply ignore them.
-    return unless @scm_webhook.ignored_pull_request_action? || @scm_webhook.ignored_push_event? || ignored_event?
+    return unless @workflow_run.ignored_pull_request_action? || @workflow_run.ignored_push_event? || ignored_event?
 
-    action = @scm_webhook.payload[:action]
+    action = @workflow_run.hook_action
 
-    info_msg = "Events '#{@scm_webhook.payload[:event]}' "
+    info_msg = "Events '#{@workflow_run.hook_event}' "
     info_msg += "and actions '#{action}' " if action.present?
     info_msg += 'are unsupported'
 
