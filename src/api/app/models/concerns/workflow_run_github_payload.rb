@@ -33,6 +33,10 @@ class WorkflowRunGithubPayload
     payload.dig(:repository, :clone_url)
   end
 
+  def github_tag_name
+    payload.fetch(:ref, '').sub('refs/tags/', '')
+  end
+
   def github_repository_name
     payload.dig('repository', 'name')
   end
