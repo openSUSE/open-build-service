@@ -36,6 +36,13 @@ class WorkflowRunGitlabPayload
     payload[:ref].sub('refs/tags/', '')
   end
 
+  def gitlab_target_branch
+    return payload.dig(:object_attributes, :target_branch) if gitlab_merge_request?
+    return payload[:ref].sub('refs/heads/', '') if gitlab_push_event?
+
+    payload[:after] if gitlab_tag_push_event?
+  end
+
   def gitlab_repository_name
     payload.dig('project', 'path_with_namespace')&.split('/')&.last
   end

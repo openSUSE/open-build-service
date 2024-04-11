@@ -108,8 +108,8 @@ class Workflow
     branches_only = filters[:branches].fetch(:only, [])
     branches_ignore = filters[:branches].fetch(:ignore, [])
 
-    return true if branches_only.present? && branches_only.include?(workflow_run.payload[:target_branch])
-    return true if branches_ignore.present? && branches_ignore.exclude?(workflow_run.payload[:target_branch])
+    return true if branches_only.present? && branches_only.include?(workflow_run.target_branch)
+    return true if branches_ignore.present? && branches_ignore.exclude?(workflow_run.target_branch)
 
     false
   end

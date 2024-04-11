@@ -37,6 +37,13 @@ class WorkflowRunGithubPayload
     payload.fetch(:ref, '').sub('refs/tags/', '')
   end
 
+  def github_target_branch
+    return payload.dig(:pull_request, :base, :ref) if github_pull_request?
+    return payload.fetch(:ref, '').sub('refs/heads/', '') if github_push_event?
+
+    payload.dig(:head_commit, :id) if github_tag_push_event?
+  end
+
   def github_repository_name
     payload.dig('repository', 'name')
   end
