@@ -86,7 +86,7 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
 
     branch_options = { project: step_instructions[:source_project], package: step_instructions[:source_package],
                        target_project: target_project_name, target_package: target_package_name,
-                       scmsync: parse_scmsync_for_target_package }
+                       target_project_url: workflow_run.event_source_url, scmsync: parse_scmsync_for_target_package }
 
     begin
       # Service running on package avoids branching it: wait until services finish
@@ -109,7 +109,7 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
   def create_target_project
     return if target_project.present?
 
-    project = Project.new(name: target_project_name)
+    project = Project.new(name: target_project_name, url: workflow_run.event_source_url)
     Pundit.authorize(@token.executor, project, :create?)
 
     project.relationships.build(user: @token.executor,

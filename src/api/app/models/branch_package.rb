@@ -263,13 +263,13 @@ class BranchPackage
 
       title = "Branch project for package #{params[:package]}"
       description = "This project was created for package #{params[:package]} via attribute #{@attribute}"
-      base_project_url = Project.find_by_name(params[:project]).try(:url)
+      url = params[:target_project_url] || Project.find_by_name(params[:project]).try(:url)
       if params[:request]
         title = "Branch project based on request #{params[:request]}"
         description = "This project was created as a clone of request #{params[:request]}"
       end
       @add_repositories = true # new projects shall get repositories
-      tprj = Project.new(name: @target_project, title: title, description: description, url: base_project_url)
+      tprj = Project.new(name: @target_project, title: title, description: description, url: url)
       tprj.relationships.new(user: User.session!, role: Role.find_by_title!('maintainer'))
       tprj.flags.new(flag: 'build', status: 'disable') if @extend_names
       tprj.flags.new(flag: 'access', status: 'disable') if @noaccess
