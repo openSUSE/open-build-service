@@ -85,6 +85,10 @@ class WorkflowRunPayload
     github_tag_name || gitlab_tag_name
   end
 
+  def target_branch
+    github_target_branch || gitlab_target_branch || gitea_target_branch
+  end
+
   private
 
   def payload_generic_event_type

@@ -23,6 +23,13 @@ class WorkflowRunGiteaPayload
     payload.dig(:repository, :full_name) if gitea_push_event? || gitea_tag_push_event?
   end
 
+  def gitea_target_branch
+    return payload.dig(:pull_request, :base, :ref) if gitea_pull_request?
+    return payload.fetch(:ref, '').sub('refs/heads/', '') if gitea_push_event?
+
+    payload.dig(:head_commit, :id) if gitea_tag_push_event?
+  end
+
   def gitea_api_endpoint
     repositoy_url = payload.dig(:repository, :clone_url)
     return unless repositoy_url
