@@ -332,6 +332,12 @@ module Webui::WebuiHelper
 
     User.session&.color_theme || 'system'
   end
+
+  def contact_link
+    name = ::Configuration.contact_name || 'email'
+    url = ::Configuration.contact_url || "mailto:#{::Configuration.admin_email}"
+    link_to(name, url)
+  end
 end
 
 # rubocop:enable Metrics/ModuleLength
