@@ -77,6 +77,10 @@ class WorkflowRunPayload
     github_pr_number || gitlab_pr_number
   end
 
+  def checkout_http_url
+    github_checkout_http_url || gitea_checkout_http_url
+  end
+
   private
 
   def payload_generic_event_type
