@@ -16,7 +16,6 @@ class TriggerWorkflowController < ApplicationController
   before_action :set_token
   before_action :validate_request_body_is_yaml
   before_action :validate_token_type
-  before_action :extract_scm_webhook
   before_action :verify_event_and_action
   before_action :create_workflow_run
   before_action :validate_scm_event
