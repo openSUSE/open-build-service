@@ -14,7 +14,7 @@ class Workflow
 
   SUPPORTED_FILTERS = %i[branches event].freeze
 
-  attr_accessor :workflow_instructions, :scm_webhook, :token, :workflow_run, :workflow_version_number
+  attr_accessor :workflow_instructions, :token, :workflow_run, :workflow_version_number
 
   def initialize(attributes = {})
     run_callbacks(:initialize) do
@@ -43,7 +43,7 @@ class Workflow
 
   def event_supports_branches_filter?
     # Tags do not have a reference to a branch, they are referring to a commit
-    return false unless @workflow_instructions.dig(:filters, :branches).present? && scm_webhook.tag_push_event?
+    return false unless @workflow_instructions.dig(:filters, :branches).present? && workflow_run.tag_push_event?
 
     errors.add(:filters, 'for branches are not supported for the tag push event. ' \
                          "Documentation for filters: #{WorkflowFiltersValidator::DOCUMENTATION_LINK}")
@@ -77,7 +77,6 @@ class Workflow
 
   def initialize_step(step_name, step_instructions)
     SUPPORTED_STEPS[step_name].new(step_instructions: step_instructions,
-                                   scm_webhook: scm_webhook,
                                    token: token,
                                    workflow_run: workflow_run)
   end
@@ -91,13 +90,13 @@ class Workflow
 
     case filters[:event]
     when 'push'
-      scm_webhook.push_event?
+      workflow_run.push_event?
     when 'tag_push'
-      scm_webhook.tag_push_event?
+      workflow_run.tag_push_event?
     when 'pull_request'
-      scm_webhook.pull_request_event?
+      workflow_run.pull_request_event?
     when 'merge_request'
-      scm_webhook.pull_request_event? && feature_available_for_workflow_version?(workflow_version: workflow_version_number, feature_name: 'event_aliases')
+      workflow_run.pull_request_event? && feature_available_for_workflow_version?(workflow_version: workflow_version_number, feature_name: 'event_aliases')
     else
       false
     end
@@ -109,8 +108,8 @@ class Workflow
     branches_only = filters[:branches].fetch(:only, [])
     branches_ignore = filters[:branches].fetch(:ignore, [])
 
-    return true if branches_only.present? && branches_only.include?(scm_webhook.payload[:target_branch])
-    return true if branches_ignore.present? && branches_ignore.exclude?(scm_webhook.payload[:target_branch])
+    return true if branches_only.present? && branches_only.include?(workflow_run.payload[:target_branch])
+    return true if branches_ignore.present? && branches_ignore.exclude?(workflow_run.payload[:target_branch])
 
     false
   end

@@ -8,15 +8,15 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
   def call
     return unless valid?
 
-    if scm_webhook.closed_merged_pull_request?
+    if workflow_run.closed_merged_pull_request?
       destroy_target_project
-    elsif scm_webhook.reopened_pull_request?
+    elsif workflow_run.reopened_pull_request?
       restore_target_project
-    elsif scm_webhook.new_commit_event?
+    elsif workflow_run.new_commit_event?
       create_branched_package
       write_branch_request_file
       write_scmsync_branch_information
-      Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, target_package).call
+      Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, target_package).call
 
       target_package
     end
@@ -123,7 +123,7 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
   # flexibility regarding the URL.
   # https://github.com/openSUSE/obs-service-tar_scm/blob/2319f50e741e058ad599a6890ac5c710112d5e48/TarSCM/tasks.py#L145
   def branch_request_content
-    case scm_webhook.payload[:scm]
+    case workflow_run.scm_vendor
     when 'github'
       branch_request_content_github
     when 'gitlab'
@@ -138,22 +138,22 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
       action: 'opened',
       pull_request: {
         head: {
-          repo: { full_name: scm_webhook.payload[:source_repository_full_name] },
-          sha: scm_webhook.payload[:commit_sha]
+          repo: { full_name: workflow_run.source_repository_full_name },
+          sha: workflow_run.commit_sha
         }
       }
     }.to_json
   end
 
   def branch_request_content_gitlab
-    { object_kind: scm_webhook.payload[:object_kind],
-      project: { http_url: scm_webhook.payload[:http_url] },
-      object_attributes: { source: { default_branch: scm_webhook.payload[:commit_sha] } } }.to_json
+    { object_kind: workflow_run.payload[:object_kind],
+      project: { http_url: workflow_run.checkout_http_url },
+      object_attributes: { source: { default_branch: workflow_run.commit_sha } } }.to_json
   end
 
   def branch_request_content_gitea
     { object_kind: 'merge_request',
-      project: { http_url: scm_webhook.payload[:http_url] },
-      object_attributes: { source: { default_branch: scm_webhook.payload[:commit_sha] } } }.to_json
+      project: { http_url: workflow_run.checkout_http_url },
+      object_attributes: { source: { default_branch: workflow_run.commit_sha } } }.to_json
   end
 end

@@ -19,6 +19,6 @@ module TargetProjectLifeCycleSupport
     Pundit.authorize(@token.executor, project_to_restore, :create?)
 
     Project.restore(target_project_name, user: token.executor.login)
-    Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, target_package).call
+    Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, target_package).call
   end
 end
