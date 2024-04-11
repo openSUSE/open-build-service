@@ -43,6 +43,10 @@ class WorkflowRunGitlabPayload
     payload[:after] if gitlab_tag_push_event?
   end
 
+  def gitlab_object_kind
+    payload[:object_kind]
+  end
+
   def gitlab_repository_name
     payload.dig('project', 'path_with_namespace')&.split('/')&.last
   end

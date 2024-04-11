@@ -146,7 +146,7 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
   end
 
   def branch_request_content_gitlab
-    { object_kind: workflow_run.payload[:object_kind],
+    { object_kind: workflow_run.object_kind,
       project: { http_url: workflow_run.checkout_http_url },
       object_attributes: { source: { default_branch: workflow_run.commit_sha } } }.to_json
   end
