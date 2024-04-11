@@ -29,6 +29,10 @@ class WorkflowRunGithubPayload
     payload[:number]
   end
 
+  def github_checkout_http_url
+    payload.dig(:repository, :clone_url)
+  end
+
   def github_repository_name
     payload.dig('repository', 'name')
   end
