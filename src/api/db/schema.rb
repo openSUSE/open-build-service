@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_03_19_153505) do
+ActiveRecord::Schema[7.0].define(version: 2024_04_11_150057) do
   create_table "appeals", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.text "reason", null: false
     t.integer "appellant_id", null: false
@@ -386,6 +386,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_19_153505) do
     t.string "unlisted_projects_filter_description", default: "home projects", collation: "utf8mb4_bin"
     t.string "tos_url"
     t.text "code_of_conduct"
+    t.string "contact_name"
+    t.string "contact_url"
   end
 
   create_table "data_migrations", id: false, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
