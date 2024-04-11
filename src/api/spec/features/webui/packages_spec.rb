@@ -284,14 +284,14 @@ RSpec.describe 'Packages', :js, :vcr do
       wait_for_ajax
 
       within('#edit_package_details') do
-        fill_in('package_details[title]', with: 'test title')
+        fill_in('package_details[title]', with: 'test "little" title')
         fill_in('package_details[description]', with: 'test description')
         fill_in('package_details[url]', with: 'https://test.url')
         click_button('Update')
       end
 
       expect(find_by_id('flash')).to have_text('Package was successfully updated.')
-      expect(page).to have_text('test title')
+      expect(page).to have_text('test "little" title')
       expect(page).to have_text('test description')
       expect(page).to have_text('https://test.url')
     end

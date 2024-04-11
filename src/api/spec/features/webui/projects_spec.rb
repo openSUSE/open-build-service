@@ -26,13 +26,13 @@ RSpec.describe 'Projects', :js, :vcr do
         click_link('Edit')
         expect(page).to have_text("Edit Project #{project}")
 
-        fill_in 'project_title', with: 'My Title hopefully got changed'
+        fill_in 'project_title', with: 'My Title "hopefully" got changed'
         fill_in 'project_description', with: 'New description. No kidding.. Brand new!'
         fill_in 'project_url', with: 'https://test.url'
         click_button 'Update'
         wait_for_ajax
 
-        expect(find(:id, 'project-title')).to have_text('My Title hopefully got changed')
+        expect(find(:id, 'project-title')).to have_text('My Title "hopefully" got changed')
         expect(find(:id, 'description-text')).to have_text('New description. No kidding.. Brand new!')
         expect(page).to have_text('https://test.url')
       end
@@ -50,7 +50,7 @@ RSpec.describe 'Projects', :js, :vcr do
         click_link('Edit')
         expect(page).to have_text("Edit Project #{project}")
 
-        fill_in 'project_title', with: 'My Title hopefully got changed'
+        fill_in 'project_title', with: 'My Title "hopefully" got changed'
         fill_in 'project_description', with: 'New description. No kidding.. Brand new!'
         click_link 'Cancel'
         wait_for_ajax
