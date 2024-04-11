@@ -42,7 +42,7 @@
     %h6.px-3.py-2
       %b Pull/Merge Request
       = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: pr_mr_request_info_text }
-    = render WorkflowRunRequestActionFilterComponent.new(filter_item: 'request_action')
+    = render WorkflowRunRequestActionFilterComponent.new(filter_item: 'request_action', selected_filter: @selected_filter.request_action)
   .list-group.list-group-flush.mt-4.mb-4
     %h6.px-3.py-2
       %b Event Source
