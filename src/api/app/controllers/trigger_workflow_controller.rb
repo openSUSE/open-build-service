@@ -16,7 +16,6 @@ class TriggerWorkflowController < ApplicationController
   before_action :set_token
   before_action :validate_request_body_is_yaml
   before_action :validate_token_type
-  before_action :set_scm_extractor
   before_action :extract_scm_webhook
   before_action :verify_event_and_action
   before_action :create_workflow_run
@@ -66,17 +65,6 @@ class TriggerWorkflowController < ApplicationController
     @token.executor
   end
 
-  def set_scm_extractor
-    @scm_extractor = TriggerControllerService::SCMExtractor.new(scm_vendor, hook_event, payload)
-  end
-
-  def extract_scm_webhook
-    @scm_webhook = @scm_extractor.call
-    return @scm_webhook if @scm_webhook && @scm_extractor.valid?
-
-    raise Trigger::Errors::MissingExtractor, @scm_extractor.error_message
-  end
-
   def validate_token_type
     raise Trigger::Errors::InvalidToken, 'Wrong token type. Please use workflow tokens only.' unless @token.is_a?(Token::Workflow)
   end
@@ -110,17 +98,5 @@ class TriggerWorkflowController < ApplicationController
     info_msg += 'are unsupported'
 
     render_ok(data: { info: info_msg })
-  end
-
-  def validate_scm_event
-    return if @scm_extractor.valid?
-
-    @workflow_run.update_as_failed(
-      render_error(
-        status: 400,
-        errorcode: 'bad_request',
-        message: @scm_extractor.error_message
-      )
-    )
   end
 end
