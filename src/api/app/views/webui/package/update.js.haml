@@ -11,7 +11,7 @@ resetFormValidation();
       scrollToInPlace();
       $('.in-place-editing').html("#{escape_javascript(render(partial: 'webui/package/basic_info',
                                                               locals: { package: @package, project: @project }))}");
-      $('#package-title').html("#{@package.title.presence || @package.name}")
+      $('#package-title').html("#{escape_javascript(@package.title.presence || @package.name)}")
       setCollapsible();
       $('.in-place-editing').animate({ opacity: 1 }, 400, function() {
         $('#flash').html("#{escape_javascript(render(layout: false, partial: 'layouts/webui/flash', object: flash))}");
