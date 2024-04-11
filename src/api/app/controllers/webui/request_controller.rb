@@ -85,7 +85,7 @@ class Webui::RequestController < Webui::WebuiController
     rescue BsRequestAction::MissingAction
       flash[:error] = 'Unable to submit, sources are unchanged'
     rescue Project::Errors::UnknownObjectError
-      flash[:error] = "Unable to submit: The source of package #{elide(params[:project_name])}/#{elide(params[:package_name])} is broken"
+      flash[:error] = "Unable to submit. The project '#{elide(params[:project_name])}' was not found"
     rescue APIError, ActiveRecord::RecordInvalid => e
       flash[:error] = e.message
     rescue Backend::Error => e
