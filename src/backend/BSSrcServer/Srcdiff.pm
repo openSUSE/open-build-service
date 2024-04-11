@@ -1013,6 +1013,7 @@ sub findsim {
     my $fc = $fc{$f};
     my $ft = $ft{$f};
     next unless defined $fc;
+    next if $fc =~ /^CVE-[0-9]*-[0-9]*.patch/ || $fc =~ /^b..-[0-9]*.patch/;
     my @s = grep {defined($fc{$_}) && $fc{$_} eq $fc && $ft{$_} eq $ft} sort keys %s;
     if (@s) {
       unshift @s, grep {$old->{$_} eq $new->{$f}} @s if @s > 1;
