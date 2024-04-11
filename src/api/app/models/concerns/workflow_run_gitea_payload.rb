@@ -4,6 +4,13 @@ class WorkflowRunGiteaPayload
 
   private
 
+  def gitea_commit_sha
+    return payload.dig(:pull_request, :head, :sha) if gitea_pull_request?
+    return payload[:after] if gitea_push_event?
+
+    payload.dig(:head_commit, :id) if gitea_tag_push_event?
+  end
+
   def gitea_source_repository_full_name
     return payload.dig(:pull_request, :head, :repo, :full_name) if gitea_pull_request?
 

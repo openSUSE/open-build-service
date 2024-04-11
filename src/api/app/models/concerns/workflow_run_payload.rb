@@ -62,7 +62,7 @@ class WorkflowRunPayload
   end
 
   def commit_sha
-    github_commit_sha || gitlab_commit_sha
+    github_commit_sha || gitlab_commit_sha || gitea_commit_sha
   end
 
   def source_repository_full_name
