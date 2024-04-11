@@ -200,7 +200,7 @@ RSpec.describe Webui::PackageController, :vcr do
 
   describe 'GET #revisions' do
     let(:project) { create(:project, maintainer: user, name: 'some_dev_project123') }
-    let(:package) { create(:package_with_revisions, name: 'package_with_one_revision', revision_count: 1, project: project) }
+    let(:package) { create(:package_with_revisions, name: 'package_with_one_revision', revision_count: 25, project: project) }
     let(:elided_package_name) { 'package_w...revision' }
 
     before do
@@ -231,7 +231,7 @@ RSpec.describe Webui::PackageController, :vcr do
         end
 
         it 'returns revisions with the default pagination' do
-          expect(assigns(:revisions)).to eq((6..revision_count).to_a.reverse)
+          expect(assigns(:revisions)).to match_array((6..revision_count).to_a.reverse.map { |n| include('rev' => n.to_s) })
         end
 
         context 'and passing the show_all parameter' do
@@ -240,7 +240,7 @@ RSpec.describe Webui::PackageController, :vcr do
           end
 
           it 'returns revisions without pagination' do
-            expect(assigns(:revisions)).to eq((1..revision_count).to_a.reverse)
+            expect(assigns(:revisions)).to match_array((1..revision_count).to_a.reverse.map { |n| include('rev' => n.to_s) })
           end
         end
 
@@ -250,7 +250,7 @@ RSpec.describe Webui::PackageController, :vcr do
           end
 
           it "returns the paginated revisions for the page parameter's value" do
-            expect(assigns(:revisions)).to eq((1..5).to_a.reverse)
+            expect(assigns(:revisions)).to match_array((1..5).to_a.reverse.map { |n| include('rev' => n.to_s) })
           end
         end
       end
@@ -263,7 +263,7 @@ RSpec.describe Webui::PackageController, :vcr do
         let(:param_rev) { 23 }
 
         it "returns revisions up to rev parameter's value with the default pagination" do
-          expect(assigns(:revisions)).to eq((4..param_rev).to_a.reverse)
+          expect(assigns(:revisions)).to match_array((4..param_rev).to_a.reverse.map { |n| include('rev' => n.to_s) })
         end
 
         context 'and passing the show_all parameter' do
@@ -272,7 +272,7 @@ RSpec.describe Webui::PackageController, :vcr do
           end
 
           it "returns revisions up to rev parameter's value without pagination" do
-            expect(assigns(:revisions)).to eq((1..param_rev).to_a.reverse)
+            expect(assigns(:revisions)).to match_array((1..param_rev).to_a.reverse.map { |n| include('rev' => n.to_s) })
           end
         end
 
@@ -282,7 +282,7 @@ RSpec.describe Webui::PackageController, :vcr do
           end
 
           it "returns the paginated revisions for the page parameter's value" do
-            expect(assigns(:revisions)).to eq((1..3).to_a.reverse)
+            expect(assigns(:revisions)).to match_array((1..3).to_a.reverse.map { |n| include('rev' => n.to_s) })
           end
         end
       end
