@@ -15,6 +15,7 @@ class ProjectPolicy < ApplicationPolicy
     # The ordering is important because of the lock status check
     return true if user.is_admin?
     return false unless user.can_modify?(record, true)
+
     true
   end
 
