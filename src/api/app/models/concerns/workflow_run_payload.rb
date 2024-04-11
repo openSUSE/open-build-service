@@ -73,6 +73,10 @@ class WorkflowRunPayload
     github_target_repository_full_name || gitlab_target_repository_full_name || gitea_target_repository_full_name
   end
 
+  def pr_number
+    github_pr_number || gitlab_pr_number
+  end
+
   private
 
   def payload_generic_event_type

@@ -24,6 +24,10 @@ class WorkflowRunGitlabPayload
     payload.dig(:project, :path_with_namespace) if gitlab_push_event? || gitlab_tag_push_event?
   end
 
+  def gitlab_pr_number
+    payload.dig(:object_attributes, :iid)
+  end
+
   def gitlab_repository_name
     payload.dig('project', 'path_with_namespace')&.split('/')&.last
   end
