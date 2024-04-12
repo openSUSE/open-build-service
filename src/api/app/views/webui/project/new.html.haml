@@ -10,7 +10,7 @@
           = link_to User.session!.home_project_name, project_show_path(User.session!.home_project_name)
         and you can also create sub projects inside. New projects outside of your home project can get requested via
         = succeed '.' do
-          = link_to 'email', "mailto:#{@configuration['admin_email']}"
+          = contact_link
     - if @show_restore_message
       .alert.alert-secondary
         %p

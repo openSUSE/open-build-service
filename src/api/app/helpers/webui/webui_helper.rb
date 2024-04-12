@@ -332,6 +332,16 @@ module Webui::WebuiHelper
 
     User.session&.color_theme || 'system'
   end
+
+  def contact_link
+    blank_contact = ::Configuration.contact_name.blank? || ::Configuration.contact_url.blank?
+    blank_email = ::Configuration[:admin_email] == 'unconfigured@openbuildservice.org'
+    return 'contacting instance administrators' if blank_contact && blank_email
+
+    name = ::Configuration.contact_name || 'email'
+    url = ::Configuration.contact_url || "mailto:#{::Configuration.admin_email}"
+    link_to(name, url)
+  end
 end
 
 # rubocop:enable Metrics/ModuleLength

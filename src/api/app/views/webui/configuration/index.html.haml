@@ -28,6 +28,19 @@
           %small.form-text Leave this field blank to prevent from showing the "Code of Conduct" link at the footer of the page.
         ~ f.text_area :code_of_conduct, rows: 7, class: 'form-control'
 
+      .h5.mt-4 Contact Information
+      %p
+        Allows you to provide a link to a contact form, ticketing system or an email (prefixed with mailto:)
+        that will allow users to contact you about creating Projects and creating Staging Manager Groups.
+      .mb-3
+        .row.g-3.align-items-center
+          .col
+            = f.label :contact_name, 'Contact Name'
+            ~ f.text_field :contact_name, class: 'form-control'
+          .col
+            = f.label :contact_name, 'Contact URL'
+            ~ f.text_field :contact_url, class: 'form-control'
+
       .h5.mt-4 Base Configuration
       %p
         %i.fas.fa-exclamation-triangle.text-warning
