@@ -1,5 +1,5 @@
 # Methods to know which webhook we are dealing with based on the request_payload attribute
-class WorkflowRunGithubPayload
+module WorkflowRunGithubPayload
   extend ActiveSupport::Concern
 
   ALLOWED_PULL_REQUEST_ACTIONS = %w[closed opened reopened synchronize synchronized].freeze

@@ -1,5 +1,5 @@
 # Methods to fetch information from a Github webhook payload
-class WorkflowRunGiteaPayload
+module WorkflowRunGiteaPayload
   extend ActiveSupport::Concern
 
   private

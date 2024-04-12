@@ -1,5 +1,5 @@
 # Methods to know which webhook we are dealing with based on the request_payload attribute
-class WorkflowRunPayload
+module WorkflowRunPayload
   extend ActiveSupport::Concern
 
   SOURCE_NAME_PAYLOAD_MAPPING = {
