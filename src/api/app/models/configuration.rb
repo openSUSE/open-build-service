@@ -6,8 +6,8 @@ class Configuration < ApplicationRecord
   include ConfigurationConstants
 
   validates :name, :title, :description, presence: true
-  validates :admin_email, :api_url, :bugzilla_url, :default_tracker, :download_url, :http_proxy, :name, :no_proxy, :obs_url, :theme, :title, :tos_url, :unlisted_projects_filter,
-            :unlisted_projects_filter_description, :ymp_url, length: { maximum: 255 }
+  validates :admin_email, :api_url, :bugzilla_url, :contact_name, :contact_url, :default_tracker, :download_url, :http_proxy, :name, :no_proxy, :obs_url, :theme, :title,
+            :tos_url, :unlisted_projects_filter, :unlisted_projects_filter_description, :ymp_url, length: { maximum: 255 }
   validates :description, :code_of_conduct, length: { maximum: 65_535 }
 
   class << self
@@ -124,6 +124,8 @@ end
 #  cleanup_after_days                   :integer
 #  cleanup_empty_projects               :boolean          default(TRUE)
 #  code_of_conduct                      :text(65535)
+#  contact_name                         :string(255)
+#  contact_url                          :string(255)
 #  default_access_disabled              :boolean          default(FALSE)
 #  default_tracker                      :string(255)      default("bnc")
 #  description                          :text(65535)
