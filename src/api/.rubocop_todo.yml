@@ -372,7 +372,6 @@ Metrics/CyclomaticComplexity:
     - 'app/models/update_notification_events.rb'
     - 'app/models/user.rb'
     - 'app/models/user_ldap_strategy.rb'
-    - 'app/models/workflow_run_filter.rb'
     - 'app/policies/attrib_policy.rb'
     - 'lib/memory_debugger.rb'
     - 'lib/xpath_engine.rb'
