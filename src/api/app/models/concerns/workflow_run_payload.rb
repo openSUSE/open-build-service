@@ -10,27 +10,27 @@ class WorkflowRunPayload
   }.freeze
 
   def new_pull_request?
-    (github_pull_request? && payload[:action] == 'opened') ||
-      (gitlab_merge_request? && payload[:action] == 'open') ||
-      (gitea_pull_request? && payload[:action] == 'opened')
+    (github_pull_request? && payload_hook_action == 'opened') ||
+      (gitlab_merge_request? && payload_hook_action == 'open') ||
+      (gitea_pull_request? && payload_hook_action == 'opened')
   end
 
   def updated_pull_request?
-    (github_pull_request? && payload[:action] == 'synchronize') ||
-      (gitlab_merge_request? && payload[:action] == 'update') ||
-      (gitea_pull_request? && payload[:action] == 'synchronized')
+    (github_pull_request? && payload_hook_action == 'synchronize') ||
+      (gitlab_merge_request? && payload_hook_action == 'update') ||
+      (gitea_pull_request? && payload_hook_action == 'synchronized')
   end
 
   def closed_merged_pull_request?
-    (github_pull_request? && payload[:action] == 'closed') ||
-      (gitlab_merge_request? && %w[close merge].include?(payload[:action])) ||
-      (gitea_pull_request? && payload[:action] == 'closed')
+    (github_pull_request? && payload_hook_action == 'closed') ||
+      (gitlab_merge_request? && %w[close merge].include?(payload_hook_action) ||
+      (gitea_pull_request? && payload_hook_action == 'closed')
   end
 
   def reopened_pull_request?
-    (github_pull_request? && payload[:action] == 'reopened') ||
-      (gitlab_merge_request? && payload[:action] == 'reopen') ||
-      (gitea_pull_request? && payload[:action] == 'reopened')
+    (github_pull_request? && payload_hook_action == 'reopened') ||
+      (gitlab_merge_request? && payload_hook_action == 'reopen') ||
+      (gitea_pull_request? && payload_hook_action == 'reopened')
   end
 
   def new_commit_event?
