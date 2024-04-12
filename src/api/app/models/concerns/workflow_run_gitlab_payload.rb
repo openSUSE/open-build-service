@@ -87,4 +87,20 @@ class WorkflowRunGitlabPayload
     # In Push Hook events to delete a branch, the after field is '0000000000000000000000000000000000000000'
     gitlab_push_event? && payload[:commit_sha].match?(/\A0+\z/)
   end
+
+  def gitlab_new_pull_request?
+    gitlab_merge_request? && gitlab_hook_action == 'open'
+  end
+
+  def gitlab_updated_pull_request?
+    gitlab_merge_request? && gitlab_hook_action == 'update'
+  end
+
+  def gitlab_closed_merged_pull_request?
+    gitlab_merge_request? && %w[close merge].include?(gitlab_hook_action)
+  end
+
+  def gitlab_reopened_pull_request?
+    gitlab_merge_request? && gitlab_hook_action == 'reopen'
+  end
 end
