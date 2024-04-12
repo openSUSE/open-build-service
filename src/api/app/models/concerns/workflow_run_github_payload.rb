@@ -85,7 +85,7 @@ class WorkflowRunGithubPayload
   end
 
   def ignored_github_pull_request_action?
-    github_pull_request? && ALLOWED_PULL_REQUEST_ACTIONS.exclude?(payload[:action])
+    github_pull_request? && ALLOWED_PULL_REQUEST_ACTIONS.exclude?(github_hook_action)
   end
 
   def ignored_github_push_event?

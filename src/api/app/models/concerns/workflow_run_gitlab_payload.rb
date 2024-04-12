@@ -80,7 +80,7 @@ class WorkflowRunGitlabPayload
   end
 
   def ignored_gitlab_merge_request_action?
-    gitlab_merge_request? && ALLOWED_MERGE_REQUEST_ACTIONS.exclude?(payload[:action])
+    gitlab_merge_request? && ALLOWED_MERGE_REQUEST_ACTIONS.exclude?(gitlab_hook_action)
   end
 
   def ignored_gitlab_push_event?
