@@ -20,6 +20,7 @@ class Workflow::Step::SetFlags < Workflow::Step
 
   def set_flags
     ActiveRecord::Base.transaction do
+      objects_to_store = Set.new
       flags.each do |flag|
         main_object = project_or_package(flag)
         Pundit.authorize(token.executor, main_object, :update?)
@@ -33,9 +34,12 @@ class Workflow::Step::SetFlags < Workflow::Step
           existing_flag.update!(status: flag[:status])
         else
           main_object.add_flag(flag[:type], flag[:status], flag[:repository], flag[:architecture])
+          main_object.save!
         end
-        main_object.store(comment: 'SCM/CI integration, set_flags step')
+        objects_to_store << main_object
       end
+
+      objects_to_store.each { |main_object| main_object.store(comment: 'SCM/CI integration, set_flags step') }
     end
   end
 
