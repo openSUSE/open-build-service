@@ -22,25 +22,25 @@
       %b Status
       = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: status_info_text }
     = render WorkflowRunFilterCheckboxComponent.new(text: 'Succeeded', amount: @count['success'], icon: 'fas fa-check text-primary',
-                                                filter_name: 'success', selected_filter: { status: @selected_filter.status })
+                                                filter_name: 'success', selected_filter: @selected_filter.status)
     = render WorkflowRunFilterCheckboxComponent.new(text: 'Running', amount: @count['running'], icon: 'fas fa-running',
-                                                filter_name: 'running', selected_filter: { status: @selected_filter.status })
+                                                filter_name: 'running', selected_filter: @selected_filter.status)
     = render WorkflowRunFilterCheckboxComponent.new(text: 'Failed', amount: @count['fail'],
                                                 icon: 'fas fa-exclamation-triangle text-danger',
-                                                filter_name: 'fail', selected_filter: { status: @selected_filter.status })
+                                                filter_name: 'fail', selected_filter: @selected_filter.status)
   .list-group.list-group-flush.mt-4.mb-4
     %h6.px-3.py-2
       %b Event Type
       = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: event_type_info_text }
     = render WorkflowRunFilterCheckboxComponent.new(text: 'Pull/Merge Request', amount: @count['pull_request'],
                                                 filter_name: 'pull_request',
-                                                selected_filter: { event_type: @selected_filter.event_types })
+                                                selected_filter: @selected_filter.event_types)
     = render WorkflowRunFilterCheckboxComponent.new(text: 'Push', amount: @count['push'],
                                                 filter_name: 'push',
-                                                selected_filter: { event_type: @selected_filter.event_types })
+                                                selected_filter: @selected_filter.event_types)
     = render WorkflowRunFilterCheckboxComponent.new(text: 'Tag Push', amount: @count['tag_push'],
                                                 filter_name: 'tag_push',
-                                                selected_filter: { event_type: @selected_filter.event_types })
+                                                selected_filter: @selected_filter.event_types)
   .list-group.list-group-flush.mt-4.mb-4
     %h6.px-3.py-2
       %b Event Action
