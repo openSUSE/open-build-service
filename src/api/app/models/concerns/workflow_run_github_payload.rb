@@ -2,6 +2,7 @@
 module WorkflowRunGithubPayload
   extend ActiveSupport::Concern
 
+  ALLOWED_GITHUB_EVENTS = %w[pull_request push ping].freeze
   ALLOWED_PULL_REQUEST_ACTIONS = %w[closed opened reopened synchronize synchronized].freeze
 
   private

@@ -26,8 +26,13 @@ class WorkflowRun < ApplicationRecord
             :workflow_configuration_path, :workflow_configuration_url,
             :hook_event, :hook_action, :generic_event_type,
             :repository_name, :repository_owner, :event_source_name, length: { maximum: 255 }
-  validates :request_headers, :status, :scm_vendor, :hook_event, presence: true
+  validates :request_headers, :status, :scm_vendor, :hook_event, :request_payload, presence: true
   validates :workflow_configuration, length: { maximum: 65_535 }
+  validates :scm_vendor, inclusion: { in: %w[github gitlab gitea], message: "unsupported '%{value}'" }, if: -> { scm_vendor.present? }
+  validates :hook_event, inclusion: { in: ALLOWED_GITHUB_EVENTS, allow_nil: true, message: "unsupported '%{value}'" }, if: -> { scm_vendor == 'github' }
+  validates :hook_event, inclusion: { in: ALLOWED_GITLAB_EVENTS, allow_nil: true, message: "unsupported '%{value}'" }, if: -> { scm_vendor == 'gitlab' }
+  validates :hook_action, inclusion: { in: ALLOWED_PULL_REQUEST_ACTIONS, allow_nil: true, message: "unsupported '%{value}'" }, if: -> { scm_vendor == 'github' && hook_event == 'pull_request' }
+  validates :hook_action, inclusion: { in: ALLOWED_MERGE_REQUEST_ACTIONS, allow_nil: true, message: "unsupported event action '%{value}'" }, if: -> { scm_vendor == 'gitlab' && hook_event == 'Merge Request Hook' }
 
   belongs_to :token, class_name: 'Token::Workflow', optional: true
   has_many :artifacts, class_name: 'WorkflowArtifactsPerStep', dependent: :destroy
