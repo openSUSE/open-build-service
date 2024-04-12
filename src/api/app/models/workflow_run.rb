@@ -33,6 +33,7 @@ class WorkflowRun < ApplicationRecord
   validates :hook_event, inclusion: { in: ALLOWED_GITLAB_EVENTS, allow_nil: true, message: "unsupported '%{value}'" }, if: -> { scm_vendor == 'gitlab' }
   validates :hook_action, inclusion: { in: ALLOWED_PULL_REQUEST_ACTIONS, allow_nil: true, message: "unsupported '%{value}'" }, if: -> { scm_vendor == 'github' && hook_event == 'pull_request' }
   validates :hook_action, inclusion: { in: ALLOWED_MERGE_REQUEST_ACTIONS, allow_nil: true, message: "unsupported event action '%{value}'" }, if: -> { scm_vendor == 'gitlab' && hook_event == 'Merge Request Hook' }
+  validate :validate_payload_is_json
 
   belongs_to :token, class_name: 'Token::Workflow', optional: true
   has_many :artifacts, class_name: 'WorkflowArtifactsPerStep', dependent: :destroy
@@ -141,6 +142,12 @@ class WorkflowRun < ApplicationRecord
   end
 
   private
+
+  def validate_payload_is_json
+    JSON.parse(request_payload)
+  rescue JSON::ParserError
+    errors.add(:request_payload, 'can not be parsed as JSON')
+  end
 
   def set_attributes_from_payload
     self.hook_action = payload_hook_action
