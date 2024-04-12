@@ -59,7 +59,7 @@ class WorkflowRunsFinder
     request_actions = [request_actions] unless request_actions.is_a?(Array)
     return self if request_actions.compact.empty?
 
-    @relation = @relation.where(hook_action: request_actions, generic_event_type: 'pull_request').or(@relation.where.not(generic_event_type: 'pull_request'))
+    @relation = @relation.where(hook_action: request_actions)
 
     self
   end
