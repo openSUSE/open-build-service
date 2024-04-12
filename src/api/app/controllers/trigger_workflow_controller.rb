@@ -12,16 +12,22 @@ class TriggerWorkflowController < ApplicationController
   # We don't need to validate that the body of the request is valid XML. We receive JSON...
   skip_before_action :validate_xml_request
 
-  before_action :validate_scm_vendor
+  before_action :set_workflow_run
+  before_action :skip_unsupported_events
+  before_action :skip_unsupported_actions
   before_action :set_token
-  before_action :validate_request_body_is_yaml
   before_action :validate_token_type
-  before_action :verify_event_and_action
-  before_action :create_workflow_run
-  before_action :validate_scm_event
 
   def create
     authorize @token, :trigger?
+
+    if @workflow_run.valid?
+      @workflow_run.save!
+    else
+      render_error(status: 400, message: @workflow_run.errors.full_messages.to_sentence)
+      return
+    end
+
     @token.executor.run_as do
       validation_errors = @token.call(workflow_run: @workflow_run)
 
@@ -48,18 +54,6 @@ class TriggerWorkflowController < ApplicationController
     raise InvalidToken, 'No valid token found' unless @token
   end
 
-  def validate_request_body_is_yaml
-    request_body = request.body.read
-
-    raise Trigger::Errors::BadSCMPayload if request_body.blank?
-
-    begin
-      JSON.parse(request_body)
-    rescue JSON::ParserError
-      raise Trigger::Errors::BadSCMPayload
-    end
-  end
-
   def pundit_user
     @token.executor
   end
@@ -68,34 +62,29 @@ class TriggerWorkflowController < ApplicationController
     raise Trigger::Errors::InvalidToken, 'Wrong token type. Please use workflow tokens only.' unless @token.is_a?(Token::Workflow)
   end
 
-  def validate_scm_vendor
-    return unless scm_vendor == 'unknown'
-
-    message = 'Unknown SCM vendor. Only GitHub, GitLab and Gitea are supported. Could not find the required HTTP request headers X-GitHub-Event, X-Gitlab-Event or X-Gitea-Event'
-    render_error(status: 400, errorcode: 'unknown_scm_vendor', message: message)
-  end
-
-  def create_workflow_run
+  def set_workflow_run
     request_headers = request.headers.to_h.keys.filter_map { |k| "#{k}: #{request.headers[k]}" if k.match?(/^HTTP_/) }.join("\n")
-    @workflow_run = @token.workflow_runs.create(request_headers: request_headers,
-                                                request_payload: request.body.read,
-                                                workflow_configuration_path: @token.workflow_configuration_path,
-                                                workflow_configuration_url: @token.workflow_configuration_url,
-                                                scm_vendor: scm_vendor,
-                                                hook_event: hook_event)
+    @workflow_run = @token.workflow_runs.new(request_headers: request_headers,
+                                             request_payload: request.body.read,
+                                             workflow_configuration_path: @token.workflow_configuration_path,
+                                             workflow_configuration_url: @token.workflow_configuration_url,
+                                             scm_vendor: scm_vendor,
+                                             hook_event: hook_event)
   end
 
-  def verify_event_and_action
-    # There are plenty of different pull/merge request and push events which we don't support.
-    # Those should not cause an error, we simply ignore them.
-    return unless @workflow_run.ignored_pull_request_action? || @workflow_run.ignored_push_event? || ignored_event?
+  # There are plenty of SCM events we do not handle at all (yet).
+  # Instead of throwing and errror we just ignore them.
+  def skip_unsupported_events
+    return if @workflow_run.supported_event?
 
-    action = @workflow_run.hook_action
+    render_ok(data: { info: "Ignored unsupported event: '#{@workflow_run.hook_event}'" })
+  end
 
-    info_msg = "Events '#{@workflow_run.hook_event}' "
-    info_msg += "and actions '#{action}' " if action.present?
-    info_msg += 'are unsupported'
+  # There are plenty of SCM event actions we do not handle at all (yet).
+  # Instead of throwing and errror we just ignore them.
+  def skip_unsupported_actions
+    return if @workflow_run.supported_action?
 
-    render_ok(data: { info: info_msg })
+    render_ok(data: { info: "Ignored unsupported '#{hook_event}' event action: '#{hook_action}'" })
   end
 end

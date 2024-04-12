@@ -13,13 +13,4 @@ module ScmWebhookHeadersDataExtractor
 
     'unknown'
   end
-
-  def ignored_event?
-    case scm_vendor
-    when 'github', 'gitea'
-      SCMWebhookEventValidator::ALLOWED_GITHUB_AND_GITEA_EVENTS.exclude?(hook_event)
-    when 'gitlab'
-      SCMWebhookEventValidator::ALLOWED_GITLAB_EVENTS.exclude?(hook_event)
-    end
-  end
 end
