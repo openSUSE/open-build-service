@@ -30,6 +30,10 @@ class WorkflowRunGiteaPayload
     payload.dig(:head_commit, :id) if gitea_tag_push_event?
   end
 
+  def gitea_hook_action
+    payload['action']
+  end
+
   def gitea_api_endpoint
     repositoy_url = payload.dig(:repository, :clone_url)
     return unless repositoy_url
@@ -48,5 +52,21 @@ class WorkflowRunGiteaPayload
 
   def gitea_pull_request?
     scm_vendor == 'gitea' && payload[:event] == 'pull_request'
+  end
+
+  def gitea_new_pull_request?
+    gitea_pull_request? && gitea_hook_action == 'opened'
+  end
+
+  def gitea_updated_pull_request?
+    gitea_pull_request? && gitea_hook_action == 'synchronized'
+  end
+
+  def gitea_closed_merged_pull_request?
+    gitea_pull_request? && gitea_hook_action == 'closed'
+  end
+
+  def gitea_reopened_pull_request?
+    gitea_pull_request? && gitea_hook_action == 'reopened'
   end
 end

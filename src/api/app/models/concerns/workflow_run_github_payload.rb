@@ -91,4 +91,20 @@ class WorkflowRunGithubPayload
   def ignored_github_push_event?
     github_push_event? && payload[:deleted]
   end
+
+  def github_new_pull_request?
+    github_pull_request? && github_hook_action == 'opened'
+  end
+
+  def github_updated_pull_request?
+    github_pull_request? && github_hook_action == 'synchronize'
+  end
+
+  def github_closed_merged_pull_request?
+    github_pull_request? && github_hook_action == 'closed'
+  end
+
+  def github_reopened_pull_request?
+    github_pull_request? && github_hook_action == 'reopened'
+  end
 end
