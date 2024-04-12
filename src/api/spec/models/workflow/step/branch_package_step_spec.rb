@@ -2,7 +2,8 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
   subject do
     described_class.new(step_instructions: step_instructions,
                         scm_webhook: scm_webhook,
-                        token: token)
+                        token: token,
+                        workflow_run: workflow_run)
   end
 
   let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
@@ -28,13 +29,14 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       target_project: target_project_name
     }
   end
+  let(:workflow_run) { create(:workflow_run, token: token) }
 
   before do
     login(user)
   end
 
   describe '#call' do
-    let(:project) { create(:project, name: 'foo_project', maintainer: user) }
+    let(:project) { create(:project, name: 'foo_project', maintainer: user, url: 'https://my-foo-project.com/example') }
     let(:package) { create(:package_with_file, name: 'bar_package', project: project) }
     let(:final_package_name) { package.name }
 
@@ -49,6 +51,10 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
 
         it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
         it { expect(subject.call.source_file('_branch_request')).to include('123') }
+
+        it 'updates the url' do
+          expect(subject.call.project.url).to eq('http://github.com/something')
+        end
       end
 
       context 'it sets the scmsync url' do
@@ -214,7 +220,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
   end
 
   describe '#skip_repositories?' do
-    let(:project) { create(:project, name: 'foo_project', maintainer: user) }
+    let(:project) { create(:project, name: 'foo_project', maintainer: user, url: 'https://my-foo-project.com/example') }
     let(:package) { create(:package_with_file, name: 'bar_package', project: project) }
     let(:action) { 'opened' }
 
@@ -228,6 +234,10 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       let(:step_instructions) { { source_project: package.project.name, source_package: package.name, target_project: target_project_name, add_repositories: 'disabled' } }
 
       it { expect(subject.send(:skip_repositories?)).to be_truthy }
+
+      it 'sets the url of the target project with the event url from the SCM payload' do
+        expect(subject.call.project.url).to eq('http://github.com/something')
+      end
     end
 
     context 'when add_repositories is blank' do
