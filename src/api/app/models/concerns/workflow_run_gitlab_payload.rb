@@ -1,5 +1,5 @@
 # Methods to know which webhook we are dealing with based on the request_payload attribute
-class WorkflowRunGitlabPayload
+module WorkflowRunGitlabPayload
   extend ActiveSupport::Concern
 
   ALLOWED_MERGE_REQUEST_ACTIONS = %w[close merge open reopen update].freeze
