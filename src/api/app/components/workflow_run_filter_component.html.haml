@@ -8,8 +8,8 @@
                           <p><b>Pull/Merge request: </b>
                           A pull/merge request got opened against a selected branch</p>
                           <p><b>Push: </b>A push event occured on a selected branch</p>'
-  pr_mr_request_info_text = '<p>Filter your workflow runs by the action type: <b>it applies only</b>
-                             when the Event Type is <b>Pull/Merge Request</b></p>'
+  pr_mr_request_info_text = '<p>Filter your workflow runs by the action type: be aware <b>only Pull/Merge Request</b>
+                             Event Type has an action parameter value</p>'
   event_source_info_text = '<p>Filter your workflow runs by the event source. The event source
                             is what triggered this workflow on the SCM.</p>
                             <p> A pull/merge request number like <em>12345</em></p>
@@ -43,7 +43,7 @@
                                                 selected_filter: { event_type: @selected_filter.event_types })
   .list-group.list-group-flush.mt-4.mb-4
     %h6.px-3.py-2
-      %b Pull/Merge Request
+      %b Event Action
       = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: pr_mr_request_info_text }
     = render WorkflowRunRequestActionFilterComponent.new(filter_item: 'request_action', selected_filter: @selected_filter.request_action)
   .list-group.list-group-flush.mt-4.mb-4
