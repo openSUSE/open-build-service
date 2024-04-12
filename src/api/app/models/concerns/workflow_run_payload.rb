@@ -41,16 +41,24 @@ module WorkflowRunPayload
     github_pull_request? || gitlab_merge_request? || gitea_pull_request?
   end
 
-  def ignored_pull_request_action?
-    ignored_github_pull_request_action? || ignored_gitlab_merge_request_action? || ignored_gitea_pull_request_action?
+  def supported_pull_request_action?
+    github_supported_pull_request_action? || gitlab_supported_merge_request_action?
   end
 
   def ping_event?
     github_ping? || gitea_ping?
   end
 
-  def ignored_push_event?
-    ignored_github_push_event? || ignored_gitlab_push_event?
+  def supported_push_action?
+    github_supported_push_action? || gitlab_supported_push_action?
+  end
+
+  def supported_action?
+    supported_push_action? || supported_pull_request_action?
+  end
+
+  def supported_event?
+    github_supported_event? || gitlab_supported_event?
   end
 
   def commit_sha

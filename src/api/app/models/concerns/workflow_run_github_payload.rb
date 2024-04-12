@@ -85,12 +85,16 @@ module WorkflowRunGithubPayload
     scm_vendor == 'github' && payload[:event] == 'ping'
   end
 
-  def ignored_github_pull_request_action?
-    github_pull_request? && ALLOWED_PULL_REQUEST_ACTIONS.exclude?(github_hook_action)
+  def github_supported_event?
+    scm_vendor == 'github' && ALLOWED_GITHUB_AND_GITEA_EVENTS.include?(hook_event)
   end
 
-  def ignored_github_push_event?
-    github_push_event? && payload[:deleted]
+  def github_supported_pull_request_action?
+    github_pull_request? && ALLOWED_PULL_REQUEST_ACTIONS.include?(hook_action)
+  end
+
+  def github_supported_push_action?
+    github_push_event? && !payload[:deleted]
   end
 
   def github_new_pull_request?

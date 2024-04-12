@@ -80,13 +80,17 @@ module WorkflowRunGitlabPayload
     scm_vendor == 'gitlab' && payload[:event] == 'Merge Request Hook'
   end
 
-  def ignored_gitlab_merge_request_action?
-    gitlab_merge_request? && ALLOWED_MERGE_REQUEST_ACTIONS.exclude?(gitlab_hook_action)
+  def gitlab_supported_event?
+    scm_vendor == 'gitlab' && ALLOWED_GITLAB_EVENTS.include?(hook_event)
   end
 
-  def ignored_gitlab_push_event?
+  def gitlab_supported_merge_request_action?
+    gitlab_merge_request? && ALLOWED_MERGE_REQUEST_ACTIONS.include?(hook_action)
+  end
+
+  def gitlab_supported_push_action?
     # In Push Hook events to delete a branch, the after field is '0000000000000000000000000000000000000000'
-    gitlab_push_event? && payload[:commit_sha].match?(/\A0+\z/)
+    gitlab_push_event? && !payload[:commit_sha].match?(/\A0+\z/)
   end
 
   def gitlab_new_pull_request?
