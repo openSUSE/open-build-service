@@ -21,11 +21,4 @@ class WorkflowRunFilter
     @pr_mr = params[:pr_mr]
     @commit = params[:commit_sha]
   end
-
-  def to_params
-    { generic_event_type: params[:generic_event_type],
-      status: params[:status],
-      pr_number: params[:pr_mr],
-      commit_sha: params[:commit] }.compact
-  end
 end
