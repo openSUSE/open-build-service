@@ -2045,3 +2045,10 @@ WorkflowRun:
   token_id:
     NullConstraintChecker:
       enabled: false
+  svm_vendor:
+    ColumnPresenceChecker:
+      enabled: false
+  hook_action:
+    ColumnPresenceChecker:
+      enabled: false
+

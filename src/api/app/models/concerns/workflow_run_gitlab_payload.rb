@@ -2,6 +2,7 @@
 module WorkflowRunGitlabPayload
   extend ActiveSupport::Concern
 
+  ALLOWED_GITLAB_EVENTS = ['Merge Request Hook', 'Push Hook', 'Tag Push Hook'].freeze
   ALLOWED_MERGE_REQUEST_ACTIONS = %w[close merge open reopen update].freeze
 
   private
