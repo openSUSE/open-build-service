@@ -973,6 +973,9 @@ my @simclasses = (
   '(?:tar|tar\.gz|tar\.bz2|tar\.xz|tar\.zstd?|tgz|tbz|gem|obscpio|livebuild|zip)',
 );
 
+# do not treat tracker ids as versions
+my $trackers = qr/(bnc-\d+|bug-\d+|bsc-\d+|issue-\d+|cve-\d+-\d+)/i;
+
 sub findsim {
   my ($old, $new) = @_;
 
@@ -1013,7 +1016,6 @@ sub findsim {
     my $fc = $fc{$f};
     my $ft = $ft{$f};
     next unless defined $fc;
-    next if $fc =~ /^CVE-[0-9]*-[0-9]*.patch/ || $fc =~ /^b..-[0-9]*.patch/;
     my @s = grep {defined($fc{$_}) && $fc{$_} eq $fc && $ft{$_} eq $ft} sort keys %s;
     if (@s) {
       unshift @s, grep {$old->{$_} eq $new->{$f}} @s if @s > 1;
@@ -1029,9 +1031,15 @@ sub findsim {
     my $ft = $ft{$f};
     next unless defined $fc;
     my @s = grep {defined($ft{$_}) && $ft{$_} eq $ft} sort keys %s;
+    my $fqp = '';
+    if ($fc =~ /^($trackers)/) {
+      $fqp = "\Q$1\E";
+      $fc = substr($fc, length($1));
+    }
     my $fq = "\Q$fc\E";
     $fq =~ s/\\\././g;
     $fq =~ s/[0-9.]+/.*/g;
+    $fq = "$fqp$fq";
     @s = grep {/^$fq$/ && $old->{$_} eq $new->{$f}} @s;
     if (@s) {
       $sim{$f} = $s[0];
@@ -1046,9 +1054,15 @@ sub findsim {
     my $ft = $ft{$f};
     next unless defined $fc;
     my @s = grep {defined($ft{$_}) && $ft{$_} eq $ft} sort keys %s;
+    my $fqp = '';
+    if ($fc =~ /^($trackers)/) {
+      $fqp = "\Q$1\E";
+      $fc = substr($fc, length($1));
+    }
     my $fq = "\Q$fc\E";
     $fq =~ s/\\\././g;
     $fq =~ s/[0-9.]+/.*/g;
+    $fq = "$fqp$fq";
     @s = grep {/^$fq$/} @s;
     if (@s) {
       unshift @s, grep {$old->{$_} eq $new->{$f}} @s if @s > 1;
