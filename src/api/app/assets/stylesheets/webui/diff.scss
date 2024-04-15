@@ -14,6 +14,10 @@
   display: none;
 }
 
+.diff-accordion {
+  --bs-accordion-active-bg: var(--bs-secondary-bg);
+}
+
 .pre.scroll {
   --line-index-digits: 6ch;
   --additional-padding: 0px;
