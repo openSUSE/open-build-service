@@ -372,6 +372,29 @@ class ProjectTest < ActiveSupport::TestCase
     project_b.destroy
   end
 
+  def test_project_kind_removal
+    User.session = users(:king)
+
+    prj = Project.new(name: 'kind')
+    prj.update_from_xml!(Xmlhash.parse(
+                           "<project name='kind' kind='maintenance_release'>
+                             <title/>
+                             <description/>
+                           </project>"
+                         ))
+
+    xml = prj.to_axml
+    assert_xml_tag xml, tag: :project, attributes: { kind: 'maintenance_release' }
+
+    prj.update_from_xml!(Xmlhash.parse(
+                           "<project name='kind'>
+                             <title/>
+                             <description/>
+                           </project>"
+                         ))
+    assert_no_xml_tag xml, tag: :project, attributes: { kind: 'maintenance_release' }
+  end
+
   def test_repository_with_download_url
     User.session = users(:king)
 
