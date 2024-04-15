@@ -69,15 +69,15 @@ module WorkflowRunGitlabPayload
   end
 
   def gitlab_push_event?
-    scm_vendor == 'gitlab' && payload[:event] == 'Push Hook'
+    scm_vendor == 'gitlab' && hook_event == 'Push Hook'
   end
 
   def gitlab_tag_push_event?
-    scm_vendor == 'gitlab' && payload[:event] == 'Tag Push Hook'
+    scm_vendor == 'gitlab' && hook_event == 'Tag Push Hook'
   end
 
   def gitlab_merge_request?
-    scm_vendor == 'gitlab' && payload[:event] == 'Merge Request Hook'
+    scm_vendor == 'gitlab' && hook_event == 'Merge Request Hook'
   end
 
   def gitlab_supported_event?

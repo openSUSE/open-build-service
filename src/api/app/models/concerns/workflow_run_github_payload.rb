@@ -70,19 +70,19 @@ module WorkflowRunGithubPayload
   end
 
   def github_push_event?
-    scm_vendor == 'github' && payload[:event] == 'push' && payload.fetch(:ref, '').start_with?('refs/heads/')
+    scm_vendor == 'github' && hook_event == 'push' && payload.fetch(:ref, '').start_with?('refs/heads/')
   end
 
   def github_tag_push_event?
-    scm_vendor == 'github' && payload[:event] == 'push' && payload.fetch(:ref, '').starts_with?('refs/tags/')
+    scm_vendor == 'github' && hook_event == 'push' && payload.fetch(:ref, '').starts_with?('refs/tags/')
   end
 
   def github_pull_request?
-    scm_vendor == 'github' && payload[:event] == 'pull_request'
+    scm_vendor == 'github' && hook_event == 'pull_request'
   end
 
   def github_ping?
-    scm_vendor == 'github' && payload[:event] == 'ping'
+    scm_vendor == 'github' && hook_event == 'ping'
   end
 
   def github_supported_event?
