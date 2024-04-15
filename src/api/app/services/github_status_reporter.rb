@@ -23,6 +23,8 @@ class GithubStatusReporter < SCMExceptionHandler
       @workflow_run.save_scm_report_success(request_context)
       RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=success,scm=#{@event_subscription_payload[:scm]} value=1")
     end
+  rescue Octokit::Unauthorized
+    raise Token::Errors::SCMTokenInvalid
   rescue Octokit::InvalidRepository => e
     package = Package.find_by_project_and_name(@event_payload[:project], @event_payload[:package])
     return if package.blank?

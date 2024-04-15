@@ -48,7 +48,7 @@ class Token::Workflow < Token
     SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, 'success', initial_report: true).call
     # Always returning validation errors to report them back to the SCM in order to help users debug their workflows
     validation_errors
-  rescue Octokit::Unauthorized, Gitlab::Error::Unauthorized
+  rescue Gitlab::Error::Unauthorized
     raise Token::Errors::SCMTokenInvalid
   end
 
