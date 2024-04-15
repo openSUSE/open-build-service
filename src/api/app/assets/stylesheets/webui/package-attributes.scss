@@ -4,7 +4,7 @@ ul li.value {
   }
 
   & pre {
-    background-color: $body-bg;
+    background-color: var(--bs-secondary-bg);
     border: 1px dotted $primary;
     padding: 2px 3px;
   }
