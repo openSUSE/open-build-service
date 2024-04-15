@@ -1,8 +1,8 @@
 RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
   subject do
     described_class.new(step_instructions: step_instructions,
-                        scm_webhook: scm_webhook,
-                        token: token)
+                        token: token,
+                        workflow_run: workflow_run)
   end
 
   let(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
@@ -17,18 +17,31 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
       target_project: target_project.name
     }
   end
-  let(:action) { 'opened' }
-  let(:commit_sha) { '123' }
-  let(:scm_webhook) do
-    SCMWebhook.new(payload: {
-                     scm: 'github',
-                     event: 'pull_request',
-                     action: action,
-                     pr_number: 1,
-                     source_repository_full_name: 'reponame',
-                     commit_sha: commit_sha,
-                     target_repository_full_name: 'openSUSE/open-build-service'
-                   })
+
+  let(:request_payload) do
+    '{
+      "action": "opened",
+      "number": 1,
+      "pull_request": {
+        "html_url": "http://github.com/something",
+        "base": {
+          "repo": {
+            "full_name": "openSUSE/open-build-service"
+          }
+        }
+      },
+      "repository": {
+        "name": "hello_world",
+        "html_url": "https://github.com",
+        "owner": {
+          "login": "iggy"
+        }
+      }
+    }'
+  end
+
+  let(:workflow_run) do
+    create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', request_payload: request_payload)
   end
 
   describe '#call' do
@@ -37,8 +50,6 @@ RSpec.describe Workflow::Step::LinkPackageStep, :vcr do
     end
 
     context 'for a new PR event' do
-      let(:action) { 'opened' }
-
       it { expect { subject.call }.to(change(Project, :count).by(1)) }
       it { expect { subject.call }.to(change(Package, :count).by(1)) }
       it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
