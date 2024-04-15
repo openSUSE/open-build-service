@@ -35,6 +35,11 @@ class WorkflowRun < ApplicationRecord
   scope :push, -> { where(generic_event_type: 'push') }
   scope :tag_push, -> { where(generic_event_type: 'tag_push') }
 
+  scope :with_statuses, ->(statuses) { where(status: statuses) }
+  scope :with_types, ->(types) { where(generic_event_type: types) }
+  scope :with_actions, ->(actions) { where(hook_action: actions) }
+  scope :with_event_source_name, ->(source_name) { where(event_source_name: source_name) }
+
   paginates_per 20
 
   enum status: {
