@@ -43,15 +43,15 @@ module WorkflowRunGiteaPayload
   end
 
   def gitea_push_event?
-    scm_vendor == 'gitea' && payload[:event] == 'push' && payload.fetch(:ref, '').start_with?('refs/heads/')
+    scm_vendor == 'gitea' && hook_event == 'push' && payload.fetch(:ref, '').start_with?('refs/heads/')
   end
 
   def gitea_tag_push_event?
-    scm_vendor == 'gitea' && payload[:event] == 'push' && payload.fetch(:ref, '').starts_with?('refs/tags/')
+    scm_vendor == 'gitea' && hook_event == 'push' && payload.fetch(:ref, '').starts_with?('refs/tags/')
   end
 
   def gitea_pull_request?
-    scm_vendor == 'gitea' && payload[:event] == 'pull_request'
+    scm_vendor == 'gitea' && hook_event == 'pull_request'
   end
 
   def gitea_new_pull_request?
