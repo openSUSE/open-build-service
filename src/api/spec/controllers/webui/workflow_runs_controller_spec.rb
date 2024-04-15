@@ -31,7 +31,7 @@ RSpec.describe Webui::WorkflowRunsController do
       end
     end
 
-    context 'multiple filters' do
+    context 'when having no filters selected' do
       let!(:pull_request_1_workflow_run) { create(:workflow_run, :succeeded) }
       let(:token) { pull_request_1_workflow_run.token }
       let!(:pull_request_2_workflow_run) { create(:workflow_run, :succeeded, event_source_name: '2', token: token) }
@@ -43,26 +43,44 @@ RSpec.describe Webui::WorkflowRunsController do
         login pull_request_1_workflow_run.token.executor
       end
 
-      describe 'when having no filters selected' do
-        # rubocop:disable RSpec/ExampleLength
-        it 'shows all the workflow runs' do
-          get :index, params: { token_id: token.id, pr_mr: '', commit_sha: '' }
+      # rubocop:disable RSpec/ExampleLength
+      it 'shows all the workflow runs' do
+        get :index, params: { token_id: token.id, pr_mr: '', commit_sha: '' }
 
-          expect(assigns[:workflow_runs]).to contain_exactly(pull_request_1_workflow_run,
-                                                             pull_request_2_workflow_run,
-                                                             running_push_workflow_run,
-                                                             closed_pull_request_workflow_run,
-                                                             succeeded_tag_push_workflow_run)
-        end
-        # rubocop:enable RSpec/ExampleLength
+        expect(assigns[:workflow_runs]).to contain_exactly(pull_request_1_workflow_run,
+                                                           pull_request_2_workflow_run,
+                                                           running_push_workflow_run,
+                                                           closed_pull_request_workflow_run,
+                                                           succeeded_tag_push_workflow_run)
+      end
+      # rubocop:enable RSpec/ExampleLength
+    end
+
+    context 'when setting a status filter of success' do
+      let!(:succeeded_workflow_run) { create(:workflow_run, :succeeded) }
+
+      before do
+        login succeeded_workflow_run.token.executor
       end
 
-      describe 'when having multiple filters selected' do
-        it 'shows all the matching workflow runs' do
-          get :index, params: { token_id: token.id, success: 1, running: 1, pull_request: 1, push: 1, request_action: 'opened', pr_mr: 1 }
+      it 'shows all the succeeded workflow runs' do
+        get :index, params: { token_id: succeeded_workflow_run.token.id, success: 1 }
 
-          expect(assigns[:workflow_runs]).to contain_exactly(pull_request_1_workflow_run)
-        end
+        expect(assigns[:workflow_runs]).to contain_exactly(succeeded_workflow_run)
+      end
+    end
+
+    context 'when setting an event type filter of pull_request' do
+      let!(:pull_request_workflow_run) { create(:workflow_run, :succeeded) }
+
+      before do
+        login pull_request_workflow_run.token.executor
+      end
+
+      it 'shows all the succeeded workflow runs' do
+        get :index, params: { token_id: pull_request_workflow_run.token.id, pull_request: 1 }
+
+        expect(assigns[:workflow_runs]).to contain_exactly(pull_request_workflow_run)
       end
     end
   end
