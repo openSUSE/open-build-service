@@ -13,21 +13,21 @@ RSpec.describe Webui::WorkflowRunsController do
         get :index, params: { token_id: workflow_token.id }
       end
 
-      it { expect(assigns(:workflow_runs).count).to eq(1) }
+      it { expect(assigns(:workflow_runs)).to contain_exactly(workflow_run) }
     end
 
     context 'when action_filter is available' do
       it 'finds workflow runs when the action is available' do
         get :index, params: { token_id: workflow_token.id, request_action: 'opened', pull_merge_request: 1 }
 
-        expect(assigns(:workflow_runs).count).to eq(1)
+        expect(assigns(:workflow_runs)).to contain_exactly(workflow_run)
       end
 
       it 'does not find workflow runs when action is not available' do
         # TODO: Check this pull_merge_requet parameter...
         get :index, params: { token_id: workflow_token.id, request_action: 'closed', pull_merge_request: 1 }
 
-        expect(assigns(:workflow_runs).count).to eq(0)
+        expect(assigns(:workflow_runs)).to be_empty
       end
     end
 
