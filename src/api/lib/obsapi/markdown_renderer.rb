@@ -37,6 +37,7 @@ module OBSApi
       begin
         link = URI.join(::Configuration.obs_url, link)
       rescue URI::InvalidURIError
+        # Ignore this exception on purpose
       end
       "<a href='#{link}'#{title}>#{CGI.escape_html(content)}</a>"
     end

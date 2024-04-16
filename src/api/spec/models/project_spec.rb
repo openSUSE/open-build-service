@@ -427,6 +427,7 @@ RSpec.describe Project, :vcr do
     def reset_project_in_backend
       Backend::Api::Sources::Project.delete 'project_used_for_restoration' if CONFIG['global_write_through']
     rescue Backend::NotFoundError
+      # Ignore this exception on purpose
     end
 
     before do
