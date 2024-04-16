@@ -1199,21 +1199,6 @@ Style/OptionalBooleanParameter:
     - 'app/models/user.rb'
     - 'app/policies/package_policy.rb'
 
-# Offense count: 11
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/SlicingWithRange:
-  Exclude:
-    - 'app/controllers/build_controller.rb'
-    - 'app/controllers/webui/search_controller.rb'
-    - 'app/helpers/webui/package_helper.rb'
-    - 'app/helpers/webui/projects/status_helper.rb'
-    - 'app/helpers/webui/staging/workflow_helper.rb'
-    - 'app/helpers/webui/webui_helper.rb'
-    - 'app/models/issue_tracker.rb'
-    - 'app/models/kiwi/image.rb'
-    - 'app/services/package_service/schema_verifier.rb'
-    - 'test/node_matcher.rb'
-
 # Offense count: 86
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: Mode.

@@ -40,7 +40,7 @@ module Webui::PackageHelper
     when '.sh' then 'shell'
     when '.spec' then 'rpm-spec'
     when '.changes' then 'rpm-changes'
-    when '.diff', '.php', '.html', '.xml', '.css', '.perl' then ext[1..-1]
+    when '.diff', '.php', '.html', '.xml', '.css', '.perl' then ext[1..]
     else ''
     end
   end
