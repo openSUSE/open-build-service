@@ -198,7 +198,7 @@ module Webui
             @submits[key] << number
           end
         end
-        BsRequest.where(number: @declined_requests.keys).each do |r|
+        BsRequest.where(number: @declined_requests.keys).find_each do |r|
           @declined_requests[r.number] = r
         end
       end

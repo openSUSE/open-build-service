@@ -1,6 +1,6 @@
 class AddApiEndpointsToPayload < ActiveRecord::Migration[6.1]
   def up
-    EventSubscription.where(channel: 'scm').each do |event_sub|
+    EventSubscription.where(channel: 'scm').find_each do |event_sub|
       next if event_sub.payload['api_endpoint'].present?
 
       if event_sub.payload['scm'] == 'github'

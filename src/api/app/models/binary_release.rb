@@ -22,7 +22,7 @@ class BinaryRelease < ApplicationRecord
     # building a hash to avoid single SQL select calls slowing us down too much
     oldhash = {}
     BinaryRelease.transaction do
-      where(repository: repository, obsolete_time: nil).each do |binary|
+      where(repository: repository, obsolete_time: nil).find_each do |binary|
         key = hashkey_db(binary.as_json)
         oldhash[key] = binary
       end
