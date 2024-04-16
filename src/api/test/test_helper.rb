@@ -113,28 +113,27 @@ module Minitest
   end
 end
 
-class ActionDispatch::IntegrationTest
-  # usually we do only test at the end of all tests to not slow down too much.
-  # but for debugging or for deep testing the check can be run after each test case
-  def after_teardown
-    super
-    # begin
-    #   # something else is going wrong in some random test and you do not know where?
-    #   # add the specific test for it here:
-    #   # login_king
-    #   # get "/source/home:Iggy/TestPack/_link"
-    #   # assert_response 404
-    #
-    #   # simple test that the objects itself or the same in backend and api.
-    #   # it does not check the content (eg. repository list in project meta)
-    #   compare_project_and_package_lists
-    # rescue MiniTest::Assertion => e
-    #   puts "Backend became out of sync in #{name}"
-    #   puts e.inspect
-    #   exit
-    # end
-  end
-end
+# class ActionDispatch::IntegrationTest
+#   # usually we do only test at the end of all tests to not slow down too much.
+#   # but for debugging or for deep testing the check can be run after each test case
+#   def after_teardown
+#     begin
+#       # something else is going wrong in some random test and you do not know where?
+#       # add the specific test for it here:
+#       # login_king
+#       # get "/source/home:Iggy/TestPack/_link"
+#       # assert_response 404
+#
+#       # simple test that the objects itself or the same in backend and api.
+#       # it does not check the content (eg. repository list in project meta)
+#       compare_project_and_package_lists
+#     rescue MiniTest::Assertion => e
+#       puts "Backend became out of sync in #{name}"
+#       puts e.inspect
+#       exit
+#     end
+#   end
+# end
 
 module ActionDispatch
   module Integration
