@@ -11,7 +11,7 @@ xml.configuration do
   end
 
   xml.schedulers do
-    Architecture.where(available: 1).each do |arch|
+    Architecture.where(available: 1).find_each do |arch|
       xml.arch(arch.name)
     end
   end

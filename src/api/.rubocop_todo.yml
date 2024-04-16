@@ -875,21 +875,6 @@ Rails/FilePath:
     - 'test/functional/zzz_post_consistency_test.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 8
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: AllowedMethods, AllowedPatterns.
-# AllowedMethods: order, limit, select, lock
-Rails/FindEach:
-  Exclude:
-    - 'app/controllers/public_controller.rb'
-    - 'app/controllers/webui/projects/status_controller.rb'
-    - 'app/helpers/flag_helper.rb'
-    - 'app/models/binary_release.rb'
-    - 'app/policies/token/release_policy.rb'
-    - 'app/views/models/_configuration.xml.builder'
-    - 'db/data/20210707102506_add_api_endpoints_to_payload.rb'
-    - 'db/data/20230620110143_backfill_scm_vendor_and_hook_event_in_workflow_run.rb'
-
 # Offense count: 28
 # Configuration parameters: Include.
 # Include: app/models/**/*.rb

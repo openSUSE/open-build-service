@@ -108,7 +108,7 @@ module FlagHelper
     # we find all repositories targeted by given products
     p = { name: product_name }
     p[:patchlevel] = patchlevel if p
-    Product.where(p).each do |product|
+    Product.where(p).find_each do |product|
       # FIXME: limit to official ones
 
       product.product_update_repositories.each do |ur|

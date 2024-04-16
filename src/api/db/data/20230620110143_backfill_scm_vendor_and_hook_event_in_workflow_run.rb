@@ -2,7 +2,7 @@
 
 class BackfillScmVendorAndHookEventInWorkflowRun < ActiveRecord::Migration[7.0]
   def up
-    WorkflowRun.where(scm_vendor: nil, hook_event: nil).each do |workflow_run|
+    WorkflowRun.where(scm_vendor: nil, hook_event: nil).find_each do |workflow_run|
       headers = parse_request_headers(workflow_run)
       workflow_run.update(scm_vendor: scm_vendor(headers),
                           hook_event: hook_event(headers))
