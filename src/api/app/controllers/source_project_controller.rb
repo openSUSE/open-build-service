@@ -107,14 +107,11 @@ class SourceProjectController < SourceController
 
     @project = Project.get_by_name(project_name)
 
-    # unlock
-    if command == 'unlock' && User.session!.can_modify?(@project, true)
-      dispatch_command(:project_command, command)
-    elsif command == 'showlinked' || User.session!.can_modify?(@project)
-      # command: showlinked, set_flag, remove_flag, ...?
-      dispatch_command(:project_command, command)
-    else
-      raise CmdExecutionNoPermission, "no permission to execute command '#{command}'"
-    end
+    raise CmdExecutionNoPermission, "no permission to execute command '#{command}'" unless
+      (command == 'unlock' && User.session!.can_modify?(@project, true)) ||
+      command == 'showlinked' ||
+      User.session!.can_modify?(@project)
+
+    dispatch_command(:project_command, command)
   end
 end

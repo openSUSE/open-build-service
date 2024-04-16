@@ -30,9 +30,12 @@ module ParsePackageDiff
                  else # in case of deleted files
                    file['old']['name']
                  end
+      files_hash[filename] = file
       if filename.include?('/')
         other_file_keys << filename
-      elsif filename.ends_with?('.spec')
+        next
+      end
+      if filename.ends_with?('.spec')
         spec_file_keys << filename
       elsif filename.ends_with?('.changes')
         changes_file_keys << filename
@@ -41,7 +44,6 @@ module ParsePackageDiff
       else
         other_file_keys << filename
       end
-      files_hash[filename] = file
     end
 
     {
