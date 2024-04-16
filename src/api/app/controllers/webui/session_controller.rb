@@ -26,7 +26,19 @@ class Webui::SessionController < Webui::WebuiController
   private
 
   def session_creator
-    @session_creator = SessionControllerService::SessionCreator.new(params.slice(:username, :password))
+    if request.env['omniauth.auth']
+      # TODO: We need to integrate this somehow in SessionCreator
+      info = request.env['omniauth.auth'].info
+      user = User.find_or_create_by(login: info['nickname'])
+      user.state = 'confirmed'
+      # We cannot create users without password, so for now I'll just fill the password with a random one.
+      user.password = SecureRandom.hex(8)
+      user.save!
+      # This is a dummy structure that mimics the interface of SessionCreator
+      @session_creator = OpenStruct.new(user: user, valid?: true, exist?: true)
+    else
+      @session_creator = SessionControllerService::SessionCreator.new(params.slice(:username, :password))
+    end
   end
 
   def check_user_active

@@ -386,6 +386,10 @@ constraints(RoutesHelper::WebuiMatcher) do
     resource :block, only: %i[create destroy], controller: 'webui/users/block', constraints: cons
   end
 
+  get 'auth/:provider', to: 'webui/session#new'
+  # By default Omniauth redirects back to here
+  get 'auth/:provider/callback', to: 'webui/session#create'
+
   scope :my do
     resources :tasks, only: [:index], controller: 'webui/users/tasks', as: :my_tasks
     resources :requests, only: [:index], controller: 'webui/users/bs_requests', as: :my_requests
