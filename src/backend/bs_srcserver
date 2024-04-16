@@ -4736,7 +4736,7 @@ sub getbinary {
     return published_path($cgi, $projid, $repoid);
   }
   my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
-  my @args = BSRPC::args($cgi, 'view', 'module');
+  my @args = BSRPC::args($cgi, 'view', 'module', 'withfilelist');
   my $param = {
     'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid/$filename",
     'ignorestatus' => 1,
@@ -7867,7 +7867,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
   '/build/$project/$repository/$arch/$package/_history limit:num?' => \&getbuildhistory,
   '/build/$project/$repository/$arch/$package/_buildstats limit:num?' => \&getbuildstats,
-  '/build/$project/$repository/$arch/$package_repository/$filename view:? module*' => \&getbinary,
+  '/build/$project/$repository/$arch/$package_repository/$filename view:? withfilelist:bool? module*' => \&getbinary,
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
   'DELETE:/build/$project/$repository/$arch/_repository/$filename' => \&delbinary,
 

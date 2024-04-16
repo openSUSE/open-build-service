@@ -1316,7 +1316,7 @@ sub getbinary_info {
   }
   my @s = stat($path);
   die("404 $bin: $!\n") unless @s;
-  my $res = Build::query($path, 'evra' => 1, 'description' => 1, 'weakdeps' => 1) || {};
+  my $res = Build::query($path, 'evra' => 1, 'description' => 1, 'weakdeps' => 1, 'filelist' => $cgi->{'withfilelist'}) || {};
   if (!%$res && $path =~ /\/updateinfo\.xml$/) {
     my $updateinfos = readxml($path, $BSXML::updateinfo, 1);
     if ($updateinfos && @{$updateinfos->{'update'} || []} == 1) {
@@ -4501,7 +4501,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/$package/_history limit:num?' => \&getbuildhistory,
   '/build/$project/$repository/$arch/$package/_buildstats limit:num?' => \&getbuildstats,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num? handoff:bool? last:bool? lastsucceeded:bool? view:?' => \&getlogfile,
-  '/build/$project/$repository/$arch/$package:package_repository/$filename view:? module*' => \&getbinary,
+  '/build/$project/$repository/$arch/$package:package_repository/$filename view:? withfilelist:bool? module*' => \&getbinary,
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
   'DELETE:/build/$project/$repository/$arch/_repository/$filename' => \&delbinary,
   'PUT:/build/_dispatchprios' => \&putdispatchprios,
@@ -4583,7 +4583,7 @@ my $dispatches_ajax = [
   '/ajaxstatus' => \&getajaxstatus,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? lastsucceeded:bool? start:intnum? end:num? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? nosource:bool? module* withccache:bool?' => \&getbinarylist,
-  '/build/$project/$repository/$arch/$package:package_repository/$filename view:? module*' => \&getbinary,
+  '/build/$project/$repository/$arch/$package:package_repository/$filename view:? withfilelist:bool? module*' => \&getbinary,
   '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? withstats:bool? summary:bool? withversrel:bool?' => \&getresult,
   '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? now:num? module*' => \&getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool? now:num? module* withevr:bool?' => \&getbinaryversions,
