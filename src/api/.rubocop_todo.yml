@@ -1113,13 +1113,6 @@ Style/HashExcept:
   Exclude:
     - 'spec/models/user_ldap_strategy_spec.rb'
 
-# Offense count: 6
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/IdenticalConditionalBranches:
-  Exclude:
-    - 'app/controllers/build_controller.rb'
-    - 'app/controllers/webui/search_controller.rb'
-
 # Offense count: 305
 # This cop supports safe autocorrection (--autocorrect).
 Style/IfUnlessModifier:
