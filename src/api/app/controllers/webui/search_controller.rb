@@ -143,11 +143,10 @@ class Webui::SearchController < Webui::WebuiController
       disturl_rev, disturl_package = disturl_pkgrev.split('-', 2) unless disturl_pkgrev.nil?
       if disturl_project.present? && disturl_package.present? && Package.exists_by_project_and_name(disturl_project, disturl_package, follow_multibuild: true)
         redirect_to controller: 'package', action: 'show', project: disturl_project, package: disturl_package, rev: disturl_rev
-        return
       else
         redirect_back_or_to root_path, notice: 'Sorry, this disturl does not compute...'
-        return
       end
+      return
     end
 
     logger.debug "Searching for the string \"#{@search_text}\" in the #{@search_where}'s of #{@search_what}'s"
