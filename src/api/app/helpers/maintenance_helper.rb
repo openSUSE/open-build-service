@@ -29,6 +29,7 @@ module MaintenanceHelper
         link = Nokogiri::XML(link, &:strict).root
         links_to_source = link['project'].nil? || link['project'] == source_package.project.name
       rescue Backend::Error
+        # Ignore this exception on purpose
       end
     end
     if links_to_source

@@ -19,6 +19,7 @@ class SourcediffComponent < ApplicationComponent
   def source_package
     Package.get_by_project_and_name(@action.source_project, @action.source_package, { follow_multibuild: true })
   rescue Package::UnknownObjectError, Project::Errors::UnknownObjectError
+    # Ignore these exceptions on purpose
   end
 
   def target_package
@@ -27,5 +28,6 @@ class SourcediffComponent < ApplicationComponent
 
     Package.get_by_project_and_name(@action.target_project, @action.target_package, { follow_multibuild: true })
   rescue Package::UnknownObjectError, Project::Errors::UnknownObjectError
+    # Ignore these exceptions on purpose
   end
 end

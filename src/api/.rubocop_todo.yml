@@ -166,16 +166,6 @@ Lint/StructNewOverride:
   Exclude:
     - 'app/models/buildresult.rb'
 
-# Offense count: 6
-# Configuration parameters: AllowComments, AllowNil.
-Lint/SuppressedException:
-  Exclude:
-    - 'app/components/sourcediff_component.rb'
-    - 'app/helpers/maintenance_helper.rb'
-    - 'app/models/package.rb'
-    - 'lib/obsapi/markdown_renderer.rb'
-    - 'spec/models/project_spec.rb'
-
 # Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: AutoCorrect.
