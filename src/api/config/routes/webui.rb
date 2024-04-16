@@ -289,6 +289,7 @@ constraints(RoutesHelper::WebuiMatcher) do
         # Binaries with the exact same name can exist in multiple architectures, so we have to use arch param here additionally
         resources :binaries, controller: 'webui/packages/binaries', only: [:show], constraints: cons, param: :filename, path: 'binaries/:arch/' do
           get :dependency
+          get :filelist
         end
         # We wipe all binaries at once, so this is resource instead of resources
         resource :binaries, controller: 'webui/packages/binaries', only: [:destroy], constraints: cons

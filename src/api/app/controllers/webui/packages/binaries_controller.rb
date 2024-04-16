@@ -13,10 +13,10 @@ module Webui
       before_action :set_project
       before_action :set_package
       before_action :set_repository
-      before_action :set_architecture, only: %i[show dependency]
+      before_action :set_architecture, only: %i[show dependency filelist]
       before_action :set_dependant_project, only: :dependency
       before_action :set_dependant_repository, only: :dependency
-      before_action :set_filename, only: %i[show dependency]
+      before_action :set_filename, only: %i[show dependency filelist]
 
       prepend_before_action :lockout_spiders
 
@@ -83,6 +83,12 @@ module Webui
         end
 
         redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package_name, repository_name: @repository)
+      end
+
+      def filelist
+        data = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project.name, @package_name, @repository.name, @architecture.name, @filename, withfilelist: 1)
+        filelist = data.elements('filelist')
+        render json: { data: filelist.map { |f| { name: f } } }
       end
 
       private

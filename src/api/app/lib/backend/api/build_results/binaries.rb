@@ -52,8 +52,9 @@ module Backend
 
         # special view on a binary file for details display
         # @return [Hash]
-        def self.fileinfo_ext(project_name, package_name, repository, arch, filename)
-          fileinfo = http_get(['/build/:project/:repository/:arch/:package/:filename?view=fileinfo_ext', project_name, repository, arch, package_name, filename])
+        def self.fileinfo_ext(project_name, package_name, repository, arch, filename, options = {})
+          fileinfo = http_get(['/build/:project/:repository/:arch/:package/:filename', project_name, repository, arch, package_name, filename],
+                              params: options, defaults: { view: 'fileinfo_ext' }, accepted: %i[withfilelist])
           Xmlhash.parse(fileinfo) if fileinfo
         end
 
