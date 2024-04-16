@@ -176,13 +176,12 @@ Lint/SuppressedException:
     - 'lib/obsapi/markdown_renderer.rb'
     - 'spec/models/project_spec.rb'
 
-# Offense count: 2
+# Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: AutoCorrect.
 Lint/UselessMethodDefinition:
   Exclude:
     - 'app/controllers/webui/requests/submissions_controller.rb'
-    - 'test/test_helper.rb'
 
 # Offense count: 905
 # Configuration parameters: AllowedMethods, AllowedPatterns, CountRepeatedAttributes.
