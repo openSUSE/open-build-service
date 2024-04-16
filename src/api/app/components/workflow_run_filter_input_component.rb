@@ -1,20 +1,12 @@
 class WorkflowRunFilterInputComponent < ApplicationComponent
-  attr_accessor :text, :selected_input_filter, :placeholder, :token_id
+  attr_accessor :text, :filter_item, :selected_input_value, :placeholder
 
-  def initialize(text:, selected_input_filter:, placeholder:, token_id:)
+  def initialize(text:, filter_item:, selected_input_filter:, placeholder:)
     super
 
     @text = text
+    @filter_item = filter_item
     @placeholder = placeholder
-    @selected_input_filter = selected_input_filter
-    @token_id = token_id
-  end
-
-  def css_for_filter_item
-    'active' if @selected_input_filter.present?
-  end
-
-  def selected_filter_value
-    @selected_input_filter
+    @selected_input_value = selected_input_filter.with_indifferent_access[filter_item] if selected_input_filter
   end
 end

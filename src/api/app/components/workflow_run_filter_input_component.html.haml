@@ -1,11 +1,7 @@
-= form_tag(token_workflow_runs_path(token_id), method: :get,
-            class: "d-flex px-3 py-2 list-group-item #{css_for_filter_item}") do
+.form-group.px-4.py-1.d-flex.justify-content-between
   .col-3
-    = label_tag text.parameterize.underscore, "#{text}:", class: 'fs-6'
+    = label_tag filter_item, "#{text}:", class: 'fs-6'
   .col-9.d-flex
-    = text_field_tag(text.parameterize.underscore, '',
-                      class: 'form-control form-control-sm mx-2',
-                      placeholder: placeholder, value: selected_input_filter)
-    = button_tag(text.parameterize.underscore, type: 'submit', title: 'Filter!',
-                  class: "btn btn-sm px-3 btn-light border") do
-      %i.fas.fa-magnifying-glass
+    = text_field_tag(filter_item, '',
+                      class: 'form-control form-control-sm',
+                      placeholder: placeholder, value: selected_input_value)

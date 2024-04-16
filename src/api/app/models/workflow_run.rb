@@ -31,6 +31,15 @@ class WorkflowRun < ApplicationRecord
 
   after_save :create_event, if: :status_changed_to_fail?
 
+  scope :pull_request, -> { where(generic_event_type: 'pull_request') }
+  scope :push, -> { where(generic_event_type: 'push') }
+  scope :tag_push, -> { where(generic_event_type: 'tag_push') }
+
+  scope :with_statuses, ->(statuses) { where(status: statuses) }
+  scope :with_types, ->(types) { where(generic_event_type: types) }
+  scope :with_actions, ->(actions) { where(hook_action: actions) }
+  scope :with_event_source_name, ->(source_name) { where(event_source_name: source_name) }
+
   paginates_per 20
 
   enum status: {

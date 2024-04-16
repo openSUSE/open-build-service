@@ -1,17 +1,17 @@
 class WorkflowRunFilterComponent < ApplicationComponent
-  def initialize(token:, selected_filter:, finder:)
+  def initialize(token:, selected_filter:, workflow_runs:)
     super
 
-    @count = workflow_runs_count(finder)
+    @count = {
+      'success' => workflow_runs.success.count,
+      'running' => workflow_runs.running.count,
+      'fail' => workflow_runs.fail.count,
+      'pull_request' => workflow_runs.pull_request.count,
+      'push' => workflow_runs.push.count,
+      'tag_push' => workflow_runs.tag_push.count
+    }
+
     @selected_filter = selected_filter
     @token = token
-  end
-
-  def workflow_runs_count(finder)
-    counted_workflow_runs = {}
-    counted_workflow_runs['success'] = finder.succeeded.count
-    counted_workflow_runs['running'] = finder.running.count
-    counted_workflow_runs['fail'] = finder.failed.count
-    counted_workflow_runs.merge(finder.group_by_generic_event_type)
   end
 end

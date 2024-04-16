@@ -8,12 +8,10 @@
         Filtered by: #{params[:status]&.humanize}
         %i.float-end.mt-1.fa.fa-chevron-down#workflow-runs-dropdown-trigger
       .collapse#filters
-        = render WorkflowRunFilterComponent.new(token: @token, selected_filter: @selected_filter, finder: @workflow_runs_finder)
+        = render WorkflowRunFilterComponent.new(token: @token, selected_filter: @selected_filter, workflow_runs: @workflow_runs)
   .col-md-8.col-lg-9.px-0.px-md-3#workflow-run-list
     .card
       .card-body
-        - if @selected_filter[:generic_event_type] == 'pull_request'
-          = render WorkflowRunRequestActionFilterComponent.new(token_id: @token.id, request_action: @request_action)
         - if @workflow_runs.blank?
           .text-center
             %p There are no workflow runs available

@@ -8,40 +8,57 @@
                           <p><b>Pull/Merge request: </b>
                           A pull/merge request got opened against a selected branch</p>
                           <p><b>Push: </b>A push event occured on a selected branch</p>'
+  pr_mr_request_info_text = '<p>Filter your workflow runs by the action type: be aware <b>only Pull/Merge Request</b>
+                             Event Type has an action parameter value</p>'
   event_source_info_text = '<p>Filter your workflow runs by the event source. The event source
                             is what triggered this workflow on the SCM.</p>
                             <p> A pull/merge request number like <em>12345</em></p>
                             <p>or a git commit hash like
                             <em>97561db8664eaf86a1e4c7b77d5fb5d5bff6681e</em></p>'
 
-.list-group.list-group-flush.my-2
-  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'All', amount: @count['all'],
-                                              filter_item: {}, selected_filter: @selected_filter)
-.list-group.list-group-flush.mt-5.mb-2
-  %h5.mx-3
-    Status
-    = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: status_info_text }
-  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Succeeded', amount: @count['success'], icon: 'fas fa-check text-primary',
-                                              filter_item: { status: 'success' }, selected_filter: @selected_filter)
-  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Running', amount: @count['running'], icon: 'fas fa-running',
-                                              filter_item: { status: 'running' }, selected_filter: @selected_filter)
-  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Failed', amount: @count['fail'], icon: 'fas fa-exclamation-triangle text-danger',
-                                              filter_item: { status: 'fail' }, selected_filter: @selected_filter)
-.list-group.list-group-flush.mt-5.mb-2
-  %h5.mx-3
-    Event Type
-    = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: event_type_info_text }
-  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Pull/Merge Request', amount: @count['pull_request'],
-                                              filter_item: { generic_event_type: 'pull_request' }, selected_filter: @selected_filter)
-  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Push', amount: @count['push'],
-                                              filter_item: { generic_event_type: 'push' }, selected_filter: @selected_filter)
-  = render WorkflowRunFilterLinkComponent.new(token: @token, text: 'Tag Push', amount: @count['tag_push'],
-                                              filter_item: { generic_event_type: 'tag_push' }, selected_filter: @selected_filter)
-.list-group.list-group-flush.mt-5.mb-2
-  %h5.mx-3
-    Event Source
-    = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: event_source_info_text }
-  = render WorkflowRunFilterInputComponent.new(token_id: @token.id, text: 'PR/MR', selected_input_filter: @selected_filter[:pr_number],
-                                               placeholder: 'e.g. 12345')
-  = render WorkflowRunFilterInputComponent.new(token_id: @token.id, text: 'Commit', selected_input_filter: @selected_filter[:commit_sha],
-                                               placeholder: 'e.g. 97561db8664eaf86a1e4c7b77d5fb5d5bff6681e')
+= form_for(@token, url: token_workflow_runs_path(@token), method: :get) do |form|
+  .list-group.list-group-flush.mt-3.mb-2
+    %h6.px-3.py-2
+      %b Status
+      = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: status_info_text }
+    = render WorkflowRunFilterCheckboxComponent.new(text: 'Succeeded', amount: @count['success'], icon: 'fas fa-check text-primary',
+                                                filter_item: { status: 'success' }, selected_filter: @selected_filter.slice(:status),
+                                                key: 'success')
+    = render WorkflowRunFilterCheckboxComponent.new(text: 'Running', amount: @count['running'], icon: 'fas fa-running',
+                                                filter_item: { status: 'running' }, selected_filter: @selected_filter.slice(:status))
+    = render WorkflowRunFilterCheckboxComponent.new(text: 'Failed', amount: @count['fail'],
+                                                icon: 'fas fa-exclamation-triangle text-danger',
+                                                filter_item: { status: 'fail' }, selected_filter: @selected_filter.slice(:status),
+                                                key: 'fail')
+  .list-group.list-group-flush.mt-4.mb-4
+    %h6.px-3.py-2
+      %b Event Type
+      = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: event_type_info_text }
+    = render WorkflowRunFilterCheckboxComponent.new(text: 'Pull/Merge Request', amount: @count['pull_request'],
+                                                filter_item: { generic_event_type: 'pull_request' },
+                                                selected_filter: @selected_filter.slice(:event_type),
+                                                key: 'pull_request')
+    = render WorkflowRunFilterCheckboxComponent.new(text: 'Push', amount: @count['push'],
+                                                filter_item: { generic_event_type: 'push' },
+                                                selected_filter: @selected_filter.slice(:event_type))
+    = render WorkflowRunFilterCheckboxComponent.new(text: 'Tag Push', amount: @count['tag_push'],
+                                                filter_item: { generic_event_type: 'tag_push' },
+                                                selected_filter: @selected_filter.slice(:event_type))
+  .list-group.list-group-flush.mt-4.mb-4
+    %h6.px-3.py-2
+      %b Event Action
+      = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: pr_mr_request_info_text }
+    = render WorkflowRunRequestActionFilterComponent.new(filter_item: 'request_action', selected_filter: @selected_filter[:request_action])
+  .list-group.list-group-flush.mt-4.mb-4
+    %h6.px-3.py-2
+      %b Event Source
+      = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: event_source_info_text }
+    = render WorkflowRunFilterInputComponent.new(text: 'PR/MR', selected_input_filter: { pr_mr: @selected_filter[:pr_mr] },
+                                                placeholder: '12345', filter_item: 'pr_mr')
+    = render WorkflowRunFilterInputComponent.new(text: 'Commit', selected_input_filter: { commit_sha: @selected_filter[:commit_sha] },
+                                                placeholder: '97561db8664eaf86a1e4c7b77d5fb5d5bff6681e', filter_item: 'commit_sha')
+
+  .text-center.mt-4.mb-4
+    = link_to('Clear', token_workflow_runs_path(@token, []), class: 'btn btn-light border')
+    %button.btn.btn-info#filter-button{ type: :submit }
+      Apply
