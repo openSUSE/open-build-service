@@ -21,7 +21,7 @@ module Webui::Projects::StatusHelper
                                                                             project: project_name, package: package['name']))
           sortkey = "7-changes-#{package['name']}"
         when /^error-/
-          outs << link_to(problem[6..-1], package_show_path(project: package['develproject'], package: package['develpackage']))
+          outs << link_to(problem[6..], package_show_path(project: package['develproject'], package: package['develpackage']))
           sortkey = "1-problem-#{package['name']}"
         when 'currently_declined'
           outs << link_to("Current sources were declined: request #{package['currently_declined']}",

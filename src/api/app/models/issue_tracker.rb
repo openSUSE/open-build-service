@@ -143,7 +143,7 @@ class IssueTracker < ApplicationRecord
         return false
       end
       result['bugs'].each { |r| parse_single_bugzilla_issue(r) }
-      ids = ids[limit_per_slice..-1]
+      ids = ids[limit_per_slice..]
     end
     true
   end

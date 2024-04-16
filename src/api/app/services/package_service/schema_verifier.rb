@@ -20,7 +20,7 @@ module PackageService
 
     def allowed_schema?
       schema = pattern? ? @package.try(:name) : @file_name
-      SCHEMAS.include?(schema[1..-1])
+      SCHEMAS.include?(schema[1..])
     end
 
     def pattern?

@@ -221,7 +221,7 @@ class NodeMatcher # :nodoc:
         return false
       end
 
-      if conditions[:before] && !siblings[self_index + 1..-1].detect do |s|
+      if conditions[:before] && !siblings[self_index + 1..].detect do |s|
            s != node && match(s, conditions[:before])
          end
         return false
