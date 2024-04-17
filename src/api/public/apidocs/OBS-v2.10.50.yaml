@@ -317,6 +317,8 @@ paths:
     $ref: 'paths/source_project_name_attribute.yaml'
   /source/{project_name}/_attribute/{attribute_name}:
     $ref: 'paths/source_project_name_attribute_attribute_name.yaml'
+  /source/{project_name}/_project/_history:
+    $ref: 'paths/source_project_name_project_history.yaml'
   /source/{project_name}/_project/{file_name}:
     $ref: 'paths/source_project_name_project_file.yaml'
   /source/{project_name}?cmd=addchannels:
