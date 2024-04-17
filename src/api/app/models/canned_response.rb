@@ -11,7 +11,7 @@ class CannedResponse < ApplicationRecord
 
   enum decision_kind: {
     cleared: 0,
-    favor: 1
+    favored: 1
   }
 
   #### Attributes

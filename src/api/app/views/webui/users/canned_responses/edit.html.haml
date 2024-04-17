@@ -12,6 +12,6 @@
         = f.text_area :content, class: 'form-control'
       - if policy(Decision.new).create?
         .mb-3
-          = f.label :decision_kind, "Choose 'cleared' or 'favor' if this is a decision's reason"
+          = f.label :decision_kind, "Choose 'cleared' or 'favored' if this is a decision's reason"
           = f.select(:decision_kind, CannedResponse.decision_kinds.keys, { include_blank: 'none' }, class: 'form-select')
       = f.submit 'Save', class: 'btn btn-primary'
