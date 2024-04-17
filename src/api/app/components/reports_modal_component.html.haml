@@ -21,8 +21,7 @@
               -# Decision-related canned responses exclusively:
               = render CannedResponsesDropdownComponent.new(canned_responses)
             = form.text_area(:reason, class: 'form-control mb-3', required: true, placeholder: 'Reason for the decision')
-            -# TODO: this should be adapted when we move to Decision#type
-            = form.select(:kind, DECISION_KIND_MAP.to_a, {}, class: 'form-select')
+            = form.select(:type, Decision::TYPES, {}, class: 'form-select')
           .modal-footer
             - reports.each do |report|
               = form.hidden_field(:report_ids, multiple: true, value: report.id)

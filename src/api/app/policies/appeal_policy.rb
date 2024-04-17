@@ -31,12 +31,12 @@ class AppealPolicy < ApplicationPolicy
   def decision_cleared_report_from_user?
     return false unless record.appellant == user
 
-    record.decision.kind == 'cleared' && record.decision.reports.pluck(:user_id).include?(user.id)
+    record.decision.type == 'DecisionCleared' && record.decision.reports.pluck(:user_id).include?(user.id)
   end
 
   def decision_favored_report_of_action_from_user?
     return false unless record.appellant == user
 
-    record.decision.kind == 'favor' && "#{@report.reportable_type}Policy".constantize.new(user, @report.reportable).update?
+    record.decision.type == 'DecisionFavored' && "#{@report.reportable_type}Policy".constantize.new(user, @report.reportable).update?
   end
 end

@@ -1,9 +1,6 @@
 class ReportsModalComponent < ApplicationComponent
   attr_reader :reportable, :reportable_name, :user, :reports
 
-  # TODO: temporary solution until Decision#type replaces Decision#kind with new values
-  DECISION_KIND_MAP = { 'cleared' => 'cleared', 'favored' => 'favor' }.freeze
-
   def initialize(reportable:, reportable_name:, user:, reports:)
     super
 

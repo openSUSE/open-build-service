@@ -19,6 +19,6 @@ class Webui::DecisionsController < Webui::WebuiController
   private
 
   def decision_params
-    params.require(:decision).permit(:reason, :kind, report_ids: [])
+    params.require(:decision).permit(:reason, :type, report_ids: [])
   end
 end

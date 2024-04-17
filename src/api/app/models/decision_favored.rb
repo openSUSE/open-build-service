@@ -1,14 +1,14 @@
-class DecisionCleared < Decision
+class DecisionFavored < Decision
   after_create :create_event
 
   def description
-    'The moderator decided to clear the report'
+    'The moderator decided to favor the report'
   end
 
   private
 
   def create_event
-    Event::ClearedDecision.create(event_parameters)
+    Event::FavoredDecision.create(event_parameters)
   end
 end
 

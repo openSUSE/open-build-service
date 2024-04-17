@@ -1,4 +1,6 @@
 class Decision < ApplicationRecord
+  TYPES = { favored: 'DecisionFavored', cleared: 'DecisionCleared' }.freeze
+
   validates :reason, presence: true, length: { maximum: 65_535 }
   validates :type, presence: true, length: { maximum: 255 }
 
@@ -6,6 +8,7 @@ class Decision < ApplicationRecord
 
   has_many :reports, dependent: :nullify
 
+  # TODO: Remove this after type is deployed
   enum kind: {
     cleared: 0,
     favor: 1
@@ -14,8 +17,13 @@ class Decision < ApplicationRecord
   after_create :create_event
   after_create :track_decision
 
+  def description
+    'The moderator decided on the report'
+  end
+
   private
 
+  # TODO: Replace this with `AbstractMethodCalled` after type is deployed
   def create_event
     case kind
     when 'cleared'
@@ -29,8 +37,9 @@ class Decision < ApplicationRecord
     { id: id, moderator_id: moderator.id, reason: reason, report_last_id: reports.last.id, reportable_type: reports.first.reportable.class.name }
   end
 
+  # TODO: Remove kind after type is deployed
   def track_decision
-    RabbitmqBus.send_to_bus('metrics', "decision,kind=#{kind} hours_before_decision=#{hours_before_decision},count=1")
+    RabbitmqBus.send_to_bus('metrics', "decision,kind=#{kind},type=#{type} hours_before_decision=#{hours_before_decision},count=1")
   end
 
   def hours_before_decision

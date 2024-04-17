@@ -1,3 +1,5 @@
+require 'decision' # To break the circular dependency between Decision and DecisionFavored and DecisionCleared
+
 RSpec.describe NotificationActionDescriptionComponent, type: :component do
   context 'when the notification is for a Event::RequestStatechange event with a request having only a target' do
     let(:target_project) { create(:project, name: 'project_123') }
