@@ -1,0 +1,2 @@
+class DecisionClearedPolicy < DecisionPolicy
+end
