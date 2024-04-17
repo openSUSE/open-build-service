@@ -1,5 +1,6 @@
 class Decision < ApplicationRecord
   validates :reason, presence: true, length: { maximum: 65_535 }
+  validates :type, presence: true, length: { maximum: 255 }
 
   belongs_to :moderator, class_name: 'User', optional: false
 
