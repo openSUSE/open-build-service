@@ -25,6 +25,12 @@ get:
       description: Set to `1` to retrieve the revision history of the meta file (`_meta`) of the package.
       example: 1
     - in: query
+      name: startbefore
+      schema:
+        type: integer
+      description: Start the list of revision history elements before the given revision number.
+      example: 124
+    - in: query
       name: rev
       schema:
         type: string
