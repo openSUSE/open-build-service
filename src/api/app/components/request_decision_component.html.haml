@@ -1,4 +1,9 @@
 .request-decision
+  - if policy(@bs_request).handle_request? && @show_project_maintainer_hint
+    .alert.alert-warning.mb-1
+      You are a <strong>project maintainer</strong> but not a <strong>package maintainer</strong>. This package
+      has <strong>#{pluralize(@package_maintainers.size, 'package maintainer')}</strong> assigned. Please keep
+      in mind that also package maintainers would like to review this request.
   = form_tag({ action: 'changerequest' }, id: 'request_handle_form') do
     = hidden_field_tag(:number, @bs_request.number)
     = text_area_tag(:reason, nil, placeholder: 'Please explain your decision...', rows: 4, class: 'w-100 form-control mb-2')

@@ -25,7 +25,6 @@
                     request_reviews: @request_reviews,
                     package_maintainers: @package_maintainers,
                     project_maintainers: @project_maintainers,
-                    show_project_maintainer_hint: @show_project_maintainer_hint,
                     history_elements: @history_elements }
 
         .col-md-8.order-md-1.order-sm-2
@@ -117,7 +116,11 @@
                 setInterval(updateChartBuildResults, 60000);
 
               = render AccordionReviewsComponent.new(@request_reviews, @bs_request)
-              = render RequestDecisionComponent.new(bs_request: @bs_request, action: @action, is_target_maintainer: @is_target_maintainer)
+              = render RequestDecisionComponent.new(bs_request: @bs_request,
+                                                    action: @action,
+                                                    is_target_maintainer: @is_target_maintainer,
+                                                    package_maintainers: @package_maintainers,
+                                                    show_project_maintainer_hint: @show_project_maintainer_hint)
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',
                                                  method: :delete,
                                                  options: { modal_title: 'Delete comment?', remote: true })
