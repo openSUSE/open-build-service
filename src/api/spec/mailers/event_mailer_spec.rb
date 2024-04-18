@@ -492,7 +492,7 @@ RSpec.describe EventMailer, :vcr do
       let!(:reporter_subscription) { create(:event_subscription_favored_decision, user: reporter) }
       let!(:offender_subscription) { create(:event_subscription_favored_decision, user: offender, receiver_role: 'offender') }
 
-      let(:decision) { create(:decision, :favor, moderator: admin, reason: 'This is spam for sure.', reports: [report]) }
+      let(:decision) { create(:decision, :favored, moderator: admin, reason: 'This is spam for sure.', reports: [report]) }
       let(:event) { Event::FavoredDecision.last }
       let(:mail) { EventMailer.with(subscribers: event.subscribers, event: event).notification_email.deliver_now }
 
@@ -535,7 +535,7 @@ RSpec.describe EventMailer, :vcr do
 
       let!(:moderator_subscription) { create(:event_subscription_appeal_created, user: moderator) }
 
-      let(:decision) { create(:decision, :favor, moderator: moderator, reason: 'This is spam for sure.', reports: [report]) }
+      let(:decision) { create(:decision, :favored, moderator: moderator, reason: 'This is spam for sure.', reports: [report]) }
       let(:appeal) { create(:appeal, appellant: appellant, decision: decision, reason: 'I strongly disagree!') }
       let(:event) { Event::AppealCreated.last }
       let(:mail) { EventMailer.with(subscribers: event.subscribers, event: event).notification_email.deliver_now }
@@ -579,7 +579,7 @@ RSpec.describe EventMailer, :vcr do
 
       let!(:moderator_subscription) { create(:event_subscription_appeal_created, user: moderator) }
 
-      let(:decision) { create(:decision, :favor, moderator: moderator, reason: 'This is spam for sure.', reports: [report]) }
+      let(:decision) { create(:decision, :favored, moderator: moderator, reason: 'This is spam for sure.', reports: [report]) }
       let(:appeal) { create(:appeal, appellant: appellant, decision: decision, reason: 'I strongly disagree!') }
       let(:event) { Event::AppealCreated.last }
       let(:mail) { EventMailer.with(subscribers: event.subscribers, event: event).notification_email.deliver_now }

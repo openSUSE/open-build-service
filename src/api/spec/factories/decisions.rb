@@ -8,11 +8,11 @@ FactoryBot.define do
     end
 
     trait :cleared do
-      kind { 'cleared' }
+      type { 'DecisionCleared' }
     end
 
-    trait :favor do
-      kind { 'favor' }
+    trait :favored do
+      type { 'DecisionFavored' }
     end
   end
 end

@@ -103,7 +103,7 @@ FactoryBot.define do
 
     trait :favored_decision do
       event_type { 'Event::FavoredDecision' }
-      notifiable { association(:decision, :favor) }
+      notifiable { association(:decision, :favored) }
 
       after(:build) do |notification|
         notification.event_payload['reportable_type'] ||= notification.notifiable.reports.first.reportable.class.to_s
