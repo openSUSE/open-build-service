@@ -1,5 +1,6 @@
 # The OBS instance configuration
 class Configuration < ApplicationRecord
+  has_one_attached :logo
   after_save :invalidate_cache, :delayed_write_to_backend
 
   include CanRenderModel
