@@ -55,7 +55,7 @@ namespace :dev do
 
       Report.find_each do |report|
         # Reports with even id will be 'cleared' (0). Those with odd id will be 'favor' (1).
-        Decision.create!(reason: "Just because! #{report.id}", moderator: admin, kind: (report.id % 2), reports: [report])
+        Decision.create!(reason: "Just because! #{report.id}", moderator: admin, type: Decision::TYPES[(report.id % 2)].name, reports: [report])
       end
 
       # The same decision applies to more than one report about the same object/reportable.
