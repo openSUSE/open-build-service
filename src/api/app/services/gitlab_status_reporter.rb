@@ -21,8 +21,6 @@ class GitlabStatusReporter < SCMExceptionHandler
       @workflow_run.save_scm_report_success(request_context)
       RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=success,scm=#{@event_subscription_payload[:scm]} value=1")
     end
-  rescue Gitlab::Error::Unauthorized
-    raise Token::Errors::SCMTokenInvalid
   rescue Gitlab::Error::Error, OpenSSL::SSL::SSLError => e
     rescue_with_handler(e) || raise(e)
     RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=fail,scm=#{@event_subscription_payload[:scm]},exception=#{e.class} value=1") if @workflow_run.present?

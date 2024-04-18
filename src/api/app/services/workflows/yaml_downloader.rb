@@ -54,8 +54,6 @@ module Workflows
       begin
         gitlab_client = Gitlab.client(endpoint: "#{@scm_payload[:api_endpoint]}/api/v4", private_token: @token.scm_token)
         gitlab_file = gitlab_client.file_contents(@scm_payload[:project_id], @token.workflow_configuration_path, @scm_payload[:target_branch])
-      rescue Gitlab::Error::Unauthorized
-        raise Token::Errors::SCMTokenInvalid
       rescue Gitlab::Error::NotFound => e
         raise Token::Errors::NonExistentRepository, e.message
       end
