@@ -31,12 +31,15 @@ RSpec.describe Workflow::Step::SubmitRequest, :vcr do
       target_project: target_project.name
     }
   end
+  let(:scm_status_reporter) { instance_double(SCMStatusReporter) }
   let(:workflow_run) { create(:workflow_run, token: token) }
 
   describe '#call' do
     before do
       login(user)
       allow(Backend::Api::Sources::Package).to receive(:wait_service).and_return(true)
+      allow(SCMStatusReporter).to receive(:new).and_return(scm_status_reporter)
+      allow(scm_status_reporter).to receive(:call)
     end
 
     context 'for a newly opened PR' do
