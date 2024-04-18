@@ -1,5 +1,6 @@
 class Decision < ApplicationRecord
   validates :reason, presence: true, length: { maximum: 65_535 }
+  validates :type, presence: true, length: { maximum: 255 }
 
   belongs_to :moderator, class_name: 'User', optional: false
 
@@ -46,6 +47,7 @@ end
 #  id           :bigint           not null, primary key
 #  kind         :integer          default("cleared")
 #  reason       :text(65535)      not null
+#  type         :string(255)      not null, default("DecisionCleared")
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
 #  moderator_id :integer          not null, indexed

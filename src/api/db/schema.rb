@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_04_11_150057) do
+ActiveRecord::Schema[7.0].define(version: 2024_04_17_122758) do
   create_table "appeals", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.text "reason", null: false
     t.integer "appellant_id", null: false
@@ -400,6 +400,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_11_150057) do
     t.integer "kind", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "type", default: "DecisionCleared", null: false
     t.index ["moderator_id"], name: "index_decisions_on_moderator_id"
   end
 
