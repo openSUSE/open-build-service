@@ -9,6 +9,7 @@
 /src/api/config/options.yml
 /src/api/config/secret.key
 /src/api/config/thinking_sphinx.yml
+/src/api/storage
 /src/api/db/sphinx
 /src/api/config/*.sphinx.conf
 /src/api/coverage
