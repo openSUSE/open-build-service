@@ -6,7 +6,7 @@ class RequestDecisionComponent < ApplicationComponent
     @is_target_maintainer = is_target_maintainer
     @action = action
     @package_maintainers = package_maintainers
-    @show_project_maintainer_hint = show_project_maintainer_hint
+    @show_hint = render? && show_project_maintainer_hint
   end
 
   def render?
