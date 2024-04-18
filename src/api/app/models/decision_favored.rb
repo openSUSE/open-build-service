@@ -5,6 +5,10 @@ class DecisionFavored < Decision
     'The moderator decided to favor the report'
   end
 
+  def self.display_name
+    'favored'
+  end
+
   private
 
   def create_event

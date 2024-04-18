@@ -5,6 +5,10 @@ class DecisionCleared < Decision
     'The moderator decided to clear the report'
   end
 
+  def self.display_name
+    'cleared'
+  end
+
   private
 
   def create_event

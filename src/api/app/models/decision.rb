@@ -1,5 +1,5 @@
 class Decision < ApplicationRecord
-  TYPES = { favored: 'DecisionFavored', cleared: 'DecisionCleared' }.freeze
+  TYPES = [DecisionFavored, DecisionCleared].freeze
 
   validates :reason, presence: true, length: { maximum: 65_535 }
   validates :type, presence: true, length: { maximum: 255 }
@@ -19,6 +19,23 @@ class Decision < ApplicationRecord
 
   def description
     'The moderator decided on the report'
+  end
+
+  # List of all viable types for a reportable, used in the decision creation form
+  def self.types(reportable)
+    TYPES.filter_map do |decision_type|
+      [decision_type.display_name, decision_type.name] if decision_type.display?(reportable)
+    end.compact.to_h
+  end
+
+  # We use this to determine if the decision type should be displayed for reportable
+  def self.display?(_reportable)
+    true
+  end
+
+  # We display this in the decision creation form
+  def self.display_name
+    'unknown'
   end
 
   private
