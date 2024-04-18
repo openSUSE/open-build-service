@@ -297,6 +297,13 @@ class BranchPackage
     if @extend_names
       p[:release_name] = p[:package].is_a?(String) ? p[:package] : p[:package].name
     end
+    if @extend_names
+      p[:release_name] = if p[:package].is_a?(String)
+                           p[:package]
+                         else
+                           p[:package].releasename || p[:package].name
+                         end
+    end
 
     # validate and resolve devel package or devel project definitions
     unless params[:ignoredevel] || p[:copy_from_devel]
@@ -413,6 +420,7 @@ class BranchPackage
     elsif params[:project] && params[:package]
       pkg = nil
       prj = Project.get_by_name(params[:project])
+      tpkg_name = params[:target_package]
       if params[:missingok]
         raise NotMissingError, "Branch call with missingok parameter but branched source (#{params[:project]}/#{params[:package]}) exists." if Package.exists_by_project_and_name(params[:project], params[:package],
                                                                                                                                                                                   allow_remote_packages: true)
@@ -422,9 +430,9 @@ class BranchPackage
           @copy_from_devel = true
         elsif pkg
           prj = pkg.project
+          tpkg_name ||= pkg.releasename
         end
       end
-      tpkg_name = params[:target_package]
       tpkg_name ||= params[:package]
       tpkg_name += ".#{prj.name}" if @extend_names
       if pkg
