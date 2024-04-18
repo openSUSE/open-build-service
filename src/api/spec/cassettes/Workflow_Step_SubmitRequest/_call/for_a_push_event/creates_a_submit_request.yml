@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 15 Apr 2024 12:04:51 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:11 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_7
+    uri: http://backend:5352/source/foo_project/_meta?user=user_5
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The World, the Flesh and the Devil</title>
+          <title>All the King's Men</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The World, the Flesh and the Devil</title>
+          <title>All the King's Men</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 15 Apr 2024 12:04:51 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:11 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_8
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_6
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Clouds of Witness</title>
-          <description>Aspernatur in eveniet nemo.</description>
+          <title>Blithe Spirit</title>
+          <description>Ex ut quia at.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '137'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Clouds of Witness</title>
-          <description>Aspernatur in eveniet nemo.</description>
+          <title>Blithe Spirit</title>
+          <description>Ex ut quia at.</description>
         </package>
-  recorded_at: Mon, 15 Apr 2024 12:04:51 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Natus libero quis. Maxime nihil cupiditate. Reprehenderit adipisci expedita.
+      string: Perspiciatis sequi consequuntur. Quia et quam. Dicta consequatur dolorem.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '213'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="23" vrev="23">
-          <srcmd5>3f973a04e316a035a4e339fda74c5ce1</srcmd5>
+        <revision rev="2249" vrev="2249">
+          <srcmd5>613d4d6693d241661f918e110a880cf2</srcmd5>
           <version>unknown</version>
-          <time>1713182691</time>
+          <time>1691075771</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 15 Apr 2024 12:04:52 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Sint sed qui. Quaerat et quos. Dolores qui provident.
+      string: Rerum voluptatem nemo. Nesciunt eos iste. Iure voluptate iste.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,19 +181,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '213'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="24" vrev="24">
-          <srcmd5>8ed6cd1f1349b6850b0c4ebcb37b633c</srcmd5>
+        <revision rev="2250" vrev="2250">
+          <srcmd5>b68bc199c398b24bc83b5a6b0bc43748</srcmd5>
           <version>unknown</version>
-          <time>1713182692</time>
+          <time>1691075771</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 15 Apr 2024 12:04:52 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/baz_project/_meta?user=Iggy
@@ -201,7 +201,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="baz_project">
-          <title>Nine Coaches Waiting</title>
+          <title>The Other Side of Silence</title>
           <description/>
         </project>
     headers:
@@ -223,15 +223,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '108'
+      - '113'
     body:
       encoding: UTF-8
       string: |
         <project name="baz_project">
-          <title>Nine Coaches Waiting</title>
+          <title>The Other Side of Silence</title>
           <description></description>
         </project>
-  recorded_at: Mon, 15 Apr 2024 12:04:52 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:11 GMT
 - request:
     method: get
     uri: http://backend:5352/source/foo_project/bar_package
@@ -257,15 +257,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '298'
+      - '405'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="24" vrev="24" srcmd5="8ed6cd1f1349b6850b0c4ebcb37b633c">
-          <entry name="_config" md5="757bdc88448111182174a38e95196b36" size="76" mtime="1713182691"/>
-          <entry name="somefile.txt" md5="28286c7e849dd56944f2ceb77cf38855" size="53" mtime="1713182692"/>
+        <directory name="bar_package" rev="2250" vrev="2250" srcmd5="b68bc199c398b24bc83b5a6b0bc43748">
+          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1690882801"/>
+          <entry name="_config" md5="b6810a6e3b12d723598ee03d20bf0160" size="73" mtime="1691075771"/>
+          <entry name="somefile.txt" md5="e3bfc9e74116265f816f96c2d84dd0b5" size="62" mtime="1691075771"/>
         </directory>
-  recorded_at: Mon, 15 Apr 2024 12:04:52 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:11 GMT
 - request:
     method: get
     uri: http://backend:5352/source/foo_project/bar_package
@@ -291,15 +292,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '298'
+      - '405'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="24" vrev="24" srcmd5="8ed6cd1f1349b6850b0c4ebcb37b633c">
-          <entry name="_config" md5="757bdc88448111182174a38e95196b36" size="76" mtime="1713182691"/>
-          <entry name="somefile.txt" md5="28286c7e849dd56944f2ceb77cf38855" size="53" mtime="1713182692"/>
+        <directory name="bar_package" rev="2250" vrev="2250" srcmd5="b68bc199c398b24bc83b5a6b0bc43748">
+          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1690882801"/>
+          <entry name="_config" md5="b6810a6e3b12d723598ee03d20bf0160" size="73" mtime="1691075771"/>
+          <entry name="somefile.txt" md5="e3bfc9e74116265f816f96c2d84dd0b5" size="62" mtime="1691075771"/>
         </directory>
-  recorded_at: Mon, 15 Apr 2024 12:04:52 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:11 GMT
 - request:
     method: get
     uri: http://backend:5352/source/foo_project/bar_package
@@ -325,18 +327,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '298'
+      - '405'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="24" vrev="24" srcmd5="8ed6cd1f1349b6850b0c4ebcb37b633c">
-          <entry name="_config" md5="757bdc88448111182174a38e95196b36" size="76" mtime="1713182691"/>
-          <entry name="somefile.txt" md5="28286c7e849dd56944f2ceb77cf38855" size="53" mtime="1713182692"/>
+        <directory name="bar_package" rev="2250" vrev="2250" srcmd5="b68bc199c398b24bc83b5a6b0bc43748">
+          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1690882801"/>
+          <entry name="_config" md5="b6810a6e3b12d723598ee03d20bf0160" size="73" mtime="1691075771"/>
+          <entry name="somefile.txt" md5="e3bfc9e74116265f816f96c2d84dd0b5" size="62" mtime="1691075771"/>
         </directory>
-  recorded_at: Mon, 15 Apr 2024 12:04:52 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:11 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/foo_project/bar_package?cmd=diff&expand=1&nodiff=1&orev=0&rev=24
+    uri: http://backend:5352/source/foo_project/bar_package?cmd=diff&expand=1&nodiff=1&orev=0&rev=2250
     body:
       encoding: UTF-8
       string: ''
@@ -361,18 +364,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '262'
     body:
       encoding: UTF-8
       string: |2
 
         new:
         ----
+          _branch_request
           _config
           somefile.txt
 
         other changes:
         --------------
+
+        ++++++ _branch_request (new)
+        --- _branch_request
+        +++ _branch_request
 
         ++++++ _config (new)
         --- _config
@@ -381,10 +389,10 @@ http_interactions:
         ++++++ somefile.txt (new)
         --- somefile.txt
         +++ somefile.txt
-  recorded_at: Mon, 15 Apr 2024 12:04:52 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:11 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/foo_project/bar_package?expand=1&rev=24
+    uri: http://backend:5352/source/foo_project/bar_package?expand=1&rev=2250
     body:
       encoding: US-ASCII
       string: ''
@@ -407,15 +415,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '298'
+      - '405'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="24" vrev="24" srcmd5="8ed6cd1f1349b6850b0c4ebcb37b633c">
-          <entry name="_config" md5="757bdc88448111182174a38e95196b36" size="76" mtime="1713182691"/>
-          <entry name="somefile.txt" md5="28286c7e849dd56944f2ceb77cf38855" size="53" mtime="1713182692"/>
+        <directory name="bar_package" rev="2250" vrev="2250" srcmd5="b68bc199c398b24bc83b5a6b0bc43748">
+          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1690882801"/>
+          <entry name="_config" md5="b6810a6e3b12d723598ee03d20bf0160" size="73" mtime="1691075771"/>
+          <entry name="somefile.txt" md5="e3bfc9e74116265f816f96c2d84dd0b5" size="62" mtime="1691075771"/>
         </directory>
-  recorded_at: Mon, 15 Apr 2024 12:04:52 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:11 GMT
 - request:
     method: get
     uri: http://backend:5352/source/foo_project/bar_package
@@ -441,18 +450,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '298'
+      - '405'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="24" vrev="24" srcmd5="8ed6cd1f1349b6850b0c4ebcb37b633c">
-          <entry name="_config" md5="757bdc88448111182174a38e95196b36" size="76" mtime="1713182691"/>
-          <entry name="somefile.txt" md5="28286c7e849dd56944f2ceb77cf38855" size="53" mtime="1713182692"/>
+        <directory name="bar_package" rev="2250" vrev="2250" srcmd5="b68bc199c398b24bc83b5a6b0bc43748">
+          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1690882801"/>
+          <entry name="_config" md5="b6810a6e3b12d723598ee03d20bf0160" size="73" mtime="1691075771"/>
+          <entry name="somefile.txt" md5="e3bfc9e74116265f816f96c2d84dd0b5" size="62" mtime="1691075771"/>
         </directory>
-  recorded_at: Mon, 15 Apr 2024 12:04:52 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:11 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/foo_project/bar_package?cmd=diff&expand=1&filelimit=10000&orev=0&rev=24&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/foo_project/bar_package?cmd=diff&expand=1&filelimit=10000&orev=0&rev=2250&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -477,25 +487,32 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '831'
+      - '1241'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="b2b1262fc0a51a668a009231b82b7f80">
+        <sourcediff key="06dc94a50b6d053bfa7e2d50319b3e3d">
           <old project="foo_project" package="bar_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="foo_project" package="bar_package" rev="24" srcmd5="8ed6cd1f1349b6850b0c4ebcb37b633c"/>
+          <new project="foo_project" package="bar_package" rev="2250" srcmd5="b68bc199c398b24bc83b5a6b0bc43748"/>
           <files>
             <file state="added">
-              <new name="_config" md5="757bdc88448111182174a38e95196b36" size="76"/>
+              <new name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113"/>
               <diff lines="3">@@ -0,0 +1,1 @@
-        +Natus libero quis. Maxime nihil cupiditate. Reprehenderit adipisci expedita.
+        +{&quot;action&quot;:&quot;synchronize&quot;,&quot;pull_request&quot;:{&quot;head&quot;:{&quot;repo&quot;:{&quot;full_name&quot;:&quot;source_repository_full_name&quot;},&quot;sha&quot;:&quot;123&quot;}}}
         \ No newline at end of file
         </diff>
             </file>
             <file state="added">
-              <new name="somefile.txt" md5="28286c7e849dd56944f2ceb77cf38855" size="53"/>
+              <new name="_config" md5="b6810a6e3b12d723598ee03d20bf0160" size="73"/>
               <diff lines="3">@@ -0,0 +1,1 @@
-        +Sint sed qui. Quaerat et quos. Dolores qui provident.
+        +Perspiciatis sequi consequuntur. Quia et quam. Dicta consequatur dolorem.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="somefile.txt" md5="e3bfc9e74116265f816f96c2d84dd0b5" size="62"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +Rerum voluptatem nemo. Nesciunt eos iste. Iure voluptate iste.
         \ No newline at end of file
         </diff>
             </file>
@@ -503,5 +520,74 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 15 Apr 2024 12:04:52 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:11 GMT
+- request:
+    method: post
+    uri: https://api.github.com/repos/openSUSE/open-build-service/statuses/123456789
+    body:
+      encoding: UTF-8
+      string: '{"context":"OBS Request 1 - ","target_url":"https://unconfigured.openbuildservice.org/request/show/1","state":"pending"}'
+    headers:
+      Accept:
+      - application/vnd.github.v3+json
+      User-Agent:
+      - Octokit Ruby Gem 7.0.0
+      Content-Type:
+      - application/json
+      Authorization:
+      - token djycbxzdlxocn91ckyiqdj0ywhpw8kcz
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Server:
+      - GitHub.com
+      Date:
+      - Thu, 03 Aug 2023 15:16:12 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '80'
+      X-Github-Media-Type:
+      - github.v3; format=json
+      X-Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining:
+      - '43'
+      X-Ratelimit-Reset:
+      - '1691077175'
+      X-Ratelimit-Used:
+      - '17'
+      X-Ratelimit-Resource:
+      - core
+      Access-Control-Expose-Headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes,
+        X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO,
+        X-GitHub-Request-Id, Deprecation, Sunset
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+      X-Frame-Options:
+      - deny
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Referrer-Policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      Content-Security-Policy:
+      - default-src 'none'
+      Vary:
+      - Accept-Encoding, Accept, X-Requested-With
+      X-Github-Request-Id:
+      - 83A4:FE26:1E4A9E0:1E7DC4C:64CBC4BB
+    body:
+      encoding: UTF-8
+      string: '{"message":"Bad credentials","documentation_url":"https://docs.github.com/rest"}'
+  recorded_at: Thu, 03 Aug 2023 15:16:12 GMT
 recorded_with: VCR 6.2.0

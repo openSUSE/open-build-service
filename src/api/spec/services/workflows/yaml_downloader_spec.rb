@@ -8,31 +8,6 @@ RSpec.describe Workflows::YAMLDownloader, type: :service do
       allow(Down).to receive(:download)
     end
 
-    context 'with an unauthorized token' do
-      let(:payload) do
-        {
-          scm: 'github',
-          commit_sha: '5d175d7f4c58d06907bba188fe9a4c8b6bd723da',
-          pr_number: 1,
-          source_branch: 'test-pr',
-          target_branch: 'master',
-          action: 'synchronize',
-          source_repository_full_name: 'user1/hello_world',
-          target_repository_full_name: 'user1/hello_world',
-          event: 'pull_request',
-          api_endpoint: 'https://api.github.com'
-        }
-      end
-      let(:octokit_client) { instance_double(Octokit::Client) }
-
-      before do
-        allow(Octokit::Client).to receive(:new).and_return(octokit_client)
-        allow(octokit_client).to receive(:content).and_raise(Octokit::Unauthorized)
-      end
-
-      it { expect { yaml_downloader.call }.to raise_error(Token::Errors::SCMTokenInvalid) }
-    end
-
     context 'with default path' do
       context 'github' do
         before do

@@ -18,14 +18,15 @@ RSpec.describe Token::Workflow do
 
       before do
         allow(Workflows::YAMLDownloader).to receive(:new).and_return(yaml_downloader)
-        allow(yaml_downloader).to receive(:call).and_raise(Token::Errors::SCMTokenInvalid)
+        allow(yaml_downloader).to receive(:call).and_raise(Octokit::Unauthorized)
       end
 
       it "changes the token's triggered_at field and raises an error with a helpful message" do
         expect do
           workflow_token.call({ workflow_run: workflow_run,
                                 scm_webhook: SCMWebhook.new(payload: { something: 123 }) })
-        end.to change(workflow_token, :triggered_at).and(raise_error(Token::Errors::SCMTokenInvalid))
+        end.to change(workflow_token, :triggered_at).and(raise_error(Token::Errors::SCMTokenInvalid, 'Your SCM token secret is not properly set in your OBS workflow token.' \
+                                                                                                     "\nCheck #{described_class::AUTHENTICATION_DOCUMENTATION_LINK}"))
       end
     end
 

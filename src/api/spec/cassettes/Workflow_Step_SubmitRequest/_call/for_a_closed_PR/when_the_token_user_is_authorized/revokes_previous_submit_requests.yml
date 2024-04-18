@@ -39,15 +39,15 @@ http_interactions:
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 15 Apr 2024 12:04:52 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:18 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=user_9
+    uri: http://backend:5352/source/foo_project/_meta?user=user_19
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Tiger! Tiger!</title>
+          <title>Mr Standfast</title>
           <description/>
           <person userid="Iggy" role="maintainer"/>
         </project>
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '145'
+      - '144'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>Tiger! Tiger!</title>
+          <title>Mr Standfast</title>
           <description></description>
           <person userid="Iggy" role="maintainer"/>
         </project>
-  recorded_at: Mon, 15 Apr 2024 12:04:52 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:18 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_10
+    uri: http://backend:5352/source/foo_project/bar_package/_meta?user=user_20
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Number the Stars</title>
-          <description>Dicta aperiam nobis qui.</description>
+          <title>This Lime Tree Bower</title>
+          <description>Veritatis at nihil dicta.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,22 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <package name="bar_package" project="foo_project">
-          <title>Number the Stars</title>
-          <description>Dicta aperiam nobis qui.</description>
+          <title>This Lime Tree Bower</title>
+          <description>Veritatis at nihil dicta.</description>
         </package>
-  recorded_at: Mon, 15 Apr 2024 12:04:52 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:18 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/_config
     body:
       encoding: UTF-8
-      string: Architecto voluptatem rerum. Eius doloremque eligendi. Inventore neque
-        aut.
+      string: Et optio ad. Voluptatem hic ducimus. Qui consequuntur non.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -144,25 +143,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '213'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="25" vrev="25">
-          <srcmd5>4c3698cfd9b6d968f4aa7b6cdb928b18</srcmd5>
+        <revision rev="2263" vrev="2263">
+          <srcmd5>c4be4a4582f16fd362f0028814713be5</srcmd5>
           <version>unknown</version>
-          <time>1713182692</time>
+          <time>1691075778</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 15 Apr 2024 12:04:52 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:18 GMT
 - request:
     method: put
     uri: http://backend:5352/source/foo_project/bar_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Sequi quam aut. Saepe ut voluptatibus. Voluptas assumenda velit.
+      string: Ut neque dolores. Provident quia doloremque. Sit voluptatum sit.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -182,19 +181,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '213'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="26" vrev="26">
-          <srcmd5>f34b9eb144924fb86a15c17d380e86d3</srcmd5>
+        <revision rev="2264" vrev="2264">
+          <srcmd5>a618191440ae5c46ae58d1ab72fc35b8</srcmd5>
           <version>unknown</version>
-          <time>1713182692</time>
+          <time>1691075778</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 15 Apr 2024 12:04:52 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:18 GMT
 - request:
     method: put
     uri: http://backend:5352/source/baz_project/_meta?user=Iggy
@@ -202,7 +201,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="baz_project">
-          <title>The Last Temptation</title>
+          <title>What's Become of Waring</title>
           <description/>
         </project>
     headers:
@@ -224,15 +223,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '107'
+      - '111'
     body:
       encoding: UTF-8
       string: |
         <project name="baz_project">
-          <title>The Last Temptation</title>
+          <title>What's Become of Waring</title>
           <description></description>
         </project>
-  recorded_at: Mon, 15 Apr 2024 12:04:52 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:18 GMT
 - request:
     method: get
     uri: http://backend:5352/source/foo_project/bar_package
@@ -258,15 +257,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '298'
+      - '405'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="26" vrev="26" srcmd5="f34b9eb144924fb86a15c17d380e86d3">
-          <entry name="_config" md5="e9e0f4d2af3deb11b7d96e0085b37edf" size="75" mtime="1713182692"/>
-          <entry name="somefile.txt" md5="f980bf0b980892cbfab98d07c31cba9e" size="64" mtime="1713182692"/>
+        <directory name="bar_package" rev="2264" vrev="2264" srcmd5="a618191440ae5c46ae58d1ab72fc35b8">
+          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1690882801"/>
+          <entry name="_config" md5="c80ab2581e1e4a0e470ef1133d5d0445" size="58" mtime="1691075778"/>
+          <entry name="somefile.txt" md5="3539f0b03abca8940be2d4aa3ef26c59" size="64" mtime="1691075778"/>
         </directory>
-  recorded_at: Mon, 15 Apr 2024 12:04:52 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:18 GMT
 - request:
     method: get
     uri: http://backend:5352/source/foo_project/bar_package
@@ -292,18 +292,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '298'
+      - '405'
     body:
       encoding: UTF-8
       string: |
-        <directory name="bar_package" rev="26" vrev="26" srcmd5="f34b9eb144924fb86a15c17d380e86d3">
-          <entry name="_config" md5="e9e0f4d2af3deb11b7d96e0085b37edf" size="75" mtime="1713182692"/>
-          <entry name="somefile.txt" md5="f980bf0b980892cbfab98d07c31cba9e" size="64" mtime="1713182692"/>
+        <directory name="bar_package" rev="2264" vrev="2264" srcmd5="a618191440ae5c46ae58d1ab72fc35b8">
+          <entry name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113" mtime="1690882801"/>
+          <entry name="_config" md5="c80ab2581e1e4a0e470ef1133d5d0445" size="58" mtime="1691075778"/>
+          <entry name="somefile.txt" md5="3539f0b03abca8940be2d4aa3ef26c59" size="64" mtime="1691075778"/>
         </directory>
-  recorded_at: Mon, 15 Apr 2024 12:04:52 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:18 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/foo_project/bar_package?cmd=diff&expand=1&filelimit=10000&orev=0&rev=26&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/foo_project/bar_package?cmd=diff&expand=1&filelimit=10000&orev=0&rev=2264&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -328,25 +329,32 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '841'
+      - '1228'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="0d839debc86260de242462c7f41bd385">
+        <sourcediff key="e86393c285ca89b1d2c02a744c3c8cfa">
           <old project="foo_project" package="bar_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="foo_project" package="bar_package" rev="26" srcmd5="f34b9eb144924fb86a15c17d380e86d3"/>
+          <new project="foo_project" package="bar_package" rev="2264" srcmd5="a618191440ae5c46ae58d1ab72fc35b8"/>
           <files>
             <file state="added">
-              <new name="_config" md5="e9e0f4d2af3deb11b7d96e0085b37edf" size="75"/>
+              <new name="_branch_request" md5="c4321e613d633f87e139ae1201ad0bf8" size="113"/>
               <diff lines="3">@@ -0,0 +1,1 @@
-        +Architecto voluptatem rerum. Eius doloremque eligendi. Inventore neque aut.
+        +{&quot;action&quot;:&quot;synchronize&quot;,&quot;pull_request&quot;:{&quot;head&quot;:{&quot;repo&quot;:{&quot;full_name&quot;:&quot;source_repository_full_name&quot;},&quot;sha&quot;:&quot;123&quot;}}}
         \ No newline at end of file
         </diff>
             </file>
             <file state="added">
-              <new name="somefile.txt" md5="f980bf0b980892cbfab98d07c31cba9e" size="64"/>
+              <new name="_config" md5="c80ab2581e1e4a0e470ef1133d5d0445" size="58"/>
               <diff lines="3">@@ -0,0 +1,1 @@
-        +Sequi quam aut. Saepe ut voluptatibus. Voluptas assumenda velit.
+        +Et optio ad. Voluptatem hic ducimus. Qui consequuntur non.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="somefile.txt" md5="3539f0b03abca8940be2d4aa3ef26c59" size="64"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +Ut neque dolores. Provident quia doloremque. Sit voluptatum sit.
         \ No newline at end of file
         </diff>
             </file>
@@ -354,5 +362,5 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 15 Apr 2024 12:04:52 GMT
+  recorded_at: Thu, 03 Aug 2023 15:16:18 GMT
 recorded_with: VCR 6.2.0
