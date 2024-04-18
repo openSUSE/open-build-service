@@ -1,4 +1,6 @@
 class Token::Workflow < Token
+  AUTHENTICATION_DOCUMENTATION_LINK = "#{::Workflow::SCM_CI_DOCUMENTATION_URL}#sec.obs.obs_scm_ci_workflow_integration.setup.token_authentication.how_to_authenticate_scm_with_obs".freeze
+
   has_many :workflow_runs, dependent: :destroy, foreign_key: 'token_id', inverse_of: false
   has_and_belongs_to_many :users,
                           join_table: :workflow_token_users,
@@ -48,6 +50,8 @@ class Token::Workflow < Token
     SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, 'success', initial_report: true).call
     # Always returning validation errors to report them back to the SCM in order to help users debug their workflows
     validation_errors
+  rescue Octokit::Unauthorized, Gitlab::Error::Unauthorized
+    raise Token::Errors::SCMTokenInvalid, "Your SCM token secret is not properly set in your OBS workflow token.\nCheck #{AUTHENTICATION_DOCUMENTATION_LINK}"
   end
 
   def owned_by?(some_user)
