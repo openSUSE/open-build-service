@@ -37,6 +37,8 @@ module Workflows
       # :ref can be the name of the commit, branch or tag.
       begin
         content = client.content("#{@scm_payload[:target_repository_full_name]}", path: "/#{@token.workflow_configuration_path}", ref: @scm_payload[:target_branch])[:content]
+      rescue Octokit::Unauthorized
+        raise Token::Errors::SCMTokenInvalid
       rescue Octokit::InvalidRepository => e
         raise Token::Errors::NonExistentRepository, e.message
       rescue Octokit::NotFound => e
