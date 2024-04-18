@@ -2,7 +2,7 @@ RSpec.describe CannedResponsesDropdownComponent, type: :component do
   let(:moderator) { create(:moderator) }
   let!(:generic_canned_response) { create(:canned_response, title: 'LGTM', user: moderator) }
   let!(:cleared_canned_response) { create(:cleared_canned_response, title: 'No spam', user: moderator) }
-  let!(:favor_canned_response) { create(:favor_canned_response, title: 'I agree', user: moderator) }
+  let!(:favored_canned_response) { create(:favored_canned_response, title: 'I agree', user: moderator) }
 
   context 'with generic responses only' do
     before do
@@ -19,19 +19,19 @@ RSpec.describe CannedResponsesDropdownComponent, type: :component do
     end
 
     it { expect(rendered_content).to have_no_text('Generic') }
-    it { expect(rendered_content).to have_no_text('Favor') }
+    it { expect(rendered_content).to have_no_text('Favored') }
     it { expect(rendered_content).to have_text('Cleared') }
     it { expect(rendered_content).to have_text('No spam') }
   end
 
-  context 'with favor decision responses only' do
+  context 'with favored decision responses only' do
     before do
-      render_inline(described_class.new(CannedResponse.where(decision_kind: 'favor')))
+      render_inline(described_class.new(CannedResponse.where(decision_kind: 'favored')))
     end
 
     it { expect(rendered_content).to have_no_text('Generic') }
     it { expect(rendered_content).to have_no_text('Cleared') }
-    it { expect(rendered_content).to have_text('Favor') }
+    it { expect(rendered_content).to have_text('Favored') }
     it { expect(rendered_content).to have_text('I agree') }
   end
 
@@ -42,7 +42,7 @@ RSpec.describe CannedResponsesDropdownComponent, type: :component do
 
     it { expect(rendered_content).to have_text('Generic') }
     it { expect(rendered_content).to have_text('Cleared') }
-    it { expect(rendered_content).to have_text('Favor') }
+    it { expect(rendered_content).to have_text('Favored') }
     it { expect(rendered_content).to have_text('LGTM') }
     it { expect(rendered_content).to have_text('No spam') }
     it { expect(rendered_content).to have_text('I agree') }

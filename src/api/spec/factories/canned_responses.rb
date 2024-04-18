@@ -8,8 +8,8 @@ FactoryBot.define do
       decision_kind { 'cleared' }
       user { association :moderator }
     end
-    factory :favor_canned_response do
-      decision_kind { 'favor' }
+    factory :favored_canned_response do
+      decision_kind { 'favored' }
       user { association :moderator }
     end
   end
