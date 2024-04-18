@@ -94,7 +94,7 @@ FactoryBot.define do
 
     trait :cleared_decision do
       event_type { 'Event::ClearedDecision' }
-      notifiable { association(:decision, :cleared) }
+      notifiable { association(:decision_cleared) }
 
       after(:build) do |notification|
         notification.event_payload['reportable_type'] ||= notification.notifiable.reports.first.reportable.class.to_s
@@ -103,7 +103,7 @@ FactoryBot.define do
 
     trait :favored_decision do
       event_type { 'Event::FavoredDecision' }
-      notifiable { association(:decision, :favored) }
+      notifiable { association(:decision_favored) }
 
       after(:build) do |notification|
         notification.event_payload['reportable_type'] ||= notification.notifiable.reports.first.reportable.class.to_s

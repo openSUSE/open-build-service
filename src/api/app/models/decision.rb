@@ -1,5 +1,5 @@
 class Decision < ApplicationRecord
-  TYPES = [DecisionFavored, DecisionCleared].freeze
+  TYPES = [::DecisionFavored, ::DecisionCleared].freeze
 
   validates :reason, presence: true, length: { maximum: 65_535 }
   validates :type, presence: true, length: { maximum: 255 }
