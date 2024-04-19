@@ -1,5 +1,5 @@
 class Decision < ApplicationRecord
-  TYPES = [::DecisionFavored, ::DecisionCleared].freeze
+  TYPES = %w[DecisionFavored DecisionCleared].freeze
 
   validates :reason, presence: true, length: { maximum: 65_535 }
   validates :type, presence: true, length: { maximum: 255 }
@@ -23,7 +23,8 @@ class Decision < ApplicationRecord
 
   # List of all viable types for a reportable, used in the decision creation form
   def self.types(reportable)
-    TYPES.filter_map do |decision_type|
+    TYPES.filter_map do |decision_type_name|
+      decision_type = decision_type_name.constantize
       [decision_type.display_name, decision_type.name] if decision_type.display?(reportable)
     end.compact.to_h
   end
