@@ -114,9 +114,14 @@ sub create_cosign_signature_ent {
 }
 
 sub create_cosign_attestation_ents {
-  my ($attestations, $annotations) = @_;
+  my ($attestations, $annotations, $predicatetypes) = @_;
   $attestations = [ $attestations ] if ref($attestations) ne 'ARRAY';
-  return map { create_cosign_layer_ent($mt_dsse, $_, '', $annotations) } @$attestations;
+  my @res;
+  for my $att (@$attestations) {
+    push @res, create_cosign_layer_ent($mt_dsse, $att, '', $annotations);
+    $res[-1]->{'annotations'}->{'org.open-build-service.intoto.predicatetype'} = $predicatetypes->{$att} if $predicatetypes->{$att};
+  }
+  return @res;
 }
 
 sub dsse_pae {
@@ -141,7 +146,7 @@ sub dsse_sign {
 
 # change the subject so that it matches the reference/digest and re-sign
 sub fixup_intoto_attestation {
-  my ($attestation, $signfunc, $digest, $reference) = @_;
+  my ($attestation, $signfunc, $digest, $reference, $predicatetypes) = @_;
   $attestation = JSON::XS::decode_json($attestation);
   die("bad attestation\n") unless $attestation && ref($attestation) eq 'HASH';
   if ($attestation->{'payload'}) {
@@ -159,11 +164,14 @@ sub fixup_intoto_attestation {
   }
   die("bad attestation\n") unless $attestation && ref($attestation) eq 'HASH' && $attestation->{'_type'};
   die("not a in-toto v0.1 attestation\n") unless $attestation->{'_type'} eq 'https://in-toto.io/Statement/v0.1';
+  my $predicate_type = $attestation->{'predicateType'};
   my $sha256digest = $digest;
   die("not a sha256 digest\n") unless $sha256digest =~ s/^sha256://;
   $attestation->{'subject'} = [ { 'name' => $reference, 'digest' => { 'sha256' => $sha256digest } } ];
   $attestation = canonical_json($attestation);
-  return dsse_sign($attestation, $mt_intoto, $signfunc);
+  my $att = dsse_sign($attestation, $mt_intoto, $signfunc);
+  $predicatetypes->{$att} = $predicate_type if $predicatetypes && $predicate_type && !ref($predicate_type);
+  return $att;
 }
 
 sub create_cosign_cookie {
