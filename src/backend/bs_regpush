@@ -939,12 +939,13 @@ if ($cosign && %digests_to_sign) {
     print "creating $numlayers cosign attestations for $gun $digest\n";
     my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
     my $annotations = { $cosign_cookie_name => $cosigncookie };
+    my %predicatetypes;
     my @attestations;
-    push @attestations, BSConSign::fixup_intoto_attestation($provenance, $signfunc, $digest, $gun) if $provenance;
-    push @attestations, BSConSign::fixup_intoto_attestation($spdx_json, $signfunc, $digest, $gun) if $spdx_json;
-    push @attestations, BSConSign::fixup_intoto_attestation($cyclonedx_json, $signfunc, $digest, $gun) if $cyclonedx_json;
-    push @attestations, BSConSign::fixup_intoto_attestation($_, $signfunc, $digest, $gun) for @intoto_json;
-    my @attestation_ents = BSConSign::create_cosign_attestation_ents(\@attestations, $annotations);
+    push @attestations, BSConSign::fixup_intoto_attestation($provenance, $signfunc, $digest, $gun, \%predicatetypes) if $provenance;
+    push @attestations, BSConSign::fixup_intoto_attestation($spdx_json, $signfunc, $digest, $gun, \%predicatetypes) if $spdx_json;
+    push @attestations, BSConSign::fixup_intoto_attestation($cyclonedx_json, $signfunc, $digest, $gun, \%predicatetypes) if $cyclonedx_json;
+    push @attestations, BSConSign::fixup_intoto_attestation($_, $signfunc, $digest, $gun, \%predicatetypes) for @intoto_json;
+    my @attestation_ents = BSConSign::create_cosign_attestation_ents(\@attestations, $annotations, \%predicatetypes);
     cosign_upload($att_tag, @attestation_ents);
     if ($rekorserver) {
       print "uploading cosign attestations to $rekorserver\n";
