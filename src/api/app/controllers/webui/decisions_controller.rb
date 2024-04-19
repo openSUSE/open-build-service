@@ -19,8 +19,6 @@ class Webui::DecisionsController < Webui::WebuiController
   private
 
   def decision_params
-    # TODO: remove merge and replace decision_kind with decision_type
-    kind = params[:decision][:type] == 'DecisionFavored' ? 'favor' : 'cleared'
-    params.require(:decision).permit(:reason, :type, report_ids: []).merge(kind: kind)
+    params.require(:decision).permit(:reason, :type, report_ids: [])
   end
 end
