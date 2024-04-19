@@ -3,11 +3,11 @@
     %i.fas.fa-comment-dots
     Canned Responses
   %ul.dropdown-menu
-    - @canned_responses_by_kind.each do |decision_kind, canned_responses|
-      .dropdown-header= decision_kind&.humanize || 'Generic'
+    - @canned_responses_by_type.each do |decision_type, canned_responses|
+      .dropdown-header= decision_type&.humanize || 'Generic'
       - canned_responses.each do |canned_response|
-        - decision_type = "Decision#{decision_kind.camelize}" if decision_kind.present?
-        %li.dropdown-item{ data: { 'canned-response': canned_response.content, 'decision-type': decision_type }, role: 'button' }
+        - decision_type = "Decision#{decision_type.camelize}" if decision_type.present?
+        %li.dropdown-item{ data: { 'canned-response': canned_response.content, 'decision_type': decision_type }, role: 'button' }
           = canned_response.title
     %hr.dropdown-divider/
     = link_to('Create and modify' , canned_responses_path, class: 'dropdown-item')

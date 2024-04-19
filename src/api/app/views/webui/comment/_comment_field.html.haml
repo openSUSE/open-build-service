@@ -22,7 +22,7 @@ data: { preview_message_url: preview_comments_path, message_body_param: 'comment
                                        'data-canned-controller': '' }
         - if Flipper.enabled?(:content_moderation, User.session)
           .d-flex.justify-content-end
-            = render CannedResponsesDropdownComponent.new(policy_scope(CannedResponse).where(decision_kind: nil).order(:title))
+            = render CannedResponsesDropdownComponent.new(policy_scope(CannedResponse).where(decision_type: nil).order(:title))
         ~ f.text_area :body, id: "#{element_suffix}_body", rows: '4',
         placeholder: 'Write your comment here... (Markdown markup is supported)', required: true,
         class: 'w-100 form-control comment-field message-field'

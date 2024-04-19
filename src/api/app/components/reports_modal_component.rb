@@ -11,6 +11,6 @@ class ReportsModalComponent < ApplicationComponent
   end
 
   def canned_responses
-    CannedResponsePolicy::Scope.new(user, CannedResponse).resolve.order(:decision_kind, :title)
+    CannedResponsePolicy::Scope.new(user, CannedResponse).resolve.order(:decision_type, :title)
   end
 end

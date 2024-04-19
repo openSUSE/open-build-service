@@ -61,8 +61,6 @@ class Webui::Users::CannedResponsesController < Webui::WebuiController
   end
 
   def canned_response_params
-    # TODO: remove merge and replace decision_kind with decision_type
-    decision_type_number = CannedResponse.decision_kinds[params[:canned_response][:decision_kind]]
-    params.require(:canned_response).permit(:title, :content, :decision_kind).merge(decision_type: decision_type_number)
+    params.require(:canned_response).permit(:title, :content, :decision_type)
   end
 end

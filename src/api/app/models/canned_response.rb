@@ -9,7 +9,7 @@ class CannedResponse < ApplicationRecord
   validates :title, presence: true, length: { maximum: 255 }
   validates :content, presence: true, length: { maximum: 65_535 }
 
-  enum decision_kind: {
+  enum decision_type: {
     cleared: 0,
     favored: 1
   }

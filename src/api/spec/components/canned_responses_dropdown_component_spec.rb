@@ -6,7 +6,7 @@ RSpec.describe CannedResponsesDropdownComponent, type: :component do
 
   context 'with generic responses only' do
     before do
-      render_inline(described_class.new(CannedResponse.where(decision_kind: nil)))
+      render_inline(described_class.new(CannedResponse.where(decision_type: nil)))
     end
 
     it { expect(rendered_content).to have_text('Generic') }
@@ -15,7 +15,7 @@ RSpec.describe CannedResponsesDropdownComponent, type: :component do
 
   context 'with cleared decision responses only' do
     before do
-      render_inline(described_class.new(CannedResponse.where(decision_kind: 'cleared')))
+      render_inline(described_class.new(CannedResponse.where(decision_type: 'cleared')))
     end
 
     it { expect(rendered_content).to have_no_text('Generic') }
@@ -26,7 +26,7 @@ RSpec.describe CannedResponsesDropdownComponent, type: :component do
 
   context 'with favored decision responses only' do
     before do
-      render_inline(described_class.new(CannedResponse.where(decision_kind: 'favored')))
+      render_inline(described_class.new(CannedResponse.where(decision_type: 'favored')))
     end
 
     it { expect(rendered_content).to have_no_text('Generic') }
