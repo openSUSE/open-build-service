@@ -369,28 +369,27 @@ RSpec.describe Webui::UsersController do
     context 'for a moderator' do
       let(:moderator) { create(:moderator) }
 
+      before do
+        login(moderator)
+      end
+
       context 'blocking the ability of a user to create comments' do
         before do
-          login(moderator)
-          post :update, params: { login: user.login, user: { blocked_from_commenting: 'true' } }
-          user.reload
+          put :block_commenting, params: { login: user.login, user: { blocked_from_commenting: 'true' } }
         end
 
-        it { expect(user.blocked_from_commenting).to be(true) }
-        it { expect(flash[:success]).to eq("User data for user '#{user.login}' successfully updated.") }
+        it { expect(user.reload.blocked_from_commenting).to be(true) }
+        it { expect(flash[:success]).to eq("User '#{user.login}' successfully blocked from commenting.") }
       end
 
       context 'passing parameters other than the blocked_from_commenting' do
         before do
-          login(moderator)
-          post :update, params: { login: user.login, user: { blocked_from_commenting: 'true', email: 'foo@bar.baz' } }
-          user.reload
+          post :update, params: { login: user.login, user: { email: 'foo@bar.baz' } }
         end
 
-        it 'leaves the other attributes untouched' do
-          expect(user.email).not_to eq('foo@bar.baz')
-          expect(user.blocked_from_commenting).to be(true)
-          expect(flash[:success]).to eq("User data for user '#{user.login}' successfully updated.")
+        it "doesn't allow to update the user" do
+          expect(user.reload.email).not_to eq('foo@bar.baz')
+          expect(flash[:error]).to eq('Sorry, you are not authorized to update this user.')
         end
       end
     end

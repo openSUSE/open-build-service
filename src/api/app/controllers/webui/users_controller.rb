@@ -3,7 +3,7 @@ class Webui::UsersController < Webui::WebuiController
   before_action :kerberos_auth, only: %i[index edit destroy update change_password edit_account]
   before_action :authorize_user, only: %i[index edit destroy change_password edit_account]
   before_action :require_admin, only: %i[index edit destroy]
-  before_action :check_displayed_user, only: %i[show edit update edit_account]
+  before_action :check_displayed_user, only: %i[show edit block_commenting update edit_account]
   before_action :role_titles, only: %i[show edit_account update]
   before_action :account_edit_link, only: %i[show edit_account update]
 
@@ -66,17 +66,25 @@ class Webui::UsersController < Webui::WebuiController
     end
   end
 
-  def update
-    if params[:user][:blocked_from_commenting].present?
-      authorize [:webui, @displayed_user], :block_commenting?
+  def block_commenting
+    authorize [:webui, @displayed_user], :block_commenting?
 
-      @displayed_user.toggle(:blocked_from_commenting)
+    @displayed_user.update(params.require(:user).permit(:blocked_from_commenting))
+
+    if @displayed_user.save
+      status = @displayed_user.blocked_from_commenting ? 'blocked from commenting' : 'allowed to comment again'
+      flash[:success] = "User '#{@displayed_user.login}' successfully #{status}."
     else
-      authorize [:webui, @displayed_user], :update?
-
-      assign_common_user_attributes
-      assign_admin_attributes if User.admin_session?
+      flash[:error] = "Couldn't update user: #{@displayed_user.errors.full_messages.to_sentence}."
     end
+    redirect_back_or_to user_path(@displayed_user)
+  end
+
+  def update
+    authorize [:webui, @displayed_user], :update?
+
+    assign_common_user_attributes
+    assign_admin_attributes if User.admin_session?
 
     respond_to do |format|
       if @displayed_user.save
