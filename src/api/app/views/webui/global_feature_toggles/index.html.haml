@@ -1,0 +1,11 @@
+- @pagetitle = 'Global Feature Toggles'
+
+.card.mb-3
+  = render partial: 'webui/configuration/tabs'
+  .card-body
+    %h3.mb-4 Global Feature Toggles
+    %p
+      Go to the
+      = link_to('Flipper Dashboard', "#{root_url}/flipper", title: 'Global Feature Toggles')
+      to manage feature toggles globally. Your actions could affect all the users of the application
+      by modifying what they can or can't see under the beta program.

@@ -37,11 +37,13 @@
         = link_to(configuration_path, class: 'nav-link', title: 'Configuration') do
           %i.fas.fa-cogs.me-2
           %span.nav-item-name Configuration
-    - if User.admin_session? || User.possibly_nobody.is_staff?
+    - if User.possibly_nobody.is_staff? && !User.admin_session?
       %li.nav-item
-        = link_to("#{root_url}/flipper", class: 'nav-link', title: 'Feature Toggles') do
+        = link_to("#{root_url}/flipper", class: 'nav-link',
+                  title: 'Global Feature Toggles',
+                  data: { confirm: 'Do you really want to manage feature toggles globally? This might affect all the users of the application.' }) do
           %i.fas.fa-toggle-on.me-2
-          %span.nav-item-name Feature Toggles
+          %span.nav-item-name Global Feature Toggles
     - if navigation != :left
       %li.nav-item
         = link_to(session_path, method: :delete, id: 'logout-link', class: 'nav-link') do
