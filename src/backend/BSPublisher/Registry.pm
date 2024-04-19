@@ -505,12 +505,13 @@ sub update_cosign {
       next;
     }
     print "creating $numlayers cosign attestations for $gun $digest\n";
+    my %predicatetypes;
     my @attestations;
-    push @attestations, BSConSign::fixup_intoto_attestation($containerinfo->{'slsa_provenance'}, $signfunc, $digest, $gun) if $containerinfo->{'slsa_provenance'};
-    push @attestations, BSConSign::fixup_intoto_attestation(readstr($containerinfo->{'spdx_file'}), $signfunc, $digest, $gun) if $containerinfo->{'spdx_file'};
-    push @attestations, BSConSign::fixup_intoto_attestation(readstr($containerinfo->{'cyclonedx_file'}), $signfunc, $digest, $gun) if $containerinfo->{'cyclonedx_file'};
-    push @attestations, BSConSign::fixup_intoto_attestation(readstr($_), $signfunc, $digest, $gun) for @{$containerinfo->{'intoto_files'} || []};
-    my @attestation_ents = BSConSign::create_cosign_attestation_ents(\@attestations);
+    push @attestations, BSConSign::fixup_intoto_attestation($containerinfo->{'slsa_provenance'}, $signfunc, $digest, $gun, \%predicatetypes) if $containerinfo->{'slsa_provenance'};
+    push @attestations, BSConSign::fixup_intoto_attestation(readstr($containerinfo->{'spdx_file'}), $signfunc, $digest, $gun, \%predicatetypes) if $containerinfo->{'spdx_file'};
+    push @attestations, BSConSign::fixup_intoto_attestation(readstr($containerinfo->{'cyclonedx_file'}), $signfunc, $digest, $gun, \%predicatetypes) if $containerinfo->{'cyclonedx_file'};
+    push @attestations, BSConSign::fixup_intoto_attestation(readstr($_), $signfunc, $digest, $gun, \%predicatetypes) for @{$containerinfo->{'intoto_files'} || []};
+    my @attestation_ents = BSConSign::create_cosign_attestation_ents(\@attestations, undef, \%predicatetypes);
     my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, @attestation_ents);
     $sigs->{'attestations'}->{$digest} = $mani_id;
     if ($rekorserver) {
