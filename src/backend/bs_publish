@@ -3565,7 +3565,7 @@ sub publishevent {
     return 0;
   }
 
-  if ($code eq 'delayed') {
+  if ($code && $code eq 'delayed') {
     BSUtil::printlog("publish delayed for $prp") if $req->{'forked'};
     return 1;
   }
