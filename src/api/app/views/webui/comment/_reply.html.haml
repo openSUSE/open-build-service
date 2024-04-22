@@ -22,7 +22,7 @@
                     class: 'btn btn-outline-secondary', remote: true, form_class: 'moderate-form', params: { moderation_state: !comment.moderated? })
   - if policy(Report.new(reportable: comment)).create?
     %li.list-inline-item
-      = link_to('#', class: 'btn btn-outline-dark', id: "js-comment-#{comment.id}",
+      = link_to('#', class: 'btn btn-outline-warning', id: "js-comment-#{comment.id}",
             data: { 'bs-toggle': 'modal',
                     'bs-target': '#report-modal',
                     'modal-title': "Report comment from #{comment.user}",

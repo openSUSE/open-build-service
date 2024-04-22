@@ -10,7 +10,10 @@ a {
 
 a.btn {
   &.btn-outline-danger { @extend .btn-outline-danger; }
-  &.btn-outline-warning { @extend .btn-outline-warning; }
   &.btn-outline-primary { @extend .btn-outline-primary; }
   &.btn-outline-secondary { @extend .btn-outline-secondary; }
+  &.btn-outline-warning {
+    @extend .btn-outline-warning;
+    &:hover { color: $white }
+  }
 }
