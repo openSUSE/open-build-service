@@ -43,6 +43,7 @@ end
 #  content       :text(65535)
 #  decision_kind :integer
 #  title         :string(255)
+#  decision_type :integer
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
 #  user_id       :integer          not null, indexed
