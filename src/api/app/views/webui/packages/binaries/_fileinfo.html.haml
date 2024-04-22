@@ -37,3 +37,14 @@
                                     package: package,
                                     repository: repository,
                                     architecture: architecture }
+
+- content_for :ready_function do
+  :plain
+    initializeRemoteDatatable('#filelist-table', {
+        "columns": [
+          {"data": "name"}
+        ],
+        paging: false,
+        searching: false,
+        info: false
+      });

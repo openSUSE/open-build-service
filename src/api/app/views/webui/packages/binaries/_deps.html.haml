@@ -82,3 +82,15 @@
           %tr
             %td{ colspan: '2' }
               %em No recommends
+
+  .table-responsive.col-sm-12.col-md-6.mt-4
+    %h4 File List
+    %table.table.table-sm.table-bordered#filelist-table{ 'data-source': project_package_repository_binary_filelist_path(project,
+                                                                                                                        package,
+                                                                                                                        repository,
+                                                                                                                        architecture,
+                                                                                                                        filename) }
+      %thead
+        %tr
+          %th Name
+      %tbody

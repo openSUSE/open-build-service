@@ -395,6 +395,7 @@ Metrics/ModuleLength:
 Metrics/ParameterLists:
   Exclude:
     - 'app/helpers/maintenance_helper.rb'
+    - 'app/lib/backend/api/build_results/binaries.rb'
     - 'app/lib/backend/api/build_results/status.rb'
     - 'app/lib/backend/api/sources/package.rb'
     - 'app/lib/backend/logger.rb'
