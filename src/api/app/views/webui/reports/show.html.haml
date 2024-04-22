@@ -1,0 +1,15 @@
+- @pagetitle = "Report ##{@report.id}"
+
+.card
+  .card-body
+    %h3.card-title
+      Report ##{@report.id}
+      .badge.text-bg-primary= @report.category.humanize
+    %p
+      Created by
+      = render UserAvatarComponent.new(@report.user.login)
+      on
+      = link_to_reportables(report_id: @report.id, reportable_type: @report.reportable_type, host: '')
+    %h5 Description
+    %p
+      = @report.reason

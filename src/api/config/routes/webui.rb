@@ -448,7 +448,7 @@ resources :staging_workflows, except: :index, controller: 'webui/staging/workflo
   end
 end
 
-resources :reports, only: [:create], controller: 'webui/reports'
+resources :reports, only: %i[create show], controller: 'webui/reports'
 resources :decisions, only: [:create], controller: 'webui/decisions' do
   resources :appeals, only: %i[new create], controller: 'webui/appeals'
 end

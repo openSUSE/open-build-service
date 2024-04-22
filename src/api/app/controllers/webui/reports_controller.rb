@@ -1,6 +1,13 @@
 class Webui::ReportsController < Webui::WebuiController
   before_action :require_login
+  before_action :set_report, only: :show
   after_action :verify_authorized
+
+  include Webui::ReportablesHelper
+
+  def show
+    authorize @report
+  end
 
   def create
     @user = User.session!
@@ -31,5 +38,9 @@ class Webui::ReportsController < Webui::WebuiController
 
   def report_params
     params.require(:report).permit(:reason, :reportable_id, :reportable_type, :category)
+  end
+
+  def set_report
+    @report = Report.find(params[:id])
   end
 end
