@@ -10,8 +10,10 @@
             = render UserAvatarComponent.new(report.user.login)
             reported
             = render TimeComponent.new(time: report.created_at)
+            as
+            = report.category.humanize
           .ms-4
-            = report.reason
+            %p= report.reason
       - if policy(Decision.new).create?
         = form_for(:decision, url: decisions_path, method: :post) do |form|
           .modal-body{ 'data-canned-controller': '' }

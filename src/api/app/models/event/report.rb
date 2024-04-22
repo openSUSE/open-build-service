@@ -3,7 +3,7 @@ module Event
     receiver_roles :moderator
     self.description = 'Report for inappropriate content has been created'
 
-    payload_keys :id, :user_id, :reportable_id, :reportable_type, :reason
+    payload_keys :id, :user_id, :reportable_id, :reportable_type, :reason, :category
 
     def parameters_for_notification
       super.merge(notifiable_type: 'Report')
