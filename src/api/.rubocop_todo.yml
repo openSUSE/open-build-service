@@ -205,6 +205,7 @@ Metrics/ClassLength:
     - 'app/controllers/webui/comments_controller.rb'
     - 'app/controllers/webui/kiwi/images_controller.rb'
     - 'app/controllers/webui/package_controller.rb'
+    - 'app/controllers/webui/packages/binaries_controller.rb'
     - 'app/controllers/webui/packages/build_log_controller.rb'
     - 'app/controllers/webui/packages/files_controller.rb'
     - 'app/controllers/webui/patchinfo_controller.rb'
