@@ -24,14 +24,6 @@ class Report < ApplicationRecord
 
   scope :without_decision, -> { where(decision: nil) }
 
-  # TODO: remove the first part of the condition `category.present?`. It's a temprary patch to
-  # avoid problems during deployment.
-  def reason
-    return category.humanize if category.present? && (category != 'other')
-
-    super
-  end
-
   private
 
   def create_event
@@ -51,7 +43,7 @@ class Report < ApplicationRecord
   end
 
   def event_parameters
-    { id: id, user_id: user_id, reportable_id: reportable_id, reportable_type: reportable_type, reason: reason }
+    { id: id, user_id: user_id, reportable_id: reportable_id, reportable_type: reportable_type, reason: reason, category: category }
   end
 
   def event_parameters_for_comment(commentable:)

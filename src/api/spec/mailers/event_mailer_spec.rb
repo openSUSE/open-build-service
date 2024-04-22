@@ -270,7 +270,7 @@ RSpec.describe EventMailer, :vcr do
       end
 
       it 'contains the correct text' do
-        expect(mail.body.encoded).to include('reported a project for the following reason:')
+        expect(mail.body.encoded).to include('reported a project as Other for the following reason:')
         expect(mail.body.encoded).to include('Because reasons')
       end
 
@@ -295,7 +295,7 @@ RSpec.describe EventMailer, :vcr do
       end
 
       it 'contains the correct text' do
-        expect(mail.body.encoded).to include('reported a package for the following reason:')
+        expect(mail.body.encoded).to include('reported a package as Other for the following reason:')
         expect(mail.body.encoded).to include('Because reasons')
       end
 
@@ -319,7 +319,7 @@ RSpec.describe EventMailer, :vcr do
       end
 
       it 'contains the correct text' do
-        expect(mail.body.encoded).to include('reported a user for the following reason:')
+        expect(mail.body.encoded).to include('reported a user as Other for the following reason:')
         expect(mail.body.encoded).to include('Because reasons')
       end
 
@@ -344,7 +344,7 @@ RSpec.describe EventMailer, :vcr do
       end
 
       it 'contains the correct text' do
-        expect(mail.body.encoded).to include('reported a comment for the following reason:')
+        expect(mail.body.encoded).to include('reported a comment as Other for the following reason:')
         expect(mail.body.encoded).to include('Because reasons')
       end
 
