@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_04_18_155847) do
+ActiveRecord::Schema[7.0].define(version: 2024_04_23_073041) do
   create_table "appeals", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.text "reason", null: false
     t.integer "appellant_id", null: false
@@ -155,6 +155,15 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_18_155847) do
     t.index ["medium"], name: "index_binary_releases_on_medium"
     t.index ["release_package_id"], name: "release_package_id"
     t.index ["repository_id", "binary_name"], name: "ra_name_index"
+  end
+
+  create_table "blocked_users", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.integer "blocker_id", null: false
+    t.integer "blocked_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["blocked_id"], name: "index_blocked_users_on_blocked_id"
+    t.index ["blocker_id", "blocked_id"], name: "index_blocked_users_on_blocker_id_and_blocked_id", unique: true
   end
 
   create_table "bs_request_action_accept_infos", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -1236,6 +1245,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_18_155847) do
   add_foreign_key "backend_packages", "packages", name: "backend_packages_ibfk_1"
   add_foreign_key "binary_releases", "packages", column: "release_package_id", name: "binary_releases_ibfk_2"
   add_foreign_key "binary_releases", "repositories", name: "binary_releases_ibfk_1"
+  add_foreign_key "blocked_users", "users", column: "blocked_id"
+  add_foreign_key "blocked_users", "users", column: "blocker_id"
   add_foreign_key "bs_request_action_accept_infos", "bs_request_actions", name: "bs_request_action_accept_infos_ibfk_1"
   add_foreign_key "bs_request_actions", "bs_requests", name: "bs_request_actions_ibfk_1"
   add_foreign_key "canned_responses", "users"
