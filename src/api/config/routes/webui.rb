@@ -353,6 +353,10 @@ constraints(RoutesHelper::WebuiMatcher) do
     end
   end
 
+  get 'auth/:provider', to: 'webui/session#new'
+  # By default Omniauth redirects back to here
+  get 'auth/:provider/callback', to: 'webui/session#create'
+
   scope :my do
     resources :tasks, only: [:index], controller: 'webui/users/tasks', as: :my_tasks
 

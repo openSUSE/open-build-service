@@ -10,6 +10,12 @@
     = password_field_tag(:password, nil, required: true, class: 'form-control', placeholder: 'Password')
   .clearfix
     = submit_tag('Log In', class: 'btn btn-success w-100')
+.login-separator.text-center
+  %hr.my-4
+  %span.bg-modal.px-3.text-muted or
+  = form_tag('/auth/github', method: 'post', data: { turbo: false }) do
+    %button{ class: 'btn btn-primary', type: 'submit' }
+      Login with Github
 - if can_sign_up?
   .login-separator.text-center
     %hr.my-4

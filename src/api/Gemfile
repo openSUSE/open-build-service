@@ -103,6 +103,11 @@ gem 'chartkick'
 # For tracking changes in models
 gem 'paper_trail'
 
+# For authenticating users
+gem 'omniauth'
+gem 'omniauth-rails_csrf_protection'
+gem 'omniauth-github'
+
 # FIXME: Required by the mail gem
 # See https://github.com/rails/rails/pull/44083
 gem 'net-smtp', require: false

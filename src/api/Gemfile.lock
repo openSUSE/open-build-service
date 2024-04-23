@@ -208,6 +208,7 @@ GEM
       rubocop (>= 1.0)
       sysexits (~> 1.1)
     hashdiff (1.1.0)
+    hashie (5.0.0)
     httparty (0.21.0)
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
@@ -228,6 +229,8 @@ GEM
     jquery-ui-rails (4.2.1)
       railties (>= 3.2.16)
     json (2.7.2)
+    jwt (2.8.1)
+      base64
     kaminari (1.2.2)
       activesupport (>= 4.1.0)
       kaminari-actionview (= 1.2.2)
@@ -293,10 +296,30 @@ GEM
     nokogiri (1.16.4)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
+    oauth2 (2.0.9)
+      faraday (>= 0.17.3, < 3.0)
+      jwt (>= 1.0, < 3.0)
+      multi_xml (~> 0.5)
+      rack (>= 1.2, < 4)
+      snaky_hash (~> 2.0)
+      version_gem (~> 1.1)
     octokit (8.1.0)
       base64
       faraday (>= 1, < 3)
       sawyer (~> 0.9)
+    omniauth (2.1.2)
+      hashie (>= 3.4.6)
+      rack (>= 2.2.3)
+      rack-protection
+    omniauth-github (2.0.1)
+      omniauth (~> 2.0)
+      omniauth-oauth2 (~> 1.8)
+    omniauth-oauth2 (1.8.0)
+      oauth2 (>= 1.4, < 3)
+      omniauth (~> 2.0)
+    omniauth-rails_csrf_protection (1.0.1)
+      actionpack (>= 4.2)
+      omniauth (~> 2.0)
     paper_trail (15.1.0)
       activerecord (>= 6.1)
       request_store (~> 1.4)
@@ -462,6 +485,9 @@ GEM
     simplecov_json_formatter (0.1.4)
     single_test (0.6.0)
       rake
+    snaky_hash (2.0.1)
+      hashie
+      version_gem (~> 1.1, >= 1.1.1)
     sorted_set (1.0.3)
       rbtree
       set (~> 1.0)
@@ -499,6 +525,7 @@ GEM
     uniform_notifier (1.16.0)
     uri (0.13.0)
     vcr (6.2.0)
+    version_gem (1.1.4)
     view_component (3.12.0)
       activesupport (>= 5.2.0, < 8.0)
       concurrent-ruby (~> 1.0)
@@ -590,6 +617,9 @@ DEPENDENCIES
   next_rails
   nokogiri
   octokit
+  omniauth
+  omniauth-github
+  omniauth-rails_csrf_protection
   paper_trail
   pry
   pry-byebug
