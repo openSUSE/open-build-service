@@ -1,0 +1,2 @@
+class DecisionFavoredWithCommentModerationPolicy < DecisionPolicy
+end
