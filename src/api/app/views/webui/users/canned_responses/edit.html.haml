@@ -12,7 +12,7 @@
         = f.text_area :content, class: 'form-control'
       - if policy(Decision.new).create?
         .mb-3
-          = f.label :decision_kind, "Choose 'cleared' or 'favored' if this is a decision's reason"
-          - kinds = CannedResponse.decision_kinds.keys.to_h { |k| [k.humanize, k] }
-          = f.select(:decision_kind, kinds, { include_blank: 'none' }, class: 'form-select')
+          = f.label :decision_type, "Choose 'cleared' or 'favored' if this is a decision's reason"
+          - types = CannedResponse.decision_types.keys.to_h { |t| [t.humanize, t] }
+          = f.select(:decision_type, types , { include_blank: 'none' }, class: 'form-select')
       = f.submit 'Save', class: 'btn btn-primary'

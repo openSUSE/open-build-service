@@ -3,17 +3,17 @@ class CannedResponsesDropdownComponent < ApplicationComponent
     super
 
     @canned_responses = canned_responses
-    @canned_responses_by_kind = canned_responses_by_kind
+    @canned_responses_by_type = canned_responses_by_type
   end
 
   private
 
-  def canned_responses_by_kind
-    # Only the kinds available in the user's canned responses
-    kinds = @canned_responses.pluck(:decision_kind).uniq
+  def canned_responses_by_type
+    # Only the types available in the user's canned responses
+    types = @canned_responses.pluck(:decision_type).uniq
 
-    kinds.index_with do |decision_kind|
-      @canned_responses.where(decision_kind: decision_kind)
+    types.index_with do |decision_type|
+      @canned_responses.where(decision_type: decision_type)
     end
   end
 end

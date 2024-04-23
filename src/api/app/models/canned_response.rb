@@ -1,6 +1,9 @@
 # Canned responses are predetermined comment responses to common questions in a project/package/request
 # Each user can manage their own set of canned responses
 class CannedResponse < ApplicationRecord
+  # TODO: remove after the migration is in production
+  self.ignored_columns += ['decision_kind']
+
   #### Includes and extends
 
   #### Constants
@@ -9,7 +12,7 @@ class CannedResponse < ApplicationRecord
   validates :title, presence: true, length: { maximum: 255 }
   validates :content, presence: true, length: { maximum: 65_535 }
 
-  enum decision_kind: {
+  enum decision_type: {
     cleared: 0,
     favored: 1
   }
