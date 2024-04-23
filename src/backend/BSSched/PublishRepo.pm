@@ -633,7 +633,7 @@ sub publishprovenance {
   my @sr = stat("$rdir/$rprovenance");
   my $changed;
   if (!@sr || "$s[9]/$s[7]/$s[1]" ne "$sr[9]/$sr[7]/$sr[1]") {
-    print @sr ? "      ! :repo/$rprovenance$\n" : "      + :repo/$rprovenance\n";
+    print @sr ? "      ! :repo/$rprovenance\n" : "      + :repo/$rprovenance\n";
     unlink("$rdir/$rprovenance");
     link($provenance, "$rdir/$rprovenance") || die("link $provenance $rdir/$rprovenance: $!");
     $changed = 1;
