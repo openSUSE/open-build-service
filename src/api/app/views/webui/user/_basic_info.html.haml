@@ -3,7 +3,7 @@
            locals: { displayed_user: user, role_titles: role_titles, account_edit_link: account_edit_link }
 
 .basic-info
-  .d-flex.flex-row-reverse.mb-3
+  .d-flex.flex-row-reverse.align-items-center.mb-3
     = render ReportsNoticeComponent.new(reportable: user, user: User.session)
     - if policy(Report.new(reportable: user)).create?
       = link_to('#', id: "js-user-#{user.id}", class: 'ps-2',
@@ -14,6 +14,17 @@
                     'reportable-id': user.id }) do
         %i.fas.fa-regular.fa-flag
         %span.nav-item-name Report
+    - if User.session
+      - if (blocked_user = BlockedUser.find_by(blocker: User.session!, blocked: user))
+        - if policy(blocked_user).destroy?
+          = button_to(user_block_path(user), method: :delete, class: 'btn btn-link p-0 text-decoration-none ms-2') do
+            %i.fas.fa-user-lock
+            Unblock
+      - else
+        - if policy(BlockedUser.new(blocker: User.session!, blocked: user)).create?
+          = button_to(user_block_path(user), method: :post, class: 'btn btn-link p-0 text-decoration-none ms-2') do
+            %i.fas.fa-user-lock
+            Block
     - if User.possibly_nobody.is_admin? && user.state != 'deleted'
       = link_to('#', title: 'Delete user', class: 'ms-2', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-user-modal' }) do
         %i.fas.fa-times-circle.text-danger
