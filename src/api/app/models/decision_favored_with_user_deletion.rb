@@ -11,9 +11,7 @@ class DecisionFavoredWithUserDeletion < Decision
   end
 
   def self.display?(reportable)
-    return false unless [Comment, BsRequest, User].any? { |c| reportable.is_a?(c) }
-
-    true
+    [Comment, BsRequest, User].any? { |c| reportable.is_a?(c) }
   end
 
   def delete_user
