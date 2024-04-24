@@ -2,6 +2,8 @@ class CommentLockPolicy < ApplicationPolicy
   def create?
     return false unless Flipper.enabled?(:content_moderation, user)
 
+    return false if record.is_a?(Report)
+
     return true if user.is_moderator? || user.is_admin?
 
     case record

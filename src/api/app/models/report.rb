@@ -6,6 +6,7 @@ class Report < ApplicationRecord
 
   belongs_to :user, optional: false
   belongs_to :reportable, polymorphic: true, optional: true
+  has_many :comments, as: :commentable, dependent: :destroy
 
   belongs_to :decision, optional: true
 

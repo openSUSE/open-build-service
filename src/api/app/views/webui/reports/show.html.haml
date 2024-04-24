@@ -13,3 +13,12 @@
     %h5 Description
     %p
       = @report.reason
+
+.comments.mt-3
+  .card#comments-list
+    %h5.card-header.text-word-break-all
+      Comments
+      %span.badge.text-bg-primary{ id: "comment-counter-report-#{@report.id}" }
+        = @report.comments.length
+    .card-body#comments
+      = render partial: 'webui/comment/show', locals: { commentable: @report, comment_counter_id: "#comment-counter-report-#{@report.id}" }

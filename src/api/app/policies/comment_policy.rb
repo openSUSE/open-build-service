@@ -63,6 +63,8 @@ class CommentPolicy < ApplicationPolicy
       record.commentable.project.comment_lock.present? || record.commentable.comment_lock.present?
     when BsRequestAction
       record.commentable.bs_request.comment_lock.present? || record.commentable.comment_lock.present?
+    when Report
+      false
     else
       record.commentable.comment_lock.present?
     end
