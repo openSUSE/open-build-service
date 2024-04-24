@@ -16,6 +16,7 @@ class CannedResponse < ApplicationRecord
     cleared: 0,
     favored: 1,
     favored_with_comment_moderation: 2,
+    favored_with_delete_request: 3,
     favored_with_user_deletion: 4
   }
 
