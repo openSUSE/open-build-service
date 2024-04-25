@@ -1,9 +1,6 @@
 # Canned responses are predetermined comment responses to common questions in a project/package/request
 # Each user can manage their own set of canned responses
 class CannedResponse < ApplicationRecord
-  # TODO: remove after the migration is in production
-  self.ignored_columns += ['decision_kind']
-
   #### Includes and extends
 
   #### Constants
@@ -47,7 +44,6 @@ end
 #
 #  id            :bigint           not null, primary key
 #  content       :text(65535)
-#  decision_kind :integer
 #  title         :string(255)
 #  decision_type :integer
 #  created_at    :datetime         not null
