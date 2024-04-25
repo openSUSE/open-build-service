@@ -67,6 +67,15 @@ RSpec.describe ReportPolicy, type: :policy do
 
         it { is_expected.not_to(permit(user, report)) }
       end
+
+      context "when trying to report a report's comment" do
+        let(:report_on_package_comment) { create(:report, user: user) }
+        let(:report_comment) { create(:comment_report, commentable: report_on_package_comment) }
+        let(:moderator) { create(:moderator) }
+        let(:report) { build(:report, user: moderator, reportable: report_comment) }
+
+        it { is_expected.not_to(permit(moderator, report)) }
+      end
     end
 
     context 'when the current user can not change the reportable' do
