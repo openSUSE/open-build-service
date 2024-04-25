@@ -14,7 +14,7 @@ class NotificationExcerptComponent < ApplicationComponent
              @notifiable.description.to_s # description can be nil
            when 'Comment'
              helpers.render_without_markdown(@notifiable.body)
-           when 'Report', 'Decision', 'Appeal', 'DecisionFavoredWithDeleteRequest'
+           when 'Report', 'Decision', 'Appeal', 'DecisionFavoredWithDeleteRequest', 'DecisionFavoredWithUserCommentingRestrictions'
              @notifiable.reason
            when 'WorkflowRun'
              "In repository #{@notifiable.repository_full_name}"
