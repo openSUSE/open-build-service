@@ -72,6 +72,16 @@ RSpec.describe CommentPolicy do
       it { is_expected.to permit(user, comment_on_request) }
       it { is_expected.not_to permit(other_user, comment_on_request) }
     end
+
+    context 'with a comment of a Report' do
+      let(:user_with_moderator_role) { create(:moderator) }
+      let(:another_user_with_moderator_role) { create(:moderator) }
+      let(:comment_on_report) { create(:comment_request, user: user_with_moderator_role) }
+
+      it { is_expected.to permit(user_with_moderator_role, comment_on_report) }
+      it { is_expected.not_to permit(another_user_with_moderator_role, comment_on_report) }
+      it { is_expected.not_to permit(other_user, comment_on_report) }
+    end
   end
 
   permissions :update? do
@@ -233,6 +243,17 @@ RSpec.describe CommentPolicy do
 
         it { is_expected.to permit(author, comment_on_comment_locked_project) }
       end
+    end
+
+    context 'for a commentable which is a report' do
+      let(:user_with_moderator_role) { create(:moderator) }
+      let(:another_user) { create(:confirmed_user) }
+      let(:comment_on_report) { build(:comment_request, user: user_with_moderator_role) }
+
+      it { is_expected.to permit(user_with_moderator_role, comment_on_report) }
+      it { is_expected.to permit(admin_user, comment_on_report) }
+      it { is_expected.to permit(comment_author, comment_on_report) }
+      it { is_expected.to permit(another_user, comment_on_report) }
     end
   end
 end
