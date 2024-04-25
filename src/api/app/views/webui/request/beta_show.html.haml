@@ -37,13 +37,7 @@
                 - else
                   %i No description set
               - if @bs_request.bs_request_actions.exists?(source_package: 'patchinfo')
-                #patchinfo-details
-                  %h4.my-3 Patches
-                  - @bs_request.bs_request_actions.where(source_package: 'patchinfo').each do |patchinfo|
-                    - patchinfo_package = Package.find_by_project_and_name(patchinfo.source_project, patchinfo.source_package)
-                    - patchinfo_text = patchinfo_package.source_file('_patchinfo', rev: patchinfo.source_rev || patchinfo_package.rev)
-                    = render PatchinfoComponent.new(patchinfo_text, request_changes_path(number: @bs_request.number, request_action_id: patchinfo.id))
-
+                = render partial: 'patchinfo_details', locals: { bs_request: @bs_request }
             #comments-list
               .timeline.pb-2.ms-3{ data: { comment_counter: local_assigns[:comment_counter_id] } }
                 %h4.list-group.mb-4.ms-3.pt-3 Comments & History
