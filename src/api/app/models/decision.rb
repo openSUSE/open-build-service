@@ -10,6 +10,8 @@ class Decision < ApplicationRecord
 
   after_create :track_decision
 
+  self.ignored_columns += ['kind']
+
   def description
     'The moderator decided on the report'
   end
