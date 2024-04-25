@@ -351,6 +351,7 @@ constraints(RoutesHelper::WebuiMatcher) do
       post 'rss_secret'
       get 'edit_account'
     end
+    resource :block, only: %i[create destroy], controller: 'webui/users/block', constraints: cons
   end
 
   scope :my do

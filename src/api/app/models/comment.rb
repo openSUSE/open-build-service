@@ -73,6 +73,7 @@ class Comment < ApplicationRecord
 
   def body
     return "*This content was considered problematic and has been moderated at #{moderated_at} by @#{moderator}*" if moderated?
+    return '*You have blocked this user. To see this comment, unblock the user in the user profile.*' if blocked?
 
     super
   end
@@ -117,6 +118,13 @@ class Comment < ApplicationRecord
     return if commentable.comments.where(id: parent_id).present?
 
     errors.add(:parent, 'belongs to different object')
+  end
+
+  def blocked?
+    return false unless (session = User.session)
+    return true if session.blocked_users.exists?(blocked: user)
+
+    false
   end
 end
 

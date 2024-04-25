@@ -67,6 +67,7 @@ class User < ApplicationRecord
   has_many :moderated_comments, class_name: 'Comment', foreign_key: 'moderator_id'
   has_many :decisions, foreign_key: 'moderator_id'
   has_many :canned_responses, dependent: :destroy
+  has_many :blocked_users, foreign_key: 'blocker_id', dependent: :destroy
 
   scope :confirmed, -> { where(state: 'confirmed') }
   scope :all_without_nobody, -> { where.not(login: NOBODY_LOGIN) }
