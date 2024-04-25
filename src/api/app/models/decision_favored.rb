@@ -21,9 +21,8 @@ end
 # Table name: decisions
 #
 #  id           :bigint           not null, primary key
-#  kind         :integer          default("cleared")
 #  reason       :text(65535)      not null
-#  type         :string(255)      not null, default("DecisionCleared")
+#  type         :string(255)      default("DecisionCleared"), not null
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
 #  moderator_id :integer          not null, indexed
