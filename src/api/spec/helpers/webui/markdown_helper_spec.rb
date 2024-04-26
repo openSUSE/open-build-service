@@ -29,6 +29,12 @@ RSpec.describe Webui::MarkdownHelper do
       )
     end
 
+    it 'does not render markdown included in the user login' do
+      expect(render_as_markdown('@_testuser_')).to eq(
+        "<p><a href=\"https://unconfigured.openbuildservice.org/users/_testuser_\" rel=\"nofollow\">@_testuser_</a></p>\n"
+      )
+    end
+
     it 'does not crash due to invalid URIs' do
       expect(render_as_markdown("anbox[400000+22d000]\r\n(the number)")).to eq(
         "<p>anbox<a href=\"the%20number\" rel=\"nofollow\">400000+22d000</a></p>\n"
