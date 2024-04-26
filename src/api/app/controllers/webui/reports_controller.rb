@@ -7,6 +7,8 @@ class Webui::ReportsController < Webui::WebuiController
 
   def show
     authorize @report
+
+    handle_notification
   end
 
   def create
@@ -42,5 +44,12 @@ class Webui::ReportsController < Webui::WebuiController
 
   def set_report
     @report = Report.find(params[:id])
+  end
+
+  def handle_notification
+    return unless User.session && params[:notification_id]
+
+    @current_notification = Notification.find(params[:notification_id])
+    authorize @current_notification, :update?, policy_class: NotificationPolicy
   end
 end
