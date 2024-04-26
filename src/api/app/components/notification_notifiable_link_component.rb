@@ -116,7 +116,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       reportable = @notification.notifiable.reportable
       link_for_reportables(reportable)
     when 'Event::ReportForComment', 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForUser', 'Event::ReportForRequest'
-      Rails.application.routes.url_helpers.report_path(@notification.notifiable)
+      Rails.application.routes.url_helpers.report_path(@notification.notifiable, notification_id: @notification.id)
     when 'Event::ClearedDecision', 'Event::FavoredDecision'
       reportable = @notification.notifiable.reports.first.reportable
       link_for_reportables(reportable)
