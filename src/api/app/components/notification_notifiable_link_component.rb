@@ -80,7 +80,6 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
   # rubocop:enable Metrics/CyclomaticComplexity
 
   # rubocop:disable Metrics/CyclomaticComplexity
-  # rubocop:disable Metrics/PerceivedComplexity
   def notifiable_link_path
     case @notification.event_type
     when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted'
@@ -116,16 +115,8 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     when 'Event::CreateReport'
       reportable = @notification.notifiable.reportable
       link_for_reportables(reportable)
-    when 'Event::ReportForComment'
-      # Do not have a link for deleted comments
-      Comment.exists?(@notification.event_payload['reportable_id']) && path_to_commentables_on_reports(event_payload: @notification.event_payload, notification_id: @notification.id)
-    when 'Event::ReportForProject', 'Event::ReportForPackage'
-      @notification.event_type.constantize.notification_link_path(@notification)
-    when 'Event::ReportForUser'
-      Rails.application.routes.url_helpers.user_path(@notification.event_payload['user_login'], notification_id: @notification.id) if !@notification.event_user.is_deleted? || @current_user.is_admin?
-    when 'Event::ReportForRequest'
-      bs_request = @notification.notifiable.reportable
-      Rails.application.routes.url_helpers.request_show_path(bs_request.number, notification_id: @notification.id)
+    when 'Event::ReportForComment', 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForUser', 'Event::ReportForRequest'
+      Rails.application.routes.url_helpers.report_path(@notification.notifiable)
     when 'Event::ClearedDecision', 'Event::FavoredDecision'
       reportable = @notification.notifiable.reports.first.reportable
       link_for_reportables(reportable)
@@ -136,7 +127,6 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity
-  # rubocop:enable Metrics/PerceivedComplexity
 
   def bs_request
     return unless @notification.event_type == 'Event::CommentForRequest'
