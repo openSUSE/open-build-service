@@ -13,7 +13,7 @@ module OBSApi
       # request#12345 links
       fulldoc.gsub!(/(sr|req|request)#(\d+)/i) { |s| "[#{s}](#{request_show_url(number: Regexp.last_match(2))})" }
       # @user links
-      fulldoc.gsub!(/([^\w]|^)@(\b[-.\+\w]+\b)(?:\b|$)/) { "#{Regexp.last_match(1)}[@#{Regexp.last_match(2)}](#{user_url(Regexp.last_match(2))})" }
+      fulldoc.gsub!(/([^\w]|^)@(\b[-.\+\w]+\b)(?:\b|$)/) { "#{Regexp.last_match(1)}[@#{escape_markdown(Regexp.last_match(2))}](#{user_url(Regexp.last_match(2))})" }
       # bnc#12345 links
       IssueTracker.find_each do |t|
         fulldoc = t.get_markdown(fulldoc)
@@ -47,6 +47,12 @@ module OBSApi
       CodeRay.scan(code, language).div(css: :class)
     rescue ArgumentError
       CodeRay.scan(code, :plaintext).div(css: :class) unless language == :plaintext
+    end
+
+    private
+
+    def escape_markdown(text)
+      text.gsub(/([_*`~])/, '\\\\\1')
     end
   end
 end
