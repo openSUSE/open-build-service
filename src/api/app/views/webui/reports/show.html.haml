@@ -8,8 +8,9 @@
     %p
       Created by
       = render UserAvatarComponent.new(@report.user.login)
-      on
-      = link_to_reportables(report_id: @report.id, reportable_type: @report.reportable_type, host: '')
+      - if @report.reportable.present?
+        on
+        = link_to_reportables(report_id: @report.id, reportable_type: @report.reportable_type, host: '')
     %h5 Description
     %p
       = @report.reason
