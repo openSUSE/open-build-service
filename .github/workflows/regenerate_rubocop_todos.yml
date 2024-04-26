@@ -1,0 +1,32 @@
+name: Regenerate Rubocop TODOs
+on:
+  push:
+    branches:
+      - depfu/update/srcapi/rubocop-*
+permissions:
+  contents: write
+jobs:
+  regenerate-rubocop-todos:
+    runs-on: ubuntu-latest
+    container: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-features:latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+        with:
+          workflow: ${{ github.event.workflow_run.workflow_id }}
+          workflow_conclusion: success
+      - name: Install dependencies
+        run: |
+          cd src/api
+          bundler install
+      - name: Run rubocop
+        run: |
+          cd src/api
+          bundler exec rubocop --regenerate-todo
+      - name: Commit to the repository
+        run: |
+          git config --global user.name 'Rubocop TODOs'
+          git config --global user.email 'openSUSE@users.noreply.github.com'
+          git config --global --add safe.directory /__w/open-build-service/open-build-service
+          git commit -am "Automatic Rubocop TODOs regeneration"
+          git push
