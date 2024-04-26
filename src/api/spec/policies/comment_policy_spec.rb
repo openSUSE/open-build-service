@@ -43,7 +43,7 @@ RSpec.describe CommentPolicy do
       expect(subject).not_to permit(user, comment)
     end
 
-    context 'with a comment of a Package' do
+    context 'with a comment on a Package' do
       before do
         allow(user).to receive(:has_local_permission?).with('change_package', package).and_return(true)
         allow(other_user).to receive(:has_local_permission?).with('change_package', package).and_return(false)
@@ -53,7 +53,7 @@ RSpec.describe CommentPolicy do
       it { is_expected.not_to permit(other_user, comment_on_package) }
     end
 
-    context 'with a comment of a Project' do
+    context 'with a comment on a Project' do
       before do
         allow(user).to receive(:has_local_permission?).with('change_project', project).and_return(true)
         allow(other_user).to receive(:has_local_permission?).with('change_project', project).and_return(false)
@@ -63,7 +63,7 @@ RSpec.describe CommentPolicy do
       it { is_expected.not_to permit(other_user, comment) }
     end
 
-    context 'with a comment of a Request' do
+    context 'with a comment on a Request' do
       before do
         allow(request).to receive(:is_target_maintainer?).with(user).and_return(true)
         allow(request).to receive(:is_target_maintainer?).with(other_user).and_return(false)
@@ -73,7 +73,7 @@ RSpec.describe CommentPolicy do
       it { is_expected.not_to permit(other_user, comment_on_request) }
     end
 
-    context 'with a comment of a Report' do
+    context 'with a comment on a Report' do
       let(:user_with_moderator_role) { create(:moderator) }
       let(:another_user_with_moderator_role) { create(:moderator) }
       let(:comment_on_report) { create(:comment_request, user: user_with_moderator_role) }
