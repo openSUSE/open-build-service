@@ -13,14 +13,15 @@ class ReportPolicy < ApplicationPolicy
     # We don't want reports twice...
     return false if user.submitted_reports.where(reportable: record.reportable).any?
 
-    # We don't want reports for things you can change yourself...
+    # We don't want reports for things you can change yourself nor for comment reports
     case record.reportable_type
     when 'Package'
       !PackagePolicy.new(user, record.reportable).update?
     when 'Project'
       !ProjectPolicy.new(user, record.reportable).update?
     when 'Comment'
-      !CommentPolicy.new(user, record.reportable).update?
+      !CommentPolicy.new(user, record.reportable).update? &&
+        !record.reportable.commentable.is_a?(Report)
     when 'User'
       !UserPolicy.new(user, record.reportable).update?
     when 'BsRequest'
