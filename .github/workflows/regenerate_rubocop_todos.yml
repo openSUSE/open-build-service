@@ -22,7 +22,8 @@ jobs:
       - name: Run rubocop
         run: |
           cd src/api
-          bundler exec rubocop --regenerate-todo
+          bin/rake dev:lint:rubocop:auto_gen_config:rails
+          bin/rake dev:lint:rubocop:auto_gen_config:root
       - name: Commit to the repository
         run: |
           git config --global user.name 'Rubocop TODOs'
