@@ -999,6 +999,7 @@ usermod -a -G docker obsservicerun
 %config(noreplace) %{__obs_api_prefix}/config/puma.rb
 %config(noreplace) %{__obs_api_prefix}/config/secrets.yml
 %config(noreplace) %{__obs_api_prefix}/config/spring.rb
+%config(noreplace) %{__obs_api_prefix}/config/storage.yml
 %config(noreplace) %{__obs_api_prefix}/config/crawler-user-agents.json
 %{__obs_api_prefix}/config/initializers
 %dir %{__obs_api_prefix}/config/environments
@@ -1080,6 +1081,7 @@ usermod -a -G docker obsservicerun
 %config %{__obs_api_prefix}/config/environments/stage.rb
 
 %dir %attr(-,%{apache_user},%{apache_group}) %{__obs_api_prefix}/log
+%dir %attr(-,%{apache_user},%{apache_group}) %{__obs_api_prefix}/storage
 %attr(-,%{apache_user},%{apache_group}) %{__obs_api_prefix}/tmp
 
 # these dirs primarily belong to apache2:
