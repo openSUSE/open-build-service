@@ -3871,9 +3871,8 @@ sub dobuild {
   }
 
   my $release = $buildinfo->{'release'};
-  #FIXME2.6: drop the following line
-  my $disturl = "obs://$BSConfig::obsname/$projid/$repoid/$buildinfo->{'srcmd5'}-$packid";
-  $disturl = $buildinfo->{'disturl'} if $buildinfo->{'disturl'};
+  my $disturl;
+  $disturl = $buildinfo->{'disturl'} if $buildinfo->{'disturl'} && !$bconf->{'buildflags:nodisturl'};
 
   my @args;
   push @args, $helper if $helper;
@@ -3989,7 +3988,7 @@ sub dobuild {
   push @args, "--ccache-type=$ccachetype" if $useccache && $oldpkgdir && $ccachetype;
   push @args, '--threads', $threads if $threads;
   push @args, '--reason', "Building $packid for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
-  push @args, '--disturl', $disturl;
+  push @args, '--disturl', $disturl if $disturl;
   push @args, '--linksources' if $localkiwi;
   push @args, '--signdummy' if $imagemode && ($imagemode eq 'kiwiproduct' || $imagemode eq 'productcompose') && -e "$statedir/build/signdummy";
   push @args, '--vcs', $buildinfo->{'vcs'} if $buildinfo->{'vcs'} && $bconf->{'buildflags:setvcs'};
