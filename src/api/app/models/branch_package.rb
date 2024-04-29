@@ -219,10 +219,15 @@ class BranchPackage
 
         response = if response
                      # multiple package transfers, just tell the target project
-                     { targetproject: tpkg.project.name }
+                     # Deprecated return parameter `targetproject` stays for compatibility. To be removed in 3.0
+                     { target_project: tpkg.project.name, targetproject: tpkg.project.name }
                    else
                      # just a single package transfer, detailed answer
-                     { targetproject: tpkg.project.name, targetpackage: tpkg.name, sourceproject: oproject, sourcepackage: opackage }
+                     {
+                       target_project: tpkg.project.name, target_package: tpkg.name, project: oproject, package: opackage,
+                       # Deprecated return parameters stay for compatibility. To be removed in 3.0
+                       targetproject: tpkg.project.name, targetpackage: tpkg.name, sourceproject: oproject, sourcepackage: opackage
+                     }
                    end
 
         # fetch newer sources from devel package, if defined
