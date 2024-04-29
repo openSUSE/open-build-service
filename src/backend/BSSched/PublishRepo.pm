@@ -349,6 +349,7 @@ sub prpfinished {
     my $as = { 'lastcheck' => time(), 'lastchange' => $oldas->{'lastchange'} };
     $as->{'lastchange'} = $as->{'lastcheck'} if $changed || !$as->{'lastchange'};
     $changed = 1 if -e "$rdir/.archsync.new";	# hack, see bs_publish
+    mkdir_p($rdir) unless -d $rdir;
     BSUtil::store("$rdir/.archsync.new", "$rdir/.archsync", $as);
   }
 
