@@ -10,7 +10,7 @@
       = render UserAvatarComponent.new(@report.user.login)
       - if @report.reportable.present?
         on
-        = link_to_reportables(report_id: @report.id, reportable_type: @report.reportable_type, host: '')
+        = link_to_reportables(report_id: @report.id, reportable_type: @report.reportable_type)
     %h5 Description
     %p
       = @report.reason
