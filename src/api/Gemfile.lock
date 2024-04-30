@@ -95,7 +95,7 @@ GEM
     base64 (0.1.1)
     bcrypt (3.1.20)
     bigdecimal (3.1.7)
-    bootstrap (5.3.2)
+    bootstrap (5.3.3)
       autoprefixer-rails (>= 9.1.0)
       popper_js (>= 2.11.8, < 3)
     builder (3.2.4)
