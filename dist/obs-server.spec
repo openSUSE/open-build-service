@@ -757,13 +757,13 @@ rmdir %{obs_backend_data_dir} 2> /dev/null || :
 %postun -n obs-common
 # NOT used on purpose: restart_on_update obsstoragesetup
 # This is just run once on boot
-%service_del_postun -n obsstoragesetup.service
+%service_del_postun_without_restart obsstoragesetup.service
 
 %postun -n obs-worker
 # NOT used on purpose: restart_on_update obsworker
 # This can cause problems when building chroot
 # and bs_worker is anyway updating itself at runtime based on server code
-%service_del_postun -n obsworker.service
+%service_del_postun_without_restart obsworker.service
 
 %postun -n obs-cloud-uploader
 %service_del_postun -r obsclouduploadworker.service
