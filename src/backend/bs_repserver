@@ -3346,24 +3346,36 @@ sub getbuildinfo_post_cpio {
   mkdir_p($dir);
   my $uploaded = BSHTTP::cpio_receiver(BSHTTP::fd2req(\*F), {'directory' => $dir});
   close(F);
+  my %files = map {$_->{'name'} => "$dir/$_->{'name'}"} @$uploaded;
   # should we check if the cpio archive contains <= 2 files?
-  my $depfile = (grep { $_->{'name'} eq 'deps' } @$uploaded)[0];
-  $depfile = "$dir/$depfile->{'name'}" if $depfile;
-  my $servicefile = (grep { $_->{'name'} eq '_service' } @$uploaded)[0];
-  $servicefile = "$dir/$servicefile->{'name'}" if $servicefile;
-  my $bifile = (grep { $_->{'name'} eq 'buildenv' } @$uploaded)[0];
-  $bifile = "$dir/$bifile->{'name'}" if $bifile;
   $fn = (grep { $_->{'name'} ne 'deps' && $_->{'name'} ne 'buildenv' && $_->{'name'} ne '_service'} @$uploaded)[0];
   die("no build recipe file found\n") unless $fn;
   my @r;
   eval {
-    @r = getbuildinfo_post({ %$cgi, '_fn' => "$dir/$fn->{'name'}", '_depfile' => $depfile, '_buildenvfile' => $bifile, '_servicefile' => $servicefile, '_buildtype' => Build::recipe2buildtype($fn->{'name'})}, $projid, $repoid, $arch, $packid);
+    @r = getbuildinfo_post({ %$cgi, '_fn' => "$dir/$fn->{'name'}", '_buildtype' => Build::recipe2buildtype($fn->{'name'}), '_files' => \%files}, $projid, $repoid, $arch, $packid);
   };
   # cleanup
   unlink("$dir/$_") for ls($dir);
   rmdir($dir) if -d $dir;
   die("$@\n") if $@;
   return @r;
+}
+
+sub getbuildinfo_rpm_includecallback {
+  my ($files, $fn) = @_;
+  my %files = %$files;
+  if ($files{'_service'}) {
+    for (sort keys %files) {
+      next unless /^_service:.*:(.*?)$/s;
+      $files{$1} = delete($files{$_}) if $files{$_};
+    }
+  }
+  $fn =~ s/.*\///;
+  $fn = $files{$fn};
+  return undef unless $fn;
+  my @s = stat($fn);
+  return undef if !@s || $s[7] > 100000;
+  return readstr($fn);
 }
 
 sub getbuildinfo_post {
@@ -3385,6 +3397,8 @@ sub getbuildinfo_post {
     return getbuildinfo_post_cpio({ %$cgi, '_fn' => $fn }, $projid, $repoid, $arch, $packid) if $magic eq '070701';
   }
 
+  my $files = $cgi->{'_files'} || {};
+
   my $bconf = BSRepServer::getconfig($projid, $repoid, $arch);
   $bconf->{'type'} = $cgi->{'_buildtype'} if $cgi->{'_buildtype'};
   if (defined($packid)) {
@@ -3396,6 +3410,7 @@ sub getbuildinfo_post {
     undef $packid if $packid eq '_repository';
   }
   $bconf->{'obspackage'} = $packid if defined $packid;
+  local $Build::Rpm::includecallback = sub { getbuildinfo_rpm_includecallback($files, @_) };
   my $d = Build::parse_typed($bconf, $fn, $bconf->{'type'});
   unlink($fn);
   die("unknown repository type $bconf->{'type'}\n") unless $d;
@@ -3424,15 +3439,15 @@ sub getbuildinfo_post {
   }
 
   my $pdata = {'buildtype' => $bconf->{'type'}, 'info' => [ $info ]};
-  $pdata->{'buildenv'} = readxml($cgi->{'_buildenvfile'}, $BSXML::buildinfo) if $cgi->{'_buildenvfile'};
-  if ($cgi->{'_servicefile'}) {
-    my $services = readxml($cgi->{'_servicefile'}, $BSXML::services);
+  $pdata->{'buildenv'} = readxml($files->{'buildenv'}, $BSXML::buildinfo) if $files->{'buildenv'};
+  $pdata->{'ldepfile'} = $files->{'deps'} if $files->{'deps'};
+  if ($files->{'_service'}) {
+    my $services = readxml($files->{'_service'}, $BSXML::services);
     for my $service (@{$services->{'service'} || []}) {
        next unless $service->{'mode'} && $service->{'mode'} eq 'buildtime';
        push @{$info->{'buildtimeservice'}}, $service->{'name'};
      }
   }
-  $pdata->{'ldepfile'} = $cgi->{'_depfile'} if $cgi->{'_depfile'};
 
   my $binfo = BSRepServer::BuildInfo::buildinfo($projid, $repoid, $arch, $packid,
 	  pdata	   => $pdata,
