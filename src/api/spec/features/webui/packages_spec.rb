@@ -21,7 +21,7 @@ RSpec.describe 'Packages', :js, :vcr do
 
   describe 'Viewing a package that' do
     let(:branching_data) { create(:branch_package, project: user.home_project.name, package: package.name) }
-    let(:branched_project) { Project.where(name: branching_data[:data][:targetproject]).first }
+    let(:branched_project) { Project.where(name: branching_data[:data][:target_project]).first }
     let(:package_mime) do
       create(:package, name: 'test.json', project: user.home_project, description: 'A package with a mime type suffix')
     end
