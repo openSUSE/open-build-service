@@ -21,9 +21,6 @@ class Webui::PackageController < Webui::WebuiController
                                            users requests statistics revisions view_file
                                            devel_project buildresult rpmlint_result rpmlint_log meta files]
 
-  # FIXME: Remove this before_action, it's doing validation and authorization at the same time
-  before_action :check_package_name_for_new, only: [:create]
-
   prepend_before_action :lockout_spiders, only: %i[revisions rdiff requests]
 
   after_action :verify_authorized, only: %i[new create remove abort_build trigger_rebuild save_meta save abort_build]
@@ -512,25 +509,6 @@ class Webui::PackageController < Webui::WebuiController
     return unless Package.exists_on_backend?(linkinfo['package'], linkinfo['project'])
 
     @linkinfo = { remote_project: linkinfo['project'], package: linkinfo['package'] }
-  end
-
-  def check_package_name_for_new
-    package_name = params[:package][:name]
-
-    # FIXME: This should be a validation in the Package model
-    unless Package.valid_name?(package_name)
-      flash[:error] = "Invalid package name: '#{elide(package_name)}'"
-      redirect_to action: :new, project: @project
-      return false
-    end
-    # FIXME: This should be a validation in the Package model
-    if Package.exists_by_project_and_name(@project.name, package_name)
-      flash[:error] = "Package '#{elide(package_name)}' already exists in project '#{elide(@project.name)}'"
-      redirect_to action: :new, project: @project
-      return false
-    end
-
-    true
   end
 
   def find_last_req
