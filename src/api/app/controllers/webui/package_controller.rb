@@ -4,12 +4,12 @@ class Webui::PackageController < Webui::WebuiController
   include Webui::ManageRelationships
 
   before_action :set_project, only: %i[show edit update index users requests statistics revisions
-                                       new branch_diff_info rdiff create save remove
+                                       new branch_diff_info rdiff create remove
                                        save_person save_group remove_role view_file abort_build trigger_rebuild
                                        trigger_services buildresult rpmlint_result rpmlint_log meta save_meta files]
 
   before_action :require_package, only: %i[edit update show requests statistics revisions
-                                           branch_diff_info rdiff save save_meta remove
+                                           branch_diff_info rdiff save_meta remove
                                            save_person save_group remove_role view_file abort_build trigger_rebuild
                                            trigger_services buildresult rpmlint_result rpmlint_log meta files users]
 
@@ -23,7 +23,7 @@ class Webui::PackageController < Webui::WebuiController
 
   prepend_before_action :lockout_spiders, only: %i[revisions rdiff requests]
 
-  after_action :verify_authorized, only: %i[new create remove abort_build trigger_rebuild save_meta save abort_build]
+  after_action :verify_authorized, only: %i[new create remove abort_build trigger_rebuild save_meta abort_build]
 
   def index
     render json: PackageDatatable.new(params, view_context: view_context, project: @project)
@@ -236,18 +236,6 @@ class Webui::PackageController < Webui::WebuiController
       description: description,
       cleanupSource: @project.branch? # We should remove the package if this request is a branch
     }
-  end
-
-  def save
-    authorize @package, :update?
-    @package.title = params[:title]
-    @package.description = params[:description]
-    if @package.save
-      flash[:success] = "Package data for '#{elide(@package.name)}' was saved successfully"
-    else
-      flash[:error] = "Failed to save package '#{elide(@package.name)}': #{@package.errors.full_messages.to_sentence}"
-    end
-    redirect_to action: :show, project: params[:project], package: params[:package]
   end
 
   def remove
