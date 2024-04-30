@@ -15,7 +15,7 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
-
+%define __obs_ruby_bundle      /usr/bin/bundle.ruby3.1
 Name:           obs-api-testsuite-rspec
 Version:        2.10~pre
 Release:        0
@@ -52,7 +52,7 @@ popd
 
 pushd src/api
 # configure to the bundled gems
-bundle --local --path %_libdir/obs-api/
+%__obs_ruby_bundle --local --path %_libdir/obs-api/
 
 ./script/prepare_spec_tests.sh
 
