@@ -75,17 +75,17 @@ test_unit:
 
 test_rake:
 	$(eval SYSTEM_RAKE_VERSION:=$(shell basename `gem.ruby3.1 which -g rake | sed 's,/lib/rake.rb$$,,'`))
-	$(eval BUNDLE_RAKE_VERSION:=$(shell basename `bundle show rake`))
+	$(eval BUNDLE_RAKE_VERSION:=$(shell basename `bundler.ruby3.1 show rake`))
 	@if [ "$(SYSTEM_RAKE_VERSION)" != "$(BUNDLE_RAKE_VERSION)" ]; then echo "rake version mismatch! System: $(SYSTEM_RAKE_VERSION) / Bundle: $(BUNDLE_RAKE_VERSION)"; exit 1; fi
 
 test_rack:
 	$(eval SYSTEM_RACK_VERSION:=$(shell basename `gem.ruby3.1 which -g rack | sed 's,/lib/rack.rb$$,,'`))
-	$(eval BUNDLE_RACK_VERSION:=$(shell basename `bundle show rack`))
+	$(eval BUNDLE_RACK_VERSION:=$(shell basename `bundler.ruby3.1 show rack`))
 	@if [ "$(SYSTEM_RACK_VERSION)" != "$(BUNDLE_RACK_VERSION)" ]; then echo "rack version mismatch! System: $(SYSTEM_RACK_VERSION) / Bundle: $(BUNDLE_RACK_VERSION)"; exit 1; fi
 
 test_base64_gem:
 	$(eval RUBY_DEFAULT_BASE64_VERSION:=$(shell gem.ruby3.1 list --local base64 | grep -Po 'default:\s\K[0-9]\.[0-9]\.[0-9]+'))
-	$(eval BUNDLE_BASE64_VERSION:=$(shell bundle show base64 | xargs basename | grep -Eo '[0-9]\.[0-9]\.[0-9]+'))
+	$(eval BUNDLE_BASE64_VERSION:=$(shell bundler.ruby3.1 show base64 | xargs basename | grep -Eo '[0-9]\.[0-9]\.[0-9]+'))
 	@if [ "$(RUBY_DEFAULT_BASE64_VERSION)" != "$(BUNDLE_BASE64_VERSION)" ]; then echo "base64 version mismatch! System Ruby Default: $(RUBY_DEFAULT_BASE64_VERSION) / Bundle: $(BUNDLE_BASE64_VERSION)"; exit 1; fi
 
 clean:

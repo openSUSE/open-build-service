@@ -17,6 +17,7 @@
 
 %if 0%{?suse_version}
 %define __obs_ruby_interpreter /usr/bin/ruby.ruby3.1
+%define __obs_ruby_bundle      /usr/bin/bundle.ruby3.1
 %define rack_version %(%{__obs_ruby_interpreter} -r rack -e "puts Rack::RELEASE")
 %define rake_version %(%{__obs_ruby_interpreter} -r rake -e "puts Rake::VERSION")
 %define ruby_abi_version %(%{__obs_ruby_interpreter} -r rbconfig -e 'print RbConfig::CONFIG["ruby_version"]')
@@ -28,6 +29,7 @@ Name:           obs-bundled-gems
 Version:        2.10~pre
 Release:        0
 Summary:        The Open Build Service -- Bundled Gems
+Source0:        open-build-service-%version.tar.xz
 # The actual license is from the gems, but we take a more restrictive
 # license to bundle them. Most are MIT anyway (TODO for Ana: check)
 License:        GPL-2.0-only OR GPL-3.0-only
@@ -110,6 +112,7 @@ this package is just a meta package used to build obs-api testsuite
 %doc README
 
 %prep
+%setup -q -n open-build-service-%version
 echo > README <<EOF
 This package is just a meta package containing requires
 EOF
@@ -119,27 +122,27 @@ EOF
 
 %install
 # all operations here since bundle does not decouple compile and install
-pushd %{_sourcedir}/open-build-service-*/src/api
+pushd src/api
 export GEM_HOME=~/.gems
-bundle config build.ffi --enable-system-libffi
-bundle config build.nokogiri --use-system-libraries
-bundle config build.sassc --disable-march-tune-native
-bundle config build.nio4r --with-cflags='%{optflags} -Wno-return-type'
-bundle config force_ruby_platform true
-bundle config set --local path %{buildroot}%_libdir/obs-api/
+%__obs_ruby_bundle config build.ffi --enable-system-libffi
+%__obs_ruby_bundle config build.nokogiri --use-system-libraries
+%__obs_ruby_bundle config build.sassc --disable-march-tune-native
+%__obs_ruby_bundle config build.nio4r --with-cflags='%{optflags} -Wno-return-type'
+%__obs_ruby_bundle config force_ruby_platform true
+%__obs_ruby_bundle config set --local path %{buildroot}%_libdir/obs-api/
 
-bundle install --local
+%__obs_ruby_bundle install --local
 popd
 
 %if 0%{?suse_version}
-pushd %{_sourcedir}/open-build-service-*/src/api
+pushd src/api
 # test that the rack/rake bundle versions are matching the system versions
 make test_rack
 make test_rake
 popd
 %endif
 
-pushd %{_sourcedir}/open-build-service-*/dist
+pushd dist
 # run gem clean up script
 chmod 755 gem_build_cleanup.sh
 ./gem_build_cleanup.sh  %{buildroot}%_libdir/obs-api/ruby/*/
