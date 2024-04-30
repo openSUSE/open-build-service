@@ -343,8 +343,8 @@ RSpec.describe 'Packages', :js, :vcr do
         fill_in 'package_name', with: 'cool stuff'
         click_button('Create')
 
-        expect(page).to have_text("Invalid package name: 'cool stuff'")
-        expect(page).to have_current_path("/package/new/#{user.home_project_name}", ignore_query: true)
+        expect(page).to have_text('Failed to create package: Name is illegal')
+        expect(page).to have_current_path("/project/show/#{user.home_project_name}", ignore_query: true)
       end
 
       it 'creates a package' do

@@ -782,15 +782,15 @@ RSpec.describe Webui::PackageController, :vcr do
       context 'invalid package name' do
         let(:package_name) { 'A' * 250 }
 
-        it { expect(response).to redirect_to(new_package_path(source_project)) }
-        it { expect(flash[:error]).to match("Invalid package name:\s.*") }
+        it { expect(response).to redirect_to(project_show_path(source_project)) }
+        it { expect(flash[:error]).to match('Failed to create package: Name is too long (maximum is 200 characters), Name is illegal') }
       end
 
       context 'package already exist' do
         let(:package_name) { package.name }
 
-        it { expect(response).to redirect_to(new_package_path(source_project)) }
-        it { expect(flash[:error]).to start_with("Package '#{package.name}' already exists in project") }
+        it { expect(response).to redirect_to(project_show_path(source_project)) }
+        it { expect(flash[:error]).to start_with("Failed to create package: Project `#{source_project.name}` already has a package with the name `#{package_name}`") }
       end
 
       context 'not allowed to create package in' do
