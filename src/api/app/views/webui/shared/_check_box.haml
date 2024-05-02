@@ -1,0 +1,9 @@
+%label.form-check-label.form-group.d-flex.justify-content-between{ for: key }
+  .form-check
+    = check_box_tag key, 1, checked = checked, class: 'form-check-input me-2'
+    %span
+      - if defined?(label_icon)
+        %i.me-1{ class: label_icon }
+      = label
+  - if amount.positive?
+    %span= amount
