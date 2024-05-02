@@ -369,7 +369,7 @@ GEM
     rbtree3 (0.7.1)
     redcarpet (3.6.0)
     regexp_parser (2.9.0)
-    request_store (1.6.0)
+    request_store (1.7.0)
       rack (>= 1.4)
     rexml (3.2.6)
     riddle (2.4.3)
