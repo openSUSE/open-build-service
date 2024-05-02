@@ -127,6 +127,8 @@ paths:
     $ref: 'paths/build_project_name_repository_name_buildconfig.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/_builddepinfo:
     $ref: 'paths/build_project_name_repository_name_architecture_name_builddepinfo.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/_jobhistory:
+    $ref: 'paths/build_project_name_repository_name_architecture_name_jobhistory.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/_repository:
     $ref: 'paths/build_project_name_repository_name_architecture_name_repository.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}:
