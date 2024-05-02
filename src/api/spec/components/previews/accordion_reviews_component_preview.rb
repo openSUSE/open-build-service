@@ -4,6 +4,8 @@ class AccordionReviewsComponentPreview < ViewComponent::Preview
     pending_reviews = Review.opened.take(3)
     accepted_reviews = Review.accepted.take(2)
     declined_review = Review.declined.take(1)
-    render(AccordionReviewsComponent.new(pending_reviews + accepted_reviews + declined_review, :review, can_handle_request: true))
+    request_reviews = accepted_reviews + pending_reviews + declined_review
+    bs_request = BsRequest.last || FactoryBot.create(:bs_request_with_submit_action)
+    render(AccordionReviewsComponent.new(request_reviews, bs_request))
   end
 end
