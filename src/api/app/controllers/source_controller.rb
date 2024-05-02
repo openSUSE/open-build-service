@@ -549,8 +549,12 @@ class SourceController < ApplicationController
                                                  use_source: use_source, follow_project_links: follow_project_links)
       if @package # for remote package case it's nil
         @project = @package.project
-        ignore_lock = @command == 'unlock'
-        raise CmdExecutionNoPermission, "no permission to modify package #{@package.name} in project #{@project.name}" unless READ_COMMANDS.include?(@command) || User.session!.can_modify?(@package, ignore_lock)
+        if @command == 'unlock'
+          # ignore a lock in the package, but not in the project.
+          raise CmdExecutionNoPermission, "no permission to unlock package #{@package.name} in project #{@project.name}" unless User.session!.can_modify?(@project) && User.session!.can_modify?(@package, true)
+        else
+          raise CmdExecutionNoPermission, "no permission to modify package #{@package.name} in project #{@project.name}" unless READ_COMMANDS.include?(@command) || User.session!.can_modify?(@package)
+        end
       end
     end
 
