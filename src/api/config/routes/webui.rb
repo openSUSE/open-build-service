@@ -88,7 +88,6 @@ constraints(RoutesHelper::WebuiMatcher) do
       get 'package/rdiff/:project/:package' => :rdiff, constraints: cons, as: 'package_rdiff'
       post 'package/create/:project' => :create, constraints: cons, as: 'packages'
       get 'package/new/:project' => :new, constraints: cons, as: 'new_package'
-      post 'package/save/:project/:package' => :save, constraints: cons, as: 'package_save'
       post 'package/remove/:project/:package' => :remove, constraints: cons
       post 'package/save_person/:project/:package' => :save_person, constraints: cons, as: 'package_save_person'
       post 'package/save_group/:project/:package' => :save_group, constraints: cons, as: 'package_save_group'
