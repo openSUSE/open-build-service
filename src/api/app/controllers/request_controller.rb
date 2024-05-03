@@ -29,7 +29,7 @@ class RequestController < ApplicationController
     # if all params areblank, something is wrong
     raise RequireFilter if %i[project user states types reviewstates ids].all? { |f| params[f].blank? }
 
-    # convert comma seperated values into arrays
+    # convert comma separated values into arrays
     params[:roles] = params[:roles].split(',') if params[:roles]
     params[:types] = params[:types].split(',') if params[:types]
     params[:states] = params[:states].split(',') if params[:states]

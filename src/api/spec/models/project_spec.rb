@@ -605,7 +605,7 @@ RSpec.describe Project, :vcr do
   describe '#basename' do
     subject { create(:project, name: 'foo:bar:baz') }
 
-    it "returns the lowest level of ':' seperated subproject names" do
+    it "returns the lowest level of ':' separated subproject names" do
       expect(subject.basename).to eq('baz')
     end
   end

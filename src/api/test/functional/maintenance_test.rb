@@ -506,7 +506,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'old', attributes:  { package: 'pack2.linked' }
     assert_match(/-&lt;link package="pack2"/, @response.body)
     assert_match(/\+&lt;link package="pack2.ServicePack_Update"/, @response.body)
-    # two seperate sourcediffs in each action included
+    # two separate sourcediffs in each action included
     assert_xml_tag child: { tag: 'old', attributes: { project: 'ServicePack:Update', package: 'pack2' } },
                    sibling: { tag: 'target', attributes: { project: 'ServicePack:Update', package: 'pack2.100' } },
                    tag: 'sourcediff'
