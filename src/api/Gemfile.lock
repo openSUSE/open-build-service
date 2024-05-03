@@ -130,6 +130,7 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
+    csv (3.3.0)
     daemons (1.4.1)
     dalli (3.2.8)
     data_migrate (9.3.0)
@@ -209,7 +210,8 @@ GEM
       rubocop (>= 1.0)
       sysexits (~> 1.1)
     hashdiff (1.1.0)
-    httparty (0.21.0)
+    httparty (0.22.0)
+      csv
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
     i18n (1.14.4)
