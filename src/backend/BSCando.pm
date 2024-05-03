@@ -57,6 +57,8 @@ our %cando = (
 
   'ia64'    => [ 'ia64' ],
 
+  'loongarch64' => [ 'loongarch64' ],
+
   'riscv64' => [ 'riscv64' ],
 
   's390'    => [ 's390' ],
