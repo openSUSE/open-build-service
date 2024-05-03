@@ -184,6 +184,9 @@ paths:
   /group/{group_title}:
     $ref: 'paths/group_group_title.yaml'
 
+  /image_templates:
+    $ref: 'paths/image_templates.yaml'
+
   /issue_trackers:
     $ref: 'paths/issue_trackers.yaml'
   /issue_trackers/{issue_tracker_name}:
