@@ -1,5 +1,0 @@
-.form-group.px-4.py-1.d-flex.justify-content-between
-  = label_tag(@filter_item, 'Action', class: 'visually-hidden')
-  = select_tag(@filter_item,
-               options_for_select(@filter_options, @selected_value),
-               class: 'form-control form-select')
