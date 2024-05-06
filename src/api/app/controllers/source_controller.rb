@@ -483,7 +483,7 @@ class SourceController < ApplicationController
     Project.find_by_name(params[:project])
 
     path = request.path_info
-    path += build_query_from_hash(params, %i[cmd user comment])
+    path += build_query_from_hash(params, %i[cmd user comment days])
     pass_to_backend(path)
   end
 

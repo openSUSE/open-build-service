@@ -473,6 +473,8 @@ Additional Parameters:
   flag: modify this flag (build/publish/..) for set_flag command
   repository: set_flag for given repository or release just this repository (optional)
   status: enable or disable for set_flag command
+  # for extendkey
+  days: define the number of days until expiry
   # for modifychannels and addchannels command only:
   mode: how to deal with disabled channels: add_disabled(default), skip_disabled, enable_all
   # for copy command only:
