@@ -8,6 +8,13 @@ User:
     applied, it will include requests where the user is maintainer of the target or the creator of
     the request.
   example: hans
+Group:
+  in: query
+  name: group
+  schema:
+    type: string
+  description: Filter the results of requests and open reviews for a certain group.
+  example: obs-group
 Project:
   in: query
   name: project
@@ -33,6 +40,13 @@ States:
     type: string
   description: Limit results to a given request state. Multiple states can be provided as a comma separated list.
   example: new,review
+ReviewStates:
+  in: query
+  name: reviewstates
+  schema:
+    type: string
+  description: Limit results to a given review state. Multiple states can be provided as a comma separated list.
+  example: new,declined,accepted,superseded,obsoleted
 Types:
   in: query
   name: types

@@ -1,23 +1,27 @@
 get:
-  summary: Get a collection of requests for a specified target
+  summary: Get a collection of requests for a specified target.
   description: |
-    Get a collection of requests for a specified target. **NOTE:**
-    You need to set at least one of the following parameters in order
-    to use this endpoint:
+    Get a collection of requests for a specified target.
+
+    **NOTE:** You need to set at least one of the following parameters in order to use this endpoint:
 
     * `user`
+    * `group`
     * `project`
     * `package`
     * `states`
+    * `reviewstates`
     * `types`
     * `ids`
   security:
     - basic_authentication: []
   parameters:
     - $ref: '../components/parameters/request.yaml#/User'
+    - $ref: '../components/parameters/request.yaml#/Group'
     - $ref: '../components/parameters/request.yaml#/Project'
     - $ref: '../components/parameters/request.yaml#/Package'
     - $ref: '../components/parameters/request.yaml#/States'
+    - $ref: '../components/parameters/request.yaml#/ReviewStates'
     - $ref: '../components/parameters/request.yaml#/Types'
     - $ref: '../components/parameters/request.yaml#/Roles'
     - $ref: '../components/parameters/request.yaml#/WithHistory'
