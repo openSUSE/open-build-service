@@ -97,29 +97,27 @@ class BsRequestPermissionCheck
     target_project = req.bs_request_actions.first.target_project_object
     user_is_staging_manager = User.session!.groups_users.exists?(group: target_project.staging.managers_group) if target_project && target_project.staging
 
-    permission_granted = false
-    if User.admin_session?
-      permission_granted = true
-    elsif opts[:newstate] == 'deleted'
+    if opts[:newstate] == 'deleted' && !User.admin_session?
       raise PostRequestNoPermission, 'Deletion of a request is only permitted for administrators. Please revoke the request instead.'
     end
 
-    if opts[:newstate].in?(%w[new review revoked superseded]) && req.creator == User.session!.login
+    permission_granted =
+      User.admin_session? ||
+
       # request creator can reopen, revoke or supersede a request which was declined
-      permission_granted = true
-    elsif opts[:newstate] == 'revoked' && req.creator == opts[:override_creator]
+      (opts[:newstate].in?(%w[new review revoked superseded]) && req.creator == User.session!.login) ||
+
       # NOTE: request should be revoked if project is removed.
       # override_creator is needed if the logged in user is different than the creator of the request
       # at the time of removing the project.
-      permission_granted = true
-    elsif req.state == :declined && opts[:newstate].in?(%w[new review]) && (req.commenter == User.session!.login || user_is_staging_manager)
+      (opts[:newstate] == 'revoked' && req.creator == opts[:override_creator]) ||
+
       # people who declined a request shall also be able to reopen it
 
       # NOTE: Staging managers should be able to repoen a request to unstage a declined request.
       # The reason behind `user_is_staging_manager`, is that we need to manage reviews to send
       # the request to the staging backlog.
-      permission_granted = true
-    end
+      (req.state == :declined && opts[:newstate].in?(%w[new review]) && (req.commenter == User.session!.login || user_is_staging_manager))
 
     # permission and validation check for each action inside
     req.bs_request_actions.each do |action|

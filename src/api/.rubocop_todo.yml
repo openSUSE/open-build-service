@@ -108,15 +108,6 @@ Lint/Debugger:
     - 'spec/support/capybara.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 5
-# Configuration parameters: IgnoreLiteralBranches, IgnoreConstantBranches.
-Lint/DuplicateBranch:
-  Exclude:
-    - 'app/controllers/source_project_controller.rb'
-    - 'app/mixins/parse_package_diff.rb'
-    - 'app/models/bs_request_permission_check.rb'
-    - 'app/models/service/name_validator.rb'
-
 # Offense count: 8
 # Configuration parameters: MaximumRangeSize.
 Lint/MissingCopEnableDirective:

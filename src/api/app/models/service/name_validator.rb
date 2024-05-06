@@ -18,12 +18,12 @@ class Service
 
       case name
       when /^[_.]/, /::/
-        false
+        return false
       when /\A\w[-+\w.:]*\z/
-        true
-      else
-        false
+        return true
       end
+
+      false
     end
   end
 end
