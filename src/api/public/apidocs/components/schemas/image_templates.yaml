@@ -1,0 +1,25 @@
+type: array
+items:
+  type: object
+  properties:
+    name:
+      type: string
+      xml:
+        attribute: true
+    image_template_package:
+      type: array
+      items:
+        type: object
+        properties:
+          name:
+            type: string
+          title:
+            type: string
+          description:
+            type: string
+  xml:
+    name: image_template_project
+    wrapped: true
+xml:
+  name: image_template_projects
+  wrapped: true

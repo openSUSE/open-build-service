@@ -1,0 +1,33 @@
+get:
+  summary: Get the list of image templates.
+  description: Get the list of image templates.
+  security:
+    - basic_authentication: []
+  responses:
+    '200':
+      description: List of image templates.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/image_templates.yaml'
+          example:
+            - name: openSUSE:Templates:Images:Tumbleweed
+              image_template_package:
+                - name: kiwi-templates-Minimal
+                  title: openSUSE Tumbleweed Minimal Images
+                  description: Images based on Tumbleweed for several platforms.
+                - name: minimal-container-image
+                  title: Application Container using KIWI
+                  description: |
+                    Starting ground to build a container image for openSUSE:Factory.
+
+                    It follows the requirements outlined on https://en.opensuse.org/Building_derived_containers.
+            - name: OBS:Flatpak:Templates
+              image_template_package:
+                - name: FlatpakTemplate
+                  title: Flatpak manifest template
+                  description: This is an example template how to build a Flatpak app in Open Build Service (OBS)
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - General Information
