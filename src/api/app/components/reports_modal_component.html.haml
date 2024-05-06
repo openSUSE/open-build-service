@@ -14,7 +14,8 @@
             = report.category.humanize
           .ms-4
             %p= report.reason
-            = link_to('Show more', report_path(report))
+            - comments = Comment.where(commentable: report)
+            = link_to(pluralize(comments.count, 'comment'), report_path(report))
       - if policy(Decision.new).create?
         = form_for(:decision, url: decisions_path, method: :post) do |form|
           .modal-body{ 'data-canned-controller': '' }
