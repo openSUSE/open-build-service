@@ -149,9 +149,9 @@ our $published_db_sqlite = 1;
 # "ppc64" => [ "openSUSE:Factory", "FATE" ],
 #};
 
-# optional: allow seperation of releasnumber syncing per architecture
+# optional: allow separation of releasnumber syncing per architecture
 # one counter pool for all ppc architectures, one for i586/x86_64,
-# arm archs are seperated and one for the rest in this example
+# arm archs are separated and one for the rest in this example
 our $relsync_pool = {
  "local" => "local",
  "i586" => "i586",
@@ -234,7 +234,7 @@ our $relsync_pool = {
 
 ###
 # Optional support to split the binary backend. This can be used on large servers
-# to seperate projects for better scalability.
+# to separate projects for better scalability.
 # There is still just one source server, but there can be multiple servers which
 # run each repserver, schedulers, dispatcher, warden and publisher
 #

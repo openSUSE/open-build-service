@@ -267,7 +267,7 @@
               <optional>
                 <element name="archfilter">
                   <!--
-                  A coma seperated list of binary architectures to import.
+                  A comma separated list of binary architectures to import.
                   By default all of them are made available.
                   -->
                   <text/>

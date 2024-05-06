@@ -543,7 +543,7 @@ sub useToPackages( $$$ )
                         }
 			push @packages, \%tmp;
 
-                        # seperate list of supportstatus values if defined
+                        # separate list of supportstatus values if defined
                         if (defined($addPack->{supportstatus})) {
 			   my %stmp;
                            $stmp{$addPack->{name}} = $addPack->{supportstatus};
