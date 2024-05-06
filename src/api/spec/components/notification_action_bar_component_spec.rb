@@ -2,7 +2,7 @@ RSpec.describe NotificationActionBarComponent, type: :component do
   context 'for unread notifications' do
     before do
       User.session = create(:user)
-      render_inline(described_class.new(type: 'unread', update_path: 'my/notifications', show_read_all_button: true))
+      render_inline(described_class.new(selected_filter: { unread: 1 }, update_path: 'my/notifications', show_read_all_button: true))
     end
 
     it do
@@ -25,7 +25,7 @@ RSpec.describe NotificationActionBarComponent, type: :component do
   context 'for read notifications' do
     before do
       User.session = create(:user)
-      render_inline(described_class.new(type: 'read', update_path: 'my/notifications?type=read', show_read_all_button: true))
+      render_inline(described_class.new(selected_filter: { read: 1 }, update_path: 'my/notifications?read=1', show_read_all_button: true))
     end
 
     it do
@@ -33,7 +33,7 @@ RSpec.describe NotificationActionBarComponent, type: :component do
     end
 
     it do
-      expect(rendered_content).to have_link(href: 'my/notifications?type=read&update_all=true')
+      expect(rendered_content).to have_link(href: 'my/notifications?read=1&update_all=true')
     end
 
     it do

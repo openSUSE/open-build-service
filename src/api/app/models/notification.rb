@@ -3,6 +3,9 @@ class Notification < ApplicationRecord
   MAX_RSS_ITEMS_PER_GROUP = 10
   MAX_PER_PAGE = 300
 
+  EVENT_TYPES = ['Event::CreateReport', 'Event::ReportForRequest', 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForComment',
+                 'Event::ReportForUser', 'Event::ClearedDecision', 'Event::FavoredDecision', 'Event::AppealCreated'].freeze
+
   belongs_to :subscriber, polymorphic: true, optional: true
   belongs_to :notifiable, polymorphic: true, optional: true
 
@@ -18,6 +21,25 @@ class Notification < ApplicationRecord
 
   scope :for_web, -> { where(web: true) }
   scope :for_rss, -> { where(rss: true) }
+
+  scope :read, -> { where(delivered: true) }
+  scope :unread, -> { where(delivered: false) }
+
+  scope :comments, -> { where(notifiable_type: 'Comment') }
+  scope :requests, -> { where(notifiable_type: 'BsRequest') }
+  scope :with_notifiable, -> { where.not(notifiable_id: nil).where.not(notifiable_type: nil) }
+  scope :without_notifiable, -> { where(notifiable_id: nil, notifiable_type: nil) }
+  scope :incoming_requests, ->(user) { where(notifiable: user.incoming_requests(states: BsRequest::VALID_REQUEST_STATES)) }
+  scope :outgoing_requests, ->(user) { where(notifiable: user.outgoing_requests(states: BsRequest::VALID_REQUEST_STATES)) }
+  scope :relationships_created, -> { where(event_type: 'Event::RelationshipCreate') }
+  scope :relationships_deleted, -> { where(event_type: 'Event::RelationshipDelete') }
+  scope :build_failures, -> { where(event_type: 'Event::BuildFail') }
+  # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
+  scope :reports, -> { where(event_type: EVENT_TYPES) }
+  scope :workflow_runs, -> { where(event_type: 'Event::WorkflowRunFail') }
+  scope :appealed_decisions, -> { where(event_type: 'Event::AppealCreated') }
+  scope :for_project, ->(name) { joins(:projects).where(projects: { name: name }) }
+  scope :for_group, ->(name) { joins(:groups).where(groups: { title: name }) }
 
   def event
     @event ||= event_type.constantize.new(event_payload)

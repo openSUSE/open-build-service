@@ -6,7 +6,7 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 275
+# Offense count: 271
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: link_or_button, strict
 Capybara/ClickLinkOrButtonStyle:
@@ -61,7 +61,7 @@ FactoryBot/ExcessiveCreateList:
   Exclude:
     - 'spec/controllers/webui/monitor_controller_spec.rb'
 
-# Offense count: 25
+# Offense count: 26
 # Configuration parameters: Include.
 # Include: **/*_spec.rb, **/spec/**/*, **/test/**/*, **/features/support/factories/**/*.rb
 FactoryBot/FactoryAssociationWithStrategy:
@@ -83,7 +83,7 @@ FactoryBot/FactoryAssociationWithStrategy:
     - 'spec/factories/watched_items.rb'
     - 'spec/factories/workflow_runs.rb'
 
-# Offense count: 3285
+# Offense count: 3290
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, AllowedPatterns.
 # URISchemes: http, https
@@ -182,7 +182,7 @@ Metrics/BlockNesting:
     - 'app/models/bs_request_action.rb'
     - 'lib/xpath_engine.rb'
 
-# Offense count: 86
+# Offense count: 87
 # Configuration parameters: CountComments, Max, CountAsOne.
 Metrics/ClassLength:
   Exclude:
@@ -206,6 +206,7 @@ Metrics/ClassLength:
     - 'app/controllers/webui/request_controller.rb'
     - 'app/controllers/webui/search_controller.rb'
     - 'app/controllers/webui/staging/workflows_controller.rb'
+    - 'app/controllers/webui/users/notifications_controller.rb'
     - 'app/controllers/webui/users_controller.rb'
     - 'app/controllers/webui/webui_controller.rb'
     - 'app/lib/authenticator.rb'
@@ -273,7 +274,7 @@ Metrics/ClassLength:
     - 'test/unit/publish_flag_test.rb'
     - 'test/unit/user_test.rb'
 
-# Offense count: 190
+# Offense count: 191
 # Configuration parameters: AllowedMethods, AllowedPatterns, Max.
 Metrics/CyclomaticComplexity:
   Exclude:
@@ -303,6 +304,7 @@ Metrics/CyclomaticComplexity:
     - 'app/controllers/webui/request_controller.rb'
     - 'app/controllers/webui/search_controller.rb'
     - 'app/controllers/webui/staging/workflows_controller.rb'
+    - 'app/controllers/webui/users/notifications_controller.rb'
     - 'app/helpers/flag_helper.rb'
     - 'app/helpers/maintenance_helper.rb'
     - 'app/helpers/model_helper.rb'
@@ -364,7 +366,7 @@ Metrics/CyclomaticComplexity:
     - 'test/functional/zzz_post_consistency_test.rb'
     - 'test/node_matcher.rb'
 
-# Offense count: 989
+# Offense count: 992
 # Configuration parameters: CountComments, CountAsOne, AllowedMethods, AllowedPatterns.
 Metrics/MethodLength:
   Max: 221
@@ -380,7 +382,7 @@ Metrics/ModuleLength:
     - 'app/helpers/webui/user_helper.rb'
     - 'app/models/concerns/has_relationships.rb'
 
-# Offense count: 19
+# Offense count: 20
 # Configuration parameters: Max, CountKeywordArgs, MaxOptionalParameters.
 Metrics/ParameterLists:
   Exclude:
@@ -397,7 +399,7 @@ Metrics/ParameterLists:
     - 'test/functional/read_permission_test.rb'
     - 'test/functional/source_controller_test.rb'
 
-# Offense count: 161
+# Offense count: 162
 # Configuration parameters: AllowedMethods, AllowedPatterns, Max.
 Metrics/PerceivedComplexity:
   Exclude:
@@ -422,6 +424,7 @@ Metrics/PerceivedComplexity:
     - 'app/controllers/webui/projects/status_controller.rb'
     - 'app/controllers/webui/request_controller.rb'
     - 'app/controllers/webui/search_controller.rb'
+    - 'app/controllers/webui/users/notifications_controller.rb'
     - 'app/helpers/flag_helper.rb'
     - 'app/helpers/maintenance_helper.rb'
     - 'app/helpers/model_helper.rb'
@@ -644,7 +647,7 @@ RSpec/AnyInstance:
     - 'spec/models/project_spec.rb'
     - 'spec/policies/package_policy_spec.rb'
 
-# Offense count: 1282
+# Offense count: 1279
 # Configuration parameters: Prefixes, AllowedPatterns.
 # Prefixes: when, with, without
 RSpec/ContextWording:
@@ -657,7 +660,7 @@ RSpec/ContextWording:
 RSpec/DescribedClass:
   Enabled: false
 
-# Offense count: 216
+# Offense count: 214
 # Configuration parameters: Max, CountAsOne.
 RSpec/ExampleLength:
   Exclude:
@@ -769,7 +772,7 @@ RSpec/MessageSpies:
     - 'spec/controllers/webui/apidocs_controller_spec.rb'
     - 'spec/models/kiwi/image_spec.rb'
 
-# Offense count: 1652
+# Offense count: 1641
 # Configuration parameters: AllowSubject.
 RSpec/MultipleMemoizedHelpers:
   Max: 28
@@ -876,7 +879,7 @@ Rails/HelperInstanceVariable:
     - 'app/helpers/webui/project_helper.rb'
     - 'app/helpers/webui/webui_helper.rb'
 
-# Offense count: 37
+# Offense count: 38
 # Configuration parameters: IgnoreScopes, Include.
 # Include: app/models/**/*.rb
 Rails/InverseOf:
@@ -1015,7 +1018,7 @@ Rails/TimeZone:
     - 'test/unit/binary_release_test.rb'
     - 'test/unit/package_remove_test.rb'
 
-# Offense count: 163
+# Offense count: 164
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: nested, compact
@@ -1050,7 +1053,7 @@ Style/ConditionalAssignment:
   Exclude:
     - 'app/models/bs_request_action_submit.rb'
 
-# Offense count: 1069
+# Offense count: 1082
 # Configuration parameters: AllowedConstants.
 Style/Documentation:
   Enabled: false
@@ -1062,7 +1065,7 @@ Style/ExplicitBlockArgument:
     - 'app/lib/backend/connection.rb'
     - 'app/models/project.rb'
 
-# Offense count: 1844
+# Offense count: 1867
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: always, always_true, never
@@ -1075,7 +1078,7 @@ Style/HashExcept:
   Exclude:
     - 'spec/models/user_ldap_strategy_spec.rb'
 
-# Offense count: 305
+# Offense count: 306
 # This cop supports safe autocorrection (--autocorrect).
 Style/IfUnlessModifier:
   Enabled: false
@@ -1204,7 +1207,7 @@ ViewComponent/AvoidGlobalState:
     - 'app/components/notification_filter_component.rb'
     - 'app/components/user_avatar_component.rb'
 
-# Offense count: 25
+# Offense count: 22
 ViewComponent/MissingPreviewFile:
   Exclude:
     - 'app/components/action_seen_by_user_component.rb'

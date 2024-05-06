@@ -19,8 +19,6 @@ class NotificationMarkButtonComponent < ApplicationComponent
   end
 
   def update_path
-    my_notifications_path(notification_ids: [@notification.id], type: @selected_filter[:type],
-                          project: @selected_filter[:project], group: @selected_filter[:group],
-                          page: @page, show_more: @show_more)
+    my_notifications_path(notification_ids: [@notification.id], params: @selected_filter, page: @page, show_more: @show_more)
   end
 end

@@ -2,19 +2,17 @@
   .card
     .card-body
       %p
-        - case selected_filter[:type]
-        - when 'reviews', 'comments', 'requests'
-          There are no notifications for this filter
-        - when 'read'
-          Mark notifications as "Read" and they'll appear here
-        - else
+        - if selected_filter.empty?
           There are no notifications, but there's a world of opportunities!
+        - else
+          There are no notifications for the current filter selection
 - else
   :ruby
-    update_path = my_notifications_path(type: selected_filter[:type], project: selected_filter[:project], group: selected_filter[:group],
-                                        page: params[:page], show_more: params[:show_more])
+    update_path = my_notifications_path(params: selected_filter, page: params[:page], show_more: params[:show_more])
   = form_tag(update_path, method: :put, remote: true) do
-    = render(NotificationActionBarComponent.new(type: selected_filter[:type], update_path: update_path, show_read_all_button: show_read_all_button))
+    = render(NotificationActionBarComponent.new(selected_filter: selected_filter,
+                                                update_path: update_path,
+                                                show_read_all_button: show_read_all_button))
     .card
       .card-body
         .text-center

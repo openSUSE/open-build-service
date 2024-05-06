@@ -1,6 +1,6 @@
 RSpec.describe Webui::Users::NotificationsController do
   let(:username) { 'reynoldsm' }
-  let!(:user) { create(:confirmed_user, login: username) }
+  let!(:user) { create(:confirmed_user, :with_home, login: username) }
   let!(:other_user) { create(:confirmed_user) }
   let(:state_change_notification) { create(:web_notification, :request_state_change, subscriber: user) }
   let(:creation_notification) { create(:web_notification, :request_created, subscriber: user) }
@@ -50,8 +50,8 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
-    context "when param type is 'read'" do
-      let(:params) { default_params.merge(type: 'read') }
+    context "when filtering by 'read' param" do
+      let(:params) { default_params.merge(read: 1) }
 
       before do
         subject
@@ -59,13 +59,13 @@ RSpec.describe Webui::Users::NotificationsController do
 
       it_behaves_like 'returning success'
 
-      it 'sets @notifications to all delivered notifications regardless of type' do
-        expect(assigns[:notifications]).to include(read_notification)
+      it 'sets @notifications to all delivered notifications' do
+        expect(assigns[:notifications]).equal?(read_notification)
       end
     end
 
-    context "when param type is 'build_failures'" do
-      let(:params) { default_params.merge(type: 'build_failures') }
+    context "when filtering by 'build_failures' param" do
+      let(:params) { default_params.merge(build_failures: 1) }
 
       before do
         subject
@@ -74,12 +74,12 @@ RSpec.describe Webui::Users::NotificationsController do
       it_behaves_like 'returning success'
 
       it "sets @notifications to all undelivered notifications of 'build_failures' type" do
-        expect(assigns[:notifications]).to include(build_failure)
+        expect(assigns[:notifications]).equal?(build_failure)
       end
     end
 
-    context "when param type is 'comments'" do
-      let(:params) { default_params.merge(type: 'comments') }
+    context "when filtering by 'comments' param" do
+      let(:params) { default_params.merge(comments: 1) }
 
       before do
         subject
@@ -94,8 +94,8 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
-    context "when param type is 'requests'" do
-      let(:params) { default_params.merge(type: 'requests') }
+    context "when filtering by 'requests' parameter" do
+      let(:params) { default_params.merge(requests: 1) }
 
       before do
         subject
@@ -109,7 +109,7 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
-    context "when param type is 'incoming_requests'" do
+    context "when filtering by 'incoming_requests' param" do
       let(:admin_user) { create(:admin_user, login: 'king') }
       let(:target_package) { create(:package) }
       let(:source_package) { create(:package, :as_submission_source) }
@@ -125,7 +125,7 @@ RSpec.describe Webui::Users::NotificationsController do
       let!(:request_created_notification) { create(:web_notification, :request_created, notifiable: maintained_request, subscriber: user) }
       let!(:review_wanted_notification) { review_notification }
 
-      let(:params) { default_params.merge(type: 'incoming_requests') }
+      let(:params) { default_params.merge(incoming_requests: 1) }
 
       before do
         subject
@@ -142,7 +142,7 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
-    context "when param type is 'outgoing_requests'" do
+    context "when filtering by 'outgoing_requests' param" do
       let(:admin_user) { create(:admin_user, login: 'king') }
       let(:target_package) { create(:package) }
       let(:source_package) { create(:package, :as_submission_source) }
@@ -163,7 +163,7 @@ RSpec.describe Webui::Users::NotificationsController do
       let!(:state_change_to_declined_notification) { create(:web_notification, :request_state_change, notifiable: declined_bs_request, subscriber: user) }
       let(:request_created_notification) { create(:web_notification, :request_created, notifiable: maintained_request, subscriber: user) }
 
-      let(:params) { default_params.merge(type: 'outgoing_requests') }
+      let(:params) { default_params.merge(outgoing_requests: 1) }
 
       before do
         subject
@@ -177,6 +177,29 @@ RSpec.describe Webui::Users::NotificationsController do
 
       it "@notifications does not include incoming requests for 'outgoing_requests' type" do
         expect(assigns[:notifications]).not_to include(request_created_notification.reload)
+      end
+    end
+
+    context 'when filtering by project name' do
+      let(:params) { { project: { user.home_project_name => 1 } } }
+
+      before do
+        comment_for_project_notification.projects << user.home_project
+        subject
+      end
+
+      it_behaves_like 'returning success'
+
+      it 'something' do
+        expect(assigns[:selected_filter][:project]).to eql(user.home_project_name => '1')
+      end
+
+      it 'assigns notifications with all notifications' do
+        expect(assigns[:notifications]).equal?(comment_for_project_notification)
+      end
+
+      it 'does not return the notifications for the other user' do
+        expect(assigns[:notifications]).not_to include(notifications_for_other_users)
       end
     end
   end
@@ -217,7 +240,7 @@ RSpec.describe Webui::Users::NotificationsController do
     context 'when a user marks one of their read notifications as unread' do
       subject! do
         login user_to_log_in
-        put :update, params: { notification_ids: [read_notification.id], type: 'read', user_login: user_to_log_in.login }, xhr: true
+        put :update, params: { notification_ids: [read_notification.id], read: 1, user_login: user_to_log_in.login }, xhr: true
       end
 
       let(:user_to_log_in) { user }

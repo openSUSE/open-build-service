@@ -1,7 +1,8 @@
 class NotificationFilterComponent < ApplicationComponent
-  def initialize(selected_filter:, user:, projects_for_filter: ProjectsForFilterFinder.new.call, groups_for_filter: GroupsForFilterFinder.new.call)
+  def initialize(relations:, selected_filter:, user:, projects_for_filter: ProjectsForFilterFinder.new.call, groups_for_filter: GroupsForFilterFinder.new.call)
     super
 
+    @relations = relations
     @user = user
     @projects_for_filter = projects_for_filter
     @groups_for_filter = groups_for_filter
@@ -12,16 +13,19 @@ class NotificationFilterComponent < ApplicationComponent
   # TODO: Turn this into a query object `NotificationsCounter` and pass this as a default value
   #       to a keyword argument `count` in the `initialize` method
   def notifications_count
-    finder = NotificationsFinder.new(User.session.notifications.for_web)
-    counted_notifications = finder.unread.group(:notifiable_type).count
-    counted_notifications['incoming_requests'] = finder.for_incoming_requests.count
-    counted_notifications['outgoing_requests'] = finder.for_outgoing_requests.count
-    counted_notifications['relationships_created'] = finder.for_relationships_created.count
-    counted_notifications['relationships_deleted'] = finder.for_relationships_deleted.count
-    counted_notifications['build_failures'] = finder.for_failed_builds.count
-    counted_notifications['reports'] = finder.for_reports.count
-    counted_notifications['workflow_runs'] = finder.for_workflow_runs.count
-    counted_notifications['appealed_decisions'] = finder.for_appealed_decisions.count
-    counted_notifications.merge!('unread' => User.session.unread_notifications)
+    counted_notifications = {}
+    counted_notifications['unread'] = @relations.unread.count
+    counted_notifications['read'] = @relations.read.count
+    counted_notifications['comments'] = @relations.comments.count
+    counted_notifications['requests'] = @relations.requests.count
+    counted_notifications['incoming_requests'] = @relations.incoming_requests(User.session).count
+    counted_notifications['outgoing_requests'] = @relations.outgoing_requests(User.session).count
+    counted_notifications['relationships_created'] = @relations.relationships_created.count
+    counted_notifications['relationships_deleted'] = @relations.relationships_deleted.count
+    counted_notifications['build_failures'] = @relations.build_failures.count
+    counted_notifications['reports'] = @relations.reports.count
+    counted_notifications['workflow_runs'] = @relations.workflow_runs.count
+    counted_notifications['appealed_decisions'] = @relations.appealed_decisions.count
+    counted_notifications
   end
 end

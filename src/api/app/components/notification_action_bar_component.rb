@@ -1,23 +1,25 @@
 # frozen_string_literal: true
 
 class NotificationActionBarComponent < ApplicationComponent
-  attr_accessor :type, :update_path, :show_read_all_button
+  attr_accessor :selected_filter, :update_path, :show_read_all_button
 
-  def initialize(type:, update_path:, show_read_all_button: false)
+  def initialize(selected_filter:, update_path:, show_read_all_button: false)
     super
 
-    @type = type
+    @selected_filter = selected_filter
     @update_path = add_params(update_path)
     @show_read_all_button = show_read_all_button
   end
 
   def button_text(all: false)
-    text = type == 'read' ? 'Unread' : 'Read'
-    if all
-      "Mark all as '#{text}'"
-    else
-      "Mark selected as '#{text}'"
-    end
+    text = selected_filter[:read].present? ? 'Unread' : 'Read'
+    selection_text = all ? 'all' : 'selected'
+
+    "Mark #{selection_text} as '#{text}'"
+  end
+
+  def multiple_selection_button_disabled?
+    %w[unread read].all? { |p| @selected_filter[p] }
   end
 
   def disable_with_content(all: false)

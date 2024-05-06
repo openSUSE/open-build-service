@@ -1,43 +1,80 @@
-.list-group.list-group-flush.my-2
-  = render NotificationFilterLinkComponent.new(text: 'Unread', amount: @count['unread'],
-                                               filter_item: { type: 'unread' }, selected_filter: @selected_filter)
-  = render NotificationFilterLinkComponent.new(text: 'Read', filter_item: { type: 'read' },
-                                               selected_filter: @selected_filter)
-.list-group.list-group-flush.mt-5.mb-2
-  %h5.ms-3 Filter
-  = render NotificationFilterLinkComponent.new(text: 'Comments', amount: @count['Comment'], icon: 'fas fa-comments',
-                                               filter_item: { type: 'comments' }, selected_filter: @selected_filter)
-  = render NotificationFilterLinkComponent.new(text: 'Requests', amount: @count['BsRequest'], icon: 'fas fa-code-pull-request',
-                                               filter_item: { type: 'requests' }, selected_filter: @selected_filter)
-  = render NotificationFilterLinkComponent.new(text: 'Incoming Requests', amount: @count['incoming_requests'], icon: 'fas fa-code-pull-request',
-                                               filter_item: { type: 'incoming_requests' }, selected_filter: @selected_filter)
-  = render NotificationFilterLinkComponent.new(text: 'Outgoing Requests', amount: @count['outgoing_requests'], icon: 'fas fa-code-pull-request',
-                                               filter_item: { type: 'outgoing_requests' }, selected_filter: @selected_filter)
-  = render NotificationFilterLinkComponent.new(text: 'Roles Granted', amount: @count['relationships_created'], icon: 'fas fa-user-tag',
-                                               filter_item: { type: 'relationships_created' }, selected_filter: @selected_filter)
-  = render NotificationFilterLinkComponent.new(text: 'Roles Revoked', amount: @count['relationships_deleted'], icon: 'fas fa-user-tag',
-                                               filter_item: { type: 'relationships_deleted' }, selected_filter: @selected_filter)
-  = render NotificationFilterLinkComponent.new(text: 'Build Failures', amount: @count['build_failures'], icon: "fas fa-xmark text-danger",
-                                               filter_item: { type: 'build_failures' }, selected_filter: @selected_filter)
-  - if ReportPolicy.new(@user, Report).notify?
-    = render NotificationFilterLinkComponent.new(text: 'Reports', amount: @count['reports'], icon: 'fas fa-flag',
-                                                filter_item: { type: 'reports' }, selected_filter: @selected_filter,
-                                                )
-  = render NotificationFilterLinkComponent.new(text: 'Workflow Runs', amount: @count['workflow_runs'], icon: 'fas fa-book-open',
-                                               filter_item: { type: 'workflow_runs' }, selected_filter: @selected_filter)
-  - if Flipper.enabled?(:content_moderation, @user)
-    = render NotificationFilterLinkComponent.new(text: 'Appealed Decisions', amount: @count['appealed_decisions'], icon: 'fas fa-hand',
-                                                 filter_item: { type: 'appealed_decisions' }, selected_filter: @selected_filter)
+= form_for(:notification, url: my_notifications_path, method: :get) do |form|
+  .list-group.list-group-flush.mt-3.mb-2
+    %h6.px-3.py-2
+      %b Status
+    .px-4.py-1
+      = render partial: 'webui/shared/check_box', locals: { label: 'Unread', amount: @count['unread'] || 0,
+                                                            key: 'unread', checked: @selected_filter[:unread] }
+    .px-4.py-1
+      = render partial: 'webui/shared/check_box', locals: { label: 'Read', amount: @count['read'] || 0,
+                                                            key: 'read', checked: @selected_filter[:read] }
 
-- unless @projects_for_filter.empty?
-  .list-group.list-group-flush.mt-5.mb-2
-    %h5.ms-3 Projects
-    - @projects_for_filter.each_pair do |project_name, amount|
-      = render NotificationFilterLinkComponent.new(text: project_name, amount: amount, filter_item: { project: project_name },
-                                                   selected_filter: @selected_filter)
-- unless @groups_for_filter.empty?
-  .list-group.list-group-flush.mt-5.mb-2
-    %h5.ms-3 Groups
-    - @groups_for_filter.each_pair do |group_title, amount|
-      = render NotificationFilterLinkComponent.new(text: group_title, amount: amount, filter_item: { group: group_title },
-                                                   selected_filter: @selected_filter)
+  .list-group.list-group-flush.mt-4.mb-4
+    %h6.px-3.py-2
+      %b Type
+    .px-4.py-1
+      = render partial: 'webui/shared/check_box', locals: { label: 'Comments', amount: @count['comments'] || 0,
+                                                            key: 'comments', label_icon: 'fas fa-comments',
+                                                            checked: @selected_filter[:comments] }
+    .px-4.py-1
+      = render partial: 'webui/shared/check_box', locals: { label: 'Requests', amount: @count['requests'] || 0,
+                                                            key: 'requests', label_icon: 'fas fa-code-pull-request',
+                                                            checked: @selected_filter[:requests] }
+    .px-4.py-1
+      = render partial: 'webui/shared/check_box', locals: { label: 'Incoming Requests', amount: @count['incoming_requests'] || 0,
+                                                            key: 'incoming_requests', label_icon: 'fas fa-code-pull-request',
+                                                            checked: @selected_filter[:incoming_requests] }
+    .px-4.py-1
+      = render partial: 'webui/shared/check_box', locals: { label: 'Outgoing Requests', amount: @count['outgoing_requests'] || 0,
+                                                            key: 'outgoing_requests', label_icon: 'fas fa-code-pull-request',
+                                                            checked: @selected_filter[:outgoing_requests] }
+    .px-4.py-1
+      = render partial: 'webui/shared/check_box', locals: { label: 'Roles Granted', amount: @count['relationships_created'] || 0,
+                                                            key: 'relationships_created', label_icon: 'fas fa-user-tag',
+                                                            checked: @selected_filter[:relationships_created] }
+    .px-4.py-1
+      = render partial: 'webui/shared/check_box', locals: { label: 'Roles Revoked', amount: @count['relationships_deleted'] || 0,
+                                                            key: 'relationships_deleted', label_icon: 'fas fa-user-tag',
+                                                            checked: @selected_filter[:relationships_deleted] }
+    .px-4.py-1
+      = render partial: 'webui/shared/check_box', locals: { label: 'Build Failures', amount: @count['build_failures'] || 0,
+                                                            key: 'build_failures', label_icon: 'fas fa-xmark text-danger',
+                                                            checked: @selected_filter[:build_failures] }
+    - if ReportPolicy.new(@user, Report).notify?
+      .px-4.py-1
+        = render partial: 'webui/shared/check_box', locals: { label: 'Reports', amount: @count['reports'] || 0,
+                                                              key: 'reports', label_icon: 'fas fa-flag',
+                                                              checked: @selected_filter[:reports] }
+    .px-4.py-1
+      = render partial: 'webui/shared/check_box', locals: { label: 'Workflow Runs', amount: @count['workflow_runs'] || 0,
+                                                            key: 'workflow_runs', label_icon: 'fas fa-book-open',
+                                                            checked: @selected_filter[:workflow_runs] }
+    - if Flipper.enabled?(:content_moderation, @user)
+      .px-4.py-1
+        = render partial: 'webui/shared/check_box', locals: { label: 'Appealed Decisions Runs', amount: @count['appealed_decisions'] || 0,
+                                                              key: 'appealed_decisions', label_icon: 'fas fa-hand',
+                                                              checked: @selected_filter[:appealed_decisions] }
+
+  - unless @projects_for_filter.empty?
+    .list-group.list-group-flush.mt-4.mb-4
+      %h6.px-3.py-2
+        %b Projects
+      - @projects_for_filter.each_pair do |project_name, amount|
+        .px-4.py-1
+          = render partial: 'webui/shared/check_box', locals: { label: project_name, amount: amount || 0,
+                                                                key: "project[#{project_name}]",
+                                                                checked: @selected_filter.dig(:project, project_name) }
+  - unless @groups_for_filter.empty?
+    .list-group.list-group-flush.mt-4.mb-4
+      %h6.px-3.py-2
+        %b Groups
+      - @groups_for_filter.each_pair do |group_title, amount|
+        .px-4.py-1
+          = render partial: 'webui/shared/check_box', locals: { label: group_title, amount: amount || 0,
+                                                                key: "group[#{group_title}]",
+                                                                checked: @selected_filter.dig(:group, group_title) }
+
+  .text-center.mt-4.mb-4
+    = link_to('Clear', my_notifications_path, class: 'btn btn-light border')
+    %button.btn.btn-info#filter-button{ type: :submit }
+      Apply
