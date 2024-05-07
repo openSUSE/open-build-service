@@ -704,7 +704,7 @@ class User < ApplicationRecord
 
   # list requests involving this user
   def declined_requests(search = nil)
-    result = requests_created.in_states(:declined).with_actions
+    result = requests_created.where(state: :declined).with_actions
     search.present? ? result.do_search(search) : result
   end
 
@@ -714,7 +714,7 @@ class User < ApplicationRecord
 
     result = BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_projects(involved_projects)).or(
       BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_packages(involved_packages))
-    ).with_actions.in_states(states)
+    ).with_actions.where(state: states)
 
     search.present? ? result.do_search(search) : result
   end
@@ -723,7 +723,7 @@ class User < ApplicationRecord
   def outgoing_requests(search = nil, all_states: false)
     states = all_states ? BsRequest::VALID_REQUEST_STATES : %i[new review]
 
-    result = requests_created.in_states(states).with_actions
+    result = requests_created.where(state: states).with_actions
     search.present? ? result.do_search(search) : result
   end
 
