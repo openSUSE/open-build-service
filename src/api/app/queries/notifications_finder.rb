@@ -28,11 +28,11 @@ class NotificationsFinder
   end
 
   def for_incoming_requests
-    @relation.where(notifiable: User.session.incoming_requests(all_states: true), delivered: false)
+    @relation.where(notifiable: User.session.incoming_requests(states: BsRequest::VALID_REQUEST_STATES), delivered: false)
   end
 
   def for_outgoing_requests
-    @relation.where(notifiable: User.session.outgoing_requests(all_states: true), delivered: false)
+    @relation.where(notifiable: User.session.outgoing_requests(states: BsRequest::VALID_REQUEST_STATES), delivered: false)
   end
 
   def for_relationships_created
