@@ -1,5 +1,4 @@
 class EventSubscription < ApplicationRecord
-  # TODO: remove watcher, source_watcher and target_watcher as soon as the renaming steps and migration are finished.
   RECEIVER_ROLE_TEXTS = {
     maintainer: 'Maintainer',
     bugowner: 'Bugowner',
@@ -9,9 +8,12 @@ class EventSubscription < ApplicationRecord
     reviewer: 'Reviewer',
     commenter: 'Commenter or mentioned user',
     creator: 'Creator',
-    watcher: 'Watching the project',
-    source_watcher: 'Watching the source project',
-    target_watcher: 'Watching the target project',
+    watcher: 'Watching the project',                       # TODO: remove on a following step of the renaming.
+    project_watcher: 'Watching the project',
+    source_watcher: 'Watching the source project',         # TODO: remove on a following step of the renaming.
+    source_project_watcher: 'Watching the source project',
+    target_watcher: 'Watching the target project',         # TODO: remove on a following step of the renaming.
+    target_project_watcher: 'Watching the target project',
     any_role: 'Any role',
     package_watcher: 'Watching the package',
     source_package_watcher: 'Watching the source package',
@@ -45,7 +47,8 @@ class EventSubscription < ApplicationRecord
 
   validates :receiver_role, inclusion: {
     in: %i[maintainer bugowner reader source_maintainer target_maintainer
-           reviewer commenter creator watcher source_watcher target_watcher
+           reviewer commenter creator
+           project_watcher source_project_watcher target_project_watcher
            package_watcher target_package_watcher source_package_watcher request_watcher any_role
            moderator reporter offender token_executor]
   }

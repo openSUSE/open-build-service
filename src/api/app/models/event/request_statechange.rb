@@ -3,7 +3,8 @@ module Event
     self.message_bus_routing_key = 'request.state_change'
     self.description = 'Request state was changed'
     payload_keys :oldstate, :duration
-    receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_watcher, :target_watcher,
+    # TODO: Remove the ':source_watcher' and the ':target_watcher' receiver roles on a following step of the renaming.
+    receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_watcher, :target_watcher, :source_project_watcher, :target_project_watcher,
                    :source_package_watcher, :target_package_watcher, :request_watcher
 
     create_jobs :report_to_scm_job
