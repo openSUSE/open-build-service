@@ -75,10 +75,7 @@ class Webui::PackageController < Webui::WebuiController
     @comments = @package.comments.includes(:user)
     @comment = Comment.new
 
-    if User.session && params[:notification_id]
-      @current_notification = Notification.find(params[:notification_id])
-      authorize @current_notification, :update?, policy_class: NotificationPolicy
-    end
+    @current_notification = handle_notification
 
     @services = @files.any? { |file| file['name'] == '_service' }
 
@@ -539,5 +536,15 @@ class Webui::PackageController < Webui::WebuiController
       end
     end
     true
+  end
+
+  def handle_notification
+    return unless User.session && params[:notification_id]
+
+    current_notification = Notification.find(params[:notification_id])
+
+    return unless NotificationPolicy.new(User.session, current_notification).update?
+
+    current_notification
   end
 end
