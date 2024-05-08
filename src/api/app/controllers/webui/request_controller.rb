@@ -50,7 +50,7 @@ class Webui::RequestController < Webui::WebuiController
       @comments = @bs_request.comments
       @comment = Comment.new
 
-      handle_notification
+      @current_notification = handle_notification
 
       @actions = @bs_request.webui_actions(filelimit: @diff_limit, tarlimit: @diff_limit, diff_to_superseded: @diff_to_superseded, diffs: false)
       @action = @actions.first
@@ -508,8 +508,11 @@ class Webui::RequestController < Webui::WebuiController
   def handle_notification
     return unless User.session && params[:notification_id]
 
-    @current_notification = Notification.find(params[:notification_id])
-    authorize @current_notification, :update?, policy_class: NotificationPolicy
+    current_notification = Notification.find(params[:notification_id])
+
+    return unless NotificationPolicy.new(User.session, current_notification).update?
+
+    current_notification
   end
 
   def prepare_request_data
@@ -544,7 +547,7 @@ class Webui::RequestController < Webui::WebuiController
     # Handling build results
     @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
 
-    handle_notification
+    @current_notification = handle_notification
   end
 
   def set_influxdb_data_request_actions
