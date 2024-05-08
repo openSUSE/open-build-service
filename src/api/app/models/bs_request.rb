@@ -32,7 +32,6 @@ class BsRequest < ApplicationRecord
   scope :with_source_subprojects, ->(project_name) { where('bs_request_actions.source_project like ?', project_name) }
   scope :with_target_subprojects, ->(project_name) { where('bs_request_actions.target_project like ?', project_name) }
 
-  scope :in_states, ->(states) { where(state: states) }
   scope :with_types, lambda { |types|
     includes(:bs_request_actions).where(bs_request_actions: { type: types }).distinct.order(priority: :asc, id: :desc)
   }

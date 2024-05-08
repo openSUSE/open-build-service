@@ -31,7 +31,7 @@ class RegenerateNotifications < ActiveRecord::Migration[5.2]
   # RequestCreated Notifications
 
   def create_request_create_notifications
-    new_requests = BsRequest.in_states(:new)
+    new_requests = BsRequest.where(state: :new)
 
     new_requests.each do |request|
       event = Event::RequestCreate.new(request.event_parameters)
@@ -42,7 +42,7 @@ class RegenerateNotifications < ActiveRecord::Migration[5.2]
   # RequestStatechange Notifications
 
   def create_request_statechange_notifications
-    declined_requests = BsRequest.in_states(:declined).where('created_at >= ?', 100.days.ago.midnight)
+    declined_requests = BsRequest.where(state: :declined).where('created_at >= ?', 100.days.ago.midnight)
 
     declined_requests.each do |request|
       event = Event::RequestStatechange.new(request.event_parameters)

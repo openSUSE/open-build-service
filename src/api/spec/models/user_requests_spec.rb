@@ -235,14 +235,6 @@ RSpec.describe User do
     it 'does not include requests in any other state except :new or :review' do
       expect(subject).not_to include(declined_bs_request)
     end
-
-    context 'with all_states enabled' do
-      subject { confirmed_user.outgoing_requests(all_states: true) }
-
-      it 'does include requests created by the user and in any state' do
-        expect(subject).to include(review_bs_request, declined_bs_request, new_bs_request)
-      end
-    end
   end
 
   describe '#incoming_requests' do
@@ -292,20 +284,6 @@ RSpec.describe User do
 
       it 'does nots include requests if search does not match' do
         expect(confirmed_user.incoming_requests('does not exist')).not_to include(maintained_request)
-      end
-
-      context 'with all_states enabled' do
-        subject { confirmed_user.incoming_requests(all_states: true) }
-
-        it 'does include requests in state new' do
-          expect(subject).to include(maintained_request)
-        end
-
-        it 'does include requests in any state' do
-          maintained_request.state = :review
-          maintained_request.save
-          expect(subject).to include(maintained_request, declined_bs_request)
-        end
       end
     end
 

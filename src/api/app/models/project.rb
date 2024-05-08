@@ -1165,23 +1165,23 @@ class Project < ApplicationRecord
       BsRequest.where(id: BsRequestAction.bs_request_ids_by_source_projects(name)).or(
         BsRequest.where(id: Review.bs_request_ids_of_involved_projects(id))
       )
-    ).in_states(:review).distinct.order(priority: :asc, id: :desc).pluck(:number)
+    ).where(state: :review).distinct.order(priority: :asc, id: :desc).pluck(:number)
 
     targets = BsRequest.with_involved_projects(id)
                        .or(BsRequest.from_source_project(name))
-                       .in_states(:new).with_actions
+                       .where(state: :new).with_actions
                        .pluck(:number)
 
     incidents = BsRequest.with_involved_projects(id)
                          .or(BsRequest.from_source_project(name))
-                         .in_states(:new)
+                         .where(state: :new)
                          .with_types(:maintenance_incident)
                          .pluck(:number)
 
     maintenance_release = if is_maintenance?
                             BsRequest.with_target_subprojects("#{name}:%")
                                      .or(BsRequest.with_source_subprojects("#{name}:%"))
-                                     .in_states(:new)
+                                     .where(state: :new)
                                      .with_types(:maintenance_release)
                                      .pluck(:number)
                           else
