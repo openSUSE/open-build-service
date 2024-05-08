@@ -8,11 +8,8 @@ class EventSubscription < ApplicationRecord
     reviewer: 'Reviewer',
     commenter: 'Commenter or mentioned user',
     creator: 'Creator',
-    watcher: 'Watching the project',                       # TODO: remove on a following step of the renaming.
     project_watcher: 'Watching the project',
-    source_watcher: 'Watching the source project',         # TODO: remove on a following step of the renaming.
     source_project_watcher: 'Watching the source project',
-    target_watcher: 'Watching the target project',         # TODO: remove on a following step of the renaming.
     target_project_watcher: 'Watching the target project',
     any_role: 'Any role',
     package_watcher: 'Watching the package',
