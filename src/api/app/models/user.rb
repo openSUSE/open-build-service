@@ -710,8 +710,8 @@ class User < ApplicationRecord
 
   # list incoming requests involving this user
   def incoming_requests(search = nil, states: [:new])
-    result = BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_projects(involved_projects)).or(
-      BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_packages(involved_packages))
+    result = BsRequest.where(state: states).where(id: BsRequestAction.bs_request_ids_of_involved_projects(involved_projects.pluck(:id))).or(
+      BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_packages(involved_packages.pluck(:id)))
     ).with_actions.where(state: states)
 
     search.present? ? result.do_search(search) : result
@@ -725,8 +725,8 @@ class User < ApplicationRecord
 
   # list of all requests
   def requests(search = nil)
-    project_ids = involved_projects
-    package_ids = involved_packages
+    project_ids = involved_projects.pluck(:id)
+    package_ids = involved_packages.pluck(:id)
 
     actions = BsRequestAction.bs_request_ids_of_involved_projects(project_ids).or(
       BsRequestAction.bs_request_ids_of_involved_packages(package_ids)
