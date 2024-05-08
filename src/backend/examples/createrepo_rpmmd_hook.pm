@@ -327,7 +327,7 @@ sub createrepo_rpmmd_hook {
   # createrepo_c 1.0.0 changed the default to zstd. In order to preserve
   # compatibility with SLE12 and SLE15 GA we need to set gz
   if ($options->{'compression-zstd'}) {
-    push @legacyargs, '--compress-type=zst';
+    push @legacyargs, '--compress-type=zstd';
   } else {
     push @legacyargs, '--compress-type=gz';
   }
