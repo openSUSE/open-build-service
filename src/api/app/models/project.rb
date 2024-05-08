@@ -47,6 +47,9 @@ class Project < ApplicationRecord
   has_many :package_kinds, through: :packages
   has_many :issues, through: :packages
   has_many :attribs, dependent: :destroy
+  has_many :quality_attribs, lambda {
+    where(attrib_type_id: AttribType.joins(:attrib_namespace).where(attrib_namespace: { name: 'OBS' }, attrib_types: { name: 'QualityCategory' }))
+  }, class_name: 'Attrib'
 
   has_many :repositories, dependent: :destroy, foreign_key: :db_project_id
   has_many :release_targets, through: :repositories
