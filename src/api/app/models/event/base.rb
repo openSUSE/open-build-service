@@ -253,11 +253,6 @@ module Event
       ret
     end
 
-    # TODO: Remove this method on a following step of the renaming.
-    def watchers
-      project_watchers
-    end
-
     def project_watchers
       project = ::Project.find_by_name(payload['project'])
       return [] if project.blank?

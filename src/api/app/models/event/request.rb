@@ -84,18 +84,8 @@ module Event
       action_maintainers('sourceproject', 'sourcepackage')
     end
 
-    # TODO: Remove this method on a following step of the renaming.
-    def source_watchers
-      source_project_watchers
-    end
-
     def source_project_watchers
       source_or_target_project_watchers(project_type: 'sourceproject')
-    end
-
-    # TODO: Remove this method on a following step of the renaming.
-    def target_watchers
-      target_project_watchers
     end
 
     def target_project_watchers

@@ -4,8 +4,7 @@ module Event
     self.message_bus_routing_key = 'project.comment'
     self.description = 'New comment for project created'
     payload_keys :project
-    # TODO: Remove the ':watcher' receiver role on a following step of the renaming.
-    receiver_roles :maintainer, :bugowner, :watcher, :project_watcher
+    receiver_roles :maintainer, :bugowner, :project_watcher
 
     def subject
       "New comment in project #{payload['project']} by #{payload['commenter']}"
