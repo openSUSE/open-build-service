@@ -6,6 +6,8 @@ class Notification < ApplicationRecord
   EVENT_TYPES = ['Event::CreateReport', 'Event::ReportForRequest', 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForComment',
                  'Event::ReportForUser', 'Event::ClearedDecision', 'Event::FavoredDecision', 'Event::AppealCreated'].freeze
 
+  NOTIFICATION_LIFETIME = CONFIG['notifications_lifetime'] ||= 365
+
   belongs_to :subscriber, polymorphic: true, optional: true
   belongs_to :notifiable, polymorphic: true, optional: true
 
@@ -40,6 +42,8 @@ class Notification < ApplicationRecord
   scope :appealed_decisions, -> { where(event_type: 'Event::AppealCreated') }
   scope :for_project, ->(name) { joins(:projects).where(projects: { name: name }) }
   scope :for_group, ->(name) { joins(:groups).where(groups: { title: name }) }
+
+  scope :stale, -> { where('created_at < ?', NOTIFICATION_LIFETIME.days.ago) }
 
   def event
     @event ||= event_type.constantize.new(event_payload)
