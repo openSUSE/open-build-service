@@ -21,5 +21,25 @@ RSpec.describe ModalComponent, type: :component do
         expect(rendered_content).to have_text('Open modal dialog', count: 1)
       end
     end
+
+    context 'when testing the preview' do
+      it 'renders the modal with button' do
+        render_preview(:simple_modal_with_button)
+
+        expect(rendered_content).to have_text('Simple modal header')
+      end
+
+      it 'renders the modal with icon and button' do
+        render_preview(:simple_modal_with_icon_button)
+
+        expect(rendered_content).to have_text('Simple modal header')
+      end
+
+      it 'renders the modal with text button' do
+        render_preview(:simple_modal_with_text_button)
+
+        expect(rendered_content).to have_text('Simple modal header')
+      end
+    end
   end
 end
