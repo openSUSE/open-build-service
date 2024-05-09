@@ -3,7 +3,8 @@ module Event
     self.message_bus_routing_key = 'request.review_changed'
     self.description = 'Request was reviewed'
     payload_keys :reviewers, :by_user, :by_group, :by_project, :by_package
-    receiver_roles :source_maintainer, :target_maintainer, :creator, :source_watcher, :target_watcher
+    # TODO: Remove the ':source_watcher' and the ':target_watcher' receiver roles on a following step of the renaming.
+    receiver_roles :source_maintainer, :target_maintainer, :creator, :source_watcher, :target_watcher, :source_project_watcher, :target_project_watcher
 
     def subject
       "Request #{payload['number']} was reviewed (#{actions_summary})"

@@ -110,7 +110,7 @@ RSpec.describe EventSubscription::FindForEvent do
         create(
           :event_subscription,
           eventtype: 'Event::RequestCreate',
-          receiver_role: 'source_watcher',
+          receiver_role: 'source_project_watcher',
           user: nil,
           group: nil,
           channel: :instant_email
@@ -158,7 +158,7 @@ RSpec.describe EventSubscription::FindForEvent do
         let!(:comment) { create(:comment_project, commentable: project) }
 
         let!(:default_subscription) do
-          create(:event_subscription_comment_for_project, receiver_role: 'watcher', user: nil, group: nil)
+          create(:event_subscription_comment_for_project, receiver_role: 'project_watcher', user: nil, group: nil)
         end
 
         before do

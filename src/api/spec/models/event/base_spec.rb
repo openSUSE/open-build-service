@@ -89,8 +89,8 @@ RSpec.describe Event::Base do
     end
   end
 
-  describe '#watchers' do
-    subject { event.watchers }
+  describe '#project_watchers' do
+    subject { event.project_watchers }
 
     let(:project) { create(:project, name: 'openSUSE') }
     let(:event) { Event::CommentForProject.create(project: project.name) }

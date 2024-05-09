@@ -12,7 +12,7 @@ RSpec.describe GenerateWebNotifications, type: :migration do
     let!(:event_subscription_3) { create(:event_subscription_comment_for_project, user: owner, receiver_role: 'bugowner') }
     let!(:disabled_event_for_web_and_rss) { create(:event_subscription, eventtype: 'Event::BuildFail', user: owner, receiver_role: 'maintainer') }
     let!(:default_subscription) { create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'bugowner') }
-    let!(:default_subscription_1) { create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'watcher') }
+    let!(:default_subscription_1) { create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'project_watcher') }
     let!(:default_subscription_2) do
       create(:event_subscription_comment_for_project_without_subscriber,
              receiver_role: 'maintainer',

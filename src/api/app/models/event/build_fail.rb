@@ -4,7 +4,8 @@ module Event
 
     self.message_bus_routing_key = 'package.build_fail'
     self.description = 'Package has failed to build'
-    receiver_roles :maintainer, :bugowner, :reader, :watcher, :package_watcher, :request_watcher
+    # TODO: Remove the ':watcher' receiver role on a following step of the renaming.
+    receiver_roles :maintainer, :bugowner, :reader, :watcher, :project_watcher, :package_watcher, :request_watcher
 
     create_jobs :report_to_scm_job
 
