@@ -455,10 +455,10 @@ class Webui::ProjectController < Webui::WebuiController
     @is_incident_project = @project.is_maintenance_incident?
     return unless @is_incident_project
 
-    @open_release_requests = BsRequest.find_for(project: @project.name,
-                                                states: %w[new review],
-                                                types: ['maintenance_release'],
-                                                roles: ['source']).pluck(:number)
+    @open_release_requests = BsRequest::FindFor::Query.new(project: @project.name,
+                                                           states: %w[new review],
+                                                           types: ['maintenance_release'],
+                                                           roles: ['source']).all.pluck(:number) # rubocop:disable Rails/RedundantActiveRecordAllMethod
   end
 
   def valid_target_name?(name)
