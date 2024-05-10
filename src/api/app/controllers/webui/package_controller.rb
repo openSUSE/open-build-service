@@ -2,6 +2,7 @@ class Webui::PackageController < Webui::WebuiController
   include ParsePackageDiff
   include Webui::PackageHelper
   include Webui::ManageRelationships
+  include Webui::NotificationsHandler
 
   before_action :set_project, only: %i[show edit update index users requests statistics revisions
                                        new branch_diff_info rdiff create remove
@@ -536,15 +537,5 @@ class Webui::PackageController < Webui::WebuiController
       end
     end
     true
-  end
-
-  def handle_notification
-    return unless User.session && params[:notification_id]
-
-    current_notification = Notification.find(params[:notification_id])
-
-    return unless NotificationPolicy.new(User.session, current_notification).update?
-
-    current_notification
   end
 end

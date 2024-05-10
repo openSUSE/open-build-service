@@ -2,6 +2,7 @@ class Webui::ProjectController < Webui::WebuiController
   include Webui::RequestHelper
   include Webui::ProjectHelper
   include Webui::ManageRelationships
+  include Webui::NotificationsHandler
   include Webui::ProjectBuildResultParsing
 
   before_action :lockout_spiders, only: %i[requests buildresults]
@@ -469,15 +470,5 @@ class Webui::ProjectController < Webui::WebuiController
     @project = Project.get_by_name(params['project'])
   rescue Project::UnknownObjectError
     @project = nil
-  end
-
-  def handle_notification
-    return unless User.session && params[:notification_id]
-
-    current_notification = Notification.find(params[:notification_id])
-
-    return unless NotificationPolicy.new(User.session, current_notification).update?
-
-    current_notification
   end
 end
