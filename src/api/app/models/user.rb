@@ -682,12 +682,12 @@ class User < ApplicationRecord
   end
 
   def involved_projects
-    Project.for_user(id).or(Project.for_group(group_ids))
+    Project.unscoped.for_user(id).or(Project.unscoped.for_group(group_ids))
   end
 
   # lists packages maintained by this user and are not in maintained projects
   def involved_packages
-    Package.for_user(id).or(Package.for_group(group_ids)).where.not(project: involved_projects)
+    Package.unscoped.for_user(id).or(Package.unscoped.for_group(group_ids)).where.not(project: involved_projects)
   end
 
   # lists reviews involving this user
@@ -710,8 +710,8 @@ class User < ApplicationRecord
 
   # list incoming requests involving this user
   def incoming_requests(search = nil, states: [:new])
-    result = BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_projects(involved_projects)).or(
-      BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_packages(involved_packages))
+    result = BsRequest.where(state: states).where(id: BsRequestAction.bs_request_ids_of_involved_projects(involved_projects.pluck(:id))).or(
+      BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_packages(involved_packages.pluck(:id)))
     ).with_actions.where(state: states)
 
     search.present? ? result.do_search(search) : result
@@ -725,8 +725,8 @@ class User < ApplicationRecord
 
   # list of all requests
   def requests(search = nil)
-    project_ids = involved_projects
-    package_ids = involved_packages
+    project_ids = involved_projects.pluck(:id)
+    package_ids = involved_packages.pluck(:id)
 
     actions = BsRequestAction.bs_request_ids_of_involved_projects(project_ids).or(
       BsRequestAction.bs_request_ids_of_involved_packages(package_ids)
