@@ -116,6 +116,29 @@
       "note": ""
     },
     {
+      "warning_type": "Mass Assignment",
+      "warning_code": 70,
+      "fingerprint": "5b98dc7886dc03bdf8b150962331c31d5d9d18f06b9002f8533e41e3f9eba19a",
+      "check_name": "MassAssignment",
+      "message": "Specify exact keys allowed for mass assignment instead of using `permit!` which allows any keys",
+      "file": "app/controllers/webui/users/notifications_controller.rb",
+      "line": 11,
+      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
+      "code": "params.permit!",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Webui::Users::NotificationsController",
+        "method": "index"
+      },
+      "user_input": null,
+      "confidence": "Medium",
+      "cwe_id": [
+        915
+      ],
+      "note": ""
+    },
+    {
       "warning_type": "File Access",
       "warning_code": 16,
       "fingerprint": "5febcb31e79ef34338abe9ff12ec885dbd47c082143cfc919465c6cc7894eb5d",
@@ -368,6 +391,29 @@
       "note": ""
     },
     {
+      "warning_type": "Mass Assignment",
+      "warning_code": 70,
+      "fingerprint": "d503c9a3de19811346d77dad55befa7c729a8065b18ea0d6f727944a2d9007c3",
+      "check_name": "MassAssignment",
+      "message": "Specify exact keys allowed for mass assignment instead of using `permit!` which allows any keys",
+      "file": "app/controllers/webui/users/notifications_controller.rb",
+      "line": 19,
+      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
+      "code": "params.permit!",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Webui::Users::NotificationsController",
+        "method": "update"
+      },
+      "user_input": null,
+      "confidence": "Medium",
+      "cwe_id": [
+        915
+      ],
+      "note": ""
+    },
+    {
       "warning_type": "Remote Code Execution",
       "warning_code": 110,
       "fingerprint": "d882f63ce96c28fb6c6e0982f2a171460e4b933bfd9b9a5421dca21eef3f76da",
@@ -445,6 +491,6 @@
       "note": "We track this with a comment in the code"
     }
   ],
-  "updated": "2024-05-06 08:23:27 +0000",
+  "updated": "2024-05-10 15:02:31 +0000",
   "brakeman_version": "5.4.0"
 }
