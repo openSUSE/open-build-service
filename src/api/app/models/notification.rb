@@ -30,7 +30,6 @@ class Notification < ApplicationRecord
   scope :comments, -> { where(notifiable_type: 'Comment') }
   scope :requests, -> { where(notifiable_type: 'BsRequest') }
   scope :with_notifiable, -> { where.not(notifiable_id: nil).where.not(notifiable_type: nil) }
-  scope :without_notifiable, -> { where(notifiable_id: nil, notifiable_type: nil) }
   scope :incoming_requests, ->(user) { where(notifiable: user.incoming_requests(states: BsRequest::VALID_REQUEST_STATES)) }
   scope :outgoing_requests, ->(user) { where(notifiable: user.outgoing_requests(states: BsRequest::VALID_REQUEST_STATES)) }
   scope :relationships_created, -> { where(event_type: 'Event::RelationshipCreate') }

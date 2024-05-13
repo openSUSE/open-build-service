@@ -26,7 +26,7 @@ RSpec.describe RemoveObsoleteNotifications, type: :migration do
     end
 
     it 'deletes all the notifications without notifiable' do
-      expect(Notification.all.without_notifiable.count).to be_zero
+      expect(Notification.where(notifiable_id: nil, notifiable_type: nil).count).to be_zero
     end
 
     it 'deletes all the notifications except CommentForProject and CommentForPackage' do
