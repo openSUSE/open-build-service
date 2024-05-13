@@ -43,7 +43,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
           notifications: paginated_notifications,
           selected_filter: @selected_filter,
           show_read_all_button: show_read_all_button?,
-          user: @current_user
+          user: User.session
         }
       end
     end
@@ -79,8 +79,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     relations_type = []
     relations_type << relations.comments if params[:comments]
     relations_type << relations.requests if params[:requests]
-    relations_type << relations.incoming_requests(@current_user) if params[:incoming_requests]
-    relations_type << relations.outgoing_requests(@current_user) if params[:outgoing_requests]
+    relations_type << relations.incoming_requests(User.session) if params[:incoming_requests]
+    relations_type << relations.outgoing_requests(User.session) if params[:outgoing_requests]
     relations_type << relations.relationships_created if params[:relationships_created]
     relations_type << relations.relationships_deleted if params[:relationships_deleted]
     relations_type << relations.build_failures if params[:build_failures]
