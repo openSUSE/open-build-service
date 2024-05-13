@@ -3,8 +3,8 @@ class Notification < ApplicationRecord
   MAX_RSS_ITEMS_PER_GROUP = 10
   MAX_PER_PAGE = 300
 
-  EVENT_TYPES = ['Event::CreateReport', 'Event::ReportForRequest', 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForComment',
-                 'Event::ReportForUser', 'Event::ClearedDecision', 'Event::FavoredDecision', 'Event::AppealCreated'].freeze
+  EVENT_TYPES = [Event::CreateReport, Event::ReportForRequest, Event::ReportForProject, Event::ReportForPackage, Event::ReportForComment,
+                 Event::ReportForUser, Event::ClearedDecision, Event::FavoredDecision, Event::AppealCreated].freeze
 
   NOTIFICATION_LIFETIME = CONFIG['notifications_lifetime'] ||= 365
 
