@@ -26,8 +26,8 @@ class RequestController < ApplicationController
   end
 
   def render_request_collection
-    # if all params areblank, something is wrong
-    raise RequireFilter if %i[project user states types reviewstates ids].all? { |f| params[f].blank? }
+    # if all params are blank, something is wrong
+    raise RequireFilter if %i[project package user states types reviewstates ids].all? { |f| params[f].blank? }
 
     # convert comma separated values into arrays
     params[:roles] = params[:roles].split(',') if params[:roles]
