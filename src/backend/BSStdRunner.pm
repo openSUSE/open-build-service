@@ -174,6 +174,18 @@ sub critlogger {
   BSUtil::appendstr($conf->{'critlogfile'}, $logstr);
 }
 
+sub sigkill {
+  my ($req, $sig) = @_;
+  return unless $req;
+  my $evname = $req->{'event'};
+  BSUtil::logcritical("event $evname was killed by signal $sig");
+  my $conf = $req->{'conf'};
+  my $myeventdir = $conf->{'eventdir'};
+  if ($conf->{'inprogress'} && -e "$myeventdir/${evname}::inprogress") {
+    rename("$myeventdir/${evname}::inprogress", "$myeventdir/$evname");
+  }
+}
+
 sub run {
   my ($name, $args, $conf) = @_;
   my $logfile;
@@ -225,6 +237,7 @@ sub run {
   $conf->{'dispatch'} ||= \&dispatch;
   $conf->{'lsevents'} ||= \&lsevents;
   $conf->{'getevent'} ||= \&getevent;
+  $conf->{'sigkill'} ||= \&sigkill;
   $conf->{'run'} ||= \&BSRunner::run;
 
   $conf->{'filechecks'} ||= {};
