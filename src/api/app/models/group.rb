@@ -161,21 +161,21 @@ class Group < ApplicationRecord
   end
 
   def involved_reviews(search = nil)
-    BsRequest.find_for(
+    BsRequest::FindFor::Query.new(
       group: title,
       roles: [:reviewer],
       review_states: [:new],
       states: [:review],
       search: search
-    )
+    ).all
   end
 
   def incoming_requests(search = nil)
-    BsRequest.find_for(group: title, states: [:new], roles: [:maintainer], search: search)
+    BsRequest::FindFor::Query.new(group: title, states: [:new], roles: [:maintainer], search: search).all
   end
 
   def requests(search = nil)
-    BsRequest.find_for(group: title, search: search)
+    BsRequest::FindFor::Query.new(group: title, search: search).all
   end
 
   def all_requests_count
