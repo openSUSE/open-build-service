@@ -2,11 +2,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   VALID_NOTIFICATION_TYPES = %w[read reviews comments requests unread incoming_requests outgoing_requests relationships_created relationships_deleted
                                 build_failures reports workflow_runs appealed_decisions].freeze
 
-  # TODO: Remove this when we'll refactor kerberos_auth
-  before_action :kerberos_auth
+  before_action :require_login
   before_action :check_param_type, :check_param_project, only: :index
-
-  after_action :verify_policy_scoped
 
   def index
     @notifications = paginated_notifications
@@ -73,7 +70,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def fetch_notifications
-    notifications = policy_scope(Notification).for_web.includes(notifiable: [{ commentable: [{ comments: :user }, :project, :bs_request_actions] }, :bs_request_actions, :reviews])
+    notifications = User.session!.notifications.for_web.includes(notifiable: [{ commentable: [{ comments: :user }, :project, :bs_request_actions] }, :bs_request_actions, :reviews])
     notifications_finder = NotificationsFinder.new(notifications)
 
     if params[:project]

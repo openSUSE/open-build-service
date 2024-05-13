@@ -182,8 +182,6 @@ RSpec.describe Webui::Users::NotificationsController do
   end
 
   describe 'PUT #update' do
-    it { is_expected.to use_after_action(:verify_policy_scoped) }
-
     context 'when a user marks one of their unread notifications as read' do
       subject! do
         login user_to_log_in
