@@ -1,4 +1,6 @@
 class Webui::UsersController < Webui::WebuiController
+  include Webui::NotificationsHandler
+
   # TODO: Remove this when we'll refactor kerberos_auth
   before_action :kerberos_auth, only: %i[index edit destroy update change_password edit_account]
   before_action :authorize_user, only: %i[index edit destroy change_password edit_account]
@@ -199,16 +201,6 @@ class Webui::UsersController < Webui::WebuiController
   def assign_admin_attributes
     @displayed_user.assign_attributes(params[:user].slice(:state, :ignore_auth_services).permit!)
     @displayed_user.update_globalroles(Role.global.where(id: params[:user][:role_ids])) unless params[:user][:role_ids].nil?
-  end
-
-  def handle_notification
-    return unless User.session && params[:notification_id]
-
-    current_notification = Notification.find(params[:notification_id])
-
-    return unless NotificationPolicy.new(User.session, current_notification).update?
-
-    current_notification
   end
 
   def paged_comments
