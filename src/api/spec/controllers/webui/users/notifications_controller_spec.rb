@@ -191,7 +191,7 @@ RSpec.describe Webui::Users::NotificationsController do
       it_behaves_like 'returning success'
 
       it 'something' do
-        expect(assigns[:selected_filter][:project]).to eql(user.home_project_name => '1')
+        expect(assigns[:selected_filter][:project].to_h).to eql(user.home_project_name => '1')
       end
 
       it 'assigns notifications with all notifications' do

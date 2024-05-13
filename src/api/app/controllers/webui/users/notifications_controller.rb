@@ -1,5 +1,5 @@
 class Webui::Users::NotificationsController < Webui::WebuiController
-  VALID_NOTIFICATION_TYPES = %w[read reviews comments requests unread incoming_requests outgoing_requests relationships_created relationships_deleted
+  VALID_NOTIFICATION_TYPES = %i[read reviews comments requests unread incoming_requests outgoing_requests relationships_created relationships_deleted
                                 build_failures reports workflow_runs appealed_decisions].freeze
 
   # TODO: Remove this when we'll refactor kerberos_auth
@@ -8,15 +8,15 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   after_action :verify_policy_scoped
 
   def index
-    @selected_filter = params.permit!.to_h.except(*%w[controller action])
+    @selected_filter = params.permit(VALID_NOTIFICATION_TYPES + [:user_login, { project: {}, group: {} }])
     @notifications = paginated_notifications
     @show_read_all_button = show_read_all_button?
     # This is a GET form, we're not going to update anything so it's safe to permit any params
-    @filtered_by = @selected_filter.filter { |_k, v| v.present? }.keys - %w[unread read]
+    @filtered_by = @selected_filter.to_h.filter { |_k, v| v.present? }.keys - %w[unread read]
   end
 
   def update
-    @selected_filter = params.permit!.to_h.except(*%w[notification_ids controller action])
+    @selected_filter = params.permit(VALID_NOTIFICATION_TYPES + [:user_login, { notification_ids: [], project: {}, group: {} }])
     notifications = if params[:update_all]
                       fetch_notifications
                     else
