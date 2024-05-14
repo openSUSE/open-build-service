@@ -11,13 +11,11 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @selected_filter = params.permit(:user_login, notification: [VALID_NOTIFICATION_TYPES + [project: {}, group: {}]])
     @notifications = paginated_notifications
     @show_read_all_button = show_read_all_button?
-    # This is a GET form, we're not going to update anything so it's safe to permit any params
     @filtered_by = @selected_filter.to_h.filter { |_k, v| v.present? }.keys - %w[unread read]
   end
 
   def update
     notification_ids = notification_params
-    # @selected_filter = params.permit(VALID_NOTIFICATION_TYPES + [:user_login, { notification_ids: [], project: {}, group: {} }, :_method, :authenticity_token, :button])
     @selected_filter = { notification: notification_params }
     notifications = if notification_ids[:update_all]
                       fetch_notifications
