@@ -27,19 +27,26 @@ use BSConfiguration;
 
 use strict;
 
+sub payload_datafmt {
+  my ($payloadref) = @_;
+  my $sent = 0;
+  return sub {my $chunk = substr($$payloadref, $sent, 65536); $sent += length($chunk); $chunk};
+}
+
 #
 # Backend notifications are always routed through the source server. The API
 # is processing them via /lastnotifications route and afterwards delivers
 # them to the backend notifiy plugins via /notify_plugins.
 #
 sub notify {
-  my ($type, $p, $payload) = @_;
+  my ($type, $p) = @_;		# $_[2] is the payload, but we do not want a copy to save memory
+  my $payloadref = $_[2] ? \$_[2] : undef;
 
   # strip
   $p = { map {$_ => $p->{$_}} grep {defined($p->{$_}) && !ref($p->{$_})} sort keys %{$p || {}} };
 
   my $timeout = 60;
-  $timeout += int(length($payload) / 500000) if $payload;
+  $timeout += int(length($$payloadref) / 500000) if $payloadref;
   $timeout = 3600 if $timeout > 3600;
   my $param = {
     'uri' => "$BSConfig::srcserver/notify/$type",
@@ -47,9 +54,11 @@ sub notify {
     'formurlencode' => 1,
     'timeout' => $timeout,
   };
-  if ($payload) {
+  if ($payloadref) {
     $param->{'headers'} = [ 'Content-Type: application/octet-stream' ];
-    $param->{'data'} = $payload;
+    $param->{'chunked'} = 1;
+    $param->{'data'} = $payloadref;
+    $param->{'datafmt'} = \&payload_datafmt;
     $param->{'formurlencode'} = 0;
   }
   my @args = map {"$_=$p->{$_}"} sort keys %$p;
@@ -57,7 +66,7 @@ sub notify {
     BSRPC::rpc($param, undef, @args);
   };
   if ($@) {
-    die($@) if $payload;	# payload transfers are fatal
+    die($@) if $payloadref;	# payload transfers are fatal
     warn($@) if $@;
   }
 }
