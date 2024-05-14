@@ -1,11 +1,11 @@
 class NotificationFilterComponent < ApplicationComponent
-  def initialize(relations:, selected_filter:, user:, projects_for_filter: ProjectsForFilterFinder.new.call, groups_for_filter: GroupsForFilterFinder.new.call)
+  def initialize(relations:, selected_filter:, user:)
     super
 
     @relations = relations
     @user = user
-    @projects_for_filter = projects_for_filter
-    @groups_for_filter = groups_for_filter
+    @projects_for_filter = ProjectsForFilterFinder.new.call
+    @groups_for_filter = GroupsForFilterFinder.new.call
     @count = notifications_count
     @selected_filter = selected_filter
   end
@@ -26,6 +26,12 @@ class NotificationFilterComponent < ApplicationComponent
     counted_notifications['reports'] = @relations.reports.count
     counted_notifications['workflow_runs'] = @relations.workflow_runs.count
     counted_notifications['appealed_decisions'] = @relations.appealed_decisions.count
+    @projects_for_filter.each do |project_name|
+      counted_notifications[project_name] = @relations.for_project(project_name).count
+    end
+    @groups_for_filter.each do |group_title|
+      counted_notifications[group_title] = @relations.for_group(group_title).count
+    end
     counted_notifications
   end
 end
