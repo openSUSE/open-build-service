@@ -8,7 +8,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   after_action :verify_policy_scoped
 
   def index
-    @selected_filter = params.permit(VALID_NOTIFICATION_TYPES + [:user_login, { project: {}, group: {} }])
+    @selected_filter = params.permit(:user_login, notification: [VALID_NOTIFICATION_TYPES + [project: {}, group: {}]])
     @notifications = paginated_notifications
     @show_read_all_button = show_read_all_button?
     # This is a GET form, we're not going to update anything so it's safe to permit any params
@@ -16,11 +16,13 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def update
-    @selected_filter = params.permit(VALID_NOTIFICATION_TYPES + [:user_login, { notification_ids: [], project: {}, group: {} }])
-    notifications = if params[:update_all]
+    notification_ids = notification_params
+    # @selected_filter = params.permit(VALID_NOTIFICATION_TYPES + [:user_login, { notification_ids: [], project: {}, group: {} }, :_method, :authenticity_token, :button])
+    @selected_filter = { notification: notification_params }
+    notifications = if notification_ids[:update_all]
                       fetch_notifications
                     else
-                      fetch_notifications.where(id: params[:notification_ids])
+                      fetch_notifications.where(id: notification_ids[:id])
                     end
     # rubocop:disable Rails/SkipsModelValidations
     # FIXME: This has room for improvement
@@ -51,6 +53,10 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   private
 
+  def notification_params
+    params.require(:notification).permit(VALID_NOTIFICATION_TYPES + [:update_all, { id: [], project: {}, group: {} }])
+  end
+
   def set_current_user
     @current_user = User.session
   end
@@ -65,39 +71,39 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     notifications = policy_scope(Notification).for_web.includes(notifiable: [{ commentable: [{ comments: :user }, :project, :bs_request_actions] }, :bs_request_actions, :reviews])
 
     relations = notifications
-    if %i[unread read].none? { |p| params[p] }
+    if %i[unread read].none? { |p| params.dig(:notification, p) }
       # no read|unread param filters fallback on `unread` notifications only
       @selected_filter['unread'] = 1
       relations = notifications.unread
-    elsif %i[unread read].all? { |p| params[p] }
+    elsif %i[unread read].all? { |p| params.dig(:notification, p) }
       relations = notifications.unread.or(notifications.read)
     else
-      relations = notifications.unread if params[:unread]
-      relations = notifications.read if params[:read]
+      relations = notifications.unread if params.dig(:notification, :unread)
+      relations = notifications.read if params.dig(:notification, :read)
     end
 
     relations_type = []
-    relations_type << relations.comments if params[:comments]
-    relations_type << relations.requests if params[:requests]
-    relations_type << relations.incoming_requests(User.session) if params[:incoming_requests]
-    relations_type << relations.outgoing_requests(User.session) if params[:outgoing_requests]
-    relations_type << relations.relationships_created if params[:relationships_created]
-    relations_type << relations.relationships_deleted if params[:relationships_deleted]
-    relations_type << relations.build_failures if params[:build_failures]
-    relations_type << relations.reports if params[:reports]
-    relations_type << relations.workflow_runs if params[:workflow_runs]
-    relations_type << relations.appealed_decisions if params[:appealed_decisions]
+    relations_type << relations.comments if params.dig(:notification, :comments)
+    relations_type << relations.requests if params.dig(:notification, :requests)
+    relations_type << relations.incoming_requests(User.session) if params.dig(:notification, :incoming_requests)
+    relations_type << relations.outgoing_requests(User.session) if params.dig(:notification, :outgoing_requests)
+    relations_type << relations.relationships_created if params.dig(:notification, :relationships_created)
+    relations_type << relations.relationships_deleted if params.dig(:notification, :relationships_deleted)
+    relations_type << relations.build_failures if params.dig(:notification, :build_failures)
+    relations_type << relations.reports if params.dig(:notification, :reports)
+    relations_type << relations.workflow_runs if params.dig(:notification, :workflow_runs)
+    relations_type << relations.appealed_decisions if params.dig(:notification, :appealed_decisions)
     relations = relations.merge(relations_type.inject(:or)) unless relations_type.empty?
 
-    if params[:project]
-      relations_project = (params[:project].keys || []).map do |project_name, _|
+    if params.dig(:notification, :project)
+      relations_project = (params.dig(:notification, :project).keys || []).map do |project_name, _|
         relations.for_project(project_name)
       end
       relations = relations.merge(relations_project.inject(:or)) unless relations_project.empty?
     end
 
-    if params[:group]
-      relations_group = (params[:group].keys || []).map do |group_name, _|
+    if params.dig(:notification, :group)
+      relations_group = (params.dig(:notification, :group).keys || []).map do |group_name, _|
         relations.for_group(group_name)
       end
       relations = relations.merge(relations_group.inject(:or)) unless relations_group.empty?

@@ -4,56 +4,56 @@
       %b Status
     .px-4.py-1
       = render partial: 'webui/shared/check_box', locals: { label: 'Unread', amount: @count['unread'] || 0,
-                                                            key: 'unread', checked: @selected_filter[:unread] }
+                                                            key: 'notification[unread]', checked: @selected_filter.dig(:notification, :unread) }
     .px-4.py-1
       = render partial: 'webui/shared/check_box', locals: { label: 'Read', amount: @count['read'] || 0,
-                                                            key: 'read', checked: @selected_filter[:read] }
+                                                            key: 'notification[read]', checked: @selected_filter.dig(:notification, :read) }
 
   .list-group.list-group-flush.mt-4.mb-4
     %h6.px-3.py-2
       %b Type
     .px-4.py-1
       = render partial: 'webui/shared/check_box', locals: { label: 'Comments', amount: @count['comments'] || 0,
-                                                            key: 'comments', label_icon: 'fas fa-comments',
-                                                            checked: @selected_filter[:comments] }
+                                                            key: 'notification[comments]', label_icon: 'fas fa-comments',
+                                                            checked: @selected_filter.dig(:notification, :comments) }
     .px-4.py-1
       = render partial: 'webui/shared/check_box', locals: { label: 'Requests', amount: @count['requests'] || 0,
-                                                            key: 'requests', label_icon: 'fas fa-code-pull-request',
-                                                            checked: @selected_filter[:requests] }
+                                                            key: 'notification[requests]', label_icon: 'fas fa-code-pull-request',
+                                                            checked: @selected_filter.dig(:notification, :requests) }
     .px-4.py-1
       = render partial: 'webui/shared/check_box', locals: { label: 'Incoming Requests', amount: @count['incoming_requests'] || 0,
-                                                            key: 'incoming_requests', label_icon: 'fas fa-code-pull-request',
-                                                            checked: @selected_filter[:incoming_requests] }
+                                                            key: 'notification[incoming_requests]', label_icon: 'fas fa-code-pull-request',
+                                                            checked: @selected_filter.dig(:notification, :incoming_requests) }
     .px-4.py-1
       = render partial: 'webui/shared/check_box', locals: { label: 'Outgoing Requests', amount: @count['outgoing_requests'] || 0,
-                                                            key: 'outgoing_requests', label_icon: 'fas fa-code-pull-request',
-                                                            checked: @selected_filter[:outgoing_requests] }
+                                                            key: 'notification[outgoing_requests]', label_icon: 'fas fa-code-pull-request',
+                                                            checked: @selected_filter.dig(:notification, :outgoing_requests) }
     .px-4.py-1
       = render partial: 'webui/shared/check_box', locals: { label: 'Roles Granted', amount: @count['relationships_created'] || 0,
-                                                            key: 'relationships_created', label_icon: 'fas fa-user-tag',
-                                                            checked: @selected_filter[:relationships_created] }
+                                                            key: 'notification[relationships_created]', label_icon: 'fas fa-user-tag',
+                                                            checked: @selected_filter.dig(:notification, :relationships_created) }
     .px-4.py-1
       = render partial: 'webui/shared/check_box', locals: { label: 'Roles Revoked', amount: @count['relationships_deleted'] || 0,
-                                                            key: 'relationships_deleted', label_icon: 'fas fa-user-tag',
-                                                            checked: @selected_filter[:relationships_deleted] }
+                                                            key: 'notification[relationships_deleted]', label_icon: 'fas fa-user-tag',
+                                                            checked: @selected_filter.dig(:notification, :relationships_deleted) }
     .px-4.py-1
       = render partial: 'webui/shared/check_box', locals: { label: 'Build Failures', amount: @count['build_failures'] || 0,
-                                                            key: 'build_failures', label_icon: 'fas fa-xmark text-danger',
-                                                            checked: @selected_filter[:build_failures] }
+                                                            key: 'notification[build_failures]', label_icon: 'fas fa-xmark text-danger',
+                                                            checked: @selected_filter.dig(:notification, :build_failures) }
     - if ReportPolicy.new(@user, Report).notify?
       .px-4.py-1
         = render partial: 'webui/shared/check_box', locals: { label: 'Reports', amount: @count['reports'] || 0,
-                                                              key: 'reports', label_icon: 'fas fa-flag',
-                                                              checked: @selected_filter[:reports] }
+                                                              key: 'notification[reports]', label_icon: 'fas fa-flag',
+                                                              checked: @selected_filter.dig(:notification,:reports) }
     .px-4.py-1
       = render partial: 'webui/shared/check_box', locals: { label: 'Workflow Runs', amount: @count['workflow_runs'] || 0,
-                                                            key: 'workflow_runs', label_icon: 'fas fa-book-open',
-                                                            checked: @selected_filter[:workflow_runs] }
+                                                            key: 'notification[workflow_runs]', label_icon: 'fas fa-book-open',
+                                                            checked: @selected_filter.dig(:notification,:workflow_runs) }
     - if Flipper.enabled?(:content_moderation, @user)
       .px-4.py-1
         = render partial: 'webui/shared/check_box', locals: { label: 'Appealed Decisions Runs', amount: @count['appealed_decisions'] || 0,
-                                                              key: 'appealed_decisions', label_icon: 'fas fa-hand',
-                                                              checked: @selected_filter[:appealed_decisions] }
+                                                              key: 'notification[appealed_decisions]', label_icon: 'fas fa-hand',
+                                                              checked: @selected_filter.dig(:notification,:appealed_decisions) }
 
   - unless @projects_for_filter.empty?
     .list-group.list-group-flush.mt-4.mb-4
@@ -62,8 +62,8 @@
       - @projects_for_filter.each_pair do |project_name, amount|
         .px-4.py-1
           = render partial: 'webui/shared/check_box', locals: { label: project_name, amount: amount || 0,
-                                                                key: "project[#{project_name}]",
-                                                                checked: @selected_filter.dig(:project, project_name) }
+                                                                key: "notification[project][#{project_name}]",
+                                                                checked: @selected_filter.dig(:notification, :project, project_name) }
   - unless @groups_for_filter.empty?
     .list-group.list-group-flush.mt-4.mb-4
       %h6.px-3.py-2
@@ -71,8 +71,8 @@
       - @groups_for_filter.each_pair do |group_title, amount|
         .px-4.py-1
           = render partial: 'webui/shared/check_box', locals: { label: group_title, amount: amount || 0,
-                                                                key: "group[#{group_title}]",
-                                                                checked: @selected_filter.dig(:group, group_title) }
+                                                                key: "notification[group][#{group_title}]",
+                                                                checked: @selected_filter.dig(:notification, :group, group_title) }
 
   .text-center.mt-4.mb-4
     = link_to('Clear', my_notifications_path, class: 'btn btn-light border')

@@ -2,7 +2,7 @@
   .row
     .col-auto.pe-0
       .form-check
-        = check_box_tag('notification_ids[]', @notification.id, false,
+        = check_box_tag('notification[id][]', @notification.id, false,
                         id: "notification_ids_#{@notification.id}", class: 'form-check-input')
         = label_tag("notification_ids_#{@notification.id}", '', class: 'form-check-label')
     .col-10

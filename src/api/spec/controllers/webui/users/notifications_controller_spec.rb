@@ -51,7 +51,7 @@ RSpec.describe Webui::Users::NotificationsController do
     end
 
     context "when filtering by 'read' param" do
-      let(:params) { default_params.merge(read: 1) }
+      let(:params) { default_params.merge(notification: { read: 1 }) }
 
       before do
         subject
@@ -65,7 +65,7 @@ RSpec.describe Webui::Users::NotificationsController do
     end
 
     context "when filtering by 'build_failures' param" do
-      let(:params) { default_params.merge(build_failures: 1) }
+      let(:params) { default_params.merge(notification: { build_failures: 1 }) }
 
       before do
         subject
@@ -79,7 +79,7 @@ RSpec.describe Webui::Users::NotificationsController do
     end
 
     context "when filtering by 'comments' param" do
-      let(:params) { default_params.merge(comments: 1) }
+      let(:params) { default_params.merge(notification: { comments: 1 }) }
 
       before do
         subject
@@ -95,7 +95,7 @@ RSpec.describe Webui::Users::NotificationsController do
     end
 
     context "when filtering by 'requests' parameter" do
-      let(:params) { default_params.merge(requests: 1) }
+      let(:params) { default_params.merge(notification: { requests: 1 }) }
 
       before do
         subject
@@ -125,7 +125,7 @@ RSpec.describe Webui::Users::NotificationsController do
       let!(:request_created_notification) { create(:web_notification, :request_created, notifiable: maintained_request, subscriber: user) }
       let!(:review_wanted_notification) { review_notification }
 
-      let(:params) { default_params.merge(incoming_requests: 1) }
+      let(:params) { default_params.merge(notification: { incoming_requests: 1 }) }
 
       before do
         subject
@@ -163,7 +163,7 @@ RSpec.describe Webui::Users::NotificationsController do
       let!(:state_change_to_declined_notification) { create(:web_notification, :request_state_change, notifiable: declined_bs_request, subscriber: user) }
       let(:request_created_notification) { create(:web_notification, :request_created, notifiable: maintained_request, subscriber: user) }
 
-      let(:params) { default_params.merge(outgoing_requests: 1) }
+      let(:params) { default_params.merge(notification: { outgoing_requests: 1 }) }
 
       before do
         subject
@@ -181,7 +181,7 @@ RSpec.describe Webui::Users::NotificationsController do
     end
 
     context 'when filtering by project name' do
-      let(:params) { { project: { user.home_project_name => 1 } } }
+      let(:params) { { notification: { project: { user.home_project_name => 1 } } } }
 
       before do
         comment_for_project_notification.projects << user.home_project
@@ -206,7 +206,7 @@ RSpec.describe Webui::Users::NotificationsController do
     context 'when a user marks one of their unread notifications as read' do
       subject! do
         login user_to_log_in
-        put :update, params: { notification_ids: [state_change_notification.id], user_login: user_to_log_in.login }, xhr: true
+        put :update, params: { user_login: user_to_log_in.login, notification: { id: [state_change_notification.id] } }, xhr: true
       end
 
       let(:user_to_log_in) { user }
@@ -223,7 +223,7 @@ RSpec.describe Webui::Users::NotificationsController do
     context 'when a user tries to mark other user notifications as read' do
       subject! do
         login user_to_log_in
-        put :update, params: { notification_ids: [state_change_notification.id], user_login: user_to_log_in.login }, xhr: true
+        put :update, params: { user_login: user_to_log_in.login, notification: { id: [state_change_notification.id] } }, xhr: true
       end
 
       let(:user_to_log_in) { other_user }
@@ -236,7 +236,7 @@ RSpec.describe Webui::Users::NotificationsController do
     context 'when a user marks one of their read notifications as unread' do
       subject! do
         login user_to_log_in
-        put :update, params: { notification_ids: [read_notification.id], read: 1, user_login: user_to_log_in.login }, xhr: true
+        put :update, params: { user_login: user_to_log_in.login, notification: { id: [read_notification.id], read: 1 } }, xhr: true
       end
 
       let(:user_to_log_in) { user }
