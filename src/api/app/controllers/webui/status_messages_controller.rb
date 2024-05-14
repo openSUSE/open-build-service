@@ -1,7 +1,7 @@
 class Webui::StatusMessagesController < Webui::WebuiController
   before_action :require_staff
-  before_action :set_status_message, except: %i[index new create preview]
-  after_action :verify_authorized, except: %i[new edit preview]
+  before_action :set_status_message, only: %i[update destroy acknowledge]
+  after_action :verify_authorized, only: %i[create update destroy]
 
   def index
     @severity, @communication_scope, @page = index_params.values_at(:severity, :communication_scope, :page)
@@ -18,7 +18,8 @@ class Webui::StatusMessagesController < Webui::WebuiController
   def edit; end
 
   def create
-    status_message = authorize StatusMessage.new(status_message_params)
+    status_message = StatusMessage.new(status_message_params)
+    authorize status_message
 
     if status_message.save
       flash[:success] = 'News item was successfully created.'
