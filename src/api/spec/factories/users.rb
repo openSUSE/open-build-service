@@ -28,8 +28,11 @@ FactoryBot.define do
         # rubocop:disable Rails/SkipsModelValidations
         # Avoid triggering the callbacks to propagate the change to the backend
         Configuration.update_column(:allow_user_to_create_home_project, false)
+        # But call touch to force a cache update
+        Configuration.touch
         user.save!
         Configuration.update_column(:allow_user_to_create_home_project, true)
+        Configuration.touch
         # rubocop:enable Rails/SkipsModelValidations
       end
     end
