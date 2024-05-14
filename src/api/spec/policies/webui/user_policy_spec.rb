@@ -19,7 +19,7 @@ RSpec.describe Webui::UserPolicy do
 
     before do
       allow(configuration).to receive(:accounts_editable?).and_return(true)
-      allow(Configuration).to receive(:first).and_return(configuration)
+      allow(Configuration).to receive(:fetch).and_return(configuration)
     end
 
     context 'for a user with moderator role' do
@@ -65,7 +65,7 @@ RSpec.describe Webui::UserPolicy do
 
     before do
       allow(configuration).to receive(:accounts_editable?).and_return(false)
-      allow(Configuration).to receive(:first).and_return(configuration)
+      allow(Configuration).to receive(:fetch).and_return(configuration)
     end
 
     context 'for a user with moderator role' do

@@ -160,7 +160,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def require_configuration
-    @configuration = ::Configuration.first
+    @configuration = ::Configuration.fetch
   end
 
   # Before filter to check if current user is administrator

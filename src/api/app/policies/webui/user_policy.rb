@@ -12,7 +12,7 @@ class Webui::UserPolicy < ApplicationPolicy
   end
 
   def update?
-    configuration = ::Configuration.first
+    configuration = ::Configuration.fetch
 
     return false unless configuration.accounts_editable?(record)
     return true if user.is_admin? || user == record

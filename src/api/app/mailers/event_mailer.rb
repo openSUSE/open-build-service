@@ -24,7 +24,7 @@ class EventMailer < ActionMailer::Base
   private
 
   def set_configuration
-    @configuration = ::Configuration.first
+    @configuration = ::Configuration.fetch
 
     # FIXME: This if for the view. Use action_mailer.default_url_options instead
     # https://guides.rubyonrails.org/action_mailer_basics.html#generating-urls-in-action-mailer-views
