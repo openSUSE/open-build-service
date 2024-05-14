@@ -489,11 +489,6 @@ class User < ApplicationRecord
   end
 
   # FIXME: This should be a policy
-  def can_modify_user?(user)
-    is_admin? || self == user
-  end
-
-  # FIXME: This should be a policy
   # project_name is name of the project
   def can_create_project?(project_name)
     ## special handling for home projects
