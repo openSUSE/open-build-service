@@ -1,12 +1,10 @@
 class Webui::Users::SubscriptionsController < Webui::WebuiController
-  # TODO: Remove this when we'll refactor kerberos_auth
-  before_action :kerberos_auth
+  before_action :require_login
+  before_action :set_subscriptions_form
 
-  after_action :verify_authorized
+  after_action :verify_authorized, except: [:index]
 
   def index
-    @subscriptions_form = authorize(subscriptions_form(default_form: params[:default_form]))
-
     @user = User.session!
     @groups_users = @user.groups_users.includes(:group).order('groups.title')
 
@@ -17,7 +15,7 @@ class Webui::Users::SubscriptionsController < Webui::WebuiController
   end
 
   def update
-    @subscriptions_form = authorize(subscriptions_form)
+    authorize @subscriptions_form
 
     begin
       groups_users = User.session!.groups_users.includes(:group).find_by(groups: { title: params[:groups].keys }) if params[:groups]
@@ -37,11 +35,7 @@ class Webui::Users::SubscriptionsController < Webui::WebuiController
 
   private
 
-  def subscriptions_form(options = {})
-    if options[:default_form]
-      EventSubscription::Form.new
-    else
-      EventSubscription::Form.new(User.session)
-    end
+  def set_subscriptions_form
+    @subscriptions_form = EventSubscription::Form.new(User.session!)
   end
 end

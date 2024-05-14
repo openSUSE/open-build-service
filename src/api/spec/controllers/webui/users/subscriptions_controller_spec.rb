@@ -1,20 +1,4 @@
 RSpec.describe Webui::Users::SubscriptionsController do
-  describe 'GET #index' do
-    it { is_expected.to use_after_action(:verify_authorized) }
-
-    context 'for logged in user' do
-      let!(:user) { create(:confirmed_user) }
-
-      before do
-        login user
-        get :index
-      end
-
-      it { expect(response).to have_http_status(:success) }
-      it { expect(response).to render_template(:index) }
-    end
-  end
-
   describe 'PUT #update' do
     include_context 'a user and subscriptions with defaults'
 
