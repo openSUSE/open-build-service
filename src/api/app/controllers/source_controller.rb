@@ -337,7 +337,7 @@ class SourceController < ApplicationController
     @deleted_package = params.key?(:deleted)
 
     # FIXME: for OBS 3, api of branch and copy calls have target and source in the opposite place
-    if params[:cmd].in?(%w[branch release])
+    if params[:cmd].in?(%w[branch fork release])
       @target_package_name = params[:package]
       @target_project_name = params[:target_project] # might be nil
       @target_package_name = params[:target_package] if params[:target_package]
@@ -1138,6 +1138,8 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=fork&scmsync="url"&target_project="optional_project"
   def package_command_fork
+    @target_project_name ||= User.session!.branch_project_name(params[:project])
+
     # The branch command may be used just for simulation
     verify_can_modify_target!
 

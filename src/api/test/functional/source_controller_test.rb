@@ -2747,6 +2747,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     put '/source/home:adrian:IMAGES/appliance/_meta', params: "<package project='home:adrian:IMAGES' name='appliance'> <title/> <description/> <scmsync>http://localhost</scmsync> </package>"
     assert_response :success
 
+    login_tom
     post '/source/home:adrian:IMAGES/appliance', params: { cmd: 'fork' }
     assert_response 400
     assert_xml_tag(tag: 'status', attributes: { code: 'missing_parameter' })
@@ -2754,22 +2755,27 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     post '/source/home:adrian:IMAGES/appliance', params: { cmd: 'fork', scmsync: 'http://127.0.0.1' }
     assert_response :success
 
-    get '/source/home:adrian:branches:home:adrian:IMAGES/appliance/_history'
+    post '/source/home:adrian:IMAGES/appliance', params: { cmd: 'fork', scmsync: 'http://127.0.0.1',
+                                                           target_project: 'home:adrian:SOMEWHERE'}
+    assert_response 403
+
+    get '/source/home:tom:branches:home:adrian:IMAGES/appliance/_history'
     assert_response :success
     assert_no_xml_tag(tag: 'revision')
 
-    get '/source/home:adrian:branches:home:adrian:IMAGES/_meta'
+    get '/source/home:tom:branches:home:adrian:IMAGES/_meta'
     assert_response :success
     assert_xml_tag(tag: 'repository', attributes: { name: 'images' })
     assert_no_xml_tag(tag: 'path')
 
-    get '/source/home:adrian:branches:home:adrian:IMAGES/appliance/_meta'
+    get '/source/home:tom:branches:home:adrian:IMAGES/appliance/_meta'
     assert_response :success
     assert_xml_tag(tag: 'scmsync', content: 'http://127.0.0.1')
 
     # cleanup
-    delete '/source/home:adrian:branches:home:adrian:IMAGES'
+    delete '/source/home:tom:branches:home:adrian:IMAGES'
     assert_response :success
+    login_adrian
     delete '/source/home:adrian:IMAGES'
     assert_response :success
   end
