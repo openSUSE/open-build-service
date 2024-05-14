@@ -3393,13 +3393,15 @@ publishprog_done:
 
   if ($do_packtrack && $packtrack && !$dbgsplit) {
     # send notification
-    print "    sending binary release tracking notification\n";
-    BSNotify::notify('PACKTRACK', { project => $projid , 'repo' => $repoid }, Storable::nfreeze([ map { $packtrack->{$_} } sort keys %$packtrack ]));
+    my $payload = Storable::nfreeze([ map { $packtrack->{$_} } sort keys %$packtrack ]);
+    print "    sending binary release tracking notification (size=".length($payload).")\n";
+    BSNotify::notify('PACKTRACK', { project => $projid , 'repo' => $repoid }, $payload);
   }
 
   if ($do_sourcepublish && $sources && %$sources && !$dbgsplit) {
-    print "    sending source publish notification\n";
-    BSNotify::notify('sourcepublish', { project => $projid , 'repo' => $repoid }, BSUtil::tostorable($sources));
+    my $payload = BSUtil::tostorable($sources);
+    print "    sending source publish notification (size=".length($payload).")\n";
+    BSNotify::notify('sourcepublish', { project => $projid , 'repo' => $repoid }, $payload);
   }
 
   # update repoinfo with status
