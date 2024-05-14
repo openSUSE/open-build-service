@@ -143,7 +143,7 @@ RSpec.describe Webui::Users::TokensController do
 
       include_examples 'check for flashing an error'
 
-      it { is_expected.to redirect_to(root_path) }
+      it { is_expected.to redirect_to(tokens_path) }
       it { expect { subject }.not_to change(token, :scm_token) }
     end
   end
@@ -175,7 +175,7 @@ RSpec.describe Webui::Users::TokensController do
 
       include_examples 'check for flashing an error'
 
-      it { is_expected.to redirect_to(root_path) }
+      it { is_expected.to redirect_to(tokens_path) }
       it { expect { subject }.not_to change(Token, :count) }
     end
   end

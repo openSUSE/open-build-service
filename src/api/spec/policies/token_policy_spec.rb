@@ -8,26 +8,8 @@ RSpec.describe TokenPolicy, type: :policy do
   let(:unconfirmed_user) { create(:user, state: 'unconfirmed') }
   let(:token_of_unconfirmed_user) { create(:rebuild_token, executor: unconfirmed_user) }
 
-  let(:workflow_token) { create(:workflow_token, executor: token_user) }
-
-  permissions :show? do
-    it { is_expected.not_to permit(other_user, user_token) }
-
-    it { is_expected.to permit(token_user, user_token) }
-  end
-
-  permissions :show?, :create?, :update? do
-    it { is_expected.to permit(token_user, workflow_token) }
-  end
-
-  # New action is permitted on any kind of token and user
-  permissions :new? do
-    it { is_expected.to permit(token_user, Token.new) }
-    it { is_expected.to permit(unconfirmed_user, Token.new) }
-  end
-
   # Create and update are permitted when the user and the executor are the same
-  permissions :create?, :update? do
+  permissions :create?, :update?, :destroy? do
     it { is_expected.to permit(token_user, user_token) }
     it { is_expected.not_to permit(other_user, user_token) }
   end

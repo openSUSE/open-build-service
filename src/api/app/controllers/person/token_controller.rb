@@ -5,12 +5,13 @@ module Person
 
     before_action :set_user
     before_action :validate_operation, only: [:create]
+    after_action :verify_authorized
 
     # GET /person/<login>/token
     def index
-      authorize @user, :show?
+      authorize @user, :update?
 
-      @list = @user.tokens
+      @list = policy_scope(Token)
     end
 
     # POST /person/<login>/token
