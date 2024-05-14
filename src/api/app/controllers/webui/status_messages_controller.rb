@@ -1,11 +1,9 @@
 class Webui::StatusMessagesController < Webui::WebuiController
-  # TODO: Remove this when we'll refactor kerberos_auth
-  before_action :kerberos_auth
-  after_action :verify_authorized, except: [:preview]
+  before_action :require_staff
+  before_action :set_status_message, except: %i[index new create preview]
+  after_action :verify_authorized, except: %i[new edit preview]
 
   def index
-    authorize StatusMessage
-
     @severity, @communication_scope, @page = index_params.values_at(:severity, :communication_scope, :page)
     @status_messages = StatusMessage.newest.includes(:user).for_severity(@severity).for_communication_scope(@communication_scope).page(@page)
 
@@ -15,13 +13,9 @@ class Webui::StatusMessagesController < Webui::WebuiController
     end
   end
 
-  def new
-    authorize StatusMessage
-  end
+  def new; end
 
-  def edit
-    @status_message = authorize StatusMessage.find(params[:id])
-  end
+  def edit; end
 
   def create
     status_message = authorize StatusMessage.new(status_message_params)
@@ -36,33 +30,31 @@ class Webui::StatusMessagesController < Webui::WebuiController
   end
 
   def update
-    status_message = authorize StatusMessage.find(params[:id])
+    authorize @status_message
 
-    if status_message.update(status_message_params)
+    if @status_message.update(status_message_params)
       flash[:success] = 'News item was successfully updated.'
     else
-      flash[:error] = "Could not update news item: #{status_message.errors.full_messages.to_sentence}"
+      flash[:error] = "Could not update news item: #{@status_message.errors.full_messages.to_sentence}"
     end
 
     redirect_to(action: 'index')
   end
 
   def destroy
-    status_message = authorize StatusMessage.find(params[:id])
+    authorize @status_message
 
-    if status_message.destroy
+    if @status_message.destroy
       flash[:success] = 'News item was successfully deleted.'
     else
-      flash[:error] = "Could not delete news item: #{status_message.errors.full_messages.to_sentence}"
+      flash[:error] = "Could not delete news item: #{@status_message.errors.full_messages.to_sentence}"
     end
 
     redirect_back_or_to({ action: 'index' })
   end
 
   def acknowledge
-    status_message = authorize StatusMessage.find(params[:id])
-
-    collect_metrics(status_message) if status_message.acknowledge!
+    collect_metrics(@status_message) if @status_message.acknowledge!
 
     respond_to do |format|
       format.js { render controller: 'status_message', action: 'acknowledge' }
@@ -78,8 +70,8 @@ class Webui::StatusMessagesController < Webui::WebuiController
 
   private
 
-  def authorize(*args, **kwargs)
-    super(*args, policy_class: Webui::StatusMessagePolicy, **kwargs)
+  def set_status_message
+    @status_message = StatusMessage.find(params[:id])
   end
 
   def collect_metrics(status_message)
