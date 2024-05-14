@@ -80,7 +80,7 @@ RSpec.describe PersonController do
           post :post_userinfo, params: { login: user.login, cmd: 'change_password', format: :xml }
         end
 
-        it { expect(response.header['X-Opensuse-Errorcode']).to eq('change_password_no_permission') }
+        it { expect(response.header['X-Opensuse-Errorcode']).to eq('update_user_not_authorized') }
         it { expect(old_password_digest).to eq(user.reload.password_digest) }
       end
 

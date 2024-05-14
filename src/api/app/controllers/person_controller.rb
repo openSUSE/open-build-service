@@ -50,11 +50,6 @@ class PersonController < ApplicationController
     if params[:cmd] == 'change_password'
       login ||= User.session!.login
       password = request.raw_post.to_s.chomp
-      if (login != User.session!.login && !User.admin_session?) || !::Configuration.passwords_changable?(User.session!)
-        render_error status: 403, errorcode: 'change_password_no_permission',
-                     message: "No permission to change password for user #{login}"
-        return
-      end
       if password.blank?
         render_error status: 404, errorcode: 'password_empty',
                      message: 'No new password given in first line of the body'
@@ -136,7 +131,7 @@ class PersonController < ApplicationController
 
   def get_watchlist
     if @user
-      authorize @user, :check_watchlist?
+      authorize @user, :update?
 
       render xml: @user.render_axml(render_watchlist_only: true)
     else
@@ -148,7 +143,7 @@ class PersonController < ApplicationController
 
   def put_watchlist
     if @user
-      authorize @user, :check_watchlist?
+      authorize @user, :update?
     else
       @errorcode = 404
       @summary = 'Requested non-existing user'
