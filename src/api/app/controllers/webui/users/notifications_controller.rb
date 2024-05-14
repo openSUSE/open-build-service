@@ -15,12 +15,11 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def update
-    notification_ids = notification_params
     @selected_filter = { notification: notification_params }
-    notifications = if notification_ids[:update_all]
+    notifications = if notification_params[:update_all]
                       fetch_notifications
                     else
-                      fetch_notifications.where(id: notification_ids[:id])
+                      fetch_notifications.where(id: notification_params[:id])
                     end
     # rubocop:disable Rails/SkipsModelValidations
     # FIXME: This has room for improvement
@@ -52,7 +51,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   private
 
   def notification_params
-    params.require(:notification).permit(VALID_NOTIFICATION_TYPES + [:update_all, { id: [], project: {}, group: {} }])
+    @notification_params ||= params.require(:notification).permit(VALID_NOTIFICATION_TYPES + [:update_all, { id: [], project: {}, group: {} }])
   end
 
   def set_current_user
