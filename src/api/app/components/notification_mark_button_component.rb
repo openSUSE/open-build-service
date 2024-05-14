@@ -3,7 +3,7 @@ class NotificationMarkButtonComponent < ApplicationComponent
     super
 
     @notification = notification
-    @selected_filter = selected_filter
+    @selected_filter = selected_filter[:notification]
     @page = page
     @show_more = show_more
   end
@@ -19,6 +19,6 @@ class NotificationMarkButtonComponent < ApplicationComponent
   end
 
   def update_path
-    my_notifications_path(notification_ids: [@notification.id], page: @page, show_more: @show_more)
+    my_notifications_path(notification: @selected_filter&.merge(id: [@notification.id]), page: @page, show_more: @show_more)
   end
 end

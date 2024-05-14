@@ -5,21 +5,21 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   # TODO: Remove this when we'll refactor kerberos_auth
   before_action :kerberos_auth
   before_action :set_current_user, only: %i[index update]
+  before_action :set_selected_filter_for_update, only: :update
+  before_action :set_selected_filter_for_read, only: :index
   after_action :verify_policy_scoped
 
   def index
-    @selected_filter = params.permit(:user_login, notification: [VALID_NOTIFICATION_TYPES + [project: {}, group: {}]])
     @notifications = paginated_notifications
     @show_read_all_button = show_read_all_button?
     @filtered_by = @selected_filter.to_h.filter { |_k, v| v.present? }.keys - %w[unread read]
   end
 
   def update
-    @selected_filter = { notification: notification_params }
-    notifications = if notification_params[:update_all]
+    notifications = if @selected_filter[:update_all]
                       fetch_notifications
                     else
-                      fetch_notifications.where(id: notification_params[:id])
+                      fetch_notifications.where(id: @selected_filter[:notification][:id])
                     end
     # rubocop:disable Rails/SkipsModelValidations
     # FIXME: This has room for improvement
@@ -49,10 +49,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   private
-
-  def notification_params
-    @notification_params ||= params.require(:notification).permit(VALID_NOTIFICATION_TYPES + [:update_all, { id: [], project: {}, group: {} }])
-  end
 
   def set_current_user
     @current_user = User.session
@@ -122,5 +118,18 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   def send_notifications_information_rabbitmq(read_count, unread_count)
     RabbitmqBus.send_to_bus('metrics', "notification,action=read value=#{read_count}") if read_count.positive?
     RabbitmqBus.send_to_bus('metrics', "notification,action=unread value=#{unread_count}") if unread_count.positive?
+  end
+
+  def set_selected_filter_for_update
+    @selected_filter = { notification: params.require(:notification).permit(VALID_NOTIFICATION_TYPES + [:update_all, { id: [], project: {}, group: {} }]) }
+  end
+
+  def set_selected_filter_for_read
+    @selected_filter = params.permit(:user_login, notification: [VALID_NOTIFICATION_TYPES + [project: {}, group: {}]]).to_h
+    return if params.dig(:notification, :unread) || params.dig(:notification, :read)
+
+    # no read|unread param filters fallback on `unread` notifications only
+    @selected_filter['notification'] = {} unless @selected_filter['notification']
+    @selected_filter['notification']['unread'] = 1
   end
 end
