@@ -11,6 +11,12 @@ class Configuration < ApplicationRecord
   validates :description, :code_of_conduct, length: { maximum: 65_535 }
 
   class << self
+    def fetch
+      Rails.cache.fetch(first.cache_key_with_version) do
+        first
+      end
+    end
+
     def map_value(key, value)
       # make them boolean
       return value.in?([:on, ':on', 'on', 'true', true]) if key.in?(::Configuration::ON_OFF_OPTIONS)
