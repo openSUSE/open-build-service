@@ -69,11 +69,11 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     notifications = policy_scope(Notification).for_web.includes(notifiable: [{ commentable: [{ comments: :user }, :project, :bs_request_actions] }, :bs_request_actions, :reviews])
 
     relations = notifications
-    if %i[unread read].none? { |p| params.dig(:notification, p) }
+    if params.dig(:notification, :unread).blank? && params.dig(:notification, :read).blank?
       # no read|unread param filters fallback on `unread` notifications only
       @selected_filter['unread'] = 1
       relations = notifications.unread
-    elsif %i[unread read].all? { |p| params.dig(:notification, p) }
+    elsif params.dig(:notification, :unread) && params.dig(:notification, :read)
       relations = notifications.unread.or(notifications.read)
     else
       relations = notifications.unread if params.dig(:notification, :unread)
