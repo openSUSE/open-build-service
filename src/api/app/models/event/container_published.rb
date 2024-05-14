@@ -1,7 +1,7 @@
 module Event
   class ContainerPublished < Base
     self.message_bus_routing_key = 'container.published'
-    self.description = 'Container image was published'
+    self.description = 'Container image published'
     payload_keys :project, :repo, :buildid, :container
   end
 end

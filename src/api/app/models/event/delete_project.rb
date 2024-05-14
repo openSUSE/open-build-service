@@ -1,7 +1,7 @@
 module Event
   class DeleteProject < Base
     self.message_bus_routing_key = 'project.delete'
-    self.description = 'Project was deleted'
+    self.description = 'Project deleted'
     payload_keys :project, :comment, :requestid, :sender
 
     private

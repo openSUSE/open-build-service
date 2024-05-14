@@ -1,7 +1,7 @@
 module Event
   class RequestStatechange < Request
     self.message_bus_routing_key = 'request.state_change'
-    self.description = 'Request state was changed'
+    self.description = 'Request state changed'
     payload_keys :oldstate, :duration
     receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_project_watcher, :target_project_watcher,
                    :source_package_watcher, :target_package_watcher, :request_watcher

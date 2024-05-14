@@ -1,7 +1,7 @@
 module Event
   class BuildUnchanged < Build
     self.message_bus_routing_key = 'package.build_unchanged'
-    self.description = 'Package has succeeded building with unchanged result'
+    self.description = 'Package succeeded building with unchanged result'
 
     def state
       'unchanged'

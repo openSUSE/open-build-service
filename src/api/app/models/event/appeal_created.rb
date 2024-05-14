@@ -2,7 +2,7 @@ module Event
   class AppealCreated < Base
     receiver_roles :moderator
 
-    self.description = 'A user has appealed the decision of a moderator'
+    self.description = 'A user appealed the decision of a moderator'
 
     payload_keys :id, :appellant_id, :decision_id, :reason, :report_last_id, :reportable_type
 

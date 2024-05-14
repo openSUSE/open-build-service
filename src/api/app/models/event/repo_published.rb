@@ -1,7 +1,7 @@
 module Event
   class RepoPublished < Base
     self.message_bus_routing_key = 'repo.published'
-    self.description = 'Repository was published'
+    self.description = 'Repository published'
     payload_keys :project, :repo, :buildid
 
     private

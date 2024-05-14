@@ -1,7 +1,7 @@
 module Event
   class ClearedDecision < Base
     receiver_roles :reporter
-    self.description = 'Reported content has been cleared'
+    self.description = 'Reported content cleared'
 
     payload_keys :id, :reason, :moderator_id, :report_last_id, :reportable_type
 

@@ -1,6 +1,6 @@
 module Event
   class ReportForProject < Report
-    self.description = 'Report for a project has been created'
+    self.description = 'Report for a project created'
     payload_keys :project_name
 
     def self.notification_link_path(notification)

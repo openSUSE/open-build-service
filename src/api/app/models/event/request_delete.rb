@@ -1,7 +1,7 @@
 module Event
   class RequestDelete < Request
     self.message_bus_routing_key = 'request.delete'
-    self.description = 'Request was deleted (admin only)'
+    self.description = 'Request deleted (admin only)'
   end
 end
 

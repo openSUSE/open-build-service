@@ -1,6 +1,6 @@
 module Event
   class BranchCommand < Base
-    self.description = 'Package was branched'
+    self.description = 'Package branched'
     self.message_bus_routing_key = 'package.branch'
     payload_keys :project, :package, :sender, :targetproject, :targetpackage, :user
 
