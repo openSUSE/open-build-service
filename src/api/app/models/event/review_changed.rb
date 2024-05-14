@@ -6,7 +6,7 @@ module Event
     receiver_roles :source_maintainer, :target_maintainer, :creator, :source_project_watcher, :target_project_watcher
 
     def subject
-      "Request #{payload['number']} was reviewed (#{actions_summary})"
+      "Request #{payload['number']} reviewed (#{actions_summary})"
     end
 
     def expanded_payload

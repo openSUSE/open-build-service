@@ -4,7 +4,7 @@ module Event
     self.description = 'Request reviews are all done'
 
     def subject
-      "Request #{payload['number']} was fully reviewed (#{actions_summary})"
+      "Request #{payload['number']} fully reviewed (#{actions_summary})"
     end
   end
 end
