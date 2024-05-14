@@ -80,8 +80,6 @@ post:
       name: force
       schema:
         type: string
-        enum:
-          - 1
       allowEmptyValue: true
       description: Set to allow overwriting of a pre-existing package.
     - in: query
