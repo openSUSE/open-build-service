@@ -1,11 +1,7 @@
 module Webui
   module Users
     class TasksController < WebuiController
-      # TODO: Remove this when we'll refactor kerberos_auth
-      before_action :kerberos_auth
-      before_action -> { authorize(%i[users task]) }
-
-      after_action :verify_authorized
+      before_action :require_login
     end
   end
 end
