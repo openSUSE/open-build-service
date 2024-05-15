@@ -45,18 +45,17 @@ sub notify {
   # strip
   $p = { map {$_ => $p->{$_}} grep {defined($p->{$_}) && !ref($p->{$_})} sort keys %{$p || {}} };
 
-  my $timeout = 60;
-  $timeout += int(length($$payloadref) / 500000) if $payloadref;
-  $timeout = 3600 if $timeout > 3600;
   my $param = {
     'uri' => "$BSConfig::srcserver/notify/$type",
     'request' => 'POST',
     'formurlencode' => 1,
-    'timeout' => $timeout,
+    'timeout' => 60,
   };
   if ($payloadref) {
-    $param->{'headers'} = [ 'Content-Type: application/octet-stream' ];
-    $param->{'chunked'} = 1;
+    my $payloadsize = length($$payloadref);
+    my $timeout = 60 + int($payloadsize / 500000);
+    $param->{'timeout'} = $timeout > 3600 ? 3600 : $timeout;
+    $param->{'headers'} = [ 'Content-Type: application/octet-stream', "Content-Length: $payloadsize" ];
     $param->{'data'} = $payloadref;
     $param->{'datafmt'} = \&payload_datafmt;
     $param->{'formurlencode'} = 0;
