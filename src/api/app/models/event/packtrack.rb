@@ -1,7 +1,7 @@
 module Event
   class Packtrack < Base
     self.message_bus_routing_key = 'repo.packtrack'
-    self.description = 'Binary was published'
+    self.description = 'Binary published'
     payload_keys :project, :repo, :payload
 
     # for package tracking in first place

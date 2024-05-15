@@ -1,7 +1,7 @@
 module Event
   class ServiceFail < Base
     self.message_bus_routing_key = 'package.service_fail'
-    self.description = 'Package source service has failed'
+    self.description = 'Package source service failed'
     payload_keys :project, :package, :sender, :comment, :error, :rev, :user, :requestid
     receiver_roles :maintainer, :bugowner
     create_jobs :update_backend_infos_job

@@ -56,7 +56,7 @@ class NotificationActionDescriptionComponent < ApplicationComponent
     when 'Event::FavoredDecision'
       "'#{@notification.notifiable.moderator.login}' decided to favor the report. This is the reason:"
     when 'Event::AppealCreated'
-      "'#{@notification.notifiable.appellant.login}' appealled the decision for the following reason:"
+      "'#{@notification.notifiable.appellant.login}' appealed the decision for the following reason:"
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity

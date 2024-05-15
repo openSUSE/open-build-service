@@ -1,7 +1,7 @@
 module Event
   class FavoredDecision < Base
     receiver_roles :reporter, :offender
-    self.description = 'Reported content has been favored'
+    self.description = 'Reported content favored'
 
     payload_keys :id, :reason, :moderator_id, :report_last_id, :reportable_type
 

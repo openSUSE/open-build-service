@@ -1,7 +1,7 @@
 module Event
   class RequestChange < Request
     self.message_bus_routing_key = 'request.change'
-    self.description = 'Request XML was updated (admin only)'
+    self.description = 'Request XML updated (admin only)'
   end
 end
 

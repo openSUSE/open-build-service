@@ -3,7 +3,7 @@ module Event
     include BuildLogSupport
 
     self.message_bus_routing_key = 'package.build_fail'
-    self.description = 'Package has failed to build'
+    self.description = 'Package failed to build'
     receiver_roles :maintainer, :bugowner, :reader, :project_watcher, :package_watcher, :request_watcher
 
     create_jobs :report_to_scm_job

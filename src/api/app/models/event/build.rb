@@ -1,6 +1,6 @@
 module Event
   class Build < Base
-    self.description = 'Package has finished building'
+    self.description = 'Package finished building'
     self.abstract_class = true
     payload_keys :project, :package, :sender, :repository, :arch, :release, :readytime, :srcmd5,
                  :rev, :reason, :bcnt, :verifymd5, :hostarch, :starttime, :endtime, :workerid, :versrel, :previouslyfailed, :successive_failcount, :buildtype
