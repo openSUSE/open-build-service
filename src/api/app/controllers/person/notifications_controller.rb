@@ -3,7 +3,8 @@ module Person
     include Person::Errors
 
     MAX_PER_PAGE = 300
-    ALLOWED_FILTERS = %w[requests unread incoming_requests outgoing_requests read].freeze
+    ALLOWED_FILTERS = %w[read comments requests unread incoming_requests outgoing_requests relationships_created relationships_deleted
+                         build_failures reports workflow_runs appealed_decisions].freeze
 
     before_action :check_filter_type, except: [:update]
 
