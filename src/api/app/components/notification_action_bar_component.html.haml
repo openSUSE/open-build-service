@@ -11,5 +11,5 @@
             = button_text
         - if @show_read_all_button
           .ms-4
-            = link_to(button_text(all: true), @update_path, method: :put, remote: true,
+            = link_to(button_text(all: true), @update_all_path, method: :put, remote: true,
                       class: 'btn btn-sm btn-outline-secondary px-3', 'data-disable-with': disable_with_content(all: true))

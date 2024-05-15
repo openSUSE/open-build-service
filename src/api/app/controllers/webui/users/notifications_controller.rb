@@ -16,7 +16,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def update
-    notifications = if @selected_filter[:update_all]
+    notifications = if @selected_filter[:notification][:update_all]
                       fetch_notifications
                     else
                       fetch_notifications.where(id: @selected_filter[:notification][:id])
@@ -66,7 +66,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     relations = notifications
     if params.dig(:notification, :unread).blank? && params.dig(:notification, :read).blank?
       # no read|unread param filters fallback on `unread` notifications only
-      @selected_filter['unread'] = 1
       relations = notifications.unread
     elsif params.dig(:notification, :unread) && params.dig(:notification, :read)
       relations = notifications.unread.or(notifications.read)

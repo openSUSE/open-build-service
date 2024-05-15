@@ -30,4 +30,8 @@ class NotificationComponent < ApplicationComponent
       tag.i(class: ['fas', NOTIFICATION_ICON[@notification.notifiable_type]], title: NOTIFICATION_TITLE[@notification.notifiable_type])
     end
   end
+
+  def multiple_selection_button_disabled?
+    @selected_filter.dig(:notification, :unread) && @selected_filter.dig(:notification, :read)
+  end
 end

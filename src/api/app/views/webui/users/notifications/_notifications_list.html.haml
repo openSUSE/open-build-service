@@ -9,9 +9,15 @@
 - else
   :ruby
     update_path = my_notifications_path(page: params[:page], show_more: params[:show_more])
+    update_all_path = my_notifications_path(params: selected_filter, notification: { update_all: true },
+                                            page: params[:page], show_more: params[:show_more])
   = form_tag(update_path, method: :put, remote: true) do
+    .d-none
+      -# Pass the current filters selection within the form
+      - selected_filter.dig(:notification).except(:id).each do |filter, value|
+        = check_box_tag "notification[#{filter}]", value, checked: true
     = render(NotificationActionBarComponent.new(selected_filter: selected_filter,
-                                                update_path: update_path,
+                                                update_all_path: update_all_path,
                                                 show_read_all_button: show_read_all_button))
     .card
       .card-body
