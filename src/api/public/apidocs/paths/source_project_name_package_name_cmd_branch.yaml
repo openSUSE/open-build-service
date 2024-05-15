@@ -80,8 +80,9 @@ post:
       name: force
       schema:
         type: string
-      allowEmptyValue: true
-      description: Set to allow overwriting of a pre-existing package.
+      description: |
+        Set to 1 to allow overwriting of a pre-existing package.
+      example: 1
     - in: query
       name: rev
       schema:
