@@ -336,14 +336,14 @@ class SourceController < ApplicationController
     #--------------------
     @deleted_package = params.key?(:deleted)
 
+    @target_package_name = params[:package]
+
     # FIXME: for OBS 3, api of branch and copy calls have target and source in the opposite place
     if params[:cmd].in?(%w[branch fork release])
-      @target_package_name = params[:package]
       @target_project_name = params[:target_project] # might be nil
       @target_package_name = params[:target_package] if params[:target_package]
     else
       @target_project_name = params[:project]
-      @target_package_name = params[:package]
     end
   end
 
