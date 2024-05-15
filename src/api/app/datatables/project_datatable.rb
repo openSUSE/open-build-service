@@ -30,10 +30,9 @@ class ProjectDatatable < Datatable
   # rubocop:enable Naming/AccessorMethodName
 
   def data
-    records.map do |record|
+    records.left_outer_joins(quality_attribs: :values).select('projects.*', 'attrib_values.value AS attrib_value').map do |record|
       {
-        name: link_to(record.name, project_show_path(record)) +
-          safe_join(record.categories.map { |q| category_badge(q) }),
+        name: link_to(record.name, project_show_path(record)) + category_badge(record.attrib_value),
         title: record.title
       }
     end
