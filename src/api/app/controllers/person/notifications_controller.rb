@@ -3,7 +3,7 @@ module Person
     include Person::Errors
 
     MAX_PER_PAGE = 300
-    ALLOWED_FILTERS = %w[requests incoming_requests outgoing_requests read].freeze
+    ALLOWED_FILTERS = %w[requests unread incoming_requests outgoing_requests read].freeze
 
     before_action :check_filter_type, except: [:update]
 
@@ -37,7 +37,6 @@ module Person
                                else
                                  notifications
                                end
-      # We are limiting it just for BsRequests
       NotificationsFinder.new(filtered_notifications).for_notifiable_type(@filter_type)
     end
 
@@ -47,11 +46,9 @@ module Person
       params[:show_maximum] ? show_maximum(notifications) : notifications.page(params[:page])
     end
 
-    # The 'requests' type will be the default value unless another allowed
-    # filter is specified in the URL. I.e. "?notifications_type=incoming_requests"
     def check_filter_type
-      @filter_type = params.fetch(:notifications_type, 'requests')
-      raise FilterNotSupportedError unless ALLOWED_FILTERS.include?(@filter_type)
+      @filter_type = params[:notifications_type]
+      raise FilterNotSupportedError if @filter_type.present? && ALLOWED_FILTERS.exclude?(@filter_type)
     end
   end
 end
