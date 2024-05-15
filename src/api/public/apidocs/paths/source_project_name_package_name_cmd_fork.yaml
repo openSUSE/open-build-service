@@ -82,4 +82,4 @@ post:
             code: not_found
             summary: project not found
   tags:
-    - Sources
+    - Sources - Packages
