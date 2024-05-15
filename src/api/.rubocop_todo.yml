@@ -812,13 +812,6 @@ Rails/ApplicationMailer:
     - 'app/mailers/admin_mailer.rb'
     - 'app/mailers/event_mailer.rb'
 
-# Offense count: 1
-# Configuration parameters: Include.
-# Include: db/**/*.rb
-Rails/CreateTableWithTimestamps:
-  Exclude:
-    - 'db/migrate/20171030143054_create_kiwi_preference_types.rb'
-
 # Offense count: 70
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: EnforcedStyle.

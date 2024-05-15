@@ -277,6 +277,11 @@ Metrics/BlockLength:
 Rails:
   Enabled: true
 
+Rails/CreateTableWithTimestamps:
+  Exclude:
+    - 'db/migrate/20171030143054_create_kiwi_preference_types.rb'
+    - 'db/migrate/20240513154336_remove_watched_projects.rb'
+
 # Actually is not possible to enable this cop because we have several overwritten methods.
 Rails/DynamicFindBy:
   Enabled: false

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_04_25_122946) do
+ActiveRecord::Schema[7.0].define(version: 2024_05_13_154336) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -1199,12 +1199,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_25_122946) do
     t.index ["watchable_type", "watchable_id"], name: "index_watched_items_on_watchable"
   end
 
-  create_table "watched_projects", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.integer "user_id", default: 0, null: false
-    t.integer "project_id", null: false
-    t.index ["user_id"], name: "watched_projects_users_fk_1"
-  end
-
   create_table "workflow_artifacts_per_steps", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.integer "workflow_run_id", null: false
     t.string "step"
@@ -1353,5 +1347,4 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_25_122946) do
   add_foreign_key "status_checks", "status_reports", column: "status_reports_id"
   add_foreign_key "tokens", "packages", name: "tokens_ibfk_2"
   add_foreign_key "tokens", "users", column: "executor_id", name: "tokens_ibfk_1"
-  add_foreign_key "watched_projects", "users", name: "watched_projects_ibfk_1"
 end
