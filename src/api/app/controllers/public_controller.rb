@@ -28,7 +28,7 @@ class PublicController < ApplicationController
   # GET /public/configuration.xml
   # GET /public/configuration.json
   def configuration_show
-    @configuration = ::Configuration.first
+    @configuration = ::Configuration.fetch
 
     respond_to do |format|
       format.xml  { render xml: @configuration.render_xml }

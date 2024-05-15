@@ -153,6 +153,10 @@ RSpec.describe User do
   end
 
   describe "methods used in the User's dashboard" do
+    before do
+      unfreeze_time
+    end
+
     let(:project) { create(:project, name: 'project_a') }
 
     it 'has involved packages' do

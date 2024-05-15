@@ -13,7 +13,7 @@ class ConfigurationsController < ApplicationController
   # GET /configuration.xml
   # GET /configuration.json
   def show
-    @configuration = ::Configuration.first
+    @configuration = ::Configuration.fetch
 
     respond_to do |format|
       format.xml  { render xml: @configuration.render_xml }
@@ -24,7 +24,7 @@ class ConfigurationsController < ApplicationController
   # PUT /configuration
   # PUT /configuration.xml
   def update
-    @configuration = ::Configuration.first
+    @configuration = ::Configuration.fetch
 
     xml = Xmlhash.parse(request.raw_post) || {}
     attribs = {}
