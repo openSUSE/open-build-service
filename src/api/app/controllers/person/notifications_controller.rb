@@ -48,7 +48,7 @@ module Person
     end
 
     def check_filter_type
-      @filter_type = params[:notifications_type]
+      @filter_type = params[:notifications_type] || 'unread'
       raise FilterNotSupportedError if @filter_type.present? && ALLOWED_FILTERS.exclude?(@filter_type)
     end
   end
