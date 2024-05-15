@@ -1138,10 +1138,8 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=fork&scmsync="url"&target_project="optional_project"
   def package_command_fork
-    @target_project_name ||= User.session!.branch_project_name(params[:project])
-
     # The branch command may be used just for simulation
-    verify_can_modify_target!
+    verify_can_modify_target! if @target_project_name
 
     raise MissingParameterError, 'scmsync url is not specified' if params[:scmsync].blank?
 
