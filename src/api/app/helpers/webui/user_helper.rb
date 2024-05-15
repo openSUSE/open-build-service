@@ -50,7 +50,7 @@ module Webui::UserHelper
     user = User.find_by_login(user) unless user.is_a?(User)
     return '' unless user
 
-    Rails.cache.fetch([user, 'realname_and_icon', opts, ::Configuration.first]) do
+    Rails.cache.fetch([user, 'realname_and_icon', opts]) do
       printed_name = if opts[:short]
                        user.login
                      else
