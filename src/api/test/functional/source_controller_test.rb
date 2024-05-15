@@ -2756,7 +2756,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     post '/source/home:adrian:IMAGES/appliance', params: { cmd: 'fork', scmsync: 'http://127.0.0.1',
-                                                           target_project: 'home:adrian:SOMEWHERE'}
+                                                           target_project: 'home:adrian:SOMEWHERE' }
     assert_response 403
 
     get '/source/home:tom:branches:home:adrian:IMAGES/appliance/_history'
