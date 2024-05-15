@@ -590,13 +590,7 @@ sub retrieve {
     eval {
       $dd = ref($fn) ? Storable::fd_retrieve($fn) : Storable::retrieve($fn);
     };
-    if (!$dd && $nonfatal == 2) {
-      if ($@) {
-        warn($@);
-      } else {
-        warn("retrieve $fn: $!\n");
-      }
-    }
+    warn($@ || "retrieve $fn: $!\n") if !$dd && $nonfatal == 2;
   }
   return $dd;
 }
@@ -607,13 +601,15 @@ sub tostorable {
 
 sub fromstorable {
   my $nonfatal = $_[1];
-  return Storable::thaw(substr($_[0], 4)) unless $nonfatal;
-  my $d = eval { Storable::thaw(substr($_[0], 4)) };
-  if ($@) {
-    warn($@) if $nonfatal == 2;
-    return undef;
+  my $dd;
+  if (!$nonfatal) {
+    $dd = Storable::thaw(substr($_[0], 4));
+    die("fromstorable error\n") unless $dd;
+  } else {
+    $dd = eval { Storable::thaw(substr($_[0], 4)) };
+    warn($@ || "fromstorable error\n") if !$dd && $nonfatal == 2;
   }
-  return $d;
+  return $dd;
 }
 
 sub ping {
