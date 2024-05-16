@@ -3,6 +3,10 @@ module Event
     self.description = 'Report for a project created'
     payload_keys :project_name
 
+    def subject
+      "Project #{payload[:project_name]} reported"
+    end
+
     def self.notification_link_path(notification)
       Rails.application.routes.url_helpers.project_show_path(notification.event_payload['project_name'], notification_id: notification.id) if Project.exists_by_name(notification.event_payload['project_name'])
     end

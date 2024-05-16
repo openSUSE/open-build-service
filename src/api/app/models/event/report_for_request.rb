@@ -2,6 +2,10 @@ module Event
   class ReportForRequest < Report
     self.description = 'Report for a request created'
     payload_keys :bs_request_number
+
+    def subject
+      "Request #{payload[:bs_request_number]} reported"
+    end
   end
 end
 
