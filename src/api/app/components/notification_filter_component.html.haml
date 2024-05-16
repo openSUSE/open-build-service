@@ -1,33 +1,33 @@
 .list-group.list-group-flush.my-2
   = render NotificationFilterLinkComponent.new(text: 'Unread', amount: @count['unread'],
-                                               filter_item: { type: 'unread' }, selected_filter: @selected_filter)
-  = render NotificationFilterLinkComponent.new(text: 'Read', filter_item: { type: 'read' },
+                                               filter_item: { state: 'unread' }, selected_filter: @selected_filter)
+  = render NotificationFilterLinkComponent.new(text: 'Read', filter_item: { state: 'read' },
                                                selected_filter: @selected_filter)
 .list-group.list-group-flush.mt-5.mb-2
   %h5.ms-3 Filter
   = render NotificationFilterLinkComponent.new(text: 'Comments', amount: @count['Comment'], icon: 'fas fa-comments',
-                                               filter_item: { type: 'comments' }, selected_filter: @selected_filter)
+                                               filter_item: { kind: 'comments' }, selected_filter: @selected_filter)
   = render NotificationFilterLinkComponent.new(text: 'Requests', amount: @count['BsRequest'], icon: 'fas fa-code-pull-request',
-                                               filter_item: { type: 'requests' }, selected_filter: @selected_filter)
+                                               filter_item: { kind: 'requests' }, selected_filter: @selected_filter)
   = render NotificationFilterLinkComponent.new(text: 'Incoming Requests', amount: @count['incoming_requests'], icon: 'fas fa-code-pull-request',
-                                               filter_item: { type: 'incoming_requests' }, selected_filter: @selected_filter)
+                                               filter_item: { kind: 'incoming_requests' }, selected_filter: @selected_filter)
   = render NotificationFilterLinkComponent.new(text: 'Outgoing Requests', amount: @count['outgoing_requests'], icon: 'fas fa-code-pull-request',
-                                               filter_item: { type: 'outgoing_requests' }, selected_filter: @selected_filter)
+                                               filter_item: { kind: 'outgoing_requests' }, selected_filter: @selected_filter)
   = render NotificationFilterLinkComponent.new(text: 'Roles Granted', amount: @count['relationships_created'], icon: 'fas fa-user-tag',
-                                               filter_item: { type: 'relationships_created' }, selected_filter: @selected_filter)
+                                               filter_item: { kind: 'relationships_created' }, selected_filter: @selected_filter)
   = render NotificationFilterLinkComponent.new(text: 'Roles Revoked', amount: @count['relationships_deleted'], icon: 'fas fa-user-tag',
-                                               filter_item: { type: 'relationships_deleted' }, selected_filter: @selected_filter)
+                                               filter_item: { kind: 'relationships_deleted' }, selected_filter: @selected_filter)
   = render NotificationFilterLinkComponent.new(text: 'Build Failures', amount: @count['build_failures'], icon: "fas fa-xmark text-danger",
-                                               filter_item: { type: 'build_failures' }, selected_filter: @selected_filter)
+                                               filter_item: { kind: 'build_failures' }, selected_filter: @selected_filter)
   - if ReportPolicy.new(@user, Report).notify?
     = render NotificationFilterLinkComponent.new(text: 'Reports', amount: @count['reports'], icon: 'fas fa-flag',
-                                                filter_item: { type: 'reports' }, selected_filter: @selected_filter,
+                                                filter_item: { kind: 'reports' }, selected_filter: @selected_filter,
                                                 )
   = render NotificationFilterLinkComponent.new(text: 'Workflow Runs', amount: @count['workflow_runs'], icon: 'fas fa-book-open',
-                                               filter_item: { type: 'workflow_runs' }, selected_filter: @selected_filter)
+                                               filter_item: { kind: 'workflow_runs' }, selected_filter: @selected_filter)
   - if Flipper.enabled?(:content_moderation, @user)
     = render NotificationFilterLinkComponent.new(text: 'Appealed Decisions', amount: @count['appealed_decisions'], icon: 'fas fa-hand',
-                                                 filter_item: { type: 'appealed_decisions' }, selected_filter: @selected_filter)
+                                                 filter_item: { kind: 'appealed_decisions' }, selected_filter: @selected_filter)
 
 - unless @projects_for_filter.empty?
   .list-group.list-group-flush.mt-5.mb-2

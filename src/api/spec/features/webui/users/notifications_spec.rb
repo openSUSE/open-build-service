@@ -23,8 +23,8 @@ RSpec.describe 'User notifications', :js do
     let(:another_notifiable) { another_notification_for_projects_comment.notifiable }
     let(:project) { notifiable.commentable.project }
 
-    shared_examples 'keeps the Comments filter' do
-      it 'keeps the filter' do
+    shared_examples 'keeping the Comments filter selected' do
+      it do
         wait_for_ajax
 
         find_by_id('notifications-dropdown-trigger').click if mobile?
@@ -52,7 +52,7 @@ RSpec.describe 'User notifications', :js do
           click_link("update_notification_#{notification_for_projects_comment.id}")
         end
 
-        it_behaves_like 'keeps the Comments filter'
+        it_behaves_like 'keeping the Comments filter selected'
       end
     end
 
@@ -71,7 +71,7 @@ RSpec.describe 'User notifications', :js do
         expect(page).to have_text('There are no notifications for this filter')
       end
 
-      it_behaves_like 'keeps the Comments filter'
+      it_behaves_like 'keeping the Comments filter selected'
     end
 
     context 'when clicking on the project filter' do

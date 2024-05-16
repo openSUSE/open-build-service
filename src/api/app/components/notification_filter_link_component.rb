@@ -24,10 +24,10 @@ class NotificationFilterLinkComponent < ApplicationComponent
       @filter_item[:project] == @selected_filter[:project]
     elsif @selected_filter[:group].present?
       @filter_item[:group] == @selected_filter[:group]
-    elsif @selected_filter[:type].present?
-      @filter_item[:type] == @selected_filter[:type]
+    elsif @selected_filter[:kind].present?
+      @filter_item[:kind] == @selected_filter[:kind]
     else
-      @filter_item[:type] == 'unread'
+      @filter_item[:state] == 'unread'
     end
   end
 

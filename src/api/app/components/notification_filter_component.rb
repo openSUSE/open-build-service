@@ -14,8 +14,8 @@ class NotificationFilterComponent < ApplicationComponent
   def notifications_count
     notifications = User.session.notifications.for_web
     counted_notifications = notifications.unread.group(:notifiable_type).count
-    counted_notifications['incoming_requests'] = notifications.unread.for_incoming_requests.count
-    counted_notifications['outgoing_requests'] = notifications.unread.for_outgoing_requests.count
+    counted_notifications['incoming_requests'] = notifications.unread.for_incoming_requests(User.session!).count
+    counted_notifications['outgoing_requests'] = notifications.unread.for_outgoing_requests(User.session!).count
     counted_notifications['relationships_created'] = notifications.unread.for_relationships_created.count
     counted_notifications['relationships_deleted'] = notifications.unread.for_relationships_deleted.count
     counted_notifications['build_failures'] = notifications.unread.for_failed_builds.count
