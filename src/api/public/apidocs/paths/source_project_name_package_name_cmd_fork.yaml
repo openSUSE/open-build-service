@@ -21,6 +21,11 @@ post:
       in: query
       schema:
         type: string
+    - name: target_package
+      description: target package name
+      in: query
+      schema:
+        type: string
     - in: query
       name: force
       schema:
