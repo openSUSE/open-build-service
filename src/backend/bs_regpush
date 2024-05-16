@@ -53,9 +53,11 @@ my $delete_mode;
 my $delete_except_mode;
 my $list_mode;
 my $no_cosign_info;
+my $no_info;
 my @tags;
 my $blobdir;
 my $oci;
+my $old_list_output;
 
 my $cosign;
 my $cosigncookie;
@@ -330,7 +332,7 @@ sub get_all_repositories {
 }
 
 sub get_manifest_for_tag {
-  my ($tag) = @_;
+  my ($tag, $ifnonematch) = @_;
   my $replyheaders;
   my $param = {
     'uri' => "$registryserver/v2/$repository/manifests/$tag",
@@ -340,6 +342,7 @@ sub get_manifest_for_tag {
     'timeout' => $registry_timeout,
     'keepalive' => $keepalive,
   };
+  push @{$param->{'headers'}}, "If-None-Match: $ifnonematch" if $ifnonematch;
   my $mani_json;
   eval { $mani_json = BSRPC::rpc($param); };
   if ($@) {
@@ -412,13 +415,22 @@ sub delete_tag {
 }
 
 sub list_tag {
-  my ($tag, $maniids) = @_;
+  my ($tag, $maniids, $old_data) = @_;
 
-  if ($no_cosign_info && $tag =~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/) {
+  if ($no_info || ($no_cosign_info && $tag =~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/)) {
     printf "%-20s -\n", $tag;
     return;
   }
-  my ($mani, $maniid) = get_manifest_for_tag($tag);
+  my $ifnonematch;
+  $ifnonematch = "\"$old_data->[0]\"" if $old_data && $old_data->[0] =~ /^[a-z0-9]+:([a-f0-9]+)$/;
+  my ($mani, $maniid) = eval { get_manifest_for_tag($tag, $ifnonematch) };
+  if ($@) {
+    if ($ifnonematch && $@ =~ /^304/) {
+      printf "%-20s %s %s\n", $tag, $old_data->[0], $old_data->[1];
+      return;
+    }
+    die($@);
+  }
   my $extra = '';
   if ($tag =~ /^[a-z0-9]+-[a-f0-9]+\.sig$/ && $mani && $mani->{'mediaType'} && $mani->{'mediaType'} eq $BSContar::mt_oci_manifest) {
     if (@{$mani->{'layers'} || []} == 1 && $mani->{'layers'}->[0]->{'mediaType'} eq 'application/vnd.dev.cosign.simplesigning.v1+json') {
@@ -455,6 +467,19 @@ sub list_tag {
   } else {
     printf "%-20s %s %s\n", $tag, $maniid, 'unknown';
   }
+}
+
+sub read_old_list_output {
+  local *F;
+  open(F, '<', $old_list_output) || die("$old_list_output: $!\n");
+  my $old = {} ;
+  while (<F>) {
+    chomp;
+    my @s = split(' ', $_, 3);
+    $old->{$s[0]} = [ $s[1], $s[2] ];
+  }
+  close F;
+  return $old;
 }
 
 sub tags_from_digestfile {
@@ -584,9 +609,14 @@ while (@ARGV) {
   } elsif ($ARGV[0] eq '-l') {
     $list_mode = 1;
     shift @ARGV;
+  } elsif ($ARGV[0] eq '--no-info') {
+    $no_info = 1;
+    shift @ARGV;
   } elsif ($ARGV[0] eq '--no-cosign-info') {
     $no_cosign_info = 1;
     shift @ARGV;
+  } elsif ($ARGV[0] eq '--old-list-output') {
+    (undef, $old_list_output) = splice(@ARGV, 0, 2);
   } elsif ($ARGV[0] eq '-X') {
     $delete_except_mode = 1;
     shift @ARGV;
@@ -634,22 +664,24 @@ if ($list_mode) {
       print "$repo\n";
     }
   } elsif (@ARGV == 2) {
+    my $old_data = {};
+    $old_data = read_old_list_output() if $old_list_output;
     $keepalive = {};
     my %tags = map {$_ => 1} @tags;
     $tags{$_} = 1 for tags_from_digestfile();
     if (%tags && $cosign) {
       my %maniids;
-      list_tag($_, \%maniids) for sort keys %tags;
+      list_tag($_, \%maniids, $old_data->{$_}) for sort keys %tags;
       %tags = ();
       if (%maniids) {
         for (get_all_tags()) {
           $tags{$_} = 1 if /^([a-z0-9]+)-([a-f0-9]+)\.(?:sig|att)$/ && $maniids{"$1:$2"}
         }
       }
-      list_tag($_) for sort keys %tags;
+      list_tag($_, undef, $old_data->{$_}) for sort keys %tags;
     } else {
       %tags = map {$_ => 1} get_all_tags() unless %tags;
-      list_tag($_) for sort keys %tags;
+      list_tag($_, undef, $old_data->{$_}) for sort keys %tags;
     }
   } elsif (@ARGV == 3) {
     my ($mani, $maniid, $mani_json) = get_manifest_for_tag($ARGV[2]);
