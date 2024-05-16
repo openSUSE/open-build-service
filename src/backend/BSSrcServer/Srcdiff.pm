@@ -446,7 +446,8 @@ sub listzip {
         my $ctx = Digest::MD5->new;
         my $ctx256 = Digest::SHA->new(256);
         my $writer = sub { $ctx->add($_[0]); $ctx256->add($_[0]) };
-	BSZip::extract(\*F, $e, 'writer' => $writer);
+	eval { BSZip::extract(\*F, $e, 'writer' => $writer) };
+	die("$zipfile: $@") if $@;
 	$info = $ctx256->hexdigest();
 	$md5 = $ctx->hexdigest();
       }
@@ -474,7 +475,8 @@ sub extractzip {
       local *G;
       open(G, '>', $x->{'extract'}) || die("$x->{'extract'}: $!\n");
       my $writer = sub { print G $_[0] or die("write: $!\n") };
-      BSZip::extract(\*F, $e, 'writer' => $writer);
+      eval { BSZip::extract(\*F, $e, 'writer' => $writer) };
+      die("$zipfile: $@") if $@;
       close(G) || die("close: $!\n");
     }
   }
