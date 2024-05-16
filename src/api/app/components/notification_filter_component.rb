@@ -12,16 +12,16 @@ class NotificationFilterComponent < ApplicationComponent
   # TODO: Turn this into a query object `NotificationsCounter` and pass this as a default value
   #       to a keyword argument `count` in the `initialize` method
   def notifications_count
-    finder = NotificationsFinder.new(User.session.notifications.for_web)
-    counted_notifications = finder.unread.group(:notifiable_type).count
-    counted_notifications['incoming_requests'] = finder.for_incoming_requests.count
-    counted_notifications['outgoing_requests'] = finder.for_outgoing_requests.count
-    counted_notifications['relationships_created'] = finder.for_relationships_created.count
-    counted_notifications['relationships_deleted'] = finder.for_relationships_deleted.count
-    counted_notifications['build_failures'] = finder.for_failed_builds.count
-    counted_notifications['reports'] = finder.for_reports.count
-    counted_notifications['workflow_runs'] = finder.for_workflow_runs.count
-    counted_notifications['appealed_decisions'] = finder.for_appealed_decisions.count
+    notifications = User.session.notifications.for_web
+    counted_notifications = notifications.unread.group(:notifiable_type).count
+    counted_notifications['incoming_requests'] = notifications.for_incoming_requests.count
+    counted_notifications['outgoing_requests'] = notifications.for_outgoing_requests.count
+    counted_notifications['relationships_created'] = notifications.for_relationships_created.count
+    counted_notifications['relationships_deleted'] = notifications.for_relationships_deleted.count
+    counted_notifications['build_failures'] = notifications.for_failed_builds.count
+    counted_notifications['reports'] = notifications.for_reports.count
+    counted_notifications['workflow_runs'] = notifications.for_workflow_runs.count
+    counted_notifications['appealed_decisions'] = notifications.for_appealed_decisions.count
     counted_notifications.merge!('unread' => User.session.unread_notifications)
   end
 end

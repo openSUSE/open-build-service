@@ -2,6 +2,8 @@ class Notification < ApplicationRecord
   MAX_RSS_ITEMS_PER_USER = 10
   MAX_RSS_ITEMS_PER_GROUP = 10
   MAX_PER_PAGE = 300
+  EVENT_TYPES = %w[Event::CreateReport Event::ReportForRequest Event::ReportForProject Event::ReportForPackage Event::ReportForComment Event::ReportForUser Event::ClearedDecision Event::FavoredDecision
+                   Event::AppealCreated].freeze
 
   belongs_to :subscriber, polymorphic: true, optional: true
   belongs_to :notifiable, polymorphic: true, optional: true
@@ -18,6 +20,53 @@ class Notification < ApplicationRecord
 
   scope :for_web, -> { where(web: true) }
   scope :for_rss, -> { where(rss: true) }
+
+  scope :read, -> { where(delivered: true) }
+  scope :unread, -> { where(delivered: false) }
+  scope :with_notifiable, -> { where.not(notifiable_id: nil).where.not(notifiable_type: nil) }
+  scope :for_incoming_requests, -> { where(notifiable: User.session.incoming_requests(states: BsRequest::VALID_REQUEST_STATES), delivered: false) }
+  scope :for_outgoing_requests, -> { where(notifiable: User.session.outgoing_requests(states: BsRequest::VALID_REQUEST_STATES), delivered: false) }
+  scope :for_relationships_created, -> { where(event_type: 'Event::RelationshipCreate', delivered: false) }
+  scope :for_relationships_deleted, -> { where(event_type: 'Event::RelationshipDelete', delivered: false) }
+  scope :for_failed_builds, -> { where(event_type: 'Event::BuildFail', delivered: false) }
+  scope :for_reports, -> { where(event_type: EVENT_TYPES, delivered: false) }
+  scope :for_workflow_runs, -> { where(event_type: 'Event::WorkflowRunFail', delivered: false) }
+  scope :for_appealed_decisions, -> { where(event_type: 'Event::AppealCreated', delivered: false) }
+  # We need to refactor this scope, the `case` statement is way too big
+  # rubocop:disable Metrics/BlockLength
+  # It's not really that big and it's readable enough
+  scope :for_notifiable_type, lambda { |type = 'unread'|
+    case type
+    when 'read'
+      read
+    when 'comments'
+      unread.where(notifiable_type: 'Comment')
+    when 'requests'
+      unread.where(notifiable_type: 'BsRequest')
+    when 'incoming_requests'
+      for_incoming_requests
+    when 'outgoing_requests'
+      for_outgoing_requests
+    when 'relationships_created'
+      for_relationships_created
+    when 'relationships_deleted'
+      for_relationships_deleted
+    when 'build_failures'
+      for_failed_builds
+    when 'reports'
+      for_reports
+    when 'workflow_runs'
+      for_workflow_runs
+    when 'appealed_decisions'
+      for_appealed_decisions
+    else
+      unread
+    end
+  }
+  # rubocop:enable Metrics/BlockLength
+  scope :for_project_name, ->(project_name) { unread.joins(:projects).where(projects: { name: project_name }) }
+  scope :for_group_title, ->(group_title) { unread.joins(:groups).where(groups: { title: group_title }) }
+  scope :stale, -> { where('created_at < ?', (CONFIG['notifications_lifetime'] ||= 365).days.ago) }
 
   def event
     @event ||= event_type.constantize.new(event_payload)
