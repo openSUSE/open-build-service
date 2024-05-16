@@ -784,7 +784,7 @@ class User < ApplicationRecord
   end
 
   def unread_notifications
-    NotificationsFinder.new(notifications.for_web).unread.size
+    notifications.for_web.unread.size
   end
 
   def update_globalroles(global_roles)

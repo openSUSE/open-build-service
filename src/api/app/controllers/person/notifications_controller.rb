@@ -30,14 +30,12 @@ module Person
 
     def fetch_notifications
       notifications = policy_scope(Notification)
-      notifications_finder = NotificationsFinder.new(notifications)
-
       filtered_notifications = if params[:project]
-                                 notifications_finder.for_project_name(params[:project])
+                                 notifications.unread.for_project_name(params[:project])
                                else
                                  notifications
                                end
-      NotificationsFinder.new(filtered_notifications).for_notifiable_type(@filter_type)
+      filtered_notifications.for_notifiable_type(@filter_type)
     end
 
     def paginated_notifications
