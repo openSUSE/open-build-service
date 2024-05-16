@@ -21,6 +21,18 @@ post:
       in: query
       schema:
         type: string
+    - name: target_package
+      description: target package name
+      in: query
+      schema:
+        type: string
+    - in: query
+      name: force
+      schema:
+        type: string
+      description: |
+        Set to 1 to allow overwriting of a pre-existing package.
+      example: 1
     - name: add_repositories_rebuild
       in: query
       schema:
@@ -75,4 +87,4 @@ post:
             code: not_found
             summary: project not found
   tags:
-    - Sources
+    - Sources - Packages

@@ -290,8 +290,6 @@ paths:
 
   /source?cmd=branch:
     $ref: 'paths/source_branch.yaml'
-  /source?cmd=fork:
-    $ref: 'paths/source_fork.yaml'
   /source?cmd=createmaintenanceincident:
     $ref: 'paths/source_createmaintenanceincident.yaml'
   /source?cmd=orderkiwirepos:
@@ -389,6 +387,8 @@ paths:
     $ref: 'paths/source_project_name_package_name_cmd_deleteuploadrev.yaml'
   /source/{project_name}/{package_name}?cmd=diff:
     $ref: 'paths/source_project_name_package_name_cmd_diff.yaml'
+  /source/{project_name}/{package_name}?cmd=fork:
+    $ref: 'paths/source_project_name_package_name_cmd_fork.yaml'
   /source/{project_name}/{package_name}?cmd=getprojectservices:
     $ref: 'paths/source_project_name_package_name_cmd_getprojectservices.yaml'
   /source/{project_name}/{package_name}?cmd=instantiate:
