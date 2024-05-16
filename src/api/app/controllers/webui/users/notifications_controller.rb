@@ -63,45 +63,44 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   def fetch_notifications
     notifications = policy_scope(Notification).for_web.includes(notifiable: [{ commentable: [{ comments: :user }, :project, :bs_request_actions] }, :bs_request_actions, :reviews])
 
-    relations = notifications
     if params.dig(:notification, :unread).blank? && params.dig(:notification, :read).blank?
       # no read|unread param filters fallback on `unread` notifications only
-      relations = notifications.unread
+      notifications = notifications.unread
     elsif params.dig(:notification, :unread) && params.dig(:notification, :read)
-      relations = notifications.unread.or(notifications.read)
+      notifications = notifications.unread.or(notifications.read)
     else
-      relations = notifications.unread if params.dig(:notification, :unread)
-      relations = notifications.read if params.dig(:notification, :read)
+      notifications = notifications.unread if params.dig(:notification, :unread)
+      notifications = notifications.read if params.dig(:notification, :read)
     end
 
     relations_type = []
-    relations_type << relations.comments if params.dig(:notification, :comments)
-    relations_type << relations.requests if params.dig(:notification, :requests)
-    relations_type << relations.incoming_requests(User.session) if params.dig(:notification, :incoming_requests)
-    relations_type << relations.outgoing_requests(User.session) if params.dig(:notification, :outgoing_requests)
-    relations_type << relations.relationships_created if params.dig(:notification, :relationships_created)
-    relations_type << relations.relationships_deleted if params.dig(:notification, :relationships_deleted)
-    relations_type << relations.build_failures if params.dig(:notification, :build_failures)
-    relations_type << relations.reports if params.dig(:notification, :reports)
-    relations_type << relations.workflow_runs if params.dig(:notification, :workflow_runs)
-    relations_type << relations.appealed_decisions if params.dig(:notification, :appealed_decisions)
-    relations = relations.merge(relations_type.inject(:or)) unless relations_type.empty?
+    relations_type << notifications.comments if params.dig(:notification, :comments)
+    relations_type << notifications.requests if params.dig(:notification, :requests)
+    relations_type << notifications.incoming_requests(User.session) if params.dig(:notification, :incoming_requests)
+    relations_type << notifications.outgoing_requests(User.session) if params.dig(:notification, :outgoing_requests)
+    relations_type << notifications.relationships_created if params.dig(:notification, :relationships_created)
+    relations_type << notifications.relationships_deleted if params.dig(:notification, :relationships_deleted)
+    relations_type << notifications.build_failures if params.dig(:notification, :build_failures)
+    relations_type << notifications.reports if params.dig(:notification, :reports)
+    relations_type << notifications.workflow_runs if params.dig(:notification, :workflow_runs)
+    relations_type << notifications.appealed_decisions if params.dig(:notification, :appealed_decisions)
+    notifications = notifications.merge(relations_type.inject(:or)) unless relations_type.empty?
 
     if params.dig(:notification, :project)
       relations_project = (params.dig(:notification, :project).keys || []).map do |project_name, _|
-        relations.for_project(project_name)
+        notifications.for_project(project_name)
       end
-      relations = relations.merge(relations_project.inject(:or)) unless relations_project.empty?
+      notifications = notifications.merge(relations_project.inject(:or)) unless relations_project.empty?
     end
 
     if params.dig(:notification, :group)
       relations_group = (params.dig(:notification, :group).keys || []).map do |group_name, _|
-        relations.for_group(group_name)
+        notifications.for_group(group_name)
       end
-      relations = relations.merge(relations_group.inject(:or)) unless relations_group.empty?
+      notifications = notifications.merge(relations_group.inject(:or)) unless relations_group.empty?
     end
 
-    relations
+    notifications
   end
 
   def paginated_notifications
