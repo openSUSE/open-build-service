@@ -395,6 +395,7 @@ sub query_repostate {
   my $tempfile = "$uploaddir/publisher.$$.repostate";
   unlink($tempfile);
   my $tagsfile;
+  my $registrystate = $registry->{'registrystate'};
   if ($tags) {
     return undef unless @$tags;
     print "querying state of ".scalar(@$tags)." tags of $repository on $registryserver\n";
@@ -409,6 +410,7 @@ sub query_repostate {
   push @opts, '--cosign' if $tags;
   push @opts, '--no-cosign-info' if $registry->{'cosign_nocheck'};
   push @opts, '-F', $tagsfile if $tagsfile;
+  push @opts, '--old-list-output', "$registrystate/$repository:oldlist" if $registrystate && -s "$registrystate/$repository/:oldlist";
   my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @opts, $registryserver, $repository);
   my $now = time();
   my $result = BSPublisher::Util::qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', $tempfile, @cmd);
@@ -427,6 +429,10 @@ sub query_repostate {
     }
     close($fd);
     printf "query took %d seconds, found %d tags\n", time() - $now, scalar(keys %$repostate);
+    if ($registrystate) {
+      mkdir_p("$registrystate/$repository");
+      rename($tempfile, "$registrystate/$repository/:oldlist")
+    }
   }
   unlink($tagsfile) if $tagsfile;
   unlink($tempfile);
