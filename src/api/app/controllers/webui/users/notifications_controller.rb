@@ -76,9 +76,9 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     notifications = policy_scope(Notification).for_web.includes(notifiable: [{ commentable: [{ comments: :user }, :project, :bs_request_actions] }, :bs_request_actions, :reviews])
 
     if params[:project]
-      notifications.for_project_name(params[:project])
+      notifications.unread.for_project_name(params[:project])
     elsif params[:group]
-      notifications.for_group_title(params[:group])
+      notifications.unread.for_group_title(params[:group])
     else
       notifications.for_notifiable_type(params[:type])
     end

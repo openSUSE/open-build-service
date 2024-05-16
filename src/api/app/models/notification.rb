@@ -21,18 +21,20 @@ class Notification < ApplicationRecord
   scope :for_web, -> { where(web: true) }
   scope :for_rss, -> { where(rss: true) }
 
+  # Regarding notification state
   scope :read, -> { where(delivered: true) }
   scope :unread, -> { where(delivered: false) }
+
+  # Regarding notifiable type
   scope :with_notifiable, -> { where.not(notifiable_id: nil).where.not(notifiable_type: nil) }
-  scope :for_incoming_requests, -> { where(notifiable: User.session.incoming_requests(states: BsRequest::VALID_REQUEST_STATES), delivered: false) }
-  scope :for_outgoing_requests, -> { where(notifiable: User.session.outgoing_requests(states: BsRequest::VALID_REQUEST_STATES), delivered: false) }
-  scope :for_relationships_created, -> { where(event_type: 'Event::RelationshipCreate', delivered: false) }
-  scope :for_relationships_deleted, -> { where(event_type: 'Event::RelationshipDelete', delivered: false) }
-  scope :for_failed_builds, -> { where(event_type: 'Event::BuildFail', delivered: false) }
-  scope :for_reports, -> { where(event_type: EVENT_TYPES, delivered: false) }
-  scope :for_workflow_runs, -> { where(event_type: 'Event::WorkflowRunFail', delivered: false) }
-  scope :for_appealed_decisions, -> { where(event_type: 'Event::AppealCreated', delivered: false) }
-  # We need to refactor this scope, the `case` statement is way too big
+  scope :for_incoming_requests, -> { where(notifiable: User.session.incoming_requests(states: BsRequest::VALID_REQUEST_STATES)) }
+  scope :for_outgoing_requests, -> { where(notifiable: User.session.outgoing_requests(states: BsRequest::VALID_REQUEST_STATES)) }
+  scope :for_relationships_created, -> { where(event_type: 'Event::RelationshipCreate') }
+  scope :for_relationships_deleted, -> { where(event_type: 'Event::RelationshipDelete') }
+  scope :for_failed_builds, -> { where(event_type: 'Event::BuildFail') }
+  scope :for_reports, -> { where(event_type: EVENT_TYPES) }
+  scope :for_workflow_runs, -> { where(event_type: 'Event::WorkflowRunFail') }
+  scope :for_appealed_decisions, -> { where(event_type: 'Event::AppealCreated') }
   # rubocop:disable Metrics/BlockLength
   # It's not really that big and it's readable enough
   scope :for_notifiable_type, lambda { |type = 'unread'|
@@ -64,8 +66,8 @@ class Notification < ApplicationRecord
     end
   }
   # rubocop:enable Metrics/BlockLength
-  scope :for_project_name, ->(project_name) { unread.joins(:projects).where(projects: { name: project_name }) }
-  scope :for_group_title, ->(group_title) { unread.joins(:groups).where(groups: { title: group_title }) }
+  scope :for_project_name, ->(project_name) { joins(:projects).where(projects: { name: project_name }) }
+  scope :for_group_title, ->(group_title) { joins(:groups).where(groups: { title: group_title }) }
   scope :stale, -> { where('created_at < ?', (CONFIG['notifications_lifetime'] ||= 365).days.ago) }
 
   def event

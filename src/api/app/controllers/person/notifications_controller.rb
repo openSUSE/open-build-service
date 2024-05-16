@@ -31,7 +31,7 @@ module Person
     def fetch_notifications
       notifications = policy_scope(Notification)
       filtered_notifications = if params[:project]
-                                 notifications.for_project_name(params[:project])
+                                 notifications.unread.for_project_name(params[:project])
                                else
                                  notifications
                                end
