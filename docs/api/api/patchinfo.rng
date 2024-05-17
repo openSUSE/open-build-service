@@ -90,6 +90,11 @@
           </element>
         </optional>
         <optional>
+          <element name="embargo_date">
+            <text/>
+          </element>
+        </optional>
+        <optional>
           <element name="reboot_needed"> 
             <empty/>
           </element>

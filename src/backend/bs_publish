@@ -684,8 +684,9 @@ sub createrepo_rpmmd {
       delete $up->{'patchinforef'};
       for my $cl (@{($up->{'pkglist'} || {})->{'collection'} || []}) {
 	for my $pkg (@{$cl->{'package'} || []}) {
-  	  delete $pkg->{'supportstatus'};
-  	  delete $pkg->{'superseded_by'};
+          delete $pkg->{'embargo_date'};
+          delete $pkg->{'supportstatus'};
+          delete $pkg->{'superseded_by'};
         }
       }
     }
