@@ -13,8 +13,6 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     tag.span(notifiable_link_text, class: 'fst-italic mx-1')
   end
 
-  private
-
   # rubocop:disable Metrics/CyclomaticComplexity
   # rubocop:disable Metrics/PerceivedComplexity
   def notifiable_link_text
@@ -78,6 +76,8 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
   end
   # rubocop:enable Metrics/PerceivedComplexity
   # rubocop:enable Metrics/CyclomaticComplexity
+
+  private
 
   # rubocop:disable Metrics/CyclomaticComplexity
   # rubocop:disable Metrics/PerceivedComplexity

@@ -9,7 +9,9 @@ class BsRequestActionSourceAndTargetComponent < ApplicationComponent
     @number_of_bs_request_actions = @bs_request.bs_request_actions.size
   end
 
-  def call
+  def call(render_text: false)
+    return (source.present? ? "#{source} to " : '').concat(target) if render_text
+
     capture do
       if source.present?
         concat(tag.span(source))

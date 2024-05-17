@@ -25,4 +25,5 @@
           = render NotificationActionDescriptionComponent.new(@notification)
       .row.d-none.d-md-block.ps-4
         .col
-          = render NotificationExcerptComponent.new(@notification.notifiable)
+          %p.mt3.mb-0
+            = render NotificationExcerptComponent.new(@notification.notifiable)

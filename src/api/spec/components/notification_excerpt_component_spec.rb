@@ -6,7 +6,7 @@ RSpec.describe NotificationExcerptComponent, type: :component do
     let(:notification) { create(:web_notification, :request_created, notifiable: bs_request, subscriber: user) }
 
     it do
-      expect(render_inline(described_class.new(notification.notifiable))).to have_css('p', text: '')
+      expect(render_inline(described_class.new(notification.notifiable)).to_s).to eq('')
     end
   end
 
@@ -15,7 +15,7 @@ RSpec.describe NotificationExcerptComponent, type: :component do
     let(:notification) { create(:web_notification, :comment_for_project, notifiable: comment, subscriber: user) }
 
     it do
-      expect(render_inline(described_class.new(notification.notifiable))).to have_css('p', text: 'Nice project!')
+      expect(render_inline(described_class.new(notification.notifiable))).to have_text('Nice project!')
     end
   end
 

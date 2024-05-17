@@ -16,23 +16,11 @@ class NotificationActionDescriptionComponent < ApplicationComponent
     tag.div(description_text, class: ['smart-overflow'])
   end
 
-  private
-
-  def bs_request
-    @bs_request ||= if @notification.notifiable_type == 'BsRequest'
-                      @notification.notifiable
-                    elsif @notification.notifiable.commentable.is_a?(BsRequestAction)
-                      @notification.notifiable.commentable.bs_request
-                    else
-                      @notification.notifiable.commentable
-                    end
-  end
-
   # rubocop:disable Metrics/CyclomaticComplexity
-  def description_text
+  def description_text(render_text: false)
     case @notification.event_type
     when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted', 'Event::CommentForRequest'
-      BsRequestActionSourceAndTargetComponent.new(bs_request).call
+      BsRequestActionSourceAndTargetComponent.new(bs_request).call(render_text: render_text)
     when 'Event::CommentForProject'
       "#{@notification.notifiable.commentable.name}"
     when 'Event::CommentForPackage'
@@ -60,4 +48,16 @@ class NotificationActionDescriptionComponent < ApplicationComponent
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity
+
+  private
+
+  def bs_request
+    @bs_request ||= if @notification.notifiable_type == 'BsRequest'
+                      @notification.notifiable
+                    elsif @notification.notifiable.commentable.is_a?(BsRequestAction)
+                      @notification.notifiable.commentable.bs_request
+                    else
+                      @notification.notifiable.commentable
+                    end
+  end
 end

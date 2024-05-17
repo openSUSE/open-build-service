@@ -22,7 +22,7 @@ class NotificationExcerptComponent < ApplicationComponent
              ''
            end
 
-    tag.p(truncate_to_first_new_line(text), class: %w[mt-3 mb-0])
+    truncate_to_first_new_line(text)
   end
 
   private
