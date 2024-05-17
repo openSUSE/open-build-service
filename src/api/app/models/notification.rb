@@ -46,21 +46,21 @@ class Notification < ApplicationRecord
     when 'requests'
       unread.where(notifiable_type: 'BsRequest')
     when 'incoming_requests'
-      for_incoming_requests
+      unread.for_incoming_requests
     when 'outgoing_requests'
-      for_outgoing_requests
+      unread.for_outgoing_requests
     when 'relationships_created'
-      for_relationships_created
+      unread.for_relationships_created
     when 'relationships_deleted'
-      for_relationships_deleted
+      unread.for_relationships_deleted
     when 'build_failures'
-      for_failed_builds
+      unread.for_failed_builds
     when 'reports'
-      for_reports
+      unread.for_reports
     when 'workflow_runs'
-      for_workflow_runs
+      unread.for_workflow_runs
     when 'appealed_decisions'
-      for_appealed_decisions
+      unread.for_appealed_decisions
     else
       unread
     end
