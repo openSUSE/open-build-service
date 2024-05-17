@@ -1007,12 +1007,12 @@ sub checkpkgs {
 
   # Step 2d: check status of all packages
   print "    checking packages\n";
-  my $projbuildenabled = 1;
-  $projbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'build'}, 1, $myarch) if $projpacks->{$projid}->{'build'};
+  my $projbuildenabled = ($proj->{'kind'} || '') eq 'maintenance_release' ? 0 : 1;
+  $projbuildenabled = BSUtil::enabled($repoid, $proj->{'build'}, 1, $myarch) if $proj->{'build'};
   my $projlocked = 0;
-  $projlocked = BSUtil::enabled($repoid, $projpacks->{$projid}->{'lock'}, 0, $myarch) if $projpacks->{$projid}->{'lock'};
+  $projlocked = BSUtil::enabled($repoid, $proj->{'lock'}, 0, $myarch) if $proj->{'lock'};
   my $prjuseforbuildenabled = 1;
-  $prjuseforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $prjuseforbuildenabled, $myarch) if $projpacks->{$projid}->{'useforbuild'};
+  $prjuseforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $prjuseforbuildenabled, $myarch) if $proj->{'useforbuild'};
 
   my %packstatus;
   my $oldpackstatus;
@@ -1049,7 +1049,7 @@ sub checkpkgs {
   }
 
   # copy old data over if we have missing packages
-  if ($projpacks->{$projid}->{'missingpackages'}) {
+  if ($proj->{'missingpackages'}) {
     $gctx->{'retryevents'}->addretryevent({'type' => 'package', 'project' => $projid});
     $oldpackstatus = BSUtil::retrieve("$gdst/:packstatus", 1) || {};
     $oldpackstatus->{'packstatus'} ||= {};
