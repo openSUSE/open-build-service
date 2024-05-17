@@ -269,6 +269,7 @@ our $patchinfo = [
             'retracted',
             'stopped',
             'seperate_build_arch', # for builds on each scheduler arch
+	    'embargo_date',
             'zypp_restart_needed',
             'reboot_needed',
             'relogin_needed',
@@ -1643,6 +1644,7 @@ our $updateinfoitem = [
 		    'src',
 		    'supportstatus',	# extension
 		    'superseded_by',    # extension
+		    'embargo_date',     # extension
 		    [],
 		    'filename',
 		  [ 'sum' =>	# obsolete?
