@@ -59,6 +59,11 @@ BaseDistro2.0_publish:
   position: 2
   flag: publish
   project: BaseDistro2.0
+BaseDistro3_build:
+  status: enable
+  position: 1
+  flag: build
+  project: BaseDistro3
 record_8:
   status: disable
   position: 2
