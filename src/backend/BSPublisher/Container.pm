@@ -410,7 +410,7 @@ sub query_repostate {
   push @opts, '--cosign' if $tags;
   push @opts, '--no-cosign-info' if $registry->{'cosign_nocheck'};
   push @opts, '-F', $tagsfile if $tagsfile;
-  push @opts, '--old-list-output', "$registrystate/$repository:oldlist" if $registrystate && -s "$registrystate/$repository/:oldlist";
+  push @opts, '--old-listfile', "$registrystate/$repository:oldlist" if $registrystate && -s "$registrystate/$repository/:oldlist";
   my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @opts, $registryserver, $repository);
   my $now = time();
   my $result = BSPublisher::Util::qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', $tempfile, @cmd);
@@ -421,8 +421,8 @@ sub query_repostate {
     $repostate = {};
     while (<$fd>) {
       my @s = split(' ', $_);
-      if (@s == 4 && $s[0] =~ /\.(?:sig|att)$/ && $s[3] =~ /^cosigncookie=/) {
-        $repostate->{$s[0]} = $s[3];
+      if (@s >= 4 && $s[0] =~ /\.(?:sig|att)$/ && $s[-1] =~ /^cosigncookie=/) {
+        $repostate->{$s[0]} = $s[-1];
       } elsif (@s >= 2) {
         $repostate->{$s[0]} = $s[1];
       }
