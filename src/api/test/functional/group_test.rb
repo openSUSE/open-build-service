@@ -9,7 +9,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
 
   def test_list_groups
     get '/group'
-    assert_response 401
+    assert_response :unauthorized
 
     prepare_request_valid_user
     get '/group'
@@ -29,7 +29,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
 
   def test_get_group
     get '/group/test_group'
-    assert_response 401
+    assert_response :unauthorized
 
     prepare_request_valid_user
     get '/group/test_group'
@@ -39,33 +39,33 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag parent: { tag: 'person' }, tag: 'person', attributes: { userid: 'adrian' }
 
     get '/group/does_not_exist'
-    assert_response 404
+    assert_response :not_found
   end
 
   def test_create_modify_and_delete_group
     xml = '<group><title>new_group</title></group>'
     put '/group/new_group', params: xml
-    assert_response 401
+    assert_response :unauthorized
 
     prepare_request_valid_user
     put '/group/new_group', params: xml
-    assert_response 403
+    assert_response :forbidden
     delete '/group/new_group'
-    assert_response 404
+    assert_response :not_found
     delete '/group/test_group' # exists
-    assert_response 403
+    assert_response :forbidden
 
     login_king
     get '/group/new_group'
-    assert_response 404
+    assert_response :not_found
     delete '/group/new_group'
-    assert_response 404
+    assert_response :not_found
     put '/group/test_group', params: xml
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_parameter' }
     assert_xml_tag tag: 'summary', content: 'group name from path and xml mismatch'
     put '/group/NOT_EXISTING_group', params: xml
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_parameter' }
     assert_xml_tag tag: 'summary', content: 'group name from path and xml mismatch'
     put '/group/new_group', params: xml
@@ -83,7 +83,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
 
     login_Iggy # not a group maintainer (yet)
     put '/group/new_group', params: xml2
-    assert_response 403
+    assert_response :forbidden
 
     # double save is done by webui, we need to support it. Drop email adress also
     login_king
@@ -102,7 +102,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     # check permissions
     login_adrian
     put '/group/new_group', params: xml2
-    assert_response 403
+    assert_response :forbidden
     login_Iggy # group maintainer
     put '/group/new_group', params: xml2
     assert_response :success
@@ -119,17 +119,17 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     delete '/group/new_group'
     assert_response :success
     get '/group/new_group'
-    assert_response 404
+    assert_response :not_found
   end
 
   def test_add_and_remove_users_from_group
     prepare_request_valid_user
     post '/group/test_group', params: { cmd: 'add_user', userid: 'Iggy' }
-    assert_response 403
+    assert_response :forbidden
     post '/group/test_group', params: { cmd: 'remove_user', userid: 'Iggy' }
-    assert_response 403
+    assert_response :forbidden
     post '/group/test_group', params: { cmd: 'set_email', email: 'obs@obs.de' }
-    assert_response 403
+    assert_response :forbidden
     get '/group/test_group'
     assert_response :success
     assert_no_xml_tag tag: 'person', attributes: { userid: 'Iggy' }
@@ -161,11 +161,11 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
 
   def test_list_users_of_group
     get '/group/not_existing_group'
-    assert_response 401
+    assert_response :unauthorized
 
     prepare_request_valid_user
     get '/group/not_existing_group'
-    assert_response 404
+    assert_response :not_found
     get '/group/test_group'
     assert_response :success
     assert_xml_tag tag: 'group', child: { tag: 'title' }, content: 'test_group'
@@ -174,7 +174,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
 
   def test_groups_of_user
     get '/person/adrian/group'
-    assert_response 401
+    assert_response :unauthorized
 
     prepare_request_valid_user
     # old way, obsolete with OBS 3

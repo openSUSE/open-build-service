@@ -40,9 +40,9 @@ class IssueControllerTest < ActionDispatch::IntegrationTest
 
   def test_get_issue_for_patchinfo_and_project
     get '/source/BaseDistro?view=issues'
-    assert_response 401
+    assert_response :unauthorized
     get '/source/BaseDistro/patchinfo?view=issues'
-    assert_response 401
+    assert_response :unauthorized
 
     # as user
     login_Iggy
@@ -58,15 +58,15 @@ class IssueControllerTest < ActionDispatch::IntegrationTest
 
   def test_search_issues
     get '/search/package/id', params: { match: 'issue/@name="123456"' }
-    assert_response 401
+    assert_response :unauthorized
     get '/search/package/id', params: { match: 'issue/@tracker="bnc"' }
-    assert_response 401
+    assert_response :unauthorized
     get '/search/package/id', params: { match: 'issue[@name="123456" and @tracker="bnc"]' }
-    assert_response 401
+    assert_response :unauthorized
     get '/search/package/id', params: { match: 'issue/owner/@login="fred"' }
-    assert_response 401
+    assert_response :unauthorized
     get '/search/package/id', params: { match: 'issue/@state="RESOLVED"' }
-    assert_response 401
+    assert_response :unauthorized
 
     # search via bug owner
     login_Iggy

@@ -62,7 +62,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   def test_xpath_6
     login_Iggy
     get '/search/package', params: { match: '[attribute/@name="Maintained"]' }
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag content: 'attributes must be $NAMESPACE:$NAME'
   end
 
@@ -81,7 +81,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   def test_xpath_8
     login_Iggy
     get '/search/package', params: { match: 'attribute/@name="[OBS:Maintained"' }
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'illegal_xpath_error' }
     # fun part
     assert_xml_tag content: "#&lt;NoMethodError: undefined method `[]' for nil:NilClass&gt;"
@@ -113,7 +113,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     # small typo, no equal ...
     get '/search/request?match(mistake)'
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'empty_match' }
   end
 
@@ -417,18 +417,18 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     login_king
 
     get '/search/owner'
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'no_binary' }
 
     # must be after first search controller call or backend might not be started on single test case runs
     run_publisher
 
     get "/search/owner?binary='package'"
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: '400', origin: 'backend' }
 
     get "/search/owner?binary='package'&attribute='OBS:does_not_exist'"
-    assert_response 404
+    assert_response :not_found
     assert_xml_tag tag: 'status', attributes: { code: 'unknown_attribute_type' }
 
     post '/source/home:Iggy/_attribute', params: "<attributes><attribute namespace='OBS' name='OwnerRootProject' /></attributes>"
@@ -510,13 +510,13 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     # some illegal searches
     get '/search/owner?user=INVALID&filter=bugowner'
-    assert_response 404
+    assert_response :not_found
     assert_xml_tag tag: 'status', attributes: { code: 'not_found' }
     get '/search/owner?user=fred&filter=INVALID'
-    assert_response 404
+    assert_response :not_found
     assert_xml_tag tag: 'status', attributes: { code: 'not_found' }
     get '/search/owner?project=DOESNOTEXIST'
-    assert_response 404
+    assert_response :not_found
 
     # search by package container name, base projects are set via attribute
     get '/search/owner?package=TestPack'

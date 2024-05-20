@@ -18,7 +18,7 @@ class AboutControllerTest < ActionDispatch::IntegrationTest
   def test_application_controller
     prepare_request_valid_user
     get '/about?user[asd]=yxc'
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag(tag: 'status', attributes: { code: 'invalid_parameter' })
   end
 end

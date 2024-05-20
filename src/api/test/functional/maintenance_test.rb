@@ -22,7 +22,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     post '/source/home:tom:BaseDistro:SP1/pack1', params: { cmd: 'branch', target_project: 'home:tom:Branch', missingok: 1 }
-    assert_response 400
+    assert_response :bad_request
     # osc catches this error code and is fallingback to newinstance=1
     assert_xml_tag tag: 'status', attributes: { code: 'not_missing' }
 
@@ -35,7 +35,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'link', attributes: { project: 'home:tom:BaseDistro:SP1' }
 
     post '/source/BaseDistro:Update/pack1', params: { cmd: 'branch', target_project: 'home:tom:Branch', missingok: 1, extend_package_names: 1 }
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'not_missing' }
 
     delete '/source/home:tom:Branch'
@@ -56,7 +56,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # need write permission in maintained project...
     put '/source/home:tom:maintenance/_meta', params: '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> <maintenance><maintains project="BaseDistro"/></maintenance> </project>'
-    assert_response 403
+    assert_response :forbidden
     assert_xml_tag tag: 'summary', content: 'No write access to maintained project BaseDistro'
 
     # create one ...
@@ -192,7 +192,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    <description>To fix my bug</description>
                                    <state name="new" />
                                  </request>'
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag(tag: 'status', attributes: { code: 'remote_source' })
     post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_incident">
@@ -251,7 +251,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(tag: 'linkinfo', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'kdelibs' })
     get "/source/#{incident_project}/kdelibs.BaseDistro2.0_LinkedUpdateProject/TEMP_FILE"
-    assert_response 404
+    assert_response :not_found
 
     # no patchinfo was part in source project, got it created ?
     get "/source/#{incident_project}/patchinfo/_patchinfo"
@@ -300,7 +300,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # not allowed to remove project
     delete '/source/home:tom:branches:kde4'
-    assert_response 403
+    assert_response :forbidden
 
     post "/request/#{id2}?cmd=changestate&newstate=accepted&force=1"
     assert_response :success
@@ -313,7 +313,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     # project got cleaned up
     get '/source/home:tom:branches:kde4'
-    assert_response 404
+    assert_response :not_found
 
     get "/request/#{id2}"
     assert_response :success
@@ -334,7 +334,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # reopen ...
     prepare_request_with_user('maintenance_coord', 'buildservice')
     post "/request/#{id2}?cmd=changestate&newstate=new"
-    assert_response 403
+    assert_response :forbidden
 
     # cleanup
     login_king
@@ -614,7 +614,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     # test branching another package only reachable via project link into same project
     post '/source', params: { cmd: 'branch', package: 'kdelibs', target_project: 'home:tom:branches:OBS_Maintained:pack2', noaccess: 1 }
-    assert_response 403
+    assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'create_project_no_permission' }
 
     # FIXME: backend has a bug that it destroys the link even with keeplink if opackage has no rev
@@ -672,13 +672,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # and branch same package again and expect error
     post '/source', params: { cmd: 'branch', package: 'pack1', target_project: 'home:tom:branches:OBS_Maintained:pack2' }
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'double_branch_package' }
     assert_match(/branch target package already exists:/, @response.body)
 
     # create patchinfo
     post '/source/BaseDistro?cmd=createpatchinfo'
-    assert_response 403
+    assert_response :forbidden
     post '/source/home:tom:branches:OBS_Maintained:pack2?cmd=createpatchinfo'
     assert_response :success
     assert_xml_tag(tag: 'data', attributes: { name: 'targetpackage' }, content: 'patchinfo')
@@ -735,7 +735,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # switch user, still diffable
     prepare_request_with_user('maintenance_coord', 'buildservice')
     get '/source/home:tom:branches:OBS_Maintained:pack2/_meta'
-    assert_response 404 # due to noaccess
+    assert_response :not_found # due to noaccess
     post "/request/#{id}?cmd=diff&view=xml"
     assert_response :success
     assert_match(/new_content_2137/, @response.body) # check if our changes are part of the diff
@@ -752,7 +752,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # validate cleanup
     get '/source/home:tom:branches:OBS_Maintained:pack2'
-    assert_response 404
+    assert_response :not_found
 
     # validate created project
     get "/source/#{incident_project}/_meta"
@@ -817,13 +817,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     reset_auth
     post '/source/Temp:Maintenance', params: { cmd: 'createmaintenanceincident' }
-    assert_response 401
+    assert_response :unauthorized
 
     login_adrian
     post '/source/Temp:Maintenance', params: { cmd: 'createmaintenanceincident' }
-    assert_response 403
+    assert_response :forbidden
     post '/source/home:adrian', params: { cmd: 'createmaintenanceincident' }
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'incident_has_no_maintenance_project' }
 
     prepare_request_with_user('maintenance_coord', 'buildservice')
@@ -855,7 +855,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # cleanup
     delete '/source/Temp:Maintenance'
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'delete_error' }
     assert_match(/This maintenance project has incident projects/, @response.body)
     delete "/source/#{incident_project}"
@@ -1051,12 +1051,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     pi.add_child('<releasetarget project="home:tom"/>') # invalid target
     travel(1.second)
     put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
-    assert_response 404
+    assert_response :not_found
     assert_xml_tag tag: 'status', attributes: { code: 'releasetarget_not_found' }
     # add broken tracker
     pi.add_child('<issue id="0815" tracker="INVALID"/>') # invalid tracker
     put "/source/#{incident_project}/patchinfo/_patchinfo", params: pi.to_xml
-    assert_response 404
+    assert_response :not_found
     assert_xml_tag tag: 'status', attributes: { code: 'tracker_not_found' }
     # continue
     get "/source/#{incident_project}/patchinfo/_meta"
@@ -1148,7 +1148,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    </action>
                                    <state name='new' />
                                  </request>"
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'build_not_finished' }
     # upload build result as a worker would do
     inject_build_job(incident_project, 'pack2.BaseDistro2.0_LinkedUpdateProject', 'BaseDistro2.0_LinkedUpdateProject', 'x86_64')
@@ -1185,7 +1185,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    </action>
                                    <state name='new' />
                                  </request>"
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag(tag: 'status', attributes: { code: 'build_not_finished' })
     assert_match(/patchinfo patchinfo is broken/, @response.body)
     # un-block patchinfo build, but filter for an empty result
@@ -1248,7 +1248,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    </action>
                                    <state name='new'/>
                                  </request>"
-    assert_response 400
+    assert_response :bad_request
     assert_match(/last patchinfo patchinfo is not yet build/, @response.body)
 
     # revert
@@ -1265,7 +1265,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    </action>
                                    <state name='new'/>
                                  </request>"
-    assert_response 400
+    assert_response :bad_request
     assert_match(/did not finish the publish yet/, @response.body)
 
     # publish and release
@@ -1366,7 +1366,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    </action>
                                    <state name='new'/>
                                  </request>"
-    assert_response 404
+    assert_response :not_found
     # new incident request accept is blocked, but decline works
     login_adrian
     post '/request?cmd=create&addrevision=1', params: "<request>
@@ -1382,13 +1382,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     nreqid = node['id']
     prepare_request_with_user('maintenance_coord', 'buildservice')
     post "/request/#{nreqid}?cmd=changestate&newstate=accepted"
-    assert_response 403
+    assert_response :forbidden
     post "/request/#{nreqid}?cmd=changestate&newstate=declined"
     assert_response :success
 
     # unlock would fail due to open request
     post "/source/#{incident_project}", params: { cmd: 'unlock', comment: 'cleanup' }
-    assert_response 403
+    assert_response :forbidden
     assert_xml_tag(tag: 'status', attributes: { code: 'open_release_request' })
 
     # approve review
@@ -1443,20 +1443,20 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # EmbargoDate is needed for test for releasing packages
     post "/source/#{incident_project}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>INVALID_DATE_STRING</value></attribute></attributes>"
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag(tag: 'status', attributes: { code: 'invalid_date' })
 
     post "/source/#{incident_project}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{Time.now + 1.day}</value></attribute></attributes>"
     assert_response :success
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag(tag: 'status', attributes: { code: 'under_embargo' })
 
     # use the special form, no time specified
     post "/source/#{incident_project}/_attribute", params: "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{Time.now.year}-#{Time.now.month}-#{Time.now.day}</value></attribute></attributes>"
     assert_response :success
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag(tag: 'status', attributes: { code: 'under_embargo' })
 
     # set it to yesterday, so it works below
@@ -1480,9 +1480,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     run_publisher
     # Check that the job removed the published binaries
     get "/published/#{incident_project}/BaseDistro3/i586/package-1.0-1.i586.rpm"
-    assert_response 404
+    assert_response :not_found
     get "/published/#{incident_project}/BaseDistro2.0_LinkedUpdateProject/x86_64/package-1.0-1.x86_64.rpm"
-    assert_response 404
+    assert_response :not_found
 
     # vaidate freezing of source
     get "/source/#{incident_project}/pack2.BaseDistro2.0_LinkedUpdateProject/_link"
@@ -1513,12 +1513,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(tag: 'directory', attributes: { vrev: '4.5' })
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2.#{incident_id}/_link"
-    assert_response 404
+    assert_response :not_found
     get "/source/BaseDistro2.0:LinkedUpdateProject/pack2.linked.#{incident_id}/_link"
     assert_response :success
     assert_xml_tag tag: 'link', attributes: { project: nil, package: "pack2.#{incident_id}", cicount: 'copy' }
     get '/source/BaseDistro2.0:LinkedUpdateProject/patchinfo'
-    assert_response 404
+    assert_response :not_found
     get "/source/BaseDistro2.0:LinkedUpdateProject/patchinfo.#{incident_id}"
     assert_response :success
     get "/source/BaseDistro2.0:LinkedUpdateProject/patchinfo.#{incident_id}/_patchinfo"
@@ -1703,13 +1703,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586'
     assert_response :success
     get '/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/delete_me-1.0-1.i586.rpm'
-    assert_response 404
+    assert_response :not_found
     get '/published/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/package-1.0-1.i586.rpm'
-    assert_response 404
+    assert_response :not_found
 
     # disable lock and verify meta
     delete "/source/#{incident_project}"
-    assert_response 403
+    assert_response :forbidden
     post "/source/#{incident_project}", params: { cmd: 'unlock', comment: 'cleanup' }
     assert_response :success
     get "/source/#{incident_project}/_meta"
@@ -1788,7 +1788,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/BaseDistro2.0:ServicePack1/pack2'
     assert_response :success
     get '/source/BaseDistro2.0:ServicePack1/pack2/_link'
-    assert_response 404 # a makeoriginolder copy due to attribute
+    assert_response :not_found # a makeoriginolder copy due to attribute
     get '/source/BaseDistro2.0:ServicePack1/pack2?view=info'
     assert_response :success
     node = Xmlhash.parse(@response.body)
@@ -1826,7 +1826,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/BaseDistro2.0:ServicePack1/pack2NEW'
     assert_response :success
     get '/source/BaseDistro2.0:ServicePack1/pack2NEW/_link'
-    assert_response 404 # a new copy due to MakeOriginOlder attribute.
+    assert_response :not_found # a new copy due to MakeOriginOlder attribute.
     delete '/source/BaseDistro2.0:ServicePack1/pack2NEW'
     assert_response :success
     # must be untouched
@@ -1864,14 +1864,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     run_publisher
     # unpublished worked for sure
     get "/published/#{incident_project}"
-    assert_response 404
+    assert_response :not_found
   end
 
   def test_create_invalid_patchinfo
     login_tom
     # collons in patchinfo names are not allowed but common mistake
     post '/source/home:tom?cmd=createpatchinfo&force=1&name=home:tom'
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_package_name' }
   end
 
@@ -1885,7 +1885,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    </action>
                                    <state name="new" />
                                  </request>'
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'submit_request_rejected' }
     assert_match(/is a maintenance release project/, @response.body)
   end
@@ -1900,7 +1900,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    </action>
                                    <state name="new" />
                                  </request>'
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'no_maintenance_project' }
 
     # submit foreign package without releaseproject
@@ -1911,7 +1911,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    </action>
                                    <state name="new" />
                                  </request>'
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'no_maintenance_release_target' }
 
     # submit foreign package with wrong releaseproject
@@ -1922,7 +1922,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    </action>
                                    <state name="new" />
                                  </request>'
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'no_maintenance_release_target' }
     post '/request?cmd=create', params: '<request>
                                    <action type="maintenance_incident">
@@ -1931,7 +1931,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    </action>
                                    <state name="new" />
                                  </request>'
-    assert_response 404
+    assert_response :not_found
     assert_xml_tag tag: 'status', attributes: { code: 'unknown_project' }
 
     # double entries
@@ -1947,7 +1947,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    <description>To fix my &lt;bug</description>
                                    <state name="new" />
                                  </request>'
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'conflicting_actions' }
   end
 
@@ -1980,7 +1980,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
            <state name="new" />
          </request>'
     post '/request?cmd=create', params: rq
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'repository_without_releasetarget' }
 
     # try with server side request expansion
@@ -1991,10 +1991,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
            <state name="new" />
          </request>'
     post '/request?cmd=create', params: rq
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'missing_patchinfo' }
     post '/request?cmd=create&ignore_build_state=1', params: rq
-    assert_response 400
+    assert_response :bad_request
     # assert_xml_tag :tag => 'status', :attributes => { code: 'wrong_linked_package_source' }
     assert_xml_tag tag: 'status', attributes: { code: 'missing_action' }
 
@@ -2012,7 +2012,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # retry
     prepare_request_with_user('maintenance_coord', 'buildservice')
     post '/request?cmd=create', params: rq
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'missing_patchinfo' }
 
     # add required informations about the update
@@ -2020,23 +2020,23 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post '/source/home:tom:branches:BaseDistro:Update?cmd=createpatchinfo'
     assert_response :success
     post '/source/home:tom:branches:BaseDistro:Update?cmd=createpatchinfo&name=pack1'
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'package_already_exists' }
     post '/source/home:tom:branches:BaseDistro:Update?cmd=createpatchinfo'
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'patchinfo_file_exists' }
     post '/source/home:tom:branches:BaseDistro:Update?cmd=createpatchinfo&force=1'
     assert_response :success
 
     prepare_request_with_user('maintenance_coord', 'buildservice')
     post '/request?cmd=create', params: rq
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'build_not_finished' }
 
     # _patchinfo still incomplete
     prepare_request_with_user('maintenance_coord', 'buildservice')
     post '/request?cmd=create&ignore_build_state=1', params: rq
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'incomplete_patchinfo' }
 
     # fix patchinfo
@@ -2062,7 +2062,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
          </request>'
     prepare_request_with_user('maintenance_coord', 'buildservice')
     post '/request?cmd=create&ignore_build_state=1', params: rq
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'repository_without_architecture' }
 
     # add a wrong architecture
@@ -2074,7 +2074,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     prepare_request_with_user('maintenance_coord', 'buildservice')
     post '/request?cmd=create&ignore_build_state=1', params: rq
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'architecture_order_missmatch' }
 
     # cleanup
@@ -2220,7 +2220,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # fail ...
     post "/request/#{reqid}?cmd=changestate&newstate=accepted"
-    assert_response 403
+    assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'release_target_no_permission' }
 
     # create another request with same target must be blocked
@@ -2231,7 +2231,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    </action>
                                    <state name="new" />
                                  </request>'
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'open_release_requests' }
 
     # revoke to unlock the source
@@ -2272,7 +2272,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # fail ...
     post "/request/#{reqid}?cmd=changestate&newstate=accepted"
-    assert_response 403
+    assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'post_request_no_permission' }
 
     # revoke request, must unlock the incident
@@ -2310,7 +2310,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'bcntsynctag', content: 'pack1'
     post '/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro'
-    assert_response 403
+    assert_response :forbidden
     post '/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro'
     assert_response :success
     get '/source/home:tom:CopyOfBaseDistro/_meta'
@@ -2391,7 +2391,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   def test_copy_project_with_history_and_binaries
     login_tom
     post '/source/home:tom:CopyOfBaseDistro3?cmd=copy&oproject=BaseDistro3&withbinaries=1'
-    assert_response 403
+    assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'project_copy_no_permission' }
 
     # as admin
@@ -2539,13 +2539,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # this is changing also the source project
     login_tom
     post '/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&makeolder=1'
-    assert_response 403
+    assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
     assert_match(/requires modification permission in origin project/, @response.body)
 
     # this is changing also the source project
     post '/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&makeoriginolder=1'
-    assert_response 403
+    assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
     assert_match(/requires modification permission in origin project/, @response.body)
   end

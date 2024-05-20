@@ -30,10 +30,10 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     </issue-tracker>
     EOF
     post '/issue_trackers', params: issue_tracker_xml
-    assert_response 401
+    assert_response :unauthorized
     login_adrian
     post '/issue_trackers', params: issue_tracker_xml
-    assert_response 403
+    assert_response :forbidden
     login_king
     post '/issue_trackers', params: issue_tracker_xml
     assert_response :success
@@ -68,7 +68,7 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     EOF
     login_adrian
     raw_put '/issue_trackers/test', issue_tracker_xml
-    assert_response 403
+    assert_response :forbidden
     login_king
     raw_put '/issue_trackers/test', issue_tracker_xml
     assert_response :success
@@ -87,7 +87,7 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     # Delete that issue tracker again
     login_adrian
     delete '/issue_trackers/test'
-    assert_response 403
+    assert_response :forbidden
     login_king
     delete '/issue_trackers/test'
     assert_response :success
