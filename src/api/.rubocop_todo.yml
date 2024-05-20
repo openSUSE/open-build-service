@@ -1007,17 +1007,6 @@ Rails/TimeZone:
     - 'test/unit/binary_release_test.rb'
     - 'test/unit/package_remove_test.rb'
 
-# Offense count: 7
-# This cop supports safe autocorrection (--autocorrect).
-Rails/WhereRange:
-  Exclude:
-    - 'app/controllers/webui/feeds_controller.rb'
-    - 'app/jobs/status_history_rescaler_job.rb'
-    - 'app/models/bs_request.rb'
-    - 'app/models/notification.rb'
-    - 'app/models/project_log_entry.rb'
-    - 'db/data/20200326221616_regenerate_notifications.rb'
-
 # Offense count: 165
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: EnforcedStyle.

@@ -4,7 +4,7 @@ class StatusHistoryRescalerJob < ApplicationJob
   # this is called from a delayed job triggered by clockwork
   def perform
     maxtime = StatusHistory.maximum(:time)
-    StatusHistory.where('time < ?', maxtime - (365 * 24 * 3600)).delete_all if maxtime
+    StatusHistory.where(time: ...maxtime - (365 * 24 * 3600)).delete_all if maxtime
 
     keys = StatusHistory.distinct.pluck(:key)
     keys.each do |key|

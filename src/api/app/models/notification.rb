@@ -68,7 +68,7 @@ class Notification < ApplicationRecord
   # rubocop:enable Metrics/BlockLength
   scope :for_project_name, ->(project_name) { joins(:projects).where(projects: { name: project_name }) }
   scope :for_group_title, ->(group_title) { joins(:groups).where(groups: { title: group_title }) }
-  scope :stale, -> { where('created_at < ?', (CONFIG['notifications_lifetime'] ||= 365).days.ago) }
+  scope :stale, -> { where(created_at: ...(CONFIG['notifications_lifetime'] ||= 365).days.ago) }
 
   def event
     @event ||= event_type.constantize.new(event_payload)

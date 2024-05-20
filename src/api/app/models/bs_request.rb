@@ -23,7 +23,7 @@ class BsRequest < ApplicationRecord
 
   ACTION_NOTIFY_LIMIT = 50
 
-  scope :to_accept_by_time, -> { where(state: %w[new review]).where('accept_at < ?', Time.now) }
+  scope :to_accept_by_time, -> { where(state: %w[new review]).where(accept_at: ...Time.now) }
   # Scopes for collections
   scope :with_actions, -> { joins(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
   scope :with_involved_projects, ->(project_ids) { where(bs_request_actions: { target_project_id: project_ids }) }
