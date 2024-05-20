@@ -14,7 +14,7 @@ class SearchBinaryReleaseTest < ActionDispatch::IntegrationTest
 
     reset_auth
     get '/search/released/binary', params: { match: "@name = 'package'" }
-    assert_response 401
+    assert_response :unauthorized
 
     login_Iggy
     get '/search/released/binary/id', params: { match: "@name = 'package'" }

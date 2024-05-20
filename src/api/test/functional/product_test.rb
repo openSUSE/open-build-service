@@ -156,7 +156,7 @@ class ProductTests < ActionDispatch::IntegrationTest
 
     # invalid uploads
     put '/source/home:tom:temporary/_product/obs.group', params: File.read("#{Rails.root}/test/fixtures/backend/source/simple_product/INVALID_obs.group")
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: '400', origin: 'backend' }
     assert_match(/Illegal support key ILLEGAL for obs-server/, @response.body)
 
@@ -327,9 +327,9 @@ class ProductTests < ActionDispatch::IntegrationTest
     delete '/source/home:tom:temporary/_product'
     assert_response :success
     get '/source/home:tom:temporary/_product:SUSE_SLES-release/_meta' # api
-    assert_response 404
+    assert_response :not_found
     get '/source/home:tom:temporary/_product:SUSE_SLES-release'       # source server
-    assert_response 404
+    assert_response :not_found
 
     # cleanup
     delete '/source/home:tom:temporary:link?force=1'

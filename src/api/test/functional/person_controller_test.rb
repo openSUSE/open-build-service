@@ -9,7 +9,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
 
   def test_index
     get '/person/'
-    assert_response 401
+    assert_response :unauthorized
 
     login_adrian
     get '/person'
@@ -48,7 +48,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     assert_equal user.state, 'deleted'
     # but is not visible since it is tagged as deleted
     get '/person/deleted'
-    assert_response 404
+    assert_response :not_found
   end
 
   def test_userinfo_from_param_valid
@@ -60,12 +60,12 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
   def test_userinfo_from_param_invalid
     login_adrian
     get '/person/notfred'
-    assert_response 404
+    assert_response :not_found
   end
 
   def test_userinfo_with_empty_auth_header
     get '/person/tom'
-    assert_response 401
+    assert_response :unauthorized
   end
 
   def test_userinfo_with_broken_auth_header
@@ -73,7 +73,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     get '/person/tom'
     assert_select 'status[code] > summary', /^Unknown user '[^']+' or invalid password$/
 
-    assert_response 401
+    assert_response :unauthorized
   end
 
   def test_watchlist_privacy
@@ -259,7 +259,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
 
     login_adrian
     put '/person/tom', params: doc.to_s
-    assert_response 403
+    assert_response :forbidden
 
     login_king
     put '/person/tom', params: doc.to_s
@@ -274,7 +274,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'state', content: 'locked'
     prepare_request_valid_user
     put '/person/tom', params: doc.to_s
-    assert_response 403
+    assert_response :forbidden
     # set back
     login_king
     doc.elements['//state'].text = 'confirmed'
@@ -335,7 +335,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
 
     # no account chaining
     put '/person/lost_guy2', params: user_xml
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'subaccount_chaining' }
   end
 
@@ -360,9 +360,9 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     # only admins, not even the user itself can lock himself
     login_Iggy
     post '/person/lost_guy?cmd=lock'
-    assert_response 403
+    assert_response :forbidden
     post '/person/lost_guy?cmd=delete'
-    assert_response 403
+    assert_response :forbidden
 
     # verify data exists
     lost_guy = User.find_by(login: 'lost_guy')
@@ -387,11 +387,11 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     post '/person/lost_guy?cmd=delete'
     assert_response :success
     get '/person/lost_guy'
-    assert_response 404
+    assert_response :not_found
     get '/source/home:lost_guy:subproject/_meta'
-    assert_response 404
+    assert_response :not_found
     get '/source/home:lost_guy/_meta'
-    assert_response 404
+    assert_response :not_found
 
     # delete has removed the right user data, but entry is still there
     lost_guy = User.find_by(login: 'lost_guy')
@@ -412,7 +412,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
             </unregisteredperson>"
            '
     post '/person?cmd=register', params: data
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'err_register_save' }
     assert_xml_tag tag: 'summary', content: 'Sorry, sign up is disabled'
   end
@@ -430,7 +430,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
             </unregisteredperson>"
            '
     post '/person?cmd=register', params: data
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'err_register_save' }
     assert_xml_tag tag: 'summary', content: 'Thank you for signing up! An admin has to confirm your account now. Please be patient.'
 
@@ -463,18 +463,18 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     # change password
     data = 'NEWPASSW0RD'
     post '/person/adrianSuSE?cmd=change_password', params: data
-    assert_response 401
+    assert_response :unauthorized
 
     # wrong user
     login_adrian
     post '/person/adrianSuSE?cmd=change_password', params: data
-    assert_response 403
+    assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'update_user_not_authorized' }
 
     # admin
     login_king
     post '/person/adrianSuSE?cmd=change_password', params: ''
-    assert_response 404
+    assert_response :not_found
     assert_xml_tag tag: 'status', attributes: { code: 'password_empty' }
 
     post '/person/adrianSuSE?cmd=change_password', params: data

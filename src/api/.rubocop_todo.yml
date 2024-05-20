@@ -868,38 +868,6 @@ Rails/HelperInstanceVariable:
     - 'app/helpers/webui/project_helper.rb'
     - 'app/helpers/webui/webui_helper.rb'
 
-# Offense count: 847
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: numeric, symbolic
-Rails/HttpStatus:
-  Exclude:
-    - 'test/functional/about_controller_test.rb'
-    - 'test/functional/architectures_controller_test.rb'
-    - 'test/functional/attributes_test.rb'
-    - 'test/functional/build_controller_test.rb'
-    - 'test/functional/channel_maintenance_test.rb'
-    - 'test/functional/comments_controller_test.rb'
-    - 'test/functional/configurations_controller_test.rb'
-    - 'test/functional/group_test.rb'
-    - 'test/functional/interconnect_test.rb'
-    - 'test/functional/issue_controller_test.rb'
-    - 'test/functional/issue_trackers_controller_test.rb'
-    - 'test/functional/maintenance_test.rb'
-    - 'test/functional/person_controller_test.rb'
-    - 'test/functional/product_test.rb'
-    - 'test/functional/public_controller_test.rb'
-    - 'test/functional/published_controller_test.rb'
-    - 'test/functional/read_permission_test.rb'
-    - 'test/functional/release_management_test.rb'
-    - 'test/functional/request_controller_test.rb'
-    - 'test/functional/search_binary_release_test.rb'
-    - 'test/functional/search_controller_test.rb'
-    - 'test/functional/source_controller_test.rb'
-    - 'test/functional/source_services_test.rb'
-    - 'test/functional/statistics_controller_test.rb'
-    - 'test/functional/status_controller_test.rb'
-
 # Offense count: 39
 # Configuration parameters: IgnoreScopes, Include.
 # Include: app/models/**/*.rb

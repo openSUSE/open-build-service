@@ -14,11 +14,11 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
 
     # try as non-admin
     post '/source/home:tom:BaseDistro', params: { cmd: :move, oproject: 'BaseDistro' }
-    assert_response 403
+    assert_response :forbidden
 
     login_king
     post '/source/home:tom', params: { cmd: :move, oproject: 'BaseDistro' }
-    assert_response 400
+    assert_response :bad_request
 
     # real move
     post '/source/TEMP:BaseDistro', params: { cmd: :move, oproject: 'BaseDistro' }
@@ -39,11 +39,11 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     get '/build/TEMP:BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm'
     assert_response :success
     get '/source/BaseDistro'
-    assert_response 404
+    assert_response :not_found
     get '/build/BaseDistro'
-    assert_response 404
+    assert_response :not_found
     get '/build/BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm'
-    assert_response 404
+    assert_response :not_found
 
     # move back
     post '/source/BaseDistro', params: { cmd: :move, oproject: 'TEMP:BaseDistro' }
@@ -56,9 +56,9 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'comment', content: 'Project move from TEMP:BaseDistro to BaseDistro'
     get '/build/TEMP:BaseDistro'
-    assert_response 404
+    assert_response :not_found
     get '/build/TEMP:BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm'
-    assert_response 404
+    assert_response :not_found
     get '/build/BaseDistro'
     assert_response :success
     get '/build/BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm'
@@ -84,7 +84,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
 
     # try a split
     post '/source/home:tom:BaseDistro', params: { cmd: :copy, oproject: 'BaseDistro', makeolder: 1 }
-    assert_response 403
+    assert_response :forbidden
 
     # cleanup
     delete '/source/home:tom:BaseDistro'

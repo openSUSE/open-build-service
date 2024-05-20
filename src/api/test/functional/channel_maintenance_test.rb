@@ -55,7 +55,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                                    <description>To fix my bug</description>
                                    <state name="new" />
                                  </request>'
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag(tag: 'status', attributes: { code: 'missing_action' })
     # also for entire project
     post '/request?cmd=create&addrevision=1', params: '<request>
@@ -68,7 +68,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                                    <description>To fix my bug</description>
                                    <state name="new" />
                                  </request>'
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag(tag: 'status', attributes: { code: 'missing_action' })
 
     # do some file changes
@@ -161,7 +161,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                                      <target project="home:tom" />
                                    </action>
                                  </request>'
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'no_maintenance_project' }
     # valid target..
     post '/request?cmd=create&addrevision=1', params: '<request>
@@ -248,7 +248,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     # try to do it again
     prepare_request_with_user('maintenance_coord', 'buildservice')
     post "/request/#{id2}?cmd=setincident&incident=#{incident_project.gsub(/.*:/, '')}"
-    assert_response 404
+    assert_response :not_found
     assert_xml_tag tag: 'status', attributes: { code: 'target_not_maintenance' }
 
     # accept request
@@ -339,7 +339,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     # create channel packages and repos
     login_adrian
     post "/source/#{incident_project}?cmd=addchannels"
-    assert_response 403
+    assert_response :forbidden
     prepare_request_with_user('maintenance_coord', 'buildservice')
     post "/source/#{incident_project}?cmd=addchannels"
     assert_response :success
@@ -422,12 +422,12 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     # create channel packages and repos
     login_adrian
     post "/source/#{incident_project}?cmd=addchannels"
-    assert_response 403
+    assert_response :forbidden
     prepare_request_with_user('maintenance_coord', 'buildservice')
     post "/source/#{incident_project}?cmd=addchannels&mode=skip_disabled"
     assert_response :success
     get "/source/#{incident_project}/BaseDistro2.0.Channel/_meta"
-    assert_response 404 # skipped because it just has a disabled target
+    assert_response :not_found # skipped because it just has a disabled target
     get "/source/#{incident_project}/BaseDistro3.Channel/_meta"
     assert_response :success
 
@@ -519,7 +519,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     # no updateinfo create, so add an issue to the patchinfo
     get "/build/#{incident_project}/BaseDistro3Channel/i586/patchinfo/updateinfo.xml"
-    assert_response 404
+    assert_response :not_found
     get "/source/#{incident_project}/patchinfo/_patchinfo"
     assert_response :success
     pi = Nokogiri::XML(@response.body, &:strict).root
@@ -581,7 +581,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     post "/request/#{id4}?cmd=setincident&incident=#{incident_project.gsub(/.*:/, '')}"
     assert_response :success
     post "/request/#{id4}?cmd=changestate&newstate=accepted&force=1" # ignore reviews and accept
-    assert_response 403
+    assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'post_request_no_permission' }
 
     # revoke the release request request
@@ -830,7 +830,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_no_xml_tag(tag: 'requestid') # manual release entry
     get '/source/BaseDistro3/pack2'
-    assert_response 404
+    assert_response :not_found
     post '/source/BaseDistro3/pack2?cmd=undelete'
     assert_response :success
 
@@ -903,7 +903,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     # validate cleanup
     get '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject'
-    assert_response 404
+    assert_response :not_found
 
     # data consistency check
     chk = ConsistencyCheckJob.new
@@ -961,9 +961,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     delete '/source/home:tom:branches:OBS_Maintained:pack2'
     assert_response :success
     delete '/source/BaseDistro3Channel'
-    assert_response 400 # incident still refers to it
+    assert_response :bad_request # incident still refers to it
     delete "/source/#{incident_project}"
-    assert_response 403 # still locked, so unlock it ...
+    assert_response :forbidden # still locked, so unlock it ...
     post "/source/#{incident_project}", params: { cmd: 'unlock', comment: 'cleanup' }
     assert_response :success
     delete "/source/#{incident_project}"

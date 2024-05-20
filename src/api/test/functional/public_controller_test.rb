@@ -11,7 +11,7 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
 
   def test_index
     get '/public'
-    assert_response 301
+    assert_response :moved_permanently
   end
 
   def test_about
@@ -38,12 +38,12 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     get '/public/source' # no such action
-    assert_response 404
+    assert_response :not_found
 
     get '/public/source/DoesNotExist/_meta'
-    assert_response 404
+    assert_response :not_found
     get '/public/source/home:Iggy/DoesNotExist/_meta'
-    assert_response 404
+    assert_response :not_found
 
     get '/public/build/home:Iggy/10.2/i586/TestPack'
     assert_response :success
@@ -53,7 +53,7 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'request', attributes: { id: '1000' }
 
     get '/public/request/98766123'
-    assert_response 404
+    assert_response :not_found
     assert_xml_tag tag: 'status', attributes: { code: 'not_found' }
 
     # remote interconnect from scheduler for product building
@@ -62,17 +62,17 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
 
     # hidden project access
     get '/public/source/HiddenProject'
-    assert_response 404
+    assert_response :not_found
     get '/public/source/HiddenProject/_config'
-    assert_response 404
+    assert_response :not_found
     get '/public/source/HiddenProject/_meta'
-    assert_response 404
+    assert_response :not_found
     get '/public/source/HiddenProject/pack'
-    assert_response 404
+    assert_response :not_found
     get '/public/source/HiddenProject/pack/_meta'
-    assert_response 404
+    assert_response :not_found
     get '/public/source/HiddenProject/pack/my_file'
-    assert_response 404
+    assert_response :not_found
   end
 
   def test_lastevents
@@ -102,7 +102,7 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
     assert_match 'DummyContent', @response.body
 
     get '/public/source/home:Iggy/TestPack/myfile2'
-    assert_response 404
+    assert_response :not_found
     assert_match(/myfile2: no such file/, @response.body)
 
     # access to package build area
@@ -119,7 +119,7 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
     # FIXME: validate rpm
 
     get '/public/build/home:Iggy/10.2/i586/TestPack/doesnotexist'
-    assert_response 404
+    assert_response :not_found
     # FIXME: do a working getbinary call
   end
 
@@ -141,9 +141,9 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'binary', attributes: { filename: 'package-1.0-1.i586.rpm' }
 
     get '/public/build/home:Iggy/10.2/i586/TestPack/package-1.0-1.i586.rpm'
-    assert_response 200
+    assert_response :ok
 
     get '/public/build/home:Iggy/10.2/i586/TestPack/not-existent.rpm'
-    assert_response 404
+    assert_response :not_found
   end
 end

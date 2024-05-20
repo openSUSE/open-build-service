@@ -126,11 +126,11 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     get '/public/source/UseRemoteInstance/pack2.linked/package.spec'
     assert_response :success
     get '/public/source/UseRemoteInstance/NotExisting'
-    assert_response 404
+    assert_response :not_found
     get '/public/source/UseRemoteInstance/NotExisting/_meta'
-    assert_response 404
+    assert_response :not_found
     get '/public/source/UseRemoteInstance/NotExisting/package.spec'
-    assert_response 404
+    assert_response :not_found
   end
 
   def test_backend_support
@@ -217,13 +217,13 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     # test binary operations
     login_king
     post '/build/RemoteInstance:BaseDistro', params: { cmd: 'wipe', package: 'pack1' }
-    assert_response 403
+    assert_response :forbidden
     post '/build/RemoteInstance:BaseDistro', params: { cmd: 'rebuild', package: 'pack1' }
-    assert_response 403
+    assert_response :forbidden
     post '/build/RemoteInstance:BaseDistro', params: { cmd: 'wipe' }
-    assert_response 403
+    assert_response :forbidden
     post '/build/RemoteInstance:BaseDistro', params: { cmd: 'rebuild' }
-    assert_response 403
+    assert_response :forbidden
     # the webui requires this for repository browsing in advanced repo add mask
     get '/build/RemoteInstance:BaseDistro'
     assert_response :success
@@ -262,23 +262,23 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     # direct access to remote instance, not existing project/package
     login_tom
     get '/source/RemoteInstance:NotExisting/_config'
-    assert_response 404
+    assert_response :not_found
     get '/source/RemoteInstance:NotExisting/_meta'
-    assert_response 404
+    assert_response :not_found
     get '/source/RemoteInstance:NotExisting/pack1'
-    assert_response 404
+    assert_response :not_found
     get '/source/RemoteInstance:NotExisting/pack1/_meta'
-    assert_response 404
+    assert_response :not_found
     get '/source/RemoteInstance:NotExisting/pack1/my_file'
-    assert_response 404
+    assert_response :not_found
     get '/source/RemoteInstance:BaseDistro/NotExisting'
-    assert_response 404
+    assert_response :not_found
     get '/source/RemoteInstance:BaseDistro/NotExisting/_meta'
-    assert_response 404
+    assert_response :not_found
     get '/source/RemoteInstance:BaseDistro/NotExisting/my_file'
-    assert_response 404
+    assert_response :not_found
     get '/source/RemoteInstance:kde4/_pubkey'
-    assert_response 404
+    assert_response :not_found
     assert_match(/no pubkey available/, @response.body)
 
     # access to local project with project link to remote, and via a local indirection
@@ -316,13 +316,13 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     # post '/source/UseRemoteInstance/pack2', params: { cmd: 'set_flag', flag: 'access', status: 'enable' }
     # assert_response 500 # FIXME: don't fail with a 500 error. Return a 403 or a 404 error
     post '/source/UseRemoteInstance/pack2', params: { cmd: 'unlock' }
-    assert_response 404 # FIXME: Return a 403 error...
+    assert_response :not_found # FIXME: Return a 403 error...
     get '/source/UseRemoteInstance/NotExisting'
-    assert_response 404
+    assert_response :not_found
     get '/source/UseRemoteInstance/NotExisting/_meta'
-    assert_response 404
+    assert_response :not_found
     get '/source/UseRemoteInstance/NotExisting/my_file'
-    assert_response 404
+    assert_response :not_found
     # test binary operations
     login_king
     post '/build/UseRemoteInstance', params: { cmd: 'wipe', package: 'pack2.linked' }
@@ -346,7 +346,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     get '/source/LocalProject/remotepackage/_meta'
     assert_response :success
     get '/source/LocalProject/remotepackage/my_file'
-    assert_response 404
+    assert_response :not_found
     get '/source/LocalProject/remotepackage/_link'
     assert_response :success
     ret = Xmlhash.parse(@response.body)
@@ -357,9 +357,9 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     post '/source/LocalProject/remotepackage', params: { cmd: 'branch' }
     assert_response :success
     get "/source/LocalProject/remotepackage/_link?rev=#{xsrcmd5}"
-    assert_response 404
+    assert_response :not_found
     get '/source/LocalProject/remotepackage/not_existing'
-    assert_response 404
+    assert_response :not_found
     # test binary operations
     login_king
     post '/build/LocalProject', params: { cmd: 'wipe', package: 'remotepackage' }
@@ -385,17 +385,17 @@ class InterConnectTests < ActionDispatch::IntegrationTest
   def test_invalid_operation_to_remote
     login_king
     delete '/source/RemoteInstance:BaseDistro2.0'
-    assert_response 403
+    assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'delete_project_no_permission' }
     delete '/source/RemoteInstance:BaseDistro2.0/pack2'
-    assert_response 403
+    assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'delete_package_no_permission' }
     post '/source/RemoteInstance:BaseDistro2.0/package', params: { cmd: :copy, oproject: 'BaseDistro2.0', opackage: 'pack2' }
-    assert_response 403
+    assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
     put '/source/RemoteInstance:BaseDistro2.0/pack/_meta', params: '<package name="pack" project="RemoteInstance:BaseDistro2.0">
            <title/><description/></package>'
-    assert_response 403
+    assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'update_project_not_authorized' }
   end
 
@@ -408,7 +408,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
                                    </action>
                                    <state name="new" />
                                  </request>'
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'remote_target' }
   end
 
@@ -499,9 +499,9 @@ class InterConnectTests < ActionDispatch::IntegrationTest
   def test_get_packagelist_with_hidden_remoteurlproject
     login_tom
     get '/source/HiddenRemoteInstance'
-    assert_response 404
+    assert_response :not_found
     get '/source/HiddenRemoteInstance:BaseDistro'
-    assert_response 404
+    assert_response :not_found
     reset_auth
     prepare_request_with_user('hidden_homer', 'buildservice')
     get '/source/HiddenRemoteInstance'
@@ -513,15 +513,15 @@ class InterConnectTests < ActionDispatch::IntegrationTest
   def test_read_access_hidden_remoteurlproject_index
     login_tom
     get '/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository'
-    assert_response 404
+    assert_response :not_found
     get '/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository?view=cache'
-    assert_response 404
+    assert_response :not_found
     get '/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository?view=binaryversions'
-    assert_response 404
+    assert_response :not_found
     get '/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository?view=cpio'
-    assert_response 404
+    assert_response :not_found
     get '/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/pack1'
-    assert_response 404
+    assert_response :not_found
     reset_auth
     prepare_request_with_user('hidden_homer', 'buildservice')
     get '/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository'
@@ -541,7 +541,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
 
     login_tom
     put '/source/home:tom:remote/_meta', params: p
-    assert_response 403
+    assert_response :forbidden
 
     login_king
     put '/source/home:tom:remote/_meta', params: p
@@ -589,9 +589,9 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     get '/source/home:Iggy/TestLinkPack'
     assert_response :success
     get '/source/RemoteInstance:home:Iggy/TestLinkPack'
-    assert_response 400 # always expanded against remote
+    assert_response :bad_request # always expanded against remote
     get '/source/home:Iggy/TestLinkPack?expand=1'
-    assert_response 400
+    assert_response :bad_request
 
     delete '/source/home:Iggy/TestLinkPack/_link'
     assert_response :success
@@ -617,7 +617,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     # cleanup option can not work, do not allow to create requests
     post '/request?cmd=create', params: "<request><action type='submit'><source project='RemoteInstance:home:Iggy' package='TestPack'/>
           <target project='home:Iggy' package='TEMPORARY'/> <options><sourceupdate>cleanup</sourceupdate></options></action></request>"
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'not_supported' }
   end
 end

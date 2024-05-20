@@ -11,10 +11,10 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
   def test_latest_added
     login_adrian
     get url_for(controller: :source_project_package_meta, action: :show, project: 'HiddenProject', package: 'test_latest_added')
-    assert_response 404
+    assert_response :not_found
     put url_for(controller: :source_project_package_meta, action: :update, project: 'HiddenProject', package: 'test_latest_added'),
         params: '<package project="HiddenProject" name="test_latest_added"> <title/> <description/> </package>'
-    assert_response 200
+    assert_response :ok
     assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
 
     get url_for(controller: :statistics, action: :latest_added)
@@ -32,10 +32,10 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
 
     login_fred
     get url_for(controller: :source_project_package_meta, action: :show, project: 'kde4', package: 'test_latest_added1')
-    assert_response 404
+    assert_response :not_found
     put url_for(controller: :source_project_package_meta, action: :update, project: 'kde4', package: 'test_latest_added1'),
         params: '<package project="kde4" name="test_latest_added1"> <title/> <description/> </package>'
-    assert_response 200
+    assert_response :ok
     assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
 
     get url_for(controller: :statistics, action: :latest_added)
@@ -53,10 +53,10 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
   def test_latest_updated
     login_adrian
     get url_for(controller: :source_project_package_meta, action: :show, project: 'HiddenProject', package: 'test_latest_added')
-    assert_response 404
+    assert_response :not_found
     put url_for(controller: :source_project_package_meta, action: :update, project: 'HiddenProject', package: 'test_latest_added'),
         params: '<package project="HiddenProject" name="test_latest_added"> <title/> <description/> </package>'
-    assert_response 200
+    assert_response :ok
     assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
 
     get url_for(controller: :statistics, action: :latest_updated)
@@ -74,10 +74,10 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
 
     login_fred
     get url_for(controller: :source_project_package_meta, action: :show, project: 'kde4', package: 'test_latest_added1')
-    assert_response 404
+    assert_response :not_found
     put url_for(controller: :source_project_package_meta, action: :update, project: 'kde4', package: 'test_latest_added1'),
         params: '<package project="kde4" name="test_latest_added1"> <title/> <description/> </package>'
-    assert_response 200
+    assert_response :ok
     assert_xml_tag(tag: 'status', attributes: { code: 'ok' })
 
     get url_for(controller: :statistics, action: :latest_updated)
@@ -95,35 +95,35 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
   def test_timestamp_calls
     login_adrian
     get url_for(controller: :statistics, action: :added_timestamp, project: 'HiddenProject', package: 'pack')
-    assert_response 200
+    assert_response :ok
 
     get url_for(controller: :statistics, action: :updated_timestamp, project: 'HiddenProject', package: 'pack')
-    assert_response 200
+    assert_response :ok
 
     get url_for(controller: :statistics, action: :added_timestamp, project: 'kde4', package: 'kdelibs')
-    assert_response 200
+    assert_response :ok
 
     get url_for(controller: :statistics, action: :updated_timestamp, project: 'kde4', package: 'kdelibs')
-    assert_response 200
+    assert_response :ok
 
     login_fred
     get url_for(controller: :statistics, action: :added_timestamp, project: 'kde4', package: 'kdelibs')
-    assert_response 200
+    assert_response :ok
 
     get url_for(controller: :statistics, action: :updated_timestamp, project: 'kde4', package: 'kdelibs')
-    assert_response 200
+    assert_response :ok
 
     get url_for(controller: :statistics, action: :added_timestamp, project: 'HiddenProject', package: 'not_existing')
-    assert_response 404
+    assert_response :not_found
 
     get url_for(controller: :statistics, action: :updated_timestamp, project: 'HiddenProject', package: 'not_existing')
-    assert_response 404
+    assert_response :not_found
 
     get url_for(controller: :statistics, action: :added_timestamp, project: 'HiddenProject')
-    assert_response 404
+    assert_response :not_found
 
     get url_for(controller: :statistics, action: :updated_timestamp, project: 'HiddenProject')
-    assert_response 404
+    assert_response :not_found
   end
 
   def test_activity
@@ -187,7 +187,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
 
   def test_active_request_creators
     get url_for(action: :active_request_creators, controller: :statistics, project: 'kde4')
-    assert_response 401
+    assert_response :unauthorized
 
     login_tom
     get url_for(action: :active_request_creators, controller: :statistics, project: 'kde4')
@@ -195,6 +195,6 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'creator', attributes: { login: 'tom', email: 'tschmidt@example.com', count: '1' }
 
     get url_for(action: :active_request_creators, controller: :statistics, project: 'HiddenProject')
-    assert_response 404
+    assert_response :not_found
   end
 end

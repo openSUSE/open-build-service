@@ -12,19 +12,19 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
   # FRONTEND: Test published api
   def test_index
     get '/published'
-    assert_response 401
+    assert_response :unauthorized
 
     get '/published/HiddenProject'
-    assert_response 401
+    assert_response :unauthorized
 
     get '/published/kde4'
-    assert_response 401
+    assert_response :unauthorized
 
     get '/published/kde4/openSUSE_11.3'
-    assert_response 401
+    assert_response :unauthorized
 
     get '/published/kde4/openSUSE_11.3/i586'
-    assert_response 401
+    assert_response :unauthorized
 
     login_tom
     get '/published'
@@ -32,16 +32,16 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/entry name="HiddenProject"/, @response.body)
 
     get '/published/HiddenProject'
-    assert_response 404
+    assert_response :not_found
 
     get '/published/kde4'
-    assert_response 200
+    assert_response :ok
 
     get '/published/kde4/openSUSE_11.3'
-    assert_response 200
+    assert_response :ok
 
     get '/published/kde4/openSUSE_11.3/i586'
-    assert_response 200
+    assert_response :ok
 
     # FIXME: these error 404 are caused by incomplete test data, not by correct handling
     #    get "/published/kde4/openSUSE_11.3/i586/kdelibs"
@@ -71,11 +71,11 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
 
   def test_binary_view
     get '/published/kde4/openSUSE_11.3/i586/kdelibs-3.2.1-1.5.i586.rpm'
-    assert_response 401
+    assert_response :unauthorized
 
     login_tom
     get '/published/kde4/openSUSE_11.3/i586/kdelibs-3.2.1-1.5.i586.rpm'
-    assert_response 404 # does not exist
+    assert_response :not_found # does not exist
   end
   # FIXME: this needs to be extended, when we have added binaries and bs_publisher to the test suite
 
