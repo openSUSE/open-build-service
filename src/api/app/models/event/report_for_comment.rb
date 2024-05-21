@@ -3,6 +3,10 @@ module Event
     self.description = 'Report for a comment created'
     payload_keys :commentable_type, :bs_request_number, :bs_request_action_id,
                  :project_name, :package_name, :commenter
+
+    def subject
+      "Comment by #{payload[:commenter]} reported"
+    end
   end
 end
 

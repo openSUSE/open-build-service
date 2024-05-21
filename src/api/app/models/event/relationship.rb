@@ -4,6 +4,10 @@ module Event
     payload_keys :description, :who, :user, :group, :project, :package, :role, :notifiable_id
     shortenable_key :description
 
+    def subject
+      raise AbstractMethodCalled
+    end
+
     def parameters_for_notification
       super.merge({ notifiable_type: notifiable_type, notifiable_id: notifiable_id })
     end

@@ -7,6 +7,10 @@ module Event
 
     DIFF_LIMIT = 120
 
+    def subject
+      raise AbstractMethodCalled
+    end
+
     def self.message_number(number)
       "<obs-request-#{number}@#{URI.parse(Configuration.obs_url).host.downcase}>"
     end

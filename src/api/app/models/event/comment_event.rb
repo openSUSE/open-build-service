@@ -8,6 +8,10 @@ module Event
       end
     end
 
+    def subject
+      raise AbstractMethodCalled
+    end
+
     def expanded_payload
       p = payload.dup
       p['commenter'] = User.find_by(login: p['commenter']) || User.find(p['commenter'])

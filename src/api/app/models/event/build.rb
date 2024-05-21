@@ -5,6 +5,10 @@ module Event
     payload_keys :project, :package, :sender, :repository, :arch, :release, :readytime, :srcmd5,
                  :rev, :reason, :bcnt, :verifymd5, :hostarch, :starttime, :endtime, :workerid, :versrel, :previouslyfailed, :successive_failcount, :buildtype
 
+    def subject
+      raise AbstractMethodCalled
+    end
+
     def custom_headers
       mid = my_message_id
       h = super

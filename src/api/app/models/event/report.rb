@@ -5,6 +5,10 @@ module Event
 
     payload_keys :id, :user_id, :reportable_id, :reportable_type, :reason, :category
 
+    def subject
+      raise AbstractMethodCalled
+    end
+
     def parameters_for_notification
       super.merge(notifiable_type: 'Report')
     end

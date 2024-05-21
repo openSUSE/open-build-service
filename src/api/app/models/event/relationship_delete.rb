@@ -4,6 +4,12 @@ module Event
     self.description = 'Relationship deleted'
 
     receiver_roles :any_role
+
+    def subject
+      object = payload[:project]
+      object += "/#{payload[:package]}" if payload[:package]
+      "#{payload[:who]} added you as #{payload[:role]} on #{object}"
+    end
   end
 end
 

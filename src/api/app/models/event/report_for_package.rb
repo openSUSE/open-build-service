@@ -3,6 +3,10 @@ module Event
     self.description = 'Report for a package created'
     payload_keys :package_name, :project_name
 
+    def subject
+      "Package #{payload[:project_name]}/#{payload[:package_name]} reported"
+    end
+
     def self.notification_link_path(notification)
       return unless Package.exists_by_project_and_name(notification.event_payload['project_name'], notification.event_payload['package_name'])
 
