@@ -1,4 +1,4 @@
-- if proxy_auth_mode_enabled?
+- if ::Configuration.proxy_auth_mode_enabled?
   - if proxy_auth_register_page.blank?
     %p Sorry, signing up is currently disabled
   - else

@@ -9,10 +9,6 @@ class SignUpComponent < ApplicationComponent
     @submit_btn_text = sanitize(create_page ? 'Create' : submit_btn_text)
   end
 
-  def proxy_auth_mode_enabled?
-    ::Configuration.proxy_auth_mode_enabled?
-  end
-
   def proxy_auth_register_page
     CONFIG['proxy_auth_register_page']
   end
