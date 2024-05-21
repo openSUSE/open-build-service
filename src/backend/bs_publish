@@ -1899,6 +1899,8 @@ sub mapslepool {
     $p =~ s/-Build[\d\.]*\d//;
   } elsif ($bin =~ /.*-Media1?(\.license|)$/) {
     $p = "$name$1";
+  } elsif ($bin =~ /.*[_-](?:$binarchs)?(\.license|)$/) {
+    $p = "$name$1";
   } elsif ($bin =~ /-Media3$/ || $bin =~ /-Debug$/) {
     $p = "${name}_debug";
   } elsif ($bin =~ /-Source$/) {
