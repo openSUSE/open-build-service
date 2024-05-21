@@ -4,7 +4,7 @@ module Event
     payload_keys :bs_request_number
 
     def subject
-      "Request #{payload[:bs_request_number]} reported"
+      "Request #{payload['bs_request_number']} reported"
     end
   end
 end
