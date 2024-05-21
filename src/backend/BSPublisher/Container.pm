@@ -940,11 +940,12 @@ sub do_remote_uploads {
     my $digests = upload_to_registry($registry, $projid, $repoid, $repository, [ $containerinfo ], [ 'artifacthub.io' ], $data, $repostate);
     $containerdigests .= $digests;
   }
-  printf "syncing of %s took %d seconds\n", $repository, time() - $now;
 
   # all is pushed, now clean the rest
   add_notary_upload($notary_uploads, $registry, $repository, $containerdigests);
   delete_obsolete_tags_from_registry($registry, $repository, $containerdigests, $repostate);
+
+  printf "syncing of %s took %d seconds\n", $repository, time() - $now;
 }
 
 1;
