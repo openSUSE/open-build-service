@@ -4,7 +4,7 @@ module Event
     payload_keys :project_name
 
     def subject
-      "Project #{payload[:project_name]} reported"
+      "Project #{payload['project_name']} reported"
     end
 
     def self.notification_link_path(notification)

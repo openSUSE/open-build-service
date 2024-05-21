@@ -5,7 +5,7 @@ module Event
                  :project_name, :package_name, :commenter
 
     def subject
-      "Comment by #{payload[:commenter]} reported"
+      "Comment by #{payload['commenter']} reported"
     end
   end
 end

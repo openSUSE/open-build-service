@@ -4,7 +4,7 @@ module Event
     payload_keys :user_login
 
     def subject
-      "User #{payload[:user_login]} reported"
+      "User #{payload['user_login']} reported"
     end
   end
 end
