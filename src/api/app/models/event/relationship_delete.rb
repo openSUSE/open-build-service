@@ -8,7 +8,7 @@ module Event
     def subject
       object = payload[:project]
       object += "/#{payload[:package]}" if payload[:package]
-      "#{payload[:who]} added you as #{payload[:role]} on #{object}"
+      "#{payload[:who]} removed you as #{payload[:role]} on #{object}"
     end
   end
 end
