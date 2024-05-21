@@ -710,7 +710,9 @@ sub delete_obsolete_tags_from_registry {
       push @keep, $4;
     }
     my %keep = map {$_ => 1} @keep;
-    return unless grep {!$keep{$_}} keys %$repostate;
+    my @obsoletetags = grep {!$keep{$_}} keys %$repostate;
+    return unless @obsoletetags;
+    print "obsolete tags: @obsoletetags\n";
   }
   mkdir_p($uploaddir);
   my $containerdigestfile = "$uploaddir/publisher.$$.containerdigests";
