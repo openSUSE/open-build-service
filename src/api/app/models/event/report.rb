@@ -3,7 +3,7 @@ module Event
     receiver_roles :moderator
     self.description = 'Report for inappropriate content created'
 
-    payload_keys :id, :user_id, :reportable_id, :reportable_type, :reason, :category
+    payload_keys :id, :reporter, :reportable_id, :reportable_type, :reason, :category
 
     def subject
       raise AbstractMethodCalled

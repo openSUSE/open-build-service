@@ -17,7 +17,7 @@ class NotificationAvatarsComponent < ApplicationComponent
                         when 'Project', 'Package'
                           [User.find_by(login: @notification.event_payload['who'])]
                         when 'Report'
-                          [User.find(@notification.event_payload['user_id'])]
+                          [User.find_by(login: @notification.event_payload['reporter'])]
                         when 'Decision'
                           [User.find(@notification.event_payload['moderator_id'])]
                         when 'Appeal'
