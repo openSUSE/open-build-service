@@ -410,7 +410,7 @@ sub query_repostate {
   push @opts, '--cosign' if $tags;
   push @opts, '--no-cosign-info' if $registry->{'cosign_nocheck'};
   push @opts, '-F', $tagsfile if $tagsfile;
-  push @opts, '--old-list-output', "$registrystate/$repository:oldlist" if $registrystate && -s "$registrystate/$repository/:oldlist";
+  push @opts, '--old-listfile', "$registrystate/$repository/:oldlist" if $registrystate && -s "$registrystate/$repository/:oldlist";
   my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @opts, $registryserver, $repository);
   my $now = time();
   my $result = BSPublisher::Util::qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', $tempfile, @cmd);
@@ -421,14 +421,14 @@ sub query_repostate {
     $repostate = {};
     while (<$fd>) {
       my @s = split(' ', $_);
-      if (@s == 4 && $s[0] =~ /\.(?:sig|att)$/ && $s[3] =~ /^cosigncookie=/) {
-        $repostate->{$s[0]} = $s[3];
+      if (@s >= 4 && $s[0] =~ /\.(?:sig|att)$/ && $s[-1] =~ /^cosigncookie=/) {
+        $repostate->{$s[0]} = $s[-1];
       } elsif (@s >= 2) {
         $repostate->{$s[0]} = $s[1];
       }
     }
     close($fd);
-    printf "query took %d seconds, found %d tags\n", time() - $now, scalar(keys %$repostate);
+    printf "query of %s took %d seconds, found %d tags\n", $repository, time() - $now, scalar(keys %$repostate);
     if ($registrystate) {
       mkdir_p("$registrystate/$repository");
       rename($tempfile, "$registrystate/$repository/:oldlist")
@@ -468,10 +468,12 @@ sub create_manifestinfo {
 }
 
 sub compare_to_repostate {
-  my ($registry, $repostate, $repository, $containerinfos, $tags, $multiarch, $oci, $cosigncookie, $cosign_attestation) = @_;
+  my ($registry, $repostate, $repository, $containerinfos, $tags, $multiarch, $oci, $cosign) = @_;
   my %expected;
   my $containerdigests = '';
   my $info;
+  my $cosigncookie = ($cosign || {})->{'cookie'};
+  my $cosign_attestation = ($cosign || {})->{'attestation'};
   my $cosign_expect = $cosigncookie && !$registry->{'cosign_nocheck'} ? "cosigncookie=$cosigncookie" : '-';
   my $manifestinfodir;
   if ($registry->{'manifestinfos'} && "/$repository/" !~ /\/[\.\/]/) {
@@ -538,7 +540,7 @@ sub compare_to_repostate {
 =cut
 
 sub upload_to_registry {
-  my ($registry, $projid, $repoid, $repository, $containerinfos, $tags, $data, $repostate) = @_;
+  my ($registry, $projid, $repoid, $repository, $containerinfos, $tags, $data, $repostate, $cosign) = @_;
 
   return '' unless @{$containerinfos || []} && @{$tags || []};
   
@@ -563,23 +565,9 @@ sub upload_to_registry {
   $gun =~ s/^https?:\/\///;
   $gun .= "/$repository";
 
-  my $cosign = $registry->{'cosign'};
-  $cosign = $cosign->($repository, $projid) if $cosign && ref($cosign) eq 'CODE';
-  my $cosign_attestation = $cosign;
-  if (defined $registry->{'cosign_attestation'}) {
-    $cosign_attestation = $registry->{'cosign_attestation'};
-    $cosign_attestation = $cosign_attestation->($repository, $projid) if $cosign_attestation && ref($cosign_attestation) eq 'CODE';
-  }
-  
-  my $cosigncookie;
-  if (defined($pubkey) && $cosign) {
-    my $creator = 'OBS';
-    $cosigncookie = BSConSign::create_cosign_cookie($pubkey, $gun, $creator);
-  }
-
   # check if the registry is up-to-date
   if ($repostate) {
-    my $containerdigests = compare_to_repostate($registry, $repostate, $repository, $containerinfos, $tags, $multiarch, $oci, $cosigncookie, $cosign_attestation);
+    my $containerdigests = compare_to_repostate($registry, $repostate, $repository, $containerinfos, $tags, $multiarch, $oci, $cosign);
     return $containerdigests if defined $containerdigests;
   }
 
@@ -619,7 +607,7 @@ sub upload_to_registry {
       push @tempfiles, $tmpfile;
     }
     # copy provenance file into blobdir
-    if ($wrote_containerinfo && $cosign_attestation) {
+    if ($wrote_containerinfo && $cosign && $cosign->{'attestation'}) {
       if ($containerinfo->{'slsa_provenance'}) {
 	my $provenancefile = $wrote_containerinfo;
 	die unless $provenancefile =~ s/\.[^\.]+$/.slsa_provenance.json/;
@@ -662,7 +650,7 @@ sub upload_to_registry {
   push @opts, '-m' if $multiarch;
   push @opts, '--oci' if $oci;
   push @opts, '-B', $blobdir if $blobdir;
-  if ($cosigncookie) {
+  if ($cosign && $cosign->{'cookie'}) {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, @{$signargs || []};
@@ -671,7 +659,7 @@ sub upload_to_registry {
     mkdir_p($uploaddir);
     unlink($pubkeyfile);
     writestr($pubkeyfile, undef, $pubkey);
-    push @opts, '--cosign', '--cosigncookie', $cosigncookie;
+    push @opts, '--cosign', '--cosigncookie', $cosign->{'cookie'};
     push @opts, '-p', $pubkeyfile, '-G', $gun, @signargs;
     push @opts, '--rekor', $registry->{'rekorserver'} if $registry->{'rekorserver'};
     push @opts, '--slsaprovenance' if $do_slsaprovenance;
@@ -722,7 +710,9 @@ sub delete_obsolete_tags_from_registry {
       push @keep, $4;
     }
     my %keep = map {$_ => 1} @keep;
-    return unless grep {!$keep{$_}} keys %$repostate;
+    my @obsoletetags = grep {!$keep{$_}} keys %$repostate;
+    return unless @obsoletetags;
+    print "obsolete tags: @obsoletetags\n";
   }
   mkdir_p($uploaddir);
   my $containerdigestfile = "$uploaddir/publisher.$$.containerdigests";
@@ -850,6 +840,7 @@ sub do_local_uploads {
 
   my %todo;
   my @tempfiles;
+  my $now = time();
   for my $tag (sort keys %{$uptags || {}}) {
     my $archs = $uptags->{$tag};
     for my $arch (sort keys %{$archs || {}}) {
@@ -882,6 +873,7 @@ sub do_local_uploads {
   };
   unlink($_) for @tempfiles;
   die($@) if $@;
+  printf "local updating of %s took %d seconds\n", $repository, time() - $now;
 }
 
 =head2 do_remote_uploads - sync containers to a repository in a remote registry
@@ -897,6 +889,7 @@ sub do_remote_uploads {
     delete_obsolete_tags_from_registry($registry, $repository, $containerdigests);
     return;
   }
+
   # find common containerinfos so that we can push multiple tags in one go
   my %todo;
   my %todo_p;
@@ -907,34 +900,52 @@ sub do_remote_uploads {
     push @{$todo{$joinp}}, $tag;
     $todo_p{$joinp} = \@p;
   }
-  my $pullserver = $registry->{server};
-  $pullserver =~ s/https?:\/\///;
-  $pullserver =~ s/\/?$/\//;
-  $pullserver = '' if $pullserver =~ /docker.io\/$/;
+
+  my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
+  $gun =~ s/^https?:\/\///;
+  $gun .= "/$repository";
+
+  # check if we should do cosign and generate a cookie
+  my $cosign;
+  if (defined($data->{'pubkey'}) && $registry->{'cosign'} && %todo) {
+    $cosign = $registry->{'cosign'};
+    $cosign = $cosign->($repository, $projid) if $cosign && ref($cosign) eq 'CODE';
+    $cosign = $cosign ? {} : undef;
+  }
+  if ($cosign) {
+    my $creator = 'OBS';
+    $cosign->{'cookie'} = BSConSign::create_cosign_cookie($data->{'pubkey'}, $gun, $creator);
+    my $cosign_attestation = defined($registry->{'cosign_attestation'}) ? $registry->{'cosign_attestation'} : 1;
+    $cosign_attestation = $cosign_attestation->($repository, $projid) if $cosign_attestation && ref($cosign_attestation) eq 'CODE';
+    $cosign->{'attestation'} = 1 if $cosign_attestation;
+  }
+
   # query the current state
   my $repostate;
   my $querytags;
   $querytags = [ sort keys %$uptags ] if $registry->{'nodelete'};
   $repostate = eval { query_repostate($registry, $repository, $querytags) } if 1;
+
   # now do the uploads for the tag groups
+  my $now = time();
   my $containerdigests = '';
   for my $joinp (sort keys %todo) {
     my @tags = @{$todo{$joinp}};
     my @containerinfos = map {$containers->{$_}} @{$todo_p{$joinp}};
-    my $digests = upload_to_registry($registry, $projid, $repoid, $repository, \@containerinfos, \@tags, $data, $repostate);
+    my $digests = upload_to_registry($registry, $projid, $repoid, $repository, \@containerinfos, \@tags, $data, $repostate, $cosign);
     $containerdigests .= $digests;
   }
-  my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
-  $gun =~ s/^https?:\/\///;
-  $gun = '' if $gun eq 'local:';
   if (($data->{'artifacthubdata'} || {})->{"$gun/$repository"} && !$uptags->{'artifacthub.io'}) {
     my $containerinfo = { 'type' => 'artifacthub', 'artifacthubdata' => $data->{'artifacthubdata'}->{"$gun/$repository"} };
     my $digests = upload_to_registry($registry, $projid, $repoid, $repository, [ $containerinfo ], [ 'artifacthub.io' ], $data, $repostate);
     $containerdigests .= $digests;
   }
+
   # all is pushed, now clean the rest
   add_notary_upload($notary_uploads, $registry, $repository, $containerdigests);
   delete_obsolete_tags_from_registry($registry, $repository, $containerdigests, $repostate);
+
+  printf "syncing of %s took %d seconds\n", $repository, time() - $now;
 }
 
 1;
