@@ -122,7 +122,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     when 'Event::ReportForProject', 'Event::ReportForPackage'
       @notification.event_type.constantize.notification_link_path(@notification)
     when 'Event::ReportForUser'
-      Rails.application.routes.url_helpers.user_path(@notification.event_payload['user_login'], notification_id: @notification.id) if !@notification.event_user.is_deleted? || @current_user.is_admin?
+      Rails.application.routes.url_helpers.user_path(@notification.accused, notification_id: @notification.id) if !@notification.accused.is_deleted? || @current_user.is_admin?
     when 'Event::ReportForRequest'
       bs_request = @notification.notifiable.reportable
       Rails.application.routes.url_helpers.request_show_path(bs_request.number, notification_id: @notification.id)
