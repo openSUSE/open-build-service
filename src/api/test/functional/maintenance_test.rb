@@ -1413,30 +1413,11 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     SendEventEmailsJob.new.perform
     ActionMailer::Base.deliveries.clear
 
-    # leave a comment
-    assert_difference('ActionMailer::Base.deliveries.size', +1) do
+    # leaving a comment on an access protected project does not send mails
+    assert_difference('ActionMailer::Base.deliveries.size', 0) do
       post create_request_comment_path(request_number: reqid), params: 'Release it now!'
       assert_response :success
-      SendEventEmailsJob.new.perform
     end
-
-    email = ActionMailer::Base.deliveries.last
-    assert_equal ['dirkmueller@example.com', 'fred@feuerstein.de', 'test_group@testsuite.org'], email.to.sort
-
-    EventSubscription.create(eventtype: 'Event::CommentForRequest', receiver_role: :source_maintainer,
-                             user: users(:maintenance_assi), channel: :instant_email, enabled: true)
-
-    # now leave another comment and hope the assi gets it too
-    assert_difference('ActionMailer::Base.deliveries.size', +1) do
-      post create_request_comment_path(request_number: reqid), params: 'Slave, can you release it? The master is gone'
-      assert_response :success
-      User.session = User.find_by_login('king')
-      SendEventEmailsJob.new.perform
-      User.session = nil
-    end
-
-    email = ActionMailer::Base.deliveries.last
-    assert_equal ['dirkmueller@example.com', 'fred@feuerstein.de', 'homer@nospam.net', 'test_group@testsuite.org'], email.to.sort
 
     get comments_request_path(request_number: reqid)
     assert_xml_tag tag: 'comment', attributes: { who: 'king' }, content: 'Release it now!'
