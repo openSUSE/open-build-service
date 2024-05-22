@@ -18,8 +18,8 @@ class Webui::FeedsController < Webui::WebuiController
 
     @terse = params[:terse].present?
 
-    commits = @project.project_log_entries.where(event_type: 'commit').where(['datetime >= ?', @start])
-    commits = commits.where(['datetime <= ?', @finish]) if @finish.present?
+    commits = @project.project_log_entries.where(event_type: 'commit').where(datetime: @start..)
+    commits = commits.where(datetime: ..@finish) if @finish.present?
     @commits = commits.order('datetime desc')
   end
 

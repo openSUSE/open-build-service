@@ -28,7 +28,7 @@ class ProjectLogEntry < ApplicationRecord
   end
 
   def self.cleanup
-    where(event_type: %i[build_fail build_success]).where('datetime < ?', Time.zone.yesterday).delete_all
+    where(event_type: %i[build_fail build_success]).where(datetime: ...Time.zone.yesterday).delete_all
   end
 
   # Human readable message, based in the event class

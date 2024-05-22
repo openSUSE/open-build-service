@@ -42,7 +42,7 @@ class RegenerateNotifications < ActiveRecord::Migration[5.2]
   # RequestStatechange Notifications
 
   def create_request_statechange_notifications
-    declined_requests = BsRequest.where(state: :declined).where('created_at >= ?', 100.days.ago.midnight)
+    declined_requests = BsRequest.where(state: :declined).where(created_at: 100.days.ago.midnight..)
 
     declined_requests.each do |request|
       event = Event::RequestStatechange.new(request.event_parameters)
