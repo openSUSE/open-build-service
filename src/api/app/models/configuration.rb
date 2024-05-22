@@ -45,37 +45,37 @@ class Configuration < ApplicationRecord
     def ldapgroup_enabled?
       CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
     end
+
+    def ldap_enabled?
+      CONFIG['ldap_mode'] == :on
+    end
+
+    def proxy_auth_mode_enabled?
+      logger.info 'Warning: You are using the deprecated ichain_mode setting in config/options.yml' if CONFIG['ichain_mode'].present?
+
+      return false unless Configuration::PROXY_MODE_ENABLED_VALUES.include?(CONFIG['proxy_auth_mode']) || CONFIG['ichain_mode'] == :on
+
+      unless CONFIG['proxy_auth_login_page'].present? && CONFIG['proxy_auth_logout_page'].present?
+        logger.info 'Warning: You enabled proxy_auth_mode in config/options.yml but did not set the required proxy_auth_login_page/proxy_auth_logout_page options'
+        return false
+      end
+
+      true
+    end
+
+    def amqp_namespace
+      CONFIG['amqp_namespace'] || 'opensuse.obs'
+    end
   end
   # End of class methods
 
-  def ldap_enabled?
-    CONFIG['ldap_mode'] == :on
-  end
-
-  def proxy_auth_mode_enabled?
-    logger.info 'Warning: You are using the deprecated ichain_mode setting in config/options.yml' if CONFIG['ichain_mode'].present?
-
-    return false unless PROXY_MODE_ENABLED_VALUES.include?(CONFIG['proxy_auth_mode']) || CONFIG['ichain_mode'] == :on
-
-    unless CONFIG['proxy_auth_login_page'].present? && CONFIG['proxy_auth_logout_page'].present?
-      logger.info 'Warning: You enabled proxy_auth_mode in config/options.yml but did not set the required proxy_auth_login_page/proxy_auth_logout_page options'
-      return false
-    end
-
-    true
-  end
-
-  def amqp_namespace
-    CONFIG['amqp_namespace'] || 'opensuse.obs'
-  end
-
   def passwords_changable?(user = nil)
-    change_password && !proxy_auth_mode_enabled? && (user.try(:ignore_auth_services?) || CONFIG['ldap_mode'] != :on)
+    change_password && !Configuration.proxy_auth_mode_enabled? && (user.try(:ignore_auth_services?) || CONFIG['ldap_mode'] != :on)
   end
 
   def accounts_editable?(user = nil)
     (
-      !proxy_auth_mode_enabled? || CONFIG['proxy_auth_account_page'].present?
+      !Configuration.proxy_auth_mode_enabled? || CONFIG['proxy_auth_account_page'].present?
     ) && (
       user.try(:ignore_auth_services?) || CONFIG['ldap_mode'] != :on
     )

@@ -76,8 +76,8 @@ module Webui::UserHelper
     end
   end
 
-  def user_is_configurable(configuration, user)
-    configuration.ldap_enabled? && !user.ignore_auth_services?
+  def user_is_configurable(user)
+    Configuration.ldap_enabled? && !user.ignore_auth_services?
   end
 
   def activity_date_commits(projects)

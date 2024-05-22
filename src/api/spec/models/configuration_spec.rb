@@ -19,16 +19,14 @@ RSpec.describe Configuration do
   end
 
   describe '#ldap_enabled?' do
-    let(:config) { Configuration.first }
-
     it 'returns true if config option `ldap_mode` is set to :on' do
       stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
-      expect(config.ldap_enabled?).to be(true)
+      expect(described_class.ldap_enabled?).to be(true)
     end
 
     it 'returns false if config option `ldap_mode` is not set to :on' do
       stub_const('CONFIG', CONFIG.merge('ldap_mode' => :off))
-      expect(config.ldap_enabled?).to be(false)
+      expect(described_class.ldap_enabled?).to be(false)
     end
   end
 

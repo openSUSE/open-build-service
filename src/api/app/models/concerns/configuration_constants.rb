@@ -42,5 +42,6 @@ module ConfigurationConstants
   ON_OFF_OPTIONS = %i[anonymous default_access_disabled allow_user_to_create_home_project disallow_group_creation
                       change_password hide_private_options gravatar download_on_demand enforce_project_keys
                       cleanup_empty_projects disable_publish_for_branches].freeze
+
   PROXY_MODE_ENABLED_VALUES = %i[on ichain mellon].freeze
 end
