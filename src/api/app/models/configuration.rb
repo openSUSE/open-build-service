@@ -81,27 +81,6 @@ class Configuration < ApplicationRecord
     )
   end
 
-  def update_from_options_yml
-    # strip the not set ones
-    attribs = ::Configuration::OPTIONS_YML.clone
-    attribs.each_key do |k|
-      if attribs[k].nil?
-        attribs.delete(k)
-        next
-      end
-
-      attribs[k] = ::Configuration.map_value(k, attribs[k])
-    end
-
-    # special for api_url
-    unless CONFIG['frontend_host'].blank? || CONFIG['frontend_port'].blank? || CONFIG['frontend_protocol'].blank?
-      attribs['api_url'] =
-        "#{CONFIG['frontend_protocol']}://#{CONFIG['frontend_host']}:#{CONFIG['frontend_port']}"
-    end
-    update(attribs)
-    save!
-  end
-
   # We don't really care about consistency at this point.
   # We use the delayed job so it can fail while seeding
   # the database or in migrations when there is no backend
