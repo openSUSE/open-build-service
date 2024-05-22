@@ -2021,8 +2021,7 @@ sub readcontainermetafiles {
   my $prefix = "$dir/$containerinfofile";
   return unless $prefix =~ s/\.containerinfo$//;
   if (-e "$prefix.slsa_provenance.json") {
-    my $provenance = readstr("$prefix.slsa_provenance.json", 1);
-    $containerinfo->{'slsa_provenance'} = $provenance if $provenance;
+    $containerinfo->{'slsa_provenance_file'} = linkintoblobdir("$prefix.slsa_provenance.json", $blobdirref);
   }
   if (-e "$prefix.spdx.json") {
     $containerinfo->{'spdx_file'} = linkintoblobdir("$prefix.spdx.json", $blobdirref);
