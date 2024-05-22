@@ -1,15 +1,13 @@
 class Webui::UsersController < Webui::WebuiController
   include Webui::NotificationsHandler
 
-  # TODO: Remove this when we'll refactor kerberos_auth
-  before_action :kerberos_auth, only: %i[index edit destroy update change_password edit_account]
-  before_action :authorize_user, only: %i[index edit destroy change_password edit_account]
+  before_action :require_login, except: %i[show new create tokens autocomplete]
   before_action :require_admin, only: %i[index edit destroy]
-  before_action :check_displayed_user, only: %i[show edit block_commenting update edit_account]
+  before_action :check_displayed_user, only: %i[show edit block_commenting update destroy edit_account]
   before_action :role_titles, only: %i[show edit_account update]
   before_action :account_edit_link, only: %i[show edit_account update]
 
-  after_action :verify_authorized, only: %i[index edit destroy update change_password edit_account]
+  after_action :verify_authorized, only: %i[edit destroy update edit_account]
 
   def index
     respond_to do |format|
@@ -42,7 +40,9 @@ class Webui::UsersController < Webui::WebuiController
     @submit_btn_text = params[:submit_btn_text] || 'Sign up'
   end
 
-  def edit; end
+  def edit
+    authorize @displayed_user, :update?
+  end
 
   def create
     begin
@@ -69,7 +69,7 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def block_commenting
-    authorize [:webui, @displayed_user], :block_commenting?
+    authorize @displayed_user, :block_commenting?
 
     @displayed_user.update(params.require(:user).permit(:blocked_from_commenting))
 
@@ -83,7 +83,7 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def update
-    authorize [:webui, @displayed_user], :update?
+    authorize @displayed_user, :update?
 
     assign_common_user_attributes
     assign_admin_attributes if User.admin_session?
@@ -103,17 +103,19 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def destroy
-    user = User.find_by(login: params[:login])
+    authorize @displayed_user, :destroy?
 
-    if user.delete!(adminnote: params[:adminnote])
-      flash[:success] = "Marked user '#{user}' as deleted."
+    if @displayed_user.delete!(adminnote: params[:adminnote])
+      flash[:success] = "Marked user '#{@displayed_user}' as deleted."
     else
-      flash[:error] = "Marking user '#{user}' as deleted failed: #{user.errors.full_messages.to_sentence}"
+      flash[:error] = "Marking user '#{@displayed_user}' as deleted failed: #{@displayed_user.errors.full_messages.to_sentence}"
     end
     redirect_to(users_path)
   end
 
   def edit_account
+    authorize @displayed_user, :update?
+
     respond_to do |format|
       format.js
     end
@@ -170,10 +172,6 @@ class Webui::UsersController < Webui::WebuiController
   def extract_filter_params
     params.slice(:search_text, :involved_projects, :involved_packages,
                  :role_maintainer, :role_bugowner, :role_reviewer, :role_downloader, :role_reader, :role_owner)
-  end
-
-  def authorize_user
-    authorize([:webui, User])
   end
 
   def create_params

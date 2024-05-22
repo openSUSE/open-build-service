@@ -1,28 +1,29 @@
 RSpec.describe UserPolicy do
   subject { described_class }
 
+  let(:admin) { create(:admin_user) }
+  let(:staff) { create(:staff_user) }
+  let(:moderator) { create(:moderator) }
   let(:user) { create(:confirmed_user) }
   let(:other_user) { create(:confirmed_user) }
 
-  before do
-    User.session = user
+  permissions :update?, :destroy? do
+    it { is_expected.not_to permit(user, other_user) }
+    it { is_expected.to permit(admin, user) }
+    it { is_expected.to permit(user, user) }
   end
 
-  permissions :update? do
-    context 'user can modify the other user' do
-      before do
-        allow(user).to receive(:can_modify_user?).with(other_user).and_return true
-      end
+  permissions :comment_index? do
+    it { is_expected.not_to permit(user, other_user) }
+    it { is_expected.to permit(admin, user) }
+    it { is_expected.to permit(staff, user) }
+    it { is_expected.to permit(moderator, user) }
+    it { is_expected.to permit(user, user) }
+  end
 
-      it { is_expected.to permit(user, other_user) }
-    end
-
-    context 'user can not modify the other user' do
-      before do
-        allow(user).to receive(:can_modify_user?).with(other_user).and_return false
-      end
-
-      it { is_expected.not_to permit(user, other_user) }
-    end
+  permissions :block_commenting? do
+    it { is_expected.not_to permit(user, other_user) }
+    it { is_expected.to permit(admin, user) }
+    it { is_expected.to permit(moderator, user) }
   end
 end

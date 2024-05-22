@@ -1,10 +1,12 @@
 RSpec.describe NotificationPolicy do
-  describe NotificationPolicy::Scope do
-    let(:user_nobody) { build(:user_nobody) }
+  subject { described_class }
 
-    it "doesn't permit anonymous user" do
-      expect { described_class.new(user_nobody, Notification.none) }
-        .to raise_error(an_instance_of(Pundit::NotAuthorizedError).and(having_attributes(reason: :anonymous_user)))
-    end
+  let(:user) { create(:confirmed_user) }
+  let(:other_user) { create(:confirmed_user) }
+  let(:notification) { create(:web_notification, :build_failure, subscriber: user, delivered: false) }
+
+  permissions :update? do
+    it { is_expected.not_to permit(other_user, notification) }
+    it { is_expected.to permit(user, notification) }
   end
 end

@@ -1,24 +1,20 @@
--# This is needed since inferring the policy class with `policy(StatusMessage.new)` would use StatusMessagePolicy which is for the API
-  Anonymous users can see this view, so we need to set `ensure_logged_in` to `false`
-- status_message_policy = Webui::StatusMessagePolicy.new(User.possibly_nobody, StatusMessage.new, ensure_logged_in: false)
-
 .card.mb-3
   .card-header.d-flex.justify-content-between
     %h5
-      = link_to_if(status_message_policy.index?, 'News', news_items_path)
+      = link_to_if(policy(StatusMessage.new).create?, 'News', news_items_path)
     .float-end
       = link_to(news_feed_path(format: 'rss'), title: 'RSS Feed') do
         %i.fa.fa-rss
   .list-group.list-group-flush
     = render StatusMessageComponent.with_collection(status_messages)
-  - if status_message_policy.create?
+  - if policy(StatusMessage.new).create?
     .card-footer.nav
       .nav-item
         = link_to(new_news_item_path, class: 'nav-link') do
           %i.fas.fa-plus-circle.text-primary
           Create News Item
 
-- if status_message_policy.destroy?
+- if policy(StatusMessage.new).destroy?
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-news-item-modal',
                                                  method: :delete,
                                                  options: { modal_title: 'Do you want to remove this news item?',

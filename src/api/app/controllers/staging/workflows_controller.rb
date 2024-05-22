@@ -1,5 +1,4 @@
 class Staging::WorkflowsController < Staging::StagingController
-  before_action :require_login
   before_action :set_project
   before_action :check_staging_workflow, only: :create
   before_action :set_staging_workflow, only: %i[update destroy]

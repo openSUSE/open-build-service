@@ -291,7 +291,7 @@ class BsRequest < ApplicationRecord
 
     user = User.not_deleted.find_by(login: creator)
     # FIXME: We should run the authorization on controller level
-    raise APIError unless User.possibly_nobody.can_modify_user?(user)
+    raise APIError unless User.possibly_nobody.is_admin? || User.possibly_nobody == user
 
     errors.add(:creator, "Invalid creator specified #{creator}") unless user
     return if user.is_active?

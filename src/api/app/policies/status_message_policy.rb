@@ -1,18 +1,6 @@
 class StatusMessagePolicy < ApplicationPolicy
-  def index?
-    true
-  end
-
-  def show?
-    index?
-  end
-
   def create?
     user.is_admin? || user.is_staff?
-  end
-
-  def new?
-    create?
   end
 
   def update?
@@ -21,5 +9,9 @@ class StatusMessagePolicy < ApplicationPolicy
 
   def destroy?
     create?
+  end
+
+  def acknowledge?
+    true
   end
 end

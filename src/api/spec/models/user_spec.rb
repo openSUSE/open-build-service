@@ -107,12 +107,6 @@ RSpec.describe User do
     it { expect { subject }.to change(User, :count).by(1) }
   end
 
-  describe '#can_modify_user?' do
-    it { expect(admin_user.can_modify_user?(confirmed_user)).to be(true) }
-    it { expect(user.can_modify_user?(confirmed_user)).to be(false) }
-    it { expect(user.can_modify_user?(user)).to be(true) }
-  end
-
   describe '#name' do
     context 'user with empty name' do
       before { user.update(realname: '') }

@@ -24,7 +24,7 @@ class BsRequestPolicy < ApplicationPolicy
   end
 
   def report?
-    ensure_logged_in!(user, {})
+    !author?
   end
 
   def decline_request?

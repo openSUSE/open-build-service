@@ -6,8 +6,10 @@
       attributes are optional and ignored when sent (put) to the api.
       the format of this example will be used as a convenient way to put a message.
     </message>
+    <user>hans</user>
     <severity>information</severity>
     <scope>all_users</scope>
+    <created_at>2007-02-21 12:09:26 UTC</created_at>
   </status_message>
   <status_message id="2">
     <message>
@@ -15,8 +17,10 @@
       it can also be used to send (put) multiple messages to the api at once.
       in this case the optional attributes will be ignored.
     </message>
+    <user>franz</user>
     <severity>announcement</severity>
     <scope>in_beta_users</scope>
+    <created_at>2007-02-20 12:09:26 UTC</created_at>
   </status_message>
 </status_messages>
 

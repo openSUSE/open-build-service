@@ -106,7 +106,7 @@ constraints(RoutesHelper::APIMatcher) do
   end
 
   ### /status_message
-  resources :status_messages, only: %i[show index create destroy], path: 'status/messages'
+  resources :status_messages, only: %i[show index update create destroy], path: 'status/messages'
 
   resources :status_project, only: [:show], param: :project, path: 'status/project'
 

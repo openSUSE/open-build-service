@@ -43,7 +43,7 @@ RSpec.describe Webui::StatusMessagesController do
 
       it 'is not authorized to create a status message' do
         expect(response).to redirect_to(root_path)
-        expect(flash[:error]).to eq('Sorry, you are not authorized to create this status message.')
+        expect(flash[:error]).to eq('Requires staff privileges')
         message = StatusMessage.where(user: admin_user, message: 'Some message', severity: 'green')
         expect(message).not_to exist
       end
@@ -103,7 +103,7 @@ RSpec.describe Webui::StatusMessagesController do
 
       it 'is not authorized to delete a status message' do
         expect(subject).to redirect_to(root_path)
-        expect(flash[:error]).to eq('Sorry, you are not authorized to delete this status message.')
+        expect(flash[:error]).to eq('Requires staff privileges')
       end
 
       it { expect { subject }.not_to(change(StatusMessage, :count)) }

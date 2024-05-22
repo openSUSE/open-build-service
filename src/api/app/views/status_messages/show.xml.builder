@@ -1,1 +1,1 @@
-render(partial: 'status_messages/status_message', locals: { builder: xml, status_message: @status_message })
+render(partial: 'status_message', locals: { builder: xml, status_message: @status_message })

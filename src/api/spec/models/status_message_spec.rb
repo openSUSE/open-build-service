@@ -6,24 +6,6 @@ RSpec.describe StatusMessage do
     it { is_expected.to validate_presence_of(:message) }
   end
 
-  describe '.from_xml' do
-    before do
-      allow(User).to receive(:session!).and_return(admin_user)
-    end
-
-    context 'xml is valid' do
-      let(:xml) { '<status_message id="4"><message>foo</message><severity>information</severity></status_message>' }
-      let(:status_message) { StatusMessage.from_xml(xml) }
-
-      it { expect { status_message }.not_to raise_error }
-      it { expect(status_message).to be_a(StatusMessage) }
-    end
-
-    context 'xml is invalid' do
-      it { expect { StatusMessage.from_xml('') }.to raise_error(ActiveRecord::RecordInvalid) }
-    end
-  end
-
   describe '.communication_scopes_for_current_user' do
     context 'when user is nobody' do
       it { expect(StatusMessage.communication_scopes_for_current_user).to contain_exactly(:all_users) }
