@@ -1397,7 +1397,8 @@ sub publish {
 
   my $myarch = $gctx->{'arch'};
   my $projpacks = $gctx->{'projpacks'};
-  my $pdatas = $projpacks->{$projid}->{'package'} || {};
+  my $proj = $projpacks->{$projid};
+  my $pdatas = $proj->{'package'} || {};
   my $packs;
   if ($force) {
     $packs = [ sort keys %$pdatas ];
@@ -1405,8 +1406,8 @@ sub publish {
     $packs = $ctx->{'packs'};
   }
   my $locked = 0;
-  $locked = BSUtil::enabled($repoid, $projpacks->{$projid}->{'lock'}, $locked, $myarch) if $projpacks->{$projid}->{'lock'};
-  my $pubenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'publish'}, 1, $myarch);
+  $locked = BSUtil::enabled($repoid, $proj->{'lock'}, $locked, $myarch) if $proj->{'lock'};
+  my $pubenabled = BSUtil::enabled($repoid, $proj->{'publish'}, 1, $myarch);
   if ($force && $pubenabled == 1) {
     print "   force publish of $repoid not possible. Publishing is already enabled\n";
     return;
@@ -1424,7 +1425,9 @@ sub publish {
       $pubenabled{$packid} = $pubenabled;
     }
   }
-  my $repodonestate = $projpacks->{$projid}->{'patternmd5'} || '';
+
+  # calculate new repodone state
+  my $repodonestate = $proj->{'patternmd5'} || '';
   for my $packid (@$packs) {
     $repodonestate .= "\0$packid" if $pubenabled{$packid};
   }
@@ -1434,38 +1437,53 @@ sub publish {
     # all packages have publish disabled hint
     $repodonestate = "disabled:$repodonestate";
   }
+
+  # compare new repodone state with old state
+  unlink("$gdst/:repodone") if $force;
   if (-e "$gdst/:repodone") {
     my $oldrepodone = readstr("$gdst/:repodone", 1) || '';
-    unlink("$gdst/:repodone") if ($oldrepodone ne $repodonestate || $force);
+    unlink("$gdst/:repodone") if $oldrepodone ne $repodonestate;
   }
-  my $publishstate = 'done';
-  my $publisherror;
   if ($locked) {
     print "    publishing is locked\n";
-  } elsif (! -e "$gdst/:repodone") {
-    if (($force) || (($repodonestate !~ /^disabled/) || -d "$gdst/:repo")) {
-      if ($ctx->{'conf'}->{'publishflags:nofailedpackages'}) {
-	my @bad;
-	my $packstatus = $ctx->{'packstatus'};
-	for my $packid (grep {$pubenabled{$_}} @$packs) {
-	  my $code = $packstatus->{$packid} || 'broken';
-	  push @bad, $packid if $code eq 'broken' || $code eq 'failed' || $code eq 'unresolvable';
-	}
-	return ('broken', "not publishing failed packages: @bad") if @bad;
-      }
-      mkdir_p($gdst);
-      $publisherror = BSSched::PublishRepo::prpfinished($ctx, $packs, \%pubenabled);
-    } else {
-      print "    publishing is disabled\n";
-    }
-    writestr("$gdst/:repodone", undef, $repodonestate) unless $publisherror || %$unfinished;
-    if ($publisherror) {
-      $publishstate = 'broken';
-      $publishstate = 'building' if $publisherror eq 'delta generation: building';
-      warn("    $publisherror\n") if $publishstate eq 'broken';
-    }
+    return ('done', undef);
   }
-  return ($publishstate, $publisherror);
+  if (-e "$gdst/:repodone") {
+    return ('done', undef);	# nothing new to publish
+  }
+
+  # return right away if publishing is disabled for all packages and nothing is published
+  if (!$force && ($repodonestate =~ /^disabled/) && ! -d "$gdst/:repo") {
+    print "    publishing is disabled\n";
+    mkdir_p($gdst);
+    writestr("$gdst/:repodone", undef, $repodonestate) unless %$unfinished;
+    return ('done', undef);
+  }
+
+  # obey nofailedpackages publish flag
+  if ($ctx->{'conf'}->{'publishflags:nofailedpackages'}) {
+    my @bad;
+    my $packstatus = $ctx->{'packstatus'};
+    for my $packid (grep {$pubenabled{$_}} @$packs) {
+      my $code = $packstatus->{$packid} || 'broken';
+      push @bad, $packid if $code eq 'broken' || $code eq 'failed' || $code eq 'unresolvable';
+    }
+    return ('broken', "not publishing failed packages: @bad") if @bad;
+  }
+
+  # update :repo directory
+  mkdir_p($gdst);
+  my $publisherror = BSSched::PublishRepo::prpfinished($ctx, $packs, \%pubenabled, $force);
+  if ($publisherror) {
+    return ('building', $publisherror) if $publisherror eq 'delta generation: building';
+    return ('delayed', substr($publisherror, 8)) if $publisherror eq 'delayed' || $publisherror =~ /^delayed:/;
+    warn("    $publisherror\n");
+    return ('broken', $publisherror);
+  }
+
+  # publishing succeeded (at least the scheduler side)
+  writestr("$gdst/:repodone", undef, $repodonestate) unless %$unfinished;
+  return ('done', undef);
 }
 
 sub xrpc {

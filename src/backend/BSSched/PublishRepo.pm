@@ -41,6 +41,7 @@ use strict;
 use warnings;
 
 use Fcntl qw(:DEFAULT :flock);
+use POSIX;
 use Digest::MD5 ();
 
 use BSUtil;
@@ -82,6 +83,19 @@ sub compile_publishfilter {
   return \@res;
 }
 
+sub wait_for_lock {
+  my ($fd, $timeout) = @_;
+
+  while (1) {
+    return 1 if flock($fd, defined($timeout) ? LOCK_EX | LOCK_NB : LOCK_EX);
+    die("flock: $!\n") unless $! == POSIX::EINTR || $! == POSIX::EWOULDBLOCK;
+    next unless defined $timeout;
+    return 0 if $timeout <= 0;
+    sleep(3);
+    $timeout -= 3;
+  }
+}
+
 =head2 prpfinished  - publish a prp
 
  updates :repo and sends an event to the publisher
@@ -94,7 +108,7 @@ sub compile_publishfilter {
 =cut
 
 sub prpfinished {
-  my ($ctx, $packs, $pubenabled) = @_;
+  my ($ctx, $packs, $pubenabled, $nodelayed) = @_;
 
   my $gctx = $ctx->{'gctx'};
   my $gdst = $ctx->{'gdst'};
@@ -106,13 +120,19 @@ sub prpfinished {
   print "    publishing $prp...\n";
 
   my ($projid, $repoid) = split('/', $prp, 2);
+
   local *F;
   open(F, '>', "$reporoot/$prp/.finishedlock") || die("$reporoot/$prp/.finishedlock: $!\n");
   if (!flock(F, LOCK_EX | LOCK_NB)) {
     print "    waiting for lock...\n";
-    flock(F, LOCK_EX) || die("flock: $!\n");
+    if (!wait_for_lock(\*F, $packs && !$nodelayed ? 300 : undef)) {
+      print "    could not get lock...\n";
+      close F;
+      return 'delayed:lock timeout';
+    }
     print "    got the lock...\n";
   }
+
   if (!$packs) {
     # delete all in :repo
     unlink("${rdir}info");
@@ -175,7 +195,7 @@ sub prpfinished {
     $seen_binary = {};
   }
 
-  # Let the publisher decide about empty repositories
+  # let the publisher decide about empty repositories
   $changed = 1 if $bconf && $bconf->{'publishflags:create_empty'} && ! -e "$reporoot/$prp/:repoinfo";
 
   my %newchecksums;
@@ -310,6 +330,8 @@ sub prpfinished {
     }
   }
   undef $rinfo_packid2bins;     # no longer needed
+
+  # delete obsolete files
   for my $rbin (sort(ls($rdir))) {
     next if exists $origin{$rbin};
     next if $rbin eq '.newchecksums' || $rbin eq '.newchecksums.new' || $rbin eq '.checksums' || $rbin eq '.checksums.new';
@@ -344,6 +366,7 @@ sub prpfinished {
     BSUtil::store("$rdir/.newchecksums.new", "$rdir/.newchecksums", \%newchecksums);
   }
 
+  # update archsync information
   if ($bconf->{'publishflags:archsync'}) {
     my $oldas = BSUtil::retrieve("$rdir/.archsync", 1) || {};
     my $as = { 'lastcheck' => time(), 'lastchange' => $oldas->{'lastchange'} };

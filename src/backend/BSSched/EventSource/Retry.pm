@@ -50,13 +50,14 @@ sub new {
 
 sub addretryevent {
   my ($self, $ev) = @_;
+  my $type = $ev->{'type'};
   for my $oev (@{$self->{'queue'}}) {
-    next if $ev->{'type'} ne $oev->{'type'} || $ev->{'project'} ne $oev->{'project'};
-    if ($ev->{'type'} eq 'repository' || $ev->{'type'} eq 'recheck') {
+    next if $type ne $oev->{'type'} || $ev->{'project'} ne $oev->{'project'};
+    if ($type eq 'repository' || $type eq 'recheck' || $type eq 'unblocked') {
       next if $ev->{'repository'} ne $oev->{'repository'};
-    } elsif ($ev->{'type'} eq 'scanprjbinaries') {
+    } elsif ($type eq 'scanprjbinaries') {
       next if $ev->{'repository'} ne $oev->{'repository'} || ($ev->{'arch'} || '') ne ($oev->{'arch'} || '');
-    } elsif ($ev->{'type'} eq 'package') {
+    } elsif ($type eq 'package') {
       next if ($ev->{'package'} || '') ne ($oev->{'package'} || '');
     }
     return;

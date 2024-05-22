@@ -1087,7 +1087,12 @@ eval {
     if ($isfinished || (!$bconf->{'publishflags:noearlykiwipublish'} &&
                         ($ctx->{'prptype'} eq 'kiwi' || $ctx->{'prptype'} eq 'productcompose'))) {
       my ($pubstate, $pubdetails) = $ctx->publish();
-      ($state, $details) = ($pubstate, $pubdetails) if $pubstate && $pubstate ne 'done';
+      if ($pubstate && $pubstate eq 'delayed') {
+	$details = $pubdetails if $isfinished && $pubdetails;
+	$gctx->{'retryevents'}->addretryevent({'type' => 'unblocked', 'project' => $projid, 'repository' => $repoid});
+      } elsif ($pubstate && $pubstate ne 'done') {
+	($state, $details) = ($pubstate, $pubdetails);
+      }
     }
 
     # free memory
