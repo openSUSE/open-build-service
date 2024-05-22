@@ -494,7 +494,7 @@ sub update_cosign {
   for my $digest (sort keys %$digests_to_cosign) {
     my $oci = 1;	# always use oci mime types
     my $containerinfo = $digests_to_cosign->{$digest}->[1];
-    my $numlayers = ($containerinfo->{'slsa_provenance'} ? 1 : 0) + ($containerinfo->{'spdx_file'} ? 1 : 0) + ($containerinfo->{'cyclonedx_file'} ? 1 : 0) + scalar(@{$containerinfo->{'intoto_files'} || []});
+    my $numlayers = ($containerinfo->{'slsa_provenance_file'} ? 1 : 0) + ($containerinfo->{'spdx_file'} ? 1 : 0) + ($containerinfo->{'cyclonedx_file'} ? 1 : 0) + scalar(@{$containerinfo->{'intoto_files'} || []});
     if (!$numlayers) {
       delete $sigs->{'attestations'}->{$digest};
       next;
@@ -507,7 +507,7 @@ sub update_cosign {
     print "creating $numlayers cosign attestations for $gun $digest\n";
     my %predicatetypes;
     my @attestations;
-    push @attestations, BSConSign::fixup_intoto_attestation($containerinfo->{'slsa_provenance'}, $signfunc, $digest, $gun, \%predicatetypes) if $containerinfo->{'slsa_provenance'};
+    push @attestations, BSConSign::fixup_intoto_attestation(readstr($containerinfo->{'slsa_provenance_file'}), $signfunc, $digest, $gun, \%predicatetypes) if $containerinfo->{'slsa_provenance_file'};
     push @attestations, BSConSign::fixup_intoto_attestation(readstr($containerinfo->{'spdx_file'}), $signfunc, $digest, $gun, \%predicatetypes) if $containerinfo->{'spdx_file'};
     push @attestations, BSConSign::fixup_intoto_attestation(readstr($containerinfo->{'cyclonedx_file'}), $signfunc, $digest, $gun, \%predicatetypes) if $containerinfo->{'cyclonedx_file'};
     push @attestations, BSConSign::fixup_intoto_attestation(readstr($_), $signfunc, $digest, $gun, \%predicatetypes) for @{$containerinfo->{'intoto_files'} || []};

@@ -486,7 +486,7 @@ sub compare_to_repostate {
     for my $containerinfo (@$containerinfos) {
       $info = create_container_dist_info($containerinfo, $oci, \%platforms);
       $missing_manifestinfo = 1 if $manifestinfodir && ! -s "$manifestinfodir/$info->{'digest'}";
-      my $attestation_layers = ($containerinfo->{'slsa_provenance'} ? 1 : 0) + ($containerinfo->{'spdx_file'} ? 1 : 0) + ($containerinfo->{'cyclonedx_file'} ? 1 : 0) + scalar(@{$containerinfo->{'intoto_files'} || []});
+      my $attestation_layers = ($containerinfo->{'slsa_provenance_file'} ? 1 : 0) + ($containerinfo->{'spdx_file'} ? 1 : 0) + ($containerinfo->{'cyclonedx_file'} ? 1 : 0) + scalar(@{$containerinfo->{'intoto_files'} || []});
       if ($cosigncookie && $cosign_attestation && $attestation_layers) {
 	my $atttag = $info->{'digest'};
 	$atttag =~ s/:(.*)/-$1.att/;
@@ -505,7 +505,7 @@ sub compare_to_repostate {
     my $containerinfo = $containerinfos->[0];
     $info = create_container_dist_info($containerinfo, $oci);
     $missing_manifestinfo = 1 if $manifestinfodir && ! -s "$manifestinfodir/$info->{'digest'}";
-    my $attestation_layers = ($containerinfo->{'slsa_provenance'} ? 1 : 0) + ($containerinfo->{'spdx_file'} ? 1 : 0) + ($containerinfo->{'cyclonedx_file'} ? 1 : 0) + scalar(@{$containerinfo->{'intoto_files'} || []});
+    my $attestation_layers = ($containerinfo->{'slsa_provenance_file'} ? 1 : 0) + ($containerinfo->{'spdx_file'} ? 1 : 0) + ($containerinfo->{'cyclonedx_file'} ? 1 : 0) + scalar(@{$containerinfo->{'intoto_files'} || []});
     if ($cosigncookie && $cosign_attestation && $attestation_layers) {
       my $atttag = $info->{'digest'};
       $atttag =~ s/:(.*)/-$1.att/;
@@ -608,10 +608,10 @@ sub upload_to_registry {
     }
     # copy provenance file into blobdir
     if ($wrote_containerinfo && $cosign && $cosign->{'attestation'}) {
-      if ($containerinfo->{'slsa_provenance'}) {
-	my $provenancefile = $wrote_containerinfo;
-	die unless $provenancefile =~ s/\.[^\.]+$/.slsa_provenance.json/;
-	writestr($provenancefile, undef, $containerinfo->{'slsa_provenance'});
+      if ($containerinfo->{'slsa_provenance_file'}) {
+	my $provenance_file = $wrote_containerinfo;
+	die unless $provenance_file =~ s/\.[^\.]+$/.slsa_provenance.json/;
+	BSUtil::cp($containerinfo->{'slsa_provenance_file'}, $provenance_file) if $containerinfo->{'slsa_provenance_file'} ne $provenance_file;
 	$do_slsaprovenance = 1;
       }
       if ($containerinfo->{'spdx_file'}) {
