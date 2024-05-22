@@ -80,3 +80,15 @@
     order: 2;
   }
 }
+
+.fa-custom-pr-closed {
+  position: relative;
+  .fa-code-pull-request {
+    clip-path: polygon(0 0, 30% 0, 30% 50%, 100% 50%, 100% 100%, 0 100%);
+  }
+  .fa-times {
+    position: absolute;
+    top: 25%;
+    right: -10%;
+  }
+}
