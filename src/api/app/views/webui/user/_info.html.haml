@@ -1,11 +1,11 @@
 - if is_user
-  = render partial: 'webui/user/index_actions', locals: { configuration: configuration, user: user, account_edit_link: account_edit_link }
+  = render partial: 'webui/user/index_actions', locals: { user: user, account_edit_link: account_edit_link }
 
 .card.mb-3
   .card-body
     .in-place-editing
       = render partial: 'webui/user/basic_info',
-               locals: { user: user, role_titles: role_titles, configuration: configuration, account_edit_link: account_edit_link }
+               locals: { user: user, role_titles: role_titles, account_edit_link: account_edit_link }
 
     - if is_user && user.rss_secret.present?
       = link_to(user_rss_notifications_path(secret: user.rss_secret, format: 'rss'),
