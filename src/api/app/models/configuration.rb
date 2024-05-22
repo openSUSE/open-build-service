@@ -1,6 +1,6 @@
 # The OBS instance configuration
 class Configuration < ApplicationRecord
-  after_save :delayed_write_to_backend
+  after_save :invalidate_cache, :delayed_write_to_backend
 
   include CanRenderModel
   include ConfigurationConstants
@@ -12,7 +12,7 @@ class Configuration < ApplicationRecord
 
   class << self
     def fetch
-      Rails.cache.fetch(first.cache_key_with_version) do
+      Rails.cache.fetch('configurations/1', expires_in: 1.day) do
         first
       end
     end
@@ -94,6 +94,12 @@ class Configuration < ApplicationRecord
 
     logger.debug 'Writing configuration.xml to backend...'
     Backend::Api::Server.write_configuration(render_xml)
+  end
+
+  def invalidate_cache
+    Rails.cache.fetch('configurations/1', expires_in: 1.day, force: true) do
+      self
+    end
   end
 end
 
