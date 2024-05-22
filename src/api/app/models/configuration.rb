@@ -11,6 +11,18 @@ class Configuration < ApplicationRecord
   validates :description, :code_of_conduct, length: { maximum: 65_535 }
 
   class << self
+    def accounts_editable?(user = nil)
+      (
+        !proxy_auth_mode_enabled? || CONFIG['proxy_auth_account_page'].present?
+      ) && (
+        user.try(:ignore_auth_services?) || CONFIG['ldap_mode'] != :on
+      )
+    end
+
+    def amqp_namespace
+      CONFIG['amqp_namespace'] || 'opensuse.obs'
+    end
+
     def fetch
       Rails.cache.fetch('configurations/1', expires_in: 1.day) do
         first
@@ -36,9 +48,8 @@ class Configuration < ApplicationRecord
       end
     end
 
-    # overwrite update function as the one in active record expects an id
-    def update(opts)
-      Configuration.first.update(opts)
+    def ldap_enabled?
+      CONFIG['ldap_mode'] == :on
     end
 
     # Check if ldap group support is enabled?
@@ -46,8 +57,8 @@ class Configuration < ApplicationRecord
       CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
     end
 
-    def ldap_enabled?
-      CONFIG['ldap_mode'] == :on
+    def passwords_changable?(user = nil)
+      change_password && !proxy_auth_mode_enabled? && (user.try(:ignore_auth_services?) || CONFIG['ldap_mode'] != :on)
     end
 
     def proxy_auth_mode_enabled?
@@ -63,23 +74,12 @@ class Configuration < ApplicationRecord
       true
     end
 
-    def amqp_namespace
-      CONFIG['amqp_namespace'] || 'opensuse.obs'
+    # overwrite update function as the one in active record expects an id
+    def update(opts)
+      Configuration.first.update(opts)
     end
   end
   # End of class methods
-
-  def passwords_changable?(user = nil)
-    change_password && !Configuration.proxy_auth_mode_enabled? && (user.try(:ignore_auth_services?) || CONFIG['ldap_mode'] != :on)
-  end
-
-  def accounts_editable?(user = nil)
-    (
-      !Configuration.proxy_auth_mode_enabled? || CONFIG['proxy_auth_account_page'].present?
-    ) && (
-      user.try(:ignore_auth_services?) || CONFIG['ldap_mode'] != :on
-    )
-  end
 
   # We don't really care about consistency at this point.
   # We use the delayed job so it can fail while seeding
