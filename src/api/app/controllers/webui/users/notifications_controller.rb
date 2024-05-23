@@ -94,8 +94,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def paginate_notifications
-    @notifications = @notifications.page(params[:page])
+    @notifications = params[:show_more] ? show_more(@notifications) : @notifications.page(params[:page])
     params[:page] = @notifications.total_pages if @notifications.out_of_range?
-    params[:show_more] ? show_more(@notifications) : @notifications
   end
 end
