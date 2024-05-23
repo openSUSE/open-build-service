@@ -104,7 +104,6 @@ sub check {
   } else {
      @archs = grep {$imagearch{$_}} @{$repo->{'arch'} || []};
   };
-  unshift @archs, 'local' if $BSConfig::localarch && !grep {$_ eq 'local'} @archs;
 
   # sort archs like in bs_worker
   @archs = sort(@archs);
@@ -113,6 +112,12 @@ sub check {
       @archs = grep {$_ ne $1} @archs;
       push @archs, $1;
     }
+  }
+
+  # always add 'local' to the end
+  if ($BSConfig::localarch) {
+    @archs = grep {$_ ne 'local'} @archs;
+    push @archs, 'local';
   }
 
   if ($myarch ne $buildarch && $myarch ne $localbuildarch) {
