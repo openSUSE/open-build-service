@@ -3,6 +3,7 @@ Description=OBS scheduler service for %I
 After=network-online.target obsstoragesetup.service
 
 [Service]
+OOMPolicy=continue
 EnvironmentFile=/etc/sysconfig/obs-server
 ExecStart=/usr/lib/obs/server/bs_sched %i
 ExecStop=/usr/lib/obs/server/bs_admin --shutdown-scheduler %i

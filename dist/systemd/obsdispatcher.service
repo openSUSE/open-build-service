@@ -4,6 +4,7 @@ Requires=obsrepserver.service
 After=network-online.target obssrcserver.service obsscheduler.service obsrepserver.service
 
 [Service]
+OOMPolicy=continue
 EnvironmentFile=/etc/sysconfig/obs-server
 ExecStart=/usr/lib/obs/server/bs_dispatch --logfile dispatcher.log
 ExecStop=/usr/lib/obs/server/bs_dispatch --stop

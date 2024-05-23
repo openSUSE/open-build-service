@@ -3,6 +3,7 @@ Description=OBS worker for %i
 After=network-online.target
          
 [Service]
+OOMPolicy=continue
 EnvironmentFile=/etc/sysconfig/obs-server
 ExecStartPre=/bin/sh -c "/bin/systemctl set-environment HOSTNAME=`hostname`"
 ExecStartPre=/bin/mkdir -p /var/cache/build/root_%i
