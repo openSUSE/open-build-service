@@ -6,7 +6,7 @@ RSpec.describe Webui::NotificationHelper do
       let(:notification) { create(:web_notification, delivered: false) }
 
       it { expect(link).to include(my_notifications_path(notification_ids: [notification.id])) }
-      it { expect(link).to include('type=unread') }
+      it { expect(link).to include('state=unread') }
       it { expect(link).to include('Mark as read') }
       it { expect(link).to include('fa-check fas') }
     end
@@ -15,7 +15,7 @@ RSpec.describe Webui::NotificationHelper do
       let(:notification) { create(:web_notification, delivered: true) }
 
       it { expect(link).to include(my_notifications_path(notification_ids: [notification.id])) }
-      it { expect(link).to include('type=read') }
+      it { expect(link).to include('state=read') }
       it { expect(link).to include('Mark as unread') }
       it { expect(link).to include('fa-undo fas') }
     end
