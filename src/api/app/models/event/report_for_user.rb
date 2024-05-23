@@ -1,10 +1,10 @@
 module Event
   class ReportForUser < Report
     self.description = 'Report for a user created'
-    payload_keys :user_login
+    payload_keys :accused
 
     def subject
-      "User #{payload['user_login']} reported"
+      "User #{payload['accused']} reported"
     end
   end
 end

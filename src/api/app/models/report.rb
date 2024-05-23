@@ -37,14 +37,14 @@ class Report < ApplicationRecord
     when 'Project'
       Event::ReportForProject.create(event_parameters.merge(project_name: reportable.name))
     when 'User'
-      Event::ReportForUser.create(event_parameters.merge(user_login: reportable.login))
+      Event::ReportForUser.create(event_parameters.merge(accused: reportable.login))
     when 'BsRequest'
       Event::ReportForRequest.create(event_parameters.merge(bs_request_number: reportable.number))
     end
   end
 
   def event_parameters
-    { id: id, user_id: user_id, reportable_id: reportable_id, reportable_type: reportable_type, reason: reason, category: category }
+    { id: id, reporter: user.login, reportable_id: reportable_id, reportable_type: reportable_type, reason: reason, category: category }
   end
 
   def event_parameters_for_comment(commentable:)

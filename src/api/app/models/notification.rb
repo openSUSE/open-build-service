@@ -68,8 +68,8 @@ class Notification < ApplicationRecord
     last_seen_at || created_at
   end
 
-  def event_user
-    User.find_by_login(event_payload['user_login']) if event_payload['user_login']
+  def accused
+    User.find_by(login: event_payload['accused']) if event_payload['accused']
   end
 
   private
