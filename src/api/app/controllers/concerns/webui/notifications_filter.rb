@@ -18,7 +18,7 @@ module Webui::NotificationsFilter
     when 'relationships_deleted'
       notifications.for_relationships_deleted
     when 'build_failures'
-      notifications.for_failed_builds
+      notifications.for_build_failures
     when 'reports'
       notifications.for_reports
     when 'workflow_runs'

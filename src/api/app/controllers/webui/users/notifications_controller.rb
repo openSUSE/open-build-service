@@ -29,6 +29,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
       format.js do
         render partial: 'update', locals: {
           notifications: @notifications,
+          all_filtered_notifications: @all_filtered_notifications,
           selected_filter: @selected_filter,
           show_read_all_button: @show_read_all_button,
           user: User.session
@@ -94,6 +95,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def paginate_notifications
+    @all_filtered_notifications = @notifications
     @notifications = params[:show_more] ? show_more(@notifications) : @notifications.page(params[:page])
     params[:page] = @notifications.total_pages if @notifications.out_of_range?
   end
