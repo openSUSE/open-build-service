@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
 class NotificationActionBarComponent < ApplicationComponent
-  attr_accessor :type, :update_path, :show_read_all_button
+  attr_accessor :state, :update_path, :show_read_all_button
 
-  def initialize(type:, update_path:, show_read_all_button: false)
+  def initialize(state:, update_path:, show_read_all_button: false)
     super
 
-    @type = type
+    @state = state
     @update_path = add_params(update_path)
     @show_read_all_button = show_read_all_button
   end
 
   def button_text(all: false)
-    text = type == 'read' ? 'Unread' : 'Read'
+    text = state == 'read' ? 'Unread' : 'Read'
     if all
       "Mark all as '#{text}'"
     else

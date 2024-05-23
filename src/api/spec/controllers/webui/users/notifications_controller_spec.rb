@@ -51,21 +51,39 @@ RSpec.describe Webui::Users::NotificationsController do
     end
 
     context "when param type is 'read'" do
-      let(:params) { default_params.merge(type: 'read') }
+      let(:params) { default_params.merge(state: 'read') }
 
       before do
+        state_change_notification
+        read_notification
         subject
       end
 
       it_behaves_like 'returning success'
 
       it 'sets @notifications to all delivered notifications regardless of type' do
-        expect(assigns[:notifications]).to include(read_notification)
+        expect(assigns[:notifications]).to contain_exactly(read_notification)
+      end
+    end
+
+    context "when param type is 'unread'" do
+      let(:params) { default_params.merge(state: 'unread') }
+      let(:unread_notification) { create(:web_notification, :request_state_change, subscriber: user, delivered: false) }
+
+      before do
+        unread_notification
+        subject
+      end
+
+      it_behaves_like 'returning success'
+
+      it 'sets @notifications to all delivered notifications regardless of type' do
+        expect(assigns[:notifications]).to contain_exactly(unread_notification)
       end
     end
 
     context "when param type is 'build_failures'" do
-      let(:params) { default_params.merge(type: 'build_failures') }
+      let(:params) { default_params.merge(kind: 'build_failures') }
 
       before do
         subject
@@ -79,7 +97,7 @@ RSpec.describe Webui::Users::NotificationsController do
     end
 
     context "when param type is 'comments'" do
-      let(:params) { default_params.merge(type: 'comments') }
+      let(:params) { default_params.merge(kind: 'comments') }
 
       before do
         subject
@@ -95,7 +113,7 @@ RSpec.describe Webui::Users::NotificationsController do
     end
 
     context "when param type is 'requests'" do
-      let(:params) { default_params.merge(type: 'requests') }
+      let(:params) { default_params.merge(kind: 'requests') }
 
       before do
         subject
@@ -125,7 +143,7 @@ RSpec.describe Webui::Users::NotificationsController do
       let!(:request_created_notification) { create(:web_notification, :request_created, notifiable: maintained_request, subscriber: user) }
       let!(:review_wanted_notification) { review_notification }
 
-      let(:params) { default_params.merge(type: 'incoming_requests') }
+      let(:params) { default_params.merge(kind: 'incoming_requests') }
 
       before do
         subject
@@ -163,7 +181,7 @@ RSpec.describe Webui::Users::NotificationsController do
       let!(:state_change_to_declined_notification) { create(:web_notification, :request_state_change, notifiable: declined_bs_request, subscriber: user) }
       let(:request_created_notification) { create(:web_notification, :request_created, notifiable: maintained_request, subscriber: user) }
 
-      let(:params) { default_params.merge(type: 'outgoing_requests') }
+      let(:params) { default_params.merge(kind: 'outgoing_requests') }
 
       before do
         subject
@@ -183,19 +201,37 @@ RSpec.describe Webui::Users::NotificationsController do
 
   describe 'PUT #update' do
     context 'when a user marks one of their unread notifications as read' do
-      subject! do
+      subject do
         login user_to_log_in
         put :update, params: { notification_ids: [state_change_notification.id], user_login: user_to_log_in.login }, xhr: true
       end
 
+      let!(:another_unread_notification) { create(:web_notification, :request_state_change, subscriber: user_to_log_in, title: 'Another read notification') }
       let(:user_to_log_in) { user }
 
       it 'succeeds' do
+        subject
         expect(response).to have_http_status(:ok)
       end
 
       it 'sets the notification as delivered' do
+        subject
         expect(state_change_notification.reload.delivered).to be true
+      end
+
+      it {
+        subject
+        expect(assigns[:read_count]).to be 1
+      }
+
+      it {
+        subject
+        expect(assigns[:unread_count]).to be 0
+      }
+
+      it 'returns the updated list of read notifications' do
+        subject
+        expect(assigns[:notifications]).to contain_exactly(another_unread_notification)
       end
     end
 
@@ -210,16 +246,20 @@ RSpec.describe Webui::Users::NotificationsController do
       it "doesn't set the notification as read" do
         expect(state_change_notification.reload.delivered).to be false
       end
+
+      it { expect(assigns[:read_count]).to be 0 }
+      it { expect(assigns[:unread_count]).to be 0 }
     end
 
     context 'when a user marks one of their read notifications as unread' do
       subject! do
         login user_to_log_in
-        put :update, params: { notification_ids: [read_notification.id], type: 'read', user_login: user_to_log_in.login }, xhr: true
+        put :update, params: { notification_ids: [read_notification.id], state: 'read', user_login: user_to_log_in.login }, xhr: true
       end
 
       let(:user_to_log_in) { user }
-      let(:read_notification) { create(:web_notification, :request_state_change, subscriber: user_to_log_in, delivered: true) }
+      let(:read_notification) { create(:web_notification, :request_state_change, subscriber: user_to_log_in, delivered: true, title: 'Read notifications') }
+      let!(:another_read_notification) { create(:web_notification, :request_state_change, subscriber: user_to_log_in, delivered: true, title: 'Another read notification') }
 
       it 'succeeds' do
         expect(response).to have_http_status(:ok)
@@ -227,6 +267,13 @@ RSpec.describe Webui::Users::NotificationsController do
 
       it 'sets the notification as not delivered' do
         expect(read_notification.reload.delivered).to be false
+      end
+
+      it { expect(assigns[:read_count]).to be 0 }
+      it { expect(assigns[:unread_count]).to be 1 }
+
+      it 'returns the updated list of read notifications' do
+        expect(assigns[:notifications]).to contain_exactly(another_read_notification)
       end
     end
   end

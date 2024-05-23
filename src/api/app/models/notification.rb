@@ -2,8 +2,6 @@ class Notification < ApplicationRecord
   MAX_RSS_ITEMS_PER_USER = 10
   MAX_RSS_ITEMS_PER_GROUP = 10
   MAX_PER_PAGE = 300
-  EVENT_TYPES = %w[Event::CreateReport Event::ReportForRequest Event::ReportForProject Event::ReportForPackage Event::ReportForComment Event::ReportForUser Event::ClearedDecision Event::FavoredDecision
-                   Event::AppealCreated].freeze
 
   belongs_to :subscriber, polymorphic: true, optional: true
   belongs_to :notifiable, polymorphic: true, optional: true
@@ -27,45 +25,17 @@ class Notification < ApplicationRecord
 
   # Regarding notifiable type
   scope :with_notifiable, -> { where.not(notifiable_id: nil).where.not(notifiable_type: nil) }
-  scope :for_incoming_requests, -> { where(notifiable: User.session.incoming_requests(states: BsRequest::VALID_REQUEST_STATES)) }
-  scope :for_outgoing_requests, -> { where(notifiable: User.session.outgoing_requests(states: BsRequest::VALID_REQUEST_STATES)) }
+  scope :for_incoming_requests, ->(user) { where(notifiable: user.incoming_requests(states: BsRequest::VALID_REQUEST_STATES)) }
+  scope :for_outgoing_requests, ->(user) { where(notifiable: user.outgoing_requests(states: BsRequest::VALID_REQUEST_STATES)) }
   scope :for_relationships_created, -> { where(event_type: 'Event::RelationshipCreate') }
   scope :for_relationships_deleted, -> { where(event_type: 'Event::RelationshipDelete') }
   scope :for_failed_builds, -> { where(event_type: 'Event::BuildFail') }
-  scope :for_reports, -> { where(event_type: EVENT_TYPES) }
-  scope :for_workflow_runs, -> { where(event_type: 'Event::WorkflowRunFail') }
-  scope :for_appealed_decisions, -> { where(event_type: 'Event::AppealCreated') }
-  # rubocop:disable Metrics/BlockLength
-  # It's not really that big and it's readable enough
-  scope :for_notifiable_type, lambda { |type = 'unread'|
-    case type
-    when 'read'
-      read
-    when 'comments'
-      unread.where(notifiable_type: 'Comment')
-    when 'requests'
-      unread.where(notifiable_type: 'BsRequest')
-    when 'incoming_requests'
-      unread.for_incoming_requests
-    when 'outgoing_requests'
-      unread.for_outgoing_requests
-    when 'relationships_created'
-      unread.for_relationships_created
-    when 'relationships_deleted'
-      unread.for_relationships_deleted
-    when 'build_failures'
-      unread.for_failed_builds
-    when 'reports'
-      unread.for_reports
-    when 'workflow_runs'
-      unread.for_workflow_runs
-    when 'appealed_decisions'
-      unread.for_appealed_decisions
-    else
-      unread
-    end
-  }
-  # rubocop:enable Metrics/BlockLength
+  scope :for_reports, -> { where(notifiable_type: 'Report') }
+  scope :for_workflow_runs, -> { where(notifiable_type: 'WorkflowRun') }
+  scope :for_appealed_decisions, -> { where(notifiable_type: 'Decision') }
+  scope :for_comments, -> { where(notifiable_type: 'Comment') }
+  scope :for_requests, -> { where(notifiable_type: 'BsRequest') }
+  scope :for_reviews, -> { where(event_type: 'Event::ReviewWanted') }
   scope :for_project_name, ->(project_name) { joins(:projects).where(projects: { name: project_name }) }
   scope :for_group_title, ->(group_title) { joins(:groups).where(groups: { title: group_title }) }
   scope :stale, -> { where(created_at: ...(CONFIG['notifications_lifetime'] ||= 365).days.ago) }
