@@ -6,7 +6,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   ALLOWED_STATES = %w[unread read].freeze
 
   before_action :require_login
-  before_action :set_filter_type, :set_filter_state
+  before_action :set_filter_type, :set_filter_state, :set_filter_project, :set_filter_group
   before_action :set_notifications
   before_action :set_notifications_to_be_updated, only: [:update]
   before_action :set_show_read_all_button
@@ -14,7 +14,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   before_action :paginate_notifications
 
   def index
-    @filtered_project = Project.find_by(name: params[:project])
     @current_user = User.session
   end
 
@@ -42,21 +41,33 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   private
 
   def set_filter_type
-    @filter_type = params[:kind] || 'all'
-    raise FilterNotSupportedError if @filter_type.present? && ALLOWED_FILTERS.exclude?(@filter_type)
+    @filter_type = params[:kind].presence || ['all']
+    @filter_type = [@filter_type] if @filter_type.instance_of?(String) # in case just one value, we want an array anyway
+    raise FilterNotSupportedError unless (@filter_type - ALLOWED_FILTERS).empty?
+
+    @filter_type
   end
 
   def set_filter_state
-    @filter_state = params[:state] || 'unread'
-    raise FilterNotSupportedError if @filter_state.present? && ALLOWED_STATES.exclude?(@filter_state)
+    @filter_state = params[:state].presence || ['unread']
+    @filter_state = [@filter_state] if @filter_state.instance_of?(String) # in case just one value, we want an array anyway
+    raise FilterNotSupportedError unless (@filter_state - ALLOWED_STATES).empty?
+  end
+
+  def set_filter_project
+    @filter_project = params[:project] || []
+  end
+
+  def set_filter_group
+    @filter_group = params[:group] || []
   end
 
   def set_notifications
     @notifications = User.session!.notifications.for_web.includes(notifiable: [{ commentable: [{ comments: :user }, :project, :bs_request_actions] }, :bs_request_actions, :reviews])
-    @notifications = @notifications.for_project_name(params[:project]) if params[:project].present?
-    @notifications = @notifications.for_group_title(params[:group]) if params[:group].present?
-    @notifications = filter_notifications_by_type(@notifications, @filter_type)
+    @notifications = filter_notifications_by_project(@notifications, @filter_project)
+    @notifications = filter_notifications_by_group(@notifications, @filter_group)
     @notifications = filter_notifications_by_state(@notifications, @filter_state)
+    @notifications = filter_notifications_by_type(@notifications, @filter_type)
   end
 
   def set_notifications_to_be_updated
@@ -71,7 +82,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def set_selected_filter
-    @selected_filter = { kind: @filter_type, state: @filter_state, project: params[:project], group: params[:group] }
+    @selected_filter = { kind: @filter_type, state: @filter_state, project: @filter_project, group: @filter_group }
   end
 
   def show_more(notifications)
@@ -81,12 +92,32 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def filter_notifications_by_state(notifications, filter_state)
-    case filter_state
-    when 'read'
-      notifications.read
+    if filter_state.include?('unread') && filter_state.include?('read')
+      notifications.merge(notifications.unread.or(notifications.read))
+    elsif filter_state.include?('read')
+      notifications = notifications.read
     else
-      notifications.unread
+      notifications = notifications.unread
     end
+    notifications
+  end
+
+  def filter_notifications_by_project(notifications, filter_project)
+    relations_project = filter_project.map do |project_name|
+      notifications.for_project_name(project_name)
+    end
+
+    notifications = notifications.merge(relations_project.inject(:or)) unless relations_project.empty?
+    notifications
+  end
+
+  def filter_notifications_by_group(notifications, filter_group)
+    relations_group = filter_group.map do |group_title|
+      notifications.for_group_title(group_title)
+    end
+
+    notifications = notifications.merge(relations_group.inject(:or)) unless relations_group.empty?
+    notifications
   end
 
   def send_notifications_information_rabbitmq(read_count, unread_count)

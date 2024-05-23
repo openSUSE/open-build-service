@@ -1,6 +1,6 @@
 RSpec.describe Webui::Users::NotificationsController do
   let(:username) { 'reynoldsm' }
-  let!(:user) { create(:confirmed_user, login: username) }
+  let!(:user) { create(:confirmed_user, :with_home, login: username) }
   let!(:other_user) { create(:confirmed_user) }
   let(:state_change_notification) { create(:web_notification, :request_state_change, subscriber: user) }
   let(:creation_notification) { create(:web_notification, :request_created, subscriber: user) }
@@ -50,7 +50,7 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
-    context "when param type is 'read'" do
+    context "when filtering by 'read' param" do
       let(:params) { default_params.merge(state: 'read') }
 
       before do
@@ -82,7 +82,7 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
-    context "when param type is 'build_failures'" do
+    context "when filtering by 'build_failures' param" do
       let(:params) { default_params.merge(kind: 'build_failures') }
 
       before do
@@ -96,7 +96,7 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
-    context "when param type is 'comments'" do
+    context "when filtering by 'comments' param" do
       let(:params) { default_params.merge(kind: 'comments') }
 
       before do
@@ -112,7 +112,7 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
-    context "when param type is 'requests'" do
+    context "when filtering by 'requests' param" do
       let(:params) { default_params.merge(kind: 'requests') }
 
       before do
@@ -127,7 +127,7 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
-    context "when param type is 'incoming_requests'" do
+    context "when filtering by 'incoming_requests' param" do
       let(:admin_user) { create(:admin_user, login: 'king') }
       let(:target_package) { create(:package) }
       let(:source_package) { create(:package, :as_submission_source) }
@@ -160,7 +160,7 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
-    context "when param type is 'outgoing_requests'" do
+    context "when filtering by 'outgoing_requests' param" do
       let(:admin_user) { create(:admin_user, login: 'king') }
       let(:target_package) { create(:package) }
       let(:source_package) { create(:package, :as_submission_source) }
