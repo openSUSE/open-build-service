@@ -368,7 +368,14 @@ sub check {
       my $seen_binary = $is_maintenance_release ? {} : undef;
       my @unneeded_na_revert;
 
-      for my $apackid (BSSched::ProjPacks::orderpackids($aproj, @apackids)) {
+      @apackids = BSSched::ProjPacks::orderpackids($aproj, @apackids);
+      my @apackids_patchinfos = grep {($pdatas->{$_} || {})->{'patchinfo'}} @apackids;
+      if (@apackids_patchinfos) {
+	@apackids = grep {!($pdatas->{$_} || {})->{'patchinfo'}} @apackids;
+	unshift @apackids, @apackids_patchinfos;
+      }
+
+      for my $apackid (@apackids) {
 	next if $apackid eq '_volatile';
 
 	# fast blocked check
