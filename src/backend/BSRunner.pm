@@ -88,8 +88,16 @@ sub run {
         $req->{'flavor'} = $flavor if defined $flavor;
       }
 
-      if ($nofork || !$maxchild || $maxchild == 1) {
-	$numreaped += reap(0, \%chld, \%chld_flavor) if $nofork && $nofork == 2 && %chld;
+      # nofork handling:
+      # 0: fork
+      # -1: fork but finish all children first
+      # 1: do not fork
+      # 2: do not fork but finish all children first
+      if ($nofork && ($nofork == -1 || $nofork == 2) && %chld) {
+	$numreaped += reap(0, \%chld, \%chld_flavor); # wait for all children to finish
+      }
+
+      if (($nofork && $nofork > 0) || !$maxchild) {
 	eval { $conf->{'dispatch'}->($req) };
 	warn($@) if $@;
 	next;
