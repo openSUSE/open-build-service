@@ -156,6 +156,13 @@ sub check {
   my $neverblock = $ctx->{'isreposerver'};
   my $remoteprojs = $gctx->{'remoteprojs'};
 
+  # setup binary architecture filter (this must match what the product composer does)
+  my %binarchs = %imagearch;
+  $binarchs{$myarch} = 1 unless %imagearch;
+  $binarchs{'noarch'} = 1;
+  $binarchs{'src'} = 1;
+  $binarchs{'nosrc'} = 1;
+
   #print "prps: @bprps\n";
   #print "archs: @archs\n";
   #print "deps: @deps\n";
@@ -442,6 +449,7 @@ sub check {
 	for my $fn (@bi) {
 	  next unless $fn =~ /^(?:::import::.*::)?(.+)-(?:[^-]+)-(?:[^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
 	  my ($bn, $ba) = ($1, $2);
+	  next unless exists $binarchs{$ba};
 	  next if $nosrcpkgs && ($ba eq 'src' || $ba eq 'nosrc');
 	  next if $nodbgpkgs && $fn =~ /-(?:debuginfo|debugsource)-/;
 	  next if $fn =~ /^::import::(.*?):/ && $archs{$1};	# we pick it up from the real arch
