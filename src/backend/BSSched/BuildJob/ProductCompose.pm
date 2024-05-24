@@ -445,7 +445,38 @@ sub check {
 	  push @bi, @ibi;
 	}
 
-	# we need the package, add all rpms
+	# setup binary name filter.
+	my $nafilter;
+	if (!$allpacks) {
+	  $nafilter = {};
+	  for my $fn (@bi) {
+	    next unless $fn =~ /^(?:::import::.*::)?(.+)-(?:[^-]+)-(?:[^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	    my ($bn, $ba) = ($1, $2);
+	    next if $ba eq 'src' || $ba eq 'nosrc';
+	    next if $nodbgpkgs && $fn =~ /-(?:debuginfo|debugsource)-/;
+	    my $d = $deps{$bn};
+	    next unless $d;
+	    if ($d && $d ne '1') {
+	      my $bi = $bininfo->{$fn};
+	      my $evr = "$bi->{'version'}-$bi->{'release'}";
+	      $evr = "$bi->{'epoch'}:$evr" if $bi->{'epoch'};
+	      next unless Build::matchsingledep("$bn=$evr", "$bn$d", 'rpm');
+	    }
+	    $nafilter->{"$bn.$ba"} = 1;
+	    next if $nosrcpkgs && $nodbgpkgs;
+	    my $bi = $bininfo->{$fn};
+	    my $srcbn = $bi->{'source'};
+	    if (!defined($srcbn)) {
+	      # missing data probably from a remote server, cannot set up filter.
+	      undef $nafilter;
+	      last;
+	    }
+	    $nafilter->{"$srcbn.src"} = $nafilter->{"$srcbn.nosrc"} = 1 unless $nosrcpkgs;
+	    $nafilter->{"$srcbn-debugsource.$ba"} = $nafilter->{"$bn-debuginfo.$ba"} = 1 unless $nodbgpkgs;
+	  }
+	}
+
+	# we need the package, add the rpms we need
 	for my $fn (@bi) {
 	  next unless $fn =~ /^(?:::import::.*::)?(.+)-(?:[^-]+)-(?:[^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
 	  my ($bn, $ba) = ($1, $2);
@@ -454,6 +485,7 @@ sub check {
 	  next if $nodbgpkgs && $fn =~ /-(?:debuginfo|debugsource)-/;
 	  next if $fn =~ /^::import::(.*?):/ && $archs{$1};	# we pick it up from the real arch
 	  my $na = "$bn.$ba";
+	  next if $nafilter && !$nafilter->{$na};
 
 	  if ($seen_binary && ($ba ne 'src' && $ba ne 'nosrc')) {
 	    next if $seen_binary->{$na}++;
