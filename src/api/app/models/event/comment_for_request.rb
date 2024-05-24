@@ -15,7 +15,7 @@ module Event
       # limit the error string
       attribs['comment'] = attribs['comment'][0..800] if attribs['comment'].present?
       attribs['files'] = attribs['files'][0..800] if attribs['files'].present?
-      super(attribs, keys)
+      super
     end
 
     def metric_measurement

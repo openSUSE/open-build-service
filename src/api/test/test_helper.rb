@@ -303,7 +303,7 @@ module ActionDispatch
       raise ArgumentError, 'we need a :controller' unless hash.key?(:controller)
       raise ArgumentError, 'we need a :action' unless hash.key?(:action)
 
-      super(hash)
+      super
     end
 
     def login_king
