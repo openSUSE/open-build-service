@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_05_16_133632) do
+ActiveRecord::Schema[7.0].define(version: 2024_05_24_151051) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -779,6 +779,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_05_16_133632) do
     t.boolean "rss", default: false
     t.boolean "web", default: false
     t.datetime "last_seen_at", precision: nil
+    t.string "type", null: false
     t.index ["created_at"], name: "index_notifications_on_created_at"
     t.index ["delivered"], name: "index_notifications_on_delivered"
     t.index ["event_type"], name: "index_notifications_on_event_type"
