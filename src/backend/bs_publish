@@ -183,7 +183,7 @@ my $db_oldsync_read;
 my $db_sync_append;
 
 sub db_pickup {
-  if (-s "$extrepodb.sync") {
+  if ($extrepodb && -s "$extrepodb.sync") {
     my $oldsync = BSUtil::retrieve("$extrepodb.sync");
     unshift @db_sync, @{$oldsync || []};
   }
@@ -193,7 +193,7 @@ sub db_open {
   my ($name) = @_;
 
   return undef unless $extrepodb;
-  if (!$db_oldsync_read) {
+  if (!$db_oldsync_read && !$db_sync_append) {
     db_pickup();
     $db_oldsync_read = 1;
   }
@@ -212,7 +212,8 @@ sub db_store {
 
 sub db_sync {
   return undef unless $extrepodb;
-  db_open('') unless $db_oldsync_read;
+  my $cnt = @db_sync;
+  db_open('') unless $db_oldsync_read || $db_sync_append;
   return unless @db_sync;
   my $data = Storable::nfreeze(\@db_sync);
   my $ops = @db_sync;
@@ -237,8 +238,10 @@ sub db_sync {
     warn($@);
     mkdir_p($1) if $extrepodb =~ /^(.*)\//;
     if ($db_sync_append) {
+      # re-read the sync file
       local *F;
       BSUtil::lockopen(\*F, '>>', "$extrepodb.sync");
+      splice(@db_sync, 0, -$cnt) if $cnt;
       db_pickup();
       BSUtil::store("$extrepodb.sync.new$$", "$extrepodb.sync", \@db_sync);
       close F;
@@ -3516,9 +3519,14 @@ sub notify_state {
 }
 
 sub syncdb {
-  die if @db_sync;
+  die if @db_sync || !$db_sync_append;
   db_pickup();
+  $db_sync_append = undef;
+  $db_oldsync_read = 1;
   db_sync();
+  @db_sync = ();
+  $db_sync_append = 1;
+  $db_oldsync_read = undef;
 }
 
 sub publishstats {
@@ -3649,11 +3657,10 @@ sub getevent {
     return ($req, undef, 1);
   }
 
-  # serialize if our children have unsynced data
-  if (!@db_sync && $maxchild && $maxchild > 1 && $extrepodb && -s "$extrepodb.sync") {
-    print "not forking because of unsynced database entries (syncdb)\n";
+  if ($maxchild && $extrepodb && -s "$extrepodb.sync") {
+    print "waiting for children because of unsynced database entries (syncdb)\n";
     $req->{'syncdb'} = 1;
-    return ($req, undef, 2);
+    return ($req, undef, -1);
   }
 
   return $req;
