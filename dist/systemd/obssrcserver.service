@@ -3,6 +3,7 @@ Description=OBS source repository server
 After=network-online.target obsstoragesetup.service obsservice.service
 
 [Service]
+OOMPolicy=continue
 EnvironmentFile=/etc/sysconfig/obs-server
 ExecStart=/usr/lib/obs/server/bs_srcserver --logfile src_server.log
 ExecStop=/usr/lib/obs/server/bs_srcserver --stop

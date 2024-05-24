@@ -4,6 +4,7 @@ After=network-online.target
 After=obsapisetup.service
 
 [Service]
+OOMPolicy=continue
 EnvironmentFile=/etc/sysconfig/obs-server
 ExecStart=/usr/lib/obs/server/bs_dodup --logfile dodup.log
 ExecStop=/usr/lib/obs/server/bs_dodup --stop

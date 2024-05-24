@@ -3,6 +3,7 @@ Description=OBS signer service
 After=network-online.target obsapisetup.service obsstoragesetup.service signd.service
 
 [Service]
+OOMPolicy=continue
 EnvironmentFile=/etc/sysconfig/obs-server
 ExecStart=/usr/lib/obs/server/bs_signer --logfile signer.log
 ExecStop=/usr/lib/obs/server/bs_signer --stop
