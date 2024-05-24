@@ -19,7 +19,7 @@ module Event
     def set_payload(attribs, keys)
       # limit the error string
       attribs['error'] = attribs['error'][0..800]
-      super(attribs, keys)
+      super
     end
 
     def metric_measurement

@@ -112,7 +112,7 @@ class BsRequestActionSubmit < BsRequestAction
   end
 
   def check_action_permission!(skip_source = nil)
-    super(skip_source)
+    super
     # only perform the following check, if we are called from
     # BsRequest.permission_check_change_state! (that is, if
     # skip_source is set to true). Always executing this check

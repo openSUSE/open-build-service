@@ -6,7 +6,7 @@ module Event
 
     def set_payload(attribs, keys)
       attribs['comment'] = attribs['comment'][0..800] if attribs['comment'].present?
-      super(attribs, keys)
+      super
     end
 
     private

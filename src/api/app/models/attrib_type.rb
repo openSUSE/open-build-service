@@ -112,7 +112,7 @@ class AttribType < ApplicationRecord
       else
         options[:methods] = [:attrib_namespace_name]
       end
-      super(options)
+      super
     else
       super(methods: [:attrib_namespace_name])
     end

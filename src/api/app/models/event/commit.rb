@@ -14,7 +14,7 @@ module Event
     def set_payload(attribs, keys)
       attribs['comment'] = attribs['comment'][0..800] if attribs['comment'].present?
       attribs['files'] = attribs['files'][0..800] if attribs['files'].present?
-      super(attribs, keys)
+      super
     end
 
     private

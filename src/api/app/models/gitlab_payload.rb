@@ -3,7 +3,7 @@ class GitlabPayload < ScmPayload
   attr_reader :http_url
 
   def initialize(webhook_payload)
-    super(webhook_payload)
+    super
     @http_url = webhook_payload.dig(:project, :http_url)
   end
 
