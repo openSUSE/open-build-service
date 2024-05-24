@@ -171,13 +171,6 @@ class Webui::WebuiController < ActionController::Base
     redirect_back_or_to({ controller: 'main', action: 'index' })
   end
 
-  def require_staff
-    return if User.session!.is_admin? || User.session!.is_staff?
-
-    flash[:error] = 'Requires staff privileges'
-    redirect_back_or_to({ controller: 'main', action: 'index' })
-  end
-
   # before filter to only show the frontpage to anonymous users
   def check_anonymous
     return if User.session.present?

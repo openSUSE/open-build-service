@@ -71,6 +71,13 @@ class Webui::StatusMessagesController < Webui::WebuiController
 
   private
 
+  def require_staff
+    return if User.possibly_nobody.is_admin? || User.possibly_nobody.is_staff?
+
+    flash[:error] = 'Requires staff privileges'
+    redirect_back_or_to({ controller: 'main', action: 'index' })
+  end
+
   def set_status_message
     @status_message = StatusMessage.find(params[:id])
   end
