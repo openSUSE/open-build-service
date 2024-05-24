@@ -113,6 +113,7 @@ sub check {
   my $patchinfo = $pdata->{'patchinfo'};
   if (exists $patchinfo->{'seperate_build_arch'}) {
     # build on all schedulers, but don't take content from each other
+    return ('excluded') if $BSConfig::localarch && $myarch eq 'local';
     @archs = ($myarch);
   };
   my $buildarch = $archs[0];
