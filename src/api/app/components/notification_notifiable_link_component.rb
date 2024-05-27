@@ -70,11 +70,13 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     # NOTE: moved to model
     when 'Event::ReportForRequest'
       "Report for Request ##{@notification.notifiable.reportable.number}"
+    # NOTE: moved to model
     when 'Event::ClearedDecision'
       # All reports should point to the same reportable. We will take care of that here:
       # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
       # This reportable won't be nil once we fix this: https://trello.com/c/vPDiLjIQ/66-prevent-the-creation-of-reports-without-reportable
       "Cleared #{@notification.notifiable.reports.first.reportable&.class&.name} Report".squish
+    # NOTE: moved to model
     when 'Event::FavoredDecision'
       # All reports should point to the same reportable. We will take care of that here:
       # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
