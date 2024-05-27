@@ -19,6 +19,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
   # rubocop:disable Metrics/PerceivedComplexity
   def notifiable_link_text
     case @notification.event_type
+    # NOTE: moved to model
     when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted'
       "#{helpers.request_type_of_action(@notification.notifiable)} Request ##{@notification.notifiable.number}"
     # NOTE: moved to model
