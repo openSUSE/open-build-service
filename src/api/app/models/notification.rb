@@ -77,6 +77,18 @@ class Notification < ApplicationRecord
     User.find_by(login: event_payload['accused']) if event_payload['accused']
   end
 
+  def summary
+    raise AbstractMethodCalled
+  end
+
+  def excerpt
+    raise AbstractMethodCalled
+  end
+
+  def involved_users
+    raise AbstractMethodCalled
+  end
+
   private
 
   def track_notification_creation
