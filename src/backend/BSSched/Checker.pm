@@ -1415,6 +1415,7 @@ sub publish {
   my %pubenabled;
   for my $packid (@$packs) {
     my $pdata = $pdatas->{$packid};
+    $pubenabled{$packid} = 0;
     next if defined($pdata->{'lock'}) && BSUtil::enabled($repoid, $pdata->{'lock'}, $locked, $myarch);
     next if !defined($pdata->{'lock'}) && $locked;
     if ($pdata->{'publish'}) {
@@ -1471,9 +1472,15 @@ sub publish {
     return ('broken', "not publishing failed packages: @bad") if @bad;
   }
 
+  # obey keepobsolete publish flag
+  my $keepobsolete;
+  if ($ctx->{'conf'}->{'publishflags:keepobsolete'} && !$pubenabled) {
+    $keepobsolete = 1;
+  }
+
   # update :repo directory
   mkdir_p($gdst);
-  my $publisherror = BSSched::PublishRepo::prpfinished($ctx, $packs, \%pubenabled, $force);
+  my $publisherror = BSSched::PublishRepo::prpfinished($ctx, $packs, \%pubenabled, $force, $keepobsolete);
   if ($publisherror) {
     return ('building', $publisherror) if $publisherror eq 'delta generation: building';
     return ('delayed', substr($publisherror, 8)) if $publisherror eq 'delayed' || $publisherror =~ /^delayed:/;

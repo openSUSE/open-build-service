@@ -104,11 +104,10 @@ sub wait_for_lock {
          $packs      - packages in project
                        undef -> arch no longer builds this repository
          $pubenabled - only publish those packages
-                       undef -> publish all packages
 =cut
 
 sub prpfinished {
-  my ($ctx, $packs, $pubenabled, $nodelayed) = @_;
+  my ($ctx, $packs, $pubenabled, $nodelayed, $keepobsolete) = @_;
 
   my $gctx = $ctx->{'gctx'};
   my $gdst = $ctx->{'gdst'};
@@ -161,6 +160,33 @@ sub prpfinished {
       return "Testcase publish error";
   }
 
+  die unless $pubenabled;
+
+  my $rinfo;
+  my $rinfo_packid2bins;
+
+  # read old repoinfo if we have packages that have publishing disabled
+  if ($keepobsolete || grep {!$pubenabled->{$_}} @$packs) {
+    $rinfo = {};
+    $rinfo = BSUtil::retrieve("${rdir}info") if -s "${rdir}info";
+    $rinfo->{'binaryorigins'} ||= {};
+    # create package->binaries helper hash
+    $rinfo_packid2bins = {};
+    my $rb = $rinfo->{'binaryorigins'};
+    for (keys %$rb) {
+      push @{$rinfo_packid2bins->{$rb->{$_}}}, $_;
+    }
+  }
+
+  # honor keepobsolete flag
+  if ($keepobsolete) {
+    $packs = [ @$packs ];	# so we can add packages
+    my %known = map {$_ => 1} @$packs;
+    my @obsolete = grep {!$known{$_}} sort keys %$rinfo_packid2bins;
+    push @$packs, @obsolete;
+    $keepobsolete = { map {$_ => 1} @obsolete };
+  }
+
   # make all the deltas we need
   my $needdeltas;
   $needdeltas = 1 if grep {"$_:" =~ /:(?:deltainfo|prestodelta):/} @{$bconf->{'repotype'} || []};
@@ -172,9 +198,6 @@ sub prpfinished {
       return $err;
   }
 
-
-  my $rinfo;
-  my $rinfo_packid2bins;
 
   # link all packages into :repo, put origin data into :repoinfo
   my %origin;
@@ -206,20 +229,14 @@ sub prpfinished {
   my %newchecksums;
   # sort like in the full tree
   for my $packid (BSSched::ProjPacks::orderpackids($projpacks->{$projid}, @$packs)) {
-    if ($pubenabled && !$pubenabled->{$packid}) {
+    if (!$pubenabled->{$packid}) {
       # publishing of this package is disabled, copy binary list from old info
-      if (!$rinfo) {
-        $rinfo = {};
-        $rinfo = BSUtil::retrieve("${rdir}info") if -s "${rdir}info";
-        $rinfo->{'binaryorigins'} ||= {};
-        # create package->binaries helper hash
-        $rinfo_packid2bins = {};
-        my $rb = $rinfo->{'binaryorigins'};
-        for (keys %$rb) {
-          push @{$rinfo_packid2bins->{$rb->{$_}}}, $_;
-        }
+      die unless $rinfo_packid2bins;
+      if ($keepobsolete && $keepobsolete->{$packid}) {
+        print "        $packid: keeping obsolete\n";
+      } else {
+        print "        $packid: publishing disabled\n";
       }
-      print "        $packid: publishing disabled\n";
       for my $bin (@{$rinfo_packid2bins->{$packid} || []}) {
         next if exists $origin{$bin};   # first one wins
         $origin{$bin} = $packid;
