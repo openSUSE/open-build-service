@@ -96,6 +96,24 @@ class Notification < ApplicationRecord
     truncation_index = !first_new_line_index.nil? && first_new_line_index < TRUNCATION_LENGTH ? first_new_line_index + TRUNCATION_ELLIPSIS_LENGTH : TRUNCATION_LENGTH
     text.truncate(truncation_index)
   end
+
+  def bs_request
+    return unless event_type == 'Event::CommentForRequest'
+
+    if notifiable.commentable.is_a?(BsRequestAction)
+      notifiable.commentable.bs_request
+    else
+      notifiable.commentable
+    end
+  end
+
+  # FIXME: Duplicated from RequestHelper
+  # Returns strings like "Add Role", "Submit", etc.
+  def request_type_of_action(bs_request)
+    return 'Multiple Actions' if bs_request.bs_request_actions.size > 1
+
+    bs_request.bs_request_actions.first.type.titleize
+  end
 end
 
 # == Schema Information

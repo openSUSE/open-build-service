@@ -7,26 +7,6 @@ class NotificationCommentForRequest < Notification
   def excerpt
     truncate_to_first_new_line(notifiable.body) # comment body
   end
-
-  private
-
-  def bs_request
-    return unless event_type == 'Event::CommentForRequest'
-
-    if notifiable.commentable.is_a?(BsRequestAction)
-      notifiable.commentable.bs_request
-    else
-      notifiable.commentable
-    end
-  end
-
-  # FIXME: Duplicated from RequestHelper
-  # Returns strings like "Add Role", "Submit", etc.
-  def request_type_of_action(bs_request)
-    return 'Multiple Actions' if bs_request.bs_request_actions.size > 1
-
-    bs_request.bs_request_actions.first.type.titleize
-  end
 end
 
 # == Schema Information
