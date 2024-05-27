@@ -19,6 +19,7 @@ class StatusMessage < ApplicationRecord
     return false if acknowledged?
 
     users << User.session!
+    RabbitmqBus.send_to_bus('metrics', "user.acknowledged_status_message status_message_id=#{id}")
     true
   end
 

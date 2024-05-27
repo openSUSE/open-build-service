@@ -1,5 +1,1 @@
-- if flash[:error]
-  flashContent = '#{escape_javascript(render(layout: false, partial: 'layouts/webui/flash', object: flash))}';
-  $('#flash').html(flashContent);
-- else
-  $('#status-message-announcement').fadeOut()
+$('#status-message-announcement').fadeOut()

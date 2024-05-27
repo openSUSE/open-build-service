@@ -1,5 +1,6 @@
 class Webui::StatusMessagesController < Webui::WebuiController
-  before_action :require_staff
+  before_action :require_login, only: :acknowledge
+  before_action :require_staff, except: :acknowledge
   before_action :set_status_message, only: %i[edit update destroy acknowledge]
   after_action :verify_authorized, only: %i[create update destroy]
 
@@ -55,10 +56,9 @@ class Webui::StatusMessagesController < Webui::WebuiController
   end
 
   def acknowledge
-    collect_metrics(@status_message) if @status_message.acknowledge!
-
+    @status_message.acknowledge!
     respond_to do |format|
-      format.js { render controller: 'status_message', action: 'acknowledge' }
+      format.js { render 'acknowledge' }
     end
   end
 
@@ -80,10 +80,6 @@ class Webui::StatusMessagesController < Webui::WebuiController
 
   def set_status_message
     @status_message = StatusMessage.find(params[:id])
-  end
-
-  def collect_metrics(status_message)
-    RabbitmqBus.send_to_bus('metrics', "user.acknowledged_status_message status_message_id=#{status_message.id}")
   end
 
   def status_message_params
