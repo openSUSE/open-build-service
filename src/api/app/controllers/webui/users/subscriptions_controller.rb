@@ -7,11 +7,6 @@ class Webui::Users::SubscriptionsController < Webui::WebuiController
   def index
     @user = User.session!
     @groups_users = @user.groups_users.includes(:group).order('groups.title')
-
-    respond_to do |format|
-      format.html
-      format.js
-    end
   end
 
   def update
