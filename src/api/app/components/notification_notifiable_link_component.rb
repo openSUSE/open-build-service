@@ -82,6 +82,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
       # This reportable won't be nil once we fix this: https://trello.com/c/vPDiLjIQ/66-prevent-the-creation-of-reports-without-reportable
       "Favored #{@notification.notifiable.reports.first.reportable&.class&.name} Report".squish
+    # NOTE: moved to model
     when 'Event::AppealCreated'
       "Appealed the decision for a report of #{@notification.notifiable.decision.moderator.login}"
     # NOTE: moved to model
