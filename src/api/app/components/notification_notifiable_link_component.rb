@@ -47,6 +47,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       else
         "Removed as #{role} of a project"
       end
+    # NOTE: moved to model
     when 'Event::BuildFail'
       project = @notification.event_payload['project']
       package = @notification.event_payload['package']
