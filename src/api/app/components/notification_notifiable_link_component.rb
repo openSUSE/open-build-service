@@ -57,14 +57,17 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
     when 'Event::CreateReport', 'Event::ReportForUser'
       "Report for a #{@notification.event_payload['reportable_type']}"
+    # NOTE: moved to model
     when 'Event::ReportForComment'
       if Comment.exists?(@notification.event_payload['reportable_id'])
         'Report for a comment'
       else
         'Report for a deleted comment'
       end
+    # NOTE: moved to model
     when 'Event::ReportForProject', 'Event::ReportForPackage'
       @notification.event_type.constantize.notification_link_text(@notification.event_payload)
+    # NOTE: moved to model
     when 'Event::ReportForRequest'
       "Report for Request ##{@notification.notifiable.reportable.number}"
     when 'Event::ClearedDecision'
