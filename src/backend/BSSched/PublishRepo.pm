@@ -183,7 +183,12 @@ sub prpfinished {
   $filter = $bconf->{'publishfilter'} if $bconf;
   undef $filter if $filter && !@$filter;
   $filter ||= $default_publishfilter;
-  $filter = compile_publishfilter($filter);
+  eval { $filter = compile_publishfilter($filter) };
+  if ($@) {
+    my $err = $@;
+    chomp $err;
+    return "invalid publish filter: $err";
+  }
 
   my $seen_binary;
   my $singleexport;
