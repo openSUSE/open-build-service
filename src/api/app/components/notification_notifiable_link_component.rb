@@ -78,6 +78,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       "Favored #{@notification.notifiable.reports.first.reportable&.class&.name} Report".squish
     when 'Event::AppealCreated'
       "Appealed the decision for a report of #{@notification.notifiable.decision.moderator.login}"
+    # NOTE: moved to model
     when 'Event::WorkflowRunFail'
       'Workflow Run'
     end
