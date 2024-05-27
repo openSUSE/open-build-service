@@ -26,6 +26,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     # NOTE: moved to model
     when 'Event::CommentForProject'
       'Comment on Project'
+    # NOTE: moved to model
     when 'Event::CommentForPackage'
       'Comment on Package'
     when 'Event::RelationshipCreate'
