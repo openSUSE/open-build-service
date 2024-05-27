@@ -1,4 +1,5 @@
 class NotificationExcerptComponent < ApplicationComponent
+  # NOTE: moved to model
   TRUNCATION_LENGTH = 100
   TRUNCATION_ELLIPSIS_LENGTH = 3 # `...` is the default ellipsis for String#truncate
 
@@ -27,6 +28,7 @@ class NotificationExcerptComponent < ApplicationComponent
 
   private
 
+  # NOTE: moved to model
   def truncate_to_first_new_line(text)
     first_new_line_index = text.index("\n")
     truncation_index = !first_new_line_index.nil? && first_new_line_index < TRUNCATION_LENGTH ? first_new_line_index + TRUNCATION_ELLIPSIS_LENGTH : TRUNCATION_LENGTH

@@ -23,6 +23,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       "#{helpers.request_type_of_action(@notification.notifiable)} Request ##{@notification.notifiable.number}"
     when 'Event::CommentForRequest'
       "Comment on #{helpers.request_type_of_action(bs_request)} Request ##{bs_request.number}"
+    # NOTE: moved to model
     when 'Event::CommentForProject'
       'Comment on Project'
     when 'Event::CommentForPackage'

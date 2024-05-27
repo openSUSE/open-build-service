@@ -3,6 +3,9 @@ class Notification < ApplicationRecord
   MAX_RSS_ITEMS_PER_GROUP = 10
   MAX_PER_PAGE = 300
 
+  TRUNCATION_LENGTH = 100
+  TRUNCATION_ELLIPSIS_LENGTH = 3 # `...` is the default ellipsis for String#truncate
+
   belongs_to :subscriber, polymorphic: true, optional: true
   belongs_to :notifiable, polymorphic: true, optional: true
 
@@ -86,6 +89,12 @@ class Notification < ApplicationRecord
   def track_notification_delivered
     RabbitmqBus.send_to_bus('metrics',
                             "notification,action=#{delivered ? 'read' : 'unread'} value=1")
+  end
+
+  def truncate_to_first_new_line(text)
+    first_new_line_index = text.index("\n")
+    truncation_index = !first_new_line_index.nil? && first_new_line_index < TRUNCATION_LENGTH ? first_new_line_index + TRUNCATION_ELLIPSIS_LENGTH : TRUNCATION_LENGTH
+    text.truncate(truncation_index)
   end
 end
 
