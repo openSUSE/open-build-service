@@ -21,6 +21,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     case @notification.event_type
     when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted'
       "#{helpers.request_type_of_action(@notification.notifiable)} Request ##{@notification.notifiable.number}"
+    # NOTE: moved to model
     when 'Event::CommentForRequest'
       "Comment on #{helpers.request_type_of_action(bs_request)} Request ##{bs_request.number}"
     # NOTE: moved to model
