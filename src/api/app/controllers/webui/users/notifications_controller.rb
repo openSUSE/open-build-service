@@ -19,8 +19,13 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   def update
     # rubocop:disable Rails/SkipsModelValidations
-    @read_count = Notification.where(id: @undelivered_notification_ids).update_all('delivered = !delivered')
-    @unread_count = Notification.where(id: @delivered_notification_ids).update_all('delivered = !delivered')
+    if @filter_state.include?('unread')
+      @read_count = Notification.where(id: @undelivered_notification_ids).update_all('delivered = !delivered')
+      @unread_count = 0
+    else
+      @unread_count = Notification.where(id: @delivered_notification_ids).update_all('delivered = !delivered')
+      @read_count = 0
+    end
     # rubocop:enable Rails/SkipsModelValidations
 
     respond_to do |format|
@@ -71,10 +76,15 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def set_notifications_to_be_updated
-    return unless params[:notification_ids]
-
-    @undelivered_notification_ids = @notifications.where(id: params[:notification_ids]).where(delivered: false).map(&:id)
-    @delivered_notification_ids = @notifications.where(id: params[:notification_ids]).where(delivered: true).map(&:id)
+    if params[:notification_ids]
+      @undelivered_notification_ids = @notifications.where(id: params[:notification_ids]).where(delivered: false).map(&:id)
+      @delivered_notification_ids = @notifications.where(id: params[:notification_ids]).where(delivered: true).map(&:id)
+    elsif params[:update_all]
+      @undelivered_notification_ids = @notifications.where(delivered: false).map(&:id)
+      @delivered_notification_ids = @notifications.where(delivered: true).map(&:id)
+    else
+      []
+    end
   end
 
   def set_show_read_all_button
