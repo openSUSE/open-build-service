@@ -1,6 +1,6 @@
 class Webui::StatusMessagesController < Webui::WebuiController
   before_action :require_staff
-  before_action :set_status_message, only: %i[update destroy acknowledge]
+  before_action :set_status_message, only: %i[edit update destroy acknowledge]
   after_action :verify_authorized, only: %i[create update destroy]
 
   def index
