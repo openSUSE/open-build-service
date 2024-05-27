@@ -30,6 +30,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     # NOTE: moved to model
     when 'Event::CommentForPackage'
       'Comment on Package'
+    # NOTE: moved to model
     when 'Event::RelationshipCreate'
       role = @notification.event_payload['role']
       if @notification.event_payload['package']
@@ -37,6 +38,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       else
         "Added as #{role} of a project"
       end
+    # NOTE: moved to model
     when 'Event::RelationshipDelete'
       role = @notification.event_payload['role']
       if @notification.event_payload['package']
