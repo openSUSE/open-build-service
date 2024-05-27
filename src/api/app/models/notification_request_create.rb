@@ -7,6 +7,11 @@ class NotificationRequestCreate < Notification
   def excerpt
     notifiable.description.to_s
   end
+
+  def involved_users
+    reviews = notifiable.reviews
+    reviews.select(&:new?).map(&:reviewed_by) + User.where(login: notifiable.creator)
+  end
 end
 
 # == Schema Information

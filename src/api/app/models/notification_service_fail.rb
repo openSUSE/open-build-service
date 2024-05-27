@@ -8,6 +8,10 @@ class NotificationServiceFail < Notification
   def excerpt
     "Source service failure of #{event_payload['project']}/#{event_payload['package']}"
   end
+
+  def involved_users
+    []
+  end
 end
 
 # == Schema Information

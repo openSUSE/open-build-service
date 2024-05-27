@@ -11,6 +11,10 @@ class NotificationReportForComment < Notification
   def excerpt
     reason
   end
+
+  def involved_users
+    [User.find_by(login: event_payload['reporter'])]
+  end
 end
 
 # == Schema Information

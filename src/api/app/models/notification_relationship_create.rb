@@ -12,6 +12,10 @@ class NotificationRelationshipCreate < Notification
   def excerpt
     ''
   end
+
+  def involved_users
+    [User.find_by(login: event_payload['who'])]
+  end
 end
 
 # == Schema Information

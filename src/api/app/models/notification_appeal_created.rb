@@ -7,6 +7,10 @@ class NotificationAppealCreated < Notification
   def excerpt
     reason
   end
+
+  def involved_users
+    [User.find(event_payload['appellant_id'])]
+  end
 end
 
 # == Schema Information

@@ -10,6 +10,7 @@ class NotificationAvatarsComponent < ApplicationComponent
   private
 
   # rubocop:disable Metrics/CyclomaticComplexity
+  # Moved to model
   def avatar_objects
     @avatar_objects ||= case @notification.notifiable_type
                         when 'Comment'
@@ -39,6 +40,7 @@ class NotificationAvatarsComponent < ApplicationComponent
     [0, avatar_objects.size - MAXIMUM_DISPLAYED_AVATARS].max
   end
 
+  # NOTE: moved to model
   def commenters
     comments = @notification.notifiable.commentable.comments
     comments.select { |comment| comment.updated_at >= @notification.unread_date }.map(&:user).uniq

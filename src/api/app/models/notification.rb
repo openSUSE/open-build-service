@@ -114,6 +114,11 @@ class Notification < ApplicationRecord
 
     bs_request.bs_request_actions.first.type.titleize
   end
+
+  def commenters
+    comments = notifiable.commentable.comments
+    comments.select { |comment| comment.updated_at >= unread_date }.map(&:user).uniq
+  end
 end
 
 # == Schema Information

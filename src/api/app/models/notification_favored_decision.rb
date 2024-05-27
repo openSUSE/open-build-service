@@ -10,6 +10,10 @@ class NotificationFavoredDecision < Notification
   def excerpt
     reason
   end
+
+  def involved_users
+    [User.find(event_payload['moderator_id'])]
+  end
 end
 
 # == Schema Information

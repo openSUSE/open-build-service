@@ -7,6 +7,10 @@ class NotificationCommentForProject < Notification
   def excerpt
     truncate_to_first_new_line(notifiable.body) # comment body
   end
+
+  def involved_users
+    commenters
+  end
 end
 
 # == Schema Information
