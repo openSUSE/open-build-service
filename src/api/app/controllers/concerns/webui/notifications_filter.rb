@@ -24,4 +24,33 @@ module Webui::NotificationsFilter
   end
   # rubocop:enable Metrics/CyclomaticComplexity
   # rubocop:enable Metrics/PerceivedComplexity
+
+  def filter_notifications_by_state(notifications, filter_state)
+    if filter_state.include?('unread') && filter_state.include?('read')
+      notifications.merge(notifications.unread.or(notifications.read))
+    elsif filter_state.include?('read')
+      notifications = notifications.read
+    else
+      notifications = notifications.unread
+    end
+    notifications
+  end
+
+  def filter_notifications_by_project(notifications, filter_project)
+    relations_project = filter_project.map do |project_name|
+      notifications.for_project_name(project_name)
+    end
+
+    notifications = notifications.merge(relations_project.inject(:or)) unless relations_project.empty?
+    notifications
+  end
+
+  def filter_notifications_by_group(notifications, filter_group)
+    relations_group = filter_group.map do |group_title|
+      notifications.for_group_title(group_title)
+    end
+
+    notifications = notifications.merge(relations_group.inject(:or)) unless relations_group.empty?
+    notifications
+  end
 end
