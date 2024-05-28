@@ -24,6 +24,14 @@ get:
         If the attribute doesn't contain any value and `with_default` is present,
         the default values will be displayed, if any.
       example: 1
+    - name: with_project
+      in: query
+      schema:
+        type: string
+      description: |
+        If the attribute doesn't contain any value and `with_project` is present,
+        it will use the project's values as fallback.
+      example: 1
   responses:
     '200':
       description: OK. The request has succeeded.
