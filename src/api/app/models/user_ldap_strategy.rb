@@ -308,7 +308,14 @@ class UserLdapStrategy
   end
 
   def is_in_group?(user, group)
-    user_in_group_ldap?(user.login, group)
+    group = (group.is_a?(String) ? Group.find_by_title(group) : group)
+
+    begin
+      render_grouplist_ldap([group], user.login).any?
+    rescue Exception => e
+      Rails.logger.info("UserLdapStrategy: Failed to find user_group '#{group}': #{e.message}")
+      false
+    end
   end
 
   def local_role_check(role, object)
@@ -322,17 +329,6 @@ class UserLdapStrategy
 
   def list_groups(user)
     render_grouplist_ldap(Group.all, user.login)
-  end
-
-  def user_in_group_ldap?(user, group)
-    group = (group.is_a?(String) ? Group.find_by_title(group) : group)
-
-    begin
-      render_grouplist_ldap([group], user).any?
-    rescue Exception => e
-      Rails.logger.info("UserLdapStrategy: Failed to find user_group '#{group}': #{e.message}")
-      false
-    end
   end
 
   private
@@ -353,7 +349,8 @@ class UserLdapStrategy
     relationships.each do |relationship|
       return false if relationship.group.nil?
       # check whether current user is in this group
-      return true if user_in_group_ldap?(login, relationship.group)
+      # FIXME: What is "login" supposed to be? User.session?
+      return true if is_in_group?(login, relationship.group)
     end
 
     Rails.logger.info("UserLdapStrategy: Failed to check roles with method '#{method_name}'")
