@@ -110,21 +110,29 @@ class Notification < ApplicationRecord
   end
 
   def bs_request
-    return unless event_type == 'Event::CommentForRequest'
-
-    if notifiable.commentable.is_a?(BsRequestAction)
+    if notifiable_type == 'BsRequest'
+      notifiable
+    elsif notifiable.commentable.is_a?(BsRequestAction)
       notifiable.commentable.bs_request
     else
       notifiable.commentable
     end
   end
 
+  def first_action(bs_request)
+    bs_request.bs_request_actions.first
+  end
+
+  def number_of_bs_request_actions(bs_request)
+    bs_request.bs_request_actions.size
+  end
+
   # FIXME: Duplicated from RequestHelper
   # Returns strings like "Add Role", "Submit", etc.
   def request_type_of_action(bs_request)
-    return 'Multiple Actions' if bs_request.bs_request_actions.size > 1
+    return 'Multiple Actions' if number_of_bs_request_actions(bs_request) > 1
 
-    bs_request.bs_request_actions.first.type.titleize
+    first_action(bs_request).type.titleize
   end
 
   def commenters
