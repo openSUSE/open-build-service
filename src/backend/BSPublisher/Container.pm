@@ -428,7 +428,12 @@ sub query_repostate {
       }
     }
     close($fd);
-    printf "query of %s took %d seconds, found %d tags\n", $repository, time() - $now, scalar(keys %$repostate);
+    if ($registry->{'cosign_nocheck'}) {
+      my $numcosigntags = grep {/^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/} keys %$repostate;
+      printf "query of %s took %d seconds, found %d tags and %d cosign tags\n", $repository, time() - $now, scalar(keys %$repostate) - $numcosigntags, $numcosigntags;
+    } else {
+      printf "query of %s took %d seconds, found %d tags\n", $repository, time() - $now, scalar(keys %$repostate);
+    }
     if ($registrystate) {
       mkdir_p("$registrystate/$repository");
       rename($tempfile, "$registrystate/$repository/:oldlist")
