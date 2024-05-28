@@ -125,18 +125,13 @@ class Staging::Workflow < ApplicationRecord
     # the object is reloaded and we lost the changes.
     self.managers_group = new_managers_group
 
-    # update reviewer group in staging workflow project
     reviewer_role = Role.find_by_title('reviewer')
-    relationship = project.relationships.find_by(group: old_managers_group, role: reviewer_role)
-    if project.relationships.exists?(group: new_managers_group, role: reviewer_role)
-      relationship.destroy
-    else
-      relationship.update(group: new_managers_group)
-    end
+    project.relationships.find_by(group: old_managers_group, role: reviewer_role)&.destroy   # Remove reviewer role for old managers group
+    project.relationships.find_or_create_by!(group: new_managers_group, role: reviewer_role) # Add reviewer role for new managers group
+
     project.store
   end
 end
-
 # == Schema Information
 #
 # Table name: staging_workflows
