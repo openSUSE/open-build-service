@@ -221,11 +221,7 @@ class Project < ApplicationRecord
       # simple check for involvement --> involved users can access project.id, User.session!
       project.relationships.groups.includes(:group).any? do |grouprel|
         # check if User.session! belongs to group.
-        User.session!.is_in_group?(grouprel.group) ||
-          # FIXME: please do not do special things here for ldap. please cover this in a generic group model.
-          (CONFIG['ldap_mode'] == :on &&
-            CONFIG['ldap_group_support'] == :on &&
-            UserLdapStrategy.user_in_group_ldap?(User.session!, grouprel.group_id))
+        User.session!.is_in_group?(grouprel.group)
       end
     end
 
