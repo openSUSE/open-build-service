@@ -127,6 +127,19 @@ class Notification < ApplicationRecord
     bs_request.bs_request_actions.first.type.titleize
   end
 
+
+  def request_source
+    return '' if bs_request.bs_request_actions.size > 1
+
+    [bs_request.bs_request_actions.first.source_project, bs_request.bs_request_actions.first.source_package].compact.join(' / ')
+  end
+
+  def request_target
+    return bs_request_action.target_project if bs_request.bs_request_actions.size > 1
+
+    [bs_request_action.target_project, bs_request_action.target_package].compact.join(' / ')
+  end
+
   def commenters
     comments = notifiable.commentable.comments
     comments.select { |comment| comment.updated_at >= unread_date }.map(&:user).uniq
