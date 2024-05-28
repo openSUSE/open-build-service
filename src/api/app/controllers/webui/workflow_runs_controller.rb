@@ -1,4 +1,6 @@
 class Webui::WorkflowRunsController < Webui::WebuiController
+  before_action :handle_notification, only: :show
+
   def index
     # TODO: The pull/merge request dropdown should accept multiple selections
 
@@ -34,5 +36,12 @@ class Webui::WorkflowRunsController < Webui::WebuiController
 
   def event_type_params
     @event_type_params ||= %w[pull_request push tag_push].select { |f| params[f] }
+  end
+
+  def handle_notification
+    return unless User.session && params[:notification_id]
+
+    @current_notification = Notification.find(params[:notification_id])
+    authorize @current_notification, :update?, policy_class: NotificationPolicy
   end
 end
