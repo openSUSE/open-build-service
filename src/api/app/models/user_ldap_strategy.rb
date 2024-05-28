@@ -236,9 +236,9 @@ class UserLdapStrategy
       # to connect to is chosen randomly.
       (CONFIG['ldap_max_attempts'] || 10).times do
         server = ldap_servers[rand(ldap_servers.length)]
-        conn = try_ldap_con(server, user_name, password)
+        con = try_ldap_con(server, user_name, password)
 
-        return conn if conn.try(:bound?)
+        return con if con.try(:bound?)
       end
 
       Rails.logger.error("Unable to bind to any LDAP server: #{CONFIG['ldap_servers']}")
@@ -253,21 +253,21 @@ class UserLdapStrategy
       port = ldap_port
 
       begin
-        conn = if CONFIG['ldap_ssl'] == :on || CONFIG['ldap_start_tls'] == :on
-                 LDAP::SSLConn.new(server, port, CONFIG['ldap_start_tls'] == :on)
-               else
-                 LDAP::Conn.new(server, port)
-               end
-        conn.set_option(LDAP::LDAP_OPT_PROTOCOL_VERSION, 3)
-        conn.set_option(LDAP::LDAP_OPT_REFERRALS, LDAP::LDAP_OPT_OFF) if CONFIG['ldap_referrals'] == :off
-        conn.bind(user_name, password)
+        con = if CONFIG['ldap_ssl'] == :on || CONFIG['ldap_start_tls'] == :on
+                LDAP::SSLConn.new(server, port, CONFIG['ldap_start_tls'] == :on)
+              else
+                LDAP::Conn.new(server, port)
+              end
+        con.set_option(LDAP::LDAP_OPT_PROTOCOL_VERSION, 3)
+        con.set_option(LDAP::LDAP_OPT_REFERRALS, LDAP::LDAP_OPT_OFF) if CONFIG['ldap_referrals'] == :off
+        con.bind(user_name, password)
       rescue LDAP::ResultError
-        conn.unbind if conn.try(:bound?)
-        Rails.logger.info("Not bound as #{user_name}: #{conn.err2string(conn.err)}")
+        con.unbind if con.try(:bound?)
+        Rails.logger.info("Not bound as #{user_name}: #{con.err2string(con.err)}")
         return
       end
       Rails.logger.debug { "Bound as #{user_name}" }
-      conn
+      con
     end
 
     private
