@@ -18,12 +18,10 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def update
-    # If we filter by "read", we want to "unread" the notifications, ie. undeliver them.
-    # In any other case, we display `Mark as "read"`, indicating we want to make all
-    # the selected notifications be delivered.
-    delivered = params[:state] == 'read'
+    # The button value specifies whether we selected read or unread
+    deliver = params[:button] == 'read'
     # rubocop:disable Rails/SkipsModelValidations
-    @count = @notifications.where(id: @notification_ids).where(delivered: delivered).update_all(delivered: !delivered)
+    @count = @notifications.where(id: @notification_ids, delivered: !deliver).update_all(delivered: deliver)
     # rubocop:enable Rails/SkipsModelValidations
 
     respond_to do |format|
@@ -37,7 +35,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
           user: User.session
         }
       end
-      send_notifications_information_rabbitmq(!delivered, @count)
+      send_notifications_information_rabbitmq(deliver, @count)
     end
   end
 

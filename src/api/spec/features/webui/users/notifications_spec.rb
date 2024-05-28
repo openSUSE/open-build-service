@@ -47,7 +47,7 @@ RSpec.describe 'User notifications', :js do
         click_button('filter-button') # apply the filters
         toggle_checkbox("notification_ids_#{notification_for_projects_comment.id}")
         toggle_checkbox("notification_ids_#{another_notification_for_projects_comment.id}")
-        click_button('done-button')
+        click_button('read-button')
       end
 
       it 'marks all comment notification as read' do
