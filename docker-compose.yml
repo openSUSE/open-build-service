@@ -25,6 +25,11 @@ services:
     depends_on:
       - backend
     command: /obs/contrib/start_development_worker
+  ldap:
+    image: osixia/openldap:1.5.0
+    ports:
+      - "389:389"
+      - "636:636"
   frontend:
     image: openbuildservice/frontend
     command: foreman start -p 3000
@@ -43,3 +48,4 @@ services:
       - cache
       - backend
       - worker
+      - ldap
