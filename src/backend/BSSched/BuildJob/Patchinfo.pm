@@ -70,7 +70,7 @@ sub get_bins {
   my ($d) = @_;
   my @dd = sort(ls($d));
   my @d;
-  my $havebinlink;
+  my $needunify;
   for my $bin (@dd) {
     next if $bin =~ /^::import::/;
     if ($bin =~ /\.obsbinlnk$/) {
@@ -84,12 +84,34 @@ sub get_bins {
       push @d, grep {$_ ne $bin && /^\Q$p\E/} @dd;
       # also grab all blobs
       push @d, grep {/^_blob\./} @dd;
-      $havebinlink = 1;
+      $needunify = 1;
+    }
+    if ($bin =~ /\.helminfo$/) {
+      push @d, $bin;
+      my $p = $bin;
+      $p =~ s/\.helminfo$/\./;
+      push @d, grep {$_ ne $bin && /^\Q$p\E/} @dd;
+      $needunify = 1;
     }
     push @d, $bin if $bin =~ /\.(:?rpm|deb)$/;
   }
-  @d = BSUtil::unify(@d) if $havebinlink;
+  @d = BSUtil::unify(@d) if $needunify;
   return @d;
+}
+
+sub queryhelminfo {
+  my ($file) = @_;
+  return undef unless $file =~ s/\.helminfo$//;
+  $file =~ s/.*\///;
+  $file = "helm:$file";
+  my $d = {
+    'name' => $file,
+    'version' => 0,
+    'release' => 0,
+    'arch' => 'noarch',
+  };
+  ($d->{'name'}, $d->{'version'}) = ($1, $2) if $file =~ /^(.*)-([^\-]+)$/;
+  return $d;
 }
 
 =head2 check - check if a patchinfo needs to be rebuilt
@@ -569,6 +591,13 @@ sub build {
 	$d->{'path'} =~ s/.*\///;
 	$d->{'path'} = "../$packid/$d->{'path'}";
 	BSUtil::store("$jobdatadir/.$bin", "$jobdatadir/$bin", $d);
+      } elsif ($bin =~ /\.helminfo$/) {
+        if (%binaryfilter) {
+          unlink("$jobdatadir/$bin");
+          next;
+	}
+	$d = queryhelminfo("$jobdatadir/$bin");
+	next unless $d;
       } else {
         if (%binaryfilter) {
           unlink("$jobdatadir/$bin");
@@ -611,9 +640,11 @@ sub build {
 	}
       }
       $donebins{$bin} = $tocopy;
-      $bininfo->{$bin} = {'name' => $d->{'name'}, 'arch' => $d->{'arch'}, 'hdrmd5' => $d->{'hdrmd5'}, 'filename' => $bin, 'id' => "$s[9]/$s[7]/$s[1]"};
-      $bininfo->{$bin}->{'leadsigmd5'} = $d->{'leadsigmd5'} if $d->{'leadsigmd5'};
-      $bininfo->{$bin}->{'md5sum'} = $d->{'md5sum'} if $d->{'md5sum'};
+      if ($bin !~ /\.helminfo$/) {
+        $bininfo->{$bin} = {'name' => $d->{'name'}, 'arch' => $d->{'arch'}, 'hdrmd5' => $d->{'hdrmd5'}, 'filename' => $bin, 'id' => "$s[9]/$s[7]/$s[1]"};
+        $bininfo->{$bin}->{'leadsigmd5'} = $d->{'leadsigmd5'} if $d->{'leadsigmd5'};
+        $bininfo->{$bin}->{'md5sum'} = $d->{'md5sum'} if $d->{'md5sum'};
+      }
       my $upd = {
         'name' => $d->{'name'},
         'version' => $d->{'version'},
