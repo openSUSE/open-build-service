@@ -343,6 +343,8 @@ class UserLdapStrategy
     end
   end
 
+  private
+
   def local_role_check_with_ldap(role, object)
     Rails.logger.debug { "UserLdapStrategy: Checking role for object '#{object.name}' and role '#{role.title}'" }
 
@@ -350,8 +352,6 @@ class UserLdapStrategy
       object.relationships.groups.where(role_id: role.id).includes(:group), 'local_role_check_with_ldap'
     )
   end
-
-  private
 
   def local_permission_check_with_ldap(group_relationships)
     relationship_groups_contains_user?(group_relationships, 'local_permission_check_with_ldap')
