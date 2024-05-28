@@ -6,4 +6,10 @@ RSpec.describe GroupsUser do
     expect(Event::AddedUserToGroup).to receive(:create).with(group: group, user: user)
     group.add_user user
   end
+
+  it "creates a RemovedFromGroupEvent when a user is removed from a group" do
+    group.add_user user
+    expect(Event::RemovedUserFromGroup).to receive(:create).with(group: group, user: user)
+    group.remove_user user
+  end
 end
