@@ -15,26 +15,6 @@ class UserLdapStrategy
       end
     end
 
-    def authenticate_with_local(password, entry)
-      if !entry.key?(CONFIG['ldap_auth_attr']) || entry[CONFIG['ldap_auth_attr']].empty?
-        Rails.logger.info("UserLdapStrategy: Failed to get attr '#{CONFIG['ldap_auth_attr']}'")
-        return false
-      end
-
-      ldap_password = entry[CONFIG['ldap_auth_attr']][0]
-
-      case CONFIG['ldap_auth_mech']
-      when :cleartext
-        ldap_password == password
-      when :md5
-        ldap_password == "{MD5}#{Base64.encode64(Digest::MD5.digest(password))}"
-      else
-        Rails.logger.error("UserLdapStrategy: Unknown ldap_auth_mech setting '#{CONFIG['ldap_auth_mech']}'")
-
-        false
-      end
-    end
-
     # convert distinguished name to user principal name
     # see also: http://technet.microsoft.com/en-us/library/cc977992.aspx
     def dn2user_principal_name(dn)
@@ -199,6 +179,26 @@ class UserLdapStrategy
     end
 
     private
+
+    def authenticate_with_local(password, entry)
+      if !entry.key?(CONFIG['ldap_auth_attr']) || entry[CONFIG['ldap_auth_attr']].empty?
+        Rails.logger.info("UserLdapStrategy: Failed to get attr '#{CONFIG['ldap_auth_attr']}'")
+        return false
+      end
+
+      ldap_password = entry[CONFIG['ldap_auth_attr']][0]
+
+      case CONFIG['ldap_auth_mech']
+      when :cleartext
+        ldap_password == password
+      when :md5
+        ldap_password == "{MD5}#{Base64.encode64(Digest::MD5.digest(password))}"
+      else
+        Rails.logger.error("UserLdapStrategy: Unknown ldap_auth_mech setting '#{CONFIG['ldap_auth_mech']}'")
+
+        false
+      end
+    end
 
     # This static method performs the search with the given grouplist, user to return the groups that the user in
     def render_grouplist_ldap(grouplist, user = nil)
