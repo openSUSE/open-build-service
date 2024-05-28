@@ -15,24 +15,6 @@ class UserLdapStrategy
       end
     end
 
-    # convert distinguished name to user principal name
-    # see also: http://technet.microsoft.com/en-us/library/cc977992.aspx
-    def dn2user_principal_name(dn)
-      upn = ''
-      # implicitly convert array to string
-      dn = [dn].flatten.join(',')
-      begin
-        dn_components = dn.split(',').map { |n| n.strip.split('=') }
-        dn_uid = dn_components.select { |x, _| x == 'uid' }.map! { |_, y| y }
-        dn_path = dn_components.select { |x, _| x == 'dc' }.map! { |_, y| y }
-        upn = "#{dn_uid.fetch(0)}@#{dn_path.join('.')}"
-      rescue StandardError
-        # if we run into unexpected input just return an empty string
-      end
-
-      upn
-    end
-
     # This static method tries to find a user with the given login and
     # password in the active directory server.  Returns nil unless
     # credentials are correctly found using LDAP.
@@ -179,6 +161,24 @@ class UserLdapStrategy
     end
 
     private
+
+    # convert distinguished name to user principal name
+    # see also: http://technet.microsoft.com/en-us/library/cc977992.aspx
+    def dn2user_principal_name(dn)
+      upn = ''
+      # implicitly convert array to string
+      dn = [dn].flatten.join(',')
+      begin
+        dn_components = dn.split(',').map { |n| n.strip.split('=') }
+        dn_uid = dn_components.select { |x, _| x == 'uid' }.map! { |_, y| y }
+        dn_path = dn_components.select { |x, _| x == 'dc' }.map! { |_, y| y }
+        upn = "#{dn_uid.fetch(0)}@#{dn_path.join('.')}"
+      rescue StandardError
+        # if we run into unexpected input just return an empty string
+      end
+
+      upn
+    end
 
     def authenticate_with_local(password, entry)
       if !entry.key?(CONFIG['ldap_auth_attr']) || entry[CONFIG['ldap_auth_attr']].empty?

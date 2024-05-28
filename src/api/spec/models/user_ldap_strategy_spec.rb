@@ -6,22 +6,22 @@ RSpec.describe UserLdapStrategy do
   describe '.dn2user_principal_name' do
     context 'when no user id is provided' do
       it 'returns an empty string' do
-        expect(UserLdapStrategy.dn2user_principal_name(dn_string_no_uid)).to eq('')
-        expect(UserLdapStrategy.dn2user_principal_name([dn_string_no_uid])).to eq('')
+        expect(UserLdapStrategy.send(:dn2user_principal_name, dn_string_no_uid)).to eq('')
+        expect(UserLdapStrategy.send(:dn2user_principal_name, [dn_string_no_uid])).to eq('')
       end
     end
 
     context 'when no domain componant is provided' do
       it "returns 'dister@'" do
-        expect(UserLdapStrategy.dn2user_principal_name(dn_string_no_dc)).to eq('dister@')
-        expect(UserLdapStrategy.dn2user_principal_name([dn_string_no_dc])).to eq('dister@')
+        expect(UserLdapStrategy.send(:dn2user_principal_name, dn_string_no_dc)).to eq('dister@')
+        expect(UserLdapStrategy.send(:dn2user_principal_name, [dn_string_no_dc])).to eq('dister@')
       end
     end
 
     context 'when dc and user id is provided' do
       it 'returns the correct ldap address' do
-        expect(UserLdapStrategy.dn2user_principal_name(dn_string_complete)).to eq('dister@noam.com')
-        expect(UserLdapStrategy.dn2user_principal_name([dn_string_complete])).to eq('dister@noam.com')
+        expect(UserLdapStrategy.send(:dn2user_principal_name, dn_string_complete)).to eq('dister@noam.com')
+        expect(UserLdapStrategy.send(:dn2user_principal_name, [dn_string_complete])).to eq('dister@noam.com')
       end
     end
   end
