@@ -130,7 +130,7 @@ RSpec.describe UserLdapStrategy do
 
   describe '.find_group_with_ldap' do
     context 'when there is no connection' do
-      it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be(false) }
+      it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be_blank }
     end
 
     context 'when there is a connection' do
@@ -158,7 +158,7 @@ RSpec.describe UserLdapStrategy do
           ).and_yield(double(dn: 'some_dn', attrs: 'some_attr'))
         end
 
-        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be(true) }
+        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to eq(%w[some_dn some_attr]) }
       end
 
       context "without 'ldap_group_objectclass_attr' configured" do
@@ -170,7 +170,7 @@ RSpec.describe UserLdapStrategy do
           ).and_yield(double(dn: 'some_dn', attrs: 'some_attr'))
         end
 
-        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be(true) }
+        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to eq(%w[some_dn some_attr]) }
       end
 
       context 'when there is no result' do
@@ -180,7 +180,7 @@ RSpec.describe UserLdapStrategy do
           )
         end
 
-        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be(false) }
+        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to eq([]) }
       end
     end
   end

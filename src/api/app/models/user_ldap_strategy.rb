@@ -3,16 +3,28 @@ class UserLdapStrategy
   @@ldap_search_con = nil
 
   class << self
-    # This static method tries to find a group with the given group_title to check whether the group is in the LDAP server.
+    # This static method tries to find a group with the given group title
     def find_group_with_ldap(group)
-      result = search_ldap(group)
-      if result.nil?
+      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth']) if @@ldap_search_con.nil?
+      if @@ldap_search_con.nil?
+        Rails.logger.info('UserLdapStrategy: Unable to connect to any of the servers')
+        return
+      end
+      filter = ldap_group_filter(group)
+      Rails.logger.debug { "UserLdapStrategy: Search for group '#{filter}'" }
+      result = []
+      @@ldap_search_con.search(CONFIG['ldap_group_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
+        result << entry.dn
+        result << entry.attrs
+      end
+
+      if result.empty?
         Rails.logger.info("UserLdapStrategy: Fail to find group '#{group}'")
-        false
       else
         Rails.logger.debug { "UserLdapStrategy: Found group dn '#{result[0]}'" }
-        true
       end
+
+      result
     end
 
     # This static method tries to find a user with the given login and
@@ -268,26 +280,6 @@ class UserLdapStrategy
         end
         Rails.logger.debug { "UserLdapStrategy: User '#{user}' is not in group '#{group}'" }
       end
-
-      result
-    end
-
-    # This static method performs the search with the given search_base, filter
-    def search_ldap(group)
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth']) if @@ldap_search_con.nil?
-      if @@ldap_search_con.nil?
-        Rails.logger.info('UserLdapStrategy: Unable to connect to any of the servers')
-        return
-      end
-      filter = ldap_group_filter(group)
-      Rails.logger.debug { "UserLdapStrategy: Search for group '#{filter}'" }
-      result = []
-      @@ldap_search_con.search(CONFIG['ldap_group_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
-        result << entry.dn
-        result << entry.attrs
-      end
-
-      return if result.empty?
 
       result
     end

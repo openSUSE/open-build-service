@@ -161,7 +161,7 @@ module HasRelationships
 
       # check with LDAP
       raise SaveError, "unknown group '#{id}'" unless CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
-      raise SaveError, "unknown group '#{id}' on LDAP server" unless UserLdapStrategy.find_group_with_ldap(id)
+      raise SaveError, "unknown group '#{id}' on LDAP server" if UserLdapStrategy.find_group_with_ldap(id).blank?
 
       logger.debug "Find and Create group '#{id}' from LDAP"
       Group.create!(title: id)
