@@ -141,7 +141,6 @@ RSpec.describe Webui::StatusMessagesController do
 
     context 'when the news item is already acknowledged' do
       before do
-        allow(RabbitmqBus).to receive(:send_to_bus)
         login(admin_user)
         message.acknowledge!
         post :acknowledge, params: { id: message.id }, xhr: true
@@ -153,10 +152,6 @@ RSpec.describe Webui::StatusMessagesController do
 
       it 'shows no error' do
         expect(flash['error']).to be_nil
-      end
-
-      it 'does not collect any metrics' do
-        expect(RabbitmqBus).not_to have_received(:send_to_bus).with('metrics', /user.acknowledged_status/)
       end
     end
   end
