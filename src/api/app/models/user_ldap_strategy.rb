@@ -114,6 +114,29 @@ class UserLdapStrategy
       ldap_info
     end
 
+    private
+
+    # this method returns a ldap object using the provided user name
+    # and password
+    def initialize_ldap_con(user_name, password)
+      return unless defined?(CONFIG['ldap_servers'])
+
+      require 'ldap'
+      ldap_servers = CONFIG['ldap_servers'].split(':')
+
+      # Do 10 attempts to connect to one of the configured LDAP servers. LDAP server
+      # to connect to is chosen randomly.
+      (CONFIG['ldap_max_attempts'] || 10).times do
+        server = ldap_servers[rand(ldap_servers.length)]
+        con = try_ldap_con(server, user_name, password)
+
+        return con if con.try(:bound?)
+      end
+
+      Rails.logger.error("UserLdapStrategy:: Unable to bind to any of the servers '#{CONFIG['ldap_servers']}'")
+      nil
+    end
+
     def try_ldap_con(server, user_name, password)
       # implicitly turn array into string
       user_name = [user_name].flatten.join
@@ -137,29 +160,6 @@ class UserLdapStrategy
       end
       Rails.logger.debug { "UserLdapStrategy: Bound as #{user_name}" }
       con
-    end
-
-    private
-
-    # this method returns a ldap object using the provided user name
-    # and password
-    def initialize_ldap_con(user_name, password)
-      return unless defined?(CONFIG['ldap_servers'])
-
-      require 'ldap'
-      ldap_servers = CONFIG['ldap_servers'].split(':')
-
-      # Do 10 attempts to connect to one of the configured LDAP servers. LDAP server
-      # to connect to is chosen randomly.
-      (CONFIG['ldap_max_attempts'] || 10).times do
-        server = ldap_servers[rand(ldap_servers.length)]
-        con = try_ldap_con(server, user_name, password)
-
-        return con if con.try(:bound?)
-      end
-
-      Rails.logger.error("UserLdapStrategy:: Unable to bind to any of the servers '#{CONFIG['ldap_servers']}'")
-      nil
     end
 
     # convert distinguished name to user principal name
