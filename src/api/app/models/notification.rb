@@ -12,6 +12,8 @@ class Notification < ApplicationRecord
 
   serialize :event_payload, JSON
 
+  validates :type, presence: true, length: { maximum: 255 }
+
   after_create :track_notification_creation
 
   after_save :track_notification_delivered, if: :saved_change_to_delivered?
