@@ -11,6 +11,10 @@ class NotificationAppealCreated < Notification
   def involved_users
     [User.find(event_payload['appellant_id'])]
   end
+
+  def description
+    "'#{notifiable.appellant.login}' appealed the decision for the following reason:"
+  end
 end
 
 # == Schema Information

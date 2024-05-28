@@ -11,6 +11,10 @@ class NotificationCommentForRequest < Notification
   def involved_users
     commenters
   end
+
+  def description
+    "From #{request_source} to #{request_target}"
+  end
 end
 
 # == Schema Information

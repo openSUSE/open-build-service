@@ -16,6 +16,13 @@ class NotificationRelationshipDelete < Notification
   def involved_users
     [User.find_by(login: event_payload['who'])]
   end
+
+  def description
+    target_object = [event_payload['project'], event_payload['package']].compact.join(' / ')
+    recipient = event_payload.fetch('group', 'you')
+
+    "#{event_payload['who']} removed #{recipient} as #{event_payload['role']} of #{target_object}"
+  end
 end
 
 # == Schema Information

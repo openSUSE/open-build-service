@@ -11,6 +11,10 @@ class NotificationCommentForProject < Notification
   def involved_users
     commenters
   end
+
+  def description
+    notifiable.commentable.name
+  end
 end
 
 # == Schema Information

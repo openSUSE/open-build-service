@@ -11,6 +11,10 @@ class NotificationReportForUser < Notification
   def involved_users
     [User.find_by(login: event_payload['reporter'])]
   end
+
+  def description
+    "'#{notifiable.user.login}' created a report for a #{event_payload['reportable_type'].downcase}. This is the reason:"
+  end
 end
 
 # == Schema Information

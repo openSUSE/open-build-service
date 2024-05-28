@@ -11,6 +11,11 @@ class NotificationCommentForPackage < Notification
   def involved_users
     commenters
   end
+
+  def description
+    commentable = notifiable.commentable
+    "#{commentable.project.name} / #{commentable.name}"
+  end
 end
 
 # == Schema Information

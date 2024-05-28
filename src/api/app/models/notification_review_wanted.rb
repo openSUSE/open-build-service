@@ -12,6 +12,10 @@ class NotificationReviewWanted < Notification
     reviews = notifiable.reviews
     reviews.select(&:new?).map(&:reviewed_by) + User.where(login: notifiable.creator)
   end
+
+  def description
+    "From #{request_source} to #{request_target}"
+  end
 end
 
 # == Schema Information

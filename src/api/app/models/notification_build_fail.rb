@@ -16,6 +16,10 @@ class NotificationBuildFail < Notification
   def involved_users
     [User.find_by(login: event_payload['who'])]
   end
+
+  def description
+    "Build was triggered because of #{event_payload['reason']}"
+  end
 end
 
 # == Schema Information

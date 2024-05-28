@@ -119,20 +119,12 @@ class Notification < ApplicationRecord
     end
   end
 
-  def first_action(bs_request)
-    bs_request.bs_request_actions.first
-  end
-
-  def number_of_bs_request_actions(bs_request)
-    bs_request.bs_request_actions.size
-  end
-
   # FIXME: Duplicated from RequestHelper
   # Returns strings like "Add Role", "Submit", etc.
   def request_type_of_action(bs_request)
-    return 'Multiple Actions' if number_of_bs_request_actions(bs_request) > 1
+    return 'Multiple Actions' if bs_request.bs_request_actions.size > 1
 
-    first_action(bs_request).type.titleize
+    bs_request.bs_request_actions.first.type.titleize
   end
 
   def commenters

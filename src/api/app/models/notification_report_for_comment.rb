@@ -15,6 +15,10 @@ class NotificationReportForComment < Notification
   def involved_users
     [User.find_by(login: event_payload['reporter'])]
   end
+
+  def description
+    "'#{notifiable.user.login}' created a report for a comment from #{event_payload['commenter']}. This is the reason:"
+  end
 end
 
 # == Schema Information

@@ -14,6 +14,10 @@ class NotificationFavoredDecision < Notification
   def involved_users
     [User.find(event_payload['moderator_id'])]
   end
+
+  def description
+    "'#{notifiable.moderator.login}' decided to favor the report. This is the reason:"
+  end
 end
 
 # == Schema Information
