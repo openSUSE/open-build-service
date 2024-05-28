@@ -176,59 +176,14 @@ class User < ApplicationRecord
     create!(attributes.merge(password: SecureRandom.base64(48)))
   end
 
-  def self.create_ldap_user(attributes = {})
-    user = create_user_with_fake_pw!(attributes.merge(state: default_user_state, adminnote: 'User created via LDAP'))
-
-    return user if user.errors.empty?
-
-    logger.info("Cannot create ldap userid: '#{login}' on OBS. Full log: #{user.errors.full_messages.to_sentence}")
-    nil
-  end
-
   # This static method tries to find a user with the given login and password
   # in the database. Returns the user or nil if they could not be found
   def self.find_with_credentials(login, password)
-    return find_with_credentials_via_ldap(login, password) if CONFIG['ldap_mode'] == :on
-
-    user = find_by_login(login)
-    user.try(:authenticate_via_password, password)
-  end
-
-  def self.find_with_credentials_via_ldap(login, password)
-    user = find_by_login(login)
-    ldap_info = nil
-
-    return user.authenticate_via_password(password) if user.try(:ignore_auth_services?)
-
     if CONFIG['ldap_mode'] == :on
-      begin
-        require 'ldap'
-        logger.debug("Using LDAP to find #{login}")
-        ldap_info = UserLdapStrategy.find_with_ldap(login, password)
-      rescue LoadError
-        logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
-      rescue StandardError
-        logger.debug "#{login} not found in LDAP."
-      end
-    end
-
-    return unless ldap_info
-
-    # We've found an ldap authenticated user - find or create an OBS userDB entry.
-    if user
-      # Check for ldap updates
-      user.assign_attributes(email: ldap_info[0], realname: ldap_info[1])
-      user.save if user.changed?
+      UserLdapStrategy.find_with_credentials(login, password)
     else
-      logger.debug('No user found in database, creating')
-      logger.debug("Email: #{ldap_info[0]}")
-      logger.debug("Name : #{ldap_info[1]}")
-
-      user = create_ldap_user(login: login, email: ldap_info[0], realname: ldap_info[1])
+      find_by(login: login)&.authenticate_via_password(password)
     end
-
-    user.mark_login!
-    user
   end
 
   # Currently logged in user or nobody user if there is no user logged in.

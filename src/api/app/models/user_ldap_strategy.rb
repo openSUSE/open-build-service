@@ -126,6 +126,27 @@ class UserLdapStrategy
       ldap_info
     end
 
+    def find_with_credentials(login, password)
+      user = User.find_by_login(login)
+      return user.authenticate_via_password(password) if user.try(:ignore_auth_services?)
+
+      ldap_info = find_with_ldap(login, password)
+      return unless ldap_info
+
+      if user
+        Rails.logger.debug { "UserLdapStrategy: Found user '#{login}' in database" }
+        user.assign_attributes(email: ldap_info[0], realname: ldap_info[1])
+        user.save
+      else
+        Rails.logger.debug { "UserLdapStrategy: Failed to find user '#{login}' in database, creating" }
+        email, name = ldap_info
+        user = User.create_user_with_fake_pw!(login: login, email: email, realname: name, state: User.default_user_state, adminnote: 'User created via LDAP')
+      end
+
+      user.mark_login!
+      user
+    end
+
     private
 
     # this method returns a ldap object using the provided user name
