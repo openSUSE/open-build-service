@@ -424,6 +424,10 @@ class User < ApplicationRecord
     state == 'deleted'
   end
 
+  def list_groups
+    lookup_strategy.list_groups(self)
+  end
+
   def is_in_group?(group)
     case group
     when String

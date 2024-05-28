@@ -165,7 +165,7 @@ class PersonController < ApplicationController
     raise NoPermissionToGroupList unless User.session
 
     user = User.find_by_login!(params[:login])
-    @list = User.lookup_strategy.groups(user)
+    @list = user.list_groups
   end
 
   def register

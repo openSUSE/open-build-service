@@ -320,7 +320,7 @@ class UserLdapStrategy
     local_permission_check_with_ldap(groups.where(role_id: roles))
   end
 
-  def groups(user)
+  def list_groups(user)
     render_grouplist_ldap(Group.all, user.login)
   end
 
