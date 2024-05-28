@@ -69,8 +69,9 @@ module HasAttributes
     builder.attributes do |xml|
       render_main_attributes(xml, opts)
 
-      # show project values as fallback ?
-      project.render_main_attributes(xml, opts) if opts[:with_project]
+      next unless is_a?(Package) && opts[:with_project]
+
+      project.render_main_attributes(xml, opts)
     end
     builder.doc.to_xml(indent: 2, encoding: 'UTF-8',
                        save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
