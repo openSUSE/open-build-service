@@ -15,78 +15,6 @@ class UserLdapStrategy
       end
     end
 
-    # This static method performs the search with the given grouplist, user to return the groups that the user in
-    def render_grouplist_ldap(grouplist, user = nil)
-      result = []
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth']) if @@ldap_search_con.nil?
-      ldap_con = @@ldap_search_con
-      if ldap_con.nil?
-        Rails.logger.info('UserLdapStrategy: Unable to connect to any of the servers')
-        return result
-      end
-
-      if user
-        # search user
-        filter = ldap_user_filter(user)
-
-        user_dn = ''
-        user_memberof_attr = ''
-        ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
-          user_dn = entry.dn
-          user_memberof_attr = entry.vals(CONFIG['ldap_user_memberof_attr']) if CONFIG['ldap_user_memberof_attr'].in?(entry.attrs)
-        end
-        if user_dn.empty?
-          Rails.logger.info("UserLdapStrategy: Failed to find user '#{user}'")
-          return result
-        end
-        Rails.logger.debug { "UserLdapStrategy: Found user dn '#{user_dn}' with user_memberof_attr '#{user_memberof_attr}'" }
-      end
-
-      group_dn = ''
-      group_member_attr = ''
-      grouplist.each do |eachgroup|
-        group = eachgroup if eachgroup.is_a?(String)
-        group = eachgroup.title if eachgroup.is_a?(Group)
-
-        raise ArgumentError, "illegal parameter type to UserLdapStrategy#render_grouplist_ldap?: #{eachgroup.class.name}" unless group.is_a?(String)
-
-        # clean group_dn, group_member_attr
-        group_dn = ''
-        group_member_attr = ''
-        filter = ldap_group_filter(group)
-        Rails.logger.debug { "UserLdapStrategy: Searching for group '#{filter}'" }
-        ldap_con.search(CONFIG['ldap_group_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
-          group_dn = entry.dn
-          group_member_attr = entry.vals(CONFIG['ldap_group_member_attr']) if CONFIG['ldap_group_member_attr'].in?(entry.attrs)
-        end
-        if group_dn.empty?
-          Rails.logger.info("UserLdapStrategy: Failed to find group '#{group}'")
-          next
-        end
-
-        if user.nil?
-          result << eachgroup
-          next
-        end
-
-        # user memberof attr exist?
-        if user_memberof_attr && user_memberof_attr.include?(group_dn)
-          result << eachgroup
-          Rails.logger.debug { "UserLdapStrategy: User '#{user}' is in group '#{group}'" }
-          next
-        end
-        # group member attr exist?
-        if group_member_attr && group_member_attr.include?(user_dn)
-          result << eachgroup
-          Rails.logger.debug { "UserLdapStrategy: User '#{user}' is in group '#{group}'" }
-          next
-        end
-        Rails.logger.debug { "UserLdapStrategy: User '#{user}' is not in group '#{group}'" }
-      end
-
-      result
-    end
-
     def authenticate_with_local(password, entry)
       if !entry.key?(CONFIG['ldap_auth_attr']) || entry[CONFIG['ldap_auth_attr']].empty?
         Rails.logger.info("UserLdapStrategy: Failed to get attr '#{CONFIG['ldap_auth_attr']}'")
@@ -271,6 +199,78 @@ class UserLdapStrategy
     end
 
     private
+
+    # This static method performs the search with the given grouplist, user to return the groups that the user in
+    def render_grouplist_ldap(grouplist, user = nil)
+      result = []
+      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth']) if @@ldap_search_con.nil?
+      ldap_con = @@ldap_search_con
+      if ldap_con.nil?
+        Rails.logger.info('UserLdapStrategy: Unable to connect to any of the servers')
+        return result
+      end
+
+      if user
+        # search user
+        filter = ldap_user_filter(user)
+
+        user_dn = ''
+        user_memberof_attr = ''
+        ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
+          user_dn = entry.dn
+          user_memberof_attr = entry.vals(CONFIG['ldap_user_memberof_attr']) if CONFIG['ldap_user_memberof_attr'].in?(entry.attrs)
+        end
+        if user_dn.empty?
+          Rails.logger.info("UserLdapStrategy: Failed to find user '#{user}'")
+          return result
+        end
+        Rails.logger.debug { "UserLdapStrategy: Found user dn '#{user_dn}' with user_memberof_attr '#{user_memberof_attr}'" }
+      end
+
+      group_dn = ''
+      group_member_attr = ''
+      grouplist.each do |eachgroup|
+        group = eachgroup if eachgroup.is_a?(String)
+        group = eachgroup.title if eachgroup.is_a?(Group)
+
+        raise ArgumentError, "illegal parameter type to UserLdapStrategy#render_grouplist_ldap?: #{eachgroup.class.name}" unless group.is_a?(String)
+
+        # clean group_dn, group_member_attr
+        group_dn = ''
+        group_member_attr = ''
+        filter = ldap_group_filter(group)
+        Rails.logger.debug { "UserLdapStrategy: Searching for group '#{filter}'" }
+        ldap_con.search(CONFIG['ldap_group_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
+          group_dn = entry.dn
+          group_member_attr = entry.vals(CONFIG['ldap_group_member_attr']) if CONFIG['ldap_group_member_attr'].in?(entry.attrs)
+        end
+        if group_dn.empty?
+          Rails.logger.info("UserLdapStrategy: Failed to find group '#{group}'")
+          next
+        end
+
+        if user.nil?
+          result << eachgroup
+          next
+        end
+
+        # user memberof attr exist?
+        if user_memberof_attr && user_memberof_attr.include?(group_dn)
+          result << eachgroup
+          Rails.logger.debug { "UserLdapStrategy: User '#{user}' is in group '#{group}'" }
+          next
+        end
+        # group member attr exist?
+        if group_member_attr && group_member_attr.include?(user_dn)
+          result << eachgroup
+          Rails.logger.debug { "UserLdapStrategy: User '#{user}' is in group '#{group}'" }
+          next
+        end
+        Rails.logger.debug { "UserLdapStrategy: User '#{user}' is not in group '#{group}'" }
+      end
+
+      result
+    end
 
     # This static method performs the search with the given search_base, filter
     def search_ldap(group)
