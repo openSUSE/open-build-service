@@ -72,7 +72,7 @@
         %b Projects
       - @projects_for_filter.each do |project_name|
         .px-4.py-1
-          = render partial: 'webui/shared/check_box', locals: { label: project_name, amount: @count[project_name],
+          = render partial: 'webui/shared/check_box', locals: { label: project_name, amount: @count["project_#{project_name}"],
                                                                 key: "project[#{project_name}]", name: 'project[]', value: project_name,
                                                                 checked: @selected_filter[:project]&.include?(project_name) }
   - unless @groups_for_filter.empty?
@@ -81,7 +81,7 @@
         %b Groups
       - @groups_for_filter.each do |group_title|
         .px-4.py-1
-          = render partial: 'webui/shared/check_box', locals: { label: group_title, amount: @count[group_title],
+          = render partial: 'webui/shared/check_box', locals: { label: group_title, amount: @count["group_#{group_title}"],
                                                                 key: "group[#{group_title}]", name: 'group[]', value: group_title,
                                                                 checked: @selected_filter[:group]&.include?(group_title) }
 

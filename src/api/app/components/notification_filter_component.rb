@@ -27,10 +27,10 @@ class NotificationFilterComponent < ApplicationComponent
     counted_notifications['workflow_runs'] = @notifications.for_workflow_runs.count
     counted_notifications['appealed_decisions'] = @notifications.for_appealed_decisions.count
     @projects_for_filter.each do |project_name|
-      counted_notifications[project_name] = @notifications.for_project_name(project_name).count
+      counted_notifications["project_#{project_name}"] = @notifications.for_project_name(project_name).count
     end
     @groups_for_filter.each do |group_title|
-      counted_notifications[group_title] = @notifications.for_group_title(group_title).count
+      counted_notifications["group_#{group_title}"] = @notifications.for_group_title(group_title).count
     end
     counted_notifications
   end
