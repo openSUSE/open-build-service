@@ -81,7 +81,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
       @undelivered_notification_ids = @notifications.where(delivered: false).map(&:id)
       @delivered_notification_ids = @notifications.where(delivered: true).map(&:id)
     else
-      []
+      @undelivered_notification_ids = []
+      @delivered_notification_ids = []
     end
   end
 
