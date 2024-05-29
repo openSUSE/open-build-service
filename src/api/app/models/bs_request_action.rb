@@ -968,9 +968,9 @@ class BsRequestAction < ApplicationRecord
       end
 
       if defined?(tpkg) && tpkg
-        if tpkg.scmsync.present?
+        if tpkg.scmsynced?
           raise RequestRejected,
-                "The target package #{target_project} #{target_package} is managed in an external SCM: #{tpkg.scmsync}"
+                "The target package #{target_project} #{target_package} is managed in an external SCM: #{tpkg.scmsync || tpkg.project.scmsync}"
         end
 
         a = tpkg.find_attribute('OBS', 'RejectRequests')
