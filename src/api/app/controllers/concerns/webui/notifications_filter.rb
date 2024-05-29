@@ -29,11 +29,10 @@ module Webui::NotificationsFilter
     if filter_state.include?('unread') && filter_state.include?('read')
       notifications.merge(notifications.unread.or(notifications.read))
     elsif filter_state.include?('read')
-      notifications = notifications.read
+      notifications.read
     else
-      notifications = notifications.unread
+      notifications.unread
     end
-    notifications
   end
 
   def filter_notifications_by_project(notifications, filter_project)
