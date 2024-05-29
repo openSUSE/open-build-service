@@ -1,5 +1,6 @@
 class Webui::AppealsController < Webui::WebuiController
   after_action :verify_authorized
+  before_action :handle_notification, only: :show
 
   def show
     @appeal = Appeal.find(params[:id])
@@ -39,5 +40,12 @@ class Webui::AppealsController < Webui::WebuiController
 
   def appeal_params
     params.require(:appeal).permit(:reason)
+  end
+
+  def handle_notification
+    return unless User.session && params[:notification_id]
+
+    @current_notification = Notification.find(params[:notification_id])
+    authorize @current_notification, :update?, policy_class: NotificationPolicy
   end
 end
