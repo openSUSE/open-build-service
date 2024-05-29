@@ -12,7 +12,7 @@ class NotificationActionBarComponent < ApplicationComponent
   end
 
   def button_text(all: false)
-    text = state.include?('unread') ? 'Read' : 'Unread'
+    text = %w[all unread].include?(state) ? 'Read' : 'Unread'
     if all
       "Mark all as '#{text}'"
     else

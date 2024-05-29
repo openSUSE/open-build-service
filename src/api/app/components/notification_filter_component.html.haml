@@ -3,13 +3,17 @@
     %h6.px-3.py-2
       %b State
     .px-4.py-1
-      = render partial: 'webui/shared/check_box', locals: { label: 'Unread', amount: @count['unread'],
-                                                            key: 'state[unread]', name: 'state[]', value: 'unread',
-                                                            checked: @selected_filter[:state]&.include?('unread') }
+      = render partial: 'webui/shared/radio_button', locals: { label: 'All', amount: @count['all'],
+                                                               key: 'state[all]', name: 'state', value: 'all',
+                                                               checked: @selected_filter[:state] == 'all' }
     .px-4.py-1
-      = render partial: 'webui/shared/check_box', locals: { label: 'Read', amount: @count['read'],
-                                                            key: 'state[read]', name: 'state[]', value: 'read',
-                                                            checked: @selected_filter[:state]&.include?('read') }
+      = render partial: 'webui/shared/radio_button', locals: { label: 'Unread', amount: @count['unread'],
+                                                               key: 'state[unread]', name: 'state', value: 'unread',
+                                                               checked: @selected_filter[:state] == 'unread' }
+    .px-4.py-1
+      = render partial: 'webui/shared/radio_button', locals: { label: 'Read', amount: @count['read'],
+                                                               key: 'state[read]', name: 'state', value: 'read',
+                                                               checked: @selected_filter[:state] == 'read' }
   .list-group.list-group-flush.mt-4.mb-4
     %h6.px-3.py-2
       %b Type

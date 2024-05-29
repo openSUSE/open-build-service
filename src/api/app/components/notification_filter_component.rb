@@ -14,6 +14,7 @@ class NotificationFilterComponent < ApplicationComponent
   #       to a keyword argument `count` in the `initialize` method
   def notifications_count
     counted_notifications = {}
+    counted_notifications['all'] = @user.notifications.count
     counted_notifications['unread'] = @notifications.unread.count
     counted_notifications['read'] = @notifications.read.count
     counted_notifications['comments'] = @notifications.for_comments.count

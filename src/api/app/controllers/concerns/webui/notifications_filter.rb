@@ -26,11 +26,11 @@ module Webui::NotificationsFilter
   # rubocop:enable Metrics/PerceivedComplexity
 
   def filter_notifications_by_state(notifications, filter_state)
-    if filter_state.include?('unread') && filter_state.include?('read')
-      notifications.merge(notifications.unread.or(notifications.read))
-    elsif filter_state.include?('read')
+    return notifications.merge(notifications.unread.or(notifications.read)) if filter_state == 'all'
+
+    if filter_state == 'read'
       notifications.read
-    else
+    elsif filter_state == 'unread'
       notifications.unread
     end
   end

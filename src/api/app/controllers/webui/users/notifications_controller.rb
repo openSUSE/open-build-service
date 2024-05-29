@@ -3,7 +3,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   ALLOWED_FILTERS = %w[all comments requests incoming_requests outgoing_requests relationships_created relationships_deleted build_failures
                        reports reviews workflow_runs appealed_decisions].freeze
-  ALLOWED_STATES = %w[unread read].freeze
+  ALLOWED_STATES = %w[all unread read].freeze
 
   before_action :require_login
   before_action :set_filter_type, :set_filter_state, :set_filter_project, :set_filter_group
@@ -19,7 +19,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   def update
     # rubocop:disable Rails/SkipsModelValidations
-    if @filter_state.include?('unread')
+    if %w[all unread].include?(@filter_state)
       @read_count = Notification.where(id: @undelivered_notification_ids).update_all('delivered = !delivered')
       @unread_count = 0
     else
@@ -53,8 +53,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def set_filter_state
-    @filter_state = Array(params[:state].presence || 'unread') # in case just one value, we want an array anyway
-    raise FilterNotSupportedError unless (@filter_state - ALLOWED_STATES).empty?
+    @filter_state = params[:state].presence || 'unread'
+    raise FilterNotSupportedError if ALLOWED_STATES.exclude?(@filter_state)
   end
 
   def set_filter_project
@@ -92,7 +92,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   def set_selected_filter
     @selected_filter = { kind: @filter_type, state: @filter_state, project: @filter_project, group: @filter_group }
-    @filtered_by_text = "#{@filter_state.map { |s| s.to_s.humanize }.join(', ')} - #{@filter_type.map { |s| s.to_s.humanize }.join(', ')}"
+    @filtered_by_text = "State: #{@filter_state.to_s.humanize} - Type: #{@filter_type.map { |s| s.to_s.humanize }.join(', ')}"
   end
 
   def show_more(notifications)
