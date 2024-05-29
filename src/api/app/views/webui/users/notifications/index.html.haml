@@ -7,7 +7,7 @@
     .card.mb-3
       %strong.d-block.d-md-none.p-3{ data: { 'bs-toggle': 'collapse', 'bs-target': '#filters' },
                                   aria: { expanded: true, controls: 'filters' } }
-        Filtered by: #{@filter_state.map(&:to_s).map(&:humanize).join(", ")} - #{@filter_type.map(&:to_s).map(&:humanize).join(", ")}
+        Filtered by: #{@filtered_by_text}
         %i.float-end.mt-1.fa.fa-chevron-down#notifications-dropdown-trigger
       .collapse#filters
         = render NotificationFilterComponent.new(notifications: @all_filtered_notifications,

@@ -92,6 +92,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   def set_selected_filter
     @selected_filter = { kind: @filter_type, state: @filter_state, project: @filter_project, group: @filter_group }
+    @filtered_by_text = "#{@filter_state.map { |s| s.to_s.humanize }.join(', ')} - #{@filter_type.map { |s| s.to_s.humanize }.join(', ')}"
   end
 
   def show_more(notifications)
