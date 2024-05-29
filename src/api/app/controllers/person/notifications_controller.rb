@@ -7,7 +7,7 @@ module Person
                          reports reviews workflow_runs appealed_decisions].freeze
     ALLOWED_STATES = %w[unread read].freeze
 
-    before_action :set_filter_type, only: :index
+    before_action :set_filter_kind, only: :index
     before_action :set_filter_state, only: :index
     before_action :set_notifications, only: :index
     before_action :set_notification, only: :update
@@ -37,7 +37,7 @@ module Person
       @notifications = User.session!.notifications
       @notifications = @notifications.for_project_name(params[:project]) if params[:project]
       @notifications = @notifications.for_group_title(params[:group]) if params[:group]
-      @notifications = filter_notifications_by_type(@notifications, @filter_type)
+      @notifications = filter_notifications_by_kind(@notifications, @filter_kind)
       @notifications = filter_notifications_by_state(@notifications, @filter_state)
     end
 
@@ -59,9 +59,9 @@ module Person
       notifications.page(params[:page]).per([total, Notification::MAX_PER_PAGE].min)
     end
 
-    def set_filter_type
-      @filter_type = params[:kind] || 'all'
-      raise FilterNotSupportedError if @filter_type.present? && ALLOWED_FILTERS.exclude?(@filter_type)
+    def set_filter_kind
+      @filter_kind = params[:kind] || 'all'
+      raise FilterNotSupportedError if @filter_kind.present? && ALLOWED_FILTERS.exclude?(@filter_kind)
     end
 
     def set_filter_state

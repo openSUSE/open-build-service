@@ -6,7 +6,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   ALLOWED_STATES = %w[all unread read].freeze
 
   before_action :require_login
-  before_action :set_filter_type, :set_filter_state, :set_filter_project, :set_filter_group
+  before_action :set_filter_kind, :set_filter_state, :set_filter_project, :set_filter_group
   before_action :set_notifications
   before_action :set_notifications_to_be_updated, only: [:update]
   before_action :set_show_read_all_button
@@ -45,11 +45,11 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   private
 
-  def set_filter_type
-    @filter_type = Array(params[:kind].presence || 'all') # in case just one value, we want an array anyway
-    raise FilterNotSupportedError unless (@filter_type - ALLOWED_FILTERS).empty?
+  def set_filter_kind
+    @filter_kind = Array(params[:kind].presence || 'all') # in case just one value, we want an array anyway
+    raise FilterNotSupportedError unless (@filter_kind - ALLOWED_FILTERS).empty?
 
-    @filter_type
+    @filter_kind
   end
 
   def set_filter_state
@@ -70,7 +70,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @notifications = filter_notifications_by_project(@notifications, @filter_project)
     @notifications = filter_notifications_by_group(@notifications, @filter_group)
     @notifications = filter_notifications_by_state(@notifications, @filter_state)
-    @notifications = filter_notifications_by_type(@notifications, @filter_type)
+    @notifications = filter_notifications_by_kind(@notifications, @filter_kind)
   end
 
   def set_notifications_to_be_updated
@@ -91,8 +91,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def set_selected_filter
-    @selected_filter = { kind: @filter_type, state: @filter_state, project: @filter_project, group: @filter_group }
-    @filtered_by_text = "State: #{@filter_state.to_s.humanize} - Type: #{@filter_type.map { |s| s.to_s.humanize }.join(', ')}"
+    @selected_filter = { kind: @filter_kind, state: @filter_state, project: @filter_project, group: @filter_group }
+    @filtered_by_text = "State: #{@filter_state.to_s.humanize} - Type: #{@filter_kind.map { |s| s.to_s.humanize }.join(', ')}"
   end
 
   def show_more(notifications)

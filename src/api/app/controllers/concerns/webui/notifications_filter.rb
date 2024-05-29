@@ -4,22 +4,22 @@ module Webui::NotificationsFilter
   # It's a sequence of multiple conditions combinations
   # rubocop:disable Metrics/CyclomaticComplexity
   # rubocop:disable Metrics/PerceivedComplexity
-  def filter_notifications_by_type(notifications, filter_type)
-    return notifications if filter_type == ['all']
+  def filter_notifications_by_kind(notifications, filter_kind)
+    return notifications if filter_kind == ['all']
 
-    relations_type = []
-    relations_type << notifications.for_comments if filter_type.include?('comments')
-    relations_type << notifications.for_requests if filter_type.include?('requests')
-    relations_type << notifications.for_incoming_requests(User.session) if filter_type.include?('incoming_requests')
-    relations_type << notifications.for_outgoing_requests(User.session) if filter_type.include?('outgoing_requests')
-    relations_type << notifications.for_relationships_created if filter_type.include?('relationships_created')
-    relations_type << notifications.for_relationships_deleted if filter_type.include?('relationships_deleted')
-    relations_type << notifications.for_build_failures if filter_type.include?('build_failures')
-    relations_type << notifications.for_reports if filter_type.include?('reports')
-    relations_type << notifications.for_workflow_runs if filter_type.include?('workflow_runs')
-    relations_type << notifications.for_appealed_decisions if filter_type.include?('appealed_decisions')
+    relations_kind = []
+    relations_kind << notifications.for_comments if filter_kind.include?('comments')
+    relations_kind << notifications.for_requests if filter_kind.include?('requests')
+    relations_kind << notifications.for_incoming_requests(User.session) if filter_kind.include?('incoming_requests')
+    relations_kind << notifications.for_outgoing_requests(User.session) if filter_kind.include?('outgoing_requests')
+    relations_kind << notifications.for_relationships_created if filter_kind.include?('relationships_created')
+    relations_kind << notifications.for_relationships_deleted if filter_kind.include?('relationships_deleted')
+    relations_kind << notifications.for_build_failures if filter_kind.include?('build_failures')
+    relations_kind << notifications.for_reports if filter_kind.include?('reports')
+    relations_kind << notifications.for_workflow_runs if filter_kind.include?('workflow_runs')
+    relations_kind << notifications.for_appealed_decisions if filter_kind.include?('appealed_decisions')
 
-    notifications = notifications.merge(relations_type.inject(:or)) unless relations_type.empty?
+    notifications = notifications.merge(relations_kind.inject(:or)) unless relations_kind.empty?
     notifications
   end
   # rubocop:enable Metrics/CyclomaticComplexity
