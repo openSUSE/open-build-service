@@ -73,3 +73,7 @@ ul.avatars{
     padding: 0.1rem 0.3rem;
   }
 }
+
+.notification-bar-offset {
+  top: calc(#{$top-navigation-height} + 3rem) !important;
+}
