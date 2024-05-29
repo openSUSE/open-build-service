@@ -511,6 +511,7 @@ Naming/MemoizedInstanceVariableName:
   Exclude:
     - 'app/controllers/application_controller.rb'
     - 'app/lib/authenticator.rb'
+    - 'app/controllers/concerns/triggerable.rb'
 
 # Offense count: 8
 # Configuration parameters: EnforcedStyle, AllowedPatterns.
