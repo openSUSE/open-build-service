@@ -478,8 +478,9 @@ class User < ApplicationRecord
   # FIXME: This should be a policy
   # package is instance of Package
   def can_modify_package?(package, ignore_lock = nil)
-    return false if package.nil? # happens with remote packages easily
     raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}" unless package.is_a?(Package)
+
+    return false if package.readonly? # remote packages
     return false if !ignore_lock && package.is_locked?
     return true if is_admin?
     return true if has_global_permission?('change_package')
