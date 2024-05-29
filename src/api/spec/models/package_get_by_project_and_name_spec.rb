@@ -244,4 +244,35 @@ RSpec.describe Package, '#get_by_project_and_name' do
       end
     end
   end
+
+  context 'follow_project_scmsync_links' do
+    let(:project) { create(:project, name: 'project_1', scmsync: 'https://github.com/hennevogel/scmsync-project.git') }
+    let(:package) { build(:package, name: 'i_dont_exist') }
+
+    context 'enabled' do
+      let(:arguments) { { follow_project_scmsync_links: true } }
+
+      before do
+        # Mock Package.exists_on_backend?
+        allow(Backend::Connection).to receive(:get).and_return(true)
+      end
+
+      it 'returns a readonly package' do
+        expect(subject).to be_readonly
+      end
+    end
+
+    context 'disabled' do
+      let(:arguments) { { follow_project_scmsync_links: false } }
+
+      before do
+        # Mock Package.exists_on_backend?
+        allow(Backend::Connection).to receive(:get).and_raise(Backend::Error)
+      end
+
+      it 'raises' do
+        expect { subject }.to raise_error(Package::Errors::UnknownObjectError)
+      end
+    end
+  end
 end

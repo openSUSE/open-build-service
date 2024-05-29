@@ -13,6 +13,7 @@ class Package < ApplicationRecord
   include PackageSphinx
   include MultibuildPackage
   include PackageMediumContainer
+  include PackageScmsync
 
   has_many :relationships, dependent: :destroy, inverse_of: :package
   belongs_to :kiwi_image, class_name: 'Kiwi::Image', inverse_of: :package, optional: true
@@ -184,8 +185,20 @@ class Package < ApplicationRecord
   # You can follow this type of project link and try to find the Package from the "maintenance update"
   # Project by setting in the opts hash:
   #   check_update_project: true
+  #
+  # It will "follow" project scmsync links and find the Package from the SCM
+  # https://github.com/openSUSE/open-build-service/wiki/Links#scm-bridge-links
+  #
+  # You can turn off following project scmsync links and only try to find the Package in the Project
+  # you passed in as first argument by setting in the opts hash:
+  #   follow_project_scmsync_links: false
+
   def self.get_by_project_and_name(project_name_or_object, package_name, opts = {})
-    get_by_project_and_name_defaults = { use_source: true, follow_project_links: true, follow_multibuild: false, check_update_project: false }
+    get_by_project_and_name_defaults = { use_source: true,
+                                         follow_project_links: true,
+                                         follow_project_scmsync_links: true,
+                                         follow_multibuild: false,
+                                         check_update_project: false }
     opts = get_by_project_and_name_defaults.merge(opts)
 
     package_name = striping_multibuild_suffix(package_name) if opts[:follow_multibuild]
@@ -196,7 +209,19 @@ class Package < ApplicationRecord
     project = internal_get_project(project_name_or_object)
     return unless project # remote prjs
 
-    return nil if project.scmsync.present?
+    # Projects can point to source code management systems.
+    # https://github.com/openSUSE/open-build-service/wiki/Links#scm-bridge-links
+    # In that case, let's see if the backend knows about this package
+    # and instantiate a readonly (can't change anything remote) Package object.
+    if project.scmsync.present? && opts[:follow_project_scmsync_links]
+      # rubocop:disable Style/SoleNestedConditional
+      # Asking the backend for the results of this condition cost too much in the outer if...
+      if exists_on_backend?(package_name, project)
+        package = project.packages.new(name: package_name)
+        package.readonly!
+      end
+      # rubocop:enable Style/SoleNestedConditional
+    end
 
     if package.nil? && opts[:follow_project_links]
       package = project.find_package(package_name, opts[:check_update_project])
@@ -1149,7 +1174,7 @@ class Package < ApplicationRecord
   end
 
   def delete_file(name, opt = {})
-    raise ScmsyncReadOnly if scmsync.present?
+    raise ScmsyncReadOnly if scmsynced?
 
     delete_opt = {}
     delete_opt[:keeplink] = 1 if opt[:expand]
@@ -1207,7 +1232,7 @@ class Package < ApplicationRecord
   end
 
   def save_file(opt = {})
-    raise ScmsyncReadOnly if scmsync.present?
+    raise ScmsyncReadOnly if scmsynced?
 
     content = '' # touch an empty file first
     content = opt[:file] if opt[:file]
