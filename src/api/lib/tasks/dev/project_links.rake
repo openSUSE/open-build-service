@@ -32,6 +32,15 @@ namespace :dev do
       create(:path_element, repository: repository, link: interconnect_repo)
       create(:linked_project, project: project, linked_remote_project_name: 'openSUSE.org:home:hennevogel:myfirstproject')
       project.store
+
+      # A Project that is scmsynced
+      project = create(:project, name: 'ProjectLinks:Scmsynced',
+                                 title: 'Has a link to an SCM',
+                                 description: 'Project Links to SCM',
+                                 scmsync: 'https://github.com/hennevogel/scmsync-project.git')
+      repository = create(:repository, name: 'openSUSE_Tumbleweed', architectures: ['x86_64'], project: project)
+      create(:path_element, repository: repository, link: interconnect_repo)
+      project.store
     end
   end
 end
