@@ -17,7 +17,7 @@ module Webui
         @expand = params[:expand]
         @addeditlink = false
 
-        if User.possibly_nobody.can_modify?(@package) && @rev.blank? && @package.scmsync.blank?
+        if User.possibly_nobody.can_modify?(@package) && @rev.blank? && @package.scmsynced?
           files = @package.dir_hash({ rev: @rev, expand: @expand }.compact).elements('entry')
           if (file = files.find { |f| f['name'] == @filename }.presence)
             @addeditlink = editable_file?(@filename, file['size'].to_i)

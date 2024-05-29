@@ -80,7 +80,7 @@ class Service
   end
 
   def save
-    raise ScmsyncReadOnly if package.scmsync.present?
+    raise ScmsyncReadOnly if package.scmsynced?
 
     if document.xpath('//services/service').empty?
       begin
