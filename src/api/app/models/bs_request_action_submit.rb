@@ -152,38 +152,23 @@ class BsRequestActionSubmit < BsRequestAction
     request_creator.has_local_role?(Role.hashed['maintainer'], target_package_object)
   end
 
-  # rubocop:disable Metrics/BlockNesting
   def forward
-    forward_object = nil
+    return [] unless target_package_object
 
-    if target_package_object
-      linkinfo = target_package_object.linkinfo
-      target_package_object.developed_packages.each do |dev_pkg|
-        forward_object ||= []
-        forward_object << { project: dev_pkg.project.name, package: dev_pkg.name, type: 'devel' }
-      end
-      if linkinfo
-        lprj = linkinfo['project']
-        lpkg = linkinfo['package']
-        link_is_already_devel = false
-        if forward_object
-          forward_object.each do |forward|
-            if forward[:project] == lprj && forward[:package] == lpkg
-              link_is_already_devel = true
-              break
-            end
-          end
-        end
-        unless link_is_already_devel
-          forward_object ||= []
-          forward_object << { project: linkinfo['project'], package: linkinfo['package'], type: 'link' }
-        end
-      end
+    # add all the devel packages into the forwards
+    forward_object = target_package_object.developed_packages.map do |dev_pkg|
+      { project: dev_pkg.project.name, package: dev_pkg.name, type: 'devel' }
+    end
+
+    return forward_object unless (linkinfo = target_package_object.linkinfo)
+
+    # check if the link is already in the forwards, add it otherwise
+    if forward_object.none? { |forward| forward[:project] == linkinfo['project'] && forward[:package] == linkinfo['package'] }
+      forward_object << { project: linkinfo['project'], package: linkinfo['package'], type: 'link' }
     end
 
     forward_object
   end
-  # rubocop:enable Metrics/BlockNesting
 
   #### Alias of methods
 end
