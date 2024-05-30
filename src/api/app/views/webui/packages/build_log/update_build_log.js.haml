@@ -6,7 +6,7 @@
 - else
   - if @finished
     - if @first_request
-      $('#log-space').html('#{escape_javascript(@log_chunk)}');
+      $('#log-space').html('#{escape_javascript(sanitize @log_chunk)}');
     - else
       liveLog.browserNotification('#{@status}');
     liveLog.finish("#{@status}");

@@ -15,7 +15,7 @@
             Add #{link_to(@bs_request.creator, user_path(@bs_request.creator))} as maintainer for
             #{helpers.project_or_package_link(project: @action.target_project, package: @action.target_package, short: true)}
       - if @action.type == 'submit'
-        - (@action.forward || []).each_with_index do |forward, index|
+        - @action.forward.each_with_index do |forward, index|
           .form-check.mb-2
             = check_box_tag("forward-#{index}", "#{forward[:project]}_#_#{forward[:package]}", true, class: 'form-check-input')
             %label.form-check-label{ for: "forward-#{index}" }
