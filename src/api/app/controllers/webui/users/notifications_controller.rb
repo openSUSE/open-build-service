@@ -75,10 +75,10 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   def show_more(notifications)
     total = notifications.size
-    total = Kaminari.config.default_per_page unless total.positive?
+    per_page = total.positive? ? [total, Notification::MAX_PER_PAGE].min : Kaminari.config.default_per_page
 
     flash.now[:info] = "You have too many notifications. Displaying a maximum of #{Notification::MAX_PER_PAGE} notifications per page." if total > Notification::MAX_PER_PAGE
-    notifications.page(params[:page]).per([total, Notification::MAX_PER_PAGE].min)
+    notifications.page(params[:page]).per(per_page)
   end
 
   def filter_notifications_by_state(notifications, filter_state)
