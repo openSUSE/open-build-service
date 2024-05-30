@@ -6,6 +6,7 @@ namespace :ldap do
     CONFIG['ldap_ssl'] = :off
     CONFIG['ldap_search_base'] = 'dc=example,dc=org'
 
+    Rails.logger = Logger.new(STDOUT)
     puts UserLdapStrategy.initialize_ldap_con('cn=admin,dc=example,dc=org', 'opensuse').inspect
   end
 end
