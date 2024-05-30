@@ -18,15 +18,17 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def update
-    # rubocop:disable Rails/SkipsModelValidations
     if %w[all unread].include?(@filter_state)
+      # rubocop:disable Rails/SkipsModelValidations
       @read_count = Notification.where(id: @undelivered_notification_ids).update_all('delivered = !delivered')
+      # rubocop:enable Rails/SkipsModelValidations
       @unread_count = 0
     else
+      # rubocop:disable Rails/SkipsModelValidations
       @unread_count = Notification.where(id: @delivered_notification_ids).update_all('delivered = !delivered')
+      # rubocop:enable Rails/SkipsModelValidations
       @read_count = 0
     end
-    # rubocop:enable Rails/SkipsModelValidations
 
     respond_to do |format|
       format.html { redirect_to my_notifications_path }
