@@ -48,8 +48,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   def set_filter_kind
     @filter_kind = Array(params[:kind].presence || 'all') # in case just one value, we want an array anyway
     raise FilterNotSupportedError unless (@filter_kind - ALLOWED_FILTERS).empty?
-
-    @filter_kind
   end
 
   def set_filter_state
