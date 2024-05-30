@@ -170,12 +170,14 @@ class Webui::PackageController < Webui::WebuiController
       return
     end
 
-    per_page = 20
     revision_count = (params[:rev] || @package.rev).to_i
-    per_page = revision_count if User.session && params['show_all']
-    startbefore = revision_count - (((params[:page] || 1).to_i - 1) * per_page) + 1
-    revisions = Xmlhash.parse(Backend::Api::Sources::Package.revisions(@project.name, params[:package], { startbefore: startbefore, limit: per_page, deleted: 0, meta: 0 })).elements('revision')
-    @revisions = Kaminari.paginate_array(revisions.reverse, total_count: revision_count).page(params[:page]).per(per_page)
+    per_page = User.session && params['show_all'] ? revision_count : 20
+    page = (params[:page] || 1).to_i
+    startbefore = revision_count - ((page - 1) * per_page) + 1
+    revisions_options = { limit: per_page, deleted: 0, meta: 0 }
+    revisions_options[:startbefore] = startbefore if startbefore.positive?
+    revisions = Xmlhash.parse(Backend::Api::Sources::Package.revisions(@project.name, params[:package], revisions_options)).elements('revision')
+    @revisions = Kaminari.paginate_array(revisions.reverse, total_count: revision_count).page(page).per(per_page)
   end
 
   def rdiff
