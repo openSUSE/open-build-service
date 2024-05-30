@@ -1,0 +1,58 @@
+$ansi-colors: (
+  "red": $red,
+  "green": $green,
+  "yellow": $yellow,
+  "blue": $blue,
+  "purple": $purple,
+  "cyan": $cyan
+);
+
+$light-ansi-colors: (
+  "red": lighten($red, 10%),
+  "green": lighten($green, 10%),
+  "yellow": lighten($yellow, 10%),
+  "blue": lighten($blue, 30%),
+  "purple": lighten($purple, 40%),
+  "cyan": lighten($cyan, 10%)
+);
+
+:root {
+  @each $color, $value in $ansi-colors {
+    --ansi-fg-#{$color}: #{$value};
+  }
+
+  @each $color, $value in $light-ansi-colors {
+    --ansi-bg-#{$color}: #{$value};
+  }
+}
+
+@include color-mode(dark) {
+  @each $color, $value in $light-ansi-colors {
+    --ansi-fg-#{$color}: #{$value};
+  }
+
+  @each $color, $value in $ansi-colors {
+    --ansi-bg-#{$color}: #{$value};
+  }
+}
+
+#log-space {
+  .bold {
+    font-weight: bold;
+  }
+
+  @each $color, $value in $ansi-colors {
+    .white-foreground, .black-foreground {
+      color: var(--bs-secondary-color);
+    }
+    .#{$color}-foreground {
+      color: var(--ansi-fg-#{$color});
+    }
+    .white-background, .black-background {
+      color: var(--bs-secondary-bg);
+    }
+    .#{$color}-background {
+      background-color: color-mix(in srgb, var(--ansi-bg-#{$color}) 30%, transparent);
+    }
+  }
+}

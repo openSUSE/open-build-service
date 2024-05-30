@@ -155,6 +155,7 @@ GEM
     down (5.4.2)
       addressable (~> 2.8)
     erubi (1.12.0)
+    escape_code (0.2)
     execjs (2.9.1)
     factory_bot (6.4.6)
       activesupport (>= 5.0.0)
@@ -562,6 +563,7 @@ DEPENDENCIES
   deep_cloneable
   delayed_job_active_record
   down
+  escape_code
   factory_bot_rails
   faker
   faraday
