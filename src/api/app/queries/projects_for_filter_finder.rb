@@ -5,7 +5,7 @@ class ProjectsForFilterFinder
 
   def call
     @relation.joins(:notifications)
-             .where(notifications: { subscriber: User.session, web: true })
+             .where(notifications: { subscriber: User.session, web: true, delivered: false })
              .distinct
              .order('name asc')
              .pluck(:name)
