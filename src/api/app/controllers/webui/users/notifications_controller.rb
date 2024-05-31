@@ -18,17 +18,11 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def update
-    if %w[all unread].include?(@filter_state)
-      # rubocop:disable Rails/SkipsModelValidations
-      @read_count = Notification.where(id: @undelivered_notification_ids).update_all('delivered = !delivered')
-      # rubocop:enable Rails/SkipsModelValidations
-      @unread_count = 0
-    else
-      # rubocop:disable Rails/SkipsModelValidations
-      @unread_count = Notification.where(id: @delivered_notification_ids).update_all('delivered = !delivered')
-      # rubocop:enable Rails/SkipsModelValidations
-      @read_count = 0
-    end
+    # The button value specifies whether we selected read or unread
+    deliver = params[:button] == 'read'
+    # rubocop:disable Rails/SkipsModelValidations
+    @count = @notifications.where(id: @notification_ids, delivered: !deliver).update_all(delivered: deliver)
+    # rubocop:enable Rails/SkipsModelValidations
 
     respond_to do |format|
       format.html { redirect_to my_notifications_path }
@@ -41,7 +35,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
           user: User.session
         }
       end
-      send_notifications_information_rabbitmq(@read_count, @unread_count)
+      send_notifications_information_rabbitmq(deliver, @count)
     end
   end
 
@@ -74,16 +68,10 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def set_notifications_to_be_updated
-    if params[:notification_ids]
-      @undelivered_notification_ids = @notifications.where(id: params[:notification_ids]).where(delivered: false).map(&:id)
-      @delivered_notification_ids = @notifications.where(id: params[:notification_ids]).where(delivered: true).map(&:id)
-    elsif params[:update_all]
-      @undelivered_notification_ids = @notifications.where(delivered: false).map(&:id)
-      @delivered_notification_ids = @notifications.where(delivered: true).map(&:id)
-    else
-      @undelivered_notification_ids = []
-      @delivered_notification_ids = []
-    end
+    return @notification_ids = @notifications.map(&:id) if params[:update_all]
+    return unless params[:notification_ids]
+
+    @notification_ids = @notifications.where(id: params[:notification_ids]).map(&:id)
   end
 
   def set_show_read_all_button
@@ -101,9 +89,9 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     notifications.page(params[:page]).per([total, Notification::MAX_PER_PAGE].min)
   end
 
-  def send_notifications_information_rabbitmq(read_count, unread_count)
-    RabbitmqBus.send_to_bus('metrics', "notification,action=read value=#{read_count}") if read_count.positive?
-    RabbitmqBus.send_to_bus('metrics', "notification,action=unread value=#{unread_count}") if unread_count.positive?
+  def send_notifications_information_rabbitmq(delivered, count)
+    action = delivered ? 'read' : 'unread'
+    RabbitmqBus.send_to_bus('metrics', "notification,action=#{action} value=#{count}") if count.positive?
   end
 
   def paginate_notifications

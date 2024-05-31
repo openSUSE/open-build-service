@@ -203,7 +203,7 @@ RSpec.describe Webui::Users::NotificationsController do
     context 'when a user marks one of their unread notifications as read' do
       subject do
         login user_to_log_in
-        put :update, params: { notification_ids: [state_change_notification.id], user_login: user_to_log_in.login }, xhr: true
+        put :update, params: { notification_ids: [state_change_notification.id], user_login: user_to_log_in.login, button: 'read' }, xhr: true
       end
 
       let!(:another_unread_notification) { create(:web_notification, :request_state_change, subscriber: user_to_log_in, title: 'Another read notification') }
@@ -221,12 +221,7 @@ RSpec.describe Webui::Users::NotificationsController do
 
       it {
         subject
-        expect(assigns[:read_count]).to be 1
-      }
-
-      it {
-        subject
-        expect(assigns[:unread_count]).to be 0
+        expect(assigns[:count]).to be 1
       }
 
       it 'returns the updated list of read notifications' do
@@ -238,7 +233,7 @@ RSpec.describe Webui::Users::NotificationsController do
     context 'when a user tries to mark other user notifications as read' do
       subject! do
         login user_to_log_in
-        put :update, params: { notification_ids: [state_change_notification.id], user_login: user_to_log_in.login }, xhr: true
+        put :update, params: { notification_ids: [state_change_notification.id], user_login: user_to_log_in.login, button: 'read' }, xhr: true
       end
 
       let(:user_to_log_in) { other_user }
@@ -247,14 +242,13 @@ RSpec.describe Webui::Users::NotificationsController do
         expect(state_change_notification.reload.delivered).to be false
       end
 
-      it { expect(assigns[:read_count]).to be 0 }
-      it { expect(assigns[:unread_count]).to be 0 }
+      it { expect(assigns[:count]).to be 0 }
     end
 
     context 'when a user marks one of their read notifications as unread' do
       subject! do
         login user_to_log_in
-        put :update, params: { notification_ids: [read_notification.id], state: 'read', user_login: user_to_log_in.login }, xhr: true
+        put :update, params: { notification_ids: [read_notification.id], state: 'read', user_login: user_to_log_in.login, button: 'unread' }, xhr: true
       end
 
       let(:user_to_log_in) { user }
@@ -269,8 +263,7 @@ RSpec.describe Webui::Users::NotificationsController do
         expect(read_notification.reload.delivered).to be false
       end
 
-      it { expect(assigns[:read_count]).to be 0 }
-      it { expect(assigns[:unread_count]).to be 1 }
+      it { expect(assigns[:count]).to be 1 }
 
       it 'returns the updated list of read notifications' do
         expect(assigns[:notifications]).to contain_exactly(another_read_notification)
