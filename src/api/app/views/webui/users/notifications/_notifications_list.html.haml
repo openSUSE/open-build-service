@@ -2,13 +2,8 @@
   .card
     .card-body
       %p
-        - case selected_filter[:kind]
-        - when 'reviews', 'comments', 'requests'
-          There are no notifications for this filter
-        - when 'read'
-          Mark notifications as "Read" and they'll appear here
-        - else
-          There are no notifications, but there's a world of opportunities!
+        There are no notifications for the current filter selection
+
 - else
   :ruby
     update_path = my_notifications_path(kind: selected_filter[:kind], state: selected_filter[:state],
