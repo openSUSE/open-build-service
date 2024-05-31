@@ -2772,6 +2772,10 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(tag: 'scmsync', content: 'http://127.0.0.1')
 
+    get '/search/package', params: { match: '[scmsync="http://127.0.0.1"]' }
+    assert_response :success
+    assert_xml_tag child: { tag: 'package', attributes: { name: 'appliance', project: 'home:tom:branches:home:adrian:IMAGES' } }
+
     # cleanup
     delete '/source/home:tom:branches:home:adrian:IMAGES'
     assert_response :success

@@ -18,7 +18,7 @@ get:
         Not providing a value or providing a value of `*` will return all projects.
 
         Available predicates are:
-          - Project fields: `@name`, `@kind`, `title`, `description`, `url`, and `remoteurl`.
+          - Project fields: `@name`, `@kind`, `title`, `description`, `scmsync`, `url`, and `remoteurl`.
           - `package/@name`: name of the packages of the project.
           - `attribute/@name`: name of the attributes of the project.
           - Users and groups:

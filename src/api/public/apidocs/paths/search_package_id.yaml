@@ -18,7 +18,7 @@ get:
         Not providing a value or providing a value of `*` will return all packages.
 
         Available predicates are:
-          - Package fields: `@name`, `title`, `description`, and `kind`.
+          - Package fields: `@name`, `title`, `description`, `scysync`, and `kind`.
           - `@project`: name of the project of the package.
           - Devel package fields:
             - `devel/@project`: name of the devel project of the package.
