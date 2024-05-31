@@ -76,7 +76,7 @@
       %h6.px-3.py-2
         %b Projects
       .dropdown.px-3.py-1.form-multi-select{ 'data-name': 'projects' }
-        %button.form-select.text-start{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
+        %button.form-select.text-start#filter-projects-button{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
           Select the projects
         .dropdown-menu
           - @projects_for_filter.each do |project_name|
@@ -89,7 +89,7 @@
       %h6.px-3.py-2
         %b Groups
       .dropdown.px-3.py-1.form-multi-select{ 'data-name': 'groups' }
-        %button.form-select.text-start{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
+        %button.form-select.text-start#filter-groups-button{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
           Select the groups
         .dropdown-menu
           - @groups_for_filter.each do |group_title|
