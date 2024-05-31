@@ -2,6 +2,7 @@ module Webui
   module Packages
     class BuildLogController < Webui::WebuiController
       include BuildLogSupport
+      include Webui::NotificationsHandler
 
       before_action :check_ajax, only: :update_build_log
       before_action :check_build_log_access
@@ -142,13 +143,6 @@ module Webui
           @workerid = nil
           @buildtime = nil
         end
-      end
-
-      def handle_notification
-        return unless User.session && params[:notification_id]
-
-        @current_notification = Notification.find(params[:notification_id])
-        authorize @current_notification, :update?, policy_class: NotificationPolicy
       end
     end
   end
