@@ -41,8 +41,7 @@ RSpec.describe 'User notifications', :js do
 
     context 'when marking multiple comment notifications as read' do
       before do
-        find_by_id('notifications-dropdown-trigger').click if mobile? # open the filter dropdown
-        within('#filters') { check('Comments') }
+        visit my_notifications_path({ kind: 'comments' })
         toggle_checkbox("notification_ids_#{notification_for_projects_comment.id}")
         toggle_checkbox("notification_ids_#{another_notification_for_projects_comment.id}")
         click_button('read-button')
