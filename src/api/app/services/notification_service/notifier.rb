@@ -19,7 +19,9 @@ module NotificationService
                         'Event::ClearedDecision',
                         'Event::FavoredDecision',
                         'Event::WorkflowRunFail',
-                        'Event::AppealCreated'].freeze
+                        'Event::AppealCreated',
+                        'Event::AddedUserToGroup',
+                        'Event::RemovedUserFromGroup'].freeze
     CHANNELS = %i[web rss].freeze
     ALLOWED_NOTIFIABLE_TYPES = {
       'BsRequest' => ::BsRequest,
