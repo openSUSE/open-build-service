@@ -2,9 +2,11 @@ module Webui
   module Packages
     class BuildLogController < Webui::WebuiController
       include BuildLogSupport
+      include Webui::NotificationsHandler
 
       before_action :check_ajax, only: :update_build_log
       before_action :check_build_log_access
+      before_action :handle_notification, only: :live_build_log
 
       def live_build_log
         @repo = @project.repositories.find_by(name: params[:repository]).try(:name)

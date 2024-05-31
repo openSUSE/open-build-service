@@ -105,13 +105,15 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     when 'Event::RelationshipCreate', 'Event::RelationshipDelete'
       if @notification.event_payload['package']
         Rails.application.routes.url_helpers.package_users_path(@notification.event_payload['project'],
-                                                                @notification.event_payload['package'])
+                                                                @notification.event_payload['package'],
+                                                                notification_id: @notification.id)
       else
-        Rails.application.routes.url_helpers.project_users_path(@notification.event_payload['project'])
+        Rails.application.routes.url_helpers.project_users_path(@notification.event_payload['project'], notification_id: @notification.id)
       end
     when 'Event::BuildFail'
       Rails.application.routes.url_helpers.package_live_build_log_path(package: @notification.event_payload['package'], project: @notification.event_payload['project'],
-                                                                       repository: @notification.event_payload['repository'], arch: @notification.event_payload['arch'])
+                                                                       repository: @notification.event_payload['repository'], arch: @notification.event_payload['arch'],
+                                                                       notification_id: @notification.id)
     # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
     when 'Event::CreateReport'
       reportable = @notification.notifiable.reportable
@@ -130,9 +132,9 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
       reportable = @notification.notifiable.reports.first.reportable
       link_for_reportables(reportable)
     when 'Event::AppealCreated'
-      Rails.application.routes.url_helpers.appeal_path(@notification.notifiable)
+      Rails.application.routes.url_helpers.appeal_path(@notification.notifiable, notification_id: @notification.id)
     when 'Event::WorkflowRunFail'
-      Rails.application.routes.url_helpers.token_workflow_run_path(@notification.notifiable.token, @notification.notifiable)
+      Rails.application.routes.url_helpers.token_workflow_run_path(@notification.notifiable.token, @notification.notifiable, notification_id: @notification.id)
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity
