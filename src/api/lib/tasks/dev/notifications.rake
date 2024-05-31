@@ -61,6 +61,9 @@ namespace :dev do
         # Will create a notification (RequestStatechange event) for this request change.
         request2.change_state(newstate: %w[accepted declined].sample, force: true, user: requestor.login, comment: 'Declined by requestor')
 
+        # Create notifications for build failures
+        Event::BuildFail.create({ project: admin_home_project.name, package: package_name, repository: "#{Faker::Lorem.word}_repo", arch: "#{Faker::Lorem.word}_arch", reason: 'meta change' })
+
         # Process notifications immediately to see them in the web UI
         SendEventEmailsJob.new.perform_now
       end

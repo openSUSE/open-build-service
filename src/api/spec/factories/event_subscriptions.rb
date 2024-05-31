@@ -150,5 +150,13 @@ FactoryBot.define do
       user
       group { nil }
     end
+
+    factory :event_subscription_build_fail do
+      eventtype { 'Event::BuildFail' }
+      receiver_role { 'maintainer' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
   end
 end

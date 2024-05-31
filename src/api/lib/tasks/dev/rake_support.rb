@@ -56,6 +56,7 @@ module RakeSupport
     create(:event_subscription_report_for_package, channel: :web, user: user)
     create(:event_subscription_report_for_comment, channel: :web, user: user)
     create(:event_subscription_report_for_user, channel: :web, user: user)
+    create(:event_subscription_build_fail, channel: :web, user: user)
 
     user.groups.each do |group|
       create(:event_subscription_request_created, channel: :web, user: nil, group: group, receiver_role: 'target_maintainer')
