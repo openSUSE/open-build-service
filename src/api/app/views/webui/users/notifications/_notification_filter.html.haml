@@ -1,5 +1,5 @@
 -# haml-lint:disable ViewLength
-= form_for(:notification, url: my_notifications_path, method: :get) do |form|
+= form_for(:notification, url: my_notifications_path, method: :get, id: 'notifications-filter-form') do |form|
   .list-group.list-group-flush.mt-3.mb-2
     %h6.px-3.py-2
       %b State
@@ -100,9 +100,20 @@
 
   .text-center.mt-4.mb-4
     = link_to('Clear', my_notifications_path, class: 'btn btn-light border')
-    %button.btn.btn-info#filter-button{ type: :submit }
-      Apply
 
 :javascript
   collectMultiSelects()
+
+  function submitNotificationFilters() {
+    $('#notifications-list').hide();
+    $('#notifications-list-loading').toggleClass('d-none');
+    $('#notifications-filter-form').submit();
+  }
+  let submitFiltersTimeout;
+
+  $(document).on('change', '#filters input', function() {
+    clearTimeout(submitFiltersTimeout);
+    submitFiltersTimeout = setTimeout(submitNotificationFilters, 1500);
+  });
+
 -# haml-lint:enable ViewLength
