@@ -16,7 +16,7 @@
                             <p>or a git commit hash like
                             <em>97561db8664eaf86a1e4c7b77d5fb5d5bff6681e</em></p>'
 
-= form_for(@token, url: token_workflow_runs_path(@token), method: :get) do |form|
+= form_for(:token, url: token_workflow_runs_path(@token), method: :get, id: 'workflow-run-filter-form') do |form|
   .list-group.list-group-flush.mt-3.mb-2
     %h6.px-3.py-2
       %b Status
@@ -86,5 +86,16 @@
 
   .text-center.mt-4.mb-4
     = link_to('Clear', token_workflow_runs_path(@token, []), class: 'btn btn-light border')
-    %button.btn.btn-info#filter-button{ type: :submit }
-      Apply
+
+:javascript
+  function submitWorkflowFilters() {
+    $('#workflow-run-list').hide();
+    $('#workflow-run-list-loading').toggleClass('d-none');
+    $('#workflow-run-filter-form').submit();
+  }
+  let submitFiltersTimeout;
+
+  $(document).on('change keyup', '#workflow-runs-filter-desktop input, #workflow-runs-filter-desktop select', function() {
+    clearTimeout(submitFiltersTimeout);
+    submitFiltersTimeout = setTimeout(submitWorkflowFilters, 1500);
+  });
