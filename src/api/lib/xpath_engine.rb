@@ -27,6 +27,7 @@ class XpathEngine
         '@name' => { cpart: 'packages.name' },
         'title' => { cpart: 'packages.title' },
         'description' => { cpart: 'packages.description' },
+        'scmsync' => { cpart: 'packages.scmsync' },
         'kind' => { cpart: 'package_kinds.kind', joins: ['LEFT JOIN package_kinds ON package_kinds.package_id = packages.id'] },
         'devel/@project' => { cpart: 'projs.name', joins:         ['left join packages devels on packages.develpackage_id = devels.id',
                                                                    'left join projects projs on devels.project_id=projs.id'] },
@@ -64,6 +65,7 @@ class XpathEngine
         'description' => { cpart: 'projects.description' },
         'url' => { cpart: 'projects.url' },
         'remoteurl' => { cpart: 'projects.remoteurl' },
+        'scmsync' => { cpart: 'projects.scmsync' },
         'maintenance/maintains/@project' => { cpart: 'maintains_prj.name', joins: [
           'LEFT JOIN maintained_projects AS maintained_prj ON projects.id = maintained_prj.maintenance_project_id',
           'LEFT JOIN projects AS maintains_prj ON maintained_prj.project_id = maintains_prj.id'
