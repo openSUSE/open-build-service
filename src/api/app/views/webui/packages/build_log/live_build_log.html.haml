@@ -24,7 +24,7 @@
              locals: { can_modify: @can_modify, package_name: @package_name, project: @project, arch: @arch, repo: @repo }
     #log-space-wrapper{ data: { url: package_update_build_log_path(package: @package_name, project: @project,
                                                                    status: @status, arch: @arch, repository: @repo) } }
-      .d-block.text-center.shadow-sm.position-sticky.w-100#log-info
+      .d-block.text-center.shadow-sm.position-sticky.w-100#log-info{ class: @current_notification ? 'notification-bar-offset' : '' }
         .running.stop_refresh.py-2.text-bg-info
           %i.fas.fa-spinner.fa-pulse
           Running...

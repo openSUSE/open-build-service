@@ -12,7 +12,7 @@ RSpec.describe NotificationMarkButtonComponent, type: :component do
     end
 
     it 'sets the update path with the right params' do
-      expect(rendered_content).to have_css("a#update_notification_#{notification.id}[href='/my/notifications?notification_ids%5B%5D=#{notification.id}&state=read']")
+      expect(rendered_content).to have_css("a#update_notification_#{notification.id}[href='/my/notifications?button=unread&notification_ids%5B%5D=#{notification.id}&state=read']")
     end
   end
 
@@ -29,7 +29,7 @@ RSpec.describe NotificationMarkButtonComponent, type: :component do
     end
 
     it 'sets the update path with the right params' do
-      expect(rendered_content).to have_css("a#update_notification_#{notification.id}[href='/my/notifications?notification_ids%5B%5D=#{notification.id}&state=unread']")
+      expect(rendered_content).to have_css("a#update_notification_#{notification.id}[href='/my/notifications?button=read&notification_ids%5B%5D=#{notification.id}&state=unread']")
     end
   end
 end

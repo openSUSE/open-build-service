@@ -23,15 +23,6 @@ RSpec.describe 'User notifications', :js do
     let(:another_notifiable) { another_notification_for_projects_comment.notifiable }
     let(:project) { notifiable.commentable.project }
 
-    shared_examples 'keeping the Comments filter selected' do
-      it do
-        wait_for_ajax
-
-        find_by_id('notifications-dropdown-trigger').click if mobile?
-        expect(find('.list-group-item.list-group-item-action.active')).to have_text('Comment')
-      end
-    end
-
     before do
       login user
       visit my_notifications_path
@@ -40,38 +31,30 @@ RSpec.describe 'User notifications', :js do
     context 'when clicking on the Comments filter' do
       before do
         find_by_id('notifications-dropdown-trigger').click if mobile?
-        within('#filters') { click_link('Comments') }
+        within('#filters') { check('Comments') }
+        click_button('filter-button') # apply the filters
       end
 
       it 'shows all unread comment notifications' do
         expect(page).to have_text(notifiable.commentable.name)
       end
-
-      context 'when marking a comment notification as read' do
-        before do
-          click_link("update_notification_#{notification_for_projects_comment.id}")
-        end
-
-        it_behaves_like 'keeping the Comments filter selected'
-      end
     end
 
     context 'when marking multiple comment notifications as read' do
       before do
-        find_by_id('notifications-dropdown-trigger').click if mobile?
-        within('#filters') { click_link('Comments') }
+        find_by_id('notifications-dropdown-trigger').click if mobile? # open the filter dropdown
+        within('#filters') { check('Comments') }
+        click_button('filter-button') # apply the filters
         toggle_checkbox("notification_ids_#{notification_for_projects_comment.id}")
         toggle_checkbox("notification_ids_#{another_notification_for_projects_comment.id}")
-        click_button('done-button')
+        click_button('read-button')
       end
 
       it 'marks all comment notification as read' do
         wait_for_ajax
 
-        expect(page).to have_text('There are no notifications for this filter')
+        expect(page).to have_text('There are no notifications for the current filter selection')
       end
-
-      it_behaves_like 'keeping the Comments filter selected'
     end
 
     context 'when clicking on the project filter' do
@@ -84,23 +67,11 @@ RSpec.describe 'User notifications', :js do
       end
 
       it 'shows all unread project notifications' do
-        find_by_id('notifications-dropdown-trigger').click if mobile?
-        within('#filters') { click_link(project.name) }
-        find_by_id('notifications-dropdown-trigger').click if mobile?
-        expect(find('.list-group-item.list-group-item-action.active')).to have_text(project.name)
-      end
+        find_by_id('notifications-dropdown-trigger').click if mobile? # open the filter dropdown
+        within('#filters') { check(project.name) }
+        click_button('filter-button') # apply the filters
 
-      context 'when marking a project notification as read' do
-        before do
-          find_by_id('notifications-dropdown-trigger').click if mobile?
-          within('#filters') { click_link(project.name) }
-        end
-
-        it 'keeps the project filter' do
-          wait_for_ajax
-          find_by_id('notifications-dropdown-trigger').click if mobile?
-          expect(find('.list-group-item.list-group-item-action.active')).to have_text(project.name)
-        end
+        expect(page).to have_text(notification_for_projects_comment.notifiable.commentable_type)
       end
     end
 

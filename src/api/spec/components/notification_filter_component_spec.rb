@@ -1,5 +1,6 @@
 RSpec.describe NotificationFilterComponent, type: :component do
   let(:user) { create(:user) }
+  let(:notifications) { user.notifications.for_web }
 
   before do
     Flipper.disable(:content_moderation)
@@ -8,25 +9,25 @@ RSpec.describe NotificationFilterComponent, type: :component do
 
   context 'without projects and groups notifications' do
     before do
-      render_inline(described_class.new(selected_filter: { type: 'unread' }, user: user))
+      render_inline(described_class.new(notifications: notifications, selected_filter: { state: ['unread'] }, user: user))
     end
 
     ['Unread', 'Read', 'Comments', 'Requests', 'Incoming Requests', 'Outgoing Requests', 'Build Failures'].each do |filter_name|
       it "displays a '#{filter_name}' filter" do
-        expect(rendered_content).to have_link(filter_name)
+        expect(rendered_content).to have_field(filter_name)
       end
     end
 
     it "doesn't display project filters" do
-      expect(rendered_content).to have_no_css('h5', text: 'Projects')
+      expect(rendered_content).to have_no_css('h6 b', text: 'Projects')
     end
 
     it "doesn't display group filters" do
-      expect(rendered_content).to have_no_css('h5', text: 'Groups')
+      expect(rendered_content).to have_no_css('h6 b', text: 'Groups')
     end
 
     it "doesn't display the Reports filter" do
-      expect(rendered_content).to have_no_link('Reports')
+      expect(rendered_content).to have_no_field('Reports')
     end
   end
 
@@ -38,23 +39,23 @@ RSpec.describe NotificationFilterComponent, type: :component do
     before do
       project.notifications << notification_for_projects_comment
       group.created_notifications << notification_for_projects_comment
-      render_inline(described_class.new(selected_filter: { type: 'unread' }, user: user))
+      render_inline(described_class.new(notifications: notifications, selected_filter: { state: ['unread'] }, user: user))
     end
 
     ['Unread', 'Read', 'Comments', 'Requests', 'Incoming Requests', 'Outgoing Requests', 'Build Failures'].each do |filter_name|
       it "displays a '#{filter_name}' filter" do
-        expect(rendered_content).to have_link(filter_name)
+        expect(rendered_content).to have_field(filter_name)
       end
     end
 
     it 'displays project filters' do
-      expect(rendered_content).to have_css('h5', text: 'Projects')
-      expect(rendered_content).to have_link(project.name)
+      expect(rendered_content).to have_css('h6 b', text: 'Projects')
+      expect(rendered_content).to have_field(project.name)
     end
 
     it 'displays group filters' do
-      expect(rendered_content).to have_css('h5', text: 'Groups')
-      expect(rendered_content).to have_link(group.title)
+      expect(rendered_content).to have_css('h6 b', text: 'Groups')
+      expect(rendered_content).to have_field(group.title)
     end
   end
 
@@ -63,15 +64,15 @@ RSpec.describe NotificationFilterComponent, type: :component do
 
     before do
       Flipper.enable(:content_moderation)
-      render_inline(described_class.new(selected_filter: { type: 'unread' }, user: user))
+      render_inline(described_class.new(notifications: notifications, selected_filter: { state: %w[unread read] }, user: user))
     end
 
     it 'displays the Reports filter' do
-      expect(rendered_content).to have_link('Reports')
+      expect(rendered_content).to have_field('Reports')
     end
 
     it 'displays the Appeals filter' do
-      expect(rendered_content).to have_link('Appealed Decisions')
+      expect(rendered_content).to have_field('Appealed Decisions')
     end
   end
 end

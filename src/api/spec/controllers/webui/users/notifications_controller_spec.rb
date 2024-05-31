@@ -1,6 +1,6 @@
 RSpec.describe Webui::Users::NotificationsController do
   let(:username) { 'reynoldsm' }
-  let!(:user) { create(:confirmed_user, login: username) }
+  let!(:user) { create(:confirmed_user, :with_home, login: username) }
   let!(:other_user) { create(:confirmed_user) }
   let(:state_change_notification) { create(:web_notification, :request_state_change, subscriber: user) }
   let(:creation_notification) { create(:web_notification, :request_created, subscriber: user) }
@@ -50,7 +50,7 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
-    context "when param type is 'read'" do
+    context "when filtering by 'read' param" do
       let(:params) { default_params.merge(state: 'read') }
 
       before do
@@ -82,7 +82,7 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
-    context "when param type is 'build_failures'" do
+    context "when filtering by 'build_failures' param" do
       let(:params) { default_params.merge(kind: 'build_failures') }
 
       before do
@@ -96,7 +96,7 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
-    context "when param type is 'comments'" do
+    context "when filtering by 'comments' param" do
       let(:params) { default_params.merge(kind: 'comments') }
 
       before do
@@ -112,7 +112,7 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
-    context "when param type is 'requests'" do
+    context "when filtering by 'requests' param" do
       let(:params) { default_params.merge(kind: 'requests') }
 
       before do
@@ -127,7 +127,7 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
-    context "when param type is 'incoming_requests'" do
+    context "when filtering by 'incoming_requests' param" do
       let(:admin_user) { create(:admin_user, login: 'king') }
       let(:target_package) { create(:package) }
       let(:source_package) { create(:package, :as_submission_source) }
@@ -160,7 +160,7 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
-    context "when param type is 'outgoing_requests'" do
+    context "when filtering by 'outgoing_requests' param" do
       let(:admin_user) { create(:admin_user, login: 'king') }
       let(:target_package) { create(:package) }
       let(:source_package) { create(:package, :as_submission_source) }
@@ -203,7 +203,7 @@ RSpec.describe Webui::Users::NotificationsController do
     context 'when a user marks one of their unread notifications as read' do
       subject do
         login user_to_log_in
-        put :update, params: { notification_ids: [state_change_notification.id], user_login: user_to_log_in.login }, xhr: true
+        put :update, params: { notification_ids: [state_change_notification.id], user_login: user_to_log_in.login, button: 'read' }, xhr: true
       end
 
       let!(:another_unread_notification) { create(:web_notification, :request_state_change, subscriber: user_to_log_in, title: 'Another read notification') }
@@ -221,12 +221,7 @@ RSpec.describe Webui::Users::NotificationsController do
 
       it {
         subject
-        expect(assigns[:read_count]).to be 1
-      }
-
-      it {
-        subject
-        expect(assigns[:unread_count]).to be 0
+        expect(assigns[:count]).to be 1
       }
 
       it 'returns the updated list of read notifications' do
@@ -238,7 +233,7 @@ RSpec.describe Webui::Users::NotificationsController do
     context 'when a user tries to mark other user notifications as read' do
       subject! do
         login user_to_log_in
-        put :update, params: { notification_ids: [state_change_notification.id], user_login: user_to_log_in.login }, xhr: true
+        put :update, params: { notification_ids: [state_change_notification.id], user_login: user_to_log_in.login, button: 'read' }, xhr: true
       end
 
       let(:user_to_log_in) { other_user }
@@ -247,14 +242,13 @@ RSpec.describe Webui::Users::NotificationsController do
         expect(state_change_notification.reload.delivered).to be false
       end
 
-      it { expect(assigns[:read_count]).to be 0 }
-      it { expect(assigns[:unread_count]).to be 0 }
+      it { expect(assigns[:count]).to be 0 }
     end
 
     context 'when a user marks one of their read notifications as unread' do
       subject! do
         login user_to_log_in
-        put :update, params: { notification_ids: [read_notification.id], state: 'read', user_login: user_to_log_in.login }, xhr: true
+        put :update, params: { notification_ids: [read_notification.id], state: 'read', user_login: user_to_log_in.login, button: 'unread' }, xhr: true
       end
 
       let(:user_to_log_in) { user }
@@ -269,8 +263,7 @@ RSpec.describe Webui::Users::NotificationsController do
         expect(read_notification.reload.delivered).to be false
       end
 
-      it { expect(assigns[:read_count]).to be 0 }
-      it { expect(assigns[:unread_count]).to be 1 }
+      it { expect(assigns[:count]).to be 1 }
 
       it 'returns the updated list of read notifications' do
         expect(assigns[:notifications]).to contain_exactly(another_read_notification)

@@ -29,7 +29,7 @@ class Notification < ApplicationRecord
   scope :for_outgoing_requests, ->(user) { where(notifiable: user.outgoing_requests(states: BsRequest::VALID_REQUEST_STATES)) }
   scope :for_relationships_created, -> { where(event_type: 'Event::RelationshipCreate') }
   scope :for_relationships_deleted, -> { where(event_type: 'Event::RelationshipDelete') }
-  scope :for_failed_builds, -> { where(event_type: 'Event::BuildFail') }
+  scope :for_build_failures, -> { where(event_type: 'Event::BuildFail') }
   scope :for_reports, -> { where(notifiable_type: 'Report') }
   scope :for_workflow_runs, -> { where(notifiable_type: 'WorkflowRun') }
   scope :for_appealed_decisions, -> { where(notifiable_type: 'Decision') }

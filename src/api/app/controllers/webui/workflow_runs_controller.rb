@@ -1,4 +1,8 @@
 class Webui::WorkflowRunsController < Webui::WebuiController
+  include Webui::NotificationsHandler
+
+  before_action :handle_notification, only: :show
+
   def index
     # TODO: The pull/merge request dropdown should accept multiple selections
 
