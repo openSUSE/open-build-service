@@ -1,3 +1,4 @@
+-# haml-lint:disable ViewLength
 = form_for(:notification, url: my_notifications_path, method: :get) do |form|
   .list-group.list-group-flush.mt-3.mb-2
     %h6.px-3.py-2
@@ -74,22 +75,34 @@
     .list-group.list-group-flush.mt-4.mb-4
       %h6.px-3.py-2
         %b Projects
-      - @projects_for_filter.each do |project_name|
-        .px-4.py-1
-          = render partial: 'webui/shared/check_box', locals: { label: project_name, amount: @count["project_#{project_name}"],
-                                                                key: "project[#{project_name}]", name: 'project[]', value: project_name,
-                                                                checked: @selected_filter[:project]&.include?(project_name) }
+      .dropdown.px-3.py-1.form-multi-select{ 'data-name': 'projects' }
+        %button.form-select.text-start#filter-projects-button{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
+          Select the projects
+        .dropdown-menu
+          - @projects_for_filter.each do |project_name|
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: project_name, amount: @count["project_#{project_name}"],
+                                                                    key: "project[#{project_name}]", name: 'project[]', value: project_name,
+                                                                    checked: @selected_filter[:project]&.include?(project_name) }
   - unless @groups_for_filter.empty?
     .list-group.list-group-flush.mt-4.mb-4
       %h6.px-3.py-2
         %b Groups
-      - @groups_for_filter.each do |group_title|
-        .px-4.py-1
-          = render partial: 'webui/shared/check_box', locals: { label: group_title, amount: @count["group_#{group_title}"],
-                                                                key: "group[#{group_title}]", name: 'group[]', value: group_title,
-                                                                checked: @selected_filter[:group]&.include?(group_title) }
+      .dropdown.px-3.py-1.form-multi-select{ 'data-name': 'groups' }
+        %button.form-select.text-start#filter-groups-button{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
+          Select the groups
+        .dropdown-menu
+          - @groups_for_filter.each do |group_title|
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: group_title, amount: @count["group_#{group_title}"],
+                                                                    key: "group[#{group_title}]", name: 'group[]', value: group_title,
+                                                                    checked: @selected_filter[:group]&.include?(group_title) }
 
   .text-center.mt-4.mb-4
     = link_to('Clear', my_notifications_path, class: 'btn btn-light border')
     %button.btn.btn-info#filter-button{ type: :submit }
       Apply
+
+:javascript
+  collectMultiSelects()
+-# haml-lint:enable ViewLength

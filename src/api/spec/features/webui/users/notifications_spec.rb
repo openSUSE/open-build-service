@@ -66,13 +66,19 @@ RSpec.describe 'User notifications', :js do
         visit my_notifications_path
       end
 
+      # rubocop:disable RSpec/ExampleLength
       it 'shows all unread project notifications' do
         find_by_id('notifications-dropdown-trigger').click if mobile? # open the filter dropdown
-        within('#filters') { check(project.name) }
+        within('#filters') do
+          click_button('filter-projects-button') # open the filter
+          check(project.name)
+          click_button('filter-projects-button') # close the filter
+        end
         click_button('filter-button') # apply the filters
 
         expect(page).to have_text(notification_for_projects_comment.notifiable.commentable_type)
       end
+      # rubocop:enable RSpec/ExampleLength
     end
 
     context 'when having less notifications than the maximum per page' do
