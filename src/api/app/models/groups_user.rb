@@ -10,7 +10,7 @@ class GroupsUser < ApplicationRecord
   after_create :create_event
 
   def create_event
-    Event::AddedUserToGroup.create(group: group.title, user: user.login)
+    Event::AddedUserToGroup.create(group: group.title, user: user.login, who: User.session&.login)
   end
 
   private
