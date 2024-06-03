@@ -14,5 +14,9 @@ module Event
     def users
       [User.find_by(login: payload['user'])]
     end
+
+    def originator
+      payload_address('who')
+    end
   end
 end
