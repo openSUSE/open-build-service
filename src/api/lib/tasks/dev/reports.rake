@@ -39,7 +39,7 @@ namespace :dev do
     end
 
     # Run `rake dev:reports:decisions` (always after running `rake dev:reports:data`)
-    desc 'Create decisions related to existing reports'
+    desc 'Create decisions and appeal related to existing reports'
     task decisions: :development_environment do
       require 'factory_bot'
       include FactoryBot::Syntax::Methods
@@ -63,6 +63,12 @@ namespace :dev do
       another_user = User.find_by(login: 'Requestor') || create(:confirmed_user, login: 'Requestor')
       another_report = Report.create!(reportable: reportable, user: another_user, reason: 'Behave properly, please!')
       Decision.first.reports << another_report
+
+      # Create an appeal against a favored decision and subscribe moderators to it
+      EventSubscription.create!(eventtype: Event::AppealCreated.name, channel: :web, receiver_role: :moderator, enabled: true)
+      report_with_favored_decision = Report.where(reportable_type: 'User').joins(:decision).where(decision: { type: 'DecisionFavored' }).first
+      favored_decision = report_with_favored_decision.decision
+      Appeal.create(appellant: report_with_favored_decision.reportable, decision: favored_decision, reason: 'I do not agree with the decision.')
     end
   end
 end
