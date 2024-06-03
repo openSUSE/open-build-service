@@ -14,7 +14,7 @@ class NotificationAvatarsComponent < ApplicationComponent
     @avatar_objects ||= case @notification.notifiable_type
                         when 'Comment'
                           commenters
-                        when 'Project', 'Package'
+                        when 'Project', 'Package', 'Group'
                           [User.find_by(login: @notification.event_payload['who'])]
                         when 'Report'
                           [User.find_by(login: @notification.event_payload['reporter'])]
