@@ -60,11 +60,13 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def set_notifications
-    @notifications = User.session!.notifications.for_web.includes(notifiable: [{ commentable: [{ comments: :user }, :project, :bs_request_actions] }, :bs_request_actions, :reviews])
+    @notifications = User.session!.notifications.for_web
     @notifications = filter_notifications_by_project(@notifications, @filter_project)
     @notifications = filter_notifications_by_group(@notifications, @filter_group)
     @notifications = filter_notifications_by_state(@notifications, @filter_state)
     @notifications = filter_notifications_by_kind(@notifications, @filter_kind)
+    @all_filtered_notifications = @notifications
+    @notifications = @notifications.includes(notifiable: [{ commentable: [{ comments: :user }, :project, :bs_request_actions] }, :bs_request_actions, :reviews])
   end
 
   def set_notifications_to_be_updated
@@ -95,7 +97,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def paginate_notifications
-    @all_filtered_notifications = @notifications
     @notifications = params[:show_more] ? show_more(@notifications) : @notifications.page(params[:page])
     params[:page] = @notifications.total_pages if @notifications.out_of_range?
   end
