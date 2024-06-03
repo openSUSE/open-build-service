@@ -23,7 +23,7 @@ class NotificationComponent < ApplicationComponent
   end
 
   def notification_icon
-    if @notification.event_type.in?(['Event::RelationshipCreate', 'Event::RelationshipDelete'])
+    if @notification.event_type.in?(['Event::RelationshipCreate', 'Event::RelationshipDelete', 'Event::AddedUserToGroup'])
       tag.i(class: %w[fas fa-user-tag], title: 'Relationship notification')
     elsif NOTIFICATION_ICON[@notification.notifiable_type].present?
       tag.i(class: ['fas', NOTIFICATION_ICON[@notification.notifiable_type]], title: NOTIFICATION_TITLE[@notification.notifiable_type])
