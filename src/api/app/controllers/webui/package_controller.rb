@@ -28,6 +28,8 @@ class Webui::PackageController < Webui::WebuiController
 
   def index
     render json: PackageDatatable.new(params, view_context: view_context, project: @project)
+  rescue AjaxDatatablesRails::Error::InvalidSearchColumn, AjaxDatatablesRails::Error::InvalidSearchCondition
+    render json: { data: [] }
   end
 
   def show
