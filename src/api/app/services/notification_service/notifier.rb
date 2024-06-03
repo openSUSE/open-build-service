@@ -46,7 +46,9 @@ module NotificationService
                         'Event::ReportForRequest',
                         'Event::ClearedDecision',
                         'Event::FavoredDecision',
-                        'Event::WorkflowRunFail'].freeze
+                        'Event::WorkflowRunFail',
+                        'Event::AddedUserToGroup',
+                        'Event::RemovedUserFromGroup'].freeze
 
     def initialize(event)
       @event = event
