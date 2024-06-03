@@ -18,5 +18,10 @@ module Event
     def originator
       payload_address('who')
     end
+
+    def parameters_for_notification
+      super.merge({ notifiable_type: 'Group',
+                    notifiable_id: Group.find_by(title: payload['group']).id })
+    end
   end
 end

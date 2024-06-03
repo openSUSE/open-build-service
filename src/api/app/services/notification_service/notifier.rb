@@ -31,7 +31,8 @@ module NotificationService
       'Report' => ::Report,
       'Decision' => ::Decision,
       'WorkflowRun' => ::WorkflowRun,
-      'Appeal' => ::Appeal
+      'Appeal' => ::Appeal,
+      'Group' => ::Group
     }.freeze
     ALLOWED_CHANNELS = {
       web: NotificationService::WebChannel,
