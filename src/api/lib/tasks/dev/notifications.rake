@@ -20,6 +20,16 @@ namespace :dev do
       admin_home_project = admin.home_project || RakeSupport.create_and_assign_project(admin.home_project_name, admin)
       requestor_project = Project.find_by(name: 'requestor_project') || RakeSupport.create_and_assign_project('requestor_project', requestor)
 
+      # Create notification for roles revoked
+      User.find_by(login: 'Iggy').run_as do
+        home_project_iggy = Project.find_by(name: 'home:Iggy')
+        role = Role.find_by_title!('maintainer')
+        Relationship::AddRole.new(home_project_iggy, role, check: true, user: admin).add_role
+        home_project_iggy.store
+        home_project_iggy.remove_role(admin, role)
+        home_project_iggy.store
+      end
+
       repetitions.times do |repetition|
         package_name = "package_#{Time.now.to_i}_#{repetition}"
         admin_package = create(:package_with_file, name: package_name, project: admin_home_project)
@@ -60,6 +70,9 @@ namespace :dev do
         )
         # Will create a notification (RequestStatechange event) for this request change.
         request2.change_state(newstate: %w[accepted declined].sample, force: true, user: requestor.login, comment: 'Declined by requestor')
+
+        # Create notifications for build failures
+        Event::BuildFail.create({ project: admin_home_project.name, package: package_name, repository: "#{Faker::Lorem.word}_repo", arch: "#{Faker::Lorem.word}_arch", reason: 'meta change' })
 
         # Process notifications immediately to see them in the web UI
         SendEventEmailsJob.new.perform_now
