@@ -26,6 +26,15 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @count = @notifications.where(id: @notification_ids, delivered: !deliver).update_all(delivered: deliver)
     # rubocop:enable Rails/SkipsModelValidations
 
+    # update the count after the update
+    if deliver
+      @counted_notifications['unread'] -= @count
+      @counted_notifications['read'] += @count
+    else
+      @counted_notifications['unread'] += @count
+      @counted_notifications['read'] -= @count
+    end
+
     respond_to do |format|
       format.html { redirect_to my_notifications_path }
       format.js do
