@@ -8,12 +8,12 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   before_action :require_login
   before_action :set_filter_kind, :set_filter_state, :set_filter_project, :set_filter_group
   before_action :set_notifications
-  before_action :set_notifications_to_be_updated, only: [:update]
+  before_action :set_notifications_to_be_updated, only: :update
   before_action :set_counted_notifications
-  before_action :filter_notifications
-  before_action :set_show_read_all_button
+  before_action :filter_notifications, only: :index
+  before_action :set_show_read_all_button, only: :index
   before_action :set_selected_filter
-  before_action :paginate_notifications
+  before_action :paginate_notifications, only: :index
 
   def index
     @current_user = User.session
@@ -26,14 +26,11 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @count = @notifications.where(id: @notification_ids, delivered: !deliver).update_all(delivered: deliver)
     # rubocop:enable Rails/SkipsModelValidations
 
-    # update the count after the update
-    if deliver
-      @counted_notifications['unread'] -= @count
-      @counted_notifications['read'] += @count
-    else
-      @counted_notifications['unread'] += @count
-      @counted_notifications['read'] -= @count
-    end
+    # manually update the count and the filtered subset after the update
+    set_counted_notifications
+    filter_notifications
+    set_show_read_all_button
+    paginate_notifications
 
     respond_to do |format|
       format.html { redirect_to my_notifications_path }
@@ -81,6 +78,11 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @counted_notifications['read'] = @notifications.read.count
   end
 
+  def update_counted_notifications
+    @counted_notifications['unread'] = User.session.unread_notifications
+    @counted_notifications['read'] = @counted_notifications['all'].to_i - @counted_notifications['unread']
+  end
+
   def filter_notifications
     @notifications = filter_notifications_by_project(@notifications, @filter_project)
     @notifications = filter_notifications_by_group(@notifications, @filter_group)
@@ -89,10 +91,14 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def set_notifications_to_be_updated
-    return @notification_ids = @notifications.map(&:id) if params[:update_all]
-    return unless params[:notification_ids]
+    @notification_ids = []
 
-    @notification_ids = @notifications.where(id: params[:notification_ids]).map(&:id)
+    if params[:update_all]
+      filter_notifications
+      @notification_ids = @notifications.map(&:id)
+    elsif params[:notification_ids]
+      @notification_ids = @notifications.where(id: params[:notification_ids]).map(&:id)
+    end
   end
 
   def set_show_read_all_button

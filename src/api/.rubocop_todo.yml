@@ -188,6 +188,7 @@ Metrics/ClassLength:
   Exclude:
     - 'app/controllers/application_controller.rb'
     - 'app/controllers/build_controller.rb'
+    - 'app/controllers/webui/users/notifications_controller.rb'
     - 'app/controllers/person_controller.rb'
     - 'app/controllers/public_controller.rb'
     - 'app/controllers/request_controller.rb'
