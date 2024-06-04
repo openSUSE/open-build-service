@@ -70,6 +70,11 @@
                                                               key: 'kind[appealed_decisions]', name: 'kind[]', value: 'appealed_decisions',
                                                               label_icon: 'fas fa-hand',
                                                               checked: selected_filter[:kind]&.include?('appealed_decisions') }
+    .px-4.py-1
+      = render partial: 'webui/shared/check_box', locals: { label: 'Groups Membership', amount: counted_notifications['member_on_groups'],
+                                                            key: 'kind[member_on_groups]', name: 'kind[]', value: 'member_on_groups',
+                                                            label_icon: 'fas fa-people-group',
+                                                            checked: selected_filter[:kind]&.include?('user_on_groups') }
 
   - unless projects_for_filter.empty?
     .list-group.list-group-flush.mt-4.mb-4
