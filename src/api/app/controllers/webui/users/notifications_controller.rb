@@ -11,7 +11,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   before_action :set_notifications_to_be_updated, only: :update
   before_action :set_counted_notifications, only: :index
   before_action :filter_notifications, only: :index
-  before_action :set_show_read_all_button, only: :index
   before_action :set_selected_filter
   before_action :paginate_notifications, only: :index
 
@@ -30,7 +29,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     set_unread_notifications_count # before_action filter method defined in the Webui controller
     set_counted_notifications
     filter_notifications
-    set_show_read_all_button
     paginate_notifications
 
     respond_to do |format|
@@ -41,7 +39,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
           unread_notifications_count: @unread_notifications_count,
           selected_filter: @selected_filter,
           counted_notifications: @counted_notifications,
-          show_read_all_button: @show_read_all_button,
           user: User.session
         }
       end
@@ -113,10 +110,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     elsif params[:notification_ids]
       @notification_ids = @notifications.where(id: params[:notification_ids]).map(&:id)
     end
-  end
-
-  def set_show_read_all_button
-    @show_read_all_button = @counted_notifications['all'] > Notification::MAX_PER_PAGE
   end
 
   def set_selected_filter
