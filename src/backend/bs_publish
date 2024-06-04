@@ -1027,6 +1027,20 @@ sub createrepo_debian {
   } else {
     rmdir($udebs);
   }
+
+  my $ddebs = "$extrep/debian-debug";
+  mkdir_p($ddebs) unless -d $ddebs;
+  if (qsystem('chdir', $ddebs, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-t', 'ddeb', '-m', '..', '/dev/null')) {
+    die("    dpkg-scanpackages for ddebs failed: $?\n");
+  }
+  compress_and_rename("$ddebs/Packages.new", "$ddebs/Packages");
+
+  if ( -e "$ddebs/Packages") {
+    createrelease_debian($ddebs, $projid, $repoid, $data, $options);
+  } else {
+    rmdir($ddebs);
+  }
+
 }
 
 sub createrelease_debian {
@@ -1116,6 +1130,10 @@ sub deleterepo_debian {
   if (-d "$extrep/debian-installer") {
     BSUtil::cleandir("$extrep/debian-installer");
     rmdir("$extrep/debian-installer");
+  }
+  if (-d "$extrep/debian-debug") {
+    BSUtil::cleandir("$extrep/debian-debug");
+    rmdir("$extrep/debian-debug");
   }
 }
 
