@@ -10,8 +10,8 @@
         Filtered by: #{@filtered_by_text}
         %i.float-end.mt-1.fa.fa-chevron-down#notifications-dropdown-trigger
       .collapse#filters
-        = render NotificationFilterComponent.new(notifications: @all_filtered_notifications,
-                                                 selected_filter: @selected_filter,
+        = render NotificationFilterComponent.new(selected_filter: @selected_filter,
+                                                 counted_notifications: @counted_notifications,
                                                  user: User.session)
 
   .col-md-8.col-lg-9.px-0.px-md-3#notifications-list

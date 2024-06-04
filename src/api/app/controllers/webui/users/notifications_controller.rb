@@ -11,6 +11,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   before_action :set_notifications_to_be_updated, only: [:update]
   before_action :set_show_read_all_button
   before_action :set_selected_filter
+  before_action :set_notifications_count
   before_action :paginate_notifications
 
   def index
@@ -29,8 +30,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
       format.js do
         render partial: 'update', locals: {
           notifications: @notifications,
-          all_filtered_notifications: @all_filtered_notifications,
           selected_filter: @selected_filter,
+          counted_notifications: @counted_notifications,
           show_read_all_button: @show_read_all_button,
           user: User.session
         }
@@ -67,6 +68,14 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @notifications = filter_notifications_by_kind(@notifications, @filter_kind)
   end
 
+  def set_notifications_count
+    @counted_notifications = {}
+    @counted_notifications['all'] = @notifications.count
+    @counted_notifications['unread'] = @notifications.unread.count
+    @counted_notifications['read'] = @notifications.read.count
+    @counted_notifications
+  end
+
   def set_notifications_to_be_updated
     return @notification_ids = @notifications.map(&:id) if params[:update_all]
     return unless params[:notification_ids]
@@ -95,7 +104,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def paginate_notifications
-    @all_filtered_notifications = @notifications
     @notifications = params[:show_more] ? show_more(@notifications) : @notifications.page(params[:page])
     params[:page] = @notifications.total_pages if @notifications.out_of_range?
   end
