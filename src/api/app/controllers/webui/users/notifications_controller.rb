@@ -9,9 +9,9 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   before_action :set_filter_kind, :set_filter_state, :set_filter_project, :set_filter_group
   before_action :set_notifications
   before_action :set_notifications_to_be_updated, only: [:update]
+  before_action :set_notifications_count
   before_action :set_show_read_all_button
   before_action :set_selected_filter
-  before_action :set_notifications_count
   before_action :paginate_notifications
 
   def index
@@ -84,7 +84,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def set_show_read_all_button
-    @show_read_all_button = @notifications.count > Notification::MAX_PER_PAGE
+    @show_read_all_button = @counted_notifications['all'] > Notification::MAX_PER_PAGE
   end
 
   def set_selected_filter
@@ -93,7 +93,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def show_more(notifications)
-    total = notifications.size
+    total = @counted_notifications['all']
     flash.now[:info] = "You have too many notifications. Displaying a maximum of #{Notification::MAX_PER_PAGE} notifications per page." if total > Notification::MAX_PER_PAGE
     notifications.page(params[:page]).per([total, Notification::MAX_PER_PAGE].min)
   end
