@@ -11,7 +11,7 @@
       liveLog.browserNotification('#{@status}');
     liveLog.finish("#{@status}");
   - else
-    $('#log-space').append('#{escape_javascript(@log_chunk)}');
+    $('#log-space').append('#{escape_javascript(sanitize @log_chunk)}');
     liveLog.showAbort();
     liveLog.offset = #{@offset};
     setTimeout($.proxy(liveLog.loadContent, liveLog), 2000);

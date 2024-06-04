@@ -89,6 +89,7 @@ GEM
       activerecord (>= 3.2, < 8.0)
       rake (>= 10.4, < 14.0)
     ansi (1.5.0)
+    ansible (0.2.2)
     ast (2.4.2)
     autoprefixer-rails (10.4.16.0)
       execjs (~> 2)
@@ -156,7 +157,6 @@ GEM
     down (5.4.2)
       addressable (~> 2.8)
     erubi (1.12.0)
-    escape_code (0.2)
     execjs (2.9.1)
     factory_bot (6.4.6)
       activesupport (>= 5.0.0)
@@ -543,6 +543,7 @@ DEPENDENCIES
   airbrake-ruby
   ajax-datatables-rails
   annotate
+  ansible
   awesome_print
   bcrypt
   bigdecimal
@@ -564,7 +565,6 @@ DEPENDENCIES
   deep_cloneable
   delayed_job_active_record
   down
-  escape_code
   factory_bot_rails
   faker
   faraday
