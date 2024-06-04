@@ -10,6 +10,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   before_action :set_notifications
   before_action :set_notifications_to_be_updated, only: [:update]
   before_action :set_notifications_count
+  before_action :set_filtered_notifications
   before_action :set_show_read_all_button
   before_action :set_selected_filter
   before_action :paginate_notifications
@@ -62,10 +63,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   def set_notifications
     @notifications = User.session!.notifications.for_web.includes(notifiable: [{ commentable: [{ comments: :user }, :project, :bs_request_actions] }, :bs_request_actions, :reviews])
-    @notifications = filter_notifications_by_project(@notifications, @filter_project)
-    @notifications = filter_notifications_by_group(@notifications, @filter_group)
-    @notifications = filter_notifications_by_state(@notifications, @filter_state)
-    @notifications = filter_notifications_by_kind(@notifications, @filter_kind)
   end
 
   def set_notifications_count
@@ -73,7 +70,13 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @counted_notifications['all'] = @notifications.count
     @counted_notifications['unread'] = @notifications.unread.count
     @counted_notifications['read'] = @notifications.read.count
-    @counted_notifications
+  end
+
+  def set_filtered_notifications
+    @notifications = filter_notifications_by_project(@notifications, @filter_project)
+    @notifications = filter_notifications_by_group(@notifications, @filter_group)
+    @notifications = filter_notifications_by_state(@notifications, @filter_state)
+    @notifications = filter_notifications_by_kind(@notifications, @filter_kind)
   end
 
   def set_notifications_to_be_updated
