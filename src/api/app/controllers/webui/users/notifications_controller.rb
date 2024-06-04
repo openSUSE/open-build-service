@@ -49,13 +49,13 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   private
 
   def set_filter_kind
-    @filter_kind = Array(params[:kind].presence || 'all') # in case just one value, we want an array anyway
-    raise FilterNotSupportedError unless (@filter_kind - ALLOWED_FILTERS).empty?
+    @filter_kind = Array(params[:kind].presence || 'all')
+    @filter_kind.reject! { |kind| ALLOWED_FILTERS.exclude?(kind) }
   end
 
   def set_filter_state
     @filter_state = params[:state].presence || 'unread'
-    raise FilterNotSupportedError if ALLOWED_STATES.exclude?(@filter_state)
+    @filter_state = 'unread' if ALLOWED_STATES.exclude?(@filter_state)
   end
 
   def set_filter_project
