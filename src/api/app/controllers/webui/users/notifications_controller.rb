@@ -63,10 +63,12 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   def set_filter_project
     @filter_project = params[:project] || []
+    @projects_for_filter = ProjectsForFilterFinder.new.call
   end
 
   def set_filter_group
     @filter_group = params[:group] || []
+    @groups_for_filter = GroupsForFilterFinder.new.call
   end
 
   def set_notifications
@@ -119,10 +121,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   def set_selected_filter
     @selected_filter = { kind: @filter_kind, state: @filter_state, project: @filter_project, group: @filter_group }
-    @filtered_by_text = "State: #{@filter_state.to_s.humanize} - Type: #{@filter_kind.map { |s| s.to_s.humanize }.join(', ')}"
-
-    @projects_for_filter = ProjectsForFilterFinder.new.call
-    @groups_for_filter = GroupsForFilterFinder.new.call
   end
 
   def show_more(notifications)
