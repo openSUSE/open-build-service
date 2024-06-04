@@ -301,6 +301,8 @@ sub check {
   my $projpacks = $gctx->{'projpacks'};
   my %unneeded_na;
   my %archs = map {$_ => 1} @archs;
+  my $dobuildinfo = $ctx->{'dobuildinfo'};
+
   for my $aprp (@aprps) {
     my %seen_fn;	# resolve file conflicts in this prp
     my %known;
@@ -484,7 +486,7 @@ sub check {
 	}
 
 	# our buildinfo data also includes special files like appdata
-	if ($ctx->{'isreposerver'}) {
+	if ($dobuildinfo) {
 	  for my $fn (@bi) {
             next unless $fn =~ (/[-.]appdata\.xml$/) || $fn eq '_modulemd.yaml';
 	    next if $seen_fn{$fn};

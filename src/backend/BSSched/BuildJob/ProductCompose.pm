@@ -288,6 +288,7 @@ sub check {
   my $projpacks = $gctx->{'projpacks'};
   my %unneeded_na;
   my %archs = map {$_ => 1} @archs;
+  my $dobuildinfo = $ctx->{'dobuildinfo'};
 
   for my $aprp (@bprps) {
     my %seen_fn;	# resolve file conflicts in this prp
@@ -485,6 +486,15 @@ sub check {
 
 	# we need the package, add the rpms we need
 	for my $fn (@bi) {
+	  if ($fn eq 'updateinfo.xml' || $fn eq '_modulemd.yaml') {
+	    my $b = $bininfo->{$fn};
+	    next if $dobuildinfo || !$b || !$b->{'md5sum'};
+	    my $rpm = "$aprp/$arch/$apackid/$fn";
+	    push @rpms, $rpm;
+	    $rpms_hdrmd5{$rpm} = $b->{'md5sum'};
+	    $rpms_meta{$rpm} = $rpm;
+	    next;
+	  }
 	  next unless $fn =~ /^(?:::import::.*::)?(.+)-(?:[^-]+)-(?:[^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
 	  my ($bn, $ba) = ($1, $2);
 	  next unless exists $binarchs{$ba};
@@ -518,7 +528,7 @@ sub check {
 	}
 
 	# our buildinfo data also includes special files like appdata
-	if ($ctx->{'isreposerver'}) {
+	if ($dobuildinfo) {
 	  for my $fn (@bi) {
 	    next unless ($fn =~ /[-.]appdata\.xml$/) || $fn eq '_modulemd.yaml' || $fn eq 'updateinfo.xml';
 	    next if $seen_fn{$fn};
