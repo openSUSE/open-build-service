@@ -20,5 +20,5 @@
   .col-md-8.col-lg-9.px-0.px-md-3#notifications-list
     = render partial: 'notifications_list', locals: { notifications: @notifications,
                                                       selected_filter: @selected_filter,
-                                                      show_read_all_button: @show_read_all_button,
-                                                      current_user: @current_user }
+                                                      show_read_all_button: @show_read_all_button)
+

@@ -1,5 +1,9 @@
 RSpec.describe NotificationNotifiableLinkComponent, type: :component do
-  let(:current_user) { create(:user) }
+  let(:user) { create(:user) }
+
+  before do
+    User.session = user
+  end
 
   context 'for a BsRequest notification with multiple actions' do
     let(:bs_request) { create(:bs_request_with_submit_action, number: 456_345) }
@@ -9,7 +13,7 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
       # Extra BsRequestAction
       bs_request.bs_request_actions << create(:bs_request_action_add_maintainer_role)
 
-      render_inline(described_class.new(notification, current_user))
+      render_inline(described_class.new(notification))
     end
 
     it 'renders a link to the BsRequest with a generic text and its number' do
@@ -22,7 +26,7 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     let(:notification) { create(:notification, :request_state_change, notifiable: bs_request) }
 
     before do
-      render_inline(described_class.new(notification, current_user))
+      render_inline(described_class.new(notification))
     end
 
     it 'renders a link to the BsRequest with the text containing its action and number' do
@@ -35,7 +39,7 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     let(:notification) { create(:notification, :request_created, notifiable: bs_request) }
 
     before do
-      render_inline(described_class.new(notification, current_user))
+      render_inline(described_class.new(notification))
     end
 
     it 'renders a link to the BsRequest with the text containing its action and number' do
@@ -48,7 +52,7 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     let(:notification) { create(:notification, :review_wanted, notifiable: bs_request) }
 
     before do
-      render_inline(described_class.new(notification, current_user))
+      render_inline(described_class.new(notification))
     end
 
     it 'renders a link to the BsRequest with the text containing its action and number' do
@@ -62,7 +66,7 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     let(:notification) { create(:notification, :comment_for_request, notifiable: comment) }
 
     before do
-      render_inline(described_class.new(notification, current_user))
+      render_inline(described_class.new(notification))
     end
 
     it "renders a link to the comment's BsRequest with the text containing its action and number" do
@@ -76,7 +80,7 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     let(:notification) { create(:notification, :comment_for_project, notifiable: comment) }
 
     before do
-      render_inline(described_class.new(notification, current_user))
+      render_inline(described_class.new(notification))
     end
 
     it "renders a link to the comment's project" do
@@ -91,7 +95,7 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     let(:notification) { create(:notification, :comment_for_package, notifiable: comment) }
 
     before do
-      render_inline(described_class.new(notification, current_user))
+      render_inline(described_class.new(notification))
     end
 
     it "renders a link to the comment's package" do
@@ -105,7 +109,7 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     let(:package) { notification.notifiable.reportable.commentable }
 
     before do
-      render_inline(described_class.new(notification, current_user))
+      render_inline(described_class.new(notification))
     end
 
     it 'renders a link to the reported content' do
@@ -118,7 +122,7 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     let(:package) { notification.notifiable.reports.first.reportable.commentable }
 
     before do
-      render_inline(described_class.new(notification, current_user))
+      render_inline(described_class.new(notification))
     end
 
     it 'renders a link to the reportable' do
@@ -131,7 +135,7 @@ RSpec.describe NotificationNotifiableLinkComponent, type: :component do
     let(:package) { notification.notifiable.reports.first.reportable.commentable }
 
     before do
-      render_inline(described_class.new(notification, current_user))
+      render_inline(described_class.new(notification))
     end
 
     it 'renders a link to the reportable' do

@@ -17,9 +17,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   skip_before_action :set_unread_notifications_count, only: :update
 
-  def index
-    @current_user = User.session
-  end
+  def index; end
 
   def update
     # The button value specifies whether we selected read or unread

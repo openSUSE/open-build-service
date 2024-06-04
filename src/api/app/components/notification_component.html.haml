@@ -9,7 +9,7 @@
       .row
         .col
           = notification_icon
-          = render NotificationNotifiableLinkComponent.new(@notification, @current_user)
+          = render NotificationNotifiableLinkComponent.new(@notification)
           %small.text-nowrap
             = render TimeComponent.new(time: @notification.created_at)
           - if @notification.notifiable_type == 'BsRequest'
