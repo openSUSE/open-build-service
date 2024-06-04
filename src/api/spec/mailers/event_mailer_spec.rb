@@ -611,5 +611,65 @@ RSpec.describe EventMailer, :vcr do
         expect(mail.body.encoded).to include("The reported #{decision.reports.first.reportable&.class&.name&.downcase} does not exist anymore.")
       end
     end
+
+    context 'for an event of type Event::AddedUserToGroup' do
+      let(:who) { create(:confirmed_user) }
+      let(:user) { create(:confirmed_user) }
+      let(:group) { create(:group) }
+      let!(:subscription) { create(:event_subscription_added_user_to_group, user: user) }
+
+      let(:mail) { EventMailer.with(subscribers: Event::AddedUserToGroup.last.subscribers, event: Event::AddedUserToGroup.last).notification_email.deliver_now }
+
+      before do
+        login(user)
+        Event::AddedUserToGroup.create!(who: who.login, user: user.login, group: group.title)
+      end
+
+      it 'gets delivered' do
+        expect(ActionMailer::Base.deliveries).to include(mail)
+      end
+
+      it 'sends an email to the subscribed user' do
+        expect(mail.to).to include(user.email)
+      end
+
+      it 'contains the correct subject' do
+        expect(mail.subject).to include("'#{who}' added you to the group '#{group}'")
+      end
+
+      it 'contains the correct text' do
+        expect(mail.body.encoded).to include("You got added to group '#{group}'")
+      end
+    end
+
+    context 'for an event of type Event::RemovedUserFromGroup' do
+      let(:who) { create(:confirmed_user) }
+      let(:user) { create(:confirmed_user) }
+      let(:group) { create(:group_with_user, user: user) }
+      let!(:subscription) { create(:event_subscription_removed_user_from_group, user: user) }
+
+      let(:mail) { EventMailer.with(subscribers: Event::RemovedUserFromGroup.last.subscribers, event: Event::RemovedUserFromGroup.last).notification_email.deliver_now }
+
+      before do
+        login(user)
+        Event::RemovedUserFromGroup.create!(who: who.login, user: user.login, group: group.title)
+      end
+
+      it 'gets delivered' do
+        expect(ActionMailer::Base.deliveries).to include(mail)
+      end
+
+      it 'sends an email to the subscribed user' do
+        expect(mail.to).to include(user.email)
+      end
+
+      it 'contains the correct subject' do
+        expect(mail.subject).to include("'#{who}' removed you from the group '#{group}'")
+      end
+
+      it 'contains the correct text' do
+        expect(mail.body.encoded).to include("You got removed from group '#{group}'")
+      end
+    end
   end
 end
