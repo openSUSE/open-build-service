@@ -27,7 +27,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     # rubocop:enable Rails/SkipsModelValidations
 
     # manually update the count and the filtered subset after the update
-    set_counted_notifications
+    update_counted_notifications
     filter_notifications
     set_show_read_all_button
     paginate_notifications
