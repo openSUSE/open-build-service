@@ -27,6 +27,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     # rubocop:enable Rails/SkipsModelValidations
 
     # manually update the count and the filtered subset after the update
+    set_unread_notifications # before_action filter method defined in the Webui controller
     set_counted_notifications
     filter_notifications
     set_show_read_all_button
@@ -37,7 +38,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
       format.js do
         render partial: 'update', locals: {
           notifications: @notifications,
-          unread_notifications: User.session.unread_notifications,
+          unread_notifications: @unread_notifications,
           selected_filter: @selected_filter,
           counted_notifications: @counted_notifications,
           show_read_all_button: @show_read_all_button,
@@ -75,7 +76,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   def set_counted_notifications
     @counted_notifications = {}
     @counted_notifications['all'] = @notifications.count
-    @counted_notifications['unread'] = @notifications.unread.count
+    @counted_notifications['unread'] = @unread_notifications # Variable set in the Webui controller
     @counted_notifications['read'] = @notifications.read.count
     @counted_notifications['comments'] = @notifications.for_comments.count
     @counted_notifications['requests'] = @notifications.for_requests.count
