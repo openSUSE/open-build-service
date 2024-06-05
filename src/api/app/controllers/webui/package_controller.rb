@@ -7,24 +7,22 @@ class Webui::PackageController < Webui::WebuiController
   before_action :set_project, only: %i[show edit update index users requests statistics revisions
                                        new branch_diff_info rdiff create remove
                                        save_person save_group remove_role view_file abort_build trigger_rebuild
-                                       trigger_services buildresult rpmlint_result rpmlint_log meta save_meta files]
+                                       trigger_services buildresult rpmlint_result rpmlint_log files]
 
   before_action :require_package, only: %i[edit update show requests statistics revisions
-                                           branch_diff_info rdiff save_meta remove
+                                           branch_diff_info rdiff remove
                                            save_person save_group remove_role view_file abort_build trigger_rebuild
-                                           trigger_services buildresult rpmlint_result rpmlint_log meta files users]
-
-  before_action :validate_xml, only: [:save_meta]
+                                           trigger_services buildresult rpmlint_result rpmlint_log files users]
 
   before_action :check_ajax, only: %i[devel_project buildresult rpmlint_result]
   # make sure it's after the require_, it requires both
   before_action :require_login, except: %i[show index branch_diff_info
                                            users requests statistics revisions view_file
-                                           devel_project buildresult rpmlint_result rpmlint_log meta files]
+                                           devel_project buildresult rpmlint_result rpmlint_log files]
 
   prepend_before_action :lockout_spiders, only: %i[revisions rdiff requests]
 
-  after_action :verify_authorized, only: %i[new create remove abort_build trigger_rebuild save_meta abort_build]
+  after_action :verify_authorized, only: %i[new create remove abort_build trigger_rebuild abort_build]
 
   def index
     render json: PackageDatatable.new(params, view_context: view_context, project: @project)
@@ -366,37 +364,6 @@ class Webui::PackageController < Webui::WebuiController
     render partial: 'rpmlint_log', locals: { rpmlint_log_file: rpmlint_log_file, render_chart: render_chart, parsed_messages: parsed_messages }
   end
 
-  def meta
-    @meta = @package.render_xml
-  end
-
-  def save_meta
-    errors = []
-
-    authorize @package, :save_meta_update?
-
-    errors << 'admin rights are required to raise the protection level of a package' if FlagHelper.xml_disabled_for?(@meta_xml, 'sourceaccess')
-
-    errors << 'project name in xml data does not match resource path component' if @meta_xml['project'] && @meta_xml['project'] != @project.name
-
-    errors << 'package name in xml data does not match resource path component' if @meta_xml['name'] && @meta_xml['name'] != @package.name
-
-    if errors.empty?
-      begin
-        @package.update_from_xml(@meta_xml)
-        flash.now[:success] = 'The Meta file has been successfully saved.'
-        status = 200
-      rescue Backend::Error, NotFoundError => e
-        flash.now[:error] = "Error while saving the Meta file: #{e}."
-        status = 400
-      end
-    else
-      flash.now[:error] = "Error while saving the Meta file: #{errors.compact.join("\n")}."
-      status = 400
-    end
-    render layout: false, status: status, partial: 'layouts/webui/flash', object: flash
-  end
-
   private
 
   def package_params
@@ -414,14 +381,6 @@ class Webui::PackageController < Webui::WebuiController
       .permit(:title,
               :description,
               :url)
-  end
-
-  def validate_xml
-    Suse::Validator.validate('package', params[:meta])
-    @meta_xml = Xmlhash.parse(params[:meta])
-  rescue Suse::ValidationError => e
-    flash.now[:error] = "Error while saving the Meta file: #{e}."
-    render layout: false, status: :bad_request, partial: 'layouts/webui/flash', object: flash
   end
 
   def require_architecture

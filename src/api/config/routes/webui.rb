@@ -103,8 +103,8 @@ constraints(RoutesHelper::WebuiMatcher) do
       get 'package/buildresult' => :buildresult, constraints: cons, as: 'package_buildresult'
       get 'package/rpmlint_result' => :rpmlint_result, constraints: cons, as: 'rpmlint_result'
       get 'package/rpmlint_log' => :rpmlint_log, constraints: cons
-      get 'package/meta/:project/:package' => :meta, constraints: cons, as: 'package_meta'
-      post 'package/save_meta/:project/:package' => :save_meta, constraints: cons, as: 'package_save_meta'
+      # For backward compatibility
+      get 'package/meta/:project/:package', to: redirect('/projects/%{project}/packages/%{package}/meta'), constraints: cons
       # For backward compatibility
       get 'package/attributes/:project/:package', to: redirect('/attribs/%{project}/%{package}'), constraints: cons
       # For backward compatibility
@@ -293,6 +293,7 @@ constraints(RoutesHelper::WebuiMatcher) do
         # We wipe all binaries at once, so this is resource instead of resources
         resource :binaries, controller: 'webui/packages/binaries', only: [:destroy], constraints: cons
       end
+      resource :meta, controller: 'webui/packages/meta', only: %i[show update], constraints: cons
     end
 
     resources :role_additions, controller: 'webui/requests/role_additions', only: %i[new create], constraints: cons
