@@ -104,6 +104,8 @@ constraints(RoutesHelper::WebuiMatcher) do
       get 'package/rpmlint_result' => :rpmlint_result, constraints: cons, as: 'rpmlint_result'
       get 'package/rpmlint_log' => :rpmlint_log, constraints: cons
       # For backward compatibility
+      get 'package/meta/:project/:package', to: redirect('/projects/%{project}/packages/%{package}/meta'), constraints: cons
+      # For backward compatibility
       get 'package/attributes/:project/:package', to: redirect('/attribs/%{project}/%{package}'), constraints: cons
       # For backward compatibility
       get 'package/repositories/:project/:package', to: redirect('/repositories/%{project}/%{package}'), constraints: cons
