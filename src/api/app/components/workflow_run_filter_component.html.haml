@@ -73,13 +73,13 @@
 
 :javascript
   function submitWorkflowFilters() {
-    $('#workflow-run-list').hide();
-    $('#workflow-run-list-loading').toggleClass('d-none');
     $('#workflow-run-filter-form').submit();
   }
   let submitFiltersTimeout;
 
   $(document).on('change keyup', '#workflow-runs-filter-desktop input, #workflow-runs-filter-desktop select', function() {
+    $('#workflow-run-list').hide();
+    $('#workflow-run-list-loading').removeClass('d-none');
     clearTimeout(submitFiltersTimeout);
     submitFiltersTimeout = setTimeout(submitWorkflowFilters, 1500);
   });
