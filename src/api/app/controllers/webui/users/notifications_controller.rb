@@ -9,7 +9,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   before_action :set_filter_kind, :set_filter_state, :set_filter_project, :set_filter_group
   before_action :set_notifications
   before_action :set_notifications_to_be_updated, only: :update
-  before_action :set_counted_notifications
+  before_action :set_counted_notifications, only: :index
   before_action :filter_notifications, only: :index
   before_action :set_show_read_all_button, only: :index
   before_action :set_selected_filter
@@ -77,7 +77,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @counted_notifications = {}
     @counted_notifications['all'] = @notifications.count
     @counted_notifications['unread'] = @unread_notifications # Variable set in the Webui controller
-    @counted_notifications['read'] = @notifications.read.count
+    @counted_notifications['read'] = @counted_notifications['all'] - @counted_notifications['unread']
     @counted_notifications['comments'] = @notifications.for_comments.count
     @counted_notifications['requests'] = @notifications.for_requests.count
     @counted_notifications['incoming_requests'] = @notifications.for_incoming_requests(User.session).count
