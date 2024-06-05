@@ -74,6 +74,10 @@ namespace :dev do
         # Create notifications for build failures
         Event::BuildFail.create({ project: admin_home_project.name, package: package_name, repository: "#{Faker::Lorem.word}_repo", arch: "#{Faker::Lorem.word}_arch", reason: 'meta change' })
 
+        # Add admin to a group to generate a Event::AddedUserToGroup.
+        another_group = create(:group, title: Faker::Lorem.word)
+        another_group.users << admin
+
         # Process notifications immediately to see them in the web UI
         SendEventEmailsJob.new.perform_now
       end
