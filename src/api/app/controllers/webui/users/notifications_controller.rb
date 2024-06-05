@@ -8,10 +8,12 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   before_action :require_login
   before_action :set_filter_kind, :set_filter_state, :set_filter_project, :set_filter_group
   before_action :set_notifications
-  before_action :set_notifications_to_be_updated, only: [:update]
-  before_action :set_show_read_all_button
+  before_action :set_notifications_to_be_updated, only: :update
+  before_action :set_counted_notifications
+  before_action :filter_notifications, only: :index
+  before_action :set_show_read_all_button, only: :index
   before_action :set_selected_filter
-  before_action :paginate_notifications
+  before_action :paginate_notifications, only: :index
 
   def index
     @current_user = User.session
@@ -24,13 +26,19 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @count = @notifications.where(id: @notification_ids, delivered: !deliver).update_all(delivered: deliver)
     # rubocop:enable Rails/SkipsModelValidations
 
+    # manually update the count and the filtered subset after the update
+    set_counted_notifications
+    filter_notifications
+    set_show_read_all_button
+    paginate_notifications
+
     respond_to do |format|
       format.html { redirect_to my_notifications_path }
       format.js do
         render partial: 'update', locals: {
           notifications: @notifications,
-          all_filtered_notifications: @all_filtered_notifications,
           selected_filter: @selected_filter,
+          counted_notifications: @counted_notifications,
           show_read_all_button: @show_read_all_button,
           user: User.session
         }
@@ -61,6 +69,21 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   def set_notifications
     @notifications = User.session!.notifications.for_web.includes(notifiable: [{ commentable: [{ comments: :user }, :project, :bs_request_actions] }, :bs_request_actions, :reviews])
+  end
+
+  def set_counted_notifications
+    @counted_notifications = {}
+    @counted_notifications['all'] = @notifications.count
+    @counted_notifications['unread'] = @notifications.unread.count
+    @counted_notifications['read'] = @notifications.read.count
+  end
+
+  def update_counted_notifications
+    @counted_notifications['unread'] = User.session.unread_notifications
+    @counted_notifications['read'] = @counted_notifications['all'].to_i - @counted_notifications['unread']
+  end
+
+  def filter_notifications
     @notifications = filter_notifications_by_project(@notifications, @filter_project)
     @notifications = filter_notifications_by_group(@notifications, @filter_group)
     @notifications = filter_notifications_by_state(@notifications, @filter_state)
@@ -68,23 +91,30 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def set_notifications_to_be_updated
-    return @notification_ids = @notifications.map(&:id) if params[:update_all]
-    return unless params[:notification_ids]
+    @notification_ids = []
 
-    @notification_ids = @notifications.where(id: params[:notification_ids]).map(&:id)
+    if params[:update_all]
+      filter_notifications
+      @notification_ids = @notifications.map(&:id)
+    elsif params[:notification_ids]
+      @notification_ids = @notifications.where(id: params[:notification_ids]).map(&:id)
+    end
   end
 
   def set_show_read_all_button
-    @show_read_all_button = @notifications.count > Notification::MAX_PER_PAGE
+    @show_read_all_button = @counted_notifications['all'] > Notification::MAX_PER_PAGE
   end
 
   def set_selected_filter
     @selected_filter = { kind: @filter_kind, state: @filter_state, project: @filter_project, group: @filter_group }
     @filtered_by_text = "State: #{@filter_state.to_s.humanize} - Type: #{@filter_kind.map { |s| s.to_s.humanize }.join(', ')}"
+
+    @projects_for_filter = ProjectsForFilterFinder.new.call
+    @groups_for_filter = GroupsForFilterFinder.new.call
   end
 
   def show_more(notifications)
-    total = notifications.size
+    total = @counted_notifications['all']
     flash.now[:info] = "You have too many notifications. Displaying a maximum of #{Notification::MAX_PER_PAGE} notifications per page." if total > Notification::MAX_PER_PAGE
     notifications.page(params[:page]).per([total, Notification::MAX_PER_PAGE].min)
   end
@@ -95,7 +125,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def paginate_notifications
-    @all_filtered_notifications = @notifications
     @notifications = params[:show_more] ? show_more(@notifications) : @notifications.page(params[:page])
     params[:page] = @notifications.total_pages if @notifications.out_of_range?
   end

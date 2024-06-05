@@ -4,74 +4,74 @@
     %h6.px-3.py-2
       %b State
     .px-4.py-1
-      = render partial: 'webui/shared/radio_button', locals: { label: 'All', amount: @count['all'],
+      = render partial: 'webui/shared/radio_button', locals: { label: 'All', amount: counted_notifications['all'],
                                                                key: 'state[all]', name: 'state', value: 'all',
-                                                               checked: @selected_filter[:state] == 'all' }
+                                                               checked: selected_filter[:state] == 'all' }
     .px-4.py-1
-      = render partial: 'webui/shared/radio_button', locals: { label: 'Unread', amount: @count['unread'],
+      = render partial: 'webui/shared/radio_button', locals: { label: 'Unread', amount: counted_notifications['unread'],
                                                                key: 'state[unread]', name: 'state', value: 'unread',
-                                                               checked: @selected_filter[:state] == 'unread' }
+                                                               checked: selected_filter[:state] == 'unread' }
     .px-4.py-1
-      = render partial: 'webui/shared/radio_button', locals: { label: 'Read', amount: @count['read'],
+      = render partial: 'webui/shared/radio_button', locals: { label: 'Read', amount: counted_notifications['read'],
                                                                key: 'state[read]', name: 'state', value: 'read',
-                                                               checked: @selected_filter[:state] == 'read' }
+                                                               checked: selected_filter[:state] == 'read' }
   .list-group.list-group-flush.mt-4.mb-4
     %h6.px-3.py-2
       %b Type
     .px-4.py-1
-      = render partial: 'webui/shared/check_box', locals: { label: 'Comments', amount: @count['comments'],
+      = render partial: 'webui/shared/check_box', locals: { label: 'Comments', amount: counted_notifications['comments'],
                                                             key: 'kind[comments]', name: 'kind[]',
                                                             value: 'comments', label_icon: 'fas fa-comments',
-                                                            checked: @selected_filter[:kind]&.include?('comments') }
+                                                            checked: selected_filter[:kind]&.include?('comments') }
     .px-4.py-1
-      = render partial: 'webui/shared/check_box', locals: { label: 'Requests', amount: @count['requests'],
+      = render partial: 'webui/shared/check_box', locals: { label: 'Requests', amount: counted_notifications['requests'],
                                                             key: 'kind[requests]', name: 'kind[]', value: 'requests',
                                                             label_icon: 'fas fa-code-pull-request',
-                                                            checked: @selected_filter[:kind]&.include?('requests') }
+                                                            checked: selected_filter[:kind]&.include?('requests') }
     .px-4.py-1
-      = render partial: 'webui/shared/check_box', locals: { label: 'Incoming Requests', amount: @count['incoming_requests'],
+      = render partial: 'webui/shared/check_box', locals: { label: 'Incoming Requests', amount: counted_notifications['incoming_requests'],
                                                             key: 'kind[incoming_requests]', name: 'kind[]',
                                                             value: 'incoming_requests', label_icon: 'fas fa-code-pull-request',
-                                                            checked: @selected_filter[:kind]&.include?('incoming_requests') }
+                                                            checked: selected_filter[:kind]&.include?('incoming_requests') }
     .px-4.py-1
-      = render partial: 'webui/shared/check_box', locals: { label: 'Outgoing Requests', amount: @count['outgoing_requests'],
+      = render partial: 'webui/shared/check_box', locals: { label: 'Outgoing Requests', amount: counted_notifications['outgoing_requests'],
                                                             key: 'kind[outgoing_requests]', name: 'kind[]', value: 'outgoing_requests',
                                                             label_icon: 'fas fa-code-pull-request',
-                                                            checked: @selected_filter[:kind]&.include?('outgoing_requests') }
+                                                            checked: selected_filter[:kind]&.include?('outgoing_requests') }
     .px-4.py-1
-      = render partial: 'webui/shared/check_box', locals: { label: 'Roles Granted', amount: @count['relationships_created'],
+      = render partial: 'webui/shared/check_box', locals: { label: 'Roles Granted', amount: counted_notifications['relationships_created'],
                                                             key: 'kind[relationships_created]', name: 'kind[]', value: 'relationships_created',
                                                             label_icon: 'fas fa-user-tag',
-                                                            checked: @selected_filter[:kind]&.include?('relationships_created') }
+                                                            checked: selected_filter[:kind]&.include?('relationships_created') }
     .px-4.py-1
-      = render partial: 'webui/shared/check_box', locals: { label: 'Roles Revoked', amount: @count['relationships_deleted'],
+      = render partial: 'webui/shared/check_box', locals: { label: 'Roles Revoked', amount: counted_notifications['relationships_deleted'],
                                                             key: 'kind[relationships_deleted]', name: 'kind[]', value: 'relationships_deleted',
                                                             label_icon: 'fas fa-user-tag',
-                                                            checked: @selected_filter[:kind]&.include?('relationships_deleted') }
+                                                            checked: selected_filter[:kind]&.include?('relationships_deleted') }
     .px-4.py-1
-      = render partial: 'webui/shared/check_box', locals: { label: 'Build Failures', amount: @count['build_failures'],
+      = render partial: 'webui/shared/check_box', locals: { label: 'Build Failures', amount: counted_notifications['build_failures'],
                                                             key: 'kind[build_failures]', name: 'kind[]', value: 'build_failures',
                                                             label_icon: 'fas fa-xmark text-danger',
-                                                            checked: @selected_filter[:kind]&.include?('build_failures') }
-    - if ReportPolicy.new(@user, Report).notify?
+                                                            checked: selected_filter[:kind]&.include?('build_failures') }
+    - if policy(Report.new).notify?
       .px-4.py-1
-        = render partial: 'webui/shared/check_box', locals: { label: 'Reports', amount: @count['reports'],
+        = render partial: 'webui/shared/check_box', locals: { label: 'Reports', amount: counted_notifications['reports'],
                                                               key: 'kind[reports]', name: 'kind[]', value: 'reports',
                                                               label_icon: 'fas fa-flag',
-                                                              checked: @selected_filter[:kind]&.include?('reports') }
+                                                              checked: selected_filter[:kind]&.include?('reports') }
     .px-4.py-1
-      = render partial: 'webui/shared/check_box', locals: { label: 'Workflow Runs', amount: @count['workflow_runs'],
+      = render partial: 'webui/shared/check_box', locals: { label: 'Workflow Runs', amount: counted_notifications['workflow_runs'],
                                                             key: 'kind[workflow_runs]', name: 'kind[]', value: 'workflow_runs',
                                                             label_icon: 'fas fa-book-open',
-                                                            checked: @selected_filter[:kind]&.include?('workflow_runs') }
-    - if Flipper.enabled?(:content_moderation, @user)
+                                                            checked: selected_filter[:kind]&.include?('workflow_runs') }
+    - if Flipper.enabled?(:content_moderation, User.session!)
       .px-4.py-1
-        = render partial: 'webui/shared/check_box', locals: { label: 'Appealed Decisions', amount: @count['appealed_decisions'],
+        = render partial: 'webui/shared/check_box', locals: { label: 'Appealed Decisions', amount: counted_notifications['appealed_decisions'],
                                                               key: 'kind[appealed_decisions]', name: 'kind[]', value: 'appealed_decisions',
                                                               label_icon: 'fas fa-hand',
-                                                              checked: @selected_filter[:kind]&.include?('appealed_decisions') }
+                                                              checked: selected_filter[:kind]&.include?('appealed_decisions') }
 
-  - unless @projects_for_filter.empty?
+  - unless projects_for_filter.empty?
     .list-group.list-group-flush.mt-4.mb-4
       %h6.px-3.py-2
         %b Projects
@@ -79,12 +79,12 @@
         %button.form-select.text-start#filter-projects-button{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
           Select the projects
         .dropdown-menu
-          - @projects_for_filter.each do |project_name|
+          - projects_for_filter.each do |project_name|
             .dropdown-item-text
-              = render partial: 'webui/shared/check_box', locals: { label: project_name, amount: @count["project_#{project_name}"],
+              = render partial: 'webui/shared/check_box', locals: { label: project_name, amount: counted_notifications["project_#{project_name}"],
                                                                     key: "project[#{project_name}]", name: 'project[]', value: project_name,
-                                                                    checked: @selected_filter[:project]&.include?(project_name) }
-  - unless @groups_for_filter.empty?
+                                                                    checked: selected_filter[:project]&.include?(project_name) }
+  - unless groups_for_filter.empty?
     .list-group.list-group-flush.mt-4.mb-4
       %h6.px-3.py-2
         %b Groups
@@ -92,11 +92,11 @@
         %button.form-select.text-start#filter-groups-button{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
           Select the groups
         .dropdown-menu
-          - @groups_for_filter.each do |group_title|
+          - groups_for_filter.each do |group_title|
             .dropdown-item-text
-              = render partial: 'webui/shared/check_box', locals: { label: group_title, amount: @count["group_#{group_title}"],
+              = render partial: 'webui/shared/check_box', locals: { label: group_title, amount: counted_notifications["group_#{group_title}"],
                                                                     key: "group[#{group_title}]", name: 'group[]', value: group_title,
-                                                                    checked: @selected_filter[:group]&.include?(group_title) }
+                                                                    checked: selected_filter[:group]&.include?(group_title) }
 
   .text-center.mt-4.mb-4
     = link_to('Clear', my_notifications_path, class: 'btn btn-light border')
