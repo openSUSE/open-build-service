@@ -105,13 +105,13 @@
   collectMultiSelects()
 
   function submitNotificationFilters() {
-    $('#notifications-list').hide();
-    $('#notifications-list-loading').toggleClass('d-none');
     $('#notifications-filter-form').submit();
   }
   let submitFiltersTimeout;
 
   $(document).on('change', '#filters input', function() {
+    $('#notifications-list').hide();
+    $('#notifications-list-loading').removeClass('d-none');
     clearTimeout(submitFiltersTimeout);
     submitFiltersTimeout = setTimeout(submitNotificationFilters, 1500);
   });
