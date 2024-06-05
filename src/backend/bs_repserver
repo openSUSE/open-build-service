@@ -3401,6 +3401,7 @@ sub getbuildinfo_post {
 
   my $bconf = BSRepServer::getconfig($projid, $repoid, $arch);
   $bconf->{'type'} = $cgi->{'_buildtype'} if $cgi->{'_buildtype'};
+  my $type = $bconf->{'type'};
   if (defined($packid)) {
     if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
       $packid =~ /^(.*):(.*?)$/;
@@ -3411,11 +3412,11 @@ sub getbuildinfo_post {
   }
   $bconf->{'obspackage'} = $packid if defined $packid;
   local $Build::Rpm::includecallback = sub { getbuildinfo_rpm_includecallback($files, @_) };
-  my $d = Build::parse_typed($bconf, $fn, $bconf->{'type'});
+  my $d = Build::parse_typed($bconf, $fn, $type);
   unlink($fn);
-  die("unknown repository type $bconf->{'type'}\n") unless $d;
-  die("could not parse build description ($bconf->{'type'}): $d->{'error'}\n") if $d->{'error'};
-  die("could not parse name in build description ($bconf->{'type'})\n") unless defined $d->{'name'};
+  die("unknown repository type $type\n") unless $d;
+  die("could not parse build description ($type): $d->{'error'}\n") if $d->{'error'};
+  die("could not parse name in build description ($type)\n") unless defined $d->{'name'};
 
   # build info from parsed data
   my $info = { 'repository' => $repoid };
@@ -3429,16 +3430,17 @@ sub getbuildinfo_post {
   }
   $info->{'path'} = $d->{'path'} if $d->{'path'};
   $info->{'containerpath'} = $d->{'containerpath'} if $d->{'containerpath'};
-  if ($bconf->{'type'} eq 'kiwi' || $bconf->{'type'} eq 'productcompose') {
+  if ($type eq 'kiwi' || $type eq 'productcompose') {
     $info->{'imagetype'} = $d->{'imagetype'} if $d->{'imagetype'};
     $info->{'imagearch'} = $d->{'exclarch'} if $d->{'exclarch'};
-    if ($bconf->{'type'} eq 'productcompose' || ($info->{'imagetype'} || '') eq 'product') {
+    my $imagetype = $type eq 'kiwi' && $d->{'imagetype'} ? ($d->{'imagetype'}->[0] || '') : '';
+    if ($type eq 'productcompose' || $imagetype eq 'product') {
       $info->{'nodbgpkgs'} = 1 if defined($d->{'debugmedium'}) && $d->{'debugmedium'} <= 0;
       $info->{'nosrcpkgs'} = 1 if defined($d->{'sourcemedium'}) && $d->{'sourcemedium'} <= 0;
     }
   }
 
-  my $pdata = {'buildtype' => $bconf->{'type'}, 'info' => [ $info ]};
+  my $pdata = {'buildtype' => $type, 'info' => [ $info ]};
   $pdata->{'buildenv'} = readxml($files->{'buildenv'}, $BSXML::buildinfo) if $files->{'buildenv'};
   $pdata->{'ldepfile'} = $files->{'deps'} if $files->{'deps'};
   if ($files->{'_service'}) {
