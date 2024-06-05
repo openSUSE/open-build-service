@@ -103,7 +103,7 @@ gem 'chartkick'
 # For tracking changes in models
 gem 'paper_trail'
 # For parsing ansi codes into html in build log
-gem 'escape_code'
+gem 'ansible'
 
 # FIXME: Required by the mail gem
 # See https://github.com/rails/rails/pull/44083

@@ -1,4 +1,6 @@
 module BuildLogSupport
+  include Ansible
+
   def raw_log_chunk(project, package_name, repo, arch, start, theend)
     logger.debug "get log chunk #{start}-#{theend}"
     Backend::Api::BuildResults::Status.log_chunk(project.to_s, package_name, repo, arch, start, theend)
@@ -7,7 +9,7 @@ module BuildLogSupport
   def get_log_chunk(project, package_name, repo, arch, start, theend)
     log = raw_log_chunk(project, package_name, repo, arch, start, theend)
     log.encode!(invalid: :replace, undef: :replace, cr_newline: true)
-    log = EscapeCode::HtmlFormatter.new(log).generate
+    log = ansi_escaped(log, theend - start + 1)
     log.gsub(%r{([^a-zA-Z0-9&;<>/\n\r \t()])}) do |c|
       if c.ord < 32
         ''
