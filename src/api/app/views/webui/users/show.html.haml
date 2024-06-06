@@ -32,5 +32,5 @@
           $('#bio-chars-counter').css("visibility", "hidden");
         });
 
-= render partial: 'webui/user/password_dialog', locals: { user: @displayed_user }
-= render partial: 'webui/user/edit_dialog', locals: { user: @displayed_user }
+- if @is_displayed_user
+  = render partial: 'webui/user/password_dialog', locals: { user: @displayed_user }
