@@ -41,7 +41,7 @@
   %body{ class: feature_css_class }
     #grid
       #top-navigation-area
-        = render partial: 'layouts/webui/top_navigation', locals: { unread_notifications: @unread_notifications }
+        = render partial: 'layouts/webui/top_navigation', locals: { unread_notifications_count: @unread_notifications_count }
       .navbar-dark.navbar-themed-colors#left-navigation-area{ class: "#{'collapsed' if sidebar_collapsed?}" }
         = render partial: 'layouts/webui/left_navigation', locals: { spider_bot: @spider_bot }
         = render partial: 'layouts/webui/left_navigation_collapse_button'
@@ -73,7 +73,8 @@
 
       - if !current_page?(signup_path) && !current_page?(new_session_path)
         #bottom-navigation-area
-          = render partial: 'layouts/webui/bottom_navigation', locals: { spider_bot: @spider_bot, unread_notifications: @unread_notifications }
+          = render partial: 'layouts/webui/bottom_navigation',locals: { spider_bot: @spider_bot,
+                                                                        unread_notifications_count: @unread_notifications_count }
 
       -# Collapsible menu shared between top and bottom navigation
       - if User.session
