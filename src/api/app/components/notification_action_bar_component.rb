@@ -7,7 +7,7 @@ class NotificationActionBarComponent < ApplicationComponent
     super
 
     @state = state
-    @update_path = add_params(update_path)
+    @update_path = toggle_update_path_states(update_path)
     @counted_notifications = counted_notifications
   end
 
@@ -27,10 +27,11 @@ class NotificationActionBarComponent < ApplicationComponent
 
   private
 
-  def add_params(path)
-    button = state == 'unread' ? 'read' : 'unread'
-    return "#{path}&update_all=true&button=#{button}" if path.include?('?')
+  def toggle_update_path_states(path)
+    toggled_state = state == 'unread' ? 'read' : 'unread'
+    uri = Addressable::URI.parse(path)
+    uri.query_values = (uri.query_values || {}).merge('button' => toggled_state, 'update_all' => true)
 
-    "#{path}?update_all=true&button=#{button}"
+    uri.to_s
   end
 end
