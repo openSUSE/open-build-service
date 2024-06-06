@@ -39,5 +39,9 @@ module Webui::RescueHandler
       logger.debug "#{exception.class.name} #{exception.message} #{exception.backtrace.join('\n')}"
       render file: Rails.public_path.join('404.html'), status: :not_found, layout: false, formats: [:html]
     end
+
+    rescue_from AjaxDatatablesRails::Error::InvalidSearchColumn, AjaxDatatablesRails::Error::InvalidSearchCondition do
+      render json: { data: [] }
+    end
   end
 end
