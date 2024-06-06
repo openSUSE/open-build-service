@@ -261,16 +261,6 @@ class User < ApplicationRecord
     errors.add(:state, 'must be a valid new state from the current state') unless state_transition_allowed?(state_was, state)
   end
 
-  # This method returns true if the user is assigned the role with one of the
-  # role titles given as parameters. False otherwise.
-  def has_role?(*role_titles)
-    obj = all_roles.detect do |role|
-      role_titles.include?(role.title)
-    end
-
-    !obj.nil?
-  end
-
   # This method checks whether the given value equals the password when
   # hashed with this user's password hash type. Returns a boolean.
   def deprecated_password_equals?(value)
