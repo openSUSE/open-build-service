@@ -15,6 +15,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   before_action :set_selected_filter
   before_action :paginate_notifications, only: :index
 
+  skip_before_action :set_unread_notifications_count, only: :update
+
   def index
     @current_user = User.session
   end
