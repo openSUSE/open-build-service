@@ -727,7 +727,7 @@ class User < ApplicationRecord
     end
   end
 
-  def unread_notifications
+  def unread_notifications_count
     notifications.for_web.unread.size
   end
 
