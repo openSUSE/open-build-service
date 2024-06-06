@@ -28,8 +28,9 @@ class NotificationActionBarComponent < ApplicationComponent
   private
 
   def add_params(path)
-    return "#{path}&update_all=true" if path.include?('?')
+    button = state == 'unread' ? 'read' : 'unread'
+    return "#{path}&update_all=true&button=#{button}" if path.include?('?')
 
-    "#{path}?update_all=true"
+    "#{path}?update_all=true&button=#{button}"
   end
 end
