@@ -13,5 +13,9 @@
                        disabled: 'disabled', 'data-disable-with': disable_with_content, value: 'unread')
       - if @show_read_all_button
         .ms-4
-          = link_to(button_text(all: true), @update_path, method: :put, remote: true,
-                    class: 'btn btn-sm btn-outline-secondary px-3', 'data-disable-with': disable_with_content(all: true))
+          - if state != 'read'
+            = link_to("Mark all as 'Read'", "#{@update_all_path}&button=read", method: :put, remote: true,
+                      class: 'btn btn-sm btn-outline-secondary px-3', 'data-disable-with': disable_with_content(all: true))
+          - if state != 'unread'
+            = link_to("Mark all as 'Unread'", "#{@update_all_path}&button=unread", method: :put, remote: true,
+                      class: 'btn btn-sm btn-outline-secondary px-3', 'data-disable-with': disable_with_content(all: true))

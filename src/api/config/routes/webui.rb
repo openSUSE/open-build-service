@@ -360,7 +360,8 @@ constraints(RoutesHelper::WebuiMatcher) do
     resources :notifications, only: [:index], controller: 'webui/users/notifications', as: :my_notifications do
       collection do
         # We allow updating multiple notifications in a single HTTP request
-        put :update
+        put 'update', as: :update
+        put 'update_all', as: :update_all
       end
     end
 

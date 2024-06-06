@@ -8,9 +8,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   before_action :require_login
   before_action :set_filter_kind, :set_filter_state, :set_filter_project, :set_filter_group
   before_action :set_notifications
-  before_action :set_notifications_to_be_updated, only: :update
   before_action :set_counted_notifications
-  before_action :filter_notifications, only: :index
+  before_action :filter_notifications, only: %i[index update_all]
   before_action :set_show_read_all_button, only: :index
   before_action :set_selected_filter
   before_action :paginate_notifications, only: :index
@@ -20,15 +19,45 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def update
+    notification_ids = params[:notification_ids]
+
     # The button value specifies whether we selected read or unread
     deliver = params[:button] == 'read'
     # rubocop:disable Rails/SkipsModelValidations
-    @count = @notifications.where(id: @notification_ids, delivered: !deliver).update_all(delivered: deliver)
+    @count = @notifications.where(id: notification_ids, delivered: !deliver).update_all(delivered: deliver)
     # rubocop:enable Rails/SkipsModelValidations
 
     # manually update the count and the filtered subset after the update
     set_counted_notifications
     filter_notifications
+    set_show_read_all_button
+    paginate_notifications
+
+    respond_to do |format|
+      format.html { redirect_to my_notifications_path }
+      format.js do
+        render partial: 'update', locals: {
+          notifications: @notifications,
+          unread_notifications: User.session.unread_notifications,
+          selected_filter: @selected_filter,
+          counted_notifications: @counted_notifications,
+          show_read_all_button: @show_read_all_button,
+          user: User.session
+        }
+      end
+      send_notifications_information_rabbitmq(deliver, @count)
+    end
+  end
+
+  def update_all
+    # The button value specifies whether we selected read or unread
+    deliver = params[:button] == 'read'
+    # rubocop:disable Rails/SkipsModelValidations
+    @count = @notifications.update_all(delivered: deliver)
+    # rubocop:enable Rails/SkipsModelValidations
+
+    # manually update the count and the filtered subset after the update
+    update_counted_notifications
     set_show_read_all_button
     paginate_notifications
 
@@ -99,17 +128,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @notifications = filter_notifications_by_group(@notifications, @filter_group)
     @notifications = filter_notifications_by_state(@notifications, @filter_state)
     @notifications = filter_notifications_by_kind(@notifications, @filter_kind)
-  end
-
-  def set_notifications_to_be_updated
-    @notification_ids = []
-
-    if params[:update_all]
-      filter_notifications
-      @notification_ids = @notifications.map(&:id)
-    elsif params[:notification_ids]
-      @notification_ids = @notifications.where(id: params[:notification_ids]).map(&:id)
-    end
   end
 
   def set_show_read_all_button

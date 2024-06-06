@@ -6,11 +6,16 @@
 
 - else
   :ruby
-    update_path = my_notifications_path(kind: selected_filter[:kind], state: selected_filter[:state],
-                                        project: selected_filter[:project], group: selected_filter[:group],
-                                        page: params[:page], show_more: params[:show_more])
+    update_path = update_my_notifications_path(kind: selected_filter[:kind], state: selected_filter[:state],
+                                               project: selected_filter[:project], group: selected_filter[:group],
+                                               page: params[:page], show_more: params[:show_more])
+    update_all_path = update_all_my_notifications_path(kind: selected_filter[:kind], state: selected_filter[:state],
+                                                       project: selected_filter[:project], group: selected_filter[:group],
+                                                       page: params[:page], show_more: params[:show_more])
   = form_tag(update_path, method: :put, remote: true) do
-    = render(NotificationActionBarComponent.new(state: selected_filter[:state], update_path: update_path, show_read_all_button: show_read_all_button))
+    = render(NotificationActionBarComponent.new(state: selected_filter[:state],
+                                                update_all_path: update_all_path,
+                                                show_read_all_button: show_read_all_button))
     .card
       .card-body
         .text-center
