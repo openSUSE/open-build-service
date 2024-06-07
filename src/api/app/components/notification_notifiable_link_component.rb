@@ -1,10 +1,9 @@
 # rubocop:disable Metrics/ClassLength
 class NotificationNotifiableLinkComponent < ApplicationComponent
-  def initialize(notification, current_user)
+  def initialize(notification)
     super
 
     @notification = notification
-    @current_user = current_user
   end
 
   def call
@@ -81,12 +80,13 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
 
   # rubocop:disable Metrics/CyclomaticComplexity
   # rubocop:disable Metrics/PerceivedComplexity
+  # rubocop:disable ViewComponent/AvoidGlobalState
   def notifiable_link_path
     case @notification.event_type
     when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted'
       Rails.application.routes.url_helpers.request_show_path(@notification.notifiable.number, notification_id: @notification.id)
     when 'Event::CommentForRequest'
-      anchor = if Flipper.enabled?(:request_show_redesign, @current_user)
+      anchor = if Flipper.enabled?(:request_show_redesign, User.session!)
                  "comment-#{@notification.notifiable.id}-bubble"
                else
                  'comments-list'
@@ -124,7 +124,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     when 'Event::ReportForProject', 'Event::ReportForPackage'
       @notification.event_type.constantize.notification_link_path(@notification)
     when 'Event::ReportForUser'
-      Rails.application.routes.url_helpers.user_path(@notification.accused, notification_id: @notification.id) if !@notification.accused.is_deleted? || @current_user.is_admin?
+      Rails.application.routes.url_helpers.user_path(@notification.accused, notification_id: @notification.id) if !@notification.accused.is_deleted? || User.session!.is_admin?
     when 'Event::ReportForRequest'
       bs_request = @notification.notifiable.reportable
       Rails.application.routes.url_helpers.request_show_path(bs_request.number, notification_id: @notification.id)
@@ -139,6 +139,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
   end
   # rubocop:enable Metrics/CyclomaticComplexity
   # rubocop:enable Metrics/PerceivedComplexity
+  # rubocop:enable ViewComponent/AvoidGlobalState
 
   def bs_request
     return unless @notification.event_type == 'Event::CommentForRequest'

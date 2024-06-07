@@ -13,14 +13,13 @@ class NotificationComponent < ApplicationComponent
     'WorkflowRun' => 'Workflow run'
   }.freeze
 
-  def initialize(notification:, selected_filter:, page:, show_more:, current_user:)
+  def initialize(notification:, selected_filter:, page:, show_more:)
     super
 
     @notification = notification
     @selected_filter = selected_filter
     @page = page
     @show_more = show_more
-    @current_user = current_user
   end
 
   def notification_icon

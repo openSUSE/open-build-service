@@ -11,15 +11,12 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   before_action :set_notifications_to_be_updated, only: :update
   before_action :set_counted_notifications, only: :index
   before_action :filter_notifications, only: :index
-  before_action :set_show_read_all_button, only: :index
   before_action :set_selected_filter
   before_action :paginate_notifications, only: :index
 
   skip_before_action :set_unread_notifications_count, only: :update
 
-  def index
-    @current_user = User.session
-  end
+  def index; end
 
   def update
     # The button value specifies whether we selected read or unread
@@ -32,7 +29,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     set_unread_notifications_count # before_action filter method defined in the Webui controller
     set_counted_notifications
     filter_notifications
-    set_show_read_all_button
     paginate_notifications
 
     respond_to do |format|
@@ -43,7 +39,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
           unread_notifications_count: @unread_notifications_count,
           selected_filter: @selected_filter,
           counted_notifications: @counted_notifications,
-          show_read_all_button: @show_read_all_button,
           user: User.session
         }
       end
@@ -54,21 +49,23 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   private
 
   def set_filter_kind
-    @filter_kind = Array(params[:kind].presence || 'all') # in case just one value, we want an array anyway
-    raise FilterNotSupportedError unless (@filter_kind - ALLOWED_FILTERS).empty?
+    @filter_kind = Array(params[:kind].presence || 'all')
+    @filter_kind.reject! { |kind| ALLOWED_FILTERS.exclude?(kind) }
   end
 
   def set_filter_state
     @filter_state = params[:state].presence || 'unread'
-    raise FilterNotSupportedError if ALLOWED_STATES.exclude?(@filter_state)
+    @filter_state = 'unread' if ALLOWED_STATES.exclude?(@filter_state)
   end
 
   def set_filter_project
     @filter_project = params[:project] || []
+    @projects_for_filter = ProjectsForFilterFinder.new.call
   end
 
   def set_filter_group
     @filter_group = params[:group] || []
+    @groups_for_filter = GroupsForFilterFinder.new.call
   end
 
   def set_notifications
@@ -115,16 +112,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     end
   end
 
-  def set_show_read_all_button
-    @show_read_all_button = @counted_notifications['all'] > Notification::MAX_PER_PAGE
-  end
-
   def set_selected_filter
     @selected_filter = { kind: @filter_kind, state: @filter_state, project: @filter_project, group: @filter_group }
-    @filtered_by_text = "State: #{@filter_state.to_s.humanize} - Type: #{@filter_kind.map { |s| s.to_s.humanize }.join(', ')}"
-
-    @projects_for_filter = ProjectsForFilterFinder.new.call
-    @groups_for_filter = GroupsForFilterFinder.new.call
   end
 
   def show_more(notifications)
