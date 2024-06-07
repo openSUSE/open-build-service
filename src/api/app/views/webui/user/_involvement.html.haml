@@ -76,9 +76,8 @@
                     = link_to(involved_item, project_show_path(involved_item), class: 'pe-2')
                 - if owner_root_project_exists && involved_items_as_owner.include?(involved_item)
                   %span.badge.text-bg-info Owner
-                - roles.each do |role|
-                  - if involved_item.user_has_role?(displayed_user, role)
-                    %span.badge.text-bg-info= role.title.capitalize
+                - involved_item.local_roles_for_user(displayed_user).each do |role|
+                  %span.badge.text-bg-info= role.title.capitalize
             .row.mt-1
               .col
                 #involvement-description= render partial: 'webui/shared/collapsible_text', locals: { text: involved_item.description }
