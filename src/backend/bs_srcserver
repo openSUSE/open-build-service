@@ -166,6 +166,7 @@ sub notify {
   my $time = $p->{'time'} || time();
   delete $p->{'time'};
   if ($payload) {
+    print "encoding payload for $p->{'project'}/$p->{'repo'} to json\n";
     my $json_payload = JSON::XS::encode_json($payload);
     my $payloadkey = "$time.".Digest::MD5::md5_hex($json_payload);
     mkdir_p($notificationpayloaddir);
@@ -7589,7 +7590,7 @@ sub registry_manifestinfo {
       last;
     }
   }
-  return registry_forward ($cgi, $regrepo) if !$foundone || BSSrcServer::Registry::regrepo2reposerver($regrepo);
+  return registry_forward($cgi, $regrepo) if !$foundone || BSSrcServer::Registry::regrepo2reposerver($regrepo);
 
   my %reposervers = map {$_ => 1} values(%$BSConfig::partitionservers);
   for my $reposerver (sort keys %reposervers) {
@@ -7900,15 +7901,15 @@ my $dispatches = [
 
   # registry
   'GET|HEAD:/registry/$gunprefix:/$...:regrepo/_trust/tuf/$filename' => \&notary_forward,
-  'GET|HEAD:/registry/$...:regrepo/manifests/$manifest:' => \&registry_forward,
-  'GET|HEAD:/registry/$...:regrepo/manifestinfos/$manifest:' => \&registry_manifestinfo,
-  'GET|HEAD:/registry/$...:regrepo/blobs/$blob:' => \&registry_forward,
-  'GET|HEAD:/registry/$...:regrepo/signatures/$sig:' => \&registry_forward,
-  'GET|HEAD:/registry/$...:regrepo/tags/list n:intnum? last:?' => \&registry_forward,
-  'GET|HEAD:/registry/$...:regrepo/info.json' => \&registry_forward,
-  'GET|HEAD:/registry/_catalog n:intnum? last:?' => \&registry_catalog,
-  'GET|HEAD:/registry/info.json' => \&registry_rootinfo,
-  'GET|HEAD:/registry' => \&registry_version,
+  'GET|HEAD:/registry/$...:regrepo/manifests/$manifest: ns:?' => \&registry_forward,
+  'GET|HEAD:/registry/$...:regrepo/manifestinfos/$manifest: ns:?' => \&registry_manifestinfo,
+  'GET|HEAD:/registry/$...:regrepo/blobs/$blob: ns:?' => \&registry_forward,
+  'GET|HEAD:/registry/$...:regrepo/signatures/$sig: ns:?' => \&registry_forward,
+  'GET|HEAD:/registry/$...:regrepo/tags/list n:intnum? last:? ns:?' => \&registry_forward,
+  'GET|HEAD:/registry/$...:regrepo/info.json ns:?' => \&registry_forward,
+  'GET|HEAD:/registry/_catalog n:intnum? last:? ns:?' => \&registry_catalog,
+  'GET|HEAD:/registry/info.json ns:?' => \&registry_rootinfo,
+  'GET|HEAD:/registry ns:?' => \&registry_version,
   'GET|HEAD:/sigstore/$...:regrepo/$sig:' => \&sigstore_forward,
 
   # slsa
