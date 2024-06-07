@@ -4489,16 +4489,20 @@ sub docommand {
   my @packids = @{$cgi->{'package'} || []};
   if ($cgi->{'cmd'} eq 'wipepublishedlocked') {
     die("wipepublishedlocked can only wipe complete repos\n") if $cgi->{'arch'} || $cgi->{'code'} || @packids;
-  } else {
-    if (@packids) {
-      my %packids = map {$_ => 1} findpackages($projid, $proj, 1);
-      my @badpacks = grep {!$packids{$_}} @packids;
-      die("404 unknown package: @badpacks\n") if @badpacks;
-    } else {
-      @packids = findpackages($projid, $proj);
-    }
+  }
+  # check if the specified packages are known
+  if (@packids) {
+    @packids = BSUtil::unify(@packids);
+    my %packids = map {$_ => 1} findpackages($projid, $proj, 1);
+    my @badpacks = grep {!$packids{$_}} @packids;
+    die("404 unknown package: @badpacks\n") if @badpacks;
+  }
+  # generate package list for the commands that need it
+  if (!@packids && $cgi->{'cmd'} ne 'unpublish' && $cgi->{'cmd'} ne 'wipepublishedlocked') {
+    @packids = findpackages($projid, $proj);
     die("no packages defined\n") unless @packids;
   }
+
   die("illegal wipe parameter\n") if $cgi->{'wipe'} && $cgi->{'cmd'} ne 'wipe';
   
   my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
