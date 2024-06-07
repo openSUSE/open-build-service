@@ -141,6 +141,7 @@ end
 #  subscriber_type            :string(255)      indexed => [subscriber_id]
 #  subscription_receiver_role :string(255)      not null
 #  title                      :string(255)
+#  type                       :string(255)      default("NotificationProject"), not null
 #  web                        :boolean          default(FALSE), indexed
 #  created_at                 :datetime         not null, indexed
 #  updated_at                 :datetime         not null
