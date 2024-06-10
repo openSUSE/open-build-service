@@ -33,6 +33,12 @@ services:
     ports:
       - "389:389"
       - "636:636"
+  ldap-admin:
+    image: osixia/phpldapadmin:0.9.0
+    environment:
+      - PHPLDAPADMIN_LDAP_HOSTS=ldap
+    ports:
+      - "6443:443"
   frontend:
     image: openbuildservice/frontend
     command: foreman start -p 3000
@@ -52,3 +58,4 @@ services:
       - backend
       - worker
       - ldap
+      - ldap-admin
