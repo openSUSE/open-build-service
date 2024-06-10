@@ -8,7 +8,7 @@ RSpec.describe NotificationComponent, type: :component do
     let(:notification) { create(:notification, :relationship_create_for_project, delivered: true, notifiable: package, event_payload: event_payload) }
 
     before do
-      render_inline(described_class.new(notification: notification, selected_filter: selected_filter, page: 1, show_more: 1))
+      render_inline(described_class.new(notification: notification, selected_filter: selected_filter, page: 1))
     end
 
     it 'renders the correct icon' do
@@ -22,7 +22,7 @@ RSpec.describe NotificationComponent, type: :component do
     let(:notification) { create(:notification, :comment_for_project, delivered: true, notifiable: comment) }
 
     before do
-      render_inline(described_class.new(notification: notification, selected_filter: selected_filter, page: 1, show_more: 1))
+      render_inline(described_class.new(notification: notification, selected_filter: selected_filter, page: 1))
     end
 
     it 'renders the correct icon' do

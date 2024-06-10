@@ -1,7 +1,6 @@
 class Notification < ApplicationRecord
   MAX_RSS_ITEMS_PER_USER = 10
   MAX_RSS_ITEMS_PER_GROUP = 10
-  MAX_PER_PAGE = 300
 
   belongs_to :subscriber, polymorphic: true, optional: true
   belongs_to :notifiable, polymorphic: true, optional: true
@@ -41,6 +40,9 @@ class Notification < ApplicationRecord
   scope :for_project_name, ->(project_name) { joins(:projects).where(projects: { name: project_name }) }
   scope :for_group_title, ->(group_title) { joins(:groups).where(groups: { title: group_title }) }
   scope :stale, -> { where(created_at: ...(CONFIG['notifications_lifetime'] ||= 365).days.ago) }
+
+  paginates_per 30
+  max_paginates_per 300
 
   def event
     @event ||= event_type.constantize.new(event_payload)

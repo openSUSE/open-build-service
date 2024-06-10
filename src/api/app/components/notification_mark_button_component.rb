@@ -1,11 +1,10 @@
 class NotificationMarkButtonComponent < ApplicationComponent
-  def initialize(notification, selected_filter, page = nil, show_more = nil)
+  def initialize(notification, selected_filter, page = nil)
     super
 
     @notification = notification
     @selected_filter = selected_filter
     @page = page
-    @show_more = show_more
   end
 
   private
@@ -23,6 +22,6 @@ class NotificationMarkButtonComponent < ApplicationComponent
                           state: @selected_filter[:state],
                           button: @notification.unread? ? 'read' : 'unread',
                           project: @selected_filter[:project], group: @selected_filter[:group],
-                          page: @page, show_more: @show_more)
+                          page: @page)
   end
 end

@@ -8,7 +8,7 @@
   :ruby
     update_path = my_notifications_path(kind: selected_filter[:kind], state: selected_filter[:state],
                                         project: selected_filter[:project], group: selected_filter[:group],
-                                        page: params[:page], show_more: params[:show_more])
+                                        page: params[:page])
   = form_tag(update_path, method: :put, remote: true) do
     = render(NotificationActionBarComponent.new(state: selected_filter[:state],
                                                 update_path: update_path,
@@ -17,12 +17,11 @@
       .card-body
         .text-center
           %span.ms-3= page_entries_info notifications, entry_name: ''
-          = link_to_show_less_or_more unless notifications.total_pages == 1 && params[:show_more].nil?
         .list-group.list-group-flush.mt-3
           = render NotificationComponent.with_collection(notifications, selected_filter: selected_filter,
-                                                                        page: params[:page],
-                                                                        show_more: params[:show_more])
+                                                                        page: params[:page])
   = paginate notifications, views_prefix: 'webui', window: 2, params: { action: 'index', id: nil }
+  = render partial: 'page_size_navigation', locals: { paginated_objects: notifications }
 
 - content_for :ready_function do
   handleNotificationCheckboxSelection();
