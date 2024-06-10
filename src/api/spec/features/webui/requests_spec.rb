@@ -203,7 +203,7 @@ RSpec.describe 'Requests', :js, :vcr do
         login submitter
         visit request_show_path(bs_request)
         desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
-        find(:id, 'review_type').select('User')
+        find_by_id('review_type').select('User')
         fill_in 'review_user', with: reviewer.login
         fill_in 'Comment for reviewer:', with: 'Please review'
         click_button('Accept')
@@ -234,7 +234,7 @@ RSpec.describe 'Requests', :js, :vcr do
         login submitter
         visit request_show_path(bs_request)
         desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
-        find(:id, 'review_type').select('Group')
+        find_by_id('review_type').select('Group')
         fill_in 'review_group', with: review_group.title
         click_button('Accept')
         expect(page).to have_text("Open review for #{review_group.title}")
@@ -246,7 +246,7 @@ RSpec.describe 'Requests', :js, :vcr do
         login submitter
         visit request_show_path(bs_request)
         desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
-        find(:id, 'review_type').select('Project')
+        find_by_id('review_type').select('Project')
         fill_in 'review_project', with: submitter.home_project
         click_button('Accept')
         expect(page).to have_text("Open review for #{submitter.home_project}")
@@ -260,7 +260,7 @@ RSpec.describe 'Requests', :js, :vcr do
         login submitter
         visit request_show_path(bs_request)
         desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
-        find(:id, 'review_type').select('Package')
+        find_by_id('review_type').select('Package')
         fill_in 'review_project', with: submitter.home_project
         # Remove focus from autocomplete. Needed to remove the `disabled` attribute from `review_package`.
         find_by_id('review_comment').click
@@ -275,7 +275,7 @@ RSpec.describe 'Requests', :js, :vcr do
         login submitter
         visit request_show_path(bs_request)
         desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
-        find(:id, 'review_type').select('Project')
+        find_by_id('review_type').select('Project')
         fill_in 'review_project', with: 'INVALID/PROJECT'
         click_button('Accept')
         expect(page).to have_css('#flash', text: 'Unable to add review to request')

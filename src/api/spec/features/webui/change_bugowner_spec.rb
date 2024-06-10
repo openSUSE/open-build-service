@@ -37,7 +37,7 @@ RSpec.describe 'ChangeBugowner', :js do
 
   context 'with a group as new bugowner' do
     it 'the bugowner is changed by a group' do
-      find(:id, 'review_type').select('Group')
+      find_by_id('review_type').select('Group')
       fill_in :group, with: 'Heroes'
       fill_in :description, with: 'Replace current bugowner by group Heroes'
       click_button 'Submit'
@@ -47,9 +47,9 @@ RSpec.describe 'ChangeBugowner', :js do
 
   context 'forcing to add both user and group as bugowner' do
     it 'only the visible one before submitting is added' do
-      find(:id, 'review_type').select('Group')
+      find_by_id('review_type').select('Group')
       fill_in :group, with: 'Heroes'
-      find(:id, 'review_type').select('User')
+      find_by_id('review_type').select('User')
       fill_in :user, with: 'Milo'
       fill_in :description, with: 'Replace current bugowner by something else'
       click_button 'Submit'

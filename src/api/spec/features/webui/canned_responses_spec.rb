@@ -58,7 +58,7 @@ RSpec.describe 'Canned responses', :js do
       visit canned_responses_path
       fill_in(name: 'canned_response[title]', with: 'wow')
       fill_in(name: 'canned_response[content]', with: 'a decision-related canned response')
-      find(:id, 'canned_response_decision_type').select('Favored')
+      find_by_id('canned_response_decision_type').select('Favored')
       click_button('Create')
       find('.accordion-button').click
     end

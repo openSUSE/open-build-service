@@ -32,8 +32,8 @@ RSpec.describe 'Projects', :js, :vcr do
         click_button 'Update'
         wait_for_ajax
 
-        expect(find(:id, 'project-title')).to have_text('My Title "hopefully" got changed')
-        expect(find(:id, 'description-text')).to have_text('New description. No kidding.. Brand new!')
+        expect(find_by_id('project-title')).to have_text('My Title "hopefully" got changed')
+        expect(find_by_id('description-text')).to have_text('New description. No kidding.. Brand new!')
         expect(page).to have_text('https://test.url')
       end
     end
