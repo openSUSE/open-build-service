@@ -1,6 +1,6 @@
 # The Group class represents a group record in the database and thus a
 # group model. Groups are arranged in trees and have a title.
-# Groups have an arbitrary number of roles and users assigned to them.
+# Groups have an arbitrary number of users assigned to them.
 #
 class Group < ApplicationRecord
   has_one :staging_workflow, class_name: 'Staging::Workflow', foreign_key: :managers_group_id, dependent: :nullify
@@ -30,9 +30,6 @@ class Group < ApplicationRecord
   # We want to validate a group's title pretty thoroughly.
   validates :title,
             uniqueness: { case_sensitive: true, message: 'is the name of an already existing group' }
-
-  # groups have a n:m relation to groups
-  has_and_belongs_to_many :roles, -> { distinct }
 
   default_scope { order(:title) }
 
