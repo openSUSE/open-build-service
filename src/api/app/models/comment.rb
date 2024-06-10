@@ -8,8 +8,8 @@ class Comment < ApplicationRecord
   validates :body, presence: true
   # FIXME: this probably should be MEDIUMTEXT(16MB) instead of text (64KB)
   validates :body, length: { maximum: 65_535 }
-  validates :body, format: { with: /\A[^\u0000]*\Z/,
-                             message: 'must not contain null characters' }
+  validates :body, format: { with: /\A[\u0009\u000A\u000D\u0020-\uD7FF\uE000-\uFFFD\u{10000}-\u{10FFFF}]*\Z/,
+                             message: 'must not contain null or invalid XML characters' }
   validates :diff_ref, length: { maximum: 255 }
 
   validate :validate_parent_id
