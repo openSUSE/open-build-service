@@ -98,9 +98,7 @@ class Configuration < ApplicationRecord
   end
 
   def invalidate_cache
-    Rails.cache.fetch('configurations/1', expires_in: 1.day, force: true) do
-      self
-    end
+    Rails.cache.delete('configurations/1')
   end
 end
 
