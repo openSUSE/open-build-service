@@ -1,6 +1,7 @@
-.editing-form.d-none
-  = render partial: 'webui/user/edit_account_form',
-           locals: { displayed_user: user, role_titles: role_titles, account_edit_link: account_edit_link }
+- if policy(user).update?
+  .editing-form.d-none
+    = render partial: 'webui/user/edit_account_form',
+             locals: { displayed_user: user, role_titles: role_titles, account_edit_link: account_edit_link }
 
 .basic-info
   .d-flex.flex-row-reverse.align-items-center.mb-3
