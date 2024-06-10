@@ -3040,6 +3040,7 @@ sub unpublish {
   BSUtil::lockopen(\*F, '>', "$reporoot/$prp/.finishedlock");
   for my $arch (@{$prparchs}) {
     my $rpath = "$reporoot/$prp/$arch/:repo";
+    next unless -d $rpath;
     if (%packids) {
       # just wipe some packages, need the repoinfo
       my $repoinfo = BSUtil::retrieve("$reporoot/$prp/$arch/:repoinfo");
