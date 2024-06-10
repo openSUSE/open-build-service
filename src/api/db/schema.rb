@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_05_16_133632) do
+ActiveRecord::Schema[7.0].define(version: 2024_06_07_131326) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -581,14 +581,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_05_16_133632) do
     t.bigint "group_id", null: false
     t.index ["group_id", "notification_id"], name: "index_groups_notifications_on_group_id_and_notification_id"
     t.index ["notification_id", "group_id"], name: "index_groups_notifications_on_notification_id_and_group_id"
-  end
-
-  create_table "groups_roles", id: false, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.integer "group_id", default: 0, null: false
-    t.integer "role_id", default: 0, null: false
-    t.datetime "created_at", precision: nil
-    t.index ["group_id", "role_id"], name: "groups_roles_all_index", unique: true
-    t.index ["role_id"], name: "role_id"
   end
 
   create_table "groups_users", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -1300,8 +1292,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_05_16_133632) do
   add_foreign_key "flags", "projects", name: "flags_ibfk_4"
   add_foreign_key "group_maintainers", "groups", name: "group_maintainers_ibfk_1"
   add_foreign_key "group_maintainers", "users", name: "group_maintainers_ibfk_2"
-  add_foreign_key "groups_roles", "groups", name: "groups_roles_ibfk_1"
-  add_foreign_key "groups_roles", "roles", name: "groups_roles_ibfk_2"
   add_foreign_key "groups_users", "groups", name: "groups_users_ibfk_1"
   add_foreign_key "groups_users", "users", name: "groups_users_ibfk_2"
   add_foreign_key "incident_updateinfo_counter_values", "projects", name: "incident_updateinfo_counter_values_ibfk_1"
