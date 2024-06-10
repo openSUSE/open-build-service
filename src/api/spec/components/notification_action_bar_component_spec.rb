@@ -10,7 +10,7 @@ RSpec.describe NotificationActionBarComponent, type: :component do
     end
 
     it do
-      expect(rendered_content).to have_link(href: 'my/notifications?update_all=true&button=read')
+      expect(rendered_content).to have_link(href: 'my/notifications?button=read&update_all=true')
     end
 
     it do
@@ -33,7 +33,7 @@ RSpec.describe NotificationActionBarComponent, type: :component do
     end
 
     it do
-      expect(rendered_content).to have_link(href: 'my/notifications?state=read&update_all=true&button=unread')
+      expect(rendered_content).to have_link(href: 'my/notifications?button=unread&state=read&update_all=true')
     end
 
     it do
