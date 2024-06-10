@@ -51,8 +51,6 @@ class IssueTracker < ApplicationRecord
   end
 
   def update_issues_github
-    return unless enable_fetch
-
     # must be like this "url = https://github.com/repos/#{self.owner}/#{self.name}/issues"
     url = URI.parse("#{self.url}?since=#{self.issues_updated.to_time.iso8601}")
     mtime = Time.now
@@ -285,8 +283,6 @@ class IssueTracker < ApplicationRecord
   end
 
   def update_issues_bugzilla
-    return unless enable_fetch
-
     begin
       result = bugzilla_server.search(bugzilla_args.merge(last_change_time: self.issues_updated))
     rescue Net::ReadTimeout, Errno::ECONNRESET
@@ -310,8 +306,6 @@ class IssueTracker < ApplicationRecord
   end
 
   def update_issues_cve
-    return unless enable_fetch
-
     # fixed URL of all entries
     # cveurl = "https://cve.mitre.org/data/downloads/allitems.xml.gz"
     http = Net::HTTP.start('cve.mitre.org', use_ssl: true)
