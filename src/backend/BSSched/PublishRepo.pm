@@ -149,7 +149,7 @@ sub prpfinished {
     }
     # release lock and ping publisher
     close(F);
-    BSSched::EventSource::Directory::sendpublishevent($ctx->{'gctx'}, $prp);
+    BSSched::EventSource::Directory::sendpublishevent($gctx, $prp);
     return '';
   }
 
@@ -169,12 +169,17 @@ sub prpfinished {
   if ($keepobsolete || grep {!$pubenabled->{$_}} @$packs) {
     $rinfo = {};
     $rinfo = BSUtil::retrieve("${rdir}info") if -s "${rdir}info";
-    $rinfo->{'binaryorigins'} ||= {};
     # create package->binaries helper hash
     $rinfo_packid2bins = {};
-    my $rb = $rinfo->{'binaryorigins'};
+    my $rb = $rinfo->{'binaryorigins'} || {};
     for (keys %$rb) {
       push @{$rinfo_packid2bins->{$rb->{$_}}}, $_;
+    }
+    my $rc = $rinfo->{'conflicts'} || {};
+    for my $rbin (keys %$rc) {
+      for my $packid (@{$rc->{$rbin} || []}) {
+        push @{$rinfo_packid2bins->{$packid}}, $rbin unless ($rb->{$rbin} || '') eq $packid;
+      }
     }
   }
 
@@ -203,6 +208,7 @@ sub prpfinished {
   my %origin;
   my $changed;
   my $filter;
+  my %conflicts;
   $filter = $bconf->{'publishfilter'} if $bconf;
   undef $filter if $filter && !@$filter;
   $filter ||= $default_publishfilter;
@@ -237,9 +243,15 @@ sub prpfinished {
       } else {
         print "        $packid: publishing disabled\n";
       }
-      for my $bin (@{$rinfo_packid2bins->{$packid} || []}) {
-        next if exists $origin{$bin};   # first one wins
-        $origin{$bin} = $packid;
+      my $rb = $rinfo->{'binaryorigins'} || {};
+      for my $rbin (@{$rinfo_packid2bins->{$packid} || []}) {
+	if (exists $origin{$rbin}) {
+	  $conflicts{$rbin} ||= $origin{$rbin} unless $conflicts{$rbin};
+	  push @{$conflicts{$rbin}}, $packid;
+	  next;		# first one wins
+	}
+	next unless ($rb->{$rbin} || '') eq $packid;	# ignore if this is from a conflict
+	$origin{$rbin} = $packid;
       }
       next;
     }
@@ -258,7 +270,11 @@ sub prpfinished {
       my $rbin = $bin;
       # XXX: should be source name instead?
       $rbin = "${packid}::$bin" if $debian || $bin eq 'updateinfo.xml' || $bin eq '_modulemd.yaml';
-      next if exists $origin{$rbin};    # first one wins
+      if (exists $origin{$rbin}) {
+	  push @{$conflicts{$rbin}}, $origin{$rbin} unless $conflicts{$rbin};
+	  push @{$conflicts{$rbin}}, $packid;
+	  next;		# first one wins
+      }
       if ($nosourceaccess) {
         next if $bin =~ /\.(?:no)?src\.rpm$/;
         next if $bin =~ /-debug(:?info|source).*\.rpm$/;
@@ -330,6 +346,7 @@ sub prpfinished {
         print "      + :repo/$rbin ($packid)\n";
         mkdir_p($rdir) unless -d $rdir;
       }
+      # new or changed, link
       $taken = 1;
       if (! -l "$pdir/$bin" && -d _) {
         BSUtil::linktree("$pdir/$bin", "$rdir/$rbin");
@@ -358,6 +375,13 @@ sub prpfinished {
     next if exists $origin{$rbin};
     next if $rbin eq '.newchecksums' || $rbin eq '.newchecksums.new' || $rbin eq '.checksums' || $rbin eq '.checksums.new';
     next if ($rbin eq '.archsync' || $rbin eq '.archsync.new') && $bconf->{'publishflags:archsync'};
+    if ($conflicts{$rbin}) {
+      # we lost the original origin. Reassign for blobs as we know the content is identical
+      if ($rbin =~ /^_blob\./) {
+	$origin{$rbin} = $conflicts{$rbin}->[0];
+	next;
+      }
+    }
     print "      - :repo/$rbin\n";
     if (! -l "$rdir/$rbin" && -d _) {
       BSUtil::cleandir("$rdir/$rbin");
@@ -373,6 +397,7 @@ sub prpfinished {
 
   # write new rpminfo
   $rinfo = {'binaryorigins' => \%origin};
+  $rinfo->{'conflicts'} = \%conflicts if %conflicts;
   BSUtil::store("${rdir}info.new", "${rdir}info", $rinfo);
 
   # update checksums
