@@ -21,7 +21,7 @@ class Role < ApplicationRecord
   validates :title, uniqueness: { case_sensitive: true,
                                   message: 'is the name of an already existing role' }
 
-  belongs_to :relationships, class_name: 'Relationship', optional: true
+  has_many :relationships, dependent: :destroy
 
   # roles have n:m relations for users
   has_and_belongs_to_many :users, -> { distinct }
