@@ -194,4 +194,62 @@ module Webui::RequestHelper
       request_show_path(parameters)
     end
   end
+
+  # TODO: find a way to DRY the code related to state badge (used on notifications)
+
+  def bs_request_state_badge(state, css_class: nil)
+    content_tag(
+      :span,
+      icon_state_tag(state).concat(state),
+      class: ['badge', "text-bg-#{decode_state_color(state)}", css_class]
+    )
+  end
+
+  private
+
+  def decode_state_color(state)
+    case state
+    when :review, :new
+      'secondary'
+    when :declined
+      'danger'
+    when :superseded
+      'warning'
+    when :accepted
+      'success'
+    when :revoked
+      'dismissed'
+    else
+      'dark'
+    end
+  end
+
+  def decode_state_icon(state)
+    case state
+    when :new
+      'code-branch'
+    when :review, :declined, :revoked
+      'code-pull-request'
+    when :superseded
+      'code-compare'
+    when :accepted
+      'code-merge'
+    else
+      'code-fork'
+    end
+  end
+
+  def icon_state_tag(state)
+    if %i[declined revoked].include?(state)
+      content_tag(
+        :span,
+        tag.i(class: 'fas fa-code-pull-request').concat(
+          tag.i(class: 'fas fa-times fa-xs')
+        ),
+        class: 'fa-custom-pr-closed me-1'
+      )
+    else
+      tag.i(class: "fas fa-#{decode_state_icon(state)} me-1")
+    end
+  end
 end
