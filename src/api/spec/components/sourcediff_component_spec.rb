@@ -20,4 +20,15 @@ RSpec.describe SourcediffComponent, :vcr, type: :component do
       expect(rendered_content).to have_text('+# This is the new text')
     end
   end
+
+  context 'when testing the preview' do
+    before { bs_request }
+
+    it 'renders the preview' do
+      render_preview(:preview)
+
+      expect(rendered_content).to have_text('-# This will be replaced')
+      expect(rendered_content).to have_text('+# This is the new text')
+    end
+  end
 end
