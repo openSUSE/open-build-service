@@ -115,7 +115,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
         Rails.application.routes.url_helpers.project_users_path(@notification.event_payload['project'], notification_id: @notification.id)
       end
     when 'Event::AddedUserToGroup', 'Event::RemovedUserFromGroup'
-      Rails.application.routes.url_helpers.group_path(@notification.event_payload['group'])
+      Rails.application.routes.url_helpers.group_path(@notification.event_payload['group']) if Group.exists?(title: @notification.event_payload['group'])
     when 'Event::BuildFail'
       Rails.application.routes.url_helpers.package_live_build_log_path(package: @notification.event_payload['package'], project: @notification.event_payload['project'],
                                                                        repository: @notification.event_payload['repository'], arch: @notification.event_payload['arch'],
