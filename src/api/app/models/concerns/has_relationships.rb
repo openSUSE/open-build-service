@@ -37,6 +37,13 @@ module HasRelationships
     end
   end
 
+  def local_roles_for_user(user)
+    Role.joins(:relationships).where(
+      id: Role.local_roles,
+      relationships: relationships.where(id: Relationship.where(user: user).or(Relationship.where(group: user.group_ids)))
+    ).distinct
+  end
+
   def user_has_role?(user, role)
     return true if relationships.exists?(role_id: role.id, user_id: user.id)
 
