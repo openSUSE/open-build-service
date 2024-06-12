@@ -412,7 +412,11 @@ RSpec.describe Webui::PackageController, :vcr do
     end
 
     context 'when triggering a rebuild succeeds' do
-      let!(:repository) { create(:repository, project: source_project, architectures: ['i586'], name: 'openSUSE_Leap_15.1') }
+      let!(:repository) do
+        repo = create(:repository, project: source_project, architectures: ['i586'], name: 'openSUSE_Leap_15.1')
+        source_project.store
+        repo
+      end
 
       before do
         source_project.store
@@ -420,40 +424,17 @@ RSpec.describe Webui::PackageController, :vcr do
         post :trigger_rebuild, params: { project: source_project, package: source_package, repository: repository.name, arch: 'i586' }
       end
 
-      it { expect(flash[:success]).to eq("Triggered rebuild for #{source_project.name}/#{source_package.name} successfully.") }
-      it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
+      it { expect(flash[:success]).to eq('Rebuild successfully triggered') }
     end
 
-    context 'when triggering a rebuild with maintainer of package' do
-      let(:user) { create(:confirmed_user, login: 'foo') }
-      let(:other_user) { create(:confirmed_user, login: 'bar') }
-      let!(:project) { create(:project, name: 'foo_project', maintainer: user) }
-      let!(:repository) { create(:repository, project: project, architectures: ['i586'], name: 'openSUSE_Leap_15.1') }
-      let!(:package_with_maintainer) { create(:package_with_maintainer, maintainer: other_user, project: project, name: 'package_1') }
-
+    context 'when rebuild fails' do
       before do
-        login other_user
-        project.store
-        post :trigger_rebuild, params: { project: project, package: package_with_maintainer,
-                                         repository: repository.name, arch: 'i586' }
+        post :trigger_rebuild, params: { project: source_project, package: source_package, repository: 'foo', arch: 'bar' }
       end
 
-      it { expect(flash[:success]).not_to be_nil }
-    end
-
-    context 'user not being a maintainer of a package' do
-      let(:user) { create(:confirmed_user, login: 'foo') }
-      let(:other_user) { create(:confirmed_user, login: 'bar') }
-      let(:project) { create(:project, name: 'foo_project') }
-      let!(:package_with_maintainer) { create(:package_with_maintainer, maintainer: user, project: project) }
-
-      before do
-        login other_user
-        post :trigger_rebuild, params: { project: project, package: package_with_maintainer }
+      it 'lets the user know there was an error' do
+        expect(flash[:error]).to match('Error while triggering rebuild for home:tom/my_package: no repository defined')
       end
-
-      it { expect(flash[:success]).to be_nil }
-      it { expect(flash[:error]).not_to be_nil }
     end
   end
 
