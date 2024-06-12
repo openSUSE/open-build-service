@@ -1239,19 +1239,6 @@ class Package < ApplicationRecord
     "#{project.name}_#{name}".tr(':', '_')
   end
 
-  #### WARNING: these operations run in build object, not this package object
-  def rebuild(params)
-    begin
-      Backend::Api::Sources::Package.rebuild(params[:project], params[:package],
-                                             { repository: params[:repository],
-                                               arch: params[:arch] })
-    rescue Backend::Error, Timeout::Error, Project::WritePermissionError => e
-      errors.add(:base, e.message)
-      return false
-    end
-    true
-  end
-
   def release_target_name(target_repo = nil, time = Time.now.utc)
     if releasename.nil? && project.is_maintenance_incident? && linkinfo && linkinfo['package']
       # old incidents special case
