@@ -103,6 +103,13 @@ module Webui
         end
 
         @package_name = params[:package]
+
+        # No need to check for the package, they only exist on the backend in this case
+        if @project.scmsync
+          @can_modify = User.possibly_nobody.can_modify?(@project)
+          return
+        end
+
         begin
           @package = Package.get_by_project_and_name(@project, @package_name, use_source: false,
                                                                               follow_multibuild: true)
