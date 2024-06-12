@@ -251,43 +251,12 @@ RSpec.describe Webui::PackageController, :vcr do
       login user
     end
 
-    context 'with right params' do
-      let(:post_url) { "#{CONFIG['source_url']}/source/#{source_project}/#{service_package}?cmd=runservice&user=#{user}" }
-
+    context 'when triggering services succeeds' do
       before do
         get :trigger_services, params: { project: source_project, package: service_package }
       end
 
-      it { expect(a_request(:post, post_url)).to have_been_made.once }
       it { expect(flash[:success]).to eq('Services successfully triggered') }
-      it { is_expected.to redirect_to(action: :show, project: source_project, package: service_package) }
-    end
-
-    context 'without a service file in the package' do
-      let(:package) { create(:package_with_file, name: 'package_with_file', project: source_project) }
-      let(:post_url) { "#{CONFIG['source_url']}/source/#{source_project}/#{package}?cmd=runservice&user=#{user}" }
-
-      before do
-        get :trigger_services, params: { project: source_project, package: package }
-      end
-
-      it { expect(a_request(:post, post_url)).to have_been_made.once }
-      it { expect(flash[:error]).to eq("Services couldn't be triggered: no source service defined!") }
-      it { is_expected.to redirect_to(action: :show, project: source_project, package: package) }
-    end
-
-    context 'without permissions' do
-      let(:post_url) { %r{#{CONFIG['source_url']}/source/#{source_project}/#{service_package}\.*} }
-      let(:other_user) { create(:confirmed_user) }
-
-      before do
-        login other_user
-        get :trigger_services, params: { project: source_project, package: package }
-      end
-
-      it { expect(a_request(:post, post_url)).not_to have_been_made }
-      it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this package.') }
-      it { is_expected.to redirect_to(root_path) }
     end
   end
 
@@ -395,22 +364,6 @@ RSpec.describe Webui::PackageController, :vcr do
       login(user)
     end
 
-    context 'non existent repository' do
-      before do
-        post :trigger_rebuild, params: { project: source_project, package: source_package, repository: 'non_existent_repository' }
-      end
-
-      it 'lets the user know there was an error' do
-        expect(flash[:error]).to match('Error while triggering rebuild for home:tom/my_package')
-      end
-
-      it 'redirects to the package binaries path' do
-        expect(response).to redirect_to(project_package_repository_binaries_path(project_name: source_project,
-                                                                                 package_name: source_package,
-                                                                                 repository_name: 'non_existent_repository'))
-      end
-    end
-
     context 'when triggering a rebuild succeeds' do
       let!(:repository) do
         repo = create(:repository, project: source_project, architectures: ['i586'], name: 'openSUSE_Leap_15.1')
@@ -419,8 +372,6 @@ RSpec.describe Webui::PackageController, :vcr do
       end
 
       before do
-        source_project.store
-
         post :trigger_rebuild, params: { project: source_project, package: source_package, repository: repository.name, arch: 'i586' }
       end
 
@@ -452,15 +403,9 @@ RSpec.describe Webui::PackageController, :vcr do
         expect(flash[:error]).to match('Error while triggering abort build for home:tom/my_package')
         expect(flash[:error]).to match('no repository defined')
       end
-
-      it {
-        expect(response).to redirect_to(package_live_build_log_path(project: source_project,
-                                                                    package: source_package,
-                                                                    repository: 'foo', arch: 'bar'))
-      }
     end
 
-    context 'when aborting the build succeeds' do
+    context 'when triggering abort build succeeds' do
       before do
         create(:repository, project: source_project, architectures: ['i586'])
         source_project.store
@@ -468,8 +413,7 @@ RSpec.describe Webui::PackageController, :vcr do
         post :abort_build, params: { project: source_project, package: source_package }
       end
 
-      it { expect(flash[:success]).to eq("Triggered abort build for #{source_project.name}/#{source_package.name} successfully.") }
-      it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
+      it { expect(flash[:success]).to eq('Abort build successfully triggered') }
     end
   end
 

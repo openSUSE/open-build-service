@@ -19,7 +19,7 @@ class Webui::PackageController < Webui::WebuiController
   before_action :require_login, except: %i[show index branch_diff_info
                                            users requests statistics revisions view_file
                                            devel_project buildresult rpmlint_result rpmlint_log files]
-  before_action :set_object_to_authorize, only: %i[trigger_rebuild]
+  before_action :set_object_to_authorize, only: %i[trigger_rebuild trigger_services abort_build]
 
   prepend_before_action :lockout_spiders, only: %i[revisions rdiff requests]
 
@@ -252,32 +252,33 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def trigger_services
-    authorize @package, :update?
+    authorize @object_to_authorize, :update?
 
     begin
-      Backend::Api::Sources::Package.trigger_services(@project.name, @package.name, User.session!.to_s)
-      flash[:success] = 'Services successfully triggered'
+      Backend::Api::Sources::Package.trigger_services(@project.name, @package_name, User.session!.to_s)
     rescue Timeout::Error => e
-      flash[:error] = "Services couldn't be triggered: #{e.message}"
+      flash[:error] = "Error while triggering services for #{@project.name}/#{@package_name}: #{e.message}"
     rescue Backend::Error => e
-      flash[:error] = "Services couldn't be triggered: #{Xmlhash::XMLHash.new(error: e.summary)[:error]}"
+      flash[:error] = "Error while triggering services for #{@project.name}/#{@package_name}: #{Xmlhash::XMLHash.new(error: e.summary)[:error]}"
+    else
+      flash[:success] = 'Services successfully triggered'
     end
-    redirect_to package_show_path(@project, @package)
+    redirect_back_or_to package_show_path(@project, @package_name)
   end
 
   def abort_build
-    authorize @package, :update?
+    authorize @object_to_authorize, :update?
 
     begin
-      Backend::Api::Build::Project.abort_build(@project.name, { package: params[:package],
-                                                                repository: params[:repository],
-                                                                arch: params[:arch] }.compact)
-      flash[:success] = "Triggered abort build for #{elide(@project.name)}/#{elide(params[:package])} successfully."
-      redirect_to package_show_path(project: @project, package: params[:package])
-    rescue Backend::Error, Timeout::Error, Project::WritePermissionError => e
-      flash[:error] = "Error while triggering abort build for #{elide(@project.name)}/#{elide(params[:package])}: #{e.message}."
-      redirect_to package_live_build_log_path(project: @project, package: params[:package], repository: params[:repository], arch: params[:arch])
+      Backend::Api::Build::Project.abort_build(@project.name, { package: @package_name, repository: params[:repository], arch: params[:arch] })
+    rescue Timeout::Error => e
+      flash[:error] = "Error while triggering abort build for #{@project.name}/#{@package_name}: #{e.message}."
+    rescue Backend::Error => e
+      flash[:error] = "Error while triggering abort build for #{@project.name}/#{@package_name}: #{Xmlhash::XMLHash.new(error: e.summary)[:error]}"
+    else
+      flash[:success] = 'Abort build successfully triggered'
     end
+    redirect_back_or_to package_show_path(@project, @package_name)
   end
 
   def trigger_rebuild
