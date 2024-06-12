@@ -2,7 +2,11 @@ module ProjectLinks
   extend ActiveSupport::Concern
 
   included do
-    has_many :linking_to, -> { order(:position) }, class_name: 'LinkedProject', foreign_key: :db_project_id, dependent: :delete_all
+    has_many :linking_to, -> { order(:position) }, class_name: 'LinkedProject', foreign_key: :db_project_id, dependent: :delete_all do
+      def remote
+        where.not(linked_remote_project_name: nil)
+      end
+    end
     has_many :projects_linking_to, through: :linking_to, class_name: 'Project', source: :linked_db_project
     has_many :linked_by, -> { order(:position) }, class_name: 'LinkedProject', foreign_key: :linked_db_project_id, dependent: :delete_all
     has_many :linked_by_projects, through: :linked_by, class_name: 'Project', source: :project

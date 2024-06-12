@@ -47,14 +47,43 @@ RSpec.describe Package, '#get_by_project_and_name' do
           create(:linked_project, project: project, linked_remote_project_name: 'openSUSE.org:home:hennevogel:myfirstproject')
           project
         end
-        let(:package) { build(:package, name: 'i_might_exist_remote') }
 
-        it 'returns nil' do
-          expect(subject).equal?(nil)
+        context 'and linked project provides package and local project not' do
+          let(:package) { build(:package, name: 'i_dont_exist') }
+
+          before do
+            # Mock Package.exists_on_backend?
+            allow(Backend::Connection).to receive(:get).and_return(true)
+          end
+
+          it 'returns a readonly package' do
+            expect(subject).to be_readonly
+          end
+
+          it 'returns an in-memory package' do
+            expect(subject).to be_new_record
+          end
         end
 
-        it 'does not raise' do
-          expect { subject }.not_to raise_error
+        context 'and linked project provides package and local project also provides package' do
+          let(:package) { create(:package, name: 'package_1', project: project) }
+
+          it 'returns the package from the local project' do
+            expect(subject).to eq(package)
+          end
+        end
+
+        context 'and linked project does not provide package and local project also not' do
+          before do
+            # Mock Package.exists_on_backend?
+            allow(Backend::Connection).to receive(:get).and_raise(Backend::Error)
+          end
+
+          let(:package) { build(:package, name: 'i_dont_exist') }
+
+          it 'raises' do
+            expect { subject }.to raise_error(Package::Errors::UnknownObjectError)
+          end
         end
       end
     end
@@ -99,10 +128,44 @@ RSpec.describe Package, '#get_by_project_and_name' do
           create(:linked_project, project: project, linked_remote_project_name: 'openSUSE.org:home:hennevogel:myfirstproject')
           project
         end
-        let(:package) { build(:package, name: 'i_might_exist_remote') }
 
-        it 'raises' do
-          expect { subject }.to raise_error(Package::Errors::UnknownObjectError)
+        context 'and linked project provides package and local project not' do
+          before do
+            # Mock Package.exists_on_backend? to return true
+            allow(Backend::Connection).to receive(:get).and_return(true)
+          end
+
+          let(:package) { build(:package, name: 'i_exist_on_remote') }
+
+          it 'raises' do
+            expect { subject }.to raise_error(Package::Errors::UnknownObjectError)
+          end
+        end
+
+        context 'and linked project provides package and local project also provides package' do
+          before do
+            # Mock Package.exists_on_backend? to return true
+            allow(Backend::Connection).to receive(:get).and_return(true)
+          end
+
+          let(:package) { create(:package, project: project) }
+
+          it 'returns the package from the local project' do
+            expect(subject.project).equal?(project)
+          end
+        end
+
+        context 'and linked project does not provide package and local project also not' do
+          before do
+            # Mock Package.exists_on_backend? to return false
+            allow(Backend::Connection).to receive(:get).and_raise(Backend::Error)
+          end
+
+          let(:package) { build(:package, name: 'i_do_not_exist') }
+
+          it 'raises' do
+            expect { subject }.to raise_error(Package::Errors::UnknownObjectError)
+          end
         end
       end
     end

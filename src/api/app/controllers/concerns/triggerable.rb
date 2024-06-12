@@ -13,24 +13,21 @@ module Triggerable
     package_find_options = @token.package_find_options if package_find_options.blank?
     # By default we operate on the package association
     @package = @token.package
-    # If the token has no package, let's find one from the parameters
-    if @package_name.present?
-      @package ||= Package.get_by_project_and_name(@project,
-                                                   @package_name,
-                                                   package_find_options)
-    end
-    return unless @project.links_to_remote?
 
-    # The token has no package, we did not find a package in the database but the project has a link to remote.
-    # See https://github.com/openSUSE/open-build-service/wiki/Links#project-links
-    # In this case, we will try to trigger with the user input, no matter what it is
-    @package ||= @package_name
-    # TODO: This should not happen right? But who knows...
-    raise ActiveRecord::RecordNotFound unless @package
+    # If the token has no package, let's find one from the parameters if we have one...
+    return if @package_name.blank?
+
+    @package ||= Package.get_by_project_and_name(@project,
+                                                 @package_name,
+                                                 package_find_options)
   end
 
   def set_object_to_authorize
-    @token.object_to_authorize = package_from_project_link? ? @project : @package
+    if @package.blank?
+      @token.object_to_authorize = @project
+    else
+      @token.object_to_authorize ||= package_from_project_link? ? @project : @package
+    end
   end
 
   def set_multibuild_flavor
@@ -39,7 +36,10 @@ module Triggerable
   end
 
   def package_from_project_link?
-    # a remote package is always included via project link
-    !(@package.is_a?(Package) && @package.project == @project)
+    # a package from a remote project link is always readonly
+    return true if @package.readonly?
+
+    # a package from a local project link has always a different project than the one we want to trigger for
+    @package.project != @project
   end
 end

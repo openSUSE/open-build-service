@@ -126,24 +126,6 @@ FactoryBot.define do
       end
     end
 
-    factory :package_with_remote_link do
-      transient do
-        remote_project_name { Faker::Lorem.word }
-        remote_package_name { Faker::Lorem.word }
-      end
-      after(:create) do |package, evaluator|
-        remote_project = create(:remote_project, name: evaluator.remote_project_name)
-        PackageKind.create(package_id: package.id, kind: 'link')
-        file_content = "<link package=\"#{evaluator.remote_package_name}\" project=\"#{remote_project.name}\" />"
-
-        if CONFIG['global_write_through']
-          Backend::Connection.put(
-            "/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/_link", file_content
-          )
-        end
-      end
-    end
-
     factory :package_with_binary do
       transient do
         target_file_name { 'bigfile_archive.tar.gz' }

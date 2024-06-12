@@ -73,14 +73,32 @@ RSpec.describe Triggerable do
       let(:token) { Token::Rebuild.create(executor: user) }
       let(:project_name) { 'project_with_a_link' }
       let(:package_name) { 'remote_package_trigger' }
-
       let(:project_with_a_link) { create(:project, name: project_name, maintainer: user, link_to: 'some:remote:project') }
 
-      it 'assigns remote package string' do
-        stub_params(project_name: project_with_a_link.name, package_name: package_name)
-        fake_controller_instance.set_project
-        fake_controller_instance.set_package
-        expect(fake_controller_instance.instance_variable_get(:@package)).to eq('remote_package_trigger')
+      context 'where the package exists' do
+        before do
+          allow(Backend::Connection).to receive(:get).and_return(true)
+        end
+
+        it 'assigns readonly package' do
+          stub_params(project_name: project_with_a_link.name, package_name: package_name)
+          fake_controller_instance.set_project
+          fake_controller_instance.set_package
+          expect(fake_controller_instance.instance_variable_get(:@package).name).to eq('remote_package_trigger')
+          expect(fake_controller_instance.instance_variable_get(:@package)).to be_readonly
+        end
+      end
+
+      context 'where the package does not exist' do
+        before do
+          allow(Backend::Connection).to receive(:get).and_raise(Backend::Error)
+        end
+
+        it 'barfs' do
+          stub_params(project_name: project_with_a_link.name, package_name: package_name)
+          fake_controller_instance.set_project
+          expect { fake_controller_instance.set_package }.to raise_error(Package::Errors::UnknownObjectError)
+        end
       end
     end
   end
@@ -97,7 +115,7 @@ RSpec.describe Triggerable do
       expect(fake_controller_instance.instance_variable_get(:@token).object_to_authorize).to eq(package)
     end
 
-    context 'project with project-link' do
+    context 'project with local project-link' do
       let(:token) { Token::Rebuild.create(executor: user) }
       let(:project_with_a_link) { create(:project, name: 'project_with_a_link', maintainer: user, link_to: project) }
 
@@ -114,7 +132,7 @@ RSpec.describe Triggerable do
       end
     end
 
-    context 'project with project-link and a local package' do
+    context 'project with local project-link and a local package' do
       let(:token) { Token::Rebuild.create(executor: user) }
       let(:project_with_a_link) { create(:project, name: 'project_with_a_link', maintainer: user, link_to: project) }
 
@@ -139,9 +157,10 @@ RSpec.describe Triggerable do
 
       before do
         fake_controller_instance.instance_variable_set(:@project_name, 'project_with_a_link')
+        allow(Backend::Connection).to receive(:get).and_return(true)
       end
 
-      it 'authorizes the project if the package is from a project with a link' do
+      it 'authorizes the project if the package is from a project with a remote link' do
         stub_params(project_name: project_with_a_link.name, package_name: package_name)
         fake_controller_instance.set_project
         fake_controller_instance.set_package

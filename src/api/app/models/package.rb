@@ -205,15 +205,19 @@ class Package < ApplicationRecord
       package = project.packages.find_by_name(package_name) if package.nil?
     end
 
-    # FIXME: Why is this returning nil (the package is not found) if _ANY_ of the
-    # linking projects is remote? What if one of the linking projects is local
-    # and the other one remote?
-    if package.nil? && opts[:follow_project_links]
-      # in case we link to a remote project we need to assume that the
-      # backend may be able to find it even when we don't have the package local
-      project.expand_all_projects(allow_remote_projects: true).each do |p|
-        return nil unless p.is_a?(Project)
+    # project links can point to remote projects
+    # https://github.com/openSUSE/open-build-service/wiki/Links#links-to-remote
+    # In that case, let's see if the backend knows about this package
+    # and instantiate a readonly (can't change anything remote) Package object.
+    if package.nil? && opts[:follow_project_links] && project.linking_to.remote.any?
+      # rubocop:disable Style/SoleNestedConditional
+      # Asking the backend for the results of this condition cost too much in the outer if...
+      if exists_on_backend?(package_name, project)
+        # the backend knows this package. setup an in memory, read only object...
+        package = project.packages.new(name: package_name)
+        package.readonly!
       end
+      # rubocop:enable Style/SoleNestedConditional
     end
 
     raise UnknownObjectError, "Package not found: #{project.name}/#{package_name}" unless package
@@ -221,7 +225,7 @@ class Package < ApplicationRecord
 
     package.check_source_access! if opts[:use_source]
 
-    Rails.cache.write(@key, [package.id, package.updated_at, project.updated_at])
+    Rails.cache.write(@key, [package.id, package.updated_at, project.updated_at]) unless package.readonly? # don't cache remote packages...
     package
   end
 
@@ -964,6 +968,9 @@ class Package < ApplicationRecord
   end
 
   def developed_packages
+    return if readonly?
+    return if new_record?
+
     packages = []
     candidates = Package.where(develpackage_id: self).load
     candidates.each do |candidate|
