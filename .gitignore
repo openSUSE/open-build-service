@@ -24,6 +24,7 @@
 /src/api/last_deploy
 /src/api/test/reports
 /src/api/.byebug_history
+/src/api/database_consistency_????_??_??_??_??_??
 /src/backend/blib
 /src/backend/BSConfig.pm
 /src/backend/BSSolv.bs
@@ -34,13 +35,14 @@
 /src/backend/pm_to_blib
 /src/backend/sat-solver
 /src/backend/t/tmp
+/contrib/rabbitmqadmin
+/dist/aws_credentials
+/dist/ec2utils.conf
+/docker-files/home/.bash_history
+/docker-files/home/.irb_history
+/docker-files/home/.pry_history
 docker-compose.override.yml
 docker-compose.minitest-user.yml
-docker-files/home/.bash_history
-docker-files/home/.irb_history
-docker-files/home/.pry_history
-contrib/rabbitmqadmin
-src/api/database_consistency_????_??_??_??_??_??
 
 # All the other crap that fits nowhere specifically
 *~
@@ -60,5 +62,4 @@ nbproject
 *.iws
 .idea/
 .kanku/
-dist/aws_credentials
-dist/ec2utils.conf
+.ackrc
