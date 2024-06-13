@@ -3,14 +3,15 @@ class NotificationComponent < ApplicationComponent
     'BsRequest' => 'fa-code-pull-request', 'Comment' => 'fa-comments',
     'Package' => 'fa-xmark text-danger',
     'Report' => 'fa-flag', 'Decision' => 'fa-clipboard-check',
-    'Appeal' => 'fa-hand', 'WorkflowRun' => 'fa-book-open'
+    'Appeal' => 'fa-hand', 'WorkflowRun' => 'fa-book-open',
+    'Group' => 'fa-people-group'
   }.freeze
 
   NOTIFICATION_TITLE = {
     'BsRequest' => 'Request notification', 'Comment' => 'Comment notification',
     'Package' => 'Package notification', 'Report' => 'Report notification',
     'Decision' => 'Report decision', 'Appeal' => 'Decision appeal',
-    'WorkflowRun' => 'Workflow run'
+    'WorkflowRun' => 'Workflow run', 'Group' => 'Group members changed'
   }.freeze
 
   def initialize(notification:, selected_filter:, page:, show_more:)

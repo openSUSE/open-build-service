@@ -2,7 +2,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   include Webui::NotificationsFilter
 
   ALLOWED_FILTERS = %w[all comments requests incoming_requests outgoing_requests relationships_created relationships_deleted build_failures
-                       reports reviews workflow_runs appealed_decisions].freeze
+                       reports reviews workflow_runs appealed_decisions member_on_groups].freeze
   ALLOWED_STATES = %w[all unread read].freeze
 
   before_action :require_login
@@ -87,6 +87,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @counted_notifications['reports'] = @notifications.for_reports.count
     @counted_notifications['workflow_runs'] = @notifications.for_workflow_runs.count
     @counted_notifications['appealed_decisions'] = @notifications.for_appealed_decisions.count
+    @counted_notifications['member_on_groups'] = @notifications.for_member_on_groups.count
   end
 
   def update_counted_notifications

@@ -7,6 +7,12 @@ class GroupsUser < ApplicationRecord
   validate :validate_duplicates, on: :create
   validates_with AllowedUserValidator
 
+  after_create :create_event
+
+  def create_event
+    Event::AddedUserToGroup.create(group: group.title, member: user.login, who: User.session&.login)
+  end
+
   private
 
   def validate_duplicates

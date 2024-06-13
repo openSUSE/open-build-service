@@ -26,7 +26,9 @@ module Event
       'Event::ClearedDecision' => 'Receive notifications for cleared report decisions.',
       'Event::FavoredDecision' => 'Receive notifications for favored report decisions.',
       'Event::WorkflowRunFail' => 'Receive notifications for failed workflow runs on SCM/CI integration.',
-      'Event::AppealCreated' => 'Receive notifications when a user appeals against a decision of a moderator.'
+      'Event::AppealCreated' => 'Receive notifications when a user appeals against a decision of a moderator.',
+      'Event::AddedUserToGroup' => 'Receive notifications when you are added to a group.',
+      'Event::RemovedUserFromGroup' => 'Receive notifications when you are removed from a group.'
     }.freeze
 
     class << self
@@ -44,7 +46,8 @@ module Event
          'Event::CommentForRequest',
          'Event::RelationshipCreate', 'Event::RelationshipDelete',
          'Event::ReportForComment', 'Event::ReportForPackage', 'Event::ReportForProject', 'Event::ReportForUser', 'Event::ReportForRequest',
-         'Event::WorkflowRunFail', 'Event::AppealCreated', 'Event::ClearedDecision', 'Event::FavoredDecision'].map(&:constantize)
+         'Event::WorkflowRunFail', 'Event::AppealCreated', 'Event::ClearedDecision', 'Event::FavoredDecision',
+         'Event::AddedUserToGroup', 'Event::RemovedUserFromGroup'].map(&:constantize)
       end
 
       def classnames
