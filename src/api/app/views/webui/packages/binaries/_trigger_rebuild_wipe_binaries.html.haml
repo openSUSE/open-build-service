@@ -1,5 +1,5 @@
 %li.nav-item
-  = link_to(package_trigger_rebuild_path(arch: result[:arch], project: project, package: package, repository: repository),
+  = link_to(rebuild_project_package_trigger_path(project_name: project, package_name: package, repository: repository, arch: result[:arch]),
   title: 'Trigger rebuild', method: :post, class: 'nav-link') do
     %i.fas.fa-redo
     Trigger rebuild

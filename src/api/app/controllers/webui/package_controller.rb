@@ -6,24 +6,23 @@ class Webui::PackageController < Webui::WebuiController
 
   before_action :set_project, only: %i[show edit update index users requests statistics revisions
                                        new branch_diff_info rdiff create remove
-                                       save_person save_group remove_role view_file abort_build trigger_rebuild
-                                       trigger_services buildresult rpmlint_result rpmlint_log files]
+                                       save_person save_group remove_role view_file
+                                       buildresult rpmlint_result rpmlint_log files]
 
   before_action :require_package, only: %i[edit update show requests statistics revisions
                                            branch_diff_info rdiff remove
-                                           save_person save_group remove_role view_file abort_build trigger_rebuild
-                                           trigger_services buildresult rpmlint_result rpmlint_log files users]
+                                           save_person save_group remove_role view_file
+                                           buildresult rpmlint_result rpmlint_log files users]
 
   before_action :check_ajax, only: %i[devel_project buildresult rpmlint_result]
   # make sure it's after the require_, it requires both
   before_action :require_login, except: %i[show index branch_diff_info
                                            users requests statistics revisions view_file
                                            devel_project buildresult rpmlint_result rpmlint_log files]
-  before_action :set_object_to_authorize, only: %i[trigger_rebuild trigger_services abort_build]
 
   prepend_before_action :lockout_spiders, only: %i[revisions rdiff requests]
 
-  after_action :verify_authorized, only: %i[new create remove abort_build trigger_rebuild abort_build]
+  after_action :verify_authorized, only: %i[new create remove]
 
   def index
     render json: PackageDatatable.new(params, view_context: view_context, project: @project)
@@ -249,52 +248,6 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to(package_show_path(project: @project, package: @package),
                   error: "Package can't be removed: #{@package.errors.full_messages.to_sentence}")
     end
-  end
-
-  def trigger_services
-    authorize @object_to_authorize, :update?
-
-    begin
-      Backend::Api::Sources::Package.trigger_services(@project.name, @package_name, User.session!.to_s)
-    rescue Timeout::Error => e
-      flash[:error] = "Error while triggering services for #{@project.name}/#{@package_name}: #{e.message}"
-    rescue Backend::Error => e
-      flash[:error] = "Error while triggering services for #{@project.name}/#{@package_name}: #{Xmlhash::XMLHash.new(error: e.summary)[:error]}"
-    else
-      flash[:success] = 'Services successfully triggered'
-    end
-    redirect_back_or_to package_show_path(@project, @package_name)
-  end
-
-  def abort_build
-    authorize @object_to_authorize, :update?
-
-    begin
-      Backend::Api::Build::Project.abort_build(@project.name, { package: @package_name, repository: params[:repository], arch: params[:arch] })
-    rescue Timeout::Error => e
-      flash[:error] = "Error while triggering abort build for #{@project.name}/#{@package_name}: #{e.message}."
-    rescue Backend::Error => e
-      flash[:error] = "Error while triggering abort build for #{@project.name}/#{@package_name}: #{Xmlhash::XMLHash.new(error: e.summary)[:error]}"
-    else
-      flash[:success] = 'Abort build successfully triggered'
-    end
-    redirect_back_or_to package_show_path(@project, @package_name)
-  end
-
-  def trigger_rebuild
-    authorize @object_to_authorize, :update?
-
-    begin
-      Backend::Api::Sources::Package.rebuild(@project.name, @package_name, { repository: params[:repository], arch: params[:arch] })
-    rescue Timeout::Error => e
-      flash[:error] = "Error while triggering rebuild for #{@project.name}/#{@package_name}: #{e.message}."
-    rescue Backend::Error => e
-      flash[:error] = "Error while triggering rebuild for #{@project.name}/#{@package_name}: #{Xmlhash::XMLHash.new(error: e.summary)[:error]}"
-    else
-      flash[:success] = 'Rebuild successfully triggered'
-    end
-
-    redirect_back_or_to package_show_path(project_name: @project, package: @package_name)
   end
 
   def devel_project

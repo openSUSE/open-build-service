@@ -94,11 +94,6 @@ constraints(RoutesHelper::WebuiMatcher) do
       post 'package/remove_role/:project/:package' => :remove_role, constraints: cons, as: 'package_remove_role'
       # For backward compatibility
       get 'package/view_file/:project/:package/:filename', to: redirect('/projects/%{project}/packages/%{package}/files/%{filename}'), constraints: cons
-      defaults format: 'js' do
-        post 'package/trigger_rebuild/:project/:package' => :trigger_rebuild, constraints: cons, as: 'package_trigger_rebuild'
-        get 'package/abort_build/:project/:package' => :abort_build, constraints: cons, as: 'package_abort_build'
-        post 'package/trigger_services/:project/:package' => :trigger_services, constraints: cons, as: 'package_trigger_services'
-      end
       get 'package/devel_project/:project/:package' => :devel_project, constraints: cons, as: 'package_devel_project'
       get 'package/buildresult' => :buildresult, constraints: cons, as: 'package_buildresult'
       get 'package/rpmlint_result' => :rpmlint_result, constraints: cons, as: 'rpmlint_result'
@@ -294,6 +289,15 @@ constraints(RoutesHelper::WebuiMatcher) do
         resource :binaries, controller: 'webui/packages/binaries', only: [:destroy], constraints: cons
       end
       resource :meta, controller: 'webui/packages/meta', only: %i[show update], constraints: cons
+      resource :trigger, controller: 'webui/packages/trigger', only: [], constraints: cons do
+        defaults format: 'js' do
+          member do
+            post 'rebuild' => :rebuild
+            post 'abort_build' => :abort_build
+            post 'services' => :services
+          end
+        end
+      end
     end
 
     resources :role_additions, controller: 'webui/requests/role_additions', only: %i[new create], constraints: cons
