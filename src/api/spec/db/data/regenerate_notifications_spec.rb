@@ -72,7 +72,7 @@ RSpec.describe RegenerateNotifications, type: :migration do
       end
     end
 
-    context 'for RequesStatechange Notifications' do
+    context 'for RequestStatechange Notifications' do
       let!(:subscription) { create(:event_subscription_request_statechange, receiver_role: 'target_maintainer', user: owner, channel: :rss) }
 
       before do
