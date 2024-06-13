@@ -6,6 +6,8 @@ module Event
     receiver_roles :maintainer, :bugowner, :project_watcher, :package_watcher
     payload_keys :project, :package, :sender
 
+    self.notification_explanation = 'Receive notifications for comments created on a package for which you are...'
+
     def subject
       "New comment in package #{payload['project']}/#{payload['package']} by #{payload['commenter']}"
     end

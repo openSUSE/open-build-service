@@ -5,6 +5,8 @@ module Event
 
     receiver_roles :member
 
+    self.notification_explanation = 'Receive notifications when you are removed from a group.'
+
     def subject
       "You were removed from the group '#{payload['group']}'" unless payload['who']
 

@@ -3,6 +3,8 @@ module Event
     self.description = 'Report for a request created'
     payload_keys :bs_request_number
 
+    self.notification_explanation = 'Receive notifications for reported requests.'
+
     def subject
       "Request #{payload['bs_request_number']} reported"
     end
