@@ -132,9 +132,8 @@ FactoryBot.define do
         remote_package_name { Faker::Lorem.word }
       end
       after(:create) do |package, evaluator|
-        remote_project = create(:remote_project, name: evaluator.remote_project_name)
         PackageKind.create(package_id: package.id, kind: 'link')
-        file_content = "<link package=\"#{evaluator.remote_package_name}\" project=\"#{remote_project.name}\" />"
+        file_content = "<link package=\"#{evaluator.remote_package_name}\" project=\"#{evaluator.remote_project_name}\" />"
 
         if CONFIG['global_write_through']
           Backend::Connection.put(
