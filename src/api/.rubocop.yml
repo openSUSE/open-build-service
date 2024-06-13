@@ -1,9 +1,10 @@
 require:
-  - rubocop-rails
-  - rubocop-rspec
-  - rubocop-performance
   - rubocop-capybara
   - rubocop-factory_bot
+  - rubocop-performance
+  - rubocop-rails
+  - rubocop-rspec
+  - rubocop-rspec_rails
   - ./lib/rubocop/cop/view_component/avoid_global_state.rb
   - ./lib/rubocop/cop/view_component/file_name.rb
   - ./lib/rubocop/cop/view_component/class_name.rb
@@ -323,9 +324,6 @@ Rails/I18nLocaleTexts:
 
 ##################### RSpec ##################################
 
-RSpec/FilePath:
-  Enabled: false
-
 RSpec/SpecFilePathFormat:
   Exclude:
     - 'spec/controllers/concerns/rescue_authorization_handler_spec.rb'
@@ -425,10 +423,6 @@ RSpec/NamedSubject:
 RSpec/NestedGroups:
   Enabled: false
 
-RSpecRails/AvoidSetupHook:
-  Exclude:
-    # Don't parse minitests for RSpec cops
-    - 'test/**/*'
 RSpec/RepeatedExample:
   Exclude:
     # This cop is currently not recognizing the pundit rspec helpers.
