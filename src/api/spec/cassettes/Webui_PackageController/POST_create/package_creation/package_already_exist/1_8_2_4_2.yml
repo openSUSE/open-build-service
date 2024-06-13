@@ -39,16 +39,16 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Thu, 13 Jun 2024 17:01:23 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:18 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_11
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="my_package" project="home:tom">
-          <title>Beneath the Bleeding</title>
-          <description>Suscipit saepe iusto similique.</description>
+        <package name="package_with_file" project="home:tom">
+          <title>Of Mice and Men</title>
+          <description>Sit minima eum accusamus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,21 +69,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '153'
     body:
       encoding: UTF-8
       string: |
-        <package name="my_package" project="home:tom">
-          <title>Beneath the Bleeding</title>
-          <description>Suscipit saepe iusto similique.</description>
+        <package name="package_with_file" project="home:tom">
+          <title>Of Mice and Men</title>
+          <description>Sit minima eum accusamus.</description>
         </package>
-  recorded_at: Thu, 13 Jun 2024 17:01:23 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:18 GMT
 - request:
-    method: get
-    uri: http://backend:5352/source/home:tom/my_package
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: Maxime qui reprehenderit. Quia ab officia. Nihil et sed.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -103,19 +103,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '85'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <directory name="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-  recorded_at: Thu, 13 Jun 2024 17:01:23 GMT
+        <revision rev="1" vrev="1">
+          <srcmd5>ae96bcf22a48536fec703b08b18adc61</srcmd5>
+          <version>unknown</version>
+          <time>1718298078</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:18 GMT
 - request:
-    method: get
-    uri: http://backend:5352/source/home:tom/my_package?expand=1
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: Et magni porro. Enim facere cum. Quia quidem qui.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -135,11 +141,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '85'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <directory name="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-  recorded_at: Thu, 13 Jun 2024 17:01:23 GMT
+        <revision rev="2" vrev="2">
+          <srcmd5>0d8a2d5f17814778794b7d2934e24fd5</srcmd5>
+          <version>unknown</version>
+          <time>1718298078</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:18 GMT
 recorded_with: VCR 6.2.0

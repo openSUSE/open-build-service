@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Tue, 26 Sep 2023 14:23:49 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:17 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Eyeless in Gaza</title>
-          <description>Et assumenda molestiae dolor.</description>
+          <title>Ah, Wilderness!</title>
+          <description>Sint quam impedit ad.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,23 +69,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '142'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Eyeless in Gaza</title>
-          <description>Et assumenda molestiae dolor.</description>
+          <title>Ah, Wilderness!</title>
+          <description>Sint quam impedit ad.</description>
         </package>
-  recorded_at: Tue, 26 Sep 2023 14:23:49 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:17 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_1/_meta?user=tom
+    uri: http://backend:5352/source/project_3/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="project_1">
-          <title>Surprised by Joy</title>
+        <project name="project_3">
+          <title>The Way of All Flesh</title>
           <description/>
         </project>
     headers:
@@ -107,24 +107,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '102'
+      - '106'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_1">
-          <title>Surprised by Joy</title>
+        <project name="project_3">
+          <title>The Way of All Flesh</title>
           <description></description>
         </project>
-  recorded_at: Tue, 26 Sep 2023 14:23:49 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:17 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_1/package_1/_meta?user=tom
+    uri: http://backend:5352/source/project_3/package_1/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="package_1" project="project_1">
-          <title>Brandy of the Damned</title>
-          <description>Qui architecto odit quam.</description>
+        <package name="package_1" project="project_3">
+          <title>A Confederacy of Dunces</title>
+          <description>Autem omnis et laborum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -145,24 +145,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '151'
+      - '152'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_1" project="project_1">
-          <title>Brandy of the Damned</title>
-          <description>Qui architecto odit quam.</description>
+        <package name="package_1" project="project_3">
+          <title>A Confederacy of Dunces</title>
+          <description>Autem omnis et laborum.</description>
         </package>
-  recorded_at: Tue, 26 Sep 2023 14:23:49 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:17 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_1/package_1/_meta?user=tom
+    uri: http://backend:5352/source/project_3/package_1/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="package_1" project="project_1">
-          <title>Brandy of the Damned</title>
-          <description>Qui architecto odit quam.</description>
+        <package name="package_1" project="project_3">
+          <title>A Confederacy of Dunces</title>
+          <description>Autem omnis et laborum.</description>
           <devel project="home:tom" package="my_package"/>
         </package>
     headers:
@@ -184,14 +184,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '202'
+      - '203'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_1" project="project_1">
-          <title>Brandy of the Damned</title>
-          <description>Qui architecto odit quam.</description>
+        <package name="package_1" project="project_3">
+          <title>A Confederacy of Dunces</title>
+          <description>Autem omnis et laborum.</description>
           <devel project="home:tom" package="my_package"/>
         </package>
-  recorded_at: Tue, 26 Sep 2023 14:23:49 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:17 GMT
 recorded_with: VCR 6.2.0
