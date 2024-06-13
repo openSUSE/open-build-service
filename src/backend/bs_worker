@@ -97,6 +97,7 @@ my $workerid;
 my $srcserver;
 my @reposervers;
 my $testmode;
+my $testcasemode;
 my $noworkercheck;
 my $nobuildcodecheck;
 my $oneshot;
@@ -394,7 +395,13 @@ my $exitrestart;
 my $exitrestart_timeout = 300;	# wait max 5 minuntes
 
 exit(0) if @ARGV == 1 && $ARGV[0] eq '--selftest';
-return 1 if @ARGV == 1 && $ARGV[0] eq '--testcase';
+if ($ARGV[0] eq '--testcase') {
+  @ARGV= ();
+  $testcasemode = 1;
+  $buildroot = '/testcasemode/buildroot';
+  $statedir = '/testcasemode/statedir';
+  $hostarch = 'x86_64';
+}
 
 while (@ARGV) {
   usage(0) if $ARGV[0] eq '--help';
@@ -3516,13 +3523,31 @@ sub normalize_container {
   rename("$container.new", "$container") || die("rename $container.new $container: $!\n");
 }
 
+# this works for both v02 and v1 predicates
 my $slsa_json_template = {
   '_order' => [ '_type', 'subject', 'predicateType', 'predicate' ],
   'subject' => {
     '_order' => [ 'name', 'digest' ],
   },
   'predicate' => {
-    '_order' => [ 'builder', 'buildType', 'invocation', 'buildConfig', 'metadata', 'materials' ],
+    '_order' => [ 'buildDefinition', 'runDetails', 'builder', 'buildType', 'invocation', 'buildConfig', 'metadata', 'materials' ],
+    # v1
+    'buildDefinition' => {
+      '_order' => [ 'buildType', 'externalParameters', 'internalParameters', 'resolvedDependencies' ],
+      'resolvedDependencies' => {
+	'_order' => [ 'name', 'uri', 'digest', 'content', 'downloadLocation', 'mediaType', 'annotations' ],
+      }
+    },
+    'runDetails' => {
+      '_order' => [ 'builder', 'metadata', 'byproducts' ],
+      'builder' => {
+	'_order' => [ 'id', 'builderDependencies', 'version' ],
+      },
+      'metadata' => {
+	'_order' => [ 'invocationId', 'startedOn', 'finishedOn' ],
+      },
+    },
+    # v02
     'invocation' => {
       '_order' => [ 'configSource', 'parameters', 'environment' ],
       'configSource' => {
@@ -3549,28 +3574,60 @@ sub provenance_tojson {
   return Build::SimpleJSON::unparse($provenance,  'template' => $slsa_json_template, 'keepspecial' => 1);
 }
 
-sub generate_slsa_provenance_statement {
-  my ($buildinfo, $send) = @_;
-
-  # Generate subject, from the output artifacts
+# Generate subject from the output artifacts
+sub generate_slsa_provenance_subject {
+  my ($send) = @_;
   my $subject = [];
   for my $artifact (@$send) {
     next if $artifact->{name} =~ /^(rpmlint\.log|_statistics|_buildenv)$/;
-
     my $sha256sum = sha256file($artifact->{'filename'});
     push @$subject, { 'name' => $artifact->{'name'}, 'digest' => { 'sha256' => $sha256sum }};
   }
-  
-  my $configsourceuri;
+  return $subject;
+}
+
+sub generate_slsa_sourceuri {
+  my ($buildinfo, $filename, $sha256sum) = @_;
+
+  my $filename_suf = defined($filename) ? "/$filename" : '';
+  my $uri;
   if ($buildinfo->{'slsadownloadurl'} && $buildinfo->{'slsadownloadurl'} =~ /(.*)\/_slsa$/) {
     # using the source publishing server
     my $server = $1;
-    $configsourceuri = BSHTTP::urlencode("$server/$buildinfo->{'project'}/$buildinfo->{'package'}/$buildinfo->{'srcmd5'}");
+    $uri = BSHTTP::urlencode("$server/$buildinfo->{'project'}/$buildinfo->{'package'}/$buildinfo->{'srcmd5'}$filename_suf");
   } else {
     my $server = $buildinfo->{'slsadownloadurl'} || $buildinfo->{'srcserver'} || $srcserver;
-    $configsourceuri = BSHTTP::urlencode("$server/source/$buildinfo->{'project'}/$buildinfo->{'package'}")."?rev=$buildinfo->{'srcmd5'}";
+    $uri = BSHTTP::urlencode("$server/source/$buildinfo->{'project'}/$buildinfo->{'package'}$filename_suf")."?rev=$buildinfo->{'srcmd5'}";
   }
+  return $uri;
+}
 
+sub generate_slsa_binaryuri {
+  my ($buildinfo, $prpa, $filename, $sha256sum) = @_;
+  my $uri;
+  if ($buildinfo->{'slsadownloadurl'} && $buildinfo->{'slsadownloadurl'} =~ /\/_slsa$/) {
+    # using the source publishing server
+    my $server = $buildinfo->{'slsadownloadurl'};
+    $uri = BSHTTP::urlencode("$server/$prpa/$filename/$sha256sum");
+  } else {
+    # using the api server
+    my $server = $buildinfo->{'slsadownloadurl'} || $buildinfo->{'srcserver'} || $srcserver;
+    $uri = BSHTTP::urlencode("$server/slsa/$prpa/$filename/$sha256sum");
+  }
+  return $uri;
+}
+
+sub generate_slsa_provenance_statement_v02 {
+  my ($buildinfo, $send) = @_;
+
+  my $subject = generate_slsa_provenance_subject($send);
+  my $sourceuri = generate_slsa_sourceuri($buildinfo);
+  # strip name and intent if not containers/repos
+  my @materials = map { { %$_ } } @{$buildinfo->{'materials'} || []};
+  for (@materials) {
+    delete $_->{'name'};
+    delete $_->{'intent'} if $_->{'intent'} && $_->{'intent'} ne 'containers' && $_->{'intent'} ne 'repos';
+  }
   my $stmt = {
     '_type' => "https://in-toto.io/Statement/v0.1",
     'subject' => $subject,
@@ -3582,7 +3639,7 @@ sub generate_slsa_provenance_statement {
       'buildType' => 'https://open-build-service.org/worker',
       'invocation' => {
         'configSource' => {
-          'uri' => $configsourceuri,
+          'uri' => $sourceuri,
           'entryPoint' => $buildinfo->{'file'},
         },
       },
@@ -3594,63 +3651,69 @@ sub generate_slsa_provenance_statement {
         },
         'reproducible' => 0,
       },
-      'materials' => $buildinfo->{'materials'} || [],
-    },
+      'materials' => \@materials,
+    }
   };
   $stmt->{'predicate'}->{'invocation'}->{'parameters'}->{'release'} = $buildinfo->{'release'} if defined $buildinfo->{'release'};
   $stmt->{'predicate'}->{'invocation'}->{'parameters'}->{'buildflavor'} = $buildinfo->{'buildflavor'} if defined $buildinfo->{'buildflavor'};
   return provenance_tojson($stmt);
 }
 
+sub generate_slsa_provenance_statement_v1 {
+  my ($buildinfo, $send) = @_;
+
+  my $subject = generate_slsa_provenance_subject($send);
+  my $sourceuri = generate_slsa_sourceuri($buildinfo);
+  # make intent an annotation
+  my @materials = map { { %$_ } } @{$buildinfo->{'materials'} || []};
+  for (@materials) {
+    my $i = delete $_->{'intent'};
+    $_->{'annotations'}->{'intent'} = $i if $i;
+  }
+  my $stmt = {
+    '_type' => "https://in-toto.io/Statement/v0.1",
+    'subject' => $subject,
+    'predicateType' => 'https://slsa.dev/provenance/v1',
+    'predicate' => {
+      'buildDefinition' => {
+	'buildType' => 'https://open-build-service.org/worker',
+	'externalParameters' => {
+	  'source' => $sourceuri,
+	  'recipeFile' => $buildinfo->{'file'},
+	},
+	'resolvedDependencies' => \@materials,
+      },
+      'runDetails' => {
+	'id' => $buildinfo->{'slsabuilder'},
+      },
+    }
+  };
+  my $external_params = $stmt->{'predicate'}->{'buildDefinition'}->{'externalParameters'};
+  $external_params->{'release'} = $buildinfo->{'release'} if defined $buildinfo->{'release'};
+  $external_params->{'buildflavor'} = $buildinfo->{'buildflavor'} if defined $buildinfo->{'buildflavor'};
+  return provenance_tojson($stmt);
+}
+
 sub add_slsa_materials_sourcefile {
   my ($buildinfo, $filename, $localfile) = @_;
   my $sha256sum = sha256file($localfile);
-  my $uri;
-  if ($buildinfo->{'slsadownloadurl'} && $buildinfo->{'slsadownloadurl'} =~ /(.*)\/_slsa$/) {
-    # using the source publishing server
-    my $server = $1;
-    $uri = BSHTTP::urlencode("$server/$buildinfo->{'project'}/$buildinfo->{'package'}/$buildinfo->{'srcmd5'}/$filename");
-  } else {
-    # using the api server
-    my $server = $buildinfo->{'slsadownloadurl'} || $buildinfo->{'srcserver'} || $srcserver;
-    $uri = BSHTTP::urlencode("$server/source/$buildinfo->{'project'}/$buildinfo->{'package'}/$filename")."?rev=$buildinfo->{'srcmd5'}";
-  }
-  push @{$buildinfo->{'materials'}}, { 'uri' => $uri, 'digest' => { 'sha256' => $sha256sum } };
+  my $uri = generate_slsa_sourceuri($buildinfo, $filename, $sha256sum);
+  push @{$buildinfo->{'materials'}}, { 'name' => $filename, 'uri' => $uri, 'digest' => { 'sha256' => $sha256sum }, 'intent' => 'source' };
 }
 
 sub add_slsa_materials_binary {
   my ($buildinfo, $prpa, $filename, $localfile, $intent) = @_;
   my $sha256sum = sha256file($localfile);
-  my $uri;
-  if ($buildinfo->{'slsadownloadurl'} && $buildinfo->{'slsadownloadurl'} =~ /\/_slsa$/) {
-    # using the source publishing server
-    my $server = $buildinfo->{'slsadownloadurl'};
-    $uri = BSHTTP::urlencode("$server/$prpa/$filename/$sha256sum");
-  } else {
-    # using the api server
-    my $server = $buildinfo->{'slsadownloadurl'} || $buildinfo->{'srcserver'} || $srcserver;
-    $uri = BSHTTP::urlencode("$server/slsa/$prpa/$filename/$sha256sum");
-  }
-  my $m = { 'uri' => $uri, 'digest' => { 'sha256' => $sha256sum } };
-  $m->{'intent'} = $intent if $intent;
-  push @{$buildinfo->{'materials'}}, $m;
+  my $uri = generate_slsa_binaryuri($buildinfo, $prpa, $filename, $sha256sum);
+  push @{$buildinfo->{'materials'}}, { 'name' => $filename, 'uri' => $uri, 'digest' => { 'sha256' => $sha256sum }, 'intent' => ($intent || 'buildenv') };
 }
 
 sub add_slsa_materials_config {
   my ($buildinfo, $prp, $config) = @_;
   my $sha256sum = Digest::SHA::sha256_hex($config);
   my ($prpa, $filename) = ("$prp/noarch", '_config');
-  my $uri;
-  if ($buildinfo->{'slsadownloadurl'} && $buildinfo->{'slsadownloadurl'} =~ /\/_slsa$/) {
-    # using the source publishing server
-    my $server = $buildinfo->{'slsadownloadurl'};
-    $uri = BSHTTP::urlencode("$server/$prpa/$filename/$sha256sum");
-  } else {
-    # using the api server
-    my $server = $buildinfo->{'slsadownloadurl'} || $buildinfo->{'srcserver'} || $srcserver;
-    $uri = BSHTTP::urlencode("$server/slsa/$prpa/$filename/$sha256sum");
-  }
-  push @{$buildinfo->{'materials'}}, { 'uri' => $uri, 'digest' => { 'sha256' => $sha256sum } };
+  my $uri = generate_slsa_binaryuri($buildinfo, $prpa, $filename, $sha256sum);
+  push @{$buildinfo->{'materials'}}, { 'name' => $filename, 'uri' => $uri, 'digest' => { 'sha256' => $sha256sum }, 'intent' => 'buildconfig' };
 }
 
 $Build::Kiwi::urlmapper = sub {return '_obsrepositories'}  unless $Build::Kiwi::urlmapper;
@@ -3826,11 +3889,12 @@ sub dobuild {
   $buildinfo->{'slsa_provenance_config'} = $config if $buildinfo->{'slsaprovenance'};
   $buildinfo->{'outbuildinfo'}->{'config'} = $config;
   writestr("$buildroot/.build.config", undef, $config);
-  add_slsa_materials_config($buildinfo, "$projid/$repoid", $config);
+  add_slsa_materials_config($buildinfo, "$projid/$repoid", $config) if $buildinfo->{'slsaprovenance'};
 
   my $bconf = Build::read_config($buildinfo->{'arch'}, "$buildroot/.build.config");
   my $useccache = $buildinfo->{'ccache'} ? 1 : 0;
   my $ccachetype = $useccache ? $buildinfo->{'ccache'} : undef;
+  $buildinfo->{'slsa_provenance_version'} = $bconf->{'buildflags:slsaversion'} if $buildinfo->{'slsaprovenance'};
 
   if ($buildinfo->{'modularity_meta'}) {
     getmodulemddata($buildinfo, $srcdir, $bconf);
@@ -4572,6 +4636,7 @@ sub periodic {
   }
 }
 
+return 1 if $testcasemode;
 
 # better safe than sorry...
 my $startworkercode = '?';
@@ -4833,9 +4898,15 @@ if ($ex == 0) {
   @send = map {{name => (split('/', $_))[-1], filename => $_}} @send;
   @send = grep {$_->{'name'} ne '_generated_buildreqs'} @send;
 
+  # add slsa provenance files if requested
   @send = grep {$_->{'name'} !~ /slsa_provenance.(?:json|config)$/} @send;
   if ($buildinfo->{'slsaprovenance'}) {
-    my $slsa_provenance = generate_slsa_provenance_statement($buildinfo, \@send);
+    my $slsa_provenance;
+    if (($buildinfo->{'slsa_provenance_version'} || '') eq 'v1') {
+      $slsa_provenance = generate_slsa_provenance_statement_v1($buildinfo, \@send);
+    } else {
+      $slsa_provenance = generate_slsa_provenance_statement_v02($buildinfo, \@send);
+    }
     push @send, { 'name' => '_slsa_provenance.json', 'data' => $slsa_provenance };
     push @send, { 'name' => '_slsa_provenance.config', 'data' => $buildinfo->{'slsa_provenance_config'}} if $buildinfo->{'slsa_provenance_config'};
   }
