@@ -1,6 +1,5 @@
 module Event
   class WorkflowRunFail < Base
-    self.message_bus_routing_key = 'workflow_run.fail'
     self.description = 'Workflow run failed'
     payload_keys :id, :token_id, :hook_event, :summary, :repository_full_name
 
