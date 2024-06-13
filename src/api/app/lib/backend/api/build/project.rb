@@ -28,7 +28,7 @@ module Backend
         end
 
         def self.abort_build(project_name, options = {})
-          http_post(['/build/:project', project_name], defaults: { cmd: :abortbuild }, params: options, accepted: %i[repository arch package])
+          http_post(['/build/:project', project_name], defaults: { cmd: :abortbuild }, params: options.compact, accepted: %i[repository arch package])
         end
 
         # Runs the command wipepublishedlocked for that project to cleanup published binaries
