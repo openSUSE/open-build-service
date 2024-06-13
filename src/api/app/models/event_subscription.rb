@@ -20,7 +20,7 @@ class EventSubscription < ApplicationRecord
     token_executor: 'User who runs the workflow',
     reporter: 'Reporter',
     offender: 'Offender',
-    user: 'User'
+    member: 'Member'
   }.freeze
 
   enum channel: {
@@ -48,7 +48,7 @@ class EventSubscription < ApplicationRecord
            reviewer commenter creator
            project_watcher source_project_watcher target_project_watcher
            package_watcher target_package_watcher source_package_watcher request_watcher any_role
-           moderator reporter offender token_executor user]
+           moderator reporter offender token_executor member]
   }
 
   scope :for_eventtype, ->(eventtype) { where(eventtype: eventtype) }

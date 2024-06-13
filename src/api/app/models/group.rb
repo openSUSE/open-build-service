@@ -205,7 +205,7 @@ class Group < ApplicationRecord
 
   def delete_user(klass, login_id, group_id)
     klass.where('user_id = ? AND group_id = ?', login_id, group_id).delete_all if [GroupMaintainer, GroupsUser].include?(klass)
-    Event::RemovedUserFromGroup.create(group: Group.find(group_id).title, user: User.find(login_id).login, who: User.session&.login) if klass == GroupsUser
+    Event::RemovedUserFromGroup.create(group: Group.find(group_id).title, member: User.find(login_id).login, who: User.session&.login) if klass == GroupsUser
   end
 
   def involved_projects_ids

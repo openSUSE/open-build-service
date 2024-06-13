@@ -622,7 +622,7 @@ RSpec.describe EventMailer, :vcr do
 
       before do
         login(user)
-        Event::AddedUserToGroup.create!(who: who.login, user: user.login, group: group.title)
+        Event::AddedUserToGroup.create!(who: who.login, member: user.login, group: group.title)
       end
 
       it 'gets delivered' do
@@ -652,7 +652,7 @@ RSpec.describe EventMailer, :vcr do
 
       before do
         login(user)
-        Event::RemovedUserFromGroup.create!(who: who.login, user: user.login, group: group.title)
+        Event::RemovedUserFromGroup.create!(who: who.login, member: user.login, group: group.title)
       end
 
       it 'gets delivered' do

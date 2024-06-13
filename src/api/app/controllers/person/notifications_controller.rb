@@ -4,7 +4,7 @@ module Person
     include Webui::NotificationsFilter
 
     ALLOWED_FILTERS = %w[all comments requests incoming_requests outgoing_requests relationships_created relationships_deleted build_failures
-                         reports reviews workflow_runs appealed_decisions added_user_to_groups removed_user_from_groups user_on_groups].freeze
+                         reports reviews workflow_runs appealed_decisions member_on_groups].freeze
     ALLOWED_STATES = %w[unread read].freeze
 
     before_action :set_filter_kind, only: :index

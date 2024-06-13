@@ -161,7 +161,7 @@ FactoryBot.define do
 
     factory :event_subscription_added_user_to_group do
       eventtype { 'Event::AddedUserToGroup' }
-      receiver_role { 'user' }
+      receiver_role { 'member' }
       channel { :instant_email }
       user
       group { nil }
@@ -169,7 +169,7 @@ FactoryBot.define do
 
     factory :event_subscription_removed_user_from_group do
       eventtype { 'Event::RemovedUserFromGroup' }
-      receiver_role { 'user' }
+      receiver_role { 'member' }
       channel { :instant_email }
       user
       group { nil }

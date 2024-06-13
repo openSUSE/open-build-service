@@ -1,9 +1,9 @@
 module Event
   class AddedUserToGroup < Base
-    self.description = 'Added user to group'
-    payload_keys :group, :user, :who
+    self.description = 'Added member to group'
+    payload_keys :group, :member, :who
 
-    receiver_roles :user
+    receiver_roles :member
 
     def subject
       "You were added to the group '#{payload['group']}'" unless payload['who']
@@ -11,8 +11,8 @@ module Event
       "'#{payload['who']}' added you to the group '#{payload['group']}'"
     end
 
-    def users
-      [User.find_by(login: payload['user'])]
+    def members
+      [User.find_by(login: payload['member'])]
     end
 
     def originator

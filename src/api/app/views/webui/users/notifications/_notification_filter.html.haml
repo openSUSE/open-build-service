@@ -74,7 +74,7 @@
       = render partial: 'webui/shared/check_box', locals: { label: 'Groups Membership', amount: counted_notifications['member_on_groups'],
                                                             key: 'kind[member_on_groups]', name: 'kind[]', value: 'member_on_groups',
                                                             label_icon: 'fas fa-people-group',
-                                                            checked: selected_filter[:kind]&.include?('user_on_groups') }
+                                                            checked: selected_filter[:kind]&.include?('member_on_groups') }
 
   - unless projects_for_filter.empty?
     .list-group.list-group-flush.mt-4.mb-4

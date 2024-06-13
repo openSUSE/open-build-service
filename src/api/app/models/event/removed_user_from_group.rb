@@ -1,9 +1,9 @@
 module Event
   class RemovedUserFromGroup < Base
-    self.description = 'Removed user from group'
-    payload_keys :group, :user, :who
+    self.description = 'Removed member from group'
+    payload_keys :group, :member, :who
 
-    receiver_roles :user
+    receiver_roles :member
 
     def subject
       "You were removed from the group '#{payload['group']}'" unless payload['who']
@@ -11,8 +11,8 @@ module Event
       "'#{payload['who']}' removed you from the group '#{payload['group']}'"
     end
 
-    def users
-      [User.find_by(login: payload['user'])]
+    def members
+      [User.find_by(login: payload['member'])]
     end
 
     def originator
