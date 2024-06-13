@@ -6,7 +6,6 @@ RSpec.describe Webui::PackageController, :vcr do
   let(:source_package) { create(:package, name: 'my_package', project: source_project) }
   let(:target_project) { create(:project) }
   let(:package) { create(:package_with_file, name: 'package_with_file', project: source_project) }
-  let(:service_package) { create(:package_with_service, name: 'package_with_service', project: source_project) }
   let(:broken_service_package) { create(:package_with_broken_service, name: 'package_with_broken_service', project: source_project) }
   let(:repo_for_source_project) do
     repo = create(:repository, project: source_project, architectures: ['i586'], name: 'source_repo')
@@ -115,6 +114,7 @@ RSpec.describe Webui::PackageController, :vcr do
       end
     end
 
+    # FIXME: This is not how the backend behaves today, it validates servce files. You can't re-generate the cassette of this spec
     context 'with a package that has a broken service' do
       before do
         login user
@@ -246,20 +246,6 @@ RSpec.describe Webui::PackageController, :vcr do
     end
   end
 
-  describe 'GET #trigger_services' do
-    before do
-      login user
-    end
-
-    context 'when triggering services succeeds' do
-      before do
-        get :trigger_services, params: { project: source_project, package: service_package }
-      end
-
-      it { expect(flash[:success]).to eq('Services successfully triggered') }
-    end
-  end
-
   describe 'GET #rdiff' do
     context 'when no difference in sources diff is empty' do
       before do
@@ -356,64 +342,6 @@ RSpec.describe Webui::PackageController, :vcr do
           end
         end
       end
-    end
-  end
-
-  describe 'POST #trigger_rebuild' do
-    before do
-      login(user)
-    end
-
-    context 'when triggering a rebuild succeeds' do
-      let!(:repository) do
-        repo = create(:repository, project: source_project, architectures: ['i586'], name: 'openSUSE_Leap_15.1')
-        source_project.store
-        repo
-      end
-
-      before do
-        post :trigger_rebuild, params: { project: source_project, package: source_package, repository: repository.name, arch: 'i586' }
-      end
-
-      it { expect(flash[:success]).to eq('Rebuild successfully triggered') }
-    end
-
-    context 'when rebuild fails' do
-      before do
-        post :trigger_rebuild, params: { project: source_project, package: source_package, repository: 'foo', arch: 'bar' }
-      end
-
-      it 'lets the user know there was an error' do
-        expect(flash[:error]).to match('Error while triggering rebuild for home:tom/my_package: no repository defined')
-      end
-    end
-  end
-
-  describe 'POST #abort_build' do
-    before do
-      login(user)
-    end
-
-    context 'when aborting the build fails' do
-      before do
-        post :abort_build, params: { project: source_project, package: source_package, repository: 'foo', arch: 'bar' }
-      end
-
-      it 'lets the user know there was an error' do
-        expect(flash[:error]).to match('Error while triggering abort build for home:tom/my_package')
-        expect(flash[:error]).to match('no repository defined')
-      end
-    end
-
-    context 'when triggering abort build succeeds' do
-      before do
-        create(:repository, project: source_project, architectures: ['i586'])
-        source_project.store
-
-        post :abort_build, params: { project: source_project, package: source_package }
-      end
-
-      it { expect(flash[:success]).to eq('Abort build successfully triggered') }
     end
   end
 
