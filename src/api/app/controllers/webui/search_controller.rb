@@ -71,8 +71,8 @@ class Webui::SearchController < Webui::WebuiController
     @search_where << 'description' if params[:description] == '1'
 
     @owner_limit = nil
-    @owner_limit = '1' if params[:limit].nil?
-    @owner_limit = params[:limit] unless params[:limit].nil?
+    @owner_limit = 1 if params[:limit].blank?
+    @owner_limit ||= Integer.try_convert(params[:limit]) || 1
 
     @owner_devel = nil
     @owner_devel = '0' if params[:devel] == 'off'
