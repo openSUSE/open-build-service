@@ -10,7 +10,7 @@
 #  - Take all the existing BsRequests in state 'new' and create a RequestCreate
 #    Notification for each of them.
 #  - Take the BsRequests in state 'declined' that where created in the last 100 days and
-#    create a RequesStatechange Notification for each of them.
+#    create a RequestStatechange Notification for each of them.
 #  - Take all the existing BsRequests in state 'review' with reviews in state 'new' and
 #    create a ReviewWanted Notification for each of the reviews.
 #  - Take the BsRequests created in the last 2 weeks and create a CommentForRequest
