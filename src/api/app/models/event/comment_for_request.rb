@@ -7,6 +7,8 @@ module Event
     receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_project_watcher, :target_project_watcher,
                    :source_package_watcher, :target_package_watcher, :request_watcher
 
+    self.notification_explanation = 'Receive notifications for comments created on a request for which you are...'
+
     def subject
       "Request #{payload['number']} commented by #{payload['commenter']} (#{actions_summary})"
     end

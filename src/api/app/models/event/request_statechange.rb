@@ -8,6 +8,8 @@ module Event
 
     create_jobs :report_to_scm_job
 
+    self.notification_explanation = 'Receive notifications for requests state changes for projects for which you are...'
+
     def subject
       "Request #{payload['number']} changed from #{payload['oldstate']} to #{payload['state']} (#{actions_summary})"
     end

@@ -6,6 +6,8 @@ module Event
     receiver_roles :maintainer, :bugowner
     create_jobs :update_backend_infos_job
 
+    self.notification_explanation = 'Receive notifications for source service failures of packages for which you are...'
+
     def subject
       "Source service failure of #{payload['project']}/#{payload['package']}"
     end

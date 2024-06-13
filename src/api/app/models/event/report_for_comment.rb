@@ -4,6 +4,8 @@ module Event
     payload_keys :commentable_type, :bs_request_number, :bs_request_action_id,
                  :project_name, :package_name, :commenter
 
+    self.notification_explanation = 'Receive notifications for reported comments.'
+
     def subject
       "Comment by #{payload['commenter']} reported"
     end
