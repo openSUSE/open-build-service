@@ -9,20 +9,22 @@
       .row
         .col
           = notification_icon
-          = render NotificationNotifiableLinkComponent.new(@notification)
+          =# TODO: link
+          = @notification.summary
           %small.text-nowrap
             = render TimeComponent.new(time: @notification.created_at)
           - if @notification.notifiable_type == 'BsRequest'
-            = render BsRequestStateBadgeComponent.new(state: @notification.notifiable.state, css_class: 'ms-1')
+            = helpers.bs_request_state_badge(@notification.notifiable.state, css_class: 'ms-1')
           - if @notification.notifiable_type == 'WorkflowRun'
             = render WorkflowRunStatusBadgeComponent.new(status: @notification.notifiable.status, css_class: 'ms-1')
         .col-auto.actions.ms-auto.align-self-end.align-self-md-start
           = render NotificationMarkButtonComponent.new(@notification, @selected_filter, @page, @show_more)
       .row.mt-1.ps-sm-4
         .col-auto.pe-0
-          = render NotificationAvatarsComponent.new(@notification)
+          =# @notification.involved_users.map(&:login)
+          =# render NotificationAvatarsComponent.new(@notification)
         .col-auto.ps-xs-2
-          = render NotificationActionDescriptionComponent.new(@notification)
+          = @notification.description
       .row.d-none.d-md-block.ps-4
         .col
-          = render NotificationExcerptComponent.new(@notification.notifiable)
+          = @notification.excerpt

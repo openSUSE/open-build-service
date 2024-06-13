@@ -12,6 +12,8 @@ class Notification < ApplicationRecord
 
   serialize :event_payload, JSON
 
+  validates :type, presence: true, length: { maximum: 255 }
+
   after_create :track_notification_creation
 
   after_save :track_notification_delivered, if: :saved_change_to_delivered?
@@ -86,6 +88,41 @@ class Notification < ApplicationRecord
     RabbitmqBus.send_to_bus('metrics',
                             "notification,action=#{delivered ? 'read' : 'unread'} value=1")
   end
+
+  def bs_request
+    if notifiable_type == 'BsRequest'
+      notifiable
+    elsif notifiable.commentable.is_a?(BsRequestAction)
+      notifiable.commentable.bs_request
+    else
+      notifiable.commentable
+    end
+  end
+
+  # TODO: move to BsRequest
+  # FIXME: Duplicated from RequestHelper
+  # Returns strings like "Add Role", "Submit", etc.
+  def request_type_of_action(bs_request)
+    return 'Multiple Actions' if bs_request.bs_request_actions.size > 1
+
+    bs_request.bs_request_actions.first.type.titleize
+  end
+
+  def first_bs_request_action
+    bs_request.bs_request_actions.first
+  end
+
+  def request_source
+    return '' if bs_request.bs_request_actions.size > 1
+
+    [first_bs_request_action.source_project, first_bs_request_action.source_package].compact.join(' / ')
+  end
+
+  def request_target
+    return first_bs_request_action.target_project if bs_request.bs_request_actions.size > 1
+
+    [first_bs_request_action.target_project, first_bs_request_action.target_package].compact.join(' / ')
+  end
 end
 
 # == Schema Information
@@ -104,6 +141,7 @@ end
 #  subscriber_type            :string(255)      indexed => [subscriber_id]
 #  subscription_receiver_role :string(255)      not null
 #  title                      :string(255)
+#  type                       :string(255)      default("NotificationProject"), not null
 #  web                        :boolean          default(FALSE), indexed
 #  created_at                 :datetime         not null, indexed
 #  updated_at                 :datetime         not null
