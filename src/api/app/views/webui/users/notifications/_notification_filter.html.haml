@@ -28,13 +28,13 @@
                                                             key: 'kind[requests]', name: 'kind[]', value: 'requests',
                                                             label_icon: 'fas fa-code-pull-request',
                                                             checked: selected_filter[:kind]&.include?('requests') }
-    .px-4.py-1
-      = render partial: 'webui/shared/check_box', locals: { label: 'Incoming Requests', amount: counted_notifications['incoming_requests'],
+    .px-4.ps-5.py-1
+      = render partial: 'webui/shared/check_box', locals: { label: 'Incoming', amount: counted_notifications['incoming_requests'],
                                                             key: 'kind[incoming_requests]', name: 'kind[]',
                                                             value: 'incoming_requests', label_icon: 'fas fa-code-pull-request',
                                                             checked: selected_filter[:kind]&.include?('incoming_requests') }
-    .px-4.py-1
-      = render partial: 'webui/shared/check_box', locals: { label: 'Outgoing Requests', amount: counted_notifications['outgoing_requests'],
+    .px-4.ps-5.py-1
+      = render partial: 'webui/shared/check_box', locals: { label: 'Outgoing', amount: counted_notifications['outgoing_requests'],
                                                             key: 'kind[outgoing_requests]', name: 'kind[]', value: 'outgoing_requests',
                                                             label_icon: 'fas fa-code-pull-request',
                                                             checked: selected_filter[:kind]&.include?('outgoing_requests') }
