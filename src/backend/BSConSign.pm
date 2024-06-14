@@ -32,8 +32,13 @@ use MIME::Base64 ();
 use IO::Compress::RawDeflate;
 
 our $mt_cosign = 'application/vnd.dev.cosign.simplesigning.v1+json';
-our $mt_dsse = 'application/vnd.dsse.envelope.v1+json';
+our $mt_dsse   = 'application/vnd.dsse.envelope.v1+json';
 our $mt_intoto = 'application/vnd.in-toto+json';
+
+our $intoto_predicate_spdx      = 'https://spdx.dev/Document';
+our $intoto_predicate_cyclonedx = 'https://cyclonedx.org/bom';
+our $intoto_stmt_v01            = 'https://in-toto.io/Statement/v0.1';
+our $intoto_stmt_v1             = 'https://in-toto.io/Statement/v1';
 
 sub canonical_json {
   return JSON::XS->new->utf8->canonical->encode($_[0]);
@@ -156,14 +161,14 @@ sub fixup_intoto_attestation {
   }
   if ($attestation && ref($attestation) eq 'HASH' && !$attestation->{'_type'}) {
     my $predicate_type;
-    # autodetect bom type
-    $predicate_type = 'https://spdx.dev/Document' if $attestation->{'spdxVersion'};
-    $predicate_type = 'https://cyclonedx.org/bom' if ($attestation->{'bomFormat'} || '') eq 'CycloneDX';
-    # wrap into an in-toto attestation
-    $attestation = { '_type' => 'https://in-toto.io/Statement/v0.1', 'predicateType' => $predicate_type, 'predicate' => $attestation } if $predicate_type;
+    # autodetect predicate type
+    $predicate_type = $intoto_predicate_spdx if $attestation->{'spdxVersion'};
+    $predicate_type = $intoto_predicate_cyclonedx if ($attestation->{'bomFormat'} || '') eq 'CycloneDX';
+    # wrap into an in-toto v0.1 attestation
+    $attestation = { '_type' => $intoto_stmt_v01, 'predicateType' => $predicate_type, 'predicate' => $attestation } if $predicate_type;
   }
   die("bad attestation\n") unless $attestation && ref($attestation) eq 'HASH' && $attestation->{'_type'};
-  die("not a in-toto v0.1 attestation\n") unless $attestation->{'_type'} eq 'https://in-toto.io/Statement/v0.1';
+  die("not a in-toto v1 or v0.1 attestation\n") unless $attestation->{'_type'} eq $intoto_stmt_v1 || $attestation->{'_type'} eq $intoto_stmt_v01;
   my $predicate_type = $attestation->{'predicateType'};
   my $sha256digest = $digest;
   die("not a sha256 digest\n") unless $sha256digest =~ s/^sha256://;

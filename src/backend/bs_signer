@@ -503,13 +503,31 @@ sub dsse_sign {
   return $envelope_json;
 }
 
+# this works for both v02 and v1 predicates
 my $slsa_json_template = {
   '_order' => [ '_type', 'subject', 'predicateType', 'predicate' ],
   'subject' => {
     '_order' => [ 'name', 'digest' ],
   },
   'predicate' => {
-    '_order' => [ 'builder', 'buildType', 'invocation', 'buildConfig', 'metadata', 'materials' ],
+    '_order' => [ 'buildDefinition', 'runDetails', 'builder', 'buildType', 'invocation', 'buildConfig', 'metadata', 'materials' ],
+    # v1
+    'buildDefinition' => {
+      '_order' => [ 'buildType', 'externalParameters', 'internalParameters', 'resolvedDependencies' ],
+      'resolvedDependencies' => {
+	'_order' => [ 'name', 'uri', 'digest', 'content', 'downloadLocation', 'mediaType', 'annotations' ],
+      }
+    },
+    'runDetails' => {
+      '_order' => [ 'builder', 'metadata', 'byproducts' ],
+      'builder' => {
+	'_order' => [ 'id', 'builderDependencies', 'version' ],
+      },
+      'metadata' => {
+	'_order' => [ 'invocationId', 'startedOn', 'finishedOn' ],
+      },
+    },
+    # v02
     'invocation' => {
       '_order' => [ 'configSource', 'parameters', 'environment' ],
       'configSource' => {
@@ -525,7 +543,7 @@ my $slsa_json_template = {
       'reproducible' => 'bool',
     },
     'materials' => {
-      '_order' => ['uri', 'digest' ],
+      '_order' => ['uri', 'digest', 'intent' ],
     }
   }
 };
@@ -552,11 +570,12 @@ sub signslsaprovenance {
     $provenance_json = MIME::Base64::decode_base64($provenance->{'payload'});
     $provenance = JSON::XS::decode_json($provenance_json);
   }
-  die("no predicate in provenance file?\n") unless ref($provenance->{'predicate'}) eq 'HASH';
+  my $predicate = $provenance->{'predicate'};
+  die("no predicate in provenance file?\n") unless $predicate && ref($predicate) eq 'HASH';
 
   # pin all binaries from the materials
-  my $materials = $provenance->{'predicate'}->{'materials'};
-  die("no materials in provenance file?\n") unless ref($materials) eq 'ARRAY';
+  my $materials = $predicate->{'buildDefinition'} ? $predicate->{'buildDefinition'}->{'resolvedDependencies'} : $predicate->{'materials'};
+  die("no resolvedDependencies/materials in provenance file?\n") unless ref($materials) eq 'ARRAY';
   my %todo;
   for my $material (@$materials) {
     die("bad material in provenance file?\n") unless ref($material) eq 'HASH';
