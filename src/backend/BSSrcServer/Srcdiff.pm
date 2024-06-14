@@ -1291,11 +1291,10 @@ sub datadiff {
     }
     if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|tar\.zstd?|gem|obscpio|livebuild|zip)$/) {
       my @r = tardiff(fn($pold, $of), fn($pnew, $f), %opts);
-      if (@r == 0 && $f ne $of) {
-	# (almost) identical tars but renamed
-	push @changed, {'state' => 'renamed', 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
-      }
-      if (@r == 1 && !$r[0]->{'old'} && !$r[0]->{'new'}) {
+      if (@r == 0) {
+	# tar changed, but content is the same (e.g. compression level change, different compressor)
+	push @changed, {'state' => 'changed', 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
+      } elsif (@r == 1 && !$r[0]->{'old'} && !$r[0]->{'new'}) {
 	# tardiff was too big
 	push @changed, {'state' => 'changed', 'diff' => $r[0], 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
 	@r = ();
