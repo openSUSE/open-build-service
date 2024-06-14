@@ -1,5 +1,6 @@
 # The OBS instance configuration
 class Configuration < ApplicationRecord
+  has_one_attached :logo
   after_save :invalidate_cache, :delayed_write_to_backend
 
   include CanRenderModel
@@ -39,7 +40,7 @@ class Configuration < ApplicationRecord
     # Simple singleton implementation: Try to respond with the
     # the data from the first instance
     def method_missing(method_name, ...)
-      if Configuration.column_names.include?(method_name.to_s)
+      if Configuration.column_names.include?(method_name.to_s) || Configuration.attachment_reflections.key?(method_name.to_s)
         fetch.send(method_name, ...)
       elsif Configuration.new.methods.include?(method_name)
         first.send(method_name, ...)
@@ -97,9 +98,7 @@ class Configuration < ApplicationRecord
   end
 
   def invalidate_cache
-    Rails.cache.fetch('configurations/1', expires_in: 1.day, force: true) do
-      self
-    end
+    Rails.cache.delete('configurations/1')
   end
 end
 

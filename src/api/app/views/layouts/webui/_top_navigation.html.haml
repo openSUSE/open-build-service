@@ -1,7 +1,7 @@
 %nav.navbar.navbar-dark.navbar-themed-colors.fixed-top
   .container-fluid.d-flex.flex-nowrap.justify-content-between.w-100
     = link_to(root_path, class: 'navbar-brand', alt: 'Logo') do
-      = image_tag('obs-logo_small.svg')
+      = image_tag(::Configuration.logo.attached? ? ::Configuration.logo : 'obs-logo_small.svg')
     .d-flex.nav
       = render partial: 'layouts/webui/top_navigation_search'
       - if User.session
