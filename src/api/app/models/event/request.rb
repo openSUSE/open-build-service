@@ -31,6 +31,7 @@ module Event
       h['X-OBS-Request-Creator'] = payload['author']
       h['X-OBS-Request-Id'] = payload['number']
       h['X-OBS-Request-State'] = payload['state']
+      h['List-ID'] = "OBS Notification System <#{payload['state']}.request.#{URI.parse(Configuration.obs_url).host.downcase}>"
 
       h.merge(headers_for_actions)
     end
