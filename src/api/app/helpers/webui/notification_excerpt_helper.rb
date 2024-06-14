@@ -3,16 +3,16 @@ module Webui::NotificationExcerptHelper
   TRUNCATION_ELLIPSIS_LENGTH = 3 # `...` is the default ellipsis for String#truncate
 
   # TODO: Content of ViewComponent. Move to sub-classes once STI is set.
-  def excerpt(notification)
-    text = case notification.notifiable.class.name
+  def excerpt(notifiable)
+    text = case notifiable.class.name
            when 'BsRequest'
-             notification.notifiable.description.to_s # description can be nil
+             notifiable.description.to_s # description can be nil
            when 'Comment'
-             notification.notifiable.body
+             notifiable.body
            when 'Report', 'Decision', 'Appeal', 'DecisionFavoredWithDeleteRequest', 'DecisionFavoredWithUserCommentingRestrictions', 'DecisionFavoredWithCommentModeration', 'DecisionFavoredWithUserDeletion'
-             notification.notifiable.reason
+             notifiable.reason
            when 'WorkflowRun'
-             "In repository #{notification.notifiable.repository_full_name}"
+             "In repository #{notifiable.repository_full_name}"
            else
              ''
            end
