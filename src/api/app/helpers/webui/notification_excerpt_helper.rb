@@ -6,7 +6,7 @@ module Webui::NotificationExcerptHelper
   def excerpt(notification)
     text = case notification.notifiable.class.name
            when 'BsRequest'
-             notification.notifiable.description.to_s # description can be nil
+             notification.notifiable.description
            when 'Comment'
              notification.notifiable.body
            when 'Report', 'Decision', 'Appeal', 'DecisionFavoredWithDeleteRequest', 'DecisionFavoredWithUserCommentingRestrictions', 'DecisionFavoredWithCommentModeration', 'DecisionFavoredWithUserDeletion'
@@ -23,7 +23,7 @@ module Webui::NotificationExcerptHelper
   private
 
   def truncate_to_first_new_line(text)
-    first_new_line_index = text.index("\n")
+    first_new_line_index = text.to_s.index("\n") # sometimes text can be nil
     truncation_index = !first_new_line_index.nil? && first_new_line_index < TRUNCATION_LENGTH ? first_new_line_index + TRUNCATION_ELLIPSIS_LENGTH : TRUNCATION_LENGTH
     text.truncate(truncation_index)
   end
