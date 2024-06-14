@@ -24,9 +24,11 @@ class NotificationAvatarsComponent < ApplicationComponent
                           [User.find(@notification.event_payload['appellant_id'])]
                         when 'WorkflowRun'
                           [Token.find(@notification.event_payload['token_id'])&.executor].compact
-                        else
+                        when 'BsRequest'
                           reviews = @notification.notifiable.reviews
                           reviews.select(&:new?).map(&:reviewed_by) + User.where(login: @notification.notifiable.creator)
+                        else
+                          []
                         end
   end
   # rubocop:enable Metrics/CyclomaticComplexity
