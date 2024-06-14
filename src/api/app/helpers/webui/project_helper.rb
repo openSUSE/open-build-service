@@ -32,8 +32,7 @@ module Webui::ProjectHelper
   end
 
   def show_package_actions?
-    return false if @is_maintenance_project
-    return false if @project.defines_remote_instance?
+    return false if @is_maintenance_project || @project.scmsync.present? || @project.defines_remote_instance?
     return true unless @is_incident_project && @packages.present? &&
                        @has_patchinfo && @open_release_requests.empty?
 
