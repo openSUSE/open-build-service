@@ -1,28 +1,23 @@
-class NotificationExcerptComponent < ApplicationComponent
+module Webui::NotificationExcerptHelper
   TRUNCATION_LENGTH = 100
   TRUNCATION_ELLIPSIS_LENGTH = 3 # `...` is the default ellipsis for String#truncate
 
-  def initialize(notifiable)
-    super
-
-    @notifiable = notifiable
-  end
-
-  def call
-    text = case @notifiable.class.name
+  # TODO: Content of ViewComponent. Move to sub-classes once STI is set.
+  def excerpt(notification)
+    text = case notification.notifiable.class.name
            when 'BsRequest'
-             @notifiable.description.to_s # description can be nil
+             notification.notifiable.description.to_s # description can be nil
            when 'Comment'
-             helpers.render_without_markdown(@notifiable.body)
+             notification.notifiable.body
            when 'Report', 'Decision', 'Appeal', 'DecisionFavoredWithDeleteRequest', 'DecisionFavoredWithUserCommentingRestrictions', 'DecisionFavoredWithCommentModeration', 'DecisionFavoredWithUserDeletion'
-             @notifiable.reason
+             notification.notifiable.reason
            when 'WorkflowRun'
-             "In repository #{@notifiable.repository_full_name}"
+             "In repository #{notification.notifiable.repository_full_name}"
            else
              ''
            end
 
-    tag.p(truncate_to_first_new_line(text), class: %w[mt-3 mb-0])
+    truncate_to_first_new_line(text)
   end
 
   private
