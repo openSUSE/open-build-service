@@ -336,10 +336,20 @@ case "$1" in
                 fi
 
 		echo "Setting up OBS Workers according to LVM Volumes"
-		if [ ! -e /etc/buildhost.config.presets ]; then
- 	           mv /etc/buildhost.config /etc/buildhost.config.presets
-                fi
-		
+		if [ ! -e '/etc/buildhost.config.presets' ]; then
+			if [ -e '/etc/buildhost.config' ]; then
+				# If we already have a config file, but no
+				# presets, that means that the user must have
+				# actually provided presets via the config
+				# file, since we couldn't have generated it.
+				mv '/etc/buildhost.config' '/etc/buildhost.config.presets'
+			else
+				# No actual presets specified, so record that
+				# by creating an empty file.
+				touch '/etc/buildhost.config.presets'
+			fi
+		fi
+
 		echo "### autoconfigured values by obsstoragesetup init script"  > /etc/buildhost.config
 		echo "OBS_WORKER_DIRECTORY=\"$OBS_WORKER_DIRECTORY\"" >> /etc/buildhost.config
 		echo "OBS_CACHE_DIR=\"$OBS_WORKER_DIRECTORY/cache\""   >> /etc/buildhost.config
