@@ -1,0 +1,206 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>A Swiftly Tilting Planet</title>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '154'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>A Swiftly Tilting Planet</title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 13 Jun 2024 16:36:19 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>A Swiftly Tilting Planet</title>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+          <repository name="repository_2">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '227'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="my_project">
+          <title>A Swiftly Tilting Planet</title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+          <repository name="repository_2">
+            <arch>i586</arch>
+          </repository>
+        </project>
+  recorded_at: Thu, 13 Jun 2024 16:36:19 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/my_service_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_service_package" project="my_project">
+          <title>Blithe Spirit</title>
+          <description>Est voluptate earum et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_service_package" project="my_project">
+          <title>Blithe Spirit</title>
+          <description>Est voluptate earum et.</description>
+        </package>
+  recorded_at: Thu, 13 Jun 2024 16:36:19 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/my_project/my_service_package/_service
+    body:
+      encoding: UTF-8
+      string: |
+        <services>
+          <service name="download_url">
+            <param name="host">openbuildservice.org</param>
+            <param name="protocol">https</param>
+            <param name="path">/images/obs-logo.svg</param>
+          </service>
+        </services>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>20efdb5bfd760a7dbdba9dfbc10cc326</srcmd5>
+          <version>unknown</version>
+          <time>1718296579</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 16:36:19 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/my_project/my_service_package?cmd=runservice&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Thu, 13 Jun 2024 16:36:19 GMT
+recorded_with: VCR 6.2.0

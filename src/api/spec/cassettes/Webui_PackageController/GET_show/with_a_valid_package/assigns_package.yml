@@ -39,16 +39,16 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Tue, 26 Sep 2023 14:24:18 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:23 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_20
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_11
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Beyond the Mexique Bay</title>
-          <description>Eum et minus est.</description>
+          <title>Beneath the Bleeding</title>
+          <description>Suscipit saepe iusto similique.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '145'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Beyond the Mexique Bay</title>
-          <description>Eum et minus est.</description>
+          <title>Beneath the Bleeding</title>
+          <description>Suscipit saepe iusto similique.</description>
         </package>
-  recorded_at: Tue, 26 Sep 2023 14:24:18 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:23 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package
@@ -109,7 +109,7 @@ http_interactions:
       string: |
         <directory name="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Tue, 26 Sep 2023 14:24:18 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:23 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package?expand=1
@@ -141,37 +141,5 @@ http_interactions:
       string: |
         <directory name="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Tue, 26 Sep 2023 14:24:18 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:tom/my_package/_history?deleted=0&meta=0
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '31'
-    body:
-      encoding: UTF-8
-      string: |
-        <revisionlist>
-        </revisionlist>
-  recorded_at: Tue, 26 Sep 2023 14:24:18 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:23 GMT
 recorded_with: VCR 6.2.0

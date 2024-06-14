@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Tue, 26 Sep 2023 14:23:51 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:16 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>From Here to Eternity</title>
-          <description>Ipsam odit corrupti cum.</description>
+          <title>The Grapes of Wrath</title>
+          <description>Non enim maxime vel.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '151'
+      - '145'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>From Here to Eternity</title>
-          <description>Ipsam odit corrupti cum.</description>
+          <title>The Grapes of Wrath</title>
+          <description>Non enim maxime vel.</description>
         </package>
-  recorded_at: Tue, 26 Sep 2023 14:23:51 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:16 GMT
 - request:
     method: delete
     uri: http://backend:5352/source/home:tom/my_package?user=tom
@@ -109,5 +109,5 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Tue, 26 Sep 2023 14:23:51 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:16 GMT
 recorded_with: VCR 6.2.0

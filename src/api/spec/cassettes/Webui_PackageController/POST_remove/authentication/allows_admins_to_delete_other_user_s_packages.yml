@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Tue, 26 Sep 2023 14:23:50 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:16 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:admin/_meta?user=admin
@@ -79,15 +79,15 @@ http_interactions:
           <description></description>
           <person userid="admin" role="maintainer"/>
         </project>
-  recorded_at: Tue, 26 Sep 2023 14:23:50 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:16 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_3/_meta?user=admin
+    uri: http://backend:5352/source/project_1/_meta?user=admin
     body:
       encoding: UTF-8
       string: |
-        <project name="project_3">
-          <title>An Acceptable Time</title>
+        <project name="project_1">
+          <title>To a God Unknown</title>
           <description/>
         </project>
     headers:
@@ -109,24 +109,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '102'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_3">
-          <title>An Acceptable Time</title>
+        <project name="project_1">
+          <title>To a God Unknown</title>
           <description></description>
         </project>
-  recorded_at: Tue, 26 Sep 2023 14:23:50 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:16 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_3/forbidden_package/_meta?user=admin
+    uri: http://backend:5352/source/project_1/forbidden_package/_meta?user=admin
     body:
       encoding: UTF-8
       string: |
-        <package name="forbidden_package" project="project_3">
-          <title>What's Become of Waring</title>
-          <description>Aut enim officia quia.</description>
+        <package name="forbidden_package" project="project_1">
+          <title>Have His Carcase</title>
+          <description>Aut dolor dolorem consectetur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -147,18 +147,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '160'
     body:
       encoding: UTF-8
       string: |
-        <package name="forbidden_package" project="project_3">
-          <title>What's Become of Waring</title>
-          <description>Aut enim officia quia.</description>
+        <package name="forbidden_package" project="project_1">
+          <title>Have His Carcase</title>
+          <description>Aut dolor dolorem consectetur.</description>
         </package>
-  recorded_at: Tue, 26 Sep 2023 14:23:50 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:16 GMT
 - request:
     method: delete
-    uri: http://backend:5352/source/project_3/forbidden_package?user=admin
+    uri: http://backend:5352/source/project_1/forbidden_package?user=admin
     body:
       encoding: US-ASCII
       string: ''
@@ -187,5 +187,5 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Tue, 26 Sep 2023 14:23:50 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:16 GMT
 recorded_with: VCR 6.2.0
