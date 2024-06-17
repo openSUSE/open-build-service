@@ -22,7 +22,7 @@
         .col-auto.pe-0
           = render NotificationAvatarsComponent.new(@notification)
         .col-auto.ps-xs-2
-          = render NotificationActionDescriptionComponent.new(@notification)
+          .smart-overflow= helpers.description(@notification)
       .row.d-none.d-md-block.ps-4
         .col
           %p.mt-3.mb-0=  helpers.render_without_markdown(helpers.excerpt(@notification))
