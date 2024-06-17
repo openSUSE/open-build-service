@@ -552,9 +552,9 @@ class User < ApplicationRecord
     when Project
       logger.debug "running local permission check: user #{login}, project #{object.name}, permission '#{perm_string}'"
 
-      # Users have permissions to manage their own home project
+      # Users have permissions to manage their own home project and it's subprojects
       # This is needed since users sometimes remove themselves from the maintainers of their own home project
-      return true if object.name == home_project_name
+      return true if object.name == home_project_name || object.name.starts_with?("#{home_project_name}:")
 
       # check permission for given project
       parent = object.parent

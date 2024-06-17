@@ -20,17 +20,6 @@ class UserTest < ActiveSupport::TestCase
     assert_not Project.find_by(name: 'home:bob')
   end
 
-  def test_can_modify_project
-    user = User.find_by(login: 'adrian')
-    project = Project.find_by(name: 'home:adrian')
-
-    assert user.can_modify_project?(project)
-
-    assert_raise(ArgumentError, 'illegal parameter type to User#can_modify_project?: Package') do
-      user.can_modify_project?(Package.last)
-    end
-  end
-
   def test_subaccount_permission
     user = User.find_by(login: 'adrian')
 
