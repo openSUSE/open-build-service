@@ -1,4 +1,4 @@
-RSpec.describe BinaryRelease do
+RSpec.describe UpdateReleasedBinariesJob do
   let(:binary_hash) do
     {
       'disturl' => '/foo/bar',
@@ -14,7 +14,7 @@ RSpec.describe BinaryRelease do
   let!(:repository) { create(:repository, project: user.home_project) }
 
   describe '.update_binary_releases' do
-    subject { described_class.update_binary_releases(repository, 'foo') }
+    subject { described_class.new.update_binary_releases(repository, 'foo') }
 
     context 'no binary release existed before' do
       before do
@@ -51,7 +51,7 @@ RSpec.describe BinaryRelease do
 
   describe '.update_binary_releases_via_json' do
     context 'with empty json' do
-      it { expect { described_class.update_binary_releases_via_json(repository, []) }.not_to raise_error }
+      it { expect { described_class.new.send(:update_binary_releases_via_json, repository, []) }.not_to raise_error }
     end
 
     context 'with a repository to be released' do
@@ -67,12 +67,14 @@ RSpec.describe BinaryRelease do
         }
       end
 
-      it { expect { described_class.update_binary_releases_via_json(repository, [repeated_binary_hash]) }.not_to raise_error }
+      it { expect { described_class.new.send(:update_binary_releases_via_json, repository, [repeated_binary_hash]) }.not_to raise_error }
     end
   end
 
-  describe '#identical_to?' do
-    context 'binary_release and binary_hash are identical' do
+  describe '.old_and_new_binary_identical?' do
+    subject { described_class.new.send(:old_and_new_binary_identical?, binary_release, binary_hash) }
+
+    context 'old and new binary are identical' do
       let(:binary_release) do
         BinaryRelease.new(
           binary_disturl: binary_hash['disturl'],
@@ -82,10 +84,10 @@ RSpec.describe BinaryRelease do
         )
       end
 
-      it { expect(binary_release).to be_identical_to(binary_hash) }
+      it { expect(subject).to be_truthy }
     end
 
-    context 'binary_release and binary_hash are not identical' do
+    context 'old and new binary are not identical' do
       let(:binary_release) do
         BinaryRelease.new(
           binary_disturl: binary_hash['disturl'],
@@ -95,7 +97,7 @@ RSpec.describe BinaryRelease do
         )
       end
 
-      it { expect(binary_release).not_to be_identical_to(binary_hash) }
+      it { expect(subject).to be_falsey }
     end
   end
 end
