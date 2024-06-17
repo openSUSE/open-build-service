@@ -3,7 +3,7 @@
   .card.subscriptions-card-bg.mb-2
     .card-body
       %h5.card-title= subscription.event_class.description
-      %p.card-text= Event::Base::EXPLANATION_FOR_NOTIFICATIONS[subscription.event_class.to_s]
+      %p.card-text= subscription.event_class.notification_explanation
       .list-group
         - subscription.roles.each do |role|
           .d-flex.flex-column.flex-sm-row.justify-content-sm-between.list-group-item.list-group-item-action

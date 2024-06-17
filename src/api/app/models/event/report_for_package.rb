@@ -3,6 +3,8 @@ module Event
     self.description = 'Report for a package created'
     payload_keys :package_name, :project_name
 
+    self.notification_explanation = 'Receive notifications for reported packages.'
+
     def subject
       "Package #{payload['project_name']}/#{payload['package_name']} reported"
     end

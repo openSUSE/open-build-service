@@ -5,6 +5,8 @@ module Event
     payload_keys :reviewers, :by_user, :by_group, :by_project, :by_package
     receiver_roles :reviewer
 
+    self.notification_explanation = 'Receive notifications for reviews created that have you as a wanted...'
+
     def subject
       "Request #{payload['number']} requires review (#{actions_summary})"
     end

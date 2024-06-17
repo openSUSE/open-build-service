@@ -5,6 +5,8 @@ module Event
 
     receiver_roles :token_executor
 
+    self.notification_explanation = 'Receive notifications for failed workflow runs on SCM/CI integration.'
+
     # Example of subject:
     #   Workflow run failed on Merge request hook
     def subject

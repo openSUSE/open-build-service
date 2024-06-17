@@ -5,6 +5,8 @@ module Event
 
     receiver_roles :member
 
+    self.notification_explanation = 'Receive notifications when you are added to a group.'
+
     def subject
       "You were added to the group '#{payload['group']}'" unless payload['who']
 

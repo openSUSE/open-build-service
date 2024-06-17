@@ -5,6 +5,8 @@ module Event
     receiver_roles :source_maintainer, :target_maintainer, :source_project_watcher, :target_project_watcher,
                    :source_package_watcher, :target_package_watcher
 
+    self.notification_explanation = 'Receive notifications for requests created for projects/packages for which you are...'
+
     def custom_headers
       base = super
       # we're the one they mean

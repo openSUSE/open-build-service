@@ -8,6 +8,8 @@ module Event
 
     create_jobs :report_to_scm_job
 
+    self.notification_explanation = 'Receive notifications for build failures of packages for which you are...'
+
     def subject
       "Build failure of #{payload['project']}/#{payload['package']} in #{payload['repository']}/#{payload['arch']}"
     end
