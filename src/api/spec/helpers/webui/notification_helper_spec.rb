@@ -20,4 +20,35 @@ RSpec.describe Webui::NotificationHelper do
       it { expect(link).to include('fa-undo fas') }
     end
   end
+
+  describe '#excerpt' do
+    let(:user) { create(:user) }
+
+    context 'notification for a BsRequest without a description' do
+      let(:request) { create(:bs_request_with_submit_action, description: nil) }
+      let(:notification) { create(:web_notification, :request_created, notifiable: request, subscriber: user) }
+
+      it do
+        expect(excerpt(notification)).to have_text('')
+      end
+    end
+
+    context 'notification for a short comment' do
+      let(:comment) { create(:comment_project, body: 'Nice project!') }
+      let(:notification) { create(:web_notification, :comment_for_project, notifiable: comment, subscriber: user) }
+
+      it do
+        expect(excerpt(notification)).to have_text('Nice project!')
+      end
+    end
+
+    context 'notification for a long description' do
+      let(:report) { create(:report, reason: Faker::Lorem.characters(number: 120)) }
+      let(:notification) { create(:web_notification, :create_report, notifiable: report, subscriber: user) }
+
+      it do
+        expect(excerpt(notification)).to have_text('...')
+      end
+    end
+  end
 end
