@@ -197,6 +197,39 @@ class Project < ApplicationRecord
       project
     end
 
+    def package_templates
+      Project.with_package_templates + remote_package_templates
+    end
+
+    def remote_package_templates
+      result = []
+      Project.remote.each do |project|
+        body = load_from_remote(project, '/package_templates.xml')
+        next if body.blank?
+
+        Xmlhash.parse(body).elements('package_template_project').each do |package_template_project|
+          result << remote_package_template_from_xml(project, package_template_project)
+        end
+      end
+      result
+    end
+
+    def load_from_remote(project, path)
+      Rails.cache.fetch("remote_package_templates_#{project.id}", expires_in: 1.hour) do
+        Project::RemoteURL.load(project, path)
+      end
+    end
+
+    def remote_package_template_from_xml(remote_project, package_template_project)
+      # We don't store the project and packages objects because they're fetched from remote instances and stored in cache
+      project = Project.new(name: "#{remote_project.name}:#{package_template_project['name']}")
+      package_template_project.elements('package_template_package').each do |package_template_package|
+        project.packages.new(name: package_template_package['name'].presence,
+                             title: package_template_package['title'].presence)
+      end
+      project
+    end
+
     def deleted_instance
       project = Project.find_by(name: 'deleted')
       unless project
