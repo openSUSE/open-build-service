@@ -197,6 +197,11 @@ class PublicController < ApplicationController
     end
   end
 
+  def image_templates
+    @projects = Project.image_templates
+    render 'webui/image_templates/index'
+  end
+
   private
 
   # removes /private prefix from path
