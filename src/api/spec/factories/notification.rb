@@ -109,6 +109,11 @@ FactoryBot.define do
         notification.event_payload['reportable_type'] ||= notification.notifiable.reports.first.reportable.class.to_s
       end
     end
+
+    trait :appeal do
+      event_type { 'Event::AppealCreated' }
+      notifiable { association(:appeal) }
+    end
   end
 
   factory :rss_notification, parent: :notification do

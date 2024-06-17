@@ -219,6 +219,16 @@ RSpec.describe Webui::NotificationHelper do
           expect(subject).to have_text("'#{notification.notifiable.moderator}' decided to favor the report. This is the reason:")
         end
       end
+
+      context 'when the notification is for Event::AppealCreated' do
+        let(:notification) do
+          create(:notification, :appeal)
+        end
+
+        it 'renders the information about the favored decision' do
+          expect(subject).to have_text("'#{notification.notifiable.appellant.login}' appealed the decision for the following reason:")
+        end
+      end
     end
   end
 end
