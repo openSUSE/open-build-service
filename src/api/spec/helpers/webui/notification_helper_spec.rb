@@ -231,4 +231,108 @@ RSpec.describe Webui::NotificationHelper do
       end
     end
   end
+
+  describe '#notifiable_link' do
+    subject { notifiable_link(notification) }
+
+    context 'for a BsRequest notification with multiple actions' do
+      let(:request) { create(:bs_request_with_submit_action, number: 456_345) }
+      let(:notification) { create(:notification, :request_state_change, notifiable: request) }
+
+      before do
+        # Extra BsRequestAction
+        request.bs_request_actions << create(:bs_request_action_add_maintainer_role)
+      end
+
+      it 'renders a link to the BsRequest with a generic text and its number' do
+        expect(subject).to have_link('Multiple Actions Request #456345', href: "/request/show/456345?notification_id=#{notification.id}")
+      end
+    end
+
+    context 'for a BsRequest notification with the event Event::RequestStatechange' do
+      let(:request) { create(:bs_request_with_submit_action, number: 123_456) }
+      let(:notification) { create(:notification, :request_state_change, notifiable: request) }
+
+      it 'renders a link to the BsRequest with the text containing its action and number' do
+        expect(subject).to have_link('Submit Request #123456', href: "/request/show/123456?notification_id=#{notification.id}")
+      end
+    end
+
+    context 'for a BsRequest notification with the event Event::RequestCreate' do
+      let(:request) { create(:add_role_request, number: 123_789) }
+      let(:notification) { create(:notification, :request_created, notifiable: request) }
+
+      it 'renders a link to the BsRequest with the text containing its action and number' do
+        expect(subject).to have_link('Add Role Request #123789', href: "/request/show/123789?notification_id=#{notification.id}")
+      end
+    end
+
+    context 'for a BsRequest notification with the event Event::ReviewWanted' do
+      let(:request) { create(:delete_bs_request, number: 123_670) }
+      let(:notification) { create(:notification, :review_wanted, notifiable: request) }
+
+      it 'renders a link to the BsRequest with the text containing its action and number' do
+        expect(subject).to have_link('Delete Request #123670', href: "/request/show/123670?notification_id=#{notification.id}")
+      end
+    end
+
+    context 'for a comment notification with the event Event::CommentForRequest' do
+      let(:request) { create(:delete_bs_request, number: 123_671) }
+      let(:comment) { create(:comment, commentable: request) }
+      let(:notification) { create(:notification, :comment_for_request, notifiable: comment) }
+
+      it "renders a link to the comment's BsRequest with the text containing its action and number" do
+        expect(subject).to have_link('Comment on Delete Request #123671', href: "/request/show/123671?notification_id=#{notification.id}#comments-list")
+      end
+    end
+
+    context 'for a comment notification with the event Event::CommentForProject' do
+      let(:project) { create(:project, name: 'projet_de_societe') }
+      let(:comment) { create(:comment, commentable: project) }
+      let(:notification) { create(:notification, :comment_for_project, notifiable: comment) }
+
+      it "renders a link to the comment's project" do
+        expect(subject).to have_link('Comment on Project', href: "/project/show/projet_de_societe?notification_id=#{notification.id}#comments-list")
+      end
+    end
+
+    context 'for a comment notification with the event Event::CommentForPackage' do
+      let(:project) { create(:project, name: 'projet_de_societe') }
+      let(:package) { create(:package, project: project, name: 'oui') }
+      let(:comment) { create(:comment, commentable: package) }
+      let(:notification) { create(:notification, :comment_for_package, notifiable: comment) }
+
+      it "renders a link to the comment's package" do
+        expect(subject).to have_link('Comment on Package', href: "/package/show/projet_de_societe/oui?notification_id=#{notification.id}#comments-list")
+      end
+    end
+
+    context 'for a report notification with the event Event::CreateReport' do
+      let(:notification) { create(:notification, :create_report) }
+      let(:project) { notification.notifiable.reportable.commentable.project }
+      let(:package) { notification.notifiable.reportable.commentable }
+
+      it 'renders a link to the reported content' do
+        expect(subject).to have_link('Report for a Comment', href: "/package/show/#{project.name}/#{package.name}?notification_id=#{notification.id}#comments-list")
+      end
+    end
+
+    context 'for a decision notification with the event Event::ClearedDecision' do
+      let(:notification) { create(:notification, :cleared_decision) }
+      let(:package) { notification.notifiable.reports.first.reportable.commentable }
+
+      it 'renders a link to the reportable' do
+        expect(subject).to have_link('Cleared Comment Report', href: "/package/show/#{package.project.name}/#{package.name}?notification_id=#{notification.id}#comments-list")
+      end
+    end
+
+    context 'for a decision notification with the event Event::FavoredDecision' do
+      let(:notification) { create(:notification, :favored_decision) }
+      let(:package) { notification.notifiable.reports.first.reportable.commentable }
+
+      it 'renders a link to the reportable' do
+        expect(subject).to have_link('Favored Comment Report', href: "/package/show/#{package.project.name}/#{package.name}?notification_id=#{notification.id}#comments-list")
+      end
+    end
+  end
 end
