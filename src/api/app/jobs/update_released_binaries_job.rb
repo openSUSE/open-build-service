@@ -14,18 +14,18 @@ class UpdateReleasedBinariesJob < CreateJob
       logger.error("Payload got removed for #{event.payload['payload']}")
       return
     end
-    update_binary_releases_via_json(repository, new_binary_releases, event.created_at)
+    update_binary_releases_for_repository(repository, new_binary_releases, event.created_at)
     Backend::Api::Server.delete_notification_payload(event.payload['payload'])
   end
 
   private
 
-  def update_binary_releases_via_json(repository, new_binary_releases, time = Time.now)
+  def update_binary_releases_for_repository(repository, new_binary_releases, time = Time.now)
     # building a hash to avoid single SQL select calls slowing us down too much
     old_binary_releases = {}
     BinaryRelease.transaction do
       BinaryRelease.where(repository: repository, obsolete_time: nil).find_each do |binary|
-        key = hashkey_db(binary.as_json)
+        key = hashkey_old_binary_releases(binary.as_json)
         old_binary_releases[key] = binary
       end
 
@@ -47,7 +47,7 @@ class UpdateReleasedBinariesJob < CreateJob
                  modify_time: nil }
 
         # getting activerecord object from hash, dup to unfreeze it
-        entry = old_binary_releases[hashkey_json(binary, binary['medium'])]
+        entry = old_binary_releases[hashkey_new_binary_releases(binary, binary['medium'])]
         if entry
           # still exists, do not touch obsolete time
           processed_item[entry.id] = true
@@ -109,11 +109,11 @@ class UpdateReleasedBinariesJob < CreateJob
     end
   end
 
-  def hashkey_db(binary)
+  def hashkey_old_binary_releases(binary)
     "#{binary['binary_name']}|#{binary['binary_version'] || '0'}|#{binary['binary_release'] || '0'}|#{binary['binary_epoch'] || '0'}|#{binary['binary_arch'] || ''}|#{binary['medium'] || ''}"
   end
 
-  def hashkey_json(binary, medium)
+  def hashkey_new_binary_releases(binary, medium)
     "#{binary['name']}|#{binary['version'] || '0'}|#{binary['release'] || '0'}|#{binary['epoch'] || '0'}|#{binary['binaryarch'] || ''}|#{medium || ''}"
   end
 

@@ -50,9 +50,9 @@ RSpec.describe UpdateReleasedBinariesJob do
     end
   end
 
-  describe '.update_binary_releases_via_json' do
+  describe '.update_binary_releases_for_repository' do
     context 'with empty json' do
-      it { expect { described_class.new.send(:update_binary_releases_via_json, repository, []) }.not_to raise_error }
+      it { expect { described_class.new.send(:update_binary_releases_for_repository, repository, []) }.not_to raise_error }
     end
 
     context 'with a repository to be released' do
@@ -68,7 +68,7 @@ RSpec.describe UpdateReleasedBinariesJob do
         }
       end
 
-      it { expect { described_class.new.send(:update_binary_releases_via_json, repository, [repeated_binary_hash]) }.not_to raise_error }
+      it { expect { described_class.new.send(:update_binary_releases_for_repository, repository, [repeated_binary_hash]) }.not_to raise_error }
     end
   end
 
