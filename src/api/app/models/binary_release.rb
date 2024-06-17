@@ -7,17 +7,6 @@ class BinaryRelease < ApplicationRecord
 
   before_create :set_release_time
 
-  def self.update_binary_releases(repository, key, time = Time.now)
-    begin
-      notification_payload = ActiveSupport::JSON.decode(Backend::Api::Server.notification_payload(key))
-    rescue Backend::NotFoundError
-      logger.error("Payload got removed for #{key}")
-      return
-    end
-    update_binary_releases_via_json(repository, notification_payload, time)
-    Backend::Api::Server.delete_notification_payload(key)
-  end
-
   def self.update_binary_releases_via_json(repository, json, time = Time.now)
     # building a hash to avoid single SQL select calls slowing us down too much
     oldhash = {}
