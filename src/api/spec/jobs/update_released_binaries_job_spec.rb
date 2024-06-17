@@ -10,11 +10,12 @@ RSpec.describe UpdateReleasedBinariesJob do
     }
   end
 
-  let(:user) { create(:confirmed_user, :with_home, login: 'foo') }
-  let!(:repository) { create(:repository, project: user.home_project) }
+  let(:project) { create(:project, name: 'foo') }
+  let(:repository) { create(:repository, project: project) }
+  let(:event) { Event::Packtrack.create(project: project.name, repo: repository.name, payload: '12345') }
 
-  describe '.update_binary_releases' do
-    subject { described_class.new.update_binary_releases(repository, 'foo') }
+  describe '.perform' do
+    subject { described_class.new.perform(event.id) }
 
     context 'no binary release existed before' do
       before do

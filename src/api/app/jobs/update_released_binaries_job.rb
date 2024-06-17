@@ -4,24 +4,21 @@ class UpdateReleasedBinariesJob < CreateJob
   def perform(event_id)
     event = Event::Base.find(event_id)
 
-    repo = Repository.find_by_project_and_name(event.payload['project'], event.payload['repo'])
-    return unless repo
+    repository = Repository.find_by_project_and_name(event.payload['project'], event.payload['repo'])
+    return unless repository
 
-    update_binary_releases(repo, event.payload['payload'], event.created_at)
+    begin
+      # NOTE: Yes they key to identify the notification on the backend is called payload in the event payload. Can't make this shit up...
+      notification_payload = ActiveSupport::JSON.decode(Backend::Api::Server.notification_payload(event.payload['payload']))
+    rescue Backend::NotFoundError
+      logger.error("Payload got removed for #{event.payload['payload']}")
+      return
+    end
+    update_binary_releases_via_json(repository, notification_payload, event.created_at)
+    Backend::Api::Server.delete_notification_payload(event.payload['payload'])
   end
 
   private
-
-  def update_binary_releases(repository, key, time = Time.now)
-    begin
-      notification_payload = ActiveSupport::JSON.decode(Backend::Api::Server.notification_payload(key))
-    rescue Backend::NotFoundError
-      logger.error("Payload got removed for #{key}")
-      return
-    end
-    update_binary_releases_via_json(repository, notification_payload, time)
-    Backend::Api::Server.delete_notification_payload(key)
-  end
 
   def update_binary_releases_via_json(repository, json, time = Time.now)
     # building a hash to avoid single SQL select calls slowing us down too much
