@@ -3,10 +3,10 @@ class UpdateReleasedBinariesJob < CreateJob
 
   def perform(event_id)
     event = Event::Base.find(event_id)
-    pl = event.payload
-    repo = Repository.find_by_project_and_name(pl['project'], pl['repo'])
+
+    repo = Repository.find_by_project_and_name(event.payload['project'], event.payload['repo'])
     return unless repo
 
-    BinaryRelease.update_binary_releases(repo, pl['payload'], event.created_at)
+    BinaryRelease.update_binary_releases(repo, event.payload['payload'], event.created_at)
   end
 end
