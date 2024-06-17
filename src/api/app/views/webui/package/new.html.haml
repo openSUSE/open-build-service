@@ -21,6 +21,11 @@
               .mb-3
                 = f.label(:description)
                 = f.text_area(:description, cols: 80, rows: 10, class: 'form-control')
+              - if (templates = PackageService::Templater.templates).values.flatten.present?
+                = templates
+                .mb-3
+                  = f.label(:template)
+                  = f.select(:template, templates, { include_blank: 'None' }, class: 'form-select', name: 'template')
               - unless @configuration['hide_private_options']
                 .mb-3.form-check
                   = check_box_tag :source_protection, 1, false, class: 'form-check-input', type: 'checkbox'

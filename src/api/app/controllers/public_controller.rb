@@ -197,6 +197,10 @@ class PublicController < ApplicationController
     end
   end
 
+  def package_templates
+    @projects = Project.package_templates
+  end
+
   private
 
   # removes /private prefix from path
