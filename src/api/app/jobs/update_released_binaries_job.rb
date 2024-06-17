@@ -9,24 +9,24 @@ class UpdateReleasedBinariesJob < CreateJob
 
     begin
       # NOTE: Yes they key to identify the notification on the backend is called payload in the event payload. Can't make this shit up...
-      notification_payload = ActiveSupport::JSON.decode(Backend::Api::Server.notification_payload(event.payload['payload']))
+      new_binary_releases = ActiveSupport::JSON.decode(Backend::Api::Server.notification_payload(event.payload['payload']))
     rescue Backend::NotFoundError
       logger.error("Payload got removed for #{event.payload['payload']}")
       return
     end
-    update_binary_releases_via_json(repository, notification_payload, event.created_at)
+    update_binary_releases_via_json(repository, new_binary_releases, event.created_at)
     Backend::Api::Server.delete_notification_payload(event.payload['payload'])
   end
 
   private
 
-  def update_binary_releases_via_json(repository, json, time = Time.now)
+  def update_binary_releases_via_json(repository, new_binary_releases, time = Time.now)
     # building a hash to avoid single SQL select calls slowing us down too much
-    oldhash = {}
+    old_binary_releases = {}
     BinaryRelease.transaction do
       BinaryRelease.where(repository: repository, obsolete_time: nil).find_each do |binary|
         key = hashkey_db(binary.as_json)
-        oldhash[key] = binary
+        old_binary_releases[key] = binary
       end
 
       processed_item = {}
@@ -34,7 +34,7 @@ class UpdateReleasedBinariesJob < CreateJob
       # when we have a medium providing further entries
       medium_hash = {}
 
-      json.each do |binary|
+      new_binary_releases.each do |binary|
         # identifier
         hash = { binary_name: binary['name'],
                  binary_version: binary['version'] || 0, # docker containers have no version
@@ -47,7 +47,7 @@ class UpdateReleasedBinariesJob < CreateJob
                  modify_time: nil }
 
         # getting activerecord object from hash, dup to unfreeze it
-        entry = oldhash[hashkey_json(binary, binary['medium'])]
+        entry = old_binary_releases[hashkey_json(binary, binary['medium'])]
         if entry
           # still exists, do not touch obsolete time
           processed_item[entry.id] = true
