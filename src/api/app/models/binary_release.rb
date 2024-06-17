@@ -7,95 +7,6 @@ class BinaryRelease < ApplicationRecord
 
   before_create :set_release_time
 
-  def self.update_binary_releases_via_json(repository, json, time = Time.now)
-    # building a hash to avoid single SQL select calls slowing us down too much
-    oldhash = {}
-    BinaryRelease.transaction do
-      where(repository: repository, obsolete_time: nil).find_each do |binary|
-        key = hashkey_db(binary.as_json)
-        oldhash[key] = binary
-      end
-
-      processed_item = {}
-
-      # when we have a medium providing further entries
-      medium_hash = {}
-
-      json.each do |binary|
-        # identifier
-        hash = { binary_name: binary['name'],
-                 binary_version: binary['version'] || 0, # docker containers have no version
-                 binary_release: binary['release'] || 0,
-                 binary_epoch: binary['epoch'],
-                 binary_arch: binary['binaryarch'],
-                 medium: binary['medium'],
-                 on_medium: medium_hash[binary['medium']],
-                 obsolete_time: nil,
-                 modify_time: nil }
-
-        # getting activerecord object from hash, dup to unfreeze it
-        entry = oldhash[hashkey_json(binary, binary['medium'])]
-        if entry
-          # still exists, do not touch obsolete time
-          processed_item[entry.id] = true
-          if entry.identical_to?(binary)
-            # but collect the media
-            medium_hash[binary['ismedium']] = entry if binary['ismedium'].present?
-            next
-          end
-          # same binary name and location, but updated content or meta data
-          entry.modify_time = time
-          entry.save!
-          hash[:operation] = 'modified' # new entry will get "modified" instead of "added"
-        end
-
-        # complete hash for new entry
-        hash[:binary_releasetime] = time
-        hash[:binary_id] = binary['binaryid'] if binary['binaryid'].present?
-        hash[:binary_buildtime] = nil
-        hash[:binary_buildtime] = Time.strptime(binary['buildtime'].to_s, '%s') if binary['buildtime'].present?
-        hash[:binary_disturl] = binary['disturl']
-        hash[:binary_supportstatus] = binary['supportstatus']
-        hash[:binary_cpeid] = binary['cpeid']
-        if binary['updateinfoid']
-          hash[:binary_updateinfo] = binary['updateinfoid']
-          hash[:binary_updateinfo_version] = binary['updateinfoversion']
-        end
-        if binary['project'].present? && binary['package'].present?
-          # the package may be missing if the binary comes via DoD
-          source_package = Package.striping_multibuild_suffix(binary['package'])
-          rp = Package.find_by_project_and_name(binary['project'], source_package)
-          if source_package.include?(':') && !source_package.start_with?('_product:')
-            flavor_name = binary['package'].gsub(/^#{source_package}:/, '')
-            hash[:flavor] = flavor_name
-          end
-          hash[:release_package_id] = rp.id if binary['project'] && rp
-        end
-        if binary['patchinforef']
-          begin
-            patchinfo = Patchinfo.new(data: Backend::Api::Sources::Project.patchinfo(binary['patchinforef']))
-          rescue Backend::NotFoundError
-            # patchinfo disappeared meanwhile
-          end
-          hash[:binary_maintainer] = patchinfo.hashed['packager'] if patchinfo && patchinfo.hashed['packager']
-        end
-
-        # put a reference to the medium aka container
-        hash[:on_medium] = medium_hash[binary['medium']] if binary['medium'].present?
-
-        # new entry, also for modified binaries.
-        entry = repository.binary_releases.create(hash)
-        processed_item[entry.id] = true
-
-        # store in medium case
-        medium_hash[binary['ismedium']] = entry if binary['ismedium'].present?
-      end
-
-      # and mark all not processed binaries as removed
-      where(repository: repository, obsolete_time: nil, modify_time: nil).where.not(id: processed_item.keys).update_all(obsolete_time: time)
-    end
-  end
-
   def set_release_time!
     self.binary_releasetime = Time.now
   end
@@ -103,14 +14,6 @@ class BinaryRelease < ApplicationRecord
   # esp. for docker/appliance/python-venv-rpms and friends
   def medium_container
     on_medium.try(:release_package)
-  end
-
-  def self.hashkey_db(binary)
-    "#{binary['binary_name']}|#{binary['binary_version'] || '0'}|#{binary['binary_release'] || '0'}|#{binary['binary_epoch'] || '0'}|#{binary['binary_arch'] || ''}|#{binary['medium'] || ''}"
-  end
-
-  def self.hashkey_json(binary, medium)
-    "#{binary['name']}|#{binary['version'] || '0'}|#{binary['release'] || '0'}|#{binary['epoch'] || '0'}|#{binary['binaryarch'] || ''}|#{medium || ''}"
   end
 
   def render_xml
@@ -167,23 +70,7 @@ class BinaryRelease < ApplicationRecord
     Rails.cache.fetch("xml_binary_release_#{cache_key_with_version}") { render_xml }
   end
 
-  def identical_to?(binary_hash)
-    # We ignore not set binary_id in db because it got introduced later
-    # we must not touch the modification time in that case
-    binary_disturl == binary_hash['disturl'] &&
-      binary_supportstatus == binary_hash['supportstatus'] &&
-      (binary_id.nil? || binary_id == binary_hash['binaryid']) &&
-      binary_buildtime == binary_hash_build_time(binary_hash)
-  end
-
   private
-
-  def binary_hash_build_time(binary_hash)
-    # handle nil/NULL case
-    return if binary_hash['buildtime'].blank?
-
-    Time.strptime(binary_hash['buildtime'].to_s, '%s')
-  end
 
   def product_medium
     repository.product_medium.find_by(name: medium)
