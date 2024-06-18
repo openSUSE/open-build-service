@@ -36,15 +36,15 @@ class UpdateReleasedBinariesJob < CreateJob
 
       new_binary_releases.each do |backend_binary|
         # identifier
-        hash = { binary_name: backend_binary['name'],
-                 binary_version: backend_binary['version'] || 0, # docker containers have no version
-                 binary_release: backend_binary['release'] || 0,
-                 binary_epoch: backend_binary['epoch'],
-                 binary_arch: backend_binary['binaryarch'],
-                 medium: backend_binary['medium'],
-                 on_medium: medium_hash[backend_binary['medium']],
-                 obsolete_time: nil,
-                 modify_time: nil }
+        binary_release = { binary_name: backend_binary['name'],
+                           binary_version: backend_binary['version'] || 0, # docker containers have no version
+                           binary_release: backend_binary['release'] || 0,
+                           binary_epoch: backend_binary['epoch'],
+                           binary_arch: backend_binary['binaryarch'],
+                           medium: backend_binary['medium'],
+                           on_medium: medium_hash[backend_binary['medium']],
+                           obsolete_time: nil,
+                           modify_time: nil }
 
         # getting activerecord object from hash, dup to unfreeze it
         entry = old_binary_releases[hashkey_new_binary_releases(backend_binary, backend_binary['medium'])]
@@ -59,20 +59,20 @@ class UpdateReleasedBinariesJob < CreateJob
           # same binary name and location, but updated content or meta data
           entry.modify_time = time
           entry.save!
-          hash[:operation] = 'modified' # new entry will get "modified" instead of "added"
+          binary_release[:operation] = 'modified' # new entry will get "modified" instead of "added"
         end
 
         # complete hash for new entry
-        hash[:binary_releasetime] = time
-        hash[:binary_id] = backend_binary['binaryid'] if backend_binary['binaryid'].present?
-        hash[:binary_buildtime] = nil
-        hash[:binary_buildtime] = Time.strptime(backend_binary['buildtime'].to_s, '%s') if backend_binary['buildtime'].present?
-        hash[:binary_disturl] = backend_binary['disturl']
-        hash[:binary_supportstatus] = backend_binary['supportstatus']
-        hash[:binary_cpeid] = backend_binary['cpeid']
+        binary_release[:binary_releasetime] = time
+        binary_release[:binary_id] = backend_binary['binaryid'] if backend_binary['binaryid'].present?
+        binary_release[:binary_buildtime] = nil
+        binary_release[:binary_buildtime] = Time.strptime(backend_binary['buildtime'].to_s, '%s') if backend_binary['buildtime'].present?
+        binary_release[:binary_disturl] = backend_binary['disturl']
+        binary_release[:binary_supportstatus] = backend_binary['supportstatus']
+        binary_release[:binary_cpeid] = backend_binary['cpeid']
         if backend_binary['updateinfoid']
-          hash[:binary_updateinfo] = backend_binary['updateinfoid']
-          hash[:binary_updateinfo_version] = backend_binary['updateinfoversion']
+          binary_release[:binary_updateinfo] = backend_binary['updateinfoid']
+          binary_release[:binary_updateinfo_version] = backend_binary['updateinfoversion']
         end
         if backend_binary['project'].present? && backend_binary['package'].present?
           # the package may be missing if the binary comes via DoD
@@ -80,9 +80,9 @@ class UpdateReleasedBinariesJob < CreateJob
           rp = Package.find_by_project_and_name(backend_binary['project'], source_package)
           if source_package.include?(':') && !source_package.start_with?('_product:')
             flavor_name = backend_binary['package'].gsub(/^#{source_package}:/, '')
-            hash[:flavor] = flavor_name
+            binary_release[:flavor] = flavor_name
           end
-          hash[:release_package_id] = rp.id if backend_binary['project'] && rp
+          binary_release[:release_package_id] = rp.id if backend_binary['project'] && rp
         end
         if backend_binary['patchinforef']
           begin
@@ -90,14 +90,14 @@ class UpdateReleasedBinariesJob < CreateJob
           rescue Backend::NotFoundError
             # patchinfo disappeared meanwhile
           end
-          hash[:binary_maintainer] = patchinfo.hashed['packager'] if patchinfo && patchinfo.hashed['packager']
+          binary_release[:binary_maintainer] = patchinfo.hashed['packager'] if patchinfo && patchinfo.hashed['packager']
         end
 
         # put a reference to the medium aka container
-        hash[:on_medium] = medium_hash[backend_binary['medium']] if backend_binary['medium'].present?
+        binary_release[:on_medium] = medium_hash[backend_binary['medium']] if backend_binary['medium'].present?
 
         # new entry, also for modified binaries.
-        entry = repository.binary_releases.create(hash)
+        entry = repository.binary_releases.create(binary_release)
         processed_item[entry.id] = true
 
         # store in medium case
