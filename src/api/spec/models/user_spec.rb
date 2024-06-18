@@ -623,4 +623,27 @@ RSpec.describe User do
       end
     end
   end
+
+  describe '#can_modify?' do
+    let(:user) { create(:confirmed_user, :with_home, login: 'hans') }
+    let(:project) { user.home_project }
+
+    context 'projects' do
+      context 'can modify a home project' do
+        it { expect(user.can_modify?(project)).to be true }
+      end
+
+      context 'can modify sub-projects of a home project' do
+        let(:child_project) { create(:project, name: "#{project.name}:something") }
+
+        it { expect(user.can_modify?(child_project)).to be true }
+      end
+
+      context "cannot modify other people's projects" do
+        let(:project) { create(:project, name: 'home:dani:branches:home:hans:something') }
+
+        it { expect(user.can_modify?(project)).to be false }
+      end
+    end
+  end
 end
