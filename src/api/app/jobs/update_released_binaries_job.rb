@@ -47,18 +47,18 @@ class UpdateReleasedBinariesJob < CreateJob
                            modify_time: nil }
 
         # getting activerecord object from hash, dup to unfreeze it
-        entry = old_binary_releases[hashkey_new_binary_releases(backend_binary, backend_binary['medium'])]
-        if entry
+        old_binary_release = old_binary_releases[hashkey_new_binary_releases(backend_binary, backend_binary['medium'])]
+        if old_binary_release
           # still exists, do not touch obsolete time
-          processed_item[entry.id] = true
-          if old_and_new_binary_identical?(entry, backend_binary)
+          processed_item[old_binary_release.id] = true
+          if old_and_new_binary_identical?(old_binary_release, backend_binary)
             # but collect the media
-            medium_hash[backend_binary['ismedium']] = entry if backend_binary['ismedium'].present?
+            medium_hash[backend_binary['ismedium']] = old_binary_release if backend_binary['ismedium'].present?
             next
           end
           # same binary name and location, but updated content or meta data
-          entry.modify_time = time
-          entry.save!
+          old_binary_release.modify_time = time
+          old_binary_release.save!
           binary_release[:operation] = 'modified' # new entry will get "modified" instead of "added"
         end
 
@@ -97,11 +97,11 @@ class UpdateReleasedBinariesJob < CreateJob
         binary_release[:on_medium] = medium_hash[backend_binary['medium']] if backend_binary['medium'].present?
 
         # new entry, also for modified binaries.
-        entry = repository.binary_releases.create(binary_release)
-        processed_item[entry.id] = true
+        new_binary_release = repository.binary_releases.create(binary_release)
+        processed_item[new_binary_release.id] = true
 
         # store in medium case
-        medium_hash[backend_binary['ismedium']] = entry if backend_binary['ismedium'].present?
+        medium_hash[backend_binary['ismedium']] = new_binary_release if backend_binary['ismedium'].present?
       end
 
       # and mark all not processed binaries as removed
