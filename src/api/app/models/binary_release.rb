@@ -126,12 +126,12 @@ end
 #  binary_epoch              :string(64)       indexed => [binary_name, binary_version, binary_release, binary_arch]
 #  binary_maintainer         :string(255)
 #  binary_name               :string(255)      not null, indexed => [binary_epoch, binary_version, binary_release, binary_arch], indexed => [binary_arch], indexed => [repository_id]
-#  binary_release            :string(64)       not null, indexed => [binary_name, binary_epoch, binary_version, binary_arch]
+#  binary_release            :string(64)       default("0"), not null, indexed => [binary_name, binary_epoch, binary_version, binary_arch]
 #  binary_releasetime        :datetime         not null
 #  binary_supportstatus      :string(255)
 #  binary_updateinfo         :string(255)      indexed
 #  binary_updateinfo_version :string(255)
-#  binary_version            :string(64)       not null, indexed => [binary_name, binary_epoch, binary_release, binary_arch]
+#  binary_version            :string(64)       default("0"), not null, indexed => [binary_name, binary_epoch, binary_release, binary_arch]
 #  flavor                    :string(255)
 #  medium                    :string(255)      indexed
 #  modify_time               :datetime
