@@ -37,11 +37,16 @@ class UpdateReleasedBinariesJob < CreateJob
   #
   def update_binary_releases_for_repository(repository, new_binary_releases, time = Time.now)
     # building a hash to avoid single SQL select calls slowing us down too much
-    old_binary_releases = {}
+    old_entry = {}
     BinaryRelease.transaction do
-      BinaryRelease.where(repository: repository, obsolete_time: nil).find_each do |binary|
+      BinaryRelease.where(repository: repository, obsolete_time: nil, modify_time: nil).find_each do |binary|
         key = hashkey_old_binary_releases(binary.as_json)
-        old_binary_releases[key] = binary
+        # this is on purpose not the entire object to reduce memory requirement
+        old_entry[key] = { disturl: binary.binary_disturl,
+                           supportstatus: binary.binary_supportstatus,
+                           binaryid: binary.binary_id,
+                           buildtime: binary.binary_buildtime,
+                           id: binary.id }
       end
 
       processed_item = {}
@@ -62,18 +67,20 @@ class UpdateReleasedBinariesJob < CreateJob
                            modify_time: nil }
 
         # getting activerecord object from hash, dup to unfreeze it
-        old_binary_release = old_binary_releases[hashkey_new_binary_releases(backend_binary, backend_binary['medium'])]
-        if old_binary_release
+        existing_entry = old_entry[hashkey_new_binary_releases(backend_binary, backend_binary['medium'])]
+        if existing_entry
           # still exists, do not touch obsolete time
-          processed_item[old_binary_release.id] = true
-          if old_and_new_binary_identical?(old_binary_release, backend_binary)
+          processed_item[existing_entry[:id]] = true
+          if old_and_new_binary_identical?(existing_entry, backend_binary)
             # but collect the media
-            medium_hash[backend_binary['ismedium']] = old_binary_release if backend_binary['ismedium'].present?
+            medium_hash[backend_binary['ismedium']] = BinaryRelease.find(existing_entry[:id])  if backend_binary['ismedium'].present?
             next
           end
+          # We need to load the entry object for modification
+          db_entry = BinaryRelease.find(existing_entry[:id])
           # same binary name and location, but updated content or meta data
-          old_binary_release.modify_time = time
-          old_binary_release.save!
+          db_entry.modify_time = time
+          db_entry.save!
           binary_release[:operation] = 'modified' # new entry will get "modified" instead of "added"
         end
 
@@ -132,13 +139,13 @@ class UpdateReleasedBinariesJob < CreateJob
     "#{binary['name']}|#{binary['version'] || '0'}|#{binary['release'] || '0'}|#{binary['epoch'] || '0'}|#{binary['binaryarch'] || ''}|#{medium || ''}"
   end
 
-  def old_and_new_binary_identical?(old_binary, new_binary)
+  def old_and_new_binary_identical?(existing_entry, candidate)
     # We ignore not set binary_id in db because it got introduced later
     # we must not touch the modification time in that case
-    old_binary.binary_disturl == new_binary['disturl'] &&
-      old_binary.binary_supportstatus == new_binary['supportstatus'] &&
-      (old_binary.binary_id.nil? || old_binary.binary_id == new_binary['binaryid']) &&
-      old_binary.binary_buildtime == binary_hash_build_time(new_binary)
+    existing_entry[:disturl] == candidate['disturl'] &&
+      existing_entry[:supportstatus] == candidate['supportstatus'] &&
+      (existing_entry[:binaryid].nil? || existing_entry[:binaryid] == candidate['binaryid']) &&
+      existing_entry[:buildtime] == binary_hash_build_time(candidate)
   end
 
   def binary_hash_build_time(binary_hash)
