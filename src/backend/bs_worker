@@ -1084,6 +1084,16 @@ sub importbuild {
     Build->import();
 }
 
+sub md5file {
+  my ($fn) = @_;
+  my $fd;
+  open($fd, '<', $fn) || die("$fn: $!\n");
+  my $ctx = Digest::MD5->new;
+  $ctx->addfile($fd);
+  close($fd);
+  return $ctx->hexdigest();
+}
+
 sub sha256file {
   my ($fn) = @_;
   my $fd;
@@ -1677,6 +1687,7 @@ sub sendbadpackagebinaryversionlist {
 sub getbinaries_product {
   my ($buildinfo, $dir, $srcdir, $kiwiorigins) = @_;
 
+  my $imagemode = getimagemode($buildinfo);
   mkdir_p($dir);
   # we need the Build package for queryhdrmd5
   importbuild() unless defined &Build::queryhdrmd5;
@@ -2052,6 +2063,8 @@ sub getbinaries_product {
 
       # rename modulemd.yaml file
       if ($done{'modulemd/_modulemd.yaml'}) {
+	my $md5 = md5file("$ddir/modulemd/_modulemd.yaml");
+	$meta{"$prpap/_modulemd.yaml"} = "$md5  $prpap/_modulemd.yaml" if ($imagemode || '') eq 'productcompose';
 	rename("$ddir/modulemd/_modulemd.yaml", "$ddir/modulemd/$packid.$arch.modulemd.yaml") || die("rename $ddir/modulemd/_modulemd.yaml $ddir/modulemd/$packid.$arch.modulemd.yaml: $!\n");
 	$kiwiorigins->{"obs://$prp/modulemd/$packid.$arch.modulemd.yaml"} = $prpap;
 	delete $kiwiorigins->{"obs://$prp/modulemd/_modulemd.yaml"};
@@ -2064,6 +2077,8 @@ sub getbinaries_product {
 
       # rename updateinfo.xml file
       if ($done{'updateinfo/updateinfo.xml'}) {
+	my $md5 = md5file("$ddir/updateinfo/updateinfo.xml");
+	$meta{"$prpap/updateinfo.xml"} = "$md5  $prpap/updateinfo.xml" if ($imagemode || '') eq 'productcompose';
 	rename("$ddir/updateinfo/updateinfo.xml", "$ddir/updateinfo/$packid.$arch.updateinfo.xml") || die("rename $ddir/updateinfo/updateinfo.xml $ddir/updateinfo/$packid.$arch.updateinfo.xml: $!\n");
 	$kiwiorigins->{"obs://$prp/updateinfo/$packid.$arch.updateinfo.xml"} = $prpap;
 	delete $kiwiorigins->{"obs://$prp/updateinfo/updateinfo.xml"};
