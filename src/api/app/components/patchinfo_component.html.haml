@@ -14,7 +14,7 @@
     %p
       Patch created by
       - if (packager = User.find_by(login: patchinfo['packager']) || User.find_by(email: Mail::Address.new(patchinfo['packager']).address))
-        = render UserAvatarComponent.new(packager.login)
+        = render UserAvatarComponent.new(packager)
       - else
         = @patchinfo['packager']
       - if @patchinfo.key?('incident')

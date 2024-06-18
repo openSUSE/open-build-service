@@ -7,7 +7,7 @@
       .modal-body
         - reports.each do |report|
           .info
-            = render UserAvatarComponent.new(report.user.login)
+            = render UserAvatarComponent.new(report.user)
             reported
             = render TimeComponent.new(time: report.created_at)
             as

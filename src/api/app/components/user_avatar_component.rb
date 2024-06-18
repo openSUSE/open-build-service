@@ -1,15 +1,13 @@
 class UserAvatarComponent < ApplicationComponent
-  def initialize(user)
+  attr_reader :avatar_object
+
+  def initialize(avatar_object)
     super
 
-    @user = user
+    @avatar_object = avatar_object
   end
 
   private
-
-  def avatar_object
-    @avatar_object ||= User.find_by_login(@user)
-  end
 
   def short_text
     link_to(avatar_object.login, avatar_object)

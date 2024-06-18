@@ -11,7 +11,7 @@ RSpec.describe UserAvatarComponent, type: :component do
 
         before do
           package.relationships.create(user: other_user, role: maintainer)
-          render_inline(described_class.new(other_user.login))
+          render_inline(described_class.new(other_user))
         end
 
         it 'renders the maintainers of the package' do
