@@ -520,7 +520,7 @@ class Webui::RequestController < Webui::WebuiController
     end
 
     target_project = Project.find_by_name(@bs_request.target_project_name)
-    @request_reviews = @bs_request.reviews.for_non_staging_projects(target_project)
+    @request_reviews = @bs_request.reviews.includes(%i[user group]).for_non_staging_projects(target_project)
     @staging_status = staging_status(@bs_request, target_project) if Staging::Workflow.find_by(project: target_project)
 
     # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
