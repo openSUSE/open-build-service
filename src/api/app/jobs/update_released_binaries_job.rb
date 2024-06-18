@@ -1,3 +1,4 @@
+# Every time an Event::PackTrack happens this adds a new "set" of BinaryRelease to a Repository
 class UpdateReleasedBinariesJob < CreateJob
   queue_as :releasetracking
 
@@ -20,6 +21,20 @@ class UpdateReleasedBinariesJob < CreateJob
 
   private
 
+  # repository: a Repository instance
+  # new_binary_releases: An Array of Hashes of BinaryRelease attributes
+  #
+  # This method compares the set of existing BinaryRelease (repository.binary_releases)
+  # with the set of new BinaryRelease (new_binary_releases) and...
+  #
+  # - If the BinaryRelease from new_binary_releases does not exist for Repository:
+  #   - it creates a new BinaryRelease
+  # - If the BinaryRelease from new_binary_releases exists for Repository:
+  #   - sets the existing BinaryRelease.modify_time
+  #   - creates a new BinaryRelease with updated attributes and the attribute operation set to modified
+  # - If the BinaryRelease exists for the Repository but it's not in new_binary_releases:
+  #   - sets BinaryRelease.obsolete_time
+  #
   def update_binary_releases_for_repository(repository, new_binary_releases, time = Time.now)
     # building a hash to avoid single SQL select calls slowing us down too much
     old_binary_releases = {}
