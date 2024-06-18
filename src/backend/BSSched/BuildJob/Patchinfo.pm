@@ -167,9 +167,7 @@ sub check {
     my $pdatas = $proj->{'package'} || {};
     my @missing;
     for my $apackid (@packages) {
-      if (!$pdatas->{$apackid}) {
-        push @missing, $_;
-      }
+      push @missing, $apackid unless $pdatas->{$apackid};
     }
     $broken = 'missing packages: '.join(', ', @missing) if @missing;
   } else {
