@@ -126,3 +126,16 @@ CONFIG['sponsors'] = [
     url: '#'
   )
 ]
+
+# Override LDAP configuration for testing purposes
+CONFIG['ldap_mode'] = :on
+CONFIG['ldap_servers'] = 'ldap'
+# OVERRIDE with your company's ldap search base for the users who will use OBS
+CONFIG['ldap_search_base'] = 'dc=example,dc=org'
+# Sam Account Name is the login name for LDAP
+CONFIG['ldap_search_attr'] = 'cn'
+CONFIG['ldap_name_attr'] = 'cn'
+CONFIG['ldap_search_user'] = 'cn=admin,dc=example,dc=org'
+CONFIG['ldap_search_auth'] = 'opensuse'
+CONFIG['ldap_authenticate_ldap'] = :ldap
+CONFIG['ldap_auth_attr'] = 'userPassword'
