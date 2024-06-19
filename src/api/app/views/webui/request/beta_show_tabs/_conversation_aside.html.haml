@@ -22,11 +22,11 @@
       %div
         - package_size_limit = 3
         - if package_maintainers.size <= package_size_limit
-          - package_maintainers.pluck(:login).each do |package_maintainer|
+          - package_maintainers.each do |package_maintainer|
             .ps-3
               = render UserAvatarComponent.new(package_maintainer)
         - else
-          - package_maintainers.take(package_size_limit).pluck(:login).each do |package_maintainer|
+          - package_maintainers.take(package_size_limit).each do |package_maintainer|
             .ps-3
               = render UserAvatarComponent.new(package_maintainer)
           %p.mt-3.ms-3
@@ -46,11 +46,11 @@
       %div
         - project_size_limit = 3
         - if project_maintainers.size <= project_size_limit
-          - project_maintainers.pluck(:login).each do |project_maintainer|
+          - project_maintainers.each do |project_maintainer|
             .ps-3
               = render UserAvatarComponent.new(project_maintainer)
         - else
-          - project_maintainers.take(project_size_limit).pluck(:login).each do |project_maintainer|
+          - project_maintainers.take(project_size_limit).each do |project_maintainer|
             .ps-3
               = render UserAvatarComponent.new(project_maintainer)
           %p.mt-3.ms-3

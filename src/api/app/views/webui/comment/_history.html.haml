@@ -5,7 +5,7 @@
       .modal-header
         %h5.modal-title
           - if version.whodunnit
-            = render UserAvatarComponent.new(User.find(version.whodunnit).login)
+            = render UserAvatarComponent.new(User.find(version.whodunnit))
           = paper_trail_event(version.event)
           = render TimeComponent.new(time: version.created_at)
         %button.btn-close{ type: 'button', data: { 'bs-dismiss': 'modal' }, aria: { label: 'Close' } }
@@ -23,7 +23,7 @@
                 - users.each do |user|
                   %td
                     - if user
-                      = render UserAvatarComponent.new(User.find(user).login)
+                      = render UserAvatarComponent.new(User.find(user))
           - if version.changeset.key?('body')
             %thead
               %tr
