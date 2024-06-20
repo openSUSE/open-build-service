@@ -6135,6 +6135,17 @@ sub getsslcert {
 sub getkeyinfo {
   my ($cgi, $projid) = @_;
 
+  my $proj = checkprojrepoarch($projid, undef, undef, 1);
+  if ($proj->{'remoteurl'}) {
+    my $param = {
+      'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_keyinfo",
+      'timeout' => 600,
+      'proxy' => $proxy,
+    };
+    my @args = BSRPC::args($cgi, 'withsslcert', 'autoextend', 'donotcreatecert', 'signtype');
+    my $r = BSRPC::rpc($param, undef, @args);
+    return $r;
+  }
   my ($skprojid, $sk) = findsignkey($projid);
   my $signtype = $cgi->{'signtype'};
   my $signflavor = $cgi->{'signflavor'};
