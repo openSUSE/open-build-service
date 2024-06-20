@@ -41,9 +41,9 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
         "Removed as #{role} of a project"
       end
     when 'Event::AddedUserToGroup'
-      "#{@notification.event_payload['who'] || Someone} added you to the group '#{@notification.event_payload['group']}'"
+      "#{@notification.event_payload['who'] || 'Someone'} added you to the group '#{@notification.event_payload['group']}'"
     when 'Event::RemovedUserFromGroup'
-      "#{@notification.event_payload['who'] || Someone} removed you from the group '#{@notification.event_payload['group']}'"
+      "#{@notification.event_payload['who'] || 'Someone'} removed you from the group '#{@notification.event_payload['group']}'"
     when 'Event::BuildFail'
       project = @notification.event_payload['project']
       package = @notification.event_payload['package']
