@@ -76,6 +76,6 @@ class FullTextSearch
     # compat code for handling all writings of CVE id's
     issue_name.gsub!(/^CVE-/i, '') if issue_tracker_name == 'cve'
     # Return 0 if the issue does not exist in order to force an empty result
-    Issue.joins(:issue_tracker).where('issue_trackers.name' => issue_tracker_name, :name => issue_name).pick(:id) || 0
+    Issue.joins(:issue_tracker).where('issue_trackers.name' => issue_tracker_name.to_s, :name => issue_name).pick(:id) || 0
   end
 end
