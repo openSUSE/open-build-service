@@ -54,7 +54,7 @@ RSpec.describe Webui::Users::TokensController do
       let(:form_parameters) { { token: { type: 'runservice', description: 'My first token' } } }
 
       include_examples 'check for flashing a success'
-      it { is_expected.to redirect_to(token_path(Token.last)) }
+      it { is_expected.to redirect_to(token_path(assigns[:token])) }
     end
 
     context 'type is release, with project parameter, without package parameter' do
