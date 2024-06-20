@@ -104,14 +104,8 @@ module Webui
 
         @package_name = params[:package]
 
-        # No need to check for the package, they only exist on the backend in this case
-        if @project.scmsync
-          @can_modify = User.possibly_nobody.can_modify?(@project)
-          return
-        end
-
         begin
-          @package = Package.get_by_project_and_name(@project, @package_name, use_source: false,
+          @package = Package.get_by_project_and_name(@project, @package_name, use_source: true,
                                                                               follow_multibuild: true)
         rescue Package::UnknownObjectError
           redirect_to project_show_path(@project.to_param),
@@ -120,8 +114,16 @@ module Webui
           return false
         end
 
-        # NOTE: @package is a String for multibuild packages
-        @package = Package.find_by_project_and_name(@project.name, Package.striping_multibuild_suffix(@package_name)) if @package.is_a?(String)
+        # We may not have a package object, as the package comes from remote OBS or scmsync project.
+        if @package.nil?
+          @can_modify = User.possibly_nobody.can_modify?(@project)
+
+          return if User.possibly_nobody.can_source_access?(@project)
+
+          redirect_to package_show_path(project: @project.name, package: @package_name),
+                      error: 'Could not access build log'
+          return false
+        end
 
         unless @package.check_source_access?
           redirect_to package_show_path(project: @project.name, package: @package_name),

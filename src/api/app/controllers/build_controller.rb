@@ -136,7 +136,7 @@ class BuildController < ApplicationController
 
   def logfile
     # for permission check
-    pkg = Package.get_by_project_and_name(params[:project], params[:package], follow_multibuild: true)
+    pkg = Package.get_by_project_and_name(params[:project], params[:package], follow_multibuild: true, use_source: true)
 
     if pkg.instance_of?(Package) && pkg.project.disabled_for?('binarydownload', params[:repository], params[:arch]) &&
        !User.possibly_nobody.can_download_binaries?(pkg.project)
