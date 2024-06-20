@@ -1,8 +1,8 @@
 RSpec.describe Workflow::Step::RebuildPackage, :vcr do
   subject do
     described_class.new(step_instructions: step_instructions,
-                        scm_webhook: scm_webhook,
-                        token: token)
+                        token: token,
+                        workflow_run: workflow_run)
   end
 
   let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
@@ -14,15 +14,26 @@ RSpec.describe Workflow::Step::RebuildPackage, :vcr do
 
   let(:step_instructions) { { package: package.name, project: project.name } }
 
-  let(:scm_webhook) do
-    SCMWebhook.new(payload: {
-                     scm: 'github',
-                     event: 'pull_request',
-                     action: 'opened',
-                     pr_number: 1,
-                     source_repository_full_name: 'reponame',
-                     commit_sha: '123'
-                   })
+  let(:request_payload) do
+    {
+      action: 'opened',
+      number: 1,
+      pull_request: {
+        html_url: 'http://github.com/something',
+        base: {
+          repo: {
+            full_name: 'reponame'
+          }
+        },
+        head: {
+          sha: '123456789'
+        }
+      }
+    }.to_json
+  end
+
+  let(:workflow_run) do
+    create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', request_payload: request_payload)
   end
 
   before do
