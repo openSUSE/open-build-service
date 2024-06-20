@@ -6,5 +6,5 @@
         - if defined?(label_icon)
           %i.me-1{ class: label_icon }
         = label
-  - if amount.present? && amount.positive?
+  - if defined?(amount) && amount.positive?
     %span= amount

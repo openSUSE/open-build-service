@@ -76,23 +76,17 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @counted_notifications = {}
     @counted_notifications['all'] = @notifications.count
     @counted_notifications['unread'] = @unread_notifications_count # Variable set in the Webui controller
-    @counted_notifications['read'] = @counted_notifications['all'] - @counted_notifications['unread']
-    @counted_notifications['comments'] = @notifications.for_comments.count
-    @counted_notifications['requests'] = @notifications.for_requests.count
-    @counted_notifications['incoming_requests'] = @notifications.for_incoming_requests(User.session).count
-    @counted_notifications['outgoing_requests'] = @notifications.for_outgoing_requests(User.session).count
-    @counted_notifications['relationships_created'] = @notifications.for_relationships_created.count
-    @counted_notifications['relationships_deleted'] = @notifications.for_relationships_deleted.count
-    @counted_notifications['build_failures'] = @notifications.for_build_failures.count
-    @counted_notifications['reports'] = @notifications.for_reports.count
-    @counted_notifications['workflow_runs'] = @notifications.for_workflow_runs.count
-    @counted_notifications['appealed_decisions'] = @notifications.for_appealed_decisions.count
-    @counted_notifications['member_on_groups'] = @notifications.for_member_on_groups.count
-  end
-
-  def update_counted_notifications
-    @counted_notifications['unread'] = User.session.unread_notifications_count
-    @counted_notifications['read'] = @counted_notifications['all'].to_i - @counted_notifications['unread']
+    @counted_notifications['comments'] = @notifications.unread.for_comments.count
+    @counted_notifications['requests'] = @notifications.unread.for_requests.count
+    @counted_notifications['incoming_requests'] = @notifications.unread.for_incoming_requests(User.session).count
+    @counted_notifications['outgoing_requests'] = @notifications.unread.for_outgoing_requests(User.session).count
+    @counted_notifications['relationships_created'] = @notifications.unread.for_relationships_created.count
+    @counted_notifications['relationships_deleted'] = @notifications.unread.for_relationships_deleted.count
+    @counted_notifications['build_failures'] = @notifications.unread.for_build_failures.count
+    @counted_notifications['reports'] = @notifications.unread.for_reports.count
+    @counted_notifications['workflow_runs'] = @notifications.unread.for_workflow_runs.count
+    @counted_notifications['appealed_decisions'] = @notifications.unread.for_appealed_decisions.count
+    @counted_notifications['member_on_groups'] = @notifications.unread.for_member_on_groups.count
   end
 
   def filter_notifications

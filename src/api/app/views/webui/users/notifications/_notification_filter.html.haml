@@ -4,7 +4,7 @@
     %h6.px-3.py-2
       %b State
     .px-4.py-1
-      = render partial: 'webui/shared/radio_button', locals: { label: 'All', amount: counted_notifications['all'],
+      = render partial: 'webui/shared/radio_button', locals: { label: 'All',
                                                                key: 'state[all]', name: 'state', value: 'all',
                                                                checked: selected_filter[:state] == 'all' }
     .px-4.py-1
@@ -12,7 +12,7 @@
                                                                key: 'state[unread]', name: 'state', value: 'unread',
                                                                checked: selected_filter[:state] == 'unread' }
     .px-4.py-1
-      = render partial: 'webui/shared/radio_button', locals: { label: 'Read', amount: counted_notifications['read'],
+      = render partial: 'webui/shared/radio_button', locals: { label: 'Read',
                                                                key: 'state[read]', name: 'state', value: 'read',
                                                                checked: selected_filter[:state] == 'read' }
   .list-group.list-group-flush.mt-4.mb-4
@@ -86,7 +86,7 @@
         .dropdown-menu
           - projects_for_filter.each do |project_name|
             .dropdown-item-text
-              = render partial: 'webui/shared/check_box', locals: { label: project_name, amount: counted_notifications["project_#{project_name}"],
+              = render partial: 'webui/shared/check_box', locals: { label: project_name,
                                                                     key: "project[#{project_name}]", name: 'project[]', value: project_name,
                                                                     checked: selected_filter[:project]&.include?(project_name) }
   - unless groups_for_filter.empty?
@@ -99,7 +99,7 @@
         .dropdown-menu
           - groups_for_filter.each do |group_title|
             .dropdown-item-text
-              = render partial: 'webui/shared/check_box', locals: { label: group_title, amount: counted_notifications["group_#{group_title}"],
+              = render partial: 'webui/shared/check_box', locals: { label: group_title,
                                                                     key: "group[#{group_title}]", name: 'group[]', value: group_title,
                                                                     checked: selected_filter[:group]&.include?(group_title) }
 
