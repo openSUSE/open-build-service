@@ -286,8 +286,8 @@ sub check {
 	  my $d = "$reporoot/$aprojid/$arepoid/$myarch/$apackid";
 	  $d = "$reporoot/$aprojid/$arepoid/$myarch/:full" if $apackid eq '_repository';
 	  for my $filename (sort(ls($d))) {
-	    next unless $filename eq 'updateinfo.xml' || $filename =~ /\.(?:$binsufsre)$/ || $filename =~ /\.obsbinlnk$/;
-	    $havecontainer = 1 if $filename =~ /\.obsbinlnk$/;
+	    next unless $filename eq 'updateinfo.xml' || $filename =~ /\.(?:$binsufsre)$/ || $filename =~ /\.(?:obsbinlnk|helminfo)$/;
+	    $havecontainer = 1 if $filename =~ /\.(?:obsbinlnk|helminfo)$/;
 	    my @s = stat("$d/$filename");
 	    $m .= "$filename\0$s[9]/$s[7]/$s[1]\0" if @s;
 	  }
@@ -330,9 +330,9 @@ sub check {
 
 sub copy_provenance {
   my ($jobdatadir, $dirprefix, $d, $filename, $jobbins, $aprpap_idx) = @_;
-  die unless $d =~ s/\.(?:$binsufsre|containerinfo)$/.slsa_provenance.json/;
+  die unless $d =~ s/\.(?:$binsufsre|containerinfo|helminfo)$/.slsa_provenance.json/;
   my $provenance = $filename;
-  die unless $provenance =~ s/\.(?:$binsufsre|containerinfo)$/.slsa_provenance.json/;
+  die unless $provenance =~ s/\.(?:$binsufsre|containerinfo|helminfo)$/.slsa_provenance.json/;
   if (-e $d) {
     BSUtil::cp($d, "$jobdatadir/$provenance");
     $jobbins->{$provenance} = $aprpap_idx;
@@ -343,6 +343,20 @@ sub copy_provenance {
     return $provenance;
   }
   return undef;
+}
+
+# hack to add a container tag with the attribute
+sub tweak_container_tags {
+  my ($bconf, $containerinfo, $r, $packid) = @_;
+  if ($bconf->{'substitute'}->{"aggregate-container-add-tag:$packid"}) {
+    my @regtags = @{$bconf->{'substitute'}->{"aggregate-container-add-tag:$packid"}};
+    for my $tag (@regtags) {
+      $tag = "$tag:latest" unless $tag =~ /:[^:\/]+$/s;
+      push @{$r->{'provides'}}, "container:$tag" if $r && !grep {$_ eq "container:$tag"} @{$r->{'provides'} || []};
+      push @{$containerinfo->{'tags'}}, $tag unless grep {$_ eq $tag} @{$containerinfo->{'tags'} || []};
+      # XXX we should actually update the manifest.json file so that it reflects the tag change
+    }
+  }
 }
 
 sub build {
@@ -530,22 +544,43 @@ sub build {
 	      }
 	    }
 	    # hack to add a container tag with the attribute
-	    my $bconf = $ctx->{'conf'};
-	    if ($bconf->{'substitute'}->{"aggregate-container-add-tag:$packid"}) {
-	      my @regtags = @{$bconf->{'substitute'}->{"aggregate-container-add-tag:$packid"}};
-	      for my $tag (@regtags) {
-		$tag = "$tag:latest" unless $tag =~ /:[^:\/]+$/s;
-		push @{$r->{'provides'}}, "container:$tag" unless grep {$_ eq "container:$tag"} @{$r->{'provides'} || []};
-		push @{$containerinfo->{'tags'}}, $tag unless grep {$_ eq $tag} @{$containerinfo->{'tags'} || []};
-	      }
-	    }
+	    tweak_container_tags($ctx->{'conf'}, $containerinfo, $r, $packid);
+	    # store (patched) containerinfo
 	    writecontainerinfo("$jobdatadir/$containerinfofile", undef, $containerinfo);
 	    $jobbins{$containerinfofile} = $aprpap_idx;
 	    $logfile .= "      - $containerinfofile\n";
+	    # update and store obsbinlnk
 	    $r->{'path'} = "../$packid/$containerfile";
 	    BSUtil::store("$jobdatadir/$filename", undef, $r);
 	    $jobbins{$filename} = $aprpap_idx;
 	    my $provenance = copy_provenance($jobdatadir, $dirprefix, "$dirprefix$containerinfofile", $containerinfofile, \%jobbins, $aprpap_idx);
+	    $logfile .= "      - $provenance\n" if $provenance;
+	    next;
+	  }
+          if ($filename =~ /\.helminfo$/) {
+	    if ($jobbins{$filename}) {
+	      push @{$conflicts{$filename}}, $aprpap_idx;
+	      next;  # first one wins
+	    }
+	    my $helminfofile = $filename;
+	    my $dir = $d;
+	    $dir =~ s/\/[^\/]*$//;
+	    my $prefix = $cpio ? 'upload:' : '';
+	    my $helminfo = readhelminfo($dir, "$prefix$helminfofile");
+	    next unless $helminfo;
+	    next if $abinfilter && !$abinfilter->{"helm:$helminfo->{'name'}"};
+	    my $chart = $helminfo->{'chart'};
+	    next if !$chart || $chart =~ /^\./ || $chart =~ /\// || $chart !~ /\.tgz\z/s;
+	    next if $jobbins{$chart};	# huh
+	    next unless -e "$dirprefix$chart";
+	    BSUtil::cp("$dirprefix$chart", "$jobdatadir/$chart");
+	    $jobbins{$chart} = $aprpap_idx;
+	    $logfile .= "      - $chart\n";
+	    tweak_container_tags($ctx->{'conf'}, $helminfo, undef, $packid);
+	    writehelminfo("$jobdatadir/$helminfofile", undef, $helminfo);
+	    $jobbins{$filename} = $aprpap_idx;
+	    $logfile .= "      - $filename\n";
+	    my $provenance = copy_provenance($jobdatadir, $dirprefix, "$dirprefix$filename", $filename, \%jobbins, $aprpap_idx);
 	    $logfile .= "      - $provenance\n" if $provenance;
 	    next;
 	  }
@@ -748,6 +783,7 @@ sub readcontainerinfo {
   my $d;
   eval { $d = JSON::XS::decode_json($m); };
   return undef unless $d && ref($d) eq 'HASH';
+  return undef unless !$d->{'tags'} && ref($d->{'tags'}) eq 'ARRAY';
   return $d;
 }
 
@@ -757,5 +793,27 @@ sub writecontainerinfo {
   writestr($fn, $fnf, $containerinfo_json);
 }
 
+sub readhelminfo {
+  my ($dir, $helminfo) = @_;
+  return undef unless -e "$dir/$helminfo";
+  return undef unless (-s _) < 100000;
+  my $m = readstr("$dir/$helminfo");
+  my $d;
+  eval { $d = JSON::XS::decode_json($m); };
+  return undef unless $d && ref($d) eq 'HASH';
+  return undef unless $d->{'name'} && ref($d->{'name'}) eq '';
+  return undef unless $d->{'version'} && ref($d->{'version'}) eq '';
+  return undef unless !$d->{'tags'} && ref($d->{'tags'}) eq 'ARRAY';
+  return undef unless $d->{'chart'} && ref($d->{'chart'}) eq '';
+  return $d;
+}
+
+sub writehelminfo {
+  my ($fn, $fnf, $helminfo) = @_;
+  my $helminfo_json = JSON::XS->new->utf8->canonical->pretty->encode($helminfo);
+  writestr($fn, $fnf, $helminfo_json);
+}
+
+1;
 
 1;
