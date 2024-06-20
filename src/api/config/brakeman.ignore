@@ -153,7 +153,7 @@
           "type": "controller",
           "class": "Webui::Staging::ProjectsController",
           "method": "show",
-          "line": 27,
+          "line": 25,
           "file": "app/controllers/webui/staging/projects_controller.rb",
           "rendered": {
             "name": "webui/staging/projects/show",
@@ -300,20 +300,20 @@
     {
       "warning_type": "Denial of Service",
       "warning_code": 76,
-      "fingerprint": "d4354d028744f2783c9b0cf9338d428c7abf6e94d022c9b281dacf613760fb21",
+      "fingerprint": "c410bfcfeaf52e9e80268fef41296155b8571fc5b4ed7ad78fc2a2ff1e662f92",
       "check_name": "RegexDoS",
       "message": "Model attribute used in regular expression",
-      "file": "app/models/binary_release.rb",
-      "line": 80,
+      "file": "app/jobs/update_released_binaries_job.rb",
+      "line": 97,
       "link": "https://brakemanscanner.org/docs/warning_types/denial_of_service/",
-      "code": "/^#{Package.striping_multibuild_suffix(binary[\"package\"])}:/",
+      "code": "/^#{Package.striping_multibuild_suffix(backend_binary[\"package\"])}:/",
       "render_path": null,
       "location": {
         "type": "method",
-        "class": "BinaryRelease",
-        "method": "BinaryRelease.update_binary_releases_via_json"
+        "class": "UpdateReleasedBinariesJob",
+        "method": "update_binary_releases_for_repository"
       },
-      "user_input": "Package.striping_multibuild_suffix(binary[\"package\"])",
+      "user_input": "Package.striping_multibuild_suffix(backend_binary[\"package\"])",
       "confidence": "Medium",
       "cwe_id": [
         20,
@@ -388,40 +388,6 @@
       "note": ""
     },
     {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 4,
-      "fingerprint": "da4f7d031e3969d18c911af411d8c4b771b71999bb82f4acf26263082c98cdbd",
-      "check_name": "LinkToHref",
-      "message": "Potentially unsafe model attribute in `link_to` href",
-      "file": "app/views/webui/users/tokens/show.html.haml",
-      "line": 64,
-      "link": "https://brakemanscanner.org/docs/warning_types/link_to_href",
-      "code": "link_to(Token.find(params[:id]).workflow_configuration_url, Token.find(params[:id]).workflow_configuration_url)",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "Webui::Users::TokensController",
-          "method": "show",
-          "line": 14,
-          "file": "app/controllers/webui/users/tokens_controller.rb",
-          "rendered": {
-            "name": "webui/users/tokens/show",
-            "file": "app/views/webui/users/tokens/show.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "webui/users/tokens/show"
-      },
-      "user_input": "Token.find(params[:id]).workflow_configuration_url",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
-      ],
-      "note": ""
-    },
-    {
       "warning_type": "Weak Cryptography",
       "warning_code": 126,
       "fingerprint": "ec674f4041072ac82eea957a8afc26031d83bf38b56e128c898130ebf903b2f8",
@@ -445,6 +411,6 @@
       "note": "We track this with a comment in the code"
     }
   ],
-  "updated": "2024-05-06 08:23:27 +0000",
+  "updated": "2024-06-20 11:12:15 +0000",
   "brakeman_version": "5.4.0"
 }

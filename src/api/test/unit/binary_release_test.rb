@@ -67,11 +67,11 @@ class BinaryReleaseTest < ActiveSupport::TestCase
 
     r = Repository.find_by_project_and_name('BaseDistro3', 'BaseDistro3_repo')
 
-    BinaryRelease.update_binary_releases_via_json(r, json)
+    UpdateReleasedBinariesJob.new.send(:update_binary_releases_for_repository, r, json)
     count = BinaryRelease.all.length
 
     # no new entries
-    BinaryRelease.update_binary_releases_via_json(r, json)
+    UpdateReleasedBinariesJob.new.send(:update_binary_releases_for_repository, r, json)
     assert_equal count, BinaryRelease.all.length
 
     # modify just one timestampe
@@ -87,7 +87,7 @@ class BinaryReleaseTest < ActiveSupport::TestCase
             { 'binaryarch' => 'x86_64', 'arch' => 'i586', 'package' => 'pack2', 'project' => 'BaseDistro3',
               'version' => '1.0', 'release' => '1', 'repository' => 'BaseDistro3_repo',
               'name' => 'package_newweaktags', 'buildtime' => '1409642057' }]
-    BinaryRelease.update_binary_releases_via_json(r, json)
+    UpdateReleasedBinariesJob.new.send(:update_binary_releases_for_repository, r, json)
     assert_equal count + 1, BinaryRelease.all.length # one entry added
   end
 
@@ -101,7 +101,7 @@ class BinaryReleaseTest < ActiveSupport::TestCase
               'package' => 'pack3', 'buildtime' => '1409642056', 'medium' => 'my_container.docker.tar.xz' }]
     r = Repository.find_by_project_and_name('BaseDistro3', 'BaseDistro3_repo')
 
-    BinaryRelease.update_binary_releases_via_json(r, json)
+    UpdateReleasedBinariesJob.new.send(:update_binary_releases_for_repository, r, json)
     br = BinaryRelease.where(medium: 'my_container.docker.tar.xz').last
     assert_equal nil, br.release_package # not release itself
 
