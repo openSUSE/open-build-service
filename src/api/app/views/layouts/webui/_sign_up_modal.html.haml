@@ -6,4 +6,4 @@
         = link_to(root_path, class: 'd-block text-center', alt: 'Logo') do
           = image_tag('favicon.svg', height: '60')
         .h2.text-center.py-2 Sign Up
-        = render SignUpComponent.new
+        = render 'webui/users/sign_up'

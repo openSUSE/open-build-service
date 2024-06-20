@@ -36,8 +36,8 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def new
-    @pagetitle = params[:pagetitle] || 'Sign up'
-    @submit_btn_text = params[:submit_btn_text] || 'Sign up'
+    @pagetitle = params[:pagetitle] || 'Sign Up'
+    @submit_btn_text = params[:submit_btn_text] || 'Sign Up'
   end
 
   def edit
