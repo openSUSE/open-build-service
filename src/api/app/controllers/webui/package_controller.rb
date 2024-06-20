@@ -50,7 +50,7 @@ class Webui::PackageController < Webui::WebuiController
     @srcmd5 = params[:srcmd5]
     @revision_parameter = params[:rev]
 
-    @bugowners_mail = (@package.bugowner_emails + @project.bugowner_emails).uniq
+    @bugowners_mail = @package.bugowner_emails
     @revision = params[:rev]
     @failures = 0
 
