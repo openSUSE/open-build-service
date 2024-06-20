@@ -22,6 +22,8 @@ class WorkflowRun < ApplicationRecord
     :state, :status_options
   ].freeze
 
+  ALL_POSSIBLE_REQUEST_ACTIONS = ['all'] + ALLOWED_PULL_REQUEST_ACTIONS + ALLOWED_MERGE_REQUEST_ACTIONS
+
   validates :scm_vendor, :response_url,
             :workflow_configuration_path, :workflow_configuration_url,
             :hook_event, :hook_action, :generic_event_type,
