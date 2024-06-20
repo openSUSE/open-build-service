@@ -652,7 +652,11 @@ sub build {
         'filename' => $bin,
         'src' => "$d->{'arch'}/$bin",   # as hopefully written by the publisher
       };
-      $upd->{'embargo_date'} = $patchinfo->{'embargo_date'} if exists $patchinfo->{'embargo_date'};
+      # fixup filename for containers/helm charts
+      # (actually should read containerinfo/helminfo, but for now we do it the lazy way)
+      $upd->{'filename'} =~ s/\.obsbinlnk$/\.tar/ if $d->{'name'} =~ /^container:/;
+      $upd->{'filename'} =~ s/\.helminfo$/\.tgz/ if $d->{'name'} =~ /^helm:/;
+      $upd->{'embargo_date'} = $patchinfo->{'embargo_date'} if $patchinfo->{'embargo_date'};
       $upd->{'reboot_suggested'} = 'True' if exists $patchinfo->{'reboot_needed'};
       $upd->{'relogin_suggested'} = 'True' if exists $patchinfo->{'relogin_needed'};
       $upd->{'restart_suggested'} = 'True' if exists $patchinfo->{'zypp_restart_needed'};
