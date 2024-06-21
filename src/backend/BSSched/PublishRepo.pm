@@ -246,7 +246,7 @@ sub prpfinished {
       my $rb = $rinfo->{'binaryorigins'} || {};
       for my $rbin (@{$rinfo_packid2bins->{$packid} || []}) {
 	if (exists $origin{$rbin}) {
-	  $conflicts{$rbin} ||= $origin{$rbin} unless $conflicts{$rbin};
+	  push @{$conflicts{$rbin}}, $origin{$rbin} unless $conflicts{$rbin};
 	  push @{$conflicts{$rbin}}, $packid;
 	  next;		# first one wins
 	}
