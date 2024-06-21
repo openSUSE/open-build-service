@@ -18,8 +18,7 @@ module Event
     end
 
     def token_members
-      token&.users&.compact
-      # TODO: + token&.groups&.compact
+      [token&.users, token&.groups].flatten.compact
     end
 
     def parameters_for_notification
