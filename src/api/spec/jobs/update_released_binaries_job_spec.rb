@@ -15,15 +15,14 @@ RSpec.describe UpdateReleasedBinariesJob do
   let(:event) { Event::Packtrack.create(project: project.name, repo: repository.name, payload: '12345') }
 
   describe '.perform' do
-    subject { described_class.new.perform(event.id) }
+    subject { event } # # UpdateBackendInfosJob gets scheduled when the event is created
 
     context 'no binary release existed before' do
       before do
         allow(Backend::Api::Server).to receive_messages(notification_payload: [binary_hash].to_json, delete_notification_payload: '')
       end
 
-      it { expect { subject }.not_to raise_error }
-      it { expect { subject }.to change(BinaryRelease, :count).by(1) }
+      it { expect { subject }.to change(BinaryRelease, :count).from(0).to(1) }
     end
 
     context 'an existing binary release should be updated' do
@@ -94,7 +93,7 @@ RSpec.describe UpdateReleasedBinariesJob do
           binary_disturl: binary_hash['disturl'],
           binary_supportstatus: binary_hash['supportstatus'],
           binary_id: binary_hash['binaryid'],
-          binary_buildtime: nil
+          binary_buildtime: Time.zone.now
         )
       end
 

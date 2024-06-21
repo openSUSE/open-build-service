@@ -39,9 +39,9 @@ class UpdateReleasedBinariesJob < CreateJob
     # building a hash to avoid single SQL select calls slowing us down too much
     old_binary_releases = {}
     BinaryRelease.transaction do
-      BinaryRelease.where(repository: repository, obsolete_time: nil).find_each do |binary|
-        key = hashkey_old_binary_releases(binary.as_json)
-        old_binary_releases[key] = binary
+      repository.binary_releases.current.unchanged.find_each do |binary|
+        key = hashkey_old_binary_releases(binary)
+        old_binary_releases[key] = binary.slice(:disturl, :supportstatus, :binaryid, :buildtime, :id)
       end
 
       processed_item = {}
@@ -65,6 +65,7 @@ class UpdateReleasedBinariesJob < CreateJob
         old_binary_release = old_binary_releases[hashkey_new_binary_releases(backend_binary, backend_binary['medium'])]
         if old_binary_release
           # still exists, do not touch obsolete time
+          old_binary_release = repository.binary_releases.find(old_binary_release[:id])
           processed_item[old_binary_release.id] = true
           if old_and_new_binary_identical?(old_binary_release, backend_binary)
             # but collect the media
@@ -120,7 +121,7 @@ class UpdateReleasedBinariesJob < CreateJob
       end
 
       # and mark all not processed binaries as removed
-      BinaryRelease.where(repository: repository, obsolete_time: nil, modify_time: nil).where.not(id: processed_item.keys).update_all(obsolete_time: time)
+      repository.binary_releases.current.unchanged.where.not(id: processed_item.keys).update_all(obsolete_time: time)
     end
   end
 
@@ -135,16 +136,9 @@ class UpdateReleasedBinariesJob < CreateJob
   def old_and_new_binary_identical?(old_binary, new_binary)
     # We ignore not set binary_id in db because it got introduced later
     # we must not touch the modification time in that case
-    old_binary.binary_disturl == new_binary['disturl'] &&
-      old_binary.binary_supportstatus == new_binary['supportstatus'] &&
-      (old_binary.binary_id.nil? || old_binary.binary_id == new_binary['binaryid']) &&
-      old_binary.binary_buildtime == binary_hash_build_time(new_binary)
-  end
-
-  def binary_hash_build_time(binary_hash)
-    # handle nil/NULL case
-    return if binary_hash['buildtime'].blank?
-
-    Time.strptime(binary_hash['buildtime'].to_s, '%s')
+    old_binary.disturl == new_binary['disturl'] &&
+      old_binary.supportstatus == new_binary['supportstatus'] &&
+      (old_binary.binaryid.nil? || old_binary.binaryid == new_binary['binaryid']) &&
+      old_binary.buildtime.to_i == new_binary['buildtime'].to_i
   end
 end
