@@ -40,7 +40,7 @@ class UpdateReleasedBinariesJob < CreateJob
     old_binary_releases = {}
     BinaryRelease.transaction do
       repository.binary_releases.current.unchanged.find_each do |binary|
-        key = hashkey_old_binary_releases(binary)
+        key = hashkey_binary_release(binary)
         old_binary_releases[key] = binary.slice(:disturl, :supportstatus, :binaryid, :buildtime, :id)
       end
 
@@ -62,7 +62,7 @@ class UpdateReleasedBinariesJob < CreateJob
                            modify_time: nil }
 
         # getting activerecord object from hash, dup to unfreeze it
-        old_binary_release = old_binary_releases[hashkey_new_binary_releases(backend_binary, backend_binary['medium'])]
+        old_binary_release = old_binary_releases[hashkey_binary_release(backend_binary)]
         if old_binary_release
           # still exists, do not touch obsolete time
           old_binary_release = repository.binary_releases.find(old_binary_release[:id])
@@ -125,12 +125,8 @@ class UpdateReleasedBinariesJob < CreateJob
     end
   end
 
-  def hashkey_old_binary_releases(binary)
-    "#{binary['binary_name']}|#{binary['binary_version'] || '0'}|#{binary['binary_release'] || '0'}|#{binary['binary_epoch'] || '0'}|#{binary['binary_arch'] || ''}|#{binary['medium'] || ''}"
-  end
-
-  def hashkey_new_binary_releases(binary, medium)
-    "#{binary['name']}|#{binary['version'] || '0'}|#{binary['release'] || '0'}|#{binary['epoch'] || '0'}|#{binary['binaryarch'] || ''}|#{medium || ''}"
+  def hashkey_binary_release(binary)
+    "#{binary['name']}|#{binary['version'] || '0'}|#{binary['release'] || '0'}|#{binary['epoch'] || '0'}|#{binary['binaryarch'] || ''}|#{binary['medium'] || ''}"
   end
 
   def old_and_new_binary_identical?(old_binary, new_binary)
