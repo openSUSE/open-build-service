@@ -420,7 +420,7 @@ sub update_dst_full {
     delete $jobbininfo->{'.bininfo'};   # delete new version marker
     my $cache = { map {$_->{'id'} => $_} grep {$_->{'id'}} values %$jobbininfo };
     $jobrepo = repofromfiles($jobdir, \@jobfiles, $cache);
-    $useforbuildenabled = 0 if -e "$jobdir/.channelinfo" || -e "$jobdir/updateinfo.xml";        # just in case
+    $useforbuildenabled = 0 if -e "$jobdir/.channelinfo" || -e "$jobdir/updateinfo.xml" || -e "$jobdir/.updateinfodata";        # just in case
   } else {
     $jobrepo = {};
   }
@@ -436,7 +436,7 @@ sub update_dst_full {
     $oldrepo = $jobrepo;
     $bininfo = $jobbininfo;
     $bininfo->{'.nosourceaccess'} = {} if -e "$dst/.nosourceaccess";
-    $bininfo->{'.nouseforbuild'} = {} if -e "$dst/.channelinfo" || -e "$dst/updateinfo.xml";
+    $bininfo->{'.nouseforbuild'} = {} if -e "$dst/.channelinfo" || -e "$dst/updateinfo.xml" || -e "$dst/.updateinfodata";
   } elsif ($new_full_handling || !$importarch) {
     # get old state: oldfiles, oldbininfo, oldrepo
     my @oldfiles = sort(ls($dst));
@@ -463,7 +463,7 @@ sub update_dst_full {
         $bininfo->{$df} = $jobbininfo->{$f};
         $bininfo->{$df}->{'filename'} = $df if $importarch;
       }
-      $bininfo->{'.nouseforbuild'} = {} if $f eq '.channelinfo' || $f eq 'updateinfo.xml';
+      $bininfo->{'.nouseforbuild'} = {} if $f eq '.channelinfo' || $f eq 'updateinfo.xml' || $f eq '.updateinfodata';
       $jobrepo->{"$jobdir/$df"} = delete $jobrepo->{"$jobdir/$f"} if $df ne $f;
     }
     for my $f (grep {!$new{$_}} @oldfiles) {
@@ -619,7 +619,7 @@ sub read_bininfo {
   for my $file (ls($dir)) {
     $bininfo->{'.nosourceaccess'} = {} if $file eq '.nosourceaccess';
     if ($file !~ /\.(?:$binsufsre)$/) {
-      $bininfo->{'.nouseforbuild'} = {} if $file eq '.channelinfo' || $file eq 'updateinfo.xml';
+      $bininfo->{'.nouseforbuild'} = {} if $file eq '.channelinfo' || $file eq 'updateinfo.xml' || $file eq '.updateinfodata';
       if ($file =~ /\.obsbinlnk$/) {
 	my @s = stat("$dir/$file");
 	my $d = BSUtil::retrieve("$dir/$file", 1);
