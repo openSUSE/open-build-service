@@ -292,8 +292,10 @@ sub lastnotifications {
 sub getnotificationpayload {
   my ($cgi, $payloadkey) = @_;
   my $file = "$notificationpayloaddir/$payloadkey";
-  die("404 payload does not exist!\n") unless -e $file;
-  return (readstr($file), 'Content-Type: application/json');
+  my $fd;
+  open($fd, '<', $file) || die("404 payload does not exist!\n");
+  BSWatcher::reply_file($fd, 'Content-Type: application/json');
+  return undef;
 }
 
 sub deletenotificationpayload {
@@ -6143,8 +6145,9 @@ sub getkeyinfo {
       'proxy' => $proxy,
     };
     my @args = BSRPC::args($cgi, 'withsslcert', 'autoextend', 'donotcreatecert', 'signtype');
-    my $r = BSRPC::rpc($param, undef, @args);
-    return $r;
+    my $keyinfo = BSRPC::rpc($param, undef, @args);
+    $keyinfo->{'project'} = BSSrcServer::Remote::maptoremote($proj, $keyinfo->{'project'}) if $keyinfo->{'project'};
+    return ($keyinfo, $BSXML::keyinfo);
   }
   my ($skprojid, $sk) = findsignkey($projid);
   my $signtype = $cgi->{'signtype'};
