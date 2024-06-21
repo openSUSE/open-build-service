@@ -55,7 +55,7 @@ class Webui::SearchController < Webui::WebuiController
   #
   def set_parameters
     @search_attrib_type_id = nil
-    @search_attrib_type_id = params[:attrib_type_id] if params[:attrib_type_id].present?
+    @search_attrib_type_id = Integer.try_convert(params[:attrib_type_id]) if params[:attrib_type_id].present?
 
     search_issue
 
