@@ -44,7 +44,8 @@ class Webui::MonitorController < Webui::WebuiController
   def events
     data = {}
 
-    arch = Architecture.find_by(name: params.fetch(:arch, @default_architecture))
+    arch = Architecture.find_by(name: params.fetch(:arch, @default_architecture).to_s)
+    return render json: {} unless arch
 
     range = params.fetch(:range, DEFAULT_SEARCH_RANGE)
 

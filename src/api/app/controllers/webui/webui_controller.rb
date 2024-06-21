@@ -48,7 +48,7 @@ class Webui::WebuiController < ActionController::Base
 
   def set_project
     # We've started to use project_name for new routes...
-    project_name = params[:project_name] || params[:project]
+    project_name = (params[:project_name] || params[:project]).to_s
     @project = ::Project.find_by(name: project_name)
     raise Project::Errors::UnknownObjectError, "Project not found: #{project_name}" unless @project
   end
