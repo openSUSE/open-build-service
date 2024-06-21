@@ -185,6 +185,7 @@ constraints(RoutesHelper::APIMatcher) do
     get 'public/source/:project' => :project_index, constraints: cons
     get 'public/source/:project/_meta' => :project_meta, constraints: cons
     get 'public/source/:project/_config' => :project_file, constraints: cons
+    get 'public/source/:project/_keyinfo' => :project_file, constraints: cons
     get 'public/source/:project/_pubkey' => :project_file, constraints: cons
     get 'public/source/:project/:package' => :package_index, constraints: cons
     get 'public/source/:project/:package/_meta' => :package_meta, constraints: cons
