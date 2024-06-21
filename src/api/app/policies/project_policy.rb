@@ -16,12 +16,16 @@ class ProjectPolicy < ApplicationPolicy
     return true if user.is_admin?
     return false unless user.can_modify?(record, true)
 
+    true
+  end
+
+  def update_meta?
     # Regular users are not allowed to modify projects with remote references
-    no_remote_instance_defined_and_has_not_remote_repositories?
+    update? && no_remote_instance_defined_and_has_not_remote_repositories?
   end
 
   def destroy?
-    update?
+    update_meta?
   end
 
   def index?
