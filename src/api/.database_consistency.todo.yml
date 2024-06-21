@@ -372,9 +372,6 @@ ChannelBinary:
   package:
     LengthConstraintChecker:
       enabled: false
-  supportstatus:
-    LengthConstraintChecker:
-      enabled: false
 ChannelBinaryList:
   channel_binaries:
     ForeignKeyCascadeChecker:
@@ -1496,9 +1493,6 @@ Package:
   scmsync:
     LengthConstraintChecker:
       enabled: false
-  token:
-    MissingIndexChecker:
-      enabled: false
 PackageIssue:
   id:
     PrimaryKeyTypeChecker:
@@ -1738,21 +1732,11 @@ Review:
     ForeignKeyChecker:
       enabled: false
 Role:
-  attrib_type_modifiable_bies:
-    ForeignKeyChecker:
-      enabled: false
-    ForeignKeyTypeChecker:
-      enabled: false
   global:
     ThreeStateBooleanChecker:
       enabled: false
   id:
     PrimaryKeyTypeChecker:
-      enabled: false
-  relationships:
-    ForeignKeyChecker:
-      enabled: false
-    ForeignKeyTypeChecker:
       enabled: false
   title:
     MissingUniqueIndexChecker:
