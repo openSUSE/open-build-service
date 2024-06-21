@@ -131,7 +131,7 @@ sub read_bininfo {
   $bininfo = {};
   for my $file (ls($dir)) {
     $bininfo->{'.nosourceaccess'} = {} if $file eq '.nosourceaccess';
-    $bininfo->{'.nouseforbuild'} = {} if $file eq '.channelinfo' || $file eq 'updateinfo.xml';
+    $bininfo->{'.nouseforbuild'} = {} if $file eq '.channelinfo' || $file eq 'updateinfo.xml' || $file eq '.updateinfodata';
     if ($file =~ /\.(?:$binsufsre)$/) {
       my @s = stat("$dir/$file");
       my $r = {};
