@@ -977,6 +977,12 @@ class BsRequest < ApplicationRecord
     !staging_project_id.nil?
   end
 
+  def can_be_reopened?
+    (reviews.accepted.size + reviews.opened.size + reviews.declined.size).positive? &&
+      # Declined is not really a final state, since the request can always be reopened...
+      (BsRequest::FINAL_REQUEST_STATES.exclude?(state) || state == :declined)
+  end
+
   private
 
   # returns true if we have reached a state that we can't get out anymore

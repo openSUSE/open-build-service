@@ -109,7 +109,10 @@
                 updateChartBuildResults();
                 setInterval(updateChartBuildResults, 60000);
 
-              = render AccordionReviewsComponent.new(@request_reviews, @bs_request)
+              - if policy(@bs_request).handle_request? && @bs_request.can_be_reopened?
+                = render partial: 'accordion_reviews', locals: { accepted_reviews: @request_reviews.accepted,
+                                                                 pending_reviews: @request_reviews.opened,
+                                                                 declined_reviews: @request_reviews.declined }
               = render RequestDecisionComponent.new(bs_request: @bs_request,
                                                     action: @action,
                                                     is_target_maintainer: @is_target_maintainer,
