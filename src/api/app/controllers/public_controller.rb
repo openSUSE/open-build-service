@@ -78,6 +78,7 @@ class PublicController < ApplicationController
   end
 
   # GET /public/source/:project/_config
+  # GET /public/source/:project/_keyinfo
   # GET /public/source/:project/_pubkey
   def project_file
     # project visible/known ?
