@@ -1,14 +1,6 @@
-# rubocop:disable Metrics/ModuleLength
 module Webui::NotificationHelper
   TRUNCATION_LENGTH = 100
   TRUNCATION_ELLIPSIS_LENGTH = 3 # `...` is the default ellipsis for String#truncate
-
-  def link_to_show_less_or_more
-    parameters = params.slice(:show_more, :state, :project).permit!
-    less_or_more = parameters[:show_more] ? 'less' : 'more'
-    parameters[:show_more] = parameters[:show_more] ? nil : '1'
-    link_to("Show #{less_or_more}", my_notifications_path(parameters))
-  end
 
   # TODO: Content of ViewComponent. Move to sub-classes once STI is set.
   def excerpt(notification)
@@ -127,4 +119,3 @@ module Webui::NotificationHelper
     end
   end
 end
-# rubocop:enable Metrics/ModuleLength

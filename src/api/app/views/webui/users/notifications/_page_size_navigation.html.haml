@@ -1,0 +1,14 @@
+- if paginated_objects.total_pages > 1
+  - page_size = params[:page_size]&.to_i || paginated_objects.default_per_page
+  .text-center
+    .dropdown
+      = link_to '#', class: 'btn btn-secondary dropdown-toggle', role: 'button', 'data-bs-toggle': 'dropdown', 'aria-expanded': 'false' do
+        Show
+        = page_size
+        per page
+      .dropdown-menu
+        - page_size = params[:page_size]&.to_i || paginated_objects.default_per_page
+        - [paginated_objects.default_per_page, 100, 300].each do |size|
+          - active = 'active' if page_size == size
+          = link_to(url_for( page_size: size ), class: "dropdown-item #{active}") do
+            = size

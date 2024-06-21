@@ -117,19 +117,12 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @selected_filter = { kind: @filter_kind, state: @filter_state, project: @filter_project, group: @filter_group }
   end
 
-  def show_more(notifications)
-    total = @counted_notifications['all']
-    flash.now[:info] = "You have too many notifications. Displaying a maximum of #{Notification::MAX_PER_PAGE} notifications per page." if total > Notification::MAX_PER_PAGE
-    notifications.page(params[:page]).per([total, Notification::MAX_PER_PAGE].min)
-  end
-
   def send_notifications_information_rabbitmq(delivered, count)
     action = delivered ? 'read' : 'unread'
     RabbitmqBus.send_to_bus('metrics', "notification,action=#{action} value=#{count}") if count.positive?
   end
 
   def paginate_notifications
-    @notifications = params[:show_more] ? show_more(@notifications) : @notifications.page(params[:page])
-    params[:page] = @notifications.total_pages if @notifications.out_of_range?
+    @notifications = @notifications.page(params[:page]).per(params[:page_size])
   end
 end

@@ -17,7 +17,7 @@
           - if @notification.notifiable_type == 'WorkflowRun'
             = render WorkflowRunStatusBadgeComponent.new(status: @notification.notifiable.status, css_class: 'ms-1')
         .col-auto.actions.ms-auto.align-self-end.align-self-md-start
-          = render NotificationMarkButtonComponent.new(@notification, @selected_filter, @page, @show_more)
+          = render NotificationMarkButtonComponent.new(@notification, @selected_filter, @page)
       .row.mt-1.ps-sm-4
         .col-auto.pe-0
           = render NotificationAvatarsComponent.new(@notification)
