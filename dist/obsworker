@@ -81,6 +81,10 @@ if [ -n "$OBS_WORKER_SECURITY_LEVEL" ]; then
     OBS_WORKER_HOSTLABELS="OBS_WORKER_SECURITY_LEVEL_${OBS_WORKER_SECURITY_LEVEL} $OBS_WORKER_HOSTLABELS"
 fi
 
+if [ -n "$OBS_CLIENT_IP" ]; then
+    OBS_CLIENTIP="--clientip $OBS_CLIENT_IP"
+fi
+
 REPO_PARAM=
 for i in $OBS_REPO_SERVERS; do
     case $i in
@@ -482,7 +486,7 @@ case "$1" in
                 MEMORY=
             fi
             echo "screen -t $WORKERID nice -n $OBS_NICE ./bs_worker --hardstatus $vmopt $port $proto --root $R" \
-                "--statedir $workerdir/$I --id $WORKERID $REPO_PARAM $HUGETLBFS $HOSTLABELS" \
+                "--statedir $workerdir/$I --id $WORKERID $OBS_CLIENTIP $REPO_PARAM $HUGETLBFS $HOSTLABELS" \
                 "$HOSTOWNER $OBS_JOBS $OBS_THREADS $OBS_TEST $OBS_WORKER_OPT $TMPFS $DEVICE $SWAP $MEMORY" \
                 "$OBS_CLEANUP_CHROOT $OBS_WIPE_AFTER_BUILD $OBS_WORKER_USE_MKFS_COPYIN $ARCH $EMULATOR" \
                 >> $screenrc
