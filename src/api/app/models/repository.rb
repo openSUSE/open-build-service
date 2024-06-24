@@ -12,7 +12,23 @@ class Repository < ApplicationRecord
   has_many :links, class_name: 'PathElement', inverse_of: :link
   has_many :targetlinks, class_name: 'ReleaseTarget', foreign_key: 'target_repository_id'
   has_one :hostsystem, class_name: 'Repository', foreign_key: 'hostsystem_id'
-  has_many :binary_releases, dependent: :destroy
+  has_many :binary_releases, dependent: :destroy do
+    def current
+      where(obsolete_time: nil)
+    end
+
+    def obsolete
+      where.not(obsolete_time: nil)
+    end
+
+    def unchanged
+      where(modify_time: nil)
+    end
+
+    def changed
+      where.not(modify_time: nil)
+    end
+  end
   has_many :product_update_repositories, dependent: :delete_all
   has_many :product_medium, dependent: :delete_all
   has_many :repository_architectures, -> { order('position') }, dependent: :destroy, inverse_of: :repository
