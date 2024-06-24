@@ -6884,6 +6884,7 @@ sub getpackagesourceinfo {
     $bconf = Build::read_config($cgi->{'arch'} || 'noarch', $cfile);
   }
   my $res = sourceinfo($cgi, $projid, $packid, $bconf);
+  die($res->{'error'}) if $res->{'error'} && $res->{'error'} =~ /^[45][0-9]+ /;
   return ($res, $BSXML::sourceinfo);
 }
 
