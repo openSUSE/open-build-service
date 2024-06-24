@@ -37,7 +37,7 @@ RSpec.describe TriggerWorkflowController do
       it { expect(response).to have_http_status(:not_found) }
 
       it "displays a user-friendly error message in the response's body" do
-        expect(response.body).to include('.obs/workflows.yml could not be downloaded from the SCM branch/commit main: Octokit::NotFound')
+        expect(response.body).to include("<status code=\"non_existent_workflows_file\">\n  <summary>.obs/workflows.yml could not be downloaded from the SCM branch/commit : Octokit::NotFound</summary>\n</status>\n")
       end
 
       it { expect(WorkflowRun.count).to eq(1) }
@@ -162,12 +162,12 @@ RSpec.describe TriggerWorkflowController do
         post :create, body: github_payload.to_json
       end
 
-      it { expect(response).to have_http_status(:bad_request) }
-      it { expect(WorkflowRun.count).to eq(0) }
-
-      it 'returns an error message in the response body' do
-        expect(response.body).to eql("<status code=\"bad_request\">\n  <summary>This SCM event is not supported</summary>\n</status>\n")
+      it 'simply ignores the unsupported event' do
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to eql("<status code=\"ok\">\n  <summary>Ok</summary>\n  <data name=\"info\">Hook event unsupported 'create'</data>\n</status>\n")
       end
+
+      it { expect(WorkflowRun.count).to eq(0) }
     end
 
     context 'scm payload is invalid' do
@@ -196,6 +196,7 @@ RSpec.describe TriggerWorkflowController do
         end
 
         it { expect(response).to have_http_status(:bad_request) }
+        it { expect(response.body).to eql("<status code=\"unknown\">\n  <summary>Request payload can not be parsed as JSON</summary>\n</status>\n") }
       end
     end
 
@@ -298,8 +299,8 @@ RSpec.describe TriggerWorkflowController do
       it { expect(response.content_type).to eq('application/xml; charset=utf-8') }
 
       it 'returns an error message in the response body' do
-        expect(response.body).to include('Only GitHub, GitLab and Gitea are supported. ' \
-                                         'Could not find the required HTTP request headers X-GitHub-Event, X-Gitlab-Event or X-Gitea-Event')
+        expect(response).to have_http_status(:bad_request)
+        expect(response.body).to eql("<status code=\"unknown\">\n  <summary>Scm vendor unsupported 'unknown'</summary>\n</status>\n")
       end
     end
   end
