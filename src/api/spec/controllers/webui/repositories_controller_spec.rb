@@ -13,21 +13,6 @@ RSpec.describe Webui::RepositoriesController, :vcr do
     it { expect(assigns(:architectures)).to be_empty }
   end
 
-  describe 'GET #state' do
-    context 'with a valid repository param' do
-      before do
-        get :state, params: { project: user.home_project, repository: repo_for_user_home.name }
-      end
-
-      it { expect(assigns(:repository)).to eq(repo_for_user_home) }
-    end
-
-    context 'with a non valid repository param' do
-      it { expect { get :state, params: { project: user.home_project, repository: 'not_valid' } }.to raise_error ActiveRecord::RecordNotFound }
-      it { expect(assigns(:repository)).to be_falsey }
-    end
-  end
-
   describe 'POST #update' do
     before do
       login user
