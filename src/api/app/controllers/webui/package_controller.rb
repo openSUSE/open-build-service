@@ -350,22 +350,6 @@ class Webui::PackageController < Webui::WebuiController
               :url)
   end
 
-  def require_architecture
-    @architecture = Architecture.archcache[params[:arch]]
-    return if @architecture
-
-    flash[:error] = "Couldn't find architecture '#{params[:arch]}'"
-    redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package, repository_name: @repository.name)
-  end
-
-  def require_repository
-    @repository = @project.repositories.find_by(name: params[:repository])
-    return if @repository
-
-    flash[:error] = "Couldn't find repository '#{params[:repository]}'"
-    redirect_to package_show_path(project: @project, package: @package)
-  end
-
   def set_file_details
     @forced_unexpand ||= ''
 
