@@ -26,17 +26,8 @@ RSpec.describe UpdateReleasedBinariesJob do
     end
 
     context 'an existing binary release should be updated' do
-      let!(:binary_release) { create(:binary_release, repository: repository) }
-      let(:repeated_binary_hash) do
-        {
-          'disturl' => binary_release.binary_disturl,
-          'supportstatus' => binary_release.binary_supportstatus,
-          'binaryid' => '31338', # change a value to avoid both objects to be identical
-          'buildtime' => binary_release.binary_buildtime,
-          'name' => binary_release.binary_name,
-          'binaryarch' => binary_release.binary_arch
-        }
-      end
+      let!(:binary_release) { create(:binary_release, repository: repository, binary_id: 'hans') }
+      let(:repeated_binary_hash) { binary_release.slice(:disturl, :supportstatus, :buildtime, :name, :binaryarch, :version, :release).merge(binary_id: 'franz') }
 
       before do
         allow(Backend::Api::Server).to receive_messages(notification_payload: [repeated_binary_hash].to_json, delete_notification_payload: '')
@@ -44,7 +35,7 @@ RSpec.describe UpdateReleasedBinariesJob do
       end
 
       it { expect(BinaryRelease.first.modify_time).not_to be_nil }
-      it { expect(BinaryRelease.last.binary_id).to eq('31338') }
+      it { expect(BinaryRelease.last.binary_id).to eq('franz') }
       it { expect(BinaryRelease.last.operation).to eq('modified') }
     end
   end

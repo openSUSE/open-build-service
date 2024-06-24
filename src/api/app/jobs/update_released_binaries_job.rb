@@ -50,16 +50,22 @@ class UpdateReleasedBinariesJob < CreateJob
       medium_hash = {}
 
       new_binary_releases.each do |backend_binary|
-        # identifier
-        binary_release = { binary_name: backend_binary['name'],
-                           binary_version: backend_binary['version'] || 0, # docker containers have no version
-                           binary_release: backend_binary['release'] || 0,
-                           binary_epoch: backend_binary['epoch'],
-                           binary_arch: backend_binary['binaryarch'],
-                           medium: backend_binary['medium'],
-                           on_medium: medium_hash[backend_binary['medium']],
-                           obsolete_time: nil,
-                           modify_time: nil }
+        backend_binary = backend_binary.with_indifferent_access
+        new_binary_release = repository.binary_releases.new(backend_binary.slice(:name, :binaryid, :binaryarch,
+                                                                                 :version, :release, :epoch,
+                                                                                 :medium, :cpeid,
+                                                                                 :disturl, :supportstatus,
+                                                                                 :updateinfoid, :updateinfoversion))
+
+        # `BinaryRelease`` expects a `DateTime` as attribute, the backend gives us epoch
+        new_binary_release.buildtime = Time.zone.at(backend_binary['buildtime'].to_i) if backend_binary['buildtime'].present?
+
+        # Set releasetime to whenever the Event::Packtrack happened that triggered this job
+        new_binary_release.binary_releasetime = time
+
+        # Set defaults for versions/release
+        new_binary_release.version = backend_binary['version'] || 0 # e.g. docker containers have no version
+        new_binary_release.release = backend_binary['release'] || 0
 
         # getting activerecord object from hash, dup to unfreeze it
         old_binary_release = old_binary_releases[hashkey_binary_release(backend_binary)]
@@ -72,33 +78,20 @@ class UpdateReleasedBinariesJob < CreateJob
             medium_hash[backend_binary['ismedium']] = old_binary_release if backend_binary['ismedium'].present?
             next
           end
-          # same binary name and location, but updated content or meta data
-          old_binary_release.modify_time = time
-          old_binary_release.save!
-          binary_release[:operation] = 'modified' # new entry will get "modified" instead of "added"
+          # Set modify_time to whenever the Event::Packtrack happened that triggered this job
+          old_binary_release.update_columns(modify_time: time)
+          new_binary_release.operation = 'modified' # new entry will get "modified" instead of "added"
         end
 
-        # complete hash for new entry
-        binary_release[:binary_releasetime] = time
-        binary_release[:binary_id] = backend_binary['binaryid'] if backend_binary['binaryid'].present?
-        binary_release[:binary_buildtime] = nil
-        binary_release[:binary_buildtime] = Time.strptime(backend_binary['buildtime'].to_s, '%s') if backend_binary['buildtime'].present?
-        binary_release[:binary_disturl] = backend_binary['disturl']
-        binary_release[:binary_supportstatus] = backend_binary['supportstatus']
-        binary_release[:binary_cpeid] = backend_binary['cpeid']
-        if backend_binary['updateinfoid']
-          binary_release[:binary_updateinfo] = backend_binary['updateinfoid']
-          binary_release[:binary_updateinfo_version] = backend_binary['updateinfoversion']
-        end
         if backend_binary['project'].present? && backend_binary['package'].present?
           # the package may be missing if the binary comes via DoD
           source_package = Package.striping_multibuild_suffix(backend_binary['package'])
           rp = Package.find_by_project_and_name(backend_binary['project'], source_package)
           if source_package.include?(':') && !source_package.start_with?('_product:')
             flavor_name = backend_binary['package'].gsub(/^#{source_package}:/, '')
-            binary_release[:flavor] = flavor_name
+            new_binary_release.flavor = flavor_name
           end
-          binary_release[:release_package_id] = rp.id if backend_binary['project'] && rp
+          new_binary_release.release_package_id = rp&.id
         end
         if backend_binary['patchinforef']
           begin
@@ -106,14 +99,14 @@ class UpdateReleasedBinariesJob < CreateJob
           rescue Backend::NotFoundError
             # patchinfo disappeared meanwhile
           end
-          binary_release[:binary_maintainer] = patchinfo.hashed['packager'] if patchinfo && patchinfo.hashed['packager']
+          new_binary_release.binary_maintainer = patchinfo.hashed['packager'] if patchinfo && patchinfo.hashed['packager']
         end
 
         # put a reference to the medium aka container
-        binary_release[:on_medium] = medium_hash[backend_binary['medium']] if backend_binary['medium'].present?
+        new_binary_release.on_medium = medium_hash[backend_binary['medium']] if backend_binary['medium'].present?
 
         # new entry, also for modified binaries.
-        new_binary_release = repository.binary_releases.create(binary_release)
+        new_binary_release.save
         processed_item[new_binary_release.id] = true
 
         # store in medium case
