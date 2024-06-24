@@ -556,5 +556,75 @@ RSpec.describe EventSubscription::FindForEvent do
         end
       end
     end
+
+    context 'with a failed workflow run' do
+      subject do
+        EventSubscription::FindForEvent.new(event).subscriptions(channel)
+      end
+
+      let(:owner) { create(:confirmed_user) }
+      let(:user) { create(:confirmed_user) }
+      let(:group) { create(:group_with_user, user: user) }
+      let(:channel) { :web }
+      let(:token) { create(:workflow_token, executor: owner, description: 'Testing token') }
+      let(:event) do
+        Event::WorkflowRunFail.create(token_id: token.id)
+      end
+
+      context 'when there is a subscription for the token executor' do
+        before do
+          create(
+            :event_subscription,
+            eventtype: 'Event::WorkflowRunFail',
+            receiver_role: 'token_executor',
+            user: owner,
+            group: nil,
+            channel: :web
+          )
+        end
+
+        it 'includes the token executor' do
+          expect(subject.map(&:subscriber)).to include(owner)
+        end
+      end
+
+      context 'when there is a subscription for the involved user' do
+        before do
+          token.users << user
+
+          create(
+            :event_subscription,
+            eventtype: 'Event::WorkflowRunFail',
+            receiver_role: 'token_member',
+            user: user,
+            group: nil,
+            channel: :web
+          )
+        end
+
+        it 'includes the target user' do
+          expect(subject.map(&:subscriber)).to include(user)
+        end
+      end
+
+      context 'when there is a subscription for the involved group' do
+        before do
+          token.groups << group
+
+          create(
+            :event_subscription,
+            eventtype: 'Event::WorkflowRunFail',
+            receiver_role: 'token_member',
+            user: user,
+            group: nil,
+            channel: :web
+          )
+        end
+
+        it 'includes the target group' do
+          expect(subject.map(&:subscriber)).to include(group)
+        end
+      end
+    end
   end
 end
