@@ -360,11 +360,7 @@ Group:          Productivity/Networking/Web/Utilities
 Requires:       aws-cli
 Requires:       azure-cli
 Requires:       obs-server
-%if 0%{?suse_version} > 1315
-Requires:       python3-ec2uploadimg
-%else
-Requires:       python-ec2uploadimg
-%endif
+Requires:       /usr/bin/ec2uploadimg
 
 %description -n obs-cloud-uploader
 This package contains all the necessary tools for upload images to the cloud.
