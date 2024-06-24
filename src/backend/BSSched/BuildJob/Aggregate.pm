@@ -692,6 +692,8 @@ sub build {
     $logfile .= "  - _modulemd.yaml\n";
   }
 
+  $logfile .= "\nscheduler finished \"build _aggregate\" at ".POSIX::ctime(time())."\n";
+
   writestr("$jobdatadir/meta", undef, $new_meta);
   writestr("$jobdatadir/logfile", undef, $logfile);
   my $needsign;
@@ -783,7 +785,7 @@ sub readcontainerinfo {
   my $d;
   eval { $d = JSON::XS::decode_json($m); };
   return undef unless $d && ref($d) eq 'HASH';
-  return undef unless !$d->{'tags'} && ref($d->{'tags'}) eq 'ARRAY';
+  return undef unless !$d->{'tags'} || ref($d->{'tags'}) eq 'ARRAY';
   return $d;
 }
 
@@ -803,7 +805,7 @@ sub readhelminfo {
   return undef unless $d && ref($d) eq 'HASH';
   return undef unless $d->{'name'} && ref($d->{'name'}) eq '';
   return undef unless $d->{'version'} && ref($d->{'version'}) eq '';
-  return undef unless !$d->{'tags'} && ref($d->{'tags'}) eq 'ARRAY';
+  return undef unless !$d->{'tags'} || ref($d->{'tags'}) eq 'ARRAY';
   return undef unless $d->{'chart'} && ref($d->{'chart'}) eq '';
   return $d;
 }
