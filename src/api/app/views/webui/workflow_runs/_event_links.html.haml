@@ -1,0 +1,4 @@
+- field_to_filter_by = hook_event.in?(['pull_request', 'Merge Request Hook']) ? 'pr_mr' : 'commit_sha'
+= link_to "Filter by #{formatted_event_source_name}", "?#{field_to_filter_by}=#{event_source_name}", { class: 'link-secondary' }
+%hr
+= link_to "Go to #{formatted_event_source_name}", event_source_url, { class: 'link-secondary' }
