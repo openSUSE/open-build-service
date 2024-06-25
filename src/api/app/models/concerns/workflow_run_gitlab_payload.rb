@@ -48,14 +48,6 @@ module WorkflowRunGitlabPayload
     payload[:object_kind]
   end
 
-  def gitlab_repository_name
-    payload.dig('project', 'path_with_namespace')&.split('/')&.last
-  end
-
-  def gitlab_repository_owner
-    payload.dig('project', 'path_with_namespace')&.split('/')&.first
-  end
-
   def gitlab_hook_action
     payload.dig('object_attributes', 'action')
   end

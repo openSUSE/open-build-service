@@ -45,14 +45,6 @@ module WorkflowRunGithubPayload
     payload.dig(:head_commit, :id) if github_tag_push_event?
   end
 
-  def github_repository_name
-    payload.dig('repository', 'name')
-  end
-
-  def github_repository_owner
-    payload.dig('repository', 'owner', 'login')
-  end
-
   def github_hook_action
     payload['action']
   end
@@ -86,7 +78,7 @@ module WorkflowRunGithubPayload
   end
 
   def github_supported_event?
-    scm_vendor == 'github' && ALLOWED_GITHUB_AND_GITEA_EVENTS.include?(hook_event)
+    scm_vendor == 'github' && ALLOWED_GITHUB_EVENTS.include?(hook_event)
   end
 
   def github_supported_pull_request_action?

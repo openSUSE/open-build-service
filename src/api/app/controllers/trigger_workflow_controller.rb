@@ -12,10 +12,10 @@ class TriggerWorkflowController < ApplicationController
   # We don't need to validate that the body of the request is valid XML. We receive JSON...
   skip_before_action :validate_xml_request
 
+  before_action :set_token
   before_action :set_workflow_run
   before_action :skip_unsupported_events
   before_action :skip_unsupported_actions
-  before_action :set_token
   before_action :validate_token_type
 
   def create
@@ -85,6 +85,6 @@ class TriggerWorkflowController < ApplicationController
   def skip_unsupported_actions
     return if @workflow_run.supported_action?
 
-    render_ok(data: { info: "Ignored unsupported '#{hook_event}' event action: '#{hook_action}'" })
+    render_ok(data: { info: "Ignored unsupported '#{@workflow_run.hook_event}' event action: '#{@workflow_run.hook_action}'" })
   end
 end

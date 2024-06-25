@@ -42,7 +42,7 @@ module WorkflowRunPayload
   end
 
   def supported_pull_request_action?
-    github_supported_pull_request_action? || gitlab_supported_merge_request_action?
+    github_supported_pull_request_action? || gitea_supported_pull_request_action? || gitlab_supported_merge_request_action?
   end
 
   def ping_event?
@@ -50,7 +50,7 @@ module WorkflowRunPayload
   end
 
   def supported_push_action?
-    github_supported_push_action? || gitlab_supported_push_action?
+    github_supported_push_action? || gitea_supported_push_action? || gitlab_supported_push_action?
   end
 
   def supported_action?
@@ -58,7 +58,7 @@ module WorkflowRunPayload
   end
 
   def supported_event?
-    github_supported_event? || gitlab_supported_event?
+    github_supported_event? || gitea_supported_event? || gitlab_supported_event?
   end
 
   def commit_sha
@@ -74,19 +74,23 @@ module WorkflowRunPayload
   end
 
   def pr_number
-    github_pr_number || gitlab_pr_number
+    github_pr_number || gitea_pr_number || gitlab_pr_number
   end
 
   def checkout_http_url
-    github_checkout_http_url || gitea_checkout_http_url
+    github_checkout_http_url || gitea_checkout_http_url || gitlab_checkout_http_url
   end
 
   def tag_name
-    github_tag_name || gitlab_tag_name
+    github_tag_name || gitea_tag_name || gitlab_tag_name
   end
 
   def target_branch
     github_target_branch || gitlab_target_branch || gitea_target_branch
+  end
+
+  def api_endpoint
+    github_api_endpoint || gitlab_api_endpoint || gitea_api_endpoint
   end
 
   private
@@ -116,10 +120,6 @@ module WorkflowRunPayload
   end
 
   def payload_hook_action
-    github_hook_action || gitlab_hook_action
-  end
-
-  def api_endpoint
-    github_api_endpoint || gitlab_api_endpoint || gitea_api_endpoint
+    github_hook_action || gitea_hook_action || gitlab_hook_action
   end
 end
