@@ -43,7 +43,7 @@ class WorkflowRun < ApplicationRecord
   has_many :event_subscriptions, dependent: :destroy
   has_many :notifications, as: :notifiable, dependent: :delete_all
 
-  before_save :set_attributes_from_payload
+  after_initialize :set_attributes_from_payload
   after_save :create_event, if: :status_changed_to_fail?
 
   scope :pull_request, -> { where(generic_event_type: 'pull_request') }

@@ -2,6 +2,9 @@
 module WorkflowRunGiteaPayload
   extend ActiveSupport::Concern
 
+  ALLOWED_GITEA_EVENTS = %w[pull_request push ping].freeze
+  ALLOWED_PULL_REQUEST_ACTIONS = %w[closed opened reopened synchronize synchronized].freeze
+
   private
 
   def gitea_commit_sha
@@ -54,6 +57,22 @@ module WorkflowRunGiteaPayload
     scm_vendor == 'gitea' && hook_event == 'pull_request'
   end
 
+  def gitea_ping?
+    scm_vendor == 'gitea' && hook_event == 'ping'
+  end
+
+  def gitea_supported_event?
+    scm_vendor == 'gitea' && ALLOWED_GITHUB_EVENTS.include?(hook_event)
+  end
+
+  def gitea_supported_pull_request_action?
+    gitea_pull_request? && ALLOWED_PULL_REQUEST_ACTIONS.include?(hook_action)
+  end
+
+  def gitea_supported_push_action?
+    gitea_push_event? && !payload[:deleted]
+  end
+
   def gitea_new_pull_request?
     gitea_pull_request? && gitea_hook_action == 'opened'
   end
@@ -68,5 +87,17 @@ module WorkflowRunGiteaPayload
 
   def gitea_reopened_pull_request?
     gitea_pull_request? && gitea_hook_action == 'reopened'
+  end
+
+  def gitea_checkout_http_url
+    payload.dig(:repository, :clone_url)
+  end
+
+  def gitea_tag_name
+    payload.fetch(:ref, '').sub('refs/tags/', '')
+  end
+
+  def gitea_pr_number
+    payload[:number]
   end
 end

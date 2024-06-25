@@ -3,15 +3,16 @@ module Workflows
     DOCUMENTATION_LINK = "#{::Workflow::SCM_CI_DOCUMENTATION_URL}#sec.obs.obs_scm_ci_workflow_integration.setup.obs_workflows".freeze
     MAX_FILE_SIZE = 1024 * 1024 # 1MB
 
-    def initialize(scm_payload, token:)
-      @scm_payload = scm_payload
+    def initialize(workflow_run, token:)
+      @workflow_run = workflow_run
+      @scm_payload = workflow_run.payload
       @token = token
     end
 
     def call
       return download_from_url(@token.workflow_configuration_url) if @token.workflow_configuration_url.present?
 
-      case @scm_payload[:scm]
+      case @workflow_run.scm_vendor
       when 'gitea'
         download_gitea_yaml_file
       when 'github'
