@@ -3,7 +3,7 @@ module Event
     self.description = 'Workflow run failed'
     payload_keys :id, :token_id, :hook_event, :summary, :repository_full_name
 
-    receiver_roles :token_executor
+    receiver_roles :token_executor, :token_member
 
     self.notification_explanation = 'Receive notifications for failed workflow runs on SCM/CI integration.'
 
@@ -14,11 +14,21 @@ module Event
     end
 
     def token_executors
-      [Token.find_by(id: payload['token_id'], type: 'Token::Workflow')&.executor].compact
+      [token&.executor].compact
+    end
+
+    def token_members
+      [token&.users, token&.groups].flatten.compact
     end
 
     def parameters_for_notification
       super.merge(notifiable_type: 'WorkflowRun', notifiable_id: payload['id'])
+    end
+
+    private
+
+    def token
+      Token.find_by(id: payload['token_id'], type: 'Token::Workflow')
     end
   end
 end
