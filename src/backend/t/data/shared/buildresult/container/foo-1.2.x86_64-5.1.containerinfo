@@ -1,0 +1,25 @@
+{
+   "buildtime" : 1719308902,
+   "disturl" : "obs://build.opensuse.org/home:mlschroe:dockertest/images_docker/9e63fc626ff12940c508613088d72895-dockertest",
+   "file" : "foo-1.2.x86_64-5.1.tar",
+   "goarch" : "amd64",
+   "goos" : "linux",
+   "imageid" : "334d7a5b49823b1cb969fd31a3a7eaa26d643eb72b79f966513b4b4d870ac902",
+   "layer_compression" : [
+      "gzip"
+   ],
+   "release" : "5.1",
+   "tags" : [
+      "foo:1.2"
+   ],
+   "tar_blobids" : [
+      "sha256:334d7a5b49823b1cb969fd31a3a7eaa26d643eb72b79f966513b4b4d870ac902",
+      "sha256:f24bdc8441e003f6b292b47b0244d181a5a82590099f3448360b613e8cf81939"
+   ],
+   "tar_manifest" : "[{\"Config\":\"sha256:334d7a5b49823b1cb969fd31a3a7eaa26d643eb72b79f966513b4b4d870ac902\",\"RepoTags\":[\"foo:1.2\"],\"Layers\":[\"sha256:f24bdc8441e003f6b292b47b0244d181a5a82590099f3448360b613e8cf81939\"]}]",
+   "tar_md5sum" : "21c4ddaca66433324ba9ab900e56cf00",
+   "tar_mtime" : 1719308904,
+   "tar_sha256sum" : "11130090d01deab333a09110887216120a52dc4ef1b0273808ccfa461f30e2cb",
+   "tar_size" : 6144,
+   "version" : "1.2"
+}

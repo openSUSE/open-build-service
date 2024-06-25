@@ -166,23 +166,23 @@ my @send = (
   # An original filename would be:
   # 'filename' => '/var/cache/obs/worker/root_1/.build.packages/RPMS/x86_64/hello_world-1-4.1.x86_64.rpm',
   {
-    'filename' => "$FindBin::Bin/data/1000/.build.packages/RPMS/x86_64/hello_world-1-4.1.x86_64.rpm",
+    'filename' => "$FindBin::Bin/data/shared/buildresult/rpm/hello_world-1-4.1.x86_64.rpm",
     'name' => 'hello_world-1-4.1.x86_64.rpm'
   },
   {
-    'filename' => "$FindBin::Bin/data/1000/.build.packages/SRPMS/hello_world-1-4.1.src.rpm",
+    'filename' => "$FindBin::Bin/data/shared/buildresult/rpm/hello_world-1-4.1.src.rpm",
     'name' => 'hello_world-1-4.1.src.rpm'
   },
   {
-    'filename' => '/var/cache/obs/worker/root_1/.build.packages/OTHER/_buildenv',
+    'filename' => "$FindBin::Bin/data/shared/buildresult/rpm/_buildenv",
     'name' => '_buildenv'
   },
   {
-    'filename' => '/var/cache/obs/worker/root_1/.build.packages/OTHER/_statistics',
+    'filename' => "$FindBin::Bin/data/shared/buildresult/rpm/_statistics",
     'name' => '_statistics'
   },
   {
-    'filename' => '/var/cache/obs/worker/root_1/.build.packages/OTHER/rpmlint.log',
+    'filename' => "$FindBin::Bin/data/shared/buildresult/rpm/rpmlint.log",
     'name' => 'rpmlint.log'
   } 
 );
