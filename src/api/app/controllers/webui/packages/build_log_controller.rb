@@ -5,53 +5,29 @@ module Webui
       include Webui::NotificationsHandler
 
       before_action :check_ajax, only: :update_build_log
+      before_action :set_project
+      before_action :set_repository
+      before_action :set_architecture
       before_action :check_build_log_access
       before_action :handle_notification, only: :live_build_log
 
       def live_build_log
-        @repo = @project.repositories.find_by(name: params[:repository]).try(:name)
-        unless @repo
-          flash[:error] = "Couldn't find repository '#{params[:repository]}'. Are you sure it still exists?"
-          redirect_to(package_show_path(@project, @package))
-          return
-        end
-
-        @arch = Architecture.archcache[params[:arch]].try(:name)
-        unless @arch
-          flash[:error] = "Couldn't find architecture '#{params[:arch]}'. Are you sure it still exists?"
-          redirect_to(package_show_path(@project, @package))
-          return
-        end
-
         @offset = 0
-        @status = get_status(@project, @package_name, @repo, @arch)
-        @what_depends_on = Package.what_depends_on(@project, @package_name, @repo, @arch)
+        @status = get_status(@project, @package_name, @repository, @architecture)
+        @what_depends_on = Package.what_depends_on(@project, @package_name, @repository, @architecture)
         @finished = Buildresult.final_status?(status)
 
         set_job_status
       end
 
       def update_build_log
-        # Make sure objects don't contain invalid chars (eg. '../')
-        @repo = @project.repositories.find_by(name: params[:repository]).try(:name)
-        unless @repo
-          @errors = "Couldn't find repository '#{params[:repository]}'. We don't have build log for this repository"
-          return
-        end
-
-        @arch = Architecture.archcache[params[:arch]].try(:name)
-        unless @arch
-          @errors = "Couldn't find architecture '#{params[:arch]}'. We don't have build log for this architecture"
-          return
-        end
-
         begin
           @maxsize = 1024 * 64
           @first_request = params[:initial] == '1'
           @offset = params[:offset].to_i
-          @status = get_status(@project, @package_name, @repo, @arch)
+          @status = get_status(@project, @package_name, @repository, @architecture)
           @finished = Buildresult.final_status?(@status)
-          @size = get_size_of_log(@project, @package_name, @repo, @arch)
+          @size = get_size_of_log(@project, @package_name, @repository, @architecture)
 
           chunk_start = @offset
           chunk_end = @offset + @maxsize
@@ -62,7 +38,7 @@ module Webui
             chunk_end = @size
           end
 
-          @log_chunk = get_log_chunk(@project, @package_name, @repo, @arch, chunk_start, chunk_end)
+          @log_chunk = get_log_chunk(@project, @package_name, @repository, @architecture, chunk_start, chunk_end)
 
           old_offset = @offset
           @offset = [chunk_end, @size].min
@@ -96,12 +72,6 @@ module Webui
       #
       # If the check succeeds it sets @project and @package variables.
       def check_build_log_access
-        @project = Project.find_by(name: params[:project])
-        unless @project
-          redirect_to root_path, error: "Couldn't find project '#{params[:project]}'. Are you sure it still exists?"
-          return false
-        end
-
         @package_name = params[:package]
 
         # No need to check for the package, they only exist on the backend in this case
@@ -138,7 +108,7 @@ module Webui
         @percent = nil
 
         begin
-          jobstatus = get_job_status(@project, @package_name, @repo, @arch)
+          jobstatus = get_job_status(@project, @package_name, @repository, @architecture)
           if jobstatus.present?
             js = Xmlhash.parse(jobstatus)
             @workerid = js.get('workerid')
