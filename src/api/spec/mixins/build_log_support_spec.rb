@@ -56,6 +56,12 @@ RSpec.describe BuildLogSupport do
 class=\"ansible_none\">\r[  580s] </span><span class=\"ansible_36\">Reaping 1 jobs</span><span class=\"ansible_none\"></span>")
         }
       end
+
+      context 'with invalid utf-8 byte sequences' do
+        let(:build_log) { "invalid byte sequence ->\xD3'" }
+
+        it { expect(subject).to eq('<span class="ansible_none">invalid byte sequence -&gt;�&#39;</span>') }
+      end
     end
   end
 

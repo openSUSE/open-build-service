@@ -10,6 +10,7 @@ module BuildLogSupport
     log = raw_log_chunk(project, package_name, repo, arch, start, theend)
     log.encode!(invalid: :replace, undef: :replace, cr_newline: true)
     log = CGI.escapeHTML(log)
+    log.scrub! # Remove invalid byte sequences in UTF-8
     log = ansi_escaped(log, theend - start + 1)
     log.gsub(%r{([^a-zA-Z0-9&;<>/\n\r \t()])}) do |c|
       if c.ord < 32
