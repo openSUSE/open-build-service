@@ -448,6 +448,9 @@ Comment:
   id:
     PrimaryKeyTypeChecker:
       enabled: false
+  project:
+    ForeignKeyChecker:
+      enabled: false
 CommentLock:
   commentable_type:
     LengthConstraintChecker:
