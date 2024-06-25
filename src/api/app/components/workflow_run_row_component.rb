@@ -1,7 +1,7 @@
 class WorkflowRunRowComponent < ApplicationComponent
-  attr_reader :workflow_run, :status, :hook_event, :hook_action, :repository_name, :repository_url, :event_source_name, :event_source_url, :formatted_event_source_name
+  attr_reader :workflow_run, :status, :hook_event, :hook_action, :repository_name, :repository_url, :event_source_name, :event_source_url, :formatted_event_source_name, :token_id
 
-  def initialize(workflow_run:)
+  def initialize(workflow_run:, token_id:)
     super
 
     @workflow_run = workflow_run
@@ -13,6 +13,7 @@ class WorkflowRunRowComponent < ApplicationComponent
     @event_source_name = workflow_run.event_source_name
     @event_source_url = workflow_run.event_source_url
     @formatted_event_source_name = workflow_run.formatted_event_source_name
+    @token_id = token_id
   end
 
   def status_title
