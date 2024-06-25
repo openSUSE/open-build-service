@@ -15,10 +15,7 @@ class PackagePolicy < ApplicationPolicy
   end
 
   def create_branch?
-    # same as Package.check_source_access!
-    return false if (source_access? || project_source_access?) && !user.can_source_access?(record)
-
-    true
+    source_access?
   end
 
   def update?
@@ -30,14 +27,15 @@ class PackagePolicy < ApplicationPolicy
   end
 
   def save_meta_update?
-    update? && !source_access?
+    update? && source_access?
   end
 
-  def project_source_access?
-    record.project.disabled_for?('sourceaccess', nil, nil)
-  end
+  private
 
   def source_access?
-    record.disabled_for?('sourceaccess', nil, nil)
+    return true if user.has_global_permission?(:source_access)
+    return true if user.has_local_permission?(:source_access, record)
+
+    record.enabled_for?('sourceaccess', nil, nil)
   end
 end

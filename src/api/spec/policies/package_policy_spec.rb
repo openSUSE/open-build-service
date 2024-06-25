@@ -66,6 +66,14 @@ RSpec.describe PackagePolicy do
   context 'branch as other user' do
     permissions :create_branch? do
       it { expect(subject).to permit(other_user, package) }
+
+      context 'source access disabled' do
+        before do
+          allow(package).to receive(:enabled_for?).with('sourceaccess', nil, nil).and_return(false)
+        end
+
+        it { expect(subject).not_to permit(other_user, package) }
+      end
     end
   end
 
@@ -75,25 +83,5 @@ RSpec.describe PackagePolicy do
 
     it { expect(subject).to permit(admin_user, package) }
     it { expect(subject).to permit(user, package) }
-  end
-
-  context 'source access enabled' do
-    permissions :source_access? do
-      before do
-        allow_any_instance_of(Package).to receive(:disabled_for?).with('sourceaccess', nil, nil).and_return(true)
-      end
-
-      it { expect(subject).to permit(user, package) }
-    end
-  end
-
-  context 'source access disabled' do
-    permissions :source_access? do
-      before do
-        allow_any_instance_of(Package).to receive(:disabled_for?).with('sourceaccess', nil, nil).and_return(false)
-      end
-
-      it { expect(subject).not_to permit(user, package) }
-    end
   end
 end

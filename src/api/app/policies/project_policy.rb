@@ -39,7 +39,10 @@ class ProjectPolicy < ApplicationPolicy
   end
 
   def source_access?
-    User.admin_session? || !record.disabled_for?('sourceaccess', nil, nil)
+    return true if user.has_global_permission?(:source_access)
+    return true if user.has_local_permission?(:source_access, record)
+
+    record.enabled_for?('sourceaccess', nil, nil)
   end
 
   # staging project
