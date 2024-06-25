@@ -13,20 +13,13 @@ class TriggerWorkflowController < ApplicationController
   skip_before_action :validate_xml_request
 
   before_action :set_token
-  before_action :set_workflow_run
-  before_action :skip_unsupported_events
-  before_action :skip_unsupported_actions
   before_action :validate_token_type
+  before_action :set_workflow_run
 
   def create
     authorize @token, :trigger?
 
-    if @workflow_run.valid?
-      @workflow_run.save!
-    else
-      render_error(status: 400, message: @workflow_run.errors.full_messages.to_sentence)
-      return
-    end
+    @workflow_run.save!
 
     @token.executor.run_as do
       validation_errors = @token.call(workflow_run: @workflow_run)
@@ -70,21 +63,15 @@ class TriggerWorkflowController < ApplicationController
                                              workflow_configuration_url: @token.workflow_configuration_url,
                                              scm_vendor: scm_vendor,
                                              hook_event: hook_event)
-  end
+    @workflow_run.valid?
+    return unless @workflow_run.errors.any?
 
-  # There are plenty of SCM events we do not handle at all (yet).
-  # Instead of throwing and errror we just ignore them.
-  def skip_unsupported_events
-    return if @workflow_run.supported_event?
-
-    render_ok(data: { info: "Ignored unsupported event: '#{@workflow_run.hook_event}'" })
-  end
-
-  # There are plenty of SCM event actions we do not handle at all (yet).
-  # Instead of throwing and errror we just ignore them.
-  def skip_unsupported_actions
-    return if @workflow_run.supported_action?
-
-    render_ok(data: { info: "Ignored unsupported '#{@workflow_run.hook_event}' event action: '#{@workflow_run.hook_action}'" })
+    # There are plenty of SCM events we do not handle at all (yet).
+    # Instead of throwing and errror we just ignore them.
+    if @workflow_run.errors[:hook_action].any? || @workflow_run.errors[:hook_event].any?
+      render_ok(data: { info: @workflow_run.errors.full_messages.to_sentence })
+    else
+      render_error(status: 400, message: @workflow_run.errors.full_messages.to_sentence)
+    end
   end
 end
