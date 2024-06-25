@@ -61,6 +61,8 @@ module RakeSupport
     create(:event_subscription_added_user_to_group, channel: :web, user: user)
     create(:event_subscription_removed_user_from_group, channel: :web, user: user)
 
+    create(:event_subscription_workflow_run_fail, channel: :web, user: user, receiver_role: 'token_executor')
+
     user.groups.each do |group|
       create(:event_subscription_request_created, channel: :web, user: nil, group: group, receiver_role: 'target_maintainer')
       create(:event_subscription_review_wanted, channel: 'web', user: nil, group: group, receiver_role: 'reviewer')
