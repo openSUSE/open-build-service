@@ -43,7 +43,8 @@ module ActionBuildResultsService
             package_name: pkg,
             project_name: source_project.name,
             repository_status: result.state,
-            is_repository_in_db: result.is_repository_in_db
+            is_repository_in_db: result.is_repository_in_db,
+            details: result.details
           }
         end
       end

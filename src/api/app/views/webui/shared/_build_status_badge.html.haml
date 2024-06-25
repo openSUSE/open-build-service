@@ -4,7 +4,7 @@
     %span.architecture #{architecture} :
     = text
 - else
-  %span.badge{ class: build_status_category_color(status) }
-    %i.fa.me-2{ class: build_status_icon(status), title: status.humanize }
+  %span.badge{ class: build_status_category_color(status), title: details }
+    %i.fa.me-2{ class: build_status_icon(status) }
     %span.architecture #{architecture} :
     = text
