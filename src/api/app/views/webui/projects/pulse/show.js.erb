@@ -1,4 +1,4 @@
-$('#range-header').html("<%= escape_javascript(pulse_period(@range)) %>");
+$('#range-header').html("<%= escape_javascript(pulse_period(@date_range)) %>");
 $('#range-text').html("<%= @range.titleize %>");
 $('#pulse, .col.spinner').toggleClass('d-none');
 $('#pulse').html("<%= escape_javascript render partial: 'pulse_list', locals: { requests_by_percentage: @requests_by_percentage,
