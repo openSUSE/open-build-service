@@ -763,10 +763,14 @@ sub build {
   };
   $update->{'pkglist'} = {'collection' => [ $col ] };
   $update->{'patchinforef'} = "$projid/$packid";        # deleted in publisher...
-  if ($category ne 'no_updateinfo') {
+  if ($category eq 'no_updateinfo') {
+    # we write here an empty updateinfo on purpose, because other code path need to be aware
+    # that these binaries are updates only (eg. when populating :full tree)
+    writexml("$jobdatadir/updateinfo.xml", undef, {'update' => []}, $BSXML::updateinfo);
+  } else {
     writexml("$jobdatadir/updateinfo.xml", undef, {'update' => [$update]}, $BSXML::updateinfo);
-    $bininfo->{'updateinfo.xml'} = genbininfo($jobdatadir, 'updateinfo.xml');
   };
+  $bininfo->{'updateinfo.xml'} = genbininfo($jobdatadir, 'updateinfo.xml');
   writestr("$jobdatadir/logfile", undef, "update built succeeded ".localtime($now)."\n");
   $updateinfodata = {
     'packages' => \@tocopy,
