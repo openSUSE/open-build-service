@@ -26,5 +26,5 @@
               .border-bottom.py-2{ id: "workflow-run-heading#{workflow_run.id}" }
                 .mb-0
                   .row
-                    = render(WorkflowRunRowComponent.new(workflow_run: workflow_run))
+                    = render(WorkflowRunRowComponent.new(workflow_run: workflow_run, token_id: @token.id))
             = paginate @workflow_runs, views_prefix: 'webui'
