@@ -1,6 +1,6 @@
 module Webui
   module Packages
-    class BadgeController < Packages::MainController
+    class BadgeController < Webui::WebuiController
       before_action :set_project
       before_action :set_package
 

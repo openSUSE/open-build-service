@@ -1,6 +1,6 @@
 module Webui
   module Packages
-    class FilesController < Packages::MainController
+    class FilesController < Webui::WebuiController
       include Webui::PackageHelper
 
       before_action :set_project

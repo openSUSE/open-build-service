@@ -146,6 +146,25 @@ class Webui::WebuiController < ActionController::Base
   end
   alias set_package require_package
 
+  def set_repository
+    repository_name = params[:repository] || params[:repository_name]
+    @repository = @project.repositories.find_by(name: repository_name)
+    return if @repository
+
+    flash[:error] = "Could not find repository '#{repository_name}'"
+
+    redirect_back_or_to repositories_path(project: @project, package: @package)
+  end
+
+  def set_architecture
+    architecture_name = params[:architecture] || params[:arch]
+    @architecture = @repository.architectures.find_by(name: architecture_name)
+    return if @architecture
+
+    flash[:error] = "Could not find architecture '#{architecture_name}'"
+    redirect_back_or_to project_repositories_path(@project)
+  end
+
   private
 
   def send_login_information_rabbitmq(msg)

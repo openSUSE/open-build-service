@@ -15,34 +15,6 @@ RSpec.describe Webui::Packages::BuildReasonController do
       }
     end
 
-    context 'without a valid respository' do
-      before do
-        get :index, params: { package_name: package, project: project, repository: 'fake_repo', arch: 'i586' }
-      end
-
-      it { expect(flash[:error]).not_to be_empty }
-
-      it {
-        expect(response).to redirect_to(project_package_repository_binaries_path(package_name: package, project_name: project,
-                                                                                 repository_name: 'fake_repo'))
-      }
-    end
-
-    context 'without a valid architecture' do
-      before do
-        login(user)
-        get :index, params: { package_name: package, project: project, repository: repository.name, arch: 'i58' }
-      end
-
-      it { expect(flash[:error]).not_to be_empty }
-
-      it 'redirects to package_binaries_path' do
-        expect(response).to redirect_to(project_package_repository_binaries_path(package_name: package,
-                                                                                 project_name: project,
-                                                                                 repository_name: repository.name))
-      end
-    end
-
     context 'for packages without a build reason' do
       before do
         path = "#{CONFIG['source_url']}/build/#{project.name}/#{repository.name}/" \

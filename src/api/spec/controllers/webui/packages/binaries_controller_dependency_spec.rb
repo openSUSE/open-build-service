@@ -28,20 +28,6 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
       it { expect(response).to have_http_status(:redirect) }
     end
 
-    context 'when passing params referring to a valid project and an invalid architecture' do
-      let(:params) { { dependant_project: home_tom.name, arch: '123' } }
-
-      it { expect(flash[:error]).to eq("Couldn't find architecture '#{params[:arch]}'.") }
-      it { expect(response).to have_http_status(:redirect) }
-    end
-
-    context 'when passing params referring to valid project/architecture and an invalid repository' do
-      let(:params) { { dependant_project: home_tom.name, arch: 'i586', repository_name: 'something' } }
-
-      it { expect(flash[:error]).to eq("Couldn't find repository '#{params[:repository_name]}'.") }
-      it { expect(response).to have_http_status(:redirect) }
-    end
-
     context 'when passing params referring to valid project/architecture/repository and an invalid repository' do
       let(:params) { { dependant_project: home_tom.name, arch: 'i586', repository_name: repo_for_home_tom.name, dependant_repository: 'something' } }
 

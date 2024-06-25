@@ -1,6 +1,6 @@
 module Webui
   module Packages
-    class MetaController < Packages::MainController
+    class MetaController < Webui::WebuiController
       before_action :set_project
       before_action :set_package
 

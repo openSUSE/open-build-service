@@ -2,7 +2,6 @@ class Webui::RepositoriesController < Webui::WebuiController
   before_action :set_project
   before_action :set_repository, only: [:state]
   before_action :set_architectures, only: %i[index change_flag]
-  before_action :set_repository, only: [:state]
   before_action :set_package, only: %i[index change_flag]
   before_action :set_main_object, only: %i[index change_flag]
   before_action :check_ajax, only: :change_flag
@@ -184,10 +183,6 @@ class Webui::RepositoriesController < Webui::WebuiController
 
   def set_architectures
     @architectures = Architecture.where(id: @project.repository_architectures.select(:architecture_id)).order(:name)
-  end
-
-  def set_repository
-    @repository = @project.repositories.find_by!(name: params[:repository])
   end
 
   def set_package

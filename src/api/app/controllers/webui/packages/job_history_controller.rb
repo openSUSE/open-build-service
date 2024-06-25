@@ -1,6 +1,6 @@
 module Webui
   module Packages
-    class JobHistoryController < Packages::MainController
+    class JobHistoryController < Webui::WebuiController
       before_action :set_project
       before_action :set_package
       before_action :set_repository

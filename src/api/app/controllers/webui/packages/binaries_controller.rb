@@ -1,6 +1,6 @@
 module Webui
   module Packages
-    class BinariesController < Packages::MainController
+    class BinariesController < Webui::WebuiController
       include Webui::Packages::BinariesHelper
 
       # TODO: Keep in sync with Build::query in backend/build/Build.pm.

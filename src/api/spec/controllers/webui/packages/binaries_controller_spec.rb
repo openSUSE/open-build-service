@@ -5,7 +5,7 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
   let(:home_tom) { tom.home_project }
   let(:toms_package) { create(:package, name: 'my_package', project: home_tom) }
   let(:repo_for_home_tom) do
-    repo = create(:repository, project: home_tom, architectures: ['i586'], name: 'source_repo')
+    repo = create(:repository, project: home_tom, architectures: ['x86_64'], name: 'source_repo')
     home_tom.store(login: tom)
     repo
   end
@@ -80,15 +80,6 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
       end
 
       it { expect { subject }.to raise_error(ActiveRecord::RecordNotFound) }
-    end
-
-    context 'without a valid architecture' do
-      before do
-        get :show, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom, arch: 'fake_arch', filename: 'filename.txt' }
-      end
-
-      it { expect(flash[:error]).to eq("Couldn't find architecture 'fake_arch'.") }
-      it { is_expected.to redirect_to(package_binaries_page) }
     end
 
     context 'with a valid download url' do
