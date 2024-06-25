@@ -1,14 +1,9 @@
 module Webui::ProjectHelper
   protected
 
-  def pulse_period(range)
-    end_time = Time.zone.today
-
-    start_time = if range == 'month'
-                   end_time.prev_month
-                 else
-                   end_time.prev_week
-                 end
+  def pulse_period(date_range)
+    start_time = date_range.first
+    end_time = date_range.last
 
     "#{start_time.strftime("%B, #{start_time.day.ordinalize} %Y")} – #{end_time.strftime("%B, #{end_time.day.ordinalize} %Y")}"
   end
