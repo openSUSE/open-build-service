@@ -6,6 +6,7 @@ module Webui
 
       before_action :check_ajax, only: :update_build_log
       before_action :set_project
+      before_action :set_package
       before_action :set_repository
       before_action :set_architecture
       before_action :set_object_to_authorize
@@ -58,46 +59,6 @@ module Webui
       end
 
       private
-
-      # Basically backend stores date in /source (package sources) and /build (package
-      # build related). Logically build logs are stored in /build. Though build logs also
-      # contain information related to source packages.
-      # Thus before giving access to the build log, we need to ensure user has source access
-      # rights.
-      #
-      # This before_filter checks source permissions for packages that belong
-      # to local projects and local projects that link to other project's packages.
-      #
-      # If the check succeeds it sets @project and @package variables.
-      def check_build_log_access
-        @package_name = params[:package]
-
-        # No need to check for the package, they only exist on the backend in this case
-        if @project.scmsync
-          return
-        end
-
-        begin
-          @package = Package.get_by_project_and_name(@project, @package_name, use_source: false,
-                                                                              follow_multibuild: true)
-        rescue Package::UnknownObjectError
-          redirect_to project_show_path(@project.to_param),
-                      error: "Couldn't find package '#{params[:package]}' in " \
-                             "project '#{@project.to_param}'. Are you sure it exists?"
-          return false
-        end
-
-        # NOTE: @package is a String for multibuild packages
-        @package = Package.find_by_project_and_name(@project.name, Package.striping_multibuild_suffix(@package_name)) if @package.is_a?(String)
-
-        unless @package.check_source_access?
-          redirect_to package_show_path(project: @project.name, package: @package_name),
-                      error: 'Could not access build log'
-          return false
-        end
-
-        true
-      end
 
       def set_job_status
         @percent = nil
