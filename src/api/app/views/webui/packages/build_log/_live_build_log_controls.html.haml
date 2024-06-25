@@ -20,7 +20,7 @@
               class: 'live-link-action btn-secondary') do
       %i.fas.fa-download
       Download logfile
-  - if can_modify
+  - if policy(object_to_authorize).update?
     = link_to(rebuild_project_package_trigger_path(project_name: project, package_name: package_name, arch: arch, repository: repo),
               class: 'link_trigger_rebuild live-link-action btn-warning d-none',
               method: :post) do

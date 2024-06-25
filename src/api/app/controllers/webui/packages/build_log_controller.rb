@@ -8,7 +8,7 @@ module Webui
       before_action :set_project
       before_action :set_repository
       before_action :set_architecture
-      before_action :check_build_log_access
+      before_action :set_object_to_authorize
       before_action :handle_notification, only: :live_build_log
 
       def live_build_log
@@ -74,7 +74,6 @@ module Webui
 
         # No need to check for the package, they only exist on the backend in this case
         if @project.scmsync
-          @can_modify = User.possibly_nobody.can_modify?(@project)
           return
         end
 
@@ -96,8 +95,6 @@ module Webui
                       error: 'Could not access build log'
           return false
         end
-
-        @can_modify = User.possibly_nobody.can_modify?(@project) || User.possibly_nobody.can_modify?(@package)
 
         true
       end
