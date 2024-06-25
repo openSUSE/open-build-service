@@ -323,16 +323,6 @@ class Webui::PackageController < Webui::WebuiController
 
   private
 
-  # Find the right object to authorize for all cases of links
-  # https://github.com/openSUSE/open-build-service/wiki/Links
-  def set_object_to_authorize
-    @object_to_authorize = @project
-    return unless @package # remote links / scmsync
-    return if @project != @package.project # project or update instance links
-
-    @object_to_authorize = @package
-  end
-
   def package_params
     params.require(:package).permit(:name, :title, :description)
   end
