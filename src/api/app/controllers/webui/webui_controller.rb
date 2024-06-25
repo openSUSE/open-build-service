@@ -23,7 +23,7 @@ class Webui::WebuiController < ActionController::Base
   before_action :current_announcement, unless: -> { request.xhr? }
   before_action :fetch_watchlist_items
   before_action :set_paper_trail_whodunnit
-  before_action :set_unread_notifications_count
+  before_action :set_unread_notifications_count, unless: -> { request.xhr? }
   after_action :clean_cache
 
   # :notice and :alert are default, we add :success and :error
