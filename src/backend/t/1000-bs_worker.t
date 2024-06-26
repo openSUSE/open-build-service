@@ -277,19 +277,19 @@ my $expected_statement_v1 = {
 	'name' => 'aaa_base.rpm',
 	'digest' => { 'sha256' => 'acf63da2befc85cee24689330ddf62629681e59b5007fa3ffca09ff789f7cb28' },
 	'uri' => 'srcserver/slsa/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/aaa_base.rpm/acf63da2befc85cee24689330ddf62629681e59b5007fa3ffca09ff789f7cb28',
-	'annotations' => { 'intent' => 'buildenv' },
+	'annotations' => { 'intent' => 'buildenv', 'flags' => 'preinstall' },
       },
       {
 	'name' => 'filesystem.rpm',
 	'digest' => { 'sha256' => 'be546d31264bf3ea084cd6c0bb659872eef0388583983379a72edfb26f021680' },
 	'uri' => 'srcserver/slsa/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/filesystem.rpm/be546d31264bf3ea084cd6c0bb659872eef0388583983379a72edfb26f021680',
-	'annotations' => { 'intent' => 'buildenv' },
+	'annotations' => { 'intent' => 'buildenv', 'flags' => 'preinstall' },
       },
       {
 	'name' => 'liblua5_4-5.rpm',
 	'digest' => { 'sha256' => '80c185cd2f7d2cc9960308a9ce07d97b20c098d7a71008ba7d74dfd1031cfe26' },
 	'uri' => 'srcserver/slsa/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/liblua5_4-5.rpm/80c185cd2f7d2cc9960308a9ce07d97b20c098d7a71008ba7d74dfd1031cfe26',
-	'annotations' => { 'intent' => 'buildenv' },
+	'annotations' => { 'intent' => 'buildenv', 'flags' => 'preinstall' },
       }
     ],
     },

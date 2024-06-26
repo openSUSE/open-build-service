@@ -2766,7 +2766,7 @@ sub getbinaries_image {
       if ($buildinfo->{'slsaprovenance'}) {
 	for my $n (sort keys %$got) {
 	  my $f = $got->{$n};
-	  add_slsa_materials_binary($buildinfo, "$repo->{'project'}/$repo->{'repository'}/$syspatharch", $f->{'name'}, "$dir/$f->{'name'}");
+	  add_slsa_materials_binary($buildinfo, "$repo->{'project'}/$repo->{'repository'}/$syspatharch", $f->{'name'}, "$dir/$f->{'name'}") if $buildinfo->{'slsaprovenance'};
 	}
       }
       @todo = grep {!$got->{$_}} @todo;
@@ -2928,7 +2928,13 @@ sub getbinaries {
 	# sigh, no package information available yet...
 	$origins->{$_} = "$repoprp/$arch";
       }
-      add_slsa_materials_binary($buildinfo, "$repo->{'project'}/$repo->{'repository'}/$arch", $gotpkg->{'name'}, "$dir/$gotpkg->{'name'}") if $buildinfo->{'slsaprovenance'};
+      if ($buildinfo->{'slsaprovenance'}) {
+        if ($cross) {
+          add_slsa_materials_binary($buildinfo, "$repo->{'project'}/$repo->{'repository'}/$arch", substr($gotpkg->{'name'}, length($binaryprefix)), "$dir/$gotpkg->{'name'}", 'sysroot');
+        } else {
+          add_slsa_materials_binary($buildinfo, "$repo->{'project'}/$repo->{'repository'}/$arch", $gotpkg->{'name'}, "$dir/$gotpkg->{'name'}");
+        }
+      }
     }
     @todo = grep {!$done{"$binaryprefix$_"}} @todo;
   }
@@ -3641,7 +3647,7 @@ sub generate_slsa_provenance_statement_v02 {
   my @materials = map { { %$_ } } @{$buildinfo->{'materials'} || []};
   for (@materials) {
     delete $_->{'name'};
-    delete $_->{'intent'} if $_->{'intent'} && $_->{'intent'} ne 'containers' && $_->{'intent'} ne 'repos';
+    delete $_->{'intent'} if $_->{'intent'} && $_->{'intent'} ne 'containers' && $_->{'intent'} ne 'repos' && $_->{'intent'} ne 'sysroot';
   }
   my $stmt = {
     '_type' => "https://in-toto.io/Statement/v0.1",
@@ -3677,6 +3683,18 @@ sub generate_slsa_provenance_statement_v02 {
 sub generate_slsa_provenance_statement_v1 {
   my ($buildinfo, $send) = @_;
 
+  # generate flags for buildenv binaries
+  my $imagemode = getimagemode($buildinfo);
+  my @bdep = @{$buildinfo->{'bdep'} || []};
+  my %flags;
+  $flags{$_->{'name'}}->{'preinstall'} = 1 for grep {$_->{'preinstall'}} @bdep;
+  $flags{$_->{'name'}}->{'vminstall'} = 1 for grep {$_->{'vminstall'}} @bdep;
+  $flags{$_->{'name'}}->{'runscripts'} = 1 for grep {$_->{'runscripts'}} @bdep;
+  if (!$imagemode) {
+    $flags{$_->{'name'}}->{'noinstall'} = 1 for grep {$_->{'noinstall'}} @bdep;
+    $flags{$_->{'name'}}->{'installonly'} = 1 for grep {$_->{'installonly'}} @bdep;
+  }
+
   my $subject = generate_slsa_provenance_subject($send);
   my $sourceuri = generate_slsa_sourceuri($buildinfo);
   # make intent an annotation
@@ -3684,6 +3702,11 @@ sub generate_slsa_provenance_statement_v1 {
   for (@materials) {
     my $i = delete $_->{'intent'};
     $_->{'annotations'}->{'intent'} = $i if $i;
+    if ($i && $i eq 'buildenv') {
+      my $binname;
+      $binname = $1 if $_->{'name'} =~ /(.*)\.(?:$binsufsre)$/;
+      $_->{'annotations'}->{'flags'} = join(',', sort keys %{$flags{$binname}}) if $binname && $flags{$binname};
+    }
   }
   my $stmt = {
     '_type' => "https://in-toto.io/Statement/v0.1",
