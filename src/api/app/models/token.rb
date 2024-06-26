@@ -77,7 +77,7 @@ class Token < ApplicationRecord
     URI.parse(workflow_configuration_url)
 
     # Check if we get a successful response
-    Workflows::YAMLDownloader.new({}, token: self).call
+    Workflows::YAMLDownloader.new(WorkflowRun.new(request_payload: {}), token: self).call
   rescue URI::InvalidURIError => e
     errors.add(:workflow_configuration_url, "must be a valid url: #{e}")
   rescue Token::Errors::NonExistentWorkflowsFile => e
