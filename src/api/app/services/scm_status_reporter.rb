@@ -1,6 +1,7 @@
 class SCMStatusReporter
   attr_accessor :event_payload, :event_subscription_payload, :state, :initial_report
 
+  EVENT_ACTIONS_TO_SKIP = %w[closed close merge].freeze
   REPORTERS = {
     'github' => GithubStatusReporter,
     'gitlab' => GitlabStatusReporter,
@@ -23,6 +24,8 @@ class SCMStatusReporter
   end
 
   def call
+    return if EVENT_ACTIONS_TO_SKIP.include?(@event_payload[:action])
+
     REPORTERS[@event_subscription_payload[:scm]].new(@event_payload,
                                                      @event_subscription_payload,
                                                      @scm_token,
