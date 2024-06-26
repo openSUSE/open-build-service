@@ -881,6 +881,46 @@ sub do_local_uploads {
   printf "local updating of %s took %d seconds\n", $repository, time() - $now;
 }
 
+
+=head2 container_tag_deletion_safeguard - make sure no tags are deleted
+
+=cut
+
+sub container_tag_deletion_safeguard {
+  my ($registry, $projid, $repoid, $repository, $tags, $repostate) = @_;
+
+  my $mode = $registry->{'container_tag_deletion_safeguard'};
+  $mode = $mode->($registry, $projid, $repoid, $repository) if $mode && ref($mode) eq 'CODE';
+  return unless $mode;
+  die("container_tag_deletion_safeguard: unknown mode $mode\n") if $mode != 1 && $mode != 2;
+
+  if ($registry->{'nodelete'}) {
+    print "container_tag_deletion_safeguard: nodelete option is set, skipping check\n";
+    return;
+  }
+
+  # query the tags from the registry unless we already have a state
+  if (!defined $repostate) {
+    $repostate = eval { query_repostate($registry, $repository) };
+    die("need registry query result for the tag deletion safeguard: $@") if $@;
+    die("need registry query result for the tag deletion safeguard\n") unless defined $repostate;
+  }
+
+  my %newtags = map {$_ => 1} @$tags;
+  my @missing;
+  for (sort keys %$repostate) {
+    push @missing, $_ unless $newtags{$_} || /^([a-z0-9]+)-([a-f0-9]+)\.(?:sig|att)$/;
+  }
+  if (@missing) {
+    if ($mode == 2) {
+      print("warning: tag deletion safeguard for $repository: found missing tags: @missing\n");
+    } else {
+      die("tag deletion safeguard for $repository: found missing tags: @missing\n");
+    }
+  }
+}
+
+
 =head2 do_remote_uploads - sync containers to a repository in a remote registry
 
 =cut
@@ -889,6 +929,9 @@ sub do_remote_uploads {
   my ($registry, $projid, $repoid, $repository, $containers, $data, $uptags, $notary_uploads) = @_;
 
   if (!$uptags) {
+    if ($registry->{'container_tag_deletion_safeguard'}) {
+      container_tag_deletion_safeguard($registry, $projid, $repoid, $repository, []);
+    }
     my $containerdigests = '';
     add_notary_upload($notary_uploads, $registry, $repository, $containerdigests);
     delete_obsolete_tags_from_registry($registry, $repository, $containerdigests);
@@ -930,6 +973,13 @@ sub do_remote_uploads {
   my $querytags;
   $querytags = [ sort keys %$uptags ] if $registry->{'nodelete'};
   $repostate = eval { query_repostate($registry, $repository, $querytags) } if 1;
+
+  # check if we are allowed to remove tags
+  if ($registry->{'container_tag_deletion_safeguard'}) {
+    my @tags = [ sort keys %$uptags ];
+    push @tags, 'artifacthub.io' if ($data->{'artifacthubdata'} || {})->{$gun} && !$uptags->{'artifacthub.io'};
+    container_tag_deletion_safeguard($registry, $projid, $repoid, $repository, \@tags, $repostate);
+  }
 
   # now do the uploads for the tag groups
   my $now = time();
