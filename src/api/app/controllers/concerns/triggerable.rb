@@ -29,6 +29,7 @@ module Triggerable
     raise ActiveRecord::RecordNotFound unless @package
   end
 
+  # FIXME: Use the version from Webui::WebuiController instead
   def set_object_to_authorize
     @token.object_to_authorize = package_from_project_link? ? @project : @package
   end

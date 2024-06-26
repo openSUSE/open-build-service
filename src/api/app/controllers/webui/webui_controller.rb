@@ -165,6 +165,16 @@ class Webui::WebuiController < ActionController::Base
     redirect_back_or_to project_repositories_path(@project)
   end
 
+  # Find the right object to authorize for all cases of links
+  # https://github.com/openSUSE/open-build-service/wiki/Links
+  def set_object_to_authorize
+    @object_to_authorize = @project
+    return unless @package # Remote Project Links or Project SCM Bridge Links
+    return if @project != @package.project # Project Links or Update Instance Project Links
+
+    @object_to_authorize = @package
+  end
+
   private
 
   def send_login_information_rabbitmq(msg)
