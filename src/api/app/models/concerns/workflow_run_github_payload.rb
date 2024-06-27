@@ -3,7 +3,7 @@ module WorkflowRunGithubPayload
   extend ActiveSupport::Concern
 
   ALLOWED_GITHUB_EVENTS = %w[pull_request push ping].freeze
-  ALLOWED_PULL_REQUEST_ACTIONS = %w[closed opened reopened synchronize synchronized].freeze
+  ALLOWED_GITHUB_PULL_REQUEST_ACTIONS = %w[closed opened reopened synchronize synchronized].freeze
 
   private
 
@@ -82,7 +82,7 @@ module WorkflowRunGithubPayload
   end
 
   def github_supported_pull_request_action?
-    github_pull_request? && ALLOWED_PULL_REQUEST_ACTIONS.include?(hook_action)
+    github_pull_request? && ALLOWED_GITHUB_PULL_REQUEST_ACTIONS.include?(hook_action)
   end
 
   def github_supported_push_action?

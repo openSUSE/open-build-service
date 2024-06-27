@@ -3,7 +3,7 @@ module WorkflowRunGiteaPayload
   extend ActiveSupport::Concern
 
   ALLOWED_GITEA_EVENTS = %w[pull_request push ping].freeze
-  ALLOWED_PULL_REQUEST_ACTIONS = %w[closed opened reopened synchronize synchronized].freeze
+  ALLOWED_GITEA_PULL_REQUEST_ACTIONS = %w[closed opened reopened synchronize synchronized].freeze
 
   private
 
@@ -62,11 +62,11 @@ module WorkflowRunGiteaPayload
   end
 
   def gitea_supported_event?
-    scm_vendor == 'gitea' && ALLOWED_GITHUB_EVENTS.include?(hook_event)
+    scm_vendor == 'gitea' && ALLOWED_GITEA_EVENTS.include?(hook_event)
   end
 
   def gitea_supported_pull_request_action?
-    gitea_pull_request? && ALLOWED_PULL_REQUEST_ACTIONS.include?(hook_action)
+    gitea_pull_request? && ALLOWED_GITEA_PULL_REQUEST_ACTIONS.include?(hook_action)
   end
 
   def gitea_supported_push_action?
