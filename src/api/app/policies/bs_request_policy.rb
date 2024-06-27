@@ -9,8 +9,9 @@ class BsRequestPolicy < ApplicationPolicy
   end
 
   def handle_request?
-    is_target_maintainer = record.is_target_maintainer?(user)
-    record.state.in?(%i[new review declined]) && (is_target_maintainer || author?)
+    return false if %i[new review declined].exclude?(record.state)
+
+    author? || record.is_target_maintainer?(user) || record.is_source_maintainer?(user)
   end
 
   def add_reviews?
@@ -20,7 +21,9 @@ class BsRequestPolicy < ApplicationPolicy
   end
 
   def revoke_request?
-    author? && record.state.in?(%i[new review declined])
+    return false if %i[new review declined].exclude?(record.state)
+
+    author? || record.is_source_maintainer?(user)
   end
 
   def report?
