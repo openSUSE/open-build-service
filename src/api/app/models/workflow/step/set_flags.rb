@@ -66,21 +66,4 @@ class Workflow::Step::SetFlags < Workflow::Step
 
     "#{project_name}:#{pr_subproject_name}:PR-#{workflow_run.pr_number}"
   end
-
-  # TODO: Totally duplicated from Workflow::Step. Remove the duplication by using a service instead for all steps depending on this method.
-  def target_package_name(package_name:, short_commit_sha: false)
-    case
-    when workflow_run.pull_request_event?
-      package_name
-    when workflow_run.push_event?
-      commit_sha = workflow_run.commit_sha
-      if short_commit_sha
-        "#{package_name}-#{commit_sha.slice(0, SHORT_COMMIT_SHA_LENGTH)}"
-      else
-        "#{package_name}-#{commit_sha}"
-      end
-    when workflow_run.tag_push_event?
-      "#{package_name}-#{workflow_run.tag_name}"
-    end
-  end
 end

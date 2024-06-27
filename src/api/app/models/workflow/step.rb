@@ -42,8 +42,8 @@ class Workflow::Step
     # It's possible for a package to not exist, so we simply rescue and do nothing. The package will be created later in the step.
   end
 
-  def target_package_name(short_commit_sha: false)
-    package_name = step_instructions[:target_package] || step_instructions[:source_package]
+  def target_package_name(package_name: nil, short_commit_sha: false)
+    package_name = package_name || step_instructions[:target_package] || step_instructions[:source_package]
 
     case
     when workflow_run.pull_request_event?
