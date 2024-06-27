@@ -84,23 +84,12 @@ class UpdateReleasedBinariesJob < CreateJob
         end
 
         if backend_binary['project'].present? && backend_binary['package'].present?
-          # the package may be missing if the binary comes via DoD
-          source_package = Package.striping_multibuild_suffix(backend_binary['package'])
-          rp = Package.find_by_project_and_name(backend_binary['project'], source_package)
-          if source_package.include?(':') && !source_package.start_with?('_product:')
-            flavor_name = backend_binary['package'].gsub(/^#{source_package}:/, '')
-            new_binary_release.flavor = flavor_name
-          end
-          new_binary_release.release_package_id = rp&.id
+          new_binary_release.flavor = Package.multibuild_flavor(backend_binary['package'])
+          package_name = Package.striping_multibuild_suffix(backend_binary['package'])
+          new_binary_release.release_package_id = Package.find_by_project_and_name(backend_binary['project'], package_name)&.id
         end
-        if backend_binary['patchinforef']
-          begin
-            patchinfo = Patchinfo.new(data: Backend::Api::Sources::Project.patchinfo(backend_binary['patchinforef']))
-          rescue Backend::NotFoundError
-            # patchinfo disappeared meanwhile
-          end
-          new_binary_release.binary_maintainer = patchinfo.hashed['packager'] if patchinfo && patchinfo.hashed['packager']
-        end
+
+        new_binary_release.binary_maintainer = get_maintainer_from_patchinfo(backend_binary['patchinforef']) if backend_binary['patchinforef']
 
         # put a reference to the medium aka container
         new_binary_release.on_medium = medium_hash[backend_binary['medium']] if backend_binary['medium'].present?
@@ -129,5 +118,14 @@ class UpdateReleasedBinariesJob < CreateJob
       old_binary.supportstatus == new_binary['supportstatus'] &&
       (old_binary.binaryid.nil? || old_binary.binaryid == new_binary['binaryid']) &&
       old_binary.buildtime.to_i == new_binary['buildtime'].to_i
+  end
+
+  def get_maintainer_from_patchinfo(patchinforef)
+    begin
+      patchinfo = Patchinfo.new(data: Backend::Api::Sources::Project.patchinfo(patchinforef))
+    rescue Backend::NotFoundError
+      # patchinfo disappeared meanwhile
+    end
+    patchinfo.hashed['packager'] if patchinfo
   end
 end
