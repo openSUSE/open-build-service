@@ -23,7 +23,7 @@
             %option{ value: 'default', selected: 'selected' } Default
             %option{ value: 'percent' } Percent
           .d-flex
-            = image_tag(project_package_badge_url(project, package, format: 'svg'), id: 'badge-preview', class: 'mt-3 mx-auto')
+            = image_tag('', id: 'badge-preview', class: 'mt-3 mx-auto')
         .modal-footer
           .input-group.w-100
             = render CopyToClipboardInputComponent.new(input_text: project_package_badge_url(project, package, format: 'svg'))
