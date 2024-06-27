@@ -32,6 +32,7 @@
                 - if result[:repository] == repo
                   = render partial: 'webui/shared/build_status_badge', locals: { status: result[:status],
                                                                                  text: result[:status].humanize,
+                                                                                 details: result[:details],
                                                                                  architecture: result[:architecture],
                                                                                  url: helpers.live_build_log_url(result[:status],
                                                                                                          result[:project_name],
