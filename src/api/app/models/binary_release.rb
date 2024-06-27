@@ -22,11 +22,6 @@ class BinaryRelease < ApplicationRecord
   validates :binary_name, :binary_releasetime, presence: true
   validates :binary_epoch, :binary_version, :binary_release, :binary_arch, length: { maximum: 64 }
 
-  # esp. for docker/appliance/python-venv-rpms and friends
-  def medium_container
-    on_medium.try(:release_package)
-  end
-
   def render_xml
     builder = Nokogiri::XML::Builder.new
     builder.binary(render_attributes) do |binary|
