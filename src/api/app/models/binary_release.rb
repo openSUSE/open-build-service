@@ -18,6 +18,8 @@ class BinaryRelease < ApplicationRecord
 
   belongs_to :repository
   belongs_to :release_package, class_name: 'Package', optional: true
+  # A medium is a BinaryRelease that contains other BinaryRelease.
+  # Think: A container image is a BinaryRelease that contains lots of RPM Package BinaryRelease.
   belongs_to :on_medium, class_name: 'BinaryRelease', optional: true
   validates :binary_name, :binary_releasetime, presence: true
   validates :binary_epoch, :binary_version, :binary_release, :binary_arch, length: { maximum: 64 }

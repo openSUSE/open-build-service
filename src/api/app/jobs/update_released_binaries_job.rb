@@ -36,18 +36,29 @@ class UpdateReleasedBinariesJob < CreateJob
   #   - sets BinaryRelease.obsolete_time
   #
   def update_binary_releases_for_repository(repository, new_binary_releases, time = Time.now)
-    # building a hash to avoid single SQL select calls slowing us down too much
+    # We record BinaryRelease attributes in this hash of hashes to be able to compare them later on.
+    # This is an optimization so we do not have to fetch BinaryRelease individually from the database.
+    # FIXME: This is exactly what ActiveRecord::Associations::CollectionProxy does no?
     old_binary_releases = {}
+
+    # We record all the BinaryRelease we process in this method to mark all but the current_binary_releases
+    # as "obsolete" at the end.
+    current_binary_releases = {}
+
+    # The Backend expresses the association between BinaryRelease via medium/ismedium:
+    #   - A BinaryRelease on a medium has the attribute `medium: 'openSUSE_Leap'`.
+    #   - A BinaryRelease that is a medium has the attribute `ismedium: 'openSUSE_Leap'`.
+    # We use this hash to build the BinaryRelease.on_medium relationship from the backend data
+    medium_hash = {}
+
+    # FIXME: This job is the only thing that ever changes the BinaryRelease table. It runs in it's own queue
+    #        with one worker. Only one UpdateReleasedBinariesJob will run at once. Why do we need this transaction?
     BinaryRelease.transaction do
+      # Populate the old_binary_releases hash
       repository.binary_releases.current.unchanged.find_each do |binary|
         key = hashkey_binary_release(binary)
         old_binary_releases[key] = binary.slice(:disturl, :supportstatus, :binaryid, :buildtime, :id)
       end
-
-      current_binary_releases = {}
-
-      # when we have a medium providing further entries
-      medium_hash = {}
 
       new_binary_releases.each do |backend_binary|
         backend_binary = backend_binary.with_indifferent_access
@@ -64,23 +75,25 @@ class UpdateReleasedBinariesJob < CreateJob
         new_binary_release.binary_releasetime = time
 
         # Set defaults for versions/release
+        # FIXME: This could also happen in the database instead...
         new_binary_release.version = backend_binary['version'] || 0 # e.g. docker containers have no version
         new_binary_release.release = backend_binary['release'] || 0
 
-        # getting activerecord object from hash, dup to unfreeze it
         old_binary_release = old_binary_releases[hashkey_binary_release(backend_binary)]
         if old_binary_release
-          # still exists, do not touch obsolete time
+          # Fetch the full record from the database
           old_binary_release = repository.binary_releases.find(old_binary_release[:id])
           current_binary_releases[old_binary_release.id] = true
+          # If the BinaryRelease is unchanged we leave it be
           if old_and_new_binary_identical?(old_binary_release, backend_binary)
-            # but collect the media
+            # Populate the medium_hash
             medium_hash[backend_binary['ismedium']] = old_binary_release if backend_binary['ismedium'].present?
             next
           end
           # Set modify_time to whenever the Event::Packtrack happened that triggered this job
           old_binary_release.update_columns(modify_time: time)
-          new_binary_release.operation = 'modified' # new entry will get "modified" instead of "added"
+          # We are still going to create a new BinaryRelease with updated attributes that "replaces" old_binary_release
+          new_binary_release.operation = 'modified'
         end
 
         if backend_binary['project'].present? && backend_binary['package'].present?
@@ -91,14 +104,12 @@ class UpdateReleasedBinariesJob < CreateJob
 
         new_binary_release.binary_maintainer = get_maintainer_from_patchinfo(backend_binary['patchinforef']) if backend_binary['patchinforef']
 
-        # put a reference to the medium aka container
         new_binary_release.on_medium = medium_hash[backend_binary['medium']] if backend_binary['medium'].present?
 
-        # new entry, also for modified binaries.
         new_binary_release.save
         current_binary_releases[new_binary_release.id] = true
 
-        # store in medium case
+        # populate the medium_hash
         medium_hash[backend_binary['ismedium']] = new_binary_release if backend_binary['ismedium'].present?
       end
 
