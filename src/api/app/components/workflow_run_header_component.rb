@@ -1,5 +1,5 @@
 class WorkflowRunHeaderComponent < WorkflowRunRowComponent
-  def initialize(workflow_run:)
+  def initialize(workflow_run:, token_id:)
     super
 
     @workflow_run = workflow_run
