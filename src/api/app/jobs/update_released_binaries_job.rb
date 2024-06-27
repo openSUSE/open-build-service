@@ -44,7 +44,7 @@ class UpdateReleasedBinariesJob < CreateJob
         old_binary_releases[key] = binary.slice(:disturl, :supportstatus, :binaryid, :buildtime, :id)
       end
 
-      processed_item = {}
+      current_binary_releases = {}
 
       # when we have a medium providing further entries
       medium_hash = {}
@@ -72,7 +72,7 @@ class UpdateReleasedBinariesJob < CreateJob
         if old_binary_release
           # still exists, do not touch obsolete time
           old_binary_release = repository.binary_releases.find(old_binary_release[:id])
-          processed_item[old_binary_release.id] = true
+          current_binary_releases[old_binary_release.id] = true
           if old_and_new_binary_identical?(old_binary_release, backend_binary)
             # but collect the media
             medium_hash[backend_binary['ismedium']] = old_binary_release if backend_binary['ismedium'].present?
@@ -96,14 +96,14 @@ class UpdateReleasedBinariesJob < CreateJob
 
         # new entry, also for modified binaries.
         new_binary_release.save
-        processed_item[new_binary_release.id] = true
+        current_binary_releases[new_binary_release.id] = true
 
         # store in medium case
         medium_hash[backend_binary['ismedium']] = new_binary_release if backend_binary['ismedium'].present?
       end
 
-      # and mark all not processed binaries as removed
-      repository.binary_releases.current.unchanged.where.not(id: processed_item.keys).update_all(obsolete_time: time)
+      # and mark all but the current BinaryRelease as obsolete
+      repository.binary_releases.current.unchanged.where.not(id: current_binary_releases.keys).update_all(obsolete_time: time)
     end
   end
 
