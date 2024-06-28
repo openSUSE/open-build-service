@@ -1083,8 +1083,9 @@ eval {
     # trigger dod package fetching
     BSSched::DoD::dodfetch($ctx) if $ctx->{'doddownloads'};
 
-    # we always publish product builds...
-    if ($isfinished || (!$bconf->{'publishflags:noearlykiwipublish'} &&
+    # we always publish some build types right away...
+    my $noearlypublish = $bconf->{'publishflags:noearlypublish'} || $bconf->{'publishflags:noearlykiwipublish'};
+    if ($isfinished || (!$noearlypublish &&
                         ($ctx->{'prptype'} eq 'kiwi' || $ctx->{'prptype'} eq 'productcompose'))) {
       my ($pubstate, $pubdetails) = $ctx->publish();
       if ($pubstate && $pubstate eq 'delayed') {
