@@ -50,10 +50,6 @@ module WorkflowRunGitlabPayload
     payload[:after] if gitlab_tag_push_event?
   end
 
-  def gitlab_object_kind
-    payload[:object_kind]
-  end
-
   def gitlab_hook_action
     payload.dig('object_attributes', 'action')
   end
