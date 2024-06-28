@@ -87,7 +87,7 @@ class UpdateReleasedBinariesJob < CreateJob
           # If the BinaryRelease is unchanged we leave it be
           if old_and_new_binary_identical?(old_binary_release, backend_binary)
             # Populate the medium_hash
-            medium_hash[backend_binary['ismedium']] = old_binary_release if backend_binary['ismedium'].present?
+            medium_hash[backend_binary['ismedium']] = old_binary_release.id if backend_binary['ismedium'].present?
             next
           end
           # Set modify_time to whenever the Event::Packtrack happened that triggered this job
@@ -104,13 +104,13 @@ class UpdateReleasedBinariesJob < CreateJob
 
         new_binary_release.binary_maintainer = get_maintainer_from_patchinfo(backend_binary['patchinforef']) if backend_binary['patchinforef']
 
-        new_binary_release.on_medium = medium_hash[backend_binary['medium']] if backend_binary['medium'].present?
+        new_binary_release.on_medium_id = medium_hash[backend_binary['medium']] if backend_binary['medium'].present?
 
         new_binary_release.save
         current_binary_releases[new_binary_release.id] = true
 
         # populate the medium_hash
-        medium_hash[backend_binary['ismedium']] = new_binary_release if backend_binary['ismedium'].present?
+        medium_hash[backend_binary['ismedium']] = new_binary_release.id if backend_binary['ismedium'].present?
       end
 
       # and mark all but the current BinaryRelease as obsolete
