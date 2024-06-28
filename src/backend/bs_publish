@@ -2238,7 +2238,7 @@ sub publish {
     $found_repo = 1 if -e $r;
   }
   # no published binary found, but we may want an empty repo nevertheless?
-  $found_repo = 1 if $config->{'publishflags:create_empty'};
+  $found_repo = 1 if $config->{'publishflags:createempty'} || $config->{'publishflags:create_empty'};
   if (!defined($found_repo)) {
     deleterepo($projid, $repoid);
     return;
@@ -3563,10 +3563,15 @@ sub publishevent {
     set_publish_retry($req, $starttime + 60);
     die("$prp: external publish program still running\n");
   }
+
   my $penalty_multiplier = defined($BSConfig::publish_penalty_multiplier) ? $BSConfig::publish_penalty_multiplier : 1;
-  if ($penalty_multiplier && $publish_lasttime{$prp} && $publish_duration{$prp} > 300 && $publish_lasttime{$prp} + $publish_duration{$prp} * $penalty_multiplier> $starttime) {
-    set_publish_retry($req, $starttime + 60 * 5);
-    die("$prp: not yet\n");
+  if ($penalty_multiplier && $publish_lasttime{$prp} && $publish_duration{$prp} > 300) {
+    my $duration = $publish_duration{$prp} * $penalty_multiplier;
+    $duration = 3600 if $duration > 3600;	# clamp to 1 hour
+    if ($publish_lasttime{$prp} + $duration > $starttime) {
+      set_publish_retry($req, $starttime + 60 * 5);
+      die("$prp: not yet\n");
+    }
   }
 
   notify_state($projid, $repoid, 'publishing');

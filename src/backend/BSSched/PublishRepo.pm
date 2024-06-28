@@ -230,7 +230,7 @@ sub prpfinished {
   }
 
   # let the publisher decide about empty repositories
-  $changed = 1 if $bconf && $bconf->{'publishflags:create_empty'} && ! -e "$reporoot/$prp/:repoinfo";
+  $changed = 1 if $bconf && ($bconf->{'publishflags:createempty'} || $bconf->{'publishflags:create_empty'}) && ! -e "$reporoot/$prp/:repoinfo";
 
   my %newchecksums;
   # sort like in the full tree
