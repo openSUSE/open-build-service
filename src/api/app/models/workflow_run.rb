@@ -45,7 +45,9 @@ class WorkflowRun < ApplicationRecord
   has_many :event_subscriptions, dependent: :destroy
   has_many :notifications, as: :notifiable, dependent: :delete_all
 
-  after_initialize :set_attributes_from_payload
+  before_validation(on: :create) do
+    set_attributes_from_payload
+  end
   after_save :create_event, if: :status_changed_to_fail?
 
   scope :pull_request, -> { where(generic_event_type: 'pull_request') }
@@ -154,11 +156,11 @@ class WorkflowRun < ApplicationRecord
   end
 
   def set_attributes_from_payload
-    self.hook_action = payload_hook_action
-    self.event_source_name = payload_event_source_name
-    self.repository_name = payload_repository_name
-    self.repository_owner = payload_repository_owner
-    self.generic_event_type = payload_generic_event_type
+    self.hook_action ||= payload_hook_action
+    self.event_source_name ||= payload_event_source_name
+    self.repository_name ||= payload_repository_name
+    self.repository_owner ||= payload_repository_owner
+    self.generic_event_type ||= payload_generic_event_type
   end
 
   def event_parameters
