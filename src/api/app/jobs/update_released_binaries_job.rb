@@ -85,7 +85,7 @@ class UpdateReleasedBinariesJob < CreateJob
           old_binary_release = repository.binary_releases.find(old_binary_release[:id])
           current_binary_releases[old_binary_release.id] = true
           # If the BinaryRelease is unchanged we leave it be
-          if old_and_new_binary_identical?(old_binary_release, backend_binary)
+          if old_and_new_binary_identical?(old_binary_release, new_binary_release)
             # Populate the medium_hash
             medium_hash[backend_binary['ismedium']] = old_binary_release.id if backend_binary['ismedium'].present?
             next
@@ -125,10 +125,10 @@ class UpdateReleasedBinariesJob < CreateJob
   def old_and_new_binary_identical?(old_binary, new_binary)
     # We ignore not set binary_id in db because it got introduced later
     # we must not touch the modification time in that case
-    old_binary.disturl == new_binary['disturl'] &&
-      old_binary.supportstatus == new_binary['supportstatus'] &&
-      (old_binary.binaryid.nil? || old_binary.binaryid == new_binary['binaryid']) &&
-      old_binary.buildtime.to_i == new_binary['buildtime'].to_i
+    old_binary.disturl == new_binary.disturl &&
+      old_binary.supportstatus == new_binary.supportstatus &&
+      (old_binary.binaryid.nil? || old_binary.binaryid == new_binary.binaryid) &&
+      old_binary.buildtime == new_binary.buildtime
   end
 
   def get_maintainer_from_patchinfo(patchinforef)
