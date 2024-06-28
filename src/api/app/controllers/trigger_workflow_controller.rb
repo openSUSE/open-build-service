@@ -14,12 +14,25 @@ class TriggerWorkflowController < ApplicationController
 
   before_action :set_token
   before_action :validate_token_type
-  before_action :set_workflow_run
+
+  # overwrite the exception handling inherited from the rescue handler
+  rescue_from ActiveRecord::RecordInvalid do |exception|
+    if exception.record.errors[:hook_action].any? || exception.record.errors[:hook_event].any?
+      render_ok(data: { info: exception.record.errors.full_messages.to_sentence })
+    else
+      render_error(status: 400, message: exception.record.errors.full_messages.to_sentence)
+    end
+  end
 
   def create
     authorize @token, :trigger?
 
-    @workflow_run.save!
+    @workflow_run = @token.workflow_runs.create!(request_headers: request_headers,
+                                                 request_payload: request.body.read,
+                                                 workflow_configuration_path: @token.workflow_configuration_path,
+                                                 workflow_configuration_url: @token.workflow_configuration_url,
+                                                 scm_vendor: scm_vendor,
+                                                 hook_event: hook_event)
 
     @token.executor.run_as do
       validation_errors = @token.call(workflow_run: @workflow_run)
@@ -55,23 +68,9 @@ class TriggerWorkflowController < ApplicationController
     raise Trigger::Errors::InvalidToken, 'Wrong token type. Please use workflow tokens only.' unless @token.is_a?(Token::Workflow)
   end
 
-  def set_workflow_run
-    request_headers = request.headers.to_h.keys.filter_map { |k| "#{k}: #{request.headers[k]}" if k.match?(/^HTTP_/) }.join("\n")
-    @workflow_run = @token.workflow_runs.new(request_headers: request_headers,
-                                             request_payload: request.body.read,
-                                             workflow_configuration_path: @token.workflow_configuration_path,
-                                             workflow_configuration_url: @token.workflow_configuration_url,
-                                             scm_vendor: scm_vendor,
-                                             hook_event: hook_event)
-    @workflow_run.valid?
-    return unless @workflow_run.errors.any?
-
-    # There are plenty of SCM events we do not handle at all (yet).
-    # Instead of throwing and errror we just ignore them.
-    if @workflow_run.errors[:hook_action].any? || @workflow_run.errors[:hook_event].any?
-      render_ok(data: { info: @workflow_run.errors.full_messages.to_sentence })
-    else
-      render_error(status: 400, message: @workflow_run.errors.full_messages.to_sentence)
-    end
+  def request_headers
+    request.headers.to_h.keys.filter_map do |k|
+      "#{k}: #{request.headers[k]}" if k.match?(/^HTTP_/)
+    end.join("\n")
   end
 end
