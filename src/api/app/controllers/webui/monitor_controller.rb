@@ -74,8 +74,13 @@ class Webui::MonitorController < Webui::WebuiController
 
   private
 
+  UPPER_RANGE_LIMIT = 24 * 365
+
   def status_history(key, range)
-    MonitorControllerService::StatusHistoryFetcher.new(key, range.to_i).call
+    user_range = [UPPER_RANGE_LIMIT, range.to_i].min
+    Rails.cache.fetch("#{key}-#{user_range}", expires_in: (user_range.to_i * 3600) / 150) do
+      StatusHistory.history_by_key_and_hours(key, user_range).sort_by { |a| a[0] }
+    end
   end
 
   def set_default_architecture
