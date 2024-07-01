@@ -1695,7 +1695,7 @@ sub workerstate {
       'hostarch' => $harch,
       'ip' => $peerip,
       'port' => $peerport,
-      'uri' => "$peerproto://$peerip:$peerport",
+      'uri' => ( $peerip =~ m/:/ ? "$peerproto://[$peerip]:$peerport" : "$peerproto://$peerip:$peerport" ),
       'workerid' => $workerid,
     };
     $worker = { %$workerskel, %$worker } if $workerskel;
@@ -1704,7 +1704,7 @@ sub workerstate {
     # make sure that we can connect to the client
     if ($BSConfig::checkclientconnectivity || $BSConfig::checkclientconnectivity) {
       my $param = {
-	'uri' => "http://$peerip:$peerport/status",
+	'uri' => ( $peerip =~ m/:/ ? "$peerproto://[$peerip]:$peerport/status" : "$peerproto://$peerip:$peerport/status" ),
         'async' => 1,
         'timeout' => 1,
 	'sender' => sub {},
