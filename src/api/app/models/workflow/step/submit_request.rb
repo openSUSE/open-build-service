@@ -42,7 +42,11 @@ class Workflow::Step::SubmitRequest < Workflow::Step
     @bs_request.save!
 
     Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, @bs_request).call
-    SCMStatusReporter.new({ number: @bs_request.number, state: @bs_request.state }, scm_webhook.payload, @token.scm_token, workflow_run, 'Event::RequestStatechange').call
+    SCMStatusReporter.new(event_payload: { number: @bs_request.number, state: @bs_request.state },
+                          event_subscription_payload: scm_webhook.payload,
+                          scm_token: @token.scm_token,
+                          workflow_run: workflow_run,
+                          event_type: 'Event::RequestStatechange').call
     @bs_request
   end
 
