@@ -11,6 +11,10 @@ module WorkflowRunGitlabPayload
     payload[:project_id] if gitlab_push_event? || gitlab_tag_push_event?
   end
 
+  def gitlab_path_with_namespace
+    payload.dig(:project, :path_with_namespace) if gitlab_push_event? || gitlab_tag_push_event?
+  end
+
   private
 
   def gitlab_commit_sha

@@ -93,6 +93,14 @@ module WorkflowRunPayload
     github_api_endpoint || gitlab_api_endpoint || gitea_api_endpoint
   end
 
+  def project_id
+    gitlab_project_id
+  end
+
+  def path_with_namespace
+    gitlab_path_with_namespace
+  end
+
   private
 
   def payload_generic_event_type
