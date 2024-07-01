@@ -5,6 +5,7 @@ RSpec.describe ReportToSCMJob do
   let(:package) { create(:package, name: 'package_1', project: project) }
   let(:repository) { create(:repository, name: 'repository_1', project: project) }
   let(:event) { Event::BuildSuccess.create({ project: project.name, package: package.name, repository: repository.name, reason: 'foo' }) }
+  let(:workflow_run) { create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', hook_action: 'opened', token: token) }
   let(:event_subscription) do
     EventSubscription.create(token: token,
                              user: user,
@@ -12,7 +13,8 @@ RSpec.describe ReportToSCMJob do
                              receiver_role: 'reader',
                              payload: { scm: 'github' },
                              eventtype: 'Event::BuildSuccess',
-                             channel: :scm)
+                             channel: :scm,
+                             workflow_run_id: workflow_run.id)
   end
 
   shared_examples 'not reporting to the SCM' do
