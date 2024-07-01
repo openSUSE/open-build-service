@@ -78,7 +78,7 @@ class Webui::MonitorController < Webui::WebuiController
 
   def status_history(key, range)
     user_range = [UPPER_RANGE_LIMIT, range.to_i].min
-    Rails.cache.fetch("#{key}-#{user_range}", expires_in: (user_range.to_i * 3600) / 150) do
+    Rails.cache.fetch("#{key}-#{user_range}", expires_in: user_range.to_i.hours / 150) do
       StatusHistory.history_by_key_and_hours(key, user_range).sort_by { |a| a[0] }
     end
   end
