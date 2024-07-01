@@ -33,9 +33,9 @@ module UserService
 
       if filter_by_role?
         involved_items.concat(pkg_or_prj_filtered_by_roles(user: @user, klass: Project, roles: roles)) if consider_involved_projects?
-        involved_items.concat(pkg_or_prj_filtered_by_roles(user: @user, klass: Package, roles: roles)) if consider_involved_packages?
+        involved_items.concat(pkg_or_prj_filtered_by_roles(user: @user, klass: Package, roles: roles).includes(:project)) if consider_involved_packages?
       else
-        involved_items.concat(pkg_or_prj_unfiltered(user: @user, klass: Package)) if consider_involved_packages?
+        involved_items.concat(pkg_or_prj_unfiltered(user: @user, klass: Package).includes(:project)) if consider_involved_packages?
         involved_items.concat(pkg_or_prj_unfiltered(user: @user, klass: Project)) if consider_involved_projects?
       end
       sort_involved_items(involved_items.uniq)
@@ -119,7 +119,7 @@ module UserService
     end
 
     def pkg_or_prj_unfiltered(user:, klass:)
-      return [] if filter_by_owner?
+      return klass.none if filter_by_owner?
 
       results = klass.related_to_user(user.id).or(klass.related_to_group(user.group_ids))
       results = filter_by_search_text(klass: results) if search_text_present?
