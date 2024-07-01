@@ -64,29 +64,23 @@ module UserService
     end
 
     def filter_by_role?
-      return true if roles_to_filter.present?
-
-      false
+      roles_to_filter.present?
     end
 
     def filter_by_owner?
-      return true if @filters['role_owner'].present?
-
-      false
+      @filters['role_owner'].present?
     end
 
     def consider_involved_projects?
       return true if @filters['involved_projects'].present?
-      return true unless klass_filter_present?
 
-      false
+      !klass_filter_present?
     end
 
     def consider_involved_packages?
       return true if @filters['involved_packages'].present?
-      return true unless klass_filter_present?
 
-      false
+      !klass_filter_present?
     end
 
     def klass_filter_present?
