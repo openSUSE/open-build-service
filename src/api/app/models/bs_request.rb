@@ -857,7 +857,17 @@ class BsRequest < ApplicationRecord
         begin
           change_state(newstate: 'accepted', comment: 'Auto accept')
         rescue BsRequest::Errors::UnderEmbargo
-          # not yet free to release, postponing it without touching
+          # not yet free to release, postponing it to the embargo time
+          embargo_date = Time.now
+          bs_request_actions.each do |action|
+            next unless action.source_project
+
+            candidate = Project::EmbargoHandler.new(action.source_project).embargo_date
+            embargo_date = candidate if candidate > embargo_date
+          end
+          # special case when just the day is set, it is still blocked the entire day
+          embargo_date = embargo_date.tomorrow if embargo_date.hour.zero? && embargo_date.min.zero? && embargo_date.sec.zero?
+          BsRequestAutoAcceptJob.set(wait_until: embargo_date).perform_later(id)
         rescue BsRequestPermissionCheck::NotExistingTarget
           change_state(newstate: 'revoked', comment: 'Target disappeared')
         rescue PostRequestNoPermission
