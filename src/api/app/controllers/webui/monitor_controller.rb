@@ -74,8 +74,13 @@ class Webui::MonitorController < Webui::WebuiController
 
   private
 
+  HOURS_IN_ONE_YEAR = 8760
+
   def status_history(key, range)
-    MonitorControllerService::StatusHistoryFetcher.new(key, range.to_i).call
+    user_range = [HOURS_IN_ONE_YEAR, range.to_i].min
+    Rails.cache.fetch("#{key}-#{user_range}", expires_in: user_range.to_i.hours / 150) do
+      StatusHistory.history_by_key_and_hours(key, user_range).sort_by { |a| a[0] }
+    end
   end
 
   def set_default_architecture
