@@ -89,9 +89,6 @@ constraints(RoutesHelper::WebuiMatcher) do
       post 'package/create/:project' => :create, constraints: cons, as: 'packages'
       get 'package/new/:project' => :new, constraints: cons, as: 'new_package'
       post 'package/remove/:project/:package' => :remove, constraints: cons
-      post 'package/save_person/:project/:package' => :save_person, constraints: cons, as: 'package_save_person'
-      post 'package/save_group/:project/:package' => :save_group, constraints: cons, as: 'package_save_group'
-      post 'package/remove_role/:project/:package' => :remove_role, constraints: cons, as: 'package_remove_role'
       # For backward compatibility
       get 'package/view_file/:project/:package/:filename', to: redirect('/projects/%{project}/packages/%{package}/files/%{filename}'), constraints: cons
       get 'package/devel_project/:project/:package' => :devel_project, constraints: cons, as: 'package_devel_project'
@@ -107,6 +104,12 @@ constraints(RoutesHelper::WebuiMatcher) do
       # For backward compatibility
       get 'package/files/:project/:package' => :show, constraints: cons
     end
+  end
+
+  controller 'webui/package' do
+    post 'package/save_person/:project/:package' => :save_person, constraints: cons, as: 'package_save_person'
+    post 'package/save_group/:project/:package' => :save_group, constraints: cons, as: 'package_save_group'
+    post 'package/remove_role/:project/:package' => :remove_role, constraints: cons, as: 'package_remove_role'
   end
 
   resources :packages, only: [], param: :name do
