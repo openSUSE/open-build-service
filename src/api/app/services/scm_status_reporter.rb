@@ -8,7 +8,7 @@ class SCMStatusReporter
     'gitea' => GiteaStatusReporter
   }.freeze
 
-  def initialize(event_payload, event_subscription_payload, scm_token, workflow_run = nil, event_type = nil, initial_report: false)
+  def initialize(event_payload:, event_subscription_payload:, scm_token:, workflow_run: nil, event_type: nil, initial_report: false)
     @event_payload = event_payload.deep_symbolize_keys
     @event_subscription_payload = event_subscription_payload.deep_symbolize_keys
     @scm_token = scm_token

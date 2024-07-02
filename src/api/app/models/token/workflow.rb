@@ -31,7 +31,7 @@ class Token::Workflow < Token
 
     # We return early with a ping event, since it doesn't make sense to perform payload checks with it, just respond
     if @scm_webhook.ping_event?
-      SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, 'success', initial_report: true).call
+      SCMStatusReporter.new(event_payload: @scm_webhook.payload, event_subscription_payload: @scm_webhook.payload, scm_token: scm_token, workflow_run: workflow_run, event_type: 'success', initial_report: true).call
       return []
     end
 
@@ -41,13 +41,13 @@ class Token::Workflow < Token
     return validation_errors unless validation_errors.none?
 
     # This is just an initial generic report to give a feedback asap. Initial status pending
-    SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, initial_report: true).call
+    SCMStatusReporter.new(event_payload: @scm_webhook.payload, event_subscription_payload: @scm_webhook.payload, scm_token: scm_token, workflow_run: workflow_run, initial_report: true).call
     @workflows.each do |workflow|
       return workflow.errors.full_messages if workflow.invalid?(:call)
 
       workflow.call
     end
-    SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, 'success', initial_report: true).call
+    SCMStatusReporter.new(event_payload: @scm_webhook.payload, event_subscription_payload: @scm_webhook.payload, scm_token: scm_token, workflow_run: workflow_run, event_type: 'success', initial_report: true).call
     # Always returning validation errors to report them back to the SCM in order to help users debug their workflows
     validation_errors
   rescue Octokit::Unauthorized, Gitlab::Error::Unauthorized
