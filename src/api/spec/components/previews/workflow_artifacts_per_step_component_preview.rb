@@ -44,7 +44,7 @@ class WorkflowArtifactsPerStepComponentPreview < ViewComponent::Preview
                                                            }
                                                          ]
                                                        },
-                                                       scm_webhook: scm_webhook,
+                                                       workflow_run: workflow_run,
                                                        token: token
                                                      })
 
@@ -57,20 +57,6 @@ class WorkflowArtifactsPerStepComponentPreview < ViewComponent::Preview
   end
 
   private
-
-  def extractor_payload
-    {
-      scm: 'github',
-      action: 'reopened',
-      event: 'pull_request',
-      pr_number: 4,
-      target_repository_full_name: 'openSUSE/open-build-service'
-    }
-  end
-
-  def scm_webhook
-    SCMWebhook.new(payload: extractor_payload)
-  end
 
   def token
     Token.first
@@ -86,7 +72,7 @@ class WorkflowArtifactsPerStepComponentPreview < ViewComponent::Preview
         project: 'OBS:Server:Unstable',
         package: 'obs-server'
       },
-      scm_webhook: scm_webhook,
+      workflow_run: workflow_run,
       token: token
     }
   end
@@ -98,7 +84,7 @@ class WorkflowArtifactsPerStepComponentPreview < ViewComponent::Preview
         source_package: 'obs-server',
         target_project: 'OBS:Server:Unstable:CI'
       },
-      scm_webhook: scm_webhook,
+      workflow_run: workflow_run,
       token: token
     }
   end

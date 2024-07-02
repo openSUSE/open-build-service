@@ -54,7 +54,7 @@
     .px-4.py-1
       = render partial: 'webui/shared/select', locals: { filter_item: 'request_action',
                                                          selected_value: @selected_filter[:request_action],
-                                                         filter_options: SCMWebhook::ALL_POSSIBLE_REQUEST_ACTIONS,
+                                                         filter_options: WorkflowRun::ALL_POSSIBLE_REQUEST_ACTIONS,
                                                          label: 'Action', visible_inner_label: true }
   .list-group.list-group-flush.mt-4.mb-4
     %h6.px-3.py-2

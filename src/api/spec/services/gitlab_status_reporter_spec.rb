@@ -1,5 +1,24 @@
 RSpec.describe GitlabStatusReporter, type: :service do
   let(:scm_status_reporter) { GitlabStatusReporter.new(event_payload, event_subscription_payload, token, state, workflow_run, event_type, initial_report: initial_report) }
+  let(:workflow_run) { create(:workflow_run_gitlab, request_payload: request_payload, token: create(:workflow_token, string: token)) }
+  let(:request_payload) do
+    {
+      object_kind: 'merge_request',
+      event_type: 'merge_request',
+      object_attributes: {
+        iid: 1,
+        action: 'open',
+        url: 'http://github.com/something',
+        source_project_id: '26_212_710',
+        target: {
+          path_with_namespace: 'openSUSE/repo123'
+        },
+        last_commit: {
+          id: '123456789'
+        }
+      }
+    }.to_json
+  end
 
   describe '.new' do
     context 'status pending when event_type is missing' do
@@ -9,7 +28,6 @@ RSpec.describe GitlabStatusReporter, type: :service do
       let(:event_subscription_payload) { {} }
       let(:token) { 'XYCABC' }
       let(:event_type) { nil }
-      let(:workflow_run) { nil }
       let(:state) { 'pending' }
       let(:initial_report) { false }
 
@@ -23,7 +41,6 @@ RSpec.describe GitlabStatusReporter, type: :service do
       let(:event_subscription_payload) { { scm: 'gitlab' } }
       let(:token) { 'XYCABC' }
       let(:event_type) { 'Event::BuildFail' }
-      let(:workflow_run) { nil }
       let(:state) { 'failed' }
       let(:initial_report) { false }
 
@@ -45,7 +62,6 @@ RSpec.describe GitlabStatusReporter, type: :service do
       let(:token) { 'XYCABC' }
       let(:event_type) { nil }
       let(:state) { 'pending' }
-      let(:workflow_run) { nil }
       let(:initial_report) { false }
       let(:status_options) do
         {
@@ -68,6 +84,25 @@ RSpec.describe GitlabStatusReporter, type: :service do
     context 'when reporting a submit request' do
       subject { scm_status_reporter.call }
 
+      let(:request_payload) do
+        {
+          object_kind: 'merge_request',
+          event_type: 'merge_request',
+          object_attributes: {
+            iid: 1,
+            action: 'open',
+            url: 'http://github.com/something',
+            source_project_id: 'danidoni/hello_world',
+            target: {
+              path_with_namespace: 'openSUSE/repo123'
+            },
+            last_commit: {
+              id: '123456789'
+            }
+          }
+        }.to_json
+      end
+
       let(:event_payload) do
         { project: 'home:danidoni', package: 'hello_world',
           repository: 'openSUSE_Tumbleweed', arch: 'x86_64',
@@ -79,7 +114,6 @@ RSpec.describe GitlabStatusReporter, type: :service do
       let(:token) { 'XYCABC' }
       let(:event_type) { 'Event::RequestStatechange' }
       let(:state) { 'pending' }
-      let(:workflow_run) { nil }
       let(:initial_report) { false }
       let(:status_options) do
         {

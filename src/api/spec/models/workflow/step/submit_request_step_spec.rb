@@ -1,7 +1,6 @@
 RSpec.describe Workflow::Step::SubmitRequest, :vcr do
   subject do
     described_class.new(step_instructions: step_instructions,
-                        scm_webhook: scm_webhook,
                         token: token,
                         workflow_run: workflow_run)
   end
@@ -13,16 +12,22 @@ RSpec.describe Workflow::Step::SubmitRequest, :vcr do
   let!(:project) { create(:project, name: 'foo_project', maintainer: source_maintainer) }
   let!(:package) { create(:package_with_file, name: 'bar_package', project: project) }
   let(:target_project) { create(:project, name: 'baz_project') }
-  let(:scm_webhook) do
-    SCMWebhook.new(payload: {
-                     scm: 'github',
-                     event: 'pull_request',
-                     action: action,
-                     number: 1,
-                     source_repository_full_name: 'reponame',
-                     commit_sha: '123456789',
-                     target_repository_full_name: 'openSUSE/open-build-service'
-                   })
+  let(:request_payload) do
+    {
+      action: "#{action}",
+      number: 1,
+      pull_request: {
+        html_url: 'http://github.com/something',
+        base: {
+          repo: {
+            full_name: 'openSUSE/open-build-service'
+          }
+        },
+        head: {
+          sha: '123456789'
+        }
+      }
+    }.to_json
   end
   let(:step_instructions) do
     {
@@ -31,7 +36,9 @@ RSpec.describe Workflow::Step::SubmitRequest, :vcr do
       target_project: target_project.name
     }
   end
-  let(:workflow_run) { create(:workflow_run, token: token) }
+  let(:workflow_run) do
+    create(:workflow_run, scm_vendor: 'github', hook_event: hook_event, request_payload: request_payload)
+  end
 
   describe '#call' do
     before do
@@ -41,6 +48,7 @@ RSpec.describe Workflow::Step::SubmitRequest, :vcr do
 
     context 'for a newly opened PR' do
       let(:action) { 'opened' }
+      let(:hook_event) { 'pull_request' }
 
       it 'creates a submit request' do
         expect { subject.call }.to(change(BsRequest.where(state: 'new'), :count).by(1))
@@ -53,6 +61,7 @@ RSpec.describe Workflow::Step::SubmitRequest, :vcr do
 
     context 'for a closed PR' do
       let(:action) { 'closed' }
+      let(:hook_event) { 'pull_request' }
 
       context 'when the token user is authorized' do
         let!(:bs_request) do
@@ -73,6 +82,7 @@ RSpec.describe Workflow::Step::SubmitRequest, :vcr do
 
     context 'for an updated PR' do
       let(:action) { 'synchronize' }
+      let(:hook_event) { 'pull_request' }
 
       context 'when the token user is authorized' do
         let!(:bs_request) do
@@ -105,17 +115,15 @@ RSpec.describe Workflow::Step::SubmitRequest, :vcr do
     end
 
     context 'for a push event' do
-      let(:scm_webhook) do
-        SCMWebhook.new(payload: {
-                         scm: 'github',
-                         event: 'push',
-                         target_branch: 'main',
-                         source_repository_full_name: 'reponame',
-                         commit_sha: '123456789',
-                         target_repository_full_name: 'openSUSE/open-build-service',
-                         ref: 'refs/heads/branch_123',
-                         number: 1
-                       })
+      let(:hook_event) { 'push' }
+      let(:request_payload) do
+        {
+          ref: 'refs/heads/branch_123',
+          after: '123456789',
+          repository: {
+            full_name: 'openSUSE/open-build-service'
+          }
+        }.to_json
       end
 
       it 'creates a submit request' do
@@ -128,17 +136,15 @@ RSpec.describe Workflow::Step::SubmitRequest, :vcr do
     end
 
     context 'for a tag push event' do
-      let(:scm_webhook) do
-        SCMWebhook.new(payload: {
-                         scm: 'github',
-                         event: 'push',
-                         target_branch: 'main',
-                         source_repository_full_name: 'reponame',
-                         commit_sha: '123456789',
-                         target_repository_full_name: 'openSUSE/open-build-service',
-                         ref: 'refs/tags/release_abc',
-                         number: 1
-                       })
+      let(:hook_event) { 'push' }
+      let(:request_payload) do
+        {
+          ref: 'refs/tags/release_abc',
+          after: '123456789',
+          repository: {
+            full_name: 'openSUSE/open-build-service'
+          }
+        }.to_json
       end
 
       it 'creates a submit request' do

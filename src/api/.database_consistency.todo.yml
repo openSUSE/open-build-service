@@ -2018,6 +2018,9 @@ WorkflowArtifactsPerStep:
     ForeignKeyChecker:
       enabled: false
 WorkflowRun:
+  hook_event:
+    ColumnPresenceChecker:
+      enabled: false
   id:
     PrimaryKeyTypeChecker:
       enabled: false
@@ -2027,13 +2030,14 @@ WorkflowRun:
   request_payload:
     LengthConstraintChecker:
       enabled: false
-    NullConstraintChecker:
-      enabled: false
   response_body:
     LengthConstraintChecker:
       enabled: false
   scm_status_reports:
     MissingIndexChecker:
+      enabled: false
+  scm_vendor:
+    ColumnPresenceChecker:
       enabled: false
   token:
     ForeignKeyChecker:

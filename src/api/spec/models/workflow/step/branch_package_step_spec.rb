@@ -1,7 +1,6 @@
 RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
   subject do
     described_class.new(step_instructions: step_instructions,
-                        scm_webhook: scm_webhook,
                         token: token,
                         workflow_run: workflow_run)
   end
@@ -10,18 +9,31 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
   let(:token) { create(:workflow_token, executor: user) }
   let(:target_project_name) { "home:#{user.login}" }
   let(:long_commit_sha) { '123456789' }
-  let(:short_commit_sha) { '1234567' }
-  let(:scm_webhook) do
-    SCMWebhook.new(payload: {
-                     scm: 'github',
-                     event: 'pull_request',
-                     action: action,
-                     pr_number: 1,
-                     source_repository_full_name: 'reponame',
-                     commit_sha: long_commit_sha,
-                     target_repository_full_name: 'openSUSE/open-build-service'
-                   })
+  let(:request_payload) do
+    {
+      action: "#{action}",
+      number: 1,
+      pull_request: {
+        html_url: 'http://github.com/something',
+        base: {
+          repo: {
+            full_name: 'openSUSE/open-build-service'
+          }
+        },
+        head: {
+          sha: "#{long_commit_sha}"
+        }
+      },
+      repository: {
+        name: 'hello_world',
+        html_url: 'https://github.com',
+        owner: {
+          login: 'iggy'
+        }
+      }
+    }.to_json
   end
+
   let(:step_instructions) do
     {
       source_project: project.name,
@@ -29,7 +41,10 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       target_project: target_project_name
     }
   end
-  let(:workflow_run) { create(:workflow_run, token: token) }
+
+  let(:workflow_run) do
+    create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', request_payload: request_payload)
+  end
 
   before do
     login(user)
@@ -97,7 +112,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
                                      enabled: true,
                                      token: token,
                                      package: branched_package,
-                                     payload: scm_webhook.payload)
+                                     payload: workflow_run.payload)
           end
         end
 
