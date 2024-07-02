@@ -801,6 +801,10 @@ class BsRequestAction < ApplicationRecord
     end
   end
 
+  def is_source_maintainer?(user)
+    user && user.can_modify?(source_package_object || source_project_object)
+  end
+
   def is_target_maintainer?(user)
     user && user.can_modify?(target_package_object || target_project_object)
   end
@@ -1019,6 +1023,14 @@ class BsRequestAction < ApplicationRecord
     attributes = xml_package_attributes('source')
     attributes[:rev] = source_rev if source_rev.present?
     node.source(attributes)
+  end
+
+  def source_package_object
+    @source_package_object ||= Package.find_by_project_and_name(source_project, source_package)
+  end
+
+  def source_project_object
+    @source_project_object ||= Project.find_by_name(source_project)
   end
 
   def set_target_associations
