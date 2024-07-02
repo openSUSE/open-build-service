@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_06_07_131326) do
+ActiveRecord::Schema[7.0].define(version: 2024_06_18_110434) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -160,8 +160,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_07_131326) do
     t.integer "release_package_id"
     t.string "binary_name", null: false
     t.string "binary_epoch", limit: 64, collation: "utf8mb3_general_ci"
-    t.string "binary_version", limit: 64, null: false, collation: "utf8mb3_general_ci"
-    t.string "binary_release", limit: 64, null: false, collation: "utf8mb3_general_ci"
+    t.string "binary_version", limit: 64, default: "0", null: false, collation: "utf8mb3_general_ci"
+    t.string "binary_release", limit: 64, default: "0", null: false, collation: "utf8mb3_general_ci"
     t.string "binary_arch", limit: 64, null: false, collation: "utf8mb3_general_ci"
     t.string "binary_disturl"
     t.datetime "binary_buildtime", precision: nil
