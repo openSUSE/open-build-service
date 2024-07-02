@@ -851,6 +851,11 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(tag: 'state', attributes: { name: 'review', approver: 'fred' })
 
+    # random guy must not be allowed to drop the request after approval
+    login_adrian
+    post "/request/#{id}?cmd=changestate&newstate=declined"
+    assert_response 403
+
     # just process reviews
     login_king
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group&comment=blahfasel"
