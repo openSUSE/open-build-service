@@ -22,7 +22,7 @@
     = render partial: 'webui/package/side_links/show_linkinfo', locals: { package: package, project: project,
                                                                                   linkinfo: linkinfo, revision: revision }
 
-  - if package.scmsync
+  - if package.scmsynced?
     = render partial: 'webui/package/side_links/show_scmsync', locals: { package: package }
 
   = render partial: 'extra_actions', locals: { project: project, package: package }
