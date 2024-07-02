@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 include ../../Makefile.include
 -include ../../Makefile.local
 
@@ -69,8 +71,8 @@ build: config
 test_unit:
 	[ -d log ] || mkdir log
 	echo > log/test.log
-	sh -x ./script/prepare_spec_tests.sh
-	sh -x ./script/api_minitest.sh
+	bash -x ./script/prepare_spec_tests.sh
+	bash -x ./script/api_minitest.sh
 	# rspec runs independently
 
 test_rake:
