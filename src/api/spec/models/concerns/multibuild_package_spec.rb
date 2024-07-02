@@ -50,6 +50,26 @@ RSpec.describe MultibuildPackage do
 
         it { expect(subject).to eq('foo') }
       end
+
+      describe '.multibuild_flavor' do
+        context 'patchinfo' do
+          subject { test_class.multibuild_flavor('_patchinfo:') }
+
+          it { expect(subject).to be_nil }
+        end
+
+        context 'with multibuild flavor' do
+          subject { test_class.multibuild_flavor('foo:bar') }
+
+          it { expect(subject).to eq('bar') }
+        end
+
+        context 'without multibuild flavor' do
+          subject { test_class.multibuild_flavor('foo') }
+
+          it { expect(subject).to be_nil }
+        end
+      end
     end
   end
 

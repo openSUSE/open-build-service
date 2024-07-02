@@ -36,16 +36,16 @@ module PackageMediumContainer
       next unless origin_package
 
       origin_package.binary_releases.where(obsolete_time: nil).find_each do |binary_release|
-        mc = binary_release.medium_container
-        if mc
-          mc_update_project = mc.project.update_instance_or_self
+        medium_container = binary_release.on_medium.try(:release_package)
+        if medium_container
+          medium_container_update_project = medium_container.project.update_instance_or_self
           # pick only one and the highest container.
-          identifier = "#{mc_update_project.name}/#{mc.name}"
+          identifier = "#{medium_container_update_project.name}/#{medium_container.name}"
           # esp. in maintenance update projects where the name suffix is the counter
-          identifier.gsub!(/\.[^.]*$/, '') if mc_update_project.is_maintenance_release?
-          next if container_list[identifier] && container_list[identifier].name > mc.name
+          identifier.gsub!(/\.[^.]*$/, '') if medium_container_update_project.is_maintenance_release?
+          next if container_list[identifier] && container_list[identifier].name > medium_container.name
 
-          container_list[identifier] = mc
+          container_list[identifier] = medium_container
         end
       end
     end

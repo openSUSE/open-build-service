@@ -12,6 +12,13 @@ module MultibuildPackage
 
       name.gsub(/:.*$/, '')
     end
+
+    def multibuild_flavor(name)
+      return nil if name.start_with?('_patchinfo:', '_product:')
+      return nil unless name.include?(':')
+
+      name.split(':', 2).last
+    end
   end
 
   def multibuild?
