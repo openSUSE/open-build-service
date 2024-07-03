@@ -5,6 +5,6 @@ class OutdatedNotificationsFinder::Project
   end
 
   def call
-    @scope.where(notifiable_type: 'Project', notifiable_id: @parameters['notifiable_id'])
+    @scope.where(notifiable_type: 'Project', notifiable_id: @parameters[:notifiable_id])
   end
 end
