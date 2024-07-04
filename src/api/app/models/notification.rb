@@ -77,6 +77,17 @@ class Notification < ApplicationRecord
     User.find_by(login: event_payload['accused']) || User.find_by(login: event_payload['user_login'])
   end
 
+  def for_event_type
+    case event_type
+    when 'Event::RequestStateChange'
+      EventRequestStateChangeNotification.new(attributes)
+    when 'Event::RequestCreate'
+      EventRequestCreateNotification.new(attributes)
+    when 'Event::ReviewWanted'
+      EventReviewWantedNotification.new(attributes)
+    end
+  end
+
   private
 
   def track_notification_creation

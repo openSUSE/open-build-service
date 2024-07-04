@@ -26,7 +26,8 @@ module Webui::NotificationHelper
     case notification.event_type
     when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted', 'Event::CommentForRequest'
       # TODO: find an alternative when this is moved to the STI model
-      source_and_target(notification)
+      # FIXME: This will try to fetch a dedicated Notification subclass, or use the legacy method otherwise
+      notification.for_event_type&.description || source_and_target(notification)
     when 'Event::CommentForProject'
       "#{notification.notifiable.commentable.name}"
     when 'Event::CommentForPackage'

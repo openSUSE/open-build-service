@@ -19,7 +19,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
   def notifiable_link_text
     case @notification.event_type
     when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted'
-      "#{helpers.request_type_of_action(@notification.notifiable)} Request ##{@notification.notifiable.number}"
+      @notification.for_event_type.notifiable_link_text
     when 'Event::CommentForRequest'
       "Comment on #{helpers.request_type_of_action(bs_request)} Request ##{bs_request.number}"
     when 'Event::CommentForProject'
@@ -88,7 +88,7 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
   def notifiable_link_path
     case @notification.event_type
     when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted'
-      Rails.application.routes.url_helpers.request_show_path(@notification.notifiable.number, notification_id: @notification.id)
+      @notification.for_event_type.notifiable_link_path
     when 'Event::CommentForRequest'
       anchor = if Flipper.enabled?(:request_show_redesign, User.session!)
                  "comment-#{@notification.notifiable.id}-bubble"
