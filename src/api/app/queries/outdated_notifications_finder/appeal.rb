@@ -5,6 +5,6 @@ class OutdatedNotificationsFinder::Appeal
   end
 
   def call
-    @scope.where(notifiable_type: 'Appeal', notifiable_id: @parameters['notifiable_id'])
+    @scope.where(notifiable_type: 'Appeal', notifiable_id: @parameters[:notifiable_id])
   end
 end
