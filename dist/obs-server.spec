@@ -148,7 +148,7 @@ BuildRequires:  python-devel
 # also see requires in the obs-server-api sub package
 BuildRequires:  openssl
 BuildRequires:  perl-BSSolv >= 0.36
-BuildRequires:  perl-Compress-Zlib
+BuildRequires:  perl(Compress::Zlib)
 BuildRequires:  perl-DBD-SQLite
 BuildRequires:  perl-Diff-LibXDiff
 BuildRequires:  perl-File-Sync >= 0.10
@@ -216,7 +216,7 @@ Recommends:       dpkg
 Recommends:       yum
 Recommends:       yum-metadata-parser
 %endif
-Requires:       perl-Compress-Zlib
+Requires:       perl(Compress::Zlib)
 Requires:       perl-File-Sync >= 0.10
 Requires:       perl-JSON-XS
 Requires:       perl-Net-SSLeay
@@ -257,7 +257,7 @@ calculates the need for new build jobs and distributes it.
 Requires(pre):  obs-common
 Requires:       cpio
 Requires:       curl
-Requires:       perl-Compress-Zlib
+Requires:       perl(Compress::Zlib)
 Requires:       perl-TimeDate
 Requires:       perl-XML-Parser
 Requires:       screen
