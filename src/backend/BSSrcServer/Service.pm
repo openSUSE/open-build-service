@@ -166,6 +166,11 @@ sub commitobsscm {
     $newrev = $addrev->($cgi, $projid, $packid, $files);
   }
   BSSrcrep::writeobsscmdata($projid, $packid, $servicemark, undef);	# frees lock
+  if ($packid eq '_project') {
+    $notify_repservers->('project', $projid);
+  } else {
+    $notify_repservers->('package', $projid, $packid);
+  }
   return $newrev;
 }
 
