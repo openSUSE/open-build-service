@@ -802,7 +802,7 @@ sub addrev {
                                      user => $user, comment => $comment, 'requestid' => $requestid});
   }
 
-  notify_repservers('package', $projid, $packid);
+  notify_repservers('package', $projid, $packid) unless $cgi->{'commitobsscm'};
 
   # put marker back
   $files->{'/SERVICE'} = $servicemark if $servicemark;
