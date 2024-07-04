@@ -21,15 +21,6 @@ RSpec.describe NotificationService::WebChannel do
              channel: :web)
     end
 
-    # TODO: Do not use shared contexts
-    RSpec.shared_examples 'creating a new notification' do
-      it { expect(subject).to be_present }
-    end
-
-    RSpec.shared_examples 'ensuring the number of notifications is the same' do
-      it { expect { subject }.not_to change(Notification, :count) }
-    end
-
     context 'for a user not belonging to any group' do
       context 'when having no subscription' do
         subject do
@@ -49,7 +40,9 @@ RSpec.describe NotificationService::WebChannel do
           expect(subject).to be_nil
         end
 
-        it_behaves_like 'ensuring the number of notifications is the same'
+        it 'does not change the number of notifications' do
+          expect { subject }.not_to change(Notification, :count)
+        end
       end
 
       context 'when having no event' do
@@ -70,7 +63,9 @@ RSpec.describe NotificationService::WebChannel do
           expect(subject).to be_nil
         end
 
-        it_behaves_like 'ensuring the number of notifications is the same'
+        it 'does not change the number of notifications' do
+          expect { subject }.not_to change(Notification, :count)
+        end
       end
 
       context 'when having no previous notifications' do
@@ -83,7 +78,9 @@ RSpec.describe NotificationService::WebChannel do
           create(:comment_request, commentable: new_bs_request, user: requester, updated_at: 1.hour.ago)
         end
 
-        it_behaves_like 'creating a new notification'
+        it 'creates a notification' do
+          expect(subject).to be_present
+        end
 
         it 'sets no last_seen_at date for the new notification' do
           expect(subject.first.last_seen_at).to be_nil
@@ -112,8 +109,13 @@ RSpec.describe NotificationService::WebChannel do
           second_comment
         end
 
-        it_behaves_like 'creating a new notification'
-        it_behaves_like 'ensuring the number of notifications is the same'
+        it 'creates a notification' do
+          expect(subject).to be_present
+        end
+
+        it 'does not change the number of notifications' do
+          expect { subject }.not_to change(Notification, :count)
+        end
 
         it 'sets the last_seen_at date to the oldest notification' do
           expect(subject.first.unread_date).to eql(previous_notification.created_at)
@@ -142,8 +144,13 @@ RSpec.describe NotificationService::WebChannel do
           second_comment
         end
 
-        it_behaves_like 'creating a new notification'
-        it_behaves_like 'ensuring the number of notifications is the same'
+        it 'creates a notification' do
+          expect(subject).to be_present
+        end
+
+        it 'does not change the number of notifications' do
+          expect { subject }.not_to change(Notification, :count)
+        end
 
         it 'sets no last_seen_at date for the new notification' do
           expect(subject.first.last_seen_at).to be_nil
