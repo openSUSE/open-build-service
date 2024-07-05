@@ -17,7 +17,7 @@
         = @project.title.presence || @project
       - if User.session
         .d-inline.ms-1#watchlist-icon-wrapper
-          = render WatchlistIconComponent.new(user: User.session!,
+          = render WatchlistIconComponent.new(user: User.session,
                                               project: @project,
                                               current_object: @project,
                                               bs_requests: @watched_requests,
@@ -76,9 +76,9 @@
 
 = render partial: 'linking_projects_dialog', locals: { project: @project, linking_projects: @linking_projects }
 - if User.session
-  - if @project.is_locked? && User.session!.can_modify?(@project, true)
+  - if @project.is_locked? && User.session.can_modify?(@project, true)
     = render partial: 'unlock_project_dialog', locals: { project: @project }
-  - elsif User.session!.can_modify?(@project)
+  - elsif User.session.can_modify?(@project)
     = render partial: 'edit_project_dialog', locals: { project: @project }
     = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-project-modal',
                                                    method: :delete,

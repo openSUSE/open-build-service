@@ -12,7 +12,7 @@
   -# watch button
   - if User.session
     .d-inline.align-bottom.ms-1#watchlist-icon-wrapper
-      = render WatchlistIconComponent.new(user: User.session!,
+      = render WatchlistIconComponent.new(user: User.session,
                                           bs_request: bs_request,
                                           current_object: bs_request,
                                           bs_requests: bs_requests,

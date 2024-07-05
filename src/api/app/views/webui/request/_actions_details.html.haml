@@ -39,7 +39,7 @@
   Action details
   - if actions.count > 1 && User.session
     %span#action-seen-by-user-wrapper
-      = render ActionSeenByUserComponent.new(action: action, user: User.session!)
+      = render ActionSeenByUserComponent.new(action: action, user: User.session)
 
 %p.fst-italic
   = render BsRequestActionDescriptionComponent.new(action: action)

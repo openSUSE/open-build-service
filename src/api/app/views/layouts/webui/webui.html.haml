@@ -36,7 +36,7 @@
     = auto_discovery_link_tag(:rss, news_feed_path(format: 'rss'), title: 'News')
     = csrf_meta_tag
     - if User.session&.rss_secret.present?
-      = auto_discovery_link_tag(:rss, user_rss_notifications_url(secret: User.session!.rss_secret, format: :rss), title: 'Notifications')
+      = auto_discovery_link_tag(:rss, user_rss_notifications_url(secret: User.session.rss_secret, format: :rss), title: 'Notifications')
     = auto_discovery_link_tag(:rss, latest_updates_feed_path(format: 'rss'), title: 'Latest updates')
   %body{ class: feature_css_class }
     #grid
@@ -79,7 +79,7 @@
       -# Collapsible menu shared between top and bottom navigation
       - if User.session
         .navbar-dark.navbar-collapse.navbar-themed-colors.watchlist-collapse
-          = render WatchlistComponent.new(user: User.session!,
+          = render WatchlistComponent.new(user: User.session,
                                           bs_request: @bs_request,
                                           package: @package,
                                           project: @project,

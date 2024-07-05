@@ -24,7 +24,7 @@
         = @package.title.presence || @package.name
       - if User.session
         .d-inline.ms-1#watchlist-icon-wrapper
-          = render WatchlistIconComponent.new(user: User.session!,
+          = render WatchlistIconComponent.new(user: User.session,
                                               package: @package,
                                               project: @project,
                                               current_object: @package,
