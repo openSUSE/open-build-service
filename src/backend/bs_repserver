@@ -2317,7 +2317,7 @@ sub putjob {
     };
     if ($@) {
       # fail job if we could not normalize the container
-      BSUtil::appendstr("$tmpdir/logfile", "\ncontainer normailzation failed: $@");
+      BSUtil::appendstr("$tmpdir/logfile", "\ncontainer normalization failed: $@");
       $cgi->{'code'} = 'failed';
       for my $filename (sort(ls($tmpdir))) {
 	unlink("$tmpdir/$filename") unless $filename eq 'meta' || $filename eq 'logfile';
