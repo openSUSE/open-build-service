@@ -537,25 +537,28 @@ class SourceController < ApplicationController
   end
 
   def validate_target_for_package_command_exists!
+    return if @target_package_name.in?(%w[_project _pattern])
+
     @project = nil
     @package = nil
 
     follow_project_links = SOURCE_UNTOUCHED_COMMANDS.include?(@command)
+    use_source = @command != 'showlinked'
+    @package = Package.get_by_project_and_name(@target_project_name, @target_package_name,
+                                               use_source: use_source, follow_project_links: follow_project_links)
 
-    unless @target_package_name.in?(%w[_project _pattern])
-      use_source = true
-      use_source = false if @command == 'showlinked'
-      @package = Package.get_by_project_and_name(@target_project_name, @target_package_name,
-                                                 use_source: use_source, follow_project_links: follow_project_links)
-      if @package # for remote package case it's nil
-        @project = @package.project
-        if @command == 'unlock'
-          # ignore a lock in the package, but not in the project.
-          raise CmdExecutionNoPermission, "no permission to unlock package #{@package.name} in project #{@project.name}" unless User.session!.can_modify?(@project) && User.session!.can_modify?(@package, true)
-        else
-          raise CmdExecutionNoPermission, "no permission to modify package #{@package.name} in project #{@project.name}" unless READ_COMMANDS.include?(@command) || User.session!.can_modify?(@package)
-        end
-      end
+    return unless @package # Package.get_by_project_and_name returns nil for remote packages
+
+    check_package_lock
+    @project = @package.project
+  end
+
+  def check_package_lock
+    if @command == 'unlock'
+      # ignore a lock in the package, but not in the project.
+      raise CmdExecutionNoPermission, "no permission to unlock package #{@package.name} in project #{@package.project.name}" unless User.session!.can_modify?(@project) && User.session!.can_modify?(@package, true)
+    else
+      raise CmdExecutionNoPermission, "no permission to modify package #{@package.name} in project #{@package.project.name}" unless READ_COMMANDS.include?(@command) || User.session!.can_modify?(@package)
     end
   end
 
