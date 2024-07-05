@@ -229,6 +229,7 @@ sub maketarhead {
   die("maketarhead: name too big\n") if length($name) > 100;
   die("maketarhead: linkname too big\n") if defined($linkname) && length($linkname) > 100;
   my $mode = sprintf("%07o", $file->{'mode'} || 0x81a4);
+  die("maketarhead: file size too big\n") if $s->[7] >= 8589934592;
   my $size = sprintf("%011o", $s->[7]);
   my $mtime = sprintf("%011o", defined($file->{'mtime'}) ? $file->{'mtime'} : $s->[9]);
   substr($h, 0, length($name), $name);
