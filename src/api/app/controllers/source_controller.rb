@@ -557,9 +557,6 @@ class SourceController < ApplicationController
         end
       end
     end
-
-    # check read access rights when the package does not exist anymore
-    validate_read_access_of_deleted_package(@target_project_name, @target_package_name) if @package.nil? && @deleted_package
   end
 
   def _check_single_target!(source_repository, target_repository)
