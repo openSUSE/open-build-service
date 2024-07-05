@@ -85,7 +85,7 @@ module Webui
       def copy
         authorize @staging_workflow
 
-        StagingProjectCopyJob.perform_later(@staging_workflow.project.name, params[:project_name], params[:staging_project_copy_name], User.session!.id)
+        StagingProjectCopyJob.perform_later(@staging_workflow.project.name, params[:project_name], params[:staging_project_copy_name], User.session.id)
 
         flash[:success] = "Job to copy the staging project #{elide(params[:project_name])} successfully queued."
 
@@ -96,7 +96,7 @@ module Webui
 
       def project_log_entry_payload(staging_project)
         # TODO: model ProjectLogEntry should be able to work with symbols
-        { 'project' => staging_project, 'user_name' => User.session!, 'event_type' => 'staging_project_created' }
+        { 'project' => staging_project, 'user_name' => User.session, 'event_type' => 'staging_project_created' }
       end
 
       def set_workflow_project

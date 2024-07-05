@@ -3,7 +3,7 @@ class Webui::DecisionsController < Webui::WebuiController
   after_action :verify_authorized
 
   def create
-    user = User.session!
+    user = User.session
     decision = user.decisions.new(decision_params)
     authorize decision
 

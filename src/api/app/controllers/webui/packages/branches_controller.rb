@@ -68,7 +68,7 @@ module Webui
 
         Event::BranchCommand.create(project: source_project_name, package: source_package_name,
                                     targetproject: created_project_name, targetpackage: created_package_name,
-                                    user: User.session!.login)
+                                    user: User.session.login)
 
         branched_package_object = Package.find_by_project_and_name(created_project_name, created_package_name)
 

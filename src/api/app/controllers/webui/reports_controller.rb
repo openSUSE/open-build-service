@@ -13,7 +13,7 @@ class Webui::ReportsController < Webui::WebuiController
   end
 
   def create
-    @user = User.session!
+    @user = User.session
     @report = @user.submitted_reports.new(report_params)
     authorize @report
 

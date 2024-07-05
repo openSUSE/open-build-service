@@ -135,7 +135,7 @@ class Webui::RequestController < Webui::WebuiController
     review_params, request = modify_review_set_request
     if request.nil?
       flash[:error] = 'Unable to load request'
-      redirect_back_or_to user_path(User.session!)
+      redirect_back_or_to user_path(User.session)
       return
     elsif !new_state.in?(%w[accepted declined])
       flash[:error] = 'Unknown state to set'
@@ -385,7 +385,7 @@ class Webui::RequestController < Webui::WebuiController
       opts = {
         newstate: newstate,
         force: true,
-        user: User.session!.login,
+        user: User.session.login,
         comment: params[:reason]
       }
       begin

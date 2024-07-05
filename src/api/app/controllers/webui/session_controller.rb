@@ -45,7 +45,7 @@ class Webui::SessionController < Webui::WebuiController
 
   def redirect_on_login
     if referer_was_login?
-      redirect_to user_path(User.session!)
+      redirect_to user_path(User.session)
     else
       redirect_back_or_to root_path
     end

@@ -69,7 +69,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def set_notifications
-    @notifications = User.session!.notifications.for_web.includes(notifiable: [{ commentable: [{ comments: :user }, :project, :bs_request_actions] }, :bs_request_actions, :reviews])
+    @notifications = User.session.notifications.for_web.includes(notifiable: [{ commentable: [{ comments: :user }, :project, :bs_request_actions] }, :bs_request_actions, :reviews])
   end
 
   def set_counted_notifications

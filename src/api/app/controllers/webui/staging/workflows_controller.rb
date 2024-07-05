@@ -56,7 +56,7 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
 
     if staging_workflow.save
       staging_workflow.staging_projects.each do |staging_project|
-        staging_project.create_project_log_entry(User.session!)
+        staging_project.create_project_log_entry(User.session)
       end
 
       flash[:success] = "Staging for #{elide(@project.name)} was successfully created"

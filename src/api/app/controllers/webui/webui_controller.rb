@@ -88,8 +88,8 @@ class Webui::WebuiController < ActionController::Base
         return
       end
       if User.session
-        logger.info "User '#{User.session!}' has logged in via kerberos"
-        session[:login] = User.session!.login
+        logger.info "User '#{User.session}' has logged in via kerberos"
+        session[:login] = User.session.login
         redirect_back_or_to root_path
         true
       end

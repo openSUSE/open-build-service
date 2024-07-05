@@ -5,7 +5,7 @@ class Webui::Users::SubscriptionsController < Webui::WebuiController
   after_action :verify_authorized, except: [:index]
 
   def index
-    @user = User.session!
+    @user = User.session
     @groups_users = @user.groups_users.includes(:group).order('groups.title')
   end
 
@@ -13,7 +13,7 @@ class Webui::Users::SubscriptionsController < Webui::WebuiController
     authorize @subscriptions_form
 
     begin
-      groups_users = User.session!.groups_users.includes(:group).find_by(groups: { title: params[:groups].keys }) if params[:groups]
+      groups_users = User.session.groups_users.includes(:group).find_by(groups: { title: params[:groups].keys }) if params[:groups]
       groups_users.update!(params[:groups][groups_users.group.title].slice(:web, :email).permit!) if groups_users
 
       @subscriptions_form.update!(params[:subscriptions]) if params[:subscriptions]
@@ -31,6 +31,6 @@ class Webui::Users::SubscriptionsController < Webui::WebuiController
   private
 
   def set_subscriptions_form
-    @subscriptions_form = EventSubscription::Form.new(User.session!)
+    @subscriptions_form = EventSubscription::Form.new(User.session)
   end
 end

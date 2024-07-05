@@ -79,7 +79,7 @@ class Webui::ProjectController < Webui::WebuiController
       return
     end
 
-    @project.relationships.build(user: User.session!,
+    @project.relationships.build(user: User.session,
                                  role: Role.find_by_title('maintainer'))
 
     @project.kind = 'maintenance' if params[:maintenance_project]
@@ -346,7 +346,7 @@ class Webui::ProjectController < Webui::WebuiController
     @package = @project.find_package(params[:package])
 
     at = AttribType.find_by_namespace_and_name!('OBS', 'ProjectStatusPackageFailComment')
-    unless User.session!.can_create_attribute_in?(@package, at)
+    unless User.session.can_create_attribute_in?(@package, at)
       @comment = params[:last_comment]
       flash.now[:error] = "Can't create attributes in #{elide(@package.name)}"
       return

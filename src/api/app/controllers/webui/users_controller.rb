@@ -60,8 +60,8 @@ class Webui::UsersController < Webui::WebuiController
     else
       session[:login] = create_params[:login]
       User.session = User.find_by!(login: session[:login])
-      if User.session!.home_project
-        redirect_to project_show_path(User.session!.home_project)
+      if User.session.home_project
+        redirect_to project_show_path(User.session.home_project)
       else
         redirect_to root_path
       end
@@ -130,7 +130,7 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def change_password
-    user = User.session!
+    user = User.session
 
     unless ::Configuration.passwords_changable?(user)
       flash[:error] = "You're not authorized to change your password."
@@ -157,7 +157,7 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def rss_secret
-    user = User.session!
+    user = User.session
 
     verb_prefix = user.rss_secret.present? ? 're-' : ''
 
