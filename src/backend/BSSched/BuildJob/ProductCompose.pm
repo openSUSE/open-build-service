@@ -343,10 +343,13 @@ sub check {
 	# all packages not yet in gbininfo
 	# this is a bit of code duplication, but can't be helped (perl function calls are slow)
 	for my $apackid (grep {$blocked_cache->{$_} && !exists($gbininfo->{$_})} @apackids) {
-	  next if ($pdatas->{$apackid} || {})->{'patchinfo'};
 	  if (!exists($known{$apackid})) {
 	    my $info = (grep {$_->{'repository'} eq $arepoid} @{$pdatas->{$apackid}->{'info'} || []})[0];
 	    $known{$apackid} = ($info || {})->{'name'} || $apackid;
+	  }
+	  if ($allpacks) {
+	    my $info = (grep {$_->{'repository'} eq $arepoid} @{$pdatas->{$apackid}->{'info'} || []})[0];
+	    next if $info && $info->{'file'} && $info->{'file'} =~ /\.productcompose$/;
 	  }
 	  my $apackid2 = $known{$apackid} || $apackid;
 	  # crude check if the "main" binary is needed
@@ -384,6 +387,10 @@ sub check {
 	  if (!exists($known{$apackid})) {
 	    my $info = (grep {$_->{'repository'} eq $arepoid} @{($pdatas->{$apackid} || {})->{'info'} || []})[0];
 	    $known{$apackid} = ($info || {})->{'name'} || $apackid;
+	  }
+	  if ($allpacks) {
+	    my $info = (grep {$_->{'repository'} eq $arepoid} @{$pdatas->{$apackid}->{'info'} || []})[0];
+	    next if $info && $info->{'file'} && $info->{'file'} =~ /\.productcompose$/;
 	  }
 	  my $apackid2 = $known{$apackid} || $apackid;
 	  # crude check if the "main" binary is needed
