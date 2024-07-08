@@ -157,13 +157,7 @@ class PersonController < ApplicationController
     render_ok
   end
 
-  class NoPermissionToGroupList < APIError
-    setup 401, 'No user logged in, permission to grouplist denied'
-  end
-
   def grouplist
-    raise NoPermissionToGroupList unless User.session
-
     user = User.find_by_login!(params[:login])
     @list = user.list_groups
   end
