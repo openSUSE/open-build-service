@@ -16,13 +16,13 @@
         %i.fas.fa-regular.fa-flag
         %span.nav-item-name Report
     - if User.session
-      - if (blocked_user = BlockedUser.find_by(blocker: User.session!, blocked: user))
+      - if (blocked_user = BlockedUser.find_by(blocker: User.session, blocked: user))
         - if policy(blocked_user).destroy?
           = button_to(user_block_path(user), method: :delete, class: 'btn btn-link p-0 text-decoration-none ms-2') do
             %i.fas.fa-user-lock
             Unblock
       - else
-        - if policy(BlockedUser.new(blocker: User.session!, blocked: user)).create?
+        - if policy(BlockedUser.new(blocker: User.session, blocked: user)).create?
           = button_to(user_block_path(user), method: :post, class: 'btn btn-link p-0 text-decoration-none ms-2') do
             %i.fas.fa-user-lock
             Block

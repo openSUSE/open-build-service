@@ -18,7 +18,7 @@
             = render(AvatarComponent.new(name: User.session.name, email: User.session.email, size: 32, shape: :circle, custom_css: 'me-2'))
           .dropdown-menu.dropdown-menu-end{ 'aria-labelledby': 'top-navigation-profile-dropdown' }
             .dropdown-item
-              = link_to(user_path(User.session!), id: 'link-to-user-home', class: 'nav-link text-light p-0 w-100') do
+              = link_to(user_path(User.session), id: 'link-to-user-home', class: 'nav-link text-light p-0 w-100') do
                 = render(AvatarComponent.new(name: User.session.name, email: User.session.email, size: 20, shape: :circle, custom_css: 'me-2'))
                 Your profile
             .dropdown-item

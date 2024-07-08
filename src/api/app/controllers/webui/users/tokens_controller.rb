@@ -13,13 +13,13 @@ class Webui::Users::TokensController < Webui::WebuiController
   def show; end
 
   def new
-    @token = User.session!.tokens.new
+    @token = User.session.tokens.new
   end
 
   def edit; end
 
   def create
-    @token = Token.token_type(@params[:type]).new(@params.except(:type).merge(executor: User.session!, package: @package))
+    @token = Token.token_type(@params[:type]).new(@params.except(:type).merge(executor: User.session, package: @package))
 
     authorize @token
 

@@ -64,7 +64,7 @@
                                                             key: 'kind[workflow_runs]', name: 'kind[]', value: 'workflow_runs',
                                                             label_icon: 'fas fa-book-open',
                                                             checked: selected_filter[:kind]&.include?('workflow_runs') }
-    - if Flipper.enabled?(:content_moderation, User.session!)
+    - if Flipper.enabled?(:content_moderation, User.session)
       .px-4.py-1
         = render partial: 'webui/shared/check_box', locals: { label: 'Appealed Decisions', amount: counted_notifications['appealed_decisions'],
                                                               key: 'kind[appealed_decisions]', name: 'kind[]', value: 'appealed_decisions',

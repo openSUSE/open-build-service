@@ -32,7 +32,7 @@ module Webui
         private
 
         def set_azure_configuration
-          @azure_configuration = User.session!.azure_configuration || User.session!.build_azure_configuration
+          @azure_configuration = User.session.azure_configuration || User.session.build_azure_configuration
         end
 
         def permitted_params

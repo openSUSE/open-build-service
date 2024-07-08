@@ -3,11 +3,11 @@
     .d-none.d-md-block
       %strong.text-uppercase User
       %ul
-        %li= link_to('Your Profile', user_path(User.session!))
-        - if User.session!.home_project
-          %li= link_to('Home Project', project_show_path(User.session!.home_project))
+        %li= link_to('Your Profile', user_path(User.session))
+        - if User.session.home_project
+          %li= link_to('Home Project', project_show_path(User.session.home_project))
         - else
-          %li= link_to('Create Home Project', new_project_path(name: User.session!.home_project_name))
+          %li= link_to('Create Home Project', new_project_path(name: User.session.home_project_name))
         %li= link_to('Logout', session_path, method: :delete)
   .d-none.d-md-block
     %strong.text-uppercase Locations

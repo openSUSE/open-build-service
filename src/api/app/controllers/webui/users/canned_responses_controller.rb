@@ -5,9 +5,9 @@ class Webui::Users::CannedResponsesController < Webui::WebuiController
   after_action :verify_authorized, except: :index
 
   def index
-    @canned_responses = User.session!.canned_responses.page(params[:page])
+    @canned_responses = User.session.canned_responses.page(params[:page])
 
-    @canned_response = User.session!.canned_responses.new
+    @canned_response = User.session.canned_responses.new
   end
 
   def edit
@@ -15,7 +15,7 @@ class Webui::Users::CannedResponsesController < Webui::WebuiController
   end
 
   def create
-    @canned_response = User.session!.canned_responses.new(canned_response_params)
+    @canned_response = User.session.canned_responses.new(canned_response_params)
 
     authorize @canned_response
 
@@ -55,7 +55,7 @@ class Webui::Users::CannedResponsesController < Webui::WebuiController
   private
 
   def set_canned_response
-    @canned_response = User.session!.canned_responses.find(params[:id])
+    @canned_response = User.session.canned_responses.find(params[:id])
   end
 
   def canned_response_params

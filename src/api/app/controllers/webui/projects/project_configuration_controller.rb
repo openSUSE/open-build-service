@@ -15,7 +15,7 @@ module Webui
 
       def update
         authorize @project, :update?
-        result = ::ProjectConfigurationService::ProjectConfigurationUpdater.new(@project, User.session!, params).call
+        result = ::ProjectConfigurationService::ProjectConfigurationUpdater.new(@project, User.session, params).call
         status = if result.saved?
                    flash.now[:success] = 'Config successfully saved!'
                    200

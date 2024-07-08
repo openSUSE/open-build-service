@@ -8,7 +8,7 @@ class Webui::CommentsController < Webui::WebuiController
 
     @comment = @commented.comments.new(permitted_params)
     authorize @comment, :create?
-    User.session!.comments << @comment
+    User.session.comments << @comment
     @commentable = @comment.commentable
 
     status = if @comment.save

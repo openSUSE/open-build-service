@@ -4,7 +4,7 @@ class Webui::CommentLocksController < Webui::WebuiController
   def create
     authorize @commentable, policy_class: CommentLockPolicy
 
-    @comment_lock = CommentLock.new(commentable: @commentable, moderator: User.session!)
+    @comment_lock = CommentLock.new(commentable: @commentable, moderator: User.session)
     if @comment_lock.save
       flash[:success] = "Comments for #{comment_lock_params[:commentable_type]} locked"
     else
