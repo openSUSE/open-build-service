@@ -436,7 +436,7 @@ sub signappx {
     # special signkey, ask for cert again with signtype appx
     $cert = getsslcert($data->{'projid'}, 'appx', $data->{'signflavor'});
   }
-  splice(@signargs, $BSConfig::sign_project ? 2 : 0, 0, '--signtype', 'appx') if $BSConfig::sign_type;
+  setsigntype(\@signargs, 'appx') if $BSConfig::sign_type;
   my $jobdir = $data->{'jobdir'};
   my $ocfile = "$jobdir/othercerts.der";
   my @othercerts;
@@ -478,7 +478,7 @@ sub signhelm {
   }
   # generate provenance file and clearsign it
   my $prov = "$config_yaml\n...\nfiles:\n  $chart: sha256:$chart_sha256\n";
-  splice(@signargs, $BSConfig::sign_project ? 2 : 0, 0, '--signtype', 'helm') if $BSConfig::sign_type;
+  setsigntype(\@signargs, 'helm') if $BSConfig::sign_type;
   my $prov_signed = BSUtil::xsystem($prov, $BSConfig::sign, @signargs, '-c');
   writestr("$jobdir/$chart.prov", undef, $prov_signed);
 }
@@ -686,7 +686,7 @@ sub getsslcert {
 }
 
 sub getsignkey {
-  my ($projid, $needpubkey, $needcert, $signtype, $signflavor) = @_;
+  my ($projid, $packid, $needpubkey, $needcert, $signtype, $signflavor) = @_;
   my $param = {
     'uri' => "$BSConfig::srcserver/getsignkey",
     'timeout' => 60,
@@ -711,6 +711,7 @@ sub getsignkey {
     if ($BSConfig::sign_project && $BSConfig::sign) {
       my @signargs;
       push @signargs, '--project', $projid;
+      push @signargs, '--package', $packid if $packid && $BSConfig::sign_package;
       push @signargs, '--signtype', $signtype if $signtype;
       push @signargs, '--signflavor', $signflavor if $signflavor;
       local *S;
@@ -734,6 +735,19 @@ sub getsignkey {
   # this is kind of racy. should add a "withcert" option to the above call.
   my $cert = $needcert ? getsslcert($projid, $signtype, $signflavor) : undef;
   return ($algo, $signkey, $pubkey, $cert);
+}
+
+sub setsigntype {
+  my ($signargs, $signtype) = @_;
+  return unless $BSConfig::sign_type;
+  my $off = 0;
+  $off += 2 if @$signargs >= $off + 2 && $signargs->[$off] eq '--project';
+  $off += 2 if @$signargs >= $off + 2 && $signargs->[$off] eq '--package';
+  if (@$signargs >= $off + 2 && $signargs->[$off] eq '--signtype') {
+    $signargs->[$off + 1] = $signtype;
+  } else {
+    splice(@$signargs, $off, 0, '--signtype', $signtype);
+  }
 }
 
 sub getsigdata {
@@ -797,6 +811,7 @@ sub signjob {
   die("jobdir does not exist\n") unless -d $jobdir;
   my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo);
   my $projid = $info->{'project'};
+  my $packid = $info->{'package'};
   $prpa_stats = "$projid/$info->{'repository'}/$arch";
   my @files = sort(ls($jobdir));
   my @signfiles = grep {$_ eq '_slsa_provenance.json' || /\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz|pkg\.tar\.zst|rsasign|AppImage|appx|helminfo)$/} @files;
@@ -826,10 +841,11 @@ sub signjob {
     my $needcert = grep {/\.appx$/} @signfiles;
     $needpubkey ||= grep {/\.iso$/} @signfiles;
     $needpubkey = 1 if $info->{'file'} eq '_aggregate' && grep {/\.d?rpm$/} @signfiles;
-    my ($algo, $signkey, $pubkey, $cert) = getsignkey($projid, $needpubkey, $needcert, undef, $signflavor);
+    my ($algo, $signkey, $pubkey, $cert) = getsignkey($projid, $packid, $needpubkey, $needcert, undef, $signflavor);
     my $pubkey_create_time;
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, '--package', $packid if $BSConfig::sign_project && $BSConfig::sign_package && $packid;
     push @signargs, '--signflavor', $signflavor if $signflavor;
     if ($signkey) {
       mkdir_p($uploaddir);
