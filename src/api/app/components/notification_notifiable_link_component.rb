@@ -140,6 +140,8 @@ class NotificationNotifiableLinkComponent < ApplicationComponent
     when 'Event::AppealCreated'
       Rails.application.routes.url_helpers.appeal_path(@notification.notifiable, notification_id: @notification.id)
     when 'Event::WorkflowRunFail'
+      return if @notification.notifiable.blank?
+
       Rails.application.routes.url_helpers.token_workflow_run_path(@notification.notifiable.token, @notification.notifiable, notification_id: @notification.id)
     end
   end
