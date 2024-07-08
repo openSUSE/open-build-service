@@ -345,7 +345,9 @@ module MaintenanceHelper
       end
       raise PackageAlreadyExists, "package #{p.name} already exists" if Package.exists_by_project_and_name(project.name, lpkg_name, follow_project_links: false)
 
-      local_linked_packages[lpkg_name] = p
+      # only create local link when it also exists in source project
+      # avoid cases with dot's in the package name (eg. go1.19)
+      local_linked_packages[lpkg_name] = p if Package.exists_by_project_and_name(p.project.name, lpkg_name)
     end
 
     pkg = project.packages.create(name: pkg_name, title: opkg.title, description: opkg.description)
