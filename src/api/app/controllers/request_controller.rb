@@ -64,8 +64,6 @@ class RequestController < ApplicationController
   def global_command
     raise UnknownCommandError, "Unknown command '#{params[:cmd]}' for path #{request.path}" unless params[:cmd] == 'create'
 
-    # refuse request creation for anonymous users
-    require_login
     # no need for dispatch_command, there is only one command
     request_create
   end
@@ -73,9 +71,6 @@ class RequestController < ApplicationController
   # POST /request/:id?cmd=$CMD
   def request_command
     return request_command_diff if params[:cmd] == 'diff'
-
-    # refuse request manipulation for anonymous users
-    require_login
 
     params[:user] = User.session.login
     @req = BsRequest.find_by_number!(params[:id])
