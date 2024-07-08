@@ -28,11 +28,12 @@ module Webui::ProjectHelper
 
   def show_package_actions?
     return false if @is_maintenance_project
+    return false if @project.scmsync.present?
     return false if @project.defines_remote_instance?
-    return true unless @is_incident_project && @packages.present? &&
-                       @has_patchinfo && @open_release_requests.empty?
+    return false if @is_incident_project && @packages.present? &&
+                    @has_patchinfo && @open_release_requests.empty?
 
-    false
+    true
   end
 
   def can_be_released?(project, packages, open_release_requests, has_patchinfo)
