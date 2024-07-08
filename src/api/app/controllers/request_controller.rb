@@ -77,7 +77,7 @@ class RequestController < ApplicationController
     # refuse request manipulation for anonymous users
     require_login
 
-    params[:user] = User.session!.login
+    params[:user] = User.session.login
     @req = BsRequest.find_by_number!(params[:id])
 
     # transform request body into query parameter 'comment'
@@ -122,7 +122,7 @@ class RequestController < ApplicationController
       req.skip_sanitize
       req.save!
 
-      notify[:who] = User.session!.login
+      notify[:who] = User.session.login
       Event::RequestChange.create(notify)
 
       render xml: req.render_xml
@@ -134,7 +134,7 @@ class RequestController < ApplicationController
     request = BsRequest.find_by_number!(params[:id])
     notify = request.event_parameters
     request.destroy # throws us out of here if failing
-    notify[:who] = User.session!.login
+    notify[:who] = User.session.login
     Event::RequestDelete.create(notify)
     render_ok
   end

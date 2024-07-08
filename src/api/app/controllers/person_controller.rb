@@ -48,7 +48,7 @@ class PersonController < ApplicationController
     User.find_by_login!(login)
 
     if params[:cmd] == 'change_password'
-      login ||= User.session!.login
+      login ||= User.session.login
       password = request.raw_post.to_s.chomp
       if password.blank?
         render_error status: 404, errorcode: 'password_empty',
@@ -90,7 +90,7 @@ class PersonController < ApplicationController
     end
 
     if user
-      unless user.login == User.session!.login || User.admin_session?
+      unless user.login == User.session.login || User.admin_session?
         logger.debug 'User has no permission to change userinfo'
         render_error(status: 403, errorcode: 'change_userinfo_no_permission',
                      message: "no permission to change userinfo for user #{user.login}") && return
@@ -282,7 +282,7 @@ class PersonController < ApplicationController
     end
 
     # change password to LDAP if LDAP is enabled
-    unless ::Configuration.passwords_changable?(User.session!)
+    unless ::Configuration.passwords_changable?(User.session)
       render_error status: 404, errorcode: 'change_passwd_failure',
                    message: 'LDAP passwords can not be changed in OBS. Please refer to your LDAP server to change it.'
       return

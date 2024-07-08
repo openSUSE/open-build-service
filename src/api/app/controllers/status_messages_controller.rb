@@ -14,7 +14,7 @@ class StatusMessagesController < ApplicationController
   def create
     xml_body = Xmlhash.parse(request.raw_post)
     @status_message = StatusMessage.new(xml_body.slice('message', 'severity', 'scope'))
-    @status_message.user = User.find_by(login: xml_body['user']) || User.session!
+    @status_message.user = User.find_by(login: xml_body['user']) || User.session
 
     authorize @status_message
 
@@ -31,7 +31,7 @@ class StatusMessagesController < ApplicationController
 
     xml_body = Xmlhash.parse(request.raw_post)
     @status_message.assign_attributes(xml_body.slice('message', 'severity', 'scope'))
-    @status_message.user = User.find_by(login: xml_body['user']) || User.session!
+    @status_message.user = User.find_by(login: xml_body['user']) || User.session
 
     if @status_message.save
       render :show
