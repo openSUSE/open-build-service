@@ -261,14 +261,6 @@ class PersonController < ApplicationController
   end
 
   def change_password(login, password)
-    unless User.session!
-      logger.debug 'No user logged in, permission to changing password denied'
-      @errorcode = 401
-      @summary = 'No user logged in, permission to changing password denied'
-      render template: 'error', status: :unauthorized
-      return
-    end
-
     if login.blank? || password.blank?
       render_error status: 404, errorcode: 'failed to change password',
                    message: 'Failed to change password: missing parameter'
