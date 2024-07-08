@@ -63,6 +63,12 @@ class Token::Workflow < Token
     workflow_configuration_path == '.obs/workflows.yml'
   end
 
+  def members
+    # exctract all the users and groups members the token is shared with,
+    # and merge them all together in a single set removing nils and duplicated entries
+    [users, groups&.map(&:users)&.flatten].flatten.compact.uniq
+  end
+
   private
 
   def validation_errors

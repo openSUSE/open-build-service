@@ -621,8 +621,8 @@ RSpec.describe EventSubscription::FindForEvent do
           )
         end
 
-        it 'includes the target group' do
-          expect(subject.map(&:subscriber)).to include(group)
+        it "includes the member's group user" do
+          expect(subject.map(&:subscriber)).to include(user)
         end
       end
     end

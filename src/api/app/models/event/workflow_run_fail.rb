@@ -4,6 +4,7 @@ module Event
     payload_keys :id, :token_id, :hook_event, :summary, :repository_full_name
 
     receiver_roles :token_executor, :token_member
+    delegate :members, to: :token, prefix: true
 
     self.notification_explanation = 'Receive notifications for failed workflow runs on SCM/CI integration.'
 
@@ -15,10 +16,6 @@ module Event
 
     def token_executors
       [token&.executor].compact
-    end
-
-    def token_members
-      [token&.users, token&.groups].flatten.compact
     end
 
     def parameters_for_notification
