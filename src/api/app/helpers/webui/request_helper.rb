@@ -197,11 +197,11 @@ module Webui::RequestHelper
 
   # TODO: find a way to DRY the code related to state badge (used on notifications)
 
-  def bs_request_state_badge(state, css_class: nil)
+  def bs_request_state_badge(state)
     content_tag(
       :span,
       icon_state_tag(state).concat(state),
-      class: ['badge', "text-bg-#{decode_state_color(state)}", css_class]
+      class: ['badge', "text-bg-#{decode_state_color(state)}", 'ms-1']
     )
   end
 
