@@ -165,8 +165,9 @@ GEM
       railties (>= 5.0.0)
     faker (3.4.1)
       i18n (>= 1.8.11, < 2)
-    faraday (2.9.2)
+    faraday (2.10.0)
       faraday-net_http (>= 2.0, < 3.2)
+      logger
     faraday-net_http (3.1.0)
       net-http
     ffi (1.17.0)
@@ -248,6 +249,7 @@ GEM
     language_server-protocol (3.17.0.3)
     launchy (2.5.2)
       addressable (~> 2.8)
+    logger (1.6.0)
     lograge (0.14.0)
       actionpack (>= 4)
       activesupport (>= 4)
