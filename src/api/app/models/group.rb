@@ -41,7 +41,7 @@ class Group < ApplicationRecord
     raise e, "Couldn't find Group '#{title}'", e.backtrace
   end
 
-  def update_from_xml(xmlhash)
+  def update_from_xml(xmlhash, user_session_login:)
     with_lock do
       self.email = xmlhash.value('email')
     end
@@ -86,7 +86,7 @@ class Group < ApplicationRecord
 
     # delete all users which were not listed
     cache.each do |login_id, _|
-      delete_user(GroupsUser, login_id, id)
+      delete_user(GroupsUser, login_id, id, user_session_login: user_session_login)
     end
   end
 
@@ -105,8 +105,8 @@ class Group < ApplicationRecord
     false
   end
 
-  def remove_user(user)
-    delete_user(GroupsUser, user.id, id)
+  def remove_user(user, user_session_login:)
+    delete_user(GroupsUser, user.id, id, user_session_login: user_session_login)
   end
 
   def set_email(email)
@@ -203,9 +203,9 @@ class Group < ApplicationRecord
     @maintainer_roler ||= Role.hashed['maintainer']
   end
 
-  def delete_user(klass, login_id, group_id)
+  def delete_user(klass, login_id, group_id, user_session_login: nil)
     klass.where('user_id = ? AND group_id = ?', login_id, group_id).delete_all if [GroupMaintainer, GroupsUser].include?(klass)
-    Event::RemovedUserFromGroup.create(group: Group.find(group_id).title, member: User.find(login_id).login, who: User.session&.login) if klass == GroupsUser
+    Event::RemovedUserFromGroup.create(group: Group.find(group_id).title, member: User.find(login_id).login, who: user_session_login) if klass == GroupsUser
   end
 
   def involved_projects_ids
