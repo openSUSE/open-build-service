@@ -65,11 +65,11 @@ class PublicController < ApplicationController
       path += '&nofilename=1' unless params[:nofilename]
     when 'verboseproductlist'
       @products = Product.all_products(@project, params[:expand])
-      render 'source/verboseproductlist'
+      render 'source/verboseproductlist', formats: [:xml]
       return
     when 'productlist'
       @products = Product.all_products(@project, params[:expand])
-      render 'source/productlist'
+      render 'source/productlist', formats: [:xml]
       return
     else
       path += '?expand=1&noorigins=1' # to stay compatible to OBS <2.4
