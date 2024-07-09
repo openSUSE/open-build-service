@@ -27,6 +27,8 @@ post:
       description: Origin package revision. Revision of the Origin Package on which to base the build environment collection.
     - in: query
       name: comment
+      schema:
+        type: string
       description: Comment for the new revision.
   responses:
     '200':
