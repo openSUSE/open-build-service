@@ -456,11 +456,11 @@ paths:
   /statistics:
     $ref: 'paths/statistics_deprecated_not_documented.yaml'
   /statistics/active_request_creators/{project_name}:
-    $ref: 'paths/statistics_deprecated_not_documented.yaml'
+    $ref: 'paths/statistics_deprecated_not_documented_project_name.yaml'
   /statistics/activity/{project_name}/{package_name}:
-    $ref: 'paths/statistics_deprecated_not_documented.yaml'
+    $ref: 'paths/statistics_deprecated_not_documented_project_name_package_name.yaml'
   /statistics/added_timestamp/{project_name}/{package_name}:
-    $ref: 'paths/statistics_deprecated_not_documented.yaml'
+    $ref: 'paths/statistics_deprecated_not_documented_project_name_package_name.yaml'
   /statistics/global_counters:
     $ref: 'paths/statistics_deprecated_not_documented.yaml'
   /statistics/latest_added:
@@ -468,13 +468,13 @@ paths:
   /statistics/latest_updated:
     $ref: 'paths/statistics_latest_updated.yaml'
   /statistics/maintenance_statistics/{project_name}:
-    $ref: 'paths/statistics_deprecated_not_documented.yaml'
+    $ref: 'paths/statistics_deprecated_not_documented_project_name.yaml'
   /statistics/most_active_packages:
     $ref: 'paths/statistics_most_active_packages.yaml'
   /statistics/most_active_projects:
     $ref: 'paths/statistics_most_active_projects.yaml'
   /statistics/updated_timestamp/{project_name}/{package_name}:
-    $ref: 'paths/statistics_deprecated_not_documented.yaml'
+    $ref: 'paths/statistics_deprecated_not_documented_project_name_package_name.yaml'
 
   # Status messages
   /status/messages:
