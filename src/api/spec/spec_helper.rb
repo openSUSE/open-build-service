@@ -2,6 +2,10 @@
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 
+# for generating test coverage
+require 'simplecov'
+SimpleCov.start
+
 ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../config/environment', __dir__)
 # Prevent database truncation if the environment is production
@@ -82,9 +86,6 @@ end
 
 # We never want the OBS backend to autostart itself...
 ENV['BACKEND_STARTED'] = '1'
-
-# for generating test coverage
-require 'simplecov'
 
 ### Our own spec extensions
 # support logging
