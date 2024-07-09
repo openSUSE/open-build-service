@@ -29,6 +29,8 @@ post:
       description: Include parsed issues from referenced sources
     - in: query
       name: withdescriptionissues
+      schema:
+        type: string
       description: Include parsed issues from request description
   responses:
     '200':

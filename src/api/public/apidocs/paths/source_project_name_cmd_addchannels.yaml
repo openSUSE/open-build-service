@@ -11,7 +11,7 @@ post:
     - basic_authentication: []
   parameters:
     - $ref: '../components/parameters/project_name.yaml'
-    - in: path
+    - in: query
       name: mode
       schema:
         type: string
@@ -19,9 +19,8 @@ post:
           - skip_disabled
           - enable_all
           - add_disabled
-      required: false
       description: The channel will be added to the package using this mode.
-      example: "add_disabled"
+      example: add_disabled
   responses:
     '200':
       $ref: '../components/responses/succeeded.yaml'

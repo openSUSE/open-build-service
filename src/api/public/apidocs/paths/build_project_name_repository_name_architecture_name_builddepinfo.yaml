@@ -48,5 +48,11 @@ post:
   description: |
     This endpoint is exactly the same as
     `GET /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_builddepinfo`, please use that one.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
   tags:
     - Build

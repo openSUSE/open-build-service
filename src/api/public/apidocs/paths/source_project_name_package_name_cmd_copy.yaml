@@ -78,6 +78,8 @@ post:
       description: Set to '1' to avoid running the services after the copy.
     - in: query
       name: comment
+      schema:
+        type: string
       description: Comment for the new revision.
   responses:
     '200':

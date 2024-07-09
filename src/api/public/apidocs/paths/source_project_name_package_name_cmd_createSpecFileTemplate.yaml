@@ -5,5 +5,10 @@ post:
     Create a RPM Spec File Template for a specified package. This endpoint
     is broken and will be removed.
     See [https://github.com/openSUSE/open-build-service/issues/9707](https://github.com/openSUSE/open-build-service/issues/9707)
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
   tags:
     - Sources - Packages
