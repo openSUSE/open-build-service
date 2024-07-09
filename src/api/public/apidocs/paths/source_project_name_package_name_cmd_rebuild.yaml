@@ -5,5 +5,10 @@ post:
     Triggers a rebuild of the package. This endpoint
     is broken and will be removed.
     See [`POST /build/{project_name}?cmd=rebuild`](#/Build/post_build__project_name__cmd_rebuild).
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
   tags:
     - Sources - Packages
