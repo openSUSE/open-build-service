@@ -515,7 +515,7 @@ class SourceController < ApplicationController
     params[:user] = User.session!.login
 
     @project = Project.get_by_name(params[:project], include_all_packages: true)
-    verify_release_targets!(@project)
+    verify_release_targets!(@project, params[:arch])
 
     if @project.is_a?(String) # remote project
       render_error status: 404, errorcode: 'remote_project',
@@ -558,16 +558,16 @@ class SourceController < ApplicationController
     validate_read_access_of_deleted_package(@target_project_name, @target_package_name) if @package.nil? && @deleted_package
   end
 
-  def _check_single_target!(source_repository, target_repository)
+  def _check_single_target!(source_repository, target_repository, filter_architecture)
     # checking write access and architectures
     raise UnknownRepository, 'Invalid source repository' unless source_repository
     raise UnknownRepository, 'Invalid target repository' unless target_repository
     raise CmdExecutionNoPermission, "no permission to write in project #{target_repository.project.name}" unless User.session!.can_modify?(target_repository.project)
 
-    source_repository.check_valid_release_target!(target_repository)
+    source_repository.check_valid_release_target!(target_repository, filter_architecture)
   end
 
-  def verify_release_targets!(pro)
+  def verify_release_targets!(pro, filter_architecture = nil)
     repo_matches = nil
     repo_bad_type = nil
 
@@ -577,7 +577,7 @@ class SourceController < ApplicationController
       if params[:targetproject] || params[:targetrepository]
         target_repository = Repository.find_by_project_and_name(params[:targetproject], params[:targetrepository])
 
-        _check_single_target!(repo, target_repository)
+        _check_single_target!(repo, target_repository, filter_architecture)
 
         repo_matches = true
       else
@@ -589,7 +589,7 @@ class SourceController < ApplicationController
             next
           end
 
-          _check_single_target!(repo, releasetarget.target_repository)
+          _check_single_target!(repo, releasetarget.target_repository, filter_architecture)
 
           repo_matches = true
         end
@@ -1010,10 +1010,10 @@ class SourceController < ApplicationController
       # parameter names are different between project and package release unfortunatly.
       params[:targetproject] = params[:target_project]
       params[:targetrepository] = params[:target_repository]
-      verify_release_targets!(pkg.project)
+      verify_release_targets!(pkg.project, params[:arch])
       _package_command_release_manual_target(pkg, multibuild_container, time_now)
     else
-      verify_release_targets!(pkg.project)
+      verify_release_targets!(pkg.project, params[:arch])
 
       # loop via all defined targets
       pkg.project.repositories.each do |repo|
