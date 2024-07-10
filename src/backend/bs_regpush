@@ -55,10 +55,14 @@ my $delete_except_mode;
 my $list_mode;
 my $no_cosign_info;
 my $no_info;
+my $listidx;
+my $listidx_no_info;
 my @tags;
 my $blobdir;
 my $oci;
 my $old_listfile;
+my $with_platforms;
+my $missingok;
 
 my $cosign;
 my $cosigncookie;
@@ -73,12 +77,33 @@ my $rekorserver;
 my $registryserver;
 my $repository;
 my @tarfiles;
+my $list_manifestinfo;
+my $manifestinfoserver;
 
 my $registry_authenticator;
 my $registry_blob_authenticator;
 my $keepalive;
 
 my $cosign_cookie_name = 'org.open-build-service.cosign.cookie';
+
+sub registry_errorcode {
+  my ($answer) = @_;
+  my $code;
+  eval {
+    my $r = JSON::XS::decode_json($answer);
+    $code = $r->{'errors'}->[0]->{'code'} if $r->{'errors'};
+  };
+  return $code;
+}
+
+sub mkplatformstr {
+  my ($goarch, $govariant, $goos) = @_;
+  my $str = $goarch || 'any';
+  $str .= "-$govariant" if defined $govariant;
+  $str .= "\@$goos" if $goos && $goos ne 'linux';
+  $str =~ s/[\/\s,]/_/g;
+  return $str;
+}
 
 sub send_layer {
   my ($param) = @_;
@@ -317,6 +342,7 @@ sub cosign_upload {
 }
 
 sub get_all_tags {
+  my ($missing_ok) = @_;
   my @regtags;
   my $replyheaders;
   my $param = {
@@ -325,10 +351,18 @@ sub get_all_tags {
     'timeout' => $registry_timeout,
     'replyheaders' => \$replyheaders,
     'keepalive' => $keepalive,
+    'ignorestatus' => ($missing_ok ? 1 : 0),
   };
   while (1) {
     undef $replyheaders;
-    my $r = BSRPC::rpc($param, \&JSON::XS::decode_json);
+    my $r = BSRPC::rpc($param);
+    if ($replyheaders->{'status'} !~ /^2\d\d[^\d]/) {
+      my $code = registry_errorcode($r);
+      return () if !@regtags && $code && $code eq 'NAME_UNKNOWN' && $missing_ok;
+      die("remote error: $replyheaders->{'status'} [$code]\n") if $code;
+      die("remote error: $replyheaders->{'status'}\n");
+    }
+    $r = JSON::XS::decode_json($r);
     push @regtags, @{$r->{'tags'} || []};
     last unless $replyheaders->{'link'};
     die unless $replyheaders->{'link'} =~ /^<(\/v2\/.*)>/;
@@ -462,38 +496,127 @@ sub manifest2extrainfo {
   return $extra;
 }
 
+sub platform2str {
+  my ($platform) = @_;
+  return $platform ? mkplatformstr($platform->{'architecture'}, $platform->{'variant'}, $platform->{'os'}) : 'any';
+}
+
+sub manifest2platformsinfo {
+  my ($mani, $tag) = @_;
+  return '' unless $mani;
+  if ($mani->{'mediaType'} eq $BSContar::mt_docker_manifestlist || $mani->{'mediaType'} eq $BSContar::mt_oci_index) {
+    my %plats;
+    $plats{platform2str($_->{'platform'})} = 1 for @{$mani->{'manifests'} || []};
+    return "platforms=".join(',', sort keys %plats) if %plats;
+  }
+  return '';
+}
+
+sub list_manifestinfo {
+  my ($maniid, $indent) = @_;
+  my $g = $gun ? "$gun/" : '';
+  my $param = {
+    'uri' => ($manifestinfoserver || $registryserver)."/v2/$g$repository/manifestinfos/$maniid",
+    'timeout' => $registry_timeout,
+  };
+  $param->{'authenticator'} = $registry_authenticator unless $manifestinfoserver;
+  my $manifestinfo_json = eval { BSRPC::rpc($param, undef) };
+  return unless $manifestinfo_json;
+  $indent ||= '';
+  my $manifestinfo = JSON::XS::decode_json($manifestinfo_json);
+  print "${indent}[$manifestinfo->{'project'}/$manifestinfo->{'repository'}/$manifestinfo->{'arch'}/$manifestinfo->{'package'}]\n";
+}
+
 sub list_tag {
-  my ($tag, $maniids, $old_data) = @_;
+  my ($tag, $maniids, $old_datas, $disptag) = @_;
+
+  my $indent = $disptag ? '        ' : '    ';
 
   if ($no_info || ($no_cosign_info && $tag =~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/)) {
-    printf "%-20s -\n", $tag;
+    $disptag = $tag unless defined $disptag;
+    printf "%-20s -\n", $disptag;
     return;
   }
+
+  # extract information from the old data
+  my $old_data = ($old_datas || {})->{$tag};
+  undef $old_data if @{$old_data || []} <= 1;	# at least the digest and the type
+  my $old_data_mtype = @{$old_data || []} > 1 ? $old_data->[1] : '';
+  my $old_data_extra = @{$old_data || []} > 2 ? $old_data->[2] : '';
+
+  # check if we can use the If-None-Match header
   my $ifnonematch;
-  $ifnonematch = "\"$old_data->[0]\"" if $old_data && $old_data->[0] =~ /^[a-z0-9]+:([a-f0-9]+)$/;
+  $ifnonematch = "\"$old_data->[0]\"" if $old_data;
+  $ifnonematch = undef if $maniids;
+  $ifnonematch = undef if $list_manifestinfo;
+  if ($with_platforms && $tag !~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/) {
+    $ifnonematch = undef if ($old_data_mtype eq 'list' || $old_data_mtype eq 'ocilist') && $old_data_extra !~ /^platforms=/;
+  }
+  if ($listidx && ($old_data_mtype eq 'list' || $old_data_mtype eq 'ocilist')) {
+    # we will need to list submanifests
+    $ifnonematch = undef unless $old_datas->{"$old_data->[0]/"} && $listidx_no_info;
+  }
+
   my ($mani, $maniid) = eval { get_manifest_for_tag($tag, $ifnonematch) };
   if ($@) {
     if ($ifnonematch && $@ =~ /^304/) {
       $tag = '-' if $tag eq $old_data->[0];
-      printf "%-20s %s %s\n", $tag, $old_data->[0], $old_data->[1];
+      $maniid = $old_data->[0];
+      my ($mtype, $extra) = ($old_data_mtype, $old_data_extra);
+      if ($tag !~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/) {
+	$extra = '' unless $with_platforms;
+      }
+      $disptag = $tag unless defined $disptag;
+      printf "%-20s %s %s%s\n", $disptag, $maniid, $mtype, $extra ? " $extra" : '';
+      if ($listidx && ($mtype eq 'list' || $mtype eq 'ocilist')) {
+	for (@{$old_datas->{"$maniid/"}}) {
+	  my $dtag = $indent.$_->[0];
+	  if ($listidx_no_info) {
+            printf "%-20s %s -\n", $dtag, $_->[1];
+	  } else {
+	    die;	# not implemented
+	  }
+	}
+      }
       return;
     }
     die($@);
   }
-  $tag = '-' if $maniid && $tag eq $maniid;
-  my $extra = '';
-  $extra = manifest2extrainfo($mani, $tag) if $tag =~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/;
-  if ($mani && $maniids && $tag !~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/) {
+
+  if (!$mani) {
+    $disptag = $tag unless defined $disptag;
+    printf "%-20s -\n", $disptag;
+    return;
+  }
+
+  die unless $mani && $maniid =~ /^[a-z0-9]+:[a-f0-9]+$/;
+
+  # collect digests if requested
+  if ($maniids && $tag !~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/) {
     $maniids->{$maniid} = 1;
     if ($mani->{'mediaType'} eq $BSContar::mt_docker_manifestlist || $mani->{'mediaType'} eq $BSContar::mt_oci_index) {
       $maniids->{$_->{'digest'}} = 1 for @{$mani->{'manifests'} || []};
     }
   }
-  if (!$mani) {
-    printf "%-20s -\n", $tag;
-  } else {
-    my $mtype = contenttype2manitype($mani->{'mediaType'});
-    printf "%-20s %s %s%s\n", $tag, $maniid, $mtype, $extra ne '' ? " $extra" : '';
+
+  my $mtype = contenttype2manitype($mani->{'mediaType'});
+  my $extra = '';
+  $extra = manifest2extrainfo($mani, $tag) if $tag =~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/;
+  $extra = manifest2platformsinfo($mani, $tag) if $with_platforms && $tag !~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/;
+
+  $disptag = ($tag eq $maniid ? '-' : $tag) unless defined $disptag;
+  printf "%-20s %s %s%s\n", $disptag, $maniid, $mtype, $extra ne '' ? " $extra" : '';
+  list_manifestinfo($maniid, $indent) if $list_manifestinfo && $mtype eq 'image' || $mtype eq 'ociimage';
+
+  if ($listidx && ($mtype eq 'list' || $mtype eq 'ocilist')) {
+    for (@{$mani->{'manifests'} || []}) {
+      my $dtag = $indent.'/'.platform2str($_->{'platform'});
+      if ($listidx_no_info) {
+	printf "%-20s %s -\n", $dtag, $_->{'digest'};
+      } else {
+	list_tag($_->{'digest'}, undef, undef, $dtag);
+      }
+    }
   }
 }
 
@@ -501,12 +624,22 @@ sub read_old_listfile {
   local *F;
   open(F, '<', $old_listfile) || die("$old_listfile: $!\n");
   my $old = {} ;
+  my $lasttag;
   while (<F>) {
     chomp;
     next if /^#/ || /^\s*$/;
-    my @s = split(' ', $_, 3);
+    my @s = split(' ', $_, 4);
     my $tag = shift @s;
-    $old->{$tag} = \@s if @s && $tag ne '-';
+    next if $tag && $tag =~ /^\[/;	# ignore manifestinfo
+    $lasttag = undef unless $tag && $tag =~ /^\//;
+    next if !@s || $tag eq '-';
+    if ($tag =~ /^\//) {
+      push @{$old->{"$lasttag/"}}, [ $tag, @s] if defined($lasttag);
+    } else {
+      $old->{$tag} = \@s;
+      $lasttag = $s[0];
+      delete $old->{"$lasttag/"} if defined($lasttag);
+    }
   }
   close F;
   return $old;
@@ -646,6 +779,12 @@ while (@ARGV) {
   } elsif ($ARGV[0] eq '--no-cosign-info') {
     $no_cosign_info = 1;
     shift @ARGV;
+  } elsif ($ARGV[0] eq '--with-platforms') {
+    $with_platforms = 1;
+    shift @ARGV;
+  } elsif ($ARGV[0] eq '--missingok') {
+    $missingok = 1;
+    shift @ARGV;
   } elsif ($ARGV[0] eq '--old-listfile') {
     (undef, $old_listfile) = splice(@ARGV, 0, 2);
   } elsif ($ARGV[0] eq '-X') {
@@ -680,6 +819,19 @@ while (@ARGV) {
   } elsif ($ARGV[0] eq '-P' || $ARGV[0] eq '--project' || $ARGV[0] eq '-u' || $ARGV[0] eq '--signtype' || $ARGV[0] eq '-h') {
     my @signopts = splice(@ARGV, 0, 2);
     push @signcmd, @signopts unless $signopts[0] eq '-h';
+  } elsif ($ARGV[0] eq '--manifestinfo') {
+    $list_manifestinfo = 1;
+    shift @ARGV;
+  } elsif ($ARGV[0] eq '--manifestinfoserver') {
+    (undef, $manifestinfoserver) = splice(@ARGV, 0, 2);
+    $list_manifestinfo = 1;
+  } elsif ($ARGV[0] eq '--listidx') {
+    $listidx = 1;
+    shift @ARGV;
+  } elsif ($ARGV[0] eq '--listidx-no-info') {
+    $listidx = 1;
+    $listidx_no_info = 1;
+    shift @ARGV;
   } else {
     last;
   }
@@ -695,24 +847,24 @@ if ($list_mode) {
       print "$repo\n";
     }
   } elsif (@ARGV == 2) {
-    my $old_data = {};
-    $old_data = read_old_listfile() if $old_listfile;
+    my $old_datas = {};
+    $old_datas = read_old_listfile() if $old_listfile;
     $keepalive = {};
     my %tags = map {$_ => 1} @tags;
     $tags{$_} = 1 for tags_from_digestfile();
     if (%tags && $cosign) {
       my %maniids;
-      list_tag($_, \%maniids, $old_data->{$_}) for sort keys %tags;
+      list_tag($_, \%maniids, $old_datas) for sort keys %tags;
       %tags = ();
       if (%maniids) {
         for (get_all_tags()) {
           $tags{$_} = 1 if /^([a-z0-9]+)-([a-f0-9]+)\.(?:sig|att)$/ && $maniids{"$1:$2"}
         }
       }
-      list_tag($_, undef, $old_data->{$_}) for sort keys %tags;
+      list_tag($_, undef, $old_datas) for sort keys %tags;
     } else {
-      %tags = map {$_ => 1} get_all_tags() unless %tags;
-      list_tag($_, undef, $old_data->{$_}) for sort keys %tags;
+      %tags = map {$_ => 1} get_all_tags($missingok) unless %tags;
+      list_tag($_, undef, $old_datas) for sort keys %tags;
     }
   } elsif (@ARGV == 3) {
     my ($mani, $maniid, $mani_json) = get_manifest_for_tag($ARGV[2]);
