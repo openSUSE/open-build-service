@@ -21,7 +21,8 @@ module NotificationService
                         'Event::WorkflowRunFail',
                         'Event::AppealCreated',
                         'Event::AddedUserToGroup',
-                        'Event::RemovedUserFromGroup'].freeze
+                        'Event::RemovedUserFromGroup',
+                        'Event::AddedGlobalRole'].freeze
     CHANNELS = %i[web rss].freeze
     ALLOWED_NOTIFIABLE_TYPES = {
       'BsRequest' => ::BsRequest,
@@ -49,7 +50,8 @@ module NotificationService
                         'Event::FavoredDecision',
                         'Event::WorkflowRunFail',
                         'Event::AddedUserToGroup',
-                        'Event::RemovedUserFromGroup'].freeze
+                        'Event::RemovedUserFromGroup',
+                        'Event::AddedGlobalRole'].freeze
 
     def initialize(event)
       @event = event

@@ -77,6 +77,7 @@ class User < ApplicationRecord
   scope :staff, -> { joins(:roles).where('roles.title' => 'Staff') }
   scope :admins, -> { joins(:roles).where('roles.title' => 'Admin') }
   scope :moderators, -> { joins(:roles).where('roles.title' => 'Moderator') }
+  scope :with_role, ->(role_title) { joins(:roles).where('roles' => role_title) }
 
   scope :in_beta, -> { where(in_beta: true) }
   scope :in_rollout, -> { where(in_rollout: true) }
