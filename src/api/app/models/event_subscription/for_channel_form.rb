@@ -7,7 +7,7 @@ class EventSubscription
                               'Event::WorkflowRunFail', 'Event::AppealCreated',
                               'Event::FavoredDecision', 'Event::ClearedDecision',
                               'Event::AddedUserToGroup', 'Event::RemovedUserFromGroup',
-                              'Event::Assignment'].freeze
+                              'Event::AddedGlobalRole', 'Event::Assignment'].freeze
 
     attr_reader :name, :subscription
 

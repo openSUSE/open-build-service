@@ -83,6 +83,7 @@ class User < ApplicationRecord
   scope :admins, -> { joins(:roles).where('roles.title' => 'Admin') }
   scope :moderators, -> { joins(:roles).where('roles.title' => 'Moderator') }
   scope :starting_with, ->(prefix) { where(['lower(login) like lower(?)', "#{prefix}%"]) }
+  scope :with_role, ->(role_title) { joins(:roles).where('roles.title' => role_title) }
 
   scope :in_beta, -> { where(in_beta: true) }
   scope :in_rollout, -> { where(in_rollout: true) }
