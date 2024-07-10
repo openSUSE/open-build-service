@@ -323,6 +323,7 @@ Requires:       ghostscript-fonts-std
 %else
 # - nothing provides ghostscript-fonts-std needed by obs-api-2.11~alpha.20200117T213441.b4cf6c4da5-9555.1.noarch
 %endif
+Requires:       procps
 Requires:       obs-api-deps = %{version}
 Requires:       obs-bundled-gems = %{version}
 
