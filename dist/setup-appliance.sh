@@ -133,12 +133,11 @@ fi
 
 echo "$FQHOSTNAME" > $backenddir/.oldfqhostname
 
-for d in $OS_ID_LIKE $OS_ID;do
-  case $d in
-    ubuntu|debian) OBSVERSION=`dpkg-query --showformat='${Version}' --show obs-server` ;;
-    *) OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server` ;;
-  esac
-done
+if [[ "$DEBIAN_FAMILY" == "yes" ]]; then
+  OBSVERSION=`dpkg-query --showformat='${Version}' --show obs-server`
+else
+  OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
+fi
 
 RUN_INITIAL_SETUP=""
 
