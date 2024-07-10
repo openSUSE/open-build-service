@@ -28,16 +28,6 @@
                                                             key: 'kind[requests]', name: 'kind[]', value: 'requests',
                                                             label_icon: 'fas fa-code-pull-request',
                                                             checked: selected_filter[:kind]&.include?('requests') }
-    .px-4.ps-5.py-1
-      = render partial: 'webui/shared/check_box', locals: { label: 'Incoming', amount: counted_notifications['incoming_requests'],
-                                                            key: 'kind[incoming_requests]', name: 'kind[]',
-                                                            value: 'incoming_requests', label_icon: 'fas fa-code-pull-request',
-                                                            checked: selected_filter[:kind]&.include?('incoming_requests') }
-    .px-4.ps-5.py-1
-      = render partial: 'webui/shared/check_box', locals: { label: 'Outgoing', amount: counted_notifications['outgoing_requests'],
-                                                            key: 'kind[outgoing_requests]', name: 'kind[]', value: 'outgoing_requests',
-                                                            label_icon: 'fas fa-code-pull-request',
-                                                            checked: selected_filter[:kind]&.include?('outgoing_requests') }
     .px-4.py-1
       = render partial: 'webui/shared/check_box', locals: { label: 'Roles Granted', amount: counted_notifications['relationships_created'],
                                                             key: 'kind[relationships_created]', name: 'kind[]', value: 'relationships_created',
@@ -75,6 +65,32 @@
                                                             key: 'kind[member_on_groups]', name: 'kind[]', value: 'member_on_groups',
                                                             label_icon: 'fas fa-people-group',
                                                             checked: selected_filter[:kind]&.include?('member_on_groups') }
+
+  .list-group.list-group-flush.mt-4.mb-4
+    %h6.px-3.py-2
+      %b Requests
+    .px-3.py-1
+      .dropdown.form-multi-select{ 'data-name': 'type of request' }
+        %button.form-select.text-start#filter-requests-button{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
+          Select the type of request
+        .dropdown-menu.w-100
+          .dropdown-item-text
+            = render partial: 'webui/shared/check_box', locals: { label: 'Incoming', amount: counted_notifications['incoming_requests'],
+                                                                  key: 'kind[incoming_requests]', name: 'kind[]',
+                                                                  value: 'incoming_requests',
+                                                                  checked: selected_filter[:kind]&.include?('incoming_requests') }
+          .dropdown-item-text
+            = render partial: 'webui/shared/check_box', locals: { label: 'Outgoing', amount: counted_notifications['outgoing_requests'],
+                                                                  key: 'kind[outgoing_requests]', name: 'kind[]', value: 'outgoing_requests',
+                                                                  checked: selected_filter[:kind]&.include?('outgoing_requests') }
+          %h6.dropdown-header
+            State
+          - BsRequest::VALID_REQUEST_STATES.each do |request_state|
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: render(BsRequestStateBadgeComponent.new(state: request_state)),
+                                                                    key: "request_state[#{request_state}]", name: 'request_state[]',
+                                                                    value: request_state,
+                                                                    checked: selected_filter[:request_state]&.include?(request_state.to_s) }
 
   - unless projects_for_filter.empty?
     .list-group.list-group-flush.mt-4.mb-4

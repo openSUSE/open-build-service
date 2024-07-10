@@ -5,6 +5,8 @@ class Notification < ApplicationRecord
   belongs_to :subscriber, polymorphic: true, optional: true
   belongs_to :notifiable, polymorphic: true, optional: true
 
+  belongs_to :bs_request, -> { where(notifications: { notifiable_type: 'BsRequest' }) }, foreign_key: 'notifiable_id', inverse_of: :notifications, optional: true
+
   has_many :notified_projects, dependent: :destroy
   has_many :projects, through: :notified_projects
   has_and_belongs_to_many :groups
@@ -39,6 +41,7 @@ class Notification < ApplicationRecord
 
   scope :for_project_name, ->(project_name) { joins(:projects).where(projects: { name: project_name }) }
   scope :for_group_title, ->(group_title) { joins(:groups).where(groups: { title: group_title }) }
+  scope :for_request_state, ->(request_state) { joins(:bs_request).where(bs_request: { state: request_state }) }
   scope :stale, -> { where(created_at: ...(CONFIG['notifications_lifetime'] ||= 365).days.ago) }
 
   paginates_per 30

@@ -6,7 +6,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   ALLOWED_STATES = %w[all unread read].freeze
 
   before_action :require_login
-  before_action :set_filter_kind, :set_filter_state, :set_filter_project, :set_filter_group
+  before_action :set_filter_kind, :set_filter_state, :set_filter_project, :set_filter_group, :set_filter_request_state
   before_action :set_notifications
   before_action :set_notifications_to_be_updated, only: :update
   before_action :set_counted_notifications, only: :index
@@ -68,6 +68,11 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @groups_for_filter = GroupsForFilterFinder.new.call
   end
 
+  def set_filter_request_state
+    @filter_request_state = params[:request_state].presence || []
+    @filter_request_state = @filter_request_state.intersection(BsRequest::VALID_REQUEST_STATES.map(&:to_s))
+  end
+
   def set_notifications
     @notifications = User.session.notifications.for_web.includes(notifiable: [{ commentable: [{ comments: :user }, :project, :bs_request_actions] }, :bs_request_actions, :reviews])
   end
@@ -94,6 +99,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @notifications = filter_notifications_by_group(@notifications, @filter_group)
     @notifications = filter_notifications_by_state(@notifications, @filter_state)
     @notifications = filter_notifications_by_kind(@notifications, @filter_kind)
+    @notifications = filter_notifications_by_request_state(@notifications, @filter_request_state)
   end
 
   def set_notifications_to_be_updated
@@ -108,7 +114,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def set_selected_filter
-    @selected_filter = { kind: @filter_kind, state: @filter_state, project: @filter_project, group: @filter_group }
+    @selected_filter = { kind: @filter_kind, state: @filter_state, project: @filter_project, group: @filter_group, request_state: @filter_request_state }
   end
 
   def send_notifications_information_rabbitmq(delivered, count)
