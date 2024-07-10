@@ -209,7 +209,7 @@ sub pk2keysize {
 }
 
 
-sub pk2fingerprint {
+sub pk2fingerprint_keyid {
   my ($pk) = @_;
   my ($tag, $pack);
   ($tag, $pack, $pk) = pkdecodepacket($pk);
@@ -218,7 +218,12 @@ sub pk2fingerprint {
   die("fingerprint calculation needs at least V4 keys\n") if $ver < 4;
   my $ctx = Digest->new("SHA-1");
   $ctx->add(pack('Cn', 0x99, length($pack)).$pack);
-  return $ctx->hexdigest();
+  my $fp = $ctx->hexdigest();
+  return $fp, substr($fp, -16, 16), $ver;
+}
+
+sub pk2fingerprint {
+  return (pk2fingerprint_keyid($_))[0];
 }
 
 sub pk2sigdata {
