@@ -751,7 +751,12 @@ class User < ApplicationRecord
   end
 
   def update_globalroles(global_roles)
+    new_roles_to_notify = global_roles - roles.global
     roles.replace(global_roles + roles.where(global: false))
+
+    new_roles_to_notify.each do |new_global_role|
+      Event::AddedGlobalRole.create({ role: new_global_role, user: self, who: User.session })
+    end
   end
 
   def display_name
