@@ -13,7 +13,7 @@ module Event
     end
 
     def parameters_for_notification
-      super.merge(notifiable_type: 'Decision')
+      super.merge(notifiable_type: 'Decision', type: 'NotificationReport')
     end
   end
 end

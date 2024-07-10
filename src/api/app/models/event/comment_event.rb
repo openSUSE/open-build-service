@@ -35,7 +35,7 @@ module Event
     end
 
     def parameters_for_notification
-      super.merge(notifiable_type: 'Comment')
+      super.merge(notifiable_type: 'Comment', type: 'NotificationComment')
     end
   end
 end

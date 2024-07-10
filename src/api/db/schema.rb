@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_07_05_121900) do
+ActiveRecord::Schema[7.0].define(version: 2024_07_10_083919) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -771,12 +771,14 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_05_121900) do
     t.boolean "rss", default: false
     t.boolean "web", default: false
     t.datetime "last_seen_at", precision: nil
+    t.string "type"
     t.index ["created_at"], name: "index_notifications_on_created_at"
     t.index ["delivered"], name: "index_notifications_on_delivered"
     t.index ["event_type"], name: "index_notifications_on_event_type"
     t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable_type_and_notifiable_id"
     t.index ["rss"], name: "index_notifications_on_rss"
     t.index ["subscriber_type", "subscriber_id"], name: "index_notifications_on_subscriber_type_and_subscriber_id"
+    t.index ["type"], name: "index_notifications_on_type"
     t.index ["web"], name: "index_notifications_on_web"
   end
 
