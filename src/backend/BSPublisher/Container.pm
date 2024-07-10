@@ -115,6 +115,20 @@ sub get_notary_pubkey {
   return ($pubkey, \@signargs);
 }
 
+=head2 mkplatformstr - create a string from the arch/variant/os of the platform
+
+=cut
+
+sub mkplatformstr {
+  my ($goarch, $govariant, $goos) = @_;
+  my $str = $goarch || 'any';
+  $str .= "-$govariant" if defined $govariant;
+  $str .= "\@$goos" if $goos && $goos ne 'linux';
+  $str =~ s/[\/\s,]/_/g;
+  return $str;
+}
+
+
 =head2 default_container_mapper - map container data to registry repository/tags
  
 =cut
@@ -199,19 +213,17 @@ sub upload_all_containers {
     my $mapper = $registry->{'mapper'} || \&default_container_mapper;
     for my $p (sort keys %$containers) {
       my $containerinfo = $containers->{$p};
-      my $arch = $containerinfo->{'arch'};
-      my $goarch = $containerinfo->{'goarch'} || (($containerinfo->{'type'} || '') eq 'helm' || ($containerinfo->{'type'} || '') eq 'artifacthub' ? 'any' : $arch);
-      $goarch .= ":$containerinfo->{'govariant'}" if $containerinfo->{'govariant'};
-      $goarch .= "_$containerinfo->{'goos'}" if $containerinfo->{'goos'} && $containerinfo->{'goos'} ne 'linux';
-      my @tags = $mapper->($registry, $containerinfo, $projid, $repoid, $arch);
+      my $platformstr = mkplatformstr($containerinfo->{'goarch'} || $containerinfo->{'arch'}, $containerinfo->{'govariant'}, $containerinfo->{'goos'});
+      $platformstr = 'any' if ($containerinfo->{'type'} || '') eq 'helm' || ($containerinfo->{'type'} || '') eq 'artifacthub';
+      my @tags = $mapper->($registry, $containerinfo, $projid, $repoid, $containerinfo->{'arch'});
       for my $tag (@tags) {
 	my ($reponame, $repotag) = ($tag, 'latest');
 	($reponame, $repotag) = ($1, $2) if $tag =~ /^(.*):([^:\/]+)$/;
-	if ($uploads{$reponame}->{$repotag}->{$goarch}) {
-	  my $otherinfo = $containers->{$uploads{$reponame}->{$repotag}->{$goarch}};
+	if ($uploads{$reponame}->{$repotag}->{$platformstr}) {
+	  my $otherinfo = $containers->{$uploads{$reponame}->{$repotag}->{$platformstr}};
 	  next if cmp_containerinfo($otherinfo, $containerinfo) > 0;
 	}
-	$uploads{$reponame}->{$repotag}->{$goarch} = $p;
+	$uploads{$reponame}->{$repotag}->{$platformstr} = $p;
       }
     }
 
@@ -343,8 +355,7 @@ sub create_container_dist_info {
   $govariant = $config->{'variant'} if $config->{'variant'};
 
   if ($platforms) {
-    my $platformstr = "architecture:$goarch os:$goos";
-    $platformstr .= " variant:$govariant" if $govariant;
+    my $platformstr = mkplatformstr($goarch, $govariant, $goos);
     return undef if $platforms->{$platformstr};
     $platforms->{$platformstr} = 1;
   }
@@ -384,7 +395,7 @@ sub create_container_index_info {
 }
 
 sub query_repostate {
-  my ($registry, $repository, $tags) = @_;
+  my ($registry, $repository, $tags, $subdigests, $missingok) = @_;
   my $registryserver = $registry->{pushserver} || $registry->{server};
   my $pullserver = $registry->{server};
   $pullserver =~ s/https?:\/\///;
@@ -409,6 +420,8 @@ sub query_repostate {
   my @opts = ('-l');
   push @opts, '--cosign' if $tags;
   push @opts, '--no-cosign-info' if $registry->{'cosign_nocheck'};
+  push @opts, '--listidx-no-info' if $subdigests;
+  push @opts, '--missingok' if $missingok;
   push @opts, '-F', $tagsfile if $tagsfile;
   push @opts, '--old-listfile', "$registrystate/$repository/:oldlist" if $registrystate && -s "$registrystate/$repository/:oldlist";
   my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @opts, $registryserver, $repository);
@@ -419,12 +432,20 @@ sub query_repostate {
     my $fd;
     open ($fd, '<', $tempfile) || die("$tempfile: $!\n");
     $repostate = {};
+    my $lastdigest;
     while (<$fd>) {
       my @s = split(' ', $_);
+      next unless @s;
+      if ($s[0] =~ /^\//) {
+	$subdigests->{$lastdigest}->{substr($s[0], 1)} = $s[1] if $subdigests && $lastdigest && @s >= 2;
+	next;
+      }
+      $lastdigest = undef;
       if (@s >= 4 && $s[0] =~ /\.(?:sig|att)$/ && $s[-1] =~ /^cosigncookie=/) {
         $repostate->{$s[0]} = $s[-1];
       } elsif (@s >= 2) {
         $repostate->{$s[0]} = $s[1];
+        $lastdigest = $s[1];
       }
     }
     close($fd);
@@ -490,6 +511,7 @@ sub compare_to_repostate {
     my @infos;
     for my $containerinfo (@$containerinfos) {
       $info = create_container_dist_info($containerinfo, $oci, \%platforms);
+      die("create_container_dist_info rejected container\n") unless $info;
       $missing_manifestinfo = 1 if $manifestinfodir && ! -s "$manifestinfodir/$info->{'digest'}";
       my $attestation_layers = ($containerinfo->{'slsa_provenance_file'} ? 1 : 0) + ($containerinfo->{'spdx_file'} ? 1 : 0) + ($containerinfo->{'cyclonedx_file'} ? 1 : 0) + scalar(@{$containerinfo->{'intoto_files'} || []});
       if ($cosigncookie && $cosign_attestation && $attestation_layers) {
@@ -887,35 +909,47 @@ sub do_local_uploads {
 =cut
 
 sub container_tag_deletion_safeguard {
-  my ($registry, $projid, $repoid, $repository, $tags, $repostate) = @_;
+  my ($registry, $repository, $safeguard, $uptags, $repostate, $subdigests) = @_;
 
-  my $mode = $registry->{'container_tag_deletion_safeguard'};
-  $mode = $mode->($registry, $projid, $repoid, $repository) if $mode && ref($mode) eq 'CODE';
-  return unless $mode;
-  die("container_tag_deletion_safeguard: unknown mode $mode\n") if $mode != 1 && $mode != 2;
-
+  return unless $safeguard;
   if ($registry->{'nodelete'}) {
     print "container_tag_deletion_safeguard: nodelete option is set, skipping check\n";
     return;
   }
+  print "tag deletion safeguard active for $repository (mode=$safeguard)\n";
 
   # query the tags from the registry unless we already have a state
   if (!defined $repostate) {
-    $repostate = eval { query_repostate($registry, $repository) };
+    $subdigests = {};
+    $repostate = eval { query_repostate($registry, $repository, undef, $subdigests, 1) };
     die("need registry query result for the tag deletion safeguard: $@") if $@;
     die("need registry query result for the tag deletion safeguard\n") unless defined $repostate;
   }
 
-  my %newtags = map {$_ => 1} @$tags;
+  # check if we have missing containers
   my @missing;
-  for (sort keys %$repostate) {
-    push @missing, $_ unless $newtags{$_} || /^([a-z0-9]+)-([a-f0-9]+)\.(?:sig|att)$/;
+  for my $tag (sort keys %$repostate) {
+    next if $tag =~ /^([a-z0-9]+)-([a-f0-9]+)\.(?:sig|att)$/;
+    if (!$uptags->{$tag}) {
+      push @missing, $tag;
+      next;
+    }
+    my $digest = $repostate->{$tag};
+    if ($subdigests->{$digest}) {
+      for my $platformstr (sort keys %{$subdigests->{$digest}}) {
+	push @missing, "$tag/$platformstr" unless $uptags->{$tag}->{$platformstr};
+      }
+    } else {
+      # the tag is just an image and we do not know the platform
+      # hope for the best
+    }
   }
   if (@missing) {
-    if ($mode == 2) {
+    if ($safeguard == 2) {
       print("warning: tag deletion safeguard for $repository: found missing tags: @missing\n");
     } else {
-      die("tag deletion safeguard for $repository: found missing tags: @missing\n");
+      BSUtil::logcritical("tag deletion safeguard for $repository: found missing tags: @missing\n");
+      die("tag deletion safeguard failed\n");
     }
   }
 }
@@ -928,25 +962,21 @@ sub container_tag_deletion_safeguard {
 sub do_remote_uploads {
   my ($registry, $projid, $repoid, $repository, $containers, $data, $uptags, $notary_uploads) = @_;
 
+  my $safeguard;
+  if ($registry->{'container_tag_deletion_safeguard'}) {
+    $safeguard = $registry->{'container_tag_deletion_safeguard'};
+    $safeguard = $safeguard->($registry, $projid, $repoid, $repository, $data) if $safeguard && ref($safeguard) eq 'CODE';
+    undef $safeguard unless $safeguard;
+  }
+
   if (!$uptags) {
-    if ($registry->{'container_tag_deletion_safeguard'}) {
-      container_tag_deletion_safeguard($registry, $projid, $repoid, $repository, []);
+    if ($safeguard) {
+      container_tag_deletion_safeguard($registry, $repository, $safeguard, {});
     }
     my $containerdigests = '';
     add_notary_upload($notary_uploads, $registry, $repository, $containerdigests);
     delete_obsolete_tags_from_registry($registry, $repository, $containerdigests);
     return;
-  }
-
-  # find common containerinfos so that we can push multiple tags in one go
-  my %todo;
-  my %todo_p;
-  for my $tag (sort keys %$uptags) {
-    my $uptag = $uptags->{$tag};
-    my @p = map {$uptag->{$_}} sort keys %$uptag;
-    my $joinp = join('///', @p);
-    push @{$todo{$joinp}}, $tag;
-    $todo_p{$joinp} = \@p;
   }
 
   my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
@@ -955,7 +985,7 @@ sub do_remote_uploads {
 
   # check if we should do cosign and generate a cookie
   my $cosign;
-  if (defined($data->{'pubkey'}) && $registry->{'cosign'} && %todo) {
+  if (defined($data->{'pubkey'}) && $registry->{'cosign'} && %$uptags) {
     $cosign = $registry->{'cosign'};
     $cosign = $cosign->($repository, $projid) if $cosign && ref($cosign) eq 'CODE';
     $cosign = $cosign ? {} : undef;
@@ -968,17 +998,29 @@ sub do_remote_uploads {
     $cosign->{'attestation'} = 1 if $cosign_attestation;
   }
 
-  # query the current state
+  # query the current state of the registry
   my $repostate;
+  my $subdigests = $safeguard ? {} : undef;
   my $querytags;
   $querytags = [ sort keys %$uptags ] if $registry->{'nodelete'};
-  $repostate = eval { query_repostate($registry, $repository, $querytags) } if 1;
+  $repostate = eval { query_repostate($registry, $repository, $querytags, $subdigests) } if 1;
 
   # check if we are allowed to remove tags
-  if ($registry->{'container_tag_deletion_safeguard'}) {
-    my @tags = [ sort keys %$uptags ];
-    push @tags, 'artifacthub.io' if ($data->{'artifacthubdata'} || {})->{$gun} && !$uptags->{'artifacthub.io'};
-    container_tag_deletion_safeguard($registry, $projid, $repoid, $repository, \@tags, $repostate);
+  if ($safeguard) {
+    my %uptags = %$uptags;
+    $uptags{'artifacthub.io'} ||= {'any' => undef} if ($data->{'artifacthubdata'} || {})->{$gun};
+    container_tag_deletion_safeguard($registry, $repository, $safeguard, \%uptags, $repostate, $subdigests);
+  }
+
+  # find common containerinfos so that we can push multiple tags in one go
+  my %todo;
+  my %todo_p;
+  for my $tag (sort keys %$uptags) {
+    my $uptag = $uptags->{$tag};
+    my @p = map {$uptag->{$_}} sort keys %$uptag;
+    my $joinp = join('///', @p);
+    push @{$todo{$joinp}}, $tag;
+    $todo_p{$joinp} = \@p;
   }
 
   # now do the uploads for the tag groups
