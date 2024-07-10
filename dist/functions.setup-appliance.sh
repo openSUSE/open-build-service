@@ -562,8 +562,12 @@ function prepare_apache2 {
 }
 ###############################################################################
 function prepare_passenger {
-
-  [[ "$(lsb_release -si)" =~ ^(Debian|Ubuntu)$ ]] && return
+  . /etc/os-release
+  for d in $ID_LIKE $ID;do
+    case $d in
+        ubuntu|debian) return ;;
+    esac
+  done
   perl -p -i -e \
     's#^(\s*)PassengerRuby "/usr/bin/ruby"#$1\PassengerRuby "/usr/bin/ruby.ruby3.1"#' \
       $MOD_PASSENGER_CONF
