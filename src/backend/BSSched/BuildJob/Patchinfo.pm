@@ -515,7 +515,7 @@ sub build {
         delete $updateinfodata_tocopy{$tocopy};
       }
     }
-    if ($updateinfodata_tocopy{$tocopy} && (!defined($mpackid) || ($updateinfodata->{'metas'}->{$mpackid} || '') eq $ckmetas->{$mpackid})) {
+    if ($ptype ne 'binary' && $updateinfodata_tocopy{$tocopy} && (!defined($mpackid) || ($updateinfodata->{'metas'}->{$mpackid} || '') eq $ckmetas->{$mpackid})) {
       print "        reusing old packages for '$tocopy'\n";
       $from = "$gdst/$packid";
       @bins = grep {$updateinfodata->{'binaryorigins'}->{$_} eq $tocopy} keys(%{$updateinfodata->{'binaryorigins'}});
