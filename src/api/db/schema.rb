@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_06_07_131326) do
+ActiveRecord::Schema[7.0].define(version: 2024_07_05_121900) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -904,7 +904,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_06_07_131326) do
     t.string "url"
     t.string "required_checks"
     t.integer "staging_workflow_id"
-    t.string "scmsync"
+    t.text "scmsync"
     t.index ["develproject_id"], name: "devel_project_id_index"
     t.index ["name"], name: "projects_name_index", unique: true
     t.index ["staging_workflow_id"], name: "index_projects_on_staging_workflow_id"
