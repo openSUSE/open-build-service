@@ -610,6 +610,7 @@ class User < ApplicationRecord
     self.realname = ''
     self.state = 'deleted'
     comments.destroy_all
+    event_subscriptions.destroy_all
     save!
 
     # wipe also all home projects
