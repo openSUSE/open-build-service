@@ -9,20 +9,24 @@
       .row
         .col
           = notification_icon
-          = render NotificationNotifiableLinkComponent.new(@notification)
+          - if @notification.link_path.present?
+            = link_to(@notification.link_text, @notification.link_path, class: 'mx-1')
+          - else
+            %span.fst-italic.mx-1
+              = @notification.link_text
           %small.text-nowrap
             = render TimeComponent.new(time: @notification.created_at)
           - if @notification.notifiable_type == 'BsRequest'
-            = render BsRequestStateBadgeComponent.new(state: @notification.notifiable.state, css_class: 'ms-1')
+            = helpers.bs_request_state_badge(@notification.notifiable.state)
           - if @notification.notifiable_type == 'WorkflowRun'
             = render WorkflowRunStatusBadgeComponent.new(status: @notification.notifiable.status, css_class: 'ms-1')
         .col-auto.actions.ms-auto.align-self-end.align-self-md-start
           = render NotificationMarkButtonComponent.new(@notification, @selected_filter, @page)
       .row.mt-1.ps-sm-4
         .col-auto.pe-0
-          = render NotificationAvatarsComponent.new(@notification)
+          = helpers.avatars(@notification)
         .col-auto.ps-xs-2
-          .smart-overflow= helpers.description(@notification)
+          .smart-overflow= @notification.description
       .row.d-none.d-md-block.ps-4
         .col
-          %p.mt-3.mb-0=  helpers.render_without_markdown(helpers.excerpt(@notification))
+          %p.mt-3.mb-0= helpers.render_without_markdown(helpers.truncate_to_first_new_line(@notification.excerpt))

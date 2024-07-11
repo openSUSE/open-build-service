@@ -2,58 +2,36 @@ module Webui::NotificationHelper
   TRUNCATION_LENGTH = 100
   TRUNCATION_ELLIPSIS_LENGTH = 3 # `...` is the default ellipsis for String#truncate
 
-  # TODO: Content of ViewComponent. Move to sub-classes once STI is set.
-  def excerpt(notification)
-    text = case notification.notifiable.class.name
-           when 'BsRequest'
-             notification.notifiable.description
-           when 'Comment'
-             notification.notifiable.body
-           when 'Report', 'Decision', 'Appeal', 'DecisionFavoredWithDeleteRequest', 'DecisionFavoredWithUserCommentingRestrictions', 'DecisionFavoredWithCommentModeration', 'DecisionFavoredWithUserDeletion'
-             notification.notifiable.reason
-           when 'WorkflowRun'
-             "In repository #{notification.notifiable.repository_full_name}"
-           else
-             ''
-           end
+  MAXIMUM_DISPLAYED_AVATARS = 6
 
-    truncate_to_first_new_line(text.to_s) # sometimes text can be nil
+  def truncate_to_first_new_line(text)
+    first_new_line_index = text.index("\n")
+    truncation_index = !first_new_line_index.nil? && first_new_line_index < TRUNCATION_LENGTH ? first_new_line_index + TRUNCATION_ELLIPSIS_LENGTH : TRUNCATION_LENGTH
+    text.truncate(truncation_index)
   end
 
-  # rubocop:disable Metrics/CyclomaticComplexity
-  # TODO: Content of ViewComponent. Move to sub-classes once STI is set.
-  def description(notification)
-    case notification.event_type
-    when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted', 'Event::CommentForRequest'
-      # TODO: find an alternative when this is moved to the STI model
-      source_and_target(notification)
-    when 'Event::CommentForProject'
-      "#{notification.notifiable.commentable.name}"
-    when 'Event::CommentForPackage'
-      commentable = notification.notifiable.commentable
-      "#{commentable.project.name} / #{commentable.name}"
-    when 'Event::RelationshipCreate'
-      "#{notification.event_payload['who']} made #{recipient(notification)} #{notification.event_payload['role']} of #{target_object(notification)}"
-    when 'Event::RelationshipDelete'
-      "#{notification.event_payload['who']} removed #{recipient(notification)} as #{notification.event_payload['role']} of #{target_object(notification)}"
-    when 'Event::BuildFail'
-      "Build was triggered because of #{notification.event_payload['reason']}"
-    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    when 'Event::CreateReport', 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForUser'
-      "'#{notification.notifiable.user.login}' created a report for a #{notification.event_payload['reportable_type'].downcase}. This is the reason:"
-    when 'Event::ReportForRequest'
-      "'#{notification.notifiable.user.login}' created a report for a request. This is the reason:"
-    when 'Event::ReportForComment'
-      "'#{notification.notifiable.user.login}' created a report for a comment from #{notification.event_payload['commenter']}. This is the reason:"
-    when 'Event::ClearedDecision'
-      "'#{notification.notifiable.moderator.login}' decided to clear the report. This is the reason:"
-    when 'Event::FavoredDecision'
-      "'#{notification.notifiable.moderator.login}' decided to favor the report. This is the reason:"
-    when 'Event::AppealCreated'
-      "'#{notification.notifiable.appellant.login}' appealed the decision for the following reason:"
+  def avatars(notification)
+    capture do
+      tag.ul(class: 'list-inline d-flex flex-row-reverse avatars m-0') do
+        hidden_avatars(notification)
+
+        avatars_to_display(notification.avatar_objects).each do |avatar_object|
+          concat(
+            tag.li(class: 'list-inline-item') do
+              case avatar_object.class.name
+              when 'User', 'Group'
+                render(AvatarComponent.new(name: avatar_object.name, email: avatar_object.email, size: 23, shape: :circle))
+              when 'Package'
+                tag.span(class: 'fa fa-archive text-warning rounded-circle bg-body-secondary border simulated-avatar', title: "Package #{avatar_object.project}/#{avatar_object}")
+              when 'Project'
+                tag.span(class: 'fa fa-cubes text-secondary rounded-circle bg-body-secondary border simulated-avatar', title: "Project #{avatar_object}")
+              end
+            end
+          )
+        end
+      end
     end
   end
-  # rubocop:enable Metrics/CyclomaticComplexity
 
   private
 
@@ -68,54 +46,23 @@ module Webui::NotificationHelper
     end
   end
 
-  def truncate_to_first_new_line(text)
-    first_new_line_index = text.index("\n")
-    truncation_index = !first_new_line_index.nil? && first_new_line_index < TRUNCATION_LENGTH ? first_new_line_index + TRUNCATION_ELLIPSIS_LENGTH : TRUNCATION_LENGTH
-    text.truncate(truncation_index)
+  def number_of_hidden_avatars(avatar_objects)
+    [0, avatar_objects.size - MAXIMUM_DISPLAYED_AVATARS].max
   end
 
-  def bs_request(notification)
-    if notification.notifiable_type == 'BsRequest'
-      notification.notifiable
-    elsif notification.notifiable.commentable.is_a?(BsRequestAction)
-      notification.notifiable.commentable.bs_request
-    else
-      notification.notifiable.commentable
-    end
-  end
+  def hidden_avatars(notification)
+    return unless number_of_hidden_avatars(notification.avatar_objects).positive?
 
-  def recipient(notification)
-    # If a notification is for a group, the notified user needs to know for which group. Otherwise, the user is simply referred to as 'you'.
-    notification.event_payload.fetch('group', 'you')
-  end
-
-  def target_object(notification)
-    [notification.event_payload['project'], notification.event_payload['package']].compact.join(' / ')
-  end
-
-  def source(notification)
-    first_bs_request_action = bs_request(notification).bs_request_actions.first
-
-    return '' if bs_request(notification).bs_request_actions.size > 1
-
-    [first_bs_request_action.source_project, first_bs_request_action.source_package].compact.join(' / ')
-  end
-
-  def target(notification)
-    first_bs_request_action = bs_request(notification).bs_request_actions.first
-
-    return first_bs_request_action.target_project if bs_request(notification).bs_request_actions.size > 1
-
-    [first_bs_request_action.target_project, first_bs_request_action.target_package].compact.join(' / ')
-  end
-
-  def source_and_target(notification)
-    capture do
-      if source(notification).present?
-        concat(tag.span(source(notification)))
-        concat(tag.i(nil, class: 'fas fa-long-arrow-alt-right text-info mx-2'))
+    concat(
+      tag.li(class: 'list-inline-item') do
+        tag.span("#{number_of_hidden_avatars(notification.avatar_objects)}",
+                 class: 'rounded-circle bg-body-secondary border avatars-counter',
+                 title: "#{number_of_hidden_avatars(notification.avatar_objects)} more users involved")
       end
-      concat(tag.span(target(notification)))
-    end
+    )
+  end
+
+  def avatars_to_display(avatar_objects)
+    avatar_objects.first(MAXIMUM_DISPLAYED_AVATARS).reverse
   end
 end
