@@ -223,7 +223,7 @@ sub pk2fingerprint_keyid {
 }
 
 sub pk2fingerprint {
-  return (pk2fingerprint_keyid($_))[0];
+  return (pk2fingerprint_keyid(@_))[0];
 }
 
 sub pk2sigdata {
