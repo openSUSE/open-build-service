@@ -51,7 +51,7 @@ module Webui
         groups_user = GroupsUser.find_by(group: @group, user: @user)
         authorize groups_user, :destroy?
 
-        if @group.remove_user(@user)
+        if @group.remove_user(@user, user_session_login: User.session.login)
           flash[:success] = "Removed user '#{@user}' from group '#{@group}'"
         else
           flash[:error] = "Couldn't remove user '#{@user}' from group '#{@group}'"
