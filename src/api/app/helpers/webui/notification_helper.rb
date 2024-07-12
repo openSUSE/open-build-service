@@ -5,6 +5,8 @@ module Webui::NotificationHelper
   MAXIMUM_DISPLAYED_AVATARS = 6
 
   def truncate_to_first_new_line(text)
+    return '' if text.blank?
+
     first_new_line_index = text.index("\n")
     truncation_index = !first_new_line_index.nil? && first_new_line_index < TRUNCATION_LENGTH ? first_new_line_index + TRUNCATION_ELLIPSIS_LENGTH : TRUNCATION_LENGTH
     text.truncate(truncation_index)

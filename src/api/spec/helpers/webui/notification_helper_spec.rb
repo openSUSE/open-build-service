@@ -22,6 +22,14 @@ RSpec.describe Webui::NotificationHelper do
   end
 
   describe '#truncate_to_first_new_line' do
+    context 'when the text is nil' do
+      it {  expect(truncate_to_first_new_line(nil)).to eql('') }
+    end
+
+    context 'when the text is empty string' do
+      it { expect(truncate_to_first_new_line('')).to eql('') }
+    end
+
     context 'when text has no newline' do
       it {
         expect(truncate_to_first_new_line('some text without newline'))
