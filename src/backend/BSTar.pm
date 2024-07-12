@@ -217,6 +217,31 @@ sub extract {
   return $data;
 }
 
+sub makepaxhead {
+  my ($file, $s, $paxentries) = @_;
+  return '' if ($file->{'tartype'} || '') eq 'x';	# no pax header for pax headers
+  my $paxdata = '';
+  for my $pe (@$paxentries) {
+    my $t;
+    my $l = length($pe) + 3;
+    $l++ while length($t = sprintf("%d %s\n", $l, $pe)) > $l;
+    $paxdata .= $t;
+  }
+  my $filepath = $file->{'name'};
+  $filepath =~ s/\/+\z//s;
+  if ($filepath =~ /\A(.*)\/(.*?)\z/s) {
+    $filepath = "$1/PaxHeaders.0/$2";
+  } else {
+    $filepath = "PaxHeaders.0/$filepath";
+  }
+  my @paxs = @$s;
+  $paxs[7] = length($paxdata);
+  my $paxfile = { 'name' => $filepath, 'tartype' => 'x', 'mtime' => $file->{'mtime'}, 'mode' => $file->{'mode'} };
+  $paxfile->{'mode'} = 0x8000 | ($paxfile->{'mode'} & 0777) if $paxfile->{'mode'};
+  my ($h, $pad) = maketarhead($paxfile, \@paxs);
+  return "$h$paxdata$pad";
+}
+
 sub maketarhead {
   my ($file, $s) = @_; 
 
@@ -231,17 +256,27 @@ sub maketarhead {
     $tartype = '5' if (($file->{'mode'} || 0) | 0xfff) == 0x4fff;
   }
   $name =~ s/\/?$/\// if $tartype eq '5';
-  # XXX: add a pax header instead of dying
-  die("maketarhead: name too big\n") if length($name) > 100;
-  die("maketarhead: linkname too big\n") if defined($linkname) && length($linkname) > 100;
+  my $size = $s->[7];
+  my @pax;
+  if (defined($linkname) && length($linkname) > 100) {
+    push @pax, "linkpath=$linkname";
+    $linkname = substr($linkname, 0, 100);
+  }
+  if (length($name) > 100) {
+    push @pax, "path=$name";
+    $name = substr($name, 0, 100);
+  }
+  if ($size >= 8589934592) {
+    push @pax, "size=$size";
+    $size = 0;
+  }
   my $mode = sprintf("%07o", $file->{'mode'} || 0x81a4);
-  die("maketarhead: file size too big\n") if $s->[7] >= 8589934592;
-  my $size = sprintf("%011o", $s->[7]);
+  my $sizestr = sprintf("%011o", $size);
   my $mtime = sprintf("%011o", defined($file->{'mtime'}) ? $file->{'mtime'} : $s->[9]);
   substr($h, 0, length($name), $name);
   substr($h, 100, length($mode), $mode);
   substr($h, 108, 15, "0000000\0000000000");	# uid/gid
-  substr($h, 124, length($size), $size);
+  substr($h, 124, length($sizestr), $sizestr);
   substr($h, 136, length($mtime), $mtime);
   substr($h, 148, 8, '        ');
   substr($h, 156, 1, $tartype);
@@ -249,7 +284,8 @@ sub maketarhead {
   substr($h, 257, 8, "ustar\00000");		# magic/version
   substr($h, 329, 15, "0000000\0000000000");	# major/minor
   substr($h, 148, 7, sprintf("%06o\0", unpack("%16C*", $h)));
-  $pad = "\0" x (512 - $s->[7] % 512) if $s->[7] % 512;
+  $pad = "\0" x (512 - $size % 512) if $size % 512;
+  $h = makepaxhead($file, $s, \@pax) . $h if @pax;
   return ($h, $pad);
 }
 
