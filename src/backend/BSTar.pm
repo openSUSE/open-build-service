@@ -117,6 +117,7 @@ sub parseoverride {
       $data = substr($data, $1);
       $override->{'name'} = substr($entry, 5) if substr($entry, 0, 5) eq 'path=';
       $override->{'linkname'} = substr($entry, 9) if substr($entry, 0, 9) eq 'linkpath=';
+      $override->{'size'} = 0 + substr($entry, 5) if substr($entry, 0, 5) eq 'size=';
       parse_gnusparse($override, $1, substr($entry, length($1) + 1)) if substr($entry, 0, 11) eq 'GNU.sparse.' && $entry =~ /^(.*?)=/;
     }
   }
@@ -153,6 +154,11 @@ sub list {
     }
     if ($override) {
       $ent->{$_} = $override->{$_} for keys %$override;
+      if (exists $override->{'size'}) {
+	$size = $ent->{'size'};
+	$pad = (512 - ($size % 512)) & 511;
+	$bsize = $size + $pad;
+      }
       undef $override;
     }
     $bsize = 0 if $tartype eq '2' || $tartype eq '3' || $tartype eq '4' || $tartype eq '6';
