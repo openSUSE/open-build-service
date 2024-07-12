@@ -36,14 +36,11 @@ $expected = [
 my ($tarfd, $tarlist) = listtarfile($tar1);
 is_deeply($tarlist, $expected, "listtar");
 
-my %ents = map {$_->{'name'} => $_} @{$tarlist || []};
-$_->{'file'} = $tarfd for @$tarlist;
-
 $expected = "hello\n";
-$result = BSTar::extract($tarfd, $ents{'testtar/world'});
+$result = BSTar::extract($tarfd, (grep {$_->{'name'} eq 'testtar/world'} @$tarlist)[0]);
 is($result, $expected, "extract testtar/world");
 
 my $newtar = '';
-BSTar::writetar(sub {$newtar .= $_[0]}, $tarlist);
+BSTar::writetar(sub {$newtar .= $_[0]}, $tarlist, 'file' => $tarfd);
 ok($newtar eq slurp($tar1), "tar round trip");
 
