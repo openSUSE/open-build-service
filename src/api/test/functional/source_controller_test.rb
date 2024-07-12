@@ -918,8 +918,23 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_adrian
     post '/source/home:Iggy/TestLinkPack', params: { cmd: 'unlock', comment: 'BlahFasel' }
     assert_response :forbidden
-    # do for real and cleanup
+
+    # ensure that unlocking is not working when project is locked as well
     login_Iggy
+    get '/source/home:Iggy/_meta'
+    assert_response :success
+    doc = REXML::Document.new(@response.body)
+    doc.elements['/project'].add_element 'lock'
+    doc.elements['/project/lock'].add_element 'enable'
+    put '/source/home:Iggy/_meta', params: doc.to_s
+    assert_response :success
+    post '/source/home:Iggy/TestLinkPack', params: { cmd: 'unlock', comment: 'BlahFasel' }
+    assert_response :forbidden
+    assert_xml_tag tag: 'summary', content: 'no permission to unlock package TestLinkPack in project home:Iggy'
+    post '/source/home:Iggy', params: { cmd: 'unlock', comment: 'cleanup' }
+    assert_response :success
+
+    # do for real and cleanup
     post '/source/home:Iggy/TestLinkPack', params: { cmd: 'unlock', comment: 'BlahFasel' }
     assert_response :success
     delete '/source/home:Iggy/TestLinkPack'
