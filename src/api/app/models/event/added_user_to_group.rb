@@ -23,7 +23,8 @@ module Event
 
     def parameters_for_notification
       super.merge({ notifiable_type: 'Group',
-                    notifiable_id: Group.find_by(title: payload['group']).id })
+                    notifiable_id: Group.find_by(title: payload['group']).id,
+                    type: 'NotificationGroup' })
     end
   end
 end

@@ -19,7 +19,7 @@ module Event
     end
 
     def parameters_for_notification
-      super.merge(notifiable_type: 'WorkflowRun', notifiable_id: payload['id'])
+      super.merge(notifiable_type: 'WorkflowRun', notifiable_id: payload['id'], type: 'NotificationWorkflowRun')
     end
 
     private

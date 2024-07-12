@@ -11,6 +11,8 @@ class Notification < ApplicationRecord
 
   serialize :event_payload, JSON
 
+  validates :type, length: { maximum: 255 }
+
   after_create :track_notification_creation
 
   after_save :track_notification_delivered, if: :saved_change_to_delivered?
@@ -77,8 +79,11 @@ class Notification < ApplicationRecord
     User.find_by(login: event_payload['accused']) || User.find_by(login: event_payload['user_login'])
   end
 
+  # TODO: Remove this method once the Notification STI mechanism has been set up properly
   # rubocop:disable Metrics/CyclomaticComplexity
   def for_notifiable
+    return self if type.present?
+
     notifiable_class = case notifiable
                        when BsRequest
                          NotificationBsRequest
@@ -130,6 +135,7 @@ end
 #  subscriber_type            :string(255)      indexed => [subscriber_id]
 #  subscription_receiver_role :string(255)      not null
 #  title                      :string(255)
+#  type                       :string(255)      indexed
 #  web                        :boolean          default(FALSE), indexed
 #  created_at                 :datetime         not null, indexed
 #  updated_at                 :datetime         not null
@@ -144,5 +150,6 @@ end
 #  index_notifications_on_notifiable_type_and_notifiable_id  (notifiable_type,notifiable_id)
 #  index_notifications_on_rss                                (rss)
 #  index_notifications_on_subscriber_type_and_subscriber_id  (subscriber_type,subscriber_id)
+#  index_notifications_on_type                               (type)
 #  index_notifications_on_web                                (web)
 #
