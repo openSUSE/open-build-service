@@ -8,7 +8,7 @@ module Event
     self.notification_explanation = 'Receive notifications when you are added to a group.'
 
     def subject
-      "You were added to the group '#{payload['group']}'" unless payload['who']
+      return "You were added to the group '#{payload['group']}'" unless payload['who']
 
       "'#{payload['who']}' added you to the group '#{payload['group']}'"
     end
