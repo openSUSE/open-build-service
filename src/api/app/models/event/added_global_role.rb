@@ -5,7 +5,7 @@ module Event
 
     receiver_roles :sibling_role_user
 
-    self.notification_explanation = 'Receive notifications when a user received an important role: Admin, Staff or Moderator.'
+    self.notification_explanation = "Receive notifications when a user received an important role: #{Role.global_roles.to_sentence}."
 
     def subject
       return "The user '#{payload['user']}' received the '#{payload['role']}' role" unless payload['who']
