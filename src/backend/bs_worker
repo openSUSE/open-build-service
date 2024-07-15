@@ -94,6 +94,7 @@ my $vm_network;
 my $emulator_script;
 my $hugetlbfs;
 my $workerid;
+my $clientip;
 my $srcserver;
 my @reposervers;
 my $testmode;
@@ -476,6 +477,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--id') {
     shift @ARGV;
     $workerid = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--clientip') {
+    shift @ARGV;
+    $clientip = shift @ARGV;
     next;
   }
   if ($ARGV[0] eq '--test') {
@@ -954,6 +960,7 @@ sub send_state {
   my @args = ("state=$state", "arch=$ba", "port=$p");
   push @args, "proto=$proto" if ($proto || 'http') ne 'http';
   push @args, "workerid=$workerid" if defined $workerid;
+  push @args, "clientip=$clientip" if defined $clientip;
   for my $server (@reposervers) {
     next if $exclude && $server eq $exclude;
     if ($state eq 'idle' && @reposervers > 1) {
