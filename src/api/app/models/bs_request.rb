@@ -998,6 +998,24 @@ class BsRequest < ApplicationRecord
       (BsRequest::FINAL_REQUEST_STATES.exclude?(state) || state == :declined)
   end
 
+  # Collects the embargo_date from all actions and returns...
+  # - the newest one
+  # - nil if there are no actions with embargo date
+  # - nil if all embargo_dates are in the past
+  def embargo_date
+    now = Time.zone.now
+    embargo_dates = []
+    bs_request_actions.where.not(source_project: nil).find_each do |action|
+      next unless action.embargo_date
+
+      embargo_dates.push(action.embargo_date)
+    end
+
+    return if embargo_dates.empty?
+
+    embargo_dates.max if embargo_dates.max > now
+  end
+
   private
 
   # returns true if we have reached a state that we can't get out anymore
