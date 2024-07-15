@@ -2571,7 +2571,7 @@ sub copybuild {
         # need to keep associated files in sync with dir
         $oldsetrelease = '' if $bin =~ /^(.*)\.(?:report|milestone|cdx\.json|spdx\.json|[^\.]+\.intoto\.json)$/ && -d "$odir/$1";
       }
-      if (defined($setrelease)) {
+      if (defined($setrelease) && $setrelease ne '-') {
 	$setrelease =~ s/^-?/-/; # "-" will drop the release tag
 	$setrelease =~ s/-?$//;  # drop leading "-", it depends on the format
         # we must ensure to run only one of the following, because people
