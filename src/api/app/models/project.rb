@@ -46,7 +46,11 @@ class Project < ApplicationRecord
 
   has_many :package_kinds, through: :packages
   has_many :issues, through: :packages
-  has_many :attribs, dependent: :destroy
+  has_many :attribs, dependent: :destroy do
+    def embargo_date
+      where(attrib_type_id: AttribType.joins(:attrib_namespace).where(attrib_namespace: { name: 'OBS' }, attrib_types: { name: 'EmbargoDate' }))
+    end
+  end
   has_many :quality_attribs, lambda {
     where(attrib_type_id: AttribType.joins(:attrib_namespace).where(attrib_namespace: { name: 'OBS' }, attrib_types: { name: 'QualityCategory' }))
   }, class_name: 'Attrib'
@@ -1384,6 +1388,10 @@ class Project < ApplicationRecord
 
   def event_parameters
     { project: name }
+  end
+
+  def embargo_date
+    attribs.embargo_date&.first&.embargo_date
   end
 
   private
