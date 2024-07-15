@@ -67,7 +67,7 @@ module FileService
 
       directory = Backend::Api::Sources::Package.write_filelist(@package.project.name, @package.name,
                                                                 "<directory>#{xml.target!}</directory>",
-                                                                user: User.session!.login, comment: @comment)
+                                                                user: User.session.login, comment: @comment)
       return if directory_errors(directory)
       return if %w[_project _pattern].include?(@package.name)
 

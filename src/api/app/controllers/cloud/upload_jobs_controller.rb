@@ -5,7 +5,7 @@ module Cloud
     before_action :set_upload_job, only: %i[destroy show]
 
     def index
-      render xml: ::Cloud::Backend::UploadJob.all(::User.session!, format: :xml)
+      render xml: ::Cloud::Backend::UploadJob.all(::User.session, format: :xml)
     end
 
     def show
@@ -35,7 +35,7 @@ module Cloud
     private
 
     def validate_configuration_presence
-      return if ::User.session!.cloud_configurations?
+      return if ::User.session.cloud_configurations?
 
       render_error status: 400,
                    errorcode: 'cloud_upload_job_no_config',
@@ -52,12 +52,12 @@ module Cloud
       permitted_params
         .slice(:project, :package, :repository, :arch, :filename, :region, :ami_name, :target, :vpc_subnet_id)
         .to_h
-        .merge(user: ::User.session!)
+        .merge(user: ::User.session)
     end
 
     def set_upload_job
       @upload_job = ::Cloud::User::UploadJob.find_by(job_id: params[:id])
-      return if @upload_job.present? && (@upload_job.user == ::User.session! || ::User.admin_session?)
+      return if @upload_job.present? && (@upload_job.user == ::User.session || ::User.admin_session?)
 
       render_error status: 404
     end

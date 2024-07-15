@@ -1,5 +1,4 @@
 class Staging::ExcludedRequestsController < Staging::StagingController
-  before_action :require_login
   before_action :set_project
   before_action :set_staging_workflow
   before_action :set_xml_hash, except: :index

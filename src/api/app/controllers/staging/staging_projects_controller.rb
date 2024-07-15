@@ -1,7 +1,6 @@
 class Staging::StagingProjectsController < Staging::StagingController
   include Staging::Errors
 
-  before_action :require_login
   before_action :set_project
   before_action :set_staging_workflow, only: :create
   before_action :set_options, only: %i[index show]
@@ -26,7 +25,7 @@ class Staging::StagingProjectsController < Staging::StagingController
 
   def create
     authorize @staging_workflow, policy_class: Staging::StagedRequestPolicy
-    result = ::Staging::StagingProjectCreator.new(request.body.read, @staging_workflow, User.session!).call
+    result = ::Staging::StagingProjectCreator.new(request.body.read, @staging_workflow, User.session).call
 
     if result.valid?
       render_ok
@@ -42,7 +41,7 @@ class Staging::StagingProjectsController < Staging::StagingController
   def copy
     authorize @project.staging
 
-    StagingProjectCopyJob.perform_later(params[:staging_workflow_project], params[:staging_project_name], params[:staging_project_copy_name], User.session!.id)
+    StagingProjectCopyJob.perform_later(params[:staging_workflow_project], params[:staging_project_name], params[:staging_project_copy_name], User.session.id)
     render_ok
   end
 
@@ -50,7 +49,7 @@ class Staging::StagingProjectsController < Staging::StagingController
     authorize @staging_project, :accept?
 
     if acceptable?(force: params[:force].present?)
-      StagingProjectAcceptJob.perform_later(project_id: @staging_project.id, user_login: User.session!.login)
+      StagingProjectAcceptJob.perform_later(project_id: @staging_project.id, user_login: User.session.login)
       render_ok
     else
       render_error(

@@ -1,5 +1,4 @@
 class Staging::StagedRequestsController < Staging::StagingController
-  before_action :require_login
   before_action :set_project
   before_action :set_staging_workflow
   before_action :set_staging_project, except: :destroy
@@ -26,7 +25,7 @@ class Staging::StagedRequestsController < Staging::StagingController
       request_numbers: @request_numbers,
       staging_workflow: @staging_workflow,
       staging_project: @staging_project,
-      user_login: User.session!.login
+      user_login: User.session.login
     ).create!
 
     render_ok
@@ -38,7 +37,7 @@ class Staging::StagedRequestsController < Staging::StagingController
     result = ::Staging::StagedRequests.new(
       request_numbers: @request_numbers,
       staging_workflow: @staging_workflow,
-      user_login: User.session!.login
+      user_login: User.session.login
     ).destroy
 
     if result.valid?
