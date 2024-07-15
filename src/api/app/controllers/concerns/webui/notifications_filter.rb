@@ -53,4 +53,14 @@ module Webui::NotificationsFilter
     notifications = notifications.merge(relations_group.inject(:or)) unless relations_group.empty?
     notifications
   end
+
+  def filter_notifications_by_request_state(notifications, filter_request_state)
+    relations_request_state = filter_request_state.map do |request_state|
+      notifications.for_request_state(request_state)
+    end
+
+    return notifications if relations_request_state.empty?
+
+    notifications.merge(relations_request_state.inject(:or))
+  end
 end

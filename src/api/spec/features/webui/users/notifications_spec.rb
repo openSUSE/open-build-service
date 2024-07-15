@@ -77,6 +77,33 @@ RSpec.describe 'User notifications', :js do
       # rubocop:enable RSpec/ExampleLength
     end
 
+    context 'when clicking on the request filter' do
+      let!(:notification_for_request) { create(:web_notification, :request_state_change, subscriber: user) }
+      let!(:another_notification_for_request) { create(:web_notification, :request_created, subscriber: user) }
+      let(:bs_request) { notification_for_request.notifiable }
+
+      before do
+        bs_request.notifications << notification_for_request
+        bs_request.notifications << another_notification_for_request
+        # need to load the page again in order to have the notifications
+        # visible
+        visit my_notifications_path
+      end
+
+      # rubocop:disable RSpec/ExampleLength
+      it 'shows all unread request notifications' do
+        find_by_id('notifications-dropdown-trigger').click if mobile? # open the filter dropdown
+        within('#filters') do
+          click_button('filter-requests-button') # open the filter
+          check('new')
+          click_button('filter-requests-button') # close the filter
+        end
+
+        expect(page).to have_text(notification_for_request.notifiable.number)
+      end
+      # rubocop:enable RSpec/ExampleLength
+    end
+
     context 'when having less notifications than the maximum per page' do
       it { expect(page).to have_no_text("Mark all as 'Read'") }
     end

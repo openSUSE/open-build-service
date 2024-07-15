@@ -1422,6 +1422,11 @@ MaintenanceIncident:
     LengthConstraintChecker:
       enabled: false
 Notification:
+  bs_request:
+    ColumnPresenceChecker:
+      enabled: false
+    ForeignKeyChecker:
+      enabled: false
   bs_request_oldstate:
     LengthConstraintChecker:
       enabled: false
