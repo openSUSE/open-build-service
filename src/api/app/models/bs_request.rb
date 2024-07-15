@@ -498,16 +498,14 @@ class BsRequest < ApplicationRecord
 
   def changestate_accepted(opts)
     # all maintenance_incident actions go into the same incident project
-    incident_project = nil # .where(type: 'maintenance_incident')
+    incident_project = nil
     bs_request_actions.each do |action|
-      source_project = Project.find_by_name(action.source_project)
-      Project::EmbargoHandler.new(source_project).call if action.source_project && action.is_maintenance_release? && source_project.is_a?(Project)
-
       next unless action.is_maintenance_incident?
 
       target_project = Project.get_by_name(action.target_project)
-      # create a new incident if needed
       next unless target_project.is_maintenance?
+
+      source_project = Project.find_by_name(action.source_project)
 
       # create incident if it is a maintenance project
       incident_project ||= MaintenanceIncident.build_maintenance_incident(target_project, source_project.nil?, self).project
@@ -857,16 +855,7 @@ class BsRequest < ApplicationRecord
         begin
           change_state(newstate: 'accepted', comment: 'Auto accept')
         rescue BsRequest::Errors::UnderEmbargo
-          # not yet free to release, postponing it to the embargo time
-          embargo_date = Time.now
-          bs_request_actions.each do |action|
-            next unless action.source_project
-
-            candidate = Project::EmbargoHandler.new(action.source_project).embargo_date
-            embargo_date = candidate if candidate > embargo_date
-          end
-          # special case when just the day is set, it is still blocked the entire day
-          embargo_date = embargo_date.tomorrow if embargo_date.hour.zero? && embargo_date.min.zero? && embargo_date.sec.zero?
+          # not yet free to release, postponing it to the embargo date
           BsRequestAutoAcceptJob.set(wait_until: embargo_date).perform_later(id)
         rescue BsRequestPermissionCheck::NotExistingTarget
           change_state(newstate: 'revoked', comment: 'Target disappeared')
