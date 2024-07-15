@@ -290,19 +290,20 @@ sub maketarhead {
 }
 
 sub writetar {
-  my ($fd, $entries) = @_;
+  my ($fd, $entries, %opts) = @_;
 
   my $writer;
   $writer = $fd if ref($fd) eq 'CODE';
   for my $ent (@{$entries || []}) {
     my (@s);
     my $f;
-    if (exists $ent->{'file'}) {
+    if (exists($ent->{'file'}) || (!exists($ent->{'data'}) && defined($opts{'file'}) && defined($ent->{'offset'}))) {
       my $file = $ent->{'file'};
+      $file = $opts{'file'} if !defined($file) && defined($ent->{'offset'});
       my $type = ref($file);
       if ($type) {
         if ($type eq 'CODE') {
-	  $f = $file->();
+	  $f = $file->($ent);
 	  die("$file: open: $!\n") unless $f;
 	} else {
           $f = $file;

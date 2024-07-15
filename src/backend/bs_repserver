@@ -1695,7 +1695,7 @@ sub workerstate {
       'hostarch' => $harch,
       'ip' => $peerip,
       'port' => $peerport,
-      'uri' => ( $peerip =~ m/:/ ? "$peerproto://[$peerip]:$peerport" : "$peerproto://$peerip:$peerport" ),
+      'uri' => ($peerip =~ /:/ ? "$peerproto://[$peerip]:$peerport" : "$peerproto://$peerip:$peerport"),
       'workerid' => $workerid,
     };
     $worker = { %$workerskel, %$worker } if $workerskel;
@@ -1704,7 +1704,7 @@ sub workerstate {
     # make sure that we can connect to the client
     if ($BSConfig::checkclientconnectivity || $BSConfig::checkclientconnectivity) {
       my $param = {
-	'uri' => ( $peerip =~ m/:/ ? "$peerproto://[$peerip]:$peerport/status" : "$peerproto://$peerip:$peerport/status" ),
+	'uri' => ($peerip =~ /:/ ? "http://[$peerip]:$peerport/status" : "http://$peerip:$peerport/status"),
         'async' => 1,
         'timeout' => 1,
 	'sender' => sub {},
@@ -1745,7 +1745,7 @@ sub workerdispatched {
   my $peerproto = $cgi->{'proto'} || 'http';
   die("cannot get your ip address\n") unless $peerip;
   die("unsupported proto $peerproto\n") unless $peerproto eq 'http' || $peerproto eq 'https';
-  my $uri = "$peerproto://$peerip:$peerport";
+  my $uri = $peerip =~ /:/ ? "$peerproto://[$peerip]:$peerport" : "$peerproto://$peerip:$peerport";
   my $jobstatus = {
     'code' => 'building',
     'uri' => $uri,
@@ -2198,6 +2198,7 @@ sub putjob {
     my $uri = $oldjobstatus->{'uri'};
     $uri =~ s/.*\///s;
     $uri =~ s/:[\d]+$//s;
+    $uri =~ s/^\[|\]$//g;
     die("job was dispatched to a different peer\n") unless $peerip eq $uri;
   }
 

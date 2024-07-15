@@ -658,8 +658,7 @@ sub push_containers {
       my $govariant = $config->{'variant'} || $containerinfo->{'govariant'};
       my $goarch = $config->{'architecture'} || 'any';
       my $goos = $config->{'os'} || 'any';
-      my $platformstr = "architecture:$goarch os:$goos";
-      $platformstr .= " variant:$govariant" if $govariant;
+      my $platformstr = BSContar::make_platformstr($goarch, $govariant, $goos);
       if ($multiplatforms{$platformstr}) {
 	print "ignoring $containerinfo->{'file'}, already have $platformstr\n";
 	next;

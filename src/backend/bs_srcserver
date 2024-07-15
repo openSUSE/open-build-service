@@ -6679,7 +6679,7 @@ sub getdispatchprios {
 ####################################################################
 
 sub sourceinfo {
-  my ($cgi, $projid, $packid, $bconf) = @_;
+  my ($cgi, $projid, $packid, $bconf, $ispkgsourceinfo) = @_;
   my $r = {'package' => $packid};
   my $linked = [];
   my $rev;
@@ -6688,8 +6688,12 @@ sub sourceinfo {
     my $meta = readstr("$projectsdir/$projid.pkg/$packid.xml", 1) || '';
     $r->{'metamd5'} = Digest::MD5::md5_hex($meta);
   }
-  eval {
+  if ($ispkgsourceinfo) {
+    # do the getrev outside of the eval to get better error reporting
     $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'build', $linked);
+  }
+  eval {
+    $rev ||= getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'build', $linked);
     $r->{'srcmd5'} = $rev->{'srcmd5'} if $rev->{'srcmd5'} ne 'empty';
     $r->{'rev'} = $rev->{'rev'} if $rev->{'rev'};
     $r->{'vrev'} = $rev->{'vrev'} if $rev->{'vrev'};
@@ -6883,7 +6887,7 @@ sub getpackagesourceinfo {
     }
     $bconf = Build::read_config($cgi->{'arch'} || 'noarch', $cfile);
   }
-  my $res = sourceinfo($cgi, $projid, $packid, $bconf);
+  my $res = sourceinfo($cgi, $projid, $packid, $bconf, 1);
   return ($res, $BSXML::sourceinfo);
 }
 

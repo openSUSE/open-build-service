@@ -96,15 +96,6 @@ sub registry_errorcode {
   return $code;
 }
 
-sub mkplatformstr {
-  my ($goarch, $govariant, $goos) = @_;
-  my $str = $goarch || 'any';
-  $str .= "-$govariant" if defined $govariant;
-  $str .= "\@$goos" if $goos && $goos ne 'linux';
-  $str =~ s/[\/\s,]/_/g;
-  return $str;
-}
-
 sub send_layer {
   my ($param) = @_;
   my $sl = $param->{'send_layer_data'}; # [ $layer_ent, $offset ],
@@ -498,7 +489,7 @@ sub manifest2extrainfo {
 
 sub platform2str {
   my ($platform) = @_;
-  return $platform ? mkplatformstr($platform->{'architecture'}, $platform->{'variant'}, $platform->{'os'}) : 'any';
+  return $platform ? BSContar::make_platformstr($platform->{'architecture'}, $platform->{'variant'}, $platform->{'os'}) : 'any';
 }
 
 sub manifest2platformsinfo {
@@ -1014,8 +1005,7 @@ for my $tarfile (@tarfiles) {
   my $govariant = $config->{'variant'} || $containerinfo->{'govariant'} || undef;
   if ($multiarch) {
     # see if a already have this arch/os combination
-    my $platformstr = "architecture:$goarch os:$goos";
-    $platformstr .= " variant:$govariant" if $govariant;
+    my $platformstr = BSContar::make_platformstr($goarch, $govariant, $goos);
     if ($multiplatforms{$platformstr}) {
       print "ignoring $tarfile, already have $platformstr\n";
       next;
