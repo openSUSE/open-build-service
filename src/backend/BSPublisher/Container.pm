@@ -115,20 +115,6 @@ sub get_notary_pubkey {
   return ($pubkey, \@signargs);
 }
 
-=head2 mkplatformstr - create a string from the arch/variant/os of the platform
-
-=cut
-
-sub mkplatformstr {
-  my ($goarch, $govariant, $goos) = @_;
-  my $str = $goarch || 'any';
-  $str .= "-$govariant" if defined $govariant;
-  $str .= "\@$goos" if $goos && $goos ne 'linux';
-  $str =~ s/[\/\s,]/_/g;
-  return $str;
-}
-
-
 =head2 default_container_mapper - map container data to registry repository/tags
  
 =cut
@@ -213,7 +199,7 @@ sub upload_all_containers {
     my $mapper = $registry->{'mapper'} || \&default_container_mapper;
     for my $p (sort keys %$containers) {
       my $containerinfo = $containers->{$p};
-      my $platformstr = mkplatformstr($containerinfo->{'goarch'} || $containerinfo->{'arch'}, $containerinfo->{'govariant'}, $containerinfo->{'goos'});
+      my $platformstr = BSContar::make_platformstr($containerinfo->{'goarch'} || $containerinfo->{'arch'}, $containerinfo->{'govariant'}, $containerinfo->{'goos'});
       $platformstr = 'any' if ($containerinfo->{'type'} || '') eq 'helm' || ($containerinfo->{'type'} || '') eq 'artifacthub';
       my @tags = $mapper->($registry, $containerinfo, $projid, $repoid, $containerinfo->{'arch'});
       for my $tag (@tags) {
@@ -355,7 +341,7 @@ sub create_container_dist_info {
   $govariant = $config->{'variant'} if $config->{'variant'};
 
   if ($platforms) {
-    my $platformstr = mkplatformstr($goarch, $govariant, $goos);
+    my $platformstr = BSContar::make_platformstr($goarch, $govariant, $goos);
     return undef if $platforms->{$platformstr};
     $platforms->{$platformstr} = 1;
   }
