@@ -181,4 +181,56 @@ RSpec.describe Package, '#get_by_project_and_name' do
       end
     end
   end
+
+  context 'follow_project_scmsync_links' do
+    let(:project) { create(:project, name: 'project_1', scmsync: 'https://github.com/hennevogel/scmsync-project.git') }
+    let(:package) { build(:package, name: 'ctris') }
+    let(:package_xml) do
+      <<-HEREDOC
+        <package name="#{package.name}" project="#{project.name}">
+          <title>hans</title>
+          <description>franz</description>
+        </package>
+      HEREDOC
+    end
+
+    context 'enabled' do
+      let(:arguments) { { follow_project_scmsync_links: true } }
+
+      before do
+        # Mock Package.exists_on_backend?
+        allow(Backend::Api::Sources::Package).to receive(:meta).and_return(package_xml)
+      end
+
+      it 'returns a readonly package' do
+        expect(subject).to be_readonly
+      end
+
+      it 'reads attributes from the backend' do
+        expect(subject.title).to eq('hans')
+        expect(subject.description).to eq('franz')
+      end
+    end
+
+    context 'enabled but not found' do
+      let(:arguments) { { follow_project_scmsync_links: true } }
+
+      before do
+        # Mock Package.exists_on_backend?
+        allow(Backend::Api::Sources::Package).to receive(:meta).and_raise(Backend::Error)
+      end
+
+      it 'raises' do
+        expect { subject }.to raise_error(Package::Errors::UnknownObjectError)
+      end
+    end
+
+    context 'disabled' do
+      let(:arguments) { { follow_project_scmsync_links: false } }
+
+      it 'returns nil' do
+        expect(subject).to be_nil
+      end
+    end
+  end
 end
