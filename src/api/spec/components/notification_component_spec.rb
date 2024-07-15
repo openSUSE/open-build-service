@@ -5,7 +5,7 @@ RSpec.describe NotificationComponent, type: :component do
   context 'when the notification is about a relationship with package' do
     let(:package) { create(:package_with_maintainer, maintainer: user) }
     let(:event_payload) { { package: package.name, project: package.project.name } }
-    let(:notification) { create(:notification, :relationship_create_for_project, delivered: true, notifiable: package, event_payload: event_payload) }
+    let(:notification) { create(:notification_project, :relationship_create_for_project, delivered: true, notifiable: package, event_payload: event_payload) }
 
     before do
       render_inline(described_class.new(notification: notification, selected_filter: selected_filter, page: 1))
@@ -19,7 +19,7 @@ RSpec.describe NotificationComponent, type: :component do
   context 'when the notification is about a comment for project' do
     let(:project) { create(:project, maintainer: user) }
     let(:comment) { create(:comment, commentable: project) }
-    let(:notification) { create(:notification, :comment_for_project, delivered: true, notifiable: comment) }
+    let(:notification) { create(:notification_comment, :comment_for_project, delivered: true, notifiable: comment) }
 
     before do
       render_inline(described_class.new(notification: notification, selected_filter: selected_filter, page: 1))

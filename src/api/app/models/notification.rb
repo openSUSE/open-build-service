@@ -82,31 +82,6 @@ class Notification < ApplicationRecord
     User.find_by(login: event_payload['accused']) || User.find_by(login: event_payload['user_login'])
   end
 
-  # TODO: Remove this method once the Notification STI mechanism has been set up properly
-  # rubocop:disable Metrics/CyclomaticComplexity
-  def for_notifiable
-    return self if type.present?
-
-    notifiable_class = case notifiable
-                       when BsRequest
-                         NotificationBsRequest
-                       when Comment
-                         NotificationComment
-                       when Group
-                         NotificationGroup
-                       when Package
-                         NotificationPackage
-                       when Project
-                         NotificationProject
-                       when Report, DecisionFavored, DecisionCleared
-                         NotificationReport
-                       when WorkflowRun
-                         NotificationWorkflowRun
-                       end
-    notifiable_class.new(attributes)
-  end
-  # rubocop:enable Metrics/CyclomaticComplexity
-
   private
 
   def track_notification_creation

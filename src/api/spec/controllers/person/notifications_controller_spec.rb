@@ -24,7 +24,7 @@ RSpec.describe Person::NotificationsController do
 
   describe 'index' do
     context 'called by authorized user' do
-      let!(:notifications) { create_list(:web_notification, 2, :request_state_change, subscriber: user) }
+      let!(:notifications) { create_list(:notification_bs_request, 2, :web_notification, :request_state_change, subscriber: user) }
 
       before do
         login user
@@ -40,7 +40,7 @@ RSpec.describe Person::NotificationsController do
       it { expect(response.body).to include('<notifications count="2">') }
 
       context 'filter by kind' do
-        let!(:notifications) { create_list(:web_notification, 2, :request_state_change, subscriber: user, delivered: true) }
+        let!(:notifications) { create_list(:notification_bs_request, 2, :web_notification, :request_state_change, subscriber: user, delivered: true) }
 
         before do
           login user
@@ -82,7 +82,7 @@ RSpec.describe Person::NotificationsController do
   end
 
   describe '#update' do
-    let!(:notification) { create(:web_notification, :comment_for_package, subscriber: user) }
+    let!(:notification) { create(:notification_comment, :web_notification, :comment_for_package, subscriber: user) }
 
     context 'called by an unauthorized user' do
       let(:other_user) { create(:confirmed_user, :in_beta) }

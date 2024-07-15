@@ -17,7 +17,7 @@ class NotificationComponent < ApplicationComponent
   def initialize(notification:, selected_filter:, page:)
     super
 
-    @notification = notification.for_notifiable
+    @notification = notification
     @selected_filter = selected_filter
     @page = page
   end
