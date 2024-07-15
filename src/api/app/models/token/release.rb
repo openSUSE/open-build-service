@@ -33,6 +33,7 @@ class Token::Release < Token
              comment: 'Releasing via trigger event' }
     opts[:multibuild_container] = options[:multibuild_flavor] if options[:multibuild_flavor].present?
     opts[:filter_architecture] = options[:arch] if options[:arch].present?
+    opts[:setrelease] = options[:setrelease] if options[:setrelease].present?
 
     if package_to_release.present?
       release_package(package_to_release,
