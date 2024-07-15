@@ -870,6 +870,10 @@ class BsRequestAction < ApplicationRecord
     Project.unscoped.find_by(name: source_project)&.disabled_for?('access', nil, nil)
   end
 
+  def embargo_date
+    Project.unscoped.find_by(name: source_project)&.embargo_date
+  end
+
   private
 
   def cache_diffs
