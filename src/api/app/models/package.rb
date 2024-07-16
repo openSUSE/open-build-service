@@ -184,8 +184,20 @@ class Package < ApplicationRecord
   # You can follow this type of project link and try to find the Package from the "maintenance update"
   # Project by setting in the opts hash:
   #   check_update_project: true
+  #
+  # It will ignore "scmsync" Projects and not "follow" this type of project link to find the Package.
+  # https://github.com/openSUSE/open-build-service/wiki/Links#project-scm-bridge-links
+  #
+  # You can follow this type of project link and try to find the Package from the "SCM" Project
+  # by setting in the opts hash:
+  #   follow_project_scmsync_links: true
+
   def self.get_by_project_and_name(project_name_or_object, package_name, opts = {})
-    get_by_project_and_name_defaults = { use_source: true, follow_project_links: true, follow_multibuild: false, check_update_project: false }
+    get_by_project_and_name_defaults = { use_source: true,
+                                         follow_project_links: true,
+                                         follow_project_scmsync_links: false,
+                                         follow_multibuild: false,
+                                         check_update_project: false }
     opts = get_by_project_and_name_defaults.merge(opts)
 
     package_name = striping_multibuild_suffix(package_name) if opts[:follow_multibuild]
@@ -196,7 +208,20 @@ class Package < ApplicationRecord
     project = internal_get_project(project_name_or_object)
     return unless project # remote prjs
 
-    return nil if project.scmsync.present?
+    if project.scmsync.present?
+      return nil unless opts[:follow_project_scmsync_links]
+
+      # rubocop:disable Lint/SuppressedException
+      begin
+        package_xmlhash = Xmlhash.parse(Backend::Api::Sources::Package.meta(project.name, package_name))
+      rescue Backend::Error
+      else
+        package = project.packages.new(name: package_name)
+        package.assign_attributes_from_from_xml(package_xmlhash)
+        package.readonly!
+      end
+      # rubocop:enable Lint/SuppressedException
+    end
 
     if package.nil? && opts[:follow_project_links]
       package = project.find_package(package_name, opts[:check_update_project])
@@ -703,27 +728,9 @@ class Package < ApplicationRecord
     check_write_access!(ignore_lock)
 
     Package.transaction do
-      self.title = xmlhash.value('title')
-      self.description = xmlhash.value('description')
-      self.bcntsynctag = xmlhash.value('bcntsynctag')
-      self.releasename = xmlhash.value('releasename')
-      self.scmsync = xmlhash.value('scmsync')
+      assign_attributes_from_from_xml(xmlhash)
 
-      #--- devel project ---#
-      self.develpackage = nil
-      devel = xmlhash['devel']
-      if devel
-        prj_name = devel['project'] || xmlhash['project']
-        pkg_name = devel['package'] || xmlhash['name']
-        develprj = Project.find_by_name(prj_name)
-        raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)" unless develprj
-
-        develpkg = develprj.packages.find_by_name(pkg_name)
-        raise SaveError, "value of develpackage has to be a existing package (package '#{pkg_name}' does not exist)" unless develpkg
-
-        self.develpackage = develpkg
-      end
-      #--- end devel project ---#
+      assign_devel_package_from_xml(xmlhash)
 
       # just for cycle detection
       resolve_devel_package
@@ -739,6 +746,31 @@ class Package < ApplicationRecord
 
       save!
     end
+  end
+
+  def assign_attributes_from_from_xml(xmlhash)
+    self.title = xmlhash.value('title')
+    self.description = xmlhash.value('description')
+    self.url = xmlhash.value('url')
+    self.bcntsynctag = xmlhash.value('bcntsynctag')
+    self.releasename = xmlhash.value('releasename')
+    self.scmsync = xmlhash.value('scmsync')
+  end
+
+  def assign_devel_package_from_xml(xmlhash)
+    #--- devel project/package ---#
+    devel = xmlhash['devel']
+    return unless devel
+
+    devel_project_name = devel['project'] || xmlhash['project']
+    devel_project = Project.find_by_name(devel_project_name)
+    raise SaveError, "project '#{devel_project_name}' does not exist" unless devel_project
+
+    devel_package_name = devel['package'] || xmlhash['name']
+    devel_package = devel_project.packages.find_by_name(devel_package_name)
+    raise SaveError, "package '#{devel_package_name}' does not exist in project '#{devel_project_name}'" unless devel_package
+
+    self.develpackage = devel_package
   end
 
   def store(opts = {})
