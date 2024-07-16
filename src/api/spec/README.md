@@ -29,7 +29,7 @@ bundle exec rspec spec/models/user_spec.rb:33
 
 ## What to Test and How
 
-You *can* test a lot of different things in a Ruby on Rails test suite. From behavior of units (as in methods of a Ruby object), to interactions between different units end-to-end (as in plugging different Ruby objects together to provide a feature. Like testing that `ActionDispatch`+`ActionController`+`ActiveRecord`+`ActionView` behave in a certain way from a browser) to accessibility testing or even more esoteric things like visual testing.
+You *can* test a lot of different things in a Ruby on Rails test suite. From behavior of units (as in methods of a Ruby object), to interactions between different units end-to-end (as in plugging different Ruby objects together to provide a feature). Like testing that `ActionDispatch`+`ActionController`+`ActiveRecord`+`ActionView` behave in a certain way from a browser, accessibility testing or even more esoteric things like visual testing.
 
 But as we all know, too many cooks spoil the broth! That is why we are trying really hard to:
 
@@ -41,7 +41,7 @@ First and foremost because a test suite is code that needs to be maintained and 
 
 ### Limit the Amount of Code Involved in Running the Test
 
-Please use the type of spec with the least amount if computing time required to run it. You can test the four branch logic of your `ThingController#update` action by firing up four browsers, clicking through 4 web pages until you reach a form, fill the form in 4 different ways, click submit and then expect 4 different responses. Or you use a controller unit spec, doing that that removes the need to run the browser every time you run the spec. If the logic that branches 4 times is in the `Thing` model and not in the `ThingsController`, rather write *one* model spec.
+Please use the type of spec with the least amount if computing time required to run it. You can test the four branch logic of your `ThingController#update` action by firing up four browsers, clicking through 4 web pages until you reach a form, fill the form in 4 different ways, click submit and then expect 4 different responses. Or you use a controller unit spec, doing that removes the need to run the browser every time you run the spec. If the logic that branches 4 times is in the `Thing` model and not in the `ThingsController`, rather write *one* model spec.
 This will remove the need to run all of `ActionDispatch` every time you run the spec.
 
 ### Limit the Amount of Times the Same Code Is Tested
@@ -58,7 +58,7 @@ Same reason to not test a standard ActiveRecord presence validation, a resourcef
 
 Unit specs are limited in scope and only test a single "unit"/"object" without testing interactions between different "units". Their purpose is to test each unit's functionality in isolation before integrating them into the larger system.
 
-There are several types of "units"/"objects" in every rails app so they are also several types of unit specs in our test suite.
+There are several types of "units"/"objects" in every rails app so there are also several types of unit specs in our test suite.
 
 Unit specs:
 
@@ -79,7 +79,7 @@ Feature specs:
 - are in `spec/features`
 - are configured in and inherit from `spec/browser_helper.rb`
 - do everything that unit specs do (`spec/browser_helper.rb` inherits from `spec/spec_helper.rb`)
-- run a chomium browser
+- run a Chromium browser
 - run in a desktop sized browser window by default
 - run twice in CI, once with a desktop and once with a mobile sized browser window
 - that failed save the HTML of the page to `tmp/capybara/#{example_filename}.html`
