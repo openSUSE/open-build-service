@@ -498,16 +498,14 @@ class BsRequest < ApplicationRecord
 
   def changestate_accepted(opts)
     # all maintenance_incident actions go into the same incident project
-    incident_project = nil # .where(type: 'maintenance_incident')
+    incident_project = nil
     bs_request_actions.each do |action|
-      source_project = Project.find_by_name(action.source_project)
-      Project::EmbargoHandler.new(source_project).call if action.source_project && action.is_maintenance_release? && source_project.is_a?(Project)
-
       next unless action.is_maintenance_incident?
 
       target_project = Project.get_by_name(action.target_project)
-      # create a new incident if needed
       next unless target_project.is_maintenance?
+
+      source_project = Project.find_by_name(action.source_project)
 
       # create incident if it is a maintenance project
       incident_project ||= MaintenanceIncident.build_maintenance_incident(target_project, source_project.nil?, self).project
@@ -857,7 +855,8 @@ class BsRequest < ApplicationRecord
         begin
           change_state(newstate: 'accepted', comment: 'Auto accept')
         rescue BsRequest::Errors::UnderEmbargo
-          # not yet free to release, postponing it without touching
+          # not yet free to release, postponing it to the embargo date
+          BsRequestAutoAcceptJob.set(wait_until: embargo_date).perform_later(id)
         rescue BsRequestPermissionCheck::NotExistingTarget
           change_state(newstate: 'revoked', comment: 'Target disappeared')
         rescue PostRequestNoPermission
@@ -986,6 +985,24 @@ class BsRequest < ApplicationRecord
     (reviews.accepted.size + reviews.opened.size + reviews.declined.size).positive? &&
       # Declined is not really a final state, since the request can always be reopened...
       (BsRequest::FINAL_REQUEST_STATES.exclude?(state) || state == :declined)
+  end
+
+  # Collects the embargo_date from all actions and returns...
+  # - the newest one
+  # - nil if there are no actions with embargo date
+  # - nil if all embargo_dates are in the past
+  def embargo_date
+    now = Time.zone.now
+    embargo_dates = []
+    bs_request_actions.where.not(source_project: nil).find_each do |action|
+      next unless action.embargo_date
+
+      embargo_dates.push(action.embargo_date)
+    end
+
+    return if embargo_dates.empty?
+
+    embargo_dates.max if embargo_dates.max > now
   end
 
   private

@@ -267,6 +267,10 @@ class BsRequestPermissionCheck
         raise ReleaseTargetNoPermission, "Release target project #{releasetarget.target_repository.project.name} is not writable by you" unless User.session!.can_modify?(releasetarget.target_repository.project)
       end
     end
+
+    # Is the source_project under embargo still?
+    return if action.embargo_date.blank?
+    raise BsRequest::Errors::UnderEmbargo, "The project #{action.source_project} is under embargo until #{action.embargo_date}" if action.embargo_date > Time.now.utc
   end
 
   # check if the action can change state - or throw an APIError if not
