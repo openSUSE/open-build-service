@@ -29,7 +29,7 @@ class Webui::RequestController < Webui::WebuiController
   after_action :verify_authorized, only: [:create]
 
   def index
-    # TODO
+    @bs_requests = []
   end
 
   def show
