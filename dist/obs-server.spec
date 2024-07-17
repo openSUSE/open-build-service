@@ -484,11 +484,6 @@ bundle --local --path %_libdir/obs-api/
 rm -rf vendor/cache/* vendor/cache.next/*
 popd
 
-#
-# generate apidocs
-#
-make
-
 %if 0%{?suse_version} >= 1500
 %sysusers_generate_pre dist/system-user-obsrun.conf obsrun system-user-obsrun.conf
 %sysusers_generate_pre dist/system-user-obsservicerun.conf obsservicerun system-user-obsservicerun.conf

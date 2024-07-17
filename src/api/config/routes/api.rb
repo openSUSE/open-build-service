@@ -338,8 +338,6 @@ defaults format: 'xml' do
   end
 end
 
-get 'apidocs-old/:filename' => 'webui/apidocs#file', constraints: cons
-
 # spiders request this, not browsers
 controller 'webui/sitemaps' do
   get 'sitemaps' => :index
