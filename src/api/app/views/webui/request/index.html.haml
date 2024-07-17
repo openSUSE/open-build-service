@@ -13,17 +13,11 @@
     = render partial: 'webui/shared/loading', locals: { text: 'Loading...', wrapper_css: ['loading'] }
   .col-md-8.col-lg-9.px-0.px-md-3#request-list
     .card
-      .card-body
-        - if @bs_requests.blank?
-          .text-center
+      .list-group.list-group-flush.p-3#requests
+        .text-center.mb-3
+          - if @bs_requests.blank?
             %p There are no requests available
-        - else
-          .text-center
-            %span.ms-3= page_entries_info(@bs_requests)
-          .pt-3#requests
-            - @bs_requests.each do |bs_request|
-              .border-bottom.py-2{ id: "request-heading#{bs_request.number}" }
-                .mb-0
-                  .row
-                    = render partial: 'request_item', locals: { bs_request: bs_request }
-            = paginate @bs_requests, views_prefix: 'webui'
+          - else
+            %span.ms-3= page_entries_info(@bs_requests, entry_name: 'request')
+        = render partial: 'request_item', collection: @bs_requests, as: :bs_request
+        = paginate @bs_requests, views_prefix: 'webui'

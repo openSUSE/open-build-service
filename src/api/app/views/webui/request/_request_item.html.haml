@@ -1,0 +1,38 @@
+= link_to(request_show_path(bs_request.number), class: 'list-group-item', id: "request-heading#{bs_request.number}") do
+  .row.flex-nowrap
+    .col-auto
+      %i.fas.fa-code-pull-request
+    .col.col-with-icon
+      .d-flex.justify-content-between.mb-1
+        %strong
+          - if bs_request.bs_request_actions.count == 1
+            = bs_request.bs_request_actions.first.class.sti_name.to_s.humanize.titleize
+          - else
+            Multiple Action
+          Request #{bs_request.number}
+        = render BsRequestStateBadgeComponent.new(state: bs_request.state, css_class: 'mb-auto')
+      .mb-1
+        - if bs_request.bs_request_actions.count == 1
+          - if bs_request.bs_request_actions.first.source_project.present?
+            = render BsRequestActionSourceAndTargetComponent.new(bs_request)
+      .mb-2.request-index-description.text-truncate
+        = bs_request.description
+      .text-end
+        %span
+          = render AvatarComponent.new(name: bs_request.creator, email: User.find_by_login(bs_request.creator).email, custom_css: 'align-text-bottom')
+          = bs_request.creator
+          created
+          = render TimeComponent.new(time: bs_request.created_at)
+        - unless bs_request.bs_request_actions.count == 1
+          %span.text-nowrap
+            %i.fas.fa-list-check.ps-2
+            = bs_request.bs_request_actions.count
+            actions
+        - if bs_request.comments.any?
+          %span.text-nowrap
+            %i.fas.fa-comment.ps-2
+            = pluralize(bs_request.comments.count, 'comment')
+        - if bs_request.reviews.any?
+          %span.text-nowrap
+            %i.fas.fa-magnifying-glass.ps-2
+            = pluralize(bs_request.reviews.count, 'reviews')

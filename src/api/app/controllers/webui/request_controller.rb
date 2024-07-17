@@ -29,7 +29,7 @@ class Webui::RequestController < Webui::WebuiController
   after_action :verify_authorized, only: [:create]
 
   def index
-    @bs_requests = []
+    @bs_requests = BsRequest.all.page(params[:page])
   end
 
   def show
