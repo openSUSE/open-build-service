@@ -28,6 +28,10 @@ class Webui::RequestController < Webui::WebuiController
 
   after_action :verify_authorized, only: [:create]
 
+  def index
+    # TODO
+  end
+
   def show
     # TODO: Remove this `if` condition, and the `else` clause once request_show_redesign is rolled out
     if Flipper.enabled?(:request_show_redesign, User.session)
