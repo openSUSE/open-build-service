@@ -102,6 +102,7 @@ FactoryBot.define do
       end
     end
 
+    # FIXME: Repository.name and architecture should be transient
     factory :project_with_repository do
       after(:create) do |project|
         create(:repository, project: project, architectures: ['i586'])

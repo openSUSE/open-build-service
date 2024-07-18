@@ -12,6 +12,14 @@ module MultibuildPackage
 
       name.gsub(/:.*$/, '')
     end
+
+    def multibuild_flavor(name)
+      # exception for package names used to have a collon
+      return if name.start_with?('_patchinfo:', '_product:')
+      return unless name.include?(':')
+
+      name.gsub(/^.*:/, '')
+    end
   end
 
   def multibuild?
