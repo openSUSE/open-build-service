@@ -61,6 +61,15 @@
   margin: auto;
 }
 
+.request-index-description {
+  height: calc(var(--bs-body-line-height) * 1em);
+  overflow: hidden;
+}
+
+.col-with-icon {
+  max-width: calc(100% - 2.5rem)
+}
+
 @include media-breakpoint-up(sm) {
   .order-sm-1 {
     order: 1;
@@ -78,6 +87,12 @@
 
   .order-md-2 {
     order: 2;
+  }
+
+  #requests-filter-desktop {
+    .collapse {
+      display: block !important;
+    }
   }
 }
 

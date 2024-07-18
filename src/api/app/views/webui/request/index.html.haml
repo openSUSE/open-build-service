@@ -1,0 +1,23 @@
+- @pagetitle = 'Requests'
+
+.row
+  .col-md-4.col-lg-3.px-0.px-md-3.sticky-top#requests-filter-desktop
+    .card.mb-3
+      %strong.d-block.d-md-none.p-3{ data: { 'bs-toggle': 'collapse', 'bs-target': '#filters' },
+                                  aria: { expanded: true, controls: 'filters' } }
+        Filtered by: #{params[:status]&.humanize}
+        %i.float-end.mt-1.fa.fa-chevron-down#requests-dropdown-trigger
+      .collapse#filters
+        = render partial: 'requests_filter', locals: { selected_filter: @selected_filter }
+  .col-md-8.col-lg-9.px-0.px-md-3.d-none#request-list-loading
+    = render partial: 'webui/shared/loading', locals: { text: 'Loading...', wrapper_css: ['loading'] }
+  .col-md-8.col-lg-9.px-0.px-md-3#request-list
+    .card
+      .list-group.list-group-flush.p-3#requests
+        .text-center.mb-3
+          - if @bs_requests.blank?
+            %p There are no requests available
+          - else
+            %span.ms-3= page_entries_info(@bs_requests, entry_name: 'request')
+        = render partial: 'request_item', collection: @bs_requests, as: :bs_request
+        = paginate @bs_requests, views_prefix: 'webui'
