@@ -28,6 +28,7 @@ class Webui::RequestController < Webui::WebuiController
   before_action :cache_diff_data, only: %i[show build_results rpm_lint changes mentioned_issues],
                                   if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :check_beta_user_redirect, only: %i[build_results rpm_lint changes mentioned_issues]
+  before_action :redirect_to_tasks, only: [:index], unless: -> { Flipper.enabled?(:request_index, User.session) }
   before_action :set_requests, :set_filter_involvement, :filter_requests, :set_selected_filter, only: [:index], if: -> { Flipper.enabled?(:request_index, User.session) }
 
   after_action :verify_authorized, only: [:create]
@@ -325,6 +326,10 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   private
+
+  def redirect_to_tasks
+    redirect_to my_tasks_path
+  end
 
   def set_requests
     @bs_requests = BsRequest.all.page(params[:page])
