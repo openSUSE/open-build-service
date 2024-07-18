@@ -23,14 +23,14 @@ RSpec.describe User, '.has_local_permission?' do
     end
 
     context 'is in user home project' do
-      let(:project) { create(:project, name: "#{user.home_project_name}:hans") }
+      let(:project) { create(:project, name: user.home_project_name) }
       let(:object) { create(:package, project: project) }
 
       it { expect(subject).to be_truthy }
     end
 
     context 'is in user home sub-project' do
-      let(:project) { create(:project, name: user.home_project_name) }
+      let(:project) { create(:project, name: "#{user.home_project_name}:hans") }
       let(:object) { create(:package, project: project) }
 
       it { expect(subject).to be_truthy }
