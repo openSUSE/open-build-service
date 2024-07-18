@@ -994,9 +994,11 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=release
   def package_command_release
-    pkg = Package.get_by_project_and_name(params[:project], params[:package], follow_project_links: false, follow_multibuild: true)
-    multibuild_container = nil
-    multibuild_container = params[:package].gsub(/^.*:/, '') if params[:package].include?(':') && !params[:package].starts_with?('_product:')
+    pkg = Package.get_by_project_and_name(params[:project], params[:package],
+                                          follow_project_links: false,
+                                          follow_multibuild: true,
+                                          follow_project_scmsync_links: true)
+    multibuild_container = Package.multibuild_flavor(params[:package])
 
     # uniq timestring for all targets
     time_now = Time.now.utc
