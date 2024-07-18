@@ -138,7 +138,7 @@ class Webui::WebuiController < ActionController::Base
     return if @package_name.blank?
 
     begin
-      @package = Package.get_by_project_and_name(@project, @package_name, follow_multibuild: true)
+      @package = Package.get_by_project_and_name(@project.name, @package_name, follow_multibuild: true)
     # why it's not found is of no concern
     rescue APIError
       raise Package::UnknownObjectError, "Package not found: #{@project.name}/#{@package_name}"
