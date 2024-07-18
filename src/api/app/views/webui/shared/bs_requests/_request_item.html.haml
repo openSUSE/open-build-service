@@ -9,11 +9,7 @@
     .col.col-with-icon
       .d-flex.mb-1
         %strong.me-auto
-          - if bs_request_actions_count != 1
-            Multiple Action
-          - if bs_request_actions_types.count == 1
-            = bs_request.bs_request_actions.first.type.humanize.titleize
-          Request ##{bs_request.number}
+          #{bs_request.title} ##{bs_request.number}
         = render BsRequestPriorityBadgeComponent.new(priority: bs_request.priority, css_class: 'mb-auto mx-2')
         = render BsRequestStateBadgeComponent.new(state: bs_request.state, css_class: 'mb-auto')
       - if Flipper.enabled?(:labels, User.session) && bs_request.labels
