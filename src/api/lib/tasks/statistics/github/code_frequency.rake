@@ -18,7 +18,7 @@ namespace :statistics do
 
           weeks.map do |timestamp, additions, deletions|
             line = Time.at(timestamp).strftime('%Y-%m-%d') + ", #{additions}, #{deletions}"
-            file.write(line + "\n")
+            file.write("#{line}\n")
           end
         end
 

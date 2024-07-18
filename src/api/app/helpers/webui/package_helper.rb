@@ -20,7 +20,7 @@ module Webui::PackageHelper
   end
 
   def guess_code_class(filename)
-    return 'xml' if filename.in?(['_aggregate', '_link', '_patchinfo', '_service']) || filename =~ /.*\.service/
+    return 'xml' if filename.in?(%w[_aggregate _link _patchinfo _service]) || filename =~ /.*\.service/
     return 'shell' if /^rc[\w-]+$/.match?(filename) # rc-scripts are shell
     return 'python' if /^.*rpmlintrc$/.match?(filename)
     return 'makefile' if filename == 'debian.rules'
@@ -40,7 +40,7 @@ module Webui::PackageHelper
     when '.sh' then 'shell'
     when '.spec' then 'rpm-spec'
     when '.changes' then 'rpm-changes'
-    when '.diff', '.php', '.html', '.xml', '.css', '.perl' then ext[1..-1]
+    when '.diff', '.php', '.html', '.xml', '.css', '.perl' then ext[1..]
     else ''
     end
   end
@@ -75,8 +75,14 @@ module Webui::PackageHelper
     state != 'deleted' && filename.exclude?('/') && (filename == '_patchinfo' || filename.ends_with?('.spec', '.changes'))
   end
 
-  def viewable_file?(filename)
+  def viewable_file?(filename, size = nil)
+    return false if size && size > 1.megabyte
+
     !binary_file?(filename) && filename.exclude?('/')
+  end
+
+  def editable_file?(filename, size = nil)
+    viewable_file?(filename, size) && !filename.match?(/^_service[_:]/)
   end
 
   def binary_file?(filename)

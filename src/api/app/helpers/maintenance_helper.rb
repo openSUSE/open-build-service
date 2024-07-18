@@ -29,6 +29,7 @@ module MaintenanceHelper
         link = Nokogiri::XML(link, &:strict).root
         links_to_source = link['project'].nil? || link['project'] == source_package.project.name
       rescue Backend::Error
+        # Ignore this exception on purpose
       end
     end
     if links_to_source
@@ -108,7 +109,7 @@ module MaintenanceHelper
     }
     upload_params[:requestid] = action.bs_request.number if action
     upload_path = Addressable::URI.escape("/source/#{target_project.name}/#{target_package_name}")
-    upload_path << Backend::Connection.build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
+    upload_path << Backend::Connection.build_query_from_hash(upload_params, %i[user comment cmd noservice requestid])
     answer = Backend::Connection.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
     tpkg.sources_changed(dir_xml: answer)
   end
@@ -131,7 +132,7 @@ module MaintenanceHelper
       comment: "Set link to #{target_package_name} via maintenance_release request"
     }
     upload_path = Addressable::URI.escape("/source/#{target_project.name}/#{base_package_name}/_link")
-    upload_path << Backend::Connection.build_query_from_hash(upload_params, [:user, :rev])
+    upload_path << Backend::Connection.build_query_from_hash(upload_params, %i[user rev])
     link = "<link package='#{target_package_name}' cicount='copy' />\n"
     md5 = Digest::MD5.hexdigest(link)
     Backend::Connection.put upload_path, link
@@ -140,7 +141,7 @@ module MaintenanceHelper
     upload_params[:noservice] = '1'
     upload_params[:requestid] = request.number if request
     upload_path = Addressable::URI.escape("/source/#{target_project.name}/#{base_package_name}")
-    upload_path << Backend::Connection.build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
+    upload_path << Backend::Connection.build_query_from_hash(upload_params, %i[user comment cmd noservice requestid])
     answer = Backend::Connection.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
     lpkg.sources_changed(dir_xml: answer)
   end
@@ -167,10 +168,10 @@ module MaintenanceHelper
       cp_params[:freezelink] = 1
     end
     cp_path = Addressable::URI.escape("/source/#{target_project.name}/#{target_package_name}")
-    cp_path << Backend::Connection.build_query_from_hash(cp_params, [:cmd, :user, :oproject,
-                                                                     :opackage, :comment, :requestid,
-                                                                     :expand, :withvrev, :noservice,
-                                                                     :freezelink, :withacceptinfo])
+    cp_path << Backend::Connection.build_query_from_hash(cp_params, %i[cmd user oproject
+                                                                       opackage comment requestid
+                                                                       expand withvrev noservice
+                                                                       freezelink withacceptinfo])
     result = Backend::Connection.post(cp_path)
     result = Xmlhash.parse(result.body)
     action.set_acceptinfo(result['acceptinfo']) if action
@@ -238,9 +239,9 @@ module MaintenanceHelper
     cp_params[:multibuild] = '1' unless source_package_name.include?(':')
     cp_path = Addressable::URI.escape("/build/#{target_repository.project.name}/#{target_repository.name}/#{arch.name}/#{target_package_name}")
 
-    cp_path << Backend::Connection.build_query_from_hash(cp_params, [:cmd, :oproject, :opackage,
-                                                                     :orepository, :setupdateinfoid,
-                                                                     :resign, :setrelease, :multibuild])
+    cp_path << Backend::Connection.build_query_from_hash(cp_params, %i[cmd oproject opackage
+                                                                       orepository setupdateinfoid
+                                                                       resign setrelease multibuild])
     Backend::Connection.post cp_path
   end
 
@@ -344,7 +345,9 @@ module MaintenanceHelper
       end
       raise PackageAlreadyExists, "package #{p.name} already exists" if Package.exists_by_project_and_name(project.name, lpkg_name, follow_project_links: false)
 
-      local_linked_packages[lpkg_name] = p
+      # only create local link when it also exists in source project
+      # avoid cases with dot's in the package name (eg. go1.19)
+      local_linked_packages[lpkg_name] = p if Package.exists_by_project_and_name(p.project.name, lpkg_name)
     end
 
     pkg = project.packages.create(name: pkg_name, title: opkg.title, description: opkg.description)
@@ -374,9 +377,9 @@ module MaintenanceHelper
       copyopts[:comment]  = 'initialize package as branch'
     end
     path = pkg.source_path
-    path << Backend::Connection.build_query_from_hash(copyopts, [:user, :comment, :cmd, :noservice, :requestid,
-                                                                 :makeoriginolder, :withvrev, :vrevbump,
-                                                                 :instantiate, :oproject, :opackage])
+    path << Backend::Connection.build_query_from_hash(copyopts, %i[user comment cmd noservice requestid
+                                                                   makeoriginolder withvrev vrevbump
+                                                                   instantiate oproject opackage])
     Backend::Connection.post(path)
     pkg.sources_changed
 
@@ -391,8 +394,8 @@ module MaintenanceHelper
       copyopts[:cmd] = 'copy'
       copyopts[:oproject] = p.project.name
       copyopts[:opackage] = p.name
-      path << Backend::Connection.build_query_from_hash(copyopts, [:user, :cmd, :noservice, :requestid,
-                                                                   :oproject, :opackage])
+      path << Backend::Connection.build_query_from_hash(copyopts, %i[user cmd noservice requestid
+                                                                     oproject opackage])
       Backend::Connection.post path
       # and fix the link
       link_xml = Nokogiri::XML(lpkg.source_file('_link'), &:strict).root

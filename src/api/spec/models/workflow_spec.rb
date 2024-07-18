@@ -1,85 +1,16 @@
 RSpec.describe Workflow, :vcr do
-  let(:user) { create(:confirmed_user, :with_home, login: 'cameron') }
-  let(:token) { create(:workflow_token, executor: user) }
-  let!(:workflow_run) { create(:workflow_run, token: token) }
-
   subject do
     described_class.new(workflow_instructions: yaml, scm_webhook: SCMWebhook.new(payload: extractor_payload), token: token, workflow_run: workflow_run)
   end
+
+  let(:user) { create(:confirmed_user, :with_home, login: 'cameron') }
+  let(:token) { create(:workflow_token, executor: user) }
+  let!(:workflow_run) { create(:workflow_run, token: token) }
 
   describe '#call' do
     let(:yaml) do
       { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package', 'target_project' => 'test-target-project',
                                             'target_package' => 'test-target-package' } }] }
-    end
-
-    context 'PR was reopened' do
-      let(:extractor_payload) do
-        {
-          scm: 'github',
-          action: 'reopened',
-          event: 'pull_request',
-          pr_number: 4,
-          target_repository_full_name: 'openSUSE/open-build-service'
-        }
-      end
-
-      before { allow(Project).to receive(:restore) }
-
-      it 'restores a project' do
-        subject.call
-        expect(Project).to have_received(:restore)
-      end
-    end
-
-    context 'PR was closed' do
-      let(:extractor_payload) do
-        {
-          scm: 'github',
-          action: 'closed',
-          event: 'pull_request',
-          pr_number: 4,
-          target_repository_full_name: 'openSUSE/open-build-service'
-        }
-      end
-      let!(:target_project) { create(:project, name: 'test-target-project:openSUSE:open-build-service:PR-4', maintainer: user) }
-      let!(:target_package) { create(:package, name: 'test-target-package', project: target_project) }
-
-      context 'we are dealing with a branch package step' do
-        before { login user }
-
-        it 'removes the target project' do
-          expect { subject.call }.to change(Project, :count).from(2).to(1)
-        end
-
-        it 'deletes event subscriptions' do
-          EventSubscription.create!(channel: 'scm', token: token, receiver_role: 'maintainer', eventtype: 'Event::BuildFail', package: target_package)
-          expect { subject.call }.to change(EventSubscription, :count).from(1).to(0)
-        end
-      end
-
-      context 'when we are dealing with a configure project step' do
-        let(:yaml) do
-          { 'steps' => [
-            {
-              'configure_repositories' => {
-                'project' => 'test-target-project'
-              }
-            }
-          ] }
-        end
-
-        before { login user }
-
-        it 'does not remove the target project' do
-          expect { subject.call }.not_to change(Project, :count)
-        end
-
-        it 'does not delete event subscriptions' do
-          EventSubscription.create!(channel: 'scm', token: token, receiver_role: 'maintainer', eventtype: 'Event::BuildFail', package: target_package)
-          expect { subject.call }.not_to change(EventSubscription, :count)
-        end
-      end
     end
 
     context 'with an unsupported event filter' do
@@ -270,7 +201,7 @@ RSpec.describe Workflow, :vcr do
     context 'when the webhook event is against none of the branches in the branches/ignore filters' do
       let(:yaml) do
         { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
-          'filters' => { 'branches' => { 'ignore' => ['something', 'main'] } } }
+          'filters' => { 'branches' => { 'ignore' => %w[something main] } } }
       end
       let(:extractor_payload) do
         {
@@ -294,7 +225,7 @@ RSpec.describe Workflow, :vcr do
     context 'when the webhook event is against none of the branches in the branches/only filters' do
       let(:yaml) do
         { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
-          'filters' => { 'branches' => { 'only' => ['something', 'main'] } } }
+          'filters' => { 'branches' => { 'only' => %w[something main] } } }
       end
       let(:extractor_payload) do
         {
@@ -318,7 +249,7 @@ RSpec.describe Workflow, :vcr do
     context 'when the webhook event is against one of the branches in the branches/ignore filters' do
       let(:yaml) do
         { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
-          'filters' => { 'branches' => { 'ignore' => ['something', 'main'] } } }
+          'filters' => { 'branches' => { 'ignore' => %w[something main] } } }
       end
       let(:extractor_payload) do
         {
@@ -342,7 +273,7 @@ RSpec.describe Workflow, :vcr do
     context 'when the webhook event is against one of the branches in the branches/only filters' do
       let(:yaml) do
         { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
-          'filters' => { 'branches' => { 'only' => ['master', 'develop'] } } }
+          'filters' => { 'branches' => { 'only' => %w[master develop] } } }
       end
       let(:extractor_payload) do
         {
@@ -504,14 +435,14 @@ RSpec.describe Workflow, :vcr do
         {
           'filters' => {
             'event' => 'push',
-            'branches' => { 'only' => ['master', 'staging'] }
+            'branches' => { 'only' => %w[master staging] }
           }
         }
       end
 
       it 'returns filters' do
         expect(subject.filters).to eq({ event: 'push',
-                                        branches: { only: ['master', 'staging'] } })
+                                        branches: { only: %w[master staging] } })
       end
     end
 

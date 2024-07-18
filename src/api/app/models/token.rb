@@ -24,7 +24,7 @@ class Token < ApplicationRecord
   scope :shared_tokens, ->(user) { user.shared_workflow_tokens }
   scope :group_shared_tokens, ->(user) { user.groups.map(&:shared_workflow_tokens).flatten } # TODO: transform to ActiveRecord_Relation
 
-  OPERATIONS = ['Rebuild', 'Release', 'Service', 'Workflow'].freeze
+  OPERATIONS = %w[Rebuild Release Service Workflow].freeze
 
   def token_name
     self.class.token_name.downcase

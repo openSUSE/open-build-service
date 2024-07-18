@@ -32,13 +32,13 @@ RSpec.describe UnregisteredUser do
 
     context 'when not in LDAP mode' do
       context 'when registration is allowed' do
+        subject! { UnregisteredUser.register(user_attributes) }
+
         let(:attributes_for_query) { user_attributes.slice(:login, :realname, :email).merge(state: 'confirmed', ignore_auth_services: false) }
 
         before do
           allow(Configuration).to receive(:registration).and_return('allow')
         end
-
-        subject! { UnregisteredUser.register(user_attributes) }
 
         it 'creates a new confirmed user' do
           expect(User.where(attributes_for_query)).to exist
@@ -46,13 +46,13 @@ RSpec.describe UnregisteredUser do
       end
 
       context 'when registration requires confirmation' do
+        subject { UnregisteredUser.register(user_attributes) }
+
         let(:attributes_for_query) { user_attributes.slice(:login, :realname, :email).merge(state: 'unconfirmed', ignore_auth_services: false) }
 
         before do
           allow(Configuration).to receive(:registration).and_return('confirmation')
         end
-
-        subject { UnregisteredUser.register(user_attributes) }
 
         it 'throws an exception that confirms the user registration... and creates an unconfirmed user' do
           expect { subject }.to raise_error(UnregisteredUser::ErrRegisterSave,
@@ -63,13 +63,13 @@ RSpec.describe UnregisteredUser do
     end
 
     context 'when registration is denied' do
+      subject { UnregisteredUser.register(user_attributes) }
+
       let(:user_count_before) { User.count }
 
       before do
         allow(Configuration).to receive(:registration).and_return('deny')
       end
-
-      subject { UnregisteredUser.register(user_attributes) }
 
       it 'throws an exception' do
         expect { subject }.to raise_error(UnregisteredUser::ErrRegisterSave, 'Sorry, sign up is disabled')
@@ -85,13 +85,13 @@ RSpec.describe UnregisteredUser do
       end
 
       context 'when normal user is logged in' do
+        subject { UnregisteredUser.register(user_attributes) }
+
         let(:user_count_before) { User.count }
 
         before do
           login user
         end
-
-        subject { UnregisteredUser.register(user_attributes) }
 
         it 'throws an exception' do
           expect { subject }.to raise_error(UnregisteredUser::ErrRegisterSave, 'Sorry, new users can only sign up via LDAP')
@@ -102,9 +102,9 @@ RSpec.describe UnregisteredUser do
       context 'when admin user is logged in' do
         before do
           login admin_user
-        end
 
-        subject! { UnregisteredUser.register(user_attributes) }
+          UnregisteredUser.register(user_attributes)
+        end
 
         it 'creates a new user' do
           expect(User.where(attributes_for_query)).to exist

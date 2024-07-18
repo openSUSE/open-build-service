@@ -3,7 +3,6 @@
 .card.mb-3
   = render partial: 'tabs', locals: { project: @project }
   .card-body#project-monitor
-
     - if @buildresult_unavailable
       %p Unavailable Build Results.
     - else
@@ -31,7 +30,11 @@
                     %th.text-center
                       = repository_status_icon(status: @repostatushash[repo][arch], html_class: 'me-1')
                       = arch
-            %tbody{ data: { packagenames: @packagenames, project: @project, statushash: @statushash.to_json, tableinfo: tableinfo } }
+            %tbody{ data: { packagenames: @packagenames,
+                            project: @project,
+                            scmsync: @project.scmsync,
+                            statushash: @statushash.to_json,
+                            tableinfo: tableinfo } }
 
       - content_for :ready_function do
         setupProjectMonitor();

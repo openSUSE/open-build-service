@@ -81,7 +81,6 @@ get:
 post:
   deprecated: true
   summary: List request numbers that match a XPath condition.
-  description: |
-    This endpoint is exactly the same as `GET /search/request/id`, please use that one.
+  description: This endpoint is exactly the same as `GET /search/request/id`, please use that one.
   tags:
     - Search

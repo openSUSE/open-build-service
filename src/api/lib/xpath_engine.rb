@@ -27,6 +27,7 @@ class XpathEngine
         '@name' => { cpart: 'packages.name' },
         'title' => { cpart: 'packages.title' },
         'description' => { cpart: 'packages.description' },
+        'scmsync' => { cpart: 'packages.scmsync' },
         'kind' => { cpart: 'package_kinds.kind', joins: ['LEFT JOIN package_kinds ON package_kinds.package_id = packages.id'] },
         'devel/@project' => { cpart: 'projs.name', joins:         ['left join packages devels on packages.develpackage_id = devels.id',
                                                                    'left join projects projs on devels.project_id=projs.id'] },
@@ -64,6 +65,7 @@ class XpathEngine
         'description' => { cpart: 'projects.description' },
         'url' => { cpart: 'projects.url' },
         'remoteurl' => { cpart: 'projects.remoteurl' },
+        'scmsync' => { cpart: 'projects.scmsync' },
         'maintenance/maintains/@project' => { cpart: 'maintains_prj.name', joins: [
           'LEFT JOIN maintained_projects AS maintained_prj ON projects.id = maintained_prj.maintenance_project_id',
           'LEFT JOIN projects AS maintains_prj ON maintained_prj.project_id = maintains_prj.id'
@@ -220,7 +222,9 @@ class XpathEngine
         'review/@by_package' => { cpart: 'r.by_package', joins: 'LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id' },
         'review/@when' => { cpart: 'bs_requests.updated_at', joins: 'LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id' },
         'review/@state' => { cpart: 'r.state', joins: 'LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id' },
-        'review/history/@when' => { cpart: 'he.created_at', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id LEFT JOIN history_elements he ON (he.op_object_id = r.id AND he.type IN (\"#{HistoryElement::Review.descendants.join('","')}\") )" },
+        'review/history/@when' => { cpart: 'he.created_at',
+                                    joins: 'LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id ' \
+                                           "LEFT JOIN history_elements he ON (he.op_object_id = r.id AND he.type IN (\"#{HistoryElement::Review.descendants.join('","')}\") )" },
         'history/@when' => { cpart: 'he.created_at', joins: "LEFT JOIN history_elements he ON (he.op_object_id = bs_requests.id AND he.type IN (\"#{HistoryElement::Request.descendants.join('","')}\") )" },
         'history/@who' => { cpart: 'husers.login', joins: ["LEFT JOIN history_elements he ON (he.op_object_id = bs_requests.id AND he.type IN (\"#{HistoryElement::Request.descendants.join('","')}\") )",
                                                            'LEFT JOIN users husers ON he.user_id = husers.id'] },
@@ -232,7 +236,7 @@ class XpathEngine
       }
     }
 
-    @operators = [:eq, :and, :or, :neq, :gt, :lt, :gteq, :lteq]
+    @operators = %i[eq and or neq gt lt gteq lteq]
 
     @base_table = ''
     @conditions = []
@@ -376,7 +380,7 @@ class XpathEngine
       case token
       when :function
         fname = stack.shift
-        fname_int = 'xpath_func_' + fname.tr('-', '_')
+        fname_int = "xpath_func_#{fname.tr('-', '_')}"
         raise IllegalXpathError, "unknown xpath function '#{fname}'" unless respond_to?(fname_int)
 
         __send__(fname_int, root, *stack.shift)
@@ -405,7 +409,7 @@ class XpathEngine
         end
       when *@operators
         opname = token.to_s
-        opname_int = 'xpath_op_' + opname
+        opname_int = "xpath_op_#{opname}"
         raise IllegalXpathError, "unhandled xpath operator '#{opname}'" unless respond_to?(opname_int)
 
         __send__(opname_int, root, *stack)
@@ -433,7 +437,7 @@ class XpathEngine
       when :attribute
         expr.shift # :qname token
         expr.shift # namespace
-        a << ('@' + expr.shift)
+        a << ("@#{expr.shift}")
       when :literal
         value = (escape ? escape_for_like(expr.shift) : expr.shift)
         return '' if @last_key && @attribs[table][@last_key][:empty]

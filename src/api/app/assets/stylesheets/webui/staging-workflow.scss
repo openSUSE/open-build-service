@@ -95,7 +95,7 @@ ul .table-list-group-item {
       }
 
       &.state-empty {
-        @extend .bg-light;
+        @extend .bg-body-secondary;
         @extend .border;
 
         span {

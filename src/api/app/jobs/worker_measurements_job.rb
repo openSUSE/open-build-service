@@ -18,7 +18,7 @@ class WorkerMeasurementsJob < ApplicationJob
   private
 
   def send_worker_metrics
-    states = ['dead', 'down', 'away', 'idle', 'building']
+    states = %w[dead down away idle building]
     @architecture_names.each do |architecture_name|
       states.each do |state|
         state_elements = @workerstatus.xpath("//#{state}[@hostarch=\"#{architecture_name}\"]")
@@ -41,7 +41,7 @@ class WorkerMeasurementsJob < ApplicationJob
   end
 
   def send_scheduler_metrics
-    queues = ['high', 'med', 'low', 'next']
+    queues = %w[high med low next]
     @workerstatus.xpath('//partition//queue').each do |scheduler|
       partition = scheduler.parent.parent.values.first || 'main'
       architecture = scheduler.parent.attributes['arch'].value

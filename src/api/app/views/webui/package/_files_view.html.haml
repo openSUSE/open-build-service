@@ -13,9 +13,9 @@
             %th Actions
       %tbody
         - file_locals = { package: package, project: project, expand: expand, is_current_rev: is_current_rev,
-        can_modify: user_can_modify_package, nobody: nobody }
+        can_modify: user_can_modify_package, nobody: nobody, srcmd5: srcmd5 }
         = render partial: 'file', collection: files,
-        cached: proc { |file| [file[:name], file[:mtime], file[:md5], file_locals].hash }, locals: file_locals
+        cached: proc { |file| [file['name'], file['mtime'], file['md5'], file_locals].hash }, locals: file_locals
   - else
     %i This package has no files yet
   - if user_can_modify_package
@@ -26,11 +26,11 @@
           %i.fas.fa-hard-drive.text-primary
           Add local files
       .nav-item
-        = link_to(new_project_package_files_path(project, package), class: 'nav-link') do
+        = link_to(new_project_package_file_path(project, package), class: 'nav-link') do
           %i.fas.fa-plus-circle.text-primary
           Add an empty file or service
     = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-file-modal',
-                                                   method: :post,
+                                                   method: :delete,
                                                    options: { modal_title: 'Do you really want to remove this file?' })
 
 - unless files.blank? || spider_bot

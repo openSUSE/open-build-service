@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class SourcediffTabComponent < ApplicationComponent
   attr_accessor :bs_request, :action, :active, :index
 
@@ -19,9 +17,13 @@ class SourcediffTabComponent < ApplicationComponent
 
   def file_view_path(filename, sourcediff)
     return if sourcediff['files'][filename]['state'] == 'deleted'
+    return unless (source_package = Package.find_by_project_and_name(@action[:sprj], @action[:spkg]))
+    return unless source_package.file_exists?(filename, { rev: @action[:srev] }.compact)
 
     diff_params = diff_data(@action[:type], sourcediff)
-    package_view_file_path(diff_params.merge(filename: filename))
+    diff_params[:project_name] = diff_params[:project]
+    diff_params[:package_name] = diff_params[:package]
+    project_package_file_path(diff_params.merge(filename: filename))
   end
 
   def release_info

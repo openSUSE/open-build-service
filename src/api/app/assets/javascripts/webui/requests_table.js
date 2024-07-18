@@ -18,7 +18,7 @@ $(document).ready(function() {
         // We dont allow ordering by the request link.
         // Columns: created, source, target, requester, type, priority, request link.
         // First column has index 0.
-        { orderable: false, targets: [6] }
+        { orderable: false, targets: [6], responsivePriority: 1 }
       ],
       paging: true,
       pagingType: 'full',

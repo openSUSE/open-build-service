@@ -6,7 +6,7 @@
 .card.mt-2
   .card-body
     %h3 Appeal the Decision
-    = form_with(model: [@decision, @appeal], method: :post) do |form|
+    = form_for(@appeal, url: decision_appeals_path(@decision, @appeal), method: :post) do |form|
       = form.label :reason, 'Reason:'
       = form.text_area :reason, placeholder: 'Please explain why you want to appeal the decision of the moderator',
                                 class: 'form-control', required: true

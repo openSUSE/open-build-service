@@ -1,4 +1,6 @@
 RSpec.describe BranchPackage::CheckForUpdate, :vcr do
+  subject { check_for_update }
+
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:home_project) { user.home_project }
   let!(:project) { create(:project, name: 'BaseDistro') }
@@ -23,8 +25,6 @@ RSpec.describe BranchPackage::CheckForUpdate, :vcr do
     login user
     update_project_attrib
   end
-
-  subject { check_for_update }
 
   it { expect(subject).not_to be_nil }
   it { expect { subject.check_for_update_project }.not_to raise_error }

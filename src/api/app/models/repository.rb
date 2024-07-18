@@ -12,7 +12,23 @@ class Repository < ApplicationRecord
   has_many :links, class_name: 'PathElement', inverse_of: :link
   has_many :targetlinks, class_name: 'ReleaseTarget', foreign_key: 'target_repository_id'
   has_one :hostsystem, class_name: 'Repository', foreign_key: 'hostsystem_id'
-  has_many :binary_releases, dependent: :destroy
+  has_many :binary_releases, dependent: :destroy do
+    def current
+      where(obsolete_time: nil)
+    end
+
+    def obsolete
+      where.not(obsolete_time: nil)
+    end
+
+    def unchanged
+      where(modify_time: nil)
+    end
+
+    def changed
+      where.not(modify_time: nil)
+    end
+  end
   has_many :product_update_repositories, dependent: :delete_all
   has_many :product_medium, dependent: :delete_all
   has_many :repository_architectures, -> { order('position') }, dependent: :destroy, inverse_of: :repository
@@ -32,7 +48,7 @@ class Repository < ApplicationRecord
   # Name has to be unique among local repositories and remote_repositories of the associated db_project.
   # Note that remote repositories have to be unique among their remote project (remote_project_name)
   # and the associated db_project.
-  validates :name, uniqueness: { scope: [:db_project_id, :remote_project_name],
+  validates :name, uniqueness: { scope: %i[db_project_id remote_project_name],
                                  case_sensitive: true,
                                  message: '%{value} is already used by a repository of this project' }
   # NOTE: remote_project_name cannot be NULL because mysql UNIQUE KEY constraint does considers
@@ -206,7 +222,7 @@ class Repository < ApplicationRecord
     long_name = project.name.tr(':', '_')
     if project.repositories.count > 1 && !(name == 'standard')
       # keep short names if project has just one repo
-      long_name += '_' + name
+      long_name += "_#{name}"
     end
     long_name
   end
@@ -288,7 +304,7 @@ class Repository < ApplicationRecord
   def download_url(file)
     xml = Xmlhash.parse(Backend::Api::Published.download_url_for_repository(project.name, name))
     url = xml.elements('url').last.to_s
-    url + '/' + file if file.present?
+    "#{url}/#{file}" if file.present?
   end
 
   def is_dod_repository?
@@ -306,7 +322,7 @@ class Repository < ApplicationRecord
   end
 
   def copy_to(new_project)
-    new_repository = deep_clone(include: [:path_elements, :repository_architectures], skip_missing_associations: true)
+    new_repository = deep_clone(include: %i[path_elements repository_architectures], skip_missing_associations: true)
     # DoD repositories require the architecture references to be stored
     new_repository.update!(db_project_id: new_project.id)
     new_repository.download_repositories = download_repositories.map(&:deep_clone)

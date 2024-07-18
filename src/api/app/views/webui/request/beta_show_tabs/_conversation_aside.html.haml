@@ -2,7 +2,9 @@
   -# REVIEWERS
   - if request_reviews.present?
     .text-end
-      = render AddReviewDropdownComponent.new(bs_request: bs_request, user: User.session, my_open_reviews: my_open_reviews)
+      = render AddReviewDropdownComponent.new(bs_request: bs_request, user: User.session,
+                                              my_open_reviews: my_open_reviews,
+                                              history_elements: history_elements)
     = render AddReviewCollapsibleComponent.new
     .mb-2
       %h6
@@ -20,11 +22,11 @@
       %div
         - package_size_limit = 3
         - if package_maintainers.size <= package_size_limit
-          - package_maintainers.pluck(:login).each do |package_maintainer|
+          - package_maintainers.each do |package_maintainer|
             .ps-3
               = render UserAvatarComponent.new(package_maintainer)
         - else
-          - package_maintainers.take(package_size_limit).pluck(:login).each do |package_maintainer|
+          - package_maintainers.take(package_size_limit).each do |package_maintainer|
             .ps-3
               = render UserAvatarComponent.new(package_maintainer)
           %p.mt-3.ms-3
@@ -44,11 +46,11 @@
       %div
         - project_size_limit = 3
         - if project_maintainers.size <= project_size_limit
-          - project_maintainers.pluck(:login).each do |project_maintainer|
+          - project_maintainers.each do |project_maintainer|
             .ps-3
               = render UserAvatarComponent.new(project_maintainer)
         - else
-          - project_maintainers.take(project_size_limit).pluck(:login).each do |project_maintainer|
+          - project_maintainers.take(project_size_limit).each do |project_maintainer|
             .ps-3
               = render UserAvatarComponent.new(project_maintainer)
           %p.mt-3.ms-3
@@ -59,9 +61,3 @@
                      locals: { modal_id: modal_id,
                       entity_type: 'Project',
                       maintainers: project_maintainers }
-
-      - if policy(bs_request).handle_request? && show_project_maintainer_hint
-        .alert.alert-warning.mt-3
-          You are a <strong>project maintainer</strong> but not a <strong>package maintainer</strong>. This package
-          has <strong>#{pluralize(package_maintainers.size, 'package maintainer')}</strong> assigned. Please keep
-          in mind that also package maintainers would like to review this request.

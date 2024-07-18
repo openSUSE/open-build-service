@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" xmlns:a="http://www.example.com/annotation" ns="http://buildservice.org/api" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start>
+    <ref name="status-element"/>
+  </start>
+  <define ns="" name="status-element">
+    <element name="status">
+      <attribute name="code">
+        <a:documentation>
+          Status code returned by the server.
+        </a:documentation>
+      </attribute>
+      <interleave>
+        <optional>
+          <element name="summary">
+            <a:documentation>
+              Human readable summary.
+            </a:documentation>
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="details">
+            <a:documentation>
+              Detailed, human readable information.
+            </a:documentation>
+            <text/>
+          </element>
+        </optional>
+        <zeroOrMore>
+          <element name="data">
+            <a:documentation>
+              Additional machine readable data.
+            </a:documentation>
+            <attribute name="name">
+              <a:documentation>
+                Key.
+              </a:documentation>
+              <choice>
+                <value>sourceproject</value>
+                <value>sourcepackage</value>
+                <value>targetproject</value>
+                <value>targetpackage</value>
+              </choice>
+            </attribute>
+            <text>
+              <a:documentation>
+                Value.
+              </a:documentation>
+            </text>
+          </element>
+        </zeroOrMore>
+      </interleave>
+      <empty/>
+    </element>
+  </define>
+</grammar>

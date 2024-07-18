@@ -9,7 +9,7 @@ RSpec.describe Role do
 
   describe '::hashed' do
     # created by db/seeds.rb
-    let(:existing_role_titles) { ['Admin', 'maintainer', 'bugowner', 'reviewer', 'downloader', 'reader'] }
+    let(:existing_role_titles) { %w[Admin maintainer bugowner reviewer downloader reader] }
 
     it 'returns a hashed version of Role.all with role titles as key' do
       existing_role_titles.each do |title|
@@ -19,7 +19,7 @@ RSpec.describe Role do
   end
 
   describe '::local_roles' do
-    let(:expected_local_roles) { Role.where(title: ['maintainer', 'bugowner', 'reviewer', 'downloader', 'reader']) }
+    let(:expected_local_roles) { Role.where(title: %w[maintainer bugowner reviewer downloader reader]) }
 
     it 'returns an array with all local role instances' do
       expect(Role.local_roles).to match_array(expected_local_roles)

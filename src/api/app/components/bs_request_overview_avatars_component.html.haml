@@ -1,14 +1,14 @@
 %ul.list-inline.d-flex.flex-row-reverse.avatars.m-0
   - if avatar_objects.empty? && @review.for_package?
     %li.list-inline-item
-      %i.fa.fa-archive.text-warning.rounded-circle.bg-light.border.border-gray-400.simulated-avatar
+      %i.fa.fa-archive.text-warning.rounded-circle.bg-body-secondary.border.simulated-avatar
   - elsif avatar_objects.empty? && @review.for_project?
     %li.list-inline-item
-      %i.fa.fa-cubes.text-secondary.rounded-circle.bg-light.border.border-gray-400.simulated-avatar
+      %i.fa.fa-cubes.text-secondary.rounded-circle.bg-body-secondary.border.simulated-avatar
   - else
     - if number_of_hidden_avatars.positive?
       %li.list-inline-item
-        %span.rounded-circle.bg-light.border.border-gray-400.avatars-counter{ title: "#{number_of_hidden_avatars} more users involved" }
+        %span.rounded-circle.bg-body-secondary.border.avatars-counter{ title: "#{number_of_hidden_avatars} more users involved" }
           +#{number_of_hidden_avatars}
     - avatars_to_display.each do |avatar_object|
       %li.list-inline-item

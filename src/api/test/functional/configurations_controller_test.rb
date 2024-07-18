@@ -21,7 +21,7 @@ class ConfigurationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     config = @response.body
     put '/configuration', params: config
-    assert_response 403 # Normal users can't change site-wide configuration
+    assert_response :forbidden # Normal users can't change site-wide configuration
 
     login_king # User with admin rights
     # webui is using this way to store data
@@ -46,7 +46,7 @@ class ConfigurationsControllerTest < ActionDispatch::IntegrationTest
     # overwriting options.yml is not allowed
     ::Configuration::OPTIONS_YML[:registration] = 'allow'
     put '/configuration?registration=deny'
-    assert_response 403
+    assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'no_permission_to_change' }
     ::Configuration::OPTIONS_YML[:registration] = 'deny'
     put '/configuration?registration=deny'

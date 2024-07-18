@@ -2,19 +2,19 @@
 :ruby
   page_name ||= ''
 
-- if actions_count > 1
+- if actions.count > 1
   .d-flex.flex-wrap.align-items-center
     .input-group.w-auto
       = link_to('Previous', next_prev_path(number: bs_request.number, request_action_id: prev_action&.id,
-                                           full_diff: diff_limit, diff_to_superseded: diff_to_superseded_id, page_name: page_name),
+                                           diff_to_superseded: diff_to_superseded_id, page_name: page_name),
                 class: "btn btn-primary btn-sm #{prev_action ? '' : 'disabled'}",
                 id: 'previous-action-button')
       .dropdown#request-actions
         %button.btn.btn-outline-primary.btn-sm.dropdown-toggle.rounded-0{ 'aria-expanded' => 'false', 'data-bs-toggle' => 'dropdown',
                                                                           :type => 'button', 'data-boundary' => 'viewport' }
-          = action[:name]
+          = action.short_name
         %ul.dropdown-menu.dropdown-menu-start.scrollable-dropdown.pt-0
-          %li.card-header.px-1.sticky-top
+          %li.card-header.px-1.sticky-top.bg-body-tertiary
             %h6.dropdown-header
               - if User.session
                 %span Seen
@@ -25,32 +25,32 @@
               = link_to((render partial: 'action_text', locals: { action: action_item, action_index: action_index }),
                                                         next_prev_path(number: bs_request.number,
                                                                        request_action_id: action_item.id,
-                                                                       full_diff: diff_limit,
                                                                        diff_to_superseded: diff_to_superseded_id, page_name: page_name),
-                                                        class: "dropdown-item #{action_item.id == active_action.id ? 'active' : ''}",
+                                                        class: "dropdown-item #{action_item.id == action.id ? 'active' : ''}",
                                                         'aria-current': 'true')
       = link_to('Next', next_prev_path(number: bs_request.number, request_action_id: next_action&.id,
-                                       full_diff: diff_limit, diff_to_superseded: diff_to_superseded_id, page_name: page_name),
+                                       diff_to_superseded: diff_to_superseded_id, page_name: page_name),
                 class: "btn btn-primary btn-sm #{next_action ? '' : 'disabled'}",
                 id: 'next-action-button')
 
-    - active_action_index = actions.find_index(active_action) + 1
-    %span.ms-2 Showing ##{active_action_index} (of #{actions_count})
+    - action_index = actions.find_index(action) + 1
+    %span.ms-2 Showing ##{action_index} (of #{actions.count})
 %h5.mt-4
   Action details
-  - if actions_count > 1 && User.session
+  - if actions.count > 1 && User.session
     %span#action-seen-by-user-wrapper
-      = render ActionSeenByUserComponent.new(action: active_action, user: User.session!)
+      = render ActionSeenByUserComponent.new(action: action, user: User.session)
 
-%p.fst-italic= request_action_header(action, bs_request.creator)
-- if active_action.target_releaseproject
-  %p.fst-italic Release in #{project_or_package_link(project: active_action.target_releaseproject)}
+%p.fst-italic
+  = render BsRequestActionDescriptionComponent.new(action: action)
+- if action.target_releaseproject
+  %p.fst-italic Release in #{project_or_package_link(project: action.target_releaseproject)}
 
-- if %w[add_role set_bugowner].include?(active_action.type)
+- if %w[add_role set_bugowner].include?(action.type)
   :ruby
-    parameters = { project: active_action.target_project, request_action_id: active_action.id, notification_id: @current_notification }
-    roles_link = if active_action.target_package
-                   package_users_path(parameters.merge!(package: active_action.target_package))
+    parameters = { project: action.target_project, request_action_id: action.id, notification_id: @current_notification }
+    roles_link = if action.target_package
+                   package_users_path(parameters.merge!(package: action.target_package))
                  else
                    project_users_path(parameters)
                  end
@@ -60,10 +60,10 @@
       check the current roles
     of
     %span<
-      = project_or_package_text(active_action.target_project, active_action.target_package)
+      = project_or_package_text(action.target_project, action.target_package)
       \.
 
-- if active_action.type == 'change_devel'
-  - current_devel_package = Package.find_by_project_and_name(active_action.target_project, active_action.target_package).develpackage
+- if action.type == 'change_devel'
+  - current_devel_package = Package.find_by_project_and_name(action.target_project, action.target_package).develpackage
   -  if current_devel_package
     Development is currently happening on #{project_or_package_link(project: current_devel_package.project.name, package: current_devel_package.name)}

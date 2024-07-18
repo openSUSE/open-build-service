@@ -2,12 +2,52 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/fake_project/_meta
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 14 Mar 2024 13:14:47 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/fake_project/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>The Wives of Bath</title>
+          <title>The Golden Apples of the Sun</title>
           <description/>
         </project>
     headers:
@@ -29,59 +69,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '106'
+      - '117'
     body:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>The Wives of Bath</title>
+          <title>The Golden Apples of the Sun</title>
           <description></description>
         </project>
-    http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
+  recorded_at: Thu, 14 Mar 2024 13:14:47 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/fake_project/_config
-    body:
-      encoding: UTF-8
-      string: Fugit vero modi molestiae. Voluptatem debitis quia eos. Enim debitis
-        qui voluptas.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/_meta?user=_nobody_
+    uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>The Yellow Meads of Asphodel</title>
-          <description>Laboriosam sapiente in eveniet dolores incidunt magnam.</description>
+          <title>An Evil Cradling</title>
+          <description>Officia odio minima fuga.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -102,55 +107,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '213'
+      - '171'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>The Yellow Meads of Asphodel</title>
-          <description>Laboriosam sapiente in eveniet dolores incidunt magnam.</description>
+          <title>An Evil Cradling</title>
+          <description>Officia odio minima fuga.</description>
         </package>
-    http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>The Yellow Meads of Asphodel</title>
-          <description>Laboriosam sapiente in eveniet dolores incidunt magnam.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '213'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>The Yellow Meads of Asphodel</title>
-          <description>Laboriosam sapiente in eveniet dolores incidunt magnam.</description>
-        </package>
-    http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
+  recorded_at: Thu, 14 Mar 2024 13:14:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/package_with_invalid_kiwi_file.kiwi
@@ -220,16 +185,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5" vrev="5">
+        <revision rev="1" vrev="1">
           <srcmd5>febd44ad0e6a0c4271b0197ea7a125e9</srcmd5>
           <version>unknown</version>
-          <time>1509969972</time>
+          <time>1710422087</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:13 GMT
+  recorded_at: Thu, 14 Mar 2024 13:14:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file
@@ -255,15 +219,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '247'
+      - '246'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_invalid_kiwi_file" rev="5" vrev="5" srcmd5="febd44ad0e6a0c4271b0197ea7a125e9">
-          <entry name="package_with_invalid_kiwi_file.kiwi" md5="b766875b54bc4fbf48bbbf1017104e1e" size="1536" mtime="1509969972" />
+        <directory name="package_with_invalid_kiwi_file" rev="1" vrev="1" srcmd5="febd44ad0e6a0c4271b0197ea7a125e9">
+          <entry name="package_with_invalid_kiwi_file.kiwi" md5="b766875b54bc4fbf48bbbf1017104e1e" size="1536" mtime="1710422087"/>
         </directory>
-    http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:13 GMT
+  recorded_at: Thu, 14 Mar 2024 13:14:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/package_with_invalid_kiwi_file.kiwi
@@ -333,8 +296,7 @@ http_interactions:
             <source path="obsrepositories:/"/>
           </repository>
         </image>
-    http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:13 GMT
+  recorded_at: Thu, 14 Mar 2024 13:14:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file
@@ -360,13 +322,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '247'
+      - '246'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_invalid_kiwi_file" rev="5" vrev="5" srcmd5="febd44ad0e6a0c4271b0197ea7a125e9">
-          <entry name="package_with_invalid_kiwi_file.kiwi" md5="b766875b54bc4fbf48bbbf1017104e1e" size="1536" mtime="1509969972" />
+        <directory name="package_with_invalid_kiwi_file" rev="1" vrev="1" srcmd5="febd44ad0e6a0c4271b0197ea7a125e9">
+          <entry name="package_with_invalid_kiwi_file.kiwi" md5="b766875b54bc4fbf48bbbf1017104e1e" size="1536" mtime="1710422087"/>
         </directory>
-    http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:13 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Thu, 14 Mar 2024 13:14:47 GMT
+recorded_with: VCR 6.2.0

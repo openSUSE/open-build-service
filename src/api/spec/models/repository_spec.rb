@@ -42,9 +42,9 @@ RSpec.describe Repository do
     end
 
     describe '.cycles' do
-      let(:repository) { create(:repository) }
-
       subject { repository.cycles('x64_64') }
+
+      let(:repository) { create(:repository) }
 
       before do
         allow(Backend::Api::BuildResults::Binaries).to receive(:builddepinfo).and_return(cycles_xml)
@@ -69,7 +69,7 @@ RSpec.describe Repository do
         end
 
         it do
-          expect(subject).to eq([['a', 'b', 'c']])
+          expect(subject).to eq([%w[a b c]])
         end
       end
 
@@ -79,7 +79,7 @@ RSpec.describe Repository do
         end
 
         it do
-          expect(subject).to eq([['a', 'b', 'c', 'd']])
+          expect(subject).to eq([%w[a b c d]])
         end
       end
 
@@ -89,7 +89,7 @@ RSpec.describe Repository do
         end
 
         it do
-          expect(subject).to eq([['a', 'b', 'c'], ['x', 'y', 'z']])
+          expect(subject).to eq([%w[a b c], %w[x y z]])
         end
       end
 
@@ -99,18 +99,18 @@ RSpec.describe Repository do
         end
 
         it do
-          expect(subject).to eq([['a', 'b', 'c', 'd'], ['w', 'x', 'y', 'z'], ['m', 'n', 'o', 'p']])
+          expect(subject).to eq([%w[a b c d], %w[w x y z], %w[m n o p]])
         end
       end
     end
   end
 
   describe '#copy_to' do
-    let(:repository) { create(:repository, architectures: ['i586', 'x86_64']) }
+    subject { repository.copy_to(project) }
+
+    let(:repository) { create(:repository, architectures: %w[i586 x86_64]) }
     let!(:path_elements) { create_list(:path_element, 3, repository: repository) }
     let(:project) { create(:project) }
-
-    subject { repository.copy_to(project) }
 
     it 'copies a repository to a project' do
       expect(subject.name).to eq(repository.name)
@@ -135,6 +135,8 @@ RSpec.describe Repository do
   end
 
   describe '#new_from_distribution' do
+    subject { subject_repository }
+
     let(:target_project) { create(:project) }
     let(:project) { create(:project_with_repository) }
     let(:distribution) { create(:distribution, project: project, repository: project.repositories.first.name) }
@@ -144,8 +146,6 @@ RSpec.describe Repository do
       repository.save!
       repository
     end
-
-    subject { subject_repository }
 
     it 'builds a valid repository from a distribution' do
       expect(subject.name).to eq(distribution.reponame)

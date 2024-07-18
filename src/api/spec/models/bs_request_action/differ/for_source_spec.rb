@@ -1,6 +1,14 @@
 require 'webmock/rspec'
 
 RSpec.describe BsRequestAction::Differ::ForSource, :vcr do
+  subject do
+    BsRequestAction::Differ::ForSource.new(
+      bs_request_action: bs_request_action,
+      source_package_names: [source_package.name],
+      options: options
+    )
+  end
+
   let(:user) { create(:confirmed_user, login: 'moi') }
   let(:source_project) { create(:project, name: 'source_project', maintainer: user) }
   let(:source_package) { create(:package, name: 'source_package', project: source_project) }
@@ -36,14 +44,6 @@ RSpec.describe BsRequestAction::Differ::ForSource, :vcr do
     RESPONSE
   end
   let(:options) { { filelimit: 42, tarlimit: 43, withissues: 1, view: :xml } }
-
-  subject do
-    BsRequestAction::Differ::ForSource.new(
-      bs_request_action: bs_request_action,
-      source_package_names: [source_package.name],
-      options: options
-    )
-  end
 
   describe '#perform' do
     context 'with not accepted requests' do

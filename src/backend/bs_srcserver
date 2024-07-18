@@ -166,6 +166,7 @@ sub notify {
   my $time = $p->{'time'} || time();
   delete $p->{'time'};
   if ($payload) {
+    print "encoding payload for $p->{'project'}/$p->{'repo'} to json\n";
     my $json_payload = JSON::XS::encode_json($payload);
     my $payloadkey = "$time.".Digest::MD5::md5_hex($json_payload);
     mkdir_p($notificationpayloaddir);
@@ -291,8 +292,10 @@ sub lastnotifications {
 sub getnotificationpayload {
   my ($cgi, $payloadkey) = @_;
   my $file = "$notificationpayloaddir/$payloadkey";
-  die("404 payload does not exist!\n") unless -e $file;
-  return (readstr($file), 'Content-Type: application/json');
+  my $fd;
+  open($fd, '<', $file) || die("404 payload does not exist!\n");
+  BSWatcher::reply_file($fd, 'Content-Type: application/json');
+  return undef;
 }
 
 sub deletenotificationpayload {
@@ -799,7 +802,7 @@ sub addrev {
                                      user => $user, comment => $comment, 'requestid' => $requestid});
   }
 
-  notify_repservers('package', $projid, $packid);
+  notify_repservers('package', $projid, $packid) unless $cgi->{'commitobsscm'};
 
   # put marker back
   $files->{'/SERVICE'} = $servicemark if $servicemark;
@@ -1453,9 +1456,12 @@ sub getprojpack {
 	next;
       }
 
-      if ($plocked && !$pinfo->{'lock'}) {
-	$pinfo->{'error'} = 'locked';
-	next;
+      if ($plocked) {
+        my $plock = $pinfo->{'lock'};
+	if (!$plock || !$plock->{'disable'} || !grep {!BSUtil::enabled($_->{'name'}, $plock, 1, $arch)} @{$proj->{'repository'} || []}) {
+	  $pinfo->{'error'} = 'locked';
+	  next;
+	}
       }
 
       my $enable = defined($penable) ? {%$penable} : undef;
@@ -2465,6 +2471,12 @@ sub getpackagehistory {
     # get a specific revision
     $filter = sub { return $cgi->{'rev'} eq $_[0]->{'rev'} ? 1 : 0 };
     $cgi->{'limit'} = 1 unless defined $cgi->{'limit'};
+  }
+  my $startbefore = $cgi->{'startbefore'};
+  if (defined $startbefore) {
+    die("can't use startbefore with another filter\n") if $filter;
+    my $started;
+    $filter = sub { $started = 1 if $_[0]->{'rev'} < $startbefore ; $started };
   }
   for (BSFileDB::fdb_getall_reverse($revfile, $srcrevlay, $cgi->{'limit'}, $filter)) {
     $_->{'comment'} = str2utf8xml($_->{'comment'}) if $_->{'comment'};
@@ -4480,16 +4492,20 @@ sub docommand {
   my @packids = @{$cgi->{'package'} || []};
   if ($cgi->{'cmd'} eq 'wipepublishedlocked') {
     die("wipepublishedlocked can only wipe complete repos\n") if $cgi->{'arch'} || $cgi->{'code'} || @packids;
-  } else {
-    if (@packids) {
-      my %packids = map {$_ => 1} findpackages($projid, $proj, 1);
-      my @badpacks = grep {!$packids{$_}} @packids;
-      die("404 unknown package: @badpacks\n") if @badpacks;
-    } else {
-      @packids = findpackages($projid, $proj);
-    }
+  }
+  # check if the specified packages are known
+  if (@packids) {
+    @packids = BSUtil::unify(@packids);
+    my %packids = map {$_ => 1} findpackages($projid, $proj, 1);
+    my @badpacks = grep {!$packids{$_}} @packids;
+    die("404 unknown package: @badpacks\n") if @badpacks;
+  }
+  # generate package list for the commands that need it
+  if (!@packids && $cgi->{'cmd'} ne 'unpublish' && $cgi->{'cmd'} ne 'wipepublishedlocked') {
+    @packids = findpackages($projid, $proj);
     die("no packages defined\n") unless @packids;
   }
+
   die("illegal wipe parameter\n") if $cgi->{'wipe'} && $cgi->{'cmd'} ne 'wipe';
   
   my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
@@ -4578,7 +4594,8 @@ sub getpackagelist_build {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my $view = $cgi->{'view'};
   if ($view) {
-    die("unknown view '$view'\n") unless $view eq 'binaryversions' || $view eq 'binaryversionscode' || $view eq 'status' || $view eq 'binarychecksums';
+    die("unknown view '$view'\n") unless $view eq 'binaryversions' || $view eq 'binaryversionscode' || $view eq 'status' || $view eq 'binarychecksums' || $view eq 'binaryversionscookie';
+    die("package filtering is not supported for this $view\n") if $cgi->{'package'} && $view eq 'binaryversionscookie';
     my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
     my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
     my @args = BSRPC::args($cgi, 'view', 'package');
@@ -4726,7 +4743,7 @@ sub getbinary {
     return published_path($cgi, $projid, $repoid);
   }
   my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
-  my @args = BSRPC::args($cgi, 'view', 'module');
+  my @args = BSRPC::args($cgi, 'view', 'module', 'withfilelist');
   my $param = {
     'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid/$filename",
     'ignorestatus' => 1,
@@ -6052,8 +6069,15 @@ sub getsignkey {
   my ($skprojid, $sk) = findsignkey($projid);
   return ('', 'Content-Type: text/plain') unless $sk;
   if ($cgi->{'withpubkey'} || $cgi->{'withalgo'}) {
-    my $pk = readstr("$projectsdir/$skprojid.pkg/_pubkey", 1);
-    $pk = autoextend_check($skprojid, $pk) if $cgi->{'withpubkey'} && $cgi->{'autoextend'};
+    my $signtype = $cgi->{'signtype'};
+    my $signflavor = $cgi->{'signflavor'};
+    my $pk;
+    if (length($sk) <= 2 && ($signtype || $signflavor)) {
+      $pk = BSSrcServer::Signkey::getdefaultpubkey($projid, $signtype, $signflavor);
+    } else {
+      $pk = readstr("$projectsdir/$skprojid.pkg/_pubkey", 1);
+      $pk = autoextend_check($skprojid, $pk) if $cgi->{'withpubkey'} && $cgi->{'autoextend'};
+    }
     if ($cgi->{'withalgo'} && $sk !~ /^\S+:/) {
       my $algo = '?';
       eval { $algo = BSPGP::pk2algo(BSPGP::unarmor($pk)) if $pk };
@@ -6068,17 +6092,17 @@ sub getsignkey {
 }
 
 sub projid2sslcert {
-  my ($skprojid, $sk, $projid, $nocreate, $signtype) = @_;
+  my ($skprojid, $sk, $projid, $nocreate, $signtype, $signflavor) = @_;
   if ($BSConfig::disable_sslcert_cache && $BSConfig::disable_sslcert_cache->{$skprojid}) {
     # we ignore nocreate here for now
-    return BSSrcServer::Signkey::pubkey2sslcert($projid || $skprojid, "$projectsdir/$skprojid.pkg/_pubkey", "$projectsdir/$skprojid.pkg/_signkey", $signtype);
+    return BSSrcServer::Signkey::pubkey2sslcert($projid || $skprojid, "$projectsdir/$skprojid.pkg/_pubkey", "$projectsdir/$skprojid.pkg/_signkey", $signtype, $signflavor);
   }
   my $rev = BSRevision::getrev_meta($skprojid, undef);
   my $files = BSRevision::lsrev($rev);
   if (!$files->{'_sslcert'}) {
     if (!$sk || length($sk) <= 2) {
       # length(signkey) <= 2 means special handling: do not commit it
-      return BSSrcServer::Signkey::pubkey2sslcert($projid || $skprojid, "$projectsdir/$skprojid.pkg/_pubkey", "$projectsdir/$skprojid.pkg/_signkey", $signtype);
+      return BSSrcServer::Signkey::pubkey2sslcert($projid || $skprojid, "$projectsdir/$skprojid.pkg/_pubkey", "$projectsdir/$skprojid.pkg/_signkey", $signtype, $signflavor);
     }
     return undef if $nocreate;
     my $cert = BSSrcServer::Signkey::pubkey2sslcert($skprojid, "$projectsdir/$skprojid.pkg/_pubkey", "$projectsdir/$skprojid.pkg/_signkey");
@@ -6094,15 +6118,16 @@ sub getsslcert {
   my ($cgi, $projid) = @_;
   my ($skprojid, $sk) = findsignkey($projid);
   my $signtype = $cgi->{'signtype'};
+  my $signflavor = $cgi->{'signflavor'};
   if ($sk) {
     my $pk = readstr("$projectsdir/$skprojid.pkg/_pubkey", 1);
     $pk = autoextend_check($skprojid, $pk) if $cgi->{'autoextend'};
-    my $cert = projid2sslcert($skprojid, $sk, $projid, 0, $signtype);
+    my $cert = projid2sslcert($skprojid, $sk, $projid, 0, $signtype, $signflavor);
     return ($cert, 'Content-Type: text/plain');
   }
   my $cert;
   if ($BSConfig::sign_project && $BSConfig::sign) {
-    $cert = BSSrcServer::Signkey::getdefaultcert($projid, $signtype);
+    $cert = BSSrcServer::Signkey::getdefaultcert($projid, $signtype, $signflavor);
   } elsif ($BSConfig::certfile) {
     $cert = readstr($BSConfig::certfile, 1);
   }
@@ -6112,8 +6137,21 @@ sub getsslcert {
 sub getkeyinfo {
   my ($cgi, $projid) = @_;
 
+  my $proj = checkprojrepoarch($projid, undef, undef, 1);
+  if ($proj->{'remoteurl'}) {
+    my $param = {
+      'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_keyinfo",
+      'timeout' => 600,
+      'proxy' => $proxy,
+    };
+    my @args = BSRPC::args($cgi, 'withsslcert', 'autoextend', 'donotcreatecert', 'signtype');
+    my $keyinfo = BSRPC::rpc($param, undef, @args);
+    $keyinfo->{'project'} = BSSrcServer::Remote::maptoremote($proj, $keyinfo->{'project'}) if $keyinfo->{'project'};
+    return ($keyinfo, $BSXML::keyinfo);
+  }
   my ($skprojid, $sk) = findsignkey($projid);
   my $signtype = $cgi->{'signtype'};
+  my $signflavor = $cgi->{'signflavor'};
   my ($pk, $cert);
   if ($sk) {
     $pk = readstr("$projectsdir/$skprojid.pkg/_pubkey", 1);
@@ -6121,19 +6159,19 @@ sub getkeyinfo {
     $pk = autoextend_check($skprojid, $pk) if $cgi->{'autoextend'};
   }
   if ($cgi->{'withsslcert'} && $skprojid && $sk) {
-    $cert = projid2sslcert($skprojid, $sk, $projid, $cgi->{'donotcreatecert'}, $signtype);
+    $cert = projid2sslcert($skprojid, $sk, $projid, $cgi->{'donotcreatecert'}, $signtype, $signflavor);
   }
   if ($cgi->{'withsslcert'} && !$skprojid && $BSConfig::sign_project && $BSConfig::sign) {
     if ($cgi->{'donotcreatecert'}) {
-      eval { $cert = BSSrcServer::Signkey::getdefaultcert($projid, $signtype) };
+      eval { $cert = BSSrcServer::Signkey::getdefaultcert($projid, $signtype, $signflavor) };
     } else {
-      $cert = BSSrcServer::Signkey::getdefaultcert($projid, $signtype);
+      $cert = BSSrcServer::Signkey::getdefaultcert($projid, $signtype, $signflavor);
     }
   } elsif ($cgi->{'withsslcert'} && !$skprojid && $BSConfig::certfile) {
     $cert = readstr($BSConfig::certfile, 1);
   }
   if (!$pk && $BSConfig::sign_project && $BSConfig::sign) {
-    $pk = BSSrcServer::Signkey::getdefaultpubkey($projid);
+    $pk = BSSrcServer::Signkey::getdefaultpubkey($projid, $signtype, $signflavor);
   } elsif (!$pk && $BSConfig::keyfile) {
     $pk = readstr($BSConfig::keyfile, 1);
   }
@@ -6641,7 +6679,7 @@ sub getdispatchprios {
 ####################################################################
 
 sub sourceinfo {
-  my ($cgi, $projid, $packid, $bconf) = @_;
+  my ($cgi, $projid, $packid, $bconf, $ispkgsourceinfo) = @_;
   my $r = {'package' => $packid};
   my $linked = [];
   my $rev;
@@ -6650,8 +6688,12 @@ sub sourceinfo {
     my $meta = readstr("$projectsdir/$projid.pkg/$packid.xml", 1) || '';
     $r->{'metamd5'} = Digest::MD5::md5_hex($meta);
   }
-  eval {
+  if ($ispkgsourceinfo) {
+    # do the getrev outside of the eval to get better error reporting
     $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'build', $linked);
+  }
+  eval {
+    $rev ||= getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'build', $linked);
     $r->{'srcmd5'} = $rev->{'srcmd5'} if $rev->{'srcmd5'} ne 'empty';
     $r->{'rev'} = $rev->{'rev'} if $rev->{'rev'};
     $r->{'vrev'} = $rev->{'vrev'} if $rev->{'vrev'};
@@ -6845,7 +6887,7 @@ sub getpackagesourceinfo {
     }
     $bconf = Build::read_config($cgi->{'arch'} || 'noarch', $cfile);
   }
-  my $res = sourceinfo($cgi, $projid, $packid, $bconf);
+  my $res = sourceinfo($cgi, $projid, $packid, $bconf, 1);
   return ($res, $BSXML::sourceinfo);
 }
 
@@ -7566,7 +7608,7 @@ sub registry_manifestinfo {
       last;
     }
   }
-  return registry_forward ($cgi, $regrepo) if !$foundone || BSSrcServer::Registry::regrepo2reposerver($regrepo);
+  return registry_forward($cgi, $regrepo) if !$foundone || BSSrcServer::Registry::regrepo2reposerver($regrepo);
 
   my %reposervers = map {$_ => 1} values(%$BSConfig::partitionservers);
   for my $reposerver (sort keys %reposervers) {
@@ -7717,8 +7759,8 @@ my $dispatches = [
   'PUT:/source/$project/_config user:? comment:?' => \&putprojectconfig,
   'DELETE:/source/$project/_config user:? comment:?' => \&delprojectconfig,
 
-  '/source/$project/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
-  '/source/$project/_keyinfo withsslcert:bool? autoextend:bool? donotcreatecert:bool? signtype:?' => \&getkeyinfo,
+  '/source/$project/_history rev? meta:bool? deleted:bool? limit:num? startbefore:num?' => \&getpackagehistory,
+  '/source/$project/_keyinfo withsslcert:bool? autoextend:bool? donotcreatecert:bool? signtype:? signflavor:?' => \&getkeyinfo,
 
   'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:? unified:bool? missingok:bool? meta:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool? nocache:bool? cacheonly:bool? nodiff:bool?' => \&sourcediff,
   'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool? nocache:bool? cacheonly:bool? nodiff:bool?' => \&linkdiff,
@@ -7744,7 +7786,7 @@ my $dispatches = [
   '/source/$project/$package view=getmultibuild' => \&getmultibuildpackages,
   '/source/$project/$package view=info rev? linkrev? parse:bool? nofilename:bool? repository? arch? withchangesmd5:bool? noexpand:bool? withmetamd5:bool?' => \&getpackagesourceinfo,
   '/source/$project/$package rev? linkrev? emptylink:bool? deleted:bool? expand:bool? view:? extension:? lastworking:bool? withlinked:bool? meta:bool? product:?' => \&getfilelist,
-  '/source/$project/$package/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
+  '/source/$project/$package/_history rev? meta:bool? deleted:bool? limit:num? startbefore:num?' => \&getpackagehistory,
   '/source/$project/$package/_meta rev? expand:bool? meta:bool? deleted:bool? view:? interconnect:?' => \&getpackage,
   'PUT:/source/$project/$package/_meta user:? comment:? requestid:num?' => \&putpackage,
   'DELETE:/source/$project/$package user:? comment:? requestid:num?' => \&delpackage,
@@ -7774,14 +7816,14 @@ my $dispatches = [
   # worker calls
   '/getsources $project $package $srcmd5:md5 workerid?' => \&getsources,
   '/getconfig $project $repository path:prp* workerid?' => \&worker_getbuildconfig,
-  '/getsslcert $project autoextend:bool? workerid? signtype:?' => \&getsslcert,
+  '/getsslcert $project autoextend:bool? workerid? signtype:? signflavor:?' => \&getsslcert,
   '/getbinaries $project $repository $arch binaries: nometa:bool? workerid? now:num? module*' => \&worker_getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool? workerid? now:num? module* withevr:bool?' => \&worker_getbinaryversions,
   '/getobsgendiffdata $project $repository $arch jobid? workerid?' => \&getobsgendiffdata,
   '/getmodulemd $project $package $srcmd5:md5 module* modularityplatform: modularitylabel: arch? view:?' => \&getmodulemd,
 
-  # publisher/signer calls
-  '/getsignkey $project withpubkey:bool? autoextend:bool? withalgo:bool?' => \&getsignkey,
+  # worker/publisher/signer calls
+  '/getsignkey $project withpubkey:bool? autoextend:bool? withalgo:bool? signtype:? signflavor:?' => \&getsignkey,
 
   # event/notification handling
   '!- /lastevents $filter:* start:num? obsname:? block:bool?' => \&lastevents,
@@ -7848,7 +7890,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
   '/build/$project/$repository/$arch/$package/_history limit:num?' => \&getbuildhistory,
   '/build/$project/$repository/$arch/$package/_buildstats limit:num?' => \&getbuildstats,
-  '/build/$project/$repository/$arch/$package_repository/$filename view:? module*' => \&getbinary,
+  '/build/$project/$repository/$arch/$package_repository/$filename view:? withfilelist:bool? module*' => \&getbinary,
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
   'DELETE:/build/$project/$repository/$arch/_repository/$filename' => \&delbinary,
 
@@ -7877,15 +7919,15 @@ my $dispatches = [
 
   # registry
   'GET|HEAD:/registry/$gunprefix:/$...:regrepo/_trust/tuf/$filename' => \&notary_forward,
-  'GET|HEAD:/registry/$...:regrepo/manifests/$manifest:' => \&registry_forward,
-  'GET|HEAD:/registry/$...:regrepo/manifestinfos/$manifest:' => \&registry_manifestinfo,
-  'GET|HEAD:/registry/$...:regrepo/blobs/$blob:' => \&registry_forward,
-  'GET|HEAD:/registry/$...:regrepo/signatures/$sig:' => \&registry_forward,
-  'GET|HEAD:/registry/$...:regrepo/tags/list n:intnum? last:?' => \&registry_forward,
-  'GET|HEAD:/registry/$...:regrepo/info.json' => \&registry_forward,
-  'GET|HEAD:/registry/_catalog n:intnum? last:?' => \&registry_catalog,
-  'GET|HEAD:/registry/info.json' => \&registry_rootinfo,
-  'GET|HEAD:/registry' => \&registry_version,
+  'GET|HEAD:/registry/$...:regrepo/manifests/$manifest: ns:?' => \&registry_forward,
+  'GET|HEAD:/registry/$...:regrepo/manifestinfos/$manifest: ns:?' => \&registry_manifestinfo,
+  'GET|HEAD:/registry/$...:regrepo/blobs/$blob: ns:?' => \&registry_forward,
+  'GET|HEAD:/registry/$...:regrepo/signatures/$sig: ns:?' => \&registry_forward,
+  'GET|HEAD:/registry/$...:regrepo/tags/list n:intnum? last:? ns:?' => \&registry_forward,
+  'GET|HEAD:/registry/$...:regrepo/info.json ns:?' => \&registry_forward,
+  'GET|HEAD:/registry/_catalog n:intnum? last:? ns:?' => \&registry_catalog,
+  'GET|HEAD:/registry/info.json ns:?' => \&registry_rootinfo,
+  'GET|HEAD:/registry ns:?' => \&registry_version,
   'GET|HEAD:/sigstore/$...:regrepo/$sig:' => \&sigstore_forward,
 
   # slsa

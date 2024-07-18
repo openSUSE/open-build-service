@@ -13,28 +13,13 @@ RSpec.describe Webui::RepositoriesController, :vcr do
     it { expect(assigns(:architectures)).to be_empty }
   end
 
-  describe 'GET #state' do
-    context 'with a valid repository param' do
-      before do
-        get :state, params: { project: user.home_project, repository: repo_for_user_home.name }
-      end
-
-      it { expect(assigns(:repository)).to eq(repo_for_user_home) }
-    end
-
-    context 'with a non valid repository param' do
-      it { expect { get :state, params: { project: user.home_project, repository: 'not_valid' } }.to raise_error ActiveRecord::RecordNotFound }
-      it { expect(assigns(:repository)).to be_falsey }
-    end
-  end
-
   describe 'POST #update' do
     before do
       login user
     end
 
     context 'updating non existent repository' do
-      it 'will raise a NoMethodError' do
+      it 'raises a NoMethodError' do
         expect do
           post :update, params: { project: user.home_project, repo: 'standard' }
         end.to raise_error(NoMethodError)
@@ -47,7 +32,7 @@ RSpec.describe Webui::RepositoriesController, :vcr do
       end
 
       it { expect(repo_for_user_home.architectures.pluck(:name)).to be_empty }
-      it { expect(assigns(:repository_arch_hash).to_a).to match_array([['armv7l', false], ['i586', false], ['x86_64', false]]) }
+      it { expect(assigns(:repository_arch_hash).to_a).to contain_exactly(['armv7l', false], ['i586', false], ['x86_64', false]) }
       it { is_expected.to redirect_to(action: :index) }
       it { expect(flash[:success]).to eq('Successfully updated repository') }
     end
@@ -63,9 +48,9 @@ RSpec.describe Webui::RepositoriesController, :vcr do
         expect(foo.count).to eq(foo.distinct.count)
       end
 
-      it { expect(repo_for_user_home.architectures.pluck(:name)).to match_array(['i586', 'x86_64']) }
-      it { expect(Architecture.available.pluck(:name)).to match_array(['armv7l', 'i586', 'x86_64']) }
-      it { expect(assigns(:repository_arch_hash).to_a).to match_array([['armv7l', false], ['i586', true], ['x86_64', true]]) }
+      it { expect(repo_for_user_home.architectures.pluck(:name)).to contain_exactly('i586', 'x86_64') }
+      it { expect(Architecture.available.pluck(:name)).to contain_exactly('armv7l', 'i586', 'x86_64') }
+      it { expect(assigns(:repository_arch_hash).to_a).to contain_exactly(['armv7l', false], ['i586', true], ['x86_64', true]) }
       it { is_expected.to redirect_to(action: :index) }
       it { expect(flash[:success]).to eq('Successfully updated repository') }
     end

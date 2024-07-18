@@ -13,10 +13,11 @@ RSpec.describe Webui::MarkdownHelper do
     end
 
     it 'detects all the mentions to users' do
-      expect(render_as_markdown('@alfie @milo and @Admin, please review. Also you, @test1 and @user.name.')).to eq(
+      expect(render_as_markdown('@alfie @milo @Admin and @ann+factory, please review. Also you, @test1 and @user.name.')).to eq(
         '<p><a href="https://unconfigured.openbuildservice.org/users/alfie" rel="nofollow">@alfie</a> ' \
         '<a href="https://unconfigured.openbuildservice.org/users/milo" rel="nofollow">@milo</a> ' \
-        'and <a href="https://unconfigured.openbuildservice.org/users/Admin" rel="nofollow">@Admin</a>, ' \
+        '<a href="https://unconfigured.openbuildservice.org/users/Admin" rel="nofollow">@Admin</a> ' \
+        'and <a href="https://unconfigured.openbuildservice.org/users/ann+factory" rel="nofollow">@ann+factory</a>, ' \
         'please review. Also you, <a href="https://unconfigured.openbuildservice.org/users/test1" rel="nofollow">@test1</a> ' \
         "and <a href=\"https://unconfigured.openbuildservice.org/users/user.name\" rel=\"nofollow\">@user.name</a>.</p>\n"
       )
@@ -25,6 +26,12 @@ RSpec.describe Webui::MarkdownHelper do
     it "doesn't render users inside the text of html links" do
       expect(render_as_markdown('Group [openSUSE Leap 15.0 Incidents@DVD-Incidents](https://openqa.opensuse.org/tests/overview)')).to eq(
         "<p>Group <a href=\"https://openqa.opensuse.org/tests/overview\" rel=\"nofollow\">openSUSE Leap 15.0 Incidents@DVD-Incidents</a></p>\n"
+      )
+    end
+
+    it 'does not render markdown included in the user login' do
+      expect(render_as_markdown('@_testuser_')).to eq(
+        "<p><a href=\"https://unconfigured.openbuildservice.org/users/_testuser_\" rel=\"nofollow\">@_testuser_</a></p>\n"
       )
     end
 

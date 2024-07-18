@@ -4,8 +4,10 @@ module Event
     self.message_bus_routing_key = 'request.comment'
     self.description = 'New comment for request created'
     payload_keys :request_number, :diff_ref
-    receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_watcher, :target_watcher,
+    receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_project_watcher, :target_project_watcher,
                    :source_package_watcher, :target_package_watcher, :request_watcher
+
+    self.notification_explanation = 'Receive notifications for comments created on a request for which you are...'
 
     def subject
       "Request #{payload['number']} commented by #{payload['commenter']} (#{actions_summary})"
@@ -15,7 +17,7 @@ module Event
       # limit the error string
       attribs['comment'] = attribs['comment'][0..800] if attribs['comment'].present?
       attribs['files'] = attribs['files'][0..800] if attribs['files'].present?
-      super(attribs, keys)
+      super
     end
 
     def metric_measurement
@@ -39,7 +41,7 @@ end
 #  id          :bigint           not null, primary key
 #  eventtype   :string(255)      not null, indexed
 #  mails_sent  :boolean          default(FALSE), indexed
-#  payload     :text(65535)
+#  payload     :text(16777215)
 #  undone_jobs :integer          default(0)
 #  created_at  :datetime         indexed
 #  updated_at  :datetime

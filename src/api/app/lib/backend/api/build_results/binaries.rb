@@ -52,8 +52,9 @@ module Backend
 
         # special view on a binary file for details display
         # @return [Hash]
-        def self.fileinfo_ext(project_name, package_name, repository, arch, filename)
-          fileinfo = http_get(['/build/:project/:repository/:arch/:package/:filename?view=fileinfo_ext', project_name, repository, arch, package_name, filename])
+        def self.fileinfo_ext(project_name, package_name, repository, arch, filename, options = {})
+          fileinfo = http_get(['/build/:project/:repository/:arch/:package/:filename', project_name, repository, arch, package_name, filename],
+                              params: options, defaults: { view: 'fileinfo_ext' }, accepted: %i[withfilelist])
           Xmlhash.parse(fileinfo) if fileinfo
         end
 
@@ -84,7 +85,7 @@ module Backend
           return {} if repository_paths.empty? && repository_urls.empty?
 
           transform_binary_packages_response(http_get(['/build/:project/_availablebinaries', project_name],
-                                                      params: { url: repository_urls, path: repository_paths }, expand: [:url, :path]))
+                                                      params: { url: repository_urls, path: repository_paths }, expand: %i[url path]))
         end
 
         # TODO: Move this method that transforms the output into another module

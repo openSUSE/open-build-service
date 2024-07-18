@@ -1,5 +1,3 @@
-# CONFIG['global_write_through'] = true
-
 RSpec.describe SourceAttributeController, :vcr do
   render_views
 
@@ -20,8 +18,7 @@ RSpec.describe SourceAttributeController, :vcr do
     it 'returns both without filter' do
       get :show, params: { project: project }
       resp = Xmlhash.parse(response.body).elements('attribute')
-      expect(resp).to match_array([{ 'namespace' => main_attribute.namespace, 'name' => main_attribute.name },
-                                   { 'namespace' => additional_attribute.namespace, 'name' => additional_attribute.name }])
+      expect(resp).to contain_exactly({ 'namespace' => main_attribute.namespace, 'name' => main_attribute.name }, { 'namespace' => additional_attribute.namespace, 'name' => additional_attribute.name })
     end
 
     it 'filters only the specified attribute' do

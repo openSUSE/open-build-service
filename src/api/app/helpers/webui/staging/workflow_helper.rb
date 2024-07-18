@@ -101,7 +101,7 @@ module Webui::Staging::WorkflowHelper
                 ])
     end
     output + tag.div(class: "collapse collapse-#{staging_project.id}") do
-      safe_join(requests_links[requests_visible_by_default..-1])
+      safe_join(requests_links[requests_visible_by_default..])
     end
   end
 

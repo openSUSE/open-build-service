@@ -86,6 +86,7 @@ RSpec.describe TriggerWorkflowController do
       before do
         allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
         allow(token_extractor_instance).to receive(:call).and_return(nil)
+        request.headers['HTTP_X_GITHUB_EVENT'] = 'pull_request'
         post :create, params: { format: :json }
       end
 

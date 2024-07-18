@@ -7,6 +7,7 @@ require 'active_record/railtie'
 require 'action_mailer/railtie'
 require 'action_controller/railtie'
 require 'action_view/railtie'
+require 'active_storage/engine'
 require 'sprockets/railtie'
 require 'rails/test_unit/railtie'
 
@@ -23,10 +24,10 @@ require 'rails/test_unit/railtie'
 gemfile_in = File.expand_path('../Gemfile.in', __dir__)
 if File.exist?(gemfile_in)
   require 'bundler_ext'
-  BundlerExt.system_require(gemfile_in, *Rails.groups(assets: ['development', 'test']))
+  BundlerExt.system_require(gemfile_in, *Rails.groups(assets: %w[development test]))
 else
   # Assets should be precompiled for production (so we don't need the gems loaded then)
-  Bundler.require(*Rails.groups(assets: ['development', 'test']))
+  Bundler.require(*Rails.groups(assets: %w[development test]))
 end
 
 require_relative '../lib/rabbitmq_bus'

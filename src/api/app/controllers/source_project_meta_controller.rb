@@ -1,4 +1,6 @@
 class SourceProjectMetaController < SourceController
+  include CheckAndRemoveRepositories
+
   validate_action update: { request: :project, response: :status }
   validate_action show: { response: :project }
 
@@ -29,7 +31,7 @@ class SourceProjectMetaController < SourceController
 
   # PUT /source/:project/_meta
   def update
-    params[:user] = User.session!.login
+    params[:user] = User.session.login
     begin
       project = Project.get_by_name(@request_data['name'])
     rescue Project::UnknownObjectError
@@ -38,9 +40,9 @@ class SourceProjectMetaController < SourceController
 
     # Need permission
     logger.debug 'Checking permission for the put'
-    if project
+    if project.is_a?(Project)
       # project exists, change it
-      unless User.session!.can_modify?(project)
+      unless User.session.can_modify?(project)
         if project.is_locked?
           logger.debug "no permission to modify LOCKED project #{project.name}"
           raise ChangeProjectNoPermission, "The project #{project.name} is locked"
@@ -50,7 +52,7 @@ class SourceProjectMetaController < SourceController
       end
     else
       # project is new
-      unless User.session!.can_create_project?(@project_name)
+      unless User.session.can_create_project?(@project_name)
         logger.debug 'Not allowed to create new project'
         raise CreateProjectNoPermission, "no permission to create project #{@project_name}"
       end
@@ -61,11 +63,11 @@ class SourceProjectMetaController < SourceController
 
     ensure_xml_attributes_are_valid(@request_data, @project_name)
 
-    remove_repositories!(project, @request_data, params) if project
+    remove_repositories!(project, @request_data, params) if project.is_a?(Project)
 
     Project.transaction do
       # exec
-      if project
+      if project.is_a?(Project)
         project.update_from_xml!(@request_data)
       else
         project = Project.new(name: @project_name)
@@ -73,7 +75,9 @@ class SourceProjectMetaController < SourceController
         unless CONFIG['prevent_adding_maintainer_in_project_creation_with_api'].in?([:on, ':on', 'on', 'true', true])
           # FIXME3.0: don't modify send data
           maintainer_role = Role.find_by_title!('maintainer')
-          project.relationships.find_or_initialize_by(user: User.session!, role: maintainer_role) unless project.relationships.any? { |relationship| relationship.user == User.session! && relationship.role == maintainer_role }
+          project.relationships.find_or_initialize_by(user: User.session, role: maintainer_role) unless project.relationships.any? do |relationship|
+                                                                                                          relationship.user == User.session && relationship.role == maintainer_role
+                                                                                                        end
         end
       end
       project.store(comment: params[:comment])

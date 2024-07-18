@@ -1,0 +1,30 @@
+- @pagetitle = "File #{truncate(@filename, length: 50)} of Package #{truncate(@package.name, length: 50)}"
+- content_for(:content_for_head, javascript_include_tag('webui/cm2/codemirror-file'))
+
+.card.mb-3
+  = render partial: 'webui/package/tabs', locals: { project: @project, package: @package }
+  .card-body
+    %h3.text-word-break-all
+      File #{@filename} of Package #{@package}
+      - if @rev
+        (Revision #{@rev})
+    - if @rev
+      %p
+        Currently displaying revision
+        %i= @rev
+        ,
+        = link_to('Show latest', project: @project, package: @package, filename: @filename, expand: @expand)
+
+    - if @addeditlink
+      - if @filename.ends_with?('.changes')
+        %p
+          %a.changes-link{ href: '#', onclick: 'addChangesEntryTemplate(); return false;',
+                           data: { packagername: User.session.realname, packageremail: User.session.email } }
+            Insert changes entry template
+
+      -# TODO: Provide a comments field through a callback
+      = render(partial: 'webui/shared/editor', locals: { text: @file, mode: guess_code_class(@filename),
+        save: { url: project_package_file_path(@project, @package, @filename), method: :put,
+        data: { project: @project.name, package: @package.name, submit: 'file', comment: '', filename: @filename, rev: @rev } } })
+    - else
+      = render(partial: 'webui/shared/editor', locals: { text: @file, mode: guess_code_class(@filename), style: { read_only: true } })

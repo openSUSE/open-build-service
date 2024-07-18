@@ -1,7 +1,6 @@
 get:
   summary: Present information about the last publication of the pair project and repository.
-  description: >
-    Get information about the build process (build id, start time, etc.) for the pair project and repository.
+  description: Get information about the build process (build id, start time, etc.) for the pair project and repository.
   security:
     - basic_authentication: []
   parameters:

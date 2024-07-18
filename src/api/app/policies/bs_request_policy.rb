@@ -9,22 +9,29 @@ class BsRequestPolicy < ApplicationPolicy
   end
 
   def handle_request?
-    is_target_maintainer = record.is_target_maintainer?(user)
-    record.state.in?([:new, :review, :declined]) && (is_target_maintainer || author?)
+    return false if %i[new review declined].exclude?(record.state)
+
+    author? || record.is_target_maintainer?(user) || record.is_source_maintainer?(user)
   end
 
   def add_reviews?
     is_target_maintainer = record.is_target_maintainer?(user)
     has_open_reviews = record.reviews.where(state: 'new').any? { |review| review.matches_user?(user) }
-    record.state.in?([:new, :review]) && (author? || is_target_maintainer || has_open_reviews.present?)
+    record.state.in?(%i[new review]) && (author? || is_target_maintainer || has_open_reviews.present?)
   end
 
   def revoke_request?
-    author? && record.state.in?([:new, :review, :declined])
+    return false if %i[new review declined].exclude?(record.state)
+
+    author? || record.is_source_maintainer?(user)
   end
 
   def report?
-    ensure_logged_in!(user, {})
+    !author?
+  end
+
+  def decline_request?
+    !author?
   end
 
   private

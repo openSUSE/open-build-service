@@ -3,6 +3,6 @@
 
   &.active{
     @extend .card;
-    background: #ebfdc7;
+    background: var(--bs-tertiary-bg);
   }
 }

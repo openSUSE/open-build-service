@@ -4,9 +4,9 @@ class Project::RemoteURL
   def self.load(remote_project, path)
     uri = URI.parse(remote_project.remoteurl + path)
     # prefer environment variables if set
-    ENV['http_proxy'] = Configuration.first.http_proxy if ENV['http_proxy'].blank?
-    ENV['https_proxy'] = Configuration.first.http_proxy if ENV['https_proxy'].blank?
-    ENV['no_proxy'] = Configuration.first.no_proxy if ENV['no_proxy'].blank?
+    ENV['http_proxy'] = Configuration.http_proxy if ENV['http_proxy'].blank?
+    ENV['https_proxy'] = Configuration.http_proxy if ENV['https_proxy'].blank?
+    ENV['no_proxy'] = Configuration.no_proxy if ENV['no_proxy'].blank?
     begin
       uri.open.read
     rescue OpenURI::HTTPError, SocketError, Errno::EINTR, Errno::EPIPE, Net::HTTPBadResponse, IOError, Errno::ENETUNREACH,

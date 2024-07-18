@@ -1,5 +1,3 @@
-# CONFIG['global_write_through'] = true
-
 RSpec.describe SourceProjectPackageMetaController, :vcr do
   render_views
   let(:user) { create(:confirmed_user, login: 'tom') }

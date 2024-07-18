@@ -1,264 +1,145 @@
 post:
-  summary: Trigger a specific operation.
+  summary: Trigger a rebuild, release or service run via an API token
   description: |
-    This endpoint is meant to be used with a token, to make it possible to automate the
-    execution of an OBS operation from an external application, as, for example, GitHub
-    or GitLab.
+    This route allows to trigger
 
-    See the [/person/{login}/token](#/Person/post_person__login__token) endpoint to
-    create a token.
+    - a Project/Package rebuild
+    - a Project/Package release
+    - a Package service run
 
-    The token itself must be delivered using one of these options:
-      - HTTP header `X-GitLab-Token`: <TOKEN_STRING>
-      - HTTP header `Authorization`: Token <TOKEN_STRING>
-      - The `id` param, a payload in the request body, and one of the following HTTP
-        headers to provide the signature of the request body:
-        - `X-OBS-Signature`
-        - `X-Hub-Signature-256`
+    via an API token.
 
-    A token can be bound to a package, or not. For a token not bound to a package, the `project`
-    and `package` parameters can be provided to specify the package.
+    You are required to authenticate with the API token secret. The API token secret needs
+    to be provided either by HTTP headers or by a Hash-based Message Authentication Code (HMAC).
 
-    A package must be provided for the operations `rebuild`, `release` and `runservice`.
+    See the [/person/{login}/token](#/Person/post_person__login__token) endpoint for
+    information how to create an API token.
   security:
     - GitLab_key_authentication: []
   parameters:
-    - in: path
-      name: operation
-      schema:
-        type: string
-        enum: [ rebuild, release, runservice, workflow ]
-      required: yes
     - in: header
-      name: X-OBS-Signature
-      schema:
-        type: string
-    - in: header
-      name: X-Hub-Signature-256
-      schema:
-        type: string
-    - in: header
-      name: X-GitLab-Event
+      name: X-OBS-SIGNATURE
       description: |
-        GitLab event that triggered this call.
-
-        This header field is required for processing GitLab payloads.
+        A HMAC of the request body, signed with the API token secret.
+        Only useful in combination with the id parameter.
       schema:
         type: string
-      examples:
-        empty:
-          summary: '- Empty -'
-          value:
-        merge_request:
-          summary: Merge Request Hook
-          value: Merge Request Hook
+      example: 123458568938927827827
     - in: header
-      name: X-GitHub-Event
+      name: X-HUB-SIGNATURE-256
       description: |
-        GitHub event that triggered this call.
-
-        This header field is required for processing GitHub payloads.
+        A HMAC of the request body, signed with the API token secret.
+        Only useful in combination with the id parameter.
       schema:
         type: string
-      examples:
-        empty:
-          summary: '- Empty -'
-          value:
-        merge_request:
-          summary: pull_request
-          value: pull_request
+      example: 123458568938927827827
+    - in: header
+      name: X-Pagure-Signature-256
+      description: |
+        A HMAC of the request body, signed with the API token secret.
+        Only useful in combination with the id parameter.
+      schema:
+        type: string
+      example: 123458568938927827827
+    - in: header
+      name: X-GitLab-Token
+      description: The API token secret.
+      schema:
+        type: string
+      example: THE_TOKEN_SECRET
+    - in: header
+      name: Authorization
+      description: The API token secret in the Token realm.
+      schema:
+        type: string
+      example: Token THE_TOKEN_SECRET
     - in: query
       name: id
-      description: Id of the token.
+      description: |
+        Numerical ID of the token to trigger.
+        This is required if you authenticate via a HMAC.
       schema:
         type: integer
+      example: 1
     - in: query
       name: project
-      description: Project name.
+      description: |
+        If the API token does not have a package assigned you can set a project via this parameter.
+        The operation of the API token is then executed on this project.
       schema:
         type: string
+      example: home:user
     - in: query
       name: package
-      description: Package name.
+      description: |
+        If the API token does not have a package assigned you can set a package via this parameter.
+        The operation of the API token is then executed on this package.
+
+        Setting this requires the project parameter to be set too.
       schema:
         type: string
+      example: vim
     - in: query
       name: repository
       description: |
-        Repository filter. Only used when the operation is 'rebuild'.
-
-        If it is present, restrict rebuilds of a package to a specific repository.
+        Restrict the API token operation to this repository.
+        
+        Only has an effect if the API token operation is 'rebuild' or 'release'.
       schema:
         type: string
-      examples:
-        empty:
-          summary: '- Empty -'
-          value:
-        openSUSE_Factory:
-          value: openSUSE_Factory
-        SLE_15_SP3:
-          value: SLE_15_SP3
+      example: openSUSE_Factory
     - in: query
       name: arch
       description: |
-        Architecture filter. Only used when the operation is 'rebuild' or 'release'.
-
-        If it is present, restrict rebuilds of a package to a specific architecture.
+        Restrict the API token operation to this architecture with this name.
+        
+        Only has an effect when the API token operation is 'rebuild' or 'release'.
       schema:
         type: string
-      examples:
-        empty:
-          summary: '- Empty -'
-          value:
-        armv7l:
-          value: armv7l
-        ppc64le:
-          value: ppc64le
-        x86_64:
-          value: x86_64
+      example: x86_64
     - in: query
       name: targetproject
       description: |
-        Only used when the operation is 'release'.
+        Release binaries only to the provided project with this name.
+        Setting this requires the 'targetrepository' parameter to be set also.
 
-        Release binaries only to the provided target project. Only works in combination
-        with the `targetrepository` and `filter_source_repository` parameters.
+        Only has an effect if the API token operation is 'release'.
       schema:
         type: string
-      examples:
-        empty:
-          summary: '- Empty -'
-          value:
-        home:user1:
-          value: home:user1
+      example: devel:languages:ruby
     - in: query
       name: targetrepository
       description: |
-        Only used when the operation is 'release'.
+        Release binaries only to the target repository with this name.
+        Setting this requires the 'targetproject' parameter to be set also.
 
-        Release binaries only to the provided target repository. Only works in combination
-        with the `targetproject` and `filter_source_repository` parameters.
+        Only has an effect if the API token operation is 'release'.
       schema:
         type: string
-      examples:
-        empty:
-          summary: '- Empty -'
-          value:
-        openSUSE_Factory:
-          value: openSUSE_Factory
-        SLE_15_SP3:
-          value: SLE_15_SP3
+      example: openSUSE_Factory
     - in: query
       name: filter_source_repository
       description: |
-        Only used when the operation is 'release'.
+        Release binaries only from the repository with this name.
 
-        Release binaries only from the provided source repository.
+        Only has an effect if the API token operation is 'release'.
       schema:
         type: string
-      examples:
-        empty:
-          summary: '- Empty -'
-          value:
-        openSUSE_Factory:
-          value: openSUSE_Factory
-        SLE_15_SP3:
-          value: SLE_15_SP3
-    - in: query
-      name: multibuild_flavor
-      description: |
-        Only used when the operation is 'rebuild' or 'release'.
-
-        Trigger a 'rebuild' or 'release' operation for the specified multibuild flavor.
-      schema:
-        type: string
-      examples:
-        empty:
-          summary: '- Empty -'
-          value:
-        obs-server:obs-api-testsuite-rspec:
-          value: obs-server:obs-api-testsuite-rspec
-  requestBody:
-    description: Payload.
-    content:
-      application/json:
-        schema:
-          type: string
-        examples:
-          empty:
-            summary: '- Empty -'
-            value:
-          github:
-            summary: GitHub
-            description: Example of a payload sent by GitHub when a pull request is opened.
-            value: {
-                action: 'opened',
-                pull_request: {
-                  head: {
-                    repo: {
-                      full_name: 'iggy/source_repo'
-                    },
-                    ref: 'add-changes',
-                    sha: '9e0ea1fd99c9000cbb8b8c9d28763d0ddace0b65'
-                  },
-                  base: {
-                    repo: {
-                      full_name: 'iggy/target_repo'
-                    },
-                    ref: 'main'
-                  }
-                },
-                project: {
-                  http_url: 'https://github.com/pop/test.git',
-                  id: 26_212_711,
-                  path_with_namespace: 'pop/test'
-                },
-                number: 4,
-                sender: {
-                  url: 'https://api.github.com'
-                }
-              }
-          gitlab:
-            summary: GitLab
-            description: Example of a payload sent by GitLab when a merge request is opened.
-            value: {
-                object_kind: 'merge_request',
-                project: {
-                  http_url: 'https://gitlab.com/pop/test.git',
-                  path_with_namespace: 'pop/test'
-                },
-                object_attributes: {
-                  last_commit: {
-                    id: '4b486afefa44177f23b4388d2147ae42407e7f64'
-                  },
-                  iid: 3,
-                  source_project_id: 26_212_710,
-                  source_branch: 'my_branch',
-                  target_branch: 'main',
-                  action: 'open'
-                },
-                action: 'opened'
-              }
+      example: openSUSE_Factory
   responses:
     '200':
       $ref: '../components/responses/succeeded.yaml'
     '400':
-      description: |
-        Bad Request.
-
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      description: Bad Request.
       content:
         application/xml; charset=utf-8:
           schema:
             $ref: '../components/schemas/api_response.yaml'
           example:
-            code: invalid_parameter
-            summary: Parameter pull_request has non String class ActionController::Parameters
+            code: invalid_token
+            summary: No valid token found
     '403':
-      description: |
-        Forbidden.
-
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      description: Forbidden.
       content:
         application/xml; charset=utf-8:
           schema:
@@ -267,34 +148,21 @@ post:
             code: permission_denied
             summary: No valid token found
     '404':
-      description: |
-        Not Found.
-
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      description: Not Found.
       content:
         application/xml; charset=utf-8:
           schema:
             $ref: '../components/schemas/api_response.yaml'
           examples:
             unknown_project:
-              summary: Not Found (Project)
+              summary: Project not found
               value:
                 code: unknown_project
-                details: 'Project not found: '
+                details: 'Project not found: home:Admin'
             unknown_package:
-              summary: Not Found (Package)
+              summary: Package not found
               value:
                 code: unknown_package
                 details: 'Package not found: home:Admin/foo'
-            unknown_token:
-              summary: Not found (Token)
-              value:
-                code: not_found
-                details: 'Token not found'
-            non_existent_workflows_file:
-              summary: Non existent workflows file
-              value:
-                code: non_existent_workflows_file
-                summary: '.obs/workflows.yml could not be downloaded from the SCM branch main: 503 Service Temporarily Unavailable'
   tags:
     - Trigger

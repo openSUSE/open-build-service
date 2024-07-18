@@ -1,0 +1,50 @@
+%dl.row.mt-4
+  %dt.col-md-2.text-truncate Title
+  %dd.col-md-10= fileinfo.value('summary')
+
+  %dt.col-md-2.text-truncate Description
+  %dd.col-md-10
+    - description = fileinfo.value('description')
+    - if description
+      - description.split('\n').each do |line|
+        = line
+        %br
+    - else
+      %i No description set
+
+  %dt.col-md-2.text-truncate Version
+  %dd.col-md-10= fileinfo.value('version')
+
+  %dt.col-md-2.text-truncate Release
+  %dd.col-md-10= fileinfo.value('release')
+
+  %dt.col-md-2.text-truncate Architecture
+  %dd.col-md-10= fileinfo.value('arch')
+
+  %dt.col-md-2.text-truncate Size
+  %dd.col-md-10= human_readable_fsize(fileinfo.value('size').to_i)
+
+  %dt.col-md-2.text-truncate Build Time
+  %dd.col-md-10
+    - btime = Time.zone.at(fileinfo.value('mtime').to_i)
+
+    #{btime}
+    = render TimeComponent.new(time: btime)
+
+= render partial: 'deps', locals: { fileinfo: fileinfo,
+                                    filename: filename,
+                                    project: project,
+                                    package: package,
+                                    repository: repository,
+                                    architecture: architecture }
+
+- content_for :ready_function do
+  :plain
+    initializeRemoteDatatable('#filelist-table', {
+        "columns": [
+          {"data": "name"}
+        ],
+        paging: false,
+        searching: false,
+        info: false
+      });

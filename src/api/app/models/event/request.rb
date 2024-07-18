@@ -1,11 +1,15 @@
 module Event
   class Request < Base
-    self.description = 'Request was updated'
+    self.description = 'Request updated'
     self.abstract_class = true
     payload_keys :author, :comment, :description, :id, :number, :actions, :state, :when, :who, :namespace
     shortenable_key :description
 
     DIFF_LIMIT = 120
+
+    def subject
+      raise AbstractMethodCalled
+    end
 
     def self.message_number(number)
       "<obs-request-#{number}@#{URI.parse(Configuration.obs_url).host.downcase}>"
@@ -84,11 +88,11 @@ module Event
       action_maintainers('sourceproject', 'sourcepackage')
     end
 
-    def source_watchers
+    def source_project_watchers
       source_or_target_project_watchers(project_type: 'sourceproject')
     end
 
-    def target_watchers
+    def target_project_watchers
       source_or_target_project_watchers(project_type: 'targetproject')
     end
 
@@ -98,6 +102,13 @@ module Event
 
     def target_package_watchers
       source_or_target_package_watchers(project_type: 'targetproject', package_type: 'targetpackage')
+    end
+
+    def involves_hidden_project?
+      bs_request = BsRequest.find_by(number: payload['number'])
+      return false unless bs_request
+
+      bs_request.bs_request_actions.any?(&:involves_hidden_project?)
     end
 
     private
@@ -152,18 +163,18 @@ module Event
                    "X-OBS-Request-Action-#{index}"
                  end
 
-        ret[suffix + '-type'] = a['type']
+        ret["#{suffix}-type"] = a['type']
         if a['targetpackage']
-          ret[suffix + '-target'] = "#{a['targetproject']}/#{a['targetpackage']}"
+          ret["#{suffix}-target"] = "#{a['targetproject']}/#{a['targetpackage']}"
         elsif a['targetrepository']
-          ret[suffix + '-target'] = "#{a['targetproject']}/#{a['targetrepository']}"
+          ret["#{suffix}-target"] = "#{a['targetproject']}/#{a['targetrepository']}"
         elsif a['targetproject']
-          ret[suffix + '-target'] = a['targetproject']
+          ret["#{suffix}-target"] = a['targetproject']
         end
         if a['sourcepackage']
-          ret[suffix + '-source'] = "#{a['sourceproject']}/#{a['sourcepackage']}"
+          ret["#{suffix}-source"] = "#{a['sourceproject']}/#{a['sourcepackage']}"
         elsif a['sourceproject']
-          ret[suffix + '-source'] = a['sourceproject']
+          ret["#{suffix}-source"] = a['sourceproject']
         end
       end
       ret

@@ -9,7 +9,7 @@ class ArchitecturesControllerTest < ActionDispatch::IntegrationTest
   def test_index
     # Get all issue trackers
     get '/architectures'
-    assert_response 401
+    assert_response :unauthorized
 
     prepare_request_valid_user
     get '/architectures'
@@ -27,7 +27,7 @@ class ArchitecturesControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'architecture', attributes: { name: 'i586' }
 
     get '/architectures/futurearch'
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'unknown_architecture' }
   end
 end

@@ -1,7 +1,6 @@
 post:
   summary: Unlocks the project.
-  description: |
-    Unlocks the previously locked project, given as parameter. You can pass a comment with the reason of the lock.
+  description: Unlocks the previously locked project, given as parameter. You can pass a comment with the reason of the lock.
   security:
     - basic_authentication: []
   parameters:
@@ -20,7 +19,7 @@ post:
       description: |
         Bad Request.
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
       content:
         application/xml; charset=utf-8:
           schema:
@@ -37,8 +36,7 @@ post:
                 summary: project 'Sandbox' is not locked.
               summary: Not Locked
     '403':
-      description: |
-        No permission to execute command 'unlock' because the user do not have permission to modify the project.
+      description: No permission to execute command 'unlock' because the user do not have permission to modify the project.
       content:
         application/xml; charset=utf-8:
           schema:

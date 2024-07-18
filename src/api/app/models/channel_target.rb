@@ -4,7 +4,7 @@ class ChannelTarget < ApplicationRecord
   has_one :project, through: :repository
 
   def self._sync_keys
-    [:project, :repository]
+    %i[project repository]
   end
 
   def self.find_by_repo(repo, project_filter = nil)

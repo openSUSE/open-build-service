@@ -1,7 +1,6 @@
 get:
   summary: Return a specific artifact file contents
-  description: |
-    Given a project, repository, architecture and package, retrieve the given file's content.
+  description: "Given a project, repository, architecture and package, retrieve the given file's content."
   security:
     - basic_authentication: []
   parameters:
@@ -25,7 +24,7 @@ get:
       description: |
         Error: Not Found
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
       content:
         application/xml; charset=utf-8:
           schema:
@@ -82,8 +81,7 @@ put:
     '401':
       $ref: '../components/responses/unauthorized.yaml'
     '403':
-      description: |
-        No permission to upload binaries for this project
+      description: No permission to upload binaries for this project
       content:
         application/xml; charset=utf-8:
           schema:
@@ -95,7 +93,7 @@ put:
       description: |
         Error: Not Found
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
       content:
         application/xml; charset=utf-8:
           schema:
@@ -134,8 +132,7 @@ delete:
     '200':
       $ref: '../components/responses/succeeded.yaml'
     '400':
-      description: |
-        Operation is not allowed
+      description: Operation is not allowed
       content:
         application/xml; charset=utf-8:
           schema:
@@ -144,8 +141,7 @@ delete:
             code: 'invalid_operation'
             summary: 'Delete operation of build results is not allowed'
     '403':
-      description: |
-        No permission to delete binaries from this project
+      description: No permission to delete binaries from this project
       content:
         application/xml; charset=utf-8:
           schema:
@@ -157,7 +153,7 @@ delete:
       description: |
         Error: Not Found
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
       content:
         application/xml; charset=utf-8:
           schema:

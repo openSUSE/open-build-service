@@ -1,27 +1,41 @@
 class Decision < ApplicationRecord
+  TYPES = %w[DecisionFavored DecisionCleared DecisionFavoredWithCommentModeration DecisionFavoredWithUserDeletion DecisionFavoredWithDeleteRequest DecisionFavoredWithUserCommentingRestriction].freeze
+
   validates :reason, presence: true, length: { maximum: 65_535 }
+  validates :type, presence: true, length: { maximum: 255 }
 
   belongs_to :moderator, class_name: 'User', optional: false
 
   has_many :reports, dependent: :nullify
 
-  enum kind: {
-    cleared: 0,
-    favor: 1
-  }
-
-  after_create :create_event
   after_create :track_decision
+
+  def description
+    'The moderator decided on the report'
+  end
+
+  # List of all viable types for a reportable, used in the decision creation form
+  def self.types(reportable)
+    TYPES.filter_map do |decision_type_name|
+      decision_type = decision_type_name.constantize
+      [decision_type.display_name, decision_type.name] if decision_type.display?(reportable)
+    end.compact.to_h
+  end
+
+  # We use this to determine if the decision type should be displayed for reportable
+  def self.display?(_reportable)
+    true
+  end
+
+  # We display this in the decision creation form
+  def self.display_name
+    'unknown'
+  end
 
   private
 
   def create_event
-    case kind
-    when 'cleared'
-      Event::ClearedDecision.create(event_parameters)
-    else
-      Event::FavoredDecision.create(event_parameters)
-    end
+    raise AbstractMethodCalled
   end
 
   def event_parameters
@@ -29,7 +43,7 @@ class Decision < ApplicationRecord
   end
 
   def track_decision
-    RabbitmqBus.send_to_bus('metrics', "decision,kind=#{kind} hours_before_decision=#{hours_before_decision},count=1")
+    RabbitmqBus.send_to_bus('metrics', "decision,type=#{type} hours_before_decision=#{hours_before_decision},count=1")
   end
 
   def hours_before_decision
@@ -44,8 +58,8 @@ end
 # Table name: decisions
 #
 #  id           :bigint           not null, primary key
-#  kind         :integer          default("cleared")
 #  reason       :text(65535)      not null
+#  type         :string(255)      default("DecisionCleared"), not null
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
 #  moderator_id :integer          not null, indexed

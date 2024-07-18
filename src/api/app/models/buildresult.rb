@@ -41,6 +41,26 @@ class Buildresult
     unknown: 'The scheduler has not yet evaluated this package. Should be a short intermediate state for new packages.'
   }.with_indifferent_access.freeze
 
+  STATUS_CATEGORIES = %w[succeeded failed processing blocked disabled].freeze
+
+  STATUS_CATEGORIES_MAP = {
+    succeeded: STATUS_CATEGORIES[0],
+    failed: STATUS_CATEGORIES[1],
+    unresolvable: STATUS_CATEGORIES[1],
+    broken: STATUS_CATEGORIES[1],
+    blocked: STATUS_CATEGORIES[3],
+    scheduled: STATUS_CATEGORIES[2],
+    dispatching: STATUS_CATEGORIES[2],
+    building: STATUS_CATEGORIES[2],
+    signing: STATUS_CATEGORIES[2],
+    finished: STATUS_CATEGORIES[2],
+    disabled: STATUS_CATEGORIES[4],
+    excluded: STATUS_CATEGORIES[4],
+    locked: STATUS_CATEGORIES[3],
+    deleting: STATUS_CATEGORIES[2],
+    unknown: STATUS_CATEGORIES[3]
+  }.with_indifferent_access.freeze
+
   StatusCount = Struct.new(:code, :count)
 
   def initialize(status)
@@ -67,7 +87,7 @@ class Buildresult
   end
 
   def self.final_status?(status)
-    status.in?(['succeeded', 'failed', 'unresolvable', 'broken', 'disabled', 'excluded'])
+    status.in?(%w[succeeded failed unresolvable broken disabled excluded])
   end
 
   def self.summary(project_name)
@@ -76,7 +96,7 @@ class Buildresult
     results.elements('result').sort_by { |a| a['repository'] }.each do |result|
       state =
         if result.key?('dirty')
-          'outdated_' + result['state']
+          "outdated_#{result['state']}"
         else
           result['state']
         end
@@ -114,14 +134,14 @@ class Buildresult
   end
 
   def unsuccessful_final_status?
-    status.in?(['failed', 'unresolvable', 'broken'])
+    status.in?(%w[failed unresolvable broken])
   end
 
   def in_progress_status?
-    status.in?(['blocked', 'dispatching', 'scheduled', 'building', 'finished', 'signing', 'locked', 'deleting', 'unknown'])
+    status.in?(%w[blocked dispatching scheduled building finished signing locked deleting unknown])
   end
 
   def refused_status?
-    status.in?(['disabled', 'excluded'])
+    status.in?(%w[disabled excluded])
   end
 end

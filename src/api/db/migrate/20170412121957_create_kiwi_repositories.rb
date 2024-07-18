@@ -9,7 +9,7 @@ class CreateKiwiRepositories < ActiveRecord::Migration[5.0]
 
       t.timestamps
 
-      t.index([:image_id, :order], unique: true)
+      t.index(%i[image_id order], unique: true)
     end
   end
 end

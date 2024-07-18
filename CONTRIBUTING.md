@@ -219,12 +219,11 @@ Windows.
 that require an case sensitive filesystem (default in Linux, configurable in **MacOS/Windows**),
 make sure you run all this from a filesystem that supports this. Here you have [some instructions](https://github.com/openSUSE/open-build-service/wiki/Setup-an-OBS-Development-Environment-on-macOS) in case you are a MacOS user.
 
-1. Install [docker](https://www.docker.com) and [docker-compose (version >= 1.20.0)¹](https://docs.docker.com/compose/).
+1. Install [docker (version >= v2)¹](https://www.docker.com)
    There is documentation about this for [openSUSE](https://en.opensuse.org/SDB:Docker) and various
    [other operating systems](https://docs.docker.com/engine/installation/).
 
-   ¹ A version equal to or greater than _1.20.0_ is required for _docker-compose_ as we depend on the
-   `--use-aliases` flag for the command `docker-compose run` in our development environment.
+   ¹ A version greater than _v2_ is required for _docker compose_ subcommand to work.
 
 2. Install [rake](https://github.com/ruby/rake)
 
@@ -250,7 +249,7 @@ make sure you run all this from a filesystem that supports this. Here you have [
 6. Start your development environment with:
 
     ```
-    docker-compose up
+    docker compose up
     ```
 
 7. Check out your OBS frontend:
@@ -267,14 +266,14 @@ You can access the frontend at [localhost:3000](http://localhost:3000). Whatever
 9. Changed something in the frontend? Test your changes!
 
     ```
-    docker-compose run --rm frontend bundle exec rspec
-    docker-compose run --rm frontend bundle exec rake dev:lint:all
+    docker compose run --rm frontend bundle exec rspec
+    docker compose run --rm frontend bundle exec rake dev:lint:all
     ```
 
 10. Changed something in the backend? Test your changes!
 
     ```
-    docker-compose run  --rm backend make -C src/backend test
+    docker compose run  --rm backend make -C src/backend test
     ```
 
 11. You can find more details about the development environment [in our wiki](https://github.com/openSUSE/open-build-service/wiki/Development-Environment-Tips-&-Tricks).

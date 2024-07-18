@@ -5,7 +5,7 @@ class AdminMailer < ActionMailer::Base
     @host = ::Configuration.obs_url
     return unless @host
 
-    @configuration = ::Configuration.first
+    @configuration = ::Configuration.fetch
 
     headers['Precedence'] = 'bulk'
     headers['X-Mailer'] = 'OBS Administrator Notification'
@@ -16,7 +16,7 @@ class AdminMailer < ActionMailer::Base
   end
 
   def mail_sender
-    'OBS Admin Notification <' + ::Configuration.admin_email + '>'
+    "OBS Admin Notification <#{::Configuration.admin_email}>"
   end
 
   def error(message)

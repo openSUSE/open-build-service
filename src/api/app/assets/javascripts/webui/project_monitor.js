@@ -39,6 +39,7 @@ function initializeMonitorDataTable() {
   var statusHash = data.statushash;
   var tableInfo = data.tableinfo;
   var projectName = data.project;
+  var scmsync = data.scmsync;
 
   initializeDataTable('#project-monitor-table', { // jshint ignore:line
     responsive: false,
@@ -58,6 +59,7 @@ function initializeMonitorDataTable() {
         className: 'text-start',
         data: null,
         render: function (packageName) {
+          if (scmsync !== undefined) return packageName;
           var url = '/package/show/' + projectName + '/' + packageName;
           return '<a href="' + url + '">' + packageName + '</a>';
         }

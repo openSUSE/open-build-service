@@ -9,15 +9,24 @@ RSpec.describe SourcediffComponent, :vcr, type: :component do
            target_package: target_package,
            source_package: source_package)
   end
-  let(:bs_request_opts) { { filelimit: nil, tarlimit: nil, diff_to_superseded: nil, diffs: true, cacheonly: 1 } }
 
   context 'with a request with a submit action' do
     before do
-      action = bs_request.send(:action_details, bs_request_opts, xml: bs_request.bs_request_actions.last)
-      render_inline(described_class.new(bs_request: bs_request, action: action, index: 0))
+      render_inline(described_class.new(bs_request: bs_request, action: bs_request.bs_request_actions.last))
     end
 
     it 'renders the diff' do
+      expect(rendered_content).to have_text('-# This will be replaced')
+      expect(rendered_content).to have_text('+# This is the new text')
+    end
+  end
+
+  context 'when testing the preview' do
+    before { bs_request }
+
+    it 'renders the preview' do
+      render_preview(:preview)
+
       expect(rendered_content).to have_text('-# This will be replaced')
       expect(rendered_content).to have_text('+# This is the new text')
     end

@@ -1,23 +1,31 @@
 # Configuration for pull request labeler: https://github.com/actions/labeler
 Frontend:
-- src/api/**/*
+- changed-files:
+  - any-glob-to-any-file:
+    - src/api/**/*
 
 Backend:
-- src/backend/**/*
+- changed-files:
+  - any-glob-to-any-file:
+    - src/backend/**/*
 
 "Documentation :book:":
-- docs/**/*
-- '**/*.md'
-- src/api/public/apidocs/**/*
-- ReleaseNotes-*
+- changed-files:
+  - any-glob-to-any-file:
+    - docs/**/*
+    - '**/*.md'
+    - src/api/public/apidocs/**/*
+    - ReleaseNotes-*
 
 "Test Suite / CI :syringe:":
-- .circleci/**/*
-- .github/**/*
-- .obs/**/*
-- .rubocop.yml
-- .rubocop_todo.yml
-- dist/t/**/*
-- src/api/.rubocop.yml
-- src/api/.rubocop_todo.yml
-- .codeclimate.yml
+- changed-files:
+  - any-glob-to-any-file:
+    - .circleci/**/*
+    - .github/**/*
+    - .obs/**/*
+    - .rubocop.yml
+    - .rubocop_todo.yml
+    - dist/t/**/*
+    - src/api/.rubocop.yml
+    - src/api/.rubocop_todo.yml
+    - .codeclimate.yml

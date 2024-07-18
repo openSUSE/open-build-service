@@ -6,7 +6,7 @@ RSpec.describe OpenRequestsWithByProjectReviewFinder do
 
   describe '.call' do
     subject do
-      OpenRequestsWithByProjectReviewFinder.new(BsRequest.where(state: [:new, :review])
+      OpenRequestsWithByProjectReviewFinder.new(BsRequest.where(state: %i[new review])
                                                         .joins(:reviews), project.name).call
     end
 

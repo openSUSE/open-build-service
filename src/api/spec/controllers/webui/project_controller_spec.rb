@@ -26,7 +26,7 @@ RSpec.describe Webui::ProjectController, :vcr do
       ActionController::Base.allow_forgery_protection = false
     end
 
-    it 'will protect forms without authenticity token' do
+    it 'protects forms without authenticity token' do
       expect { post :save_person, params: { project: user.home_project } }.to raise_error ActionController::InvalidAuthenticityToken
     end
   end
@@ -281,7 +281,7 @@ RSpec.describe Webui::ProjectController, :vcr do
         get :show, params: { project: apache_project }
       end
 
-      it { expect(assigns(:bugowners_mail)).to match_array([user.email]) }
+      it { expect(assigns(:bugowners_mail)).to contain_exactly(user.email) }
     end
 
     context 'without bugowners' do
@@ -849,7 +849,7 @@ RSpec.describe Webui::ProjectController, :vcr do
           it { expect(assigns(:buildresult_unavailable)).to be_nil }
           it { expect(assigns(:packagenames)).to eq(['c++', 'redis']) }
           it { expect(assigns(:statushash)).to eq(statushash) }
-          it { expect(assigns(:repoarray)).to eq([['openSUSE_42.2', ['s390x']], ['openSUSE_Tumbleweed', ['i586', 'x86_64']]]) }
+          it { expect(assigns(:repoarray)).to eq([['openSUSE_42.2', ['s390x']], ['openSUSE_Tumbleweed', %w[i586 x86_64]]]) }
 
           it {
             expect(assigns(:repostatushash)).to eq('openSUSE_Tumbleweed' => { 'i586' => 'published', 'x86_64' => 'building' },
@@ -906,17 +906,17 @@ RSpec.describe Webui::ProjectController, :vcr do
     let(:input) { 'ThisIsAPackage' }
 
     context 'a filter_string that matches' do
-      let(:filter_string) { 'Package' }
-
       subject { Webui::ProjectController.new.send(:filter_matches?, input, filter_string) }
+
+      let(:filter_string) { 'Package' }
 
       it { is_expected.to be_truthy }
     end
 
     context 'a filter_string does not match' do
-      let(:filter_string) { '!Package' }
-
       subject { Webui::ProjectController.new.send(:filter_matches?, input, filter_string) }
+
+      let(:filter_string) { '!Package' }
 
       it { is_expected.to be_falsey }
     end

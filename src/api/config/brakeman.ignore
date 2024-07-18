@@ -153,7 +153,7 @@
           "type": "controller",
           "class": "Webui::Staging::ProjectsController",
           "method": "show",
-          "line": 27,
+          "line": 25,
           "file": "app/controllers/webui/staging/projects_controller.rb",
           "rendered": {
             "name": "webui/staging/projects/show",
@@ -235,7 +235,7 @@
       "check_name": "SQL",
       "message": "Possible SQL injection",
       "file": "app/controllers/source_controller.rb",
-      "line": 474,
+      "line": 426,
       "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
       "code": "@project.lock(params[:comment])",
       "render_path": null,
@@ -298,56 +298,22 @@
       "note": ""
     },
     {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "b2b1c44165230236680fceba298e55108195874434979699d2f6056d7807b6fb",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/webui/main/index.html.haml",
-      "line": 12,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "::Configuration.first[\"description\"]",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "Webui::MainController",
-          "method": "index",
-          "line": 21,
-          "file": "app/controllers/webui/main_controller.rb",
-          "rendered": {
-            "name": "webui/main/index",
-            "file": "app/views/webui/main/index.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "webui/main/index"
-      },
-      "user_input": "::Configuration.first",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
-      ],
-      "note": ""
-    },
-    {
       "warning_type": "Denial of Service",
       "warning_code": 76,
-      "fingerprint": "d4354d028744f2783c9b0cf9338d428c7abf6e94d022c9b281dacf613760fb21",
+      "fingerprint": "c410bfcfeaf52e9e80268fef41296155b8571fc5b4ed7ad78fc2a2ff1e662f92",
       "check_name": "RegexDoS",
       "message": "Model attribute used in regular expression",
-      "file": "app/models/binary_release.rb",
-      "line": 84,
+      "file": "app/jobs/update_released_binaries_job.rb",
+      "line": 97,
       "link": "https://brakemanscanner.org/docs/warning_types/denial_of_service/",
-      "code": "/^#{Package.striping_multibuild_suffix(binary[\"package\"])}:/",
+      "code": "/^#{Package.striping_multibuild_suffix(backend_binary[\"package\"])}:/",
       "render_path": null,
       "location": {
         "type": "method",
-        "class": "BinaryRelease",
-        "method": "BinaryRelease.update_binary_releases_via_json"
+        "class": "UpdateReleasedBinariesJob",
+        "method": "update_binary_releases_for_repository"
       },
-      "user_input": "Package.striping_multibuild_suffix(binary[\"package\"])",
+      "user_input": "Package.striping_multibuild_suffix(backend_binary[\"package\"])",
       "confidence": "Medium",
       "cwe_id": [
         20,
@@ -422,63 +388,6 @@
       "note": ""
     },
     {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 4,
-      "fingerprint": "da4f7d031e3969d18c911af411d8c4b771b71999bb82f4acf26263082c98cdbd",
-      "check_name": "LinkToHref",
-      "message": "Potentially unsafe model attribute in `link_to` href",
-      "file": "app/views/webui/users/tokens/show.html.haml",
-      "line": 64,
-      "link": "https://brakemanscanner.org/docs/warning_types/link_to_href",
-      "code": "link_to(Token.find(params[:id]).workflow_configuration_url, Token.find(params[:id]).workflow_configuration_url)",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "Webui::Users::TokensController",
-          "method": "show",
-          "line": 14,
-          "file": "app/controllers/webui/users/tokens_controller.rb",
-          "rendered": {
-            "name": "webui/users/tokens/show",
-            "file": "app/views/webui/users/tokens/show.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "webui/users/tokens/show"
-      },
-      "user_input": "Token.find(params[:id]).workflow_configuration_url",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "SQL Injection",
-      "warning_code": 0,
-      "fingerprint": "e5bbbdc2b5f1b4e19d8ebaa54119bdd789f94166ff582468e205915aa2ddf485",
-      "check_name": "SQL",
-      "message": "Possible SQL injection",
-      "file": "app/models/bs_request/find_for/project.rb",
-      "line": 24,
-      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "@relation.references(:reviews).includes(:reviews).where(\"#{if package_name.blank? then\n  \"(reviews.state=#{quote(review_state)} and reviews.by_project=#{quote(project_name)})\"\nelse\n  \"(reviews.state=#{quote(review_state)} and reviews.by_project=#{quote(project_name)} and reviews.by_package=#{quote(package_name)})\"\nend}\")",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "Project",
-        "method": "all"
-      },
-      "user_input": "if package_name.blank? then\n  \"(reviews.state=#{quote(review_state)} and reviews.by_project=#{quote(project_name)})\"\nelse\n  \"(reviews.state=#{quote(review_state)} and reviews.by_project=#{quote(project_name)} and reviews.by_package=#{quote(package_name)})\"\nend",
-      "confidence": "Weak",
-      "cwe_id": [
-        89
-      ],
-      "note": ""
-    },
-    {
       "warning_type": "Weak Cryptography",
       "warning_code": 126,
       "fingerprint": "ec674f4041072ac82eea957a8afc26031d83bf38b56e128c898130ebf903b2f8",
@@ -502,6 +411,6 @@
       "note": "We track this with a comment in the code"
     }
   ],
-  "updated": "2022-12-20 11:17:02 +0000",
+  "updated": "2024-06-20 11:12:15 +0000",
   "brakeman_version": "5.4.0"
 }

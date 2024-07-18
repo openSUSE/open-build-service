@@ -1,13 +1,13 @@
 class Webui::Users::CannedResponsesController < Webui::WebuiController
-  before_action :set_canned_response, only: [:edit, :update, :destroy]
+  before_action :require_login
+  before_action :set_canned_response, only: %i[edit update destroy]
 
   after_action :verify_authorized, except: :index
-  after_action :verify_policy_scoped, only: :index
 
   def index
-    @canned_responses = policy_scope(CannedResponse).page(params[:page])
+    @canned_responses = User.session.canned_responses.page(params[:page])
 
-    @canned_response = CannedResponse.new(user: User.session!)
+    @canned_response = User.session.canned_responses.new
   end
 
   def edit
@@ -15,7 +15,7 @@ class Webui::Users::CannedResponsesController < Webui::WebuiController
   end
 
   def create
-    @canned_response = User.session!.canned_responses.new(canned_response_params)
+    @canned_response = User.session.canned_responses.new(canned_response_params)
 
     authorize @canned_response
 
@@ -42,6 +42,7 @@ class Webui::Users::CannedResponsesController < Webui::WebuiController
 
   def destroy
     authorize @canned_response
+
     if @canned_response.destroy
       flash[:success] = 'Canned response was successfully deleted.'
     else
@@ -54,13 +55,10 @@ class Webui::Users::CannedResponsesController < Webui::WebuiController
   private
 
   def set_canned_response
-    @canned_response = CannedResponse.find(params[:id])
-  rescue ActiveRecord::RecordNotFound => e
-    flash[:error] = e.message
-    redirect_to canned_responses_url
+    @canned_response = User.session.canned_responses.find(params[:id])
   end
 
   def canned_response_params
-    params.require(:canned_response).permit(:title, :content)
+    params.require(:canned_response).permit(:title, :content, :decision_type)
   end
 end

@@ -6,6 +6,7 @@ class Report < ApplicationRecord
 
   belongs_to :user, optional: false
   belongs_to :reportable, polymorphic: true, optional: true
+  has_many :comments, as: :commentable, dependent: :destroy
 
   belongs_to :decision, optional: true
 
@@ -24,14 +25,6 @@ class Report < ApplicationRecord
 
   scope :without_decision, -> { where(decision: nil) }
 
-  # TODO: remove the first part of the condition `category.present?`. It's a temprary patch to
-  # avoid problems during deployment.
-  def reason
-    return category.humanize if category.present? && (category != 'other')
-
-    super
-  end
-
   private
 
   def create_event
@@ -44,14 +37,14 @@ class Report < ApplicationRecord
     when 'Project'
       Event::ReportForProject.create(event_parameters.merge(project_name: reportable.name))
     when 'User'
-      Event::ReportForUser.create(event_parameters.merge(user_login: reportable.login))
+      Event::ReportForUser.create(event_parameters.merge(accused: reportable.login))
     when 'BsRequest'
       Event::ReportForRequest.create(event_parameters.merge(bs_request_number: reportable.number))
     end
   end
 
   def event_parameters
-    { id: id, user_id: user_id, reportable_id: reportable_id, reportable_type: reportable_type, reason: reason }
+    { id: id, reporter: user.login, reportable_id: reportable_id, reportable_type: reportable_type, reason: reason, category: category }
   end
 
   def event_parameters_for_comment(commentable:)

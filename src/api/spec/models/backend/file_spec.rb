@@ -1,4 +1,6 @@
 RSpec.describe Backend::File, :vcr do
+  subject { TestBackendFile.new(name: 'fake_filename', somefile: somefile_txt_url) }
+
   let(:user) { create(:user, :with_home, login: 'user') }
   let(:package_with_file) { create(:package_with_file, name: 'package_with_files', project: user.home_project) }
   let(:fake_file) { file_fixture('hello.txt') }
@@ -18,8 +20,6 @@ RSpec.describe Backend::File, :vcr do
   before do
     stub_const('TestBackendFile', backend_file_class)
   end
-
-  subject { TestBackendFile.new(name: 'fake_filename', somefile: somefile_txt_url) }
 
   describe '#initialize' do
     context 'without any param' do
@@ -126,7 +126,7 @@ RSpec.describe Backend::File, :vcr do
 
       it 'displays error messages' do
         subject.file
-        expect(subject.errors.full_messages).to match_array(['Content message'])
+        expect(subject.errors.full_messages).to contain_exactly('Content message')
       end
     end
   end
@@ -211,7 +211,7 @@ RSpec.describe Backend::File, :vcr do
 
       it 'displays error messages' do
         subject.save({}, 'hello')
-        expect(subject.errors.full_messages).to match_array(['Content message'])
+        expect(subject.errors.full_messages).to contain_exactly('Content message')
       end
     end
   end
@@ -240,7 +240,7 @@ RSpec.describe Backend::File, :vcr do
 
       it { is_expected.not_to be_frozen }
       it { is_expected.not_to be_valid }
-      it { expect(subject.errors.full_messages).to match_array(['Content message']) }
+      it { expect(subject.errors.full_messages).to contain_exactly('Content message') }
       it { expect(subject.response[:type]).to eq('application/octet-stream') }
       it { expect(subject.response[:status]).to eq('200') }
       it { expect(subject.response[:size]).to be > 0 }

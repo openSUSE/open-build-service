@@ -54,6 +54,7 @@ sub authenticator_function {
     push @args, "account=$state->{'account'}" if $state->{'account'} && $state->{'account'} ne '';
     print "requesting bearer auth from $realm [@args]\n" if $state->{'verbose'};
     my $bparam = { 'uri' => $realm };
+    $bparam->{'proxy'} = $state->{'proxy'} if $state->{'proxy'};
     push @{$bparam->{'headers'}}, 'Authorization: Basic '.MIME::Base64::encode_base64($creds, '') if defined($creds);
     my $rpc = $state->{'rpccall'} || \&BSRPC::rpc;
     my $decoder = sub {decode_reply($state, $_[0])};

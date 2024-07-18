@@ -32,7 +32,7 @@ RSpec.describe TriggerControllerService::TokenExtractor do
       end
     end
 
-    ['HTTP_X_OBS_SIGNATURE', 'HTTP_X_HUB_SIGNATURE_256', 'HTTP_X-Pagure-Signature-256'].each do |http_header|
+    %w[HTTP_X_OBS_SIGNATURE HTTP_X_HUB_SIGNATURE_256 HTTP_X-Pagure-Signature-256].each do |http_header|
       context "with the ID of a token in the params and the HTTP header #{http_header} containing a signature of the request body" do
         let(:signature) { OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'), token.string, request_body) }
         let(:request) do

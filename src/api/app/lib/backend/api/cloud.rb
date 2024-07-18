@@ -8,11 +8,11 @@ module Backend
         user = params[:user]
         case params[:target]
         when 'ec2'
-          param_names = [:region, :ami_name, :vpc_subnet_id]
+          param_names = %i[region ami_name vpc_subnet_id]
           upload_parameters = user.ec2_configuration.upload_parameters
         when 'azure'
-          param_names = [
-            :image_name, :application_id, :application_key, :subscription, :container, :storage_account, :resource_group
+          param_names = %i[
+            image_name application_id application_key subscription container storage_account resource_group
           ]
           upload_parameters = user.azure_configuration.upload_parameters
         end

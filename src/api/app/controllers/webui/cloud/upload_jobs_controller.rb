@@ -8,22 +8,22 @@ module Webui
       before_action :set_upload_job, only: :destroy
 
       def index
-        @upload_jobs = ::Cloud::Backend::UploadJob.all(User.session!)
+        @upload_jobs = ::Cloud::Backend::UploadJob.all(User.session)
       end
 
       def new
-        @user_ec2_configured = User.session!.ec2_configuration.present?
-        @user_azure_configured = User.session!.azure_configuration.present?
+        @user_ec2_configured = User.session.ec2_configuration.present?
+        @user_azure_configured = User.session.azure_configuration.present?
       end
 
       def create
-        @upload_job = ::Cloud::UploadJob.create(permitted_params.merge(user: User.session!))
+        @upload_job = ::Cloud::UploadJob.create(permitted_params.merge(user: User.session))
         if @upload_job.valid?
           flash[:success] = "Successfully created upload job #{@upload_job.id}."
           redirect_to cloud_upload_index_path
         else
           flash[:error] = "Failed to create upload job: #{@upload_job.errors.full_messages.to_sentence}."
-          redirect_back(fallback_location: root_path)
+          redirect_back_or_to root_path
         end
       end
 
@@ -49,7 +49,7 @@ module Webui
       end
 
       def validate_configuration_presence
-        redirect_to cloud_configuration_index_path unless User.session!.cloud_configurations?
+        redirect_to cloud_configuration_index_path unless User.session.cloud_configurations?
       end
 
       def set_upload_job

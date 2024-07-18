@@ -2,7 +2,7 @@ class Webui::SearchController < Webui::WebuiController
   before_action :set_attribute_list
   before_action :set_tracker_list
   before_action :set_parameters, except: :issue
-  before_action :set_page, only: [:index, :issue]
+  before_action :set_page, only: %i[index issue]
 
   def index
     search
@@ -55,7 +55,7 @@ class Webui::SearchController < Webui::WebuiController
   #
   def set_parameters
     @search_attrib_type_id = nil
-    @search_attrib_type_id = params[:attrib_type_id] if params[:attrib_type_id].present?
+    @search_attrib_type_id = Integer.try_convert(params[:attrib_type_id]) if params[:attrib_type_id].present?
 
     search_issue
 
@@ -71,8 +71,8 @@ class Webui::SearchController < Webui::WebuiController
     @search_where << 'description' if params[:description] == '1'
 
     @owner_limit = nil
-    @owner_limit = '1' if params[:limit].nil?
-    @owner_limit = params[:limit] unless params[:limit].nil?
+    @owner_limit = 1 if params[:limit].blank?
+    @owner_limit ||= Integer.try_convert(params[:limit]) || 1
 
     @owner_devel = nil
     @owner_devel = '0' if params[:devel] == 'off'
@@ -87,8 +87,8 @@ class Webui::SearchController < Webui::WebuiController
 
   def search_what
     @search_what = []
-    @search_what << 'package' if params[:search_for].in?(['0', '2'])
-    @search_what << 'project' if params[:search_for].in?(['0', '1'])
+    @search_what << 'package' if params[:search_for].in?(%w[0 2])
+    @search_what << 'project' if params[:search_for].in?(%w[0 1])
     @search_what << 'owner' if params[:owner] == '1' && !@search_issue
   end
 
@@ -132,8 +132,8 @@ class Webui::SearchController < Webui::WebuiController
     end
 
     # request number when string starts with a #
-    if @search_text.starts_with?('#') && @search_text[1..-1].to_i.positive?
-      redirect_to controller: 'request', action: 'show', number: @search_text[1..-1]
+    if @search_text.starts_with?('#') && @search_text[1..].to_i.positive?
+      redirect_to controller: 'request', action: 'show', number: @search_text[1..]
       return
     end
 
@@ -143,11 +143,10 @@ class Webui::SearchController < Webui::WebuiController
       disturl_rev, disturl_package = disturl_pkgrev.split('-', 2) unless disturl_pkgrev.nil?
       if disturl_project.present? && disturl_package.present? && Package.exists_by_project_and_name(disturl_project, disturl_package, follow_multibuild: true)
         redirect_to controller: 'package', action: 'show', project: disturl_project, package: disturl_package, rev: disturl_rev
-        return
       else
-        redirect_back(fallback_location: root_path, notice: 'Sorry, this disturl does not compute...')
-        return
+        redirect_back_or_to root_path, notice: 'Sorry, this disturl does not compute...'
       end
+      return
     end
 
     logger.debug "Searching for the string \"#{@search_text}\" in the #{@search_where}'s of #{@search_what}'s"

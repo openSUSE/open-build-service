@@ -1,3 +1,4 @@
+- commentable = commentable.bs_request if commentable.is_a?(BsRequestAction)
 - if commentable.is_a?(BsRequest)
   - Comment.without_parent.on_actions_for_request(commentable).includes(:user).each do |comment|
     = render partial: 'webui/comment/content', locals: { comment: comment, commentable: commentable, level: 1 }

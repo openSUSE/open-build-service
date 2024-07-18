@@ -7,15 +7,15 @@
 .row
   .col-12.col-md-4.col-xxl-3
     = render partial: 'webui/user/info', locals: { user: @displayed_user,
-                                                                         is_user: @is_displayed_user,
-                                                                         groups: @groups,
-                                                                         role_titles: @role_titles,
-                                                                         configuration: @configuration,
-                                                                         account_edit_link: @account_edit_link }
+                                                   is_user: @is_displayed_user,
+                                                   groups: @groups,
+                                                   role_titles: @role_titles,
+                                                   account_edit_link: @account_edit_link }
   .col-12.col-md-8.col-xxl-9.ps-md-0
-    - locals = { involved_items_service: @involved_items_service }
-    - locals.merge!({ displayed_user: @displayed_user,
-                      activities_per_year: @activities_per_year,
+    - locals = { involved_items_service: @involved_items_service,
+                 comments: @comments,
+                 displayed_user: @displayed_user }
+    - locals.merge!({ activities_per_year: @activities_per_year,
                       first_day: @first_day,
                       last_day: @last_day,
                       date: @date,
@@ -32,5 +32,5 @@
           $('#bio-chars-counter').css("visibility", "hidden");
         });
 
-= render partial: 'webui/user/password_dialog', locals: { user: @displayed_user }
-= render partial: 'webui/user/edit_dialog', locals: { user: @displayed_user }
+- if @is_displayed_user
+  = render partial: 'webui/user/password_dialog', locals: { user: @displayed_user }

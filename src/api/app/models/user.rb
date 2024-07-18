@@ -6,9 +6,11 @@ class User < ApplicationRecord
   include Flipper::Identifier
 
   # Keep in sync with states defined in db/schema.rb
-  STATES = ['unconfirmed', 'confirmed', 'locked', 'deleted', 'subaccount'].freeze
+  STATES = %w[unconfirmed confirmed locked deleted subaccount].freeze
   NOBODY_LOGIN = '_nobody_'.freeze
   MAX_BIOGRAPHY_LENGTH_ALLOWED = 250
+
+  enum :color_theme, %w[system light dark]
 
   # disable validations because there can be users which don't have a bcrypt
   # password yet. this is for backwards compatibility
@@ -65,15 +67,14 @@ class User < ApplicationRecord
   has_many :moderated_comments, class_name: 'Comment', foreign_key: 'moderator_id'
   has_many :decisions, foreign_key: 'moderator_id'
   has_many :canned_responses, dependent: :destroy
+  has_many :blocked_users, foreign_key: 'blocker_id', dependent: :destroy
 
   scope :confirmed, -> { where(state: 'confirmed') }
   scope :all_without_nobody, -> { where.not(login: NOBODY_LOGIN) }
   scope :not_deleted, -> { where.not(state: 'deleted') }
   scope :not_locked, -> { where.not(state: 'locked') }
-  scope :with_login_prefix, ->(prefix) { where('login LIKE ?', "#{prefix}%") }
   scope :active, -> { confirmed.or(User.unscoped.where(state: :subaccount, owner: User.unscoped.confirmed)) }
   scope :staff, -> { joins(:roles).where('roles.title' => 'Staff') }
-  scope :not_staff, -> { where.not(id: User.unscoped.staff.pluck(:id)) }
   scope :admins, -> { joins(:roles).where('roles.title' => 'Admin') }
   scope :moderators, -> { joins(:roles).where('roles.title' => 'Moderator') }
 
@@ -121,6 +122,7 @@ class User < ApplicationRecord
   validates :password, confirmation: true, allow_blank: true
   validates :biography, length: { maximum: MAX_BIOGRAPHY_LENGTH_ALLOWED }
   validates :rss_secret, uniqueness: true, length: { maximum: 200 }, allow_blank: true
+  validates :color_theme, inclusion: { in: color_themes.keys }, if: -> { Flipper.enabled?('color_themes') }
 
   after_create :create_home_project, :measure_create
   after_update :measure_delete
@@ -174,59 +176,14 @@ class User < ApplicationRecord
     create!(attributes.merge(password: SecureRandom.base64(48)))
   end
 
-  def self.create_ldap_user(attributes = {})
-    user = create_user_with_fake_pw!(attributes.merge(state: default_user_state, adminnote: 'User created via LDAP'))
-
-    return user if user.errors.empty?
-
-    logger.info("Cannot create ldap userid: '#{login}' on OBS. Full log: #{user.errors.full_messages.to_sentence}")
-    nil
-  end
-
   # This static method tries to find a user with the given login and password
   # in the database. Returns the user or nil if they could not be found
   def self.find_with_credentials(login, password)
-    return find_with_credentials_via_ldap(login, password) if CONFIG['ldap_mode'] == :on
-
-    user = find_by_login(login)
-    user.try(:authenticate_via_password, password)
-  end
-
-  def self.find_with_credentials_via_ldap(login, password)
-    user = find_by_login(login)
-    ldap_info = nil
-
-    return user.authenticate_via_password(password) if user.try(:ignore_auth_services?)
-
     if CONFIG['ldap_mode'] == :on
-      begin
-        require 'ldap'
-        logger.debug("Using LDAP to find #{login}")
-        ldap_info = UserLdapStrategy.find_with_ldap(login, password)
-      rescue LoadError
-        logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
-      rescue StandardError
-        logger.debug "#{login} not found in LDAP."
-      end
-    end
-
-    return unless ldap_info
-
-    # We've found an ldap authenticated user - find or create an OBS userDB entry.
-    if user
-      # Check for ldap updates
-      user.assign_attributes(email: ldap_info[0], realname: ldap_info[1])
-      user.save if user.changed?
+      UserLdapStrategy.find_with_credentials(login, password)
     else
-      logger.debug('No user found in database, creating')
-      logger.debug("Email: #{ldap_info[0]}")
-      logger.debug("Name : #{ldap_info[1]}")
-
-      user = create_ldap_user(login: login, email: ldap_info[0], realname: ldap_info[1])
+      find_by(login: login)&.authenticate_via_password(password)
     end
-
-    user.mark_login!
-    user
   end
 
   # Currently logged in user or nobody user if there is no user logged in.
@@ -304,16 +261,6 @@ class User < ApplicationRecord
     errors.add(:state, 'must be a valid new state from the current state') unless state_transition_allowed?(state_was, state)
   end
 
-  # This method returns true if the user is assigned the role with one of the
-  # role titles given as parameters. False otherwise.
-  def has_role?(*role_titles)
-    obj = all_roles.detect do |role|
-      role_titles.include?(role.title)
-    end
-
-    !obj.nil?
-  end
-
   # This method checks whether the given value equals the password when
   # hashed with this user's password hash type. Returns a boolean.
   def deprecated_password_equals?(value)
@@ -353,9 +300,9 @@ class User < ApplicationRecord
     when 'unconfirmed'
       true
     when 'confirmed'
-      to.in?(['locked', 'deleted'])
+      to.in?(%w[locked deleted])
     when 'locked'
-      to.in?(['confirmed', 'deleted'])
+      to.in?(%w[confirmed deleted])
     when 'deleted'
       to == 'confirmed'
     else
@@ -416,6 +363,14 @@ class User < ApplicationRecord
     return owner.is_active? if owner
 
     self.state == 'confirmed'
+  end
+
+  def is_deleted?
+    state == 'deleted'
+  end
+
+  def list_groups
+    lookup_strategy.list_groups(self)
   end
 
   def is_in_group?(group)
@@ -483,11 +438,6 @@ class User < ApplicationRecord
   end
 
   # FIXME: This should be a policy
-  def can_modify_user?(user)
-    is_admin? || self == user
-  end
-
-  # FIXME: This should be a policy
   # project_name is name of the project
   def can_create_project?(project_name)
     ## special handling for home projects
@@ -522,7 +472,7 @@ class User < ApplicationRecord
 
     return true if is_admin?
 
-    abies = object.attrib_namespace_modifiable_bies.includes([:user, :group])
+    abies = object.attrib_namespace_modifiable_bies.includes(%i[user group])
     abies.any? { |rule| attribute_modifier_rule_matches?(rule) }
   end
 
@@ -539,7 +489,7 @@ class User < ApplicationRecord
 
     return true if is_admin?
 
-    abies = atype.attrib_type_modifiable_bies.includes([:user, :group, :role])
+    abies = atype.attrib_type_modifiable_bies.includes(%i[user group role])
     # no rules -> maintainer
     return can_modify?(object) if abies.empty?
 
@@ -602,9 +552,9 @@ class User < ApplicationRecord
     when Project
       logger.debug "running local permission check: user #{login}, project #{object.name}, permission '#{perm_string}'"
 
-      # Users have permissions to manage their own home project
+      # Users have permissions to manage their own home project and it's subprojects
       # This is needed since users sometimes remove themselves from the maintainers of their own home project
-      return true if object.name == home_project_name
+      return true if object.name == home_project_name || object.name.starts_with?("#{home_project_name}:")
 
       # check permission for given project
       parent = object.parent
@@ -660,6 +610,7 @@ class User < ApplicationRecord
     self.realname = ''
     self.state = 'deleted'
     comments.destroy_all
+    event_subscriptions.destroy_all
     save!
 
     # wipe also all home projects
@@ -676,24 +627,12 @@ class User < ApplicationRecord
   end
 
   def involved_projects
-    Project.for_user(id).or(Project.for_group(group_ids))
+    Project.unscoped.for_user(id).or(Project.unscoped.for_group(group_ids))
   end
 
   # lists packages maintained by this user and are not in maintained projects
   def involved_packages
-    Package.for_user(id).or(Package.for_group(group_ids)).where.not(project: involved_projects)
-  end
-
-  # list packages owned by this user.
-  def owned_packages
-    owned = []
-    begin
-      OwnerSearch::Owned.new.for(self).each do |owner|
-        owned << [owner.package, owner.project]
-      end
-    rescue APIError # no attribute set
-    end
-    owned
+    Package.unscoped.for_user(id).or(Package.unscoped.for_group(group_ids)).where.not(project: involved_projects)
   end
 
   # lists reviews involving this user
@@ -710,33 +649,29 @@ class User < ApplicationRecord
 
   # list requests involving this user
   def declined_requests(search = nil)
-    result = requests_created.in_states(:declined).with_actions
+    result = requests_created.where(state: :declined).with_actions
     search.present? ? result.do_search(search) : result
   end
 
   # list incoming requests involving this user
-  def incoming_requests(search = nil, all_states: false)
-    states = all_states ? BsRequest::VALID_REQUEST_STATES : [:new]
-
-    result = BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_projects(involved_projects)).or(
-      BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_packages(involved_packages))
-    ).with_actions.in_states(states)
+  def incoming_requests(search = nil, states: [:new])
+    result = BsRequest.where(state: states).where(id: BsRequestAction.bs_request_ids_of_involved_projects(involved_projects.pluck(:id))).or(
+      BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_packages(involved_packages.pluck(:id)))
+    ).with_actions.where(state: states)
 
     search.present? ? result.do_search(search) : result
   end
 
   # list outgoing requests involving this user
-  def outgoing_requests(search = nil, all_states: false)
-    states = all_states ? BsRequest::VALID_REQUEST_STATES : [:new, :review]
-
-    result = requests_created.in_states(states).with_actions
+  def outgoing_requests(search = nil, states: %i[new review])
+    result = requests_created.where(state: states).with_actions
     search.present? ? result.do_search(search) : result
   end
 
   # list of all requests
   def requests(search = nil)
-    project_ids = involved_projects
-    package_ids = involved_packages
+    project_ids = involved_projects.pluck(:id)
+    package_ids = involved_packages.pluck(:id)
 
     actions = BsRequestAction.bs_request_ids_of_involved_projects(project_ids).or(
       BsRequestAction.bs_request_ids_of_involved_packages(package_ids)
@@ -793,8 +728,8 @@ class User < ApplicationRecord
     end
   end
 
-  def unread_notifications
-    NotificationsFinder.new(notifications.for_web).unread.size
+  def unread_notifications_count
+    notifications.for_web.unread.size
   end
 
   def update_globalroles(global_roles)
@@ -832,7 +767,7 @@ class User < ApplicationRecord
   def proxy_realname(env)
     return unless env['HTTP_X_FIRSTNAME'].present? && env['HTTP_X_LASTNAME'].present?
 
-    env['HTTP_X_FIRSTNAME'].force_encoding('UTF-8') + ' ' + env['HTTP_X_LASTNAME'].force_encoding('UTF-8')
+    "#{env['HTTP_X_FIRSTNAME'].force_encoding('UTF-8')} #{env['HTTP_X_LASTNAME'].force_encoding('UTF-8')}"
   end
 
   def update_login_values(env)
@@ -936,12 +871,10 @@ class User < ApplicationRecord
     end
   end
 
-  cattr_accessor :lookup_strategy do
-    @@lstrategy = if Configuration.ldapgroup_enabled?
-                    UserLdapStrategy.new
-                  else
-                    UserBasicStrategy.new
-                  end
+  def lookup_strategy
+    return UserLdapStrategy.new if Configuration.ldapgroup_enabled?
+
+    UserBasicStrategy.new
   end
 end
 
@@ -952,6 +885,8 @@ end
 #  id                            :integer          not null, primary key
 #  adminnote                     :text(65535)
 #  biography                     :string(255)      default("")
+#  blocked_from_commenting       :boolean          default(FALSE), not null, indexed
+#  color_theme                   :integer          default("system"), not null
 #  deprecated_password           :string(255)      indexed
 #  deprecated_password_hash_type :string(255)
 #  deprecated_password_salt      :string(255)
@@ -965,16 +900,18 @@ end
 #  password_digest               :string(255)
 #  realname                      :string(200)      default(""), not null
 #  rss_secret                    :string(200)      indexed
-#  state                         :string           default("unconfirmed")
+#  state                         :string           default("unconfirmed"), indexed
 #  created_at                    :datetime
 #  updated_at                    :datetime
 #  owner_id                      :integer
 #
 # Indexes
 #
-#  index_users_on_in_beta     (in_beta)
-#  index_users_on_in_rollout  (in_rollout)
-#  index_users_on_rss_secret  (rss_secret) UNIQUE
-#  users_login_index          (login) UNIQUE
-#  users_password_index       (deprecated_password)
+#  index_users_on_blocked_from_commenting  (blocked_from_commenting)
+#  index_users_on_in_beta                  (in_beta)
+#  index_users_on_in_rollout               (in_rollout)
+#  index_users_on_rss_secret               (rss_secret) UNIQUE
+#  index_users_on_state                    (state)
+#  users_login_index                       (login) UNIQUE
+#  users_password_index                    (deprecated_password)
 #

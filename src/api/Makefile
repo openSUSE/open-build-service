@@ -11,6 +11,7 @@ install: prepare_dirs prepare_rake docs config log_files build
 prepare_dirs:
 	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_API_PREFIX)
 	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_API_PREFIX)/log
+	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_API_PREFIX)/storage
 	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_API_PREFIX)/tmp
 	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_API_PREFIX)/config
 	# prepare for running sphinx daemon

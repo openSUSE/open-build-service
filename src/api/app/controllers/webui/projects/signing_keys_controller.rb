@@ -8,7 +8,7 @@ module Webui
       def download
         key = @project.signing_key(type: params[:kind])
 
-        if key.present? && ['gpg', 'ssl'].include?(params[:kind])
+        if key.present? && %w[gpg ssl].include?(params[:kind])
           send_data(key.content, disposition: 'attachment', filename: "#{@project.name.tr(':', '_')}_key.gpg") if params[:kind] == 'gpg'
           send_data(key.content, disposition: 'attachment', filename: "#{@project.name.tr(':', '_')}_cert.pem") if params[:kind] == 'ssl'
         else

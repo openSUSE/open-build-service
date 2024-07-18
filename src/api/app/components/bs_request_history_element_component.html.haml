@@ -9,7 +9,10 @@
       - elsif element.instance_of?(HistoryElement::RequestReviewAdded) && element.review
         = element.user_action_prefix
         %strong
-          = element.action_target
+          - if element.review_by_staging_project?
+            = link_to element.action_target, project_show_path(element.action_target)
+          - else
+            = element.action_target
         = element.user_action_suffix
       - elsif element.instance_of?(HistoryElement::RequestAccepted) && pending_reviews?
         #{element.user_action} and dismissed pending reviews
@@ -20,9 +23,9 @@
       - if element.comment.present?
         = link_to("#collapse-history-element-comment-#{element.id}",
                     data: { 'bs-toggle': 'collapse' },
-                    aria: { expanded: false, controls: "collapse-history-element-comment" }) do
-          %i.fas.fa-sm.fa-chevron-right.expander.py-0{ title: 'Show details' }>
-          %i.fas.fa-sm.fa-chevron-down.collapser.py-0{ title: 'Hide details' }>
+                    aria: { expanded: expand?, controls: "collapse-history-element-comment" }) do
+          %i.fas.fa-sm.fa-chevron-right.expander.py-0{ title: 'Show details' }
+          %i.fas.fa-sm.fa-chevron-down.collapser.py-0{ title: 'Hide details' }
 - if element.comment.present?
-  .timeline-item-comment.collapse{ id: "collapse-history-element-comment-#{element.id}" }
+  .timeline-item-comment.collapse{ class: "#{expand? ? 'show' : nil}",  id: "collapse-history-element-comment-#{element.id}" }
     %p.m-2.mb-4= element.comment

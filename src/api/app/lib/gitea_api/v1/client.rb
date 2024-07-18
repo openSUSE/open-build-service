@@ -13,10 +13,11 @@ module GiteaAPI
       UnauthorizedError = Class.new(GiteaApiError)
       ForbiddenError = Class.new(GiteaApiError)
       NotFoundError = Class.new(GiteaApiError)
+      ConnectionError = Class.new(GiteaApiError)
       ApiError = Class.new(GiteaApiError)
 
       def initialize(api_endpoint:, token:)
-        @api_endpoint = api_endpoint + '/api/v1/'
+        @api_endpoint = "#{api_endpoint}/api/v1/"
         @token = token
       end
 
@@ -25,11 +26,16 @@ module GiteaAPI
       # sha: sha of the commit
       # https://try.gitea.io/api/swagger#/repository/repoCreateStatus
       def create_commit_status(owner:, repo:, sha:, state:, **kwargs)
-        @response = client.post(
-          "repos/#{owner}/#{repo}/statuses/#{sha}",
-          { state: state, context: kwargs[:context], description: kwargs[:description],
-            target_url: kwargs[:target_url] }
-        )
+        begin
+          @response = client.post(
+            "repos/#{owner}/#{repo}/statuses/#{sha}",
+            { state: state, context: kwargs[:context], description: kwargs[:description],
+              target_url: kwargs[:target_url] }
+          )
+        rescue Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::SSLError => e
+          raise ConnectionError, "Failed to report back to Gitea: #{e.message}"
+        end
+
         return @response.body if request_successful?
 
         raise error_class, "HTTP Code: #{@response.status}, response: #{@response.body['message']}"

@@ -1,7 +1,6 @@
 get:
   summary: Get project's configuration
-  description: |
-    Read configuration for the specified project
+  description: Read configuration for the specified project
   security:
     - basic_authentication: []
   parameters:
@@ -31,8 +30,7 @@ get:
 
 put:
   summary: Update project's configuration
-  description: |
-    Update configuration for the specified project
+  description: Update configuration for the specified project
   security:
     - basic_authentication: []
   parameters:

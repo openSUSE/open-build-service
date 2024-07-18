@@ -1,11 +1,9 @@
 class Workflow::Step::RebuildPackage < Workflow::Step
   include Triggerable
 
-  REQUIRED_KEYS = [:project, :package].freeze
+  REQUIRED_KEYS = %i[project package].freeze
 
   attr_reader :project_name, :package_name
-
-  validate :validate_project_and_package_name
 
   def call
     return if scm_webhook.closed_merged_pull_request? || scm_webhook.reopened_pull_request?
@@ -19,7 +17,7 @@ class Workflow::Step::RebuildPackage < Workflow::Step
     set_object_to_authorize
     set_multibuild_flavor
 
-    Pundit.authorize(@token.executor, @token, :rebuild?)
+    Pundit.authorize(@token.executor, @token.object_to_authorize, :update?)
     rebuild_package
     Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, @package).call
   end

@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Thu, 18 May 2023 11:49:37 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/_meta?user=tom
@@ -47,7 +47,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="my_project">
-          <title>For Whom the Bell Tolls</title>
+          <title>The Widening Gyre</title>
           <description/>
         </project>
     headers:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '110'
+      - '104'
     body:
       encoding: UTF-8
       string: |
         <project name="my_project">
-          <title>For Whom the Bell Tolls</title>
+          <title>The Widening Gyre</title>
           <description></description>
         </project>
-  recorded_at: Thu, 18 May 2023 11:49:37 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/dashboard_1/_meta?user=tom
@@ -85,8 +85,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="dashboard_1" project="my_project">
-          <title>The World, the Flesh and the Devil</title>
-          <description>Alias ab illum soluta.</description>
+          <title>Arms and the Man</title>
+          <description>Aut dolor cum assumenda.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -107,21 +107,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '165'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <package name="dashboard_1" project="my_project">
-          <title>The World, the Flesh and the Devil</title>
-          <description>Alias ab illum soluta.</description>
+          <title>Arms and the Man</title>
+          <description>Aut dolor cum assumenda.</description>
         </package>
-  recorded_at: Thu, 18 May 2023 11:49:37 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/dashboard_1/_config
     body:
       encoding: UTF-8
-      string: Est magnam animi. Est et eligendi. Sint ad qui.
+      string: Qui et autem. Sit quia minima. Aut quis eaque.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -146,14 +146,14 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="1" vrev="1">
-          <srcmd5>f7cdcc52b4ed585c55351f709beffc1d</srcmd5>
+          <srcmd5>c4f06b646b13d60424eb77a986adf606</srcmd5>
           <version>unknown</version>
-          <time>1684410577</time>
+          <time>1712745800</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 18 May 2023 11:49:37 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/my_project/dashboard_1/ignored_requests
@@ -184,14 +184,14 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="2" vrev="2">
-          <srcmd5>56cf12a97e35d66bf013421d9f7c90be</srcmd5>
+          <srcmd5>2fa2b0ccf6906e9af7a0f90152381de4</srcmd5>
           <version>unknown</version>
-          <time>1684410577</time>
+          <time>1712745800</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 18 May 2023 11:49:37 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:20 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/dashboard_1
@@ -221,11 +221,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="dashboard_1" rev="2" vrev="2" srcmd5="56cf12a97e35d66bf013421d9f7c90be">
-          <entry name="_config" md5="dd4fe00fb52c33abe92fe68c51085311" size="47" mtime="1684410577"/>
-          <entry name="ignored_requests" md5="e1dcf98b4c823827be0a0524052ae95a" size="8" mtime="1684410577"/>
+        <directory name="dashboard_1" rev="2" vrev="2" srcmd5="2fa2b0ccf6906e9af7a0f90152381de4">
+          <entry name="_config" md5="dffc92569928bfa8db756f05d3b481db" size="46" mtime="1712745800"/>
+          <entry name="ignored_requests" md5="e1dcf98b4c823827be0a0524052ae95a" size="8" mtime="1712745800"/>
         </directory>
-  recorded_at: Thu, 18 May 2023 11:49:37 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:20 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/dashboard_1
@@ -255,11 +255,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="dashboard_1" rev="2" vrev="2" srcmd5="56cf12a97e35d66bf013421d9f7c90be">
-          <entry name="_config" md5="dd4fe00fb52c33abe92fe68c51085311" size="47" mtime="1684410577"/>
-          <entry name="ignored_requests" md5="e1dcf98b4c823827be0a0524052ae95a" size="8" mtime="1684410577"/>
+        <directory name="dashboard_1" rev="2" vrev="2" srcmd5="2fa2b0ccf6906e9af7a0f90152381de4">
+          <entry name="_config" md5="dffc92569928bfa8db756f05d3b481db" size="46" mtime="1712745800"/>
+          <entry name="ignored_requests" md5="e1dcf98b4c823827be0a0524052ae95a" size="8" mtime="1712745800"/>
         </directory>
-  recorded_at: Thu, 18 May 2023 11:49:37 GMT
+  recorded_at: Wed, 10 Apr 2024 10:43:20 GMT
 - request:
     method: get
     uri: http://backend:5352/source/my_project/dashboard_1/ignored_requests
@@ -289,5 +289,5 @@ http_interactions:
     body:
       encoding: UTF-8
       string: 'foo: bar'
-  recorded_at: Thu, 18 May 2023 11:49:37 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Wed, 10 Apr 2024 10:43:20 GMT
+recorded_with: VCR 6.2.0

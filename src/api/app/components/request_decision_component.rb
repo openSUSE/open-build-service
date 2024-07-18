@@ -1,11 +1,12 @@
 class RequestDecisionComponent < ApplicationComponent
-  def initialize(bs_request:, action:, is_target_maintainer:, is_author:)
+  def initialize(bs_request:, action:, is_target_maintainer:, package_maintainers:, show_project_maintainer_hint:)
     super
 
     @bs_request = bs_request
     @is_target_maintainer = is_target_maintainer
     @action = action
-    @is_author = is_author
+    @package_maintainers = package_maintainers
+    @show_hint = render? && show_project_maintainer_hint
   end
 
   def render?
@@ -25,16 +26,12 @@ class RequestDecisionComponent < ApplicationComponent
   end
 
   def show_add_submitter_as_maintainer_option?
-    !@action[:creator_is_target_maintainer] && @action[:type] == :submit
+    @action.type == 'submit' && !@action.creator_is_target_maintainer
   end
 
   # TODO: Move all those "can_*" checks to a pundit policy
   def can_accept_request?
-    @bs_request.state.in?([:new, :review]) && @is_target_maintainer
-  end
-
-  def can_decline_request?
-    !@is_author
+    @bs_request.state.in?(%i[new review]) && @is_target_maintainer
   end
 
   def can_reopen_request?

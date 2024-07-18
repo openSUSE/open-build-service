@@ -9,7 +9,7 @@ module Webui::WebuiHelper
     return '' if @configuration['bugzilla_url'].blank?
 
     assignee = email_list.first if email_list
-    cc = ('&cc=' + email_list[1..-1].join('&cc=')) if email_list.length > 1 && email_list
+    cc = "&cc=#{email_list[1..].join('&cc=')}" if email_list.length > 1 && email_list
 
     Addressable::URI.escape(
       "#{@configuration['bugzilla_url']}/enter_bug.cgi?classification=7340&product=openSUSE.org" \
@@ -74,7 +74,7 @@ module Webui::WebuiHelper
 
   def image_template_icon(template)
     default_icon = image_url('drive-optical-48.png')
-    icon = template.public_source_path('_icon') if template.has_icon?
+    icon = template.source_path('_icon') if template.has_icon?
     capture_haml do
       content_tag(:object, data: icon || default_icon, type: 'image/png', title: template.title, width: 32, height: 32) do
         content_tag(:img, src: default_icon, alt: template.title, width: 32, height: 32)
@@ -134,7 +134,7 @@ module Webui::WebuiHelper
     style += "border-width: 0 0 0 0;\n" if opts[:no_border] || opts[:read_only]
     style += "height: #{opts[:height]};\n" unless opts[:height] == 'auto'
     style += "width: #{opts[:width]}; \n" unless opts[:width] == 'auto'
-    style + "}\n"
+    "#{style}}\n"
   end
 
   def package_link(pack, opts = {})
@@ -292,7 +292,11 @@ module Webui::WebuiHelper
   end
 
   def log_in_link(css_class: nil)
-    if kerberos_mode?
+    if CONFIG['proxy_auth_mode'] == :mellon
+      link_to(CONFIG['proxy_auth_login_page'], class: css_class) do
+        link_content('Log In', css_class, 'fa-sign-in-alt')
+      end
+    elsif kerberos_mode?
       link_to(new_session_path, class: css_class) do
         link_content('Log In', css_class, 'fa-sign-in-alt')
       end
@@ -321,6 +325,22 @@ module Webui::WebuiHelper
   def valid_xml_id(rawid)
     rawid = "_#{rawid}" unless /^[A-Za-z_]/.match?(rawid) # xs:ID elements have to start with character or '_'
     CGI.escapeHTML(rawid.gsub(%r{[+&: ./~()@#]}, '_'))
+  end
+
+  def theme_from_user
+    return 'light' unless feature_enabled?('color_themes')
+
+    User.session&.color_theme || 'system'
+  end
+
+  def contact_link
+    blank_contact = ::Configuration.contact_name.blank? || ::Configuration.contact_url.blank?
+    blank_email = ::Configuration[:admin_email] == 'unconfigured@openbuildservice.org'
+    return 'contacting instance administrators' if blank_contact && blank_email
+
+    name = ::Configuration.contact_name || 'email'
+    url = ::Configuration.contact_url || "mailto:#{::Configuration.admin_email}"
+    link_to(name, url)
   end
 end
 

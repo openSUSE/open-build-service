@@ -1,0 +1,123 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/project/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project">
+          <title>That Hideous Strength</title>
+          <description/>
+          <person userid="foo" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project">
+          <title>That Hideous Strength</title>
+          <description></description>
+          <person userid="foo" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 03 Jan 2024 15:43:56 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project">
+          <title>That Hideous Strength</title>
+          <description/>
+          <person userid="foo" role="maintainer"/>
+          <repository name="repository_1">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '221'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project">
+          <title>That Hideous Strength</title>
+          <description></description>
+          <person userid="foo" role="maintainer"/>
+          <repository name="repository_1">
+            <arch>i586</arch>
+          </repository>
+        </project>
+  recorded_at: Wed, 03 Jan 2024 15:43:56 GMT
+- request:
+    method: post
+    uri: http://backend:5352/build/project?cmd=rebuild
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Wed, 03 Jan 2024 15:43:56 GMT
+recorded_with: VCR 6.2.0

@@ -71,7 +71,7 @@ RSpec.describe 'Login', :js do
       click_menu_link('Places', 'Logout')
     end
 
-    expect(page).not_to have_css('a#link-to-user-home')
+    expect(page).to have_no_css('a#link-to-user-home')
     expect(page).to have_link('Log')
   end
 
@@ -79,7 +79,7 @@ RSpec.describe 'Login', :js do
     include_context 'setup ldap mock with user mock'
     include_context 'an ldap connection'
 
-    let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John', 'Smith'] }) }
+    let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => %w[John Smith] }) }
 
     before do
       stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on,

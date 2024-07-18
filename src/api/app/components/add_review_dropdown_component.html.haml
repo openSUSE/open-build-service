@@ -1,7 +1,9 @@
 - if @my_open_reviews.count <= 1
-  .btn.btn-success.toggle-review-form{ type: 'button', data: { 'bs-toggle': 'collapse', 'bs-target': '#review-form-collapse',
-                                       review: @my_open_reviews.first.id, reviewer_icon: reviewer_icon_and_text(review: @my_open_reviews.first) },
-                                       aria: { expanded: 'false', controls: 'review-form-collapse' } }
+  - open_review = @my_open_reviews.first
+  .btn.btn-success.toggle-review-form{ type: 'button', aria: { expanded: 'false', controls: 'review-form-collapse' },
+                                       data: { 'bs-toggle': 'collapse', 'bs-target': '#review-form-collapse',
+                                               review: open_review.id, reviewer_icon: reviewer_icon_and_text(review: open_review),
+                                               'review-reason': helpers.render_as_markdown(reason_when_review_was_requested(review: open_review)) } }
     Review
 - else
   .dropdown#add-review-dropdown-component
@@ -10,8 +12,9 @@
     .dropdown-menu.dropdown-menu-start
       %h5.dropdown-header Give a review for...
       - @my_open_reviews.each do |review|
-        = button_tag(type: 'button', class: 'dropdown-item', data: { 'bs-toggle': 'collapse', 'bs-target': '#review-form-collapse',
-                    review: review.id }, aria: { expanded: 'false', controls: 'review-form-collapse' }) do
+        = button_tag(type: 'button', class: 'dropdown-item', aria: { expanded: 'false', controls: 'review-form-collapse' },
+                     data: { 'bs-toggle': 'collapse', 'bs-target': '#review-form-collapse', review: review.id,
+                             'review-reason': helpers.render_as_markdown(reason_when_review_was_requested(review: review)) }) do
           = reviewer_icon_and_text(review: review)
 
 :javascript

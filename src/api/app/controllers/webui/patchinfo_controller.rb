@@ -3,11 +3,11 @@ require 'builder'
 class Webui::PatchinfoController < Webui::WebuiController
   include Webui::PackageHelper
   before_action :set_project
-  before_action :get_binaries, except: [:show, :destroy, :new_tracker]
-  before_action :require_package, except: [:create, :new_tracker]
-  before_action :require_exists, except: [:create, :new_tracker]
+  before_action :get_binaries, except: %i[show destroy new_tracker]
+  before_action :require_package, except: %i[create new_tracker]
+  before_action :require_exists, except: %i[create new_tracker]
   before_action :require_login, except: [:show]
-  before_action :set_patchinfo, only: [:show, :edit]
+  before_action :set_patchinfo, only: %i[show edit]
 
   rescue_from Package::UnknownObjectError do
     flash[:error] = "Patchinfo '#{elide(params[:package])}' not found in project '#{elide(params[:project])}'"
@@ -48,7 +48,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       xml = @patchinfo.to_xml(@project, @package)
       begin
         Package.verify_file!(@package, '_patchinfo', xml)
-        Backend::Api::Sources::Package.write_patchinfo(@package.project.name, @package.name, User.session!.login, xml)
+        Backend::Api::Sources::Package.write_patchinfo(@package.project.name, @package.name, User.session.login, xml)
         @package.sources_changed(wait_for_update: true) # wait for indexing for special files
       rescue APIError, Timeout::Error => e
         flash[:error] = "patchinfo is invalid: #{e.message}"

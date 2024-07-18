@@ -7,30 +7,8 @@ module Event
 
     after_create :create_project_log_entry_job, if: -> { (PROJECT_CLASSES | PACKAGE_CLASSES).include?(self.class.name) }
 
-    EXPLANATION_FOR_NOTIFICATIONS =  {
-      'Event::BuildFail' => 'Receive notifications of build failures for packages for which you are...',
-      'Event::ServiceFail' => 'Receive notifications of source service failures for packages for which you are...',
-      'Event::ReviewWanted' => 'Receive notifications of reviews created that have you as a wanted...',
-      'Event::RequestCreate' => 'Receive notifications of requests created for projects/packages for which you are...',
-      'Event::RequestStatechange' => 'Receive notifications of requests state changes for projects for which you are...',
-      'Event::CommentForProject' => 'Receive notifications of comments created on projects for which you are...',
-      'Event::CommentForPackage' => 'Receive notifications of comments created on a package for which you are...',
-      'Event::CommentForRequest' => 'Receive notifications of comments created on a request for which you are...',
-      'Event::RelationshipCreate' => "Receive notifications when someone adds you or your group to a project or package with any of these roles: #{Role.local_roles.to_sentence}.",
-      'Event::RelationshipDelete' => "Receive notifications when someone removes you or your group from a project or package with any of these roles: #{Role.local_roles.to_sentence}.",
-      'Event::ReportForComment' => 'Receive notifications for reported comments.',
-      'Event::ReportForPackage' => 'Receive notifications for reported packages.',
-      'Event::ReportForProject' => 'Receive notifications for reported projects.',
-      'Event::ReportForUser' => 'Receive notifications for reported users.',
-      'Event::ReportForRequest' => 'Receive notifications for reported requests',
-      'Event::ClearedDecision' => 'Receive notifications for cleared report decisions.',
-      'Event::FavoredDecision' => 'Receive notifications for favored report decisions.',
-      'Event::WorkflowRunFail' => 'Receive notifications for failed workflow runs on SCM/CI integration.',
-      'Event::AppealCreated' => 'Receive notifications when a user appeals against a decision of a moderator.'
-    }.freeze
-
     class << self
-      attr_accessor :description, :message_bus_routing_key
+      attr_accessor :description, :message_bus_routing_key, :notification_explanation
 
       @payload_keys = nil
       @create_jobs = nil
@@ -39,12 +17,13 @@ module Event
       @shortenable_key = nil
 
       def notification_events
-        ['Event::BuildFail', 'Event::ServiceFail', 'Event::ReviewWanted', 'Event::RequestCreate',
-         'Event::RequestStatechange', 'Event::CommentForProject', 'Event::CommentForPackage',
-         'Event::CommentForRequest',
-         'Event::RelationshipCreate', 'Event::RelationshipDelete',
-         'Event::ReportForComment', 'Event::ReportForPackage', 'Event::ReportForProject', 'Event::ReportForUser', 'Event::ReportForRequest',
-         'Event::WorkflowRunFail', 'Event::AppealCreated', 'Event::ClearedDecision', 'Event::FavoredDecision'].map(&:constantize)
+        [Event::BuildFail, Event::ServiceFail, Event::ReviewWanted, Event::RequestCreate,
+         Event::RequestStatechange, Event::CommentForProject, Event::CommentForPackage,
+         Event::CommentForRequest,
+         Event::RelationshipCreate, Event::RelationshipDelete,
+         Event::ReportForComment, Event::ReportForPackage, Event::ReportForProject, Event::ReportForUser, Event::ReportForRequest,
+         Event::WorkflowRunFail, Event::AppealCreated, Event::ClearedDecision, Event::FavoredDecision,
+         Event::AddedUserToGroup, Event::RemovedUserFromGroup]
       end
 
       def classnames
@@ -253,7 +232,7 @@ module Event
       ret
     end
 
-    def watchers
+    def project_watchers
       project = ::Project.find_by_name(payload['project'])
       return [] if project.blank?
 
@@ -331,6 +310,10 @@ module Event
         title: subject_to_title }
     end
 
+    def involves_hidden_project?
+      false
+    end
+
     private
 
     def message_bus_routing_key
@@ -399,7 +382,7 @@ end
 #  id          :bigint           not null, primary key
 #  eventtype   :string(255)      not null, indexed
 #  mails_sent  :boolean          default(FALSE), indexed
-#  payload     :text(65535)
+#  payload     :text(16777215)
 #  undone_jobs :integer          default(0)
 #  created_at  :datetime         indexed
 #  updated_at  :datetime

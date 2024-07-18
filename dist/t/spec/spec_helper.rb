@@ -50,5 +50,5 @@ def logout
   within('#top-navigation-area') do
     click_link('Logout')
   end
-  expect(page).not_to have_link('top-navigation-profile-dropdown')
+  expect(page).to have_no_link('top-navigation-profile-dropdown')
 end

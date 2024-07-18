@@ -17,7 +17,7 @@ module Webui::RescueHandler
         render json: { error: message }, status: :bad_request
       else
         flash[:error] = message
-        redirect_back(fallback_location: root_path)
+        redirect_back_or_to root_path
       end
     end
 
@@ -27,7 +27,7 @@ module Webui::RescueHandler
         head :not_found
       else
         flash[:error] = message
-        redirect_back(fallback_location: root_path)
+        redirect_back_or_to root_path
       end
     end
 
@@ -38,6 +38,10 @@ module Webui::RescueHandler
     rescue_from MissingParameterError do |exception|
       logger.debug "#{exception.class.name} #{exception.message} #{exception.backtrace.join('\n')}"
       render file: Rails.public_path.join('404.html'), status: :not_found, layout: false, formats: [:html]
+    end
+
+    rescue_from AjaxDatatablesRails::Error::InvalidSearchColumn, AjaxDatatablesRails::Error::InvalidSearchCondition do
+      render json: { data: [] }
     end
   end
 end

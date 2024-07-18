@@ -172,6 +172,14 @@ sub sync_config {
   $notify->("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
 }
 
+sub cpio_extract {
+  my ($cpiofd, $files, $fn, $maxsize) = @_;
+  my $ent = $files->{$fn};
+  die("$fn: not in cpio archive\n") unless $ent;
+  die("$fn: size is too big\n") if $ent->{'size'} > $maxsize;
+  return BSCpio::extract($cpiofd, $ent);
+}
+
 sub sync_project {
   my ($cgi, $projid, $cpiofd) = @_;
 
@@ -185,14 +193,12 @@ sub sync_project {
 
   # update all packages
   for my $packid (grep {s/\.xml$//} sort keys %files) {
-    my $ent = $files{"$packid.xml"};
     my $pack;
     eval {
       BSVerify::verify_packid($packid);
-      die("bad package '$packid'\n") if $packid eq '_project' || $packid eq '_product';
-      die("bad package '$packid'\n") if $packid =~ /(?<!^_product)(?<!^_patchinfo):./;
-      die("$packid: xml is too big\n") if $ent->{'size'} > 1000000;
-      my $packxml = BSCpio::extract($cpiofd, $ent);
+      die("bad package name\n") if $packid eq '_project' || $packid eq '_product';
+      die("bad package name\n") if $packid =~ /(?<!^_product)(?<!^_patchinfo):./;
+      my $packxml = cpio_extract($cpiofd, \%files, "$packid.xml", 1000000);
       $pack = BSUtil::fromxml($packxml, $BSXML::pack);
       $pack->{'project'} = $projid;
       $pack->{'name'} = $packid;
@@ -201,31 +207,38 @@ sub sync_project {
       BSVerify::verify_pack($pack);
     };
     if ($@) {
-      warn($@);
+      warn("$packid: $@");
       next;
     }
-    my $linkent = $files{"$packid.link"};
     my $link;
-    if ($linkent && $linkent->{'size'} < 100000) {
+    if ($files{"$packid.link"}) {
       eval {
-	my $linkxml = BSCpio::extract($cpiofd, $linkent);
+        my $linkxml =  cpio_extract($cpiofd, \%files, "$packid.link", 100000);
 	$link = BSUtil::fromxml($linkxml, $BSXML::link);
 	BSVerify::verify_link($link);
 	die("link must not contain a project\n") if exists $link->{'project'};
       };
       if ($@) {
-	warn($@);
+	warn("$packid: $@");
 	undef $link;
       }
     }
     if ($link && $pack->{'scmsync'}) {
-      warn("ignoring link file as the package has a scmsync element\n");
+      warn("$packid: ignoring link file as the package has a scmsync element\n");
       undef $link;
     }
     my $info;
-    my $infoent = $files{"$packid.info"};
-    $info = BSCpio::extract($cpiofd, $infoent) if $infoent && $infoent->{'size'} < 100000;
-    chomp $info if $info;
+    if ($files{"$packid.info"}) {
+      eval {
+        $info = cpio_extract($cpiofd, \%files, "$packid.info", 100000);
+	chomp $info;
+	die("bad info data\n") if $info =~ /[\000-\037\177]/s;
+      };
+      if ($@) {
+	warn("$packid: $@");
+	undef $info;
+      }
+    }
     sync_package($cgi, $projid, $packid, $pack, $info, $link);
   }
 
@@ -237,14 +250,12 @@ sub sync_project {
   # update the project config
   my $config = '';
   if ($files{'_config'}) {
-    my $ent = $files{'_config'};
     eval {
-      die("_config: size is too big\n") if $ent->{'size'} > 1000000;
-      $config = BSCpio::extract($cpiofd, $ent);
+      $config = cpio_extract($cpiofd, \%files, '_config', 1000000);
     };
     if ($@) {
       warn($@);
-      $config = undef;
+      undef $config;
     }
   }
   sync_config($cgi, $projid, $config) if defined $config;

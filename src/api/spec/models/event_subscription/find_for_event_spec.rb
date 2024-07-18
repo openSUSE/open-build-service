@@ -88,6 +88,11 @@ end
 RSpec.describe EventSubscription::FindForEvent do
   describe '#subscriptions' do
     context 'with a request' do
+      subject do
+        event = Event::RequestCreate.first
+        EventSubscription::FindForEvent.new(event).subscriptions
+      end
+
       let!(:watcher) { create(:confirmed_user) }
       let!(:watcher2) { create(:confirmed_user) }
       let!(:source_project) { create(:project, name: 'TheSource') }
@@ -105,7 +110,7 @@ RSpec.describe EventSubscription::FindForEvent do
         create(
           :event_subscription,
           eventtype: 'Event::RequestCreate',
-          receiver_role: 'source_watcher',
+          receiver_role: 'source_project_watcher',
           user: nil,
           group: nil,
           channel: :instant_email
@@ -115,11 +120,6 @@ RSpec.describe EventSubscription::FindForEvent do
       before do
         watcher.watched_items.create(watchable: source_project)
         request
-      end
-
-      subject do
-        event = Event::RequestCreate.first
-        EventSubscription::FindForEvent.new(event).subscriptions
       end
 
       it 'returns a new subscription for the watcher based on the default subscription' do
@@ -158,7 +158,7 @@ RSpec.describe EventSubscription::FindForEvent do
         let!(:comment) { create(:comment_project, commentable: project) }
 
         let!(:default_subscription) do
-          create(:event_subscription_comment_for_project, receiver_role: 'watcher', user: nil, group: nil)
+          create(:event_subscription_comment_for_project, receiver_role: 'project_watcher', user: nil, group: nil)
         end
 
         before do
@@ -275,16 +275,16 @@ RSpec.describe EventSubscription::FindForEvent do
     end
 
     context 'with an added relationship' do
+      subject do
+        EventSubscription::FindForEvent.new(event).subscriptions(channel)
+      end
+
       let(:owner) { create(:confirmed_user) }
       let(:group) { create(:group_with_user) }
       let(:user) { create(:confirmed_user) }
       let(:project) { create(:project_with_package) }
       let(:package) { project.packages.first }
       let(:channel) { :web }
-
-      subject do
-        EventSubscription::FindForEvent.new(event).subscriptions(channel)
-      end
 
       context 'when dealing with projects' do
         context 'and there is a subscription for the target user' do
@@ -426,15 +426,15 @@ RSpec.describe EventSubscription::FindForEvent do
     end
 
     context 'with a removed relationship' do
+      subject do
+        EventSubscription::FindForEvent.new(event).subscriptions(:web)
+      end
+
       let(:owner) { create(:confirmed_user) }
       let(:user) { create(:confirmed_user) }
       let(:group) { create(:group_with_user) }
       let(:project) { create(:project_with_package) }
       let(:package) { project.packages.first }
-
-      subject do
-        EventSubscription::FindForEvent.new(event).subscriptions(:web)
-      end
 
       context 'when dealing with projects' do
         context 'and there is a subscription for the target user' do
@@ -553,6 +553,76 @@ RSpec.describe EventSubscription::FindForEvent do
           it 'does not include the target user' do
             expect(subject.map(&:subscriber)).not_to include(user)
           end
+        end
+      end
+    end
+
+    context 'with a failed workflow run' do
+      subject do
+        EventSubscription::FindForEvent.new(event).subscriptions(channel)
+      end
+
+      let(:owner) { create(:confirmed_user) }
+      let(:user) { create(:confirmed_user) }
+      let(:group) { create(:group_with_user, user: user) }
+      let(:channel) { :web }
+      let(:token) { create(:workflow_token, executor: owner, description: 'Testing token') }
+      let(:event) do
+        Event::WorkflowRunFail.create(token_id: token.id)
+      end
+
+      context 'when there is a subscription for the token executor' do
+        before do
+          create(
+            :event_subscription,
+            eventtype: 'Event::WorkflowRunFail',
+            receiver_role: 'token_executor',
+            user: owner,
+            group: nil,
+            channel: :web
+          )
+        end
+
+        it 'includes the token executor' do
+          expect(subject.map(&:subscriber)).to include(owner)
+        end
+      end
+
+      context 'when there is a subscription for the involved user' do
+        before do
+          token.users << user
+
+          create(
+            :event_subscription,
+            eventtype: 'Event::WorkflowRunFail',
+            receiver_role: 'token_member',
+            user: user,
+            group: nil,
+            channel: :web
+          )
+        end
+
+        it 'includes the target user' do
+          expect(subject.map(&:subscriber)).to include(user)
+        end
+      end
+
+      context 'when there is a subscription for the involved group' do
+        before do
+          token.groups << group
+
+          create(
+            :event_subscription,
+            eventtype: 'Event::WorkflowRunFail',
+            receiver_role: 'token_member',
+            user: user,
+            group: nil,
+            channel: :web
+          )
+        end
+
+        it "includes the member's group user" do
+          expect(subject.map(&:subscriber)).to include(user)
         end
       end
     end

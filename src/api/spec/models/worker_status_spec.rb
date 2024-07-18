@@ -73,6 +73,8 @@ RSpec.describe WorkerStatus do
   end
 
   describe '#save' do
+    subject { WorkerStatus.new.save }
+
     let(:xml_response) do
       <<-HEREDOC
       <workerstatus clients="285">
@@ -107,8 +109,6 @@ RSpec.describe WorkerStatus do
       </workerstatus>
       HEREDOC
     end
-
-    subject { WorkerStatus.new.save }
 
     it { expect { subject }.to change(StatusHistory, :count).from(0).to(23) }
   end

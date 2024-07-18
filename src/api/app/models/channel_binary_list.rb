@@ -6,7 +6,7 @@ class ChannelBinaryList < ApplicationRecord
   has_many :channel_binaries, dependent: :delete_all
 
   def self._sync_keys
-    [:project, :repository, :architecture]
+    %i[project repository architecture]
   end
 end
 

@@ -18,6 +18,10 @@
   }
 }
 
+.buildresult_repo_header {
+  background-color: var(--bs-secondary-bg);
+}
+
 .custom-label {
   cursor: pointer;
   color: $link-color;
@@ -43,7 +47,7 @@
   @extend .d-flex;
   @extend .flex-column;
   position: relative;
-  background-color: #eeeeee;
+  background-color: var(--bs-secondary-bg);
   max-height: 100vh;
   width: 100%;
   font-size: 90%;
@@ -64,8 +68,9 @@
   }
 
   .build-info-content {
-    @extend .py-2;
     @extend .px-3;
+    padding-top: 0.4rem !important;
+    padding-bottom: 0.4rem !important;
     overflow-y: hidden;
   }
 
@@ -170,6 +175,16 @@
   @extend .text-success;
 }
 
+#build-results-monitor {
+  .accordion-button:not(.collapsed) {
+    --bs-accordion-active-bg: var(--bs-secondary-bg);
+  }
+
+  .accordion-button:hover {
+    @extend .text-bg-hover;
+  }
+}
+
 @include media-breakpoint-up(md) {
   .build-info .triangle.left { left: .25rem; }
 }
@@ -178,5 +193,61 @@
   .build-info .triangle {
     &.center { margin-left: calc(38% + .75rem); }
     &.left { left: .5rem; }
+  }
+}
+
+.build-result-table {
+  .build-result-legend {
+    display: none;
+  }
+
+  .build-result-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 1rem;
+    flex-wrap: wrap;
+  }
+
+  .build-result-architectures {
+    display: flex;
+    margin-left: auto;
+    flex-wrap: wrap;
+    justify-content: end;
+  }
+
+  .build-result-architectures .badge {
+    margin-left: 0.25rem;
+  }
+
+  .build-result-row:not(:last-of-type) {
+    border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+  }
+
+  @include media-breakpoint-up(xl) {
+    display: grid;
+    grid-template-columns: 1fr repeat(20, auto);
+    overflow-x: scroll;
+
+    .build-result-architectures, .build-result-row, .build-result-legend {
+      display: contents;
+    }
+
+    .build-result-name {
+      grid-column-start: 1;
+      padding: 0.25rem 1rem;
+    }
+
+    .build-result-architecture {
+      padding: 0.25rem;
+      text-align: end;
+      .architecture { display: none }
+      &:last-of-type { padding-right: 1rem }
+    }
+
+    .build-result-row {
+      .build-result-name, .build-result-architecture {
+        border-top: var(--bs-border-width) solid var(--bs-border-color);
+      }
+    }
   }
 }

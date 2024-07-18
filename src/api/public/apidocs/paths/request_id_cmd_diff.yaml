@@ -1,7 +1,6 @@
 post:
   summary: Get the diff for all packages affected by the request.
-  description: |
-    Get the diff for all packages affected by the request.
+  description: Get the diff for all packages affected by the request.
   security:
     - basic_authentication: []
   parameters:
@@ -27,7 +26,12 @@ post:
         enum:
           - true
           - 1
-      description: Include parsed issues
+      description: Include parsed issues from referenced sources
+    - in: query
+      name: withdescriptionissues
+      schema:
+        type: string
+      description: Include parsed issues from request description
   responses:
     '200':
       description: OK

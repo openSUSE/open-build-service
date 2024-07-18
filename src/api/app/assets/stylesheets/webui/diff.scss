@@ -10,8 +10,17 @@
   z-index: 4;
 }
 
+.line-new-comment {
+  display: none;
+}
+
+.diff-accordion {
+  --bs-accordion-active-bg: var(--bs-secondary-bg);
+}
+
 .pre.scroll {
   --line-index-digits: 6ch;
+  --additional-padding: 0px;
   @for $i from 1 through 10 {
     .digits-#{$i} {
       --line-index-digits: #{$i}ch;
@@ -28,12 +37,15 @@
       .line-new-comment {
         display: none;
       }
+      .comments-thread .line-new-comment {
+        --additional-padding: 1rem;
+      }
       &:hover .line-new-comment {
         display: block;
         position: absolute;
         z-index: 1000;
-        margin-left: calc(2 * (var(--line-index-digits) + 2rem + var(--bs-border-width)) + 0.5rem + var(--bs-border-width));
-        margin-top: -1.75rem;
+        margin-left: calc(2 * (var(--line-index-digits) + 2rem + var(--bs-border-width)) + 0.5rem + var(--bs-border-width) - var(--additional-padding));
+        margin-top: -1.75rem !important;
       }
       .line-comment .fa-comment {
         display: none;
@@ -43,15 +55,14 @@
       }
       .line-comment .comments-thread {
         &:first-child {
-          @extend .border-top;
-          > :first-child { @extend .mt-3; }
+          > :first-child { margin-top: 1rem; }
         }
         &:last-child {
-          @extend .border-bottom;
-          > :last-child { @extend .mb-3; }
+          > :last-child { margin-bottom: 1rem; }
         }
         @extend .px-3;
       }
+      .line-comment .comment-diff { display: none; }
       &:target {
         .number {
           background-color: rgba($warning, 0.5)!important
@@ -108,6 +119,7 @@
       .content {
         margin-left: 1rem;
         white-space: pre;
+        display: inline-block;
       }
     }
   }

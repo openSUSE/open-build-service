@@ -1,12 +1,12 @@
 module Event
   class ReviewChanged < Request
     self.message_bus_routing_key = 'request.review_changed'
-    self.description = 'Request was reviewed'
+    self.description = 'Request reviewed'
     payload_keys :reviewers, :by_user, :by_group, :by_project, :by_package
-    receiver_roles :source_maintainer, :target_maintainer, :creator, :source_watcher, :target_watcher
+    receiver_roles :source_maintainer, :target_maintainer, :creator, :source_project_watcher, :target_project_watcher
 
     def subject
-      "Request #{payload['number']} was reviewed (#{actions_summary})"
+      "Request #{payload['number']} reviewed (#{actions_summary})"
     end
 
     def expanded_payload
@@ -26,7 +26,7 @@ end
 #  id          :bigint           not null, primary key
 #  eventtype   :string(255)      not null, indexed
 #  mails_sent  :boolean          default(FALSE), indexed
-#  payload     :text(65535)
+#  payload     :text(16777215)
 #  undone_jobs :integer          default(0)
 #  created_at  :datetime         indexed
 #  updated_at  :datetime

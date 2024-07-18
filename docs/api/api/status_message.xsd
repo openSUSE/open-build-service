@@ -5,8 +5,10 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element name="message" type="xs:string"></xs:element>
+        <xs:element name="user" type="xs:string" minOccurs="0"></xs:element>
         <xs:element name="severity" type="xs:string"></xs:element>
         <xs:element name="scope" type="xs:string" minOccurs="0" default="all_users"></xs:element>
+        <xs:element name="created_at" type="xs:string" minOccurs="0"></xs:element>
       </xs:sequence>
       <xs:attribute name="id" type="xs:int"></xs:attribute>
     </xs:complexType>

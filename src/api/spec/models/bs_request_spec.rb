@@ -72,9 +72,9 @@ RSpec.describe BsRequest, :vcr do
 
       before do
         login(reviewer)
-      end
 
-      subject! { request.assignreview(by_group: group.title, reviewer: reviewer.login) }
+        request.assignreview(by_group: group.title, reviewer: reviewer.login)
+      end
 
       it { expect(request.reviews.count).to eq(2) }
 
@@ -93,6 +93,8 @@ RSpec.describe BsRequest, :vcr do
   end
 
   describe '#addreview' do
+    subject { Review.last }
+
     let(:reviewer) { create(:confirmed_user) }
     let(:history_element) { HistoryElement::RequestReviewAdded.last }
     let(:group) { create(:group) }
@@ -102,8 +104,6 @@ RSpec.describe BsRequest, :vcr do
       login(reviewer)
       request.addreview(by_group: group.title)
     end
-
-    subject { Review.last }
 
     it { expect(subject.state).to eq(:new) }
     it { expect(subject.by_group).to eq(group.title) }
@@ -584,17 +584,17 @@ RSpec.describe BsRequest, :vcr do
     end
 
     context 'with options' do
-      before do
-        login(user)
-        # For submit requests with 'sourceupdate' the user needs to be able to modify the (forwarded) source package
-        target_package.relationships.create(user: user, role: Role.find_by_title!('maintainer'))
-      end
-
       subject do
         submit_request.forward_to(
           project: user.home_project.name,
           options: { description: 'my description' }
         )
+      end
+
+      before do
+        login(user)
+        # For submit requests with 'sourceupdate' the user needs to be able to modify the (forwarded) source package
+        target_package.relationships.create(user: user, role: Role.find_by_title!('maintainer'))
       end
 
       it 'sets the given description' do
@@ -681,11 +681,11 @@ RSpec.describe BsRequest, :vcr do
   end
 
   describe '#as_json' do
+    subject { submit_request.as_json }
+
     before do
       submit_request.update(superseded_by: delete_request.id)
     end
-
-    subject { submit_request.as_json }
 
     it 'returns a json representation of a bs request' do
       expect(subject).to include(

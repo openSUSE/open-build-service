@@ -48,6 +48,11 @@
   }
 }
 
+.navbar-themed-colors {
+  @extend .border-gray-500;
+  background-color: var(--navbar-themed-bg);
+}
+
 @include media-breakpoint-up(md) {
   .navbar-dark.navbar-collapse {
     &.watchlist-collapse, &.places-collapse, &.actions-collapse {

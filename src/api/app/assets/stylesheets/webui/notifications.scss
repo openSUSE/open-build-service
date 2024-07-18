@@ -24,6 +24,10 @@ ul.avatars{
   .collapse {
     &.show { border-top: 1px solid $gray-300;}
   }
+
+  .form-check-input:checked {
+    @extend .text-bg-info;
+  }
 }
 #notification-action-bar {
   &.sticky-top { top: $top-navigation-height; }
@@ -72,4 +76,8 @@ ul.avatars{
     border: 0.1rem solid $dark;
     padding: 0.1rem 0.3rem;
   }
+}
+
+.notification-bar-offset {
+  top: calc(#{$top-navigation-height} + 3rem) !important;
 }

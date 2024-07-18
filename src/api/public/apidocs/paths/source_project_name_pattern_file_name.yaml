@@ -70,8 +70,7 @@ put:
             comment:
             requestid:
     '400':
-      description: |
-        Error: Bad request.
+      description: "Error: Bad request."
       content:
         application/xml; charset=utf-8:
           schema:

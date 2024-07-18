@@ -43,7 +43,7 @@ RSpec.describe Webui::StatusMessagesController do
 
       it 'is not authorized to create a status message' do
         expect(response).to redirect_to(root_path)
-        expect(flash[:error]).to eq('Sorry, you are not authorized to create this status message.')
+        expect(flash[:error]).to eq('Requires staff privileges')
         message = StatusMessage.where(user: admin_user, message: 'Some message', severity: 'green')
         expect(message).not_to exist
       end
@@ -84,26 +84,26 @@ RSpec.describe Webui::StatusMessagesController do
     it { is_expected.to use_after_action(:verify_authorized) }
 
     context 'as an admin' do
+      subject { delete :destroy, params: { id: message.id } }
+
       before do
         login(admin_user)
       end
-
-      subject { delete :destroy, params: { id: message.id } }
 
       it { is_expected.to redirect_to(news_items_path) }
       it { expect { subject }.to change(StatusMessage, :count).by(-1) }
     end
 
     context 'non-admin users' do
+      subject { delete :destroy, params: { id: message.id } }
+
       before do
         login(user)
       end
 
-      subject { delete :destroy, params: { id: message.id } }
-
       it 'is not authorized to delete a status message' do
         expect(subject).to redirect_to(root_path)
-        expect(flash[:error]).to eq('Sorry, you are not authorized to delete this status message.')
+        expect(flash[:error]).to eq('Requires staff privileges')
       end
 
       it { expect { subject }.not_to(change(StatusMessage, :count)) }
@@ -141,7 +141,6 @@ RSpec.describe Webui::StatusMessagesController do
 
     context 'when the news item is already acknowledged' do
       before do
-        allow(RabbitmqBus).to receive(:send_to_bus)
         login(admin_user)
         message.acknowledge!
         post :acknowledge, params: { id: message.id }, xhr: true
@@ -153,10 +152,6 @@ RSpec.describe Webui::StatusMessagesController do
 
       it 'shows no error' do
         expect(flash['error']).to be_nil
-      end
-
-      it 'does not collect any metrics' do
-        expect(RabbitmqBus).not_to have_received(:send_to_bus).with('metrics', /user.acknowledged_status/)
       end
     end
   end

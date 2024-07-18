@@ -135,9 +135,41 @@ FactoryBot.define do
       group { nil }
     end
 
+    factory :event_subscription_appeal_created do
+      eventtype { 'Event::AppealCreated' }
+      receiver_role { 'moderator' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
+
     factory :event_subscription_workflow_run_fail do
       eventtype { 'Event::WorkflowRunFail' }
       receiver_role { 'token_executor' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
+
+    factory :event_subscription_build_fail do
+      eventtype { 'Event::BuildFail' }
+      receiver_role { 'maintainer' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
+
+    factory :event_subscription_added_user_to_group do
+      eventtype { 'Event::AddedUserToGroup' }
+      receiver_role { 'member' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
+
+    factory :event_subscription_removed_user_from_group do
+      eventtype { 'Event::RemovedUserFromGroup' }
+      receiver_role { 'member' }
       channel { :instant_email }
       user
       group { nil }

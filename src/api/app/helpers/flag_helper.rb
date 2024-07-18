@@ -90,7 +90,7 @@ module FlagHelper
 
   def add_flag(flag, status, repository = nil, arch = nil)
     validate_type flag
-    raise ArgumentError, "Error: unknown status for flag '#{status}'" unless ['enable', 'disable'].include?(status)
+    raise ArgumentError, "Error: unknown status for flag '#{status}'" unless %w[enable disable].include?(status)
 
     flags.build(status: status, flag: flag) do |f|
       f.architecture = Architecture.find_by_name(arch) if arch
@@ -108,7 +108,7 @@ module FlagHelper
     # we find all repositories targeted by given products
     p = { name: product_name }
     p[:patchlevel] = patchlevel if p
-    Product.where(p).each do |product|
+    Product.where(p).find_each do |product|
       # FIXME: limit to official ones
 
       product.product_update_repositories.each do |ur|
@@ -166,7 +166,7 @@ module FlagHelper
     FlagHelper.flag_types.each do |flag_name|
       next unless flags_sorted.key?(flag_name)
 
-      xml.send("#{flag_name}_") do # avoid class with 'build' function
+      xml.send(:"#{flag_name}_") do # avoid class with 'build' function
         flags_sorted[flag_name].each { |flag| flag.to_xml(xml) }
       end
     end

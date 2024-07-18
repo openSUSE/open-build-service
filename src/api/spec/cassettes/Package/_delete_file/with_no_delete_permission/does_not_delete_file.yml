@@ -30,58 +30,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:47 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:other_user/_meta?user=other_user
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:other_user">
-          <title/>
-          <description/>
-          <person userid="other_user" role="maintainer"/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '143'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:other_user">
-          <title></title>
-          <description></description>
-          <person userid="other_user" role="maintainer" />
-        </project>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:47 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:17 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=other_user
@@ -89,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Consider the Lilies</title>
-          <description>Laboriosam aspernatur molestiae sint.</description>
+          <title>Mother Night</title>
+          <description>Alias id ut inventore.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -111,61 +69,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '148'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Consider the Lilies</title>
-          <description>Laboriosam aspernatur molestiae sint.</description>
+          <title>Mother Night</title>
+          <description>Alias id ut inventore.</description>
         </package>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:47 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=other_user
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_files" project="home:tom">
-          <title>Consider the Lilies</title>
-          <description>Laboriosam aspernatur molestiae sint.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '170'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_files" project="home:tom">
-          <title>Consider the Lilies</title>
-          <description>Laboriosam aspernatur molestiae sint.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:47 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:17 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: Praesentium optio provident. Alias dolorem neque. Enim quidem ea.
+      string: Doloribus eos nostrum. Deleniti pariatur aliquid. Sint ea eius.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -185,26 +103,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="418" vrev="418">
-          <srcmd5>9363712df4a7da0ff3330b9547555ac2</srcmd5>
+        <revision rev="27" vrev="27">
+          <srcmd5>e77c612422c1368d29c429f21221afbf</srcmd5>
           <version>unknown</version>
-          <time>1536230747</time>
+          <time>1706702057</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:47 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:17 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
     body:
       encoding: UTF-8
-      string: Ullam fugiat suscipit. Cumque similique eum. Sed tempore doloribus.
+      string: Molestiae nostrum minima. Itaque dolorum dolorem. Eos aut a.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -224,20 +141,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="419" vrev="419">
-          <srcmd5>24dec25939a5c7a810609ac7dab1f834</srcmd5>
+        <revision rev="28" vrev="28">
+          <srcmd5>d4f42ddf248a5c8dd0f81e4f7889817e</srcmd5>
           <version>unknown</version>
-          <time>1536230747</time>
+          <time>1706702057</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:47 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:17 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
@@ -259,14 +175,13 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       Content-Length:
-      - '67'
+      - '60'
       Cache-Control:
       - no-cache
       Connection:
       - close
     body:
       encoding: UTF-8
-      string: Ullam fugiat suscipit. Cumque similique eum. Sed tempore doloribus.
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:47 GMT
-recorded_with: VCR 4.0.0
+      string: Molestiae nostrum minima. Itaque dolorum dolorem. Eos aut a.
+  recorded_at: Wed, 31 Jan 2024 11:54:17 GMT
+recorded_with: VCR 6.2.0

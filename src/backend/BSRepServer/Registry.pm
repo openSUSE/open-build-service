@@ -125,7 +125,7 @@ sub download_blobs {
     next if blobstore_get("_blob.$blob", $dir);
     my $tmp = "$dir/._blob.$blob.$$";
     my $authenticator = $registry_authenticators{"$url$regrepo"};
-    $authenticator = $registry_authenticators{"$url$regrepo"} = BSBearer::generate_authenticator(undef, 'verbose' => 1, 'rpccall' => \&doauthrpc) unless $authenticator;
+    $authenticator = $registry_authenticators{"$url$regrepo"} = BSBearer::generate_authenticator(undef, 'verbose' => 1, 'rpccall' => \&doauthrpc, 'proxy' => $proxy) unless $authenticator;
     my $bloburl = "${url}v2/$regrepo/blobs/$blob";
     # print "fetching: $bloburl\n";
     my $param = {'uri' => $bloburl, 'filename' => $tmp, 'receiver' => \&BSHTTP::file_receiver, 'proxy' => $proxy};
@@ -177,14 +177,9 @@ sub construct_containerinfo {
   }
   push @tags, $data->{'name'} unless @tags;
   s/^container:// for @tags;
-  my @layers = @$blobs;
-  shift @layers;
-  my $manifest = {
-    'Config' => $blobs->[0],
-    'RepoTags' => \@tags,
-    'Layers' => \@layers,
-  };
-  my $manifest_ent = BSContar::create_manifest_entry($manifest, $mtime);
+  my ($config, @layers) = @$blobs;
+  my $manifest = BSContar::create_tar_manifest_data($config, \@layers, \@tags);
+  my $manifest_ent = BSContar::create_tar_manifest_entry($manifest, $mtime);
   my $containerinfo = {
     'tar_manifest' => $manifest_ent->{'data'},
     'tar_size' => 1,	# make construct_container_tar() happy

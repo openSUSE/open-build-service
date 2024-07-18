@@ -1,5 +1,7 @@
 RSpec.describe ReviewsFinder do
   describe '#completed_by_review' do
+    subject { ReviewsFinder.new.completed_by_reviewer(user) }
+
     let(:user) { create(:confirmed_user) }
     let(:project) { create(:project, name: 'bob_project', maintainer: [user]) }
     let(:package) { create(:package, name: 'bob_package', project: project) }
@@ -12,8 +14,6 @@ RSpec.describe ReviewsFinder do
              target_package: package,
              source_package: another_package)
     end
-
-    subject { ReviewsFinder.new.completed_by_reviewer(user) }
 
     context 'when having accepted reviews from the user' do
       let(:review) do

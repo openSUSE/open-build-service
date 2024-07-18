@@ -1,0 +1,12 @@
+.text-bg-selected {
+  background-color: $selected;
+}
+
+.text-bg-hover {
+  box-shadow: 0px 0px 5px $hover;
+}
+
+::placeholder {
+  color: var(--placeholder-text)!important;
+  font-style: italic;
+}

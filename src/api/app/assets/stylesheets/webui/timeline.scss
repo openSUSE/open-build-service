@@ -5,7 +5,7 @@
     $timeline-item-avatar-width: 1.5rem;
     $timeline-item-avatar-height: 1.5rem;
     $timeline-offset: -(($timeline-item-avatar-width / 2) + ($timeline-border-width / 2));
-    border-left: $timeline-border-width solid $gray-200;
+    border-left: $timeline-border-width solid var(--bs-border-color);
 
     .timeline-item {
         position: relative;
@@ -43,7 +43,7 @@
         }
         i.timeline-break {
             background-color: var(--timeline-bg);
-            @extend .text-dark;
+            color: var(--bs-body-color)
         }
         a:hover i.timeline-break {
             filter: none;
@@ -54,7 +54,7 @@
         }
     }
 
-    .collapse, .collapsing {
+    .collapse:not(.comment-edit), .collapsing:not(.comment-edit) {
         position: relative;
         left: $timeline-offset;
         .timeline-item {

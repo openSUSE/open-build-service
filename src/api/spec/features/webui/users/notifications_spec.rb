@@ -23,15 +23,6 @@ RSpec.describe 'User notifications', :js do
     let(:another_notifiable) { another_notification_for_projects_comment.notifiable }
     let(:project) { notifiable.commentable.project }
 
-    shared_examples 'keeps the Comments filter' do
-      it 'keeps the filter' do
-        wait_for_ajax
-
-        find_by_id('notifications-dropdown-trigger').click if mobile?
-        expect(find('.list-group-item.list-group-item-action.active')).to have_text('Comment')
-      end
-    end
-
     before do
       login user
       visit my_notifications_path
@@ -40,38 +31,27 @@ RSpec.describe 'User notifications', :js do
     context 'when clicking on the Comments filter' do
       before do
         find_by_id('notifications-dropdown-trigger').click if mobile?
-        within('#filters') { click_link('Comments') }
+        within('#filters') { check('Comments') }
       end
 
       it 'shows all unread comment notifications' do
         expect(page).to have_text(notifiable.commentable.name)
       end
-
-      context 'when marking a comment notification as read' do
-        before do
-          click_link("update_notification_#{notification_for_projects_comment.id}")
-        end
-
-        it_behaves_like 'keeps the Comments filter'
-      end
     end
 
     context 'when marking multiple comment notifications as read' do
       before do
-        find_by_id('notifications-dropdown-trigger').click if mobile?
-        within('#filters') { click_link('Comments') }
+        visit my_notifications_path({ kind: 'comments' })
         toggle_checkbox("notification_ids_#{notification_for_projects_comment.id}")
         toggle_checkbox("notification_ids_#{another_notification_for_projects_comment.id}")
-        click_button('done-button')
+        click_button('read-button')
       end
 
       it 'marks all comment notification as read' do
         wait_for_ajax
 
-        expect(page).to have_text('There are no notifications for this filter')
+        expect(page).to have_text('There are no notifications for the current filter selection')
       end
-
-      it_behaves_like 'keeps the Comments filter'
     end
 
     context 'when clicking on the project filter' do
@@ -83,40 +63,49 @@ RSpec.describe 'User notifications', :js do
         visit my_notifications_path
       end
 
+      # rubocop:disable RSpec/ExampleLength
       it 'shows all unread project notifications' do
-        find_by_id('notifications-dropdown-trigger').click if mobile?
-        within('#filters') { click_link(project.name) }
-        find_by_id('notifications-dropdown-trigger').click if mobile?
-        expect(find('.list-group-item.list-group-item-action.active')).to have_text(project.name)
-      end
-
-      context 'when marking a project notification as read' do
-        before do
-          find_by_id('notifications-dropdown-trigger').click if mobile?
-          within('#filters') { click_link(project.name) }
+        find_by_id('notifications-dropdown-trigger').click if mobile? # open the filter dropdown
+        within('#filters') do
+          click_button('filter-projects-button') # open the filter
+          check(project.name)
+          click_button('filter-projects-button') # close the filter
         end
 
-        it 'keeps the project filter' do
-          wait_for_ajax
-          find_by_id('notifications-dropdown-trigger').click if mobile?
-          expect(find('.list-group-item.list-group-item-action.active')).to have_text(project.name)
-        end
+        expect(page).to have_text(notification_for_projects_comment.notifiable.commentable_type)
       end
+      # rubocop:enable RSpec/ExampleLength
     end
 
-    context 'when having less notifications than the maximum per page' do
-      it { expect(page).not_to have_text("Mark all as 'Read'") }
-    end
+    context 'when clicking on the request filter' do
+      let!(:notification_for_request) { create(:web_notification, :request_state_change, subscriber: user) }
+      let!(:another_notification_for_request) { create(:web_notification, :request_created, subscriber: user) }
+      let(:bs_request) { notification_for_request.notifiable }
 
-    context 'when having more notifications than the maximum per page' do
       before do
-        # Instead of creating Notification::MAX_PER_PAGE + 1 notifications, we better reduce the constant value.
-        # The total amount of notifications exceeds the maximum per page, so the button should be displayed.
-        stub_const('Notification::MAX_PER_PAGE', 1)
+        bs_request.notifications << notification_for_request
+        bs_request.notifications << another_notification_for_request
+        # need to load the page again in order to have the notifications
+        # visible
         visit my_notifications_path
       end
 
-      it { expect(page).to have_text("Mark all as 'Read'") }
+      # rubocop:disable RSpec/ExampleLength
+      it 'shows all unread request notifications' do
+        find_by_id('notifications-dropdown-trigger').click if mobile? # open the filter dropdown
+        within('#filters') do
+          click_button('filter-requests-button') # open the filter
+          check('new')
+          click_button('filter-requests-button') # close the filter
+        end
+
+        expect(page).to have_text(notification_for_request.notifiable.number)
+      end
+      # rubocop:enable RSpec/ExampleLength
+    end
+
+    context 'when having less notifications than the maximum per page' do
+      it { expect(page).to have_no_text("Mark all as 'Read'") }
     end
   end
 end

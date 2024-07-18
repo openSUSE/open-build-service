@@ -5,12 +5,13 @@ module Person
 
     before_action :set_user
     before_action :validate_operation, only: [:create]
+    after_action :verify_authorized
 
     # GET /person/<login>/token
     def index
-      authorize @user, :show?
+      authorize @user, :update?
 
-      @list = @user.tokens
+      @list = policy_scope(Token)
     end
 
     # POST /person/<login>/token
@@ -47,9 +48,7 @@ module Person
 
     def set_package
       @package = nil
-      return unless params[:project] || params[:package]
-
-      raise MissingParameterError, 'The package and project parameters must be provided together.' unless params[:project] && params[:package]
+      return unless params[:project] && params[:package]
 
       @package = Package.get_by_project_and_name(params[:project], params[:package])
     end
@@ -60,7 +59,7 @@ module Person
       # - webUI: https://github.com/openSUSE/open-build-service/blob/master/src/api/app/models/token.rb#L27
       # - API: https://github.com/openSUSE/open-build-service/blob/master/src/api/public/apidocs/paths/person_login_token.yaml#L89
       return if operation_param.nil? ||
-                ['runservice', 'rebuild', 'release', 'workflow'].include?(operation_param) # possible API parameter values
+                %w[runservice rebuild release workflow].include?(operation_param) # possible API parameter values
 
       render_error status: 400,
                    errorcode: 'invalid_token_type',

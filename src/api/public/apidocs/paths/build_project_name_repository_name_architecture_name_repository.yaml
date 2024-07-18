@@ -1,6 +1,6 @@
 get:
   summary: List all binaries (produced by all packages of the given project).
-  description: >
+  description: |
     List all binaries (produced by all packages of the given project) for the specified
     repository and architecture.
   security:

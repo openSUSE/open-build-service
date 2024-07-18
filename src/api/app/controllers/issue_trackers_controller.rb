@@ -1,5 +1,5 @@
 class IssueTrackersController < ApplicationController
-  before_action :require_admin, only: [:create, :update, :destroy]
+  before_action :require_admin, only: %i[create update destroy]
 
   validate_action index: { method: :get, response: :issue_trackers }
   validate_action show: { method: :get, response: :issue_tracker }

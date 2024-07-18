@@ -31,7 +31,7 @@ RSpec.describe BuildLogSupport do
       subject { instance_with_build_log_support.get_log_chunk('project_1', 'package_1', 'repository_1', 'architecture_1', 0, 65_536) }
 
       context 'without special characters' do
-        it { is_expected.to eq(build_log) }
+        it { is_expected.to eq("<span class=\"ansible_none\">#{build_log}</span>") }
       end
 
       context 'with special characters' do
@@ -40,15 +40,35 @@ RSpec.describe BuildLogSupport do
           "\u000A\u000D\u000F\n\r"
         end
 
-        it { is_expected.to eq("\r\r\r\r") }
+        it { is_expected.to eq("<span class=\"ansible_none\">\r\r\r\r</span>") }
+      end
+
+      context 'with ansi escape characters' do
+        let(:build_log) do
+          # Using various escape characters
+          "[  580s] \e[1;31m! GEVENTTEST_USE_RESOURCES=-network /usr/bin/python3.10 -u -W ignore -m gevent.testing.monkey_test test_signal.py [code 1] \e[1;35m[took 24.3s]\e[0m\e[0m
+[  580s] \e[36mReaping 1 jobs\e[0m"
+        end
+
+        it {
+          expect(subject).to eq("<span class=\"ansible_none\">[  580s] </span><span class=\"ansible_1 ansible_31\">! GEVENTTEST_USE_RESOURCES=-network /usr/bin/python3.10 \
+-u -W ignore -m gevent.testing.monkey_test test_signal.py [code 1] </span><span class=\"ansible_1 ansible_35\">[took 24.3s]</span><span class=\"ansible_none\"></span><span \
+class=\"ansible_none\">\r[  580s] </span><span class=\"ansible_36\">Reaping 1 jobs</span><span class=\"ansible_none\"></span>")
+        }
+      end
+
+      context 'with invalid utf-8 byte sequences' do
+        let(:build_log) { "invalid byte sequence ->\xD3'" }
+
+        it { expect(subject).to eq('<span class="ansible_none">invalid byte sequence -&gt;�&#39;</span>') }
       end
     end
   end
 
   describe '#get_size_of_log' do
-    let(:path) { "#{CONFIG['source_url']}/build/project_1/repository_1/architecture_1/package_1/_log?view=entry" }
-
     subject { instance_with_build_log_support.get_size_of_log('project_1', 'package_1', 'repository_1', 'architecture_1') }
+
+    let(:path) { "#{CONFIG['source_url']}/build/project_1/repository_1/architecture_1/package_1/_log?view=entry" }
 
     context 'with size' do
       before do
@@ -68,20 +88,20 @@ RSpec.describe BuildLogSupport do
   end
 
   describe '#get_job_status' do
+    subject { instance_with_build_log_support.get_job_status('project_1', 'package_1', 'repository_1', 'architecture_1') }
+
     before do
       path = "#{CONFIG['source_url']}/build/project_1/repository_1/architecture_1/package_1/_jobstatus"
       stub_request(:get, path).and_return(body: 'failed')
     end
 
-    subject { instance_with_build_log_support.get_job_status('project_1', 'package_1', 'repository_1', 'architecture_1') }
-
     it { is_expected.to eq('failed') }
   end
 
   describe '#get_status' do
-    let(:path) { "#{CONFIG['source_url']}/build/project_1/_result?arch=architecture_1&package=package_1&repository=repository_1&view=status" }
-
     subject { instance_with_build_log_support.get_status('project_1', 'package_1', 'repository_1', 'architecture_1') }
+
+    let(:path) { "#{CONFIG['source_url']}/build/project_1/_result?arch=architecture_1&package=package_1&repository=repository_1&view=status" }
 
     context 'with a code' do
       let(:status_body) do

@@ -2,9 +2,9 @@
 
 class WorkflowRun < ApplicationRecord
   SOURCE_URL_PAYLOAD_MAPPING = {
-    'pull_request' => ['pull_request', 'html_url'],
-    'Merge Request Hook' => ['object_attributes', 'url'],
-    'push' => ['head_commit', 'url'],
+    'pull_request' => %w[pull_request html_url],
+    'Merge Request Hook' => %w[object_attributes url],
+    'push' => %w[head_commit url],
     'Push Hook' => ['commits', 0, 'url']
   }.freeze
 
@@ -30,6 +30,15 @@ class WorkflowRun < ApplicationRecord
   has_many :event_subscriptions, dependent: :destroy
 
   after_save :create_event, if: :status_changed_to_fail?
+
+  scope :pull_request, -> { where(generic_event_type: 'pull_request') }
+  scope :push, -> { where(generic_event_type: 'push') }
+  scope :tag_push, -> { where(generic_event_type: 'tag_push') }
+
+  scope :with_statuses, ->(statuses) { where(status: statuses) }
+  scope :with_types, ->(types) { where(generic_event_type: types) }
+  scope :with_actions, ->(actions) { where(hook_action: actions) }
+  scope :with_event_source_name, ->(source_name) { where(event_source_name: source_name) }
 
   paginates_per 20
 

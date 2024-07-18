@@ -1,12 +1,12 @@
 RSpec.describe GroupPolicy do
+  subject { described_class }
+
   let(:group) { create(:group) }
   let(:anonymous_user) { create(:user_nobody) }
   let(:user) { create(:confirmed_user) }
   let(:admin) { create(:admin_user) }
   let(:group_member) { create(:groups_user, group: group).user }
   let(:group_maintainer) { create(:group_maintainer, group: group).user }
-
-  subject { GroupPolicy }
 
   permissions :create?, :index? do
     it { is_expected.not_to permit(user, group) }

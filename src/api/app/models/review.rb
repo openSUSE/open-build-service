@@ -7,7 +7,7 @@ class Review < ApplicationRecord
     setup 'review_not_found', 404, 'Review not found'
   end
 
-  VALID_REVIEW_STATES = [:new, :declined, :accepted, :superseded, :obsoleted].freeze
+  VALID_REVIEW_STATES = %i[new declined accepted superseded obsoleted].freeze
 
   belongs_to :bs_request, touch: true, optional: true
   has_many :history_elements, -> { order(:created_at) }, class_name: 'HistoryElement::Review', foreign_key: :op_object_id
@@ -304,7 +304,7 @@ class Review < ApplicationRecord
   end
 
   def check_reviewer!
-    selected_errors = errors.select { |error| error.attribute.in?([:user, :group, :project, :package]) }
+    selected_errors = errors.select { |error| error.attribute.in?(%i[user group project package]) }
     raise ::NotFoundError, selected_errors.map { |error| "#{error.attribute.capitalize} not found" }.to_sentence if selected_errors.any?
   end
 

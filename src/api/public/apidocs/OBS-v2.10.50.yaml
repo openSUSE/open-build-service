@@ -72,7 +72,7 @@ info:
     For command-line users, we recommend using [osc](https://github.com/openSUSE/osc) with its _api_ command to interact with the API.
     It's as simple as this example: `osc api /about` (_about_ is one of the endpoints documented below)
 
-    In order to make sure that the XML that is send in a requests body is in the expected format, the API validates it. 
+    In order to make sure that the XML that is send in a requests body is in the expected format, the API validates it.
     Either against a XML Schema Definition (`.xsd`) or a RELAX NG Schema (`.rng`). The schemas are mentioned
     in the endpoint documentation. If there is no schema file mentioned, no validation of the XML is done.
     In case the XML is not valid, a validation error is reported.
@@ -115,6 +115,8 @@ paths:
 
   /build:
     $ref: 'paths/build.yaml'
+  /build/_workerstatus:
+    $ref: 'paths/build__workerstatus.yaml'
   /build/{project_name}:
     $ref: 'paths/build_project_name.yaml'
   /build/{project_name}/_result:
@@ -125,35 +127,37 @@ paths:
     $ref: 'paths/build_project_name_repository_name_buildconfig.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/_builddepinfo:
     $ref: 'paths/build_project_name_repository_name_architecture_name_builddepinfo.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/_jobhistory:
+    $ref: 'paths/build_project_name_repository_name_architecture_name_jobhistory.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/_repository:
     $ref: 'paths/build_project_name_repository_name_architecture_name_repository.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}:
     $ref: 'paths/build_project_name_repository_name_architecture_name_package_name.yaml'
-  /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_log:
-    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_log.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_buildenv:
     $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_buildenv.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_buildinfo:
     $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_buildinfo.yaml'
-  /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_status:
-    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_status.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_history:
     $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_history.yaml'
-  /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_reason:
-    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_reason.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_jobstatus:
     $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_jobstatus.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_log:
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_log.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_reason:
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_reason.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_statistics:
     $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_statistics.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_status:
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_status.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/{file_name}:
     $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_file_name.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/{file_name}?view=fileinfo:
     $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_file_name_view_fileinfo.yaml'
-  /build/_workerstatus:
-    $ref: 'paths/build__workerstatus.yaml'
 
   /comment/{comment_id}:
     $ref: 'paths/comment_comment_id.yaml'
+  /comment/{comment_id}/history:
+    $ref: 'paths/comment_comment_id_history.yaml'
   /comments/user:
     $ref: 'paths/comments_user.yaml'
   /comments/request/{id}:
@@ -179,6 +183,9 @@ paths:
     $ref: 'paths/group.yaml'
   /group/{group_title}:
     $ref: 'paths/group_group_title.yaml'
+
+  /image_templates:
+    $ref: 'paths/image_templates.yaml'
 
   /issue_trackers:
     $ref: 'paths/issue_trackers.yaml'
@@ -313,6 +320,8 @@ paths:
     $ref: 'paths/source_project_name_attribute.yaml'
   /source/{project_name}/_attribute/{attribute_name}:
     $ref: 'paths/source_project_name_attribute_attribute_name.yaml'
+  /source/{project_name}/_project/_history:
+    $ref: 'paths/source_project_name_project_history.yaml'
   /source/{project_name}/_project/{file_name}:
     $ref: 'paths/source_project_name_project_file.yaml'
   /source/{project_name}?cmd=addchannels:
@@ -378,6 +387,8 @@ paths:
     $ref: 'paths/source_project_name_package_name_cmd_deleteuploadrev.yaml'
   /source/{project_name}/{package_name}?cmd=diff:
     $ref: 'paths/source_project_name_package_name_cmd_diff.yaml'
+  /source/{project_name}/{package_name}?cmd=fork:
+    $ref: 'paths/source_project_name_package_name_cmd_fork.yaml'
   /source/{project_name}/{package_name}?cmd=getprojectservices:
     $ref: 'paths/source_project_name_package_name_cmd_getprojectservices.yaml'
   /source/{project_name}/{package_name}?cmd=instantiate:
@@ -445,11 +456,11 @@ paths:
   /statistics:
     $ref: 'paths/statistics_deprecated_not_documented.yaml'
   /statistics/active_request_creators/{project_name}:
-    $ref: 'paths/statistics_deprecated_not_documented.yaml'
+    $ref: 'paths/statistics_deprecated_not_documented_project_name.yaml'
   /statistics/activity/{project_name}/{package_name}:
-    $ref: 'paths/statistics_deprecated_not_documented.yaml'
+    $ref: 'paths/statistics_deprecated_not_documented_project_name_package_name.yaml'
   /statistics/added_timestamp/{project_name}/{package_name}:
-    $ref: 'paths/statistics_deprecated_not_documented.yaml'
+    $ref: 'paths/statistics_deprecated_not_documented_project_name_package_name.yaml'
   /statistics/global_counters:
     $ref: 'paths/statistics_deprecated_not_documented.yaml'
   /statistics/latest_added:
@@ -457,13 +468,13 @@ paths:
   /statistics/latest_updated:
     $ref: 'paths/statistics_latest_updated.yaml'
   /statistics/maintenance_statistics/{project_name}:
-    $ref: 'paths/statistics_deprecated_not_documented.yaml'
+    $ref: 'paths/statistics_deprecated_not_documented_project_name.yaml'
   /statistics/most_active_packages:
     $ref: 'paths/statistics_most_active_packages.yaml'
   /statistics/most_active_projects:
     $ref: 'paths/statistics_most_active_projects.yaml'
   /statistics/updated_timestamp/{project_name}/{package_name}:
-    $ref: 'paths/statistics_deprecated_not_documented.yaml'
+    $ref: 'paths/statistics_deprecated_not_documented_project_name_package_name.yaml'
 
   # Status messages
   /status/messages:
@@ -500,8 +511,18 @@ paths:
   /status_reports/repositories/{project_name}/{repository_name}/required_checks/{check_name}:
     $ref: 'paths/status_reports_repositories_project_name_repository_name_required_checks_check_name.yaml'
 
-  /trigger/{operation}:
+  /trigger:
     $ref: 'paths/trigger_operation.yaml'
+  /trigger/rebuild:
+    $ref: 'paths/trigger_rebuild.yaml'
+  /trigger/release:
+    $ref: 'paths/trigger_release.yaml'
+  /trigger/runservice:
+    $ref: 'paths/trigger_runservice.yaml'
+  /trigger/workflow:
+    $ref: 'paths/trigger_workflow.yaml'
+  /trigger/webhook:
+    $ref: 'paths/trigger_webhook.yaml'
 
   /worker/_status:
     $ref: 'paths/worker__status.yaml'

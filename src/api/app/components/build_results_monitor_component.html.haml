@@ -1,0 +1,51 @@
+.row.mb-4.mt-2
+  .col-md-12
+    = render partial: 'webui/request/build_results_filters', locals: { package_names:package_names,
+                                                                       repository_names: repository_names,
+                                                                       architecture_names: architecture_names,
+                                                                       status_names: status_names,
+                                                                       filter_url: filter_url,
+                                                                       filters: filters }
+
+.accordion#build-results-monitor
+  - filtered_package_names.each do |package_name|
+    .accordion-item
+      .accordion-header
+        .accordion-button.p-3.collapsed{ "aria-controls" => "collapse-#{package_name.gsub(':', '_')}",
+                                         "aria-expanded" => "false", "data-bs-target" => "#collapse-#{package_name.gsub(':', '_')}",
+                                         "data-bs-toggle" => "collapse",
+                                         type: "button" }
+          .w-100.d-flex.flex-wrap.justify-content-between.pe-3
+            %span.text-break.me-2
+              = package_name
+            %span.text-end
+              - results_count_per_package_and_category(package_name).each do |key, value|
+                = render partial: 'webui/shared/build_status_count_badge', locals: { category: key, count: value.to_s }
+
+      .accordion-collapse.collapse.my-3{ id: "collapse-#{package_name.gsub(':', '_')}", class: show }
+        .build-result-table
+          .build-result-legend
+            .build-result-name
+            - filtered_architecture_names.each do |architecture_name|
+              .build-result-architecture.mb-1
+                %b= architecture_name
+          - filtered_repository_names.each do |repository_name|
+            .build-result-row
+              = link_to(helpers.word_break(repository_name, 22),
+                        project_package_repository_binaries_path(project_name: project_name,
+                                                                 package_name: package_name,
+                                                                 repository_name: repository_name),
+                        title: "Binaries for #{repository_name}", class: 'build-result-name')
+              .build-result-architectures
+                - filtered_architecture_names.each do |architecture_name|
+                  .build-result-architecture
+                    - results_per_package_repository_and_architecture(package_name, repository_name, architecture_name).each do |result|
+                      = render partial: 'webui/shared/build_status_badge', locals: { status: result[:status],
+                                                                                     text: result[:status].humanize,
+                                                                                     details: result[:details],
+                                                                                     architecture: result[:architecture],
+                                                                                     url: helpers.live_build_log_url(result[:status],
+                                                                                                             project_name,
+                                                                                                             package_name,
+                                                                                                             repository_name,
+                                                                                                             result[:architecture]) }

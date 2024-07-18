@@ -1,15 +1,13 @@
 get:
   summary: Show a distribution.
-  description: |
-    Show a distribution that can be build against.
+  description: Show a distribution that can be build against.
   security:
     - basic_authentication: []
   parameters:
     - $ref: '../components/parameters/distribution_id.yaml'
   responses:
     '200':
-      description: |
-        OK. The request has succeded.
+      description: OK. The request has succeded.
       content:
         application/xml; charset=utf-8:
           schema:
@@ -73,8 +71,7 @@ delete:
     - $ref: '../components/parameters/distribution_id.yaml'
   responses:
     '200':
-      description: |
-        OK. The request has succeded.
+      description: OK. The request has succeded.
       content:
         application/xml; charset=utf-8:
           schema:

@@ -3,8 +3,14 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
   let(:token) { create(:workflow_token, executor: user) }
 
   describe '#call' do
+    subject do
+      described_class.new(step_instructions: step_instructions,
+                          scm_webhook: scm_webhook,
+                          token: token)
+    end
+
     let(:path_project1) { create(:project, name: 'openSUSE:Factory') }
-    let!(:path_repository1) { create(:repository, project: path_project1, name: 'snapshot', architectures: ['i586', 'aarch64']) }
+    let!(:path_repository1) { create(:repository, project: path_project1, name: 'snapshot', architectures: %w[i586 aarch64]) }
     let(:path_project2) { create(:project, name: 'openSUSE:Leap:15.4') }
     let!(:path_repository2) { create(:repository, project: path_project2, name: 'standard', architectures: ['x86_64']) }
     let(:target_project) { create(:project, name: 'OBS:Server:Unstable:openSUSE:repo123:PR-1', maintainer: user) }
@@ -19,9 +25,9 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
                 { target_project: 'openSUSE:Factory', target_repository: 'snapshot' },
                 { target_project: 'openSUSE:Leap:15.4', target_repository: 'standard' }
               ],
-              architectures: [
-                'x86_64',
-                'ppc'
+              architectures: %w[
+                x86_64
+                ppc
               ]
             }
           ]
@@ -37,12 +43,6 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
                        target_repository_full_name: 'openSUSE/repo123',
                        commit_sha: '123'
                      })
-    end
-
-    subject do
-      described_class.new(step_instructions: step_instructions,
-                          scm_webhook: scm_webhook,
-                          token: token)
     end
 
     context 'when the token user does not have enough permissions' do
@@ -83,55 +83,18 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
         let(:configured_architectures) { configured_repositories.first.architectures }
 
         it 'configures the repository with the right attributes' do
-          expect(configured_repositories).to match_array([
-                                                           have_attributes(name: 'openSUSE_Tumbleweed', db_project_id: target_project.id)
-                                                         ])
+          expect(configured_repositories).to contain_exactly(have_attributes(name: 'openSUSE_Tumbleweed', db_project_id: target_project.id))
         end
 
         it 'configures the path elements with the right attributes' do
-          expect(configured_path_elements).to match_array([
-                                                            have_attributes(parent_id: configured_repositories.first.id, repository_id: path_repository1.id, position: 1,
-                                                                            kind: 'standard'),
-                                                            have_attributes(parent_id: configured_repositories.first.id, repository_id: path_repository2.id, position: 2, kind: 'standard')
-                                                          ])
+          expect(configured_path_elements).to contain_exactly(
+            have_attributes(parent_id: configured_repositories.first.id, repository_id: path_repository1.id, position: 1, kind: 'standard'),
+            have_attributes(parent_id: configured_repositories.first.id, repository_id: path_repository2.id, position: 2, kind: 'standard')
+          )
         end
 
         it 'overwrites previously configured architectures with those in the step instructions' do
-          expect(configured_architectures.map(&:name)).to eq(['x86_64', 'ppc'])
-        end
-      end
-
-      context 'and the project is missing in the step instructions' do
-        let(:step_instructions) do
-          {
-            fake_project: 'OBS:Server:Unstable',
-            repositories:
-              [
-                {
-                  name: 'openSUSE_Tumbleweed',
-                  paths: [{ target_project: 'openSUSE:Factory', target_repository: 'snapshot' }],
-                  architectures: [
-                    'x86_64',
-                    'ppc'
-                  ]
-                }
-              ]
-          }
-        end
-
-        it { expect(subject).not_to be_valid }
-
-        it 'does not create any repository' do
-          expect { subject.call }.not_to change(Repository, :count)
-        end
-
-        it 'does not create any architecture' do
-          expect { subject.call }.not_to change(Architecture, :count)
-        end
-
-        it "a validation fails complaining about the missing 'project' key" do
-          subject.call
-          expect(subject.errors.full_messages.to_sentence).to eq("The 'project' key is missing")
+          expect(configured_architectures.map(&:name)).to eq(%w[x86_64 ppc])
         end
       end
 
@@ -143,9 +106,9 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
               [
                 {
                   name: 'openSUSE_Tumbleweed',
-                  architectures: [
-                    'x86_64',
-                    'ppc'
+                  architectures: %w[
+                    x86_64
+                    ppc
                   ]
                 }
               ]
@@ -178,9 +141,9 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
                     { target_repository: 'snapshot' },
                     { target_project: 'openSUSE:Factory', target_repository: 'snapshot' }
                   ],
-                  architectures: [
-                    'x86_64',
-                    'ppc'
+                  architectures: %w[
+                    x86_64
+                    ppc
                   ]
                 }
               ]
@@ -206,9 +169,9 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
                     { target_project: 'openSUSE:Factory' },
                     { target_project: 'openSUSE:Factory', target_repository: 'snapshot' }
                   ],
-                  architectures: [
-                    'x86_64',
-                    'ppc'
+                  architectures: %w[
+                    x86_64
+                    ppc
                   ]
                 }
               ]
@@ -231,9 +194,9 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
                 {
                   name: 'openSUSE_Tumbleweed',
                   paths: [{ target_project: 'openSUSE:Factory', target_repository: 'snapshot' }],
-                  architectures: [
-                    'x86_64',
-                    'ppc'
+                  architectures: %w[
+                    x86_64
+                    ppc
                   ]
                 }
               ]
@@ -279,17 +242,17 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
                 {
                   name: 'openSUSE_Tumbleweed-snapshot',
                   paths: [{ target_project: 'openSUSE:Factory', target_repository: 'snapshot' }],
-                  architectures: [
-                    'foo',
-                    'x86_64'
+                  architectures: %w[
+                    foo
+                    x86_64
                   ]
                 },
                 {
                   name: 'openSUSE_Tumbleweed-standard',
                   paths: [{ target_project: 'openSUSE:Factory', target_repository: 'standard' }],
-                  architectures: [
-                    'bar',
-                    'i586'
+                  architectures: %w[
+                    bar
+                    i586
                   ]
                 }
 
@@ -313,9 +276,9 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
               {
                 name: 'openSUSE_Tumbleweed',
                 paths: [{ target_project: 'openSUSE:Factory', target_repository: 'snapshot' }],
-                architectures: [
-                  'x86_64',
-                  'ppc'
+                architectures: %w[
+                  x86_64
+                  ppc
                 ]
               }
             ]
@@ -328,43 +291,6 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
 
       it 'raises an error' do
         expect { subject.call }.to raise_error(Project::Errors::UnknownObjectError, "Project not found: #{subject.target_project_name}")
-      end
-    end
-  end
-
-  describe '#validate_project_name' do
-    let(:step_instructions) do
-      {
-        project: 'Invalid/format',
-        repositories:
-          [
-            {
-              name: 'openSUSE_Tumbleweed',
-              paths: [{ target_project: 'openSUSE:Factory', target_repository: 'snapshot' }],
-              architectures: [
-                'x86_64',
-                'ppc'
-              ]
-            }
-          ]
-      }
-    end
-    let(:scm_webhook) { SCMWebhook.new(payload: payload) }
-
-    subject do
-      described_class.new(step_instructions: step_instructions,
-                          scm_webhook: scm_webhook,
-                          token: token)
-    end
-
-    context 'when the source project is invalid' do
-      let(:payload) { { scm: 'gitlab', event: 'Push Hook' } }
-
-      it 'adds a validation error' do
-        subject.valid?
-
-        expect { subject.call }.not_to change(Package, :count)
-        expect(subject.errors.full_messages.to_sentence).to eq("Invalid project 'Invalid/format'")
       end
     end
   end

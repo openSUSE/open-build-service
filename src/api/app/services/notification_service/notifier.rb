@@ -15,11 +15,14 @@ module NotificationService
                         'Event::ReportForPackage',
                         'Event::ReportForComment',
                         'Event::ReportForUser',
+                        'Event::ReportForRequest',
                         'Event::ClearedDecision',
                         'Event::FavoredDecision',
                         'Event::WorkflowRunFail',
-                        'Event::AppealCreated'].freeze
-    CHANNELS = [:web, :rss].freeze
+                        'Event::AppealCreated',
+                        'Event::AddedUserToGroup',
+                        'Event::RemovedUserFromGroup'].freeze
+    CHANNELS = %i[web rss].freeze
     ALLOWED_NOTIFIABLE_TYPES = {
       'BsRequest' => ::BsRequest,
       'Comment' => ::Comment,
@@ -28,7 +31,8 @@ module NotificationService
       'Report' => ::Report,
       'Decision' => ::Decision,
       'WorkflowRun' => ::WorkflowRun,
-      'Appeal' => ::Appeal
+      'Appeal' => ::Appeal,
+      'Group' => ::Group
     }.freeze
     ALLOWED_CHANNELS = {
       web: NotificationService::WebChannel,
@@ -40,9 +44,12 @@ module NotificationService
                         'Event::ReportForPackage',
                         'Event::ReportForComment',
                         'Event::ReportForUser',
+                        'Event::ReportForRequest',
                         'Event::ClearedDecision',
                         'Event::FavoredDecision',
-                        'Event::WorkflowRunFail'].freeze
+                        'Event::WorkflowRunFail',
+                        'Event::AddedUserToGroup',
+                        'Event::RemovedUserFromGroup'].freeze
 
     def initialize(event)
       @event = event
@@ -55,32 +62,28 @@ module NotificationService
         next if channel == :rss && @event.eventtype.in?(REJECTED_FOR_RSS)
 
         @event.subscriptions(channel).each do |subscription|
-          create_notification_per_subscription(subscription, channel)
+          create_notification(subscription, channel)
         end
       end
     end
 
     private
 
-    def create_notification_per_subscription(subscription, channel)
-      return unless create_notification?(subscription.subscriber, channel)
+    def create_notification(subscription, channel)
+      return if subscription.subscriber.nil?
+      return if subscription.subscriber.away?
+      return if channel == :rss && subscription.subscriber.rss_secret.blank?
+      return unless notifiable_exists?
+      return if skip_report_notification?(event: @event, subscriber: subscription.subscriber)
 
       ALLOWED_CHANNELS[channel].new(subscription, @event).call
     end
 
-    def create_notification?(subscriber, channel)
-      return false if subscriber.nil? || subscriber.away? || (channel == :rss && subscriber.rss_secret.blank?)
-      return false unless notifiable_exists?
-      return false unless create_report_notification?(event: @event, subscriber: subscriber)
-
-      true
-    end
-
-    def create_report_notification?(event:, subscriber:)
+    def skip_report_notification?(event:, subscriber:)
       # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-      return false if (event.is_a?(Event::CreateReport) || event.is_a?(Event::Report)) && !ReportPolicy.new(subscriber, Report).notify?
+      return false unless [Event::CreateReport, Event::Report].include?(event.class)
 
-      true
+      !ReportPolicy.new(subscriber, Report).notify?
     end
 
     def notifiable_exists?

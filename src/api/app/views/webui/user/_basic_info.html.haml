@@ -1,9 +1,10 @@
-.editing-form.d-none
-  = render partial: 'webui/user/edit_account_form',
-           locals: { displayed_user: user, role_titles: role_titles, account_edit_link: account_edit_link }
+- if policy(user).update?
+  .editing-form.d-none
+    = render partial: 'webui/user/edit_account_form',
+             locals: { displayed_user: user, role_titles: role_titles, account_edit_link: account_edit_link }
 
 .basic-info
-  .d-flex.flex-row-reverse
+  .d-flex.flex-row-reverse.align-items-center.mb-3
     = render ReportsNoticeComponent.new(reportable: user, user: User.session)
     - if policy(Report.new(reportable: user)).create?
       = link_to('#', id: "js-user-#{user.id}", class: 'ps-2',
@@ -14,7 +15,18 @@
                     'reportable-id': user.id }) do
         %i.fas.fa-regular.fa-flag
         %span.nav-item-name Report
-    - if User.possibly_nobody.is_admin?
+    - if User.session
+      - if (blocked_user = BlockedUser.find_by(blocker: User.session, blocked: user))
+        - if policy(blocked_user).destroy?
+          = button_to(user_block_path(user), method: :delete, class: 'btn btn-link p-0 text-decoration-none ms-2') do
+            %i.fas.fa-user-lock
+            Unblock
+      - else
+        - if policy(BlockedUser.new(blocker: User.session, blocked: user)).create?
+          = button_to(user_block_path(user), method: :post, class: 'btn btn-link p-0 text-decoration-none ms-2') do
+            %i.fas.fa-user-lock
+            Block
+    - if User.possibly_nobody.is_admin? && user.state != 'deleted'
       = link_to('#', title: 'Delete user', class: 'ms-2', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-user-modal' }) do
         %i.fas.fa-times-circle.text-danger
         %span.nav-item-name.text-danger Delete
@@ -25,17 +37,20 @@
         - component.with_text_area do
           = label_tag('Adminnote', 'Admin note:', for: 'adminnote')
           = text_area_tag(:adminnote, '', placeholder: 'Please explain the reason for the deletion...', class: 'form-control')
-    - if configuration.accounts_editable?(user) && policy(user).update?
-      = link_to('javascript:void(0);', id: 'toggle-in-place-editing', remote: true, title: 'Edit Your Account') do
+    - if Configuration.accounts_editable?(user) && policy(user).update?
+      = link_to('#', id: 'toggle-in-place-editing', title: 'Edit Your Account') do
         %i.fas.fa-user-edit
         %span.nav-item-name Edit
-  .row.mb-3.mb-md-0
+  .row.mb-3
     .col-4.col-sm-2.col-md-12.text-center
       = render(AvatarComponent.new(name: user.name, email: user.email, size: 200))
-    .col-8.col-sm-10.col-md-12.ps-0.p-md-3
+      - if User.possibly_nobody.is_admin? && user.state != 'confirmed'
+        .border.rounded-2.my-2.px-1
+          = user.state.camelcase
+    .col-8.col-sm-10.col-md-12
       %h4#home-realname
         = user.realname
-      %h5.text-muted#home-login
+      %h5.text-reset#home-login
         = user.login
 
   - role_titles.each do |title|
@@ -45,12 +60,24 @@
 
   .mt-4
     - if User.session
-      = mail_to(user.email, title: "Send mail to #{user.name}", class: 'd-block') do
-        %i.fas.fa-envelope.me-1
-        = user.email
+      - if user.email.present?
+        = mail_to(user.email, title: "Send mail to #{user.name}", class: 'd-block') do
+          %i.fas.fa-envelope.me-1
+          = user.email
+      - else
+        .d-block
+          %i.fas.fa-envelope.me-1
+          %em.small No email address
 
-- if Flipper.enabled?(:content_moderation, User.possibly_nobody)
-  = render partial: 'webui/shared/report_modal'
+  - if user != User.possibly_nobody && Flipper.enabled?(:content_moderation, User.possibly_nobody)
+    = render partial: 'webui/shared/report_modal'
+    - if User.possibly_nobody.is_admin? || User.possibly_nobody.is_moderator?
+      = form_with(url: block_commenting_user_path(user), method: :put, remote: true) do |_form|
+        .form-check.form-switch.mt-3
+          = hidden_field_tag("user[blocked_from_commenting]", !user.blocked_from_commenting, id: nil)
+          = check_box_tag("user[blocked_from_commenting]", !user.blocked_from_commenting, user.blocked_from_commenting,
+                          class: 'form-check-input', onChange: 'this.form.submit()')
+          = label_tag("user[blocked_from_commenting]", 'Comment Block', class: 'form-check-label')
 
 :javascript
   $('#toggle-in-place-editing').on('click', function () {

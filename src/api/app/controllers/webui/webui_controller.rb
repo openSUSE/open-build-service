@@ -12,6 +12,7 @@ class Webui::WebuiController < ActionController::Base
   include RescueAuthorizationHandler
   include SetCurrentRequestDetails
   include Webui::ElisionsHelper
+  include ActiveStorage::SetCurrent
   protect_from_forgery
 
   before_action :setup_view_path
@@ -19,10 +20,11 @@ class Webui::WebuiController < ActionController::Base
   before_action :check_anonymous
   before_action :set_influxdb_data
   before_action :require_configuration
-  before_action :current_announcement
+  before_action :current_announcement, unless: -> { request.xhr? }
   before_action :fetch_watchlist_items
-  after_action :clean_cache
   before_action :set_paper_trail_whodunnit
+  before_action :set_unread_notifications_count, unless: -> { request.xhr? }
+  after_action :clean_cache
 
   # :notice and :alert are default, we add :success and :error
   add_flash_types :success, :error
@@ -46,7 +48,7 @@ class Webui::WebuiController < ActionController::Base
 
   def set_project
     # We've started to use project_name for new routes...
-    project_name = params[:project_name] || params[:project]
+    project_name = (params[:project_name] || params[:project]).to_s
     @project = ::Project.find_by(name: project_name)
     raise Project::Errors::UnknownObjectError, "Project not found: #{project_name}" unless @project
   end
@@ -82,13 +84,13 @@ class Webui::WebuiController < ActionController::Base
       rescue Authenticator::AuthenticationRequiredError => e
         logger.info "Authentication via kerberos failed '#{e.message}'"
         flash[:error] = "Authentication failed: '#{e.message}'"
-        redirect_back(fallback_location: root_path)
+        redirect_back_or_to root_path
         return
       end
       if User.session
-        logger.info "User '#{User.session!}' has logged in via kerberos"
-        session[:login] = User.session!.login
-        redirect_back(fallback_location: root_path)
+        logger.info "User '#{User.session}' has logged in via kerberos"
+        session[:login] = User.session.login
+        redirect_back_or_to root_path
         true
       end
     else
@@ -121,7 +123,7 @@ class Webui::WebuiController < ActionController::Base
       rescue NotFoundError
         # admins can see deleted users
         @displayed_user = User.find_by_login(param_login) if User.admin_session?
-        redirect_back(fallback_location: root_path, error: "User not found #{param_login}") unless @displayed_user
+        redirect_back_or_to(root_path, error: "User not found #{param_login}") unless @displayed_user
       end
     else
       @displayed_user = User.possibly_nobody
@@ -144,6 +146,35 @@ class Webui::WebuiController < ActionController::Base
   end
   alias set_package require_package
 
+  def set_repository
+    repository_name = params[:repository] || params[:repository_name]
+    @repository = @project.repositories.find_by(name: repository_name)
+    return if @repository
+
+    flash[:error] = "Could not find repository '#{repository_name}'"
+
+    redirect_back_or_to repositories_path(project: @project, package: @package)
+  end
+
+  def set_architecture
+    architecture_name = params[:architecture] || params[:arch]
+    @architecture = @repository.architectures.find_by(name: architecture_name)
+    return if @architecture
+
+    flash[:error] = "Could not find architecture '#{architecture_name}'"
+    redirect_back_or_to project_repositories_path(@project)
+  end
+
+  # Find the right object to authorize for all cases of links
+  # https://github.com/openSUSE/open-build-service/wiki/Links
+  def set_object_to_authorize
+    @object_to_authorize = @project
+    return unless @package # Remote Project Links or Project SCM Bridge Links
+    return if @project != @package.project # Project Links or Update Instance Project Links
+
+    @object_to_authorize = @package
+  end
+
   private
 
   def send_login_information_rabbitmq(msg)
@@ -159,7 +190,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def require_configuration
-    @configuration = ::Configuration.first
+    @configuration = ::Configuration.fetch
   end
 
   # Before filter to check if current user is administrator
@@ -167,19 +198,25 @@ class Webui::WebuiController < ActionController::Base
     return if User.admin_session?
 
     flash[:error] = 'Requires admin privileges'
-    redirect_back(fallback_location: { controller: 'main', action: 'index' })
+    redirect_back_or_to({ controller: 'main', action: 'index' })
   end
 
   # before filter to only show the frontpage to anonymous users
   def check_anonymous
-    if User.session
-      false
-    else
-      unless ::Configuration.anonymous
-        flash[:error] = 'No anonymous access. Please log in!'
-        redirect_back(fallback_location: root_path)
-      end
-    end
+    return if User.session.present?
+    return if ::Configuration.anonymous
+
+    login_page = case CONFIG['proxy_auth_mode']
+                 when :mellon
+                   add_return_to_parameter_to_query(url: CONFIG['proxy_auth_login_page'], parameter_name: 'ReturnTo')
+                 when :ichain
+                   add_return_to_parameter_to_query(url: CONFIG['proxy_auth_login_page'], parameter_name: 'url')
+                 else
+                   root_path
+                 end
+
+    flash[:error] = 'No anonymous access. Please log in!' unless ::Configuration.proxy_auth_mode_enabled?
+    redirect_to login_page
   end
 
   # After filter to clean up caches
@@ -210,9 +247,19 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def fetch_watchlist_items
-    @watched_requests = User.possibly_nobody.watched_requests
-    @watched_packages = User.possibly_nobody.watched_packages
-    @watched_projects = User.possibly_nobody.watched_projects
+    if request.xhr? && action_name != 'toggle_watched_item'
+      @watched_requests = []
+      @watched_packages = []
+      @watched_projects = []
+    else
+      @watched_requests = User.possibly_nobody.watched_requests
+      @watched_packages = User.possibly_nobody.watched_packages
+      @watched_projects = User.possibly_nobody.watched_projects
+    end
+  end
+
+  def set_unread_notifications_count
+    @unread_notifications_count = User.session ? User.session.unread_notifications_count : 0
   end
 
   def add_arrays(arr1, arr2)
@@ -239,5 +286,16 @@ class Webui::WebuiController < ActionController::Base
       anonymous: !User.session,
       interface: :webui
     }
+  end
+
+  def add_return_to_parameter_to_query(url:, parameter_name:)
+    uri = URI(url)
+    return_to = {}
+    return_to[parameter_name] = request.fullpath
+    query_array = uri.query.to_s.split('&')
+    query_array << return_to.to_query # for URL encoding
+    uri.query = query_array.join('&')
+
+    uri.to_s
   end
 end

@@ -636,6 +636,5 @@ my $conf = {
 $conf->{'maxchild'} = $BSConfig::getbinariesproxyserver_maxchild if $BSConfig::getbinariesproxyserver_maxchild;
 %$conf = (%$conf, %{$BSConfig::getbinariesproxyserver_extraconf}) if $BSConfig::getbinariesproxyserver_extraconf;
 
-BSRPC::set_clientcert(BSConfiguration::get_clientcert('getbinariesproxy'));
 BSStdServer::server('getbinariesproxy', \@ARGV, $conf);
 

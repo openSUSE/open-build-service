@@ -55,6 +55,10 @@ class BsRequestActionAddRole < BsRequestAction
     uniq_key.gsub('add_role/', 'Add Role ')
   end
 
+  def short_name
+    'Add Role'
+  end
+
   #### Alias of methods
 end
 

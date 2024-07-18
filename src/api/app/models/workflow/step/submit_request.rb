@@ -1,6 +1,5 @@
 class Workflow::Step::SubmitRequest < Workflow::Step
-  REQUIRED_KEYS = [:source_project, :source_package, :target_project].freeze
-  validate :validate_source_project_and_package_name
+  REQUIRED_KEYS = %i[source_project source_package target_project].freeze
 
   def call
     return unless valid?
@@ -43,7 +42,11 @@ class Workflow::Step::SubmitRequest < Workflow::Step
     @bs_request.save!
 
     Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, @bs_request).call
-    SCMStatusReporter.new({ number: @bs_request.number, state: @bs_request.state }, scm_webhook.payload, @token.scm_token, workflow_run, 'Event::RequestStatechange').call
+    SCMStatusReporter.new(event_payload: { number: @bs_request.number, state: @bs_request.state },
+                          event_subscription_payload: scm_webhook.payload,
+                          scm_token: @token.scm_token,
+                          workflow_run: workflow_run,
+                          event_type: 'Event::RequestStatechange').call
     @bs_request
   end
 
@@ -65,7 +68,7 @@ class Workflow::Step::SubmitRequest < Workflow::Step
 
   def revoke_submit_requests
     submit_requests_with_same_target_and_source.each do |submit_request|
-      next unless Pundit.authorize(@token.executor, submit_request, :revoke_request?)
+      Pundit.authorize(@token.executor, submit_request, :revoke_request?)
 
       submit_request.change_state(newstate: 'revoked', comment: "Revoke as #{workflow_run.event_source_url} got closed")
       (@request_numbers_and_state_for_artifacts["#{submit_request.state}"] ||= []) << submit_request.number
@@ -76,11 +79,11 @@ class Workflow::Step::SubmitRequest < Workflow::Step
     BsRequest.list({ project: step_instructions[:target_project],
                      source_project: step_instructions[:source_project],
                      package: step_instructions[:source_package],
-                     types: 'submit', states: ['new', 'review', 'declined'] })
+                     types: 'submit', states: %w[new review declined] })
   end
 
   def source_package
-    Package.get_by_project_and_name(source_project_name, source_package_name, follow_multibuild: true)
+    Package.get_by_project_and_name(step_instructions[:source_project], step_instructions[:source_package], follow_multibuild: true)
   end
 
   def source_package_revision

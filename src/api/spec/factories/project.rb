@@ -105,6 +105,7 @@ FactoryBot.define do
     factory :project_with_repository do
       after(:create) do |project|
         create(:repository, project: project, architectures: ['i586'])
+        project.store if CONFIG['global_write_through']
       end
     end
 

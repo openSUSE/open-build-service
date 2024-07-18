@@ -7,7 +7,7 @@
 
     pre {
       @extend .p-2;
-      @extend .bg-light;
+      @extend .bg-body-secondary;
       @extend .text-pre-wrap;
     }
     code { line-height: 1.5rem; }
@@ -21,14 +21,14 @@
 }
 
 .comment-bubble {
-  $comment-bubble-outline: rgba($gray-400, 0.5);
-  $comment-bubble-background: $gray-100;
+  --comment-bubble-outline: var(--bs-border-color);
+  --comment-bubble-background: var(--bs-tertiary-bg);
   @extend .rounded-4;
   @extend .mb-2;
-  border: 1px solid $comment-bubble-outline;
+  border: 1px solid var(--comment-bubble-outline);
   position: relative;
   min-width: 20%;
-  background-color: $comment-bubble-background;
+  background-color: var(--comment-bubble-background);
 
   &.comment-bubble-content, .comment-bubble-content {
     @extend .p-3;
@@ -53,7 +53,7 @@
     width: 0;
     height: 0;
     border: $comment-bubble-arrow-size solid transparent;
-    border-right-color: $comment-bubble-outline;
+    border-right-color: var(--comment-bubble-outline);
     border-top: 0;
     border-left: 0;
     margin-top: -($comment-bubble-arrow-size / 4);
@@ -63,12 +63,7 @@
     top: $comment-bubble-arrow-top-position + 1px;
     left: $comment-bubble-arrow-left-position + 2px;
     z-index: 1;
-    border-right-color: $comment-bubble-background;
-  }
-
-  .dropdown {
-    top: -10px;
-    left: 5px;
+    border-right-color: var(--comment-bubble-background);
   }
 
   p:last-of-type {

@@ -33,6 +33,7 @@ function updateRpmLintLog() {
   var repoKey = $('#rpmlint_repo_select option:selected').attr('value');
   ajaxDataShow.repository = $('#rpmlint_repo_select option:selected').html();
   ajaxDataShow.architecture = $('#rpmlint_arch_select_' + repoKey + ' option:selected').attr('value');
+  ajaxDataShow.renderChart = true;
   $.ajax({
     url: '/package/rpmlint_log',
     data: ajaxDataShow,

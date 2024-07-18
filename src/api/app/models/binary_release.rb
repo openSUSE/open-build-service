@@ -1,120 +1,26 @@
 class BinaryRelease < ApplicationRecord
   class SaveError < APIError; end
 
+  # These aliases are the attribute names the backend uses to represent a BinaryRelease
+  # Having these makes it easier for us to transpose one into the other.
+  alias_attribute :name, :binary_name
+  alias_attribute :version, :binary_version
+  alias_attribute :release, :binary_release
+  alias_attribute :epoch, :binary_epoch
+  alias_attribute :binaryarch, :binary_arch
+  alias_attribute :binaryid, :binary_id
+  alias_attribute :buildtime, :binary_buildtime
+  alias_attribute :disturl, :binary_disturl
+  alias_attribute :supportstatus, :binary_supportstatus
+  alias_attribute :cpeid, :binary_cpeid
+  alias_attribute :updateinfoid, :binary_updateinfo
+  alias_attribute :updateinfoversion, :binary_updateinfo_version
+
   belongs_to :repository
   belongs_to :release_package, class_name: 'Package', optional: true
   belongs_to :on_medium, class_name: 'BinaryRelease', optional: true
 
   before_create :set_release_time
-
-  def self.update_binary_releases(repository, key, time = Time.now)
-    begin
-      notification_payload = ActiveSupport::JSON.decode(Backend::Api::Server.notification_payload(key))
-    rescue Backend::NotFoundError
-      logger.error("Payload got removed for #{key}")
-      return
-    end
-    update_binary_releases_via_json(repository, notification_payload, time)
-    Backend::Api::Server.delete_notification_payload(key)
-  end
-
-  def self.update_binary_releases_via_json(repository, json, time = Time.now)
-    oldlist = where(repository: repository, obsolete_time: nil, modify_time: nil)
-    # we can not just remove it from relation, delete would affect the object.
-    processed_item = {}
-
-    # when we have a medium providing further entries
-    medium_hash = {}
-
-    BinaryRelease.transaction do
-      json.each do |binary|
-        # identifier
-        hash = { binary_name: binary['name'],
-                 binary_version: binary['version'] || 0, # docker containers have no version
-                 binary_release: binary['release'] || 0,
-                 binary_epoch: binary['epoch'],
-                 binary_arch: binary['binaryarch'],
-                 medium: binary['medium'],
-                 on_medium: medium_hash[binary['medium']],
-                 obsolete_time: nil,
-                 modify_time: nil }
-        # check for existing entry
-        matching_binaries = oldlist.where(hash)
-        if matching_binaries.count > 1
-          Rails.logger.info "ERROR: multiple matches, cleaning up: #{matching_binaries.inspect}"
-          # double definition means broken DB entries
-          matching_binaries.offset(1).destroy_all
-        end
-
-        # compare with existing entry
-        entry = matching_binaries.first
-
-        if entry
-          if entry.identical_to?(binary)
-            # same binary, don't touch
-            processed_item[entry.id] = true
-            # but collect the media
-            medium_hash[binary['ismedium']] = entry if binary['ismedium'].present?
-            next
-          end
-          # same binary name and location, but updated content or meta data
-          entry.modify_time = time
-          entry.save!
-          processed_item[entry.id] = true
-          hash[:operation] = 'modified' # new entry will get "modified" instead of "added"
-        end
-
-        # complete hash for new entry
-        hash[:binary_releasetime] = time
-        hash[:binary_id] = binary['binaryid'] if binary['binaryid'].present?
-        hash[:binary_buildtime] = nil
-        hash[:binary_buildtime] = Time.strptime(binary['buildtime'].to_s, '%s') if binary['buildtime'].present?
-        hash[:binary_disturl] = binary['disturl']
-        hash[:binary_supportstatus] = binary['supportstatus']
-        hash[:binary_cpeid] = binary['cpeid']
-        if binary['updateinfoid']
-          hash[:binary_updateinfo] = binary['updateinfoid']
-          hash[:binary_updateinfo_version] = binary['updateinfoversion']
-        end
-        if binary['package'].present?
-          # the package may be missing if the binary comes via DoD
-          source_package = Package.striping_multibuild_suffix(binary['package'])
-          rp = Package.find_by_project_and_name(binary['project'], source_package)
-          if source_package.include?(':') && !source_package.start_with?('_product:')
-            flavor_name = binary['package'].gsub(/^#{source_package}:/, '')
-            hash[:flavor] = flavor_name
-          end
-          hash[:release_package_id] = rp.id if binary['project'] && rp
-        end
-        if binary['patchinforef']
-          begin
-            patchinfo = Patchinfo.new(data: Backend::Api::Sources::Project.patchinfo(binary['patchinforef']))
-          rescue Backend::NotFoundError
-            # patchinfo disappeared meanwhile
-          end
-          hash[:binary_maintainer] = patchinfo.hashed['packager'] if patchinfo && patchinfo.hashed['packager']
-        end
-
-        # put a reference to the medium aka container
-        hash[:on_medium] = medium_hash[binary['medium']] if binary['medium'].present?
-
-        # new entry, also for modified binaries.
-        entry = repository.binary_releases.create(hash)
-        processed_item[entry.id] = true
-
-        # store in medium case
-        medium_hash[binary['ismedium']] = entry if binary['ismedium'].present?
-      end
-
-      # and mark all not processed binaries as removed
-      oldlist.each do |e|
-        next if processed_item[e.id]
-
-        e.obsolete_time = time
-        e.save!
-      end
-    end
-  end
 
   def set_release_time!
     self.binary_releasetime = Time.now
@@ -179,23 +85,7 @@ class BinaryRelease < ApplicationRecord
     Rails.cache.fetch("xml_binary_release_#{cache_key_with_version}") { render_xml }
   end
 
-  def identical_to?(binary_hash)
-    # We ignore not set binary_id in db because it got introduced later
-    # we must not touch the modification time in that case
-    binary_disturl == binary_hash['disturl'] &&
-      binary_supportstatus == binary_hash['supportstatus'] &&
-      (binary_id.nil? || binary_id == binary_hash['binaryid']) &&
-      binary_buildtime == binary_hash_build_time(binary_hash)
-  end
-
   private
-
-  def binary_hash_build_time(binary_hash)
-    # handle nil/NULL case
-    return if binary_hash['buildtime'].blank?
-
-    Time.strptime(binary_hash['buildtime'].to_s, '%s')
-  end
 
   def product_medium
     repository.product_medium.find_by(name: medium)
@@ -204,7 +94,7 @@ class BinaryRelease < ApplicationRecord
   # renders all values, which are used as identifier of a binary entry.
   def render_attributes
     attributes = { project: repository.project.name, repository: repository.name }
-    [:binary_name, :binary_epoch, :binary_version, :binary_release, :binary_arch, :medium].each do |key|
+    %i[binary_name binary_epoch binary_version binary_release binary_arch medium].each do |key|
       value = send(key)
       next unless value
 

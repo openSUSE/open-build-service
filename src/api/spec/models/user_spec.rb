@@ -30,10 +30,10 @@ RSpec.describe User do
   end
 
   context 'seen_since' do
+    subject { User.seen_since(3.months.ago) }
+
     let!(:dead_user) { create(:dead_user, login: 'caspar') }
     let!(:active_user) { create(:confirmed_user, login: 'active_user') }
-
-    subject { User.seen_since(3.months.ago) }
 
     it { expect(subject).not_to include(dead_user) }
     it { expect(subject).to include(active_user) }
@@ -107,12 +107,6 @@ RSpec.describe User do
     it { expect { subject }.to change(User, :count).by(1) }
   end
 
-  describe '#can_modify_user?' do
-    it { expect(admin_user.can_modify_user?(confirmed_user)).to be(true) }
-    it { expect(user.can_modify_user?(confirmed_user)).to be(false) }
-    it { expect(user.can_modify_user?(user)).to be(true) }
-  end
-
   describe '#name' do
     context 'user with empty name' do
       before { user.update(realname: '') }
@@ -153,30 +147,24 @@ RSpec.describe User do
   end
 
   describe "methods used in the User's dashboard" do
+    before do
+      unfreeze_time
+    end
+
     let(:project) { create(:project, name: 'project_a') }
 
-    it 'will have involved packages' do
+    it 'has involved packages' do
       create(:relationship_package_user, package: project_with_package.packages.first, user: user)
       expect(user.involved_packages).to include(project_with_package.packages.first)
     end
 
-    it 'will have involved projects' do
+    it 'has involved projects' do
       create(:relationship_project_user, project: project, user: user)
       create(:relationship_project_user, project: project_with_package, user: user)
       involved_projects = user.involved_projects
       expect(involved_projects).to include(user.home_project)
       expect(involved_projects).to include(project)
       expect(involved_projects).to include(project_with_package)
-    end
-
-    it 'will have owned projects and packages' do
-      login user
-      create(:attrib, attrib_type: AttribType.find_by(name: 'OwnerRootProject'), project: project_with_package)
-      create(:relationship_package_user, package: project_with_package.packages.first, user: user)
-      create(:relationship_project_user, project: project_with_package, user: user)
-      owned_packages = user.owned_packages
-      expect(owned_packages[0]).to eq([nil, project_with_package])
-      expect(owned_packages[1]).to eq([project_with_package.packages.first, project_with_package])
     end
   end
 
@@ -218,6 +206,8 @@ RSpec.describe User do
   end
 
   describe '#involved_packages' do
+    subject { confirmed_user.involved_packages }
+
     let(:group) { create(:group) }
     let!(:groups_user) { create(:groups_user, user: confirmed_user, group: group) }
 
@@ -232,8 +222,6 @@ RSpec.describe User do
 
     let(:group_project_maintained_package) { create(:package) }
     let!(:relationship_project_group) { create(:relationship_project_group, group: group, project: group_project_maintained_package.project) }
-
-    subject { confirmed_user.involved_packages }
 
     it 'does include packages where user is maintainer' do
       expect(subject).to include(maintained_package)
@@ -368,13 +356,13 @@ RSpec.describe User do
     let!(:groups_user) { create(:groups_user, user: confirmed_user, group: group) }
 
     context 'with a lot notifications from the user' do
+      subject { confirmed_user.combined_rss_feed_items }
+
       before do
         create_list(:rss_notification, max_items_per_group, subscriber: group)
         create_list(:rss_notification, max_items_per_user + 5, subscriber: confirmed_user)
         create_list(:rss_notification, 3, subscriber: user)
       end
-
-      subject { confirmed_user.combined_rss_feed_items }
 
       it { expect(subject.count).to be(max_items_per_user) }
       it { is_expected.not_to(be_any { |x| x.subscriber != confirmed_user }) }
@@ -383,13 +371,13 @@ RSpec.describe User do
     end
 
     context 'with a lot notifications from the group' do
+      subject { confirmed_user.combined_rss_feed_items }
+
       before do
         create_list(:rss_notification, 5, subscriber: confirmed_user)
         create_list(:rss_notification, max_items_per_group - 1, subscriber: group)
         create_list(:rss_notification, 3, subscriber: user)
       end
-
-      subject { confirmed_user.combined_rss_feed_items }
 
       it { expect(subject.count).to be(max_items_per_user) }
       it { expect(subject.count { |x| x.subscriber == confirmed_user }).to eq(1) }
@@ -398,6 +386,8 @@ RSpec.describe User do
     end
 
     context 'with a notifications mixed' do
+      subject { confirmed_user.combined_rss_feed_items }
+
       let(:batch) { max_items_per_user / 4 }
 
       before do
@@ -407,8 +397,6 @@ RSpec.describe User do
         create_list(:rss_notification, batch, subscriber: group)
         create_list(:rss_notification, 3, subscriber: user)
       end
-
-      subject { confirmed_user.combined_rss_feed_items }
 
       it { expect(subject.count).to be(max_items_per_user) }
       it { expect(subject.count { |x| x.subscriber == confirmed_user }).to be >= batch * 2 }
@@ -555,9 +543,9 @@ RSpec.describe User do
     let!(:locked_user) { create(:locked_user) }
 
     describe '#autocomplete_login' do
-      it { expect(User.autocomplete_login('foo')).to match_array(['foobar']) }
+      it { expect(User.autocomplete_login('foo')).to contain_exactly('foobar') }
       it { expect(User.autocomplete_login('bar')).to be_empty }
-      it { expect(User.autocomplete_login(nil)).to match_array(['foobar', 'fobaz']) }
+      it { expect(User.autocomplete_login(nil)).to contain_exactly('foobar', 'fobaz') }
       it { expect(User.autocomplete_login(deleted_user.login)).to be_empty }
       it { expect(User.autocomplete_login(locked_user.login)).to be_empty }
     end
@@ -565,7 +553,7 @@ RSpec.describe User do
     describe '#autocomplete_token' do
       subject { User.autocomplete_token('foo') }
 
-      it { expect(subject).to match_array([{ name: 'foobar' }]) }
+      it { expect(subject).to contain_exactly({ name: 'foobar' }) }
     end
   end
 
@@ -632,6 +620,29 @@ RSpec.describe User do
         end
 
         expect(User.session).to be(user1)
+      end
+    end
+  end
+
+  describe '#can_modify?' do
+    let(:user) { create(:confirmed_user, :with_home, login: 'hans') }
+    let(:project) { user.home_project }
+
+    context 'projects' do
+      context 'can modify a home project' do
+        it { expect(user.can_modify?(project)).to be true }
+      end
+
+      context 'can modify sub-projects of a home project' do
+        let(:child_project) { create(:project, name: "#{project.name}:something") }
+
+        it { expect(user.can_modify?(child_project)).to be true }
+      end
+
+      context "cannot modify other people's projects" do
+        let(:project) { create(:project, name: 'home:dani:branches:home:hans:something') }
+
+        it { expect(user.can_modify?(project)).to be false }
       end
     end
   end

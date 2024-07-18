@@ -30,15 +30,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:43 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Wed, 31 Jan 2024 11:54:13 GMT
+recorded_with: VCR 6.2.0

@@ -9,30 +9,15 @@ module ActionBuildResultsService
     def call
       return [] if @actions.blank?
 
-      @actions.where(type: [:submit, :maintenance_incident, :maintenance_release])
-              .map { |action| sources_from_action(action) }
-              .select { |sources| sources[:source_project].present? && sources[:source_package].present? }
-              .map do |sources|
-        build_results = package_build_results(sources[:source_package], sources[:source_project])
+      @actions.where(type: %i[submit maintenance_incident maintenance_release]).map do |action|
+        sources = sources_from_action(action)
+        next unless sources[:source_project].present? && sources[:source_package].present?
 
-        request_build_results(build_results, sources[:source_package], sources[:source_project])
-      end
-      .flatten
+        package_build_results(sources[:source_package], sources[:source_project])
+      end.flatten.compact
     end
 
     private
-
-    def request_build_results(build_results, source_package, source_project)
-      build_results.map do |result_entry|
-        {
-          architecture: result_entry.architecture,
-          repository: result_entry.repository,
-          status: result_entry.code,
-          package_name: source_package.name,
-          project_name: source_project.name
-        }
-      end
-    end
 
     def project_from_action(action)
       bs_request = BsRequest.find(action.bs_request_id)
@@ -48,7 +33,21 @@ module ActionBuildResultsService
     end
 
     def package_build_results(source_package, source_project)
-      source_package.buildresult(source_project, show_all: true).results.flat_map { |_k, v| v }
+      results = source_package.buildresult(source_project, show_all: true).results
+      results.flat_map do |pkg, build_results|
+        build_results.map do |result|
+          {
+            architecture: result.architecture,
+            repository: result.repository,
+            status: result.code,
+            package_name: pkg,
+            project_name: source_project.name,
+            repository_status: result.state,
+            is_repository_in_db: result.is_repository_in_db,
+            details: result.details
+          }
+        end
+      end
     end
   end
 end

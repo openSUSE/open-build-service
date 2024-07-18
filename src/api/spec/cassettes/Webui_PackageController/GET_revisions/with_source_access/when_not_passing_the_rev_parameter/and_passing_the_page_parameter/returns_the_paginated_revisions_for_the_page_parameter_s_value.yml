@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Tue, 26 Sep 2023 14:24:08 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/_meta?user=tom
@@ -47,7 +47,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="some_dev_project123">
-          <title>A Handful of Dust</title>
+          <title>The Daffodil Sky</title>
           <description/>
           <person userid="tom" role="maintainer"/>
         </project>
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <project name="some_dev_project123">
-          <title>A Handful of Dust</title>
+          <title>The Daffodil Sky</title>
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Tue, 26 Sep 2023 14:24:08 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/_meta?user=tom
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_one_revision" project="some_dev_project123">
-          <title>Many Waters</title>
-          <description>Consequatur nulla dolorem consequatur.</description>
+          <title>The Last Enemy</title>
+          <description>Pariatur necessitatibus qui et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,15 +109,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '181'
+      - '177'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_one_revision" project="some_dev_project123">
-          <title>Many Waters</title>
-          <description>Consequatur nulla dolorem consequatur.</description>
+          <title>The Last Enemy</title>
+          <description>Pariatur necessitatibus qui et.</description>
         </package>
-  recorded_at: Tue, 26 Sep 2023 14:24:08 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
@@ -150,12 +150,924 @@ http_interactions:
         <revision rev="1" vrev="1">
           <srcmd5>cabf9a1f9a0b7c19d4f7ff46166f4ee0</srcmd5>
           <version>unknown</version>
-          <time>1695738248</time>
+          <time>1718298092</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:08 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '1'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>efbe5f0a5dd48df5129b4319df43aa45</srcmd5>
+          <version>unknown</version>
+          <time>1718298092</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '2'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3" vrev="3">
+          <srcmd5>6ba292a7c75f8b46e4d39ac7cb20ebcd</srcmd5>
+          <version>unknown</version>
+          <time>1718298092</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '3'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>60d83e04e1adc0a7e399a5b10312faf1</srcmd5>
+          <version>unknown</version>
+          <time>1718298092</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '4'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="5" vrev="5">
+          <srcmd5>707a2e3f19f3839311f68573bb195d76</srcmd5>
+          <version>unknown</version>
+          <time>1718298092</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '5'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="6" vrev="6">
+          <srcmd5>2e1c0233c9d99ba83033d89ef12d2784</srcmd5>
+          <version>unknown</version>
+          <time>1718298092</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '6'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="7" vrev="7">
+          <srcmd5>34c36fe4cefd03ba044d562a503da90c</srcmd5>
+          <version>unknown</version>
+          <time>1718298092</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '7'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="8" vrev="8">
+          <srcmd5>98d9e947a4844aafa773b7f41ca63a2c</srcmd5>
+          <version>unknown</version>
+          <time>1718298092</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '8'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="9" vrev="9">
+          <srcmd5>4c43ef90bbe674bd39f1b63ac5eb9bb8</srcmd5>
+          <version>unknown</version>
+          <time>1718298092</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '9'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="10" vrev="10">
+          <srcmd5>7283d008aa323d5b07e2f8c3522c6c8b</srcmd5>
+          <version>unknown</version>
+          <time>1718298092</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '10'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="11" vrev="11">
+          <srcmd5>17c17e93312d5e5aa167bb78c136a1fa</srcmd5>
+          <version>unknown</version>
+          <time>1718298092</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '11'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="12" vrev="12">
+          <srcmd5>63ca1c1c9c75b3b15f69b88ce8b792d5</srcmd5>
+          <version>unknown</version>
+          <time>1718298092</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '12'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="13" vrev="13">
+          <srcmd5>30b77d193b0927cc779a2ef6f647448c</srcmd5>
+          <version>unknown</version>
+          <time>1718298092</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '13'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="14" vrev="14">
+          <srcmd5>41ef40a25c049fdf2c8b47b12d12817e</srcmd5>
+          <version>unknown</version>
+          <time>1718298093</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '14'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="15" vrev="15">
+          <srcmd5>013560d729108133227a7b0a4fc7e49a</srcmd5>
+          <version>unknown</version>
+          <time>1718298093</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '15'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="16" vrev="16">
+          <srcmd5>d60cff72a23bd84779257aff2dc7854a</srcmd5>
+          <version>unknown</version>
+          <time>1718298093</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '16'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="17" vrev="17">
+          <srcmd5>4a326cc87dbc3522a2ba7208321a6c0e</srcmd5>
+          <version>unknown</version>
+          <time>1718298093</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '17'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="18" vrev="18">
+          <srcmd5>08a3004f5d0dbd0429f0bd8a23f43d7e</srcmd5>
+          <version>unknown</version>
+          <time>1718298093</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '18'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="19" vrev="19">
+          <srcmd5>8c118c7493a3ef6113f9ed623439342a</srcmd5>
+          <version>unknown</version>
+          <time>1718298093</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '19'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="20" vrev="20">
+          <srcmd5>678488e31d48cdb0fe85149e141865a0</srcmd5>
+          <version>unknown</version>
+          <time>1718298093</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '20'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="21" vrev="21">
+          <srcmd5>d73dafb822a442712c7f84b1837f695e</srcmd5>
+          <version>unknown</version>
+          <time>1718298093</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '21'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="22" vrev="22">
+          <srcmd5>57c604a283b6334adb697c75572a6e1a</srcmd5>
+          <version>unknown</version>
+          <time>1718298093</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '22'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="23" vrev="23">
+          <srcmd5>e40b414cd11db9031f1298d3682a77a1</srcmd5>
+          <version>unknown</version>
+          <time>1718298093</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '23'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="24" vrev="24">
+          <srcmd5>c512ba6b3decfc855fc3af4f0cdc4387</srcmd5>
+          <version>unknown</version>
+          <time>1718298093</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '24'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="25" vrev="25">
+          <srcmd5>81a16cd46abebb5f5ec34f4ee6397d9e</srcmd5>
+          <version>unknown</version>
+          <time>1718298093</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: get
     uri: http://backend:5352/source/some_dev_project123/package_with_one_revision
@@ -181,14 +1093,166 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '215'
+      - '217'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_one_revision" rev="1" vrev="1" srcmd5="cabf9a1f9a0b7c19d4f7ff46166f4ee0">
-          <entry name="somefile.txt" md5="cfcd208495d565ef66e7dff9f98764da" size="1" mtime="1695738247"/>
+        <directory name="package_with_one_revision" rev="25" vrev="25" srcmd5="81a16cd46abebb5f5ec34f4ee6397d9e">
+          <entry name="somefile.txt" md5="1ff1de774005f8da13f42943881c655f" size="2" mtime="1718298086"/>
         </directory>
-  recorded_at: Tue, 26 Sep 2023 14:24:08 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/some_dev_project123/package_with_one_revision/_history?deleted=0&limit=20&meta=0&startbefore=26
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '3703'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+          <revision rev="6" vrev="6">
+            <srcmd5>2e1c0233c9d99ba83033d89ef12d2784</srcmd5>
+            <version>unknown</version>
+            <time>1718298092</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="7" vrev="7">
+            <srcmd5>34c36fe4cefd03ba044d562a503da90c</srcmd5>
+            <version>unknown</version>
+            <time>1718298092</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="8" vrev="8">
+            <srcmd5>98d9e947a4844aafa773b7f41ca63a2c</srcmd5>
+            <version>unknown</version>
+            <time>1718298092</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="9" vrev="9">
+            <srcmd5>4c43ef90bbe674bd39f1b63ac5eb9bb8</srcmd5>
+            <version>unknown</version>
+            <time>1718298092</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="10" vrev="10">
+            <srcmd5>7283d008aa323d5b07e2f8c3522c6c8b</srcmd5>
+            <version>unknown</version>
+            <time>1718298092</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="11" vrev="11">
+            <srcmd5>17c17e93312d5e5aa167bb78c136a1fa</srcmd5>
+            <version>unknown</version>
+            <time>1718298092</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="12" vrev="12">
+            <srcmd5>63ca1c1c9c75b3b15f69b88ce8b792d5</srcmd5>
+            <version>unknown</version>
+            <time>1718298092</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="13" vrev="13">
+            <srcmd5>30b77d193b0927cc779a2ef6f647448c</srcmd5>
+            <version>unknown</version>
+            <time>1718298092</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="14" vrev="14">
+            <srcmd5>41ef40a25c049fdf2c8b47b12d12817e</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="15" vrev="15">
+            <srcmd5>013560d729108133227a7b0a4fc7e49a</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="16" vrev="16">
+            <srcmd5>d60cff72a23bd84779257aff2dc7854a</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="17" vrev="17">
+            <srcmd5>4a326cc87dbc3522a2ba7208321a6c0e</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="18" vrev="18">
+            <srcmd5>08a3004f5d0dbd0429f0bd8a23f43d7e</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="19" vrev="19">
+            <srcmd5>8c118c7493a3ef6113f9ed623439342a</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="20" vrev="20">
+            <srcmd5>678488e31d48cdb0fe85149e141865a0</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="21" vrev="21">
+            <srcmd5>d73dafb822a442712c7f84b1837f695e</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="22" vrev="22">
+            <srcmd5>57c604a283b6334adb697c75572a6e1a</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="23" vrev="23">
+            <srcmd5>e40b414cd11db9031f1298d3682a77a1</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="24" vrev="24">
+            <srcmd5>c512ba6b3decfc855fc3af4f0cdc4387</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="25" vrev="25">
+            <srcmd5>81a16cd46abebb5f5ec34f4ee6397d9e</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+        </revisionlist>
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/_meta?user=tom
@@ -196,8 +1260,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_25_revisions" project="some_dev_project123">
-          <title>By Grand Central Station I Sat Down and Wept</title>
-          <description>Magnam ad libero perferendis.</description>
+          <title>The Mermaids Singing</title>
+          <description>Minus cupiditate fugiat aut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -218,15 +1282,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '180'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_25_revisions" project="some_dev_project123">
-          <title>By Grand Central Station I Sat Down and Wept</title>
-          <description>Magnam ad libero perferendis.</description>
+          <title>The Mermaids Singing</title>
+          <description>Minus cupiditate fugiat aut.</description>
         </package>
-  recorded_at: Tue, 26 Sep 2023 14:24:08 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -259,12 +1323,12 @@ http_interactions:
         <revision rev="1" vrev="1">
           <srcmd5>cabf9a1f9a0b7c19d4f7ff46166f4ee0</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -297,12 +1361,12 @@ http_interactions:
         <revision rev="2" vrev="2">
           <srcmd5>efbe5f0a5dd48df5129b4319df43aa45</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -335,12 +1399,12 @@ http_interactions:
         <revision rev="3" vrev="3">
           <srcmd5>6ba292a7c75f8b46e4d39ac7cb20ebcd</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -373,12 +1437,12 @@ http_interactions:
         <revision rev="4" vrev="4">
           <srcmd5>60d83e04e1adc0a7e399a5b10312faf1</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -411,12 +1475,12 @@ http_interactions:
         <revision rev="5" vrev="5">
           <srcmd5>707a2e3f19f3839311f68573bb195d76</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -449,12 +1513,12 @@ http_interactions:
         <revision rev="6" vrev="6">
           <srcmd5>2e1c0233c9d99ba83033d89ef12d2784</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -487,12 +1551,12 @@ http_interactions:
         <revision rev="7" vrev="7">
           <srcmd5>34c36fe4cefd03ba044d562a503da90c</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -525,12 +1589,12 @@ http_interactions:
         <revision rev="8" vrev="8">
           <srcmd5>98d9e947a4844aafa773b7f41ca63a2c</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -563,12 +1627,12 @@ http_interactions:
         <revision rev="9" vrev="9">
           <srcmd5>4c43ef90bbe674bd39f1b63ac5eb9bb8</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -601,12 +1665,12 @@ http_interactions:
         <revision rev="10" vrev="10">
           <srcmd5>7283d008aa323d5b07e2f8c3522c6c8b</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -639,12 +1703,12 @@ http_interactions:
         <revision rev="11" vrev="11">
           <srcmd5>17c17e93312d5e5aa167bb78c136a1fa</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -677,12 +1741,12 @@ http_interactions:
         <revision rev="12" vrev="12">
           <srcmd5>63ca1c1c9c75b3b15f69b88ce8b792d5</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -715,12 +1779,12 @@ http_interactions:
         <revision rev="13" vrev="13">
           <srcmd5>30b77d193b0927cc779a2ef6f647448c</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -753,12 +1817,12 @@ http_interactions:
         <revision rev="14" vrev="14">
           <srcmd5>41ef40a25c049fdf2c8b47b12d12817e</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -791,12 +1855,12 @@ http_interactions:
         <revision rev="15" vrev="15">
           <srcmd5>013560d729108133227a7b0a4fc7e49a</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -829,12 +1893,12 @@ http_interactions:
         <revision rev="16" vrev="16">
           <srcmd5>d60cff72a23bd84779257aff2dc7854a</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -867,12 +1931,12 @@ http_interactions:
         <revision rev="17" vrev="17">
           <srcmd5>4a326cc87dbc3522a2ba7208321a6c0e</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -905,12 +1969,12 @@ http_interactions:
         <revision rev="18" vrev="18">
           <srcmd5>08a3004f5d0dbd0429f0bd8a23f43d7e</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -943,12 +2007,12 @@ http_interactions:
         <revision rev="19" vrev="19">
           <srcmd5>8c118c7493a3ef6113f9ed623439342a</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -981,12 +2045,12 @@ http_interactions:
         <revision rev="20" vrev="20">
           <srcmd5>678488e31d48cdb0fe85149e141865a0</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -1019,12 +2083,12 @@ http_interactions:
         <revision rev="21" vrev="21">
           <srcmd5>d73dafb822a442712c7f84b1837f695e</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -1057,12 +2121,12 @@ http_interactions:
         <revision rev="22" vrev="22">
           <srcmd5>57c604a283b6334adb697c75572a6e1a</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -1095,12 +2159,12 @@ http_interactions:
         <revision rev="23" vrev="23">
           <srcmd5>e40b414cd11db9031f1298d3682a77a1</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -1133,12 +2197,12 @@ http_interactions:
         <revision rev="24" vrev="24">
           <srcmd5>c512ba6b3decfc855fc3af4f0cdc4387</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298093</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/somefile.txt
@@ -1171,12 +2235,12 @@ http_interactions:
         <revision rev="25" vrev="25">
           <srcmd5>81a16cd46abebb5f5ec34f4ee6397d9e</srcmd5>
           <version>unknown</version>
-          <time>1695738249</time>
+          <time>1718298094</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions
@@ -1207,9 +2271,161 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="package_with_25_revisions" rev="25" vrev="25" srcmd5="81a16cd46abebb5f5ec34f4ee6397d9e">
-          <entry name="somefile.txt" md5="1ff1de774005f8da13f42943881c655f" size="2" mtime="1695738248"/>
+          <entry name="somefile.txt" md5="1ff1de774005f8da13f42943881c655f" size="2" mtime="1718298090"/>
         </directory>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:34 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/_history?deleted=0&limit=20&meta=0&startbefore=26
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '3703'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+          <revision rev="6" vrev="6">
+            <srcmd5>2e1c0233c9d99ba83033d89ef12d2784</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="7" vrev="7">
+            <srcmd5>34c36fe4cefd03ba044d562a503da90c</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="8" vrev="8">
+            <srcmd5>98d9e947a4844aafa773b7f41ca63a2c</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="9" vrev="9">
+            <srcmd5>4c43ef90bbe674bd39f1b63ac5eb9bb8</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="10" vrev="10">
+            <srcmd5>7283d008aa323d5b07e2f8c3522c6c8b</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="11" vrev="11">
+            <srcmd5>17c17e93312d5e5aa167bb78c136a1fa</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="12" vrev="12">
+            <srcmd5>63ca1c1c9c75b3b15f69b88ce8b792d5</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="13" vrev="13">
+            <srcmd5>30b77d193b0927cc779a2ef6f647448c</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="14" vrev="14">
+            <srcmd5>41ef40a25c049fdf2c8b47b12d12817e</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="15" vrev="15">
+            <srcmd5>013560d729108133227a7b0a4fc7e49a</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="16" vrev="16">
+            <srcmd5>d60cff72a23bd84779257aff2dc7854a</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="17" vrev="17">
+            <srcmd5>4a326cc87dbc3522a2ba7208321a6c0e</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="18" vrev="18">
+            <srcmd5>08a3004f5d0dbd0429f0bd8a23f43d7e</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="19" vrev="19">
+            <srcmd5>8c118c7493a3ef6113f9ed623439342a</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="20" vrev="20">
+            <srcmd5>678488e31d48cdb0fe85149e141865a0</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="21" vrev="21">
+            <srcmd5>d73dafb822a442712c7f84b1837f695e</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="22" vrev="22">
+            <srcmd5>57c604a283b6334adb697c75572a6e1a</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="23" vrev="23">
+            <srcmd5>e40b414cd11db9031f1298d3682a77a1</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="24" vrev="24">
+            <srcmd5>c512ba6b3decfc855fc3af4f0cdc4387</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="25" vrev="25">
+            <srcmd5>81a16cd46abebb5f5ec34f4ee6397d9e</srcmd5>
+            <version>unknown</version>
+            <time>1718298094</time>
+            <user>unknown</user>
+          </revision>
+        </revisionlist>
+  recorded_at: Thu, 13 Jun 2024 17:01:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions
@@ -1240,9 +2456,71 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="package_with_25_revisions" rev="25" vrev="25" srcmd5="81a16cd46abebb5f5ec34f4ee6397d9e">
-          <entry name="somefile.txt" md5="1ff1de774005f8da13f42943881c655f" size="2" mtime="1695738248"/>
+          <entry name="somefile.txt" md5="1ff1de774005f8da13f42943881c655f" size="2" mtime="1718298090"/>
         </directory>
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:34 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions/_history?deleted=0&limit=20&meta=0&startbefore=6
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '941'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+          <revision rev="1" vrev="1">
+            <srcmd5>cabf9a1f9a0b7c19d4f7ff46166f4ee0</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="2" vrev="2">
+            <srcmd5>efbe5f0a5dd48df5129b4319df43aa45</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="3" vrev="3">
+            <srcmd5>6ba292a7c75f8b46e4d39ac7cb20ebcd</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="4" vrev="4">
+            <srcmd5>60d83e04e1adc0a7e399a5b10312faf1</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="5" vrev="5">
+            <srcmd5>707a2e3f19f3839311f68573bb195d76</srcmd5>
+            <version>unknown</version>
+            <time>1718298093</time>
+            <user>unknown</user>
+          </revision>
+        </revisionlist>
+  recorded_at: Thu, 13 Jun 2024 17:01:34 GMT
 - request:
     method: delete
     uri: http://backend:5352/source/some_dev_project123/package_with_25_revisions?user=tom
@@ -1274,7 +2552,7 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:34 GMT
 - request:
     method: delete
     uri: http://backend:5352/source/some_dev_project123/package_with_one_revision?user=tom
@@ -1306,5 +2584,5 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Tue, 26 Sep 2023 14:24:09 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:34 GMT
 recorded_with: VCR 6.2.0

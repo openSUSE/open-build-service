@@ -1,14 +1,10 @@
 class Staging::WorkflowPolicy < ApplicationPolicy
-  def initialize(user, record, opts = {})
-    super(user, record, { ensure_logged_in: true }.merge(opts))
-  end
-
   def new?
     create?
   end
 
   def create?
-    ProjectPolicy.new(user, record.project).update?
+    update?
   end
 
   def update?
@@ -24,7 +20,7 @@ class Staging::WorkflowPolicy < ApplicationPolicy
   end
 
   def destroy?
-    ProjectPolicy.new(user, record.project).destroy?
+    update?
   end
 
   def copy?

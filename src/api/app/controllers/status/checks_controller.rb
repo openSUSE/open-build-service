@@ -30,7 +30,7 @@ class Status::ChecksController < ApplicationController
   private
 
   def check_notify_params
-    params = { who: User.session!.login, state: @check.state, name: @check.name }
+    params = { who: User.session.login, state: @check.state, name: @check.name }
     params[:url] = @check.url if @check.url
     params[:short_description] = @check.short_description if @check.short_description
     params.merge(@status_report.notify_params)

@@ -1,5 +1,5 @@
 !!!
-%html{ lang: 'en' }
+%html{ lang: 'en', "data-bs-theme-from-user": theme_from_user }
   %head
     %meta{ content: 'charset=utf-8' }/
     %meta{ name: 'viewport', content: 'width=device-width, initial-scale=1, shrink-to-fit=no' }
@@ -36,20 +36,20 @@
     = auto_discovery_link_tag(:rss, news_feed_path(format: 'rss'), title: 'News')
     = csrf_meta_tag
     - if User.session&.rss_secret.present?
-      = auto_discovery_link_tag(:rss, user_rss_notifications_url(secret: User.session!.rss_secret, format: :rss), title: 'Notifications')
+      = auto_discovery_link_tag(:rss, user_rss_notifications_url(secret: User.session.rss_secret, format: :rss), title: 'Notifications')
     = auto_discovery_link_tag(:rss, latest_updates_feed_path(format: 'rss'), title: 'Latest updates')
   %body{ class: feature_css_class }
     #grid
       #top-navigation-area
-        = render partial: 'layouts/webui/top_navigation'
-      .navbar-dark.bg-gray-800#left-navigation-area{ class: "#{'collapsed' if sidebar_collapsed?}" }
+        = render partial: 'layouts/webui/top_navigation', locals: { unread_notifications_count: @unread_notifications_count }
+      .navbar-dark.navbar-themed-colors#left-navigation-area{ class: "#{'collapsed' if sidebar_collapsed?}" }
         = render partial: 'layouts/webui/left_navigation', locals: { spider_bot: @spider_bot }
         = render partial: 'layouts/webui/left_navigation_collapse_button'
       .d-flex.flex-column#content-area
         - if @current_notification || @current_request_action
           = render partial: 'layouts/webui/notification_toolbar', locals: { notification: @current_notification,
                                                                             request_action: @current_request_action }
-        .container-xxl.flex-grow-1.pb-3.border-bottom.border-gray-400
+        .container-xxl.flex-grow-1.pb-3.border-bottom
           .sticky-top.flash-and-announcement.text-break
             = render partial: 'layouts/webui/status_message_announcement', locals: { current_announcement: @current_announcement }
             #flash= render partial: 'layouts/webui/flash', object: flash
@@ -73,12 +73,13 @@
 
       - if !current_page?(signup_path) && !current_page?(new_session_path)
         #bottom-navigation-area
-          = render partial: 'layouts/webui/bottom_navigation', locals: { spider_bot: @spider_bot }
+          = render partial: 'layouts/webui/bottom_navigation',locals: { spider_bot: @spider_bot,
+                                                                        unread_notifications_count: @unread_notifications_count }
 
       -# Collapsible menu shared between top and bottom navigation
       - if User.session
-        .navbar-dark.bg-gray-800.navbar-collapse.watchlist-collapse
-          = render WatchlistComponent.new(user: User.session!,
+        .navbar-dark.navbar-collapse.navbar-themed-colors.watchlist-collapse
+          = render WatchlistComponent.new(user: User.session,
                                           bs_request: @bs_request,
                                           package: @package,
                                           project: @project,

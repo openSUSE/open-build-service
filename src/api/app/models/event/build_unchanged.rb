@@ -1,7 +1,7 @@
 module Event
   class BuildUnchanged < Build
     self.message_bus_routing_key = 'package.build_unchanged'
-    self.description = 'Package has succeeded building with unchanged result'
+    self.description = 'Package succeeded building with unchanged result'
 
     def state
       'unchanged'
@@ -16,7 +16,7 @@ end
 #  id          :bigint           not null, primary key
 #  eventtype   :string(255)      not null, indexed
 #  mails_sent  :boolean          default(FALSE), indexed
-#  payload     :text(65535)
+#  payload     :text(16777215)
 #  undone_jobs :integer          default(0)
 #  created_at  :datetime         indexed
 #  updated_at  :datetime

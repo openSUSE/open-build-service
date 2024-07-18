@@ -1,9 +1,13 @@
 module Event
   class Build < Base
-    self.description = 'Package has finished building'
+    self.description = 'Package finished building'
     self.abstract_class = true
     payload_keys :project, :package, :sender, :repository, :arch, :release, :readytime, :srcmd5,
                  :rev, :reason, :bcnt, :verifymd5, :hostarch, :starttime, :endtime, :workerid, :versrel, :previouslyfailed, :successive_failcount, :buildtype
+
+    def subject
+      raise AbstractMethodCalled
+    end
 
     def custom_headers
       mid = my_message_id
@@ -38,7 +42,12 @@ module Event
 
     def parameters_for_notification
       super.merge(notifiable_type: 'Package',
-                  notifiable_id: ::Package.find_by_project_and_name(payload['project'], payload['package'])&.id)
+                  notifiable_id: ::Package.find_by_project_and_name(payload['project'], payload['package'])&.id,
+                  type: 'NotificationPackage')
+    end
+
+    def involves_hidden_project?
+      Project.unscoped.find_by(name: payload['project'])&.disabled_for?('access', nil, nil)
     end
 
     private

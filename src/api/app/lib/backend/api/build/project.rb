@@ -12,14 +12,23 @@ module Backend
           http_post(['/build/:project', project_name], params: params)
         end
 
+        def self.rebuild(project_name, options = {})
+          http_post(['/build/:project', project_name], defaults: { cmd: :rebuild },
+                                                       params: options, accepted: %i[repository arch])
+        end
+
         def self.resume_scheduler(project_name, comment = nil)
           params = { cmd: :resumeproject }
           params[:comment] = comment if comment
           http_post(['/build/:project', project_name], params: params)
         end
 
-        def self.wipe_binaries(project_name)
-          http_post(['/build/:project', project_name], params: { cmd: :wipe })
+        def self.wipe_binaries(project_name, options = {})
+          http_post(['/build/:project', project_name], defaults: { cmd: :wipe }, params: options, accepted: %i[repository arch package])
+        end
+
+        def self.abort_build(project_name, options = {})
+          http_post(['/build/:project', project_name], defaults: { cmd: :abortbuild }, params: options.compact, accepted: %i[repository arch package])
         end
 
         # Runs the command wipepublishedlocked for that project to cleanup published binaries

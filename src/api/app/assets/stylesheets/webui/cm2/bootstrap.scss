@@ -1,46 +1,59 @@
 // Bootstrap theme for CodeMirror
 .cm-s-bootstrap {
+  --cm-body: var(--bs-body-color);
+  --cm-blue: #{$blue};
+  --cm-pink: #{$pink};
+  --cm-indigo: #{$indigo};
+  --cm-teal: #{$teal};
+  --cm-orange: #{$orange};
+  --cm-red: #{$red};
+  --cm-gray: #{$text-muted};
+  --cm-purple: #{$purple};
+  --cm-yellow: #{$yellow};
+  --cm-green: #{$green};
+  --cm-link: #{$link-color};
+
   &.CodeMirror {
     font-family: $font-family-monospace, monospace;
     background: $card-bg;
-    color: $body-color;
+    color: var(--cm-body);
     line-height: 1.2;
   }
 
-  .cm-header {color: $blue;}
-  .cm-quote {color: $green;}
+  .cm-header {color: var(--cm-blue);}
+  .cm-quote {color: var(--cm-green);}
 
-  .cm-keyword {color: $pink;}
-  .cm-atom {color: $indigo;}
-  .cm-number {color: $teal;}
-  .cm-def {color: $blue;}
+  .cm-keyword {color: var(--cm-pink);}
+  .cm-atom {color: var(--cm-indigo);}
+  .cm-number {color: var(--cm-teal);}
+  .cm-def {color: var(--cm-blue);}
   .cm-variable,
   .cm-punctuation,
   .cm-property,
-  .cm-operator {color: $body-color;}
-  .cm-variable-2 {color: $blue;}
-  .cm-variable-3, .cm-type {color: $teal;}
-  .cm-comment {color: $orange;}
-  .cm-string {color: $danger;}
-  .cm-string-2 {color: $orange;}
-  .cm-meta {color: $text-muted;}
-  .cm-qualifier {color: $text-muted;}
-  .cm-builtin {color: $purple;}
-  .cm-bracket {color: $warning;}
-  .cm-tag {color: $success;}
-  .cm-attribute {color: $blue;}
-  .cm-hr {color: $secondary;}
-  .cm-link {color: $link-color;}
+  .cm-operator {color: var(--cm-body);}
+  .cm-variable-2 {color: var(--cm-blue);}
+  .cm-variable-3, .cm-type {color: var(--cm-teal);}
+  .cm-comment {color: var(--cm-orange);}
+  .cm-string {color: var(--cm-red);}
+  .cm-string-2 {color: var(--cm-orange);}
+  .cm-meta {color: var(--cm-gray);}
+  .cm-qualifier {color: var(--cm-gray);}
+  .cm-builtin {color: var(--cm-purple);}
+  .cm-bracket {color: var(--cm-yellow);}
+  .cm-tag {color: var(--cm-green);}
+  .cm-attribute {color: var(--cm-blue);}
+  .cm-hr {color: var(--cm-blue);}
+  .cm-link {color: var(--cm-link);}
   .cm-tab {
     background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAMCAYAAAAkuj5RAAAAAXNSR0IArs4c6QAAAGFJREFUSMft1LsRQFAQheHPowAKoACx3IgEKtaEHujDjORSgWTH/ZOdnZOcM/sgk/kFFWY0qV8foQwS4MKBCS3qR6ixBJvElOobYAtivseIE120FaowJPN75GMu8j/LfMwNjh4HUpwg4LUAAAAASUVORK5CYII=);
     background-position: right;
     background-repeat: no-repeat;
   }
 
-  .cm-error {color: $danger;}
+  .cm-error {color: var(--cm-red);}
 
   .cm-negative {
-    color: $danger;
+    color: var(--cm-red);
   }
 
   .CodeMirror-negative-line {
@@ -55,12 +68,12 @@
   }
 
   .CodeMirror-gutters {
-    background: $card-cap-bg;
+    background: var(--bs-secondary-bg);
     border-right: var(--bs-card-border-width) solid var(--bs-card-border-color);
   }
-  .CodeMirror-guttermarker { color: $text-muted; }
-  .CodeMirror-guttermarker-subtle { color: $text-muted; }
-  .CodeMirror-linenumber { color: $text-muted; }
+  .CodeMirror-guttermarker { color: var(--cm-gray); }
+  .CodeMirror-guttermarker-subtle { color: var(--cm-gray); }
+  .CodeMirror-linenumber { color: var(--cm-gray); }
   div.CodeMirror-selected {
     background: $primary;
     opacity: 0.2;
@@ -70,4 +83,23 @@
   .CodeMirror-cursor { border-left: 0px; }
 }
 
-.editable .cm-s-bootstrap .CodeMirror-cursor { border-left: 1px solid $body-color; }
+@include color-mode(dark) {
+  .cm-s-bootstrap {
+    --cm-blue: #{lighten($blue, 20%)};
+    --cm-pink: #{lighten($pink, 20%)};
+    --cm-indigo: #{lighten($indigo, 40%)};
+    --cm-teal: #{lighten($teal, 20%)};
+    --cm-orange: #{lighten($orange, 20%)};
+    --cm-red: #{lighten($danger, 20%)};
+    --cm-purple: #{lighten($purple, 20%)};
+    --cm-yellow: #{lighten($warning, 20%)};
+    --cm-green: #{lighten($success, 20%)};
+    --cm-link: #{lighten($link-color, 20%)};
+  }
+}
+
+.editable .cm-s-bootstrap .CodeMirror-cursor { border-left: 1px solid var(--cm-body); }
+
+.editor-bg {
+  background-color: var(--bs-secondary-bg);
+}

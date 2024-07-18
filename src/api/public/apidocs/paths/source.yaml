@@ -41,8 +41,7 @@ get:
     '401':
       $ref: '../components/responses/unauthorized.yaml'
     '403':
-      description: |
-        No permission to access deleted projects.
+      description: No permission to access deleted projects.
       content:
         application/xml; charset=utf-8:
           schema:

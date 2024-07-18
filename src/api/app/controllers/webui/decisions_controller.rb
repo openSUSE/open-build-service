@@ -3,7 +3,7 @@ class Webui::DecisionsController < Webui::WebuiController
   after_action :verify_authorized
 
   def create
-    user = User.session!
+    user = User.session
     decision = user.decisions.new(decision_params)
     authorize decision
 
@@ -13,12 +13,12 @@ class Webui::DecisionsController < Webui::WebuiController
       flash[:error] = decision.errors.full_messages.to_sentence
     end
 
-    redirect_back(fallback_location: root_path)
+    redirect_back_or_to root_path
   end
 
   private
 
   def decision_params
-    params.require(:decision).permit(:reason, :kind, report_ids: [])
+    params.require(:decision).permit(:reason, :type, report_ids: [])
   end
 end

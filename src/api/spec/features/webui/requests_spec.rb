@@ -16,7 +16,7 @@ RSpec.describe 'Requests', :js, :vcr do
         find('.show-content').click
         expect(page).to have_css('div.expanded')
         find('.show-content').click
-        expect(page).not_to have_css('div.expanded')
+        expect(page).to have_no_css('div.expanded')
       end
     end
   end
@@ -29,10 +29,10 @@ RSpec.describe 'Requests', :js, :vcr do
     it 'show request comments' do
       visit request_show_path(bs_request)
       expect(page).to have_text(comment_1.body)
-      expect(page).not_to have_text(comment_2.body)
+      expect(page).to have_no_text(comment_2.body)
       find('a', text: "Comments for request #{superseded_bs_request.number}").click
       expect(page).to have_text(comment_2.body)
-      expect(page).not_to have_text(comment_1.body)
+      expect(page).to have_no_text(comment_1.body)
     end
 
     describe 'request description field' do
@@ -203,7 +203,7 @@ RSpec.describe 'Requests', :js, :vcr do
         login submitter
         visit request_show_path(bs_request)
         desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
-        find(:id, 'review_type').select('User')
+        find_by_id('review_type').select('User')
         fill_in 'review_user', with: reviewer.login
         fill_in 'Comment for reviewer:', with: 'Please review'
         click_button('Accept')
@@ -234,7 +234,7 @@ RSpec.describe 'Requests', :js, :vcr do
         login submitter
         visit request_show_path(bs_request)
         desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
-        find(:id, 'review_type').select('Group')
+        find_by_id('review_type').select('Group')
         fill_in 'review_group', with: review_group.title
         click_button('Accept')
         expect(page).to have_text("Open review for #{review_group.title}")
@@ -246,7 +246,7 @@ RSpec.describe 'Requests', :js, :vcr do
         login submitter
         visit request_show_path(bs_request)
         desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
-        find(:id, 'review_type').select('Project')
+        find_by_id('review_type').select('Project')
         fill_in 'review_project', with: submitter.home_project
         click_button('Accept')
         expect(page).to have_text("Open review for #{submitter.home_project}")
@@ -260,7 +260,7 @@ RSpec.describe 'Requests', :js, :vcr do
         login submitter
         visit request_show_path(bs_request)
         desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
-        find(:id, 'review_type').select('Package')
+        find_by_id('review_type').select('Package')
         fill_in 'review_project', with: submitter.home_project
         # Remove focus from autocomplete. Needed to remove the `disabled` attribute from `review_package`.
         find_by_id('review_comment').click
@@ -275,7 +275,7 @@ RSpec.describe 'Requests', :js, :vcr do
         login submitter
         visit request_show_path(bs_request)
         desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
-        find(:id, 'review_type').select('Project')
+        find_by_id('review_type').select('Project')
         fill_in 'review_project', with: 'INVALID/PROJECT'
         click_button('Accept')
         expect(page).to have_css('#flash', text: 'Unable to add review to request')
@@ -299,7 +299,7 @@ RSpec.describe 'Requests', :js, :vcr do
         it 'does not show any request reason' do
           login reviewer
           visit request_show_path(bs_request)
-          expect(find_by_id('review-0')).not_to have_text('requested:')
+          expect(find_by_id('review-0')).to have_no_text('requested:')
         end
       end
 
@@ -359,12 +359,12 @@ RSpec.describe 'Requests', :js, :vcr do
 
     it 'a delete request does not show the Changes Tab' do
       visit request_show_path(delete_bs_request)
-      expect(page).not_to have_text('Changes')
+      expect(page).to have_no_text('Changes')
     end
 
     it 'a delete request does not show the Issues Tab' do
       visit request_show_path(delete_bs_request)
-      expect(page).not_to have_text('Issues')
+      expect(page).to have_no_text('Issues')
     end
   end
 
@@ -381,7 +381,7 @@ RSpec.describe 'Requests', :js, :vcr do
 
     it 'does not show the project maintainers' do
       visit request_show_path(delete_bs_request)
-      expect(page).not_to have_text('Project Maintainers')
+      expect(page).to have_no_text('Project Maintainers')
     end
   end
 
@@ -405,8 +405,8 @@ RSpec.describe 'Requests', :js, :vcr do
         fill_in 'Project', with: staging_project.name
         click_button('Accept')
       end
-      expect(page).not_to have_text('Staged in')
-      expect(page).not_to have_css('.bg-staging')
+      expect(page).to have_no_text('Staged in')
+      expect(page).to have_no_css('.bg-staging')
     end
   end
 

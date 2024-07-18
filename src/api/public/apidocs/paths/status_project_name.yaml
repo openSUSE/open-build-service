@@ -1,7 +1,6 @@
 get:
   summary: Get list of packages inside a project
-  description: |
-    Get a full list of packages and their status
+  description: Get a full list of packages and their status
   security:
     - basic_authentication: []
   parameters:

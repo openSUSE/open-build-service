@@ -1,0 +1,98 @@
+post:
+  summary: Trigger a SCM/CI Workflow via an API token
+  description: |
+    This route allows to trigger an [OBS SCM/CI workflow](https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.scm_ci_workflow_integration)
+    via an API token.
+
+    You are required to authenticate with the API token secret. The API token secret needs
+    to be provided either by HTTP headers or by a Hash-based Message Authentication Code (HMAC).
+
+    See the [/person/{login}/token](#/Person/post_person__login__token) endpoint for
+    information how to create an API token.
+  security:
+    - GitLab_key_authentication: []
+  parameters:
+    - in: header
+      name: X-OBS-SIGNATURE
+      description: |
+        A HMAC of the request body, signed with the API token secret.
+        Only useful in combination with the id parameter.
+      schema:
+        type: string
+      example: 123458568938927827827
+    - in: header
+      name: X-HUB-SIGNATURE-256
+      description: |
+        A HMAC of the request body, signed with the API token secret.
+        Only useful in combination with the id parameter.
+      schema:
+        type: string
+      example: 123458568938927827827
+    - in: header
+      name: X-Pagure-Signature-256
+      description: |
+        A HMAC of the request body, signed with the API token secret.
+        Only useful in combination with the id parameter.
+      schema:
+        type: string
+      example: 123458568938927827827
+    - in: header
+      name: X-GitLab-Token
+      description: The API token secret.
+      schema:
+        type: string
+      example: THE_TOKEN_SECRET
+    - in: header
+      name: Authorization
+      description: The API token secret in the Token realm.
+      schema:
+        type: string
+      example: Token THE_TOKEN_SECRET
+    - in: query
+      name: id
+      description: |
+        Numerical ID of the token to trigger.
+        This is required if you authenticate via a HMAC.
+      schema:
+        type: integer
+      example: 1
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: Bad Request.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: invalid_token
+            summary: No valid token found
+    '403':
+      description: Forbidden.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: permission_denied
+            summary: No valid token found
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            unknown_project:
+              summary: Project not found
+              value:
+                code: unknown_project
+                details: 'Project not found: home:Admin'
+            unknown_package:
+              summary: Package not found
+              value:
+                code: unknown_package
+                details: 'Package not found: home:Admin/foo'
+  tags:
+    - Trigger

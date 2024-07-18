@@ -63,6 +63,15 @@ FactoryBot.define do
       event_type { 'Event::RelationshipDelete' }
       notifiable factory: [:project]
     end
+    trait :relationship_create_for_package do
+      event_type { 'Event::RelationshipCreate' }
+      notifiable factory: [:package]
+    end
+
+    trait :relationship_delete_for_package do
+      event_type { 'Event::RelationshipDelete' }
+      notifiable factory: [:package]
+    end
 
     trait :build_failure do
       event_type { 'Event::BuildFail' }
@@ -85,7 +94,7 @@ FactoryBot.define do
 
     trait :cleared_decision do
       event_type { 'Event::ClearedDecision' }
-      notifiable { association(:decision, :cleared) }
+      notifiable { association(:decision_cleared) }
 
       after(:build) do |notification|
         notification.event_payload['reportable_type'] ||= notification.notifiable.reports.first.reportable.class.to_s
@@ -94,11 +103,16 @@ FactoryBot.define do
 
     trait :favored_decision do
       event_type { 'Event::FavoredDecision' }
-      notifiable { association(:decision, :favor) }
+      notifiable { association(:decision_favored) }
 
       after(:build) do |notification|
         notification.event_payload['reportable_type'] ||= notification.notifiable.reports.first.reportable.class.to_s
       end
+    end
+
+    trait :appeal do
+      event_type { 'Event::AppealCreated' }
+      notifiable { association(:appeal) }
     end
   end
 

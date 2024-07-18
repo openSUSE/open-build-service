@@ -19,7 +19,7 @@ module Webui::RequestHelper
     'superseded' => 'fa-plus'
   }.freeze
 
-  AVAILABLE_TYPES = ['all', 'submit', 'delete', 'add_role', 'change_devel', 'maintenance_incident', 'maintenance_release', 'release'].freeze
+  AVAILABLE_TYPES = %w[all submit delete add_role change_devel maintenance_incident maintenance_release release].freeze
   AVAILABLE_STATES = ['new or review', 'new', 'review', 'accepted', 'declined', 'revoked', 'superseded'].freeze
 
   def request_state_color(state)
@@ -97,7 +97,7 @@ module Webui::RequestHelper
   end
 
   def calculate_filename(filename, file_element)
-    return filename unless ['changed', 'renamed'].include?(file_element['state'])
+    return filename unless %w[changed renamed].include?(file_element['state'])
     return filename if file_element['old']['name'] == filename
 
     "#{file_element['old']['name']} -> #{filename}"
@@ -113,6 +113,7 @@ module Webui::RequestHelper
     "#{diff['project']} / #{diff['package']} (rev #{diff['rev']})"
   end
 
+  # [DEPRECATED] TODO: drop this helper function after request_workflow_redesign is rolled out
   # rubocop:disable Style/FormatString
   def request_action_header(action, creator)
     source_project_hash = { project: action[:sprj], package: action[:spkg], trim_to: nil }
@@ -160,30 +161,6 @@ module Webui::RequestHelper
                     }
                   end
 
-    # TODO: merge these extra conditions when request_show_redesign is rolled out.
-    if Flipper.enabled?(:request_show_redesign, User.session)
-      description = case action[:type]
-                    when :change_devel
-                      'Set %{source_container} to be devel project/package of %{target_container}' % {
-                        source_container: project_or_package_link(source_project_hash),
-                        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
-                      }
-                    when :maintenance_incident
-                      source_project_hash.update(homeproject: creator)
-                      'Submit update from %{source_container} to %{target_container}' % {
-                        source_container: project_or_package_link(source_project_hash),
-                        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg], trim_to: nil)
-                      }
-                    when :maintenance_release
-                      'Maintenance release %{source_container} to %{target_container}' % {
-                        source_container: project_or_package_link(source_project_hash),
-                        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg], trim_to: nil)
-                      }
-                    else
-                      description
-                    end
-    end
-
     description.html_safe
   end
   # rubocop:enable Style/FormatString
@@ -202,7 +179,7 @@ module Webui::RequestHelper
   end
 
   def next_prev_path(**opts)
-    parameters = { number: opts[:number], request_action_id: opts[:request_action_id], full_diff: opts[:full_diff], diff_to_superseded: opts[:diff_to_superseded] }
+    parameters = { number: opts[:number], request_action_id: opts[:request_action_id], diff_to_superseded: opts[:diff_to_superseded] }
 
     case opts[:page_name]
     when 'request_build_results'
@@ -215,6 +192,64 @@ module Webui::RequestHelper
       request_mentioned_issues_path(parameters)
     else
       request_show_path(parameters)
+    end
+  end
+
+  # TODO: find a way to DRY the code related to state badge (used on notifications)
+
+  def bs_request_state_badge(state)
+    content_tag(
+      :span,
+      icon_state_tag(state).concat(state),
+      class: ['badge', "text-bg-#{decode_state_color(state)}", 'ms-1']
+    )
+  end
+
+  private
+
+  def decode_state_color(state)
+    case state
+    when :review, :new
+      'secondary'
+    when :declined
+      'danger'
+    when :superseded
+      'warning'
+    when :accepted
+      'success'
+    when :revoked
+      'dismissed'
+    else
+      'dark'
+    end
+  end
+
+  def decode_state_icon(state)
+    case state
+    when :new
+      'code-branch'
+    when :review, :declined, :revoked
+      'code-pull-request'
+    when :superseded
+      'code-compare'
+    when :accepted
+      'code-merge'
+    else
+      'code-fork'
+    end
+  end
+
+  def icon_state_tag(state)
+    if %i[declined revoked].include?(state)
+      content_tag(
+        :span,
+        tag.i(class: 'fas fa-code-pull-request').concat(
+          tag.i(class: 'fas fa-times fa-xs')
+        ),
+        class: 'fa-custom-pr-closed me-1'
+      )
+    else
+      tag.i(class: "fas fa-#{decode_state_icon(state)} me-1")
     end
   end
 end

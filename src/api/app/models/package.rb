@@ -109,9 +109,7 @@ class Package < ApplicationRecord
   validate :valid_name
 
   has_one :backend_package, foreign_key: :package_id, dependent: :destroy, inverse_of: :package # rubocop:disable Rails/RedundantForeignKey
-  has_one :token, class_name: 'Token::Service', dependent: :destroy
-
-  has_many :tokens, class_name: 'Token::Service', dependent: :destroy, inverse_of: :package
+  has_many :tokens, dependent: :destroy
 
   def self.check_access?(package)
     return false if package.nil?
@@ -186,8 +184,20 @@ class Package < ApplicationRecord
   # You can follow this type of project link and try to find the Package from the "maintenance update"
   # Project by setting in the opts hash:
   #   check_update_project: true
+  #
+  # It will ignore "scmsync" Projects and not "follow" this type of project link to find the Package.
+  # https://github.com/openSUSE/open-build-service/wiki/Links#project-scm-bridge-links
+  #
+  # You can follow this type of project link and try to find the Package from the "SCM" Project
+  # by setting in the opts hash:
+  #   follow_project_scmsync_links: true
+
   def self.get_by_project_and_name(project_name_or_object, package_name, opts = {})
-    get_by_project_and_name_defaults = { use_source: true, follow_project_links: true, follow_multibuild: false, check_update_project: false }
+    get_by_project_and_name_defaults = { use_source: true,
+                                         follow_project_links: true,
+                                         follow_project_scmsync_links: false,
+                                         follow_multibuild: false,
+                                         check_update_project: false }
     opts = get_by_project_and_name_defaults.merge(opts)
 
     package_name = striping_multibuild_suffix(package_name) if opts[:follow_multibuild]
@@ -198,7 +208,20 @@ class Package < ApplicationRecord
     project = internal_get_project(project_name_or_object)
     return unless project # remote prjs
 
-    return nil if project.scmsync.present?
+    if project.scmsync.present?
+      return nil unless opts[:follow_project_scmsync_links]
+
+      # rubocop:disable Lint/SuppressedException
+      begin
+        package_xmlhash = Xmlhash.parse(Backend::Api::Sources::Package.meta(project.name, package_name))
+      rescue Backend::Error
+      else
+        package = project.packages.new(name: package_name)
+        package.assign_attributes_from_from_xml(package_xmlhash)
+        package.readonly!
+      end
+      # rubocop:enable Lint/SuppressedException
+    end
 
     if package.nil? && opts[:follow_project_links]
       package = project.find_package(package_name, opts[:check_update_project])
@@ -370,7 +393,7 @@ class Package < ApplicationRecord
     packs = packs.to_a
     return if packs.empty?
 
-    msg = packs.map { |p| p.project.name + '/' + p.name }.join(', ')
+    msg = packs.map { |p| "#{p.project.name}/#{p.name}" }.join(', ')
     de = DeleteError.new("Package is used by following packages as devel package: #{msg}")
     de.packages = packs
     raise de
@@ -464,16 +487,12 @@ class Package < ApplicationRecord
     path = "/source/#{project}/#{package}"
     path = Addressable::URI.escape(path)
     path += "/#{ERB::Util.url_encode(file)}" if file.present?
-    path += '?' + opts.to_query if opts.present?
+    path += "?#{opts.to_query}" if opts.present?
     path
   end
 
   def source_path(file = nil, opts = {})
     Package.source_path(project.name, name, file, opts)
-  end
-
-  def public_source_path(file = nil, opts = {})
-    "/public#{source_path(file, opts)}"
   end
 
   def source_file(file, opts = {})
@@ -651,8 +670,8 @@ class Package < ApplicationRecord
 
     ret = []
     directory.elements('entry') do |e|
-      ['patchinfo', 'aggregate', 'link', 'channel'].each do |kind|
-        ret << kind if e['name'] == '_' + kind
+      %w[patchinfo aggregate link channel].each do |kind|
+        ret << kind if e['name'] == "_#{kind}"
       end
       ret << 'product' if /.product$/.match?(e['name'])
       # further types my be spec, dsc, kiwi in future
@@ -680,10 +699,10 @@ class Package < ApplicationRecord
       # logger.debug "resolve_devel_package #{pkg.inspect}"
 
       # cycle detection
-      str = prj_name + '/' + pkg.name
+      str = "#{prj_name}/#{pkg.name}"
       if processed[str]
         processed.keys.each do |key|
-          str = str + ' -- ' + key
+          str = "#{str} -- #{key}"
         end
         raise CycleError, "There is a cycle in devel definition at #{str}"
       end
@@ -709,27 +728,9 @@ class Package < ApplicationRecord
     check_write_access!(ignore_lock)
 
     Package.transaction do
-      self.title = xmlhash.value('title')
-      self.description = xmlhash.value('description')
-      self.bcntsynctag = xmlhash.value('bcntsynctag')
-      self.releasename = xmlhash.value('releasename')
-      self.scmsync = xmlhash.value('scmsync')
+      assign_attributes_from_from_xml(xmlhash)
 
-      #--- devel project ---#
-      self.develpackage = nil
-      devel = xmlhash['devel']
-      if devel
-        prj_name = devel['project'] || xmlhash['project']
-        pkg_name = devel['package'] || xmlhash['name']
-        develprj = Project.find_by_name(prj_name)
-        raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)" unless develprj
-
-        develpkg = develprj.packages.find_by_name(pkg_name)
-        raise SaveError, "value of develpackage has to be a existing package (package '#{pkg_name}' does not exist)" unless develpkg
-
-        self.develpackage = develpkg
-      end
-      #--- end devel project ---#
+      assign_devel_package_from_xml(xmlhash)
 
       # just for cycle detection
       resolve_devel_package
@@ -745,6 +746,31 @@ class Package < ApplicationRecord
 
       save!
     end
+  end
+
+  def assign_attributes_from_from_xml(xmlhash)
+    self.title = xmlhash.value('title')
+    self.description = xmlhash.value('description')
+    self.url = xmlhash.value('url')
+    self.bcntsynctag = xmlhash.value('bcntsynctag')
+    self.releasename = xmlhash.value('releasename')
+    self.scmsync = xmlhash.value('scmsync')
+  end
+
+  def assign_devel_package_from_xml(xmlhash)
+    #--- devel project/package ---#
+    devel = xmlhash['devel']
+    return unless devel
+
+    devel_project_name = devel['project'] || xmlhash['project']
+    devel_project = Project.find_by_name(devel_project_name)
+    raise SaveError, "project '#{devel_project_name}' does not exist" unless devel_project
+
+    devel_package_name = devel['package'] || xmlhash['name']
+    devel_package = devel_project.packages.find_by_name(devel_package_name)
+    raise SaveError, "package '#{devel_package_name}' does not exist in project '#{devel_project_name}'" unless devel_package
+
+    self.develpackage = devel_package
   end
 
   def store(opts = {})
@@ -799,7 +825,7 @@ class Package < ApplicationRecord
       h = { user: commit_user.login }
       h[:comment] = commit_opts[:comment] if commit_opts[:comment]
       h[:requestid] = commit_opts[:request].number if commit_opts[:request]
-      path << Backend::Connection.build_query_from_hash(h, [:user, :comment, :requestid])
+      path << Backend::Connection.build_query_from_hash(h, %i[user comment requestid])
       begin
         Backend::Connection.delete path
       rescue Backend::NotFoundError
@@ -844,19 +870,19 @@ class Package < ApplicationRecord
   end
 
   def open_requests_with_package_as_target
-    rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
+    rel = BsRequest.where(state: %i[new review declined]).joins(:bs_request_actions)
     rel = rel.where('(bs_request_actions.target_project = ? and bs_request_actions.target_package = ?)', project.name, name)
     BsRequest.where(id: rel.select('bs_requests.id'))
   end
 
   def open_requests_with_package_as_source
-    rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
+    rel = BsRequest.where(state: %i[new review declined]).joins(:bs_request_actions)
     rel = rel.where('(bs_request_actions.source_project = ? and bs_request_actions.source_package = ?)', project.name, name)
     BsRequest.where(id: rel.select('bs_requests.id'))
   end
 
   def open_requests_with_by_package_review
-    rel = BsRequest.where(state: [:new, :review])
+    rel = BsRequest.where(state: %i[new review])
     rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? and reviews.by_package = ? ", project.name, name)
     BsRequest.where(id: rel.select('bs_requests.id'))
   end
@@ -913,7 +939,7 @@ class Package < ApplicationRecord
   end
 
   def modify_channel(mode = :add_disabled)
-    raise InvalidParameterError unless [:add_disabled, :enable_all].include?(mode)
+    raise InvalidParameterError unless %i[add_disabled enable_all].include?(mode)
 
     channel = channels.first
     return unless channel
@@ -922,7 +948,7 @@ class Package < ApplicationRecord
   end
 
   def add_channels(mode = :add_disabled)
-    raise InvalidParameterError unless [:add_disabled, :skip_disabled, :enable_all].include?(mode)
+    raise InvalidParameterError unless %i[add_disabled skip_disabled enable_all].include?(mode)
     return if is_channel?
 
     opkg = origin_container(local: false)
@@ -983,7 +1009,7 @@ class Package < ApplicationRecord
     # this length check is duplicated but useful for other uses for this function
     return false if name.length > 200
     return false if name == '0'
-    return true if ['_product', '_pattern', '_project', '_patchinfo'].include?(name)
+    return true if %w[_product _pattern _project _patchinfo].include?(name)
 
     # _patchinfo: is obsolete, just for backward compatibility
     allowed_characters = /[-+\w.#{allow_multibuild ? ':' : ''}]/
@@ -1005,8 +1031,8 @@ class Package < ApplicationRecord
     myparam.merge!(opts) { |_key, v1, _v2| v1 }
     path = source_path
     path += Backend::Connection.build_query_from_hash(myparam,
-                                                      [:cmd, :oproject, :opackage, :user, :comment,
-                                                       :orev, :missingok, :noservice, :olinkrev, :extendvrev])
+                                                      %i[cmd oproject opackage user comment
+                                                         orev missingok noservice olinkrev extendvrev])
     # branch sources in backend
     Backend::Connection.post path
   end
@@ -1181,18 +1207,9 @@ class Package < ApplicationRecord
       dir = Directory.hashed(project: project.name, package: name)
       return dir.fetch('serviceinfo', {}) if dir
     rescue Backend::NotFoundError
+      # Ignore this exception on purpose
     end
     {}
-  end
-
-  def cache_revisions(revision = nil)
-    opts = { deleted: 0, meta: 0 }
-    opts[:rev] = revision if revision
-    doc = Xmlhash.parse(Backend::Api::Sources::Package.revisions(project.name, name, opts))
-    doc.elements('revision') do |s|
-      Rails.cache.write(['history', self, s['rev']], s)
-      Rails.cache.write(['history_md5', self, s.get('srcmd5')], s)
-    end
   end
 
   # the revision might match a backend revision that is not in _history
@@ -1204,14 +1221,8 @@ class Package < ApplicationRecord
       rev = r.to_s
       return if rev.to_i < 1
     end
-    rev ||= self.rev
 
-    commit = fetch_rev_from_history_cache(rev)
-    return commit if commit
-
-    cache_revisions
-    # now it has to be in cache
-    fetch_rev_from_history_cache(rev)
+    Xmlhash.parse(Backend::Api::Sources::Package.revisions(project.name, name, { rev: rev || self.rev, deleted: 0, meta: 0 })).elements('revision').first
   end
 
   def self.verify_file!(pkg, name, content)
@@ -1243,9 +1254,9 @@ class Package < ApplicationRecord
     end
 
     # update package timestamp and reindex sources
-    return if opt[:rev] == 'repository' || ['_project', '_pattern'].include?(name)
+    return if opt[:rev] == 'repository' || %w[_project _pattern].include?(name)
 
-    sources_changed(wait_for_update: ['_aggregate', '_constraints', '_link', '_service', '_patchinfo', '_channel'].include?(opt[:filename]))
+    sources_changed(wait_for_update: %w[_aggregate _constraints _link _service _patchinfo _channel].include?(opt[:filename]))
   end
 
   def to_param
@@ -1258,31 +1269,6 @@ class Package < ApplicationRecord
 
   def fixtures_name
     "#{project.name}_#{name}".tr(':', '_')
-  end
-
-  #### WARNING: these operations run in build object, not this package object
-  def rebuild(params)
-    begin
-      Backend::Api::Sources::Package.rebuild(params[:project], params[:package],
-                                             { repository: params[:repository],
-                                               arch: params[:arch] })
-    rescue Backend::Error, Timeout::Error, Project::WritePermissionError => e
-      errors.add(:base, e.message)
-      return false
-    end
-    true
-  end
-
-  def wipe_binaries(params)
-    backend_build_command(:wipe, params[:project], params.slice(:package, :arch, :repository))
-  end
-
-  def abort_build(params)
-    backend_build_command(:abortbuild, params[:project], params.slice(:package, :arch, :repository))
-  end
-
-  def send_sysrq(params)
-    backend_build_command(:sendsysrq, params[:project], params.slice(:package, :arch, :repository, :sysrq))
   end
 
   def release_target_name(target_repo = nil, time = Time.now.utc)
@@ -1301,21 +1287,6 @@ class Package < ApplicationRecord
     return "#{basename}.#{time.strftime('%Y%m%d%H%M%S')}" if target_repo && target_repo.project.is_maintenance_release?
 
     basename
-  end
-
-  def backend_build_command(command, build_project, params)
-    begin
-      Project.find_by(name: build_project).check_write_access!
-      # Note: This list needs to keep in sync with the backend code
-      permitted_params = params.permit(:repository, :arch, :package, :code, :wipe)
-
-      # do not use project.name because we missuse the package source container for build container operations
-      Backend::Connection.post(Addressable::URI.escape("/build/#{build_project}?cmd=#{command}&#{permitted_params.to_h.to_query}"))
-    rescue Backend::Error, Timeout::Error, Project::WritePermissionError => e
-      errors.add(:base, e.message)
-      return false
-    end
-    true
   end
 
   def file_exists?(filename, opts = {})
@@ -1388,10 +1359,6 @@ class Package < ApplicationRecord
     [new_activity, 100].min
 
     self.activity_index = new_activity
-  end
-
-  def fetch_rev_from_history_cache(rev)
-    Rails.cache.read(['history', self, rev]) || Rails.cache.read(['history_md5', self, rev])
   end
 
   def populate_to_sphinx

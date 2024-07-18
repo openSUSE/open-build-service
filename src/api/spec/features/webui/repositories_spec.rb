@@ -183,7 +183,7 @@ RSpec.describe 'Repositories', :js do
 
       visit(project_repositories_path(project: admin_user.home_project))
 
-      expect(page).not_to have_css('#repositories > .card')
+      expect(page).to have_no_css('#repositories > .card')
     end
 
     it 'add repository from project' do

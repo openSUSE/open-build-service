@@ -13,7 +13,7 @@ module Backend
           params[:rev]  = options[:rev]  if options[:rev]
           params[:view] = options[:view] if options[:view]
           http_get(['/source/:project/:package/_attribute', project_name, package_name || '_project'],
-                   params: params, accepted: [:rev, :meta, :view])
+                   params: params, accepted: %i[rev meta view])
         end
 
         # Writes the content in xml for attributes
@@ -28,14 +28,14 @@ module Backend
         # @param options [Hash] Parameters to pass to the backend.
         # @return [String]
         def self.files(project_name, package_name, options = {})
-          http_get(['/source/:project/:package', project_name, package_name], params: options, accepted: [:expand, :rev, :view])
+          http_get(['/source/:project/:package', project_name, package_name], params: options, accepted: %i[expand rev view])
         end
 
         # Returns the revisions (mrev) list for a package
         # @return [String]
         def self.revisions(project_name, package_name, options = {})
           http_get(['/source/:project/:package/_history', project_name, package_name], params: options,
-                                                                                       accepted: [:meta, :rev, :deleted, :limit],
+                                                                                       accepted: %i[meta rev deleted limit startbefore],
                                                                                        defaults: { meta: 1, deleted: 1 })
         end
 
@@ -88,14 +88,14 @@ module Backend
         def self.copy(target_project_name, target_package_name, source_project_name, source_package_name, user_login, options = {})
           http_post(['/source/:project/:package', target_project_name, target_package_name],
                     defaults: { cmd: :copy, oproject: source_project_name, opackage: source_package_name, user: user_login },
-                    params: options, accepted: [:orev, :keeplink, :expand, :comment, :requestid, :withacceptinfo, :dontupdatesource, :noservice])
+                    params: options, accepted: %i[orev keeplink expand comment requestid withacceptinfo dontupdatesource noservice])
         end
 
         # Branch a package into another project
         def self.branch(target_project, target_package, source_project, source_package, user, options = {})
           http_post(['/source/:project/:package', source_project, source_package],
                     defaults: { cmd: :branch, oproject: target_project, opackage: target_package, user: user },
-                    params: options, accepted: [:keepcontent, :comment, :requestid, :noservice])
+                    params: options, accepted: %i[keepcontent comment requestid noservice])
         end
 
         # Returns the link information of a package
@@ -120,7 +120,7 @@ module Backend
         # @option options [String] :filelimit Sets the maximum lines of the diff which will be returned (0 = all lines)
         # @return [String]
         def self.source_diff(project_name, package_name, options = {})
-          accepted = [:rev, :orev, :opackage, :oproject, :linkrev, :olinkrev, :expand, :filelimit, :tarlimit, :withissues, :view, :cacheonly, :nodiff]
+          accepted = %i[rev orev opackage oproject linkrev olinkrev expand filelimit tarlimit withissues view cacheonly nodiff]
           diff = http_post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :diff }, params: options, accepted: accepted)
           diff.valid_encoding? ? diff : diff.encode('UTF-8', 'binary', invalid: :replace, undef: :replace)
         end
@@ -131,7 +131,7 @@ module Backend
         # @return [String]
         def self.rebuild(project_name, package_name, options = {})
           http_post(['/build/:project', project_name], defaults: { cmd: :rebuild, package: package_name },
-                                                       params: options, accepted: [:repository, :arch])
+                                                       params: options.compact, accepted: %i[repository arch])
         end
 
         # Returns the content of the source file

@@ -67,7 +67,7 @@ module Webui
         pname = package.name
 
         currentpack['requests_from'] = []
-        key = @api_obj.name + '/' + pname
+        key = "#{@api_obj.name}/#{pname}"
         if @submits.key?(key)
           return if @ignore_pending
 
@@ -178,11 +178,11 @@ module Webui
       def status_gather_requests
         # we do not filter requests for project because we need devel projects too later on and as long as the
         # number of open requests is limited this is the easiest solution
-        raw_requests = BsRequest.order(:number).where(state: [:new, :review, :declined]).joins(:bs_request_actions)
-                                .where(bs_request_actions: { type: ['submit', 'delete'] }).pluck('bs_requests.number',
-                                                                                                 'bs_requests.state',
-                                                                                                 'bs_request_actions.target_project',
-                                                                                                 'bs_request_actions.target_package')
+        raw_requests = BsRequest.order(:number).where(state: %i[new review declined]).joins(:bs_request_actions)
+                                .where(bs_request_actions: { type: %w[submit delete] }).pluck('bs_requests.number',
+                                                                                              'bs_requests.state',
+                                                                                              'bs_request_actions.target_project',
+                                                                                              'bs_request_actions.target_package')
 
         @declined_requests = {}
         @submits = {}
@@ -198,7 +198,7 @@ module Webui
             @submits[key] << number
           end
         end
-        BsRequest.where(number: @declined_requests.keys).each do |r|
+        BsRequest.where(number: @declined_requests.keys).find_each do |r|
           @declined_requests[r.number] = r
         end
       end

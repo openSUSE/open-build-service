@@ -32,8 +32,11 @@
           - @filenames.each_with_index do |filename, index|
             - revision = calculate_revision_on_state(@rev, @files[filename]['state'])
             .mb-2
+              - file_exists = @package.file_exists?(filename, {rev: revision}.compact)
+              - file_view_path = file_exists ? project_package_file_path(project_name: @project, package_name: @package,
+                                                                         rev: revision, filename: filename) : nil
               = render partial: 'revision_diff_detail',
-              locals: { file_view_path: package_view_file_path(project: @project, package: @package, rev: revision, filename: filename),
+              locals: { file_view_path: file_view_path,
                 filename: filename,
                 file: @files[filename],
                 index: index,

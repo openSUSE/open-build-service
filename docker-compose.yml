@@ -1,4 +1,3 @@
-version: "2.1"
 services:
   db:
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/mariadb

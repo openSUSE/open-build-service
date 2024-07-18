@@ -37,6 +37,8 @@
 
       <value>k1om</value>
 
+      <value>loongarch64</value>
+
       <value>mips</value>
       <value>mipsel</value>
       <value>mips32</value>
@@ -122,6 +124,7 @@
       <value>l1</value>
       <value>acc</value>
       <value>unsupported</value>
+      <value>superseded</value>
     </choice>
   </define>
 
@@ -264,7 +267,7 @@
               <optional>
                 <element name="archfilter">
                   <!--
-                  A coma seperated list of binary architectures to import.
+                  A comma separated list of binary architectures to import.
                   By default all of them are made available.
                   -->
                   <text/>

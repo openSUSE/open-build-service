@@ -41,6 +41,7 @@ use strict;
 use warnings;
 
 use Fcntl qw(:DEFAULT :flock);
+use POSIX;
 use Digest::MD5 ();
 
 use BSUtil;
@@ -82,6 +83,19 @@ sub compile_publishfilter {
   return \@res;
 }
 
+sub wait_for_lock {
+  my ($fd, $timeout) = @_;
+
+  while (1) {
+    return 1 if flock($fd, defined($timeout) ? LOCK_EX | LOCK_NB : LOCK_EX);
+    die("flock: $!\n") unless $! == POSIX::EINTR || $! == POSIX::EWOULDBLOCK;
+    next unless defined $timeout;
+    return 0 if $timeout <= 0;
+    sleep(3);
+    $timeout -= 3;
+  }
+}
+
 =head2 prpfinished  - publish a prp
 
  updates :repo and sends an event to the publisher
@@ -90,11 +104,10 @@ sub compile_publishfilter {
          $packs      - packages in project
                        undef -> arch no longer builds this repository
          $pubenabled - only publish those packages
-                       undef -> publish all packages
 =cut
 
 sub prpfinished {
-  my ($ctx, $packs, $pubenabled) = @_;
+  my ($ctx, $packs, $pubenabled, $nodelayed, $keepobsolete) = @_;
 
   my $gctx = $ctx->{'gctx'};
   my $gdst = $ctx->{'gdst'};
@@ -106,13 +119,19 @@ sub prpfinished {
   print "    publishing $prp...\n";
 
   my ($projid, $repoid) = split('/', $prp, 2);
+
   local *F;
   open(F, '>', "$reporoot/$prp/.finishedlock") || die("$reporoot/$prp/.finishedlock: $!\n");
   if (!flock(F, LOCK_EX | LOCK_NB)) {
     print "    waiting for lock...\n";
-    flock(F, LOCK_EX) || die("flock: $!\n");
+    if (!wait_for_lock(\*F, $packs && !$nodelayed ? 300 : undef)) {
+      print "    could not get lock...\n";
+      close F;
+      return 'delayed:lock timeout';
+    }
     print "    got the lock...\n";
   }
+
   if (!$packs) {
     # delete all in :repo
     unlink("${rdir}info");
@@ -130,7 +149,7 @@ sub prpfinished {
     }
     # release lock and ping publisher
     close(F);
-    BSSched::EventSource::Directory::sendpublishevent($ctx->{'gctx'}, $prp);
+    BSSched::EventSource::Directory::sendpublishevent($gctx, $prp);
     return '';
   }
 
@@ -139,6 +158,38 @@ sub prpfinished {
   # to produce a failure for the test suite
   if (grep {"$_:" =~ /:(?:publisherror):/} @{$bconf->{'repotype'} || []}) {
       return "Testcase publish error";
+  }
+
+  die unless $pubenabled;
+
+  my $rinfo;
+  my $rinfo_packid2bins;
+
+  # read old repoinfo if we have packages that have publishing disabled
+  if ($keepobsolete || grep {!$pubenabled->{$_}} @$packs) {
+    $rinfo = {};
+    $rinfo = BSUtil::retrieve("${rdir}info") if -s "${rdir}info";
+    # create package->binaries helper hash
+    $rinfo_packid2bins = {};
+    my $rb = $rinfo->{'binaryorigins'} || {};
+    for (keys %$rb) {
+      push @{$rinfo_packid2bins->{$rb->{$_}}}, $_;
+    }
+    my $rc = $rinfo->{'conflicts'} || {};
+    for my $rbin (keys %$rc) {
+      for my $packid (@{$rc->{$rbin} || []}) {
+        push @{$rinfo_packid2bins->{$packid}}, $rbin unless ($rb->{$rbin} || '') eq $packid;
+      }
+    }
+  }
+
+  # honor keepobsolete flag
+  if ($keepobsolete) {
+    $packs = [ @$packs ];	# so we can add packages
+    my %known = map {$_ => 1} @$packs;
+    my @obsolete = grep {!$known{$_}} sort keys %$rinfo_packid2bins;
+    push @$packs, @obsolete;
+    $keepobsolete = { map {$_ => 1} @obsolete };
   }
 
   # make all the deltas we need
@@ -153,50 +204,54 @@ sub prpfinished {
   }
 
 
-  my $rinfo;
-  my $rinfo_packid2bins;
-
   # link all packages into :repo, put origin data into :repoinfo
   my %origin;
   my $changed;
   my $filter;
+  my %conflicts;
   $filter = $bconf->{'publishfilter'} if $bconf;
   undef $filter if $filter && !@$filter;
   $filter ||= $default_publishfilter;
-  $filter = compile_publishfilter($filter);
+  eval { $filter = compile_publishfilter($filter) };
+  if ($@) {
+    my $err = $@;
+    chomp $err;
+    return "invalid publish filter: $err";
+  }
 
   my $seen_binary;
   my $singleexport;
-  $singleexport = $bconf->{'singleexport'} if $bconf;
-  $singleexport = 1 if $bconf && grep {$_ eq 'singleexport'} @{$bconf->{'repotype'} || []};
+  $singleexport = $bconf->{'singleexport'} if $bconf;						# obsolete
+  $singleexport = 1 if $bconf && grep {$_ eq 'singleexport'} @{$bconf->{'repotype'} || []};	# obsolete
+  $singleexport = 1 if $bconf && $bconf->{'publishflags:singleexport'};
   if ($singleexport) {
     print "    prp $prp is singleexport\n";
     $seen_binary = {};
   }
 
-  # Let the publisher decide about empty repositories
-  $changed = 1 if $bconf && $bconf->{'publishflags:create_empty'} && ! -e "$reporoot/$prp/:repoinfo";
+  # let the publisher decide about empty repositories
+  $changed = 1 if $bconf && ($bconf->{'publishflags:createempty'} || $bconf->{'publishflags:create_empty'}) && ! -e "$reporoot/$prp/:repoinfo";
 
   my %newchecksums;
   # sort like in the full tree
   for my $packid (BSSched::ProjPacks::orderpackids($projpacks->{$projid}, @$packs)) {
-    if ($pubenabled && !$pubenabled->{$packid}) {
+    if (!$pubenabled->{$packid}) {
       # publishing of this package is disabled, copy binary list from old info
-      if (!$rinfo) {
-        $rinfo = {};
-        $rinfo = BSUtil::retrieve("${rdir}info") if -s "${rdir}info";
-        $rinfo->{'binaryorigins'} ||= {};
-        # create package->binaries helper hash
-        $rinfo_packid2bins = {};
-        my $rb = $rinfo->{'binaryorigins'};
-        for (keys %$rb) {
-          push @{$rinfo_packid2bins->{$rb->{$_}}}, $_;
-        }
+      die unless $rinfo_packid2bins;
+      if ($keepobsolete && $keepobsolete->{$packid}) {
+        print "        $packid: keeping obsolete\n";
+      } else {
+        print "        $packid: publishing disabled\n";
       }
-      print "        $packid: publishing disabled\n";
-      for my $bin (@{$rinfo_packid2bins->{$packid} || []}) {
-        next if exists $origin{$bin};   # first one wins
-        $origin{$bin} = $packid;
+      my $rb = $rinfo->{'binaryorigins'} || {};
+      for my $rbin (@{$rinfo_packid2bins->{$packid} || []}) {
+	if (exists $origin{$rbin}) {
+	  push @{$conflicts{$rbin}}, $origin{$rbin} unless $conflicts{$rbin};
+	  push @{$conflicts{$rbin}}, $packid;
+	  next;		# first one wins
+	}
+	next unless ($rb->{$rbin} || '') eq $packid;	# ignore if this is from a conflict
+	$origin{$rbin} = $packid;
       }
       next;
     }
@@ -215,7 +270,11 @@ sub prpfinished {
       my $rbin = $bin;
       # XXX: should be source name instead?
       $rbin = "${packid}::$bin" if $debian || $bin eq 'updateinfo.xml' || $bin eq '_modulemd.yaml';
-      next if exists $origin{$rbin};    # first one wins
+      if (exists $origin{$rbin}) {
+	  push @{$conflicts{$rbin}}, $origin{$rbin} unless $conflicts{$rbin};
+	  push @{$conflicts{$rbin}}, $packid;
+	  next;		# first one wins
+      }
       if ($nosourceaccess) {
         next if $bin =~ /\.(?:no)?src\.rpm$/;
         next if $bin =~ /-debug(:?info|source).*\.rpm$/;
@@ -287,6 +346,7 @@ sub prpfinished {
         print "      + :repo/$rbin ($packid)\n";
         mkdir_p($rdir) unless -d $rdir;
       }
+      # new or changed, link
       $taken = 1;
       if (! -l "$pdir/$bin" && -d _) {
         BSUtil::linktree("$pdir/$bin", "$rdir/$rbin");
@@ -309,9 +369,19 @@ sub prpfinished {
     }
   }
   undef $rinfo_packid2bins;     # no longer needed
+
+  # delete obsolete files
   for my $rbin (sort(ls($rdir))) {
     next if exists $origin{$rbin};
     next if $rbin eq '.newchecksums' || $rbin eq '.newchecksums.new' || $rbin eq '.checksums' || $rbin eq '.checksums.new';
+    next if ($rbin eq '.archsync' || $rbin eq '.archsync.new') && $bconf->{'publishflags:archsync'};
+    if ($conflicts{$rbin}) {
+      # we lost the original origin. Reassign for blobs as we know the content is identical
+      if ($rbin =~ /^_blob\./) {
+	$origin{$rbin} = $conflicts{$rbin}->[0];
+	next;
+      }
+    }
     print "      - :repo/$rbin\n";
     if (! -l "$rdir/$rbin" && -d _) {
       BSUtil::cleandir("$rdir/$rbin");
@@ -327,6 +397,7 @@ sub prpfinished {
 
   # write new rpminfo
   $rinfo = {'binaryorigins' => \%origin};
+  $rinfo->{'conflicts'} = \%conflicts if %conflicts;
   BSUtil::store("${rdir}info.new", "${rdir}info", $rinfo);
 
   # update checksums
@@ -340,6 +411,16 @@ sub prpfinished {
       }
     }
     BSUtil::store("$rdir/.newchecksums.new", "$rdir/.newchecksums", \%newchecksums);
+  }
+
+  # update archsync information
+  if ($bconf->{'publishflags:archsync'}) {
+    my $oldas = BSUtil::retrieve("$rdir/.archsync", 1) || {};
+    my $as = { 'lastcheck' => time(), 'lastchange' => $oldas->{'lastchange'} };
+    $as->{'lastchange'} = $as->{'lastcheck'} if $changed || !$as->{'lastchange'};
+    $changed = 1 if -e "$rdir/.archsync.new";	# hack, see bs_publish
+    mkdir_p($rdir) unless -d $rdir;
+    BSUtil::store("$rdir/.archsync.new", "$rdir/.archsync", $as);
   }
 
   # release lock and ping publisher
@@ -623,7 +704,7 @@ sub publishprovenance {
   my @sr = stat("$rdir/$rprovenance");
   my $changed;
   if (!@sr || "$s[9]/$s[7]/$s[1]" ne "$sr[9]/$sr[7]/$sr[1]") {
-    print @sr ? "      ! :repo/$rprovenance$\n" : "      + :repo/$rprovenance\n";
+    print @sr ? "      ! :repo/$rprovenance\n" : "      + :repo/$rprovenance\n";
     unlink("$rdir/$rprovenance");
     link($provenance, "$rdir/$rprovenance") || die("link $provenance $rdir/$rprovenance: $!");
     $changed = 1;

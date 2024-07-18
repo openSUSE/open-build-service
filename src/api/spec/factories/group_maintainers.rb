@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :group_maintainer do
-    user { create(:user) }
-    group { create(:group) }
+    user
+    group
   end
 end

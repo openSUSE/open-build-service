@@ -2,33 +2,27 @@ class Webui::PackageController < Webui::WebuiController
   include ParsePackageDiff
   include Webui::PackageHelper
   include Webui::ManageRelationships
+  include Webui::NotificationsHandler
 
-  before_action :set_project, only: [:show, :edit, :update, :index, :users, :dependency, :requests, :statistics, :revisions,
-                                     :new, :branch_diff_info, :rdiff, :create, :save, :remove,
-                                     :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
-                                     :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :save_meta, :files]
+  before_action :set_project, only: %i[show edit update index users requests statistics revisions
+                                       new branch_diff_info rdiff create remove
+                                       save_person save_group remove_role view_file
+                                       buildresult rpmlint_result rpmlint_log files]
 
-  before_action :require_package, only: [:edit, :update, :show, :dependency, :requests, :statistics, :revisions,
-                                         :branch_diff_info, :rdiff, :save, :save_meta, :remove,
-                                         :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
-                                         :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files, :users]
+  before_action :require_package, only: %i[edit update show requests statistics revisions
+                                           branch_diff_info rdiff remove
+                                           save_person save_group remove_role view_file
+                                           buildresult rpmlint_result rpmlint_log files users]
 
-  before_action :validate_xml, only: [:save_meta]
-
-  before_action :check_ajax, only: [:devel_project, :buildresult, :rpmlint_result]
+  before_action :check_ajax, only: %i[devel_project buildresult rpmlint_result]
   # make sure it's after the require_, it requires both
-  before_action :require_login, except: [:show, :index, :branch_diff_info,
-                                         :users, :requests, :statistics, :revisions, :view_file,
-                                         :devel_project, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files]
+  before_action :require_login, except: %i[show index branch_diff_info
+                                           users requests statistics revisions view_file
+                                           devel_project buildresult rpmlint_result rpmlint_log files]
 
-  # FIXME: Remove this before_action, it's doing validation and authorization at the same time
-  before_action :check_package_name_for_new, only: [:create]
+  prepend_before_action :lockout_spiders, only: %i[revisions rdiff requests]
 
-  before_action :handle_parameters_for_rpmlint_log, only: [:rpmlint_log]
-
-  prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :requests]
-
-  after_action :verify_authorized, only: [:new, :create, :remove_file, :remove, :abort_build, :trigger_rebuild, :wipe_binaries, :save_meta, :save, :abort_build]
+  after_action :verify_authorized, only: %i[new create remove]
 
   def index
     render json: PackageDatatable.new(params, view_context: view_context, project: @project)
@@ -39,7 +33,7 @@ class Webui::PackageController < Webui::WebuiController
     if @project.scmsync.present?
       flash[:error] = "Package sources for project #{@project.name} are received through scmsync.
                        This is not yet fully supported by the OBS frontend"
-      redirect_back(fallback_location: project_show_path(@project))
+      redirect_back_or_to project_show_path(@project)
       return
     end
 
@@ -73,21 +67,16 @@ class Webui::PackageController < Webui::WebuiController
       end
     elsif @revision_parameter
       flash[:error] = "No such revision: #{@revision_parameter}"
-      redirect_back(fallback_location: { controller: :package, action: :show, project: @project, package: @package })
+      redirect_back_or_to({ controller: :package, action: :show, project: @project, package: @package })
       return
     end
 
     @comments = @package.comments.includes(:user)
     @comment = Comment.new
 
-    if User.session && params[:notification_id]
-      @current_notification = Notification.find(params[:notification_id])
-      authorize @current_notification, :update?, policy_class: NotificationPolicy
-    end
+    @current_notification = handle_notification
 
-    @services = @files.any? { |file| file[:name] == '_service' }
-
-    @package.cache_revisions(@revision)
+    @services = @files.any? { |file| file['name'] == '_service' }
 
     respond_to do |format|
       format.html
@@ -146,47 +135,6 @@ class Webui::PackageController < Webui::WebuiController
     @package # used by mixins
   end
 
-  # rubocop:disable Lint/NonLocalExitFromIterator
-  def dependency
-    dependant_project = Project.find_by_name(params[:dependant_project]) || Project.find_remote_project(params[:dependant_project]).try(:first)
-    unless dependant_project
-      flash[:error] = "Project '#{elide(params[:dependant_project])}' is invalid."
-      redirect_back(fallback_location: root_path)
-      return
-    end
-
-    unless Architecture.archcache.include?(params[:arch])
-      flash[:error] = "Architecture '#{params[:arch]}' is invalid."
-      redirect_back(fallback_location: project_show_path(project: @project.name))
-      return
-    end
-
-    # FIXME: It can't check repositories of remote projects
-    project_repositories = dependant_project.remoteurl.blank? ? dependant_project.repositories.pluck(:name) : []
-    [:repository, :dependant_repository].each do |repo_key|
-      next if project_repositories.include?(params[repo_key])
-
-      flash[:error] = "Repository '#{params[repo_key]}' is invalid."
-      redirect_back(fallback_location: project_show_path(project: @project.name))
-      return
-    end
-
-    @arch = params[:arch]
-    @repository = params[:repository]
-    @dependant_repository = params[:dependant_repository]
-    @dependant_project = params[:dependant_project]
-    @package_name = "#{params[:package]}:#{params[:dependant_name]}"
-    # Ensure it really is just a file name, no '/..', etc.
-    @filename = File.basename(params[:filename])
-    @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(params[:dependant_project], '_repository', params[:dependant_repository],
-                                                                  @arch, params[:dependant_name])
-    return if @fileinfo # avoid displaying an error for non-existing packages
-
-    redirect_back(fallback_location: project_package_repository_binary_path(project_name: params[:project], package_name: params[:package],
-                                                                            repository_name: @repository, arch: @arch, filename: @filename))
-  end
-  # rubocop:enable Lint/NonLocalExitFromIterator
-
   def statistics
     @repository = params[:repository]
     @package_name = params[:package]
@@ -220,10 +168,14 @@ class Webui::PackageController < Webui::WebuiController
       return
     end
 
-    per_page = 20
     revision_count = (params[:rev] || @package.rev).to_i
-    per_page = revision_count if User.session && params['show_all']
-    @revisions = Kaminari.paginate_array((1..revision_count).to_a.reverse).page(params[:page]).per(per_page)
+    per_page = User.session && params['show_all'] ? revision_count : 20
+    page = (params[:page] || 1).to_i
+    startbefore = revision_count - ((page - 1) * per_page) + 1
+    revisions_options = { limit: per_page, deleted: 0, meta: 0 }
+    revisions_options[:startbefore] = startbefore if startbefore.positive?
+    revisions = Xmlhash.parse(Backend::Api::Sources::Package.revisions(@project.name, params[:package], revisions_options)).elements('revision')
+    @revisions = Kaminari.paginate_array(revisions.reverse, total_count: revision_count).page(page).per(per_page)
   end
 
   def rdiff
@@ -240,7 +192,7 @@ class Webui::PackageController < Webui::WebuiController
     @linkrev = params[:linkrev]
 
     options = {}
-    [:orev, :opackage, :oproject, :linkrev, :olinkrev].each do |k|
+    %i[orev opackage oproject linkrev olinkrev].each do |k|
       options[k] = params[k] if params[k].present?
     end
     options[:rev] = @rev if @rev
@@ -284,18 +236,6 @@ class Webui::PackageController < Webui::WebuiController
     }
   end
 
-  def save
-    authorize @package, :update?
-    @package.title = params[:title]
-    @package.description = params[:description]
-    if @package.save
-      flash[:success] = "Package data for '#{elide(@package.name)}' was saved successfully"
-    else
-      flash[:error] = "Failed to save package '#{elide(@package.name)}': #{@package.errors.full_messages.to_sentence}"
-    end
-    redirect_to action: :show, project: params[:project], package: params[:package]
-  end
-
   def remove
     authorize @package, :destroy?
 
@@ -308,109 +248,6 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to(package_show_path(project: @project, package: @package),
                   error: "Package can't be removed: #{@package.errors.full_messages.to_sentence}")
     end
-  end
-
-  def trigger_services
-    authorize @package, :update?
-
-    begin
-      Backend::Api::Sources::Package.trigger_services(@project.name, @package.name, User.session!.to_s)
-      flash[:success] = 'Services successfully triggered'
-    rescue Timeout::Error => e
-      flash[:error] = "Services couldn't be triggered: " + e.message
-    rescue Backend::Error => e
-      flash[:error] = "Services couldn't be triggered: " + Xmlhash::XMLHash.new(error: e.summary)[:error]
-    end
-    redirect_to package_show_path(@project, @package)
-  end
-
-  def remove_file
-    authorize @package, :update?
-
-    filename = params[:filename]
-    begin
-      @package.delete_file(filename)
-      flash[:success] = "File '#{filename}' removed successfully"
-    rescue Backend::NotFoundError
-      flash[:error] = "Failed to remove file '#{filename}'"
-    end
-    redirect_to action: :show, project: @project, package: @package
-  end
-
-  def view_file
-    @filename = params[:filename] || params[:file] || ''
-    if binary_file?(@filename) # We don't want to display binary files
-      flash[:error] = "Unable to display binary file #{@filename}"
-      redirect_back(fallback_location: { action: :show, project: @project, package: @package })
-      return
-    end
-    @rev = params[:rev]
-    @expand = params[:expand]
-    @addeditlink = false
-    if User.possibly_nobody.can_modify?(@package) && @rev.blank? && @package.scmsync.blank?
-      begin
-        files = package_files(@rev, @expand)
-      rescue Backend::Error
-        files = []
-      end
-      files.each do |file|
-        if file[:name] == @filename
-          @addeditlink = file[:editable]
-          break
-        end
-      end
-    end
-    begin
-      @file = @package.source_file(@filename, fetch_from_params(:rev, :expand))
-    rescue Backend::NotFoundError
-      flash[:error] = "File not found: #{@filename}"
-      redirect_to action: :show, package: @package, project: @project
-      return
-    rescue Backend::Error => e
-      flash[:error] = "Error: #{e}"
-      redirect_back(fallback_location: { action: :show, project: @project, package: @package })
-      return
-    end
-
-    render(template: 'webui/package/simple_file_view') && return if @spider_bot
-  end
-
-  def abort_build
-    authorize @package, :update?
-
-    if @package.abort_build(params)
-      flash[:success] = "Triggered abort build for #{elide(@project.name)}/#{elide(@package.name)} successfully."
-      redirect_to package_show_path(project: @project, package: @package)
-    else
-      flash[:error] = "Error while triggering abort build for #{elide(@project.name)}/#{elide(@package.name)}: #{@package.errors.full_messages.to_sentence}."
-      redirect_to package_live_build_log_path(project: @project, package: @package, repository: params[:repository], arch: params[:arch])
-    end
-  end
-
-  def trigger_rebuild
-    rebuild_trigger = PackageControllerService::RebuildTrigger.new(package_object: @package, package_name_with_multibuild_suffix: params[:package],
-                                                                   project: @project, repository: params[:repository], arch: params[:arch])
-    authorize rebuild_trigger.policy_object, :update?
-
-    if rebuild_trigger.rebuild?
-      flash[:success] = rebuild_trigger.success_message
-      redirect_to package_show_path(project: @project, package: @package)
-    else
-      flash[:error] = rebuild_trigger.error_message
-      redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package, repository_name: params[:repository])
-    end
-  end
-
-  def wipe_binaries
-    authorize @package, :update?
-
-    if @package.wipe_binaries(params)
-      flash[:success] = "Triggered wipe binaries for #{elide(@project.name)}/#{elide(@package.name)} successfully."
-    else
-      flash[:error] = "Error while triggering wipe binaries for #{elide(@project.name)}/#{elide(@package.name)}: #{@package.errors.full_messages.to_sentence}."
-    end
-
-    redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package, repository_name: params[:repository])
   end
 
   def devel_project
@@ -470,43 +307,18 @@ class Webui::PackageController < Webui::WebuiController
     end
   end
 
+  def rpmlint_log_params
+    params.require(%i[project package repository architecture])
+    params.slice(:project, :package, :repository, :architecture).permit!
+  end
+
   def rpmlint_log
-    @log = Backend::Api::BuildResults::Binaries.rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
-    @log.encode!(xml: :text)
-    render partial: 'rpmlint_log'
-  rescue Backend::NotFoundError
-    render plain: 'No rpmlint log'
-  end
+    rpmlint_log_file = RpmlintLogExtractor.new(rpmlint_log_params).call
+    render plain: 'No rpmlint log' and return if rpmlint_log_file.blank?
 
-  def meta
-    @meta = @package.render_xml
-  end
-
-  def save_meta
-    errors = []
-
-    authorize @package, :save_meta_update?
-
-    errors << 'admin rights are required to raise the protection level of a package' if FlagHelper.xml_disabled_for?(@meta_xml, 'sourceaccess')
-
-    errors << 'project name in xml data does not match resource path component' if @meta_xml['project'] && @meta_xml['project'] != @project.name
-
-    errors << 'package name in xml data does not match resource path component' if @meta_xml['name'] && @meta_xml['name'] != @package.name
-
-    if errors.empty?
-      begin
-        @package.update_from_xml(@meta_xml)
-        flash.now[:success] = 'The Meta file has been successfully saved.'
-        status = 200
-      rescue Backend::Error, NotFoundError => e
-        flash.now[:error] = "Error while saving the Meta file: #{e}."
-        status = 400
-      end
-    else
-      flash.now[:error] = "Error while saving the Meta file: #{errors.compact.join("\n")}."
-      status = 400
-    end
-    render layout: false, status: status, partial: 'layouts/webui/flash', object: flash
+    render_chart = params[:renderChart] == 'true'
+    parsed_messages = RpmlintLogParser.new(content: rpmlint_log_file).call if render_chart
+    render partial: 'rpmlint_log', locals: { rpmlint_log_file: rpmlint_log_file, render_chart: render_chart, parsed_messages: parsed_messages }
   end
 
   private
@@ -528,55 +340,6 @@ class Webui::PackageController < Webui::WebuiController
               :url)
   end
 
-  def validate_xml
-    Suse::Validator.validate('package', params[:meta])
-    @meta_xml = Xmlhash.parse(params[:meta])
-  rescue Suse::ValidationError => e
-    flash.now[:error] = "Error while saving the Meta file: #{e}."
-    render layout: false, status: :bad_request, partial: 'layouts/webui/flash', object: flash
-  end
-
-  def package_files(rev = nil, expand = nil)
-    query = {}
-    query[:expand]  = expand  if expand
-    query[:rev]     = rev     if rev
-
-    dir_xml = @package.source_file(nil, query)
-    return [] if dir_xml.blank?
-
-    dir = Xmlhash.parse(dir_xml)
-    @serviceinfo = dir.elements('serviceinfo').first
-    files = []
-    dir.elements('entry') do |entry|
-      file = Hash[*[:name, :size, :mtime, :md5].map! { |x| [x, entry.value(x.to_s)] }.flatten]
-      file[:viewable] = !binary_file?(file[:name]) && file[:size].to_i < 2**20 # max. 1 MB
-      file[:editable] = file[:viewable] && !file[:name].match?(/^_service[_:]/)
-      file[:srcmd5] = dir.value('srcmd5')
-      files << file
-    end
-    files
-  end
-
-  def require_architecture
-    @architecture = Architecture.archcache[params[:arch]]
-    return if @architecture
-
-    flash[:error] = "Couldn't find architecture '#{params[:arch]}'"
-    redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package, repository_name: @repository.name)
-  end
-
-  def require_repository
-    @repository = @project.repositories.find_by(name: params[:repository])
-    return if @repository
-
-    flash[:error] = "Couldn't find repository '#{params[:repository]}'"
-    redirect_to package_show_path(project: @project, package: @package)
-  end
-
-  def handle_parameters_for_rpmlint_log
-    params.require([:project, :package, :repository, :architecture])
-  end
-
   def set_file_details
     @forced_unexpand ||= ''
 
@@ -590,7 +353,10 @@ class Webui::PackageController < Webui::WebuiController
       @current_rev = @package.rev
       @revision = @current_rev if !@revision && !@srcmd5 # on very first page load only
 
-      @files = package_files(@srcmd5 || @revision, @expand)
+      files_xml = @package.source_file(nil, { rev: @srcmd5 || @revision, expand: @expand }.compact)
+      files_hash = Xmlhash.parse(files_xml)
+      @files = files_hash.elements('entry')
+      @srcmd5 = files_hash['srcmd5'] unless @revision == @current_rev
     rescue Backend::Error => e
       # TODO: crudest hack ever!
       if e.summary == 'service in progress' && @expand == 1
@@ -633,25 +399,6 @@ class Webui::PackageController < Webui::WebuiController
     @linkinfo = { remote_project: linkinfo['project'], package: linkinfo['package'] }
   end
 
-  def check_package_name_for_new
-    package_name = params[:package][:name]
-
-    # FIXME: This should be a validation in the Package model
-    unless Package.valid_name?(package_name)
-      flash[:error] = "Invalid package name: '#{elide(package_name)}'"
-      redirect_to action: :new, project: @project
-      return false
-    end
-    # FIXME: This should be a validation in the Package model
-    if Package.exists_by_project_and_name(@project.name, package_name)
-      flash[:error] = "Package '#{elide(package_name)}' already exists in project '#{elide(@project.name)}'"
-      redirect_to action: :new, project: @project
-      return false
-    end
-
-    true
-  end
-
   def find_last_req
     return if @oproject.blank? || @opackage.blank?
 
@@ -682,23 +429,15 @@ class Webui::PackageController < Webui::WebuiController
     begin
       @rdiff = Backend::Api::Sources::Package.source_diff(project, package, options.merge(expand: 1))
     rescue Backend::Error => e
-      flash[:error] = 'Problem getting expanded diff: ' + e.summary
+      flash[:error] = "Problem getting expanded diff: #{e.summary}"
       begin
         @rdiff = Backend::Api::Sources::Package.source_diff(project, package, options.merge(expand: 0))
       rescue Backend::Error => e
-        flash[:error] = 'Error getting diff: ' + e.summary
-        redirect_back(fallback_location: package_show_path(project: @project, package: @package))
+        flash[:error] = "Error getting diff: #{e.summary}"
+        redirect_back_or_to package_show_path(project: @project, package: @package)
         return false
       end
     end
     true
-  end
-
-  def fetch_from_params(*arr)
-    opts = {}
-    arr.each do |k|
-      opts[k] = params[k] if params[k].present?
-    end
-    opts
   end
 end

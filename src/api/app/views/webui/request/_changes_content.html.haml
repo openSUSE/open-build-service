@@ -1,0 +1,12 @@
+- if diff_to_superseded
+  You're reviewing changes from
+  = link_to("superseded request ##{diff_to_superseded.number}.", request_show_path(number: diff_to_superseded.number))
+  This only represents a small part of changes which are included in this request.
+  = surround('(', ')') do
+    = link_to('See the full changes for request', request_changes_path(number: bs_request.number))
+- else
+  - bs_request.superseding.each do |supersed|
+    See the changes from
+    = link_to "superseded request ##{supersed.number}", request_changes_path(bs_request, diff_to_superseded: supersed)
+
+= render SourcediffComponent.new(bs_request: bs_request, action: action, diff_to_superseded: diff_to_superseded)

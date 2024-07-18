@@ -26,7 +26,7 @@ get:
       description: |
         Not Found.
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
       content:
         application/xml; charset=utf-8:
           schema:
@@ -46,8 +46,7 @@ get:
 
 delete:
   summary: Removes the current gpg key
-  description: |
-    Removes the current gpg key if it exists
+  description: Removes the current gpg key if it exists
   security:
     - basic_authentication: []
   parameters:

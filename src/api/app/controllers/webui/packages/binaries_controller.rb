@@ -1,6 +1,6 @@
 module Webui
   module Packages
-    class BinariesController < Packages::MainController
+    class BinariesController < Webui::WebuiController
       include Webui::Packages::BinariesHelper
 
       # TODO: Keep in sync with Build::query in backend/build/Build.pm.
@@ -13,14 +13,18 @@ module Webui
       before_action :set_project
       before_action :set_package
       before_action :set_repository
-      before_action :set_architecture, only: [:show]
+      before_action :set_architecture, only: %i[show dependency filelist]
+      before_action :set_dependant_project, only: :dependency
+      before_action :set_dependant_repository, only: :dependency
+      before_action :set_filename, only: %i[show dependency filelist]
 
       prepend_before_action :lockout_spiders
 
       before_action :require_login, except: [:index]
+      after_action :verify_authorized, only: [:destroy]
 
       def index
-        results_from_backend = Buildresult.find_hashed(project: @project.name, package: @package_name, repository: @repository.name, view: ['binarylist', 'status'])
+        results_from_backend = Buildresult.find_hashed(project: @project.name, package: @package_name, repository: @repository.name, view: %w[binarylist status])
         raise ActiveRecord::RecordNotFound, 'Not Found' if results_from_backend.empty?
 
         @buildresults = []
@@ -42,13 +46,10 @@ module Webui
         end
       rescue Backend::Error => e
         flash[:error] = e.message
-        redirect_back(fallback_location: { controller: :package, action: :show, project: @project, package: @package })
+        redirect_back_or_to({ controller: :package, action: :show, project: @project, package: @package })
       end
 
       def show
-        # Ensure it really is just a file name, no '/..', etc.
-        @filename = File.basename(params[:filename])
-
         @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project.name, @package_name, @repository.name, @architecture.name, @filename)
         raise ActiveRecord::RecordNotFound, 'Not Found' unless @fileinfo
 
@@ -58,6 +59,62 @@ module Webui
           end
           format.any { redirect_to download_url_for_binary(architecture_name: @architecture.name, file_name: @filename) }
         end
+      end
+
+      def dependency
+        @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@dependant_project_name, '_repository', @dependant_repository_name,
+                                                                      @architecture, params[:dependant_name])
+        return if @fileinfo # avoid displaying an error for non-existing packages
+
+        redirect_back_or_to project_package_repository_binary_url(project_name: @project, package_name: @package,
+                                                                  repository: @repository, arch: @architecture, filename: @filename)
+      end
+
+      def destroy
+        authorize @package, :update?
+
+        begin
+          Backend::Api::Build::Project.wipe_binaries(@project.name, { package: @package_name,
+                                                                      repository: params[:repository_name],
+                                                                      arch: params[:arch] }.compact)
+          flash[:success] = "Triggered wipe binaries for #{elide(@project.name)}/#{elide(@package_name)} successfully."
+        rescue Backend::Error, Timeout::Error, Project::WritePermissionError => e
+          flash[:error] = "Error while triggering wipe binaries for #{elide(@project.name)}/#{elide(@package_name)}: #{e.message}."
+        end
+
+        redirect_to project_package_repository_binaries_path(project_name: @project, package_name: @package_name, repository_name: @repository)
+      end
+
+      def filelist
+        data = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project.name, @package_name, @repository.name, @architecture.name, @filename, withfilelist: 1)
+        filelist = data.elements('filelist')
+        render json: { data: filelist.map { |f| { name: f } } }
+      end
+
+      private
+
+      def set_dependant_project
+        @dependant_project_name = params[:dependant_project]
+        @dependant_project = Project.find_by_name(@dependant_project_name) || Project.find_remote_project(@dependant_project_name).try(:first)
+        return @dependant_project if @dependant_project
+
+        flash[:error] = "Project '#{elide(@dependant_project_name)}' is invalid."
+        redirect_back_or_to root_path
+      end
+
+      def set_dependant_repository
+        @dependant_repository_name = params[:dependant_repository]
+        # FIXME: It can't check repositories of remote projects
+        @dependant_repository = @dependant_project.repositories.find_by(name: @dependant_repository_name) if @dependant_project.remoteurl.blank?
+        return @dependant_repository if @dependant_repository
+
+        flash[:error] = "Repository '#{@dependant_repository_name}' is invalid."
+        redirect_back_or_to project_show_path(project: @project.name)
+      end
+
+      def set_filename
+        # Ensure it really is just a file name, no '/..', etc.
+        @filename = File.basename(params[:binary_filename] || params[:filename])
       end
 
       # Get an URL to a binary produced by the build.

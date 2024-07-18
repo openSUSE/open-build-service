@@ -1,0 +1,73 @@
+// https://en.wikipedia.org/wiki/ANSI_escape_code#3-bit_and_4-bit
+$ansi-values: (
+  "red": 31,
+  "green": 32,
+  "yellow": 33,
+  "blue": 34,
+  "purple": 35,
+  "cyan": 36
+);
+
+$ansi-colors: (
+  "red": $red,
+  "green": $green,
+  "yellow": $yellow,
+  "blue": $blue,
+  "purple": $purple,
+  "cyan": $cyan
+);
+
+$light-ansi-colors: (
+  "red": lighten($red, 10%),
+  "green": lighten($green, 10%),
+  "yellow": lighten($yellow, 10%),
+  "blue": lighten($blue, 30%),
+  "purple": lighten($purple, 40%),
+  "cyan": lighten($cyan, 10%)
+);
+
+:root {
+  @each $color, $value in $ansi-colors {
+    --ansi-fg-#{$color}: #{$value};
+  }
+
+  @each $color, $value in $light-ansi-colors {
+    --ansi-bg-#{$color}: #{$value};
+  }
+}
+
+@include color-mode(dark) {
+  @each $color, $value in $light-ansi-colors {
+    --ansi-fg-#{$color}: #{$value};
+  }
+
+  @each $color, $value in $ansi-colors {
+    --ansi-bg-#{$color}: #{$value};
+  }
+}
+
+#log-space {
+  // https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters
+  .ansible_1 {
+    font-weight: bold;
+  }
+
+  // black and white fg
+  .ansible_30, .ansible_37 {
+    color: var(--bs-secondary-color);
+  }
+
+  // black and white bg
+  .ansible_40, .ansible_47 {
+    background-color: var(--bs-secondary-bg);
+  }
+
+  @each $color, $value in $ansi-values {
+    .ansible_#{$value} {
+      color: var(--ansi-fg-#{$color});
+    }
+    .ansible_#{$value + 10} {
+      background-color: color-mix(in srgb, var(--ansi-bg-#{$color}) 30%, transparent);
+    }
+  }
+}

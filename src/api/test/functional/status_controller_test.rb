@@ -7,54 +7,12 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
     prepare_request_valid_user
   end
 
-  def test_messages
-    get '/status/messages'
-    assert_response :success
-    assert_xml_tag tag: 'status_messages'
-  end
-
-  def test_new_message
-    post '/status/messages'
-    assert_response 403
-
-    login_king
-    post '/status/messages', params: '<whereareyou/>'
-    assert_response 400
-
-    post '/status/messages', params: '<status_message><message>nada</message></status_message>'
-    assert_response 400
-    assert_xml_tag attributes: { code: 'validation_failed' }
-
-    post '/status/messages', params: '<status_message><message>I have nothing to say</message><severity>yellow</severity></status_message>'
-    assert_response :success
-
-    # delete it again
-    get '/status/messages'
-    assert_response :success
-    messages = Xmlhash.parse @response.body
-    msg_id = messages.get('status_message').value('id')
-
-    prepare_request_valid_user
-    delete "/status/messages/#{msg_id}"
-    assert_response 403
-
-    login_king
-    delete "/status/messages/#{msg_id}"
-    assert_response :success
-
-    delete '/status/messages/17'
-    assert_response 404
-
-    get '/status/messages'
-    assert_match(/status_messages count="0"/, @response.body)
-  end
-
   def test_calculate_workers_by_constraints
     post '/worker'
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag(tag: 'status', attributes: { code: 'missing_parameter' })
     post '/worker?cmd=checkconstraints&project=HiddenProject&package=TestPack&repository=10.2&arch=i586'
-    assert_response 404
+    assert_response :not_found
     assert_xml_tag(tag: 'status', attributes: { code: 'unknown_project' })
     post '/worker?cmd=checkconstraints&project=home:Iggy&package=TestPack&repository=10.2&arch=i586'
     assert_response :success

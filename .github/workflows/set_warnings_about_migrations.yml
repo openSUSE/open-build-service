@@ -1,0 +1,66 @@
+name: Set warnings about migrations
+
+on:
+  pull_request
+
+permissions:
+  contents: read
+
+jobs:
+  comment_on_pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Group files that have changed
+        id: changed-files-yaml
+        uses: tj-actions/changed-files@v44
+        with:
+          files_yaml: |
+            migrations:
+              - src/api/db/migrate/**
+            not_migrations:
+              - '!src/api/db/migrate/**'
+              - '!src/api/db/data/**'
+              - '!src/api/db/schema.rb'
+              - '!src/api/db/data_schema.rb'
+            db_migrations:
+              - src/api/db/migrate/**
+            data_migrations:
+              - src/api/db/data/**
+            db_schema:
+              - src/api/db/schema.rb
+            data_schema:
+              - src/api/db/data_schema.rb
+
+      - name: Store PR number as artifact
+        run: |
+          mkdir ./artifacts
+          echo ${{ github.event.number }} > ./artifacts/pr_number.txt
+
+      - name: Store warning text about migrations
+        if: (steps.changed-files-yaml.outputs.migrations_any_changed == 'true') && (steps.changed-files-yaml.outputs.not_migrations_all_changed_files_count > 0)
+        run: |
+          COMMENT_TEXT_MIGRATIONS=":warning: Please make sure the migration is shipped in an independent Pull Request. :warning:"$'\n'
+          COMMENT_TEXT_MIGRATIONS+=":heavy_check_mark: You can include schema changes, annotations and validations for consistency but :x: avoid committing other changes with it."$'\n'
+          echo "$COMMENT_TEXT_MIGRATIONS" > ./artifacts/comment_text_migrations.txt
+
+      - name: Store warning text about missing db schema
+        if: (steps.changed-files-yaml.outputs.db_migrations_any_changed == 'true') && (steps.changed-files-yaml.outputs.db_schema_any_changed == 'false')
+        run: |
+          COMMENT_TEXT_DB_SCHEMA=":warning: There is a db migration but not a db schema. Please commit it."$'\n'
+          echo "$COMMENT_TEXT_DB_SCHEMA" > ./artifacts/comment_text_db_schema.txt
+
+      - name: Store warning text about missing data schema
+        if: (steps.changed-files-yaml.outputs.data_migrations_any_changed == 'true') && (steps.changed-files-yaml.outputs.data_schema_any_changed == 'false')
+        run: |
+          COMMENT_TEXT_DATA_SCHEMA=":warning: There is a data migration but not a data schema. Please commit it."$'\n'
+          echo "$COMMENT_TEXT_DATA_SCHEMA" > ./artifacts/comment_text_data_schema.txt
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: migrations_artifacts
+          path: artifacts/

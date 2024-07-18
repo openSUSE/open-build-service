@@ -9,8 +9,7 @@ get:
     - $ref: '../components/parameters/package_name.yaml'
   responses:
     '200':
-      description: |
-        This endpoint returns the log file content
+      description: This endpoint returns the log file content
       content:
         text/plain:
           example: |
@@ -28,7 +27,7 @@ get:
       description: |
         Error: Not Acceptable
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
       content:
         application/xml; charset=utf-8:
           schema:
@@ -40,7 +39,7 @@ get:
       description: |
         Error: Not Found
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
       content:
         application/xml; charset=utf-8:
           schema:

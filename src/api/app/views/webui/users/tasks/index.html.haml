@@ -1,70 +1,70 @@
 :ruby
-  - @pagetitle = "Tasks for #{User.session!}"
+  - @pagetitle = "Tasks for #{User.session}"
 .card#reviews
   %ul.card-header.nav.nav-tabs.pt-2.px-3.pb-0.flex-nowrap.collapsible.disable-link-generation{ role: 'tablist' }
     %li.nav-item
-      - cache "#{User.session!.cache_key_with_version}-reviews-in" do
-        %a.nav-link.text-nowrap.active{ href: '#reviews-in', title: "Requests that #{User.session!} has to review" }
+      - cache "#{User.session.cache_key_with_version}-reviews-in" do
+        %a.nav-link.text-nowrap.active{ href: '#reviews-in', title: "Requests that #{User.session} has to review" }
           Incoming Reviews
           %span.badge.text-bg-primary
-            = User.session!.involved_reviews.count
+            = User.session.involved_reviews.count
 
   .card-body
     .tab-content#reviews-in
-      = render(partial: 'webui/shared/requests_table', locals: { id: 'reviews_in_table', source_url: user_requests_path(User.session!),
+      = render(partial: 'webui/shared/requests_table', locals: { id: 'reviews_in_table', source_url: user_requests_path(User.session),
                page_length: 10 })
 
 .card.mt-3#requests
   %ul.card-header.nav.nav-tabs.pt-2.px-3.pb-0.flex-nowrap.collapsible{ role: 'tablist' }
     %li.nav-item
-      - cache "#{User.session!.cache_key_with_version}-requests-in" do
-        %a.nav-link.text-nowrap#requests-in-tab{ href: '#requests-in', title: "Requests that #{User.session!} has to merge",
+      - cache "#{User.session.cache_key_with_version}-requests-in" do
+        %a.nav-link.text-nowrap#requests-in-tab{ href: '#requests-in', title: "Requests that #{User.session} has to merge",
          'data-bs-toggle': 'tab', 'aria-controls': 'requests-in-tab', 'aria-selected': 'false', role: 'tab' }
           Incoming Requests
           %span.badge.text-bg-primary
-            = User.session!.incoming_requests.count
+            = User.session.incoming_requests.count
     %li.nav-item
-      %a.nav-link.text-nowrap#requests-out-tab{ href: '#requests-out', title: "Requests that #{User.session!} has sent",
+      %a.nav-link.text-nowrap#requests-out-tab{ href: '#requests-out', title: "Requests that #{User.session} has sent",
         'data-bs-toggle': 'tab', 'aria-controls': 'requests-out-tab', 'aria-selected': 'false', role: 'tab' }
         Outgoing Requests
         %span.badge.text-bg-primary
-          = User.session!.outgoing_requests.count
+          = User.session.outgoing_requests.count
     %li.nav-item
-      %a.nav-link.text-nowrap#requests-declined-tab{ href: '#requests-declined', title: "Requests from #{User.session!} that are declined",
+      %a.nav-link.text-nowrap#requests-declined-tab{ href: '#requests-declined', title: "Requests from #{User.session} that are declined",
         'data-bs-toggle': 'tab', 'aria-controls': 'requests-declined-tab', 'aria-selected': 'false', role: 'tab' }
         Declined Requests
         %span.badge.text-bg-primary
-          = User.session!.declined_requests.count
+          = User.session.declined_requests.count
     %li.nav-item
-      %a.nav-link.text-nowrap#all-requests-tab{ href: '#all-requests', title: "All Requests from #{User.session!}",
+      %a.nav-link.text-nowrap#all-requests-tab{ href: '#all-requests', title: "All Requests from #{User.session}",
         'data-bs-toggle': 'tab', 'aria-controls': 'all-requests-tab', 'aria-selected': 'false', role: 'tab' }
         All Requests
         %span.badge.text-bg-primary
-          = User.session!.requests.count
+          = User.session.requests.count
     %li.nav-item.dropdown
       %a.nav-link.dropdown-toggle{ href: '#', 'data-bs-toggle': 'dropdown', role: 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
       .dropdown-menu.dropdown-menu-end
   .card-body
     .tab-content
       .tab-pane.fade#requests-in{ role: 'tabpanel', 'aria-labelledby': 'requests-in-tab' }
-        = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_in_table', source_url: user_requests_path(User.session!),
+        = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_in_table', source_url: user_requests_path(User.session),
                  page_length: 10 })
       .tab-pane.fade#requests-out{ role: 'tabpanel', 'aria-labelledby': 'requests-out-tab' }
-        = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_out_table', source_url: user_requests_path(User.session!),
+        = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_out_table', source_url: user_requests_path(User.session),
                  page_length: 10 })
       .tab-pane.fade#requests-declined{ role: 'tabpanel', 'aria-labelledby': 'requests-declined-tab' }
-        = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_declined_table', source_url: user_requests_path(User.session!),
+        = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_declined_table', source_url: user_requests_path(User.session),
                  page_length: 10 })
       .tab-pane.fade#all-requests{ role: 'tabpanel', 'aria-labelledby': 'all-requests-tab' }
-        = render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: user_requests_path(User.session!),
+        = render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: user_requests_path(User.session),
                  page_length: 10 })
 
-- number_of_involved_patchinfos = User.session!.involved_patchinfos.size
+- number_of_involved_patchinfos = User.session.involved_patchinfos.size
 - if number_of_involved_patchinfos.positive?
   .card.mt-3#patchinfos
     %ul.card-header.nav.nav-tabs.pt-2.px-3.pb-0.flex-nowrap.collapsible.disable-link-generation{ role: 'tablist' }
       %li.nav-item
-        %a.nav-link.text-nowrap.active{ href: '#patchinfos-in', title: "Requests that #{User.session!} has to merge" }
+        %a.nav-link.text-nowrap.active{ href: '#patchinfos-in', title: "Requests that #{User.session} has to merge" }
           Maintenance Requests
           %span.badge.text-bg-primary
             = number_of_involved_patchinfos

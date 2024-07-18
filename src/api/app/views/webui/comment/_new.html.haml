@@ -3,7 +3,7 @@
     .alert.alert-warning{ role: 'alert' }
       Commenting on this is locked.
       - if CommentLockPolicy.new(User.session, commentable).create?
-        You can remove the lock by clicking on the button below.
+        = comment_lock_alert(commentable)
       - if commentable.respond_to?(:bugowner_emails) && commentable.bugowner_emails.present? && Configuration.bugzilla_url.present?
         If you need to report a bug, make use of the
         - commentable_name = commentable.respond_to?(:project) ? "#{commentable.project}/#{commentable.name}" : commentable.name

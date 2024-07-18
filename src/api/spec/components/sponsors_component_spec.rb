@@ -31,11 +31,11 @@ RSpec.describe SponsorsComponent, type: :component do
     end
 
     it do
-      expect(rendered_content).not_to have_text('Open Build Service is sponsored by')
+      expect(rendered_content).to have_no_text('Open Build Service is sponsored by')
     end
 
     it do
-      expect(rendered_content).not_to have_css('.sponsor-item')
+      expect(rendered_content).to have_no_css('.sponsor-item')
     end
   end
 end

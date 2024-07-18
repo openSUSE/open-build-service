@@ -27,7 +27,7 @@ class PackageDatatable < Datatable
   # rubocop:enable Naming/AccessorMethodName
 
   def data
-    records.map do |record|
+    records.eager_load(:package_kinds).select("packages.*, bit_or(kind = 'link') AS kind_link").group('packages.id').map do |record|
       {
         name: name_with_link(record),
         changed: format('%{duration} ago',
@@ -39,7 +39,7 @@ class PackageDatatable < Datatable
   def name_with_link(record)
     name = []
     name << link_to(record.name, package_show_path(package: record, project: @project))
-    name << tag.span('Link', class: 'badge text-bg-info') if record.is_link?
+    name << tag.span('Link', class: 'badge text-bg-info') if record.kind_link == 1
     safe_join(name, ' ')
   end
 end

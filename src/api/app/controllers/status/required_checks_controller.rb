@@ -6,8 +6,8 @@ class Status::RequiredChecksController < ApplicationController
   #### Self config
 
   #### Callbacks macros: before_action, after_action, etc.
-  before_action :set_project, only: [:index, :create, :destroy]
-  before_action :set_checkable, only: [:index, :create, :destroy]
+  before_action :set_project, only: %i[index create destroy]
+  before_action :set_checkable, only: %i[index create destroy]
   skip_before_action :require_login, only: [:index]
   # Pundit authorization policies control
   after_action :verify_authorized

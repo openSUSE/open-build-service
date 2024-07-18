@@ -37,6 +37,13 @@ module HasRelationships
     end
   end
 
+  def local_roles_for_user(user)
+    Role.joins(:relationships).where(
+      id: Role.local_roles,
+      relationships: relationships.where(id: Relationship.where(user: user).or(Relationship.where(group: user.group_ids)))
+    ).distinct
+  end
+
   def user_has_role?(user, role)
     return true if relationships.exists?(role_id: role.id, user_id: user.id)
 
@@ -95,7 +102,7 @@ module HasRelationships
 
   def remove_all_old_relationships(cache)
     # delete all roles that weren't found in the uploaded xml
-    roles_not_to_remove = [:keep, :new]
+    roles_not_to_remove = %i[keep new]
     cache.each do |_, roles|
       roles.each do |_, object|
         next if roles_not_to_remove.include?(object)
@@ -161,7 +168,7 @@ module HasRelationships
 
       # check with LDAP
       raise SaveError, "unknown group '#{id}'" unless CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
-      raise SaveError, "unknown group '#{id}' on LDAP server" unless UserLdapStrategy.find_group_with_ldap(id)
+      raise SaveError, "unknown group '#{id}' on LDAP server" if UserLdapStrategy.find_group_with_ldap(id).blank?
 
       logger.debug "Find and Create group '#{id}' from LDAP"
       Group.create!(title: id)

@@ -2,12 +2,52 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/fake_project/_meta
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 14 Mar 2024 13:14:49 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/fake_project/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>Jacob Have I Loved</title>
+          <title>Tirra Lirra by the River</title>
           <description/>
         </project>
     headers:
@@ -29,59 +69,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '107'
+      - '113'
     body:
       encoding: UTF-8
       string: |
         <project name="fake_project">
-          <title>Jacob Have I Loved</title>
+          <title>Tirra Lirra by the River</title>
           <description></description>
         </project>
-    http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
+  recorded_at: Thu, 14 Mar 2024 13:14:49 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/fake_project/_config
-    body:
-      encoding: UTF-8
-      string: Rerum iusto itaque odio. Temporibus sunt amet voluptas numquam. Rerum
-        reprehenderit voluptate rerum laboriosam ut quo.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/_meta?user=_nobody_
+    uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Infinite Jest</title>
-          <description>Est a quia qui tempora laborum velit unde.</description>
+          <title>Let Us Now Praise Famous Men</title>
+          <description>Alias quos laudantium sed.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -102,55 +107,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '185'
+      - '184'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Infinite Jest</title>
-          <description>Est a quia qui tempora laborum velit unde.</description>
+          <title>Let Us Now Praise Famous Men</title>
+          <description>Alias quos laudantium sed.</description>
         </package>
-    http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Infinite Jest</title>
-          <description>Est a quia qui tempora laborum velit unde.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '185'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_invalid_kiwi_file" project="fake_project">
-          <title>Infinite Jest</title>
-          <description>Est a quia qui tempora laborum velit unde.</description>
-        </package>
-    http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
+  recorded_at: Thu, 14 Mar 2024 13:14:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/package_with_invalid_kiwi_file.kiwi
@@ -207,16 +172,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
+        <revision rev="6" vrev="6">
           <srcmd5>a51602dae6fc2e8322ebff0f3408ff85</srcmd5>
           <version>unknown</version>
-          <time>1509969972</time>
+          <time>1710422089</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
+  recorded_at: Thu, 14 Mar 2024 13:14:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file
@@ -242,15 +206,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '247'
+      - '246'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_invalid_kiwi_file" rev="4" vrev="4" srcmd5="a51602dae6fc2e8322ebff0f3408ff85">
-          <entry name="package_with_invalid_kiwi_file.kiwi" md5="72d17a914bf427cb304f7769a65c77f0" size="1096" mtime="1509969971" />
+        <directory name="package_with_invalid_kiwi_file" rev="6" vrev="6" srcmd5="a51602dae6fc2e8322ebff0f3408ff85">
+          <entry name="package_with_invalid_kiwi_file.kiwi" md5="72d17a914bf427cb304f7769a65c77f0" size="1096" mtime="1710422089"/>
         </directory>
-    http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
+  recorded_at: Thu, 14 Mar 2024 13:14:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/package_with_invalid_kiwi_file.kiwi
@@ -307,8 +270,7 @@ http_interactions:
             <source path="http://download.opensuse.org/update/13.2/"/>
           </repository>
         </image>
-    http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
+  recorded_at: Thu, 14 Mar 2024 13:14:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file
@@ -334,13 +296,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '247'
+      - '246'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_invalid_kiwi_file" rev="4" vrev="4" srcmd5="a51602dae6fc2e8322ebff0f3408ff85">
-          <entry name="package_with_invalid_kiwi_file.kiwi" md5="72d17a914bf427cb304f7769a65c77f0" size="1096" mtime="1509969971" />
+        <directory name="package_with_invalid_kiwi_file" rev="6" vrev="6" srcmd5="a51602dae6fc2e8322ebff0f3408ff85">
+          <entry name="package_with_invalid_kiwi_file.kiwi" md5="72d17a914bf427cb304f7769a65c77f0" size="1096" mtime="1710422089"/>
         </directory>
-    http_version: 
-  recorded_at: Mon, 06 Nov 2017 12:06:12 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Thu, 14 Mar 2024 13:14:49 GMT
+recorded_with: VCR 6.2.0

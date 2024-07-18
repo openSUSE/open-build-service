@@ -88,7 +88,7 @@ RSpec.describe Webui::Projects::RebuildTimesController do
           get :show, params: { project_name: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64' }
         end
 
-        it { expect(assigns(:longestpaths)).to match_array([[], [], [], [], ['package_name']]) }
+        it { expect(assigns(:longestpaths)).to contain_exactly([], [], [], [], ['package_name']) }
       end
 
       context 'with diststats not generated' do
@@ -97,7 +97,7 @@ RSpec.describe Webui::Projects::RebuildTimesController do
           get :show, params: { project_name: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64' }
         end
 
-        it { expect(assigns(:longestpaths)).to match_array([[], [], [], []]) }
+        it { expect(assigns(:longestpaths)).to contain_exactly([], [], [], []) }
       end
     end
   end

@@ -1,0 +1,8 @@
+post:
+  deprecated: true
+  summary: Trigger an operation
+  description: This endpoint behaves exactly as the [/trigger](#/Trigger) endpoint.
+  security:
+    - GitLab_key_authentication: []
+  tags:
+    - Trigger

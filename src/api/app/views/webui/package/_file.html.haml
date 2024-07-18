@@ -1,26 +1,28 @@
-- can_be_removed = removable_file?(file_name: file[:name], package: package) && can_modify
-%tr{ id: "file-#{valid_xml_id(file[:name])}" }
+- can_be_removed = removable_file?(file_name: file['name'], package: package) && can_modify && is_current_rev
+%tr{ id: "file-#{valid_xml_id(file['name'])}" }
   %td.text-word-break-all
-    - link_opts = { action: :view_file, project: project, package: package, filename: file[:name], expand: expand }
+    - link_opts = { action: :show, controller: 'webui/packages/files', project_name: project,
+                    package_name: package, filename: file['name'], expand: expand }
     - unless is_current_rev
-      - link_opts[:rev] = file[:srcmd5]
-    = link_to_if(file[:viewable], nbsp(file[:name]), link_opts)
+      - link_opts[:rev] = srcmd5
+    = link_to_if(viewable_file?(file['name'], file['size'].to_i), nbsp(file['name']), link_opts)
   %td.text-nowrap
-    %span.d-none= file[:size].rjust(10, '0')
-    = human_readable_fsize(file[:size])
-  %td.text-nowrap{ data: { order: "-#{file[:mtime]}" } }
-    = render TimeComponent.new(time: Time.zone.at(file[:mtime].to_i))
+    %span.d-none= file['size'].rjust(10, '0')
+    = human_readable_fsize(file['size'])
+  %td.text-nowrap{ data: { order: "-#{file['mtime']}" } }
+    = render TimeComponent.new(time: Time.zone.at(file['mtime'].to_i))
   / limit download for anonymous user to avoid getting killed by crawlers
   - unless nobody
     %td.text-center<
-      = link_to(file_url(project.name, package.name, file[:name], file[:srcmd5]), title: 'Download file', class: 'me-1') do
+      = link_to(file_url(project.name, package.name, file['name'], srcmd5), title: 'Download file', class: 'me-1') do
         %i.fas.fa-download.text-secondary
       - if can_be_removed
         = link_to('#', title: 'Delete file', data: { 'bs-toggle': 'modal',
                                                      'bs-target': '#delete-file-modal',
-                                                     confirmation_text: "Please confirm deletion of file '#{file[:name]}'",
-                                                     action: url_for(action: :remove_file,
-                                                                     project: project,
-                                                                     package: package,
-                                                                     filename: file[:name]) }) do
+                                                     confirmation_text: "Please confirm deletion of file '#{file['name']}'",
+                                                     action: url_for(action: :destroy,
+                                                                     controller: 'webui/packages/files',
+                                                                     project_name: project,
+                                                                     package_name: package,
+                                                                     filename: file['name']) }) do
           %i.fas.fa-times-circle.text-danger

@@ -11,7 +11,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
 
   def test_index
     get '/attribute/'
-    assert_response 401
+    assert_response :unauthorized
 
     login_Iggy
     get '/attribute/'
@@ -28,7 +28,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
 
     get '/attribute/NotExisting'
-    assert_response 404
+    assert_response :not_found
 
     get '/attribute/OBS'
     assert_response :success
@@ -53,11 +53,11 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
 
     login_Iggy
     post '/attribute/TEST/_meta', params: data
-    assert_response 403
+    assert_response :forbidden
     assert_match(/Requires admin privileges/, @response.body)
 
     delete '/attribute/OBS/_meta'
-    assert_response 403
+    assert_response :forbidden
     assert_match(/Requires admin privileges/, @response.body)
 
     login_king
@@ -69,7 +69,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     delete '/attribute/TEST/_meta'
     assert_response :success
     get '/attribute/TEST/_meta'
-    assert_response 404
+    assert_response :not_found
 
     # using PUT and new delete route
     put '/attribute/TEST/_meta', params: data
@@ -79,7 +79,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     delete '/attribute/TEST'
     assert_response :success
     get '/attribute/TEST/_meta'
-    assert_response 404
+    assert_response :not_found
   end
 
   def test_create_type
@@ -107,7 +107,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
             </definition>"
 
     post '/attribute/TEST/Dummy/_meta', params: data
-    assert_response 401
+    assert_response :unauthorized
 
     login_adrian
     # FIXME3.0: POST is deprecated, use PUT
@@ -118,7 +118,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     delete '/attribute/TEST/Dummy/_meta'
     assert_response :success
     get '/attribute/TEST/Dummy/_meta'
-    assert_response 404
+    assert_response :not_found
 
     # new PUT way
     put '/attribute/TEST/Dummy/_meta', params: data
@@ -133,7 +133,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
                      </attribute>
                    </attributes>"
     post '/source/home:adrian/_attribute', params: attrib_data
-    assert_response 400
+    assert_response :bad_request
     assert_match(/Values Value ('|")M('|") is not allowed./, @response.body)
     get '/source/home:adrian/_attribute'
     assert_response :success
@@ -158,12 +158,12 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     # cleanup
     login_Iggy
     delete '/attribute/TEST/Dummy/_meta'
-    assert_response 403
+    assert_response :forbidden
     login_adrian
     delete '/attribute/TEST/Dummy'
     assert_response :success
     get '/attribute/TEST/Dummy/_meta'
-    assert_response 404
+    assert_response :not_found
   end
 
   def test_create_type_via_group
@@ -195,24 +195,24 @@ ription</description>
             </definition>"
 
     post '/attribute/TEST/Dummy/_meta', params: data
-    assert_response 401
+    assert_response :unauthorized
 
     login_adrian
     post '/attribute/TEST/Dummy/_meta', params: data
     assert_response :success
     get '/attribute/TEST/Dummy/_meta'
     assert_response :success
-    ['count', 'description', 'default', 'allowed', 'count', 'modifiable_by'].each do |i|
+    %w[count description default allowed count modifiable_by].each do |i|
       assert_equal(Xmlhash.parse(data)[i], Xmlhash.parse(@response.body)[i])
     end
     login_Iggy
     delete '/attribute/TEST/Dummy/_meta'
-    assert_response 403
+    assert_response :forbidden
     login_adrian
     delete '/attribute/TEST/Dummy/_meta'
     assert_response :success
     get '/attribute/TEST/Dummy/_meta'
-    assert_response 404
+    assert_response :not_found
   end
 
   def test_with_issue
@@ -268,7 +268,7 @@ ription</description>
     delete '/attribute/TEST/Dummy/_meta'
     assert_response :success
     get '/attribute/TEST/Dummy/_meta'
-    assert_response 404
+    assert_response :not_found
   end
 
   def test_attrib_type_meta
@@ -285,7 +285,7 @@ ription</description>
   def test_invalid_get
     login_Iggy
     get '/source/RemoteInstance:BaseDistro/pack1/_attribute'
-    assert_response 404
+    assert_response :not_found
   end
 
   def test_attrib_write_permissions
@@ -295,10 +295,10 @@ ription</description>
 
     # XML with an attribute I should not be able to create
     post '/source/home:tom/_attribute', params: data
-    assert_response 403
+    assert_response :forbidden
     # same with attribute parameter
     post '/source/home:tom/_attribute/OBS:Issues', params: data
-    assert_response 403
+    assert_response :forbidden
   end
 
   def test_attrib_delete_permissions
@@ -310,7 +310,7 @@ ription</description>
 
     login_tom
     delete '/source/home:tom/_attribute/OBS:VeryImportantProject'
-    assert_response 403
+    assert_response :forbidden
   end
 
   def test_create_attributes_project
@@ -318,14 +318,14 @@ ription</description>
 
     data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
     post '/source/home:tom/_attribute', params: data
-    assert_response 404
+    assert_response :not_found
     assert_select 'status[code] > summary', /Attribute Type OBS:Playground does not exist/
 
     data = "<attributes><attribute namespace='OBS' name='Maintained' >
               <value>blah</value>
             </attribute></attributes>"
     post '/source/home:tom/_attribute', params: data
-    assert_response 400
+    assert_response :bad_request
     assert_select 'status[code] > summary', /has 1 values, but only 0 are allowed/
 
     data = "<attributes><attribute namespace='OBS' name='Maintained'></attribute></attributes>"
@@ -341,15 +341,15 @@ ription</description>
     assert_equal({ 'attribute' => { 'name' => 'Maintained', 'namespace' => 'OBS' } }, Xmlhash.parse(@response.body))
 
     get '/source/NOT_EXISTING/_attribute'
-    assert_response 404
+    assert_response :not_found
     get '/source/home:tom/_attribute/OBS:NotExisting'
-    assert_response 404
+    assert_response :not_found
     get '/source/home:tom/_attribute/NotExisting:NotExisting'
-    assert_response 404
+    assert_response :not_found
 
     # via remote link
     get '/source/RemoteInstance:home:tom/_attribute/OBS:Maintained'
-    assert_response 400
+    assert_response :bad_request
 
     # via group
     login_adrian
@@ -365,9 +365,9 @@ ription</description>
     # not allowed
     login_Iggy
     post '/source/home:tom/_attribute', params: data
-    assert_response 403
+    assert_response :forbidden
     delete '/source/home:tom/_attribute/OBS:Maintained'
-    assert_response 403
+    assert_response :forbidden
     get '/source/home:tom/_attribute/OBS:Maintained'
     assert_response :success
 
@@ -409,7 +409,7 @@ ription</description>
     delete '/source/home:tom/_attribute/OBS:Maintained'
     assert_response :success
     delete '/source/home:tom/_attribute/OBS:Maintained'
-    assert_response 404
+    assert_response :not_found
 
     # get old revision
     # both ways need to work, first one for backward compatibility
@@ -432,21 +432,21 @@ ription</description>
 
     data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
     post '/source/kde4/kdelibs/_attribute', params: data
-    assert_response 404
+    assert_response :not_found
     assert_select 'status[code] > summary', /Attribute Type OBS:Playground does not exist/
 
     data = "<attributes><attribute namespace='OBS' name='Maintained' >
               <BROKENXML>
             </attribute></attributes>"
     post '/source/kde4/kdelibs/_attribute', params: data
-    assert_response 400
+    assert_response :bad_request
     assert_select 'status[code] > summary', /Invalid XML/
 
     data = "<attributes><attribute namespace='OBS' name='Maintained' >
               <value>blah</value>
             </attribute></attributes>"
     post '/source/kde4/kdelibs/_attribute', params: data
-    assert_response 400
+    assert_response :bad_request
     assert_select 'status[code] > summary', /has 1 values, but only 0 are allowed/
 
     data = "<attributes><attribute namespace='OBS' name='Maintained'></attribute></attributes>"
@@ -471,30 +471,30 @@ ription</description>
     assert_equal({ 'attribute' => { 'name' => 'Maintained', 'namespace' => 'OBS', 'binary' => 'kdelibs-devel' } }, Xmlhash.parse(@response.body))
 
     get '/source/kde4/NOT_EXISTING/_attribute'
-    assert_response 404
+    assert_response :not_found
 
     # no permission check
     login_Iggy
     post '/source/kde4/kdelibs/_attribute', params: data
-    assert_response 403
+    assert_response :forbidden
     post '/source/kde4/kdelibs/_attribute/OBS:Maintained', params: data
-    assert_response 403
+    assert_response :forbidden
     post '/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained', params: data
-    assert_response 403
+    assert_response :forbidden
     delete '/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained'
-    assert_response 403
+    assert_response :forbidden
     get '/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained'
     assert_response :success
     delete '/source/kde4/kdelibs/_attribute/OBS:Maintained'
-    assert_response 403
+    assert_response :forbidden
     get '/source/kde4/kdelibs/_attribute/OBS:Maintained'
     assert_response :success
 
     # invalid operations
     delete '/source/kde4/kdelibs/kdelibs-devel/_attribute'
-    assert_response 404
+    assert_response :not_found
     delete '/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS_Maintained'
-    assert_response 400
+    assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_attribute' }
 
     # check history

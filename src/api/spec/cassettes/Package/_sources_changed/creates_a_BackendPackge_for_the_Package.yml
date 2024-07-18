@@ -30,17 +30,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:46 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/apache/_meta?user=tom
@@ -48,7 +47,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="apache">
-          <title>The Torment of Others</title>
+          <title>To Your Scattered Bodies Go</title>
           <description/>
         </project>
     headers:
@@ -70,16 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '110'
     body:
       encoding: UTF-8
       string: |
         <project name="apache">
-          <title>The Torment of Others</title>
+          <title>To Your Scattered Bodies Go</title>
           <description></description>
         </project>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:46 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/apache/mod_ssl/_meta?user=tom
@@ -87,8 +85,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="mod_ssl" project="apache">
-          <title>The Torment of Others</title>
-          <description>Aspernatur repellat sit quo.</description>
+          <title>Shall not Perish</title>
+          <description>Omnis perferendis repudiandae vitae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,61 +107,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '153'
     body:
       encoding: UTF-8
       string: |
         <package name="mod_ssl" project="apache">
-          <title>The Torment of Others</title>
-          <description>Aspernatur repellat sit quo.</description>
+          <title>Shall not Perish</title>
+          <description>Omnis perferendis repudiandae vitae.</description>
         </package>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:46 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/apache/mod_ssl/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="mod_ssl" project="apache">
-          <title>The Torment of Others</title>
-          <description>Aspernatur repellat sit quo.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '150'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="mod_ssl" project="apache">
-          <title>The Torment of Others</title>
-          <description>Aspernatur repellat sit quo.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:46 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/apache/mod_ssl/_config
     body:
       encoding: UTF-8
-      string: Nemo optio in. Voluptatibus rerum magnam. Unde ea quod.
+      string: Itaque et enim. Placeat dolorem tempore. Iure dolor perferendis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -183,26 +141,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="23" vrev="23">
-          <srcmd5>87a14af2ce955c8dde4e44e7d406e075</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>98080b44ca400b0aa179b6acde0b2f4e</srcmd5>
           <version>unknown</version>
-          <time>1536230746</time>
+          <time>1706702042</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:46 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/apache/mod_ssl/somefile.txt
     body:
       encoding: UTF-8
-      string: Id aut et. Itaque neque ullam. Dolores culpa molestiae.
+      string: Minima nihil quae. Mollitia optio dolorem. Possimus ut cumque.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -222,20 +179,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="24" vrev="24">
-          <srcmd5>e1915e49daa6b5ee2fa11304ea719623</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>84559f18ee23448258074615b4292830</srcmd5>
           <version>unknown</version>
-          <time>1536230746</time>
+          <time>1706702042</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:46 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/apache/mod_ssl/_meta?user=tom
@@ -243,8 +199,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="mod_ssl" project="apache">
-          <title>The Torment of Others</title>
-          <description>Aspernatur repellat sit quo.</description>
+          <title>Shall not Perish</title>
+          <description>Omnis perferendis repudiandae vitae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -265,16 +221,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '153'
     body:
       encoding: UTF-8
       string: |
         <package name="mod_ssl" project="apache">
-          <title>The Torment of Others</title>
-          <description>Aspernatur repellat sit quo.</description>
+          <title>Shall not Perish</title>
+          <description>Omnis perferendis repudiandae vitae.</description>
         </package>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:46 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/apache/mod_ssl
@@ -300,16 +255,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '296'
+      - '292'
     body:
       encoding: UTF-8
       string: |
-        <directory name="mod_ssl" rev="24" vrev="24" srcmd5="e1915e49daa6b5ee2fa11304ea719623">
-          <entry name="_config" md5="738812ee4b144178ba0a905ce7f443e8" size="55" mtime="1536230746" />
-          <entry name="somefile.txt" md5="76b0132298056926385cc61196577034" size="55" mtime="1536230746" />
+        <directory name="mod_ssl" rev="2" vrev="2" srcmd5="84559f18ee23448258074615b4292830">
+          <entry name="_config" md5="9c83b4aa64cf69b6f2c4ff08ffa5c7e6" size="64" mtime="1706702042"/>
+          <entry name="somefile.txt" md5="e0b2913b1bf354125082692ede23da75" size="62" mtime="1706702042"/>
         </directory>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:46 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/apache/mod_ssl?view=info
@@ -335,15 +289,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '227'
+      - '225'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="mod_ssl" rev="24" vrev="24" srcmd5="e1915e49daa6b5ee2fa11304ea719623" verifymd5="e1915e49daa6b5ee2fa11304ea719623">
+        <sourceinfo package="mod_ssl" rev="2" vrev="2" srcmd5="84559f18ee23448258074615b4292830" verifymd5="84559f18ee23448258074615b4292830">
           <error>bad build configuration, no build type defined or detected</error>
         </sourceinfo>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:46 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/apache/mod_ssl
@@ -369,16 +322,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '296'
+      - '292'
     body:
       encoding: UTF-8
       string: |
-        <directory name="mod_ssl" rev="24" vrev="24" srcmd5="e1915e49daa6b5ee2fa11304ea719623">
-          <entry name="_config" md5="738812ee4b144178ba0a905ce7f443e8" size="55" mtime="1536230746" />
-          <entry name="somefile.txt" md5="76b0132298056926385cc61196577034" size="55" mtime="1536230746" />
+        <directory name="mod_ssl" rev="2" vrev="2" srcmd5="84559f18ee23448258074615b4292830">
+          <entry name="_config" md5="9c83b4aa64cf69b6f2c4ff08ffa5c7e6" size="64" mtime="1706702042"/>
+          <entry name="somefile.txt" md5="e0b2913b1bf354125082692ede23da75" size="62" mtime="1706702042"/>
         </directory>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:46 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:02 GMT
 - request:
     method: post
     uri: http://backend:5352/source/apache/mod_ssl?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -406,17 +358,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '292'
+      - '288'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="be160662b5e777c69856c52fad123e1d">
-          <old project="apache" package="mod_ssl" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="apache" package="mod_ssl" rev="24" srcmd5="e1915e49daa6b5ee2fa11304ea719623" />
-          <files />
+        <sourcediff key="d3e3e6c3f721d0aae7e46f13f7a8d7dd">
+          <old project="apache" package="mod_ssl" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="apache" package="mod_ssl" rev="2" srcmd5="84559f18ee23448258074615b4292830"/>
+          <files/>
           <issues>
           </issues>
         </sourcediff>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:46 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Wed, 31 Jan 2024 11:54:02 GMT
+recorded_with: VCR 6.2.0

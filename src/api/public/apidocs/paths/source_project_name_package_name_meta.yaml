@@ -7,6 +7,13 @@ get:
     - $ref: '../components/parameters/project_name.yaml'
     - $ref: '../components/parameters/package_name.yaml'
     - in: query
+      name: deleted
+      schema:
+        type: string
+        enum:
+          - null
+      description: Set to retrieve the package metadata of a deleted package.
+    - in: query
       name: meta
       schema:
         type: string
@@ -53,7 +60,7 @@ get:
       description: |
         Bad Request.
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+        XML Schema used for body validation: [status.rng](../schema/status.rng).
       content:
         application/xml; charset=utf-8:
           schema:
@@ -80,7 +87,7 @@ get:
       description: |
         Not Found.
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+        XML Schema used for body validation: [status.rng](../schema/status.rng).
       content:
         application/xml; charset=utf-8:
           schema:
@@ -136,7 +143,7 @@ put:
       description: |
         Bad Request.
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
       content:
         application/xml; charset=utf-8:
           schema:
@@ -156,7 +163,7 @@ put:
       description: |
         Forbidden.
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+        XML Schema used for body validation: [status.rng](../schema/status.rng).
       content:
         application/xml; charset=utf-8:
           schema:

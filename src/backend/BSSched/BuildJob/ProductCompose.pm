@@ -104,7 +104,6 @@ sub check {
   } else {
      @archs = grep {$imagearch{$_}} @{$repo->{'arch'} || []};
   };
-  unshift @archs, 'local' if $BSConfig::localarch && !grep {$_ eq 'local'} @archs;
 
   # sort archs like in bs_worker
   @archs = sort(@archs);
@@ -113,6 +112,12 @@ sub check {
       @archs = grep {$_ ne $1} @archs;
       push @archs, $1;
     }
+  }
+
+  # always add 'local' to the end
+  if ($BSConfig::localarch) {
+    @archs = grep {$_ ne 'local'} @archs;
+    push @archs, 'local';
   }
 
   if ($myarch ne $buildarch && $myarch ne $localbuildarch) {
@@ -150,6 +155,13 @@ sub check {
   my %rpms_hdrmd5;
   my $neverblock = $ctx->{'isreposerver'};
   my $remoteprojs = $gctx->{'remoteprojs'};
+
+  # setup binary architecture filter (this must match what the product composer does)
+  my %binarchs = %imagearch;
+  $binarchs{$myarch} = 1 unless %imagearch;
+  $binarchs{'noarch'} = 1;
+  $binarchs{'src'} = 1;
+  $binarchs{'nosrc'} = 1;
 
   #print "prps: @bprps\n";
   #print "archs: @archs\n";
@@ -276,6 +288,7 @@ sub check {
   my $projpacks = $gctx->{'projpacks'};
   my %unneeded_na;
   my %archs = map {$_ => 1} @archs;
+  my $dobuildinfo = $ctx->{'dobuildinfo'};
 
   for my $aprp (@bprps) {
     my %seen_fn;	# resolve file conflicts in this prp
@@ -330,10 +343,13 @@ sub check {
 	# all packages not yet in gbininfo
 	# this is a bit of code duplication, but can't be helped (perl function calls are slow)
 	for my $apackid (grep {$blocked_cache->{$_} && !exists($gbininfo->{$_})} @apackids) {
-	  next if ($pdatas->{$apackid} || {})->{'patchinfo'};
 	  if (!exists($known{$apackid})) {
 	    my $info = (grep {$_->{'repository'} eq $arepoid} @{$pdatas->{$apackid}->{'info'} || []})[0];
 	    $known{$apackid} = ($info || {})->{'name'} || $apackid;
+	  }
+	  if ($allpacks) {
+	    my $info = (grep {$_->{'repository'} eq $arepoid} @{$pdatas->{$apackid}->{'info'} || []})[0];
+	    next if $info && $info->{'file'} && $info->{'file'} =~ /\.productcompose$/;
 	  }
 	  my $apackid2 = $known{$apackid} || $apackid;
 	  # crude check if the "main" binary is needed
@@ -356,7 +372,14 @@ sub check {
       my $seen_binary = $is_maintenance_release ? {} : undef;
       my @unneeded_na_revert;
 
-      for my $apackid (BSSched::ProjPacks::orderpackids($aproj, @apackids)) {
+      @apackids = BSSched::ProjPacks::orderpackids($aproj, @apackids);
+      my @apackids_patchinfos = grep {($pdatas->{$_} || {})->{'patchinfo'}} @apackids;
+      if (@apackids_patchinfos) {
+	@apackids = grep {!($pdatas->{$_} || {})->{'patchinfo'}} @apackids;
+	unshift @apackids, @apackids_patchinfos;
+      }
+
+      for my $apackid (@apackids) {
 	next if $apackid eq '_volatile';
 
 	# fast blocked check
@@ -364,6 +387,10 @@ sub check {
 	  if (!exists($known{$apackid})) {
 	    my $info = (grep {$_->{'repository'} eq $arepoid} @{($pdatas->{$apackid} || {})->{'info'} || []})[0];
 	    $known{$apackid} = ($info || {})->{'name'} || $apackid;
+	  }
+	  if ($allpacks) {
+	    my $info = (grep {$_->{'repository'} eq $arepoid} @{$pdatas->{$apackid}->{'info'} || []})[0];
+	    next if $info && $info->{'file'} && $info->{'file'} =~ /\.productcompose$/;
 	  }
 	  my $apackid2 = $known{$apackid} || $apackid;
 	  # crude check if the "main" binary is needed
@@ -433,14 +460,56 @@ sub check {
 	  push @bi, @ibi;
 	}
 
-	# we need the package, add all rpms
+	# setup binary name filter.
+	my $nafilter;
+	if (!$allpacks) {
+	  $nafilter = {};
+	  for my $fn (@bi) {
+	    next unless $fn =~ /^(?:::import::.*::)?(.+)-(?:[^-]+)-(?:[^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	    my ($bn, $ba) = ($1, $2);
+	    next if $ba eq 'src' || $ba eq 'nosrc';
+	    next if $nodbgpkgs && $fn =~ /-(?:debuginfo|debugsource)-/;
+	    my $d = $deps{$bn};
+	    next unless $d;
+	    if ($d && $d ne '1') {
+	      my $bi = $bininfo->{$fn};
+	      my $evr = "$bi->{'version'}-$bi->{'release'}";
+	      $evr = "$bi->{'epoch'}:$evr" if $bi->{'epoch'};
+	      next unless Build::matchsingledep("$bn=$evr", "$bn$d", 'rpm');
+	    }
+	    $nafilter->{"$bn.$ba"} = 1;
+	    next if $nosrcpkgs && $nodbgpkgs;
+	    my $bi = $bininfo->{$fn};
+	    my $srcbn = $bi->{'source'};
+	    if (!defined($srcbn)) {
+	      # missing data probably from a remote server, cannot set up filter.
+	      undef $nafilter;
+	      last;
+	    }
+	    $nafilter->{"$srcbn.src"} = $nafilter->{"$srcbn.nosrc"} = 1 unless $nosrcpkgs;
+	    $nafilter->{"$srcbn-debugsource.$ba"} = $nafilter->{"$bn-debuginfo.$ba"} = 1 unless $nodbgpkgs;
+	  }
+	}
+
+	# we need the package, add the rpms we need
 	for my $fn (@bi) {
+	  if ($fn eq 'updateinfo.xml' || $fn eq '_modulemd.yaml') {
+	    my $b = $bininfo->{$fn};
+	    next if $dobuildinfo || !$b || !$b->{'md5sum'};
+	    my $rpm = "$aprp/$arch/$apackid/$fn";
+	    push @rpms, $rpm;
+	    $rpms_hdrmd5{$rpm} = $b->{'md5sum'};
+	    $rpms_meta{$rpm} = $rpm;
+	    next;
+	  }
 	  next unless $fn =~ /^(?:::import::.*::)?(.+)-(?:[^-]+)-(?:[^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
 	  my ($bn, $ba) = ($1, $2);
+	  next unless exists $binarchs{$ba};
 	  next if $nosrcpkgs && ($ba eq 'src' || $ba eq 'nosrc');
 	  next if $nodbgpkgs && $fn =~ /-(?:debuginfo|debugsource)-/;
 	  next if $fn =~ /^::import::(.*?):/ && $archs{$1};	# we pick it up from the real arch
 	  my $na = "$bn.$ba";
+	  next if $nafilter && !$nafilter->{$na};
 
 	  if ($seen_binary && ($ba ne 'src' && $ba ne 'nosrc')) {
 	    next if $seen_binary->{$na}++;
@@ -466,7 +535,7 @@ sub check {
 	}
 
 	# our buildinfo data also includes special files like appdata
-	if ($ctx->{'isreposerver'}) {
+	if ($dobuildinfo) {
 	  for my $fn (@bi) {
 	    next unless ($fn =~ /[-.]appdata\.xml$/) || $fn eq '_modulemd.yaml' || $fn eq 'updateinfo.xml';
 	    next if $seen_fn{$fn};

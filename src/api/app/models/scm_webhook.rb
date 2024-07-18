@@ -7,8 +7,9 @@ class SCMWebhook
 
   validates_with SCMWebhookEventValidator
 
-  ALLOWED_PULL_REQUEST_ACTIONS = ['closed', 'opened', 'reopened', 'synchronize', 'synchronized'].freeze
-  ALLOWED_MERGE_REQUEST_ACTIONS = ['close', 'merge', 'open', 'reopen', 'update'].freeze
+  ALLOWED_PULL_REQUEST_ACTIONS = %w[closed opened reopened synchronize synchronized].freeze
+  ALLOWED_MERGE_REQUEST_ACTIONS = %w[close merge open reopen update].freeze
+  ALL_POSSIBLE_REQUEST_ACTIONS = ['all'] + ALLOWED_PULL_REQUEST_ACTIONS + ALLOWED_MERGE_REQUEST_ACTIONS
 
   def initialize(attributes = {})
     run_callbacks(:initialize) do
@@ -32,7 +33,7 @@ class SCMWebhook
 
   def closed_merged_pull_request?
     (github_pull_request? && @payload[:action] == 'closed') ||
-      (gitlab_merge_request? && ['close', 'merge'].include?(@payload[:action])) ||
+      (gitlab_merge_request? && %w[close merge].include?(@payload[:action])) ||
       (gitea_pull_request? && @payload[:action] == 'closed')
   end
 

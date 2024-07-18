@@ -28,7 +28,8 @@ class Project
       project.remoteurl = xmlhash.value('remoteurl')
       project.remoteproject = xmlhash.value('remoteproject')
       project.scmsync = xmlhash.value('scmsync')
-      project.kind = xmlhash.value('kind') if xmlhash.value('kind').present?
+      project.kind = xmlhash.value('kind').presence || 'standard'
+
       #--- update flag group ---#
       project.update_all_flags(xmlhash)
       if ::Configuration.default_access_disabled == true && new_record && xmlhash.elements('access').empty?
@@ -219,8 +220,8 @@ class Project
     def check_for_empty_repo_list(list, error_prefix)
       return if list.empty?
 
-      linking_repos = list.map { |x| x.repository.project.name + '/' + x.repository.name }.join("\n")
-      raise SaveError, error_prefix + "\n" + linking_repos
+      linking_repos = list.map { |x| "#{x.repository.project.name}/#{x.repository.name}" }.join("\n")
+      raise SaveError, "#{error_prefix}\n#{linking_repos}"
     end
 
     def update_repository_flags(current_repo, xml_hash)

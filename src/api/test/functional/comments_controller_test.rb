@@ -7,7 +7,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
   def test_package_comments
     get comments_package_path(project: 'BaseDistro3', package: 'pack2')
-    assert_response 401
+    assert_response :unauthorized
 
     login_tom
     get comments_package_path(project: 'BaseDistro3', package: 'pack2')
@@ -19,7 +19,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
   def test_hidden_project_comments
     login_tom
     get comments_project_path(project: 'HiddenProject')
-    assert_response 404 # huh? Nothing here
+    assert_response :not_found # huh? Nothing here
 
     prepare_request_with_user('hidden_homer', 'buildservice')
     get comments_project_path(project: 'HiddenProject')
@@ -35,7 +35,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
   def test_delete_comment
     delete comment_delete_path(300)
-    assert_response 401 # no anonymous deletes
+    assert_response :unauthorized # no anonymous deletes
 
     login_tom
     get comments_request_path(request_number: 4)
@@ -43,7 +43,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'comment', attributes: { who: 'tom', parent: '300' }
 
     delete comment_delete_path(300)
-    assert_response 403 # it's Admin's comment
+    assert_response :forbidden # it's Admin's comment
 
     delete comment_delete_path(301)
     assert_response :success
@@ -76,14 +76,14 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
   def test_create_request_comment
     post create_request_comment_path(request_number: 2)
-    assert_response 401 # no anonymous comments
+    assert_response :unauthorized # no anonymous comments
 
     login_adrian
     post create_request_comment_path(request_number: 2000)
-    assert_response 404
+    assert_response :not_found
 
     post create_request_comment_path(request_number: 2)
-    assert_response 400
+    assert_response :bad_request
     # body can't be empty
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_record' }
 
@@ -136,11 +136,11 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
   def test_create_project_comment
     post create_project_comment_path(project: 'Apache')
-    assert_response 401 # no anonymous comments
+    assert_response :unauthorized # no anonymous comments
 
     login_adrian
     post create_project_comment_path(project: 'Apache')
-    assert_response 400
+    assert_response :bad_request
     # body can't be empty
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_record' }
 
@@ -162,11 +162,11 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
   def test_create_package_comment
     post create_package_comment_path(project: 'kde4', package: 'kdebase')
-    assert_response 401 # no anonymous comments
+    assert_response :unauthorized # no anonymous comments
 
     login_tom
     post create_package_comment_path(project: 'kde4', package: 'kdebase')
-    assert_response 400
+    assert_response :bad_request
     # body can't be empty
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_record' }
 

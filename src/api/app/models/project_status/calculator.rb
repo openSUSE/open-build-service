@@ -9,7 +9,7 @@ module ProjectStatus
 
       mypackages = {}
 
-      @dbproj.packages.select([:id, :name, :project_id, :develpackage_id]).includes(:develpackage, :backend_package).load.each do |dbpack|
+      @dbproj.packages.select(%i[id name project_id develpackage_id]).includes(:develpackage, :backend_package).load.each do |dbpack|
         add_recursively(mypackages, dbpack)
       end
 

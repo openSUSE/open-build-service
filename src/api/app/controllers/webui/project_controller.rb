@@ -2,30 +2,31 @@ class Webui::ProjectController < Webui::WebuiController
   include Webui::RequestHelper
   include Webui::ProjectHelper
   include Webui::ManageRelationships
+  include Webui::NotificationsHandler
   include Webui::ProjectBuildResultParsing
 
-  before_action :lockout_spiders, only: [:requests, :buildresults]
+  before_action :lockout_spiders, only: %i[requests buildresults]
 
-  before_action :require_login, only: [:create, :destroy, :new, :release_request,
-                                       :new_release_request, :edit_comment]
+  before_action :require_login, only: %i[create destroy new release_request
+                                         new_release_request edit_comment]
 
-  before_action :set_project, only: [:autocomplete_repositories, :users, :subprojects,
-                                     :edit, :release_request,
-                                     :show, :buildresult,
-                                     :destroy, :remove_path_from_target,
-                                     :requests, :save, :monitor, :edit_comment,
-                                     :unlock, :save_person, :save_group, :remove_role,
-                                     :move_path, :clear_failed_comment, :pulse]
+  before_action :set_project, only: %i[autocomplete_repositories users subprojects
+                                       edit release_request
+                                       show buildresult
+                                       destroy remove_path_from_target
+                                       requests save monitor edit_comment
+                                       unlock save_person save_group remove_role
+                                       move_path clear_failed_comment pulse]
   before_action :set_project_by_id, only: :update
 
   before_action :load_project_info, only: :show
 
-  before_action :check_ajax, only: [:buildresult, :edit_comment_form]
+  before_action :check_ajax, only: %i[buildresult edit_comment_form]
 
-  after_action :verify_authorized, except: [:index, :autocomplete_projects, :autocomplete_incidents, :autocomplete_packages,
-                                            :autocomplete_repositories, :users, :subprojects, :new, :show,
-                                            :buildresult, :requests, :monitor, :new_release_request,
-                                            :remove_target_request, :edit_comment, :edit_comment_form]
+  after_action :verify_authorized, except: %i[index autocomplete_projects autocomplete_incidents autocomplete_packages
+                                              autocomplete_repositories users subprojects new show
+                                              buildresult requests monitor new_release_request
+                                              remove_target_request edit_comment edit_comment_form]
 
   def index
     respond_to do |format|
@@ -44,11 +45,7 @@ class Webui::ProjectController < Webui::WebuiController
     @has_patchinfo = @project.patchinfos.exists?
     @comments = @project.comments
     @comment = Comment.new
-
-    if User.session && params[:notification_id]
-      @current_notification = Notification.find(params[:notification_id])
-      authorize @current_notification, :update?, policy_class: NotificationPolicy
-    end
+    @current_notification = handle_notification
 
     respond_to do |format|
       format.html
@@ -82,7 +79,7 @@ class Webui::ProjectController < Webui::WebuiController
       return
     end
 
-    @project.relationships.build(user: User.session!,
+    @project.relationships.build(user: User.session,
                                  role: Role.find_by_title('maintainer'))
 
     @project.kind = 'maintenance' if params[:maintenance_project]
@@ -101,7 +98,7 @@ class Webui::ProjectController < Webui::WebuiController
       redirect_to action: 'show', project: @project.name
     else
       flash[:error] = "Failed to save project '#{elide(@project.name)}'. #{@project.errors.full_messages.to_sentence}."
-      redirect_back(fallback_location: root_path)
+      redirect_back_or_to root_path
     end
   end
 
@@ -213,10 +210,10 @@ class Webui::ProjectController < Webui::WebuiController
              BsRequestAction::Errors::UnknownTargetProject,
              BsRequestAction::UnknownTargetPackage => e
         flash[:error] = e.message
-        redirect_back(fallback_location: { action: 'show', project: params[:project] }) && return
+        redirect_back_or_to({ action: 'show', project: params[:project] }) && return
       rescue APIError
         flash[:error] = 'Internal problem while release request creation'
-        redirect_back(fallback_location: { action: 'show', project: params[:project] }) && return
+        redirect_back_or_to({ action: 'show', project: params[:project] }) && return
       end
     end
     redirect_to action: 'show', project: params[:project]
@@ -244,7 +241,7 @@ class Webui::ProjectController < Webui::WebuiController
       redirect_to action: 'show', project: project.name
     else
       flash[:error] = 'Project was never deleted.'
-      redirect_back(fallback_location: root_path)
+      redirect_back_or_to root_path
     end
   end
 
@@ -283,7 +280,7 @@ class Webui::ProjectController < Webui::WebuiController
       @project.store
       redirect_to({ action: :index, controller: :repositories, project: @project }, success: 'Successfully removed path')
     else
-      redirect_back(fallback_location: root_path, error: "Can not remove path: #{@project.errors.full_messages.to_sentence}")
+      redirect_back_or_to root_path, error: "Can not remove path: #{@project.errors.full_messages.to_sentence}"
     end
   end
 
@@ -349,7 +346,7 @@ class Webui::ProjectController < Webui::WebuiController
     @package = @project.find_package(params[:package])
 
     at = AttribType.find_by_namespace_and_name!('OBS', 'ProjectStatusPackageFailComment')
-    unless User.session!.can_create_attribute_in?(@package, at)
+    unless User.session.can_create_attribute_in?(@package, at)
       @comment = params[:last_comment]
       flash.now[:error] = "Can't create attributes in #{elide(@package.name)}"
       return
@@ -436,7 +433,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   def require_maintenance_project
     unless @is_maintenance_project
-      redirect_back(fallback_location: { action: 'show', project: @project })
+      redirect_back_or_to({ action: 'show', project: @project })
       return false
     end
     true
@@ -459,10 +456,10 @@ class Webui::ProjectController < Webui::WebuiController
     @is_incident_project = @project.is_maintenance_incident?
     return unless @is_incident_project
 
-    @open_release_requests = BsRequest.find_for(project: @project.name,
-                                                states: ['new', 'review'],
-                                                types: ['maintenance_release'],
-                                                roles: ['source']).pluck(:number)
+    @open_release_requests = BsRequest::FindFor::Query.new(project: @project.name,
+                                                           states: %w[new review],
+                                                           types: ['maintenance_release'],
+                                                           roles: ['source']).all.pluck(:number) # rubocop:disable Rails/RedundantActiveRecordAllMethod
   end
 
   def valid_target_name?(name)

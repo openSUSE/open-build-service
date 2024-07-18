@@ -1,6 +1,6 @@
 class DistributionsController < ApplicationController
-  before_action :require_admin, except: [:index, :show, :include_remotes]
-  before_action :set_body_xml, except: [:index, :show, :include_remotes]
+  before_action :require_admin, except: %i[index show include_remotes]
+  before_action :set_body_xml, except: %i[index show include_remotes]
 
   validate_action bulk_replace: { method: :put, request: :distributions }
   validate_action bulk_replace: { method: :post, request: :distributions }

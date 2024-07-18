@@ -2,9 +2,8 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
   include ScmSyncEnabledStep
   include TargetProjectLifeCycleSupport
 
-  REQUIRED_KEYS = [:source_project, :source_package, :target_project].freeze
+  REQUIRED_KEYS = %i[source_project source_package target_project].freeze
 
-  validate :validate_source_project_and_package_name
   validate :validate_source_project_or_package_are_not_scmsynced
 
   def call
@@ -16,6 +15,9 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
       restore_target_project
     elsif scm_webhook.new_commit_event?
       create_target_package
+
+      Pundit.authorize(@token.executor, target_package, :update?)
+
       create_link
       Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, target_package).call
 
@@ -42,28 +44,28 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
       project = Project.new(name: target_project_name)
       Pundit.authorize(@token.executor, project, :create?)
 
-      project.save!
-      project.commit_user = User.session
-      project.relationships.create!(user: User.session, role: Role.find_by_title('maintainer'))
-      project.store
+      project.relationships.new(user: User.session, role: Role.find_by_title('maintainer'))
+      project.store(comment: 'SCM/CI integration, link_package step')
     end
 
-    Pundit.authorize(@token.executor, target_project, :update?)
-    target_project.packages.create(name: target_package_name)
+    package = target_project.packages.new(name: target_package_name)
+    Pundit.authorize(@token.executor, package, :create?)
+    package.save!
   end
 
   # Will raise an exception if the source package is not accesible
   def check_source_access
-    return if remote_source?
+    # if we branch from remote there is no need to check access. Either the package exists or not...
+    return if Project.find_remote_project(step_instructions[:source_project]).present?
 
-    Package.get_by_project_and_name(source_project_name, source_package_name)
+    Package.get_by_project_and_name(step_instructions[:source_project], step_instructions[:source_package])
   end
 
   def create_link
     Backend::Api::Sources::Package.write_link(target_project_name,
                                               target_package_name,
                                               @token.executor,
-                                              link_xml(project: source_project_name, package: source_package_name))
+                                              link_xml(project: step_instructions[:source_project], package: step_instructions[:source_package]))
   end
 
   def link_xml(opts = {})

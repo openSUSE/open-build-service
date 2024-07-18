@@ -18,15 +18,15 @@ class Webui::FeedsController < Webui::WebuiController
 
     @terse = params[:terse].present?
 
-    commits = @project.project_log_entries.where(event_type: 'commit').where(['datetime >= ?', @start])
-    commits = commits.where(['datetime <= ?', @finish]) if @finish.present?
+    commits = @project.project_log_entries.where(event_type: 'commit').where(datetime: @start..)
+    commits = commits.where(datetime: ..@finish) if @finish.present?
     @commits = commits.order('datetime desc')
   end
 
   def notifications
     @user = User.find_by!(rss_secret: params[:secret])
     @host = ::Configuration.obs_url
-    @configuration = ::Configuration.first
+    @configuration = ::Configuration.fetch
     @notifications = @user.combined_rss_feed_items
   end
 

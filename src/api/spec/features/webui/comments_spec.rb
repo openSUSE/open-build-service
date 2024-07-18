@@ -53,6 +53,6 @@ RSpec.describe 'Comments', :js, :vcr do
     click_button('Delete')
 
     visit project_show_path(user.home_project)
-    expect(page).not_to have_text(old_comment_text)
+    expect(page).to have_no_text(old_comment_text)
   end
 end

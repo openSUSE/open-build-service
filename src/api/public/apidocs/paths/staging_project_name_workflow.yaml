@@ -1,7 +1,6 @@
 post:
   summary: Create a staging workflow for the specified project
-  description: |
-    Create a staging workflow associated to the project and the manager group specified in the body of the request
+  description: Create a staging workflow associated to the project and the manager group specified in the body of the request
   security:
     - basic_authentication: []
   parameters:
@@ -21,7 +20,7 @@ post:
       description: |
         Bad Request.
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+        XML Schema used for body validation: [status.rng](../schema/status.rng).
       content:
         application/xml; charset=utf-8:
           schema:
@@ -51,8 +50,7 @@ post:
 
 put:
   summary: Change the managers group of a staging workflow
-  description: |
-    Change the managers group of the staging workflow associated to the specified project.
+  description: Change the managers group of the staging workflow associated to the specified project.
   security:
     - basic_authentication: []
   parameters:
@@ -72,7 +70,7 @@ put:
       description: |
         Bad Request.
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd).
+        XML Schema used for body validation: [status.rng](../schema/status.rng).
       content:
         application/xml; charset=utf-8:
           schema:

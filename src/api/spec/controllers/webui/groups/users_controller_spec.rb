@@ -9,7 +9,7 @@ RSpec.describe Webui::Groups::UsersController do
     end
 
     context 'when the user exists' do
-      subject! do
+      before do
         post :create, params: { group_title: group.title, user_login: user.login }
       end
 
@@ -21,7 +21,7 @@ RSpec.describe Webui::Groups::UsersController do
     end
 
     context 'when the user does not exist' do
-      subject! do
+      before do
         post :create, params: { group_title: group.title, user_login: 'unknown_user' }
       end
 
@@ -30,7 +30,7 @@ RSpec.describe Webui::Groups::UsersController do
     end
 
     context 'when the group does not exist' do
-      subject! do
+      before do
         post :create, params: { group_title: 'unknown_group', user_login: user.login }
       end
 
@@ -40,7 +40,7 @@ RSpec.describe Webui::Groups::UsersController do
     context 'when there is an error during user creation' do
       let!(:group_user) { create(:groups_user, group: group, user: user) }
 
-      subject! do
+      before do
         post :create, params: { group_title: group.title, user_login: user.login }
       end
 
@@ -56,7 +56,7 @@ RSpec.describe Webui::Groups::UsersController do
     end
 
     context 'when the user is not a group member' do
-      subject! do
+      before do
         delete :destroy, params: { group_title: group.title, user_login: user.login }, format: :js
       end
 
@@ -69,7 +69,7 @@ RSpec.describe Webui::Groups::UsersController do
     context 'when the user is a member of the group' do
       let!(:groups_user) { create(:groups_user, user: user, group: group) }
 
-      subject! do
+      before do
         delete :destroy, params: { group_title: group.title, user_login: user.login }, format: :js
       end
 
@@ -81,7 +81,7 @@ RSpec.describe Webui::Groups::UsersController do
     end
 
     context 'when the user does not exist' do
-      subject! do
+      before do
         delete :destroy, params: { group_title: group.title, user_login: 'unknown_user' }, format: :js
       end
 
@@ -91,7 +91,7 @@ RSpec.describe Webui::Groups::UsersController do
     end
 
     context 'when the group does not exist' do
-      subject! do
+      before do
         delete :destroy, params: { group_title: 'unknown_group', user_login: user.login }, format: :js
       end
 
@@ -108,11 +108,11 @@ RSpec.describe Webui::Groups::UsersController do
     context 'when the user is not a group member' do
       let(:group_maintainer) { create(:group_maintainer, group: group) }
 
-      subject! do
+      before do
         post :update, params: { group_title: group.title, user_login: user.login, maintainer: 'false' }, format: :js
       end
 
-      it { is_expected.to have_http_status(:not_found) }
+      it { expect(response).to have_http_status(:not_found) }
     end
 
     context 'when the user is a member of the group' do
@@ -121,7 +121,7 @@ RSpec.describe Webui::Groups::UsersController do
       context 'removing maintainer rights of a user' do
         let(:group_maintainer) { create(:group_maintainer, group: group) }
 
-        subject! do
+        before do
           post :update, params: { group_title: group.title, user_login: user.login, maintainer: 'false' }, format: :js
         end
 
@@ -133,7 +133,7 @@ RSpec.describe Webui::Groups::UsersController do
       end
 
       context 'as a maintainer of the group' do
-        subject! do
+        before do
           post :update, params: { group_title: group.title, user_login: user.login, maintainer: 'true' }, format: :js
         end
 
@@ -146,7 +146,7 @@ RSpec.describe Webui::Groups::UsersController do
     end
 
     context 'when the user does not exist' do
-      subject! do
+      before do
         post :update, params: { group_title: group.title, user_login: 'unknown_user', maintainer: 'true' }, format: :js
       end
 
@@ -156,7 +156,7 @@ RSpec.describe Webui::Groups::UsersController do
     end
 
     context 'when the group does not exist' do
-      subject! do
+      before do
         post :update, params: { group_title: 'unknown_group', user_login: user.login, maintainer: 'true' }, format: :js
       end
 

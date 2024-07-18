@@ -3,6 +3,7 @@ Description=OBS source service server
 After=network-online.target obsstoragesetup.service
 
 [Service]
+OOMPolicy=continue
 EnvironmentFile=/etc/sysconfig/obs-server
 ExecStart=/usr/lib/obs/server/bs_service --logfile src_service.log
 ExecStop=/usr/lib/obs/server/bs_service --stop

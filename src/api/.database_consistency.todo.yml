@@ -372,9 +372,6 @@ ChannelBinary:
   package:
     LengthConstraintChecker:
       enabled: false
-  supportstatus:
-    LengthConstraintChecker:
-      enabled: false
 ChannelBinaryList:
   channel_binaries:
     ForeignKeyCascadeChecker:
@@ -450,6 +447,9 @@ Comment:
       enabled: false
   id:
     PrimaryKeyTypeChecker:
+      enabled: false
+  project:
+    ForeignKeyChecker:
       enabled: false
 CommentLock:
   commentable_type:
@@ -1422,6 +1422,11 @@ MaintenanceIncident:
     LengthConstraintChecker:
       enabled: false
 Notification:
+  bs_request:
+    ColumnPresenceChecker:
+      enabled: false
+    ForeignKeyChecker:
+      enabled: false
   bs_request_oldstate:
     LengthConstraintChecker:
       enabled: false
@@ -1495,9 +1500,6 @@ Package:
       enabled: false
   scmsync:
     LengthConstraintChecker:
-      enabled: false
-  token:
-    MissingIndexChecker:
       enabled: false
 PackageIssue:
   id:
@@ -1738,21 +1740,11 @@ Review:
     ForeignKeyChecker:
       enabled: false
 Role:
-  attrib_type_modifiable_bies:
-    ForeignKeyChecker:
-      enabled: false
-    ForeignKeyTypeChecker:
-      enabled: false
   global:
     ThreeStateBooleanChecker:
       enabled: false
   id:
     PrimaryKeyTypeChecker:
-      enabled: false
-  relationships:
-    ForeignKeyChecker:
-      enabled: false
-    ForeignKeyTypeChecker:
       enabled: false
   title:
     MissingUniqueIndexChecker:
@@ -1991,9 +1983,6 @@ User:
       enabled: false
   realname:
     LengthConstraintChecker:
-      enabled: false
-  rss_token:
-    MissingIndexChecker:
       enabled: false
   state:
     ColumnPresenceChecker:

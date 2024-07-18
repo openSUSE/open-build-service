@@ -1,6 +1,6 @@
 .CodeRay, .CodeRay .change {
   background: $card-bg;
-  color: $body-color;
+  color: var(--bs-body-color);
 }
 .CodeRay pre { margin: 0 }
 span.CodeRay { white-space: pre }

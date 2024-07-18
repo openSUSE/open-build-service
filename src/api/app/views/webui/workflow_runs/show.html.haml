@@ -1,5 +1,5 @@
 - @pagetitle = "Workflow Run #{@workflow_run.id}"
 .card
   .card-body
-    = render(WorkflowRunHeaderComponent.new(workflow_run: @workflow_run))
+    = render(WorkflowRunHeaderComponent.new(workflow_run: @workflow_run, token_id: @token.id))
     = render(WorkflowRunDetailComponent.new(workflow_run: @workflow_run))

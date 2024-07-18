@@ -7,20 +7,25 @@
       .modal-body
         - reports.each do |report|
           .info
-            = render UserAvatarComponent.new(report.user.login)
+            = render UserAvatarComponent.new(report.user)
             reported
             = render TimeComponent.new(time: report.created_at)
+            as
+            = report.category.humanize
           .ms-4
-            = report.reason
+            %p.mb-1= report.reason
+            - comments = Comment.where(commentable: report)
+            = link_to(pluralize(comments.count, 'comment'), report_path(report), class: 'mb-2')
       - if policy(Decision.new).create?
-        = form_for(Decision.new, url: decisions_path, method: :post) do |form|
+        = form_for(:decision, url: decisions_path, method: :post) do |form|
           .modal-body{ 'data-canned-controller': '' }
             %h5 Decision
             .d-flex.align-items-center.justify-content-between.mb-1
               = form.label(:reason)
+              -# Decision-related canned responses exclusively:
               = render CannedResponsesDropdownComponent.new(canned_responses)
             = form.text_area(:reason, class: 'form-control mb-3', required: true, placeholder: 'Reason for the decision')
-            = form.select(:kind, Decision.kinds.keys, {}, class: 'form-select')
+            = form.select(:type, Decision.types(reportable), {}, class: 'form-select')
           .modal-footer
             - reports.each do |report|
               = form.hidden_field(:report_ids, multiple: true, value: report.id)

@@ -286,8 +286,8 @@ sub check {
 	  my $d = "$reporoot/$aprojid/$arepoid/$myarch/$apackid";
 	  $d = "$reporoot/$aprojid/$arepoid/$myarch/:full" if $apackid eq '_repository';
 	  for my $filename (sort(ls($d))) {
-	    next unless $filename eq 'updateinfo.xml' || $filename =~ /\.(?:$binsufsre)$/ || $filename =~ /\.obsbinlnk$/;
-	    $havecontainer = 1 if $filename =~ /\.obsbinlnk$/;
+	    next unless $filename eq 'updateinfo.xml' || $filename =~ /\.(?:$binsufsre)$/ || $filename =~ /\.(?:obsbinlnk|helminfo)$/;
+	    $havecontainer = 1 if $filename =~ /\.(?:obsbinlnk|helminfo)$/;
 	    my @s = stat("$d/$filename");
 	    $m .= "$filename\0$s[9]/$s[7]/$s[1]\0" if @s;
 	  }
@@ -329,20 +329,34 @@ sub check {
 =cut
 
 sub copy_provenance {
-  my ($jobdatadir, $dirprefix, $d, $filename, $jobbins) = @_;
-  die unless $d =~ s/\.(?:$binsufsre|containerinfo)$/.slsa_provenance.json/;
+  my ($jobdatadir, $dirprefix, $d, $filename, $jobbins, $aprpap_idx) = @_;
+  die unless $d =~ s/\.(?:$binsufsre|containerinfo|helminfo)$/.slsa_provenance.json/;
   my $provenance = $filename;
-  die unless $provenance =~ s/\.(?:$binsufsre|containerinfo)$/.slsa_provenance.json/;
+  die unless $provenance =~ s/\.(?:$binsufsre|containerinfo|helminfo)$/.slsa_provenance.json/;
   if (-e $d) {
     BSUtil::cp($d, "$jobdatadir/$provenance");
-    $jobbins->{$provenance} = 1;
+    $jobbins->{$provenance} = $aprpap_idx;
     return $provenance;
   } elsif (-e "${dirprefix}_slsa_provenance.json") {
     BSUtil::cp("${dirprefix}_slsa_provenance.json", "$jobdatadir/$provenance");
-    $jobbins->{$provenance} = 1;
+    $jobbins->{$provenance} = $aprpap_idx;
     return $provenance;
   }
   return undef;
+}
+
+# hack to add a container tag with the attribute
+sub tweak_container_tags {
+  my ($bconf, $containerinfo, $r, $packid) = @_;
+  if ($bconf->{'substitute'}->{"aggregate-container-add-tag:$packid"}) {
+    my @regtags = @{$bconf->{'substitute'}->{"aggregate-container-add-tag:$packid"}};
+    for my $tag (@regtags) {
+      $tag = "$tag:latest" unless $tag =~ /:[^:\/]+$/s;
+      push @{$r->{'provides'}}, "container:$tag" if $r && !grep {$_ eq "container:$tag"} @{$r->{'provides'} || []};
+      push @{$containerinfo->{'tags'}}, $tag unless grep {$_ eq $tag} @{$containerinfo->{'tags'} || []};
+      # XXX we should actually update the manifest.json file so that it reflects the tag change
+    }
+  }
 }
 
 sub build {
@@ -378,6 +392,9 @@ sub build {
       return ('broken', $@);
     }
   }
+  my %conflicts;
+  my @aprpap_idx = ( undef );
+
   for my $aggregate (@$aggregates) {
     my $aprojid = $aggregate->{'project'};
     my @arepoids = grep {!exists($_->{'target'}) || $_->{'target'} eq $repoid} @{$aggregate->{'repository'} || []};
@@ -434,11 +451,17 @@ sub build {
 	  $nosource = 1 if -e "$dir/.nosourceaccess";
 	}
 
-        $logfile .= "$aprojid/$arepoid/$myarch/$apackid\n" if @d;
+	my $aprpap = "$aprojid/$arepoid/$myarch/$apackid";
+
+        # save some mem by using a number instead of a string
+	my $aprpap_idx = scalar(@aprpap_idx);
+	push @aprpap_idx, $aprpap;
+	
+	$logfile .= "$aprpap\n" if @d;
 
 	my $copysources;
 	my @sources;
-	my $dirprefix = $cpio ? "$jobdatadir/upload:" : "$reporoot/$aprojid/$arepoid/$myarch/$apackid/";
+	my $dirprefix = $cpio ? "$jobdatadir/upload:" : "$reporoot/$aprpap/";
 	for my $d (@d) {
 	  my @s = stat($d);
 	  next unless @s;
@@ -447,8 +470,11 @@ sub build {
 	  $filename =~ s/^upload:// if $cpio;
 	  if ($filename eq 'updateinfo.xml') {
 	    next if $abinfilter && !$abinfilter->{$filename};
-	    next if $jobbins{$filename};  # first one wins
-	    $jobbins{$filename} = 1;
+	    if ($jobbins{$filename}) {
+	      push @{$conflicts{$filename}}, $aprpap_idx;
+	      next;  # first one wins
+	    }
+	    $jobbins{$filename} = $aprpap_idx;
 	    BSUtil::cp($d, "$jobdatadir/$filename");
 	    $logfile .= "  - $filename [$s[9]/$s[7]/$s[1]]\n";
 	    next;
@@ -457,7 +483,10 @@ sub build {
 	    my $r = BSUtil::retrieve($d, 1);
 	    next unless $r;
 	    next if $abinfilter && !$abinfilter->{$r->{'name'}};
-	    next if $jobbins{$filename};  # first one wins
+	    if ($jobbins{$filename}) {
+	      push @{$conflicts{$filename}}, $aprpap_idx;
+	      next;  # first one wins
+	    }
 	    next unless $r->{'name'} =~ /^container:/;
 
 	    $logfile .= "  - $filename [$s[9]/$s[7]/$s[1]]\n";
@@ -474,7 +503,7 @@ sub build {
 	      if (-e "$dir/${prefix}_blob.$blobid") {
 		next if $jobbins{"_blob.$blobid"};	# already have that blob
 		link("$dir/${prefix}_blob.$blobid", "$jobdatadir/_blob.$blobid") || die("link $dir/${prefix}_blob.$blobid $jobdatadir/_blob.$blobid: $!\n");
-	        $jobbins{"_blob.$blobid"} = 1;
+	        $jobbins{"_blob.$blobid"} = $aprpap_idx;
 	        $logfile .= "      - _blob.$blobid\n";
 	      }
 	    }
@@ -483,22 +512,26 @@ sub build {
 	    if (!$containerinfo->{'tar_blobids'} || grep {!$jobbins{"_blob.$_"}} @{$containerinfo->{'tar_blobids'}}) {
 	      if (-e "$dir/$prefix$containerfile") {
 	        BSUtil::cp("$dir/$prefix$containerfile", "$jobdatadir/$containerfile");
-	        $jobbins{$containerfile} = 1;
+	        $jobbins{$containerfile} = $aprpap_idx;
 	        $logfile .= "      - $containerfile\n";
 	      }
 	      if (-e "$dir/$prefix$containerfile.sha256") {
 	        BSUtil::cp("$dir/$prefix$containerfile.sha256", "$jobdatadir/$containerfile.sha256");
-	        $jobbins{"$containerinfofile.sha256"} = 1;
+	        $jobbins{"$containerinfofile.sha256"} = $aprpap_idx;
 	        $logfile .= "      - $containerfile.sha256\n";
 	      }
 	    }
 	    # copy extra data like .packages or .basepackages
 	    my $extraprefix = $containerinfofile;
 	    $extraprefix =~ s/\.containerinfo//;
-	    for my $extra ('.spdx.json', '.cdx.json') {
+	    my @extra = ('.spdx.json', '.cdx.json');
+	    for (@d) {
+	      push @extra, $1 if /(\.[^\.\/]+\.intoto.json)$/;
+	    }
+	    for my $extra (@extra) {
 	      if (-e "$dir/$prefix$extraprefix$extra") {
 		BSUtil::cp("$dir/$prefix$extraprefix$extra", "$jobdatadir/$extraprefix$extra");
-		$jobbins{"$extraprefix$extra"} = 1;
+		$jobbins{"$extraprefix$extra"} = $aprpap_idx;
 	        $logfile .= "      - $extraprefix$extra\n";
 	      }
 	    }
@@ -506,27 +539,48 @@ sub build {
 	    for my $extra ('.basepackages', '.packages', '.report', '.verified') {
 	      if (-e "$dir/$prefix$extraprefix$extra") {
 		BSUtil::cp("$dir/$prefix$extraprefix$extra", "$jobdatadir/$extraprefix$extra");
-		$jobbins{"$extraprefix$extra"} = 1;
+		$jobbins{"$extraprefix$extra"} = $aprpap_idx;
 	        $logfile .= "      - $extraprefix$extra\n";
 	      }
 	    }
 	    # hack to add a container tag with the attribute
-	    my $bconf = $ctx->{'conf'};
-	    if ($bconf->{'substitute'}->{"aggregate-container-add-tag:$packid"}) {
-	      my @regtags = @{$bconf->{'substitute'}->{"aggregate-container-add-tag:$packid"}};
-	      for my $tag (@regtags) {
-		$tag = "$tag:latest" unless $tag =~ /:[^:\/]+$/s;
-		push @{$r->{'provides'}}, "container:$tag" unless grep {$_ eq "container:$tag"} @{$r->{'provides'} || []};
-		push @{$containerinfo->{'tags'}}, $tag unless grep {$_ eq $tag} @{$containerinfo->{'tags'} || []};
-	      }
-	    }
+	    tweak_container_tags($ctx->{'conf'}, $containerinfo, $r, $packid);
+	    # store (patched) containerinfo
 	    writecontainerinfo("$jobdatadir/$containerinfofile", undef, $containerinfo);
-	    $jobbins{$containerinfofile} = 1;
+	    $jobbins{$containerinfofile} = $aprpap_idx;
 	    $logfile .= "      - $containerinfofile\n";
+	    # update and store obsbinlnk
 	    $r->{'path'} = "../$packid/$containerfile";
 	    BSUtil::store("$jobdatadir/$filename", undef, $r);
-	    $jobbins{$filename} = 1;
-	    my $provenance = copy_provenance($jobdatadir, $dirprefix, "$dirprefix$containerinfofile", $containerinfofile, \%jobbins);
+	    $jobbins{$filename} = $aprpap_idx;
+	    my $provenance = copy_provenance($jobdatadir, $dirprefix, "$dirprefix$containerinfofile", $containerinfofile, \%jobbins, $aprpap_idx);
+	    $logfile .= "      - $provenance\n" if $provenance;
+	    next;
+	  }
+          if ($filename =~ /\.helminfo$/) {
+	    if ($jobbins{$filename}) {
+	      push @{$conflicts{$filename}}, $aprpap_idx;
+	      next;  # first one wins
+	    }
+	    my $helminfofile = $filename;
+	    my $dir = $d;
+	    $dir =~ s/\/[^\/]*$//;
+	    my $prefix = $cpio ? 'upload:' : '';
+	    my $helminfo = readhelminfo($dir, "$prefix$helminfofile");
+	    next unless $helminfo;
+	    next if $abinfilter && !$abinfilter->{"helm:$helminfo->{'name'}"};
+	    my $chart = $helminfo->{'chart'};
+	    next if !$chart || $chart =~ /^\./ || $chart =~ /\// || $chart !~ /\.tgz\z/s;
+	    next if $jobbins{$chart};	# huh
+	    next unless -e "$dirprefix$chart";
+	    BSUtil::cp("$dirprefix$chart", "$jobdatadir/$chart");
+	    $jobbins{$chart} = $aprpap_idx;
+	    $logfile .= "      - $chart\n";
+	    tweak_container_tags($ctx->{'conf'}, $helminfo, undef, $packid);
+	    writehelminfo("$jobdatadir/$helminfofile", undef, $helminfo);
+	    $jobbins{$filename} = $aprpap_idx;
+	    $logfile .= "      - $filename\n";
+	    my $provenance = copy_provenance($jobdatadir, $dirprefix, "$dirprefix$filename", $filename, \%jobbins, $aprpap_idx);
 	    $logfile .= "      - $provenance\n" if $provenance;
 	    next;
 	  }
@@ -549,13 +603,16 @@ sub build {
 	  next unless $r->{'source'};
 	  # FIXME: How is debian handling debug packages ?
 	  next if $nosource && ($r->{'name'} =~ /-debug(:?info|source)?$/);
-	  next if $jobbins{$filename};  # first one wins
+	  if ($jobbins{$filename}) {
+	    push @{$conflicts{$filename}}, $aprpap_idx;
+	    next;  # first one wins
+	  }
 	  if ($modulemd) {
 	    my $art = add_modulemd_artifact($modulemd, $d);
 	    next unless $art;
 	    $have_modulemd_artifacts = 1 if $art > 0;
 	  }
-	  $jobbins{$filename} = 1;
+	  $jobbins{$filename} = $aprpap_idx;
 	  BSUtil::cp($d, "$jobdatadir/$filename");
 	  if ($filename ne $origfilename) {
 	    $logfile .= "  - $filename [$s[9]/$s[7]/$s[1]] (from $origfilename)\n";
@@ -563,7 +620,7 @@ sub build {
 	    $logfile .= "  - $filename [$s[9]/$s[7]/$s[1]]\n";
 	  }
 	  $copysources = 1 unless $nosource;
-	  my $provenance = copy_provenance($jobdatadir, $dirprefix, $d, $filename, \%jobbins);
+	  my $provenance = copy_provenance($jobdatadir, $dirprefix, $d, $filename, \%jobbins, $aprpap_idx);
 	  $logfile .= "      - $provenance\n" if $provenance;
 	}
 	@sources = () unless $copysources;
@@ -572,7 +629,10 @@ sub build {
 	  my $filename = $d->[2];
 	  my $origfilename = $d->[3];
 	  $d = $d->[0];
-	  next if $jobbins{$filename};  # first one wins
+	  if ($jobbins{$filename}) {
+	    push @{$conflicts{$filename}}, $aprpap_idx;
+	    next;  # first one wins
+	  }
 	  my @s = stat($d);
 	  next unless @s;
 	  if ($modulemd) {
@@ -580,14 +640,14 @@ sub build {
 	    next unless $art;
 	    $have_modulemd_artifacts = 1 if $art > 0;
 	  }
-	  $jobbins{$filename} = 1;
+	  $jobbins{$filename} = $aprpap_idx;
 	  BSUtil::cp($d, "$jobdatadir/$filename");
 	  if ($filename ne $origfilename) {
 	    $logfile .= "  - $filename [$s[9]/$s[7]/$s[1]] (from $origfilename)\n";
 	  } else {
 	    $logfile .= "  - $filename [$s[9]/$s[7]/$s[1]]\n";
 	  }
-	  my $provenance = copy_provenance($jobdatadir, $dirprefix, $d, $filename, \%jobbins);
+	  my $provenance = copy_provenance($jobdatadir, $dirprefix, $d, $filename, \%jobbins, $aprpap_idx);
 	  $logfile .= "      - $provenance\n" if $provenance;
 	}
 	# delete upload files
@@ -597,6 +657,18 @@ sub build {
     }
     last if $error;
   }
+
+  if (%conflicts) {
+    $logfile .= "\nFile provided by multiple origins (first one wins):\n";
+    for my $filename (sort keys %conflicts) {
+      $logfile .= "  - $filename:\n";
+      $logfile .= "        $aprpap_idx[$jobbins{$filename}]\n";
+      for my $aprpap_idx (@{$conflicts{$filename}}) {
+	$logfile .= "        $aprpap_idx[$aprpap_idx]\n";
+      }
+    }
+  }
+
   if ($error) {
     $logfile .= "\nError: $error\n";
     print "        $error\n";
@@ -614,10 +686,14 @@ sub build {
     rmdir($jobdatadir);
     return ('failed', $error);
   }
+
   if ($modulemd && $have_modulemd_artifacts) {
     write_modulemd($modulemd, "$jobdatadir/_modulemd.yaml");
     $logfile .= "  - _modulemd.yaml\n";
   }
+
+  $logfile .= "\nscheduler finished \"build _aggregate\" at ".POSIX::ctime(time())."\n";
+
   writestr("$jobdatadir/meta", undef, $new_meta);
   writestr("$jobdatadir/logfile", undef, $logfile);
   my $needsign;
@@ -709,6 +785,7 @@ sub readcontainerinfo {
   my $d;
   eval { $d = JSON::XS::decode_json($m); };
   return undef unless $d && ref($d) eq 'HASH';
+  return undef unless !$d->{'tags'} || ref($d->{'tags'}) eq 'ARRAY';
   return $d;
 }
 
@@ -718,5 +795,27 @@ sub writecontainerinfo {
   writestr($fn, $fnf, $containerinfo_json);
 }
 
+sub readhelminfo {
+  my ($dir, $helminfo) = @_;
+  return undef unless -e "$dir/$helminfo";
+  return undef unless (-s _) < 100000;
+  my $m = readstr("$dir/$helminfo");
+  my $d;
+  eval { $d = JSON::XS::decode_json($m); };
+  return undef unless $d && ref($d) eq 'HASH';
+  return undef unless $d->{'name'} && ref($d->{'name'}) eq '';
+  return undef unless $d->{'version'} && ref($d->{'version'}) eq '';
+  return undef unless !$d->{'tags'} || ref($d->{'tags'}) eq 'ARRAY';
+  return undef unless $d->{'chart'} && ref($d->{'chart'}) eq '';
+  return $d;
+}
+
+sub writehelminfo {
+  my ($fn, $fnf, $helminfo) = @_;
+  my $helminfo_json = JSON::XS->new->utf8->canonical->pretty->encode($helminfo);
+  writestr($fn, $fnf, $helminfo_json);
+}
+
+1;
 
 1;

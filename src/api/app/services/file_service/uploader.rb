@@ -67,15 +67,15 @@ module FileService
 
       directory = Backend::Api::Sources::Package.write_filelist(@package.project.name, @package.name,
                                                                 "<directory>#{xml.target!}</directory>",
-                                                                user: User.session!.login, comment: @comment)
+                                                                user: User.session.login, comment: @comment)
       return if directory_errors(directory)
-      return if ['_project', '_pattern'].include?(@package.name)
+      return if %w[_project _pattern].include?(@package.name)
 
       @package.sources_changed(wait_for_update: wait_for_update?)
     end
 
     def wait_for_update?
-      special_files = ['_aggregate', '_constraints', '_link', '_service', '_patchinfo', '_channel']
+      special_files = %w[_aggregate _constraints _link _service _patchinfo _channel]
       contains_file = false
 
       @commit_filelist.each do |file|

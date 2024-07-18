@@ -30,17 +30,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:38 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
@@ -48,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>To Your Scattered Bodies Go</title>
-          <description>Aut neque quod molestiae.</description>
+          <title>His Dark Materials</title>
+          <description>Et dolor et praesentium.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,61 +69,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '156'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>To Your Scattered Bodies Go</title>
-          <description>Aut neque quod molestiae.</description>
+          <title>His Dark Materials</title>
+          <description>Et dolor et praesentium.</description>
         </package>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:38 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_files" project="home:tom">
-          <title>To Your Scattered Bodies Go</title>
-          <description>Aut neque quod molestiae.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '166'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_files" project="home:tom">
-          <title>To Your Scattered Bodies Go</title>
-          <description>Aut neque quod molestiae.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:38 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: Eaque ipsum a. Incidunt repellendus molestiae. Id rerum neque.
+      string: Veritatis quam dolores. Recusandae tempora quis. Fugit eveniet dicta.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -144,26 +103,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="403" vrev="403">
-          <srcmd5>192b51615fe02a657803c9f967e3e0d8</srcmd5>
+        <revision rev="7" vrev="7">
+          <srcmd5>412e5a9a3205a603e30eda2947900b31</srcmd5>
           <version>unknown</version>
-          <time>1536230738</time>
+          <time>1706702054</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:38 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
     body:
       encoding: UTF-8
-      string: Explicabo ea officiis. Expedita et qui. Mollitia rerum praesentium.
+      string: Cupiditate culpa sint. Nihil consequuntur aut. Non vitae voluptatem.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -183,18 +141,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="404" vrev="404">
-          <srcmd5>15a3076975979687621de7f7d4ba1223</srcmd5>
+        <revision rev="8" vrev="8">
+          <srcmd5>b03c5a6eab226c5135a4622d6d74086c</srcmd5>
           <version>unknown</version>
-          <time>1536230738</time>
+          <time>1706702054</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:38 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Wed, 31 Jan 2024 11:54:14 GMT
+recorded_with: VCR 6.2.0

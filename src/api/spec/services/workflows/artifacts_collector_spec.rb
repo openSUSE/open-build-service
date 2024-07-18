@@ -1,9 +1,9 @@
 RSpec.describe Workflows::ArtifactsCollector, type: :service do
+  subject { described_class.new(workflow_run_id: workflow_run.id, step: step) }
+
   let(:user) { create(:confirmed_user) }
   let(:token) { create(:workflow_token, executor: user) }
   let(:workflow_run) { create(:workflow_run, token: token) }
-
-  subject { described_class.new(workflow_run_id: workflow_run.id, step: step) }
 
   describe '#call' do
     context 'for a branch_package step' do
@@ -320,9 +320,9 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
                     target_repository: 'snapshot'
                   }
                 ],
-                architectures: [
-                  'x86_64',
-                  'ppc'
+                architectures: %w[
+                  x86_64
+                  ppc
                 ]
               },
               {

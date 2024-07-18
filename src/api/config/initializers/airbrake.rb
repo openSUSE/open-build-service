@@ -42,7 +42,7 @@ Airbrake.configure do |c|
   # NOTE: This option *does not* work if you don't set the 'environment' option.
   # https://github.com/airbrake/airbrake-ruby#ignore_environments
   c.ignore_environments = if c.host.blank? || c.project_key.blank? || c.project_id.blank?
-                            ['production', 'development', 'test']
+                            %w[production development test]
                           else
                             ['development']
                           end
@@ -100,12 +100,14 @@ def ignore_by_backend_400_message?(message)
 end
 
 def ignore_by_class?(notice)
-  exceptions_to_ignore = ['ActiveRecord::RecordNotFound', 'ActionController::InvalidAuthenticityToken',
-                          'CGI::Session::CookieStore::TamperedWithCookie', 'ActionController::UnknownAction',
-                          'AbstractController::ActionNotFound', 'ActionView::MissingTemplate', 'Bunny::TCPConnectionFailedForAllHosts',
-                          'Timeout::Error', 'Net::HTTPBadResponse', 'Errno::ECONNRESET', 'Interrupt',
-                          'RoutesHelper::WebuiMatcher::InvalidRequestFormat', 'ActionDispatch::Http::MimeNegotiation::InvalidType',
-                          'ActionController::UnknownFormat', 'Backend::NotFoundError', 'AMQ::Protocol::EmptyResponseError']
+  exceptions_to_ignore = ['AMQ::Protocol::EmptyResponseError', 'AbstractController::ActionNotFound',
+                          'ActionController::BadRequest', 'ActionController::InvalidAuthenticityToken',
+                          'ActionController::UnknownAction', 'ActionController::UnknownFormat',
+                          'ActionDispatch::Http::MimeNegotiation::InvalidType',
+                          'ActiveRecord::RecordNotFound', 'Backend::NotFoundError',
+                          'Bunny::TCPConnectionFailedForAllHosts', 'CGI::Session::CookieStore::TamperedWithCookie',
+                          'Errno::ECONNRESET', 'Interrupt', 'Net::HTTPBadResponse',
+                          'RoutesHelper::WebuiMatcher::InvalidRequestFormat', 'Timeout::Error']
 
   notice[:errors].pluck(:type).intersect?(exceptions_to_ignore)
 end

@@ -11,13 +11,13 @@ class Webui::WatchedItemsController < Webui::WebuiController
   }.freeze
 
   def toggle_watched_item
-    watched_item = User.session!.watched_items.find_by(watchable: @watchable)
+    watched_item = User.session.watched_items.find_by(watchable: @watchable)
 
     if watched_item
       watched_item.destroy
       flash[:success] = "Removed #{FLASH_PER_WATCHABLE_TYPE[@watchable.class]} from the watchlist"
     else
-      User.session!.watched_items.create(watchable: @watchable)
+      User.session.watched_items.create(watchable: @watchable)
       flash[:success] = "Added #{FLASH_PER_WATCHABLE_TYPE[@watchable.class]} to the watchlist"
     end
 

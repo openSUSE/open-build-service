@@ -1,4 +1,4 @@
--# haml-lint:disable InstanceVariables
-- @log.lines.each do |line|
-  -# haml-lint:enable InstanceVariables
+- if render_chart
+  = render(RpmLintComponent.new(rpmlint_log_parser: parsed_messages))
+- rpmlint_log_file.each_line(chomp: true) do |line|
   = colorize_line(line)

@@ -24,6 +24,7 @@ RSpec.describe Workflows::YAMLToWorkflowsService, type: :service do
       action: 'open',
       project_id: 1,
       path_with_namespace: 'gitlabhq/gitlab-test',
+      target_repository_full_name: 'openSUSE/open-build-service',
       event: 'Merge Request Hook'
     }
   end

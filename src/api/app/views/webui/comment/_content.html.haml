@@ -3,12 +3,17 @@
   .flex-shrink-0
     = image_tag_for(comment.user, size: 35, custom_class: 'me-3 d-none d-sm-block')
   .comment.flex-grow-1.text-break
-    .mb-3{ id: "comment-#{comment.id}-user" }
-      = link_to(comment.user, user_path(comment.user))
-      wrote
-      = link_to("#comment-#{comment.id}", title: I18n.l(comment.created_at.utc), name: "comment-#{comment.id}") do
-        = render TimeComponent.new(time: comment.created_at)
-      = render CommentHistoryComponent.new(comment)
+    .mb-3.d-flex.flex-column.flex-lg-row.justify-content-between.align-items-start.gap-2{ id: "comment-#{comment.id}-user" }
+      .d-inline-flex.justify-content-start
+        = link_to(realname_with_login(comment.user), user_path(comment.user))
+        \-
+        = link_to("#comment-#{comment.id}", title: l(comment.created_at.utc), name: "comment-#{comment.id}") do
+          = render TimeComponent.new(time: comment.created_at)
+        = render CommentHistoryComponent.new(comment)
+      .d-inline-flex.justify-content-end.gap-1
+        - comment_user_role_titles(comment).each do |title|
+          %span.badge.border.border-secondary.text-secondary.text-capitalize
+            = title
     - if level == 1 && comment.commentable.is_a?(BsRequestAction)
       - sourcediff = comment.commentable.bs_request.webui_actions(action_id: comment.commentable, diffs: true, cacheonly: 1).first[:sourcediff].first
       - unless sourcediff[:error]
@@ -20,8 +25,7 @@
           %i Inline comment for target: '#{target}', file: '#{filename}', and line: #{line_number}.
     = render ReportsNoticeComponent.new(reportable: comment, user: User.session)
     = render_as_markdown(comment)
-    - unless comment.commentable.is_a?(BsRequestAction)
-      = render partial: 'webui/comment/reply', locals: { comment: comment, level: 0, commentable: commentable }
+    = render partial: 'webui/comment/reply', locals: { comment: comment, level: 0, commentable: comment.commentable }
     - if level <= 3
       - comment.children.includes(:user).each do |children|
         = render partial: 'webui/comment/content', locals: { comment: children, commentable: commentable, level: level + 1 }

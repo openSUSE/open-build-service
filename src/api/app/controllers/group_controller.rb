@@ -6,7 +6,7 @@ class GroupController < ApplicationController
   validate_action groupinfo: { method: :delete, response: :status }
 
   # raise an exception if authorize has not yet been called.
-  after_action :verify_authorized, except: [:index, :show]
+  after_action :verify_authorized, except: %i[index show]
 
   rescue_from Pundit::NotAuthorizedError do |exception|
     pundit_action = case exception.query.to_s
@@ -56,7 +56,7 @@ class GroupController < ApplicationController
     xmlhash = Xmlhash.parse(request.raw_post)
     raise InvalidParameterError, 'group name from path and xml mismatch' unless group.title == xmlhash.value('title')
 
-    group.update_from_xml(xmlhash)
+    group.update_from_xml(xmlhash, user_session_login: User.session.login)
     group.save!
 
     render_ok
@@ -73,7 +73,7 @@ class GroupController < ApplicationController
     when 'add_user'
       group.add_user(user)
     when 'remove_user'
-      group.remove_user(user)
+      group.remove_user(user, user_session_login: User.session.login)
     when 'set_email'
       group.set_email(params[:email])
     else

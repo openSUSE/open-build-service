@@ -1,7 +1,7 @@
 RSpec.describe Report do
   describe '#reports_pointing_to_same_reportable' do
     context 'when different reportables' do
-      let(:decision) { create(:decision) }
+      let(:decision) { create(:decision_cleared) }
       let(:report) { build(:report, decision: decision) }
 
       before do
@@ -14,7 +14,7 @@ RSpec.describe Report do
 
     context 'when reports are pointing to same reportable' do
       let(:report) { create(:report) }
-      let(:decision) { create(:decision, reports: [report]) }
+      let(:decision) { create(:decision_cleared, reports: [report]) }
       let(:new_report) { build(:report, reportable: report.reportable, decision: decision) }
 
       it { expect(new_report.valid?).to be(true) }

@@ -21,6 +21,7 @@ class MeasurementsJob < ApplicationJob
     {
       in_beta: User.in_beta.count,
       in_rollout: User.in_rollout.count,
+      blocked_from_commenting: User.where(blocked_from_commenting: true).count,
       count: User.count
     }
       .merge(roles_measurements)

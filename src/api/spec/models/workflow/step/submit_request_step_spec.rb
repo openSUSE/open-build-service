@@ -1,4 +1,11 @@
 RSpec.describe Workflow::Step::SubmitRequest, :vcr do
+  subject do
+    described_class.new(step_instructions: step_instructions,
+                        scm_webhook: scm_webhook,
+                        token: token,
+                        workflow_run: workflow_run)
+  end
+
   let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
   let(:other_user) { create(:confirmed_user, :with_home, login: 'Foo') }
   let(:token) { create(:workflow_token, executor: user) }
@@ -25,13 +32,6 @@ RSpec.describe Workflow::Step::SubmitRequest, :vcr do
     }
   end
   let(:workflow_run) { create(:workflow_run, token: token) }
-
-  subject do
-    described_class.new(step_instructions: step_instructions,
-                        scm_webhook: scm_webhook,
-                        token: token,
-                        workflow_run: workflow_run)
-  end
 
   describe '#call' do
     before do

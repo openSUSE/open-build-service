@@ -6,7 +6,7 @@ namespace :dev do
       require 'factory_bot'
       include FactoryBot::Syntax::Methods
       timestamp = Time.now.to_i
-      maintainer = create(:confirmed_user, login: "maintainer_#{timestamp}")
+      maintainer = create(:confirmed_user, :with_home, login: "maintainer_#{timestamp}")
       User.session = maintainer
       managers_group = create(:group, title: "managers_group_#{timestamp}")
       staging_workflow = create(:staging_workflow_with_staging_projects, project: maintainer.home_project, managers_group: managers_group)

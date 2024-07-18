@@ -30,17 +30,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:38 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
@@ -48,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Moab Is My Washpot</title>
-          <description>Est corporis ea id.</description>
+          <title>The Skull Beneath the Skin</title>
+          <description>Odit ut deserunt quas.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,61 +69,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '151'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>Moab Is My Washpot</title>
-          <description>Est corporis ea id.</description>
+          <title>The Skull Beneath the Skin</title>
+          <description>Odit ut deserunt quas.</description>
         </package>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:38 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_files" project="home:tom">
-          <title>Moab Is My Washpot</title>
-          <description>Est corporis ea id.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '151'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_files" project="home:tom">
-          <title>Moab Is My Washpot</title>
-          <description>Est corporis ea id.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:38 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: Cupiditate et velit. Deserunt perferendis ea. Rerum est molestias.
+      string: Et mollitia saepe. Quo nobis laudantium. Deleniti est autem.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -144,26 +103,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="399" vrev="399">
-          <srcmd5>bd75356303750b84501b1197f76e7841</srcmd5>
+        <revision rev="5" vrev="5">
+          <srcmd5>1ae24446aed167dcbe17c788f9482c07</srcmd5>
           <version>unknown</version>
-          <time>1536230738</time>
+          <time>1706702054</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:38 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
     body:
       encoding: UTF-8
-      string: Reiciendis et temporibus. Suscipit molestiae vel. Quia aperiam pariatur.
+      string: Et veniam esse. Temporibus esse laborum. Eos cupiditate quas.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -183,18 +141,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="400" vrev="400">
-          <srcmd5>d0faf7f1689c84e9cec92341297089fa</srcmd5>
+        <revision rev="6" vrev="6">
+          <srcmd5>5ebbf7e718961b9b22a63906ccf344fa</srcmd5>
           <version>unknown</version>
-          <time>1536230738</time>
+          <time>1706702054</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Thu, 06 Sep 2018 10:45:38 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Wed, 31 Jan 2024 11:54:14 GMT
+recorded_with: VCR 6.2.0

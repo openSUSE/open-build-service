@@ -11,7 +11,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
 
   def test_get_servicelist
     get '/service'
-    assert_response 401
+    assert_response :unauthorized
 
     login_tom
     get '/service'
@@ -82,13 +82,13 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     post '/source/home:tom/service?cmd=runservice'
     assert_response :success
     post '/source/home:tom/service?cmd=waitservice'
-    assert_response 400 # broken service
+    assert_response :bad_request # broken service
     get '/source/home:tom/service'
     assert_response :success
     assert_xml_tag tag: 'serviceinfo', attributes: { code: 'failed' }
     UpdateNotificationEvents.new.perform
     get '/source/home:tom/service?expand=1'
-    assert_response 400
+    assert_response :bad_request
     assert_match(/not_existing/, @response.body) # multiple line error shows up
 
     put '/source/home:tom/service/_service', params: '<services> <service name="download_url" >
@@ -217,7 +217,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     put '/source/home:tom/service/_service', params: '<services/>' # empty list
     assert_response :success
     post '/source/home:tom/service?cmd=runservice'
-    assert_response 404
+    assert_response :not_found
     assert_match(/no source service defined/, @response.body)
     post '/source/home:tom/service?cmd=waitservice'
     assert_response :success
@@ -225,7 +225,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_no_xml_tag tag: 'serviceinfo' # it would still exist when using old_style_service in BSConfig.pm
     get '/source/home:tom/service/_service:download_url:file?expand=1'
-    assert_response 404
+    assert_response :not_found
 
     # cleanup
     delete '/source/home:tom:branches:home:tom'
@@ -240,9 +240,9 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     get '/source/BaseDistro2.0/pack2'
     assert_response :success
     get '/source/BaseDistro2.0/pack2/_service'
-    assert_response 404
+    assert_response :not_found
     post '/source/BaseDistro2.0/pack2?cmd=runservice'
-    assert_response 404
+    assert_response :not_found
   end
 
   def test_service_merge_invalid
@@ -260,13 +260,13 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     post '/source/home:tom/service?cmd=waitservice'
     # we have waited, but service was not running successful
-    assert_response 400
+    assert_response :bad_request
     get '/source/home:tom/service'
     assert_response :success
     assert_xml_tag tag: 'serviceinfo', attributes: { code: 'failed' }
     UpdateNotificationEvents.new.perform
     get '/source/home:tom/service?expand=1'
-    assert_response 400
+    assert_response :bad_request
     assert_match(/not_existing/, @response.body) # multiple line error shows up
   end
 
@@ -300,7 +300,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     # _service file got dropped
     get '/source/home:tom/service/_service'
-    assert_response 404
+    assert_response :not_found
     # result got commited as usual file
     get '/source/home:tom/service/file'
     assert_response :success
@@ -477,7 +477,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     post '/source/home:tom/service?cmd=runservice'
     assert_response :success
     post '/source/home:tom/service?cmd=waitservice'
-    assert_response 400 # broken service
+    assert_response :bad_request # broken service
     get '/source/home:tom/service'
     assert_response :success
     assert_xml_tag tag: 'serviceinfo', attributes: { code: 'failed' }
@@ -490,7 +490,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     post '/source/home:tom/service?cmd=runservice'
     assert_response :success
     post '/source/home:tom/service?cmd=waitservice'
-    assert_response 400 # broken service
+    assert_response :bad_request # broken service
     get '/source/home:tom/service'
     assert_response :success
     assert_xml_tag tag: 'serviceinfo', attributes: { code: 'failed' }
@@ -498,14 +498,14 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
 
     # invalid names
     put '/source/home:tom/_project/_service', params: '<services> <service name="set_version ; `ls`" ></service> </services>'
-    assert_response 400
+    assert_response :bad_request
     assert_match(/service name.*contains invalid chars/, @response.body)
     put '/source/home:tom/_project/_service', params: '<services> <service name="../blahfasel" ></service> </services>'
-    assert_response 400
+    assert_response :bad_request
     assert_match(/service name.*contains invalid chars/, @response.body)
     put '/source/home:tom/_project/_service',
         params: '<services> <service name="set_version" > <param name="asd; `ls`">0817</param></service> </services>'
-    assert_response 400
+    assert_response :bad_request
     assert_match(/service parameter.*contains invalid chars/, @response.body)
 
     # reset
@@ -540,7 +540,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
 
   def test_run_service_via_token
     post '/person/tom/token'
-    assert_response 401
+    assert_response :unauthorized
 
     login_tom
     put '/source/home:tom/service/_meta', params: "<package project='home:tom' name='service'> <title /> <description /> </package>"
@@ -560,23 +560,23 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     # ANONYMOUS
     reset_auth
     post '/person/tom/token'
-    assert_response 401
+    assert_response :unauthorized
     post '/person/tom/token?project=home:tom&package=service'
-    assert_response 401
+    assert_response :unauthorized
     post '/trigger/runservice'
-    assert_response 403
+    assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_token' }
     assert_match(/No valid token found/, @response.body)
 
     # with wrong token
     post '/trigger/runservice', headers: { 'Authorization' => 'Token wrong' }
-    assert_response 404
+    assert_response :not_found
     assert_xml_tag tag: 'status', attributes: { code: 'not_found' }
 
     # with right token
     post '/trigger/runservice', headers: { 'Authorization' => "Token #{token}" }
     # success, but no source service configured :)
-    assert_response 404
+    assert_response :not_found
     assert_match(/no source service defined/, @response.body)
 
     # with right token in gitlab style
@@ -584,13 +584,13 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
          headers: { 'X-Gitlab-Event' => 'Push Hook',
                     'X-Gitlab-Token' => token }
     # success, but no source service configured :)
-    assert_response 404
+    assert_response :not_found
     assert_match(/no source service defined/, @response.body)
 
     # with global token
     post '/trigger/runservice?project=home:tom&package=service', headers: { 'Authorization' => "Token #{alltoken}" }
     # success, but no source service configured :)
-    assert_response 404
+    assert_response :not_found
     assert_match(/no source service defined/, @response.body)
 
     # Locking user blocks the trigger
@@ -600,12 +600,12 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     # with right token
     post '/trigger/runservice', headers: { 'Authorization' => "Token #{token}" }
     # success, but no source service configured :)
-    assert_response 403
+    assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'trigger_token/service_not_authorized' }
     # with global token
     post '/trigger/runservice?project=home:tom&package=service', headers: { 'Authorization' => "Token #{alltoken}" }
     # success, but no source service configured :)
-    assert_response 403
+    assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'trigger_token/service_not_authorized' }
 
     # reset and drop stuff as tom
@@ -624,7 +624,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'status', attributes: { code: 'ok' }
     delete "/person/tom/token/#{id}"
-    assert_response 404
+    assert_response :not_found
     get '/person/tom/token'
     assert_response :success
     assert_xml_tag tag: 'directory', attributes: { count: '1' }

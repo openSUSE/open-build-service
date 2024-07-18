@@ -1,7 +1,6 @@
 post:
   summary: Unlock a locked package.
-  description: |
-    Unlock a locked package (`<lock><enable/></lock>` flag present in the package `_meta` file).
+  description: Unlock a locked package (`<lock><enable/></lock>` flag present in the package `_meta` file).
   security:
     - basic_authentication: []
   parameters:
@@ -21,7 +20,7 @@ post:
       description: |
         Bad Request.
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
       content:
         application/xml; charset=utf-8:
           schema:

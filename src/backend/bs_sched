@@ -707,80 +707,20 @@ my $sinfo = readxml("$infodir/schedulerinfo.$_myarch", $BSXML::schedulerinfo, 1)
 $sinfo->{'booting'} = undef;
 writexml("$infodir/.schedulerinfo.$_myarch", "$infodir/schedulerinfo.$_myarch", $sinfo, $BSXML::schedulerinfo);
 
-if (!$gctx->{'projpacks'} && $startupmode) {
-  if ($startupmode == 1) {
-    print "cold start, scanning all non-remote projects\n";
-  } else {
-    print "cold start, initializing all projects\n";
-  }
-
-  my $param = {
-    'uri' => "$BSConfig::srcserver/getprojpack",
-  };
-  my @args = ('withrepos', 'withconfig', "arch=$_myarch", 'withremotemap=1', 'noremote=1');
-  push @args, 'withsrcmd5', 'withdeps' if $startupmode == 1;
-  push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
-  my $projpacksin;
-  while (1) {
-    eval {
-      $projpacksin = BSRPC::rpc($param, $BSXML::projpack, @args);
-    };
-    last unless $@ || !$projpacksin;
-    print $@ if $@;
-    print "retrying in 60 seconds...\n";
-    sleep(60);
-  }
-  BSSched::ProjPacks::update_projpacks($gctx, $projpacksin);
-  BSSched::ProjPacks::get_projpacks_postprocess($gctx);
-  my $projpacks = $gctx->{'projpacks'};
-  my $delayedfetchprojpacks = $gctx->{'delayedfetchprojpacks'};
-  for my $projid (sort keys %$projpacks) {
-    my $packs = $projpacks->{$projid}->{'package'} || {};
-    next unless %$packs;
-    if ($startupmode == 1) {
-      my @delayed;
-      my $ok;
-      for my $packid (sort keys %$packs) {
-	my $pdata = $packs->{$packid};
-	if ($pdata->{'error'}) {
-	  if ($pdata->{'error'} =~ /noremote option/) {
-	    $pdata->{'error'} = 'delayed startup';
-	    push @delayed, $packid;
-	  } else {
-	    $ok++;
-	  }
-	} else {
-	  if (grep {$_->{'error'} && $_->{'error'} =~ /noremote option/} @{$pdata->{'info'} || []}) {
-	    $pdata->{'error'} = 'delayed startup';
-	    push @delayed, $packid;
-	  } else {
-	    $ok++;
-	  }
-	}
-      }
-      if (!$ok) {
-        $delayedfetchprojpacks->{$projid} = [ '/all' ];	# hack
-      } else {
-        $delayedfetchprojpacks->{$projid} = [ @delayed ];
-      }
-    } else {
-      $delayedfetchprojpacks->{$projid} = [ '/all' ];	# hack
-      for my $packid (sort keys %$packs) {
-        $packs->{$packid}->{'error'} = 'delayed startup';
-      }
-    }
-  }
-  @{$gctx->{'lookat_low'}} = sort keys %$projpacks;
-  push @{$gctx->{'lookat_low'}}, @{$gctx->{'prps'}};
-  my $prpcheckuseforbuild = $gctx->{'prpcheckuseforbuild'};
-  $prpcheckuseforbuild->{$_} = 1 for @{$gctx->{'prps'}};
-}
-
 if (!$gctx->{'projpacks'}) {
-  # get project and package information from src server
-  print "cold start, scanning all projects\n";
-  BSSched::ProjPacks::get_projpacks($gctx, undef);
-  BSSched::ProjPacks::get_projpacks_postprocess($gctx);
+  if (!$startupmode) {
+    print "cold start, scanning all projects\n";
+    BSSched::ProjPacks::get_projpacks($gctx, undef);
+    BSSched::ProjPacks::get_projpacks_postprocess($gctx);
+  } else {
+    if ($startupmode == 1) {
+      print "cold start, scanning all non-remote projects\n";
+    } else {
+      print "cold start, initializing all projects\n";
+    }
+    BSSched::ProjPacks::get_projpacks_all_sync($gctx, $startupmode);
+    BSSched::ProjPacks::do_delayed_startup($gctx, $startupmode);
+  }
   # look at everything
   @{$gctx->{'lookat_low'}} = sort keys %{$gctx->{'projpacks'}};
   push @{$gctx->{'lookat_low'}}, @{$gctx->{'prps'}};
@@ -1143,10 +1083,17 @@ eval {
     # trigger dod package fetching
     BSSched::DoD::dodfetch($ctx) if $ctx->{'doddownloads'};
 
-    # we always publish kiwi...
-    if ($isfinished || (!$bconf->{'publishflags:noearlykiwipublish'} && $ctx->{'prptype'} eq 'kiwi')) {
+    # we always publish some build types right away...
+    my $noearlypublish = $bconf->{'publishflags:noearlypublish'} || $bconf->{'publishflags:noearlykiwipublish'};
+    if ($isfinished || (!$noearlypublish &&
+                        ($ctx->{'prptype'} eq 'kiwi' || $ctx->{'prptype'} eq 'productcompose'))) {
       my ($pubstate, $pubdetails) = $ctx->publish();
-      ($state, $details) = ($pubstate, $pubdetails) if $pubstate && $pubstate ne 'done';
+      if ($pubstate && $pubstate eq 'delayed') {
+	$details = $pubdetails if $isfinished && $pubdetails;
+	$gctx->{'retryevents'}->addretryevent({'type' => 'unblocked', 'project' => $projid, 'repository' => $repoid});
+      } elsif ($pubstate && $pubstate ne 'done') {
+	($state, $details) = ($pubstate, $pubdetails);
+      }
     }
 
     # free memory

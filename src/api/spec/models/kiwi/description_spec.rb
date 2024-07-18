@@ -3,6 +3,8 @@ RSpec.describe Kiwi::Description do
 
   describe '#to_xml' do
     context 'with full description content' do
+      subject { kiwi_description.to_xml }
+
       let(:expected_xml) do
         <<~XML
           <description type="system">
@@ -13,12 +15,12 @@ RSpec.describe Kiwi::Description do
         XML
       end
 
-      subject { kiwi_description.to_xml }
-
       it { expect(subject).to eq(expected_xml) }
     end
 
     context 'with empty description content' do
+      subject { create(:kiwi_description, author: nil, contact: '', specification: nil).to_xml }
+
       let(:expected_xml) do
         <<~XML
           <description type="system">
@@ -28,8 +30,6 @@ RSpec.describe Kiwi::Description do
           </description>
         XML
       end
-
-      subject { create(:kiwi_description, author: nil, contact: '', specification: nil).to_xml }
 
       it { expect(subject).to eq(expected_xml) }
     end

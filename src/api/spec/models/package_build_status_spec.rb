@@ -28,24 +28,24 @@ RSpec.describe PackageBuildStatus, :vcr do
   end
 
   describe 'gather_target_packages' do
+    subject { described_class.new(package).gather_target_packages(repository_hash) }
+
     let!(:repository_hash) do
       {
         user.home_project.name => 'foo'
       }
     end
 
-    subject { described_class.new(package).gather_target_packages(repository_hash) }
-
     it { expect { subject }.not_to raise_error }
     it { expect(subject).to be_a(Hash) }
   end
 
   describe '#check_everbuilt' do
+    subject { package_build_status.check_everbuilt(repo_hash, arch_name) }
+
     let(:arch_name) { 'i386' }
     let(:repo_hash) { { 'name' => 'foo' } }
     let(:package_build_status) { described_class.new(package) }
-
-    subject { package_build_status.check_everbuilt(repo_hash, arch_name) }
 
     context 'no job history' do
       it { expect { subject }.not_to raise_error }

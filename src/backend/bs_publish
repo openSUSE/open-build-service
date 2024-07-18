@@ -183,7 +183,7 @@ my $db_oldsync_read;
 my $db_sync_append;
 
 sub db_pickup {
-  if (-s "$extrepodb.sync") {
+  if ($extrepodb && -s "$extrepodb.sync") {
     my $oldsync = BSUtil::retrieve("$extrepodb.sync");
     unshift @db_sync, @{$oldsync || []};
   }
@@ -193,7 +193,7 @@ sub db_open {
   my ($name) = @_;
 
   return undef unless $extrepodb;
-  if (!$db_oldsync_read) {
+  if (!$db_oldsync_read && !$db_sync_append) {
     db_pickup();
     $db_oldsync_read = 1;
   }
@@ -212,7 +212,8 @@ sub db_store {
 
 sub db_sync {
   return undef unless $extrepodb;
-  db_open('') unless $db_oldsync_read;
+  my $cnt = @db_sync;
+  db_open('') unless $db_oldsync_read || $db_sync_append;
   return unless @db_sync;
   my $data = Storable::nfreeze(\@db_sync);
   my $ops = @db_sync;
@@ -237,8 +238,10 @@ sub db_sync {
     warn($@);
     mkdir_p($1) if $extrepodb =~ /^(.*)\//;
     if ($db_sync_append) {
+      # re-read the sync file
       local *F;
       BSUtil::lockopen(\*F, '>>', "$extrepodb.sync");
+      splice(@db_sync, 0, -$cnt) if $cnt;
       db_pickup();
       BSUtil::store("$extrepodb.sync.new$$", "$extrepodb.sync", \@db_sync);
       close F;
@@ -327,9 +330,10 @@ sub getpatterns {
 ##########################################################################
 
 sub getsigndata {
-  my ($projid) = @_;
+  my ($projid, $signflavor) = @_;
 
   my @args = ("withpubkey=1", "withalgo=1");
+  push @args, "signflavor=$signflavor" if $signflavor;
   push @args, "autoextend=1" if $BSConfig::sign;
   my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid", @args);
   my $pubkey;
@@ -343,7 +347,10 @@ sub getsigndata {
   if (!$pubkey) {
     if ($BSConfig::sign_project && $BSConfig::sign) {
       local *S;
-      open(S, '-|', $BSConfig::sign, '--project', $projid, '-p') || die("$BSConfig::sign: $!\n");;
+      my @signargs;
+      push @signargs, '--project', $projid;
+      push @signargs, '--signflavor', $signflavor if $signflavor;
+      open(S, '-|', $BSConfig::sign, @signargs, '-p') || die("$BSConfig::sign: $!\n");;
       $pubkey = '';
       1 while sysread(S, $pubkey, 4096, length($pubkey));
       if (!close(S)) {
@@ -547,6 +554,7 @@ sub createrepo_zyppservice {
   if ($BSConfig::sign) {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repo/repoindex.xml") && die("    sign failed: $?\n");
     pickup_detached_signature($data, "$extrep/repo/repoindex.xml");
@@ -640,8 +648,10 @@ sub createrepo_rpmmd {
   # createrepo_c 1.0.0 changed the default to zstd. In order to preserve
   # compatibility with SLE12 and SLE15 GA we need to set gz
   if ($options{'compression-zstd'}) {
-    push @legacyargs, '--compress-type=zst';
+    push @createrepoargs, '--general-compress-type=zstd';
+    push @legacyargs, '--compress-type=zstd';
   } else {
+    push @createrepoargs, '--general-compress-type=gz';
     push @legacyargs, '--compress-type=gz';
   }
   my @updateargs;
@@ -676,7 +686,11 @@ sub createrepo_rpmmd {
     for my $up (@$updateinfos) {
       delete $up->{'patchinforef'};
       for my $cl (@{($up->{'pkglist'} || {})->{'collection'} || []}) {
-	delete $_->{'supportstatus'} for @{$cl->{'package'} || []};
+	for my $pkg (@{$cl->{'package'} || []}) {
+          delete $pkg->{'embargo_date'};
+          delete $pkg->{'supportstatus'};
+          delete $pkg->{'superseded_by'};
+        }
       }
     }
     writexml("$extrep/repodata/updateinfo.xml", undef, {'update' => $updateinfos}, $BSXML::updateinfo);
@@ -770,7 +784,7 @@ sub createrepo_rpmmd {
   }
 
   if ($BSConfig::createrepo_rpmmd_hook) {
-    $BSConfig::createrepo_rpmmd_hook->($projid, $repoid, $extrep, \%options, $data);
+    $BSConfig::createrepo_rpmmd_hook->($projid, $repoid, $extrep, \%options, $data, \@legacyargs);
   }
 
   if ($options{'rsyncable'}) {
@@ -786,6 +800,7 @@ sub createrepo_rpmmd {
   if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
     writestr("$extrep/repodata/repomd.xml.key", undef, $data->{'pubkey'}) if $data->{'pubkey'};
@@ -835,6 +850,7 @@ sub createrepo_virtbuilder {
     print "Signing the index for $projid/$repoid\n";
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     push @signargs, @{$data->{'signargs'} || []};
     print "Running command: $BSConfig::sign @signargs -c $extrep/index\n";
     qsystem($BSConfig::sign, @signargs, '-c', "$extrep/index") && die("    sign failed: $?\n");
@@ -908,6 +924,7 @@ LABEL $data->{'repoinfo'}->{'title'}
 VENDOR Open Build Service
 ARCH.x86_64 x86_64 i686 i586 i486 i386 noarch
 ARCH.k1om k1om noarch
+ARCH.loongarch64 loongarch64 noarch
 ARCH.ppc64p7 ppc64p7 noarch
 ARCH.ppc64 ppc64 ppc noarch
 ARCH.ppc64le ppc64le noarch
@@ -1072,6 +1089,7 @@ EOL
   if ($BSConfig::sign && -e "$extrep/Release") {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/Release") && die("    sign failed: $?\n");
     pickup_detached_signature($data, "$extrep/Release");
@@ -1124,6 +1142,7 @@ sub createrepo_arch {
     if ($BSConfig::sign) {
       my @signargs;
       push @signargs, '--project', $projid if $BSConfig::sign_project;
+      push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
       push @signargs, @{$data->{'signargs'} || []};
       if (-e "$extrep/$arch/$rname.db.tar.gz") {
         qsystem($BSConfig::sign, @signargs, '-D', "$extrep/$arch/$rname.db.tar.gz") && die("    sign failed: $?\n");
@@ -1181,7 +1200,10 @@ sub createrepo_staticlinks {
       } elsif (/^(.*)-Build(?:\d\d\d\d+|\d+(?:\.\d+)+)(-Media\d?)\.iso$/s) {
         # product builds
         $link = "$1$2.iso"; # no support for versioned links
-      } elsif (/^(.*\.(?:$binarchs)?)-([^-]+)?(-.*?)?-([^-]+)(\.(raw\.install\.raw\.xz|raw\.xz|tar\.xz|box|json|install\.iso|install\.tar|tbz|tgz|vmx|vmdk|vmdk\.xz|appx|vhdx|vhdx\.xz|vdi|vdi\.xz|vhdfixed\.xz|iso|phar|qcow2|qcow2\.xz|ova|ova\.xz|cpio\.tar\.bz2))$/s) {
+      } elsif (/^(.*)-Build(?:\d\d\d\d+|\d+(?:\.\d+)+)(|-Source|-Debug)\.iso$/s) {
+        # product-composer builds
+        $link = "$1$2.iso"; # no support for versioned links
+      } elsif (/^(.*\.(?:$binarchs)?)-([^-]+)?(-.*?)?-([^-]+)(\.(raw\.install\.raw\.xz|raw\.xz|raw|tar\.xz|box|json|install\.iso|install\.tar|tbz|tgz|vmx|vmdk|vmdk\.xz|appx|vhdx|vhdx\.xz|vdi|vdi\.xz|vhdfixed\.xz|iso|phar|qcow2|qcow2\.xz|ova|ova\.xz|cpio\.tar\.bz2))$/s) {
         # kiwi appliance
         my $profile = $3 || "";
         $link = "$1$profile$5";
@@ -1205,6 +1227,7 @@ sub createrepo_staticlinks {
         if ($BSConfig::sign && -e "$extrep/$arch/$link.sha256") {
           my @signargs;
           push @signargs, '--project', $projid if $BSConfig::sign_project;
+          push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
           push @signargs, @{$data->{'signargs'} || []};
           qsystem($BSConfig::sign, @signargs, '-d', "$extrep/$arch/$link.sha256") && die("    sign failed: $?\n");
           pickup_detached_signature($data, "$extrep/$arch/$link.sha256");
@@ -1343,6 +1366,7 @@ sub createrepo_checksumsfile {
     if ($BSConfig::sign) {
       my @signargs;
       push @signargs, '--project', $projid if $BSConfig::sign_project;
+      push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
       push @signargs, @{$data->{'signargs'} || []};
       my %options = map {$_ => 1} @{$options || []};
       if ($options{'rawsig'}) {
@@ -1410,6 +1434,7 @@ sub createpatterns_rpmmd {
   if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
     pickup_detached_signature($data, "$extrep/repodata/repomd.xml");
@@ -1479,6 +1504,7 @@ sub createpatterns_comps {
   if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
     push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
     pickup_detached_signature($data, "$extrep/repodata/repomd.xml");
@@ -1782,7 +1808,7 @@ sub deleterepo {
       next if $bin eq 'media_info';
       my $p = "$arch/$bin";
       print "      - $p\n";
-      if (-d "$r/$bin") {
+      if (! -l "$r/$bin" && -d _) {
         BSUtil::cleandir("$r/$bin");
         rmdir("$r/$bin") || die("rmdir $r/$bin: $!\n");
       } else {
@@ -1876,8 +1902,10 @@ sub mapslepool {
   my $p = $bin;
   if ($name eq 'nobuildid') {
     $p = "repo/$bin";
-    $p =~ s/-Build[\d\.]+//;
+    $p =~ s/-Build[\d\.]*\d//;
   } elsif ($bin =~ /.*-Media1?(\.license|)$/) {
+    $p = "$name$1";
+  } elsif ($bin =~ /.*[_-](?:$binarchs)?(\.license|)$/) {
     $p = "$name$1";
   } elsif ($bin =~ /-Media3$/ || $bin =~ /-Debug$/) {
     $p = "${name}_debug";
@@ -1954,15 +1982,15 @@ sub fixsleimage {
   mkdir_p(($p =~ /(.*)\//) ? "$extrep/$1" : $extrep);
   writestr("$extrep/$p", undef, $newcontent);
   if ($BSConfig::sign && ($hadsig || $bins_id->{"$p.asc"})) {
+    my $projid = $data->{'projid'};
     if (!$data->{'signargs'}) {
-      my $projid = $data->{'projid'};
-      my ($pubkey, $signargs) = getsigndata($projid);
-      my @signargs;
-      push @signargs, '--project', $projid if $BSConfig::sign_project;
-      push @signargs, @$signargs;
-      $data->{'signargs'} = \@signargs;
+      my ($pubkey, $signargs) = getsigndata($projid, $data->{'signflavor'});
+      $data->{'signargs'} = $signargs;
     }
-    my @signargs = @{$data->{'signargs'}};
+    my @signargs;
+    push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
+    push @signargs, @{$data->{'signargs'} || []};
     if ($hadsig) {
       qsystem($BSConfig::sign, @signargs, '-c', "$extrep/$p") && die("    sign failed: $?\n");
     }
@@ -1994,13 +2022,12 @@ sub linkintoblobdir {
 }
 
 sub readcontainermetafiles {
-  my ($containerinfo, $containerinfofile, $blobdirref) = @_;
+  my ($containerinfo, $dir, $containerinfofile, $blobdirref, $cache) = @_;
   return unless $containerinfo;
-  my $prefix = $containerinfofile;
+  my $prefix = "$dir/$containerinfofile";
   return unless $prefix =~ s/\.containerinfo$//;
   if (-e "$prefix.slsa_provenance.json") {
-    my $provenance = readstr("$prefix.slsa_provenance.json", 1);
-    $containerinfo->{'slsa_provenance'} = $provenance if $provenance;
+    $containerinfo->{'slsa_provenance_file'} = linkintoblobdir("$prefix.slsa_provenance.json", $blobdirref);
   }
   if (-e "$prefix.spdx.json") {
     $containerinfo->{'spdx_file'} = linkintoblobdir("$prefix.spdx.json", $blobdirref);
@@ -2008,6 +2035,15 @@ sub readcontainermetafiles {
   if (-e "$prefix.cdx.json") {
     $containerinfo->{'cyclonedx_file'} = linkintoblobdir("$prefix.cdx.json", $blobdirref);
   }
+  my @intoto;
+  if ($cache && $cache->{'intoto_files'}) {
+    @intoto = @{$cache->{'intoto_files'}};
+  } else {
+    @intoto = map {"$dir/$_"} grep {/\.intoto\.json$/} sort(ls($dir));
+    $cache->{'intoto_files'} = [ @intoto ] if $cache;
+  }
+  @intoto = grep {/^\Q$prefix\E\.[^\.]+\.intoto\.json$/} @intoto;
+  push @{$containerinfo->{'intoto_files'}}, map {linkintoblobdir($_, $blobdirref)} @intoto;
   $prefix =~ s/\.docker$// unless -e "$prefix.packages";
   if (-e "$prefix.packages") {
     $containerinfo->{'container_packages'} = linkintoblobdir("$prefix.packages", $blobdirref);
@@ -2061,6 +2097,11 @@ sub publish {
     $repotype = 'arch' if $binarytype eq 'arch';
     $repotype ||= 'rpm-md';
     $config->{'repotype'} = [ $repotype ];
+  }
+  my $signflavor;
+  $signflavor = $BSConfig::sign_flavor ? $config->{'buildflags:signflavor'} : undef;
+  if ($signflavor) {
+    die("illegal sign flavor '$signflavor'\n") unless grep {$_ eq $signflavor} @$BSConfig::sign_flavor;
   }
 
   my %repotype;
@@ -2117,6 +2158,36 @@ sub publish {
   # we now know that $reporoot/$prp/*/:repo will not change.
   # Build repo by mixing all architectures.
   my @archs = @{$repo->{'arch'} || []};
+
+  if ($config->{'publishflags:archsync'}) {
+    my @bad;
+    my $lastchange = 0;
+    my %as;
+    for my $a (@archs) {
+      my $as = BSUtil::retrieve("$reporoot/$prp/$a/:repo/.archsync", 1) || {};
+      $lastchange = $as->{'lastchange'} if ($as->{'lastchange'} || 0) > $lastchange;
+      $as{$a} = $as;
+    }
+    for my $a (@archs) {
+      my $as = $as{$a};
+      push @bad, $a if !$as->{'lastchange'} || !$as->{'lastcheck'} || $as->{'lastcheck'} < $lastchange;
+      $lastchange++ if $as->{'lastcheck'} && $as->{'lastcheck'} == $lastchange;
+    }
+    if (@bad) {
+      print "    delaying publishing as archirectures ".join(',', @bad)." are not ready\n";
+      for my $a (@bad) {
+	# hack: use the .archsync.new file to signal the scheduler that we are waiting
+	eval { BSUtil::touch("$reporoot/$prp/$a/:repo/.archsync.new") };
+	if (-e "$reporoot/$prp/$a/:repodone") {
+	  unlink("$reporoot/$prp/$a/:repodone");
+	  writerecheckevent($projid, $repoid, $a);
+	}
+      }
+      return "delayed";
+      close(F);
+    }
+  }
+
   my %bins;
   my %bins_id;
   my $binaryorigins = {};
@@ -2144,7 +2215,7 @@ sub publish {
   my $sleimagedata;
   if ($repotype{'sleimage'} || $repotype{'sleimage-media'}) {
     my $media = $repotype{'sleimage'} ? 'dvd' : $repotype{'sleimage-media'} ? 'media' : undef;
-    $sleimagedata = { 'projid' => $projid, 'extrep' => $extrep, 'bins_id' => \%bins_id, 'media' => $media, 'config' => $config, 'mapped' => {} };
+    $sleimagedata = { 'projid' => $projid, 'extrep' => $extrep, 'bins_id' => \%bins_id, 'media' => $media, 'config' => $config, 'mapped' => {}, 'signflavor' => $signflavor };
   }
 
   if ($archorder) {
@@ -2167,7 +2238,7 @@ sub publish {
     $found_repo = 1 if -e $r;
   }
   # no published binary found, but we may want an empty repo nevertheless?
-  $found_repo = 1 if $config->{'publishflags:create_empty'};
+  $found_repo = 1 if $config->{'publishflags:createempty'} || $config->{'publishflags:create_empty'};
   if (!defined($found_repo)) {
     deleterepo($projid, $repoid);
     return;
@@ -2223,8 +2294,9 @@ sub publish {
       push @chksumfiles, "$r/.checksums";
     }
 
+    my $readcontainermetafiles_cache = {};
     for my $rbin (sort(ls($r))) {
-      next if $rbin eq '.newchecksums' || $rbin eq '.newchecksums.new' || $rbin eq '.checksums' || $rbin eq '.checksums.new';
+      next if $rbin eq '.newchecksums' || $rbin eq '.newchecksums.new' || $rbin eq '.checksums' || $rbin eq '.checksums.new' || $rbin eq '.archsync' || $rbin eq '.archsync.new';
       my $bin = $rbin;
       my $containerinfo;
       my $kiwimedium;
@@ -2363,7 +2435,7 @@ sub publish {
 	  } elsif ($bin =~ /(.*)\.containerinfo$/) {
             $kiwimedium{$p} = "$arch/$1" if -e "$r/$1.packages";
 	  }
-          readcontainermetafiles($containerinfo, "$r/$bin", \$blobdir);
+          readcontainermetafiles($containerinfo, $r, $bin, \$blobdir, $readcontainermetafiles_cache);
 	  next;
 	} elsif ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256(?:\.asc)?)?$/) {
           # kiwi image case
@@ -2382,7 +2454,7 @@ sub publish {
 	      $containerinfo->{'publishfile'} = "$extrep/$p";
 	      undef $containerinfo if $3;
 	    }
-            readcontainermetafiles($containerinfo, "$r/$1.containerinfo", \$blobdir) if $containerinfo;
+            readcontainermetafiles($containerinfo, $r, "$1.containerinfo", \$blobdir, $readcontainermetafiles_cache) if $containerinfo;
 	  } else {
 	    $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
 	  }
@@ -2403,7 +2475,7 @@ sub publish {
 	      $containerinfo->{'publishfile'} = "$extrep/$p";
 	      undef $containerinfo if $2;
 	    }
-            readcontainermetafiles($containerinfo, "$r/$1.containerinfo", \$blobdir) if $containerinfo;
+            readcontainermetafiles($containerinfo, $r, "$1.containerinfo", \$blobdir, $readcontainermetafiles_cache) if $containerinfo;
 	  }
 	  next if $bin =~ /-(?:appstream|desktopfiles|polkitactions|mimetypes)\.tar/;
         } elsif ($bin =~ /\.(?:tgz|zip)?(?:\.sha256(?:\.asc)?)?$/) {
@@ -2418,7 +2490,7 @@ sub publish {
 	} elsif ($bin =~ /\.orig\.tar\.(gz|xz|bz2)\.asc$/) {
 	  # Debian upstream tarball signature
 	  $p = $bin;
-        } elsif ($bin =~ /^(.*)\.(?:box|json|ovf|phar|qcow2|vdi|vhdfixed|vmx|vmdk|vhdx)(?:\.xz)?(\.sha256(?:\.asc)?)?$/) {
+        } elsif ($bin =~ /^(.*)\.(?:box|json|ova|ovf|phar|qcow2|vdi|vhdfixed|vmx|vmdk|vhdx)(?:\.xz)?(\.sha256(?:\.asc)?)?$/) {
 	  $p = $bin;
           $kiwimedium = "$arch/$1" if !$2 && -e "$r/$1.packages";
 	  $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
@@ -2839,7 +2911,7 @@ sub publish {
   mkdir_p($extrep) unless -d $extrep;
 
   # get sign data
-  my ($pubkey, $signargs) = getsigndata($projid);
+  my ($pubkey, $signargs) = getsigndata($projid, $signflavor);
 
   # get all patterns
   my $patterns = [];
@@ -2856,7 +2928,13 @@ sub publish {
       'config' => $config,
       'publishid' => $publishid,
       'multiarch' => $multicontainer,
+      'signflavor' => $signflavor,
     };
+    if ($config->{'publishflags:artifacthub'}) {
+      for (@{$config->{'publishflags'} || []}) {
+        $data->{'artifacthubdata'}->{$1} = $2 if /^artifacthub:([^:]+):(.+)$/;
+      }
+    }
     $data->{'notify'} = sub { BSNotify::notify('CONTAINER_PUBLISHED', { project => $projid , 'repo' => $repoid, 'buildid' => $publishid, 'container' => "$_[0]"}) };
     if ($blobdir) {
       $_->{'blobdir'} = $blobdir for values %containers;
@@ -3176,6 +3254,7 @@ sub publish {
     'modulemds' => $modulemds,
     'sigs' => [],
     'publishid' => $publishid,
+    'signflavor' => $signflavor,
   };
 
   if ($repotype{'rpm-md'}) {
@@ -3330,13 +3409,15 @@ publishprog_done:
 
   if ($do_packtrack && $packtrack && !$dbgsplit) {
     # send notification
-    print "    sending binary release tracking notification\n";
-    BSNotify::notify('PACKTRACK', { project => $projid , 'repo' => $repoid }, Storable::nfreeze([ map { $packtrack->{$_} } sort keys %$packtrack ]));
+    my $payload = Storable::nfreeze([ map { $packtrack->{$_} } sort keys %$packtrack ]);
+    print "    sending binary release tracking notification (size=".length($payload).")\n";
+    BSNotify::notify('PACKTRACK', { project => $projid , 'repo' => $repoid }, $payload);
   }
 
   if ($do_sourcepublish && $sources && %$sources && !$dbgsplit) {
-    print "    sending source publish notification\n";
-    BSNotify::notify('sourcepublish', { project => $projid , 'repo' => $repoid }, BSUtil::tostorable($sources));
+    my $payload = BSUtil::tostorable($sources);
+    print "    sending source publish notification (size=".length($payload).")\n";
+    BSNotify::notify('sourcepublish', { project => $projid , 'repo' => $repoid }, $payload);
   }
 
   # update repoinfo with status
@@ -3402,6 +3483,21 @@ sub writepublishtimeevent {
   BSUtil::ping("$myeventdir/.ping");
 }
 
+sub writerecheckevent {
+  my ($projid, $repoid, $arch) = @_;
+  return unless -d "$eventdir/$arch";	# scheduler not running yet?
+  my $ev = {
+    'type' => 'recheck',
+    'project' => $projid,
+    'repository' => $repoid,
+    'arch' => $arch,
+  };   
+  my $evname = "recheck::${projid}::$repoid";
+  $evname = "recheck::".Digest::MD5::md5_hex($evname) if length($evname) > 200; 
+  writexml("$eventdir/$arch/.$evname$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+  BSUtil::ping("$eventdir/$arch/.ping");
+}
+
 sub clean_publish_retry {
   my $now = time();
   for (sort keys %publish_retry) {
@@ -3426,9 +3522,14 @@ sub notify_state {
 }
 
 sub syncdb {
-  die if @db_sync;
+  die if @db_sync || !$db_sync_append;
   db_pickup();
+  $db_sync_append = undef;
+  $db_oldsync_read = 1;
   db_sync();
+  @db_sync = ();
+  $db_sync_append = 1;
+  $db_oldsync_read = undef;
 }
 
 sub publishstats {
@@ -3462,10 +3563,15 @@ sub publishevent {
     set_publish_retry($req, $starttime + 60);
     die("$prp: external publish program still running\n");
   }
+
   my $penalty_multiplier = defined($BSConfig::publish_penalty_multiplier) ? $BSConfig::publish_penalty_multiplier : 1;
-  if ($penalty_multiplier && $publish_lasttime{$prp} && $publish_duration{$prp} > 300 && $publish_lasttime{$prp} + $publish_duration{$prp} * $penalty_multiplier> $starttime) {
-    set_publish_retry($req, $starttime + 60 * 5);
-    die("$prp: not yet\n");
+  if ($penalty_multiplier && $publish_lasttime{$prp} && $publish_duration{$prp} > 300) {
+    my $duration = $publish_duration{$prp} * $penalty_multiplier;
+    $duration = 3600 if $duration > 3600;	# clamp to 1 hour
+    if ($publish_lasttime{$prp} + $duration > $starttime) {
+      set_publish_retry($req, $starttime + 60 * 5);
+      die("$prp: not yet\n");
+    }
   }
 
   notify_state($projid, $repoid, 'publishing');
@@ -3486,6 +3592,11 @@ sub publishevent {
     db_sync();
     BSUtil::printlog("publish failed for $prp") if $req->{'forked'};
     return 0;
+  }
+
+  if ($code && $code eq 'delayed') {
+    BSUtil::printlog("publish delayed for $prp") if $req->{'forked'};
+    return 1;
   }
 
   my $now = time();
@@ -3554,11 +3665,10 @@ sub getevent {
     return ($req, undef, 1);
   }
 
-  # serialize if our children have unsynced data
-  if (!@db_sync && $maxchild && $maxchild > 1 && $extrepodb && -s "$extrepodb.sync") {
-    print "not forking because of unsynced database entries (syncdb)\n";
+  if ($maxchild && $extrepodb && -s "$extrepodb.sync") {
+    print "waiting for children because of unsynced database entries (syncdb)\n";
     $req->{'syncdb'} = 1;
-    return ($req, undef, 2);
+    return ($req, undef, -1);
   }
 
   return $req;

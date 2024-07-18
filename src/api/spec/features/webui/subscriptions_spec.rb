@@ -7,8 +7,8 @@ RSpec.describe 'Subscriptions', :js do
       visit path
 
       expect(page).to have_content(title)
-      notification_field = find('.card-body h5', text: 'Package has failed to build').sibling('.list-group')
-      ['maintainer', 'bugowner', 'reader', 'watcher'].each do |role|
+      notification_field = find('.card-body h5', text: 'Package failed to build').sibling('.list-group')
+      %w[maintainer bugowner reader project_watcher].each do |role|
         subscription_by_role = notification_field.find(".#{role}")
         subscription_by_role.check('email')
         expect(page).to have_css('#flash', text: 'Notifications settings updated')
@@ -17,8 +17,8 @@ RSpec.describe 'Subscriptions', :js do
 
       visit path
 
-      notification_field = find('.card-body h5', text: 'Package has failed to build').sibling('.list-group')
-      ['maintainer', 'bugowner', 'reader', 'watcher'].each do |role|
+      notification_field = find('.card-body h5', text: 'Package failed to build').sibling('.list-group')
+      %w[maintainer bugowner reader project_watcher].each do |role|
         subscription_by_role = notification_field.find(".#{role}")
         expect(subscription_by_role.find_field('email', visible: false)).to be_checked
       end

@@ -1,11 +1,11 @@
 module Webui
   module Staging
     class ExcludedRequestsController < WebuiController
-      before_action :require_login, except: [:index, :autocomplete]
+      before_action :require_login, except: %i[index autocomplete]
       before_action :set_workflow_project
       before_action :set_staging_workflow
       before_action :set_request_exclusion, only: [:destroy]
-      after_action :verify_authorized, except: [:index, :autocomplete]
+      after_action :verify_authorized, except: %i[index autocomplete]
 
       def index
         respond_to do |format|
@@ -25,12 +25,12 @@ module Webui
 
         request = @staging_workflow.target_of_bs_requests.find_by(number: staging_request_exclusion[:number])
         unless request
-          redirect_back(fallback_location: root_path, error: "Request #{staging_request_exclusion[:number]} doesn't exist or it doesn't belong to this project")
+          redirect_back_or_to root_path, error: "Request #{staging_request_exclusion[:number]} doesn't exist or it doesn't belong to this project"
           return
         end
         if request.staging_project
-          redirect_back(fallback_location: root_path,
-                        error: "Request #{staging_request_exclusion[:number]} could not be excluded because is staged in: #{request.staging_project}")
+          redirect_back_or_to root_path,
+                              error: "Request #{staging_request_exclusion[:number]} could not be excluded because is staged in: #{request.staging_project}"
           return
         end
 
@@ -70,7 +70,7 @@ module Webui
         @staging_workflow = @project.staging
         return if @staging_workflow
 
-        redirect_back(fallback_location: root_path)
+        redirect_back_or_to root_path
         flash[:error] = 'Staging project not found'
         nil
       end
@@ -79,7 +79,7 @@ module Webui
         @request_exclusion = @staging_workflow.request_exclusions.find_by(id: params[:id])
         return if @request_exclusion
 
-        redirect_back(fallback_location: excluded_requests_path(@staging_workflow), error: "Request doesn't exist")
+        redirect_back_or_to excluded_requests_path(@staging_workflow), error: "Request doesn't exist"
       end
     end
   end

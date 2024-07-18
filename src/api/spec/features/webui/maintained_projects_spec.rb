@@ -16,8 +16,8 @@ RSpec.describe 'MaintainedProjects', :js do
       it 'maintenance projects are not shown' do
         visit project_maintained_projects_path(project_name: maintenance_project.name)
         expect(page).to have_text('Maintained Projects')
-        expect(page).not_to have_css('#new-maintenance-project-modal')
-        expect(page).not_to have_css('#delete-maintained-project-modal')
+        expect(page).to have_no_css('#new-maintenance-project-modal')
+        expect(page).to have_no_css('#delete-maintained-project-modal')
       end
     end
 

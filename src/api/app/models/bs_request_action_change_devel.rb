@@ -34,6 +34,10 @@ class BsRequestActionChangeDevel < BsRequestAction
     uniq_key.gsub('changedevel/', 'Change Devel ')
   end
 
+  def short_name
+    'Change Devel'
+  end
+
   #### Alias of methods
 end
 

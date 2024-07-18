@@ -2,9 +2,9 @@ module ScmWebhookPayloadDataExtractor
   extend ActiveSupport::Concern
 
   SOURCE_NAME_PAYLOAD_MAPPING = {
-    'pull_request' => ['pull_request', 'number'],
-    'Merge Request Hook' => ['object_attributes', 'iid'],
-    'push' => ['head_commit', 'id'],
+    'pull_request' => %w[pull_request number],
+    'Merge Request Hook' => %w[object_attributes iid],
+    'push' => %w[head_commit id],
     'Push Hook' => ['commits', 0, 'id']
   }.freeze
 

@@ -1,23 +1,25 @@
 class Webui::WorkflowRunsController < Webui::WebuiController
+  include Webui::NotificationsHandler
+
+  before_action :handle_notification, only: :show
+
   def index
-    relation = WorkflowRunPolicy::Scope.new(User.session, WorkflowRun, { token_id: params[:token_id] })
-    @workflow_runs_finder = WorkflowRunsFinder.new(relation.resolve)
-    @request_action = params[:request_action] if params[:request_action].present? && params[:request_action] != 'all'
-    @workflow_runs = if params[:status]
-                       @workflow_runs_finder.with_status(params[:status])
-                     elsif params[:pr_mr]
-                       @workflow_runs_finder.with_event_source_name(params[:pr_mr], 'pr_mr')
-                     elsif params[:commit]
-                       @workflow_runs_finder.with_event_source_name(params[:commit], 'commit')
-                     elsif params[:generic_event_type]
-                       @workflow_runs_finder.with_generic_event_type(params[:generic_event_type], @request_action)
-                     else
-                       @workflow_runs_finder.all
-                     end
+    # TODO: The pull/merge request dropdown should accept multiple selections
 
-    @workflow_runs = @workflow_runs.page(params[:page])
+    request_action = []
+    request_action << params[:request_action] unless params[:request_action] == 'all'
 
-    @selected_filter = selected_filter
+    relation = WorkflowRunPolicy::Scope.new(User.session, WorkflowRun, { token_id: params[:token_id] }).resolve
+    relation = relation.with_statuses(status_params) if status_params.any?
+    relation = relation.with_types(event_type_params) if event_type_params.any?
+    relation = relation.with_actions(request_action) if request_action.any?
+    relation = relation.with_event_source_name(params[:pr_mr]) if params[:pr_mr].present?
+    relation = relation.with_event_source_name(params[:commit_sha]) if params[:commit_sha].present?
+
+    @workflow_runs_relation = relation
+    @workflow_runs = relation.all.page(params[:page])
+
+    @selected_filter = { status: status_params, event_type: event_type_params, request_action: request_action, pr_mr: params[:pr_mr], commit_sha: params[:commit_sha] }
     @token = Token::Workflow.find(params[:token_id])
   end
 
@@ -28,10 +30,13 @@ class Webui::WorkflowRunsController < Webui::WebuiController
     @token = @workflow_run.token
   end
 
-  def selected_filter
-    { generic_event_type: params[:generic_event_type],
-      status: params[:status],
-      pr_number: params[:pr_mr],
-      commit_sha: params[:commit] }.compact
+  private
+
+  def status_params
+    @status_params ||= %w[success running fail].select { |f| params[f] }
+  end
+
+  def event_type_params
+    @event_type_params ||= %w[pull_request push tag_push].select { |f| params[f] }
   end
 end

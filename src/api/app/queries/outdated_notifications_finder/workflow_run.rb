@@ -5,6 +5,6 @@ class OutdatedNotificationsFinder::WorkflowRun
   end
 
   def call
-    @scope.where(notifiable_type: 'WorkflowRun', notifiable_id: @parameters['notifiable_id'])
+    @scope.where(notifiable_type: 'WorkflowRun', notifiable_id: @parameters[:notifiable_id])
   end
 end

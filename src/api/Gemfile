@@ -102,6 +102,8 @@ gem 'sprockets-rails'
 gem 'chartkick'
 # For tracking changes in models
 gem 'paper_trail'
+# For parsing ansi codes into html in build log
+gem 'ansible'
 
 # FIXME: Required by the mail gem
 # See https://github.com/rails/rails/pull/44083
@@ -187,12 +189,18 @@ group :development, :test do
   gem 'pry-byebug'
   # for style checks
   gem 'rubocop', require: false
+  # for capybara style checks
+  gem 'rubocop-capybara', require: false
+  # for factory_bot style checks
+  gem 'rubocop-factory_bot', require: false
+  # for performance checks
+  gem 'rubocop-performance', require: false
   # for rails style checks
   gem 'rubocop-rails', require: false
   # for rspec style checks
   gem 'rubocop-rspec', require: false
-  # for performance checks
-  gem 'rubocop-performance', require: false
+  # for rspec rails style checks
+  gem 'rubocop-rspec_rails', require: false
   # integrates with RuboCop to analyse HAML files
   gem 'haml_lint', require: false
   # to generate random long strings

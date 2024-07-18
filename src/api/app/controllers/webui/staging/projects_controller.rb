@@ -1,8 +1,6 @@
 module Webui
   module Staging
     class ProjectsController < WebuiController
-      # TODO: Remove this when we'll refactor kerberos_auth
-      before_action :kerberos_auth, except: [:show]
       before_action :set_workflow_project
       before_action :set_staging_workflow
       after_action :verify_authorized, except: :show
@@ -11,7 +9,7 @@ module Webui
         @staging_project = @staging_workflow.staging_projects.find_by(name: params[:project_name])
 
         unless @staging_project
-          redirect_back(fallback_location: staging_workflow_path(@staging_workflow))
+          redirect_back_or_to staging_workflow_path(@staging_workflow)
           flash[:error] = "Staging Project \"#{elide(params[:project_name])}\" doesn't exist for this Staging."
           return
         end
@@ -57,13 +55,13 @@ module Webui
         staging_project = @staging_workflow.staging_projects.find_by(name: params[:project_name])
 
         unless staging_project
-          redirect_back(fallback_location: edit_staging_workflow_path(@staging_workflow.project))
+          redirect_back_or_to edit_staging_workflow_path(@staging_workflow.project)
           flash[:error] = "Staging Project \"#{elide(params[:project_name])}\" doesn't exist for this Staging"
           return
         end
 
         if staging_project.staged_requests.present?
-          redirect_back(fallback_location: edit_staging_workflow_path(@staging_workflow.project))
+          redirect_back_or_to edit_staging_workflow_path(@staging_workflow.project)
           flash[:error] = "Staging Project \"#{elide(params[:project_name])}\" could not be deleted because it has staged requests."
           return
         end
@@ -87,7 +85,7 @@ module Webui
       def copy
         authorize @staging_workflow
 
-        StagingProjectCopyJob.perform_later(@staging_workflow.project.name, params[:project_name], params[:staging_project_copy_name], User.session!.id)
+        StagingProjectCopyJob.perform_later(@staging_workflow.project.name, params[:project_name], params[:staging_project_copy_name], User.session.id)
 
         flash[:success] = "Job to copy the staging project #{elide(params[:project_name])} successfully queued."
 
@@ -98,7 +96,7 @@ module Webui
 
       def project_log_entry_payload(staging_project)
         # TODO: model ProjectLogEntry should be able to work with symbols
-        { 'project' => staging_project, 'user_name' => User.session!, 'event_type' => 'staging_project_created' }
+        { 'project' => staging_project, 'user_name' => User.session, 'event_type' => 'staging_project_created' }
       end
 
       def set_workflow_project
@@ -109,7 +107,7 @@ module Webui
         @staging_workflow = @project.staging
         return if @staging_workflow
 
-        redirect_back(fallback_location: root_path)
+        redirect_back_or_to root_path
         flash[:error] = 'Staging project not found'
         nil
       end

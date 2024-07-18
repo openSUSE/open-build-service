@@ -32,8 +32,7 @@ get:
         type: string
         enum:
           - 1
-      description: |
-        Set to `1` if you want to include the history of the staging project, otherwise don't pass this query parameter.
+      description: Set to `1` if you want to include the history of the staging project, otherwise don't pass this query parameter.
   responses:
     '200':
       description: Get the state of a staging project.

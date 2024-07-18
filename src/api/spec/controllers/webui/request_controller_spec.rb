@@ -89,10 +89,6 @@ RSpec.describe Webui::RequestController, :vcr do
           get :request_action, params: { number: bs_request.number, index: 0, id: bs_request.bs_request_actions.first.id, format: :js }, xhr: true
         end
 
-        it 'shows a hint' do
-          expect(assigns(:not_full_diff)).to be_truthy
-        end
-
         it 'shows the truncated diff' do
           actions = assigns(:actions).select { |action| action[:type] == :submit && action[:sourcediff] }
           diff_size = actions.first[:sourcediff].first['files'][file_name]['diff']['_content'].split.size
@@ -184,6 +180,8 @@ RSpec.describe Webui::RequestController, :vcr do
 
   describe 'POST #modify_review' do
     RSpec.shared_examples 'a valid review' do |new_state|
+      subject { request_with_review.reviews.last }
+
       let(:params_hash) do
         {
           comment: 'yeah',
@@ -196,8 +194,6 @@ RSpec.describe Webui::RequestController, :vcr do
         post :modify_review, params: params_hash.update(new_state: new_state)
         request_with_review.reload
       end
-
-      subject { request_with_review.reviews.last }
 
       it { expect(response).to redirect_to(request_show_path(number: request_with_review.number)) }
       it { expect(subject.state).to eq(expected_state) }

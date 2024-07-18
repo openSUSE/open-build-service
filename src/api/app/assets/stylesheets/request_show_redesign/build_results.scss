@@ -1,9 +1,5 @@
-.build-result {
-  width: 220px;
-  border-left: thick solid $gray-300;
-  cursor: help;
-
+.result .badge.clickable {
   &:hover {
-    background-color: $gray-100;
+    filter: brightness(0.7);
   }
 }

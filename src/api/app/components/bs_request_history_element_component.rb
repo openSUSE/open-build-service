@@ -23,7 +23,16 @@ class BsRequestHistoryElementComponent < ApplicationComponent
     when 'RequestReviewAdded'
       tag.i(nil, class: 'fas fa-sm fa-circle text-warning')
     else
-      tag.i(nil, class: 'fas fa-lg fa-code-commit text-dark')
+      tag.i(nil, class: 'fas fa-lg fa-code-commit')
+    end
+  end
+
+  def expand?
+    case @element.type.demodulize
+    when 'RequestDeclined'
+      true
+    else
+      false
     end
   end
 

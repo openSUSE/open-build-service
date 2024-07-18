@@ -6,7 +6,6 @@ RSpec.describe Webui::PackageController, :vcr do
   let(:source_package) { create(:package, name: 'my_package', project: source_project) }
   let(:target_project) { create(:project) }
   let(:package) { create(:package_with_file, name: 'package_with_file', project: source_project) }
-  let(:service_package) { create(:package_with_service, name: 'package_with_service', project: source_project) }
   let(:broken_service_package) { create(:package_with_broken_service, name: 'package_with_broken_service', project: source_project) }
   let(:repo_for_source_project) do
     repo = create(:repository, project: source_project, architectures: ['i586'], name: 'source_repo')
@@ -38,49 +37,6 @@ RSpec.describe Webui::PackageController, :vcr do
         </result>
       </resultlist>
     HEREDOC
-  end
-
-  describe 'POST #save' do
-    before do
-      login(user)
-    end
-
-    context 'valid data' do
-      before do
-        post :save, params: {
-          project: source_project, package: source_package, title: 'New title for package', description: 'New description for package'
-        }
-      end
-
-      it { expect(flash[:success]).to eq("Package data for '#{source_package.name}' was saved successfully") }
-      it { expect(source_package.reload.title).to eq('New title for package') }
-      it { expect(source_package.reload.description).to eq('New description for package') }
-      it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
-    end
-
-    context 'invalid data' do
-      before do
-        post :save, params: {
-          project: source_project, package: source_package, title: 'New title for package', description: SecureRandom.hex(32_768) # = 65536 chars
-        }
-      end
-
-      it { expect(controller).to set_flash[:error] }
-      it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
-    end
-  end
-
-  describe 'GET #meta' do
-    before do
-      get :meta, params: { project: source_project, package: source_package }
-    end
-
-    it 'sends the xml representation of a package' do
-      expect(assigns(:meta)).to eq(source_package.render_xml)
-    end
-
-    it { expect(response).to render_template('package/meta') }
-    it { expect(response).to have_http_status(:success) }
   end
 
   describe 'POST #remove' do
@@ -158,6 +114,7 @@ RSpec.describe Webui::PackageController, :vcr do
       end
     end
 
+    # FIXME: This is not how the backend behaves today, it validates servce files. You can't re-generate the cassette of this spec
     context 'with a package that has a broken service' do
       before do
         login user
@@ -198,59 +155,9 @@ RSpec.describe Webui::PackageController, :vcr do
     end
   end
 
-  describe 'DELETE #remove_file' do
-    before do
-      login(user)
-      allow_any_instance_of(Package).to receive(:delete_file).and_return(true)
-    end
-
-    def remove_file_post
-      post :remove_file, params: { project: user.home_project, package: source_package, filename: 'the_file' }
-    end
-
-    context 'with successful backend call' do
-      before do
-        remove_file_post
-      end
-
-      it { expect(flash[:success]).to eq("File 'the_file' removed successfully") }
-      it { expect(assigns(:package)).to eq(source_package) }
-      it { expect(assigns(:project)).to eq(user.home_project) }
-      it { expect(response).to redirect_to(package_show_path(project: user.home_project, package: source_package)) }
-    end
-
-    context 'with not successful backend call' do
-      before do
-        allow_any_instance_of(Package).to receive(:delete_file).and_raise(Backend::NotFoundError)
-        remove_file_post
-      end
-
-      it { expect(flash[:error]).to eq("Failed to remove file 'the_file'") }
-    end
-
-    it 'calls delete_file method' do
-      allow_any_instance_of(Package).to receive(:delete_file).with('the_file')
-      remove_file_post
-
-      expect(flash[:success]).to eq("File 'the_file' removed successfully")
-    end
-
-    context 'with no permissions' do
-      let(:other_user) { create(:confirmed_user) }
-
-      before do
-        login other_user
-        remove_file_post
-      end
-
-      it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this package.') }
-      it { expect(Package.where(name: 'my_package')).to exist }
-    end
-  end
-
   describe 'GET #revisions' do
     let(:project) { create(:project, maintainer: user, name: 'some_dev_project123') }
-    let(:package) { create(:package_with_revisions, name: 'package_with_one_revision', revision_count: 1, project: project) }
+    let(:package) { create(:package_with_revisions, name: 'package_with_one_revision', revision_count: 25, project: project) }
     let(:elided_package_name) { 'package_w...revision' }
 
     before do
@@ -281,7 +188,7 @@ RSpec.describe Webui::PackageController, :vcr do
         end
 
         it 'returns revisions with the default pagination' do
-          expect(assigns(:revisions)).to eq((6..revision_count).to_a.reverse)
+          expect(assigns(:revisions)).to match_array((6..revision_count).to_a.reverse.map { |n| include('rev' => n.to_s) })
         end
 
         context 'and passing the show_all parameter' do
@@ -290,7 +197,7 @@ RSpec.describe Webui::PackageController, :vcr do
           end
 
           it 'returns revisions without pagination' do
-            expect(assigns(:revisions)).to eq((1..revision_count).to_a.reverse)
+            expect(assigns(:revisions)).to match_array((1..revision_count).to_a.reverse.map { |n| include('rev' => n.to_s) })
           end
         end
 
@@ -300,7 +207,7 @@ RSpec.describe Webui::PackageController, :vcr do
           end
 
           it "returns the paginated revisions for the page parameter's value" do
-            expect(assigns(:revisions)).to eq((1..5).to_a.reverse)
+            expect(assigns(:revisions)).to match_array((1..5).to_a.reverse.map { |n| include('rev' => n.to_s) })
           end
         end
       end
@@ -313,7 +220,7 @@ RSpec.describe Webui::PackageController, :vcr do
         let(:param_rev) { 23 }
 
         it "returns revisions up to rev parameter's value with the default pagination" do
-          expect(assigns(:revisions)).to eq((4..param_rev).to_a.reverse)
+          expect(assigns(:revisions)).to match_array((4..param_rev).to_a.reverse.map { |n| include('rev' => n.to_s) })
         end
 
         context 'and passing the show_all parameter' do
@@ -322,7 +229,7 @@ RSpec.describe Webui::PackageController, :vcr do
           end
 
           it "returns revisions up to rev parameter's value without pagination" do
-            expect(assigns(:revisions)).to eq((1..param_rev).to_a.reverse)
+            expect(assigns(:revisions)).to match_array((1..param_rev).to_a.reverse.map { |n| include('rev' => n.to_s) })
           end
         end
 
@@ -332,155 +239,10 @@ RSpec.describe Webui::PackageController, :vcr do
           end
 
           it "returns the paginated revisions for the page parameter's value" do
-            expect(assigns(:revisions)).to eq((1..3).to_a.reverse)
+            expect(assigns(:revisions)).to match_array((1..3).to_a.reverse.map { |n| include('rev' => n.to_s) })
           end
         end
       end
-    end
-  end
-
-  describe 'GET #trigger_services' do
-    before do
-      login user
-    end
-
-    context 'with right params' do
-      let(:post_url) { "#{CONFIG['source_url']}/source/#{source_project}/#{service_package}?cmd=runservice&user=#{user}" }
-
-      before do
-        get :trigger_services, params: { project: source_project, package: service_package }
-      end
-
-      it { expect(a_request(:post, post_url)).to have_been_made.once }
-      it { expect(flash[:success]).to eq('Services successfully triggered') }
-      it { is_expected.to redirect_to(action: :show, project: source_project, package: service_package) }
-    end
-
-    context 'without a service file in the package' do
-      let(:package) { create(:package_with_file, name: 'package_with_file', project: source_project) }
-      let(:post_url) { "#{CONFIG['source_url']}/source/#{source_project}/#{package}?cmd=runservice&user=#{user}" }
-
-      before do
-        get :trigger_services, params: { project: source_project, package: package }
-      end
-
-      it { expect(a_request(:post, post_url)).to have_been_made.once }
-      it { expect(flash[:error]).to eq("Services couldn't be triggered: no source service defined!") }
-      it { is_expected.to redirect_to(action: :show, project: source_project, package: package) }
-    end
-
-    context 'without permissions' do
-      let(:post_url) { %r{#{CONFIG['source_url']}/source/#{source_project}/#{service_package}\.*} }
-      let(:other_user) { create(:confirmed_user) }
-
-      before do
-        login other_user
-        get :trigger_services, params: { project: source_project, package: package }
-      end
-
-      it { expect(a_request(:post, post_url)).not_to have_been_made }
-      it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this package.') }
-      it { is_expected.to redirect_to(root_path) }
-    end
-  end
-
-  describe 'POST #save_meta' do
-    let(:valid_meta) do
-      "<package name=\"#{source_package.name}\" project=\"#{source_project.name}\">" \
-        '<title>My Test package Updated via Webui</title><description/></package>'
-    end
-
-    let(:invalid_meta_because_package_name) do
-      "<package name=\"whatever\" project=\"#{source_project.name}\">" \
-        '<title>Invalid meta PACKAGE NAME</title><description/></package>'
-    end
-
-    let(:invalid_meta_because_project_name) do
-      "<package name=\"#{source_package.name}\" project=\"whatever\">" \
-        '<title>Invalid meta PROJECT NAME</title><description/></package>'
-    end
-
-    let(:invalid_meta_because_xml) do
-      "<package name=\"#{source_package.name}\" project=\"#{source_project.name}\">" \
-        '<title>Invalid meta WRONG XML</title><description/></paaaaackage>'
-    end
-
-    before do
-      login user
-    end
-
-    context 'with proper params' do
-      before do
-        post :save_meta, params: { project: source_project, package: source_package, meta: valid_meta }
-      end
-
-      it { expect(flash[:success]).to eq('The Meta file has been successfully saved.') }
-      it { expect(response).to have_http_status(:ok) }
-    end
-
-    context 'without admin rights to raise protection level' do
-      before do
-        allow_any_instance_of(Package).to receive(:disabled_for?).with('sourceaccess', nil, nil).and_return(false)
-        allow(FlagHelper).to receive(:xml_disabled_for?).with(Xmlhash.parse(valid_meta), 'sourceaccess').and_return(true)
-
-        post :save_meta, params: { project: source_project, package: source_package, meta: valid_meta }
-      end
-
-      it { expect(flash[:error]).to eq('Error while saving the Meta file: admin rights are required to raise the protection level of a package.') }
-      it { expect(response).to have_http_status(:bad_request) }
-    end
-
-    context 'with an invalid package name' do
-      before do
-        post :save_meta, params: { project: source_project, package: source_package, meta: invalid_meta_because_package_name }
-      end
-
-      it { expect(flash[:error]).to eq('Error while saving the Meta file: package name in xml data does not match resource path component.') }
-      it { expect(response).to have_http_status(:bad_request) }
-    end
-
-    context 'with an invalid project name' do
-      before do
-        post :save_meta, params: { project: source_project, package: source_package, meta: invalid_meta_because_project_name }
-      end
-
-      it { expect(flash[:error]).to eq('Error while saving the Meta file: project name in xml data does not match resource path component.') }
-      it { expect(response).to have_http_status(:bad_request) }
-    end
-
-    context 'with invalid XML' do
-      before do
-        post :save_meta, params: { project: source_project, package: source_package, meta: invalid_meta_because_xml }
-      end
-
-      it do
-        expect(flash[:error]).to match(/Error while saving the Meta file: package validation error.*FATAL:/)
-        expect(flash[:error]).to match(/Opening and ending tag mismatch: package line 1 and paaaaackage\./)
-      end
-
-      it { expect(response).to have_http_status(:bad_request) }
-    end
-
-    context 'when connection with the backend fails' do
-      before do
-        allow_any_instance_of(Package).to receive(:update_from_xml).and_raise(Backend::Error, 'fake message')
-
-        post :save_meta, params: { project: source_project, package: source_package, meta: valid_meta }
-      end
-
-      it { expect(flash[:error]).to eq('Error while saving the Meta file: fake message.') }
-      it { expect(response).to have_http_status(:bad_request) }
-    end
-
-    context 'when not found the User or Group' do
-      before do
-        allow_any_instance_of(Package).to receive(:update_from_xml).and_raise(NotFoundError, 'fake message')
-
-        post :save_meta, params: { project: source_project, package: source_package, meta: valid_meta }
-      end
-
-      it { expect(flash[:error]).to eq('Error while saving the Meta file: fake message.') }
-      it { expect(response).to have_http_status(:bad_request) }
     end
   end
 
@@ -583,108 +345,6 @@ RSpec.describe Webui::PackageController, :vcr do
     end
   end
 
-  describe 'POST #trigger_rebuild' do
-    before do
-      login(user)
-    end
-
-    context 'non existent repository' do
-      before do
-        post :trigger_rebuild, params: { project: source_project, package: source_package, repository: 'non_existent_repository' }
-      end
-
-      it 'lets the user know there was an error' do
-        expect(flash[:error]).to match('Error while triggering rebuild for home:tom/my_package')
-      end
-
-      it 'redirects to the package binaries path' do
-        expect(response).to redirect_to(project_package_repository_binaries_path(project_name: source_project,
-                                                                                 package_name: source_package,
-                                                                                 repository_name: 'non_existent_repository'))
-      end
-    end
-
-    context 'when triggering a rebuild succeeds' do
-      let!(:repository) { create(:repository, project: source_project, architectures: ['i586'], name: 'openSUSE_Leap_15.1') }
-
-      before do
-        source_project.store
-
-        post :trigger_rebuild, params: { project: source_project, package: source_package, repository: repository.name, arch: 'i586' }
-      end
-
-      it { expect(flash[:success]).to eq("Triggered rebuild for #{source_project.name}/#{source_package.name} successfully.") }
-      it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
-    end
-
-    context 'when triggering a rebuild with maintainer of package' do
-      let(:user) { create(:confirmed_user, login: 'foo') }
-      let(:other_user) { create(:confirmed_user, login: 'bar') }
-      let!(:project) { create(:project, name: 'foo_project', maintainer: user) }
-      let!(:repository) { create(:repository, project: project, architectures: ['i586'], name: 'openSUSE_Leap_15.1') }
-      let!(:package_with_maintainer) { create(:package_with_maintainer, maintainer: other_user, project: project, name: 'package_1') }
-
-      before do
-        login other_user
-        project.store
-        post :trigger_rebuild, params: { project: project, package: package_with_maintainer,
-                                         repository: repository.name, arch: 'i586' }
-      end
-
-      it { expect(flash[:success]).not_to be_nil }
-    end
-
-    context 'user not being a maintainer of a package' do
-      let(:user) { create(:confirmed_user, login: 'foo') }
-      let(:other_user) { create(:confirmed_user, login: 'bar') }
-      let(:project) { create(:project, name: 'foo_project') }
-      let!(:package_with_maintainer) { create(:package_with_maintainer, maintainer: user, project: project) }
-
-      before do
-        login other_user
-        post :trigger_rebuild, params: { project: project, package: package_with_maintainer }
-      end
-
-      it { expect(flash[:success]).to be_nil }
-      it { expect(flash[:error]).not_to be_nil }
-    end
-  end
-
-  describe 'POST #abort_build' do
-    before do
-      login(user)
-    end
-
-    context 'when aborting the build fails' do
-      before do
-        post :abort_build, params: { project: source_project, package: source_package, repository: 'foo', arch: 'bar' }
-      end
-
-      it 'lets the user know there was an error' do
-        expect(flash[:error]).to match('Error while triggering abort build for home:tom/my_package')
-        expect(flash[:error]).to match('no repository defined')
-      end
-
-      it {
-        expect(response).to redirect_to(package_live_build_log_path(project: source_project,
-                                                                    package: source_package,
-                                                                    repository: 'foo', arch: 'bar'))
-      }
-    end
-
-    context 'when aborting the build succeeds' do
-      before do
-        create(:repository, project: source_project, architectures: ['i586'])
-        source_project.store
-
-        post :abort_build, params: { project: source_project, package: source_package }
-      end
-
-      it { expect(flash[:success]).to eq("Triggered abort build for #{source_project.name}/#{source_package.name} successfully.") }
-      it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
-    end
-  end
-
   # FIXME: This should be feature specs
   describe 'GET #statistics' do
     let!(:repository) { create(:repository, name: 'statistics', project: source_project, architectures: ['i586']) }
@@ -755,8 +415,8 @@ RSpec.describe Webui::PackageController, :vcr do
 
     it { expect(response).to have_http_status(:success) }
     it { expect(assigns(:repo_list)).to include(['openSUSE_Leap_42.1', 'openSUSE_Leap_42_1']) }
-    it { expect(assigns(:repo_list)).not_to include(['images', 'images']) }
-    it { expect(assigns(:repo_list)).not_to include(['openSUSE_Tumbleweed', 'openSUSE_Tumbleweed']) }
+    it { expect(assigns(:repo_list)).not_to include(%w[images images]) }
+    it { expect(assigns(:repo_list)).not_to include(%w[openSUSE_Tumbleweed openSUSE_Tumbleweed]) }
     it { expect(assigns(:repo_arch_hash)['openSUSE_Leap_42_1']).to include('x86_64') }
     it { expect(assigns(:repo_arch_hash)['openSUSE_Leap_42_1']).not_to include('armv7l') }
   end
@@ -774,14 +434,14 @@ RSpec.describe Webui::PackageController, :vcr do
     end
 
     describe 'when there is a rpmlint log' do
+      subject do
+        get :rpmlint_log, params: { project: source_project, package: source_package, repository: repo_for_source_project.name, architecture: 'i586' }
+      end
+
       before do
         allow(Backend::Api::BuildResults::Binaries).to receive(:rpmlint_log)
           .with(source_project.name, source_package.name, repo_for_source_project.name, 'i586')
           .and_return('test_package.i586: W: description-shorter-than-summary\ntest_package.src: W: description-shorter-than-summary')
-      end
-
-      subject do
-        get :rpmlint_log, params: { project: source_project, package: source_package, repository: repo_for_source_project.name, architecture: 'i586' }
       end
 
       it { is_expected.to have_http_status(:success) }
@@ -832,15 +492,15 @@ RSpec.describe Webui::PackageController, :vcr do
       context 'invalid package name' do
         let(:package_name) { 'A' * 250 }
 
-        it { expect(response).to redirect_to(new_package_path(source_project)) }
-        it { expect(flash[:error]).to match("Invalid package name:\s.*") }
+        it { expect(response).to redirect_to(project_show_path(source_project)) }
+        it { expect(flash[:error]).to match('Failed to create package: Name is too long (maximum is 200 characters), Name is illegal') }
       end
 
       context 'package already exist' do
         let(:package_name) { package.name }
 
-        it { expect(response).to redirect_to(new_package_path(source_project)) }
-        it { expect(flash[:error]).to start_with("Package '#{package.name}' already exists in project") }
+        it { expect(response).to redirect_to(project_show_path(source_project)) }
+        it { expect(flash[:error]).to start_with("Failed to create package: Project `#{source_project.name}` already has a package with the name `#{package_name}`") }
       end
 
       context 'not allowed to create package in' do

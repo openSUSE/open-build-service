@@ -1,0 +1,14 @@
+%span.dropdown{ id: id }
+  %button.btn.btn-outline-secondary.dropdown-toggle{ data: { 'bs-toggle': :dropdown }, type: :button }
+    %span.caret
+    = text
+  .dropdown-menu.keep-open
+    .text-center
+      %button.btn.btn-link.monitor-filter-link{ type: :button } All
+      %button.btn.btn-link.monitor-no-filter-link{ type: :button } None
+    - values.each do |value|
+      .dropdown-item
+        .form-check
+          = check_box_tag "#{value_prefix}#{value}", 1, checked = checked_values.include?("#{value_prefix}#{value}"), class: 'form-check-input'
+          %label.form-check-label{ for: "#{value_prefix}#{value}" }
+            = value

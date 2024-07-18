@@ -112,7 +112,7 @@ class BsRequestActionSubmit < BsRequestAction
   end
 
   def check_action_permission!(skip_source = nil)
-    super(skip_source)
+    super
     # only perform the following check, if we are called from
     # BsRequest.permission_check_change_state! (that is, if
     # skip_source is set to true). Always executing this check
@@ -137,6 +137,37 @@ class BsRequestActionSubmit < BsRequestAction
 
   def name
     "Submit #{uniq_key}"
+  end
+
+  def short_name
+    "Submit #{source_package}"
+  end
+
+  def target_package_object
+    @target_package_object ||= Package.find_by_project_and_name(target_project, target_package)
+  end
+
+  def creator_is_target_maintainer
+    request_creator = User.find_by_login(bs_request.creator)
+    request_creator.has_local_role?(Role.hashed['maintainer'], target_package_object)
+  end
+
+  def forward
+    return [] unless target_package_object
+
+    # add all the devel packages into the forwards
+    forward_object = target_package_object.developed_packages.map do |dev_pkg|
+      { project: dev_pkg.project.name, package: dev_pkg.name, type: 'devel' }
+    end
+
+    return forward_object unless (linkinfo = target_package_object.linkinfo)
+
+    # check if the link is already in the forwards, add it otherwise
+    if forward_object.none? { |forward| forward[:project] == linkinfo['project'] && forward[:package] == linkinfo['package'] }
+      forward_object << { project: linkinfo['project'], package: linkinfo['package'], type: 'link' }
+    end
+
+    forward_object
   end
 
   #### Alias of methods

@@ -11,7 +11,7 @@ RSpec.describe 'Decisions', :js, :vcr do
   def fill_decisions_modal(reportable)
     within("#reports-modal-#{reportable.class.to_s.downcase}-#{reportable.id}") do
       fill_in id: 'decision_reason', with: 'Reason for reporting is correct.'
-      select('favor', from: 'decision[kind]')
+      select('favored', from: 'decision[type]')
       click_button('Submit')
     end
   end

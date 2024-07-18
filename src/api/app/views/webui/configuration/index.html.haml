@@ -19,6 +19,11 @@
           %abbr.text-danger{ title: 'required' } *
         ~ f.text_area :description, rows: 7, required: true, class: 'form-control'
       .mb-3
+        = f.label(:logo) do
+          Logo
+          %small.form-text The image displayed on the left side of the top navigation bar.
+        ~ f.file_field :logo, class: 'form-control'
+      .mb-3
         = f.label(:tos_url) do
           Terms Of Service URL
         ~ f.text_field :tos_url, class: 'form-control', type: :url
@@ -27,6 +32,19 @@
           Code of Conduct
           %small.form-text Leave this field blank to prevent from showing the "Code of Conduct" link at the footer of the page.
         ~ f.text_area :code_of_conduct, rows: 7, class: 'form-control'
+
+      .h5.mt-4 Contact Information
+      %p
+        Allows you to provide a link to a contact form, ticketing system or an email (prefixed with mailto:)
+        that will allow users to contact you about creating Projects and creating Staging Manager Groups.
+      .mb-3
+        .row.g-3.align-items-center
+          .col
+            = f.label :contact_name, 'Contact Name'
+            ~ f.text_field :contact_name, class: 'form-control'
+          .col
+            = f.label :contact_name, 'Contact URL'
+            ~ f.text_field :contact_url, class: 'form-control'
 
       .h5.mt-4 Base Configuration
       %p

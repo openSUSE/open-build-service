@@ -1,7 +1,6 @@
 get:
   summary: List the requests in the staging backlog.
-  description: |
-    List the requests that can be assigned to the staging project (backlog).
+  description: List the requests that can be assigned to the staging project (backlog).
   security:
     - basic_authentication: []
   parameters:

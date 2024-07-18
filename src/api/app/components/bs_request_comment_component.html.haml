@@ -1,16 +1,17 @@
 .d-flex.mt-3.align-items-start
-  %i{ title: 'Comment', class: "fas fa-lg fa-comment text-dark #{ level > 1 ? 'd-none' : '' }" }
-  = render(AvatarComponent.new(name: comment.user.name, email: comment.user.email, size: 35, shape: :circle, custom_css: 'avatars-counter'))
+  - if show_username
+    %i{ title: 'Comment', class: "fas fa-lg fa-comment #{ level > 1 ? 'd-none' : '' }" }
+    = render(AvatarComponent.new(name: comment.user.name, email: comment.user.email, size: 35, shape: :circle, custom_css: 'avatars-counter'))
   .timeline-item-comment.ms-0.flex-fill.overflow-auto
-    .comment-bubble.ms-3
+    .comment-bubble.ms-3.position-relative{ id: "comment-#{comment.id}-bubble" }
       - if policy(comment).update? || policy(comment).destroy?
-        .dropdown.dropleft.float-end.mt-3.mx-3
-          = link_to('#', role: 'button', 'data-bs-toggle': 'dropdown', 'aria-expanded': 'false', class: 'text-dark') do
+        .dropdown.dropleft.float-end.mx-3.position-absolute.top-0.end-0
+          = link_to('#', role: 'button', 'data-bs-toggle': 'dropdown', 'aria-expanded': 'false') do
             %i.fas.fa-ellipsis
           .dropdown-menu
             - if policy(comment).update?
               = link_to("#edit_form_of_#{comment.id}", id: "edit_button_of_#{comment.id}", 'data-bs-toggle': 'collapse',
-                        class: 'dropdown-item collapsed') do
+                        'data-comment-id': comment.id, class: 'dropdown-item collapsed edit-comment-button') do
                 Edit
             - if Flipper.enabled?(:content_moderation, User.session)
               - if policy(comment).moderate?
@@ -23,27 +24,36 @@
                                     action: comment_path(comment) },
                             class: 'dropdown-item delete_link', title: 'Delete comment') do
                 Delete
-      .px-3.py-2.border-bottom
-        = link_to(helpers.realname_with_login(comment.user), user_path(comment.user))
-        \-
-        = link_to("#comment-#{comment.id}", title: l(comment.created_at.utc), name: "comment-#{comment.id}") do
-          = render TimeComponent.new(time: comment.created_at)
-        = render CommentHistoryComponent.new(comment)
+      .ps-3.pe-5.py-2.border-bottom.d-flex.flex-column.flex-lg-row.justify-content-between.align-items-start.gap-2
+        %span
+          - if show_username
+            = link_to(helpers.realname_with_login(comment.user), user_path(comment.user))
+            commented
+          = link_to(helpers.commentable_path(comment: comment),
+                    name: "comment-#{comment.id}",
+                    title: l(comment.created_at.utc)) do
+            = render TimeComponent.new(time: comment.created_at)
+          = render CommentHistoryComponent.new(comment)
+        .d-inline-flex.justify-content-end.gap-1
+          - helpers.comment_user_role_titles(comment).each do |title|
+            %span.badge.border.border-secondary.text-secondary.text-capitalize
+              = title
       - if comment.diff_ref && diff
         - action = comment.commentable
-        .px-3.pt-3.pb-2
-          = link_to request_show_path(number: action.bs_request, request_action_id: action) do
-            = action.uniq_key
-          >
-          = link_to request_changes_path(number: action.bs_request, request_action_id: action, anchor: comment.diff_ref) do
-            = render(DiffSubjectComponent.new(state: diff['state'], old_filename: diff.dig('old', 'name'), new_filename: diff.dig('new', 'name')))
-        = render(DiffComponent.new(diff: diff.dig('diff', '_content'), range:))
+        .comment-diff
+          .px-3.pt-3.pb-2
+            = link_to request_show_path(number: action.bs_request, request_action_id: action) do
+              = action.uniq_key
+            >
+            = link_to request_changes_path(number: action.bs_request, request_action_id: action, anchor: comment.diff_ref) do
+              = render(DiffSubjectComponent.new(state: diff['state'], old_filename: diff.dig('old', 'name'), new_filename: diff.dig('new', 'name')))
+          = render(DiffComponent.new(diff: diff.dig('diff', '_content'), range:))
       .comment-bubble-content{ id: "comment-#{comment.id}-body" }
         = render ReportsNoticeComponent.new(reportable: comment, user: User.session)
         = helpers.render_as_markdown(comment)
 
       - if policy(comment).update?
-        .collapse{ id: "edit_form_of_#{comment.id}" }
+        .collapse.comment-edit{ id: "edit_form_of_#{comment.id}" }
           = render(partial: 'webui/comment/comment_field', locals: { form_method: :put,
           comment: comment, commentable: commentable, element_suffix: "edit_#{comment.id}", has_cancel: true })
 
@@ -73,3 +83,12 @@
 - if level > 3
   - comment.children.includes(:user).each do |children|
     = render BsRequestCommentComponent.new(comment: children, level: level + 1, commentable: commentable)
+
+:javascript
+  $(document).on('click', '.edit-comment-button', function() {
+    var commentId = $(this).data('comment-id');
+    $(`#comment-${commentId}-body`).hide();
+  });
+  $(document).on('click', '.cancel-comment', function() {
+    $(this).parents('.comment-bubble').children('.comment-bubble-content').show();
+  });

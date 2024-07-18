@@ -1,7 +1,7 @@
 module Event
   class ServiceSuccess < Base
     self.message_bus_routing_key = 'package.service_success'
-    self.description = 'Package source service has succeeded'
+    self.description = 'Package source service succeeded'
     payload_keys :project, :package, :sender, :comment, :rev, :user, :requestid
     receiver_roles :maintainer, :bugowner
     create_jobs :update_backend_infos_job
@@ -39,7 +39,7 @@ end
 #  id          :bigint           not null, primary key
 #  eventtype   :string(255)      not null, indexed
 #  mails_sent  :boolean          default(FALSE), indexed
-#  payload     :text(65535)
+#  payload     :text(16777215)
 #  undone_jobs :integer          default(0)
 #  created_at  :datetime         indexed
 #  updated_at  :datetime

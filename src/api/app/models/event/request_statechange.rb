@@ -1,12 +1,14 @@
 module Event
   class RequestStatechange < Request
     self.message_bus_routing_key = 'request.state_change'
-    self.description = 'Request state was changed'
+    self.description = 'Request state changed'
     payload_keys :oldstate, :duration
-    receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_watcher, :target_watcher,
+    receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_project_watcher, :target_project_watcher,
                    :source_package_watcher, :target_package_watcher, :request_watcher
 
     create_jobs :report_to_scm_job
+
+    self.notification_explanation = 'Receive notifications for requests state changes for projects for which you are...'
 
     def subject
       "Request #{payload['number']} changed from #{payload['oldstate']} to #{payload['state']} (#{actions_summary})"
@@ -15,7 +17,8 @@ module Event
     def parameters_for_notification
       super.merge({ notifiable_type: 'BsRequest',
                     bs_request_state: payload['state'],
-                    bs_request_oldstate: payload['oldstate'] })
+                    bs_request_oldstate: payload['oldstate'],
+                    type: 'NotificationBsRequest' })
     end
 
     private
@@ -37,7 +40,7 @@ end
 #  id          :bigint           not null, primary key
 #  eventtype   :string(255)      not null, indexed
 #  mails_sent  :boolean          default(FALSE), indexed
-#  payload     :text(65535)
+#  payload     :text(16777215)
 #  undone_jobs :integer          default(0)
 #  created_at  :datetime         indexed
 #  updated_at  :datetime

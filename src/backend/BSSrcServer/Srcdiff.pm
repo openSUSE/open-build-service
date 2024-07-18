@@ -446,7 +446,8 @@ sub listzip {
         my $ctx = Digest::MD5->new;
         my $ctx256 = Digest::SHA->new(256);
         my $writer = sub { $ctx->add($_[0]); $ctx256->add($_[0]) };
-	BSZip::extract(\*F, $e, 'writer' => $writer);
+	eval { BSZip::extract(\*F, $e, 'writer' => $writer) };
+	die("$zipfile: $@") if $@;
 	$info = $ctx256->hexdigest();
 	$md5 = $ctx->hexdigest();
       }
@@ -474,7 +475,8 @@ sub extractzip {
       local *G;
       open(G, '>', $x->{'extract'}) || die("$x->{'extract'}: $!\n");
       my $writer = sub { print G $_[0] or die("write: $!\n") };
-      BSZip::extract(\*F, $e, 'writer' => $writer);
+      eval { BSZip::extract(\*F, $e, 'writer' => $writer) };
+      die("$zipfile: $@") if $@;
       close(G) || die("close: $!\n");
     }
   }
@@ -973,6 +975,9 @@ my @simclasses = (
   '(?:tar|tar\.gz|tar\.bz2|tar\.xz|tar\.zstd?|tgz|tbz|gem|obscpio|livebuild|zip)',
 );
 
+# do not treat tracker ids as versions
+my $trackers = qr/(bnc-\d+|bug-\d+|bsc-\d+|issue-\d+|cve-\d+-\d+)/i;
+
 sub findsim {
   my ($old, $new) = @_;
 
@@ -1028,9 +1033,15 @@ sub findsim {
     my $ft = $ft{$f};
     next unless defined $fc;
     my @s = grep {defined($ft{$_}) && $ft{$_} eq $ft} sort keys %s;
+    my $fqp = '';
+    if ($fc =~ /^($trackers)/) {
+      $fqp = "\Q$1\E";
+      $fc = substr($fc, length($1));
+    }
     my $fq = "\Q$fc\E";
     $fq =~ s/\\\././g;
     $fq =~ s/[0-9.]+/.*/g;
+    $fq = "$fqp$fq";
     @s = grep {/^$fq$/ && $old->{$_} eq $new->{$f}} @s;
     if (@s) {
       $sim{$f} = $s[0];
@@ -1045,9 +1056,15 @@ sub findsim {
     my $ft = $ft{$f};
     next unless defined $fc;
     my @s = grep {defined($ft{$_}) && $ft{$_} eq $ft} sort keys %s;
+    my $fqp = '';
+    if ($fc =~ /^($trackers)/) {
+      $fqp = "\Q$1\E";
+      $fc = substr($fc, length($1));
+    }
     my $fq = "\Q$fc\E";
     $fq =~ s/\\\././g;
     $fq =~ s/[0-9.]+/.*/g;
+    $fq = "$fqp$fq";
     @s = grep {/^$fq$/} @s;
     if (@s) {
       unshift @s, grep {$old->{$_} eq $new->{$f}} @s if @s > 1;
@@ -1274,11 +1291,10 @@ sub datadiff {
     }
     if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|tar\.zstd?|gem|obscpio|livebuild|zip)$/) {
       my @r = tardiff(fn($pold, $of), fn($pnew, $f), %opts);
-      if (@r == 0 && $f ne $of) {
-	# (almost) identical tars but renamed
-	push @changed, {'state' => 'renamed', 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
-      }
-      if (@r == 1 && !$r[0]->{'old'} && !$r[0]->{'new'}) {
+      if (@r == 0) {
+	# tar changed, but content is the same (e.g. compression level change, different compressor)
+	push @changed, {'state' => 'changed', 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
+      } elsif (@r == 1 && !$r[0]->{'old'} && !$r[0]->{'new'}) {
 	# tardiff was too big
 	push @changed, {'state' => 'changed', 'diff' => $r[0], 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
 	@r = ();
@@ -1382,6 +1398,7 @@ sub issuediff {
   }
   my %oldissues;
   my %newissues;
+  my %keptissues;
   for my $c (keys %oldchanges) {
     next if exists $newchanges{$c};
     issues($oldchanges{$c}, $trackers, \%oldissues);
@@ -1390,11 +1407,17 @@ sub issuediff {
     next if exists $oldchanges{$c};
     issues($newchanges{$c}, $trackers, \%newissues);
   }
+  if (%oldissues || %newissues) {
+    for my $c (keys %oldchanges) {
+      next unless exists $newchanges{$c};
+      issues($oldchanges{$c}, $trackers, \%keptissues);
+    }
+  }
   my @added;
   my @changed;
   my @deleted;
   for (sort keys %newissues) {
-    if (exists $oldissues{$_}) {
+    if (exists($oldissues{$_}) || exists($keptissues{$_})) {
       $newissues{$_}->{'state'} = 'changed';
       delete $oldissues{$_};
       push @changed, $newissues{$_};
@@ -1404,8 +1427,13 @@ sub issuediff {
     }
   }
   for (sort keys %oldissues) {
-    $oldissues{$_}->{'state'} = 'deleted';
-    push @deleted , $oldissues{$_};
+    if (exists($keptissues{$_})) {
+      $oldissues{$_}->{'state'} = 'changed';
+      push @changed, $oldissues{$_};
+    } else {
+      $oldissues{$_}->{'state'} = 'deleted';
+      push @deleted , $oldissues{$_};
+    }
   }
   finalizeissues(@changed, @added, @deleted);
   return [ @changed, @added, @deleted ];

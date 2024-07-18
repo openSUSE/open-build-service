@@ -8,8 +8,8 @@ class CreateCommitActivities < ActiveRecord::Migration[5.2]
       t.string :package, null: false
       t.integer :count, null: false, default: 0
 
-      t.index [:user_id, :date]
-      t.index [:date, :user_id, :project, :package], unique: true, name: 'unique_activity_day'
+      t.index %i[user_id date]
+      t.index %i[date user_id project package], unique: true, name: 'unique_activity_day'
     end
   end
   # rubocop:enable Rails/CreateTableWithTimestamps

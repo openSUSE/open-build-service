@@ -1,7 +1,7 @@
 module Event
   class Packtrack < Base
     self.message_bus_routing_key = 'repo.packtrack'
-    self.description = 'Binary was published'
+    self.description = 'Binary published'
     payload_keys :project, :repo, :payload
 
     # for package tracking in first place
@@ -16,7 +16,7 @@ end
 #  id          :bigint           not null, primary key
 #  eventtype   :string(255)      not null, indexed
 #  mails_sent  :boolean          default(FALSE), indexed
-#  payload     :text(65535)
+#  payload     :text(16777215)
 #  undone_jobs :integer          default(0)
 #  created_at  :datetime         indexed
 #  updated_at  :datetime

@@ -102,6 +102,32 @@
   }
   ,
   {
+    "pattern": "Google-InspectionTool",
+    "url": "https://developers.google.com/search/docs/crawling-indexing/overview-google-crawlers",
+    "instances": [
+      "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/W.X.Y.Z Mobile Safari/537.36 (compatible; Google-InspectionTool/1.0)",
+      "Mozilla/5.0 (compatible; Google-InspectionTool/1.0)"
+    ]
+  }
+  ,
+  {
+    "pattern": "Storebot-Google",
+    "url": "https://developers.google.com/search/docs/crawling-indexing/overview-google-crawlers",
+    "instances": [
+      "Mozilla/5.0 (X11; Linux x86_64; Storebot-Google/1.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36",
+      "Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012; Storebot-Google/1.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Mobile Safari/537.36"
+    ]
+  }
+  ,
+  {
+    "pattern": "GoogleOther",
+    "url": "https://developers.google.com/search/docs/crawling-indexing/overview-google-crawlers",
+    "instances": [
+      "GoogleOther"
+    ]
+  }
+  ,
+  {
     "pattern": "bingbot",
     "url": "http://www.bing.com/bingbot.htm",
     "instances": [
@@ -117,7 +143,8 @@
       "Mozilla/5.0 (iPhone; CPU iPhone OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53 (compatible; bingbot/2.0;  http://www.bing.com/bingbot.htm)",
       "Mozilla/5.0 (iPhone; CPU iPhone OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)",
       "Mozilla/5.0 (seoanalyzer; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)",
-      "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Safari/537.36"
+      "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Safari/537.36",
+      "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) Chrome/103.0.5060.134 Safari/537.36"
     ]
   }
   ,
@@ -193,11 +220,11 @@
   ,
   {
     "pattern": "httpx",
-    "addition_date":" 2019/12/23",
+    "addition_date": "2019/12/23",
     "instances": [
       "python-httpx/0.16.1",
       "python-httpx/0.13.0.dev1"
-      
+
     ],
     "url": "https://www.python-httpx.org"
   }
@@ -238,7 +265,7 @@
   ,
   {
     "pattern": "phpcrawl",
-    "addition_date": "2012-09/17",
+    "addition_date": "2012/09/17",
     "url": "http://phpcrawl.cuab.de/",
     "instances": [
       "phpcrawl"
@@ -378,7 +405,7 @@
   }
   ,
   {
-    "pattern": "grub.org",
+    "pattern": "grub\\.org",
     "instances": [
       "Mozilla/4.0 (compatible; grub-client-0.3.0; Crawl your own stuff with http://grub.org)",
       "Mozilla/4.0 (compatible; grub-client-1.0.4; Crawl your own stuff with http://grub.org)",
@@ -596,291 +623,52 @@
   }
   ,
   {
-    "pattern": "YandexBot",
-    "url": "http://yandex.com/bots",
+    "pattern": "yandex\\.com\\/bots",
+    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
     "instances": [
       "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",
       "Mozilla/5.0 (compatible; YandexBot/3.0; MirrorDetector; +http://yandex.com/bots)",
-      "Mozilla/5.0 (iPhone; CPU iPhone OS 8_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12B411 Safari/600.1.4 (compatible; YandexBot/3.0; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2015/04/14"
-  }
-  ,
-  {
-    "pattern": "YandexImages",
-    "url": "http://yandex.com/bots",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexImages/3.0; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2015/04/14"
-  }
-  ,
-  {
-    "pattern": "YandexAccessibilityBot",
-    "url": "http://yandex.com/bots",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexAccessibilityBot/3.0; +http://yandex.com/bots"
-    ],
-    "addition_date": "2019/03/01"
-  }
-  ,
-  {
-    "pattern": "YandexMobileBot",
-    "url": "https://yandex.com/support/webmaster/robot-workings/check-yandex-robots.xml#robot-in-logs",
-    "instances": [
-      "Mozilla/5.0 (iPhone; CPU iPhone OS 8_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12B411 Safari/600.1.4 (compatible; YandexMobileBot/3.0; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2016/12/01"
-  }
-  ,
-  {
-    "pattern": "YandexMetrika",
-    "addition_date": "2020/03/16",
-    "instances": [
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 8_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12B411 Safari/600.1.4 (compatible; YandexBot/3.0; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YandexImages/3.0; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YandexAccessibilityBot/3.0; +http://yandex.com/bots",
+      "Mozilla/5.0 (compatible; YandexUserproxy; robot; +http://yandex.com/bots",
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 8_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12B411 Safari/600.1.4 (compatible; YandexMobileBot/3.0; +http://yandex.com/bots)",
       "Mozilla/5.0 (compatible; YandexMetrika/2.0; +http://yandex.com/bots)",
       "Mozilla/5.0 (compatible; YandexMetrika/2.0; +http://yandex.com/bots yabs01)",
       "Mozilla/5.0 (compatible; YandexMetrika/3.0; +http://yandex.com/bots)",
-      "Mozilla/5.0 (compatible; YandexMetrika/4.0; +http://yandex.com/bots)"
-    ],
-    "url": "https://yandex.com/support/webmaster/robot-workings/check-yandex-robots.xml#robot-in-logs"
-  }
-  ,
-  {
-    "pattern": "YandexTurbo",
-    "addition_date": "2020/03/16",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexTurbo/1.0; +http://yandex.com/bots)"
-    ],
-    "url": "https://yandex.com/support/webmaster/robot-workings/check-yandex-robots.xml#robot-in-logs"
-  }
-  ,
-  {
-    "pattern": "YandexImageResizer",
-    "addition_date": "2020/03/16",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexImageResizer/2.0; +http://yandex.com/bots)"
-    ],
-    "url": "https://yandex.com/support/webmaster/robot-workings/check-yandex-robots.xml#robot-in-logs"
-  }
-  ,
-  {
-    "pattern": "YandexVideo",
-    "addition_date": "2020/03/16",
-    "instances": [
+      "Mozilla/5.0 (compatible; YandexMetrika/4.0; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YandexTurbo/1.0; +http://yandex.com/bots)",
       "Mozilla/5.0 (compatible; YandexVideoParser/1.0; +http://yandex.com/bots)",
-      "Mozilla/5.0 (compatible; YandexVideo/3.0; +http://yandex.com/bots)"
-    ],
-    "url": "https://yandex.com/support/webmaster/robot-workings/check-yandex-robots.xml#robot-in-logs"
-  }
-  ,
-  {
-    "pattern": "YandexAdNet",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexAdNet/1.0; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YandexBlogs",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexBlogs/0.99; robot; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YandexCalendar",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexCalendar/1.0; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YandexDirect",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
+      "Mozilla/5.0 (compatible; YandexVideo/3.0; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YandexImageResizer/2.0; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YandexAdNet/1.0; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YandexBlogs/0.99; robot; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YandexCalendar/1.0; +http://yandex.com/bots)",
       "Mozilla/5.0 (compatible; YandexDirect/3.0; +http://yandex.com/bots)",
-      "Mozilla/5.0 (compatible; YandexDirectDyn/1.0; +http://yandex.com/bots"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YandexFavicons",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexFavicons/1.0; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YaDirectFetcher",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
-      "Mozilla/5.0 (compatible; YaDirectFetcher/1.0; Dyatel; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YandexForDomain",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexForDomain/1.0; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YandexMarket",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
+      "Mozilla/5.0 (compatible; YandexDirectDyn/1.0; +http://yandex.com/bots",
+      "Mozilla/5.0 (compatible; YandexFavicons/1.0; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YaDirectFetcher/1.0; Dyatel; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YandexForDomain/1.0; +http://yandex.com/bots)",
       "Mozilla/5.0 (compatible; YandexMarket/1.0; +http://yandex.com/bots)",
-      "Mozilla/5.0 (compatible; YandexMarket/2.0; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YandexMedia",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexMedia/3.0; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YandexMobileScreenShotBot",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexMobileScreenShotBot/1.0; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YandexNews",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexNews/4.0; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YandexOntoDB",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
+      "Mozilla/5.0 (compatible; YandexMarket/2.0; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YandexMedia/3.0; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YandexMobileScreenShotBot/1.0; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YandexNews/4.0; +http://yandex.com/bots)",
       "Mozilla/5.0 (compatible; YandexOntoDB/1.0; +http://yandex.com/bots)",
-      "Mozilla/5.0 (compatible; YandexOntoDBAPI/1.0; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YandexPagechecker",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexPagechecker/1.0; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YandexPartner",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexPartner/3.0; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YandexRCA",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexRCA/1.0; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YandexSearchShop",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexSearchShop/1.0; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YandexSitelinks",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexSitelinks; Dyatel; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YandexSpravBot",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexSpravBot/1.0; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YandexTracker",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexTracker/1.0; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YandexVertis",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexVertis/3.0; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YandexVerticals",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexVerticals/1.0; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YandexWebmaster",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
-      "Mozilla/5.0 (compatible; YandexWebmaster/2.0; +http://yandex.com/bots)"
-    ],
-    "addition_date": "2020/11/30"
-  }
-  ,
-  {
-    "pattern": "YandexScreenshotBot",
-    "url": "https://yandex.ru/support/webmaster/robot-workings/check-yandex-robots.html#robot-in-logs",
-    "instances": [
+      "Mozilla/5.0 (compatible; YandexOntoDBAPI/1.0; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YandexPagechecker/1.0; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YandexPartner/3.0; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YandexRCA/1.0; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YandexSearchShop/1.0; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YandexSitelinks; Dyatel; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YandexSpravBot/1.0; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YandexTracker/1.0; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YandexVertis/3.0; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YandexVerticals/1.0; +http://yandex.com/bots)",
+      "Mozilla/5.0 (compatible; YandexWebmaster/2.0; +http://yandex.com/bots)",
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36 (compatible; YandexScreenshotBot/3.0; +http://yandex.com/bots)"
     ],
-    "addition_date": "2020/11/30"
+    "addition_date": "2015/04/14"
   }
   ,
   {
@@ -993,11 +781,12 @@
   }
   ,
   {
-    "pattern": "TurnitinBot",
+    "pattern": "Turnitin",
     "addition_date": "2010/09/26",
     "url": "http://www.turnitin.com",
     "instances": [
-      "TurnitinBot (https://turnitin.com/robot/crawlerinfo.html)"
+      "TurnitinBot (https://turnitin.com/robot/crawlerinfo.html)",
+      "Turnitin (https://bit.ly/2UvnfoQ)"
     ]
   }
   ,
@@ -1066,7 +855,7 @@
   }
   ,
   {
-    "pattern": "Mail.RU_Bot",
+    "pattern": "Mail\\.RU_Bot",
     "addition_date": "2011/04/27",
     "instances": [
       "Mozilla/5.0 (compatible; Linux x86_64; Mail.RU_Bot/2.0; +http://go.mail.ru/help/robots)",
@@ -1125,7 +914,7 @@
   }
   ,
   {
-    "pattern": "europarchive.org",
+    "pattern": "europarchive\\.org",
     "addition_date": "2011/06/21",
     "url": "",
     "instances": [
@@ -1134,7 +923,7 @@
   }
   ,
   {
-    "pattern": "NerdByNature.Bot",
+    "pattern": "NerdByNature\\.Bot",
     "addition_date": "2011/07/12",
     "url": "http://www.nerdbynature.net/bot",
     "instances": [
@@ -1157,7 +946,8 @@
       "Mozilla/5.0 (compatible; AhrefsBot/5.2; News; +http://ahrefs.com/robot/)",
       "Mozilla/5.0 (compatible; AhrefsBot/5.2; +http://ahrefs.com/robot/)",
       "Mozilla/5.0 (compatible; AhrefsSiteAudit/5.2; +http://ahrefs.com/robot/)",
-      "Mozilla/5.0 (compatible; AhrefsBot/6.1; News; +http://ahrefs.com/robot/)"
+      "Mozilla/5.0 (compatible; AhrefsBot/6.1; News; +http://ahrefs.com/robot/)",
+      "Mozilla/5.0 (compatible; AhrefsBot/7.0; +http://ahrefs.com/robot/)"
     ]
   }
   ,
@@ -1317,14 +1107,15 @@
   }
   ,
   {
-    "pattern": "seznambot",
+    "pattern": "SeznamBot",
     "addition_date": "2012/03/14",
-    "instances": [
+    "instances": [	
       "Mozilla/5.0 (compatible; SeznamBot/3.2-test1-1; +http://napoveda.seznam.cz/en/seznambot-intro/)",
       "Mozilla/5.0 (compatible; SeznamBot/3.2-test1; +http://napoveda.seznam.cz/en/seznambot-intro/)",
       "Mozilla/5.0 (compatible; SeznamBot/3.2-test2; +http://napoveda.seznam.cz/en/seznambot-intro/)",
       "Mozilla/5.0 (compatible; SeznamBot/3.2-test4; +http://napoveda.seznam.cz/en/seznambot-intro/)",
-      "Mozilla/5.0 (compatible; SeznamBot/3.2; +http://napoveda.seznam.cz/en/seznambot-intro/)"
+      "Mozilla/5.0 (compatible; SeznamBot/3.2; +http://napoveda.seznam.cz/en/seznambot-intro/)",
+      "Mozilla/5.0 (compatible; SeznamBot/4.0; +http://napoveda.seznam.cz/seznambot-intro/)"
     ]
   }
   ,
@@ -1508,7 +1299,7 @@
   }
   ,
   {
-    "pattern": "web-archive-net.com.bot",
+    "pattern": "web-archive-net\\.com\\.bot",
     "instances": []
   }
   ,
@@ -1568,13 +1359,13 @@
   }
   ,
   {
-    "pattern": "ip-web-crawler.com",
+    "pattern": "ip-web-crawler\\.com",
     "addition_date": "2013/03/22",
     "instances": []
   }
   ,
   {
-    "pattern": "siteexplorer.info",
+    "pattern": "siteexplorer\\.info",
     "addition_date": "2013/05/01",
     "instances": [
       "Mozilla/5.0 (compatible; SiteExplorer/1.0b; +http://siteexplorer.info/)",
@@ -1702,7 +1493,7 @@
   }
   ,
   {
-    "pattern": "g00g1e.net",
+    "pattern": "g00g1e\\.net",
     "addition_date": "2014/04/01",
     "url": "http://www.g00g1e.net/",
     "instances": []
@@ -1793,7 +1584,7 @@
   }
   ,
   {
-    "pattern": "bnf.fr_bot",
+    "pattern": "bnf\\.fr_bot",
     "addition_date": "2014/11/18",
     "url": "http://www.bnf.fr/fr/outils/a.dl_web_capture_robot.html",
     "instances": [
@@ -1924,7 +1715,7 @@
   }
   ,
   {
-    "pattern": "archive.org_bot",
+    "pattern": "archive\\.org_bot",
     "url": "http://www.archive.org/details/archive.org_bot",
     "depends_on": ["heritrix"],
     "instances": [
@@ -1989,6 +1780,7 @@
       "Mozilla/5.0 (compatible; SemrushBot/0.98~bl; +http://www.semrush.com/bot.html)",
       "Mozilla/5.0 (compatible; SemrushBot-BA; +http://www.semrush.com/bot.html)",
       "Mozilla/5.0 (compatible; SemrushBot/6~bl; +http://www.semrush.com/bot.html)",
+      "Mozilla/5.0 (compatible; SemrushBot/7~bl; +http://www.semrush.com/bot.html)",
       "SEMrushBot"
     ],
     "addition_date": "2015/05/26"
@@ -2103,7 +1895,7 @@
   }
   ,
   {
-    "pattern": "collection@infegy.com",
+    "pattern": "collection@infegy\\.com",
     "url": "http://infegy.com/",
     "instances": [
       "Mozilla/5.0 (compatible) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.73 Safari/537.36 collection@infegy.com"
@@ -2166,7 +1958,7 @@
   {
     "pattern": "netEstate NE Crawler",
     "addition_date": "2016/01/23",
-    "url": "+http://www.website-datenbank.de/",
+    "url": "http://www.website-datenbank.de/",
     "instances": [
       "netEstate NE Crawler (+http://www.sengine.info/)",
       "netEstate NE Crawler (+http://www.website-datenbank.de/)"
@@ -2387,7 +2179,7 @@
   }
   ,
   {
-    "pattern": "pinterest.com.bot",
+    "pattern": "pinterest\\.com\\/bot",
     "addition_date": "2017/03/03",
     "instances": [
       "Mozilla/5.0 (compatible; Pinterestbot/1.0; +http://www.pinterest.com/bot.html)",
@@ -2538,11 +2330,18 @@
   }
   ,
   {
-    "pattern": "pingdom",
+    "pattern": "[pP]ingdom",
     "addition_date": "2017/09/16",
     "instances": [
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/59.0.3071.109 Chrome/59.0.3071.109 Safari/537.36 PingdomPageSpeed/1.0 (pingbot/2.0; +http://www.pingdom.com/)",
-      "Mozilla/5.0 (compatible; pingbot/2.0; +http://www.pingdom.com/)"
+      "Mozilla/5.0 (compatible; pingbot/2.0; +http://www.pingdom.com/)",
+      "Pingdom.com_bot_version_1.4_(http://www.pingdom.com/)",
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/61.0.3163.100 Chrome/61.0.3163.100 Safari/537.36 PingdomPageSpeed/1.0 (pingbot/2.0; +http://www.pingdom.com/)",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) browser/2020.2.1 Chrome/78.0.3904.130 Electron/7.3.2 Safari/537.36 PingdomTMS/2020.2",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) browser/2020.2.5 Chrome/78.0.3904.130 Electron/7.3.15 Safari/537.36 PingdomTMS/2020.2",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) browser/2020.2.0 Chrome/78.0.3904.130 Electron/7.1.7 Safari/537.36 PingdomTMS/2020.2",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) renderer/2020.2.0 Chrome/78.0.3904.130 Electron/7.1.7 Safari/537.36 PingdomTMS/2020.2",
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/61.0.3163.100 Chrome/61.0.3163.100 Safari/537.36 PingdomPageSpeed/1.0 (pingbot/2.0; http://www.pingdom.com/)"
     ],
     "url": "http://www.pingdom.com"
   }
@@ -3006,7 +2805,7 @@
   }
   ,
   {
-    "pattern": "Traackr.com",
+    "pattern": "Traackr\\.com",
     "addition_date": "2017/11/02",
     "url": "Traackr.com",
     "instances": [
@@ -3142,7 +2941,7 @@
   }
   ,
   {
-    "pattern": "filterdb.iss.net\\/crawler",
+    "pattern": "filterdb\\.iss\\.net\\/crawler",
     "addition_date": "2018/03/16",
     "instances": [
       "Mozilla/5.0 (compatible; oBot/2.3.1; +http://filterdb.iss.net/crawler/)"
@@ -3411,7 +3210,7 @@
   }
   ,
   {
-    "pattern": "Bot.AraTurka.com",
+    "pattern": "Bot\\.AraTurka\\.com",
     "addition_date": "2018/06/27",
     "instances": [
       "Bot.AraTurka.com/0.0.1"
@@ -3420,7 +3219,7 @@
   }
   ,
   {
-    "pattern": "bot-pge.chlooe.com",
+    "pattern": "bot-pge\\.chlooe\\.com",
     "addition_date": "2018/06/27",
     "instances": [
       "bot-pge.chlooe.com/1.0.0 (+http://www.chlooe.com/)"
@@ -3598,7 +3397,7 @@
   }
   ,
   {
-    "pattern": "Siteimprove.com",
+    "pattern": "Siteimprove\\.com",
     "addition_date": "2018/06/22",
     "instances": [
       "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0) LinkCheck by Siteimprove.com",
@@ -3707,7 +3506,7 @@
   }
   ,
   {
-     "pattern": "PR-CY.RU",
+     "pattern": "PR-CY\\.RU",
      "addition_date": "2018/08/30",
      "instances": [
        "Mozilla/5.0 (compatible; PR-CY.RU; + https://a.pr-cy.ru)"
@@ -4028,7 +3827,7 @@
     ]
   },
   {
-    "pattern": "Dataprovider.com",
+    "pattern": "Dataprovider\\.com",
     "addition_date": "2018/11/24",
     "instances": [
       "Mozilla/5.0 (compatible; Dataprovider.com)"
@@ -4044,7 +3843,7 @@
     "url": "http://www.grouphigh.com/"
   },
   {
-    "pattern": "theoldreader.com",
+    "pattern": "theoldreader\\.com",
     "addition_date": "2018/12/02",
     "instances": [
       "Mozilla/5.0 (compatible; theoldreader.com)"
@@ -4080,7 +3879,7 @@
   }
   ,
   {
-    "pattern": "2ip.ru",
+    "pattern": "2ip\\.ru",
     "addition_date": "2019/02/12",
     "instances": [
       "2ip.ru CMS Detector (https://2ip.ru/cms/)"
@@ -4601,10 +4400,11 @@
     "url": "https://rssmicro.com"
   },
   {
-    "pattern": "Curebot",
+    "pattern": "[Cc]urebot",
     "addition_date": "2020/03/16",
     "instances": [
-      "Curebot/1.0"
+      "Curebot/1.0",
+      "curebot-feed-fetcher"
     ]
   },
   {
@@ -4811,5 +4611,684 @@
     "instances": [
       "Google-Certificates-Bridge"
     ]
+  },
+  {
+    "pattern": "centurybot",
+    "addition_date": "2022/04/26",
+    "instances": [
+      "Mozilla/5.0 (compatible; Go-http-client/1.1; +centurybot9@gmail.com)"
+    ],
+    "url": "unknown"
+  },
+  {
+    "pattern": "Viber",
+    "addition_date": "2021/04/27",
+    "instances": [
+      "Viber"
+    ],
+    "url": "https://www.viber.com/"
+  },
+  {
+    "pattern": "e\\.ventures Investment Crawler",
+    "addition_date": "2021/06/05",
+    "instances": [
+      "e.ventures Investment Crawler (eventures.vc)"
+    ]
+  },
+  {
+    "pattern": "evc-batch",
+    "addition_date": "2021/06/07",
+    "instances": [
+      "Mozilla/5.0 (compatible; evc-batch/2.0)"
+    ]
+  },
+  {
+    "pattern": "PetalBot",
+    "addition_date": "2021/06/07",
+    "instances": [
+      "Mozilla/5.0 (compatible;PetalBot;+https://webmaster.petalsearch.com/site/petalbot)",
+      "Mozilla/5.0 (Linux; Android 7.0;) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; PetalBot;+https://webmaster.petalsearch.com/site/petalbot)"
+    ],
+    "url": "https://webmaster.petalsearch.com/site/petalbot"
+  },
+  {
+    "pattern": "virustotal",
+    "addition_date": "2021/09/22",
+    "instances": [
+      "Mozilla\/5.0 (Windows; U; MSIE 9.0; Windows NT 9.0; en-US) AppEngine-Google; (+http:\/\/code.google.com\/appengine; appid: s~virustotalcloud)",
+      "AppEngine-Google; (+http:\/\/code.google.com\/appengine; appid: s~virustotalcloud)"
+    ],
+    "url": "https://www.virustotal.com/gui/home/url"
+  },
+  {
+    "pattern": "(^| )PTST\\/",
+    "addition_date": "2021/12/05",
+    "instances": [
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36 PTST/211202.211915",
+      "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:94.0) Gecko/20100101 Firefox/94.0 PTST/211202.211915"
+    ],
+    "url": "https://www.webpagetest.org"
+  },
+  {
+    "pattern": "minicrawler",
+    "addition_date": "2022/01/12",
+    "instances": [
+      "Testomatobot/1.0 (Linux x86_64; +https://www.testomato.com/testomatobot) minicrawler/5.2.2"
+    ],
+    "url": "https://www.testomato.com/bot"
+  },
+  {
+    "pattern": "Cookiebot",
+    "addition_date": "2022/01/23",
+    "url": "https://www.cookiebot.com/",
+    "instances": [
+      "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko; compatible; Cookiebot/1.0; +http://cookiebot.com/) Chrome/97.0.4692.71 Safari/537.36"
+    ]
+  },
+	{
+		"pattern": "trovitBot",
+		"addition_date": "2022/06/08",
+		"url": "http://www.trovit.com/bot.html",
+		"instances": [
+            "Mozilla/5.0 (compatible; trovitBot 1.0; +http://www.trovit.com/bot.html)"
+        ]
+	},
+  {
+    "pattern": "seostar\\.co",
+    "addition_date": "2022/08/04",
+    "url": "https://seostar.co/robot/",
+    "instances": [
+      "Mozilla/5.0 (compatible; Adsbot/3.1; +https://seostar.co/robot/)"
+    ]
+  },
+  {
+    "pattern": "IonCrawl",
+    "addition_date": "2022/08/04",
+    "url": "https://www.ionos.de/terms-gtc/faq-crawler-en",
+    "instances": [
+      "IonCrawl (https://www.ionos.de/terms-gtc/faq-crawler-en/)"
+    ]
+  },
+  {
+    "pattern": "Uptime-Kuma",
+    "addition_date": "2022/10/17",
+    "url": "https://uptime.kuma.pet/",
+    "instances": [
+      "Uptime-Kuma/1.18.0"
+    ]
+  },
+  {
+    "pattern": "SeekportBot",
+    "addition_date": "2022/10/17",
+    "url": "https://bot.seekport.com",
+    "instances": [
+      "Mozilla/5.0 (compatible; SeekportBot; +https://bot.seekport.com)"
+    ]
+  },
+  {
+    "pattern": "FreshpingBot",
+    "addition_date": "2022/10/17",
+    "url": "https://www.freshworks.com/website-monitoring/",
+    "instances": [
+      "FreshpingBot/1.0 (+https://freshping.io/)"
+    ]
+  },
+  {
+    "pattern": "Feedbin",
+    "addition_date": "2022/11/05",
+    "url": "https://feedbin.com/",
+    "instances": [
+      "Feedbin feed-id:2005098 - 2 subscribers"
+    ]
+  },
+  {
+    "pattern": "CriteoBot",
+    "addition_date": "2022/11/13",
+    "url": "https://www.criteo.com/",
+    "instances": [
+      "CriteoBot/0.1 (+https://www.criteo.com/criteo-crawler/)"
+    ]
+  },
+  {
+    "pattern": "Snap URL Preview Service",
+    "addition_date": "2022/11/13",
+    "url": "https://snap.com/",
+    "instances": [
+      "Snap URL Preview Service; bot; snapchat; https://developers.snap.com/robots"
+    ]
+  },
+  {
+    "pattern": "Better Uptime Bot",
+    "addition_date": "2022/11/13",
+    "url": "https://betteruptime.com/",
+    "instances": [
+      "Better Uptime Bot Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36"
+    ]
+  },
+  {
+    "pattern": "RuxitSynthetic",
+    "addition_date": "2023/02/16",
+    "url": "https://www.dynatrace.com/support/help/platform-modules/digital-experience/synthetic-monitoring/browser-monitors/configure-browser-monitors#expand--default-user-agent",
+    "instances" : ["RuxitSynthetic/1.0"]
+  },
+  {
+    "pattern": "Google-Read-Aloud",
+    "addition_date": "2023/02/16",
+    "url": "https://developers.google.com/search/docs/crawling-indexing/overview-google-crawlers",
+    "instances": [
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36 (compatible; Google-Read-Aloud; +https://developers.google.com/search/docs/crawling-indexing/overview-google-crawlers)",
+      "Mozilla/5.0 (Linux; Android 7.0; SM-G930V Build/NRD90M) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.125 Mobile Safari/537.36 (compatible; Google-Read-Aloud; +https://developers.google.com/search/docs/crawling-indexing/overview-google-crawlers)"
+    ]
+  },
+  {
+    "pattern": "Valve\\/Steam",
+    "addition_date": "2023/05/24",
+    "instances": [
+      "Valve/Steam HTTP Client 1.0 (SteamChatURLLookup)"
+    ]
+  },
+  {
+    "pattern": "OdklBot\\/",
+    "addition_date": "2023/05/24",
+    "instances": [
+      "OdklBot/1.0 (share@odnoklassniki.ru)",
+        "Mozilla/5.0 (compatible; OdklBot/1.0 like Linux; klass@odnoklassniki.ru)"
+    ],
+    "url": "https://odnoklassniki.ru/"
+  },
+  {
+    "pattern": "GPTBot",
+    "addition_date": "2023/08/09",
+    "instances": [
+      "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GPTBot/1.0; +https://openai.com/gptbot)"
+    ],
+    "url": "https://platform.openai.com/docs/gptbot"
+  },
+  {
+    "pattern": "YandexRenderResourcesBot\\/",
+    "addition_date": "2023/08/16",
+    "instances": [
+      "Mozilla/5.0 (compatible; YandexRenderResourcesBot/1.0; +http://yandex.com/bots) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0"
+    ],
+    "url": "http://yandex.com/bots"
+  },
+  {
+    "pattern": "LightspeedSystemsCrawler",
+    "addition_date": "2023/08/16",
+    "instances": [
+      "LightspeedSystemsCrawler Mozilla/5.0 (Windows; U; MSIE 9.0; Windows NT 9.0; en-US"
+    ]
+  },
+  {
+    "pattern": "ev-crawler\\/",
+    "addition_date": "2023/08/16",
+    "instances": [
+      "Mozilla/5.0 (compatible; ev-crawler/1.0; +https://headline.com/legal/crawler)"
+    ],
+    "url": "https://headline.com/legal/crawler"
+  },
+  {
+    "pattern": "BitSightBot\\/",
+    "addition_date": "2023/08/16",
+    "instances": [
+      "Mozilla/5.0 (compatible; BitSightBot/1.0)"
+    ],
+    "url": "https://www.bitsight.com"
+  },
+  {
+    "pattern": "woorankreview\\/",
+    "addition_date": "2023/08/16",
+    "instances": [
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1 (compatible; woorankreview/2.0; +https://www.woorank.com/)",
+      "Mozilla/5.0 (compatible; woorankreview/2.0; +https://www.woorank.com/)"
+    ],
+    "url": "https://www.woorank.com/"
+  },
+  {
+    "pattern": "Google-Safety",
+    "addition_date": "2023/08/17",
+    "instances": [
+      "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.5735.179 Mobile Safari/537.36 (compatible; Google-Safety; +http://www.google.com/bot.html)",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.5735.179 Safari/537.36 (compatible; Google-Safety; +http://www.google.com/bot.html)",
+      "Google-Safety"
+    ],
+    "url": "https://developers.google.com/search/docs/crawling-indexing/overview-google-crawlers"
+  },
+  {
+    "pattern": "AwarioBot",
+    "addition_date": "2023/08/23",
+    "instances": [
+      "Mozilla/5.0 (compatible; AwarioBot/1.0; +https://awario.com/bots.html)"
+    ],
+    "url": "https://awario.com/bots.html"
+  },
+  {
+    "pattern": "DataForSeoBot",
+    "addition_date": "2023/08/23",
+    "instances": [
+      "Mozilla/5.0 (compatible; DataForSeoBot/1.0; +https://dataforseo.com/dataforseo-bot)"
+    ],
+    "url": "https://dataforseo.com/dataforseo-bot"
+  },
+  {
+    "pattern": "Linespider",
+    "addition_date": "2023/08/24",
+    "instances": [
+      "Mozilla/5.0 (compatible; Linespider/1.1; +https://lin.ee/4dwXkTH)",
+	    "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Linespider/1.1; +https://lin.ee/4dwXkTH) Chrome/W.X.Y.Z Safari/537.36"
+    ],
+    "url": "https://help2.line.me/linesearchbot/web/?contentId=50006055&lang=en"
+  },
+  {
+    "pattern": "WellKnownBot",
+    "addition_date": "2023/08/29",
+    "instances": [
+      "Mozilla/5.0 (compatible; WellKnownBot/0.1; +https://well-known.dev/about/#bot)"
+    ],
+    "url": "https://well-known.dev/about/#bot)"
+  },
+  {
+    "pattern": "A Patent Crawler",
+    "addition_date": "2023/08/29",
+    "instances": [
+      "E. Orliac, G. Fourestey/2.3 (A Patent Crawler; http://scitas.epfl.ch/; etienne.orliac@epfl.ch, gilles.fourestey@epfl.ch)"
+    ],
+    "url": "http://scitas.epfl.ch/"
+  },
+  {
+    "pattern": "StractBot",
+    "addition_date": "2023/09/06",
+    "instances": [
+      "Mozilla/5.0 (compatible; StractBot/0.1; open source search engine; +https://trystract.com/webmasters)"
+    ],
+    "url": "https://trystract.com/webmasters"
+  },
+  {
+    "pattern": "search\\.marginalia\\.nu",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "search.marginalia.nu"
+    ],
+    "url": "https://search.marginalia.nu"
+  },
+  {
+    "pattern": "YouBot",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "YouBot (+http://www.you.com)"
+    ],
+    "url": "https://you.com/"
+  },
+  {
+    "pattern": "Nicecrawler",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Nicecrawler/1.1; +http://www.nicecrawler.com/) Chrome/90.0.4430.97 Safari/537.36"
+    ],
+    "url": "http://www.nicecrawler.com/"
+  },
+  {
+    "pattern": "Neevabot",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "Mozilla/5.0 (compatible; Neevabot/1.0; +https://neeva.com/neevabot)"
+    ],
+    "url": "https://neeva.com/neevabot"
+  },
+  {
+    "pattern": "BrightEdge Crawler",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "BrightEdge Crawler/1.0 (crawler@brightedge.com)"
+    ],
+    "url": "https://www.brightedge.com/"
+  },
+  {
+    "pattern": "SiteCheckerBotCrawler",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "SiteCheckerBotCrawler/1.0 (+http://sitechecker.pro)"
+    ],
+    "url": "http://sitechecker.pro"
+  },
+  {
+    "pattern": "TombaPublicWebCrawler",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "Mozilla/5.0 (compatible; TombaPublicWebCrawler/1.0; +https://tombascraper.com)"
+    ],
+    "url": "https://tombascraper.com"
+  },
+  {
+    "pattern": "CrawlyProjectCrawler",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 (compatible; CrawlyProjectCrawler/0.1.3; crawlyproject@digitaldragon.dev +https://crawlyproject.digitaldragon.dev/)"
+    ],
+    "url": "https://crawlyproject.digitaldragon.dev/"
+  },
+  {
+    "pattern": "KomodiaBot",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "Mozilla/5.0 (Windows NT 6.1; Win64; x64; +http://www.komodia.com/newwiki/index.php/URL_server_crawler) KomodiaBot/1.0"
+    ],
+    "url": "http://www.komodia.com/newwiki/index.php/URL_server_crawler"
+  },
+  {
+    "pattern": "KStandBot",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "Mozilla/5.0 (Windows NT 6.1; Win64; x64; +http://url-classification.io/wiki/index.php?title=URL_server_crawler) KStandBot/1.0"
+    ],
+    "url": "http://url-classification.io"
+  },
+  {
+    "pattern": "CISPA Webcrawler",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "CISPA Webcrawler (https://vuln-notify-checker.cispa.saarland)"
+    ],
+    "url": "https://vuln-notify-checker.cispa.saarland"
+  },
+  {
+    "pattern": "MTRobot",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "MTRobot/0.2 (Metrics Tools Analytics Crawler; https://metrics-tools.de/robot.html; crawler@metrics-tools.de)"
+    ],
+    "url": "https://metrics-tools.de/robot.html"
+  },
+  {
+    "pattern": "hyscore\\.io",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12F70 Safari/600.1. 4 (compatible; HyScore/1.0; +https://hyscore.io/crawler/)"
+    ],
+    "url": "https://hyscore.io/crawler/"
+  },
+  {
+    "pattern": "AlexandriaOrgBot",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "Mozilla/5.0 (Linux) (compatible; AlexandriaOrgBot/1.0; +https://www.alexandria.org/bot.html)"
+    ],
+    "url": "https://www.alexandria.org/bot.html"
+  },
+  {
+    "pattern": "2ip bot",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "2ip bot/1.1 (+http://2ip.io)"
+    ],
+    "url": "http://2ip.io"
+  },
+  {
+    "pattern": "Yellowbrandprotectionbot",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "Mozilla/5.0 (compatible; Yellowbrandprotectionbot/1.0; +https://www.yellowbp.com/bot.html)"
+    ],
+    "url": "https://www.yellowbp.com/bot.html"
+  },
+  {
+    "pattern": "SEOlizer",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "SEOlizer/1.1 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13 (+https://www.seolizer.de/bot.html)"
+    ],
+    "url": "https://www.seolizer.de/bot.html"
+  },
+  {
+    "pattern": "vuhuvBot",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "Mozilla/5.0 (compatible; vuhuvBot/1.0; +http://vuhuv.com/bot.html)"
+    ],
+    "url": "http://vuhuv.com/bot.html"
+  },
+  {
+    "pattern": "INETDEX-BOT",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "INETDEX-BOT/1.5 (Mozilla/5.0; https://inetdex.com/bot.html)"
+    ],
+    "url": "https://inetdex.com/bot.html"
+  },
+  {
+    "pattern": "Synapse",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "Synapse (bot; +https://github.com/matrix-org/synapse)"
+    ],
+    "url": "https://github.com/matrix-org/synapse"
+  },
+  {
+    "pattern": "t3versionsBot",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "Mozilla/5.0 (compatible; t3versionsBot/1.0; +https://www.t3versions.com/bot)"
+    ],
+    "url": "https://www.t3versions.com/bot"
+  },
+  {
+    "pattern": "deepnoc",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "deepnoc - https://deepnoc.com/bot"
+    ],
+    "url": "https://deepnoc.com/bot"
+  },
+  {
+    "pattern": "Cocolyzebot",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "Mozilla/5.0 (compatible; Cocolyzebot/1.0; https://cocolyze.com/bot)"
+    ],
+    "url": "https://cocolyze.com/bot"
+  },
+  {
+    "pattern": "hypestat",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "Mozilla/5.0 (compatible; hypestat/1.0; +https://hypestat.com/bot)"
+    ],
+    "url": "https://hypestat.com/bot"
+  },
+  {
+    "pattern": "ReverseEngineeringBot",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "Mozilla/5.0 (compatible; ReverseEngineeringBot/0.1; +https://torus.company/bot.html)"
+    ],
+    "url": "https://torus.company/bot.html"
+  },
+  {
+    "pattern": "sempi\\.tech",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "Mozilla/5.0 (compatible; Semanticbot/1.0; +http://sempi.tech/bot.html)"
+    ],
+    "url": "http://sempi.tech/bot.html"
+  },
+  {
+    "pattern": "Iframely",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "Iframely/1.3.1 (+https://iframely.com/docs/about) Atlassian"
+    ],
+    "url": "https://iframely.com/docs/about"
+  },
+  {
+    "pattern": "MetaInspector",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "MetaInspector/5.6.0 (+https://github.com/jaimeiniesta/metainspector)"
+    ],
+    "url": "https://github.com/jaimeiniesta/metainspector"
+  },
+  {
+    "pattern": "node-fetch",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "node-fetch/1.0 (+https://github.com/bitinn/node-fetch)"
+    ],
+    "url": "https://github.com/bitinn/node-fetch"
+  },
+  {
+    "pattern": "lkxscan",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "lkxscan/v0.1.0 (+https://leakix.net) l9explore/v1.0.0 (+https://github.com/LeakIX/l9explore)"
+    ],
+    "url": "https://github.com/LeakIX/l9explore"
+  },
+  {
+    "pattern": "python-opengraph",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "python-opengraph-jaywink/0.2.0 (+https://github.com/jaywink/python-opengraph)"
+    ],
+    "url": "https://github.com/jaywink/python-opengraph"
+  },
+  {
+    "pattern": "OpenGraphCheck",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "OpenGraphCheck/2.1 (+https://opengraphcheck.com)"
+    ],
+    "url": "https://opengraphcheck.com"
+  },
+  {
+    "pattern": "developers\\.google\\.com\\/\\+\\/web\\/snippet",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36 Google-PageRenderer Google (+https://developers.google.com/+/web/snippet/)",
+      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36 Google (+https://developers.google.com/+/web/snippet/"
+    ],
+    "url": "https://developers.google.com/+/web/snippet"
+  },
+  {
+    "pattern": "SenutoBot",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "SenutoBot/1.0 (compatible; SenutoBot/1.0; +https://www.senuto.com/)"
+    ],
+    "url": "https://www.senuto.com"
+  },
+  {
+    "pattern": "MaCoCu",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "Mozilla/5.0 (compatible; MaCoCu; +https://www.clarin.si/info/macocu-massive-collection-and-curation-of-monolingual-and-bilingual-data/)"
+    ],
+    "url": "https://www.clarin.si/info/macocu-massive-collection-and-curation-of-monolingual-and-bilingual-data"
+  },
+  {
+    "pattern": "NewsBlur",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "NewsBlur Feed Fetcher - 1 subscriber - http://www.newsblur.com/site/0000000/webpage (Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.1 Safari/605.1.15)"
+    ],
+    "url": "http://www.newsblur.com"
+  },
+  {
+    "pattern": "inoreader",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "Mozilla/5.0 (compatible; inoreader.com; 1 subscribers)"
+    ],
+    "url": "http://inoreader.com"
+  },
+  {
+    "pattern": "NetSystemsResearch",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "NetSystemsResearch studies the availability of various services across the internet. Our website is netsystemsresearch.com"
+    ],
+    "url": "http://netsystemsresearch.com"
+  },
+  {
+    "pattern": "PageThing",
+    "addition_date": "2023/09/08",
+    "instances": [
+      "PageThing http://pagething.com curl www"
+    ],
+    "url": "http://pagething.com"
+  },
+  {
+    "pattern": "WordPress\\/",
+    "addition_date": "2023/10/24",
+    "instances": [
+      "WordPress/X.X.X; https://example.com"
+    ],
+    "url": "https://wordpress.org"
+  },
+  {
+    "pattern": "PhxBot",
+    "addition_date": "2024/01/06",
+    "instances": [
+      "PhxBot/0.1 (phxbot@protonmail.com)"
+    ]
+  },
+  {
+    "pattern": "ImagesiftBot",
+    "addition_date": "2024/01/06",
+    "instances": [
+      "Mozilla/5.0 (compatible; ImagesiftBot; +imagesift.com)"
+    ],
+    "url": "https://imagesift.com"
+  },
+  {
+    "pattern": "Expanse",
+    "addition_date": "2024/02/01",
+    "instances": [
+      "Expanse, a Palo Alto Networks company, searches across the global IPv4 space multiple times per day to identify customers&#39; presences on the Internet. If you would like to be excluded from our scans, please send IP addresses/domains to: scaninfo@paloaltonetworks.com"
+    ],
+    "url": "https://www.paloaltonetworks.com/cortex/cortex-xpanse"
+  },
+  {
+    "pattern": "InternetMeasurement",
+    "addition_date": "2024/02/01",
+    "instances": [
+      "Mozilla/5.0 (compatible; InternetMeasurement/1.0; +https://internet-measurement.com/)"
+    ],
+    "url": "https://internet-measurement.com"
+  },
+  {
+    "pattern": "^BW\\/",
+    "addition_date": "2024/02/08",
+    "instances": [
+      "BW/1.1; bit.ly/3eZNDnO",
+      "BW/1.1; rb.gy/oupwis"
+    ],
+    "url": "https://builtwith.com/biup"
+  },
+  {
+    "pattern": "GeedoBot",
+    "addition_date": "2024/02/11",
+    "instances": [
+      "Mozilla/5.0 (compatible; GeedoBot; +http://www.geedo.com/bot.html)"
+    ],
+    "url": "http://www.geedo.com"
+  },
+  {
+    "pattern": "Audisto Crawler",
+    "addition_date": "2024/03/14",
+    "instances": [
+      "Audisto Crawler (mobile; +https://audisto.com/bot)",
+      "Audisto Crawler (desktop; +https://audisto.com/bot)",
+      "Audisto Crawler (mobile; essential; +https://audisto.com/bot)",
+      "Audisto Crawler (desktop; essential; +https://audisto.com/bot)"
+    ],
+    "url": "https://audisto.com/help/crawler/bot/"
+  },
+  {
+    "pattern": "PerplexityBot\\/",
+    "addition_date": "2024/03/14",
+    "instances": [
+      "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; PerplexityBot/1.0; +https://perplexity.ai/perplexitybot)"
+    ],
+    "url": "https://docs.perplexity.ai/docs/perplexitybot"
   }
 ]

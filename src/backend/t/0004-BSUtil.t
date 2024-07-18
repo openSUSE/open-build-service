@@ -90,7 +90,11 @@ ok(BSUtil::identical($ev1,$ev2) == 1, "BSUtil testing identical comparsion");
 ok(BSUtil::identical($ev1,$unev) == 0, "BSUtil testing unidentical comparsion");
 
 # creating a directory
-my $testdir="/tmp/BSUtil_test/";
+my $testdir = "$FindBin::Bin/tmp/0004";
+system('rm', '-rf', $testdir) if -e $testdir;
+die if -e $testdir;
+$testdir .= '/';
+
 my $dir_is = ok(BSUtil::mkdir_p($testdir) == 1, "creating test directory");
 
 # creating a file and push it to array for later checks

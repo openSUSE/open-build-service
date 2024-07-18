@@ -68,7 +68,7 @@ RSpec.describe Staging::StagedRequestsController do
       end
 
       it { expect(response).to have_http_status(:bad_request) }
-      it { expect(staging_project.packages.pluck(:name)).to match_array([target_package.name]) }
+      it { expect(staging_project.packages.pluck(:name)).to contain_exactly(target_package.name) }
     end
 
     context 'with valid staging_project but staging project is being merged' do
@@ -94,7 +94,7 @@ RSpec.describe Staging::StagedRequestsController do
       end
 
       it { expect(response).to have_http_status(:success) }
-      it { expect(staging_project.packages.pluck(:name)).to match_array([target_package.name]) }
+      it { expect(staging_project.packages.pluck(:name)).to contain_exactly(target_package.name) }
       it { expect(staging_project.staged_requests).to include(bs_request) }
       it { expect(response.body).to have_css('status[code=ok]') }
     end
@@ -161,7 +161,7 @@ RSpec.describe Staging::StagedRequestsController do
         end
 
         it { expect(response).to have_http_status(:success) }
-        it { expect(staging_project.packages.pluck(:name)).to match_array([target_package.name]) }
+        it { expect(staging_project.packages.pluck(:name)).to contain_exactly(target_package.name) }
         it { expect(staging_project.staged_requests).to include(bs_request) }
         it { expect(response.body).to have_css('status[code=ok]') }
       end
@@ -351,7 +351,7 @@ RSpec.describe Staging::StagedRequestsController do
       end
 
       it { expect(response).to have_http_status(:success) }
-      it { expect(staging_project.packages.pluck(:name)).to match_array(['new_package']) }
+      it { expect(staging_project.packages.pluck(:name)).to contain_exactly('new_package') }
       it { expect(staging_project.staged_requests).to include(bs_request) }
       it { expect(response.body).to have_css('status[code=ok]') }
     end

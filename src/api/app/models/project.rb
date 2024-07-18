@@ -13,8 +13,8 @@ class Project < ApplicationRecord
   include ProjectDistribution
   include ProjectMaintenance
 
-  TYPES = ['standard', 'maintenance', 'maintenance_incident',
-           'maintenance_release'].freeze
+  TYPES = %w[standard maintenance maintenance_incident
+             maintenance_release].freeze
 
   after_initialize :init
   before_destroy :cleanup_before_destroy, prepend: true
@@ -46,7 +46,14 @@ class Project < ApplicationRecord
 
   has_many :package_kinds, through: :packages
   has_many :issues, through: :packages
-  has_many :attribs, dependent: :destroy
+  has_many :attribs, dependent: :destroy do
+    def embargo_date
+      where(attrib_type_id: AttribType.joins(:attrib_namespace).where(attrib_namespace: { name: 'OBS' }, attrib_types: { name: 'EmbargoDate' }))
+    end
+  end
+  has_many :quality_attribs, lambda {
+    where(attrib_type_id: AttribType.joins(:attrib_namespace).where(attrib_namespace: { name: 'OBS' }, attrib_types: { name: 'QualityCategory' }))
+  }, class_name: 'Attrib'
 
   has_many :repositories, dependent: :destroy, foreign_key: :db_project_id
   has_many :release_targets, through: :repositories
@@ -218,11 +225,7 @@ class Project < ApplicationRecord
       # simple check for involvement --> involved users can access project.id, User.session!
       project.relationships.groups.includes(:group).any? do |grouprel|
         # check if User.session! belongs to group.
-        User.session!.is_in_group?(grouprel.group) ||
-          # FIXME: please do not do special things here for ldap. please cover this in a generic group model.
-          (CONFIG['ldap_mode'] == :on &&
-            CONFIG['ldap_group_support'] == :on &&
-            UserLdapStrategy.user_in_group_ldap?(User.session!, grouprel.group_id))
+        User.session!.is_in_group?(grouprel.group)
       end
     end
 
@@ -239,7 +242,7 @@ class Project < ApplicationRecord
       dbp = find_by_name(name, skip_check_access: true)
       if dbp.nil?
         dbp, remote_name = find_remote_project(name)
-        return dbp.name + ':' + remote_name if dbp
+        return "#{dbp.name}:#{remote_name}" if dbp
 
         raise Project::Errors::UnknownObjectError, "Project not found: #{name}"
       end
@@ -320,7 +323,7 @@ class Project < ApplicationRecord
       path = "/source/#{project}"
       path = Addressable::URI.escape(path)
       path += "/#{ERB::Util.url_encode(file)}" if file.present?
-      path += '?' + opts.to_query if opts.present?
+      path += "?#{opts.to_query}" if opts.present?
       path
     end
 
@@ -356,7 +359,8 @@ class Project < ApplicationRecord
             begin
               target_project = Project.get_by_name(target_project_name)
               # user can access tprj, but backend would refuse to take binaries from there
-              return { error: "The current backend implementation is not using binaries from read access protected projects #{target_project_name}" } if target_project.instance_of?(Project) && target_project.disabled_for?('access', nil, nil)
+              return { error: "The current backend implementation is not using binaries from read access protected projects #{target_project_name}" } if target_project.instance_of?(Project) &&
+                                                                                                                                                         target_project.disabled_for?('access', nil, nil)
             rescue Project::Errors::UnknownObjectError
               return { error: "A project with the name #{target_project_name} does not exist. Please update the repository path elements." }
             end
@@ -377,12 +381,12 @@ class Project < ApplicationRecord
       end
 
       unless linking_repositories.empty?
-        str = linking_repositories.map! { |l| l.project.name + '/' + l.name }.join("\n")
+        str = linking_repositories.map! { |l| "#{l.project.name}/#{l.name}" }.join("\n")
         return { error: "Unable to delete repository; following repositories depend on this project:\n#{str}" }
       end
 
       unless linking_target_repositories.empty?
-        str = linking_target_repositories.map { |l| l.project.name + '/' + l.name }.join("\n")
+        str = linking_target_repositories.map { |l| "#{l.project.name}/#{l.name}" }.join("\n")
         return { error: "Unable to delete repository; following target repositories depend on this project:\n#{str}" }
       end
       {}
@@ -670,7 +674,7 @@ class Project < ApplicationRecord
 
   def can_be_unlocked?(with_exception = true)
     if is_maintenance_incident?
-      requests = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
+      requests = BsRequest.where(state: %i[new review declined]).joins(:bs_request_actions)
       maintenance_release_requests = requests.where(bs_request_actions: { type: 'maintenance_release', source_project: name })
       if maintenance_release_requests.exists?
         if with_exception
@@ -819,7 +823,7 @@ class Project < ApplicationRecord
     if processed[self]
       str = name
       processed.keys.each do |key|
-        str = str + ' -- ' + key.name
+        str = "#{str} -- #{key.name}"
       end
       raise CycleError, "There is a cycle in project link defintion at #{str}"
     end
@@ -1002,7 +1006,7 @@ class Project < ApplicationRecord
         next if cycle_detection[path.id]
 
         # go to all my path elements
-        path_kinds = ['standard', 'hostsystem'] # for rubocop
+        path_kinds = %w[standard hostsystem] # for rubocop
         path_kinds.each do |path_kind|
           path.link.path_elements.where(kind: path_kind).find_each do |ipe|
             # avoid mixing update code streams with channels
@@ -1046,7 +1050,7 @@ class Project < ApplicationRecord
     # - omit 'lock' or we cannot create packages
     disable_publish_for_branches = ::Configuration.disable_publish_for_branches || project.image_template?
     project.flags.each do |f|
-      next if f.flag.in?(['build', 'lock'])
+      next if f.flag.in?(%w[build lock])
       next if f.flag == 'publish' && disable_publish_for_branches
       # NOTE: it does not matter if that flag is set to enable or disable, so we do not check fro
       #       for same flag status here explizit
@@ -1062,13 +1066,13 @@ class Project < ApplicationRecord
 
   def open_requests_with_project_as_source_or_target
     # Includes also requests for packages contained in this project
-    OpenRequestsWithProjectAsSourceOrTargetFinder.new(BsRequest.where(state: [:new, :review, :declined])
+    OpenRequestsWithProjectAsSourceOrTargetFinder.new(BsRequest.where(state: %i[new review declined])
                                                                .joins(:bs_request_actions), name).call
   end
 
   def open_requests_with_by_project_review
     # Includes also by_package reviews for packages contained in this project
-    OpenRequestsWithByProjectReviewFinder.new(BsRequest.where(state: [:new, :review])
+    OpenRequestsWithByProjectReviewFinder.new(BsRequest.where(state: %i[new review])
                                                        .joins(:reviews), name).call
   end
 
@@ -1164,23 +1168,23 @@ class Project < ApplicationRecord
       BsRequest.where(id: BsRequestAction.bs_request_ids_by_source_projects(name)).or(
         BsRequest.where(id: Review.bs_request_ids_of_involved_projects(id))
       )
-    ).in_states(:review).distinct.order(priority: :asc, id: :desc).pluck(:number)
+    ).where(state: :review).distinct.order(priority: :asc, id: :desc).pluck(:number)
 
     targets = BsRequest.with_involved_projects(id)
                        .or(BsRequest.from_source_project(name))
-                       .in_states(:new).with_actions
+                       .where(state: :new).with_actions
                        .pluck(:number)
 
     incidents = BsRequest.with_involved_projects(id)
                          .or(BsRequest.from_source_project(name))
-                         .in_states(:new)
+                         .where(state: :new)
                          .with_types(:maintenance_incident)
                          .pluck(:number)
 
     maintenance_release = if is_maintenance?
-                            BsRequest.with_target_subprojects(name + ':%')
-                                     .or(BsRequest.with_source_subprojects(name + ':%'))
-                                     .in_states(:new)
+                            BsRequest.with_target_subprojects("#{name}:%")
+                                     .or(BsRequest.with_source_subprojects("#{name}:%"))
+                                     .where(state: :new)
                                      .with_types(:maintenance_release)
                                      .pluck(:number)
                           else
@@ -1386,6 +1390,10 @@ class Project < ApplicationRecord
     { project: name }
   end
 
+  def embargo_date
+    attribs.embargo_date&.first&.embargo_date
+  end
+
   private
 
   def bsrequest_repos_map(project)
@@ -1503,7 +1511,7 @@ end
 #  remoteproject       :string(255)
 #  remoteurl           :string(255)
 #  required_checks     :string(255)
-#  scmsync             :string(255)
+#  scmsync             :text(65535)
 #  title               :string(255)
 #  url                 :string(255)
 #  created_at          :datetime

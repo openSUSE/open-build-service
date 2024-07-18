@@ -5,6 +5,9 @@ class Comment < ApplicationRecord
   belongs_to :user, inverse_of: :comments
   belongs_to :moderator, class_name: 'User', optional: true
 
+  # Preloads for polymorphic commentable:
+  belongs_to :project, foreign_key: 'commentable_id', optional: true
+
   validates :body, presence: true
   # FIXME: this probably should be MEDIUMTEXT(16MB) instead of text (64KB)
   validates :body, length: { maximum: 65_535 }
@@ -30,6 +33,8 @@ class Comment < ApplicationRecord
 
   scope :on_actions_for_request, ->(bs_request) { where(commentable: BsRequestAction.where(bs_request: bs_request)) }
   scope :without_parent, -> { where(parent_id: nil) }
+  scope :with_commentable, -> { includes(:project).where.not(commentable_id: nil) }
+  scope :newest_first, -> { order(created_at: :desc) }
 
   def to_s
     body
@@ -71,6 +76,7 @@ class Comment < ApplicationRecord
 
   def body
     return "*This content was considered problematic and has been moderated at #{moderated_at} by @#{moderator}*" if moderated?
+    return '*You have blocked this user. To see this comment, unblock the user in the user profile.*' if blocked?
 
     super
   end
@@ -115,6 +121,13 @@ class Comment < ApplicationRecord
     return if commentable.comments.where(id: parent_id).present?
 
     errors.add(:parent, 'belongs to different object')
+  end
+
+  def blocked?
+    return false unless (session = User.session)
+    return true if session.blocked_users.exists?(blocked: user)
+
+    false
   end
 end
 

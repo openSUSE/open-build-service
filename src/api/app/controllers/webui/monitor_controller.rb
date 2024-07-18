@@ -1,8 +1,8 @@
 class Webui::MonitorController < Webui::WebuiController
   before_action :set_default_architecture
-  before_action :require_settings, only: [:old, :index, :update_building]
+  before_action :require_settings, only: %i[old index update_building]
   before_action :fetch_workerstatus, only: [:old]
-  before_action :check_ajax, only: [:update_building, :events]
+  before_action :check_ajax, only: %i[update_building events]
 
   DEFAULT_SEARCH_RANGE = 24
 
@@ -18,7 +18,7 @@ class Webui::MonitorController < Webui::WebuiController
 
       workers = {}
       workers_list = []
-      ['idle', 'building', 'away', 'down', 'dead'].each do |state|
+      %w[idle building away down dead].each do |state|
         @workerstatus.elements(state) do |b|
           workers_list << [b['workerid'], b['hostarch']]
         end
@@ -44,15 +44,16 @@ class Webui::MonitorController < Webui::WebuiController
   def events
     data = {}
 
-    arch = Architecture.find_by(name: params.fetch(:arch, @default_architecture))
+    arch = Architecture.find_by(name: params.fetch(:arch, @default_architecture).to_s)
+    return render json: {} unless arch
 
     range = params.fetch(:range, DEFAULT_SEARCH_RANGE)
 
-    ['waiting', 'blocked', 'squeue_high', 'squeue_med'].each do |prefix|
+    %w[waiting blocked squeue_high squeue_med].each do |prefix|
       data[prefix] = status_history("#{prefix}_#{arch.name}", range).map { |time, value| [time * 1000, value] }
     end
 
-    ['idle', 'building', 'away', 'down', 'dead'].each do |prefix|
+    %w[idle building away down dead].each do |prefix|
       data[prefix] = status_history("#{prefix}_#{arch.worker}", range).map { |time, value| [time * 1000, value] }
     end
 
@@ -73,8 +74,13 @@ class Webui::MonitorController < Webui::WebuiController
 
   private
 
+  HOURS_IN_ONE_YEAR = 8760
+
   def status_history(key, range)
-    MonitorControllerService::StatusHistoryFetcher.new(key, range.to_i).call
+    user_range = [HOURS_IN_ONE_YEAR, range.to_i].min
+    Rails.cache.fetch("#{key}-#{user_range}", expires_in: user_range.to_i.hours / 150) do
+      StatusHistory.history_by_key_and_hours(key, user_range).sort_by { |a| a[0] }
+    end
   end
 
   def set_default_architecture

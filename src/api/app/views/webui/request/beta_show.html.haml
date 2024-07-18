@@ -1,7 +1,7 @@
 -# haml-lint:disable ViewLength
 :ruby
   @pagetitle = "Request #{@bs_request.number}"
-  @pagetitle += ": #{@action[:name]}"
+  @pagetitle += ": #{@action.name}"
   render partial: 'webui/request/show_actions', locals: { bs_request: @bs_request }
 
 = render partial: 'beta_alert', locals: { bs_request: @bs_request, action: @action }
@@ -9,13 +9,13 @@
 .card
   .card-body.p-0
     = render partial: 'request_header',
-        locals: { bs_request: @bs_request, staging_status: @staging_status, action: @action, active_action: @active_action,
-                  prev_action: @prev_action, next_action: @next_action, supported_actions: @supported_actions,
-                  diff_to_superseded_id: @diff_to_superseded_id, diff_limit: @diff_limit, page_name: '',
+        locals: { bs_request: @bs_request, staging_status: @staging_status, action: @action,
+                  prev_action: @prev_action, next_action: @next_action, actions: @actions,
+                  diff_to_superseded_id: @diff_to_superseded_id, page_name: '',
                   bs_requests: @watched_requests, packages: @watched_packages, projects: @watched_projects }
     = render partial: 'request_tabs',
-        locals: { bs_request: @bs_request, bs_request_action: @bs_request_action, issues: @issues, active_action: @active_action,
-                  actions_count: @supported_actions.count, active_tab: @active_tab }
+        locals: { bs_request: @bs_request, action: @action, issues: @issues,
+                  actions_count: @actions.count, active_tab: @active_tab }
     .container.p-4
       .row
         .col-md-4.order-md-2.order-sm-1.mb-4
@@ -25,7 +25,7 @@
                     request_reviews: @request_reviews,
                     package_maintainers: @package_maintainers,
                     project_maintainers: @project_maintainers,
-                    show_project_maintainer_hint: @show_project_maintainer_hint }
+                    history_elements: @history_elements }
 
         .col-md-8.order-md-1.order-sm-2
           .row
@@ -37,19 +37,13 @@
                 - else
                   %i No description set
               - if @bs_request.bs_request_actions.exists?(source_package: 'patchinfo')
-                #patchinfo-details
-                  %h4.my-3 Patches
-                  - @bs_request.bs_request_actions.where(source_package: 'patchinfo').each do |patchinfo|
-                    - patchinfo_package = Package.find_by_project_and_name(patchinfo.source_project, patchinfo.source_package)
-                    - patchinfo_text = patchinfo_package.source_file('_patchinfo', rev: patchinfo.source_rev || patchinfo_package.rev)
-                    = render PatchinfoComponent.new(patchinfo_text, request_changes_path(number: @bs_request.number, request_action_id: patchinfo.id))
-
+                = render partial: 'patchinfo_details', locals: { bs_request: @bs_request }
             #comments-list
               .timeline.pb-2.ms-3{ data: { comment_counter: local_assigns[:comment_counter_id] } }
                 %h4.list-group.mb-4.ms-3.pt-3 Comments & History
                 .timeline-item.mb-3
                   .d-flex.align-items-start
-                    %i.fas.fa-lg.fa-code-commit.text-dark
+                    %i.fas.fa-lg.fa-code-commit
                     .ms-2
                       %span.small
                         - creator = User.find_by_login(@bs_request.creator) || User.nobody
@@ -78,9 +72,10 @@
                         Collapse history from superseded request ##{superseding_request.number}
                   .collapse.mb-4#collapse-superseding
                     = render BsRequestActivityTimelineComponent.new(bs_request: superseding_request,
+                                                                    history_elements: @history_elements,
                                                                     request_reviews_for_non_staging_projects: @request_reviews)
-
                 = render BsRequestActivityTimelineComponent.new(bs_request: @bs_request,
+                                                                history_elements: @history_elements,
                                                                 request_reviews_for_non_staging_projects: @request_reviews)
 
               .comment_new
@@ -112,11 +107,17 @@
               .chart_build_results_wrapper{ data: { url: request_chart_build_results_path } }
               :javascript
                 updateChartBuildResults();
+                setInterval(updateChartBuildResults, 60000);
 
-              = render AccordionReviewsComponent.new(@request_reviews, @bs_request)
-              = render RequestDecisionComponent.new(bs_request: @bs_request, action: @action,
+              - if policy(@bs_request).handle_request? && @bs_request.can_be_reopened?
+                = render partial: 'accordion_reviews', locals: { accepted_reviews: @request_reviews.accepted,
+                                                                 pending_reviews: @request_reviews.opened,
+                                                                 declined_reviews: @request_reviews.declined }
+              = render RequestDecisionComponent.new(bs_request: @bs_request,
+                                                    action: @action,
                                                     is_target_maintainer: @is_target_maintainer,
-                                                    is_author: @is_author)
+                                                    package_maintainers: @package_maintainers,
+                                                    show_project_maintainer_hint: @show_project_maintainer_hint)
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',
                                                  method: :delete,
                                                  options: { modal_title: 'Delete comment?', remote: true })

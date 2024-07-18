@@ -199,7 +199,8 @@ Requires(pre):  shadow
 %endif
 
 %if 0%{?suse_version:1}
-Recommends:     yum yum-metadata-parser repoview dpkg
+Recommends:     yum yum-metadata-parser repoview 
+Recommends:     dpkg >= 1.20
 Recommends:     deb >= 1.5
 Recommends:     lvm2
 Recommends:     openslp-server
@@ -322,6 +323,7 @@ Requires:       ghostscript-fonts-std
 %else
 # - nothing provides ghostscript-fonts-std needed by obs-api-2.11~alpha.20200117T213441.b4cf6c4da5-9555.1.noarch
 %endif
+Requires:       procps
 Requires:       obs-api-deps = %{version}
 Requires:       obs-bundled-gems = %{version}
 
@@ -359,11 +361,7 @@ Group:          Productivity/Networking/Web/Utilities
 Requires:       aws-cli
 Requires:       azure-cli
 Requires:       obs-server
-%if 0%{?suse_version} > 1315
-Requires:       python3-ec2uploadimg
-%else
-Requires:       python-ec2uploadimg
-%endif
+Requires:       /usr/bin/ec2uploadimg
 
 %description -n obs-cloud-uploader
 This package contains all the necessary tools for upload images to the cloud.
@@ -769,8 +767,6 @@ rmdir %{obs_backend_data_dir} 2> /dev/null || :
 %service_del_postun -r obsclouduploadserver.service
 
 %pre -n obs-api
-getent passwd obsapidelayed >/dev/null || \
-  /usr/sbin/useradd -r -s /bin/bash -c "User for build service api delayed jobs" -d %{__obs_api_prefix} -g %{apache_group} obsapidelayed
 %service_add_pre %{obs_api_support_scripts}
 
 # On upgrade keep the values for the %post script
@@ -781,14 +777,8 @@ if [ "$1" == 2 ]; then
     touch %{_rundir}/enable_obs-api-support.target
   fi
   if systemctl --quiet is-active obsapidelayed.service; then
-    touch %{_rundir}/start_obs-api-support.target
-    systemctl stop    obsapidelayed.service
-    if systemd-detect-virt --chroot; then
-      # If we are in a chroot, we don't know if the service runs or even exists. In that case ignore if disabling fails.
-      systemctl disable obsapidelayed.service || :
-    else
-      systemctl disable obsapidelayed.service
-    fi
+    touch %{_rundir}/enable_obs-api-support.target
+    systemctl disable --now obsapidelayed.service || :
   fi
 fi
 
@@ -831,12 +821,16 @@ touch %{__obs_api_prefix}/last_deploy || true
 # This must be done after %%service_add_post. Otherwise the distribution preset is
 # take, which is disabled in case of obs-api-support.target
 if [ -e %{_rundir}/enable_obs-api-support.target ];then
-  systemctl enable obs-api-support.target
+  # Don't break on errors if ENV variable SYSTEMD_OFFLINE=1 is set
+  # like in obs build script
+  if [ "$SYSTEMD_OFFLINE" -gt 0 ];then
+    systemctl enable --now obs-api-support.target || true
+  else
+    # if SYSTEMD_OFFLINE=1 is not set, users should get an error
+    # reported
+    systemctl enable --now obs-api-support.target
+  fi
   rm %{_rundir}/enable_obs-api-support.target
-fi
-if [ -e %{_rundir}/start_obs-api-support.target ];then
-  systemctl start  obs-api-support.target
-  rm %{_rundir}/start_obs-api-support.target
 fi
 
 %postun -n obs-api
@@ -1002,6 +996,7 @@ usermod -a -G docker obsservicerun
 %config(noreplace) %{__obs_api_prefix}/config/puma.rb
 %config(noreplace) %{__obs_api_prefix}/config/secrets.yml
 %config(noreplace) %{__obs_api_prefix}/config/spring.rb
+%config(noreplace) %{__obs_api_prefix}/config/storage.yml
 %config(noreplace) %{__obs_api_prefix}/config/crawler-user-agents.json
 %{__obs_api_prefix}/config/initializers
 %dir %{__obs_api_prefix}/config/environments
@@ -1083,6 +1078,7 @@ usermod -a -G docker obsservicerun
 %config %{__obs_api_prefix}/config/environments/stage.rb
 
 %dir %attr(-,%{apache_user},%{apache_group}) %{__obs_api_prefix}/log
+%dir %attr(-,%{apache_user},%{apache_group}) %{__obs_api_prefix}/storage
 %attr(-,%{apache_user},%{apache_group}) %{__obs_api_prefix}/tmp
 
 # these dirs primarily belong to apache2:

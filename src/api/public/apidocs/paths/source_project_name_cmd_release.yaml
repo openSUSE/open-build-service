@@ -1,7 +1,6 @@
 post:
   summary: Release the project.
-  description: |
-    Release source and binaries for a repository of the project, if you have the permissions to do so.
+  description: Release source and binaries for a repository of the project, if you have the permissions to do so.
   security:
     - basic_authentication: []
   parameters:

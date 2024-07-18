@@ -3,6 +3,12 @@ RSpec.describe Workflow::Step::SetFlags do
   let(:token) { create(:workflow_token, executor: user) }
 
   describe '#call' do
+    subject do
+      described_class.new(step_instructions: step_instructions,
+                          scm_webhook: scm_webhook,
+                          token: token)
+    end
+
     let(:step_instructions) do
       {
         flags:
@@ -19,16 +25,9 @@ RSpec.describe Workflow::Step::SetFlags do
     end
     let!(:target_project) { create(:project, name: 'home:Iggy:openSUSE:repo123:PR-1') }
 
-    subject do
-      described_class.new(step_instructions: step_instructions,
-                          scm_webhook: scm_webhook,
-                          token: token)
-    end
-
     context 'when the token user does not have enough permissions' do
       let(:another_user) { create(:confirmed_user, :with_home, login: 'Pop') }
       let(:token) { create(:workflow_token, executor: another_user) }
-      let!(:project) { create(:project, name: 'home:Iggy') }
       let(:scm_webhook) do
         SCMWebhook.new(payload: {
                          scm: 'github',
@@ -67,12 +66,12 @@ RSpec.describe Workflow::Step::SetFlags do
 
       context 'when one flag is given' do
         before do
-          login target_project.commit_user
+          login user
         end
 
         it 'adds flag to the project' do
           expect { subject.call }.to change(Flag, :count).by(1)
-          expect(Flag.all).to match_array([have_attributes(status: 'enable', repo: 'openSUSE_Tumbleweed', project_id: target_project.id, package_id: nil, flag: 'build')])
+          expect(Flag.all).to contain_exactly(have_attributes(status: 'enable', repo: 'openSUSE_Tumbleweed', project_id: target_project.id, package_id: nil, flag: 'build'))
         end
       end
 
@@ -98,15 +97,13 @@ RSpec.describe Workflow::Step::SetFlags do
         end
 
         before do
-          login target_project.commit_user
+          login user
         end
 
         it 'add flags to the project' do
           expect { subject.call }.to change(Flag, :count).by(2)
-          expect(Flag.all).to match_array([
-                                            have_attributes(status: 'enable', repo: 'openSUSE_Tumbleweed', project_id: target_project.id, package_id: nil, flag: 'build'),
-                                            have_attributes(status: 'enable', project_id: target_project.id, package_id: nil, flag: 'publish')
-                                          ])
+          expect(Flag.all).to contain_exactly(have_attributes(status: 'enable', repo: 'openSUSE_Tumbleweed', project_id: target_project.id, package_id: nil, flag: 'build'),
+                                              have_attributes(status: 'enable', project_id: target_project.id, package_id: nil, flag: 'publish'))
         end
       end
     end
@@ -135,9 +132,7 @@ RSpec.describe Workflow::Step::SetFlags do
 
       it 'add flags to the package' do
         expect { subject.call }.to change(Flag, :count).by(1)
-        expect(Flag.all).to match_array([
-                                          have_attributes(status: 'disable', project_id: nil, package_id: target_package.id, flag: 'lock')
-                                        ])
+        expect(Flag.all).to contain_exactly(have_attributes(status: 'disable', project_id: nil, package_id: target_package.id, flag: 'lock'))
       end
     end
 
@@ -174,9 +169,7 @@ RSpec.describe Workflow::Step::SetFlags do
 
       it 'does not raise an error' do
         expect { subject.call }.not_to(change(Flag, :count))
-        expect(Flag.all).to match_array([
-                                          have_attributes(status: 'enable', repo: 'openSUSE_Tumbleweed', project_id: target_project.id, package_id: nil, flag: 'build')
-                                        ])
+        expect(Flag.all).to contain_exactly(have_attributes(status: 'enable', repo: 'openSUSE_Tumbleweed', project_id: target_project.id, package_id: nil, flag: 'build'))
       end
     end
 
@@ -209,26 +202,25 @@ RSpec.describe Workflow::Step::SetFlags do
       before do
         target_project.add_flag('publish', 'disable', 'openSUSE_Tumbleweed', 'x86_64')
         target_project.save!
+        login(user)
       end
 
       it 'does not raise an error and updates the status' do
         expect { subject.call }.not_to(change(Flag, :count))
-        expect(Flag.all).to match_array([
-                                          have_attributes(status: 'enable', repo: 'openSUSE_Tumbleweed', project_id: target_project.id, package_id: nil, flag: 'publish')
-                                        ])
+        expect(Flag.all).to contain_exactly(have_attributes(status: 'enable', repo: 'openSUSE_Tumbleweed', project_id: target_project.id, package_id: nil, flag: 'publish'))
       end
     end
   end
 
   describe '#validate_flags' do
-    let(:payload) { { scm: 'gitlab', event: 'Push Hook' } }
-    let(:scm_webhook) { SCMWebhook.new(payload: payload) }
-
     subject do
       described_class.new(step_instructions: step_instructions,
                           scm_webhook: scm_webhook,
                           token: token)
     end
+
+    let(:payload) { { scm: 'gitlab', event: 'Push Hook' } }
+    let(:scm_webhook) { SCMWebhook.new(payload: payload) }
 
     context 'when a flag is missing a key' do
       let(:step_instructions) do

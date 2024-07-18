@@ -58,7 +58,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       hash = Directory.hashed(project: source_project, package: source_package)
       return '' if hash['linkinfo'] && hash['linkinfo']['project'] == source_project
     end
-    super(opts)
+    super
   end
 
   def merge_into_maintenance_incident(incident_project)
@@ -98,14 +98,21 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       maintenance_project = Project.get_maintenance_project!
       self.target_project = maintenance_project.name
     end
-    raise NoMaintenanceProject, 'Maintenance incident requests have to go to projects of type maintenance or maintenance_incident' unless maintenance_project.is_maintenance_incident? || maintenance_project.is_maintenance?
+    unless maintenance_project.is_maintenance_incident? || maintenance_project.is_maintenance?
+      raise NoMaintenanceProject,
+            'Maintenance incident requests have to go to projects of type maintenance or maintenance_incident'
+    end
     raise IllegalRequest, 'Target package must not be specified in maintenance_incident actions' if target_package
 
-    super(ignore_build_state, ignore_delegate)
+    super
   end
 
   def name
     "Incident #{uniq_key}"
+  end
+
+  def short_name
+    "Incident #{source_package}"
   end
 
   private

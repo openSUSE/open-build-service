@@ -39,10 +39,10 @@ RSpec.describe Webui::Users::TokensController do
   end
 
   describe 'POST #create' do
+    subject { post :create, xhr: true, params: form_parameters }
+
     let(:project) { create(:project) }
     let(:package) { create(:package, project: project) }
-
-    subject { post :create, xhr: true, params: form_parameters }
 
     context 'type is runservice' do
       let(:form_parameters) { { token: { type: 'runservice' } } }
@@ -54,7 +54,7 @@ RSpec.describe Webui::Users::TokensController do
       let(:form_parameters) { { token: { type: 'runservice', description: 'My first token' } } }
 
       include_examples 'check for flashing a success'
-      it { is_expected.to redirect_to(token_path(Token.last)) }
+      it { is_expected.to redirect_to(token_path(assigns[:token])) }
     end
 
     context 'type is release, with project parameter, without package parameter' do
@@ -118,10 +118,10 @@ RSpec.describe Webui::Users::TokensController do
     end
 
     context 'updates the token string of a token belonging to the logged-in user' do
+      subject { put :update, params: update_parameters, xhr: true }
+
       let(:token) { create(:service_token, executor: user) }
       let(:update_parameters) { { id: token.id } }
-
-      subject { put :update, params: update_parameters, xhr: true }
 
       include_examples 'check for flashing a success'
 
@@ -143,16 +143,16 @@ RSpec.describe Webui::Users::TokensController do
 
       include_examples 'check for flashing an error'
 
-      it { is_expected.to redirect_to(root_path) }
+      it { is_expected.to redirect_to(tokens_path) }
       it { expect { subject }.not_to change(token, :scm_token) }
     end
   end
 
   describe 'DELETE #destroy' do
+    subject { delete :destroy, params: delete_parameters }
+
     let!(:token) { create(:service_token, executor: user) }
     let(:delete_parameters) { { id: token.id } }
-
-    subject { delete :destroy, params: delete_parameters }
 
     context 'existent token' do
       include_examples 'check for flashing a success'
@@ -175,7 +175,7 @@ RSpec.describe Webui::Users::TokensController do
 
       include_examples 'check for flashing an error'
 
-      it { is_expected.to redirect_to(root_path) }
+      it { is_expected.to redirect_to(tokens_path) }
       it { expect { subject }.not_to change(Token, :count) }
     end
   end

@@ -30,7 +30,7 @@ namespace :db do
     raise 'You only want to run this in test environment' unless ENV.fetch('RAILS_ENV', nil) == 'test'
 
     sql = 'SELECT * FROM %s'
-    skip_tables = ['schema_info', 'sessions', 'schema_migrations']
+    skip_tables = %w[schema_info sessions schema_migrations]
     ActiveRecord::Base.establish_connection
     User.session = User.get_default_admin
     tables = ENV['FIXTURES'] ? ENV['FIXTURES'].split(',') : ActiveRecord::Base.connection.tables - skip_tables
@@ -73,14 +73,14 @@ namespace :db do
         data = ActiveRecord::Base.connection.select_all(sql % table_name)
         hash = {}
 
-        project_prefixes = ['db_project', 'project', 'develproject', 'maintenance_project']
-        package_prefixes = ['package', 'develpackage', 'links_to']
-        projects_or_architectures = ['projects', 'architectures']
-        various_table_names = ['event_subscriptions', 'package_kinds', 'package_issues',
-                               'linked_db_projects', 'relationships', 'watched_items', 'path_elements',
-                               'groups_users', 'flags', 'taggings', 'bs_request_histories',
-                               'bs_request_actions', 'project_log_entries']
-        static_permissions_or_packages = ['static_permissions', 'packages']
+        project_prefixes = %w[db_project project develproject maintenance_project]
+        package_prefixes = %w[package develpackage links_to]
+        projects_or_architectures = %w[projects architectures]
+        various_table_names = %w[event_subscriptions package_kinds package_issues
+                                 linked_db_projects relationships watched_items path_elements
+                                 groups_users flags taggings bs_request_histories
+                                 bs_request_actions project_log_entries]
+        static_permissions_or_packages = %w[static_permissions packages]
 
         data.each do |record|
           record = force_hash(record)
@@ -116,15 +116,15 @@ namespace :db do
             record['static_permission'] = perm.title
           end
           project_prefixes.each do |prefix|
-            next unless record.key?(prefix + '_id')
+            next unless record.key?("#{prefix}_id")
 
-            p = Project.find(record.delete(prefix + '_id'))
+            p = Project.find(record.delete("#{prefix}_id"))
             prefix = 'project' if prefix == 'db_project'
             record[prefix] = p.name.tr(':', '_')
           end
           package_prefixes.each do |prefix|
-            if record.key?(prefix + '_id')
-              p = Package.find(record.delete(prefix + '_id'))
+            if record.key?("#{prefix}_id")
+              p = Package.find(record.delete("#{prefix}_id"))
               record[prefix] = p.fixtures_name
             end
           end

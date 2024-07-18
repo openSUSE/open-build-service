@@ -78,7 +78,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     # patchinfos don't get a link, all others should not conflict with any other
     # FIXME2.4 we have a directory model
     xml = REXML::Document.new(Backend::Api::Sources::Package.files(source_project, source_package))
-    rel = BsRequest.where(state: [:new, :review]).joins(:bs_request_actions)
+    rel = BsRequest.where(state: %i[new review]).joins(:bs_request_actions)
     rel = rel.where(bs_request_actions: { target_project: target_project })
     if xml.elements["/directory/entry/@name='_patchinfo'"]
       rel = rel.where(bs_request_actions: { target_package: target_package })
@@ -143,6 +143,10 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
   def name
     "Release #{uniq_key}"
+  end
+
+  def short_name
+    "Release #{source_package}"
   end
 
   private

@@ -1,12 +1,12 @@
 module Event
   class DeletePackage < Base
     self.message_bus_routing_key = 'package.delete'
-    self.description = 'Package was deleted'
+    self.description = 'Package deleted'
     payload_keys :project, :package, :sender, :comment, :requestid
 
     def set_payload(attribs, keys)
       attribs['comment'] = attribs['comment'][0..800] if attribs['comment'].present?
-      super(attribs, keys)
+      super
     end
 
     private
@@ -28,7 +28,7 @@ end
 #  id          :bigint           not null, primary key
 #  eventtype   :string(255)      not null, indexed
 #  mails_sent  :boolean          default(FALSE), indexed
-#  payload     :text(65535)
+#  payload     :text(16777215)
 #  undone_jobs :integer          default(0)
 #  created_at  :datetime         indexed
 #  updated_at  :datetime

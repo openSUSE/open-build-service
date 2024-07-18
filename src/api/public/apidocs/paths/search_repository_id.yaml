@@ -69,7 +69,6 @@ get:
 post:
   deprecated: true
   summary: List repositories that match a XPath condition.
-  description: |
-    This endpoint is exactly the same as `GET /search/repository/id`, please use that one.
+  description: This endpoint is exactly the same as `GET /search/repository/id`, please use that one.
   tags:
     - Search

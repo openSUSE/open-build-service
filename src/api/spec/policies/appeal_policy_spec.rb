@@ -1,11 +1,11 @@
 RSpec.describe AppealPolicy do
+  subject { described_class }
+
   let(:anonymous_user) { create(:user_nobody) }
   let(:user) { create(:confirmed_user) }
   let(:moderator) { create(:moderator) }
   let(:staff_user) { create(:staff_user) }
   let(:admin_user) { create(:admin_user) }
-
-  subject { AppealPolicy }
 
   context 'with the content_moderation feature disabled' do
     let(:appeal) { create(:appeal) }
@@ -40,7 +40,7 @@ RSpec.describe AppealPolicy do
     context 'when the decision cleared a report created by the reporter' do
       let(:report) { create(:report) }
       let(:reporter) { report.user }
-      let(:decision) { create(:decision, kind: 'cleared', reports: [report]) }
+      let(:decision) { create(:decision_cleared, reports: [report]) }
       let(:appeal) { create(:appeal, decision: decision, appellant: reporter) }
 
       permissions :create? do
@@ -56,7 +56,7 @@ RSpec.describe AppealPolicy do
     context 'when the decision is on reports for a now-deleted reportable' do
       let(:report) { create(:report) }
       let(:reporter) { report.user }
-      let(:decision) { create(:decision, kind: 'favor', reports: [report]) }
+      let(:decision) { create(:decision_favored, reports: [report]) }
       let(:appeal) { create(:appeal, decision: decision, appellant: reporter) }
 
       before do
@@ -76,7 +76,7 @@ RSpec.describe AppealPolicy do
     context 'when the decision favored a report created by the reporter' do
       let(:report) { create(:report) }
       let(:reporter) { report.user }
-      let(:decision) { create(:decision, kind: 'favor', reports: [report]) }
+      let(:decision) { create(:decision_favored, reports: [report]) }
       let(:appeal) { create(:appeal, decision: decision, appellant: reporter) }
 
       permissions :create? do
@@ -91,7 +91,7 @@ RSpec.describe AppealPolicy do
 
     context 'when the decision cleared a report for something the appellant did' do
       let(:report) { create(:report, reportable: create(:comment_package, user: appellant)) }
-      let(:decision) { create(:decision, kind: 'cleared', reports: [report]) }
+      let(:decision) { create(:decision_cleared, reports: [report]) }
       let(:appeal) { create(:appeal, decision: decision, appellant: appellant) }
 
       permissions :create? do
@@ -106,7 +106,7 @@ RSpec.describe AppealPolicy do
 
     context 'when the decision favored a report for something the appellant did' do
       let(:report) { create(:report, reportable: create(:comment_package, user: appellant)) }
-      let(:decision) { create(:decision, kind: 'favor', reports: [report]) }
+      let(:decision) { create(:decision_favored, reports: [report]) }
       let(:appeal) { create(:appeal, decision: decision, appellant: appellant) }
 
       permissions :create? do

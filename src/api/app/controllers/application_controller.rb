@@ -169,7 +169,7 @@ class ApplicationController < ActionController::Base
       format.json { render json: { errorcode: @errorcode, summary: @summary }, status: @status }
       format.html do
         flash[:error] = "#{@summary} (#{@errorcode})" unless request.env['HTTP_REFERER']
-        redirect_back(fallback_location: root_path)
+        redirect_back_or_to root_path
       end
     end
   end

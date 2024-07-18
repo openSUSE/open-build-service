@@ -6,6 +6,8 @@ RSpec.describe BranchPackage::LookupIncidentPackage do
   end
 
   describe 'incident_package' do
+    subject { lookup_incident_package.incident_packages(link_target_project) }
+
     let(:link_target_project) { create(:project, name: 'openSUSE:Maintenance') }
     let(:maintenance_project) { create(:maintenance_project, target_project: link_target_project) }
     let(:package_1) { create(:package, name: 'chromium', project: link_target_project) }
@@ -26,13 +28,13 @@ RSpec.describe BranchPackage::LookupIncidentPackage do
       allow(Backend::Api::Search).to receive(:incident_packages).and_return(xml_response)
     end
 
-    subject { lookup_incident_package.incident_packages(link_target_project) }
-
     it { expect(subject.xpath('//collection')).not_to be_empty }
     it { expect(subject.xpath('//collection//package').count).to eq(2) }
   end
 
   describe 'possible_packages' do
+    subject { lookup_incident_package.possible_packages('openSUSE:Maintenance') }
+
     let!(:project_1) do
       create(:project_with_package, package_name: 'chromium.openSUSE_Leap_15.1_Update',
                                     name: 'openSUSE:Maintenance:11261')
@@ -56,14 +58,14 @@ RSpec.describe BranchPackage::LookupIncidentPackage do
       allow(Package).to receive(:find_by_project_and_name).with(project_1.name, package_1.name).and_return(package_1)
     end
 
-    subject { lookup_incident_package.possible_packages('openSUSE:Maintenance') }
-
     it { expect(subject).to be_instance_of(Array) }
     it { expect(subject).not_to be_empty }
     it { expect(subject).to include(project_1.packages.first) }
   end
 
   describe 'package' do
+    subject { lookup_incident_package.package }
+
     let(:link_target_project) { create(:project_with_package, name: 'openSUSE:Maintenance', package_name: 'chromium') }
     let(:maintenance_project) { create(:maintenance_project, target_project: link_target_project) }
     let(:package_1) { link_target_project.packages.first }
@@ -73,8 +75,6 @@ RSpec.describe BranchPackage::LookupIncidentPackage do
       allow_any_instance_of(BranchPackage::LookupIncidentPackage).to receive(:possible_packages).and_return(link_target_project.packages)
       allow_any_instance_of(BranchPackage::LookupIncidentPackage).to receive(:maintenance_projects).and_return([maintenance_project])
     end
-
-    subject { lookup_incident_package.package }
 
     it { expect(subject).to eq(package_1) }
 

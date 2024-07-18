@@ -21,11 +21,7 @@ class Role < ApplicationRecord
   validates :title, uniqueness: { case_sensitive: true,
                                   message: 'is the name of an already existing role' }
 
-  belongs_to :groups_roles, optional: true
-  belongs_to :attrib_type_modifiable_bies, class_name: 'AttribTypeModifiableBy', optional: true
-  belongs_to :relationships, class_name: 'Relationship', optional: true
-  belongs_to :roles_static_permissions, optional: true
-  belongs_to :roles_users, optional: true
+  has_many :relationships, dependent: :destroy
 
   # roles have n:m relations for users
   has_and_belongs_to_many :users, -> { distinct }
@@ -57,7 +53,7 @@ class Role < ApplicationRecord
   end
 
   def self.local_roles
-    ['maintainer', 'bugowner', 'reviewer', 'downloader', 'reader'].map { |r| Role.hashed[r] }
+    %w[maintainer bugowner reviewer downloader reader].map { |r| Role.hashed[r] }
   end
 
   def self.global_roles

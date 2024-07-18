@@ -268,6 +268,8 @@ our $patchinfo = [
             'packager',
             'retracted',
             'stopped',
+            'seperate_build_arch', # for builds on each scheduler arch
+	    'embargo_date',
             'zypp_restart_needed',
             'reboot_needed',
             'relogin_needed',
@@ -301,6 +303,7 @@ our $channel = [
 		'package',
 		'arch',
 		'supportstatus',
+		'superseded_by',
 	 ]],
      ]],
 ];
@@ -479,6 +482,7 @@ our $fileinfo = [
       [ 'supplements' ],
       [ 'suggests' ],
       [ 'enhances' ],
+      [ 'filelist' ],
 
      [[ 'provides_ext' =>
 	    'dep',
@@ -652,6 +656,8 @@ our $buildinfo = [
 	'slsaprovenance',	# internal
 	'slsadownloadurl',	# internal
 	'slsabuilder',   	# internal
+
+	'signflavor',   	# internal
 
       [ 'preinstallimage' =>
 	    'project',
@@ -831,6 +837,7 @@ our $binaryversionlist = [
 
 our $packagebinaryversionlist = [
     'packagebinaryversionlist' =>
+	'cookie',
      [[ 'binaryversionlist' =>
 	    'package',
 	    'code',
@@ -1047,6 +1054,7 @@ our $ajaxjob = [
 	'peer',
 	'request',
 	'state',
+	'requestid',
 ];
 
 our $ajaxstatus = [
@@ -1390,6 +1398,7 @@ our $request = [
           ],
           [ $sourcediff ],
      ]],
+     $issues,                # issues of request description
       [ 'submit' =>          # this is old style, obsolete by request, but still supported
 	  [ 'source' =>
 		'project',
@@ -1634,6 +1643,8 @@ our $updateinfoitem = [
 		    'arch',
 		    'src',
 		    'supportstatus',	# extension
+		    'superseded_by',    # extension
+		    'embargo_date',     # extension
 		    [],
 		    'filename',
 		  [ 'sum' =>	# obsolete?
@@ -2030,6 +2041,7 @@ our $report = [
 	    'license',
 	    'binaryid',
 	    'supportstatus',
+	    'superseded_by',
 	    'cpeid',
 	    'summary',
 	    'isbase',

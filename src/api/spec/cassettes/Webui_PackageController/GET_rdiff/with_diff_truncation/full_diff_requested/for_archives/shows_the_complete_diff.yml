@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Tue, 26 Sep 2023 14:23:53 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:25 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/diff-truncation-test-2/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="diff-truncation-test-2" project="home:tom">
-          <title>Quo Vadis</title>
-          <description>Modi reiciendis omnis quia.</description>
+          <title>The Last Temptation</title>
+          <description>Ratione corporis quidem sit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '165'
     body:
       encoding: UTF-8
       string: |
         <package name="diff-truncation-test-2" project="home:tom">
-          <title>Quo Vadis</title>
-          <description>Modi reiciendis omnis quia.</description>
+          <title>The Last Temptation</title>
+          <description>Ratione corporis quidem sit.</description>
         </package>
-  recorded_at: Tue, 26 Sep 2023 14:23:53 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:25 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/diff-truncation-test-2/bigfile_archive.tar.gz
@@ -113,12 +113,12 @@ http_interactions:
         <revision rev="3" vrev="3">
           <srcmd5>a9789ffd295bf47f77113616443547ac</srcmd5>
           <version>unknown</version>
-          <time>1695738233</time>
+          <time>1718298085</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:23:53 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:25 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/diff-truncation-test-2/bigfile_archive.tar.gz
@@ -154,12 +154,12 @@ http_interactions:
         <revision rev="4" vrev="4">
           <srcmd5>f83eab96d07ccb93931e4136c117e1df</srcmd5>
           <version>unknown</version>
-          <time>1695738233</time>
+          <time>1718298085</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 26 Sep 2023 14:23:53 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:25 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/diff-truncation-test-2
@@ -190,9 +190,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="diff-truncation-test-2" rev="4" vrev="4" srcmd5="f83eab96d07ccb93931e4136c117e1df">
-          <entry name="bigfile_archive.tar.gz" md5="e4f963909dcadcfb2cb888d0ce167570" size="10240" mtime="1695738232"/>
+          <entry name="bigfile_archive.tar.gz" md5="e4f963909dcadcfb2cb888d0ce167570" size="10240" mtime="1718298084"/>
         </directory>
-  recorded_at: Tue, 26 Sep 2023 14:23:53 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:25 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/diff-truncation-test-2
@@ -223,9 +223,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="diff-truncation-test-2" rev="4" vrev="4" srcmd5="f83eab96d07ccb93931e4136c117e1df">
-          <entry name="bigfile_archive.tar.gz" md5="e4f963909dcadcfb2cb888d0ce167570" size="10240" mtime="1695738232"/>
+          <entry name="bigfile_archive.tar.gz" md5="e4f963909dcadcfb2cb888d0ce167570" size="10240" mtime="1718298084"/>
         </directory>
-  recorded_at: Tue, 26 Sep 2023 14:23:53 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:25 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/diff-truncation-test-2?cmd=diff&expand=1&filelimit=0&rev=4&tarlimit=0&view=xml&withissues=1
@@ -283,5 +283,5 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Tue, 26 Sep 2023 14:23:53 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:25 GMT
 recorded_with: VCR 6.2.0

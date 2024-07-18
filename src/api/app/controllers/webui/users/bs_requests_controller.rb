@@ -16,7 +16,7 @@ module Webui
       private
 
       def set_user
-        @user_or_group = User.session!
+        @user_or_group = User.session
       end
 
       def request_method

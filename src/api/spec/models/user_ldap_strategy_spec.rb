@@ -6,22 +6,22 @@ RSpec.describe UserLdapStrategy do
   describe '.dn2user_principal_name' do
     context 'when no user id is provided' do
       it 'returns an empty string' do
-        expect(UserLdapStrategy.dn2user_principal_name(dn_string_no_uid)).to eq('')
-        expect(UserLdapStrategy.dn2user_principal_name([dn_string_no_uid])).to eq('')
+        expect(UserLdapStrategy.send(:dn2user_principal_name, dn_string_no_uid)).to eq('')
+        expect(UserLdapStrategy.send(:dn2user_principal_name, [dn_string_no_uid])).to eq('')
       end
     end
 
     context 'when no domain componant is provided' do
       it "returns 'dister@'" do
-        expect(UserLdapStrategy.dn2user_principal_name(dn_string_no_dc)).to eq('dister@')
-        expect(UserLdapStrategy.dn2user_principal_name([dn_string_no_dc])).to eq('dister@')
+        expect(UserLdapStrategy.send(:dn2user_principal_name, dn_string_no_dc)).to eq('dister@')
+        expect(UserLdapStrategy.send(:dn2user_principal_name, [dn_string_no_dc])).to eq('dister@')
       end
     end
 
     context 'when dc and user id is provided' do
       it 'returns the correct ldap address' do
-        expect(UserLdapStrategy.dn2user_principal_name(dn_string_complete)).to eq('dister@noam.com')
-        expect(UserLdapStrategy.dn2user_principal_name([dn_string_complete])).to eq('dister@noam.com')
+        expect(UserLdapStrategy.send(:dn2user_principal_name, dn_string_complete)).to eq('dister@noam.com')
+        expect(UserLdapStrategy.send(:dn2user_principal_name, [dn_string_complete])).to eq('dister@noam.com')
       end
     end
   end
@@ -34,13 +34,15 @@ RSpec.describe UserLdapStrategy do
       end
 
       it 'validates a correct password' do
-        expect(UserLdapStrategy.authenticate_with_local('cleartext_pw',
-                                                        'CLR_userPassword' => ['cleartext_pw'])).to be(true)
+        expect(UserLdapStrategy.send(:authenticate_with_local,
+                                     'cleartext_pw',
+                                     'CLR_userPassword' => ['cleartext_pw'])).to be(true)
       end
 
       it 'does not validate an incorrect password' do
-        expect(UserLdapStrategy.authenticate_with_local('wrong_pw',
-                                                        'CLR_userPassword' => ['cleartext_pw'])).to be(false)
+        expect(UserLdapStrategy.send(:authenticate_with_local,
+                                     'wrong_pw',
+                                     'CLR_userPassword' => ['cleartext_pw'])).to be(false)
       end
     end
 
@@ -51,20 +53,23 @@ RSpec.describe UserLdapStrategy do
       end
 
       it 'validates a correct password' do
-        expect(UserLdapStrategy.authenticate_with_local('my_password',
-                                                        'MD5_userPassword' => ["{MD5}qGWn4N2/NfpvaiMuCJO+pA==\n"])).to be(true)
+        expect(UserLdapStrategy.send(:authenticate_with_local,
+                                     'my_password',
+                                     'MD5_userPassword' => ["{MD5}qGWn4N2/NfpvaiMuCJO+pA==\n"])).to be(true)
       end
 
       it 'does not validate an incorrect password' do
-        expect(UserLdapStrategy.authenticate_with_local('wrong_pw',
-                                                        'MD5_userPassword' => ["{MD5}qGWn4N2/NfpvaiMuCJO+pA==\n"])).to be(false)
+        expect(UserLdapStrategy.send(:authenticate_with_local,
+                                     'wrong_pw',
+                                     'MD5_userPassword' => ["{MD5}qGWn4N2/NfpvaiMuCJO+pA==\n"])).to be(false)
       end
     end
 
     context 'with an unknown ldap auth method' do
       it 'does not validate' do
-        expect(UserLdapStrategy.authenticate_with_local('cleartext_pw',
-                                                        'CLR_userPassword' => ['cleartext_pw'])).to be(false)
+        expect(UserLdapStrategy.send(:authenticate_with_local,
+                                     'cleartext_pw',
+                                     'CLR_userPassword' => ['cleartext_pw'])).to be(false)
       end
     end
 
@@ -74,15 +79,16 @@ RSpec.describe UserLdapStrategy do
       end
 
       it 'returns false' do
-        expect(UserLdapStrategy.authenticate_with_local('cleartext_pw',
-                                                        'CLR_userPassword' => ['cleartext_pw'])).to be(false)
+        expect(UserLdapStrategy.send(:authenticate_with_local,
+                                     'cleartext_pw',
+                                     'CLR_userPassword' => ['cleartext_pw'])).to be(false)
       end
     end
   end
 
   describe '.initialize_ldap_con' do
     context 'when no ldap_servers are configured' do
-      it { expect(UserLdapStrategy.initialize_ldap_con('tux', 'tux_password')).to be_nil }
+      it { expect(UserLdapStrategy.send(:initialize_ldap_con, 'tux', 'tux_password')).to be_nil }
     end
 
     context 'when ldap servers are configured' do
@@ -124,7 +130,7 @@ RSpec.describe UserLdapStrategy do
 
   describe '.find_group_with_ldap' do
     context 'when there is no connection' do
-      it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be(false) }
+      it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be_blank }
     end
 
     context 'when there is a connection' do
@@ -152,7 +158,7 @@ RSpec.describe UserLdapStrategy do
           ).and_yield(double(dn: 'some_dn', attrs: 'some_attr'))
         end
 
-        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be(true) }
+        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to eq(%w[some_dn some_attr]) }
       end
 
       context "without 'ldap_group_objectclass_attr' configured" do
@@ -164,7 +170,7 @@ RSpec.describe UserLdapStrategy do
           ).and_yield(double(dn: 'some_dn', attrs: 'some_attr'))
         end
 
-        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be(true) }
+        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to eq(%w[some_dn some_attr]) }
       end
 
       context 'when there is no result' do
@@ -174,7 +180,7 @@ RSpec.describe UserLdapStrategy do
           )
         end
 
-        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be(false) }
+        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to eq([]) }
       end
     end
   end
@@ -188,6 +194,8 @@ RSpec.describe UserLdapStrategy do
     end
 
     context 'ldap doesnt connect' do
+      subject { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
+
       before do
         allow(UserLdapStrategy).to receive(:initialize_ldap_con).and_return(nil)
       end
@@ -196,13 +204,13 @@ RSpec.describe UserLdapStrategy do
         UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
       end
 
-      subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
-
       it { is_expected.to be_nil }
     end
 
     context 'ldap connects' do
       context 'ldap search works' do
+        subject { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
+
         include_context 'setup ldap mock'
         include_context 'an ldap connection'
 
@@ -210,14 +218,12 @@ RSpec.describe UserLdapStrategy do
           allow(ldap_mock).to receive(:search)
         end
 
-        subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
-
-        it 'returns nil because the user was not found' do
-          expect(subject).to be_nil
-        end
+        it { is_expected.to be_nil } # returns nil because the user was not found
       end
 
       context 'without ldap_user_filter set' do
+        subject { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
+
         include_context 'setup ldap mock'
         include_context 'an ldap connection'
 
@@ -227,14 +233,12 @@ RSpec.describe UserLdapStrategy do
           allow(ldap_mock).to receive(:search)
         end
 
-        subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
-
-        it 'returns nil because the user was not found' do
-          expect(subject).to be_nil
-        end
+        it { is_expected.to be_nil } # returns nil because the user was not found
       end
 
       context 'ldap search raises an error' do
+        subject { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
+
         include_context 'setup ldap mock'
         include_context 'an ldap connection'
 
@@ -244,14 +248,12 @@ RSpec.describe UserLdapStrategy do
           allow(ldap_mock).to receive(:unbind)
         end
 
-        subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
-
-        it 'returns nil' do
-          expect(subject).to be_nil
-        end
+        it { is_expected.to be_nil }
       end
 
       context 'ldap_authenticate = :local' do
+        subject { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
+
         include_context 'setup ldap mock'
         include_context 'an ldap connection'
 
@@ -262,14 +264,12 @@ RSpec.describe UserLdapStrategy do
           allow(ldap_mock).to receive(:search).and_yield(ldap_user)
         end
 
-        subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
-
-        it 'returns nil' do
-          expect(subject).to be_nil
-        end
+        it { is_expected.to be_nil }
       end
 
       context 'ldap_authenticate = nil' do
+        subject { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
+
         include_context 'setup ldap mock'
         include_context 'an ldap connection'
 
@@ -280,14 +280,12 @@ RSpec.describe UserLdapStrategy do
           allow(ldap_mock).to receive(:search).and_yield(ldap_user)
         end
 
-        subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
-
-        it 'returns nil' do
-          expect(subject).to be_nil
-        end
+        it { is_expected.to be_nil }
       end
 
       context 'ldap_authenticate = :ldap and password is nil' do
+        subject { UserLdapStrategy.find_with_ldap('tux', nil) }
+
         include_context 'setup ldap mock'
         include_context 'an ldap connection'
 
@@ -297,49 +295,47 @@ RSpec.describe UserLdapStrategy do
           allow(ldap_mock).to receive(:search).and_yield(ldap_user)
         end
 
-        subject! { UserLdapStrategy.find_with_ldap('tux', nil) }
-
-        it 'returns nil' do
-          expect(subject).to be_nil
-        end
+        it { is_expected.to be_nil }
       end
 
       context 'ldap_authenticate = :ldap' do
+        subject { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
+
         include_context 'setup ldap mock with user mock'
         include_context 'an ldap connection'
         include_context 'mock searching a user' do
-          let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John', 'Smith'] }) }
+          let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => %w[John Smith] }) }
         end
 
-        subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
-
         it 'returns name and username' do
-          expect(subject).to eq(['John', 'tux'])
+          expect(subject).to eq(%w[John tux])
         end
       end
 
       context 'ldap_authenticate = :ldap and user connection returning nil' do
+        subject { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
+
         include_context 'setup ldap mock with user mock'
         include_context 'an ldap connection'
         include_context 'mock searching a user' do
-          let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John', 'Smith'] }) }
+          let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => %w[John Smith] }) }
         end
 
         before do
           allow(ldap_user_mock).to receive(:bound?).and_return(false)
         end
 
-        it { expect(UserLdapStrategy.find_with_ldap('tux', 'tux_password')).to be_nil }
+        it { is_expected.to be_nil }
       end
 
       context 'ldap_authenticate = :ldap and the users ldap_mail_attr is not set' do
+        subject { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
+
         include_context 'setup ldap mock with user mock'
         include_context 'an ldap connection'
         include_context 'mock searching a user' do
           let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux' }) }
         end
-
-        subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
 
         it 'returns empty string and username' do
           expect(subject).to eq(['', 'tux'])
@@ -347,20 +343,20 @@ RSpec.describe UserLdapStrategy do
       end
 
       context 'ldap_authenticate = :ldap and the users ldap_name_attr is set' do
+        subject { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
+
         include_context 'setup ldap mock with user mock'
         include_context 'an ldap connection'
         include_context 'mock searching a user' do
-          let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John', 'Smith'], 'fn' => 'SJ' }) }
+          let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => %w[John Smith], 'fn' => 'SJ' }) }
         end
 
         before do
           stub_const('CONFIG', CONFIG.merge('ldap_name_attr' => 'fn'))
         end
 
-        subject! { UserLdapStrategy.find_with_ldap('tux', 'tux_password') }
-
         it 'returns the users ldap_name_attr and username' do
-          expect(subject).to eq(['John', 'S'])
+          expect(subject).to eq(%w[John S])
         end
       end
 
@@ -369,10 +365,15 @@ RSpec.describe UserLdapStrategy do
       # knowing if the connection was closed by the server so we need to make sure that
       # UserLdapStrategy attempts to reconnect.
       context 'when the connection is closed by the server' do
+        subject do
+          # This attempts to use the LDAP connection which already exists in the class var
+          UserLdapStrategy.find_with_ldap('tux', 'tux_password')
+        end
+
         include_context 'setup ldap mock with user mock'
         include_context 'an ldap connection'
         include_context 'mock searching a user' do
-          let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John', 'Smith'] }) }
+          let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => %w[John Smith] }) }
         end
 
         before do
@@ -389,12 +390,7 @@ RSpec.describe UserLdapStrategy do
           UserLdapStrategy.find_with_ldap('tux', 'tux_password')
         end
 
-        subject! do
-          # This attempts to use the LDAP connection which already exists in the class var
-          UserLdapStrategy.find_with_ldap('tux', 'tux_password')
-        end
-
-        it { is_expected.to eq(['John', 'tux']) }
+        it { is_expected.to eq(%w[John tux]) }
       end
     end
   end

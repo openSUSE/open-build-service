@@ -33,8 +33,13 @@ sub reap {
   my $pid;
   my $numreaped = 0;
   while (($pid = waitpid(-1, defined($maxchild) && keys(%$chld) > $maxchild ? 0 : POSIX::WNOHANG)) > 0) {
-    my $cflavor = delete $chld->{$pid};
-    delete $chld_flavor->{$cflavor}->{$pid} if defined $cflavor && $chld_flavor->{$cflavor};
+    my $chlddata = delete $chld->{$pid};
+    my ($req, $flavor) = @{$chlddata || []};
+    delete $chld_flavor->{$flavor}->{$pid} if defined $flavor && $chld_flavor->{$flavor};
+    if ($? & 127) {
+      printf("Child %d died from signal %d\n", $pid, $? & 127);
+      $req->{'conf'}->{'sigkill'}->($req, $? & 127) if $req && $req->{'conf'} && $req->{'conf'}->{'sigkill'};
+    }
     $numreaped++;
   }
   return $numreaped;
@@ -83,8 +88,16 @@ sub run {
         $req->{'flavor'} = $flavor if defined $flavor;
       }
 
-      if ($nofork || !$maxchild || $maxchild == 1) {
-	$numreaped += reap(0, \%chld, \%chld_flavor) if $nofork && $nofork == 2 && %chld;
+      # nofork handling:
+      # 0: fork
+      # -1: fork but finish all children first
+      # 1: do not fork
+      # 2: do not fork but finish all children first
+      if ($nofork && ($nofork == -1 || $nofork == 2) && %chld) {
+	$numreaped += reap(0, \%chld, \%chld_flavor); # wait for all children to finish
+      }
+
+      if (($nofork && $nofork > 0) || !$maxchild) {
 	eval { $conf->{'dispatch'}->($req) };
 	warn($@) if $@;
 	next;
@@ -96,7 +109,7 @@ sub run {
 	exit(0);
       }
 
-      $chld{$pid} = $flavor;
+      $chld{$pid} = [ $req, $flavor ];
       $chld_flavor{$flavor}->{$pid} = undef if defined $flavor;
       $numreaped += reap($maxchild, \%chld, \%chld_flavor);
       $havereaped = 1;

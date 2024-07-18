@@ -28,12 +28,12 @@ RSpec.describe UpdatePackageMetaJob, :vcr do
 
   describe '#scan_links' do
     # If the package has a link it will check if a BackendPackage exists, otherwise, it will create it.
+    subject { UpdatePackageMetaJob.new.scan_links }
+
     before do
       User.session = user
       branch_package.branch
     end
-
-    subject { UpdatePackageMetaJob.new.scan_links }
 
     context 'with a BranchPackage that does have an entry in BackendPackage' do
       before do

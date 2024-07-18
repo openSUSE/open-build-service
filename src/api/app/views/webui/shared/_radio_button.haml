@@ -1,0 +1,9 @@
+%label.form-check-label.form-group.d-flex.justify-content-between{ for: key }
+  .form-radio
+    = radio_button_tag defined?(name) ? name : key, defined?(value) ? value : 1, checked = checked, class: 'form-check-input me-2', id: key
+    %span
+      - if defined?(label_icon)
+        %i.me-1{ class: label_icon }
+      = label
+  - if defined?(amount) && amount.positive?
+    %span= amount

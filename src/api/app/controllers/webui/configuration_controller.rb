@@ -8,7 +8,7 @@ class Webui::ConfigurationController < Webui::WebuiController
         format.html { redirect_to configuration_path, success: 'Configuration was successfully updated.' }
       else
         format.html do
-          redirect_back(fallback_location: root_path, error: "Configuration can't be saved: #{@configuration.errors.full_messages.to_sentence}")
+          redirect_back_or_to root_path, error: "Configuration can't be saved: #{@configuration.errors.full_messages.to_sentence}"
         end
       end
     end
@@ -17,7 +17,8 @@ class Webui::ConfigurationController < Webui::WebuiController
   private
 
   def configuration_params
-    params.require(:configuration).permit(:name, :title, :description, :tos_url, :code_of_conduct, :unlisted_projects_filter, :unlisted_projects_filter_description)
+    params.require(:configuration).permit(:name, :title, :description, :tos_url, :code_of_conduct, :contact_name, :contact_url,
+                                          :unlisted_projects_filter, :unlisted_projects_filter_description, :logo)
   end
 
   def set_configuration

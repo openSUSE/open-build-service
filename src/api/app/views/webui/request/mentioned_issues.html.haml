@@ -1,18 +1,18 @@
 :ruby
-  @pagetitle = "Request #{@bs_request.number}: #{@action[:name]}"
+  @pagetitle = "Request #{@bs_request.number}: #{@action.name}"
 
 = render partial: 'beta_alert', locals: { bs_request: @bs_request, action: @action }
 
 .card
   .card-body.p-0
     = render partial: 'request_header',
-        locals: { bs_request: @bs_request, staging_status: @staging_status, action: @action, active_action: @active_action,
-                  prev_action: @prev_action, next_action: @next_action, supported_actions: @supported_actions,
-                  diff_to_superseded_id: @diff_to_superseded_id, diff_limit: @diff_limit, page_name: 'request_mentioned_issues',
+        locals: { bs_request: @bs_request, staging_status: @staging_status, action: @action,
+                  prev_action: @prev_action, next_action: @next_action, actions: @actions,
+                  diff_to_superseded_id: @diff_to_superseded_id, page_name: 'request_mentioned_issues',
                   bs_requests: @watched_requests, packages: @watched_packages, projects: @watched_projects }
     = render partial: 'request_tabs',
-        locals: { bs_request: @bs_request, bs_request_action: @bs_request_action, issues: @issues, active_action: @active_action,
-                  actions_count: @supported_actions.count, active_tab: @active_tab }
+        locals: { bs_request: @bs_request, action: @action, issues: @issues,
+                  actions_count: @actions.count, active_tab: @active_tab }
     .container.p-4
       - if @issues.empty?
         %p No issues are mentioned for this request action.

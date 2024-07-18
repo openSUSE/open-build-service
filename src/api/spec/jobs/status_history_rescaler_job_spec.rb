@@ -7,9 +7,9 @@ RSpec.describe StatusHistoryRescalerJob do
     context 'newer than 2 hours records' do
       before do
         5.times { |i| StatusHistory.create(time: (Time.now.utc - i.seconds).to_i, key: 'busy_x86_64', value: i * 10) }
-      end
 
-      subject! { StatusHistoryRescalerJob.perform_now }
+        StatusHistoryRescalerJob.perform_now
+      end
 
       it 'keeps the StatusHistory with key = busy_x86_64' do
         expect(status_histories.count).to eq(5)
@@ -22,9 +22,9 @@ RSpec.describe StatusHistoryRescalerJob do
       before do
         2.times { |i| StatusHistory.create(time: 9.days.ago + i.minutes, key: 'busy_x86_64', value: i * 10) }
         2.times { |i| StatusHistory.create(time: 3.hours.ago + i.minutes, key: 'busy_x86_64', value: i * 10) }
-      end
 
-      subject! { StatusHistoryRescalerJob.perform_now }
+        StatusHistoryRescalerJob.perform_now
+      end
 
       it 'reduces the records older than 7 days to 1' do
         expect(StatusHistory.count).to eq(3)
@@ -38,9 +38,9 @@ RSpec.describe StatusHistoryRescalerJob do
         2.times { |i| StatusHistory.create(time: 9.months.ago + i.minutes, key: 'busy_x86_64', value: i * 10) }
         2.times { |i| StatusHistory.create(time: 3.months.ago + i.minutes, key: 'busy_x86_64', value: i * 10) }
         2.times { |i| StatusHistory.create(time: 3.hours.ago + i.minutes, key: 'busy_x86_64', value: i * 10) }
-      end
 
-      subject! { StatusHistoryRescalerJob.perform_now }
+        StatusHistoryRescalerJob.perform_now
+      end
 
       it 'reduces the records older than 1 month to 1' do
         expect(StatusHistory.count).to eq(4)

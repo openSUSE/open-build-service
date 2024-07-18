@@ -2,13 +2,13 @@ class WorkflowArtifactsPerStepComponentPreview < ViewComponent::Preview
   # Preview at http://HOST:PORT/rails/view_components/workflow_artifacts_per_step_component/with_branch_package_step
   def with_branch_package_step
     step = Workflow::Step::BranchPackageStep.new(branch_or_link_package_parameters)
-    render_artifacts_per_step(step, branch_or_link_package_artifacts)
+    render_artifacts_per_step(step, branch_or_link_package_artifacts(step))
   end
 
   # Preview at http://HOST:PORT/rails/view_components/workflow_artifacts_per_step_component/with_link_package_step
   def with_link_package_step
     step = Workflow::Step::LinkPackageStep.new(branch_or_link_package_parameters)
-    render_artifacts_per_step(step, branch_or_link_package_artifacts)
+    render_artifacts_per_step(step, branch_or_link_package_artifacts(step))
   end
 
   # Preview at http://HOST:PORT/rails/view_components/workflow_artifacts_per_step_component/with_rebuild_package_step
@@ -35,7 +35,7 @@ class WorkflowArtifactsPerStepComponentPreview < ViewComponent::Preview
                                                              name: 'openSUSE_Tumbleweed',
                                                              paths: [{ target_project: 'openSUSE:Factory', target_repository: 'snapshot' },
                                                                      { target_project: 'devel:tools', target_repository: 'openSUSE_Factory_ARM' }],
-                                                             architectures: ['x86_64', 'ppc']
+                                                             architectures: %w[x86_64 ppc]
                                                            },
                                                            {
                                                              name: 'openSUSE_Leap_15.3',
@@ -103,7 +103,7 @@ class WorkflowArtifactsPerStepComponentPreview < ViewComponent::Preview
     }
   end
 
-  def branch_or_link_package_artifacts
+  def branch_or_link_package_artifacts(step)
     {
       source_project: step.step_instructions[:source_project],
       source_package: step.step_instructions[:source_package],

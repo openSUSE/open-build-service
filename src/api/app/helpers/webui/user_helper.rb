@@ -25,9 +25,11 @@ module Webui::UserHelper
         mail_to(user.email) do
           tag.i(nil, class: 'fas fa-envelope text-secondary pe-1', title: 'Send Email to User')
         end,
-        link_to('#', title: 'Delete User', data: { 'bs-toggle': 'modal',
-                                                   'bs-target': '#delete-user-modal', 'user-login': user.login, action: user_path(user.login) }) do
-          tag.i(nil, class: 'fas fa-times-circle text-danger pe-1')
+        unless user.state == 'deleted'
+          link_to('#', title: 'Delete User', data: { 'bs-toggle': 'modal',
+                                                     'bs-target': '#delete-user-modal', 'user-login': user.login, action: user_path(user.login) }) do
+            tag.i(nil, class: 'fas fa-times-circle text-danger pe-1')
+          end
         end
       ]
     )
@@ -48,7 +50,7 @@ module Webui::UserHelper
     user = User.find_by_login(user) unless user.is_a?(User)
     return '' unless user
 
-    Rails.cache.fetch([user, 'realname_and_icon', opts, ::Configuration.first]) do
+    Rails.cache.fetch([user, 'realname_and_icon', opts]) do
       printed_name = if opts[:short]
                        user.login
                      else
@@ -74,8 +76,8 @@ module Webui::UserHelper
     end
   end
 
-  def user_is_configurable(configuration, user)
-    configuration.ldap_enabled? && !user.ignore_auth_services?
+  def user_is_configurable(user)
+    Configuration.ldap_enabled? && !user.ignore_auth_services?
   end
 
   def activity_date_commits(projects)

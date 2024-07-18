@@ -43,10 +43,10 @@ class AttribType < ApplicationRecord
   def self.find_by_namespace_and_name(namespace, name, or_fail = false)
     raise ArgumentError, 'Need namespace and name as parameters' unless namespace && name
 
-    ats = joins(:attrib_namespace).where('attrib_namespaces.name = ? and attrib_types.name = ?', namespace, name)
-    raise UnknownAttributeTypeError, "Attribute Type #{namespace}:#{name} does not exist" if or_fail && ats.count != 1
+    attribute_type = joins(:attrib_namespace).find_by('attrib_namespaces.name = ? and attrib_types.name = ?', namespace, name)
+    raise UnknownAttributeTypeError, "Attribute Type #{namespace}:#{name} does not exist" if or_fail && attribute_type.blank?
 
-    ats.first
+    attribute_type
   end
 
   #### To define class methods as private use private_class_method
@@ -112,7 +112,7 @@ class AttribType < ApplicationRecord
       else
         options[:methods] = [:attrib_namespace_name]
       end
-      super(options)
+      super
     else
       super(methods: [:attrib_namespace_name])
     end

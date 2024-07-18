@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :workflow_artifacts_per_step, aliases: [:workflow_artifacts_per_step_branch_package] do
-    workflow_run { create(:workflow_run) }
+    workflow_run
     step { 'Workflow::Step::BranchPackageStep' }
 
     transient do

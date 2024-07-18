@@ -1,18 +1,23 @@
 get:
   summary: Read a project file
-  description: |
-    Read a project file
+  description: Read a project file
   security:
     - basic_authentication: []
   parameters:
     - $ref: '../components/parameters/project_name.yaml'
     - $ref: '../components/parameters/file_name.yaml'
+    - name: deleted
+      in: query
+      schema:
+        type: string
+      description: Set to `1` to read a file of a deleted project.
+      example: 1
     - in: query
       name: meta
       required: false
       schema:
         type: integer
-      description: Set to 1 to include _meta files
+      description: Set to `1` to include _meta files
       example: 1
     - in: query
       name: rev
@@ -55,8 +60,7 @@ get:
     '401':
       $ref: '../components/responses/unauthorized.yaml'
     '403':
-      description: |
-        The user does not have permission to access the source.
+      description: The user does not have permission to access the source.
       content:
         application/xml; charset=utf-8:
           schema:

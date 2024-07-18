@@ -1,0 +1,7 @@
+.form-group.d-flex.justify-content-between
+  .col-3
+    = label_tag filter_item, "#{label}:", class: 'fs-6'
+  .col-9.d-flex
+    = text_field_tag(filter_item, '',
+                     class: 'form-control form-control-sm',
+                     placeholder: placeholder, value: selected_input_value)

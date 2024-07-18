@@ -15,7 +15,7 @@ RSpec.describe OpenRequestsWithProjectAsSourceOrTargetFinder do
 
   describe 'call' do
     subject do
-      OpenRequestsWithProjectAsSourceOrTargetFinder.new(BsRequest.where(state: [:new, :review, :declined])
+      OpenRequestsWithProjectAsSourceOrTargetFinder.new(BsRequest.where(state: %i[new review declined])
                                                        .joins(:bs_request_actions), project.name).call
     end
 

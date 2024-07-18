@@ -10,9 +10,9 @@ RSpec.describe StatusMessagesController do
   describe 'GET #show' do
     let!(:status_message) { create(:status_message, user: user) }
 
-    subject! { get :show, params: { id: status_message.id }, format: :xml }
+    before { get :show, params: { id: status_message.id }, format: :xml }
 
-    it { is_expected.to have_http_status(:success) }
+    it { expect(response).to have_http_status(:success) }
 
     it 'returns the requested status message' do
       expect(response.body).to have_css('status_message > message', text: status_message.message)
@@ -22,9 +22,9 @@ RSpec.describe StatusMessagesController do
   describe 'GET #index' do
     let!(:status_messages) { create_list(:status_message, 3) }
 
-    subject! { get :index, format: :xml }
+    before { get :index, format: :xml }
 
-    it { is_expected.to have_http_status(:success) }
+    it { expect(response).to have_http_status(:success) }
 
     it 'returns all status messages' do
       status_messages.each do |status_message|
@@ -34,6 +34,8 @@ RSpec.describe StatusMessagesController do
   end
 
   describe '#create' do
+    subject { post :create, params: { format: :xml }, body: request_xml }
+
     let(:request_xml) do
       <<~XML
         <status_message>
@@ -43,69 +45,50 @@ RSpec.describe StatusMessagesController do
         </status_message>
       XML
     end
+    let(:admin) { create(:admin_user) }
 
-    context 'when user is not admin' do
-      subject! { post :create, body: request_xml, format: :xml }
-
-      it { is_expected.to have_http_status(:forbidden) }
+    before do
+      login admin
+      subject
     end
 
-    context 'when requester is admin' do
-      let(:admin) { create(:admin_user) }
+    it { expect(StatusMessage.last.message).to eq('New message was sent!') }
+  end
 
-      before do
-        login admin
-      end
+  describe '#update' do
+    subject { post :update, params: { id: status_message.id, format: :xml }, body: request_xml }
 
-      subject! { post :create, body: request_xml, format: :xml }
+    let(:request_xml) do
+      <<~XML
+        <status_message>
+          <message>Updated message was sent!</message>
+          <severity>green</severity>
+          <scope>all_users</scope>
+        </status_message>
+      XML
+    end
+    let(:admin) { create(:admin_user) }
+    let!(:status_message) { create(:status_message, user: user) }
 
-      it { is_expected.to have_http_status(:success) }
-
-      it { expect(StatusMessage.last.message).to eq('New message was sent!') }
+    before do
+      login admin
+      subject
     end
 
-    context 'create with a wrong XML' do
-      let(:request_xml) do
-        <<~XML
-          <stadus_message>
-            <message>New message was sent!</message>
-            <severity>information</severity>
-          </status_message>
-        XML
-      end
-      let(:admin) { create(:admin_user) }
-
-      before do
-        login admin
-      end
-
-      subject! { post :create, body: request_xml, format: :xml }
-
-      it { is_expected.to have_http_status(:bad_request) }
-    end
+    it { expect(StatusMessage.last.message).to eq('Updated message was sent!') }
   end
 
   describe '#destroy' do
+    subject { delete :destroy, params: { id: status_message.id }, format: :xml }
+
     let!(:status_message) { create(:status_message, user: user) }
+    let(:admin) { create(:admin_user) }
 
-    context 'when user is not admin' do
-      subject { delete :destroy, params: { id: status_message.id }, format: :xml }
-
-      it { is_expected.to have_http_status(:forbidden) }
-      it { expect { subject }.not_to(change(StatusMessage, :count)) }
+    before do
+      login admin
     end
 
-    context 'when requester is admin' do
-      let(:admin) { create(:admin_user) }
-
-      before do
-        login admin
-      end
-
-      subject { delete :destroy, params: { id: status_message.id }, format: :xml }
-
-      it { is_expected.to have_http_status(:success) }
-      it { expect { subject }.to change(StatusMessage, :count).by(-1) }
-    end
+    it { expect(subject).to have_http_status(:success) }
+    it { expect { subject }.to change(StatusMessage, :count).by(-1) }
   end
 end

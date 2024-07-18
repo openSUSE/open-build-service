@@ -1,7 +1,6 @@
 get:
   summary: This endpoint returns details about an specific artifact
-  description: |
-    Given a project, repository, architecture and package, retrieve the given artifact's details.
+  description: Given a project, repository, architecture and package, retrieve the given artifact's details.
   security:
     - basic_authentication: []
   parameters:
@@ -83,7 +82,7 @@ get:
       description: |
         Error: Not Found
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
       content:
         application/xml; charset=utf-8:
           schema:

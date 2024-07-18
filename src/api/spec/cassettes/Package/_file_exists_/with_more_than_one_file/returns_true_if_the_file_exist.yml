@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>What's Become of Waring</title>
-          <description>Et odit officiis voluptatem.</description>
+          <title>Lilies of the Field</title>
+          <description>Voluptatem illum fugiat nemo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,21 +69,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '165'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_files" project="home:tom">
-          <title>What's Become of Waring</title>
-          <description>Et odit officiis voluptatem.</description>
+          <title>Lilies of the Field</title>
+          <description>Voluptatem illum fugiat nemo.</description>
         </package>
-  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/_config
     body:
       encoding: UTF-8
-      string: Voluptates quae distinctio. Aut ducimus minus. Dignissimos at soluta.
+      string: Rem incidunt quisquam. Rerum possimus autem. Reprehenderit consequatur
+        in.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -108,20 +109,20 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="3" vrev="3">
-          <srcmd5>da76f3f190c2265274038bddfc44e1ce</srcmd5>
+          <srcmd5>403fbc3f44f72eda65a82b7974bb2d86</srcmd5>
           <version>unknown</version>
-          <time>1684410578</time>
+          <time>1706702051</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_files/somefile.txt
     body:
       encoding: UTF-8
-      string: Minima quis sit. Rem atque soluta. Ut voluptatem ducimus.
+      string: Culpa reprehenderit nemo. Ut voluptates delectus. Distinctio optio corporis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -146,14 +147,14 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="4" vrev="4">
-          <srcmd5>2f30b1204f67c072b33a92ee7d6f7110</srcmd5>
+          <srcmd5>b68bb904c424e64b4ba018aa33de2ea3</srcmd5>
           <version>unknown</version>
-          <time>1684410578</time>
+          <time>1706702051</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:11 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_files
@@ -183,11 +184,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_files" rev="4" vrev="4" srcmd5="2f30b1204f67c072b33a92ee7d6f7110">
-          <entry name="_config" md5="38fd8d7c28fa49f523af6c9c58194f40" size="69" mtime="1684410578"/>
-          <entry name="somefile.txt" md5="9b44c1ac4f6f1ee78db8ca7297ff0f3a" size="57" mtime="1684410578"/>
+        <directory name="package_with_files" rev="4" vrev="4" srcmd5="b68bb904c424e64b4ba018aa33de2ea3">
+          <entry name="_config" md5="050c3cc1626ce84b31db728f5e014ec0" size="74" mtime="1706702051"/>
+          <entry name="somefile.txt" md5="19d2a31263482fa40158ed03231385c0" size="76" mtime="1706702051"/>
         </directory>
-  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:11 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_files
@@ -217,9 +218,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_files" rev="4" vrev="4" srcmd5="2f30b1204f67c072b33a92ee7d6f7110">
-          <entry name="_config" md5="38fd8d7c28fa49f523af6c9c58194f40" size="69" mtime="1684410578"/>
-          <entry name="somefile.txt" md5="9b44c1ac4f6f1ee78db8ca7297ff0f3a" size="57" mtime="1684410578"/>
+        <directory name="package_with_files" rev="4" vrev="4" srcmd5="b68bb904c424e64b4ba018aa33de2ea3">
+          <entry name="_config" md5="050c3cc1626ce84b31db728f5e014ec0" size="74" mtime="1706702051"/>
+          <entry name="somefile.txt" md5="19d2a31263482fa40158ed03231385c0" size="76" mtime="1706702051"/>
         </directory>
-  recorded_at: Thu, 18 May 2023 11:49:38 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Wed, 31 Jan 2024 11:54:11 GMT
+recorded_with: VCR 6.2.0

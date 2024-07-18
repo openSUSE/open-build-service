@@ -8,6 +8,8 @@ class GitlabPayload::MergeRequest < GitlabPayload
                           target_branch: webhook_payload.dig(:object_attributes, :target_branch),
                           action: webhook_payload.dig(:object_attributes, :action),
                           project_id: webhook_payload.dig(:object_attributes, :source_project_id),
-                          path_with_namespace: webhook_payload.dig(:project, :path_with_namespace))
+                          path_with_namespace: webhook_payload.dig(:project, :path_with_namespace),
+                          target_repository_full_name: webhook_payload.dig(:object_attributes, :target, :path_with_namespace),
+                          source_repository_full_name: webhook_payload.dig(:object_attributes, :source, :path_with_namespace))
   end
 end

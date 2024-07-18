@@ -49,7 +49,7 @@ RSpec.describe WatchlistIconComponent, type: :component do
       let!(:item) { project }
 
       it 'does not display a watchlist icon' do
-        expect(rendered_content).not_to have_css('i.fas.fa-eye')
+        expect(rendered_content).to have_no_css('i.fas.fa-eye')
       end
     end
 
@@ -59,7 +59,7 @@ RSpec.describe WatchlistIconComponent, type: :component do
       let!(:item) { package }
 
       it 'does not display the watchlist icon' do
-        expect(rendered_content).not_to have_css('i.far.fa-eye')
+        expect(rendered_content).to have_no_css('i.far.fa-eye')
       end
     end
   end

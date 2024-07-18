@@ -24,12 +24,10 @@ get:
       name: notifications_type
       schema:
         type: string
-        enum: ['requests', 'incoming_requests', 'outgoing_requests', 'read']
+        enum: ['read', 'comments', 'requests', 'unread', 'incoming_requests', 'outgoing_requests', 'relationships_created', 'relationships_deleted', 'build_failures', 'reports', 'workflow_runs', 'appealed_decisions']
   responses:
     '200':
-      description: |
-        OK. The request has succeeded.
-
+      description: OK. The request has succeeded.
       content:
         application/xml; charset=utf-8:
           schema:

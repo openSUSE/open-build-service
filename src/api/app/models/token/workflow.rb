@@ -1,6 +1,5 @@
 class Token::Workflow < Token
-  AUTHENTICATION_DOCUMENTATION_LINK = (::Workflow::SCM_CI_DOCUMENTATION_URL +
-                                       '#sec.obs.obs_scm_ci_workflow_integration.setup.token_authentication.how_to_authenticate_scm_with_obs').freeze
+  AUTHENTICATION_DOCUMENTATION_LINK = "#{::Workflow::SCM_CI_DOCUMENTATION_URL}#sec.obs.obs_scm_ci_workflow_integration.setup.token_authentication.how_to_authenticate_scm_with_obs".freeze
 
   has_many :workflow_runs, dependent: :destroy, foreign_key: 'token_id', inverse_of: false
   has_and_belongs_to_many :users,
@@ -32,7 +31,7 @@ class Token::Workflow < Token
 
     # We return early with a ping event, since it doesn't make sense to perform payload checks with it, just respond
     if @scm_webhook.ping_event?
-      SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, 'success', initial_report: true).call
+      SCMStatusReporter.new(event_payload: @scm_webhook.payload, event_subscription_payload: @scm_webhook.payload, scm_token: scm_token, workflow_run: workflow_run, event_type: 'success', initial_report: true).call
       return []
     end
 
@@ -42,13 +41,13 @@ class Token::Workflow < Token
     return validation_errors unless validation_errors.none?
 
     # This is just an initial generic report to give a feedback asap. Initial status pending
-    SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, initial_report: true).call
+    SCMStatusReporter.new(event_payload: @scm_webhook.payload, event_subscription_payload: @scm_webhook.payload, scm_token: scm_token, workflow_run: workflow_run, initial_report: true).call
     @workflows.each do |workflow|
       return workflow.errors.full_messages if workflow.invalid?(:call)
 
       workflow.call
     end
-    SCMStatusReporter.new(@scm_webhook.payload, @scm_webhook.payload, scm_token, workflow_run, 'success', initial_report: true).call
+    SCMStatusReporter.new(event_payload: @scm_webhook.payload, event_subscription_payload: @scm_webhook.payload, scm_token: scm_token, workflow_run: workflow_run, event_type: 'success', initial_report: true).call
     # Always returning validation errors to report them back to the SCM in order to help users debug their workflows
     validation_errors
   rescue Octokit::Unauthorized, Gitlab::Error::Unauthorized
@@ -62,6 +61,12 @@ class Token::Workflow < Token
 
   def workflow_configuration_path_default?
     workflow_configuration_path == '.obs/workflows.yml'
+  end
+
+  def members
+    # exctract all the users and groups members the token is shared with,
+    # and merge them all together in a single set removing nils and duplicated entries
+    [users, groups&.map(&:users)&.flatten].flatten.compact.uniq
   end
 
   private

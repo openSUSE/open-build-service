@@ -19,7 +19,7 @@ get:
         Providing a value of `*` will return all packages.
 
         Available predicates are:
-          - Package fields: `@name`, `title`, `description`, and `kind`.
+          - Package fields: `@name`, `title`, `description`, `scmsync`, and `kind`.
           - `@project`: name of the project of the package.
           - Devel package fields:
             - `devel/@project`: name of the devel project of the package.
@@ -92,7 +92,6 @@ get:
 post:
   deprecated: true
   summary: List packages that match a XPath condition.
-  description: |
-    This endpoint is exactly the same as `GET /search/package`, please use that one.
+  description: This endpoint is exactly the same as `GET /search/package`, please use that one.
   tags:
     - Search

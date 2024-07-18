@@ -20,10 +20,6 @@ class Staging::Workflow < ApplicationRecord
       managers_group_title ||= proxy_association.owner.managers_group.try(:title)
       includes(:reviews).where(state: :review, staging_project_id: nil, reviews: { state: :new, by_group: managers_group_title })
     end
-
-    def ready_to_stage
-      in_states(:new)
-    end
   end
 
   has_many :staged_requests, class_name: 'BsRequest', through: :staging_projects
@@ -45,7 +41,7 @@ class Staging::Workflow < ApplicationRecord
   end
 
   def ready_requests
-    target_of_bs_requests.ready_to_stage.where.not(id: excluded_requests)
+    target_of_bs_requests.where(state: :new).where.not(id: excluded_requests)
   end
 
   def write_to_backend
@@ -89,7 +85,7 @@ class Staging::Workflow < ApplicationRecord
   def create_staging_projects
     raise ArgumentError, 'no commit user set' unless commit_user
 
-    ['A', 'B'].each do |letter|
+    %w[A B].each do |letter|
       staging_project = Project.find_or_initialize_by(name: "#{project.name}:Staging:#{letter}")
       next if staging_project.staging_workflow # if it belongs to another staging workflow skip it
 
@@ -129,18 +125,13 @@ class Staging::Workflow < ApplicationRecord
     # the object is reloaded and we lost the changes.
     self.managers_group = new_managers_group
 
-    # update reviewer group in staging workflow project
     reviewer_role = Role.find_by_title('reviewer')
-    relationship = project.relationships.find_by(group: old_managers_group, role: reviewer_role)
-    if project.relationships.exists?(group: new_managers_group, role: reviewer_role)
-      relationship.destroy
-    else
-      relationship.update(group: new_managers_group)
-    end
+    project.relationships.find_by(group: old_managers_group, role: reviewer_role)&.destroy   # Remove reviewer role for old managers group
+    project.relationships.find_or_create_by!(group: new_managers_group, role: reviewer_role) # Add reviewer role for new managers group
+
     project.store
   end
 end
-
 # == Schema Information
 #
 # Table name: staging_workflows

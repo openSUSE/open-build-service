@@ -1,0 +1,2 @@
+class DecisionFavoredWithUserCommentingRestrictionPolicy < DecisionPolicy
+end

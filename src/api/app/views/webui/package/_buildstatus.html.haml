@@ -22,7 +22,7 @@
           repository_name = result.repository.tr('.', '_')
           expanded = repository_expanded?(collapsed_repositories, repository_name, package_name)
         - if result.repository != previous_repo
-          .d-flex.flex-row.py-1.bg-light.ps-1.ps-sm-2
+          .d-flex.flex-row.py-1.buildresult_repo_header.ps-1.ps-sm-2
             = link_to(word_break(result.repository, 22),
               project_package_repository_binaries_path(project_name: project, package_name: package, repository_name: result.repository),
               title: "Binaries for #{result.repository}")

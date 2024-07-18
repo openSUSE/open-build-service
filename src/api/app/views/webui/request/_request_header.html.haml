@@ -1,3 +1,4 @@
+-# TODO: replace by helper
 - badge_state = BsRequestStateBadgeComponent.new(state: bs_request.state, css_class: 'ms-2')
 
 .card-title.d-flex.justify-content-between.mb-2.pt-4.px-4
@@ -12,7 +13,7 @@
   -# watch button
   - if User.session
     .d-inline.align-bottom.ms-1#watchlist-icon-wrapper
-      = render WatchlistIconComponent.new(user: User.session!,
+      = render WatchlistIconComponent.new(user: User.session,
                                           bs_request: bs_request,
                                           current_object: bs_request,
                                           bs_requests: bs_requests,
@@ -39,6 +40,7 @@
         %strong Supersedes
         - bs_request.superseding.each do |supersed|
           = link_to "##{supersed['number']}", number: supersed['number']
+          = link_to "(changes from superseded)", request_changes_path(bs_request, diff_to_superseded: supersed)
     -# staging statement
     - if staging_status
       - staging_project = staging_status[:staging_project]
@@ -72,9 +74,7 @@
         request
   .mt-4
     -# action description, prev + dropdown select + next
-        TODO: once we support all types of actions, we have to send @actions instead of @supported_actions
-    = render partial: 'actions_details', locals: { bs_request: bs_request, action: action, active_action: active_action,
+    = render partial: 'actions_details', locals: { bs_request: bs_request, action: action,
                                                     prev_action: prev_action, next_action: next_action,
-                                                    actions: supported_actions, actions_count: supported_actions.count,
-                                                    diff_to_superseded_id: diff_to_superseded_id, diff_limit: diff_limit,
+                                                    actions: actions, diff_to_superseded_id: diff_to_superseded_id,
                                                     page_name: page_name }

@@ -1,6 +1,5 @@
 %p
-  = User.find(event['user_id']).login
-  reported a #{event['reportable_type'].downcase} for the following reason:
+  "#{event['reporter']}" reported a #{event['reportable_type'].downcase} as #{event['category'].humanize} for the following reason:
 %p
   = event['reason']
 %p

@@ -5,7 +5,7 @@ class RequestController < ApplicationController
   validate_action request_create: { method: :post, response: :request }
 
   # TODO: allow PUT for non-admins
-  before_action :require_admin, only: [:update, :destroy]
+  before_action :require_admin, only: %i[update destroy]
 
   # GET /request
   def index
@@ -26,17 +26,17 @@ class RequestController < ApplicationController
   end
 
   def render_request_collection
-    # if all params areblank, something is wrong
-    raise RequireFilter if [:project, :user, :states, :types, :reviewstates, :ids].all? { |f| params[f].blank? }
+    # if all params are blank, something is wrong
+    raise RequireFilter if %i[project package user states types reviewstates ids].all? { |f| params[f].blank? }
 
-    # convert comma seperated values into arrays
+    # convert comma separated values into arrays
     params[:roles] = params[:roles].split(',') if params[:roles]
     params[:types] = params[:types].split(',') if params[:types]
     params[:states] = params[:states].split(',') if params[:states]
     params[:review_states] = params[:reviewstates].split(',') if params[:reviewstates]
     params[:ids] = params[:ids].split(',').map(&:to_i) if params[:ids]
 
-    rel = BsRequest.find_for(params)
+    rel = BsRequest::FindFor::Query.new(params).all
     rel = BsRequest.where(id: rel.select(:id)).preload([{ bs_request_actions: :bs_request_action_accept_info, reviews: { history_elements: :user } }])
     rel = rel.limit(params[:limit].to_i) if params[:limit].to_i.positive?
     rel = rel.offset(params[:offset].to_i) if params[:offset].to_i.positive?
@@ -64,8 +64,6 @@ class RequestController < ApplicationController
   def global_command
     raise UnknownCommandError, "Unknown command '#{params[:cmd]}' for path #{request.path}" unless params[:cmd] == 'create'
 
-    # refuse request creation for anonymous users
-    require_login
     # no need for dispatch_command, there is only one command
     request_create
   end
@@ -74,10 +72,7 @@ class RequestController < ApplicationController
   def request_command
     return request_command_diff if params[:cmd] == 'diff'
 
-    # refuse request manipulation for anonymous users
-    require_login
-
-    params[:user] = User.session!.login
+    params[:user] = User.session.login
     @req = BsRequest.find_by_number!(params[:id])
 
     # transform request body into query parameter 'comment'
@@ -122,7 +117,7 @@ class RequestController < ApplicationController
       req.skip_sanitize
       req.save!
 
-      notify[:who] = User.session!.login
+      notify[:who] = User.session.login
       Event::RequestChange.create(notify)
 
       render xml: req.render_xml
@@ -134,7 +129,7 @@ class RequestController < ApplicationController
     request = BsRequest.find_by_number!(params[:id])
     notify = request.event_parameters
     request.destroy # throws us out of here if failing
-    notify[:who] = User.session!.login
+    notify[:who] = User.session.login
     Event::RequestDelete.create(notify)
     render_ok
   end
@@ -169,7 +164,7 @@ class RequestController < ApplicationController
     xml_request = Nokogiri::XML("<request id='#{req.number}'/>", &:strict).root if params[:view] == 'xml'
 
     req.bs_request_actions.each do |action|
-      withissues = params[:withissues].to_s.in?(['1', 'true'])
+      withissues = params[:withissues].to_s.in?(%w[1 true])
       action_diff = action.sourcediff(
         view: params[:view],
         withissues: withissues,
@@ -184,6 +179,20 @@ class RequestController < ApplicationController
         xml_request.at_xpath('//request/action[last()]').add_child(action_diff)
       else
         diff_text += action_diff
+      end
+    end
+
+    if params[:withdescriptionissues].present?
+      begin
+        data = Backend::Api::IssueTrackers.parse(req.description)
+      rescue Backend::Error
+        return
+      end
+
+      if xml_request
+        xml_request.at_xpath('//request').add_child(Nokogiri::XML(data).root)
+      else
+        diff_text += "Request Description issues:#{data}\n"
       end
     end
 

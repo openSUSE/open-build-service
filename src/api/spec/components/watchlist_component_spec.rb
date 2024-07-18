@@ -11,9 +11,9 @@ RSpec.describe WatchlistComponent, type: :component do
       render_inline(described_class.new(user: user, current_object: current_object, projects: projects, packages: packages, bs_requests: bs_requests))
     end
 
-    ['package', 'project', 'request'].each do |item_name|
-      it { expect(rendered_content).not_to have_text("Watch this #{item_name}") }
-      it { expect(rendered_content).not_to have_text("Remove this #{item_name} from Watchlist") }
+    %w[package project request].each do |item_name|
+      it { expect(rendered_content).to have_no_text("Watch this #{item_name}") }
+      it { expect(rendered_content).to have_no_text("Remove this #{item_name} from Watchlist") }
       it { expect(rendered_content).to have_text("There are no #{item_name}s in the watchlist yet.") }
     end
   end
@@ -51,7 +51,7 @@ RSpec.describe WatchlistComponent, type: :component do
         end
 
         it { expect(rendered_content).to have_text('There are no packages in the watchlist yet.') }
-        it { expect(rendered_content).not_to have_link(package.name) }
+        it { expect(rendered_content).to have_no_link(package.name) }
         it { expect(rendered_content).to have_text('Watch this package') }
       end
 
@@ -64,7 +64,7 @@ RSpec.describe WatchlistComponent, type: :component do
                                             bs_requests: bs_requests))
         end
 
-        it { expect(rendered_content).not_to have_text('There are no packages in the watchlist yet.') }
+        it { expect(rendered_content).to have_no_text('There are no packages in the watchlist yet.') }
         it { expect(rendered_content).to have_link(package.name) }
         it { expect(rendered_content).to have_text('Remove this package from Watchlist') }
       end
@@ -82,7 +82,7 @@ RSpec.describe WatchlistComponent, type: :component do
         end
 
         it { expect(rendered_content).to have_text('There are no projects in the watchlist yet.') }
-        it { expect(rendered_content).not_to have_link(base_package.name) }
+        it { expect(rendered_content).to have_no_link(base_package.name) }
         it { expect(rendered_content).to have_text('Watch this package') }
       end
 
@@ -112,7 +112,7 @@ RSpec.describe WatchlistComponent, type: :component do
       end
 
       it { expect(rendered_content).to have_text('There are no projects in the watchlist yet.') }
-      it { expect(rendered_content).not_to have_link(project.name) }
+      it { expect(rendered_content).to have_no_link(project.name) }
       it { expect(rendered_content).to have_text('Watch this project') }
     end
 
@@ -124,7 +124,7 @@ RSpec.describe WatchlistComponent, type: :component do
         render_inline(described_class.new(user: user, project: project, current_object: project, projects: projects, packages: packages, bs_requests: bs_requests))
       end
 
-      it { expect(rendered_content).not_to have_text('There are no projects in the watchlist yet.') }
+      it { expect(rendered_content).to have_no_text('There are no projects in the watchlist yet.') }
       it { expect(rendered_content).to have_link(project.name) }
       it { expect(rendered_content).to have_text('Remove this project from Watchlist') }
     end
@@ -141,7 +141,7 @@ RSpec.describe WatchlistComponent, type: :component do
     end
 
     it { expect(rendered_content).to have_text('There are no projects in the watchlist yet.') }
-    it { expect(rendered_content).not_to have_text('Watch this project') }
+    it { expect(rendered_content).to have_no_text('Watch this project') }
   end
 
   context 'when dealing with requests' do
@@ -154,7 +154,7 @@ RSpec.describe WatchlistComponent, type: :component do
       before { render_inline(described_class.new(user: user, bs_request: bs_request, current_object: bs_request, projects: projects, packages: packages, bs_requests: bs_requests)) }
 
       it { expect(rendered_content).to have_text('There are no requests in the watchlist yet.') }
-      it { expect(rendered_content).not_to have_link("##{bs_request.number} Submit") }
+      it { expect(rendered_content).to have_no_link("##{bs_request.number} Submit") }
       it { expect(rendered_content).to have_text('Watch this request') }
     end
 
@@ -166,7 +166,7 @@ RSpec.describe WatchlistComponent, type: :component do
         render_inline(described_class.new(user: user, bs_request: bs_request, current_object: bs_request, projects: projects, packages: packages, bs_requests: bs_requests))
       end
 
-      it { expect(rendered_content).not_to have_text('There are no requests in the watchlist yet.') }
+      it { expect(rendered_content).to have_no_text('There are no requests in the watchlist yet.') }
       it { expect(rendered_content).to have_link("##{bs_request.number} Submit") }
       it { expect(rendered_content).to have_text('Remove this request from Watchlist') }
     end

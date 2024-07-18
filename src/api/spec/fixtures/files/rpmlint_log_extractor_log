@@ -1,0 +1,563 @@
+HTTP/1.1 200 OK
+X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 1; mode=block
+X-Content-Type-Options: nosniff
+X-Download-Options: noopen
+X-Permitted-Cross-Domain-Policies: none
+Referrer-Policy: strict-origin-when-cross-origin
+X-Opensuse-APIVersion: 2.10.50
+Content-Type: text/plain
+Content-Disposition: inline
+Content-Transfer-Encoding: binary
+X-Opensuse-Runtimes: {"view":null,"db":16.376543004065752,"backend":0}
+Cache-Control: no-cache
+X-Request-Id: f030558c-aed3-4f72-8113-d434b8e40ba7
+X-Runtime: 0.900190
+Server-Timing: sql.active_record;dur=34.83, start_processing.action_controller;dur=0.18, instantiation.active_record;dur=24.52, cache_read.active_support;dur=1.77, cache_write.active_support;dur=0.60, send_file.action_controller;dur=0.36, process_action.action_controller;dur=662.78
+Content-Length: 34454
+
+[    0s] Memory limit set to 21805314KB
+[    0s] Using BUILD_ROOT=/var/cache/obs/worker/root_2
+[    0s] Using BUILD_ARCH=x86_64:i686:i586:i486:i386
+[    0s] 
+[    0s] 
+[    0s] bdd15480d2b2 started "build ctris.spec" at Thu Jan 11 12:17:44 UTC 2024.
+[    0s] 
+[    0s] Building ctris for project 'home:Admin' repository 'openSUSE_Tumbleweed' arch 'x86_64' srcmd5 '754c6df00abb9f7d550f185cc2480b1c'
+[    0s] 
+[    0s] processing recipe /var/cache/obs/worker/root_2/.build-srcdir/ctris.spec ...
+[    1s] running changelog2spec --target rpm --file /var/cache/obs/worker/root_2/.build-srcdir/ctris.spec
+[    1s] init_buildsystem --configdir /srv/obs/run/worker/2/build/configs --cachedir /var/cache/build --clean --rpmlist /var/cache/obs/worker/root_2/.build.rpmlist /var/cache/obs/worker/root_2/.build-srcdir/ctris.spec build ...
+[    1s] cycle: rpm-config-SUSE -> rpm
+[    1s]   breaking dependency rpm-config-SUSE -> rpm
+[    1s] [1/33] preinstalling filesystem...
+[    2s] [2/33] preinstalling permissions...
+[    2s] [3/33] preinstalling glibc...
+[    2s] [4/33] preinstalling diffutils...
+[    2s] [5/33] preinstalling fillup...
+[    2s] [6/33] preinstalling libacl1...
+[    2s] [7/33] preinstalling libattr1...
+[    2s] [8/33] preinstalling libbz2-1...
+[    2s] [9/33] preinstalling libcap2...
+[    2s] [10/33] preinstalling libgcc_s1...
+[    2s] [11/33] preinstalling libgpg-error0...
+[    2s] [12/33] preinstalling liblua5_4-5...
+[    3s] [13/33] preinstalling liblzma5...
+[    3s] [14/33] preinstalling libpcre2-8-0...
+[    3s] [15/33] preinstalling libpopt0...
+[    3s] [16/33] preinstalling libz1...
+[    3s] [17/33] preinstalling libzstd1...
+[    3s] [18/33] preinstalling attr...
+[    3s] [19/33] preinstalling libgcrypt20...
+[    3s] [20/33] preinstalling libncurses6...
+[    3s] [21/33] preinstalling libselinux1...
+[    3s] [22/33] preinstalling libelf1...
+[    3s] [23/33] preinstalling libreadline8...
+[    3s] [24/33] preinstalling sed...
+[    3s] [25/33] preinstalling tar...
+[    4s] [26/33] preinstalling bash...
+[    4s] [27/33] preinstalling bash-sh...
+[    4s] [28/33] preinstalling grep...
+[    4s] [29/33] preinstalling pam...
+[    4s] [30/33] preinstalling coreutils...
+[    4s] [31/33] preinstalling aaa_base...
+[    4s] [32/33] preinstalling rpm-config-SUSE...
+[    4s] [33/33] preinstalling rpm...
+[    4s] initializing rpm db...
+[    5s] reordering...cycle: libncurses6 -> terminfo-base
+[    5s]   breaking dependency terminfo-base -> libncurses6
+[    5s] cycle: binutils -> libctf0
+[    5s]   breaking dependency binutils -> libctf0
+[    5s] cycle: rpm-config-SUSE -> rpm
+[    5s]   breaking dependency rpm -> rpm-config-SUSE
+[    5s] done
+[    5s] querying package ids...
+[    6s] [1/123] cumulate compat-usrmerge-tools-84.87-5.17
+[    6s] [2/123] cumulate file-magic-5.45-1.4
+[    6s] [3/123] cumulate kernel-obs-build-6.6.10-1.1
+[    6s] [4/123] cumulate pkgconf-m4-1.8.0-2.6
+[    6s] [5/123] cumulate system-user-root-20190513-2.14
+[    6s] [6/123] cumulate filesystem-84.87-15.1
+[    6s] [7/123] cumulate glibc-2.38-8.1
+[    6s] [8/123] cumulate diffutils-3.10-1.5
+[    6s] [9/123] cumulate fillup-1.42-279.4
+[    6s] [10/123] cumulate libacl1-2.3.1-2.12
+[    6s] [11/123] cumulate libatomic1-13.2.1+git8109-1.1
+[    6s] [12/123] cumulate libattr1-2.5.1-1.28
+[    6s] [13/123] cumulate libaudit1-3.1.1-1.4
+[    6s] [14/123] cumulate libblkid1-2.39.3-1.1
+[    6s] [15/123] cumulate libbz2-1-1.0.8-5.8
+[    6s] [16/123] cumulate libcap-ng0-0.8.3-2.5
+[    6s] [17/123] cumulate libcap2-2.69-1.5
+[    6s] [18/123] cumulate libcrypt1-4.4.36-1.4
+[    6s] [19/123] cumulate libeconf0-0.6.0-1.1
+[    6s] [20/123] cumulate libgcc_s1-13.2.1+git8109-1.1
+[    6s] [21/123] cumulate libgdbm6-1.23-3.1
+[    6s] [22/123] cumulate libgmp10-6.3.0-2.2
+[    6s] [23/123] cumulate libgomp1-13.2.1+git8109-1.1
+[    6s] [24/123] cumulate libgpg-error0-1.47-2.1
+[    6s] [25/123] cumulate libitm1-13.2.1+git8109-1.1
+[    6s] [26/123] cumulate liblua5_4-5-5.4.6-3.1
+[    6s] [27/123] cumulate liblzma5-5.4.5-1.1
+[    6s] [28/123] cumulate libpcre2-8-0-10.42-3.12
+[    6s] [29/123] cumulate libpkgconf3-1.8.0-2.6
+[    6s] [30/123] cumulate libpopt0-1.19-1.6
+[    6s] [31/123] cumulate libseccomp2-2.5.5-1.1
+[    6s] [32/123] cumulate libsmartcols1-2.39.3-1.1
+[    6s] [33/123] cumulate libtextstyle0-0.21.1-2.4
+[    6s] [34/123] cumulate libuuid1-2.39.3-1.1
+[    6s] [35/123] cumulate libz1-1.3-1.1
+[    6s] [36/123] cumulate libzstd1-1.5.5-3.5
+[    6s] [37/123] cumulate patch-2.7.6-6.9
+[    6s] [38/123] cumulate update-alternatives-1.22.2-1.1
+[    6s] [39/123] cumulate attr-2.5.1-1.28
+[    6s] [40/123] cumulate libctf-nobfd0-2.41-1.2
+[    6s] [41/123] cumulate libgcrypt20-1.10.3-2.1
+[    6s] [42/123] cumulate libgdbm_compat4-1.23-3.1
+[    6s] [43/123] cumulate libisl23-0.26-1.5
+[    6s] [44/123] cumulate libmpfr6-4.2.1-1.2
+[    6s] [45/123] cumulate libselinux1-3.6-1.1
+[    6s] [46/123] cumulate libstdc++6-13.2.1+git8109-1.1
+[    6s] [47/123] cumulate perl-base-5.38.2-1.1
+[    6s] [48/123] cumulate pkgconf-1.8.0-2.6
+[    6s] [49/123] cumulate chkstat-1699_20230602-2.1
+[    6s] [50/123] cumulate libelf1-0.189-5.2
+[    6s] [51/123] cumulate libfdisk1-2.39.3-1.1
+[    6s] [52/123] cumulate libxml2-2-2.11.6-1.1
+[    6s] [53/123] cumulate libmagic1-5.45-1.4
+[    6s] [54/123] cumulate build-mkbaselibs-20231201-1.1
+[    6s] [55/123] cumulate rpm-build-perl-4.18.0-6.2
+[    6s] [56/123] cumulate dwz-0.15-2.6
+[    6s] [57/123] cumulate findutils-4.9.0-3.2
+[    6s] [58/123] cumulate file-5.45-1.4
+[    6s] [59/123] cumulate libasan8-13.2.1+git8109-1.1
+[    6s] [60/123] cumulate libdb-4_8-4.8.30-42.4
+[    6s] [61/123] cumulate libhwasan0-13.2.1+git8109-1.1
+[    6s] [62/123] cumulate liblsan0-13.2.1+git8109-1.1
+[    6s] [63/123] cumulate libmount1-2.39.3-1.1
+[    6s] [64/123] cumulate libmpc3-1.3.1-1.6
+[    6s] [65/123] cumulate libtsan2-13.2.1+git8109-1.1
+[    6s] [66/123] cumulate libubsan1-13.2.1+git8109-1.1
+[    6s] [67/123] cumulate sed-4.9-2.4
+[    6s] [68/123] cumulate tar-1.35-1.1
+[    6s] [69/123] cumulate libdw1-0.189-5.2
+[    6s] [70/123] cumulate libasm1-0.189-5.2
+[    6s] [71/123] cumulate cpp13-13.2.1+git8109-1.1
+[    6s] [72/123] cumulate perl-5.38.2-1.1
+[    6s] [73/123] cumulate brp-check-suse-84.87+git20230324.8680ce4-1.3
+[    6s] [74/123] cumulate terminfo-base-6.4.20231202-27.1
+[    6s] [75/123] cumulate libncurses6-6.4.20231202-27.1
+[    6s] [76/123] cumulate libreadline8-8.2-3.1
+[    6s] [77/123] cumulate ncurses-utils-6.4.20231202-27.1
+[    6s] [78/123] cumulate tack-1.09.20221229-27.1
+[    6s] [79/123] cumulate bash-5.2.21-9.1
+[    6s] [80/123] cumulate bash-sh-5.2.21-9.1
+[    6s] [81/123] cumulate cpio-2.14-1.4
+[    6s] [82/123] cumulate cpp-13-1.6
+[    6s] [83/123] cumulate gzip-1.13-2.1
+[    6s] [84/123] cumulate make-4.4.1-2.5
+[    6s] [85/123] cumulate which-2.21-5.12
+[    6s] [86/123] cumulate bzip2-1.0.8-5.8
+[    6s] [87/123] cumulate grep-3.11-2.2
+[    6s] [88/123] cumulate pkgconf-pkg-config-1.8.0-2.6
+[    6s] [89/123] cumulate xz-5.4.5-1.1
+[    6s] [90/123] cumulate gawk-5.3.0-1.2
+[    6s] [91/123] cumulate gettext-runtime-0.21.1-2.4
+[    6s] [92/123] cumulate lua54-5.4.6-3.1
+[    6s] [93/123] cumulate elfutils-0.189-5.2
+[    6s] [94/123] cumulate coreutils-9.4-2.2
+[    6s] [95/123] cumulate compat-usrmerge-build-84.87-5.17
+[    6s] [96/123] cumulate systemd-rpm-macros-24-1.4
+[    6s] [97/123] cumulate libxcrypt-devel-4.4.36-1.4
+[    6s] [98/123] cumulate linux-glibc-devel-6.6-1.1
+[    6s] [99/123] cumulate glibc-locale-base-2.38-8.1
+[    6s] [100/123] cumulate ncurses-devel-6.4.20231202-27.1
+[    6s] [101/123] cumulate permissions-config-1699_20230602-2.1
+[    6s] [102/123] cumulate polkit-default-privs-1550+20231213.09963a4-1.1
+[    6s] [103/123] cumulate gettext-tools-0.21.1-2.4
+[    6s] [104/123] cumulate aaa_base-84.87+git20231023.f347d36-1.1
+[    6s] [105/123] cumulate binutils-2.41-1.2
+[    6s] [106/123] cumulate rpm-4.18.0-6.2
+[    6s] [107/123] cumulate aaa_base-malloccheck-84.87+git20231023.f347d36-1.1
+[    6s] [108/123] cumulate permissions-1699_20230602-2.1
+[    6s] [109/123] cumulate glibc-devel-2.38-8.1
+[    6s] [110/123] cumulate libctf0-2.41-1.2
+[    6s] [111/123] cumulate rpm-config-SUSE-20230712-1.1
+[    6s] [112/123] cumulate rpmlint-mini-2.5.0+git20231220.9e24b84-14.66
+[    6s] [113/123] cumulate build-compare-20230617T171717.50241a8-1.3
+[    6s] [114/123] cumulate librpmbuild9-4.18.0-6.2
+[    6s] [115/123] cumulate debugedit-5.0-5.6
+[    6s] [116/123] cumulate pam-1.5.3-3.3
+[    6s] [117/123] cumulate post-build-checks-84.87+git20231107.61af484-1.1
+[    6s] [118/123] cumulate gcc13-13.2.1+git8109-1.1
+[    6s] [119/123] cumulate gcc13-PIE-13.2.1+git8109-1.1
+[    6s] [120/123] cumulate gcc-13-1.6
+[    6s] [121/123] cumulate util-linux-2.39.3-1.1
+[    6s] [122/123] cumulate gcc-PIE-13-1.6
+[    6s] [123/123] cumulate rpm-build-4.18.0-6.2
+[    6s] now installing cumulated packages
+[    6s] Preparing...                          ########################################
+[    6s] Updating / installing...
+[    6s] system-user-root-20190513-2.14        ########################################
+[    6s] pkgconf-m4-1.8.0-2.6                  ########################################
+[    6s] file-magic-5.45-1.4                   ########################################
+[    6s] compat-usrmerge-tools-84.87-5.17      ########################################
+[    6s] filesystem-84.87-15.1                 ########################################
+[    7s] glibc-2.38-8.1                        ########################################
+[    7s] libz1-1.3-1.1                         ########################################
+[    7s] libgcc_s1-13.2.1+git8109-1.1          ########################################
+[    7s] libstdc++6-13.2.1+git8109-1.1         ########################################
+[    7s] libgmp10-6.3.0-2.2                    ########################################
+[    7s] libzstd1-1.5.5-3.5                    ########################################
+[    7s] libelf1-0.189-5.2                     ########################################
+[    7s] terminfo-base-6.4.20231202-27.1       ########################################
+[    7s] libncurses6-6.4.20231202-27.1         ########################################
+[    7s] ncurses-utils-6.4.20231202-27.1       ########################################
+[    7s] libbz2-1-1.0.8-5.8                    ########################################
+[    7s] libcrypt1-4.4.36-1.4                  ########################################
+[    7s] perl-base-5.38.2-1.1                  ########################################
+[    7s] liblzma5-5.4.5-1.1                    ########################################
+[    7s] libdw1-0.189-5.2                      ########################################
+[    8s] libreadline8-8.2-3.1                  ########################################
+[    8s] bash-5.2.21-9.1                       ########################################
+[    8s] bash-sh-5.2.21-9.1                    ########################################
+[    8s] xz-5.4.5-1.1                          ########################################
+[    8s] libmpfr6-4.2.1-1.2                    ########################################
+[    8s] gawk-5.3.0-1.2                        ########################################
+[    8s] fillup-1.42-279.4                     ########################################
+[    8s] libacl1-2.3.1-2.12                    ########################################
+[    8s] libcap2-2.69-1.5                      ########################################
+[    8s] cpio-2.14-1.4                         ########################################
+[    8s] libmagic1-5.45-1.4                    ########################################
+[    8s] libblkid1-2.39.3-1.1                  ########################################
+[    8s] libgomp1-13.2.1+git8109-1.1           ########################################
+[    8s] liblua5_4-5-5.4.6-3.1                 ########################################
+[    8s] libpopt0-1.19-1.6                     ########################################
+[    9s] chkstat-1699_20230602-2.1             ########################################
+[    9s] libmpc3-1.3.1-1.6                     ########################################
+[    9s] libxml2-2-2.11.6-1.1                  ########################################
+[    9s] dwz-0.15-2.6                          ########################################
+[    9s] libisl23-0.26-1.5                     ########################################
+[    9s] cpp13-13.2.1+git8109-1.1              ########################################
+[    9s] diffutils-3.10-1.5                    ########################################
+[    9s] libattr1-2.5.1-1.28                   ########################################
+[    9s] libaudit1-3.1.1-1.4                   ########################################
+[    9s] libeconf0-0.6.0-1.1                   ########################################
+[    9s] libgdbm6-1.23-3.1                     ########################################
+[    9s] libpcre2-8-0-10.42-3.12               ########################################
+[   10s] libselinux1-3.6-1.1                   ########################################
+[   10s] coreutils-9.4-2.2                     ########################################
+[   10s] sed-4.9-2.4                           ########################################
+[   10s] grep-3.11-2.2                         ########################################
+[   10s] aaa_base-84.87+git20231023.f347d36-1.1########################################
+[   10s] Updating /etc/sysconfig/language ...
+[   10s] Updating /etc/sysconfig/proxy ...
+[   10s] Updating /etc/sysconfig/windowmanager ...
+[   10s] findutils-4.9.0-3.2                   ########################################
+[   10s] libtextstyle0-0.21.1-2.4              ########################################
+[   10s] libuuid1-2.39.3-1.1                   ########################################
+[   10s] update-alternatives-1.22.2-1.1        ########################################
+[   10s] lua54-5.4.6-3.1                       ########################################
+[   10s] update-alternatives: using /usr/bin/lua5.4 to provide /usr/bin/lua (lua) in auto mode
+[   10s] libfdisk1-2.39.3-1.1                  ########################################
+[   10s] gettext-runtime-0.21.1-2.4            ########################################
+[   10s] gettext-tools-0.21.1-2.4              ########################################
+[   10s] aaa_base-malloccheck-84.87+git20231023########################################
+[   10s] systemd-rpm-macros-24-1.4             ########################################
+[   10s] linux-glibc-devel-6.6-1.1             ########################################
+[   11s] glibc-locale-base-2.38-8.1            ########################################
+[   11s] permissions-config-1699_20230602-2.1  ########################################
+[   11s] Updating /etc/sysconfig/security ...
+[   11s] Warning: running kernel does not support fscaps
+[   11s] Checking permissions and ownerships - using the permissions files
+[   11s] 	/usr/share/permissions/permissions
+[   11s] 	/usr/share/permissions/permissions.easy
+[   11s] 	/etc/permissions.local
+[   11s] /usr/sbin/unix2_chkpwd: setting to root:shadow 4755 (wrong owner/group root:root)
+[   11s] /usr/sbin/unix_chkpwd: setting to root:shadow 4755 (wrong owner/group root:root)
+[   11s] permissions-1699_20230602-2.1         ########################################
+[   11s] pam-1.5.3-3.3                         ########################################
+[   11s] Warning: running kernel does not support fscaps
+[   11s] Warning: running kernel does not support fscaps
+[   11s] polkit-default-privs-1550+20231213.099########################################
+[   11s] Updating /etc/sysconfig/security ...
+[   11s] can't open /etc/polkit-1/rules.d/90-default-privs.rules.new: No such file or directory
+[   11s] warning: %post(polkit-default-privs-1550+20231213.09963a4-1.1.noarch) scriptlet failed, exit status 2
+[   11s] libmount1-2.39.3-1.1                  ########################################
+[   11s] tar-1.35-1.1                          ########################################
+[   11s] libgdbm_compat4-1.23-3.1              ########################################
+[   11s] cpp-13-1.6                            ########################################
+[   11s] gzip-1.13-2.1                         ########################################
+[   11s] make-4.4.1-2.5                        ########################################
+[   11s] which-2.21-5.12                       ########################################
+[   11s] bzip2-1.0.8-5.8                       ########################################
+[   11s] libasm1-0.189-5.2                     ########################################
+[   11s] elfutils-0.189-5.2                    ########################################
+[   11s] rpm-build-perl-4.18.0-6.2             ########################################
+[   11s] tack-1.09.20221229-27.1               ########################################
+[   11s] libasan8-13.2.1+git8109-1.1           ########################################
+[   11s] libdb-4_8-4.8.30-42.4                 ########################################
+[   12s] perl-5.38.2-1.1                       ########################################
+[   12s] libhwasan0-13.2.1+git8109-1.1         ########################################
+[   12s] liblsan0-13.2.1+git8109-1.1           ########################################
+[   12s] libtsan2-13.2.1+git8109-1.1           ########################################
+[   12s] libubsan1-13.2.1+git8109-1.1          ########################################
+[   12s] libctf-nobfd0-2.41-1.2                ########################################
+[   13s] binutils-2.41-1.2                     ########################################
+[   13s] update-alternatives: using /usr/bin/ld.bfd to provide /usr/bin/ld (ld) in auto mode
+[   13s] libctf0-2.41-1.2                      ########################################
+[   13s] debugedit-5.0-5.6                     ########################################
+[   13s] libatomic1-13.2.1+git8109-1.1         ########################################
+[   13s] libcap-ng0-0.8.3-2.5                  ########################################
+[   13s] libgpg-error0-1.47-2.1                ########################################
+[   13s] libgcrypt20-1.10.3-2.1                ########################################
+[   13s] rpm-config-SUSE-20230712-1.1          ########################################
+[   14s] rpm-4.18.0-6.2                        ########################################
+[   14s] Updating /etc/sysconfig/services ...
+[   14s] librpmbuild9-4.18.0-6.2               ########################################
+[   14s] libitm1-13.2.1+git8109-1.1            ########################################
+[   14s] libpkgconf3-1.8.0-2.6                 ########################################
+[   14s] pkgconf-1.8.0-2.6                     ########################################
+[   14s] pkgconf-pkg-config-1.8.0-2.6          ########################################
+[   14s] libxcrypt-devel-4.4.36-1.4            ########################################
+[   14s] glibc-devel-2.38-8.1                  ########################################
+[   15s] gcc13-13.2.1+git8109-1.1              ########################################
+[   15s] gcc13-PIE-13.2.1+git8109-1.1          ########################################
+[   15s] gcc-13-1.6                            ########################################
+[   15s] libseccomp2-2.5.5-1.1                 ########################################
+[   15s] file-5.45-1.4                         ########################################
+[   15s] libsmartcols1-2.39.3-1.1              ########################################
+[   15s] util-linux-2.39.3-1.1                 ########################################
+[   15s] Warning: running kernel does not support fscaps
+[   15s] Warning: running kernel does not support fscaps
+[   15s] patch-2.7.6-6.9                       ########################################
+[   15s] rpm-build-4.18.0-6.2                  ########################################
+[   15s] build-compare-20230617T171717.50241a8-########################################
+[   15s] gcc-PIE-13-1.6                        ########################################
+[   15s] ncurses-devel-6.4.20231202-27.1       ########################################
+[   15s] brp-check-suse-84.87+git20230324.8680c########################################
+[   16s] rpmlint-mini-2.5.0+git20231220.9e24b84########################################
+[   16s] post-build-checks-84.87+git20231107.61########################################
+[   16s] compat-usrmerge-build-84.87-5.17      ########################################
+[   16s] attr-2.5.1-1.28                       ########################################
+[   16s] build-mkbaselibs-20231201-1.1         ########################################
+[   16s] kernel-obs-build-6.6.10-1.1           ########################################
+[   21s] now finalizing build dir...
+[   21s] ... running 01-add_abuild_user_to_trusted_group
+[   21s] ... running 02-set_timezone_to_utc
+[   21s] ... running 03-set-permissions-secure
+[   21s] ... running 11-hack_uname_version_to_kernel_version
+[   22s] -----------------------------------------------------------------
+[   22s] I have the following modifications for ctris.spec:
+[   22s] 21c21
+[   22s] < Release:        0
+[   22s] ---
+[   22s] > Release:        8.1
+[   22s] -----------------------------------------------------------------
+[   22s] ----- building ctris.spec (user abuild)
+[   22s] -----------------------------------------------------------------
+[   22s] -----------------------------------------------------------------
+[   22s] + exec rpmbuild -ba --define '_srcdefattr (-,root,root)' --nosignature --undefine _enable_debug_packages --define 'disturl obs://build.some.where/home:Admin/openSUSE_Tumbleweed/754c6df00abb9f7d550f185cc2480b1c-ctris' /home/abuild/rpmbuild/SOURCES/ctris.spec
+[   22s] setting SOURCE_DATE_EPOCH=1591488000
+[   22s] Executing(%prep): /usr/bin/bash -e /var/tmp/rpm-tmp.cRGlId
+[   22s] + umask 022
+[   22s] + cd /home/abuild/rpmbuild/BUILD
+[   22s] + cd /home/abuild/rpmbuild/BUILD
+[   22s] + rm -rf ctris-0.42.1
+[   22s] + /usr/lib/rpm/rpmuncompress -x /home/abuild/rpmbuild/SOURCES/ctris-0.42.1.tar.gz
+[   22s] + STATUS=0
+[   22s] + '[' 0 -ne 0 ']'
+[   22s] + cd ctris-0.42.1
+[   22s] + /usr/bin/chmod -Rf a+rX,u+w,g-w,o-w .
+[   22s] + RPM_EC=0
+[   22s] ++ jobs -p
+[   22s] + exit 0
+[   22s] Executing(%build): /usr/bin/bash -e /var/tmp/rpm-tmp.FOOkAr
+[   22s] + umask 022
+[   22s] + cd /home/abuild/rpmbuild/BUILD
+[   22s] + /usr/bin/rm -rf /home/abuild/rpmbuild/BUILDROOT/ctris-0.42.1-8.1.x86_64
+[   22s] ++ dirname /home/abuild/rpmbuild/BUILDROOT/ctris-0.42.1-8.1.x86_64
+[   22s] + /usr/bin/mkdir -p /home/abuild/rpmbuild/BUILDROOT
+[   22s] + /usr/bin/mkdir /home/abuild/rpmbuild/BUILDROOT/ctris-0.42.1-8.1.x86_64
+[   22s] + cd ctris-0.42.1
+[   22s] + make 'CFLAGS=-O2 -Wall -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3 -fstack-protector-strong -funwind-tables -fasynchronous-unwind-tables -fstack-clash-protection -Werror=return-type -flto=auto -fcommon' -j1
+[   22s] make config
+[   22s] make[1]: Entering directory '/home/abuild/rpmbuild/BUILD/ctris-0.42.1'
+[   22s] ./create_config.sh
+[   22s] make[1]: Leaving directory '/home/abuild/rpmbuild/BUILD/ctris-0.42.1'
+[   22s] make build
+[   22s] make[1]: Entering directory '/home/abuild/rpmbuild/BUILD/ctris-0.42.1'
+[   22s] gcc -O2 -Wall -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3 -fstack-protector-strong -funwind-tables -fasynchronous-unwind-tables -fstack-clash-protection -Werror=return-type -flto=auto -fcommon -c ctris.c
+[   22s] gcc -O2 -Wall -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3 -fstack-protector-strong -funwind-tables -fasynchronous-unwind-tables -fstack-clash-protection -Werror=return-type -flto=auto -fcommon -c game.c
+[   22s] game.c: In function 'game_engine':
+[   22s] game.c:220:21: warning: this 'while' clause does not guard... [-Wmisleading-indentation]
+[   22s]   220 |                     while(old_get_key(board_win) != 'p');
+[   22s]       |                     ^~~~~
+[   22s] game.c:221:41: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'while'
+[   22s]   221 |                                         game_state = RUNNING_STATE;
+[   22s]       |                                         ^~~~~~~~~~
+[   22s] game.c:244:25: warning: this 'while' clause does not guard... [-Wmisleading-indentation]
+[   22s]   244 |                         while(old_get_key(board_win) != ' ');
+[   22s]       |                         ^~~~~
+[   22s] game.c:245:49: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'while'
+[   22s]   245 |                                                 game_state = QUIT_STATE;
+[   22s]       |                                                 ^~~~~~~~~~
+[   23s] gcc -O2 -Wall -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3 -fstack-protector-strong -funwind-tables -fasynchronous-unwind-tables -fstack-clash-protection -Werror=return-type -flto=auto -fcommon -c screen.c
+[   23s] screen.c: In function 'hide_cursor':
+[   23s] screen.c:14:38: warning: zero-length gnu_printf format string [-Wformat-zero-length]
+[   23s]    14 |                 mvwprintw(win, 0, 0, "");
+[   23s]       |                                      ^~
+[   23s] gcc -O2 -Wall -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3 -fstack-protector-strong -funwind-tables -fasynchronous-unwind-tables -fstack-clash-protection -Werror=return-type -flto=auto -fcommon -c brick.c
+[   23s] gcc -O2 -Wall -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3 -fstack-protector-strong -funwind-tables -fasynchronous-unwind-tables -fstack-clash-protection -Werror=return-type -flto=auto -fcommon -c highscore.c
+[   23s] gcc -O2 -Wall -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3 -fstack-protector-strong -funwind-tables -fasynchronous-unwind-tables -fstack-clash-protection -Werror=return-type -flto=auto -fcommon -o ctris ctris.o game.o screen.o brick.o highscore.o -lm -lncurses
+[   23s] make[1]: Leaving directory '/home/abuild/rpmbuild/BUILD/ctris-0.42.1'
+[   23s] + RPM_EC=0
+[   23s] ++ jobs -p
+[   23s] + exit 0
+[   23s] Executing(%install): /usr/bin/bash -e /var/tmp/rpm-tmp.1f4zPo
+[   23s] + umask 022
+[   23s] + cd /home/abuild/rpmbuild/BUILD
+[   23s] + /usr/bin/rm -rf /home/abuild/rpmbuild/BUILDROOT/ctris-0.42.1-8.1.x86_64
+[   23s] + /usr/bin/mkdir -p /home/abuild/rpmbuild/BUILDROOT
+[   23s] + /usr/bin/mkdir /home/abuild/rpmbuild/BUILDROOT/ctris-0.42.1-8.1.x86_64
+[   23s] + cd ctris-0.42.1
+[   23s] + make install DESTDIR=/home/abuild/rpmbuild/BUILDROOT/ctris-0.42.1-8.1.x86_64 BINDIR=/home/abuild/rpmbuild/BUILDROOT/ctris-0.42.1-8.1.x86_64/usr/bin
+[   23s] mkdir -p /home/abuild/rpmbuild/BUILDROOT/ctris-0.42.1-8.1.x86_64/usr/bin /home/abuild/rpmbuild/BUILDROOT/ctris-0.42.1-8.1.x86_64/usr/share/man/man6/
+[   23s] install ctris /home/abuild/rpmbuild/BUILDROOT/ctris-0.42.1-8.1.x86_64/usr/bin
+[   23s] install -m 644 ctris.6.gz /home/abuild/rpmbuild/BUILDROOT/ctris-0.42.1-8.1.x86_64/usr/share/man/man6/
+[   23s] + /usr/lib/rpm/brp-compress
+[   23s] ls: cannot access './usr/share/man/man6/ctris.6.gz': No such file or directory
+[   23s] find: invalid argument `-inum' to `-inum'
+[   23s] gzip: ./usr/share/man/man6/ctris.6.gz: No such file or directory
+[   23s] + /usr/lib/rpm/brp-suse
+[   23s] calling /usr/lib/rpm/brp-suse.d/brp-05-permissions
+[   23s] calling /usr/lib/rpm/brp-suse.d/brp-15-strip-debug
+[   23s] calling /usr/lib/rpm/brp-suse.d/brp-25-symlink
+[   23s] calling /usr/lib/rpm/brp-suse.d/brp-50-generate-fips-hmac
+[   23s] calling /usr/lib/rpm/brp-suse.d/brp-75-ar
+[   23s] Processing files: ctris-0.42.1-8.1.x86_64
+[   23s] Executing(%doc): /usr/bin/bash -e /var/tmp/rpm-tmp.gUuWYF
+[   23s] + umask 022
+[   23s] + cd /home/abuild/rpmbuild/BUILD
+[   23s] + cd ctris-0.42.1
+[   23s] + DOCDIR=/home/abuild/rpmbuild/BUILDROOT/ctris-0.42.1-8.1.x86_64/usr/share/doc/packages/ctris
+[   23s] + export LC_ALL=C
+[   23s] + LC_ALL=C
+[   23s] + export DOCDIR
+[   23s] + /usr/bin/mkdir -p /home/abuild/rpmbuild/BUILDROOT/ctris-0.42.1-8.1.x86_64/usr/share/doc/packages/ctris
+[   23s] + cp -pr AUTHORS /home/abuild/rpmbuild/BUILDROOT/ctris-0.42.1-8.1.x86_64/usr/share/doc/packages/ctris
+[   23s] + cp -pr README /home/abuild/rpmbuild/BUILDROOT/ctris-0.42.1-8.1.x86_64/usr/share/doc/packages/ctris
+[   23s] + cp -pr TODO /home/abuild/rpmbuild/BUILDROOT/ctris-0.42.1-8.1.x86_64/usr/share/doc/packages/ctris
+[   23s] + RPM_EC=0
+[   23s] ++ jobs -p
+[   23s] + exit 0
+[   23s] Executing(%license): /usr/bin/bash -e /var/tmp/rpm-tmp.9RGXDV
+[   23s] + umask 022
+[   23s] + cd /home/abuild/rpmbuild/BUILD
+[   23s] + cd ctris-0.42.1
+[   23s] + LICENSEDIR=/home/abuild/rpmbuild/BUILDROOT/ctris-0.42.1-8.1.x86_64/usr/share/licenses/ctris
+[   23s] + export LC_ALL=C
+[   23s] + LC_ALL=C
+[   23s] + export LICENSEDIR
+[   23s] + /usr/bin/mkdir -p /home/abuild/rpmbuild/BUILDROOT/ctris-0.42.1-8.1.x86_64/usr/share/licenses/ctris
+[   23s] + cp -pr COPYING /home/abuild/rpmbuild/BUILDROOT/ctris-0.42.1-8.1.x86_64/usr/share/licenses/ctris
+[   23s] + RPM_EC=0
+[   23s] ++ jobs -p
+[   23s] + exit 0
+[   23s] Provides: ctris = 0.42.1-8.1 ctris(x86-64) = 0.42.1-8.1
+[   23s] Requires(rpmlib): rpmlib(CompressedFileNames) <= 3.0.4-1 rpmlib(FileDigests) <= 4.6.0-1 rpmlib(PayloadFilesHavePrefix) <= 4.0-1
+[   23s] Requires: libc.so.6()(64bit) libc.so.6(GLIBC_2.2.5)(64bit) libc.so.6(GLIBC_2.3.4)(64bit) libc.so.6(GLIBC_2.34)(64bit) libc.so.6(GLIBC_2.4)(64bit) libncurses.so.6()(64bit) libncurses.so.6(NCURSEST6_5.7.20081102)(64bit) libtinfo.so.6()(64bit) libtinfo.so.6(NCURSES6_TINFO_5.0.19991023)(64bit) libtinfo.so.6(NCURSES6_TINFO_5.7.20081102)(64bit)
+[   23s] Checking for unpackaged file(s): /usr/lib/rpm/check-files /home/abuild/rpmbuild/BUILDROOT/ctris-0.42.1-8.1.x86_64
+[   23s] Wrote: /home/abuild/rpmbuild/SRPMS/ctris-0.42.1-8.1.src.rpm
+[   24s] Wrote: /home/abuild/rpmbuild/RPMS/x86_64/ctris-0.42.1-8.1.x86_64.rpm
+[   24s] Executing(%clean): /usr/bin/bash -e /var/tmp/rpm-tmp.whGwRO
+[   24s] + umask 022
+[   24s] + cd /home/abuild/rpmbuild/BUILD
+[   24s] + cd ctris-0.42.1
+[   24s] + /usr/bin/rm -rf /home/abuild/rpmbuild/BUILDROOT/ctris-0.42.1-8.1.x86_64
+[   24s] + RPM_EC=0
+[   24s] ++ jobs -p
+[   24s] + exit 0
+[   24s] Executing(rmbuild): /usr/bin/bash -e /var/tmp/rpm-tmp.VjLJhf
+[   24s] + umask 022
+[   24s] + cd /home/abuild/rpmbuild/BUILD
+[   24s] + rm -rf ctris-0.42.1 ctris-0.42.1.gemspec
+[   24s] + RPM_EC=0
+[   24s] ++ jobs -p
+[   24s] + exit 0
+[   24s] ... checking for files with abuild user/group
+[   24s] ... running 00-check-install-rpms
+[   24s] ... installing all built rpms
+[   24s] Verifying packages...
+[   24s] Preparing packages...
+[   24s] ctris-0.42.1-8.1.x86_64
+[   24s] ... running 50-check-binary-kernel-log
+[   24s] ... running 50-check-core-files
+[   24s] ... running 50-check-debuginfo
+[   24s] ... testing for empty debuginfo packages
+[   24s] ... running 50-check-filelist
+[   24s] ... checking filelist
+[   24s] ... running 50-check-gconf-scriptlets
+[   24s] ... testing GConf scriptlet presence
+[   24s] ... running 50-check-installtest
+[   24s] ... testing for pre/postinstall scripts that are not idempotent
+[   24s] ... running 50-check-invalid-provides
+[   24s] ... running 50-check-invalid-requires
+[   24s] ... running 50-check-kernel-build-id
+[   24s] ... running 50-check-lanana
+[   24s] ... running 50-check-libtool-deps
+[   24s] ... testing devel dependencies required by libtool .la files
+[   24s]     (can be skipped by "skip-check-libtool-deps" anywhere in spec)
+[   24s] ... running 50-check-packaged-twice
+[   24s] ... running 50-check-permissions
+[   24s] ... testing for modified permissions
+[   24s] ... running 98-revert-uname-hack
+[   24s] ... running 99-check-remove-rpms
+[   24s] ... removing all built rpms
+[   24s]     (order: reverse ctris)
+[   25s] 
+[   25s] RPMLINT report:
+[   25s] ===============
+[   25s] ============================ rpmlint session starts ============================
+[   25s] rpmlint: 2.5.0
+[   25s] configuration:
+[   25s]     /opt/testing/lib64/python3.11/rpmlint/configdefaults.toml
+[   25s]     /opt/testing/share/rpmlint/cron-whitelist.toml
+[   25s]     /opt/testing/share/rpmlint/dbus-services.toml
+[   25s]     /opt/testing/share/rpmlint/device-files-whitelist.toml
+[   25s]     /opt/testing/share/rpmlint/licenses.toml
+[   25s]     /opt/testing/share/rpmlint/opensuse.toml
+[   25s]     /opt/testing/share/rpmlint/pam-modules.toml
+[   25s]     /opt/testing/share/rpmlint/permissions-whitelist.toml
+[   25s]     /opt/testing/share/rpmlint/pie-executables.toml
+[   25s]     /opt/testing/share/rpmlint/polkit-rules-whitelist.toml
+[   25s]     /opt/testing/share/rpmlint/scoring.toml
+[   25s]     /opt/testing/share/rpmlint/security.toml
+[   25s]     /opt/testing/share/rpmlint/sudoers-whitelist.toml
+[   25s]     /opt/testing/share/rpmlint/sysctl-whitelist.toml
+[   25s]     /opt/testing/share/rpmlint/systemd-tmpfiles.toml
+[   25s]     /opt/testing/share/rpmlint/users-groups.toml
+[   25s]     /opt/testing/share/rpmlint/world-writable-whitelist.toml
+[   25s]     /opt/testing/share/rpmlint/zypper-plugins.toml
+[   25s] checks: 41, packages: 2
+[   25s] 
+[   25s] ctris.x86_64: W: unstripped-binary-or-object /usr/bin/ctris
+[   25s] This executable should be stripped from debugging symbols, in order to take
+[   25s] less space and be loaded faster. This is usually done automatically at
+[   25s] buildtime by rpm.
+[   25s] 
+[   25s] Check time report (>1% & >0.1s):
+[   25s]     Check                            Duration (in s)   Fraction (in %)  Checked files
+[   25s]     TOTAL                                        0.1             100.0              8
+[   25s] 
+[   25s]  2 packages and 0 specfiles checked; 0 errors, 1 warnings, 6 filtered, 0 badness; has taken 0.1 s 
+[   25s] 
+[   25s] ... creating baselibs
+[   25s] ... running 01-delete-x86_64-subarches
+[   25s] 
+[   25s] bdd15480d2b2 finished "build ctris.spec" at Thu Jan 11 12:18:09 UTC 2024.
+[   25s] 
+
+Retried build at Fri Jan 12 16:06:06 2024 returned same result, skipped
+
+Retried build at Mon Jan 15 09:48:15 2024 returned same result, skipped

@@ -1,6 +1,6 @@
 get:
   summary: Show the build configuration for the specified repository.
-  description: >
+  description: |
     Show the build configuration for the specified repository. Includes all base package
     requirements, mappings and macros.
   security:

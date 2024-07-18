@@ -5,14 +5,14 @@ class PersonController < ApplicationController
   validate_action register: { method: :put, response: :status }
   validate_action register: { method: :post, response: :status }
 
-  skip_before_action :extract_user, only: [:command, :register]
-  skip_before_action :require_login, only: [:command, :register]
+  skip_before_action :extract_user, only: %i[command register]
+  skip_before_action :require_login, only: %i[command register]
 
-  before_action :set_user, only: [:post_userinfo, :change_my_password, :get_watchlist, :put_watchlist]
+  before_action :set_user, only: %i[post_userinfo change_my_password get_watchlist put_watchlist]
 
   def show
     @list = if params[:prefix]
-              User.where('login LIKE ?', params[:prefix] + '%')
+              User.where('login LIKE ?', "#{params[:prefix]}%")
             elsif params[:confirmed]
               User.confirmed
             else
@@ -48,13 +48,8 @@ class PersonController < ApplicationController
     User.find_by_login!(login)
 
     if params[:cmd] == 'change_password'
-      login ||= User.session!.login
+      login ||= User.session.login
       password = request.raw_post.to_s.chomp
-      if (login != User.session!.login && !User.admin_session?) || !::Configuration.passwords_changable?(User.session!)
-        render_error status: 403, errorcode: 'change_password_no_permission',
-                     message: "No permission to change password for user #{login}"
-        return
-      end
       if password.blank?
         render_error status: 404, errorcode: 'password_empty',
                      message: 'No new password given in first line of the body'
@@ -95,7 +90,7 @@ class PersonController < ApplicationController
     end
 
     if user
-      unless user.login == User.session!.login || User.admin_session?
+      unless user.login == User.session.login || User.admin_session?
         logger.debug 'User has no permission to change userinfo'
         render_error(status: 403, errorcode: 'change_userinfo_no_permission',
                      message: "no permission to change userinfo for user #{user.login}") && return
@@ -136,7 +131,7 @@ class PersonController < ApplicationController
 
   def get_watchlist
     if @user
-      authorize @user, :check_watchlist?
+      authorize @user, :update?
 
       render xml: @user.render_axml(render_watchlist_only: true)
     else
@@ -148,7 +143,7 @@ class PersonController < ApplicationController
 
   def put_watchlist
     if @user
-      authorize @user, :check_watchlist?
+      authorize @user, :update?
     else
       @errorcode = 404
       @summary = 'Requested non-existing user'
@@ -162,15 +157,9 @@ class PersonController < ApplicationController
     render_ok
   end
 
-  class NoPermissionToGroupList < APIError
-    setup 401, 'No user logged in, permission to grouplist denied'
-  end
-
   def grouplist
-    raise NoPermissionToGroupList unless User.session
-
     user = User.find_by_login!(params[:login])
-    @list = User.lookup_strategy.groups(user)
+    @list = user.list_groups
   end
 
   def register
@@ -207,7 +196,7 @@ class PersonController < ApplicationController
 
       login = request.env['HTTP_X_USERNAME']
       email = request.env['HTTP_X_EMAIL'] if request.env['HTTP_X_EMAIL'].present?
-      realname = request.env['HTTP_X_FIRSTNAME'] + ' ' + request.env['HTTP_X_LASTNAME'] if request.env['HTTP_X_LASTNAME'].present?
+      realname = "#{request.env['HTTP_X_FIRSTNAME']} #{request.env['HTTP_X_LASTNAME']}" if request.env['HTTP_X_LASTNAME'].present?
     end
 
     UnregisteredUser.register(login: login, realname: realname, email:
@@ -218,6 +207,27 @@ class PersonController < ApplicationController
     # Strip passwords from request environment and re-raise exception
     request.env['RAW_POST_DATA'] = request.env['RAW_POST_DATA'].sub(%r{<password>(.*)</password>}, '<password>STRIPPED<password>')
     raise e
+  end
+
+  def change_my_password
+    authorize @user, :update?
+    # FIXME3.0: remove this function
+    xml = REXML::Document.new(request.raw_post)
+
+    logger.debug("changepasswd XML: #{request.raw_post}")
+
+    login = xml.elements['/userchangepasswd/login'].text
+    password = xml.elements['/userchangepasswd/password'].text
+    login = CGI.unescape(login)
+
+    change_password(login, CGI.unescape(password))
+    render_ok
+  end
+
+  private
+
+  def set_user
+    @user = User.find_by(login: params[:login])
   end
 
   def update_watchlist(user, xml)
@@ -241,8 +251,6 @@ class PersonController < ApplicationController
     end
   end
 
-  private :update_watchlist
-
   def update_globalroles(user, xml)
     new_globalroles = []
     xml.elements('globalrole') do |e|
@@ -252,32 +260,7 @@ class PersonController < ApplicationController
     user.update_globalroles(Role.global.where(title: new_globalroles))
   end
 
-  private :update_globalroles
-
-  def change_my_password
-    authorize @user, :update?
-    # FIXME3.0: remove this function
-    xml = REXML::Document.new(request.raw_post)
-
-    logger.debug("changepasswd XML: #{request.raw_post}")
-
-    login = xml.elements['/userchangepasswd/login'].text
-    password = xml.elements['/userchangepasswd/password'].text
-    login = CGI.unescape(login)
-
-    change_password(login, CGI.unescape(password))
-    render_ok
-  end
-
   def change_password(login, password)
-    unless User.session!
-      logger.debug 'No user logged in, permission to changing password denied'
-      @errorcode = 401
-      @summary = 'No user logged in, permission to changing password denied'
-      render template: 'error', status: :unauthorized
-      return
-    end
-
     if login.blank? || password.blank?
       render_error status: 404, errorcode: 'failed to change password',
                    message: 'Failed to change password: missing parameter'
@@ -285,7 +268,7 @@ class PersonController < ApplicationController
     end
 
     # change password to LDAP if LDAP is enabled
-    unless ::Configuration.passwords_changable?(User.session!)
+    unless ::Configuration.passwords_changable?(User.session)
       render_error status: 404, errorcode: 'change_passwd_failure',
                    message: 'LDAP passwords can not be changed in OBS. Please refer to your LDAP server to change it.'
       return
@@ -294,12 +277,5 @@ class PersonController < ApplicationController
     # update password in users db
     @user.password = password
     @user.save!
-  end
-  private :change_password
-
-  private
-
-  def set_user
-    @user = User.find_by(login: params[:login])
   end
 end

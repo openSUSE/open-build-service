@@ -4,14 +4,14 @@ class Webui::CommentLocksController < Webui::WebuiController
   def create
     authorize @commentable, policy_class: CommentLockPolicy
 
-    @comment_lock = CommentLock.new(commentable: @commentable, moderator: User.session!)
+    @comment_lock = CommentLock.new(commentable: @commentable, moderator: User.session)
     if @comment_lock.save
       flash[:success] = "Comments for #{comment_lock_params[:commentable_type]} locked"
     else
       flash[:error] = @comment_lock.errors.full_messages.to_sentence
     end
 
-    redirect_back(fallback_location: root_path)
+    redirect_back_or_to root_path
   end
 
   def destroy
@@ -24,7 +24,7 @@ class Webui::CommentLocksController < Webui::WebuiController
       flash[:error] = @comment_lock.errors.full_messages.to_sentence
     end
 
-    redirect_back(fallback_location: root_path)
+    redirect_back_or_to root_path
   end
 
   private

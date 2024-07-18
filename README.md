@@ -3,7 +3,7 @@
 [![Code Climate](https://codeclimate.com/github/openSUSE/open-build-service.png)](https://codeclimate.com/github/openSUSE/open-build-service)
 [![Depfu](https://badges.depfu.com/badges/3c5817c5855d9da3eabf1b71d64c46c1/overview.svg)](https://depfu.com/github/openSUSE/open-build-service?project=src%2Fapi%40Bundler)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6411/badge)](https://bestpractices.coreinfrastructure.org/projects/6411)
-[![build result](https://build.opensuse.org/projects/OBS:Server:Unstable/packages/obs-server/badge.svg?type=default&repository=15.4&architecture=x86_64)](https://build.opensuse.org/package/show/OBS:Server:Unstable/obs-server)
+[![build result](https://build.opensuse.org/projects/OBS:Server:Unstable/packages/obs-server/badge.svg?type=default&repository=15.5&architecture=x86_64)](https://build.opensuse.org/package/show/OBS:Server:Unstable/obs-server)
 
 # Open Build Service
 The [Open Build Service (OBS)](https://www.openbuildservice.org) is a generic system to build and distribute binary packages from sources in an automatic, consistent, and reproducible way. You can release packages as well as updates, add-ons, appliances, and entire distributions for a wide range of operating systems and hardware architectures. More information can be found on [openbuildservice.org](https://www.openbuildservice.org).
@@ -30,7 +30,7 @@ The OBS source code repository is hosted on [Github](https://github.com/opensuse
 ## Installation
 To run the OBS in production, we recommend using our [appliance](https://openbuildservice.org/download/) which is the whole package: A recent and stable Linux Operating System ([openSUSE](https://www.opensuse.org)) bundled and pre-configured with all the server and OBS components you need to get going.
 
-If that is not for you because you have some special needs for your setup (e.g. different partition schema, SLES as base system, etc.), you can also install our packages and run a setup wizard. The docker-compose setup is meant only for development.
+If that is not for you because you have some special needs for your setup (e.g. different partition schema, SLES as base system, etc.), you can also install our packages and run a setup wizard. The docker compose setup is meant only for development.
 
 After finishing the installation of your base system, follow these steps:
 

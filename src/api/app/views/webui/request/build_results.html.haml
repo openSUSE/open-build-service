@@ -1,34 +1,30 @@
 :ruby
-  @pagetitle = "Request #{@bs_request.number}: #{@action[:name]}"
+  @pagetitle = "Request #{@bs_request.number}: #{@action.name}"
 
 = render partial: 'beta_alert', locals: { bs_request: @bs_request, action: @action }
 
 .card
   .card-body.p-0
     = render partial: 'request_header',
-        locals: { bs_request: @bs_request, staging_status: @staging_status, action: @action, active_action: @active_action,
-                  prev_action: @prev_action, next_action: @next_action, supported_actions: @supported_actions,
-                  diff_to_superseded_id: @diff_to_superseded_id, diff_limit: @diff_limit, page_name: 'request_build_results',
+        locals: { bs_request: @bs_request, staging_status: @staging_status, action: @action,
+                  prev_action: @prev_action, next_action: @next_action, actions: @actions,
+                  diff_to_superseded_id: @diff_to_superseded_id, page_name: 'request_build_results',
                   bs_requests: @watched_requests, packages: @watched_packages, projects: @watched_projects }
     = render partial: 'request_tabs',
-        locals: { bs_request: @bs_request, bs_request_action: @bs_request_action, issues: @issues, active_action: @active_action,
-                  actions_count: @supported_actions.count, active_tab: @active_tab }
+        locals: { bs_request: @bs_request, action: @action, issues: @issues,
+                  actions_count: @actions.count, active_tab: @active_tab }
     .container.p-4
       - if @buildable
-        .build-results-content{ data: @ajax_data }
-          .d-flex.justify-content-end
-            .btn.btn-outline-primary.build-refresh{ onclick: 'updateBuildResultBeta()',
-                                                    accesskey: 'r', title: 'Refresh Build Results',
-                                                    data: { build_results_url: package_buildresult_path } }
-              Refresh
-              %i.fas.fa-sync-alt{ id: 'build-reload' }
+        .build-results-content
           -# For a request staged in a staging project, we display the Build Results / RPM Lint from the staging project instead
           - if @staging_project.present?
             %p.fst-italic
               From staging project
               = link_to(@project, project_show_path(@project))
-          .result
+          .result{ data: { build_results_url: request_complete_build_results_path } }
             // The content of this div is set by JavaScript which calls the partial ../_build_status.html.haml
+            = render partial: 'webui/shared/loading', locals: { text: 'Loading build results...' }
+
         :javascript
           updateBuildResultBeta();
       - else

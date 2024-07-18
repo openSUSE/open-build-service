@@ -21,12 +21,13 @@ class SendEventEmailsJob < ApplicationJob
   private
 
   def send_email(subscribers, event)
+    return if event.involves_hidden_project?
     return if subscribers.empty?
 
     email = EventMailer.with(subscribers: subscribers, event: event).notification_email
     email.deliver_now
   rescue StandardError => e
-    Airbrake.notify(e, event_id: event.id, email_body: email.body)
+    Airbrake.notify(e, event_id: event.id, email: email.inspect)
   ensure
     event.update(mails_sent: true)
   end
@@ -34,7 +35,7 @@ class SendEventEmailsJob < ApplicationJob
   def event_subscribers(event:)
     # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
     if event.is_a?(Event::CreateReport) || event.is_a?(Event::Report)
-      event.subscribers.filter_map { |subscriber| subscriber if ReportPolicy.new(subscriber, Report).notify? }
+      event.subscribers.select { |subscriber| ReportPolicy.new(subscriber, Report).notify? }
     else
       event.subscribers
     end

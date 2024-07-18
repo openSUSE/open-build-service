@@ -1,6 +1,6 @@
 # The Group class represents a group record in the database and thus a
 # group model. Groups are arranged in trees and have a title.
-# Groups have an arbitrary number of roles and users assigned to them.
+# Groups have an arbitrary number of users assigned to them.
 #
 class Group < ApplicationRecord
   has_one :staging_workflow, class_name: 'Staging::Workflow', foreign_key: :managers_group_id, dependent: :nullify
@@ -31,9 +31,6 @@ class Group < ApplicationRecord
   validates :title,
             uniqueness: { case_sensitive: true, message: 'is the name of an already existing group' }
 
-  # groups have a n:m relation to groups
-  has_and_belongs_to_many :roles, -> { distinct }
-
   default_scope { order(:title) }
 
   alias_attribute :name, :title
@@ -44,7 +41,7 @@ class Group < ApplicationRecord
     raise e, "Couldn't find Group '#{title}'", e.backtrace
   end
 
-  def update_from_xml(xmlhash)
+  def update_from_xml(xmlhash, user_session_login:)
     with_lock do
       self.email = xmlhash.value('email')
     end
@@ -89,7 +86,7 @@ class Group < ApplicationRecord
 
     # delete all users which were not listed
     cache.each do |login_id, _|
-      delete_user(GroupsUser, login_id, id)
+      delete_user(GroupsUser, login_id, id, user_session_login: user_session_login)
     end
   end
 
@@ -108,8 +105,8 @@ class Group < ApplicationRecord
     false
   end
 
-  def remove_user(user)
-    delete_user(GroupsUser, user.id, id)
+  def remove_user(user, user_session_login:)
+    delete_user(GroupsUser, user.id, id, user_session_login: user_session_login)
   end
 
   def set_email(email)
@@ -161,21 +158,21 @@ class Group < ApplicationRecord
   end
 
   def involved_reviews(search = nil)
-    BsRequest.find_for(
+    BsRequest::FindFor::Query.new(
       group: title,
       roles: [:reviewer],
       review_states: [:new],
       states: [:review],
       search: search
-    )
+    ).all
   end
 
   def incoming_requests(search = nil)
-    BsRequest.find_for(group: title, states: [:new], roles: [:maintainer], search: search)
+    BsRequest::FindFor::Query.new(group: title, states: [:new], roles: [:maintainer], search: search).all
   end
 
   def requests(search = nil)
-    BsRequest.find_for(group: title, search: search)
+    BsRequest::FindFor::Query.new(group: title, search: search).all
   end
 
   def all_requests_count
@@ -206,8 +203,9 @@ class Group < ApplicationRecord
     @maintainer_roler ||= Role.hashed['maintainer']
   end
 
-  def delete_user(klass, login_id, group_id)
+  def delete_user(klass, login_id, group_id, user_session_login: nil)
     klass.where('user_id = ? AND group_id = ?', login_id, group_id).delete_all if [GroupMaintainer, GroupsUser].include?(klass)
+    Event::RemovedUserFromGroup.create(group: Group.find(group_id).title, member: User.find(login_id).login, who: user_session_login) if klass == GroupsUser
   end
 
   def involved_projects_ids

@@ -99,7 +99,7 @@ RSpec.describe Package, :vcr do
       create(:relationship_package_user, user: user, package: package)
       create(:relationship_package_user, user: other_user, package: package)
 
-      expect(package.maintainers).to match_array([other_user, user])
+      expect(package.maintainers).to contain_exactly(other_user, user)
     end
 
     it 'resolves groups properly' do
@@ -115,7 +115,7 @@ RSpec.describe Package, :vcr do
       create(:relationship_package_group_as_bugowner, group: group_bugowner, package: package)
       create(:relationship_package_group, group: group, package: package)
 
-      expect(package.maintainers).to match_array([other_user, other_user2])
+      expect(package.maintainers).to contain_exactly(other_user, other_user2)
     end
 
     it 'makes sure that no user is listed more than one time' do
@@ -126,7 +126,7 @@ RSpec.describe Package, :vcr do
       create(:relationship_package_group, group: group_bugowner, package: package)
       create(:relationship_package_user, user: user, package: package)
 
-      expect(package.maintainers).to match_array([user])
+      expect(package.maintainers).to contain_exactly(user)
     end
 
     it 'returns users and the users of resolved groups' do
@@ -137,7 +137,7 @@ RSpec.describe Package, :vcr do
       create(:relationship_package_group, group: group_bugowner, package: package)
       create(:relationship_package_user, user: other_user2, package: package)
 
-      expect(package.maintainers).to match_array([user, other_user, other_user2])
+      expect(package.maintainers).to contain_exactly(user, other_user, other_user2)
     end
   end
 
@@ -284,7 +284,7 @@ RSpec.describe Package, :vcr do
 
       it "starts with '_product:'" do
         property_of do
-          string = '_product:' + sized(1) { string(/[a-zA-Z0-9]/) } + sized(range(0, 190)) { string(/[-+\w.]/) }
+          string = "_product:#{sized(1) { string(/[a-zA-Z0-9]/) }}#{sized(range(0, 190)) { string(/[-+\w.]/) }}"
           guard(string != '0')
           string
         end.check(3) do |string|
@@ -294,7 +294,7 @@ RSpec.describe Package, :vcr do
 
       it "starts with '_patchinfo:'" do
         property_of do
-          string = '_patchinfo:' + sized(1) { string(/[a-zA-Z0-9]/) } + sized(range(0, 188)) { string(/[-+\w.]/) }
+          string = "_patchinfo:#{sized(1) { string(/[a-zA-Z0-9]/) }}#{sized(range(0, 188)) { string(/[-+\w.]/) }}"
           guard(string != '0')
           string
         end.check(3) do |string|
@@ -319,15 +319,6 @@ RSpec.describe Package, :vcr do
     it { expect(package_with_file.source_path).to eq('/source/home:tom/package_with_files') }
     it { expect(package_with_file.source_path('icon')).to eq('/source/home:tom/package_with_files/icon') }
     it { expect(package_with_file.source_path('icon', format: :html)).to eq('/source/home:tom/package_with_files/icon?format=html') }
-  end
-
-  describe '#public_source_path' do
-    it { expect(package_with_file.public_source_path).to eq('/public/source/home:tom/package_with_files') }
-    it { expect(package_with_file.public_source_path('icon')).to eq('/public/source/home:tom/package_with_files/icon') }
-
-    it 'adds the format parameter to the url that was given to the method' do
-      expect(package_with_file.public_source_path('icon', format: :html)).to eq('/public/source/home:tom/package_with_files/icon?format=html')
-    end
   end
 
   describe '.what_depends_on' do
@@ -387,7 +378,7 @@ RSpec.describe Package, :vcr do
       end
 
       it 'returns an array with the dependencies' do
-        expect(result).to eq(['gcc6', 'xz'])
+        expect(result).to eq(%w[gcc6 xz])
       end
     end
 
@@ -402,58 +393,11 @@ RSpec.describe Package, :vcr do
     end
   end
 
-  describe '#backend_build_command' do
-    let(:params) { ActionController::Parameters.new(arch: 'x86') }
-    let(:backend_url) { "#{CONFIG['source_url']}/build/#{package.project.name}?arch=x86&cmd=rebuild" }
-
-    subject { package.backend_build_command(:rebuild, package.project.name, params) }
-
-    context 'backend response is successful' do
-      before { stub_request(:post, backend_url) }
-
-      it { is_expected.to be_truthy }
-
-      it 'has no errors' do
-        subject
-        expect(package.errors.details).to eq({})
-      end
-    end
-
-    context 'backend response fails' do
-      before { stub_request(:post, backend_url).and_raise(Backend::Error) }
-
-      it { is_expected.to be_falsey }
-
-      it 'has errors' do
-        subject
-        expect(package.errors.details).to eq(base: [{ error: 'Exception from WebMock' }])
-      end
-    end
-
-    context 'user has no access rights for the project' do
-      let(:other_project) { create(:project, name: 'other_project') }
-
-      before do
-        # check_write_access! depends on the Rails env. We have to workaround this here.
-        allow(Rails.env).to receive(:test?).and_return false
-      end
-
-      subject { package.backend_build_command(:rebuild, other_project.name, params) }
-
-      it { is_expected.to be_falsey }
-
-      it 'has errors' do
-        subject
-        expect(package.errors.details).to eq(base: [{ error: "No permission to modify project '#{other_project}' for user '#{user}'" }])
-      end
-    end
-  end
-
   describe '.jobhistory' do
+    subject { package.jobhistory(repository_name: 'openSUSE_Tumbleweed', arch_name: 'x86_64') }
+
     let(:backend_url) { "#{CONFIG['source_url']}/build/#{home_project}/openSUSE_Tumbleweed/x86_64/_jobhistory?limit=100&package=#{package}" }
     let(:backend_response) { file_fixture('jobhistory.xml') }
-
-    subject { package.jobhistory(repository_name: 'openSUSE_Tumbleweed', arch_name: 'x86_64') }
 
     context 'when response is successful' do
       let(:local_job_history) do
@@ -599,10 +543,10 @@ RSpec.describe Package, :vcr do
   end
 
   describe '#sources_changed' do
+    subject { package.sources_changed }
+
     let!(:project) { create(:project, name: 'apache') }
     let!(:package) { create(:package_with_file, name: 'mod_ssl', project: project) }
-
-    subject { package.sources_changed }
 
     it 'creates a BackendPackge for the Package' do
       expect { subject }.to change(BackendPackage, :count).by(1)
@@ -615,12 +559,12 @@ RSpec.describe Package, :vcr do
     let(:package) { create(:package_with_changes_file, project: project, name: 'package_with_changes_file') }
 
     context 'with a diff to the target package changes file' do
+      subject { package.commit_message_from_changes_file(target_project, target_package) }
+
       let(:target_project)  { create(:project, name: 'Apache') }
       let!(:target_package) do
         create(:package_with_changes_file, project: target_project, name: 'package_with_changes_file', changes_file_content: changes_file)
       end
-
-      subject { package.commit_message_from_changes_file(target_project, target_package) }
 
       it { expect(subject).to include('- Testing the submit diff') }
       it { expect(subject).not_to include('- Temporary hack') }
@@ -744,9 +688,9 @@ RSpec.describe Package, :vcr do
     end
 
     context 'a product sub package (_product:*)' do
-      let(:project) { create(:project) }
-
       subject { create(:package, name: '_product:foo', project: project) }
+
+      let(:project) { create(:project) }
 
       context 'that was generated by a _product file' do
         let!(:product_package) { create(:package, name: '_product', project: project) }
@@ -804,13 +748,13 @@ RSpec.describe Package, :vcr do
   end
 
   describe '#resolve_devel_package' do
+    subject { stable_apache.resolve_devel_package }
+
     let!(:stable_project) { create(:project, name: 'stable_project') }
     let!(:stable_apache) { create(:package, name: 'apache', project: stable_project) }
 
     let!(:unstable_project) { create(:project, name: 'unstable_project') }
     let!(:unstable_apache) { create(:package, name: 'apache', project: unstable_project) }
-
-    subject { stable_apache.resolve_devel_package }
 
     context 'with develproject' do
       before do

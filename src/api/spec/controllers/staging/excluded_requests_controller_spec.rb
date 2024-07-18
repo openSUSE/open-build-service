@@ -40,10 +40,10 @@ RSpec.describe Staging::ExcludedRequestsController do
     it 'returns the excluded_requests xml' do
       expect(response.body).to have_css('excluded_requests', count: 1)
       expect(response.body).to have_css('excluded_requests > request', count: 2)
-      expect(response.body).to have_selector("excluded_requests > request[id='#{bs_request.number}']")
-      expect(response.body).to have_selector("excluded_requests > request[id='#{bs_request_2.number}']")
-      expect(response.body).to have_selector("excluded_requests > request[package='#{bs_request.first_target_package}']")
-      expect(response.body).to have_selector("excluded_requests > request[package='#{bs_request_2.first_target_package}']")
+      expect(response.body).to have_css("excluded_requests > request[id='#{bs_request.number}']")
+      expect(response.body).to have_css("excluded_requests > request[id='#{bs_request_2.number}']")
+      expect(response.body).to have_css("excluded_requests > request[package='#{bs_request.first_target_package}']")
+      expect(response.body).to have_css("excluded_requests > request[package='#{bs_request_2.first_target_package}']")
       expect(response.body).to have_css("excluded_requests > request[description='Request 1']")
       expect(response.body).to have_css("excluded_requests > request[description='Request 2']")
     end
@@ -53,12 +53,12 @@ RSpec.describe Staging::ExcludedRequestsController do
     before { login(manager) }
 
     context 'succeeds' do
+      subject { staging_workflow.request_exclusions.last }
+
       before do
         post :create, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
                       body: "<excluded_requests><request id='#{bs_request.number}' description='hey'/></excluded_requests>"
       end
-
-      subject { staging_workflow.request_exclusions.last }
 
       it { expect(response).to have_http_status(:success) }
       it { expect(subject.bs_request).to eq(bs_request) }
@@ -121,12 +121,12 @@ RSpec.describe Staging::ExcludedRequestsController do
     let(:request_exclusion) { create(:request_exclusion, bs_request: bs_request, number: bs_request.number, staging_workflow: staging_workflow) }
 
     context 'succeeds' do
-      before { request_exclusion }
-
       subject do
         delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
                          body: "<requests><request id='#{bs_request.number}'/></requests>"
       end
+
+      before { request_exclusion }
 
       it { expect { subject }.to(change { staging_workflow.request_exclusions.count }.by(-1)) }
 

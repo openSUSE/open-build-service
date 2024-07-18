@@ -1,10 +1,12 @@
 module Event
   class ServiceFail < Base
     self.message_bus_routing_key = 'package.service_fail'
-    self.description = 'Package source service has failed'
+    self.description = 'Package source service failed'
     payload_keys :project, :package, :sender, :comment, :error, :rev, :user, :requestid
     receiver_roles :maintainer, :bugowner
     create_jobs :update_backend_infos_job
+
+    self.notification_explanation = 'Receive notifications for source service failures of packages for which you are...'
 
     def subject
       "Source service failure of #{payload['project']}/#{payload['package']}"
@@ -19,7 +21,7 @@ module Event
     def set_payload(attribs, keys)
       # limit the error string
       attribs['error'] = attribs['error'][0..800]
-      super(attribs, keys)
+      super
     end
 
     def metric_measurement
@@ -47,6 +49,10 @@ module Event
     def metric_fields
       { value: 1 }
     end
+
+    def involves_hidden_project?
+      Project.unscoped.find_by(name: payload['project'])&.disabled_for?('access', nil, nil)
+    end
   end
 end
 
@@ -57,7 +63,7 @@ end
 #  id          :bigint           not null, primary key
 #  eventtype   :string(255)      not null, indexed
 #  mails_sent  :boolean          default(FALSE), indexed
-#  payload     :text(65535)
+#  payload     :text(16777215)
 #  undone_jobs :integer          default(0)
 #  created_at  :datetime         indexed
 #  updated_at  :datetime

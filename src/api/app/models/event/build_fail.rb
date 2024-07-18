@@ -3,10 +3,12 @@ module Event
     include BuildLogSupport
 
     self.message_bus_routing_key = 'package.build_fail'
-    self.description = 'Package has failed to build'
-    receiver_roles :maintainer, :bugowner, :reader, :watcher, :package_watcher, :request_watcher
+    self.description = 'Package failed to build'
+    receiver_roles :maintainer, :bugowner, :reader, :project_watcher, :package_watcher, :request_watcher
 
     create_jobs :report_to_scm_job
+
+    self.notification_explanation = 'Receive notifications for build failures of packages for which you are...'
 
     def subject
       "Build failure of #{payload['project']}/#{payload['package']} in #{payload['repository']}/#{payload['arch']}"
@@ -59,7 +61,7 @@ end
 #  id          :bigint           not null, primary key
 #  eventtype   :string(255)      not null, indexed
 #  mails_sent  :boolean          default(FALSE), indexed
-#  payload     :text(65535)
+#  payload     :text(16777215)
 #  undone_jobs :integer          default(0)
 #  created_at  :datetime         indexed
 #  updated_at  :datetime

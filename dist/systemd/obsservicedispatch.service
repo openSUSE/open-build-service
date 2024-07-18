@@ -3,6 +3,7 @@ Description=OBS source service dispatcher
 After=network-online.target obsstoragesetup.service obsservice.service
 
 [Service]
+OOMPolicy=continue
 EnvironmentFile=/etc/sysconfig/obs-server
 ExecStart=/usr/lib/obs/server/bs_servicedispatch --logfile servicedispatch.log
 ExecStop=/usr/lib/obs/server/bs_servicedispatch --stop

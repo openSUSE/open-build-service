@@ -1,6 +1,6 @@
 get:
   summary: Show the build status of a currently running build job.
-  description: >
+  description: |
     Show the build status of a currently running build job. Shows an empty
     result if no build job is running.
   security:

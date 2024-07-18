@@ -92,20 +92,20 @@ RSpec.describe Webui::CommentsController do
     end
 
     context 'saving a comment without body' do
+      subject! { post :create, params: comment_params }
+
       let(:comment_params) do
         { comment: { body: '' }, commentable_type: package.class, commentable_id: package.id }
       end
-
-      subject! { post :create, params: comment_params }
 
       it { expect(flash[:error]).to eq("Failed to create comment: Body can't be blank.") }
       it { expect(package.comments.count).to eq(0) }
     end
 
     context "does not allow to overwrite the comment's user" do
-      let(:comment_params) { { comment: { body: 'This project is AWESOME!', user_id: user }, commentable_type: project.class, commentable_id: project.id } }
-
       subject { post :create, params: comment_params }
+
+      let(:comment_params) { { comment: { body: 'This project is AWESOME!', user_id: user }, commentable_type: project.class, commentable_id: project.id } }
 
       it 'raises an error' do
         expect { subject }.to raise_error(ActionController::UnpermittedParameters)
@@ -179,7 +179,7 @@ RSpec.describe Webui::CommentsController do
           end
 
           it 'renders the replies below' do
-            expect(response.body).not_to have_text('This is a root comment')
+            expect(response.body).to have_no_text('This is a root comment')
             expect(response.body).to have_text('This is a reply')
           end
         end
@@ -199,7 +199,7 @@ RSpec.describe Webui::CommentsController do
           end
 
           it 'removes the reply from the view' do
-            expect(response.body).not_to have_text('This is a leaf')
+            expect(response.body).to have_no_text('This is a leaf')
           end
         end
 
@@ -236,12 +236,12 @@ RSpec.describe Webui::CommentsController do
           end
 
           it 'removes the leaf' do
-            expect(response.body).not_to have_text('This is a leaf comment')
+            expect(response.body).to have_no_text('This is a leaf comment')
           end
 
           it 'removes the root comment' do
-            expect(response.body).not_to have_text('This is a root comment')
-            expect(response.body).not_to have_text('This comment has been deleted')
+            expect(response.body).to have_no_text('This is a root comment')
+            expect(response.body).to have_no_text('This comment has been deleted')
           end
         end
 
@@ -258,19 +258,19 @@ RSpec.describe Webui::CommentsController do
           end
 
           it 'removes the root comment' do
-            expect(response.body).not_to have_text('This is a root comment')
+            expect(response.body).to have_no_text('This is a root comment')
           end
 
           it 'removes the reply comment' do
-            expect(response.body).not_to have_text('This is a reply comment')
+            expect(response.body).to have_no_text('This is a reply comment')
           end
 
           it 'removes the leaf comment' do
-            expect(response.body).not_to have_text('This is a leaf comment')
+            expect(response.body).to have_no_text('This is a leaf comment')
           end
 
           it 'does not render the deleted comments' do
-            expect(response.body).not_to have_text('This comment has been deleted')
+            expect(response.body).to have_no_text('This comment has been deleted')
           end
         end
       end

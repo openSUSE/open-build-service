@@ -67,7 +67,7 @@ module Webui::ProjectBuildResultParsing
 
       stathash[package] = status
       @packagenames.add(package)
-      @failures += 1 if status['code'].in?(['unresolvable', 'failed', 'broken'])
+      @failures += 1 if status['code'].in?(%w[unresolvable failed broken])
     end
 
     # repository status cache
@@ -77,7 +77,7 @@ module Webui::ProjectBuildResultParsing
     return unless result.key?('state')
 
     @repostatushash[repo][arch] = if result.key?('dirty')
-                                    'outdated_' + result['state']
+                                    "outdated_#{result['state']}"
                                   else
                                     result['state']
                                   end
@@ -110,7 +110,7 @@ module Webui::ProjectBuildResultParsing
   def monitor_set_filter(defaults)
     @avail_status_values = Buildresult.avail_status_values
     @status_filter = []
-    excluded_status = ['disabled', 'excluded', 'unknown']
+    excluded_status = %w[disabled excluded unknown]
     @avail_status_values.each do |s|
       id = s.delete(' ')
       if params.key?(id)

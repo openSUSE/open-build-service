@@ -33,7 +33,7 @@ class UnregisteredUser < User
     end
 
     # Turn on registration if it's enabled
-    return true if ['allow', 'confirmation'].include?(::Configuration.registration)
+    return true if %w[allow confirmation].include?(::Configuration.registration)
 
     # This shouldn't happen, but disable registration by default.
     logger.debug "Huh? This shouldn't happen. UnregisteredUser.can_register ran out of options"
@@ -72,6 +72,8 @@ end
 #  id                            :integer          not null, primary key
 #  adminnote                     :text(65535)
 #  biography                     :string(255)      default("")
+#  blocked_from_commenting       :boolean          default(FALSE), not null, indexed
+#  color_theme                   :integer          default("system"), not null
 #  deprecated_password           :string(255)      indexed
 #  deprecated_password_hash_type :string(255)
 #  deprecated_password_salt      :string(255)
@@ -85,16 +87,18 @@ end
 #  password_digest               :string(255)
 #  realname                      :string(200)      default(""), not null
 #  rss_secret                    :string(200)      indexed
-#  state                         :string           default("unconfirmed")
+#  state                         :string           default("unconfirmed"), indexed
 #  created_at                    :datetime
 #  updated_at                    :datetime
 #  owner_id                      :integer
 #
 # Indexes
 #
-#  index_users_on_in_beta     (in_beta)
-#  index_users_on_in_rollout  (in_rollout)
-#  index_users_on_rss_secret  (rss_secret) UNIQUE
-#  users_login_index          (login) UNIQUE
-#  users_password_index       (deprecated_password)
+#  index_users_on_blocked_from_commenting  (blocked_from_commenting)
+#  index_users_on_in_beta                  (in_beta)
+#  index_users_on_in_rollout               (in_rollout)
+#  index_users_on_rss_secret               (rss_secret) UNIQUE
+#  index_users_on_state                    (state)
+#  users_login_index                       (login) UNIQUE
+#  users_password_index                    (deprecated_password)
 #

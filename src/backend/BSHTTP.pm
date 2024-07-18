@@ -296,12 +296,11 @@ sub read_data {
 	$cl = $maxl = length($qu);
       }
     }
-    $cl -= $maxl if defined($cl);
-    $ret = substr($qu, 0, $maxl);
+    $cl -= $maxl if defined $cl;
     $req->{'__cl'} = $cl;
-    $req->{'__data'} = substr($qu, $maxl);
+    $req->{'__data'} = substr($qu, $maxl, length($qu) - $maxl, '');
     $req->{'__eof'} = 1 if defined($cl) && $cl == 0;
-    return $ret;
+    return $qu;
   }
 }
 

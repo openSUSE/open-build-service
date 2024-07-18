@@ -51,7 +51,7 @@ RSpec.describe 'Reports', :js, :vcr do
       end
 
       it 'does not display the report link' do
-        within('div#comments') { expect(page).not_to have_link('Report') }
+        within('div#comments') { expect(page).to have_no_link('Report') }
       end
     end
   end
@@ -94,7 +94,7 @@ RSpec.describe 'Reports', :js, :vcr do
       end
 
       it 'does not display the report link' do
-        within('div#comments') { expect(page).not_to have_link('Report') }
+        within('div#comments') { expect(page).to have_no_link('Report') }
       end
     end
   end
@@ -137,7 +137,7 @@ RSpec.describe 'Reports', :js, :vcr do
       end
 
       it 'does not display the report link' do
-        within('div.comments-thread') { expect(page).not_to have_link('Report') }
+        within('div.comments-thread') { expect(page).to have_no_link('Report') }
       end
     end
   end
@@ -154,7 +154,7 @@ RSpec.describe 'Reports', :js, :vcr do
 
       it 'displays the "You reported this project." message instantly' do
         desktop? ? click_link('Report Project') : click_menu_link('Actions', 'Report Project')
-        expect(page).not_to have_text('Report the author of the comment')
+        expect(page).to have_no_text('Report the author of the comment')
         fill_and_submit_report_form
         expect(page).to have_text('You reported this project.')
       end
@@ -171,7 +171,7 @@ RSpec.describe 'Reports', :js, :vcr do
 
       it 'does not display the report link' do
         click_link('Actions') if mobile?
-        expect(page).not_to have_link('Report Project')
+        expect(page).to have_no_link('Report Project')
       end
     end
   end
@@ -191,7 +191,7 @@ RSpec.describe 'Reports', :js, :vcr do
 
       it 'displays the "You reported this package." message instantly' do
         desktop? ? click_link('Report Package') : click_menu_link('Actions', 'Report Package')
-        expect(page).not_to have_text('Report the author of the comment')
+        expect(page).to have_no_text('Report the author of the comment')
         fill_and_submit_report_form
         expect(page).to have_text('You reported this package.')
       end
@@ -208,7 +208,7 @@ RSpec.describe 'Reports', :js, :vcr do
 
       it 'does not display the report link' do
         click_link('Actions') if mobile?
-        expect(page).not_to have_link('Report Package')
+        expect(page).to have_no_link('Report Package')
       end
     end
   end
@@ -226,7 +226,7 @@ RSpec.describe 'Reports', :js, :vcr do
 
       it 'displays the "You reported this user." message instantly' do
         click_link('Report', id: "js-user-#{another_user.id}")
-        expect(page).not_to have_text('Report the author of the comment')
+        expect(page).to have_no_text('Report the author of the comment')
         fill_and_submit_report_form
         expect(page).to have_text('You reported this user.')
       end
@@ -239,7 +239,7 @@ RSpec.describe 'Reports', :js, :vcr do
       end
 
       it 'does not display the report link' do
-        within('div.basic-info') { expect(page).not_to have_link('Report') }
+        within('div.basic-info') { expect(page).to have_no_link('Report') }
       end
     end
   end

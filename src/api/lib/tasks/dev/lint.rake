@@ -34,7 +34,7 @@ namespace :dev do
 
     namespace :rubocop do
       desc 'Run the ruby linter in rails and in root'
-      task all: [:root, :rails]
+      task all: %i[root rails]
 
       desc 'Run the ruby linter in rails'
       task :rails do
@@ -52,7 +52,7 @@ namespace :dev do
 
       namespace :auto_gen_config do
         desc 'Autogenerate rubocop config in rails and in root'
-        task all: [:root, :rails]
+        task all: %i[root rails]
 
         desc 'Autogenerate rubocop config in rails'
         task :rails do

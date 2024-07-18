@@ -29,7 +29,7 @@ class SourceAttributeController < SourceController
     end
 
     opts = { attrib_type: @at }.with_indifferent_access
-    [:binary, :with_default, :with_project].each { |p| opts[p] = params[p] }
+    %i[binary with_default with_project].each { |p| opts[p] = params[p] }
     render xml: @attribute_container.render_attribute_axml(opts)
   end
 

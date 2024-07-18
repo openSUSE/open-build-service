@@ -7,8 +7,8 @@ class ProjectLogEntry < ApplicationRecord
 
   validates :event_type, :datetime, :project_id, presence: true
 
-  USERNAME_KEYS = ['sender', 'user', 'who', 'author', 'commenter'].freeze
-  EXCLUDED_KEYS = (USERNAME_KEYS + ['project', 'package', 'requestid']).freeze
+  USERNAME_KEYS = %w[sender user who author commenter].freeze
+  EXCLUDED_KEYS = (USERNAME_KEYS + %w[project package requestid]).freeze
 
   # Creates a new LogEntry record from the payload, timestamp, and model name of
   # an Event
@@ -28,7 +28,7 @@ class ProjectLogEntry < ApplicationRecord
   end
 
   def self.cleanup
-    where(event_type: [:build_fail, :build_success]).where('datetime < ?', Time.zone.yesterday).delete_all
+    where(event_type: %i[build_fail build_success]).where(datetime: ...Time.zone.yesterday).delete_all
   end
 
   # Human readable message, based in the event class

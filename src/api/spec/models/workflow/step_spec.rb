@@ -58,6 +58,10 @@ RSpec.describe Workflow::Step do
   end
 
   describe '#target_project_name' do
+    subject do
+      step.new(step_instructions: step_instructions, scm_webhook: scm_webhook).target_project_name
+    end
+
     let(:step) do
       Class.new(described_class) do
         def self.name
@@ -79,19 +83,15 @@ RSpec.describe Workflow::Step do
               name: 'openSUSE_Tumbleweed',
               target_project: 'openSUSE:Factory',
               target_repository: 'snapshot',
-              architectures: [
-                'x86_64',
-                'ppc'
+              architectures: %w[
+                x86_64
+                ppc
               ]
             }
           ]
       }
     end
     let(:scm_webhook) { SCMWebhook.new(payload: payload) }
-
-    subject do
-      step.new(step_instructions: step_instructions, scm_webhook: scm_webhook).target_project_name
-    end
 
     context 'for an unsupported event' do
       let(:payload) do
@@ -124,7 +124,7 @@ RSpec.describe Workflow::Step do
             scm: 'gitlab',
             event: 'Merge Request Hook',
             pr_number: 1,
-            path_with_namespace: 'openSUSE/repo123'
+            target_repository_full_name: 'openSUSE/repo123'
           }
         end
 
@@ -157,6 +157,90 @@ RSpec.describe Workflow::Step do
         let(:payload) { { scm: 'gitlab', event: 'Tag Push Hook' } }
 
         it { is_expected.to eq('OBS:Server:Unstable') }
+      end
+    end
+  end
+
+  describe '#validate_project_names_in_step_instructions' do
+    before do
+      subject.valid?
+    end
+
+    context 'when the project is invalid' do
+      subject { Workflow::Step::RebuildPackage.new(step_instructions: { project: 'Invalid/format', package: 'franz' }) }
+
+      it 'gives an error for invalid name' do
+        expect(subject.errors.full_messages.to_sentence).to eq("invalid project: 'Invalid/format'")
+      end
+    end
+
+    context 'when the source project is invalid' do
+      subject { Workflow::Step::BranchPackageStep.new(step_instructions: { source_project: 'Invalid/format', source_package: 'hans', target_project: 'franz' }) }
+
+      it 'gives an error for invalid name' do
+        expect(subject.errors.full_messages.to_sentence).to eq("invalid source_project: 'Invalid/format'")
+      end
+    end
+
+    context 'when the target project is invalid' do
+      subject { Workflow::Step::BranchPackageStep.new(step_instructions: { source_project: 'hans', source_package: 'franz', target_project: 'Invalid/format' }) }
+
+      it 'gives an error for invalid name' do
+        expect(subject.errors.full_messages.to_sentence).to eq("invalid target_project: 'Invalid/format'")
+      end
+    end
+  end
+
+  describe '#validate_package_names_in_step_instructions' do
+    before do
+      subject.valid?
+    end
+
+    context 'when the package is invalid' do
+      subject { Workflow::Step::RebuildPackage.new(step_instructions: { project: 'hans', package: 'Invalid/format' }) }
+
+      it 'gives an error for invalid name' do
+        expect(subject.errors.full_messages.to_sentence).to eq("invalid package: 'Invalid/format'")
+      end
+    end
+
+    context 'when the source package is invalid' do
+      subject { Workflow::Step::BranchPackageStep.new(step_instructions: { source_project: 'hans', source_package: 'Invalid/format', target_project: 'franz' }) }
+
+      it 'gives an error for invalid name' do
+        expect(subject.errors.full_messages.to_sentence).to eq("invalid source_package: 'Invalid/format'")
+      end
+    end
+
+    context 'when the target package is invalid' do
+      subject { Workflow::Step::BranchPackageStep.new(step_instructions: { source_project: 'hans', source_package: 'franz', target_project: 'peter', target_package: 'Invalid/format' }) }
+
+      it 'gives an error for invalid name' do
+        expect(subject.errors.full_messages.to_sentence).to eq("invalid target_package: 'Invalid/format'")
+      end
+    end
+  end
+
+  describe '#validate_required_keys_in_step_instructions' do
+    subject { Workflow::Step::RebuildPackage.new(step_instructions: step_instructions) }
+
+    before do
+      subject.valid?
+    end
+
+    context 'key not provided' do
+      let(:step_instructions) { { package: 'hans' } }
+
+      it 'gives an error for invalid name' do
+        expect(subject.errors[:base]).to include("The 'project' key is missing")
+      end
+    end
+
+    context 'value not provided' do
+      let(:step_instructions) { { project: '', package: 'hans' } }
+
+      it 'gives an error for invalid name' do
+        expect(subject.errors[:base]).to include("The 'project' key must provide a value")
       end
     end
   end

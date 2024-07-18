@@ -13,7 +13,7 @@ class EventSubscription
 
       event.class.receiver_roles.each do |receiver_role|
         # Find the users/groups who are receivers for this event
-        receivers_before_expand = event.send("#{receiver_role}s")
+        receivers_before_expand = event.send(:"#{receiver_role}s")
         next if receivers_before_expand.blank?
 
         puts "Looking at #{receivers_before_expand.map(&:to_s).join(', ')} for '#{receiver_role}' and channel '#{channel}'" if @debug

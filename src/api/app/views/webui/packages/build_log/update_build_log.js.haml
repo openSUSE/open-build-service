@@ -6,12 +6,12 @@
 - else
   - if @finished
     - if @first_request
-      $('#log-space').html('#{escape_javascript(@log_chunk)}');
+      $('#log-space').html('#{escape_javascript(sanitize @log_chunk)}');
     - else
       liveLog.browserNotification('#{@status}');
     liveLog.finish("#{@status}");
   - else
-    $('#log-space').append('#{escape_javascript(@log_chunk)}');
+    $('#log-space').append('#{escape_javascript(sanitize @log_chunk)}');
     liveLog.showAbort();
     liveLog.offset = #{@offset};
     setTimeout($.proxy(liveLog.loadContent, liveLog), 2000);

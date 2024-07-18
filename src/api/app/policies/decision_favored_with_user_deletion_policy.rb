@@ -1,0 +1,2 @@
+class DecisionFavoredWithUserDeletionPolicy < DecisionPolicy
+end

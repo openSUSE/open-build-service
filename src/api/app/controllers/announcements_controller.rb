@@ -1,5 +1,5 @@
 class AnnouncementsController < ApplicationController
-  before_action :set_status_message, only: [:show, :update, :destroy]
+  before_action :set_status_message, only: %i[show update destroy]
   # Pundit authorization policies control
   after_action :verify_authorized
 
@@ -59,6 +59,6 @@ class AnnouncementsController < ApplicationController
     xml = Nokogiri::XML(request.raw_post, &:strict)
     title = xml.xpath('//announcement/title').text
     content = xml.xpath('//announcement/content').text
-    { message: "#{title} #{content}", severity: 'announcement', user: User.session! }
+    { message: "#{title} #{content}", severity: 'announcement', user: User.session }
   end
 end

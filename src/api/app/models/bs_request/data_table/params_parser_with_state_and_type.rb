@@ -13,7 +13,7 @@ class BsRequest
 
       def states
         if @requested_params[:state] == 'new or review'
-          ['new', 'review']
+          %w[new review]
         elsif @requested_params[:state].present?
           [@requested_params[:state]]
         end

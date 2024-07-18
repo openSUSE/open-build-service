@@ -188,7 +188,6 @@ get:
 post:
   deprecated: true
   summary: Search for the users or groups who are the owners of a project or package.
-  description: |
-    This endpoint is exactly the same as `GET /search/owner`, please use that one.
+  description: This endpoint is exactly the same as `GET /search/owner`, please use that one.
   tags:
     - Search

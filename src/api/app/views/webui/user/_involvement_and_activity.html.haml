@@ -3,35 +3,44 @@
   .card-header{ class: contribution_graph? ? 'd-block d-md-none' : 'd-block' }
     %h5 Involved Projects and Packages
 
-  - if contribution_graph?
-    -# Tabs
+  -# Tabs
+  - if contribution_graph? || comments
     .d-none.d-md-block
       %ul.card-header.nav.nav-tabs.pt-2.px-3.pb-0.flex-nowrap.collapsible{ role: 'tablist' }
         %li.nav-item
           = link_to('#involved-projects-and-packages', id: 'involved-projects-and-packages-tab', class: 'nav-link text-nowrap',
                     data: { 'bs-toggle': 'tab' }, role: 'tab', aria: { controls: 'involved-projects-and-packages', selected: false }) do
             Involved Projects/Packages
-        %li.nav-item
-          = link_to('#activity', id: 'activity-tab', class: 'nav-link text-nowrap',
-                    data: { 'bs-toggle': 'tab' }, role: 'tab', aria: { controls: 'activity', selected: false }) do
-            Contributions
+        - if contribution_graph?
+          %li.nav-item
+            = link_to('#activity', id: 'activity-tab', class: 'nav-link text-nowrap',
+                      data: { 'bs-toggle': 'tab' }, role: 'tab', aria: { controls: 'activity', selected: false }) do
+              Contributions
+        - if comments
+          %li.nav-item
+            = link_to('#comments', id: 'comments-tab', class: 'nav-link text-nowrap',
+                      data: { 'bs-toggle': 'tab' }, role: 'tab', aria: { controls: 'comments', selected: false }) do
+              Comments
 
   .card-body.p-0#involvement-and-activity
     = render partial: 'webui/user/involvement', locals: { involved_items_service: involved_items_service }
 
     -# Displaying tabs in medium-large viewports when the Contribution Graph is enabled
-    - if contribution_graph?
+    - if contribution_graph? || comments
       .tab-content.d-none.d-md-block
         .tab-pane.fade#involved-projects-and-packages{ role: 'tabpanel', aria: { labelledby: 'involved-projects-and-packages-tab' } }
-        -# Content to be injected by JavaScript
-        .tab-pane.fade#activity{ role: 'tabpanel', aria: { labelledby: 'activity-tab' } }
-          = render partial: 'webui/user/activity', locals: { activities_per_year: activities_per_year,
-                                                             first_day: first_day,
-                                                             last_day: last_day,
-                                                             user: displayed_user,
-                                                             date: date,
-                                                             activities_per_day: activities_per_day }
-
+          -# Content to be injected by JavaScript
+        - if contribution_graph?
+          .tab-pane.fade#activity{ role: 'tabpanel', aria: { labelledby: 'activity-tab' } }
+            = render partial: 'webui/user/activity', locals: { activities_per_year: activities_per_year,
+                                                              first_day: first_day,
+                                                              last_day: last_day,
+                                                              user: displayed_user,
+                                                              date: date,
+                                                              activities_per_day: activities_per_day }
+        - if comments
+          .tab-pane.fade#comments{ role: 'tabpanel', aria: { labelledby: 'comments-tab' } }
+            = render partial: 'webui/user/comments', locals: { comments: comments }
 - content_for :ready_function do
   :plain
     // Move the involvement element in the right place.

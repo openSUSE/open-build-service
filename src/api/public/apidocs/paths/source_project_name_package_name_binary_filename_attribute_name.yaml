@@ -1,7 +1,6 @@
 get:
   summary: Get values of an attribute
-  description: |
-    Get attribute and attribute values of a given attribute and binary
+  description: Get attribute and attribute values of a given attribute and binary
   security:
     - basic_authentication: []
   parameters:

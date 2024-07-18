@@ -12,7 +12,7 @@ module Webui
         kiwi_file = package.kiwi_image_file
 
         unless kiwi_file
-          redirect_back fallback_location: root_path, error: 'There is no KIWI file'
+          redirect_back_or_to root_path, error: 'There is no KIWI file'
           return
         end
 
@@ -23,7 +23,7 @@ module Webui
           unless package.save
             errors = package.kiwi_image.nested_error_messages.merge(title: "Kiwi File '#{kiwi_file}' has errors:")
 
-            redirect_to package_view_file_path(project: package.project, package: package, filename: kiwi_file), error: errors
+            redirect_to project_package_file_path(project_name: package.project, package_name: package, filename: kiwi_file), error: errors
             return
           end
         end
@@ -98,46 +98,46 @@ module Webui
       private
 
       def image_params
-        preferences_attributes = [
-          :id,
-          :type_image,
-          :type_containerconfig_name,
-          :type_containerconfig_tag,
-          :version
+        preferences_attributes = %i[
+          id
+          type_image
+          type_containerconfig_name
+          type_containerconfig_tag
+          version
         ]
 
-        description_attributes = [
-          :id,
-          :author,
-          :contact,
-          :description_type,
-          :specification
+        description_attributes = %i[
+          id
+          author
+          contact
+          description_type
+          specification
         ]
 
-        repositories_attributes = [
-          :id,
-          :_destroy,
-          :priority,
-          :repo_type,
-          :source_path,
-          :alias,
-          :username,
-          :password,
-          :prefer_license,
-          :imageinclude,
-          :replaceable,
-          :order
+        repositories_attributes = %i[
+          id
+          _destroy
+          priority
+          repo_type
+          source_path
+          alias
+          username
+          password
+          prefer_license
+          imageinclude
+          replaceable
+          order
         ]
 
         package_groups_attributes = [
           :id,
           :_destroy,
-          { packages_attributes: [:id, :name, :arch, :replaces, :bootdelete, :bootinclude, :_destroy] }
+          { packages_attributes: %i[id name arch replaces bootdelete bootinclude _destroy] }
         ]
 
-        profiles_attributes = [
-          :id,
-          :selected
+        profiles_attributes = %i[
+          id
+          selected
         ]
 
         params.require(:kiwi_image).permit(
@@ -157,7 +157,7 @@ module Webui
         @image = ::Kiwi::Image.includes(package_groups: :packages).find(params[:id])
       rescue ActiveRecord::RecordNotFound
         flash[:error] = "KIWI image '#{params[:id]}' does not exist"
-        redirect_back(fallback_location: root_path)
+        redirect_back_or_to root_path
       end
 
       def authorize_update

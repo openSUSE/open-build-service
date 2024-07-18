@@ -5,7 +5,7 @@ module Build
 
     # GET /build/:project/:repository/:arch/:package/:filename
     def show
-      if ['_buildenv', '_statistics'].include?(params[:filename])
+      if %w[_buildenv _statistics].include?(params[:filename])
         render xml: Backend::Api::BuildResults::Binaries.file(params[:project], params[:repository], params[:arch], params[:package], params[:filename])
       else
         pass_to_backend(path)
@@ -76,7 +76,7 @@ module Build
     end
 
     def path
-      @path ||= request.path_info + '?' + request.query_string
+      @path ||= "#{request.path_info}?#{request.query_string}"
     end
   end
 end

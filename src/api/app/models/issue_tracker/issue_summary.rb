@@ -17,7 +17,7 @@ class IssueTracker::IssueSummary
   private
 
   def bug
-    @issue_id.starts_with?('CVE-') ? @issue_id : @issue_tracker.name + '#' + @issue_id
+    @issue_id.starts_with?('CVE-') ? @issue_id : "#{@issue_tracker.name}##{@issue_id}"
   end
 
   def fetch_issue_summary

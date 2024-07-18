@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test" project="home:tom">
-          <title>Everything is Illuminated</title>
-          <description>Consectetur aut fuga nobis.</description>
+          <title>Lilies of the Field</title>
+          <description>Possimus vel ex reprehenderit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,21 +69,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <package name="test" project="home:tom">
-          <title>Everything is Illuminated</title>
-          <description>Consectetur aut fuga nobis.</description>
+          <title>Lilies of the Field</title>
+          <description>Possimus vel ex reprehenderit.</description>
         </package>
-  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test/_config
     body:
       encoding: UTF-8
-      string: Dicta repudiandae magnam. Qui qui quis. Iste in ducimus.
+      string: Qui quia est. Delectus totam inventore. Facilis rerum voluptate.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -108,14 +108,14 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="1" vrev="1">
-          <srcmd5>99b43fd678d35d068155127957181f56</srcmd5>
+          <srcmd5>7ff457a9e8dce0f8c7c06a7ed43928d4</srcmd5>
           <version>unknown</version>
-          <time>1684410578</time>
+          <time>1706702051</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test/_multibuild
@@ -146,14 +146,14 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="2" vrev="2">
-          <srcmd5>4fcee8b41ee460d94b272f2774061d43</srcmd5>
+          <srcmd5>4ce5c63406053c8aac07dfb616d58f44</srcmd5>
           <version>unknown</version>
-          <time>1684410578</time>
+          <time>1706702051</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:11 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test
@@ -183,11 +183,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test" rev="2" vrev="2" srcmd5="4fcee8b41ee460d94b272f2774061d43">
-          <entry name="_config" md5="dfdee503a2a3d1a53115301a8912a5f5" size="56" mtime="1684410578"/>
-          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1684410578"/>
+        <directory name="test" rev="2" vrev="2" srcmd5="4ce5c63406053c8aac07dfb616d58f44">
+          <entry name="_config" md5="c758c365b12f8bc1c9862b38224338ae" size="64" mtime="1706702051"/>
+          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1706702051"/>
         </directory>
-  recorded_at: Thu, 18 May 2023 11:49:38 GMT
+  recorded_at: Wed, 31 Jan 2024 11:54:11 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test
@@ -217,9 +217,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="test" rev="2" vrev="2" srcmd5="4fcee8b41ee460d94b272f2774061d43">
-          <entry name="_config" md5="dfdee503a2a3d1a53115301a8912a5f5" size="56" mtime="1684410578"/>
-          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1684410578"/>
+        <directory name="test" rev="2" vrev="2" srcmd5="4ce5c63406053c8aac07dfb616d58f44">
+          <entry name="_config" md5="c758c365b12f8bc1c9862b38224338ae" size="64" mtime="1706702051"/>
+          <entry name="_multibuild" md5="eefca4c8b5fea7ee8342cc1dbf371e95" size="75" mtime="1706702051"/>
         </directory>
-  recorded_at: Thu, 18 May 2023 11:49:39 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Wed, 31 Jan 2024 11:54:11 GMT
+recorded_with: VCR 6.2.0

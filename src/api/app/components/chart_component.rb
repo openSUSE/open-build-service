@@ -53,16 +53,6 @@ class ChartComponent < ApplicationComponent
     return 'text-bg-danger' if build_result.unsuccessful_final_status?
     return 'text-bg-warning' if build_result.in_progress_status?
 
-    'bg-light text-dark border border-1' if build_result.refused_status?
-  end
-
-  def legend
-    content_tag(:div, 'Published', class: 'text-bg-success ps-2 pe-2 m-1').concat(
-      content_tag(:div, 'Failed', class: 'text-bg-danger ps-2 pe-2 m-1').concat(
-        content_tag(:div, 'Building', class: 'text-bg-warning ps-2 pe-2 m-1').concat(
-          content_tag(:div, 'Excluded', class: 'bg-light text-dark border border-1 ps-2 pe-2 m-1')
-        )
-      )
-    )
+    'text-bg-light' if build_result.refused_status?
   end
 end

@@ -1,7 +1,6 @@
 get:
   summary: Search in projects or in packages.
-  description: |
-    Get a list of projects or a list of packages that match a XPath expression, passed in the query parameter `match`.
+  description: Get a list of projects or a list of packages that match a XPath expression, passed in the query parameter `match`.
   security:
     - basic_authentication: []
   parameters:
@@ -152,7 +151,6 @@ get:
 post:
   deprecated: true
   summary: Search in projects or in packages.
-  description: |
-    This endpoint is exactly the same as `GET /search`, please use that one.
+  description: This endpoint is exactly the same as `GET /search`, please use that one.
   tags:
     - Search

@@ -14,9 +14,11 @@ module Triggerable
     # By default we operate on the package association
     @package = @token.package
     # If the token has no package, let's find one from the parameters
-    @package ||= Package.get_by_project_and_name(@project,
-                                                 @package_name,
-                                                 package_find_options)
+    if @package_name.present?
+      @package ||= Package.get_by_project_and_name(@project,
+                                                   @package_name,
+                                                   package_find_options)
+    end
     return unless @project.links_to_remote?
 
     # The token has no package, we did not find a package in the database but the project has a link to remote.
@@ -27,6 +29,7 @@ module Triggerable
     raise ActiveRecord::RecordNotFound unless @package
   end
 
+  # FIXME: Use the version from Webui::WebuiController instead
   def set_object_to_authorize
     @token.object_to_authorize = package_from_project_link? ? @project : @package
   end

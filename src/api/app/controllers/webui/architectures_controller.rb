@@ -40,7 +40,7 @@ class Webui::ArchitecturesController < Webui::WebuiController
           flash.now[:error] = 'Updating architecture availability failed.'
           render 'webui/architectures/bulk_update_availability', status: :unprocessable_entity
         end
-        format.html { redirect_back(fallback_location: root_path, error: 'Not all architectures could be saved') }
+        format.html { redirect_back_or_to root_path, error: 'Not all architectures could be saved' }
       end
     end
   end

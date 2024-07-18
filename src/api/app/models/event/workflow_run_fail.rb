@@ -1,10 +1,12 @@
 module Event
   class WorkflowRunFail < Base
-    self.message_bus_routing_key = 'workflow_run.fail'
-    self.description = 'Workflow run has failed'
+    self.description = 'Workflow run failed'
     payload_keys :id, :token_id, :hook_event, :summary, :repository_full_name
 
-    receiver_roles :token_executor
+    receiver_roles :token_executor, :token_member
+    delegate :members, to: :token, prefix: true
+
+    self.notification_explanation = 'Receive notifications for failed workflow runs on SCM/CI integration.'
 
     # Example of subject:
     #   Workflow run failed on Merge request hook
@@ -13,11 +15,17 @@ module Event
     end
 
     def token_executors
-      [Token.find_by(id: payload['token_id'], type: 'Token::Workflow')&.executor].compact
+      [token&.executor].compact
     end
 
     def parameters_for_notification
-      super.merge(notifiable_type: 'WorkflowRun', notifiable_id: payload['id'])
+      super.merge(notifiable_type: 'WorkflowRun', notifiable_id: payload['id'], type: 'NotificationWorkflowRun')
+    end
+
+    private
+
+    def token
+      Token.find_by(id: payload['token_id'], type: 'Token::Workflow')
     end
   end
 end
@@ -29,7 +37,7 @@ end
 #  id          :bigint           not null, primary key
 #  eventtype   :string(255)      not null, indexed
 #  mails_sent  :boolean          default(FALSE), indexed
-#  payload     :text(65535)
+#  payload     :text(16777215)
 #  undone_jobs :integer          default(0)
 #  created_at  :datetime         indexed
 #  updated_at  :datetime

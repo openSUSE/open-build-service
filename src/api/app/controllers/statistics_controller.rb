@@ -3,8 +3,8 @@ require 'statistics_calculations'
 class StatisticsController < ApplicationController
   validate_action redirect_stats: { method: :get, response: :redirect_stats }
 
-  before_action :get_limit, only: [
-    :most_active_packages, :most_active_projects, :latest_added, :latest_updated
+  before_action :get_limit, only: %i[
+    most_active_packages most_active_projects latest_added latest_updated
   ]
 
   def index
@@ -115,7 +115,7 @@ class StatisticsController < ApplicationController
 
     # get all requests to it
     actions = BsRequestAction.where(target_project: projects).select(:bs_request_id)
-    reqs = BsRequest.where(id: actions).select([:id, :created_at, :creator])
+    reqs = BsRequest.where(id: actions).select(%i[id created_at creator])
     if params[:raw] == '1'
       render json: reqs
       return

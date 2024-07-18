@@ -20,14 +20,15 @@
               class: 'live-link-action btn-secondary') do
       %i.fas.fa-download
       Download logfile
-  - if can_modify
-    = link_to(package_trigger_rebuild_path(project: project, package: package_name, arch: arch, repository: repo),
+  - if policy(object_to_authorize).update?
+    = link_to(rebuild_project_package_trigger_path(project_name: project, package_name: package_name, arch: arch, repository: repo),
               class: 'link_trigger_rebuild live-link-action btn-warning d-none',
               method: :post) do
       %i.fas.fa-redo
       Trigger Rebuild
-    = link_to(package_abort_build_path(project: project, package: package_name, arch: arch, repository: repo),
-              class: 'link_abort_build live-link-action btn-danger d-none') do
+    = link_to(abort_build_project_package_trigger_path(project_name: project, package_name: package_name, arch: arch, repository: repo),
+              class: 'link_abort_build live-link-action btn-danger d-none',
+              method: :post) do
       %i.far.fa-times-circle
       Abort Build
 

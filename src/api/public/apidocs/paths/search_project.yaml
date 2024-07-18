@@ -19,7 +19,7 @@ get:
         Providing a value of `*` will return all projects.
 
         Available predicates are:
-          - Project fields: `@name`, `@kind`, `title`, `description`, `url`, and `remoteurl`.
+          - Project fields: `@name`, `@kind`, `title`, `description`, `scmsync`, `url`, and `remoteurl`.
           - `package/@name`: name of the packages of the project.
           - `attribute/@name`: name of the attributes of the project.
           - Users and groups:
@@ -87,7 +87,6 @@ get:
 post:
   deprecated: true
   summary: List project objects that match a XPath condition.
-  description: |
-    This endpoint is exactly the same as `GET /search/project`, please use that one.
+  description: This endpoint is exactly the same as `GET /search/project`, please use that one.
   tags:
     - Search

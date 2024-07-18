@@ -6,8 +6,17 @@ class CannedResponse < ApplicationRecord
   #### Constants
 
   #### Self config
-  validates :title, length: { maximum: 255 }
-  validates :content, length: { maximum: 65_535 }
+  validates :title, presence: true, length: { maximum: 255 }
+  validates :content, presence: true, length: { maximum: 65_535 }
+
+  enum decision_type: {
+    cleared: 0,
+    favored: 1,
+    favored_with_comment_moderation: 2,
+    favored_with_delete_request: 3,
+    favored_with_user_deletion: 4,
+    favored_with_user_commenting_restriction: 5
+  }
 
   #### Attributes
 
@@ -34,12 +43,13 @@ end
 #
 # Table name: canned_responses
 #
-#  id         :bigint           not null, primary key
-#  content    :text(65535)
-#  title      :string(255)
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#  user_id    :integer          not null, indexed
+#  id            :bigint           not null, primary key
+#  content       :text(65535)      not null
+#  decision_type :integer
+#  title         :string(255)      not null
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  user_id       :integer          not null, indexed
 #
 # Indexes
 #

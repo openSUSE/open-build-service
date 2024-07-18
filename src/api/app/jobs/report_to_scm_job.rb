@@ -7,11 +7,11 @@ class ReportToSCMJob < CreateJob
     return false unless perform_job?(event_id)
 
     matched_event_subscription.each do |event_subscription|
-      SCMStatusReporter.new(@event.payload,
-                            event_subscription.payload,
-                            event_subscription.token.scm_token,
-                            event_subscription.workflow_run,
-                            event_subscription.eventtype).call
+      SCMStatusReporter.new(event_payload: @event.payload,
+                            event_subscription_payload: event_subscription.payload,
+                            scm_token: event_subscription.token.scm_token,
+                            workflow_run: event_subscription.workflow_run,
+                            event_type: event_subscription.eventtype).call
     end
     true
   end

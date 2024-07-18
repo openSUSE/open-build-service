@@ -15,7 +15,7 @@ module LocalBuildStatistic
 
     def statistic
       result = backend_statistics
-      return if result.empty?
+      return if result.blank?
 
       disk = result.dig('disk', 'usage')
       memory = result.dig('memory', 'usage')

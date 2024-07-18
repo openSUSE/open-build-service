@@ -1,12 +1,12 @@
 require 'tasks/user_admin_rights'
 
 RSpec.describe UserAdminRights do
-  let(:user) { create(:confirmed_user) }
-  let(:admin_role) { Role.global.where(title: 'Admin').first }
-
   subject do
     UserAdminRights.new(user).toggle!
   end
+
+  let(:user) { create(:confirmed_user) }
+  let(:admin_role) { Role.global.where(title: 'Admin').first }
 
   context 'when user has no admin rights' do
     it 'grants the admin rights' do

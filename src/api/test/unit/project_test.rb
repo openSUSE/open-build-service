@@ -11,11 +11,11 @@ class ProjectTest < ActiveSupport::TestCase
 
   def test_maintained_project_names
     project = Project.create(name: 'Z')
-    ['A', 'B', 'C'].each do |project_name|
+    %w[A B C].each do |project_name|
       project.maintained_projects.create(project: Project.create(name: project_name))
     end
 
-    assert_equal ['A', 'B', 'C'], project.maintained_project_names
+    assert_equal %w[A B C], project.maintained_project_names
   end
 
   def test_flags_to_axml
@@ -60,7 +60,7 @@ class ProjectTest < ActiveSupport::TestCase
     )
 
     position = 1
-    ['build', 'publish', 'debuginfo'].each do |flagtype|
+    %w[build publish debuginfo].each do |flagtype|
       position = @project.update_flags(axml, flagtype, position)
     end
 
@@ -370,6 +370,36 @@ class ProjectTest < ActiveSupport::TestCase
     xml_string = project_b.to_axml
     assert_no_xml_tag xml_string, tag: :link
     project_b.destroy
+  end
+
+  def test_setting_project_kind
+    User.session = users(:king)
+    prj = Project.create!(name: 'project_1')
+    prj.update_from_xml!(Xmlhash.parse(
+                           "<project name='project_1' kind='maintenance_release'>
+                             <title/>
+                             <description/>
+                           </project>"
+                         ))
+    xml = prj.to_axml
+
+    assert_xml_tag xml, tag: :project, attributes: { kind: 'maintenance_release' }
+    prj.destroy
+  end
+
+  def test_remove_project_kind
+    User.session = users(:king)
+    prj = Project.create!(name: 'project_1', kind: 'maintenance_release')
+    prj.update_from_xml!(Xmlhash.parse(
+                           "<project name='project_1'>
+                             <title/>
+                             <description/>
+                           </project>"
+                         ))
+    xml = prj.to_axml
+
+    assert_no_xml_tag xml, tag: :project, attributes: { kind: 'maintenance_release' }
+    prj.destroy
   end
 
   def test_repository_with_download_url

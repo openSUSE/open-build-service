@@ -1,8 +1,6 @@
 namespace :dev do
   namespace :notifications do
-    # Run this task with: rails "dev:notifications:data[3]"
-    # replacing 3 with any number to indicate how many times you want this code to be executed.
-    desc 'Creates a notification and all its dependencies'
+    desc 'Creates a notification and all its dependencies. Specify amount with [N], like rake "dev:notifications:data[3]"'
     task :data, [:repetitions] => :development_environment do |_t, args|
       args.with_defaults(repetitions: 1)
       repetitions = args.repetitions.to_i
@@ -19,6 +17,17 @@ namespace :dev do
       # Projects
       admin_home_project = admin.home_project || RakeSupport.create_and_assign_project(admin.home_project_name, admin)
       requestor_project = Project.find_by(name: 'requestor_project') || RakeSupport.create_and_assign_project('requestor_project', requestor)
+
+      # Create notification for roles revoked
+      iggy = User.find_by(login: 'Iggy') || create(:confirmed_user, :with_home, login: 'Iggy')
+      iggy.run_as do
+        home_project_iggy = Project.find_by(name: 'home:Iggy')
+        role = Role.find_by_title!('maintainer')
+        Relationship::AddRole.new(home_project_iggy, role, check: true, user: admin).add_role
+        home_project_iggy.store
+        home_project_iggy.remove_role(admin, role)
+        home_project_iggy.store
+      end
 
       repetitions.times do |repetition|
         package_name = "package_#{Time.now.to_i}_#{repetition}"
@@ -59,7 +68,22 @@ namespace :dev do
           source_package: admin_package
         )
         # Will create a notification (RequestStatechange event) for this request change.
-        request2.change_state(newstate: ['accepted', 'declined'].sample, force: true, user: requestor.login, comment: 'Declined by requestor')
+        request2.change_state(newstate: %w[accepted declined].sample, force: true, user: requestor.login, comment: 'Declined by requestor')
+
+        # Create notifications for build failures
+        Event::BuildFail.create({ project: admin_home_project.name, package: package_name, repository: "#{Faker::Lorem.word}_repo", arch: "#{Faker::Lorem.word}_arch", reason: 'meta change' })
+
+        # Add admin to a group to generate a Event::AddedUserToGroup.
+        another_group = create(:group, title: Faker::Lorem.word)
+        another_group.users << admin
+
+        # Admin is already subscribed as token_executor, Iggy and another_group are now subscribed as token_member
+        iggy = User.find_by(login: 'Iggy')
+        create(:event_subscription_workflow_run_fail, channel: :web, user: iggy, receiver_role: 'token_member')
+        token = Token.find_by(executor: admin)
+        token.users << iggy # share token with iggy
+        token.groups << another_group
+        create(:workflow_run, :failed, token: token)
 
         # Process notifications immediately to see them in the web UI
         SendEventEmailsJob.new.perform_now

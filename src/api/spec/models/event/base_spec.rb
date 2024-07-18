@@ -1,6 +1,8 @@
 RSpec.describe Event::Base do
   describe '#package_watchers' do
     context 'when the package and project exists' do
+      subject { event.package_watchers }
+
       let(:project) { create(:project_with_repository) }
       let(:package) { create(:package, name: 'ruby', project: project) }
       let(:repository) { project.repositories.first }
@@ -13,8 +15,6 @@ RSpec.describe Event::Base do
                                 reason: '')
       end
       let(:user) { create(:confirmed_user) }
-
-      subject { event.package_watchers }
 
       context 'when the package is being watched' do
         before do
@@ -32,6 +32,8 @@ RSpec.describe Event::Base do
     end
 
     context 'when the project is missing' do
+      subject { event.package_watchers }
+
       let(:package) { create(:package, name: 'ruby') }
       let(:event) do
         Event::BuildFail.create(package: package.name,
@@ -42,12 +44,12 @@ RSpec.describe Event::Base do
       end
       let(:user) { create(:confirmed_user) }
 
-      subject { event.package_watchers }
-
       it { expect(subject).to be_empty }
     end
 
     context 'when the package is missing' do
+      subject { event.package_watchers }
+
       let(:project) { create(:project_with_repository) }
       let(:package) { create(:package, name: 'ruby', project: project) }
       let(:repository) { project.repositories.first }
@@ -61,18 +63,16 @@ RSpec.describe Event::Base do
       end
       let(:user) { create(:confirmed_user) }
 
-      subject { event.package_watchers }
-
       it { expect(subject).to be_empty }
     end
   end
 
   describe '#request_watchers' do
+    subject { event.request_watchers }
+
     let(:bs_request) { create(:bs_request_with_submit_action) }
     let(:event) { Event::RequestStatechange.create(number: bs_request.number) }
     let(:user) { create(:confirmed_user) }
-
-    subject { event.request_watchers }
 
     context 'when the request is being watched' do
       before do
@@ -89,12 +89,12 @@ RSpec.describe Event::Base do
     end
   end
 
-  describe '#watchers' do
+  describe '#project_watchers' do
+    subject { event.project_watchers }
+
     let(:project) { create(:project, name: 'openSUSE') }
     let(:event) { Event::CommentForProject.create(project: project.name) }
     let(:user) { create(:confirmed_user) }
-
-    subject { event.watchers }
 
     context 'when the project is being watched' do
       before do

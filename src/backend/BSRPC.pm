@@ -129,12 +129,12 @@ sub createreq {
     return ('', undef, undef, $req, undef);
   }
   my ($proxyauth, $proxytunnel);
-  die("bad uri: $uri\n") unless $uri =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
+  die("bad uri: $uri\n") unless $uri =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+|(?:\[[:0-9A-Fa-f]+\]))(:\d+)?(\/.*)$/;
   my ($proto, $auth, $host, $port, $path) = ($1, $2, $3, $4, $5);
   my $hostport = $port ? "$host$port" : $host;
   undef $proxy if $proxy && !useproxy($param, $host);
   if ($proxy) {
-    die("bad proxy uri: $proxy\n") unless "$proxy/" =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
+    die("bad proxy uri: $proxy\n") unless "$proxy/" =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+|(?:\[[:0-9A-Fa-f]+\]))(:\d+)?(\/.*)$/;
     ($proto, $proxyauth, $host, $port) = ($1, $2, $3, $4);
     $path = $uri unless $uri =~ /^https:/;
   }
@@ -220,6 +220,7 @@ my $ai_addrconfig = eval { Socket::AI_ADDRCONFIG() } || 0;
 
 sub lookuphost {
   my ($host, $port, $cache) = @_;
+  $host=~ s/^\[|\]$//g;
   my $hostaddr;
   if ($cache && $cache->{$host} && $cache->{$host}->[1] > time()) {
     $hostaddr = $cache->{$host}->[0];

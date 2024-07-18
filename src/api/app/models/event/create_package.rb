@@ -1,7 +1,7 @@
 module Event
   class CreatePackage < Base
     self.message_bus_routing_key = 'package.create'
-    self.description = 'Package was created'
+    self.description = 'Package created'
     payload_keys :project, :package, :sender
 
     def subject
@@ -27,7 +27,7 @@ end
 #  id          :bigint           not null, primary key
 #  eventtype   :string(255)      not null, indexed
 #  mails_sent  :boolean          default(FALSE), indexed
-#  payload     :text(65535)
+#  payload     :text(16777215)
 #  undone_jobs :integer          default(0)
 #  created_at  :datetime         indexed
 #  updated_at  :datetime

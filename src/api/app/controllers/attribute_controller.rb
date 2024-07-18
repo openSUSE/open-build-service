@@ -5,7 +5,7 @@ class AttributeController < ApplicationController
   validate_action delete: { method: :delete, response: :status }
   validate_action update: { method: :put, request: :attrib_type, response: :status }
   validate_action update: { method: :post, request: :attrib_type, response: :status }
-  before_action :load_attribute, only: [:show, :update, :delete]
+  before_action :load_attribute, only: %i[show update delete]
 
   # GET /attribute/:namespace/:name/_meta
   def show

@@ -4,14 +4,14 @@ RSpec.describe EventSubscription::ForEventForm do
   let(:subscriber) { user }
 
   describe '#call' do
-    let(:roles) { subject.roles }
-
     subject { EventSubscription::ForEventForm.new(event_class, subscriber).call }
+
+    let(:roles) { subject.roles }
 
     context 'for Event::CommentForProject' do
       let(:event_class) { Event::CommentForProject }
       let(:expected_receiver_roles) do
-        event_class.receiver_roles
+        %i[bugowner commenter maintainer project_watcher]
       end
 
       it { expect(subject.event_class).to eq(event_class) }
@@ -21,7 +21,7 @@ RSpec.describe EventSubscription::ForEventForm do
     context 'for Event::CommentForRequest' do
       let(:event_class) { Event::CommentForRequest }
       let(:expected_receiver_roles) do
-        event_class.receiver_roles
+        %i[commenter creator request_watcher reviewer source_maintainer source_package_watcher source_project_watcher target_maintainer target_package_watcher target_project_watcher]
       end
 
       it { expect(subject.event_class).to eq(event_class) }

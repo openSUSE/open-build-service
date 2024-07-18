@@ -10,7 +10,7 @@ module ScmSyncEnabledStep
     # fetched from a subdirectory
     if scm_synced_project?
       query = parsed_scmsync_url.query_values || {}
-      query['subdir'] = source_package_name
+      query['subdir'] = step_instructions[:source_package]
       parsed_scmsync_url.query_values = query
     end
 
@@ -36,13 +36,13 @@ module ScmSyncEnabledStep
   end
 
   def scm_synced_package_url
-    Package.get_by_project_and_name(source_project_name, source_package_name).try(:scmsync)
+    Package.get_by_project_and_name(step_instructions[:source_project], step_instructions[:source_package]).try(:scmsync)
   rescue Project::Errors::UnknownObjectError, Package::Errors::UnknownObjectError
     nil
   end
 
   def scm_synced_project_url
-    Project.get_by_name(source_project_name).try(:scmsync)
+    Project.get_by_name(step_instructions[:source_project]).try(:scmsync)
   rescue Project::Errors::UnknownObjectError
     nil
   end

@@ -111,7 +111,7 @@ sub verify_patchinfo {
   # This verifies the absolute minimum required content of a patchinfo file
   my $p = $_[0];
   verify_filename($p->{'name'}) if defined($p->{'name'});
-  my %allowed_categories = map {$_ => 1} qw{security recommended optional feature ptf};
+  my %allowed_categories = map {$_ => 1} qw{security recommended optional feature ptf no_updateinfo};
   die("Invalid category defined in _patchinfo\n") if defined($p->{'category'}) && !$allowed_categories{$p->{'category'}};
   for my $rt (@{$p->{'releasetarget'} || []}) {
     verify_projid($rt->{'project'});

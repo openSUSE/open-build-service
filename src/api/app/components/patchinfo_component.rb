@@ -46,7 +46,7 @@ class PatchinfoComponent < ApplicationComponent
   end
 
   def properties
-    ['reboot_needed', 'relogin_needed', 'zypp_restart_needed'].filter_map do |property|
+    %w[reboot_needed relogin_needed zypp_restart_needed].filter_map do |property|
       patchinfo.key?(property) ? property : nil
     end
   end

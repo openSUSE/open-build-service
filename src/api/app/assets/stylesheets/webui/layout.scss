@@ -112,17 +112,18 @@
 
 #footer, #footer-legal {
   & a {
-    color: $gray-700;
-    &:hover { color: $gray-900; }
+    color: var(--bs-secondary-color);
+    &:hover { color: var(--bs-body-color); }
   }
 }
 
 #footer {
-  strong { color: $gray-700; }
+  strong { color: var(--bs-secondary-color); }
+  ul { @extend .list-unstyled; }
   li { @extend .my-2; }
 }
 
 #footer-legal {
   font-size: .9rem;
-  p { color: $gray-700; }
+  p { color: var(--bs-secondary-color); }
 }

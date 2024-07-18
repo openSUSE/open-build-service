@@ -4,11 +4,11 @@ module HistoryElement
     self.abstract_class = true
 
     def review
-      Review.find(op_object_id)
+      ::Review.find(op_object_id)
     end
 
     def request
-      Review.find(op_object_id).bs_request
+      review.bs_request
     end
 
     def review=(review)

@@ -1,4 +1,10 @@
 RSpec.describe Workflow::Step::RebuildPackage, :vcr do
+  subject do
+    described_class.new(step_instructions: step_instructions,
+                        scm_webhook: scm_webhook,
+                        token: token)
+  end
+
   let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
   let(:token) { create(:workflow_token, executor: user) }
   let(:project) { create(:project, name: 'openSUSE:Factory', maintainer: user) }
@@ -19,12 +25,6 @@ RSpec.describe Workflow::Step::RebuildPackage, :vcr do
                    })
   end
 
-  subject do
-    described_class.new(step_instructions: step_instructions,
-                        scm_webhook: scm_webhook,
-                        token: token)
-  end
-
   before do
     project.store
   end
@@ -36,29 +36,5 @@ RSpec.describe Workflow::Step::RebuildPackage, :vcr do
     let!(:token) { create(:workflow_token, executor: another_user) }
 
     it { expect { subject.call }.to raise_error(Pundit::NotAuthorizedError) }
-  end
-
-  describe '#validate_project_and_package_name' do
-    context 'when the project is invalid' do
-      let(:step_instructions) { { package: package.name, project: 'Invalid/format' } }
-
-      it 'gives an error for invalid name' do
-        subject.valid?
-
-        expect { subject.call }.not_to change(Package, :count)
-        expect(subject.errors.full_messages.to_sentence).to eq("invalid project 'Invalid/format'")
-      end
-    end
-
-    context 'when the package is invalid' do
-      let(:step_instructions) { { package: 'Invalid/format', project: project.name } }
-
-      it 'gives an error for invalid name' do
-        subject.valid?
-
-        expect { subject.call }.not_to change(Package, :count)
-        expect(subject.errors.full_messages.to_sentence).to eq("invalid package 'Invalid/format'")
-      end
-    end
   end
 end

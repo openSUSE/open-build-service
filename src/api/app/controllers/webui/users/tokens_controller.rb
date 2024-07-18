@@ -1,26 +1,22 @@
 class Webui::Users::TokensController < Webui::WebuiController
-  before_action :set_token, only: [:edit, :update, :destroy, :show]
+  before_action :require_login
+  before_action :set_token, only: %i[edit update destroy show]
   before_action :set_parameters, :set_package, only: [:create]
 
-  after_action :verify_authorized, except: :index
-  after_action :verify_policy_scoped, only: :index
+  after_action :verify_authorized, only: %i[create update destroy]
+  after_action :verify_policy_scoped, only: %i[index show edit]
 
   def index
     @tokens = policy_scope(Token).page(params[:page])
   end
 
-  def show
-    authorize @token
-  end
+  def show; end
 
   def new
-    @token = Token.new
-    authorize @token
+    @token = User.session.tokens.new
   end
 
-  def edit
-    authorize @token
-  end
+  def edit; end
 
   def create
     @token = Token.token_type(@params[:type]).new(@params.except(:type).merge(executor: User.session, package: @package))
@@ -68,15 +64,19 @@ class Webui::Users::TokensController < Webui::WebuiController
 
   def destroy
     authorize @token
-    @token.destroy
-    flash[:success] = 'Token was successfully deleted.'
+
+    if @token.destroy
+      flash[:success] = 'Token was successfully deleted.'
+    else
+      flash[:error] = "Failed to destroy Token: #{@token.errors.full_messages.to_sentence}"
+    end
     redirect_to tokens_url
   end
 
   private
 
   def set_token
-    @token = Token.find(params[:id])
+    @token = policy_scope(Token).find(params[:id])
   rescue ActiveRecord::RecordNotFound => e
     flash[:error] = e.message
     redirect_to tokens_url
@@ -102,7 +102,8 @@ class Webui::Users::TokensController < Webui::WebuiController
     # Prevent setting a package for a workflow token
     return if @params[:type] == 'workflow'
 
-    @token = Token.token_type(@params[:type]).new(description: @params[:description])
+    @token = Token.new(description: @params[:description])
+    @token.write_attribute(:type, @params[:type])
 
     # Check if only project_name or only package_name are present
     if @extra_params[:project_name].present? ^ @extra_params[:package_name].present?

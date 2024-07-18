@@ -17,17 +17,6 @@
   - if current_page?(package_users_path(@project, @package))
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Users
-  - if controller_name == 'binaries' && action_name == 'index'
-    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-      Repository State
-  - if current_page?(package_dependency_path(@project, @package))
-    %li.breadcrumb-item
-      = link_to('Binary', project_package_repository_binary_path(project_name: @dependant_project,
-                                                                 package_name: @package_name,
-                                                                 repository_name: @dependant_repository,
-                                                                 arch: @arch, filename: @filename))
-    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-      Dependency
   - if current_page?(package_show_path(@project, @package))
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Overview
@@ -36,6 +25,3 @@
       = link_to 'Repository State', project_package_repository_binaries_path(@project, @package_name, @repository)
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Statistics
-  - if current_page?(package_view_file_path(@project, @package))
-    %li.breadcrumb-item.active.text-word-break-all{ 'aria-current' => 'page' }
-      = truncate(@filename, length: 50)

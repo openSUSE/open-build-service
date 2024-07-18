@@ -25,7 +25,7 @@ class Status::Check < ApplicationRecord
 
   #### Scopes (first the default_scope macro if is used)
   scope :pending, -> { where(state: 'pending') }
-  scope :failed, -> { where(state: ['error', 'failure']) }
+  scope :failed, -> { where(state: %w[error failure]) }
 
   #### Validations macros
 

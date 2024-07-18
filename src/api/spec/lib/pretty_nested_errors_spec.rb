@@ -26,6 +26,8 @@ end
 
 # the migration type disables transaction database cleaner, which won't work with tables created
 RSpec.describe PrettyNestedErrors, type: :migration do
+  subject { bicycle }
+
   let(:bicycle) do
     Bicycle.new(
       name: 'My Favorite Bicycle',
@@ -68,14 +70,18 @@ RSpec.describe PrettyNestedErrors, type: :migration do
     ActiveRecord::Base.connection.drop_table(:bicycles)
   end
 
-  subject! { bicycle.valid? }
+  it { is_expected.not_to be_valid }
 
-  it { is_expected.to be_falsey }
+  context 'after calling .valid?' do
+    before do
+      subject.valid?
+    end
 
-  it 'generates a nested error hash' do
-    expect(bicycle.nested_error_messages).to eq(
-      'Wheel: ' => ["Name can't be blank"],
-      'Spoke #1' => ["Tension can't be blank"]
-    )
+    it 'generates a nested error hash' do
+      expect(subject.nested_error_messages).to eq(
+        'Wheel: ' => ["Name can't be blank"],
+        'Spoke #1' => ["Tension can't be blank"]
+      )
+    end
   end
 end

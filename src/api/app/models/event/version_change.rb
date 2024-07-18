@@ -1,13 +1,13 @@
 module Event
   class VersionChange < Base
     self.message_bus_routing_key = 'package.version_change'
-    self.description = 'Package has changed its version'
+    self.description = 'Package changed its version'
     payload_keys :project, :package, :sender, :comment, :requestid, :files, :rev, :newversion, :user, :oldversion
 
     def set_payload(attribs, keys)
       attribs['comment'] = attribs['comment'][0..800] if attribs['comment'].present?
       attribs['files'] = attribs['files'][0..800] if attribs['files'].present?
-      super(attribs, keys)
+      super
     end
   end
 end
@@ -19,7 +19,7 @@ end
 #  id          :bigint           not null, primary key
 #  eventtype   :string(255)      not null, indexed
 #  mails_sent  :boolean          default(FALSE), indexed
-#  payload     :text(65535)
+#  payload     :text(16777215)
 #  undone_jobs :integer          default(0)
 #  created_at  :datetime         indexed
 #  updated_at  :datetime

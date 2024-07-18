@@ -9,7 +9,7 @@ class IssueTracker < ApplicationRecord
 
   validates :name, :regex, :url, :kind, presence: true
   validates :name, :regex, uniqueness: { case_sensitive: true }
-  validates :kind, inclusion: { in: ['other', 'bugzilla', 'cve', 'fate', 'trac', 'launchpad', 'sourceforge', 'github', 'jira'] }
+  validates :kind, inclusion: { in: %w[other bugzilla cve fate trac launchpad sourceforge github jira] }
   validates :description, presence: true
   validates :show_url, presence: true
 
@@ -17,7 +17,7 @@ class IssueTracker < ApplicationRecord
   after_save :update_package_meta
 
   # FIXME: issues_updated should not be hidden, but it should also not break our api
-  DEFAULT_RENDER_PARAMS = { except: [:id, :password, :user, :issues_updated, :api_key], dasherize: true, skip_types: true, skip_instruct: true }.freeze
+  DEFAULT_RENDER_PARAMS = { except: %i[id password user issues_updated api_key], dasherize: true, skip_types: true, skip_instruct: true }.freeze
 
   before_validation(on: :create) do
     self.issues_updated ||= Time.now
@@ -51,8 +51,6 @@ class IssueTracker < ApplicationRecord
   end
 
   def update_issues_github
-    return unless enable_fetch
-
     # must be like this "url = https://github.com/repos/#{self.owner}/#{self.name}/issues"
     url = URI.parse("#{self.url}?since=#{self.issues_updated.to_time.iso8601}")
     mtime = Time.now
@@ -143,7 +141,7 @@ class IssueTracker < ApplicationRecord
         return false
       end
       result['bugs'].each { |r| parse_single_bugzilla_issue(r) }
-      ids = ids[limit_per_slice..-1]
+      ids = ids[limit_per_slice..]
     end
     true
   end
@@ -285,8 +283,6 @@ class IssueTracker < ApplicationRecord
   end
 
   def update_issues_bugzilla
-    return unless enable_fetch
-
     begin
       result = bugzilla_server.search(bugzilla_args.merge(last_change_time: self.issues_updated))
     rescue Net::ReadTimeout, Errno::ECONNRESET
@@ -310,8 +306,6 @@ class IssueTracker < ApplicationRecord
   end
 
   def update_issues_cve
-    return unless enable_fetch
-
     # fixed URL of all entries
     # cveurl = "https://cve.mitre.org/data/downloads/allitems.xml.gz"
     http = Net::HTTP.start('cve.mitre.org', use_ssl: true)

@@ -6,27 +6,9 @@ RSpec.describe StatusMessage do
     it { is_expected.to validate_presence_of(:message) }
   end
 
-  describe '.from_xml' do
-    before do
-      allow(User).to receive(:session!).and_return(admin_user)
-    end
-
-    context 'xml is valid' do
-      let(:xml) { '<status_message id="4"><message>foo</message><severity>information</severity></status_message>' }
-      let(:status_message) { StatusMessage.from_xml(xml) }
-
-      it { expect { status_message }.not_to raise_error }
-      it { expect(status_message).to be_a(StatusMessage) }
-    end
-
-    context 'xml is invalid' do
-      it { expect { StatusMessage.from_xml('') }.to raise_error(ActiveRecord::RecordInvalid) }
-    end
-  end
-
   describe '.communication_scopes_for_current_user' do
     context 'when user is nobody' do
-      it { expect(StatusMessage.communication_scopes_for_current_user).to match_array([:all_users]) }
+      it { expect(StatusMessage.communication_scopes_for_current_user).to contain_exactly(:all_users) }
     end
 
     context 'when user is in beta' do
@@ -36,7 +18,7 @@ RSpec.describe StatusMessage do
         login(user)
       end
 
-      it { expect(StatusMessage.communication_scopes_for_current_user).to match_array([:all_users, :in_beta_users, :in_rollout_users, :logged_in_users]) }
+      it { expect(StatusMessage.communication_scopes_for_current_user).to contain_exactly(:all_users, :in_beta_users, :in_rollout_users, :logged_in_users) }
     end
 
     context 'when user is admin' do
@@ -46,7 +28,7 @@ RSpec.describe StatusMessage do
         login(user)
       end
 
-      it { expect(StatusMessage.communication_scopes_for_current_user).to match_array([:all_users, :in_beta_users, :admin_users, :logged_in_users]) }
+      it { expect(StatusMessage.communication_scopes_for_current_user).to contain_exactly(:all_users, :in_beta_users, :admin_users, :logged_in_users) }
     end
   end
 
@@ -127,6 +109,8 @@ RSpec.describe StatusMessage do
 
   describe '#acknowledge!' do
     context 'when there is a previous acknowledgement' do
+      subject(:acknowledge) { status_message.acknowledge! }
+
       let(:user) { create(:confirmed_user, in_beta: true, in_rollout: false) }
       let!(:status_message) { create(:status_message, severity: 'announcement', communication_scope: :all_users) }
 
@@ -134,8 +118,6 @@ RSpec.describe StatusMessage do
         login(user)
         status_message.acknowledge!
       end
-
-      subject(:acknowledge) { status_message.acknowledge! }
 
       it 'does not raise an exception while acknowledging the status message twice' do
         expect { acknowledge }.not_to raise_error

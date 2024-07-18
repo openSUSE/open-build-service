@@ -1,11 +1,11 @@
 class Webui::ApidocsController < Webui::WebuiController
   def index
-    @filename = File.expand_path(CONFIG['apidocs_location']) + '/index.html'
+    @filename = "#{File.expand_path(CONFIG['apidocs_location'])}/index.html"
     return if File.exist?(@filename)
 
     logger.error "Unable to load apidocs index file from #{CONFIG['apidocs_location']}. Did you create the apidocs?"
     flash[:error] = 'Unable to load API documentation.'
-    redirect_back(fallback_location: root_path)
+    redirect_back_or_to root_path
   end
 
   def file
@@ -16,7 +16,7 @@ class Webui::ApidocsController < Webui::WebuiController
       send_file(file, type: 'text/xml', disposition: 'inline')
     else
       flash[:error] = "File not found: #{params[:filename]}"
-      redirect_back(fallback_location: { controller: 'apidocs', action: 'index' })
+      redirect_back_or_to({ controller: 'apidocs', action: 'index' })
     end
     nil
   end

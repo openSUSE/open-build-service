@@ -7,13 +7,9 @@
     %h3= @pagetitle
     - if @revisions.present?
       .list-group.mt-4
-        - @revisions.each do |revision|
-          .list-group-item{ id: "commit_item_#{revision}" }
-            - commit = @package.commit(revision)
-            - if commit
-              = render(partial: 'commit_item', locals: { project: @project, package: @package, revision: revision, commit: commit })
-            - else
-              %i Revision #{revision} not found
+        - @revisions.each do |commit|
+          .list-group-item{ id: "commit_item_#{commit['rev']}" }
+            = render(partial: 'commit_item', locals: { project: @project, package: @package, revision: commit['rev'], commit: commit })
 
       .row.justify-content-center.mt-2
         .col-auto

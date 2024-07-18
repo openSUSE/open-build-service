@@ -24,7 +24,7 @@
               - limit_options = options_for_select([['Newest', '1'], ['Oldest', '-1'], ['All', '0']], @owner_limit)
               = select_tag('limit', limit_options, class: 'form-select border-0 ps-0 w-auto')
               %label#limit-label{ for: 'limit' }
-                = 'package'.pluralize(@owner_limit.to_i.abs)
+                = 'package'.pluralize(@owner_limit.abs)
     -# TODO: Ajaxify this section, so whenever changing the filters above, it fetches and refreshes the results
     - if @results.present?
       = render partial: 'results_owner', locals: { results: @results }

@@ -5,6 +5,12 @@ post:
     - basic_authentication: []
   parameters:
     - $ref: '../components/parameters/project_name.yaml'
+    - in: query
+      name: days
+      schema:
+        type: integer
+      description: Define the number of days until key expiry
+      example: 712
   responses:
     '200':
       description: ok

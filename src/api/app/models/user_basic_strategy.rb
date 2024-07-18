@@ -11,7 +11,7 @@ class UserBasicStrategy
     false # all is checked, nothing remote
   end
 
-  def groups(user)
+  def list_groups(user)
     user.groups
   end
 end

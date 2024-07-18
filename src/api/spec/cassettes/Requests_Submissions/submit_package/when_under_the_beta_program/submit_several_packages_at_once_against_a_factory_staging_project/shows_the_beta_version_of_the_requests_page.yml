@@ -1,14 +1,16 @@
 ---
 http_interactions:
 - request:
-    method: get
-    uri: http://backend:5352/source/home:madam_submitter/package_a
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_1
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>The Green Bay Tree</title>
+          <description/>
+        </project>
     headers:
-      X-Request-Id:
-      - 6bd9dec4-d784-497b-a9cf-cc0ef29ae606
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -27,16 +29,590 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '404'
+      - '111'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="3" vrev="3" srcmd5="01dfd385eb6f75ea017e69bd3e5a965f">
-          <entry name="README.txt" md5="20a18412e38905538f0872327d5efd17" size="55" mtime="1677769909"/>
-          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1677769910"/>
-          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1677082556"/>
-        </directory>
-  recorded_at: Fri, 03 Mar 2023 08:08:30 GMT
+        <project name="openSUSE:Factory">
+          <title>The Green Bay Tree</title>
+          <description></description>
+        </project>
+  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_project/_staging_workflow?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="openSUSE:Factory" managers="group_1">
+          <staging_project name="openSUSE:Factory:Staging:A"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '170'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="101">
+          <srcmd5>855ca4c8a51f444848eca1a4a8164fe6</srcmd5>
+          <time>1710841758</time>
+          <user>user_1</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title/>
+          <description/>
+          <group groupid="group_1" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '150'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title></title>
+          <description></description>
+          <group groupid="group_1" role="maintainer"/>
+        </project>
+  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_project/_staging_workflow?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="openSUSE:Factory" managers="group_1">
+          <staging_project name="openSUSE:Factory:Staging:A"/>
+          <staging_project name="openSUSE:Factory:Staging:B"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '170'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="102">
+          <srcmd5>761abadd20bf5e8eb79df3df4aad59fc</srcmd5>
+          <time>1710841758</time>
+          <user>user_1</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:B/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title/>
+          <description/>
+          <group groupid="group_1" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '150'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title></title>
+          <description></description>
+          <group groupid="group_1" role="maintainer"/>
+        </project>
+  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>The Green Bay Tree</title>
+          <description/>
+          <group groupid="group_1" role="reviewer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>The Green Bay Tree</title>
+          <description></description>
+          <group groupid="group_1" role="reviewer"/>
+        </project>
+  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:mr_receiver/_meta?user=mr_receiver
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:mr_receiver">
+          <title/>
+          <description/>
+          <person userid="mr_receiver" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:mr_receiver">
+          <title></title>
+          <description></description>
+          <person userid="mr_receiver" role="maintainer"/>
+        </project>
+  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:mr_receiver/Quebec/_meta?user=mr_receiver
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="Quebec" project="home:mr_receiver">
+          <title>His Dark Materials</title>
+          <description>Beatae nobis vitae id.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '150'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="Quebec" project="home:mr_receiver">
+          <title>His Dark Materials</title>
+          <description>Beatae nobis vitae id.</description>
+        </package>
+  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:mr_receiver/Quebec/_config
+    body:
+      encoding: UTF-8
+      string: Odit atque perspiciatis. Occaecati necessitatibus totam. Eligendi temporibus
+        hic.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="197" vrev="197">
+          <srcmd5>8dc1908339413f401d634c8892799a27</srcmd5>
+          <version>unknown</version>
+          <time>1710841758</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:mr_receiver/Quebec/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Rerum iure earum. Commodi iste officiis. Eos laboriosam et.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="198" vrev="198">
+          <srcmd5>4dd556cb7581636c9bf9cc0bd35fc7f4</srcmd5>
+          <version>unknown</version>
+          <time>1710841758</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:madam_submitter/_meta?user=madam_submitter
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:madam_submitter">
+          <title/>
+          <description/>
+          <person userid="madam_submitter" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:madam_submitter">
+          <title></title>
+          <description></description>
+          <person userid="madam_submitter" role="maintainer"/>
+        </project>
+  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:madam_submitter/package_a/_meta?user=mr_receiver
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_a" project="home:madam_submitter">
+          <title>A Glass of Blessings</title>
+          <description>Numquam alias aliquid sequi.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '165'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_a" project="home:madam_submitter">
+          <title>A Glass of Blessings</title>
+          <description>Numquam alias aliquid sequi.</description>
+        </package>
+  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:madam_submitter/package_a/README.txt
+    body:
+      encoding: UTF-8
+      string: Minus molestiae sed. Et quia accusantium. Quibusdam non fuga.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '205'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="124" vrev="124">
+          <srcmd5>2aec50672cbef466a403a198264e2650</srcmd5>
+          <version>1</version>
+          <time>1710841758</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:madam_submitter/package_a/package_a.spec
+    body:
+      encoding: UTF-8
+      string: |
+        Name:       package_a
+        Version:    1
+        Release:    1
+        Summary:    Most simple RPM package
+        License:    CC0-1.0
+
+        %description
+        This is my first RPM package, which does nothing.
+
+        %prep
+        # we have no source, so nothing here
+
+        %build
+        cat > package_a.sh <<EOF
+        #!/usr/bin/bash
+        echo Hello world, from package_a.
+        EOF
+
+        %install
+        mkdir -p %{buildroot}/usr/bin/
+        install -m 755 package_a.sh %{buildroot}/usr/bin/package_a.sh
+
+        %files
+        /usr/bin/package_a.sh
+
+        %changelog
+        # let skip this for now
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '205'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="125" vrev="125">
+          <srcmd5>2aec50672cbef466a403a198264e2650</srcmd5>
+          <version>1</version>
+          <time>1710841758</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:madam_submitter/package_a/package_a.changes
+    body:
+      encoding: UTF-8
+      string: "- Fixes boo#1111101 CVE-2011-1101"
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '205'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="126" vrev="126">
+          <srcmd5>2aec50672cbef466a403a198264e2650</srcmd5>
+          <version>1</version>
+          <time>1710841758</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/package_a
@@ -44,8 +620,6 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      X-Request-Id:
-      - 6bd9dec4-d784-497b-a9cf-cc0ef29ae606
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -64,27 +638,60 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '404'
+      - '408'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="3" vrev="3" srcmd5="01dfd385eb6f75ea017e69bd3e5a965f">
-          <entry name="README.txt" md5="20a18412e38905538f0872327d5efd17" size="55" mtime="1677769909"/>
-          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1677769910"/>
-          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1677082556"/>
+        <directory name="package_a" rev="126" vrev="126" srcmd5="2aec50672cbef466a403a198264e2650">
+          <entry name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61" mtime="1710841758"/>
+          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1710771250"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1709807541"/>
         </directory>
-  recorded_at: Fri, 03 Mar 2023 08:08:30 GMT
+  recorded_at: Tue, 19 Mar 2024 09:49:19 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:madam_submitter/package_a
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '408'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_a" rev="126" vrev="126" srcmd5="2aec50672cbef466a403a198264e2650">
+          <entry name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61" mtime="1710841758"/>
+          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1710771250"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1709807541"/>
+        </directory>
+  recorded_at: Tue, 19 Mar 2024 09:49:19 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:madam_submitter/package_a?cacheonly=1&cmd=diff&expand=1&filelimit=10000&orev=0&rev=3&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/home:madam_submitter/package_a?cmd=diff&expand=1&filelimit=10000&orev=0&rev=126&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
     headers:
       Content-Type:
       - application/octet-stream
-      X-Request-Id:
-      - 6bd9dec4-d784-497b-a9cf-cc0ef29ae606
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -98,23 +705,23 @@ http_interactions:
     headers:
       Content-Type:
       - text/xml
-      Content-Length:
-      - '1765'
       Cache-Control:
       - no-cache
       Connection:
       - close
+      Content-Length:
+      - '1773'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="fd1afd86624097e53be31fc97fc9c239">
+        <sourcediff key="b3348aee977f8e1a8edac139a77f0987">
           <old project="home:madam_submitter" package="package_a" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:madam_submitter" package="package_a" rev="3" srcmd5="01dfd385eb6f75ea017e69bd3e5a965f"/>
+          <new project="home:madam_submitter" package="package_a" rev="126" srcmd5="2aec50672cbef466a403a198264e2650"/>
           <files>
             <file state="added">
-              <new name="README.txt" md5="20a18412e38905538f0872327d5efd17" size="55"/>
+              <new name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61"/>
               <diff lines="3">@@ -0,0 +1,1 @@
-        +Repudiandae pariatur harum. Est et sunt. Nisi odio non.
+        +Minus molestiae sed. Et quia accusantium. Quibusdam non fuga.
         \ No newline at end of file
         </diff>
             </file>
@@ -163,16 +770,177 @@ http_interactions:
             <issue state="added" tracker="bnc" name="1111101" label="boo#1111101" url="https://bugzilla.opensuse.org/show_bug.cgi?id=1111101"/>
           </issues>
         </sourcediff>
-  recorded_at: Fri, 03 Mar 2023 08:08:30 GMT
+  recorded_at: Tue, 19 Mar 2024 09:49:19 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/package_b/_meta?user=mr_receiver
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_b" project="openSUSE:Factory">
+          <title>Pale Kings and Princes</title>
+          <description>Et architecto iste vitae.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_b" project="openSUSE:Factory">
+          <title>Pale Kings and Princes</title>
+          <description>Et architecto iste vitae.</description>
+        </package>
+  recorded_at: Tue, 19 Mar 2024 09:49:19 GMT
 - request:
     method: get
-    uri: http://backend:5352/build/home:madam_submitter/_result?package=package_a&view=status
+    uri: http://backend:5352/source/home:madam_submitter/package_a
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '408'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_a" rev="126" vrev="126" srcmd5="2aec50672cbef466a403a198264e2650">
+          <entry name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61" mtime="1710841758"/>
+          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1710771250"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1709807541"/>
+        </directory>
+  recorded_at: Tue, 19 Mar 2024 09:49:19 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:madam_submitter/package_a?cmd=diff&expand=1&filelimit=10000&opackage=package_b&oproject=openSUSE:Factory&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1769'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="55d0b19d5ab612317f6e3e27c2de295a">
+          <old project="openSUSE:Factory" package="package_b" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:madam_submitter" package="package_a" rev="126" srcmd5="2aec50672cbef466a403a198264e2650"/>
+          <files>
+            <file state="added">
+              <new name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +Minus molestiae sed. Et quia accusantium. Quibusdam non fuga.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +- Fixes boo#1111101 CVE-2011-1101
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470"/>
+              <diff lines="28">@@ -0,0 +1,27 @@
+        +Name:       package_a
+        +Version:    1
+        +Release:    1
+        +Summary:    Most simple RPM package
+        +License:    CC0-1.0
+        +
+        +%description
+        +This is my first RPM package, which does nothing.
+        +
+        +%prep
+        +# we have no source, so nothing here
+        +
+        +%build
+        +cat &gt; package_a.sh &lt;&lt;EOF
+        +#!/usr/bin/bash
+        +echo Hello world, from package_a.
+        +EOF
+        +
+        +%install
+        +mkdir -p %{buildroot}/usr/bin/
+        +install -m 755 package_a.sh %{buildroot}/usr/bin/package_a.sh
+        +
+        +%files
+        +/usr/bin/package_a.sh
+        +
+        +%changelog
+        +# let skip this for now
+        </diff>
+            </file>
+          </files>
+          <issues>
+            <issue state="added" tracker="cve" name="2011-1101" label="CVE-2011-1101" url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=2011-1101"/>
+            <issue state="added" tracker="bnc" name="1111101" label="boo#1111101" url="https://bugzilla.opensuse.org/show_bug.cgi?id=1111101"/>
+          </issues>
+        </sourcediff>
+  recorded_at: Tue, 19 Mar 2024 09:49:19 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:madam_submitter/_result?lastbuild=0&locallink=1&multibuild=1&package=package_a&view=status
     body:
       encoding: US-ASCII
       string: ''
     headers:
       X-Request-Id:
-      - 5d80d14b-4f5f-41c1-b8de-d0e78cc03d99
+      - aaf9db80-e9d4-41fc-b668-a313e16c4ff9
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -197,7 +965,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Fri, 03 Mar 2023 08:08:30 GMT
+  recorded_at: Tue, 19 Mar 2024 09:49:24 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:madam_submitter/_result?lastbuild=0&locallink=1&multibuild=1&package=package_a&view=status
@@ -206,7 +974,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - fc4073e1-5973-4aed-86b0-d58f603caf2a
+      - aaf9db80-e9d4-41fc-b668-a313e16c4ff9
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -215,8 +983,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home madam_submitter' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -225,15 +993,341 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Tue, 19 Mar 2024 09:49:24 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:madam_submitter/package_a
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - aaf9db80-e9d4-41fc-b668-a313e16c4ff9
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '408'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:madam_submitter' does not exist</summary>
-          <details>404 project 'home:madam_submitter' does not exist</details>
-        </status>
-  recorded_at: Mon, 04 Sep 2023 09:11:47 GMT
+        <directory name="package_a" rev="126" vrev="126" srcmd5="2aec50672cbef466a403a198264e2650">
+          <entry name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61" mtime="1710841758"/>
+          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1710771250"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1709807541"/>
+        </directory>
+  recorded_at: Tue, 19 Mar 2024 09:49:24 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:madam_submitter/package_a
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - aaf9db80-e9d4-41fc-b668-a313e16c4ff9
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '408'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_a" rev="126" vrev="126" srcmd5="2aec50672cbef466a403a198264e2650">
+          <entry name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61" mtime="1710841758"/>
+          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1710771250"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1709807541"/>
+        </directory>
+  recorded_at: Tue, 19 Mar 2024 09:49:24 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:madam_submitter/package_a?cacheonly=1&cmd=diff&expand=1&filelimit=10000&orev=0&rev=126&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Request-Id:
+      - aaf9db80-e9d4-41fc-b668-a313e16c4ff9
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '1773'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="b3348aee977f8e1a8edac139a77f0987">
+          <old project="home:madam_submitter" package="package_a" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:madam_submitter" package="package_a" rev="126" srcmd5="2aec50672cbef466a403a198264e2650"/>
+          <files>
+            <file state="added">
+              <new name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +Minus molestiae sed. Et quia accusantium. Quibusdam non fuga.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +- Fixes boo#1111101 CVE-2011-1101
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470"/>
+              <diff lines="28">@@ -0,0 +1,27 @@
+        +Name:       package_a
+        +Version:    1
+        +Release:    1
+        +Summary:    Most simple RPM package
+        +License:    CC0-1.0
+        +
+        +%description
+        +This is my first RPM package, which does nothing.
+        +
+        +%prep
+        +# we have no source, so nothing here
+        +
+        +%build
+        +cat &gt; package_a.sh &lt;&lt;EOF
+        +#!/usr/bin/bash
+        +echo Hello world, from package_a.
+        +EOF
+        +
+        +%install
+        +mkdir -p %{buildroot}/usr/bin/
+        +install -m 755 package_a.sh %{buildroot}/usr/bin/package_a.sh
+        +
+        +%files
+        +/usr/bin/package_a.sh
+        +
+        +%changelog
+        +# let skip this for now
+        </diff>
+            </file>
+          </files>
+          <issues>
+            <issue state="added" tracker="cve" name="2011-1101" label="CVE-2011-1101" url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=2011-1101"/>
+            <issue state="added" tracker="bnc" name="1111101" label="boo#1111101" url="https://bugzilla.opensuse.org/show_bug.cgi?id=1111101"/>
+          </issues>
+        </sourcediff>
+  recorded_at: Tue, 19 Mar 2024 09:49:24 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:madam_submitter/package_a
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - aaf9db80-e9d4-41fc-b668-a313e16c4ff9
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '408'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_a" rev="126" vrev="126" srcmd5="2aec50672cbef466a403a198264e2650">
+          <entry name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61" mtime="1710841758"/>
+          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1710771250"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1709807541"/>
+        </directory>
+  recorded_at: Tue, 19 Mar 2024 09:49:24 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:madam_submitter/package_a
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - aaf9db80-e9d4-41fc-b668-a313e16c4ff9
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '408'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_a" rev="126" vrev="126" srcmd5="2aec50672cbef466a403a198264e2650">
+          <entry name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61" mtime="1710841758"/>
+          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1710771250"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1709807541"/>
+        </directory>
+  recorded_at: Tue, 19 Mar 2024 09:49:24 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:madam_submitter/package_a?cacheonly=1&cmd=diff&expand=1&filelimit=10000&orev=0&rev=126&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Request-Id:
+      - aaf9db80-e9d4-41fc-b668-a313e16c4ff9
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '1773'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="b3348aee977f8e1a8edac139a77f0987">
+          <old project="home:madam_submitter" package="package_a" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:madam_submitter" package="package_a" rev="126" srcmd5="2aec50672cbef466a403a198264e2650"/>
+          <files>
+            <file state="added">
+              <new name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +Minus molestiae sed. Et quia accusantium. Quibusdam non fuga.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +- Fixes boo#1111101 CVE-2011-1101
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470"/>
+              <diff lines="28">@@ -0,0 +1,27 @@
+        +Name:       package_a
+        +Version:    1
+        +Release:    1
+        +Summary:    Most simple RPM package
+        +License:    CC0-1.0
+        +
+        +%description
+        +This is my first RPM package, which does nothing.
+        +
+        +%prep
+        +# we have no source, so nothing here
+        +
+        +%build
+        +cat &gt; package_a.sh &lt;&lt;EOF
+        +#!/usr/bin/bash
+        +echo Hello world, from package_a.
+        +EOF
+        +
+        +%install
+        +mkdir -p %{buildroot}/usr/bin/
+        +install -m 755 package_a.sh %{buildroot}/usr/bin/package_a.sh
+        +
+        +%files
+        +/usr/bin/package_a.sh
+        +
+        +%changelog
+        +# let skip this for now
+        </diff>
+            </file>
+          </files>
+          <issues>
+            <issue state="added" tracker="cve" name="2011-1101" label="CVE-2011-1101" url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=2011-1101"/>
+            <issue state="added" tracker="bnc" name="1111101" label="boo#1111101" url="https://bugzilla.opensuse.org/show_bug.cgi?id=1111101"/>
+          </issues>
+        </sourcediff>
+  recorded_at: Tue, 19 Mar 2024 09:49:24 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:madam_submitter/_result?lastbuild=0&locallink=1&multibuild=1&package=package_a&view=status
@@ -242,7 +1336,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - fc4073e1-5973-4aed-86b0-d58f603caf2a
+      - cfe16a8e-7dd5-4b7b-8bc8-f6f9d6272e5d
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -251,8 +1345,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home madam_submitter' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -261,13 +1355,45 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '55'
     body:
       encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:madam_submitter' does not exist</summary>
-          <details>404 project 'home:madam_submitter' does not exist</details>
-        </status>
-  recorded_at: Mon, 04 Sep 2023 09:11:47 GMT
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Tue, 19 Mar 2024 09:49:25 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:madam_submitter/_result?lastbuild=0&locallink=1&multibuild=1&package=package_a&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - cfe16a8e-7dd5-4b7b-8bc8-f6f9d6272e5d
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Tue, 19 Mar 2024 09:49:25 GMT
 recorded_with: VCR 6.2.0

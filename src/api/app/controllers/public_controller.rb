@@ -1,5 +1,6 @@
 class PublicController < ApplicationController
   include PublicHelper
+  include ValidationHelper
 
   # we need to fall back to _nobody_ (_public_)
   before_action :extract_user_public, :set_response_format_to_xml
@@ -11,7 +12,7 @@ class PublicController < ApplicationController
     required_parameters :project
 
     if params[:project] == '_result'
-      pass_to_backend('/build/_result' + build_query_from_hash(params, [:scmrepository, :scmbranch, :locallink, :multibuild, :lastbuild, :code]))
+      pass_to_backend("/build/_result#{build_query_from_hash(params, %i[scmrepository scmbranch locallink multibuild lastbuild code])}")
       return
     end
     # project visible/known ?
@@ -27,7 +28,7 @@ class PublicController < ApplicationController
   # GET /public/configuration.xml
   # GET /public/configuration.json
   def configuration_show
-    @configuration = ::Configuration.first
+    @configuration = ::Configuration.fetch
 
     respond_to do |format|
       format.xml  { render xml: @configuration.render_xml }
@@ -60,15 +61,15 @@ class PublicController < ApplicationController
         return
       end
       # path has multiple package= parameters
-      path += '?' + request.query_string
+      path += "?#{request.query_string}"
       path += '&nofilename=1' unless params[:nofilename]
     when 'verboseproductlist'
       @products = Product.all_products(@project, params[:expand])
-      render 'source/verboseproductlist'
+      render 'source/verboseproductlist', formats: [:xml]
       return
     when 'productlist'
       @products = Product.all_products(@project, params[:expand])
-      render 'source/productlist'
+      render 'source/productlist', formats: [:xml]
       return
     else
       path += '?expand=1&noorigins=1' # to stay compatible to OBS <2.4
@@ -77,6 +78,7 @@ class PublicController < ApplicationController
   end
 
   # GET /public/source/:project/_config
+  # GET /public/source/:project/_keyinfo
   # GET /public/source/:project/_pubkey
   def project_file
     # project visible/known ?
@@ -109,10 +111,20 @@ class PublicController < ApplicationController
 
   # GET /public/source/:project/:package/:filename
   def source_file
-    check_package_access(params[:project], params[:package])
+    if params[:rev].present? && params[:rev].length >= 32 &&
+       !Package.exists_by_project_and_name(params[:project], params[:package])
+      # automatic fallback
+      params[:deleted] = '1'
+    end
+
+    if params[:deleted].present?
+      validate_read_access_of_deleted_package(params[:project], params[:package])
+    else
+      check_package_access(params[:project], params[:package])
+    end
 
     path = Package.source_path(params[:project], params[:package], params[:filename])
-    path += build_query_from_hash(params, [:rev, :limit, :expand])
+    path += build_query_from_hash(params, %i[rev limit expand deleted])
     volley_backend_path(path) unless forward_from_backend(path)
   end
 
@@ -153,7 +165,7 @@ class PublicController < ApplicationController
     end
 
     @binary_links = {}
-    @pkg.project.repositories.includes(path_elements: { link: :project }).each do |repo|
+    @pkg.project.repositories.includes(path_elements: { link: :project }).find_each do |repo|
       repo.path_elements.each do |pe|
         # NOTE: we do not follow indirect path elements here, since most installation handlers
         #       do not support it (exception zypp via ymp files)
@@ -164,7 +176,7 @@ class PublicController < ApplicationController
         dist_id = dist.id
         @binary_links[dist_id] ||= {}
         binary = binary_map[repo.name].find { |bin| bin.value(:name) == @pkg.name }
-        @binary_links[dist_id][:ymp] = { url: ymp_url(File.join(@pkg.project.name, repo.name, @pkg.name + '.ymp')) } if binary && dist.vendor == 'openSUSE'
+        @binary_links[dist_id][:ymp] = { url: ymp_url(File.join(@pkg.project.name, repo.name, "#{@pkg.name}.ymp")) } if binary && dist.vendor == 'openSUSE'
 
         @binary_links[dist_id][:binary] ||= []
         binary_map[repo.name].each do |b|
@@ -184,6 +196,11 @@ class PublicController < ApplicationController
         end
       end
     end
+  end
+
+  def image_templates
+    @projects = Project.image_templates
+    render 'webui/image_templates/index'
   end
 
   private
@@ -206,7 +223,7 @@ class PublicController < ApplicationController
     end
 
     # generic access checks
-    key = 'public_package:' + project_name + ':' + package_name
+    key = "public_package:#{project_name}:#{package_name}"
     allowed = Rails.cache.fetch(key, expires_in: 30.minutes) do
       Package.get_by_project_and_name(project_name, package_name, use_source: false)
       true

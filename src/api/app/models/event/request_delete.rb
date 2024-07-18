@@ -1,7 +1,7 @@
 module Event
   class RequestDelete < Request
     self.message_bus_routing_key = 'request.delete'
-    self.description = 'Request was deleted (admin only)'
+    self.description = 'Request deleted (admin only)'
   end
 end
 
@@ -12,7 +12,7 @@ end
 #  id          :bigint           not null, primary key
 #  eventtype   :string(255)      not null, indexed
 #  mails_sent  :boolean          default(FALSE), indexed
-#  payload     :text(65535)
+#  payload     :text(16777215)
 #  undone_jobs :integer          default(0)
 #  created_at  :datetime         indexed
 #  updated_at  :datetime

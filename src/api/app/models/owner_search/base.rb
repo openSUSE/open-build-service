@@ -7,7 +7,7 @@ module OwnerSearch
     end
 
     def devel_disabled?(project = nil)
-      return ['0', 'false'].include?(params[:devel]) if params[:devel]
+      return %w[0 false].include?(params[:devel]) if params[:devel]
 
       attrib = project_attrib(project)
       attrib && attrib.values.exists?(value: 'DisableDevel')
@@ -50,7 +50,7 @@ module OwnerSearch
       if attrib && attrib.values.exists?(value: 'BugownerOnly')
         ['bugowner']
       else
-        ['maintainer', 'bugowner']
+        %w[maintainer bugowner]
       end
     end
 

@@ -1,6 +1,6 @@
 class SourceProjectConfigController < SourceController
   # GET /source/:project/_config
-  before_action :ensure_project_exist, only: [:show, :update]
+  before_action :ensure_project_exist, only: %i[show update]
 
   def show
     config = get_config(@project)
@@ -24,10 +24,10 @@ class SourceProjectConfigController < SourceController
     # if its remote prj is a string
     authorize @project, :update?, policy_class: ProjectPolicy
 
-    params[:user] = User.session!.login
+    params[:user] = User.session.login
     @project.config.file = request.body
 
-    response = @project.config.save(slice_and_permit(params, [:user, :comment]))
+    response = @project.config.save(slice_and_permit(params, %i[user comment]))
 
     unless response
       render_404(@project.config.errors.full_messages.to_sentence)

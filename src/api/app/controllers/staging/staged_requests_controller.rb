@@ -1,10 +1,9 @@
 class Staging::StagedRequestsController < Staging::StagingController
-  before_action :require_login
   before_action :set_project
   before_action :set_staging_workflow
   before_action :set_staging_project, except: :destroy
   before_action :check_overall_state, only: :create
-  before_action :set_xml_hash, :set_request_numbers, only: [:create, :destroy]
+  before_action :set_xml_hash, :set_request_numbers, only: %i[create destroy]
 
   validate_action create: { method: :post, request: :number, response: :number }, destroy: { method: :delete, request: :number, response: :number }
 
@@ -26,7 +25,7 @@ class Staging::StagedRequestsController < Staging::StagingController
       request_numbers: @request_numbers,
       staging_workflow: @staging_workflow,
       staging_project: @staging_project,
-      user_login: User.session!.login
+      user_login: User.session.login
     ).create!
 
     render_ok
@@ -38,7 +37,7 @@ class Staging::StagedRequestsController < Staging::StagingController
     result = ::Staging::StagedRequests.new(
       request_numbers: @request_numbers,
       staging_workflow: @staging_workflow,
-      user_login: User.session!.login
+      user_login: User.session.login
     ).destroy
 
     if result.valid?

@@ -1,0 +1,337 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 14 Mar 2024 13:14:48 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/fake_project/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="fake_project">
+          <title>Butter In a Lordly Dish</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '112'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="fake_project">
+          <title>Butter In a Lordly Dish</title>
+          <description></description>
+        </project>
+  recorded_at: Thu, 14 Mar 2024 13:14:48 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_invalid_kiwi_file" project="fake_project">
+          <title>No Longer at Ease</title>
+          <description>Praesentium quae consequatur quaerat.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '184'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_invalid_kiwi_file" project="fake_project">
+          <title>No Longer at Ease</title>
+          <description>Praesentium quae consequatur quaerat.</description>
+        </package>
+  recorded_at: Thu, 14 Mar 2024 13:14:48 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/package_with_invalid_kiwi_file.kiwi
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+        <image name="Christians_openSUSE_13.2_JeOS" displayname="Christians_openSUSE_13.2_JeOS" schemaversion="5.2">
+          <description type="system">
+            <author>Christian Bruckmayer</author>
+            <contact>noemail@example.com</contact>
+            <specification>Tiny, minimalistic appliances</specification>
+          </description>
+          <packages type="image" patternType="onlyRequired">
+            <package name="e2fsprogs"/>
+            <package name="aaa_base"/>
+            <package name="branding-openSUSE"/>
+            <package name="patterns-openSUSE-base"/>
+            <package name="grub2"/>
+            <package name="hwinfo"/>
+            <package name="iputils"/>
+            <package name="kernel-default"/>
+            <package name="netcfg"/>
+            <package name="openSUSE-build-key"/>
+            <package name="openssh"/>
+            <package name="plymouth"/>
+            <package name="polkit-default-privs"/>
+            <package name="rpcbind"/>
+            <package name="syslog-ng"/>
+            <package name="vim"/>
+            <package name="zypper"/>
+            <package name="timezone"/>
+            <package name="openSUSE-release-dvd"/>
+            <package name="gfxboot-devel" bootinclude="true"/>
+          </packages>
+          <repository type="wrong" priority="10" alias="debian" imageinclude="true" password="123456" prefer-license="true" status="replaceable" username="Tom">
+            <source path="http://download.opensuse.org/update/13.2/"/>
+          </repository>
+          <repository type="rpm-dir" priority="wrong" imageinclude="false" prefer-license="false">
+            <source path="http://download.opensuse.org/distribution/13.2/repo/oss/"/>
+          </repository>
+          <repository type="rpm-md" priority="20">
+            <source path="wrong://download.opensuse.org/distribution/13.1/repo/oss/"/>
+          </repository>
+          <repository type="rpm-md">
+            <source path="http://download.opensuse.org/distribution/12.1/repo/oss/"/>
+          </repository>
+        </image>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>6ccfa0805f62f6fba78db7bc8b4082ba</srcmd5>
+          <version>unknown</version>
+          <time>1710422088</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 14 Mar 2024 13:14:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '246'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_invalid_kiwi_file" rev="4" vrev="4" srcmd5="6ccfa0805f62f6fba78db7bc8b4082ba">
+          <entry name="package_with_invalid_kiwi_file.kiwi" md5="5a69f457207aa0e7d1cdc633164df54d" size="1791" mtime="1710422088"/>
+        </directory>
+  recorded_at: Thu, 14 Mar 2024 13:14:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file/package_with_invalid_kiwi_file.kiwi
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '1791'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0" encoding="UTF-8"?>
+        <image name="Christians_openSUSE_13.2_JeOS" displayname="Christians_openSUSE_13.2_JeOS" schemaversion="5.2">
+          <description type="system">
+            <author>Christian Bruckmayer</author>
+            <contact>noemail@example.com</contact>
+            <specification>Tiny, minimalistic appliances</specification>
+          </description>
+          <packages type="image" patternType="onlyRequired">
+            <package name="e2fsprogs"/>
+            <package name="aaa_base"/>
+            <package name="branding-openSUSE"/>
+            <package name="patterns-openSUSE-base"/>
+            <package name="grub2"/>
+            <package name="hwinfo"/>
+            <package name="iputils"/>
+            <package name="kernel-default"/>
+            <package name="netcfg"/>
+            <package name="openSUSE-build-key"/>
+            <package name="openssh"/>
+            <package name="plymouth"/>
+            <package name="polkit-default-privs"/>
+            <package name="rpcbind"/>
+            <package name="syslog-ng"/>
+            <package name="vim"/>
+            <package name="zypper"/>
+            <package name="timezone"/>
+            <package name="openSUSE-release-dvd"/>
+            <package name="gfxboot-devel" bootinclude="true"/>
+          </packages>
+          <repository type="wrong" priority="10" alias="debian" imageinclude="true" password="123456" prefer-license="true" status="replaceable" username="Tom">
+            <source path="http://download.opensuse.org/update/13.2/"/>
+          </repository>
+          <repository type="rpm-dir" priority="wrong" imageinclude="false" prefer-license="false">
+            <source path="http://download.opensuse.org/distribution/13.2/repo/oss/"/>
+          </repository>
+          <repository type="rpm-md" priority="20">
+            <source path="wrong://download.opensuse.org/distribution/13.1/repo/oss/"/>
+          </repository>
+          <repository type="rpm-md">
+            <source path="http://download.opensuse.org/distribution/12.1/repo/oss/"/>
+          </repository>
+        </image>
+  recorded_at: Thu, 14 Mar 2024 13:14:48 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/fake_project/package_with_invalid_kiwi_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '246'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_invalid_kiwi_file" rev="4" vrev="4" srcmd5="6ccfa0805f62f6fba78db7bc8b4082ba">
+          <entry name="package_with_invalid_kiwi_file.kiwi" md5="5a69f457207aa0e7d1cdc633164df54d" size="1791" mtime="1710422088"/>
+        </directory>
+  recorded_at: Thu, 14 Mar 2024 13:14:48 GMT
+recorded_with: VCR 6.2.0

@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 7;
+use Test::More tests => 8;
 
 
 use FindBin;
@@ -13,13 +13,19 @@ use BSUtil;
 use Test::Mock::BSConfig;
 use Test::Mock::BSRPC;
 
+use JSON::XS ();
+
 
 @::ARGV = ('--testcase');
 require_ok('./bs_worker');
 
+my ($json_true, $json_false) = @{JSON::XS::decode_json('[ true, false ]')};
+
 $BSConfig::bsdir = $FindBin::Bin;
 my $tmpdir = "$FindBin::Bin/tmp/1000";
-mkdir($tmpdir);
+BSUtil::mkdir_p($tmpdir);
+BSUtil::cleandir($tmpdir);
+die("could not create tmpdir $tmpdir\n") unless -d $tmpdir;
 
 my $buildinfo = {
   srcserver  => $BSConfig::srcserver,
@@ -93,7 +99,7 @@ $Test::Mock::BSRPC::fixtures_map = {
     => 'data/1000/srcserver/getbinaries.cpio',
 };
 
-my (@got, @expected);
+my ($got, @got, @expected);
 
 
 # getsources
@@ -103,10 +109,10 @@ my (@got, @expected);
 is_deeply(\@got, \@expected, 'getsources - Return value');
 
 my $expected_material_for_source = {
-  'digest' => {
-    'sha256' => 'e237d5c5ea2b4dd327d2e103afd09572286609fbc9bf43cc9609f1371b4c8dd2'
-  },
-  'uri' => 'srcserver/source/project1/package1/hello_world.spec?rev=f157738ddea737a2b7479996175a6cec'
+  'digest' => { 'sha256' => 'e237d5c5ea2b4dd327d2e103afd09572286609fbc9bf43cc9609f1371b4c8dd2' },
+  'uri' => 'srcserver/source/project1/package1/hello_world.spec?rev=f157738ddea737a2b7479996175a6cec',
+  'intent' => 'source',
+  'name' => 'hello_world.spec',
 };
 my $expected_materials = [
   $expected_material_for_source
@@ -130,22 +136,22 @@ is_deeply(\@got, \@expected, 'getbinaries - Return value');
 $expected_materials = [
   $expected_material_for_source,
   {
-    'digest' => {
-      'sha256' => 'acf63da2befc85cee24689330ddf62629681e59b5007fa3ffca09ff789f7cb28'
-    },
-    'uri' => 'srcserver/slsa/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/aaa_base.rpm/acf63da2befc85cee24689330ddf62629681e59b5007fa3ffca09ff789f7cb28'
+    'digest' => { 'sha256' => 'acf63da2befc85cee24689330ddf62629681e59b5007fa3ffca09ff789f7cb28' },
+    'uri' => 'srcserver/slsa/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/aaa_base.rpm/acf63da2befc85cee24689330ddf62629681e59b5007fa3ffca09ff789f7cb28',
+    'name' => 'aaa_base.rpm',
+    'intent' => 'buildenv',
   },
   {
-    'digest' => {
-      'sha256' => 'be546d31264bf3ea084cd6c0bb659872eef0388583983379a72edfb26f021680'
-    },
-    'uri' => 'srcserver/slsa/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/filesystem.rpm/be546d31264bf3ea084cd6c0bb659872eef0388583983379a72edfb26f021680'
+    'digest' => { 'sha256' => 'be546d31264bf3ea084cd6c0bb659872eef0388583983379a72edfb26f021680' },
+    'uri' => 'srcserver/slsa/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/filesystem.rpm/be546d31264bf3ea084cd6c0bb659872eef0388583983379a72edfb26f021680',
+    'name' => 'filesystem.rpm',
+    'intent' => 'buildenv',
   },
   {
-    'digest' => {
-      'sha256' => '80c185cd2f7d2cc9960308a9ce07d97b20c098d7a71008ba7d74dfd1031cfe26'
-    },
-    'uri' => 'srcserver/slsa/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/liblua5_4-5.rpm/80c185cd2f7d2cc9960308a9ce07d97b20c098d7a71008ba7d74dfd1031cfe26'
+    'digest' => { 'sha256' => '80c185cd2f7d2cc9960308a9ce07d97b20c098d7a71008ba7d74dfd1031cfe26' },
+    'uri' => 'srcserver/slsa/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/liblua5_4-5.rpm/80c185cd2f7d2cc9960308a9ce07d97b20c098d7a71008ba7d74dfd1031cfe26',
+    'name' => 'liblua5_4-5.rpm',
+    'intent' => 'buildenv',
   }
 ];
 is_deeply($buildinfo->{'materials'}, $expected_materials, "getbinaries - Add 'materials' of binaries to \$buildinfo");
@@ -154,50 +160,45 @@ BSUtil::cleandir($tmpdir);
 rmdir($tmpdir);
 
 
-# generate_slsa_provenance_statement
+# generate_slsa_provenance_statement_v02 and generate_slsa_provenance_statement_v1
 
 my @send = (
   # An original filename would be:
   # 'filename' => '/var/cache/obs/worker/root_1/.build.packages/RPMS/x86_64/hello_world-1-4.1.x86_64.rpm',
   {
-    'filename' => "$FindBin::Bin/data/1000/.build.packages/RPMS/x86_64/hello_world-1-4.1.x86_64.rpm",
+    'filename' => "$FindBin::Bin/data/shared/buildresult/rpm/hello_world-1-4.1.x86_64.rpm",
     'name' => 'hello_world-1-4.1.x86_64.rpm'
   },
   {
-    'filename' => "$FindBin::Bin/data/1000/.build.packages/SRPMS/hello_world-1-4.1.src.rpm",
+    'filename' => "$FindBin::Bin/data/shared/buildresult/rpm/hello_world-1-4.1.src.rpm",
     'name' => 'hello_world-1-4.1.src.rpm'
   },
   {
-    'filename' => '/var/cache/obs/worker/root_1/.build.packages/OTHER/_buildenv',
+    'filename' => "$FindBin::Bin/data/shared/buildresult/rpm/_buildenv",
     'name' => '_buildenv'
   },
   {
-    'filename' => '/var/cache/obs/worker/root_1/.build.packages/OTHER/_statistics',
+    'filename' => "$FindBin::Bin/data/shared/buildresult/rpm/_statistics",
     'name' => '_statistics'
   },
   {
-    'filename' => '/var/cache/obs/worker/root_1/.build.packages/OTHER/rpmlint.log',
+    'filename' => "$FindBin::Bin/data/shared/buildresult/rpm/rpmlint.log",
     'name' => 'rpmlint.log'
   } 
 );
 
-my $got = generate_slsa_provenance_statement($buildinfo, \@send);
-use JSON::XS ();
+$got = generate_slsa_provenance_statement_v02($buildinfo, \@send);
 $got = JSON::XS::decode_json($got);
-my $expected_statement = {
+my $expected_statement_v02 = {
   '_type' => 'https://in-toto.io/Statement/v0.1',
   'subject' => [
     {
-      'digest' => {
-        'sha256' => 'c81e3c817819fb27e74b4d0feae3bf6621c9d49cba51553743456e8cd894e678'
-      },
-      'name' => 'hello_world-1-4.1.x86_64.rpm'
+      'name' => 'hello_world-1-4.1.x86_64.rpm',
+      'digest' => { 'sha256' => 'c81e3c817819fb27e74b4d0feae3bf6621c9d49cba51553743456e8cd894e678' },
     },
     {
       'name' => 'hello_world-1-4.1.src.rpm',
-      'digest' => {
-        'sha256' => '927eaebc503a4f508a17231bd430e5320e1ba89e1fa56b428452c0b0e16ac2ef'
-      }
+      'digest' => { 'sha256' => '927eaebc503a4f508a17231bd430e5320e1ba89e1fa56b428452c0b0e16ac2ef' },
     }
   ],
   'predicateType' => 'https://slsa.dev/provenance/v0.2',
@@ -214,17 +215,90 @@ my $expected_statement = {
     },
     'metadata' => {
       'completeness' => {
-        'parameters' => 1,
-        'environment' => 1,
-        'materials' => 1,
+        'parameters' => $json_true,
+        'environment' => $json_true,
+        'materials' => $json_true,
       },
-      'reproducible' => 0,
+      'reproducible' => $json_false,
     },
-    'materials' => $expected_materials,
+    'materials' => [
+      {
+	'digest' => { 'sha256' => 'e237d5c5ea2b4dd327d2e103afd09572286609fbc9bf43cc9609f1371b4c8dd2' },
+	'uri' => 'srcserver/source/project1/package1/hello_world.spec?rev=f157738ddea737a2b7479996175a6cec',
+      },
+      {
+	'digest' => { 'sha256' => 'acf63da2befc85cee24689330ddf62629681e59b5007fa3ffca09ff789f7cb28' },
+	'uri' => 'srcserver/slsa/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/aaa_base.rpm/acf63da2befc85cee24689330ddf62629681e59b5007fa3ffca09ff789f7cb28',
+      },
+      {
+	'digest' => { 'sha256' => 'be546d31264bf3ea084cd6c0bb659872eef0388583983379a72edfb26f021680' },
+	'uri' => 'srcserver/slsa/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/filesystem.rpm/be546d31264bf3ea084cd6c0bb659872eef0388583983379a72edfb26f021680',
+      },
+      {
+	'digest' => { 'sha256' => '80c185cd2f7d2cc9960308a9ce07d97b20c098d7a71008ba7d74dfd1031cfe26' },
+	'uri' => 'srcserver/slsa/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/liblua5_4-5.rpm/80c185cd2f7d2cc9960308a9ce07d97b20c098d7a71008ba7d74dfd1031cfe26',
+      }
+    ],
   }
 };
-is_deeply($got, $expected_statement, 'generate_slsa_provenance_statement - Return value');
+is_deeply($got, $expected_statement_v02, 'generate_slsa_provenance_statement_v02 - Return value');
 
+$got = generate_slsa_provenance_statement_v1($buildinfo, \@send);
+$got = JSON::XS::decode_json($got);
+
+my $expected_statement_v1 = {
+  '_type' => 'https://in-toto.io/Statement/v0.1',
+  'subject' => [
+    {
+      'name' => 'hello_world-1-4.1.x86_64.rpm',
+      'digest' => { 'sha256' => 'c81e3c817819fb27e74b4d0feae3bf6621c9d49cba51553743456e8cd894e678' },
+    },
+    {
+      'name' => 'hello_world-1-4.1.src.rpm',
+      'digest' => { 'sha256' => '927eaebc503a4f508a17231bd430e5320e1ba89e1fa56b428452c0b0e16ac2ef' },
+    }
+  ],
+  'predicateType' => 'https://slsa.dev/provenance/v1',
+  'predicate' => {
+    'buildDefinition' => {
+    'buildType' => 'https://open-build-service.org/worker',
+    'externalParameters' => {
+      'source' => 'srcserver/source/project1/package1?rev=f157738ddea737a2b7479996175a6cec',
+      'recipeFile' => 'hello_world.spec',
+    },
+    'resolvedDependencies' => [
+      {
+	'name' => 'hello_world.spec',
+	'digest' => { 'sha256' => 'e237d5c5ea2b4dd327d2e103afd09572286609fbc9bf43cc9609f1371b4c8dd2' },
+	'uri' => 'srcserver/source/project1/package1/hello_world.spec?rev=f157738ddea737a2b7479996175a6cec',
+	'annotations' => { 'intent' => 'source' },
+      },
+      {
+	'name' => 'aaa_base.rpm',
+	'digest' => { 'sha256' => 'acf63da2befc85cee24689330ddf62629681e59b5007fa3ffca09ff789f7cb28' },
+	'uri' => 'srcserver/slsa/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/aaa_base.rpm/acf63da2befc85cee24689330ddf62629681e59b5007fa3ffca09ff789f7cb28',
+	'annotations' => { 'intent' => 'buildenv', 'flags' => 'preinstall' },
+      },
+      {
+	'name' => 'filesystem.rpm',
+	'digest' => { 'sha256' => 'be546d31264bf3ea084cd6c0bb659872eef0388583983379a72edfb26f021680' },
+	'uri' => 'srcserver/slsa/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/filesystem.rpm/be546d31264bf3ea084cd6c0bb659872eef0388583983379a72edfb26f021680',
+	'annotations' => { 'intent' => 'buildenv', 'flags' => 'preinstall' },
+      },
+      {
+	'name' => 'liblua5_4-5.rpm',
+	'digest' => { 'sha256' => '80c185cd2f7d2cc9960308a9ce07d97b20c098d7a71008ba7d74dfd1031cfe26' },
+	'uri' => 'srcserver/slsa/openSUSE.org:openSUSE:Tumbleweed/dod/x86_64/liblua5_4-5.rpm/80c185cd2f7d2cc9960308a9ce07d97b20c098d7a71008ba7d74dfd1031cfe26',
+	'annotations' => { 'intent' => 'buildenv', 'flags' => 'preinstall' },
+      }
+    ],
+    },
+    'runDetails' => {
+      'id' => 'https://my.api',
+    },
+  }
+};
+is_deeply($got, $expected_statement_v1, 'generate_slsa_provenance_statement_v1 - Return value');
 
 # getbinaries_product
 

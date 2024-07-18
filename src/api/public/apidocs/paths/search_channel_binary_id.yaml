@@ -73,7 +73,6 @@ get:
 post:
   deprecated: true
   summary: List channel objects that match a XPath condition.
-  description: |
-    This endpoint is exactly the same as `GET /search/channel/binary/id`, please use that one.
+  description: This endpoint is exactly the same as `GET /search/channel/binary/id`, please use that one.
   tags:
     - Search

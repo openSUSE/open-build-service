@@ -4,4 +4,4 @@
   = render partial: 'tabs', locals: { project: @project, package: @package }
   .card-body
     %h3= @pagetitle
-    %pre.border.border-dotted.bg-light.p-2.mb-0= force_utf8_and_transform_nonprintables(@file)
+    %pre.border.border-dotted.bg-body-secondary.p-2.mb-0= force_utf8_and_transform_nonprintables(@file)

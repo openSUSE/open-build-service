@@ -473,6 +473,8 @@ Additional Parameters:
   flag: modify this flag (build/publish/..) for set_flag command
   repository: set_flag for given repository or release just this repository (optional)
   status: enable or disable for set_flag command
+  # for extendkey
+  days: define the number of days until expiry
   # for modifychannels and addchannels command only:
   mode: how to deal with disabled channels: add_disabled(default), skip_disabled, enable_all
   # for copy command only:
@@ -503,6 +505,7 @@ Parameters:
 
   deleted: bool, show deleted package instead of existing, optional
   expand: bool, include also packages from linked projects, optional
+  package: specify the packages to be shown with view=info, optional, multiple
   view: issues, can be used to show all tracked issues for all packages in project
         productlist, shows all containing products, unifies result when used with expand
         verboseproductlist, same as productlist, but with detailed information about the product
@@ -671,6 +674,7 @@ POST /source/<project>/<package>?cmd=release
 
 Parameters:
   comment: description for the history
+  arch: limit the release to the specified architecture
   repository: limit the release to the specified repository
   target_repository: specify the target repository name (together with target_project)
   target_project: overwrites the target definition from project meta
@@ -706,6 +710,22 @@ Parameters:
   add_repositories: bool, optional, adds repositories base on source project (default for new projects)
   update_path_elements: bool, optional, update all path elements if needed (used repositories depend on each other)
   extend_package_names: bool, optional, extends package and repository names to allow multiple instances of same package
+  add_repositories_rebuild: use defined rebuild policy for new repos ("transitive", "direct" or "local") or copy it from the source project ("copy")
+  add_repositories_block: use defined block policy for new repos
+
+XmlResult: status
+
+
+POST /source/<project>/<package>?cmd=fork&scmsync=url
+
+  Create a fork of a package taking the source from the scmsync parameter.
+  The target project is by default below home:<user>:branches namespace.
+  The target project will be setup to include the source project repository setup.
+  The source project must exists, the source package may not exist.
+
+Parameters:
+  scmsync: string, required, specifies checkout url for the source
+  target_project: target project name, optional (default home:<user>:branches:<project>)
   add_repositories_rebuild: use defined rebuild policy for new repos ("transitive", "direct" or "local") or copy it from the source project ("copy")
   add_repositories_block: use defined block policy for new repos
 
@@ -890,6 +910,7 @@ Parameters:
   noservice: do not run source services
   comment: comment for history, optional
   meta: switch to meta files
+  file: limit operation (eg. diffing) to certains files, optional, multiple
   arch: architecture when using flag modifing command
   repository: repository when using flag modifing command
   view: may be "xml" for structured answered (for diff commands)
@@ -1244,6 +1265,12 @@ GET /build/<project>/<repository>/<arch>/_jobhistory?package=<package>&code=succ
   time and trigger reason. Optional filtering for one ore more packages/codes is
   possible.
 
+Parameters:
+
+  package       string, filter package container, can be used multiple times
+  code          string, filter by build state, can be used multiple times
+  limit         num, Limit number of entries, optional
+
 Result: jobhistory
 
 
@@ -1251,6 +1278,17 @@ GET /build/<project>/<repository>/<arch>/_repository
 
   Get list of binaries in given repository (binaries produced by all packages
   of the project)
+
+Parameters:
+
+  view       string, can be cache, cpio, solv, solvstate, binaryversions
+  nometa     bool, exclude meta for binaryversions
+  nossource  bool, exclude source for binaryversions
+  withevr    bool, include evr in binaryversions
+  withmd5    bool, include md5 sums
+  withccache bool, include ccache files
+  module     string, rpm module name, can be used multiple times
+  binary     string, filter binaries, can be used multiple times
 
 Result: binarylist
 
@@ -1462,6 +1500,11 @@ Parameters:
 GET /build/<project>/<repository>/<arch>/<package>/_buildinfo
 
   Get build information for local building
+
+Parameters:
+
+  add:   package_name, Add additional package, optional, multiple
+  debug: bool, report solving reasons
 
 XmlResult: buildinfo
 
@@ -2138,7 +2181,20 @@ GET /configuration
 
 XmlResult: configuration configuration.rng
 
+== Interconnect
+
+GET /lastevents
+
+  AJAX event reporting interface for OBS interconnects.
+
+Parameters:
+  filter: Filter given resources in the queue, optional, multiple
+  start: last processed entry, optional
+  obsname: reporting OBS instance name, optional
+  block: bool, for disabling AJAX mode
 
 == Internal only routes
 
    /public shall not be used in any tools, it is for OBS remote support only and may change or disappear at any time. The route is only working when anonymous mode is enabled.
+
+

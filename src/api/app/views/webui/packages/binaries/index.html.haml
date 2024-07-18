@@ -17,15 +17,15 @@
                                                          method: :delete,
                                                          options: { modal_title: 'Delete all built binaries?',
                                                                     confirmation_text: 'Please confirm deletion of all built binaries',
-                                                                    action: package_wipe_binaries_path(project: @project,
-                                                                                                       package: @package,
-                                                                                                       repository: @repository) })
+                                                                    action: project_package_repository_binaries_path(project_name: @project,
+                                                                                                                     package_name: @package,
+                                                                                                                     repository_name: @repository) })
           = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-binaries-modal',
                                                          method: :delete,
                                                          options: { modal_title: 'Do you want to remove these binaries?' })
 
     - @buildresults.each do |result|
-      %h5.bg-light.p-2.mb-0
+      %h5.bg-body-secondary.p-2.mb-0
         = repository_status_icon(status: result[:repocode].to_s, html_class: 'fa-xs')
         = result[:arch]
       - if result[:binaries].empty?

@@ -1,7 +1,6 @@
 get:
   summary: Get list of attributes and attribute values with binary parameter
-  description: |
-    Get a list of all attributes and their values for a given binary
+  description: Get a list of all attributes and their values for a given binary
   security:
     - basic_authentication: []
   parameters:
@@ -31,8 +30,7 @@ get:
 
 post:
   summary: Add an attribute
-  description: |
-    Add an attribute with binary to a package
+  description: Add an attribute with binary to a package
   security:
     - basic_authentication: []
   parameters:

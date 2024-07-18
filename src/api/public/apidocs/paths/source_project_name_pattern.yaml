@@ -1,7 +1,6 @@
 get:
   summary: Get list of patterns
-  description: |
-    Get a list of all patterns for the project
+  description: Get a list of all patterns for the project
   security:
     - basic_authentication: []
   parameters:

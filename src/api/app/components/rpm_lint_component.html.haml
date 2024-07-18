@@ -1,0 +1,19 @@
+.row
+  .col-12.col-md-6
+    = bar_chart( issues_chart_data,
+                    width: '100%',
+                    height: '300px',
+                    stacked: true,
+                    responsive: true,
+                    colors: ['#DC3545', '#FFCC00'],
+                    library: { scales: { y: { ticks: { stepSize: 1 }}}},
+                  )
+  .col-12.col-md-6
+    = bar_chart( badness_chart_data,
+                    width: '100%',
+                    height: '300px',
+                    stacked: true,
+                    responsive: true,
+                    colors: ['#DC3545'],
+                    library: { scales: { y: { ticks: { stepSize: 1 }}}},
+                  )

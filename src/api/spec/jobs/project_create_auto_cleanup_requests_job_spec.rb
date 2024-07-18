@@ -22,11 +22,11 @@ RSpec.describe ProjectCreateAutoCleanupRequestsJob, :vcr do
   end
 
   describe '#perform' do
+    subject { described_class.perform_now }
+
     let(:admin) { create(:admin_user, login: 'Admin') }
     let(:project) { create(:project, name: 'ProjectA') }
     let(:attribute) { create(:auto_cleanup_attrib, project: project) }
-
-    subject { described_class.perform_now }
 
     before do
       allow(Configuration).to receive(:cleanup_after_days).and_return(3)

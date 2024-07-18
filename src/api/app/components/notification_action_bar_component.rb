@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
 class NotificationActionBarComponent < ApplicationComponent
-  attr_accessor :type, :update_path, :show_read_all_button
+  attr_accessor :state, :update_path, :counted_notifications
 
-  def initialize(type:, update_path:, show_read_all_button: false)
+  def initialize(state:, update_path:, counted_notifications:)
     super
 
-    @type = type
-    @update_path = add_params(update_path)
-    @show_read_all_button = show_read_all_button
+    @state = state
+    @update_path = toggle_update_path_states(update_path)
+    @counted_notifications = counted_notifications
   end
 
   def button_text(all: false)
-    text = type == 'read' ? 'Unread' : 'Read'
+    text = %w[all unread].include?(state) ? 'Read' : 'Unread'
     if all
       "Mark all as '#{text}'"
     else
@@ -27,9 +27,11 @@ class NotificationActionBarComponent < ApplicationComponent
 
   private
 
-  def add_params(path)
-    return path + '&update_all=true' if path.include?('?')
+  def toggle_update_path_states(path)
+    toggled_state = state == 'unread' ? 'read' : 'unread'
+    uri = Addressable::URI.parse(path)
+    uri.query_values = (uri.query_values || {}).merge('button' => toggled_state, 'update_all' => true)
 
-    path + '?update_all=true'
+    uri.to_s
   end
 end

@@ -1,11 +1,10 @@
 class NotificationMarkButtonComponent < ApplicationComponent
-  def initialize(notification, selected_filter, page = nil, show_more = nil)
+  def initialize(notification, selected_filter, page = nil)
     super
 
     @notification = notification
     @selected_filter = selected_filter
     @page = page
-    @show_more = show_more
   end
 
   private
@@ -19,8 +18,10 @@ class NotificationMarkButtonComponent < ApplicationComponent
   end
 
   def update_path
-    my_notifications_path(notification_ids: [@notification.id], type: @selected_filter[:type],
+    my_notifications_path(notification_ids: [@notification.id], kind: @selected_filter[:kind],
+                          state: @selected_filter[:state],
+                          button: @notification.unread? ? 'read' : 'unread',
                           project: @selected_filter[:project], group: @selected_filter[:group],
-                          page: @page, show_more: @show_more)
+                          page: @page)
   end
 end

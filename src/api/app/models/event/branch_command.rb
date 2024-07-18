@@ -1,6 +1,6 @@
 module Event
   class BranchCommand < Base
-    self.description = 'Package was branched'
+    self.description = 'Package branched'
     self.message_bus_routing_key = 'package.branch'
     payload_keys :project, :package, :sender, :targetproject, :targetpackage, :user
 
@@ -17,7 +17,7 @@ end
 #  id          :bigint           not null, primary key
 #  eventtype   :string(255)      not null, indexed
 #  mails_sent  :boolean          default(FALSE), indexed
-#  payload     :text(65535)
+#  payload     :text(16777215)
 #  undone_jobs :integer          default(0)
 #  created_at  :datetime         indexed
 #  updated_at  :datetime

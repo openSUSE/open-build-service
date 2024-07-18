@@ -39,11 +39,11 @@ RSpec.describe Person::TokenController do
 
   describe '#create' do
     context 'called with no project and package parameter' do
+      subject { post :create, params: { login: user.login, operation: 'rebuild' }, format: :xml }
+
       before do
         login user
       end
-
-      subject { post :create, params: { login: user.login, operation: 'rebuild' }, format: :xml }
 
       it 'creates a global token' do
         expect { subject }.to change { user.tokens.count }.by(+1)
@@ -52,24 +52,24 @@ RSpec.describe Person::TokenController do
     end
 
     context 'called with only project parameter' do
+      subject { post :create, params: { login: user.login, project: user.home_project, operation: 'rebuild' }, format: :xml }
+
       before do
         login user
       end
 
-      subject { post :create, params: { login: user.login, project: user.home_project, operation: 'rebuild' }, format: :xml }
-
-      it 'does not create a token' do
-        expect { subject }.not_to(change { user.tokens.count })
-        expect(response).to have_http_status(:bad_request)
+      it 'creates a global token' do
+        expect { subject }.to change { user.tokens.count }.by(1)
+        expect(response).to have_http_status(:success)
       end
     end
 
     context 'called with only package parameter' do
+      subject { post :create, params: { login: user.login, package: 'test', operation: 'create' }, format: :xml }
+
       before do
         login user
       end
-
-      subject { post :create, params: { login: user.login, package: 'test', operation: 'create' }, format: :xml }
 
       it 'does not create a token' do
         expect { subject }.not_to(change { user.tokens.count })
@@ -78,38 +78,40 @@ RSpec.describe Person::TokenController do
     end
 
     context 'called with project and package parameter' do
+      subject { post :create, params: { login: user.login, package: package, project: package.project, operation: 'runservice' }, format: :xml }
+
       let!(:package) { create(:package, project: user.home_project) }
 
       before do
         login user
-        post :create, params: { login: user.login, package: package, project: package.project, operation: 'runservice' }, format: :xml
       end
 
       it { expect(response).to have_http_status(:success) }
-      it { expect(response).to render_template(:create) }
-      it { expect(user.tokens.where(package: package)).to exist }
-      it { expect(assigns(:token)).to eq(package.token) }
+
+      it 'creates a token' do
+        expect { subject }.to change { user.tokens.count }.by(+1)
+      end
     end
 
     context 'operation is workflow' do
+      subject { post :create, params: { login: user.login, operation: 'workflow', scm_token: '123456789' }, format: :xml }
+
       let!(:package) { create(:package, project: user.home_project) }
 
       before do
         login user
       end
-
-      subject { post :create, params: { login: user.login, operation: 'workflow', scm_token: '123456789' }, format: :xml }
 
       it { expect(response).to have_http_status(:success) }
       it { expect { subject }.to change { user.tokens.count }.by(+1) }
     end
 
     context 'called by unauthorized user' do
+      subject { post :create, params: { login: user.login }, format: :xml }
+
       before do
         login other_user
       end
-
-      subject { post :create, params: { login: user.login }, format: :xml }
 
       it 'permits access' do
         expect { subject }.not_to(change { user.tokens.count })

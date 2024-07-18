@@ -77,6 +77,18 @@ post:
           - 1
       description: Set to ignore validation and resolving of devel package or devel project definition.
     - in: query
+      name: force
+      schema:
+        type: string
+      description: |
+        Set to 1 to allow overwriting of a pre-existing package.
+      example: 1
+    - in: query
+      name: rev
+      schema:
+        type: string
+      description: Set to branch against a specific revision.
+    - in: query
       name: maintenance
       schema:
         type: string
@@ -134,7 +146,7 @@ post:
       description: |
         OK. The request has succeeded.
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
       content:
         application/xml; charset=utf-8:
           schema:
@@ -151,7 +163,7 @@ post:
       description: |
         Bad Request.
 
-        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
       content:
         application/xml; charset=utf-8:
           schema:

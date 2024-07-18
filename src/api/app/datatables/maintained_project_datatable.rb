@@ -30,7 +30,7 @@ class MaintainedProjectDatatable < Datatable
 
   # rubocop:disable Naming/AccessorMethodName
   def get_raw_records
-    @project.maintained_projects.includes(:project)
+    @project.maintained_projects.joins(:project)
   end
   # rubocop:enable Naming/AccessorMethodName
 

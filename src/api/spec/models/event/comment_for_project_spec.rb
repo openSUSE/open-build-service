@@ -1,5 +1,7 @@
 RSpec.describe Event::CommentForProject do
   describe 'payload is shortened' do
+    subject! { event.save }
+
     let(:project) { create(:project) }
     let(:user) { create(:confirmed_user) }
     let(:comment_author) { create(:confirmed_user) }
@@ -11,8 +13,6 @@ RSpec.describe Event::CommentForProject do
         comment_body: comment_body
       )
     end
-
-    subject! { event.save }
 
     context 'with the payload small enough to fit into the payload column' do
       let(:comment_body) { Faker::Lorem.characters(number: 50) }

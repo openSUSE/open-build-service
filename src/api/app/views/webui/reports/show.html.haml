@@ -1,0 +1,25 @@
+- @pagetitle = "Report ##{@report.id}"
+
+.card
+  .card-body
+    %h3.card-title
+      Report ##{@report.id}
+      .badge.text-bg-primary= @report.category.humanize
+    %p
+      Created by
+      = render UserAvatarComponent.new(@report.user)
+      - if @report.reportable.present?
+        on
+        = link_to_reportables(report_id: @report.id, reportable_type: @report.reportable_type)
+    %h5 Description
+    %p
+      = @report.reason
+
+.comments.mt-3
+  .card#comments-list
+    %h5.card-header.text-word-break-all
+      Comments
+      %span.badge.text-bg-primary{ id: "comment-counter-report-#{@report.id}" }
+        = @report.comments.length
+    .card-body#comments
+      = render partial: 'webui/comment/show', locals: { commentable: @report, comment_counter_id: "#comment-counter-report-#{@report.id}" }

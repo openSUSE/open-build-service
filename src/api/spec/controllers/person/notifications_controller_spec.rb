@@ -16,7 +16,7 @@ RSpec.describe Person::NotificationsController do
     end
 
     context 'bad filter' do
-      let(:params) { { format: :xml, notifications_type: 'foobar' } }
+      let(:params) { { format: :xml, kind: 'foobar' } }
 
       it { expect(response).to have_http_status(:bad_request) }
     end
@@ -39,12 +39,12 @@ RSpec.describe Person::NotificationsController do
       it { expect(response).to have_http_status(:success) }
       it { expect(response.body).to include('<notifications count="2">') }
 
-      context 'filter by notifications_type' do
+      context 'filter by kind' do
         let!(:notifications) { create_list(:web_notification, 2, :request_state_change, subscriber: user, delivered: true) }
 
         before do
           login user
-          get :index, params: { format: :xml, notifications_type: 'read' }
+          get :index, params: { format: :xml, state: 'read' }
         end
 
         it { expect(response).to have_http_status(:success) }
@@ -92,7 +92,7 @@ RSpec.describe Person::NotificationsController do
         put :update, params: { format: :xml, id: notification.id }
       end
 
-      it { expect(response).to have_http_status(:forbidden) }
+      it { expect(response).to have_http_status(:not_found) }
     end
 
     context 'called by an authorized user' do

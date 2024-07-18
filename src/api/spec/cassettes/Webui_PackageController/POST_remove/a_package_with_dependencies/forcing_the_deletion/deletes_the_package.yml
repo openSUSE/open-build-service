@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Tue, 26 Sep 2023 14:23:49 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:17 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Precious Bane</title>
-          <description>Fugit dicta voluptatem officiis.</description>
+          <title>The Wealth of Nations</title>
+          <description>Deserunt asperiores iste ullam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,23 +69,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '151'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Precious Bane</title>
-          <description>Fugit dicta voluptatem officiis.</description>
+          <title>The Wealth of Nations</title>
+          <description>Deserunt asperiores iste ullam.</description>
         </package>
-  recorded_at: Tue, 26 Sep 2023 14:23:49 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:17 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_2/_meta?user=tom
+    uri: http://backend:5352/source/project_4/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="project_2">
-          <title>Far From the Madding Crowd</title>
+        <project name="project_4">
+          <title>Death Be Not Proud</title>
           <description/>
         </project>
     headers:
@@ -107,24 +107,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '112'
+      - '104'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_2">
-          <title>Far From the Madding Crowd</title>
+        <project name="project_4">
+          <title>Death Be Not Proud</title>
           <description></description>
         </project>
-  recorded_at: Tue, 26 Sep 2023 14:23:49 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:17 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_2/package_2/_meta?user=tom
+    uri: http://backend:5352/source/project_4/package_2/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="package_2" project="project_2">
-          <title>That Hideous Strength</title>
-          <description>Voluptatum beatae voluptatem repudiandae.</description>
+        <package name="package_2" project="project_4">
+          <title>Pale Kings and Princes</title>
+          <description>Assumenda impedit eum eum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -145,24 +145,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '154'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_2" project="project_2">
-          <title>That Hideous Strength</title>
-          <description>Voluptatum beatae voluptatem repudiandae.</description>
+        <package name="package_2" project="project_4">
+          <title>Pale Kings and Princes</title>
+          <description>Assumenda impedit eum eum.</description>
         </package>
-  recorded_at: Tue, 26 Sep 2023 14:23:49 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:17 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_2/package_2/_meta?user=tom
+    uri: http://backend:5352/source/project_4/package_2/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="package_2" project="project_2">
-          <title>That Hideous Strength</title>
-          <description>Voluptatum beatae voluptatem repudiandae.</description>
+        <package name="package_2" project="project_4">
+          <title>Pale Kings and Princes</title>
+          <description>Assumenda impedit eum eum.</description>
           <devel project="home:tom" package="my_package"/>
         </package>
     headers:
@@ -184,16 +184,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '219'
+      - '205'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_2" project="project_2">
-          <title>That Hideous Strength</title>
-          <description>Voluptatum beatae voluptatem repudiandae.</description>
+        <package name="package_2" project="project_4">
+          <title>Pale Kings and Princes</title>
+          <description>Assumenda impedit eum eum.</description>
           <devel project="home:tom" package="my_package"/>
         </package>
-  recorded_at: Tue, 26 Sep 2023 14:23:49 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:17 GMT
 - request:
     method: delete
     uri: http://backend:5352/source/home:tom/my_package?user=tom
@@ -225,16 +225,16 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Tue, 26 Sep 2023 14:23:50 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:17 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_2/package_2/_meta?user=tom
+    uri: http://backend:5352/source/project_4/package_2/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="package_2" project="project_2">
-          <title>That Hideous Strength</title>
-          <description>Voluptatum beatae voluptatem repudiandae.</description>
+        <package name="package_2" project="project_4">
+          <title>Pale Kings and Princes</title>
+          <description>Assumenda impedit eum eum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -255,13 +255,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '154'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_2" project="project_2">
-          <title>That Hideous Strength</title>
-          <description>Voluptatum beatae voluptatem repudiandae.</description>
+        <package name="package_2" project="project_4">
+          <title>Pale Kings and Princes</title>
+          <description>Assumenda impedit eum eum.</description>
         </package>
-  recorded_at: Tue, 26 Sep 2023 14:23:50 GMT
+  recorded_at: Thu, 13 Jun 2024 17:01:17 GMT
 recorded_with: VCR 6.2.0

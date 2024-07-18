@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Proper Study</title>
+          <title>No Highway</title>
           <description/>
         </project>
     headers:
@@ -29,15 +29,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '107'
+      - '101'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Proper Study</title>
+          <title>No Highway</title>
           <description></description>
         </project>
-  recorded_at: Fri, 19 May 2023 11:55:36 GMT
+  recorded_at: Mon, 18 Mar 2024 22:13:59 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/target_package/_meta?user=user_2
@@ -45,8 +45,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>An Instant In The Wind</title>
-          <description>Nobis soluta sed ipsum.</description>
+          <title>An Acceptable Time</title>
+          <description>Ab numquam distinctio corporis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -67,22 +67,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '165'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>An Instant In The Wind</title>
-          <description>Nobis soluta sed ipsum.</description>
+          <title>An Acceptable Time</title>
+          <description>Ab numquam distinctio corporis.</description>
         </package>
-  recorded_at: Fri, 19 May 2023 11:55:36 GMT
+  recorded_at: Mon, 18 Mar 2024 22:13:59 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/target_package/_config
     body:
       encoding: UTF-8
-      string: Tenetur voluptatem unde. Voluptas corporis consectetur. Enim debitis
-        dolorem.
+      string: Sit esse quo. Ipsa sit quaerat. Eos ut eius.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -106,15 +105,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="9" vrev="9">
-          <srcmd5>7251f5d682a3fe94ce35c4d19c108a77</srcmd5>
+        <revision rev="3" vrev="3">
+          <srcmd5>92f4033f51ba65c819aac2bdc5aa031f</srcmd5>
           <version>unknown</version>
-          <time>1684497336</time>
+          <time>1710800039</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 19 May 2023 11:55:36 GMT
+  recorded_at: Mon, 18 Mar 2024 22:13:59 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/target_package/somefile.txt
@@ -140,19 +139,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="10" vrev="10">
-          <srcmd5>7251f5d682a3fe94ce35c4d19c108a77</srcmd5>
+        <revision rev="4" vrev="4">
+          <srcmd5>92f4033f51ba65c819aac2bdc5aa031f</srcmd5>
           <version>unknown</version>
-          <time>1684497336</time>
+          <time>1710800039</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 19 May 2023 11:55:36 GMT
+  recorded_at: Mon, 18 Mar 2024 22:13:59 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=user_3
@@ -160,7 +159,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Endless Night</title>
+          <title>Those Barren Leaves, Thrones, Dominations</title>
           <description/>
         </project>
     headers:
@@ -182,15 +181,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '132'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Endless Night</title>
+          <title>Those Barren Leaves, Thrones, Dominations</title>
           <description></description>
         </project>
-  recorded_at: Fri, 19 May 2023 11:55:36 GMT
+  recorded_at: Mon, 18 Mar 2024 22:13:59 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_3
@@ -223,14 +222,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="57">
-          <srcmd5>88f9eb2ec37d6e6bec49f42a36e4d53d</srcmd5>
-          <time>1684497337</time>
+        <revision rev="10">
+          <srcmd5>4305d32c9058925fb5502e571b6884ad</srcmd5>
+          <time>1710800039</time>
           <user>user_3</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 19 May 2023 11:55:37 GMT
+  recorded_at: Mon, 18 Mar 2024 22:13:59 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=user_4
@@ -238,8 +237,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>That Hideous Strength</title>
-          <description>Laudantium id quod iure.</description>
+          <title>Some Buried Caesar</title>
+          <description>Voluptates ab sint consequatur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -260,21 +259,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '165'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>That Hideous Strength</title>
-          <description>Laudantium id quod iure.</description>
+          <title>Some Buried Caesar</title>
+          <description>Voluptates ab sint consequatur.</description>
         </package>
-  recorded_at: Fri, 19 May 2023 11:55:37 GMT
+  recorded_at: Mon, 18 Mar 2024 22:13:59 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_config
     body:
       encoding: UTF-8
-      string: Ea earum perferendis. Et et quas. Inventore consectetur facere.
+      string: Et nihil esse. Mollitia eveniet laborum. Commodi sed rem.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -298,15 +297,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="9" vrev="9">
-          <srcmd5>8fd61c1124aa43f064e28fedf8467d05</srcmd5>
+        <revision rev="3" vrev="3">
+          <srcmd5>0426af132c909c0c229c12fc8a60eaab</srcmd5>
           <version>unknown</version>
-          <time>1684497337</time>
+          <time>1710800039</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 19 May 2023 11:55:37 GMT
+  recorded_at: Mon, 18 Mar 2024 22:13:59 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/somefile.txt
@@ -332,19 +331,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="10" vrev="10">
-          <srcmd5>8fd61c1124aa43f064e28fedf8467d05</srcmd5>
+        <revision rev="4" vrev="4">
+          <srcmd5>0426af132c909c0c229c12fc8a60eaab</srcmd5>
           <version>unknown</version>
-          <time>1684497337</time>
+          <time>1710800039</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 19 May 2023 11:55:37 GMT
+  recorded_at: Mon, 18 Mar 2024 22:13:59 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -370,15 +369,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '301'
+      - '299'
     body:
       encoding: UTF-8
       string: |
-        <directory name="source_package" rev="10" vrev="10" srcmd5="8fd61c1124aa43f064e28fedf8467d05">
-          <entry name="_config" md5="61b7917d2e2343f2ca5961eb2b62f65d" size="63" mtime="1684497337"/>
-          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1677507608"/>
+        <directory name="source_package" rev="4" vrev="4" srcmd5="0426af132c909c0c229c12fc8a60eaab">
+          <entry name="_config" md5="a38efb7d3974e4ebb938e302be774b0b" size="57" mtime="1710800039"/>
+          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1710765714"/>
         </directory>
-  recorded_at: Fri, 19 May 2023 11:55:37 GMT
+  recorded_at: Mon, 18 Mar 2024 22:14:00 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
@@ -406,21 +405,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '1123'
+      - '1082'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="6568ef1cdbfc5ec799a3806f1b74cd9b">
-          <old project="target_project" package="target_package" rev="10" srcmd5="7251f5d682a3fe94ce35c4d19c108a77"/>
-          <new project="source_project" package="source_package" rev="10" srcmd5="8fd61c1124aa43f064e28fedf8467d05"/>
+        <sourcediff key="5e2d51d628857edb66ee236ea036443f">
+          <old project="target_project" package="target_package" rev="4" srcmd5="92f4033f51ba65c819aac2bdc5aa031f"/>
+          <new project="source_project" package="source_package" rev="4" srcmd5="0426af132c909c0c229c12fc8a60eaab"/>
           <files>
             <file state="changed">
-              <old name="_config" md5="ecbb6430dad2ff975c25d01f137456f2" size="77"/>
-              <new name="_config" md5="61b7917d2e2343f2ca5961eb2b62f65d" size="63"/>
+              <old name="_config" md5="3915569db3af157671708ff053ec5a03" size="44"/>
+              <new name="_config" md5="a38efb7d3974e4ebb938e302be774b0b" size="57"/>
               <diff lines="5">@@ -1,1 +1,1 @@
-        -Tenetur voluptatem unde. Voluptas corporis consectetur. Enim debitis dolorem.
+        -Sit esse quo. Ipsa sit quaerat. Eos ut eius.
         \ No newline at end of file
-        +Ea earum perferendis. Et et quas. Inventore consectetur facere.
+        +Et nihil esse. Mollitia eveniet laborum. Commodi sed rem.
         \ No newline at end of file
         </diff>
             </file>
@@ -438,7 +437,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Fri, 19 May 2023 11:55:37 GMT
+  recorded_at: Mon, 18 Mar 2024 22:14:00 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -464,15 +463,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '301'
+      - '299'
     body:
       encoding: UTF-8
       string: |
-        <directory name="source_package" rev="10" vrev="10" srcmd5="8fd61c1124aa43f064e28fedf8467d05">
-          <entry name="_config" md5="61b7917d2e2343f2ca5961eb2b62f65d" size="63" mtime="1684497337"/>
-          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1677507608"/>
+        <directory name="source_package" rev="4" vrev="4" srcmd5="0426af132c909c0c229c12fc8a60eaab">
+          <entry name="_config" md5="a38efb7d3974e4ebb938e302be774b0b" size="57" mtime="1710800039"/>
+          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1710765714"/>
         </directory>
-  recorded_at: Fri, 19 May 2023 11:55:37 GMT
+  recorded_at: Mon, 18 Mar 2024 22:14:00 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/source_package?cacheonly=1&cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
@@ -496,7 +495,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '1123'
+      - '1082'
       Cache-Control:
       - no-cache
       Connection:
@@ -504,17 +503,17 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="6568ef1cdbfc5ec799a3806f1b74cd9b">
-          <old project="target_project" package="target_package" rev="10" srcmd5="7251f5d682a3fe94ce35c4d19c108a77"/>
-          <new project="source_project" package="source_package" rev="10" srcmd5="8fd61c1124aa43f064e28fedf8467d05"/>
+        <sourcediff key="5e2d51d628857edb66ee236ea036443f">
+          <old project="target_project" package="target_package" rev="4" srcmd5="92f4033f51ba65c819aac2bdc5aa031f"/>
+          <new project="source_project" package="source_package" rev="4" srcmd5="0426af132c909c0c229c12fc8a60eaab"/>
           <files>
             <file state="changed">
-              <old name="_config" md5="ecbb6430dad2ff975c25d01f137456f2" size="77"/>
-              <new name="_config" md5="61b7917d2e2343f2ca5961eb2b62f65d" size="63"/>
+              <old name="_config" md5="3915569db3af157671708ff053ec5a03" size="44"/>
+              <new name="_config" md5="a38efb7d3974e4ebb938e302be774b0b" size="57"/>
               <diff lines="5">@@ -1,1 +1,1 @@
-        -Tenetur voluptatem unde. Voluptas corporis consectetur. Enim debitis dolorem.
+        -Sit esse quo. Ipsa sit quaerat. Eos ut eius.
         \ No newline at end of file
-        +Ea earum perferendis. Et et quas. Inventore consectetur facere.
+        +Et nihil esse. Mollitia eveniet laborum. Commodi sed rem.
         \ No newline at end of file
         </diff>
             </file>
@@ -532,10 +531,10 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Fri, 19 May 2023 11:55:37 GMT
+  recorded_at: Mon, 18 Mar 2024 22:14:00 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/target_project/target_package
+    uri: http://backend:5352/source/source_project/source_package
     body:
       encoding: US-ASCII
       string: ''
@@ -558,18 +557,78 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '301'
+      - '299'
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="10" vrev="10" srcmd5="7251f5d682a3fe94ce35c4d19c108a77">
-          <entry name="_config" md5="ecbb6430dad2ff975c25d01f137456f2" size="77" mtime="1684497336"/>
-          <entry name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23" mtime="1677507608"/>
+        <directory name="source_package" rev="4" vrev="4" srcmd5="0426af132c909c0c229c12fc8a60eaab">
+          <entry name="_config" md5="a38efb7d3974e4ebb938e302be774b0b" size="57" mtime="1710800039"/>
+          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1710765714"/>
         </directory>
-  recorded_at: Fri, 19 May 2023 11:55:37 GMT
+  recorded_at: Mon, 18 Mar 2024 22:14:00 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '1082'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="5e2d51d628857edb66ee236ea036443f">
+          <old project="target_project" package="target_package" rev="4" srcmd5="92f4033f51ba65c819aac2bdc5aa031f"/>
+          <new project="source_project" package="source_package" rev="4" srcmd5="0426af132c909c0c229c12fc8a60eaab"/>
+          <files>
+            <file state="changed">
+              <old name="_config" md5="3915569db3af157671708ff053ec5a03" size="44"/>
+              <new name="_config" md5="a38efb7d3974e4ebb938e302be774b0b" size="57"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Sit esse quo. Ipsa sit quaerat. Eos ut eius.
+        \ No newline at end of file
+        +Et nihil esse. Mollitia eveniet laborum. Commodi sed rem.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="changed">
+              <old name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23"/>
+              <new name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -# This will be replaced
+        \ No newline at end of file
+        +# This is the new text
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 18 Mar 2024 22:14:00 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/source_project/source_package?expand=1
+    uri: http://backend:5352/source/source_project/source_package
     body:
       encoding: US-ASCII
       string: ''
@@ -592,22 +651,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '301'
+      - '299'
     body:
       encoding: UTF-8
       string: |
-        <directory name="source_package" rev="10" vrev="10" srcmd5="8fd61c1124aa43f064e28fedf8467d05">
-          <entry name="_config" md5="61b7917d2e2343f2ca5961eb2b62f65d" size="63" mtime="1684497337"/>
-          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1677507608"/>
+        <directory name="source_package" rev="4" vrev="4" srcmd5="0426af132c909c0c229c12fc8a60eaab">
+          <entry name="_config" md5="a38efb7d3974e4ebb938e302be774b0b" size="57" mtime="1710800039"/>
+          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1710765714"/>
         </directory>
-  recorded_at: Fri, 19 May 2023 11:55:37 GMT
+  recorded_at: Mon, 18 Mar 2024 22:14:00 GMT
 - request:
-    method: get
-    uri: http://backend:5352/source/source_project/source_package?expand=1
+    method: post
+    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
     body:
-      encoding: US-ASCII
+      encoding: UTF-8
       string: ''
     headers:
+      Content-Type:
+      - application/octet-stream
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -621,122 +682,44 @@ http_interactions:
     headers:
       Content-Type:
       - text/xml
+      Content-Length:
+      - '1082'
       Cache-Control:
       - no-cache
       Connection:
       - close
-      Content-Length:
-      - '301'
     body:
       encoding: UTF-8
       string: |
-        <directory name="source_package" rev="10" vrev="10" srcmd5="8fd61c1124aa43f064e28fedf8467d05">
-          <entry name="_config" md5="61b7917d2e2343f2ca5961eb2b62f65d" size="63" mtime="1684497337"/>
-          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1677507608"/>
-        </directory>
-  recorded_at: Fri, 19 May 2023 11:55:37 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/target_project/target_package?expand=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '301'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="target_package" rev="10" vrev="10" srcmd5="7251f5d682a3fe94ce35c4d19c108a77">
-          <entry name="_config" md5="ecbb6430dad2ff975c25d01f137456f2" size="77" mtime="1684497336"/>
-          <entry name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23" mtime="1677507608"/>
-        </directory>
-  recorded_at: Fri, 19 May 2023 11:55:37 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/target_project/target_package?expand=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '301'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="target_package" rev="10" vrev="10" srcmd5="7251f5d682a3fe94ce35c4d19c108a77">
-          <entry name="_config" md5="ecbb6430dad2ff975c25d01f137456f2" size="77" mtime="1684497336"/>
-          <entry name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23" mtime="1677507608"/>
-        </directory>
-  recorded_at: Fri, 19 May 2023 11:55:37 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/source_project/source_package?expand=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '301'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="source_package" rev="10" vrev="10" srcmd5="8fd61c1124aa43f064e28fedf8467d05">
-          <entry name="_config" md5="61b7917d2e2343f2ca5961eb2b62f65d" size="63" mtime="1684497337"/>
-          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1677507608"/>
-        </directory>
-  recorded_at: Fri, 19 May 2023 11:55:37 GMT
+        <sourcediff key="5e2d51d628857edb66ee236ea036443f">
+          <old project="target_project" package="target_package" rev="4" srcmd5="92f4033f51ba65c819aac2bdc5aa031f"/>
+          <new project="source_project" package="source_package" rev="4" srcmd5="0426af132c909c0c229c12fc8a60eaab"/>
+          <files>
+            <file state="changed">
+              <old name="_config" md5="3915569db3af157671708ff053ec5a03" size="44"/>
+              <new name="_config" md5="a38efb7d3974e4ebb938e302be774b0b" size="57"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Sit esse quo. Ipsa sit quaerat. Eos ut eius.
+        \ No newline at end of file
+        +Et nihil esse. Mollitia eveniet laborum. Commodi sed rem.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="changed">
+              <old name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23"/>
+              <new name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -# This will be replaced
+        \ No newline at end of file
+        +# This is the new text
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 18 Mar 2024 22:14:00 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package?expand=1
@@ -762,15 +745,49 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '301'
+      - '299'
     body:
       encoding: UTF-8
       string: |
-        <directory name="source_package" rev="10" vrev="10" srcmd5="8fd61c1124aa43f064e28fedf8467d05">
-          <entry name="_config" md5="61b7917d2e2343f2ca5961eb2b62f65d" size="63" mtime="1684497337"/>
-          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1677507608"/>
+        <directory name="source_package" rev="4" vrev="4" srcmd5="0426af132c909c0c229c12fc8a60eaab">
+          <entry name="_config" md5="a38efb7d3974e4ebb938e302be774b0b" size="57" mtime="1710800039"/>
+          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1710765714"/>
         </directory>
-  recorded_at: Fri, 19 May 2023 11:55:37 GMT
+  recorded_at: Mon, 18 Mar 2024 22:14:00 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '299'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="4" vrev="4" srcmd5="0426af132c909c0c229c12fc8a60eaab">
+          <entry name="_config" md5="a38efb7d3974e4ebb938e302be774b0b" size="57" mtime="1710800039"/>
+          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1710765714"/>
+        </directory>
+  recorded_at: Mon, 18 Mar 2024 22:14:00 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package?expand=1
@@ -796,15 +813,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '301'
+      - '299'
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="10" vrev="10" srcmd5="7251f5d682a3fe94ce35c4d19c108a77">
-          <entry name="_config" md5="ecbb6430dad2ff975c25d01f137456f2" size="77" mtime="1684497336"/>
-          <entry name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23" mtime="1677507608"/>
+        <directory name="target_package" rev="4" vrev="4" srcmd5="92f4033f51ba65c819aac2bdc5aa031f">
+          <entry name="_config" md5="3915569db3af157671708ff053ec5a03" size="44" mtime="1710800039"/>
+          <entry name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23" mtime="1710765713"/>
         </directory>
-  recorded_at: Fri, 19 May 2023 11:55:37 GMT
+  recorded_at: Mon, 18 Mar 2024 22:14:00 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package?expand=1
@@ -830,13 +847,149 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '301'
+      - '299'
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="10" vrev="10" srcmd5="7251f5d682a3fe94ce35c4d19c108a77">
-          <entry name="_config" md5="ecbb6430dad2ff975c25d01f137456f2" size="77" mtime="1684497336"/>
-          <entry name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23" mtime="1677507608"/>
+        <directory name="target_package" rev="4" vrev="4" srcmd5="92f4033f51ba65c819aac2bdc5aa031f">
+          <entry name="_config" md5="3915569db3af157671708ff053ec5a03" size="44" mtime="1710800039"/>
+          <entry name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23" mtime="1710765713"/>
         </directory>
-  recorded_at: Fri, 19 May 2023 11:55:37 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Mon, 18 Mar 2024 22:14:00 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '299'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="4" vrev="4" srcmd5="0426af132c909c0c229c12fc8a60eaab">
+          <entry name="_config" md5="a38efb7d3974e4ebb938e302be774b0b" size="57" mtime="1710800039"/>
+          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1710765714"/>
+        </directory>
+  recorded_at: Mon, 18 Mar 2024 22:14:00 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '299'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="4" vrev="4" srcmd5="0426af132c909c0c229c12fc8a60eaab">
+          <entry name="_config" md5="a38efb7d3974e4ebb938e302be774b0b" size="57" mtime="1710800039"/>
+          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1710765714"/>
+        </directory>
+  recorded_at: Mon, 18 Mar 2024 22:14:00 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '299'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" rev="4" vrev="4" srcmd5="92f4033f51ba65c819aac2bdc5aa031f">
+          <entry name="_config" md5="3915569db3af157671708ff053ec5a03" size="44" mtime="1710800039"/>
+          <entry name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23" mtime="1710765713"/>
+        </directory>
+  recorded_at: Mon, 18 Mar 2024 22:14:00 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '299'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" rev="4" vrev="4" srcmd5="92f4033f51ba65c819aac2bdc5aa031f">
+          <entry name="_config" md5="3915569db3af157671708ff053ec5a03" size="44" mtime="1710800039"/>
+          <entry name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23" mtime="1710765713"/>
+        </directory>
+  recorded_at: Mon, 18 Mar 2024 22:14:00 GMT
+recorded_with: VCR 6.2.0

@@ -6,8 +6,8 @@ class AttributeNamespaceController < ApplicationController
   validate_action delete: { method: :delete, response: :status }
   validate_action update: { method: :put, request: :attribute_namespace_meta, response: :status }
   validate_action update: { method: :post, request: :attribute_namespace_meta, response: :status }
-  before_action :require_namespace, only: [:show, :delete, :update]
-  before_action :require_admin, only: [:update, :delete]
+  before_action :require_namespace, only: %i[show delete update]
+  before_action :require_admin, only: %i[update delete]
 
   def index
     if params[:namespace]

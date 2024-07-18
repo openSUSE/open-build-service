@@ -8,7 +8,7 @@ class CreateCommentLocks < ActiveRecord::Migration[7.0]
       t.timestamps
     end
 
-    add_index :comment_locks, [:commentable_type, :commentable_id], unique: true
+    add_index :comment_locks, %i[commentable_type commentable_id], unique: true
     add_foreign_key :comment_locks, :users, column: :moderator_id
   end
 end

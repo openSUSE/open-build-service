@@ -80,7 +80,7 @@ RSpec.describe PersonController do
           post :post_userinfo, params: { login: user.login, cmd: 'change_password', format: :xml }
         end
 
-        it { expect(response.header['X-Opensuse-Errorcode']).to eq('change_password_no_permission') }
+        it { expect(response.header['X-Opensuse-Errorcode']).to eq('update_user_not_authorized') }
         it { expect(old_password_digest).to eq(user.reload.password_digest) }
       end
 
@@ -129,12 +129,12 @@ RSpec.describe PersonController do
     end
 
     context 'when in LDAP mode' do
+      subject { put :put_userinfo, params: { login: user.login, format: :xml } }
+
       before do
         stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
         request.env['RAW_POST_DATA'] = xml
       end
-
-      subject { put :put_userinfo, params: { login: user.login, format: :xml } }
 
       context 'as an admin' do
         before do
@@ -158,9 +158,9 @@ RSpec.describe PersonController do
     context 'when in LDAP mode' do
       before do
         stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
-      end
 
-      subject! { post :register }
+        post :register
+      end
 
       it 'sets an error code' do
         expect(response.header['X-Opensuse-Errorcode']).to eq('permission_denied')
@@ -173,9 +173,9 @@ RSpec.describe PersonController do
       context 'when in LDAP mode' do
         before do
           stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
-        end
 
-        subject! { post :command, params: { cmd: 'register' } }
+          post :command, params: { cmd: 'register' }
+        end
 
         it 'sets an error code' do
           expect(response.header['X-Opensuse-Errorcode']).to eq('permission_denied')
@@ -205,9 +205,9 @@ RSpec.describe PersonController do
         user.watched_items.create(watchable: package)
         user.watched_items.create(watchable: delete_request)
         login user
-      end
 
-      subject! { get :get_watchlist, params: { login: user.login } }
+        get :get_watchlist, params: { login: user.login }
+      end
 
       it 'returns watchlist' do
         expect(Xmlhash.parse(response.body)).to eq(Xmlhash.parse(xml))

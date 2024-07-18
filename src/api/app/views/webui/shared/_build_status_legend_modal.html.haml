@@ -1,0 +1,19 @@
+%button.btn.btn-outline-secondary.float-end{ type: :button, data: { 'bs-toggle': 'modal', 'bs-target': '#build-monitor-legend' },
+                                             title: 'Build status legend' }
+  Legend
+
+.modal.fade#build-monitor-legend{ tabindex: -1, role: 'dialog', aria: { labelledby: 'confirm-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered.modal-lg{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title
+          Build status legend
+      .modal-body
+        - legend.each do |status, description|
+          %p
+            %strong
+              #{status}:
+            = description
+      .modal-footer
+        %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
+          Cancel
