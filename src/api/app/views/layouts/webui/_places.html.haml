@@ -8,13 +8,19 @@
         = link_to(user_path(User.session), id: 'link-to-user-home', class: 'nav-link') do
           = render(AvatarComponent.new(name: User.session.name, email: User.session.email, size: 23, shape: :circle, custom_css: 'me-2'))
           Profile
-    %li.nav-item
-      - tasks = User.session.tasks
-      = link_to(my_tasks_path, class: 'nav-link', title: 'Tasks') do
-        %i.fas.fa-tasks.fa-lg.me-2
-        %span.nav-item-name Tasks
-        - unless tasks.zero?
-          %span.badge.text-bg-primary.align-text-top= tasks
+    - if Flipper.enabled?(:request_index, User.session)
+      %li.nav-item
+        = link_to(requests_path, class: 'nav-link', title: 'Requests') do
+          %i.fas.fa-code-pull-request.fa-lg.me-2
+          %span.nav-item-name Requests
+    - else
+      %li.nav-item
+        - tasks = User.session.tasks
+        = link_to(my_tasks_path, class: 'nav-link', title: 'Tasks') do
+          %i.fas.fa-tasks.fa-lg.me-2
+          %span.nav-item-name Tasks
+          - unless tasks.zero?
+            %span.badge.text-bg-primary.align-text-top= tasks
     %li.nav-item
       - if User.session.home_project
         = link_to(project_show_path(User.session.home_project), class: 'nav-link', title: 'Your Home Project') do
