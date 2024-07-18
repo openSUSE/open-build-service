@@ -409,8 +409,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
               <email>adrian@example.com</email>
               <realname>Adrian Schroeter</realname>
               <password>so_alone</password>
-            </unregisteredperson>"
-           '
+            </unregisteredperson>'
     post '/person?cmd=register', params: data
     assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'err_register_save' }
@@ -427,8 +426,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
               <realname>Adrian Schroeter</realname>
               <password>so_alone</password>
               <state>confirmation</state>
-            </unregisteredperson>"
-           '
+            </unregisteredperson>'
     post '/person?cmd=register', params: data
     assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'err_register_save' }
@@ -448,8 +446,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
               <realname>Adrian Schroeter</realname>
               <state>locked</state>
               <password>so_alone</password>
-            </unregisteredperson>"
-           '
+            </unregisteredperson>'
     post '/person?cmd=register', params: data
     assert_response :success
 
@@ -496,8 +493,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
               <state>locked</state>
               <password>so_alone</password>
               <note>I do not trust this guy, this note is only allowed to be stored by admin</note>
-            </unregisteredperson>"
-           '
+            </unregisteredperson>'
     # FIXME3.0: to be removed
     post '/person/register', params: data
     assert_response :success
