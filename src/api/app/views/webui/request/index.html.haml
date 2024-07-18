@@ -8,7 +8,7 @@
         Filtered by: #{params[:status]&.humanize}
         %i.float-end.mt-1.fa.fa-chevron-down#requests-dropdown-trigger
       .collapse#filters
-        = render partial: 'requests_filter'
+        = render partial: 'requests_filter', locals: { selected_filter: @selected_filter }
   .col-md-8.col-lg-9.px-0.px-md-3.d-none#request-list-loading
     = render partial: 'webui/shared/loading', locals: { text: 'Loading...', wrapper_css: ['loading'] }
   .col-md-8.col-lg-9.px-0.px-md-3#request-list

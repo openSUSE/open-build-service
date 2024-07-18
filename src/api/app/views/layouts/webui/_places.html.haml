@@ -10,7 +10,7 @@
           Profile
     - if Flipper.enabled?(:request_index, User.session)
       %li.nav-item
-        = link_to(requests_path, class: 'nav-link', title: 'Requests') do
+        = link_to(requests_path(involvement: 'incoming'), class: 'nav-link', title: 'Requests') do
           %i.fas.fa-code-pull-request.fa-lg.me-2
           %span.nav-item-name Requests
     - else

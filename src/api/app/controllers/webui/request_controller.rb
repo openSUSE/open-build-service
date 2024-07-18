@@ -1,5 +1,8 @@
 class Webui::RequestController < Webui::WebuiController
   include Webui::NotificationsHandler
+  include Webui::RequestsFilter
+
+  ALLOWED_INVOLVEMENTS = %w[all incoming outgoing].freeze
 
   helper 'webui/package'
 
@@ -25,11 +28,12 @@ class Webui::RequestController < Webui::WebuiController
   before_action :cache_diff_data, only: %i[show build_results rpm_lint changes mentioned_issues],
                                   if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :check_beta_user_redirect, only: %i[build_results rpm_lint changes mentioned_issues]
+  before_action :set_requests, :set_filter_involvement, :filter_requests, :set_selected_filter, only: [:index], if: -> { Flipper.enabled?(:request_index, User.session) }
 
   after_action :verify_authorized, only: [:create]
 
   def index
-    @bs_requests = BsRequest.all.page(params[:page])
+    @bs_requests = @bs_requests.page(params[:page])
   end
 
   def show
@@ -321,6 +325,23 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   private
+
+  def set_requests
+    @bs_requests = BsRequest.all.page(params[:page])
+  end
+
+  def set_filter_involvement
+    @filter_involvement = params[:involvement].presence || 'all'
+    @filter_involvement = 'all' if ALLOWED_INVOLVEMENTS.exclude?(@filter_involvement)
+  end
+
+  def filter_requests
+    @bs_requests = filter_by_involvement(@bs_requests, @filter_involvement)
+  end
+
+  def set_selected_filter
+    @selected_filter = { involvement: @filter_involvement }
+  end
 
   def check_beta_user_redirect
     redirect_to request_show_path(params[:number], params[:request_action_id]) unless Flipper.enabled?(:request_show_redesign, User.session)

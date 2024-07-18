@@ -1,0 +1,31 @@
+= form_for(:request, url: requests_path, method: :get, id: 'requests-filter-form') do |form|
+  .list-group.list-group-flush.mt-3.mb-2
+    .px-4.py-1
+      = render partial: 'webui/shared/radio_button', locals: { label: 'All',
+                                                               key: 'involvement[all]', name: 'involvement', value: 'all',
+                                                               checked: selected_filter[:involvement] == 'all' }
+    .px-4.py-1
+      = render partial: 'webui/shared/radio_button', locals: { label: 'Incoming',
+                                                               key: 'involvement[incoming]', name: 'involvement', value: 'incoming',
+                                                               checked: selected_filter[:involvement] == 'incoming' }
+    .px-4.py-1
+      = render partial: 'webui/shared/radio_button', locals: { label: 'Outgoing',
+                                                               key: 'involvement[outgoing]', name: 'involvement', value: 'outgoing',
+                                                               checked: selected_filter[:involvement] == 'outgoing' }
+
+  .text-center.mt-4.mb-4
+    = link_to('Clear', requests_path, class: 'btn btn-light border')
+
+:javascript
+  function submitRequestFilters() {
+    $('#requests-filter-form').submit();
+  }
+
+  let submitFiltersTimeout;
+
+  $(document).on('change', '#filters input', function() {
+    $('#requests-list').hide();
+    $('#requests-list-loading').removeClass('d-none');
+    clearTimeout(submitFiltersTimeout);
+    submitFiltersTimeout = setTimeout(submitRequestFilters, 1500);
+  });
