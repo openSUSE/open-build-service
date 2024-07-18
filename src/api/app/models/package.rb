@@ -139,13 +139,6 @@ class Package < ApplicationRecord
     nil
   end
 
-  def self.internal_get_project(project)
-    return project if project.is_a?(Project)
-    return if Project.is_remote_project?(project)
-
-    Project.get_by_name(project)
-  end
-
   # Our default finder method that handles all our custom Package features (source access, multibuild, links etc.)
   # Use this method, instead of the default `ActiveRecord::FinderMethods`, if you want to instantiate a Package.
   #
@@ -192,7 +185,7 @@ class Package < ApplicationRecord
   # by setting in the opts hash:
   #   follow_project_scmsync_links: true
 
-  def self.get_by_project_and_name(project_name_or_object, package_name, opts = {})
+  def self.get_by_project_and_name(project_name, package_name, opts = {})
     get_by_project_and_name_defaults = { use_source: true,
                                          follow_project_links: true,
                                          follow_project_scmsync_links: false,
@@ -202,11 +195,11 @@ class Package < ApplicationRecord
 
     package_name = striping_multibuild_suffix(package_name) if opts[:follow_multibuild]
 
-    package = check_cache(project_name_or_object, package_name, opts)
-    return package if package
+    project = Project.get_by_name(project_name)
+    return if project.is_a?(String) # no support to instantiate remote packages...
 
-    project = internal_get_project(project_name_or_object)
-    return unless project # remote prjs
+    package = check_cache(project_name, package_name, opts)
+    return package if package
 
     if project.scmsync.present?
       return nil unless opts[:follow_project_scmsync_links]
