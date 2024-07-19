@@ -11,6 +11,20 @@
     = render partial: 'webui/shared/radio_button', locals: { label: 'Outgoing',
                                                              key: 'involvement[outgoing]', name: 'involvement', value: 'outgoing',
                                                              checked: selected_filter[:involvement] == 'outgoing' }
+.list-group.list-group-flush.mt-4.mb-4
+  %h6.px-3.py-2
+    %b State
+  .px-3.py-1
+    .dropdown.form-multi-select{ 'data-name': 'state of request' }
+      %button.form-select.text-start#filter-state-requests-button{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
+        Select the state of request
+      .dropdown-menu.w-100
+        - BsRequest::VALID_REQUEST_STATES.each do |state|
+          .dropdown-item-text
+            = render partial: 'webui/shared/check_box', locals: { label: render(BsRequestStateBadgeComponent.new(state: state)),
+                                                                  key: "state[#{state}]", name: 'state[]',
+                                                                  value: state,
+                                                                  checked: selected_filter[:state]&.include?(state.to_s) }
 
 .text-center.mt-4.mb-4
   = link_to('Clear', requests_path, class: 'btn btn-light border')
