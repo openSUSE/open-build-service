@@ -6076,7 +6076,9 @@ sub getsignkey {
       $pk = BSSrcServer::Signkey::getdefaultpubkey($projid, $signtype, $signflavor);
     } else {
       $pk = readstr("$projectsdir/$skprojid.pkg/_pubkey", 1);
+      undef $pk if $pk && length($pk) <= 2;
       $pk = autoextend_check($skprojid, $pk) if $cgi->{'withpubkey'} && $cgi->{'autoextend'};
+      $pk = BSSrcServer::Signkey::getdefaultpubkey($projid, $signtype, $signflavor) if !$pk && $BSConfig::sign_project && $BSConfig::sign;
     }
     if ($cgi->{'withalgo'} && $sk !~ /^\S+:/) {
       my $algo = '?';
