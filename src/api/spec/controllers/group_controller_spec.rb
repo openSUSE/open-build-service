@@ -127,5 +127,32 @@ RSpec.describe GroupController do
 
       it { expect(response).to have_http_status(:forbidden) }
     end
+
+    context 'with an invalid request' do
+      let(:invalid_xml) do
+        <<~XML
+          <group>
+            <title>#{group.title}</title>
+            <email>tux@openbuildservice.org</email>
+            <maintainer userid='#{new_maintainer.login}'/>
+            <person>
+              <person userid='#{new_maintainer.login}'/>
+              <person userid='#{new_member.login}'/>
+            </person>
+          </group>"
+        XML
+      end
+
+      before { put :update, body: invalid_xml, params: { title: group.title, format: :xml } }
+
+      it { expect(response).to have_http_status(:success) }
+
+      it 'updates the group' do
+        group.reload
+        expect(group.groups_users.pluck(:user_id)).to contain_exactly(new_member.id, new_maintainer.id)
+        expect(group.email).to eq('tux@openbuildservice.org')
+        expect(group.group_maintainers.pluck(:user_id)).to contain_exactly(new_maintainer.id)
+      end
+    end
   end
 end
