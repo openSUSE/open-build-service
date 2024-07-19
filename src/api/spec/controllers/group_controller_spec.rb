@@ -145,13 +145,11 @@ RSpec.describe GroupController do
 
       before { put :update, body: invalid_xml, params: { title: group.title, format: :xml } }
 
-      it { expect(response).to have_http_status(:success) }
+      it { expect(response).to have_http_status(:bad_request) }
 
-      it 'updates the group' do
+      it 'does not update the group' do
         group.reload
-        expect(group.groups_users.pluck(:user_id)).to contain_exactly(new_member.id, new_maintainer.id)
-        expect(group.email).to eq('tux@openbuildservice.org')
-        expect(group.group_maintainers.pluck(:user_id)).to contain_exactly(new_maintainer.id)
+        expect(group.groups_users).to be_empty
       end
     end
   end
