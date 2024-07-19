@@ -1005,6 +1005,15 @@ class BsRequest < ApplicationRecord
     embargo_dates.max if embargo_dates.max > now
   end
 
+  # Methods used by ThinkingSphinx indices to collect multiple values
+  def comments_bodies
+    comments.collect(&:body).join(' ')
+  end
+
+  def reviews_reasons
+    reviews.collect(&:reason).join(' ')
+  end
+
   private
 
   # returns true if we have reached a state that we can't get out anymore
