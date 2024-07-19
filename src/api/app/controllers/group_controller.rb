@@ -53,8 +53,9 @@ class GroupController < ApplicationController
     end
     authorize group, :update?
 
+    Suse::Validator.validate('group', request.raw_post)
+
     xmlhash = Xmlhash.parse(request.raw_post)
-    raise InvalidParameterError, 'invalid xml provided' if xmlhash.nil?
     raise InvalidParameterError, 'group name from path and xml mismatch' unless group.title == xmlhash.value('title')
 
     group.update_from_xml(xmlhash, user_session_login: User.session.login)

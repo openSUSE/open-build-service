@@ -105,7 +105,21 @@ RSpec.describe GroupController do
     end
 
     context 'when the group does not exist' do
-      before { put :update, body: '<group><title>new_group</title></group>', params: { title: 'new_group', format: :xml } }
+      let(:new_member) { create(:confirmed_user) }
+      let(:valid_xml) do
+        <<~XML
+          <group>
+            <title>new_group</title>
+            <email>tux@openbuildservice.org</email>
+            <maintainer userid='#{admin_user.login}'/>
+            <person>
+              <person userid='#{new_member.login}'/>
+            </person>
+          </group>
+        XML
+      end
+
+      before { put :update, body: valid_xml, params: { title: 'new_group', format: :xml } }
 
       it { expect(response).to have_http_status(:success) }
       it { expect(Group.where(title: 'new_group')).to exist }
@@ -129,6 +143,7 @@ RSpec.describe GroupController do
     end
 
     context 'with an invalid request' do
+      # Note the extra " at the end of the XML
       let(:invalid_xml) do
         <<~XML
           <group>
