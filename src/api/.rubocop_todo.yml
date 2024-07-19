@@ -49,11 +49,6 @@ Capybara/ClickLinkOrButtonStyle:
     - 'spec/support/features/features_responsive.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 3
-Capybara/SpecificMatcher:
-  Exclude:
-    - 'spec/features/webui/users/user_home_page_spec.rb'
-
 # Offense count: 2
 # Configuration parameters: Include, MaxAmount.
 # Include: **/*_spec.rb, **/spec/**/*, **/test/**/*, **/features/support/factories/**/*.rb
