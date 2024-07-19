@@ -29,7 +29,7 @@ class Webui::RequestController < Webui::WebuiController
                                   if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :check_beta_user_redirect, only: %i[build_results rpm_lint changes mentioned_issues]
   before_action :redirect_to_tasks, only: [:index], unless: -> { Flipper.enabled?(:request_index, User.session) }
-  before_action :set_requests, :set_filter_involvement, :set_filter_state, :filter_requests, :set_selected_filter, only: [:index], if: -> { Flipper.enabled?(:request_index, User.session) }
+  before_action :set_requests, :set_filter_involvement, :set_filter_state, :set_filter_action_type, :filter_requests, :set_selected_filter, only: [:index], if: -> { Flipper.enabled?(:request_index, User.session) }
 
   after_action :verify_authorized, only: [:create]
 
@@ -345,15 +345,21 @@ class Webui::RequestController < Webui::WebuiController
     @filter_state = @filter_state.intersection(BsRequest::VALID_REQUEST_STATES.map(&:to_s))
   end
 
+  def set_filter_action_type
+    @filter_action_type = params[:action_type].presence || []
+    @filter_action_type = @filter_action_type.intersection(BsRequestAction::TYPES)
+  end
+
   def filter_requests
     @bs_requests = filter_by_text(params[:requests_search_text])
 
     @bs_requests = filter_by_involvement(@bs_requests, @filter_involvement)
     @bs_requests = @bs_requests.where(state: @filter_state) if @filter_state.present?
+    @bs_requests = @bs_requests.with_action_type(@filter_action_type) if @filter_action_type.present?
   end
 
   def set_selected_filter
-    @selected_filter = { involvement: @filter_involvement, search_text: params[:requests_search_text], state: @filter_state }
+    @selected_filter = { involvement: @filter_involvement, action_type: @filter_action_type, search_text: params[:requests_search_text], state: @filter_state }
   end
 
   def check_beta_user_redirect
