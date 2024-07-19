@@ -96,6 +96,7 @@ class BsRequest < ApplicationRecord
   after_create :notify
   before_update :send_state_change
   after_save :update_cache
+  after_save { PopulateToSphinxJob.perform_later(id: id, model_name: :bs_request) }
 
   accepts_nested_attributes_for :bs_request_actions
 

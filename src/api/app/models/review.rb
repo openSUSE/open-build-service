@@ -74,6 +74,7 @@ class Review < ApplicationRecord
 
   before_validation :set_reviewable_association
   after_commit :update_cache
+  after_commit { PopulateToSphinxJob.perform_later(id: bs_request.id, model_name: :bs_request) }
 
   delegate :number, to: :bs_request
 
