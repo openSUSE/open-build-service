@@ -70,10 +70,6 @@
   max-width: calc(100% - 2.5rem)
 }
 
-#requests > .list-group-item:hover {
-  @extend .bg-hover;
-}
-
 @include media-breakpoint-up(sm) {
   .order-sm-1 {
     order: 1;
