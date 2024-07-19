@@ -252,4 +252,23 @@ module Webui::RequestHelper
       tag.i(class: "fas fa-#{decode_state_icon(state)} me-1")
     end
   end
+
+  def action_type_icon(type)
+    case type
+    when 'maintenance_incident'
+      'fas fa-person-digging fa-fw'
+    when 'add_role'
+      'fas fa-people-arrows fa-fw'
+    when 'set_bugowner'
+      'fas fa-bug-slash fa-fw'
+    when 'delete'
+      'fas fa-trash-can fa-fw'
+    when 'change_devel'
+      'fas fa-house-flag fa-fw'
+    when 'release', 'maintenance_release'
+      'fas fa-road-circle-check fa-fw'
+    else
+      'fas fa-code-pull-request fa-fw'
+    end
+  end
 end
