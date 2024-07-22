@@ -19,6 +19,8 @@ You can discuss with the OBS Team via IRC on the channel [#opensuse-buildservice
 ### Development / Contribution
 If you want to contribute to the OBS, please checkout our [contribution readme](CONTRIBUTING.md):-)
 
+![Contribution Analytics Image](https://repobeats.axiom.co/api/embed/3b8f8218c75ecc879ac59b8acc2279f66c177bb7.svg "Repobeats analytics image")
+
 ## Source Code Repository Layout
 The OBS source code repository is hosted on [Github](https://github.com/opensuse/open-build-service) and organized like this:
 
