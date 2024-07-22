@@ -19,7 +19,7 @@
         .form-check.custom-control-inline
           = check_box_tag('available', true, arch.available, class: 'form-check-input', id: "arch-#{arch}",
             onchange: "this.setAttribute('data-params', this.name + '=' + this.checked)",
-            data: { remote: true, url: architecture_path(arch), method: :patch })
+            data: { remote: true, url: architecture_path(arch.id), method: :patch })
           %label.form-check-label.pe-2{ for: "arch-#{arch}" }
             = arch.name
           %i.fas.fa-spinner.invisible
