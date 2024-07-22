@@ -341,11 +341,15 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def filter_requests
-    @bs_requests = filter_by_involvement(@bs_requests, @filter_involvement)
+    @bs_requests = if params[:requests_search_text]
+                     BsRequest.search(params[:requests_search_text])
+                   else
+                     filter_by_involvement(@bs_requests, @filter_involvement)
+                   end
   end
 
   def set_selected_filter
-    @selected_filter = { involvement: @filter_involvement }
+    @selected_filter = { involvement: @filter_involvement, search_text: params[:requests_search_text] }
   end
 
   def check_beta_user_redirect

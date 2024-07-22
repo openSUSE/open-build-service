@@ -14,6 +14,10 @@
   .col-md-8.col-lg-9.px-0.px-md-3#request-list
     .card
       .list-group.list-group-flush.p-3#requests
+        .mb-3.list-group-item
+          = form_for(:request, url: requests_path, method: :get, id: 'requests-search-text-form', class: 'float-end mb-2') do |form|
+            %input.form-control.w-100{ 'aria-label': 'Search', name: 'requests_search_text',
+                                       placeholder: 'Search Requests', type: 'text', value: @selected_filter[:search_text] }
         .text-center.mb-3
           - if @bs_requests.blank?
             %p There are no requests available
