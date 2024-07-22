@@ -341,11 +341,9 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def filter_requests
-    @bs_requests = if params[:requests_search_text]
-                     BsRequest.search(params[:requests_search_text])
-                   else
-                     filter_by_involvement(@bs_requests, @filter_involvement)
-                   end
+    @bs_requests = BsRequest.where(id: BsRequest.search_for_ids(params[:requests_search_text])) if params[:requests_search_text].present?
+
+    @bs_requests = filter_by_involvement(@bs_requests, @filter_involvement)
   end
 
   def set_selected_filter
