@@ -4,7 +4,6 @@ RSpec.describe BsRequestPolicy, type: :policy do
   permissions :add_reviews? do
     let(:user) { create(:confirmed_user, login: 'iggy') }
     let(:author) { create(:confirmed_user, login: 'foo') }
-    let(:review) { create(:review, state: 'new', by_user: user.login) }
 
     shared_examples 'a record in state' do |request_state|
       let(:bs_request) { create(:bs_request_with_submit_action, state: "#{request_state}", creator: author) }
@@ -26,21 +25,13 @@ RSpec.describe BsRequestPolicy, type: :policy do
       end
 
       context 'and there are open reviews present for the user' do
-        let(:review) { create(:review, state: 'new', by_user: user.login) }
-
-        before do
-          bs_request.reviews << review
-        end
+        let!(:review) { create(:review, state: 'new', by_user: user.login, bs_request: bs_request) }
 
         it { expect(subject).to permit(user, bs_request) }
       end
 
       context 'and there are no open reviews present for the user' do
-        let(:review) { create(:review, state: 'accepted', by_user: user.login) }
-
-        before do
-          bs_request.reviews << review
-        end
+        let!(:review) { create(:review, state: 'accepted', by_user: user.login, bs_request: bs_request) }
 
         it { expect(subject).not_to permit(user, bs_request) }
       end
@@ -61,10 +52,10 @@ RSpec.describe BsRequestPolicy, type: :policy do
 
     context 'when the record is in any other state then review or new' do
       let(:bs_request) { create(:bs_request_with_submit_action, state: 'declined', creator: author) }
+      let!(:review) { create(:review, state: 'new', by_user: user.login, bs_request: bs_request) }
 
       before do
         allow(bs_request).to receive(:is_target_maintainer?).with(author).and_return(true)
-        bs_request.reviews << review
       end
 
       it { expect(subject).not_to permit(author, bs_request) }

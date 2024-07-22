@@ -21,6 +21,7 @@ class Comment < ApplicationRecord
 
   after_create :create_event
   after_destroy :delete_parent_if_unused
+  after_commit(if: proc { commentable_type == 'BsRequest' }) { PopulateToSphinxJob.perform_later(id: commentable.id, model_name: :bs_request) }
 
   has_many :children, dependent: :destroy, class_name: 'Comment', foreign_key: 'parent_id'
   has_many :notifications, as: :notifiable, dependent: :delete_all

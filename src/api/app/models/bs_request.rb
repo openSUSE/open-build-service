@@ -96,6 +96,7 @@ class BsRequest < ApplicationRecord
   after_create :notify
   before_update :send_state_change
   after_save :update_cache
+  after_save { PopulateToSphinxJob.perform_later(id: id, model_name: :bs_request) }
 
   accepts_nested_attributes_for :bs_request_actions
 
@@ -1003,6 +1004,15 @@ class BsRequest < ApplicationRecord
     return if embargo_dates.empty?
 
     embargo_dates.max if embargo_dates.max > now
+  end
+
+  # Methods used by ThinkingSphinx indices to collect multiple values
+  def comments_bodies
+    comments.collect(&:body).join(' ')
+  end
+
+  def reviews_reasons
+    reviews.collect(&:reason).join(' ')
   end
 
   private

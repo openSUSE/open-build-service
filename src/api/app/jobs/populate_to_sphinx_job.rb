@@ -1,6 +1,7 @@
 class PopulateToSphinxJob < ApplicationJob
   ALLOWED_MODELS = {
     attrib: Attrib,
+    bs_request: BsRequest,
     package: Package,
     package_issue: PackageIssue,
     project: Project

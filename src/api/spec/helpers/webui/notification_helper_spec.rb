@@ -96,7 +96,7 @@ RSpec.describe Webui::NotificationHelper do
         )
         bs_request.staging_project = staging_workflow.staging_projects.first
         5.times do
-          bs_request.reviews << create(:review, by_project: bs_request.staging_project)
+          create(:review, by_project: bs_request.staging_project, bs_request: bs_request)
         end
         bs_request.save
         bs_request
