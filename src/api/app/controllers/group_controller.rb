@@ -4,6 +4,7 @@ class GroupController < ApplicationController
   validate_action groupinfo: { method: :get, response: :group }
   validate_action groupinfo: { method: :put, request: :group, response: :status }
   validate_action groupinfo: { method: :delete, response: :status }
+  validate_action update: { method: :put, request: :group }
 
   # raise an exception if authorize has not yet been called.
   after_action :verify_authorized, except: %i[index show]
@@ -52,8 +53,6 @@ class GroupController < ApplicationController
       group = Group.create(title: params[:title])
     end
     authorize group, :update?
-
-    Suse::Validator.validate('group', request.raw_post)
 
     xmlhash = Xmlhash.parse(request.raw_post)
     raise InvalidParameterError, 'group name from path and xml mismatch' unless group.title == xmlhash.value('title')
