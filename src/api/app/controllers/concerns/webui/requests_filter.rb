@@ -5,9 +5,9 @@ module Webui::RequestsFilter
     return requests if filter_involvement == 'all'
 
     if filter_involvement == 'incoming'
-      User.session.incoming_requests
+      requests.where(id: User.session.incoming_requests)
     elsif filter_involvement == 'outgoing'
-      User.session.outgoing_requests
+      requests.where(id: User.session.outgoing_requests)
     end
   end
 end
