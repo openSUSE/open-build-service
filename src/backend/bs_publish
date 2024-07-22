@@ -2346,7 +2346,9 @@ sub publish {
 	$p = $1 eq 'src' || $1 eq 'nosrc' ? "SRPMS/$bin" : "RPMS/$bin" if $repotype{'resarchhack'};
       } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.[ud]?deb$/) {
 	$p = "$1/$bin";
-      } elsif ($bin =~ /\.(?:AppImage|AppImage.zsync|snap|exe)?$/) {
+      } elsif ($bin =~ /\.(?:AppImage|AppImage.zsync|snap)$/) {
+	$p = "$bin";
+      } elsif ($bin =~ /\.exe(?:\.sha256(?:\.asc)?)?$/) {
 	$p = "$bin";
       } elsif ($bin =~ /\.appx$/) {
 	$p = "$bin";
