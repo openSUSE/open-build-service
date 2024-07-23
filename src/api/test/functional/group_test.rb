@@ -43,10 +43,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_create_modify_and_delete_group
-    FactoryBot.create(:confirmed_user, login: 'hans')
-    FactoryBot.create(:confirmed_user, login: 'luke')
-
-    xml = '<group><title>new_group</title><maintainer userid="hans"/><person><person userid="luke"/></person></group>'
+    xml = '<group><title>new_group</title><maintainer userid="Iggy"/><person><person userid="adrian"/></person></group>'
     put '/group/new_group', params: xml
     assert_response :unauthorized
 
