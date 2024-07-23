@@ -34,7 +34,7 @@ class Webui::RequestController < Webui::WebuiController
   after_action :verify_authorized, only: [:create]
 
   def index
-    @bs_requests = @bs_requests.page(params[:page])
+    @bs_requests = @bs_requests.order('number DESC').page(params[:page])
   end
 
   def show
