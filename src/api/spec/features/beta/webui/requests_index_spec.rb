@@ -57,4 +57,33 @@ RSpec.describe 'Requests Index' do
     expect(page).to have_no_link(href: "/request/show/#{incoming_request.number}")
     expect(page).to have_no_link(href: "/request/show/#{other_incoming_request.number}")
   end
+
+  describe 'filters request by state' do
+    let!(:request_in_review) do
+      create(:bs_request_with_submit_action,
+             description: 'This is in review state',
+             creator: receiver,
+             source_package: source_project.packages.first,
+             target_project: other_source_project,
+             state: :review,
+             review_by_user: receiver)
+    end
+
+    # rubocop:disable RSpec/ExampleLength
+    it 'shows all requests with the selected state' do
+      find_by_id('requests-dropdown-trigger').click if mobile? # open the filter dropdown
+      within('#filters') do
+        click_on('filter-state-requests-button') # open the filter
+        check('review')
+        sleep 1.5 # there is a timeout before firing the filtering
+      end
+
+      within('#requests') do
+        expect(page).to have_link(href: "/request/show/#{request_in_review.number}")
+        expect(page).to have_css('.list-group-item span.badge.text-bg-secondary', text: 'review')
+        expect(page).to have_no_link(href: "/request/show/#{incoming_request.number}")
+      end
+    end
+    # rubocop:enable RSpec/ExampleLength
+  end
 end
