@@ -3,7 +3,7 @@
 = form_for(:request, url: requests_path, method: :get, id: 'requests-filter-form') do |form|
   .row
     .col-md-4.col-lg-3.px-0.px-md-3.sticky-top#requests-filter-desktop
-      .card.mb-3
+      .card
         %strong.d-block.d-md-none.p-3{ data: { 'bs-toggle': 'collapse', 'bs-target': '#filters' },
                                     aria: { expanded: true, controls: 'filters' } }
           Filtered by: #{params[:status]&.humanize}
@@ -13,12 +13,14 @@
     .col-md-8.col-lg-9.px-0.px-md-3.d-none#request-list-loading
       = render partial: 'webui/shared/loading', locals: { text: 'Loading...', wrapper_css: ['loading'] }
     .col-md-8.col-lg-9.px-0.px-md-3#request-list
+      .card.sticky-top.mb-3#requests-filter-search-text
+        .card-body.row
+          .col
+          .col-lg
+            %input.ms-auto.form-control{ 'aria-label': 'Search', name: 'requests_search_text',
+              placeholder: 'Search Requests', type: 'text', value: @selected_filter[:search_text] }
       .card
-        .list-group.list-group-flush.p-3#requests
-          .mb-3.list-group-item
-            .float-end.mb-2
-              %input.form-control.w-100{ 'aria-label': 'Search', name: 'requests_search_text',
-                                         placeholder: 'Search Requests', type: 'text', value: @selected_filter[:search_text] }
+        .card-body.list-group.list-group-flush.p-3#requests
           .text-center.mb-3
             - if @bs_requests.blank?
               %p There are no requests available
