@@ -3,7 +3,7 @@ RSpec.describe Webui::NotificationHelper do
     let(:link) { mark_as_read_or_unread_button(notification) }
 
     context 'for unread notification' do
-      let(:notification) { create(:notification_comment, :web_notification, delivered: false) }
+      let(:notification) { create(:notification_for_comment, :web_notification, delivered: false) }
 
       it { expect(link).to include(my_notifications_path(notification_ids: [notification.id])) }
       it { expect(link).to include('state=unread') }
@@ -12,7 +12,7 @@ RSpec.describe Webui::NotificationHelper do
     end
 
     context 'for read notification' do
-      let(:notification) { create(:notification_comment, :web_notification, delivered: true) }
+      let(:notification) { create(:notification_for_comment, :web_notification, delivered: true) }
 
       it { expect(link).to include(my_notifications_path(notification_ids: [notification.id])) }
       it { expect(link).to include('state=read') }
@@ -59,12 +59,12 @@ RSpec.describe Webui::NotificationHelper do
     let(:staging_workflow) { create(:staging_workflow, project: factory) }
     let(:leap) { create(:project, name: 'openSUSE:Leap:15.0') }
     let(:leap_apache) { create(:package_with_file, name: 'apache2', project: leap) }
-    let(:notification) { create(:notification_bs_request, :request_created, notifiable: bs_request) }
+    let(:notification) { create(:notification_for_request, :request_created, notifiable: bs_request) }
 
     before { User.session = admin }
 
     context 'when displaying users or groups' do
-      let(:notification) { create(:notification_bs_request, :request_created) }
+      let(:notification) { create(:notification_for_request, :request_created) }
 
       it { expect(avatars(notification)).to include 'gravatar' }
     end

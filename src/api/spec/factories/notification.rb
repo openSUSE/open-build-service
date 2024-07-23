@@ -32,7 +32,7 @@ FactoryBot.define do
       created_at { 13.months.ago }
     end
 
-    factory :notification_bs_request, class: 'NotificationBsRequest' do
+    factory :notification_for_request, class: 'NotificationBsRequest' do
       trait :request_state_change do
         event_type { 'Event::RequestStatechange' }
         notifiable factory: [:bs_request_with_submit_action]
@@ -50,7 +50,7 @@ FactoryBot.define do
       end
     end
 
-    factory :notification_comment, class: 'NotificationComment' do
+    factory :notification_for_comment, class: 'NotificationComment' do
       trait :comment_for_project do
         event_type { 'Event::CommentForProject' }
         notifiable factory: [:comment_project]
@@ -67,7 +67,7 @@ FactoryBot.define do
       end
     end
 
-    factory :notification_project, class: 'NotificationProject' do
+    factory :notification_for_project, class: 'NotificationProject' do
       trait :relationship_create_for_project do
         event_type { 'Event::RelationshipCreate' }
         notifiable factory: [:project]
@@ -79,7 +79,7 @@ FactoryBot.define do
       end
     end
 
-    factory :notification_package, class: 'NotificationPackage' do
+    factory :notification_for_package, class: 'NotificationPackage' do
       trait :relationship_create_for_package do
         event_type { 'Event::RelationshipCreate' }
         notifiable factory: [:package]
@@ -96,7 +96,7 @@ FactoryBot.define do
       end
     end
 
-    factory :notification_report, class: 'NotificationReport' do
+    factory :notification_for_report, class: 'NotificationReport' do
       trait :create_report do
         event_type { 'Event::CreateReport' }
         notifiable factory: [:report]

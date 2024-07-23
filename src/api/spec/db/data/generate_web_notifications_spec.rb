@@ -6,7 +6,7 @@ RSpec.describe GenerateWebNotifications, type: :migration do
 
     let(:owner) { create(:confirmed_user, login: 'bob') }
     let(:requester) { create(:confirmed_user, login: 'ann') }
-    let!(:rss_notifications) { create_list(:notification_bs_request, 5, :rss_notification, subscriber: owner) }
+    let!(:rss_notifications) { create_list(:notification_for_request, 5, :rss_notification, subscriber: owner) }
     let!(:event_subscription_1) { create(:event_subscription_comment_for_project, user: owner) }
     let!(:event_subscription_2) { create(:event_subscription_comment_for_project, user: owner, receiver_role: 'maintainer') }
     let!(:event_subscription_3) { create(:event_subscription_comment_for_project, user: owner, receiver_role: 'bugowner') }

@@ -1,6 +1,6 @@
 RSpec.describe NotificationMarkButtonComponent, type: :component do
   context 'when the notification is read' do
-    let(:notification) { create(:notification_bs_request, delivered: true) }
+    let(:notification) { create(:notification_for_request, delivered: true) }
     let(:selected_filter) { { state: 'read' } }
 
     before do
@@ -17,7 +17,7 @@ RSpec.describe NotificationMarkButtonComponent, type: :component do
   end
 
   context 'when the notification is unread' do
-    let(:notification) { create(:notification_bs_request, delivered: false) }
+    let(:notification) { create(:notification_for_request, delivered: false) }
     let(:selected_filter) { { state: 'unread' } }
 
     before do

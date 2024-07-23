@@ -359,9 +359,9 @@ RSpec.describe User do
       subject { confirmed_user.combined_rss_feed_items }
 
       before do
-        create_list(:notification_bs_request, max_items_per_group, :rss_notification, subscriber: group)
-        create_list(:notification_bs_request, max_items_per_user + 5, :rss_notification, subscriber: confirmed_user)
-        create_list(:notification_bs_request, 3, :rss_notification, subscriber: user)
+        create_list(:notification_for_request, max_items_per_group, :rss_notification, subscriber: group)
+        create_list(:notification_for_request, max_items_per_user + 5, :rss_notification, subscriber: confirmed_user)
+        create_list(:notification_for_request, 3, :rss_notification, subscriber: user)
       end
 
       it { expect(subject.count).to be(max_items_per_user) }
@@ -374,9 +374,9 @@ RSpec.describe User do
       subject { confirmed_user.combined_rss_feed_items }
 
       before do
-        create_list(:notification_bs_request, 5, :rss_notification, subscriber: confirmed_user)
-        create_list(:notification_bs_request, max_items_per_group - 1, :rss_notification, subscriber: group)
-        create_list(:notification_bs_request, 3, :rss_notification, subscriber: user)
+        create_list(:notification_for_request, 5, :rss_notification, subscriber: confirmed_user)
+        create_list(:notification_for_request, max_items_per_group - 1, :rss_notification, subscriber: group)
+        create_list(:notification_for_request, 3, :rss_notification, subscriber: user)
       end
 
       it { expect(subject.count).to be(max_items_per_user) }
@@ -391,11 +391,11 @@ RSpec.describe User do
       let(:batch) { max_items_per_user / 4 }
 
       before do
-        create_list(:notification_bs_request, max_items_per_user + batch, :rss_notification, subscriber: confirmed_user)
-        create_list(:notification_bs_request, batch, :rss_notification, subscriber: group)
-        create_list(:notification_bs_request, batch, :rss_notification, subscriber: confirmed_user)
-        create_list(:notification_bs_request, batch, :rss_notification, subscriber: group)
-        create_list(:notification_bs_request, 3, :rss_notification, subscriber: user)
+        create_list(:notification_for_request, max_items_per_user + batch, :rss_notification, subscriber: confirmed_user)
+        create_list(:notification_for_request, batch, :rss_notification, subscriber: group)
+        create_list(:notification_for_request, batch, :rss_notification, subscriber: confirmed_user)
+        create_list(:notification_for_request, batch, :rss_notification, subscriber: group)
+        create_list(:notification_for_request, 3, :rss_notification, subscriber: user)
       end
 
       it { expect(subject.count).to be(max_items_per_user) }

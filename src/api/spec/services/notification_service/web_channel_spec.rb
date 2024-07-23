@@ -99,7 +99,7 @@ RSpec.describe NotificationService::WebChannel do
           create(:comment_request, commentable: new_bs_request, user: requester, updated_at: 1.hour.ago, body: 'Latest comment')
         end
         let(:previous_notification) do
-          create(:notification_comment, :web_notification, :comment_for_request, subscription_receiver_role: 'target_maintainer', notifiable: first_comment, subscriber: owner, delivered: false)
+          create(:notification_for_comment, :web_notification, :comment_for_request, subscription_receiver_role: 'target_maintainer', notifiable: first_comment, subscriber: owner, delivered: false)
         end
 
         before do
@@ -134,7 +134,7 @@ RSpec.describe NotificationService::WebChannel do
           create(:comment_request, commentable: new_bs_request, user: requester, updated_at: 1.hour.ago, body: 'Latest comment')
         end
         let(:previous_notification) do
-          create(:notification_comment, :web_notification, :comment_for_request, subscription_receiver_role: 'target_maintainer', notifiable: first_comment, subscriber: owner, delivered: true)
+          create(:notification_for_comment, :web_notification, :comment_for_request, subscription_receiver_role: 'target_maintainer', notifiable: first_comment, subscriber: owner, delivered: true)
         end
 
         before do
@@ -223,7 +223,7 @@ RSpec.describe NotificationService::WebChannel do
           create(:comment_request, commentable: new_bs_request, user: requester, updated_at: 1.hour.ago, body: 'Latest comment')
         end
         let(:previous_notification) do
-          create(:notification_comment, :web_notification, :comment_for_request,
+          create(:notification_for_comment, :web_notification, :comment_for_request,
                  subscription_receiver_role: 'target_maintainer', notifiable: first_comment, subscriber: owner, delivered: false,
                  groups: [group_maintainers])
         end
@@ -261,7 +261,7 @@ RSpec.describe NotificationService::WebChannel do
           create(:comment_request, commentable: new_bs_request, user: requester, updated_at: 1.hour.ago, body: 'Latest comment')
         end
         let(:previous_notification) do
-          create(:notification_comment, :web_notification, :comment_for_request,
+          create(:notification_for_comment, :web_notification, :comment_for_request,
                  subscription_receiver_role: 'target_maintainer', notifiable: first_comment, subscriber: owner, delivered: true,
                  groups: [group_maintainers])
         end
