@@ -17,8 +17,8 @@ RSpec.describe 'User notifications', :js do
   end
 
   describe 'when having notifications' do
-    let!(:notification_for_projects_comment) { create(:web_notification, :comment_for_package, subscriber: user) }
-    let!(:another_notification_for_projects_comment) { create(:web_notification, :comment_for_package, subscriber: user) }
+    let!(:notification_for_projects_comment) { create(:notification_for_comment, :web_notification, :comment_for_package, subscriber: user) }
+    let!(:another_notification_for_projects_comment) { create(:notification_for_comment, :web_notification, :comment_for_package, subscriber: user) }
     let(:notifiable) { notification_for_projects_comment.notifiable }
     let(:another_notifiable) { another_notification_for_projects_comment.notifiable }
     let(:project) { notifiable.commentable.project }
@@ -78,8 +78,8 @@ RSpec.describe 'User notifications', :js do
     end
 
     context 'when clicking on the request filter' do
-      let!(:notification_for_request) { create(:web_notification, :request_state_change, subscriber: user) }
-      let!(:another_notification_for_request) { create(:web_notification, :request_created, subscriber: user) }
+      let!(:notification_for_request) { create(:notification_for_request, :web_notification, :request_state_change, subscriber: user) }
+      let!(:another_notification_for_request) { create(:notification_for_request, :web_notification, :request_created, subscriber: user) }
       let(:bs_request) { notification_for_request.notifiable }
 
       before do

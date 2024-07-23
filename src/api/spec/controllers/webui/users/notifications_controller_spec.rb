@@ -2,15 +2,15 @@ RSpec.describe Webui::Users::NotificationsController do
   let(:username) { 'reynoldsm' }
   let!(:user) { create(:confirmed_user, :with_home, login: username) }
   let!(:other_user) { create(:confirmed_user) }
-  let(:state_change_notification) { create(:web_notification, :request_state_change, subscriber: user) }
-  let(:creation_notification) { create(:web_notification, :request_created, subscriber: user) }
-  let(:review_notification) { create(:web_notification, :review_wanted, subscriber: user) }
-  let(:comment_for_project_notification) { create(:web_notification, :comment_for_project, subscriber: user) }
-  let(:comment_for_package_notification) { create(:web_notification, :comment_for_package, subscriber: user) }
-  let(:comment_for_request_notification) { create(:web_notification, :comment_for_request, subscriber: user) }
-  let(:read_notification) { create(:web_notification, :request_state_change, subscriber: user, delivered: true) }
-  let(:notifications_for_other_users) { create(:web_notification, :request_state_change, subscriber: other_user) }
-  let(:build_failure) { create(:web_notification, :build_failure, subscriber: user) }
+  let(:state_change_notification) { create(:notification_for_request, :web_notification, :request_state_change, subscriber: user) }
+  let(:creation_notification) { create(:notification_for_request, :web_notification, :request_created, subscriber: user) }
+  let(:review_notification) { create(:notification_for_request, :web_notification, :review_wanted, subscriber: user) }
+  let(:comment_for_project_notification) { create(:notification_for_comment, :web_notification, :comment_for_project, subscriber: user) }
+  let(:comment_for_package_notification) { create(:notification_for_comment, :web_notification, :comment_for_package, subscriber: user) }
+  let(:comment_for_request_notification) { create(:notification_for_comment, :web_notification, :comment_for_request, subscriber: user) }
+  let(:read_notification) { create(:notification_for_request, :web_notification, :request_state_change, subscriber: user, delivered: true) }
+  let(:notifications_for_other_users) { create(:notification_for_request, :web_notification, :request_state_change, subscriber: other_user) }
+  let(:build_failure) { create(:notification_for_package, :web_notification, :build_failure, subscriber: user) }
 
   shared_examples 'returning success' do
     it 'returns ok status' do
@@ -68,7 +68,7 @@ RSpec.describe Webui::Users::NotificationsController do
 
     context "when param type is 'unread'" do
       let(:params) { default_params.merge(state: 'unread') }
-      let(:unread_notification) { create(:web_notification, :request_state_change, subscriber: user, delivered: false) }
+      let(:unread_notification) { create(:notification_for_request, :web_notification, :request_state_change, subscriber: user, delivered: false) }
 
       before do
         unread_notification
@@ -140,7 +140,7 @@ RSpec.describe Webui::Users::NotificationsController do
                creator: admin_user)
       end
 
-      let!(:request_created_notification) { create(:web_notification, :request_created, notifiable: maintained_request, subscriber: user) }
+      let!(:request_created_notification) { create(:notification_for_request, :web_notification, :request_created, notifiable: maintained_request, subscriber: user) }
       let!(:review_wanted_notification) { review_notification }
 
       let(:params) { default_params.merge(kind: 'incoming_requests') }
@@ -178,8 +178,8 @@ RSpec.describe Webui::Users::NotificationsController do
                creator: admin_user)
       end
 
-      let!(:state_change_to_declined_notification) { create(:web_notification, :request_state_change, notifiable: declined_bs_request, subscriber: user) }
-      let(:request_created_notification) { create(:web_notification, :request_created, notifiable: maintained_request, subscriber: user) }
+      let!(:state_change_to_declined_notification) { create(:notification_for_request, :web_notification, :request_state_change, notifiable: declined_bs_request, subscriber: user) }
+      let(:request_created_notification) { create(:notification_for_request, :web_notification, :request_created, notifiable: maintained_request, subscriber: user) }
 
       let(:params) { default_params.merge(kind: 'outgoing_requests') }
 
@@ -206,7 +206,7 @@ RSpec.describe Webui::Users::NotificationsController do
         put :update, params: { notification_ids: [state_change_notification.id], user_login: user_to_log_in.login, button: 'read' }, xhr: true
       end
 
-      let!(:another_unread_notification) { create(:web_notification, :request_state_change, subscriber: user_to_log_in, title: 'Another read notification') }
+      let!(:another_unread_notification) { create(:notification_for_request, :web_notification, :request_state_change, subscriber: user_to_log_in, title: 'Another read notification') }
       let(:user_to_log_in) { user }
 
       it 'succeeds' do
@@ -252,8 +252,8 @@ RSpec.describe Webui::Users::NotificationsController do
       end
 
       let(:user_to_log_in) { user }
-      let(:read_notification) { create(:web_notification, :request_state_change, subscriber: user_to_log_in, delivered: true, title: 'Read notifications') }
-      let!(:another_read_notification) { create(:web_notification, :request_state_change, subscriber: user_to_log_in, delivered: true, title: 'Another read notification') }
+      let(:read_notification) { create(:notification_for_request, :web_notification, :request_state_change, subscriber: user_to_log_in, delivered: true, title: 'Read notifications') }
+      let!(:another_read_notification) { create(:notification_for_request, :web_notification, :request_state_change, subscriber: user_to_log_in, delivered: true, title: 'Another read notification') }
 
       it 'succeeds' do
         expect(response).to have_http_status(:ok)

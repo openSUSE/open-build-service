@@ -3,8 +3,8 @@ RSpec.describe CleanupNotificationsJob do
 
   describe '#perform' do
     it 'only deletes old notifications' do
-      create(:notification, :stale)
-      create(:notification)
+      create(:notification_for_request, :stale)
+      create(:notification_for_request)
 
       expect { described_class.new.perform }.to change(Notification, :count).by(-1)
     end
