@@ -70,6 +70,10 @@
   max-width: calc(100% - 2.5rem)
 }
 
+#requests-filter-desktop {
+  &.sticky-top { top: $top-navigation-height; }
+}
+
 @include media-breakpoint-up(sm) {
   .order-sm-1 {
     order: 1;
