@@ -105,7 +105,6 @@ RSpec.describe GroupController do
     end
 
     context 'when the group does not exist' do
-      let(:new_member) { create(:confirmed_user) }
       let(:valid_xml) do
         <<~XML
           <group>
