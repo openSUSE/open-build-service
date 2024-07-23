@@ -15,6 +15,7 @@ class FullTextSearch
     attrib.each do |att, value|
       instance_variable_set(:"@#{att}", value)
     end
+    @classes ||= %w[package project]
   end
 
   def search(options = {})
@@ -40,7 +41,7 @@ class FullTextSearch
       args[:with][:issue_ids] = issue_id.to_i unless issue_id.nil?
       args[:with][:attrib_type_ids] = attrib_type_id.to_i unless attrib_type_id.nil?
     end
-    args[:classes] = classes.map { |i| i.to_s.classify.constantize } if classes
+    args[:classes] = classes.map { |i| i.to_s.classify.constantize }
 
     ThinkingSphinx.search(search_str, args)
   end
