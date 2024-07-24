@@ -1,6 +1,4 @@
 class FullTextSearch
-  include ActiveModel::Serializers::JSON
-
   LINKED_COUNT_WEIGHT = 100
   ACTIVITY_INDEX_WEIGHT = 500
   LINKS_TO_OTHER_WEIGHT = -1000
@@ -45,13 +43,6 @@ class FullTextSearch
     args[:classes] = classes.map { |i| i.to_s.classify.constantize } if classes
 
     ThinkingSphinx.search(search_str, args)
-  end
-
-  # Needed by ActiveModel::Serializers
-  def attributes
-    { 'text' => nil, 'classes' => nil, 'fields' => nil, 'attrib_type_id' => nil,
-      'issue_tracker_name' => nil, 'issue_name' => nil,
-      'result' => nil, 'total_entries' => nil }
   end
 
   private
