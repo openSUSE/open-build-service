@@ -181,12 +181,7 @@ case "$1" in
 				NUM=`ls -d /sys/devices/system/cpu/cpu[0-9]* | wc -l`
 
 				# but be sure that we have at least 512MB per instance
-				if [ -e /sys/hypervisor/type ] && grep -q xen /sys/hypervisor/type; then
-					MEMORY=`xm info | sed -n 's/^max_free_memory[ ]*:[ ]*\(.*\)$/\1/p'`
-					MEMORY=$(( $MEMORY * 1024 ))
-				else
-					MEMORY=`sed -n 's/^MemTotal:[ ]*\(.*\).kB$/\1/p' /proc/meminfo`
-				fi
+				MEMORY=`sed -n 's/^MemTotal:[ ]*\(.*\).kB$/\1/p' /proc/meminfo`
 				if [ $MEMORY -lt $(( $NUM * 512 * 1024 )) ]; then
 					NUM=$(( $MEMORY / ( 1024 * 512 ) ))
 					NUM=$(( $NUM - 1 ))  # for Dom0
