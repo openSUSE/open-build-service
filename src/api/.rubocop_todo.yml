@@ -756,12 +756,6 @@ RSpec/MessageSpies:
     - 'spec/controllers/webui/apidocs_controller_spec.rb'
     - 'spec/models/kiwi/image_spec.rb'
 
-# Offense count: 13
-RSpec/MissingExpectationTargetMethod:
-  Exclude:
-    - 'spec/models/package_get_by_project_and_name_spec.rb'
-    - 'spec/models/project_find_package_spec.rb'
-
 # Offense count: 1618
 # Configuration parameters: AllowSubject.
 RSpec/MultipleMemoizedHelpers:

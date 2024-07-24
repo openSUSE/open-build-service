@@ -19,7 +19,7 @@ RSpec.describe Package, '#get_by_project_and_name' do
           let(:package) { create(:package, project: link_association.linked_db_project) }
 
           it 'returns the package from the link' do
-            expect(subject.project).equal?(local_linked_project)
+            expect(subject.project).to eq(local_linked_project)
           end
         end
 
@@ -28,7 +28,7 @@ RSpec.describe Package, '#get_by_project_and_name' do
           let(:package) { create(:package, name: package_in_link.name, project: link_association.project) }
 
           it 'returns the package from the local project' do
-            expect(subject.project).equal?(project)
+            expect(subject.project).to eq(project)
           end
         end
 
@@ -50,7 +50,7 @@ RSpec.describe Package, '#get_by_project_and_name' do
         let(:package) { build(:package, name: 'i_might_exist_remote') }
 
         it 'returns nil' do
-          expect(subject).equal?(nil)
+          expect(subject).to be_nil
         end
 
         it 'does not raise' do
@@ -80,7 +80,7 @@ RSpec.describe Package, '#get_by_project_and_name' do
           let(:package) { create(:package, name: package_in_link.name, project: link_association.project) }
 
           it 'returns the package from the local project' do
-            expect(subject.project).equal?(project)
+            expect(subject.project).to eq(project)
           end
         end
 
@@ -124,7 +124,7 @@ RSpec.describe Package, '#get_by_project_and_name' do
         let(:package) { create(:package, project: update_project) }
 
         it 'returns the package from the link' do
-          expect(subject.project).equal?(update_project)
+          expect(subject.project).to eq(update_project)
         end
       end
 
@@ -133,7 +133,7 @@ RSpec.describe Package, '#get_by_project_and_name' do
         let(:package) { create(:package, name: updated_package.name, project: project) }
 
         it 'returns the package from the link' do
-          expect(subject.project).equal?(update_project)
+          expect(subject.project).to eq(update_project)
         end
       end
 
@@ -168,7 +168,7 @@ RSpec.describe Package, '#get_by_project_and_name' do
         let(:package) { create(:package, name: updated_package.name, project: project) }
 
         it 'does not find the package from the link' do
-          expect(subject.project).equal?(project)
+          expect(subject.project).to eq(project)
         end
       end
 
