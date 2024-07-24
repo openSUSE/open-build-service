@@ -26,9 +26,9 @@ class TriggerController < ApplicationController
   def create
     authorize @token, :trigger?
 
-    opts = { project: @project, package: @package, repository: params[:repository], arch: params[:arch],
+    opts = { project: @project, package: @package, arch: params[:arch],
+             repository: params[:repository] || params[:filter_source_repository],
              targetproject: params[:targetproject], targetrepository: params[:targetrepository],
-             filter_source_repository: params[:filter_source_repository],
              setrelease: params[:setrelease] }
     opts[:multibuild_flavor] = @multibuild_container if @multibuild_container.present?
     @token.executor.run_as { @token.call(opts) }
