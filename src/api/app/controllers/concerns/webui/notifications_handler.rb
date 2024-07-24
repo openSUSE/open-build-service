@@ -6,7 +6,7 @@ module Webui::NotificationsHandler
 
     current_notification = Notification.find(params[:notification_id])
 
-    return unless NotificationPolicy.new(User.session, current_notification).update?
+    return unless NotificationCommentPolicy.new(User.session, current_notification).update?
 
     current_notification
   end

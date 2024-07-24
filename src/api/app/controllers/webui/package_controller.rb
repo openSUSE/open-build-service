@@ -151,7 +151,7 @@ class Webui::PackageController < Webui::WebuiController
     @roles = Role.local_roles
     if User.session && params[:notification_id]
       @current_notification = Notification.find(params[:notification_id])
-      authorize @current_notification, :update?, policy_class: NotificationPolicy
+      authorize @current_notification, :update?, policy_class: NotificationCommentPolicy
     end
     @current_request_action = BsRequestAction.find(params[:request_action_id]) if User.session && params[:request_action_id]
   end
