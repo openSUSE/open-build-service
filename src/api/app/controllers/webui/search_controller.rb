@@ -89,7 +89,6 @@ class Webui::SearchController < Webui::WebuiController
     @search_what = []
     @search_what << 'package' if params[:search_for].in?(%w[0 2])
     @search_what << 'project' if params[:search_for].in?(%w[0 1])
-    @search_what << 'owner' if params[:owner] == '1' && !@search_issue
   end
 
   def set_attribute_list
