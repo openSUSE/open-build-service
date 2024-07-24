@@ -11,13 +11,11 @@ class FullTextSearch
   STAR = false
   MAX_MATCHES = 15_000
 
-  attr_accessor :text, :classes, :fields, :attrib_type_id, :issue_tracker_name, :issue_name
+  attr_reader :text, :classes, :fields, :attrib_type_id, :issue_tracker_name, :issue_name
 
   def initialize(attrib = {})
-    if attrib
-      attrib.each do |att, value|
-        send(:"#{att}=", value)
-      end
+    attrib.each do |att, value|
+      instance_variable_set(:"@#{att}", value)
     end
   end
 
