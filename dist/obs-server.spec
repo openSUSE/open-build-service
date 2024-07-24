@@ -142,7 +142,7 @@ Source0:        open-build-service-%version.tar.xz
 BuildRequires:  python-devel
 
 # None of our perl modules are for consumption
-%define __provides_exclude ^perl(
+%define __provides_exclude ^perl\\(
 
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
