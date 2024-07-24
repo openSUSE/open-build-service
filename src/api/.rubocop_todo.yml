@@ -49,13 +49,6 @@ Capybara/ClickLinkOrButtonStyle:
     - 'spec/support/features/features_responsive.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 2
-# Configuration parameters: Include, MaxAmount.
-# Include: **/*_spec.rb, **/spec/**/*, **/test/**/*, **/features/support/factories/**/*.rb
-FactoryBot/ExcessiveCreateList:
-  Exclude:
-    - 'spec/controllers/webui/monitor_controller_spec.rb'
-
 # Offense count: 26
 # Configuration parameters: Include.
 # Include: **/*_spec.rb, **/spec/**/*, **/test/**/*, **/features/support/factories/**/*.rb
