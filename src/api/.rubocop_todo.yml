@@ -772,11 +772,6 @@ RSpec/MissingExpectationTargetMethod:
 RSpec/MultipleMemoizedHelpers:
   Max: 28
 
-# Offense count: 1
-RSpec/SubjectStub:
-  Exclude:
-    - 'spec/models/kiwi/image_spec.rb'
-
 # Offense count: 33
 # Configuration parameters: IgnoreNameless, IgnoreSymbolicNames.
 RSpec/VerifiedDoubles:

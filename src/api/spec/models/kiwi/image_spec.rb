@@ -476,7 +476,7 @@ RSpec.describe Kiwi::Image, :vcr do
     end
 
     before do
-      allow(subject).to receive(:binaries_available).and_return(binaries_available_sample)
+      allow(Kiwi::Image).to receive(:binaries_available).and_return(binaries_available_sample)
     end
 
     it { expect(subject.find_binaries_by_name('', 'project', [], use_project_repositories: true)).to eq(binaries_available_sample) }
