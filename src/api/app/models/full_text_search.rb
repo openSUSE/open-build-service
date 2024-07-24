@@ -61,13 +61,11 @@ class FullTextSearch
   private
 
   def search_str
-    if text.blank?
-      nil
-    elsif fields.blank?
-      Riddle::Query.escape(text)
-    else
-      "@(#{fields.map(&:to_s).join(',')}) #{Riddle::Query.escape(text)}"
-    end
+    return nil if text.blank?
+
+    return Riddle::Query.escape(text) if fields.blank?
+
+    "@(#{fields.map(&:to_s).join(',')}) #{Riddle::Query.escape(text)}"
   end
 
   def find_issue_id
