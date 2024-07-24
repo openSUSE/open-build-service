@@ -4,6 +4,7 @@ class GroupController < ApplicationController
   validate_action groupinfo: { method: :get, response: :group }
   validate_action groupinfo: { method: :put, request: :group, response: :status }
   validate_action groupinfo: { method: :delete, response: :status }
+  validate_action update: { method: :put, request: :group }
 
   # raise an exception if authorize has not yet been called.
   after_action :verify_authorized, except: %i[index show]

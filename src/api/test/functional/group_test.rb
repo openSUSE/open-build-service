@@ -43,7 +43,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_create_modify_and_delete_group
-    xml = '<group><title>new_group</title></group>'
+    xml = '<group><title>new_group</title><maintainer userid="Iggy"/><person><person userid="adrian"/></person></group>'
     put '/group/new_group', params: xml
     assert_response :unauthorized
 
