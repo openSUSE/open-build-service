@@ -916,13 +916,6 @@ Rails/RakeEnvironment:
     - 'lib/tasks/dev/sre.rake'
     - 'lib/tasks/migrate_options_yml.rake'
 
-# Offense count: 6
-# Configuration parameters: Include.
-# Include: db/**/*.rb
-Rails/ReversibleMigration:
-  Exclude:
-    - 'db/migrate/20170103132257_change_project_package_name_to_string.rb'
-
 # Offense count: 4
 # Configuration parameters: ForbiddenMethods, AllowedMethods.
 # ForbiddenMethods: decrement!, decrement_counter, increment!, increment_counter, insert, insert!, insert_all, insert_all!, toggle!, touch, touch_all, update_all, update_attribute, update_column, update_columns, update_counters, upsert, upsert_all
