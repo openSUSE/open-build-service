@@ -9,7 +9,7 @@ module Event
     end
 
     def parameters_for_notification
-      super.merge({ notifiable_type: notifiable_type, notifiable_id: notifiable_id })
+      super.merge({ notifiable_type: notifiable_type, notifiable_id: notifiable_id, type: "Notification#{notifiable_type}" })
     end
 
     def any_roles
