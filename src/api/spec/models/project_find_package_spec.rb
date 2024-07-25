@@ -23,7 +23,7 @@ RSpec.describe Project, '.find_package' do
       let(:package) { create(:package, project: project) }
 
       it 'returns the package from the link' do
-        expect(subject.project).equal?(link_target)
+        expect(subject.project).equal?(link_target) # rubocop:disable RSpec/MissingExpectationTargetMethod FIXME
       end
     end
 
@@ -31,7 +31,7 @@ RSpec.describe Project, '.find_package' do
       let(:package) { create(:package, project: link_target) }
 
       it 'returns the package from the link' do
-        expect(subject.project).equal?(link_target)
+        expect(subject.project).to eq(link_target)
       end
     end
 
@@ -40,7 +40,7 @@ RSpec.describe Project, '.find_package' do
       let(:package) { create(:package, name: package_in_linked_project.name, project: project) }
 
       it 'returns the package from the link' do
-        expect(subject.project).equal?(link_target)
+        expect(subject.project).equal?(link_target) # rubocop:disable RSpec/MissingExpectationTargetMethod FIXME
       end
     end
 
@@ -69,7 +69,7 @@ RSpec.describe Project, '.find_package' do
       let(:package) { create(:package, project: update_project) }
 
       it 'returns the package from the link' do
-        expect(subject.project).equal?(update_project)
+        expect(subject.project).to eq(update_project)
       end
     end
 
@@ -77,7 +77,7 @@ RSpec.describe Project, '.find_package' do
       let(:package) { create(:package, project: project) }
 
       it 'returns the package from the local project' do
-        expect(subject.project).equal?(project)
+        expect(subject.project).to eq(project)
       end
     end
 
@@ -86,7 +86,7 @@ RSpec.describe Project, '.find_package' do
       let(:package) { create(:package, name: updated_package.name, project: project) }
 
       it 'returns the package from the link' do
-        expect(subject.project).equal?(update_project)
+        expect(subject.project).to eq(update_project)
       end
     end
 

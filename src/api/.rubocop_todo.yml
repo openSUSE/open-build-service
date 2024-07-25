@@ -741,11 +741,6 @@ RSpec/IndexedLet:
     - 'spec/shared/contexts/a_user_and_subscriptions.rb'
     - 'spec/shared/contexts/a_user_and_subscriptions_with_defaults.rb'
 
-# Offense count: 1
-RSpec/IteratedExpectation:
-  Exclude:
-    - 'spec/models/user_spec.rb'
-
 # Offense count: 2
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: have_received, receive
@@ -753,12 +748,6 @@ RSpec/MessageSpies:
   Exclude:
     - 'spec/controllers/webui/apidocs_controller_spec.rb'
     - 'spec/models/kiwi/image_spec.rb'
-
-# Offense count: 13
-RSpec/MissingExpectationTargetMethod:
-  Exclude:
-    - 'spec/models/package_get_by_project_and_name_spec.rb'
-    - 'spec/models/project_find_package_spec.rb'
 
 # Offense count: 1618
 # Configuration parameters: AllowSubject.
