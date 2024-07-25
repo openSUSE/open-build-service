@@ -2,11 +2,12 @@ module Webui::RequestsFilter
   extend ActiveSupport::Concern
 
   def filter_by_involvement(requests, filter_involvement)
-    return requests if filter_involvement == 'all'
-
-    if filter_involvement == 'incoming'
+    case filter_involvement
+    when 'all'
+      requests.where(id: User.session.requests)
+    when 'incoming'
       requests.where(id: User.session.incoming_requests)
-    elsif filter_involvement == 'outgoing'
+    when 'outgoing'
       requests.where(id: User.session.outgoing_requests)
     end
   end

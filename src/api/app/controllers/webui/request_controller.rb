@@ -332,7 +332,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def set_requests
-    @bs_requests = User.session.requests
+    @bs_requests = BsRequest.all
   end
 
   def set_filter_involvement
