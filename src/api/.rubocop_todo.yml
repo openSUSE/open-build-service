@@ -49,13 +49,6 @@ Capybara/ClickLinkOrButtonStyle:
     - 'spec/support/features/features_responsive.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 2
-# Configuration parameters: Include, MaxAmount.
-# Include: **/*_spec.rb, **/spec/**/*, **/test/**/*, **/features/support/factories/**/*.rb
-FactoryBot/ExcessiveCreateList:
-  Exclude:
-    - 'spec/controllers/webui/monitor_controller_spec.rb'
-
 # Offense count: 26
 # Configuration parameters: Include.
 # Include: **/*_spec.rb, **/spec/**/*, **/test/**/*, **/features/support/factories/**/*.rb
@@ -772,11 +765,6 @@ RSpec/MissingExpectationTargetMethod:
 RSpec/MultipleMemoizedHelpers:
   Max: 28
 
-# Offense count: 1
-RSpec/SubjectStub:
-  Exclude:
-    - 'spec/models/kiwi/image_spec.rb'
-
 # Offense count: 33
 # Configuration parameters: IgnoreNameless, IgnoreSymbolicNames.
 RSpec/VerifiedDoubles:
@@ -920,13 +908,6 @@ Rails/RakeEnvironment:
     - 'lib/tasks/dev/lint.rake'
     - 'lib/tasks/dev/sre.rake'
     - 'lib/tasks/migrate_options_yml.rake'
-
-# Offense count: 6
-# Configuration parameters: Include.
-# Include: db/**/*.rb
-Rails/ReversibleMigration:
-  Exclude:
-    - 'db/migrate/20170103132257_change_project_package_name_to_string.rb'
 
 # Offense count: 4
 # Configuration parameters: ForbiddenMethods, AllowedMethods.
