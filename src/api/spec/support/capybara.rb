@@ -48,7 +48,7 @@ RSpec.configure do |config|
       example_filename = RSpec.current_example.full_description
       example_filename = example_filename.gsub(/[^0-9A-Za-z_]/, '_')
       example_filename = File.expand_path(example_filename, Capybara.save_path)
-      save_page("#{example_filename}.html")
+      # save_page("#{example_filename}.html")
       save_screenshot("#{example_filename}.png")
     end
   end
