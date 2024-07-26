@@ -2,7 +2,7 @@ require 'selenium-webdriver'
 
 Capybara.default_max_wait_time = 6
 Capybara.save_path = Rails.root.join('tmp', 'capybara')
-Capybara.server = :puma, { Silent: true }
+Capybara.server = :puma, { Silent: true, queue_requests: false }
 Capybara.disable_animation = true
 Capybara.javascript_driver = :desktop
 # Attempt to click the associated label element if a checkbox/radio button are non-visible (This is especially useful for Bootstrap custom controls)
