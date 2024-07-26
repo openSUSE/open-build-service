@@ -94,8 +94,8 @@ RSpec.describe PatchinfoComponent, type: :component do
         <binary>binary_002</binary>
         <issue tracker="cve" id="2023-1111"/>
         <issue tracker="cve" id="2023-2222"/>
-        <releasetarget project="openSUSE:Factory" repository="15.4" />
         <releasetarget project="openSUSE:Factory" repository="15.5" />
+        <releasetarget project="openSUSE:Factory" repository="15.6" />
       </patchinfo>'
     end
 
@@ -144,7 +144,7 @@ RSpec.describe PatchinfoComponent, type: :component do
     end
 
     it do
-      expect(rendered_content).to have_text('15.4').and(have_text('15.5'))
+      expect(rendered_content).to have_text('15.5').and(have_text('15.6'))
     end
   end
 
