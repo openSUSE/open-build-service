@@ -153,7 +153,7 @@ GEM
       activerecord (>= 3.0, < 8.0)
       delayed_job (>= 3.0, < 5)
     diff-lcs (1.5.1)
-    docile (1.4.0)
+    docile (1.4.1)
     down (5.4.2)
       addressable (~> 2.8)
     erubi (1.13.0)
