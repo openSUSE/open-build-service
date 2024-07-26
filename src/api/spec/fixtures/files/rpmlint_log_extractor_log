@@ -16,7 +16,7 @@ X-Runtime: 0.900190
 Server-Timing: sql.active_record;dur=34.83, start_processing.action_controller;dur=0.18, instantiation.active_record;dur=24.52, cache_read.active_support;dur=1.77, cache_write.active_support;dur=0.60, send_file.action_controller;dur=0.36, process_action.action_controller;dur=662.78
 Content-Length: 34454
 
-[    0s] Memory limit set to 21805314KB
+[    0s] this is an invalid byte sequence \xED
 [    0s] Using BUILD_ROOT=/var/cache/obs/worker/root_2
 [    0s] Using BUILD_ARCH=x86_64:i686:i586:i486:i386
 [    0s] 
