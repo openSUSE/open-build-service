@@ -3,7 +3,7 @@
 [![Code Climate](https://codeclimate.com/github/openSUSE/open-build-service.png)](https://codeclimate.com/github/openSUSE/open-build-service)
 [![Depfu](https://badges.depfu.com/badges/3c5817c5855d9da3eabf1b71d64c46c1/overview.svg)](https://depfu.com/github/openSUSE/open-build-service?project=src%2Fapi%40Bundler)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6411/badge)](https://bestpractices.coreinfrastructure.org/projects/6411)
-[![build result](https://build.opensuse.org/projects/OBS:Server:Unstable/packages/obs-server/badge.svg?type=default&repository=15.5&architecture=x86_64)](https://build.opensuse.org/package/show/OBS:Server:Unstable/obs-server)
+[![build result](https://build.opensuse.org/projects/OBS:Server:Unstable/packages/obs-server/badge.svg?type=default&repository=15.6&architecture=x86_64)](https://build.opensuse.org/package/show/OBS:Server:Unstable/obs-server)
 
 # Open Build Service
 The [Open Build Service (OBS)](https://www.openbuildservice.org) is a generic system to build and distribute binary packages from sources in an automatic, consistent, and reproducible way. You can release packages as well as updates, add-ons, appliances, and entire distributions for a wide range of operating systems and hardware architectures. More information can be found on [openbuildservice.org](https://www.openbuildservice.org).
