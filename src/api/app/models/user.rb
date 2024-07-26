@@ -657,7 +657,7 @@ class User < ApplicationRecord
   def incoming_requests(search = nil, states: [:new])
     result = BsRequest.where(state: states).where(id: BsRequestAction.bs_request_ids_of_involved_projects(involved_projects.pluck(:id))).or(
       BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_packages(involved_packages.pluck(:id)))
-    ).with_actions.where(state: states)
+    ).with_actions
 
     search.present? ? result.do_search(search) : result
   end
