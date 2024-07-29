@@ -16,10 +16,11 @@
               = @notification.link_text
           %small.text-nowrap
             = render TimeComponent.new(time: @notification.created_at)
-          - if @notification.notifiable_type == 'BsRequest'
-            = helpers.bs_request_state_badge(@notification.notifiable.state)
-          - if @notification.notifiable_type == 'WorkflowRun'
-            = render WorkflowRunStatusBadgeComponent.new(status: @notification.notifiable.status, css_class: 'ms-1')
+          - if @notification.notifiable
+            - if @notification.notifiable_type == 'BsRequest'
+              = helpers.bs_request_state_badge(@notification.notifiable.state)
+            - if @notification.notifiable_type == 'WorkflowRun'
+              = render WorkflowRunStatusBadgeComponent.new(status: @notification.notifiable.status, css_class: 'ms-1')
         .col-auto.actions.ms-auto.align-self-end.align-self-md-start
           = render NotificationMarkButtonComponent.new(@notification, @selected_filter, @page)
       .row.mt-1.ps-sm-4
