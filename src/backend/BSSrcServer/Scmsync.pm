@@ -191,6 +191,10 @@ sub sync_project {
   my $cpio = BSCpio::list($cpiofd);
   my %files = map {$_->{'name'} => $_}  grep {$_->{'cpiotype'} == 8} @$cpio;
 
+  # ensure that the blocked handling sees all changes from new commit
+  # at the same time
+  $notify_repservers->('suspendproject', $projid, undef, 'suspend for scmsync');
+
   # update all packages
   for my $packid (grep {s/\.xml$//} sort keys %files) {
     my $pack;
@@ -259,6 +263,8 @@ sub sync_project {
     }
   }
   sync_config($cgi, $projid, $config) if defined $config;
+
+  $notify_repservers->('resumeproject', $projid, undef, 'suspend for scmsync');
 
   return { 'project' => $projid, 'package' => '_project', 'rev' => 'obsscm' };
 }
