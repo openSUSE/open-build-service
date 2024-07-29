@@ -101,11 +101,27 @@
 }
 
 @include media-breakpoint-between(xs, md) {
+  #requests-filter-desktop {
+    &.sticky-top { top: $top-navigation-height; }
+    height: $top-navigation-height;
+    // To not overlap with the notification action bar
+    z-index: calc(#{$zindex-sticky} + 1);
+
+    #filters {
+      max-height: 100vw;
+      overflow: auto;
+    }
+  }
   #requests-filter-search-text {
     &.sticky-top { top: calc(#{$top-navigation-height} * 2); }
   }
-}
 
+  @media (orientation: landscape) {
+    #requests-filter-desktop {
+      #filters { max-height: 20vw; }
+    }
+  }
+}
 
 .fa-custom-pr-closed {
   position: relative;
