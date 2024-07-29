@@ -266,7 +266,7 @@ Requires(pre):  obs-common
 Requires:       cpio
 Requires:       curl
 Requires:       perl(Compress::Zlib)
-Requires:       perl-TimeDate
+Requires:       perl(Date::Parse)
 Requires:       perl(XML::Parser)
 Requires:       screen
 # for build script
