@@ -26,5 +26,49 @@
                                                                   value: state,
                                                                   checked: selected_filter[:state]&.include?(state.to_s) }
 
+.mt-3.mb-2
+  %h6.px-3.py-2
+    %b Action Type
+  .px-4.py-1
+    = render partial: 'webui/shared/check_box', locals: { label: 'Bugowner Change', key: 'action_type[set_bugowner]',
+                                                          name: 'action_type[]', value: 'set_bugowner',
+                                                          label_icon: action_type_icon('set_bugowner'),
+                                                          checked: selected_filter[:action_type]&.include?('set_bugowner')}
+
+    = render partial: 'webui/shared/check_box', locals: { label: 'Change Devel Project', key: 'action_type[change_devel]',
+                                                          name: 'action_type[]', value: 'change_devel',
+                                                          label_icon: action_type_icon('change_devel'),
+                                                          checked: selected_filter[:action_type]&.include?('change_devel')}
+
+    = render partial: 'webui/shared/check_box', locals: { label: 'Delete', key: 'action_type[delete]',
+                                                          name: 'action_type[]', value: 'delete',
+                                                          label_icon: action_type_icon('delete'),
+                                                          checked: selected_filter[:action_type]&.include?('delete')}
+
+    = render partial: 'webui/shared/check_box', locals: { label: 'Maintenance Incident', key: 'action_type[maintenance_incident]',
+                                                          name: 'action_type[]', value: 'maintenance_incident',
+                                                          label_icon: action_type_icon('maintenance_incident'),
+                                                          checked: selected_filter[:action_type]&.include?('maintenance_incident')}
+
+    = render partial: 'webui/shared/check_box', locals: { label: 'Maintenance Release', key: 'action_type[maintenance_release]',
+                                                          name: 'action_type[]', value: 'maintenance_release',
+                                                          label_icon: action_type_icon('maintenance_release'),
+                                                          checked: selected_filter[:action_type]&.include?('maintenance_release')}
+
+    = render partial: 'webui/shared/check_box', locals: { label: 'Release', key: 'action_type[release]',
+                                                          name: 'action_type[]', value: 'release',
+                                                          label_icon: action_type_icon('release'),
+                                                          checked: selected_filter[:action_type]&.include?('release')}
+
+    = render partial: 'webui/shared/check_box', locals: { label: 'Role Change', key: 'action_type[add_role]',
+                                                          name: 'action_type[]', value: 'add_role',
+                                                          label_icon: action_type_icon('add_role'),
+                                                          checked: selected_filter[:action_type]&.include?('add_role')}
+
+    = render partial: 'webui/shared/check_box', locals: { label: 'Submit', key: 'action_type[submit]',
+                                                          name: 'action_type[]', value: 'submit',
+                                                          label_icon: action_type_icon('submit'),
+                                                          checked: selected_filter[:action_type]&.include?('submit')}
+
 .text-center.mt-4.mb-4
   = link_to('Clear', requests_path, class: 'btn btn-light border')

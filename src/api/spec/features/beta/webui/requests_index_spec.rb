@@ -86,4 +86,30 @@ RSpec.describe 'Requests Index' do
     end
     # rubocop:enable RSpec/ExampleLength
   end
+
+  describe 'filters request by action type' do
+    let!(:request_with_maintenance_actions) do
+      create(:bs_request_with_maintenance_release_actions,
+             description: 'This is a maintenance request',
+             creator: receiver,
+             source_package: source_project.packages.first,
+             target_project: other_source_project)
+    end
+
+    # rubocop:disable RSpec/ExampleLength
+    it 'shows all requests with the selected action' do
+      find_by_id('requests-dropdown-trigger').click if mobile? # open the filter dropdown
+      within('#filters') do
+        check('Maintenance Release')
+        sleep 1.5 # there is a timeout before firing the filtering
+      end
+
+      within('#requests') do
+        expect(page).to have_link(href: "/request/show/#{request_with_maintenance_actions.number}")
+        expect(page).to have_css('.list-group-item .fas.fa-road-circle-check')
+        expect(page).to have_no_link(href: "/request/show/#{incoming_request.number}")
+      end
+    end
+    # rubocop:enable RSpec/ExampleLength
+  end
 end
