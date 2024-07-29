@@ -2574,7 +2574,7 @@ sub copybuild {
       }
       if (defined($setrelease)) {
 	$setrelease =~ s/^-?/-/; # "-" will drop the release tag
-	$setrelease =~ s/-?$//;  # drop leading "-", it depends on the format
+	$setrelease =~ s/-?$//;  # drop trailing "-", it depends on the format
         # we must ensure to run only one of the following, because people
         # overwrite -BuildX.Y part with -BuildV.W (using not matching numbers)
         # but this must not lead to double matches
@@ -2583,8 +2583,14 @@ sub copybuild {
 	  if ($setrelease ne $oldsetrelease) {
             # kiwi product || appliance || product composer
 	    if ($oldsetrelease eq '') {
-              $nbin =~ s/(-Media\d?(?:\..*?)?)$/$setrelease$1/ ||
-                 $nbin =~ s/(^.*-)/$1$setrelease/;
+	      if ($nbin !~ s/(-Media\d?(?:\..*?)?)$/$setrelease$1/) {
+		# check for productcompose main medium
+		if ($bin =~ /^(.*?)(?:\.license|)$/ && (-e "$odir/$1-Source" || -e "$odir/$1-Debug")) {
+	          $nbin =~ "$1$setrelease$2";
+		} else {
+	          $nbin =~ s/(^.*-)/$1$setrelease/;
+		}
+	      }
 	    } else {
               $nbin =~ s/(\Q$oldsetrelease\E)(-Media\d?(?:\..*?)?)$/$setrelease$2/ ||
                  $nbin =~ s/\Q$oldsetrelease\E(\.|-|$)/$setrelease$1/;
