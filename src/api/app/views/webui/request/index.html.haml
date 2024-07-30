@@ -30,6 +30,8 @@
           = paginate @bs_requests, views_prefix: 'webui'
 
 :javascript
+  collectMultiSelects();
+
   function submitRequestFilters() {
     $('#requests-filter-form').submit();
   }
