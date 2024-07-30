@@ -3,9 +3,10 @@ require 'browser_helper'
 RSpec.describe 'Requests Index' do
   let(:submitter) { create(:confirmed_user, login: 'kugelblitz') }
   let(:receiver) { create(:confirmed_user, login: 'titan') }
+  let(:another_submitter) { create(:confirmed_user, login: 'foo') }
   let(:target_project) { create(:project_with_package, package_name: 'goal', maintainer: receiver) }
   let(:source_project) { create(:project_with_package, package_name: 'ball', maintainer: submitter) }
-  let(:other_source_project) { create(:project_with_package, package_name: 'package_2', maintainer: submitter) }
+  let(:other_source_project) { create(:project_with_package, package_name: 'package_2', maintainer: another_submitter) }
 
   let!(:incoming_request) do
     create(:bs_request_with_submit_action, description: 'Please take this',
@@ -16,7 +17,7 @@ RSpec.describe 'Requests Index' do
 
   let!(:other_incoming_request) do
     create(:bs_request_with_submit_action, description: 'This is very important',
-                                           creator: submitter,
+                                           creator: another_submitter,
                                            source_package: other_source_project.packages.first,
                                            target_project: target_project)
   end
@@ -111,5 +112,38 @@ RSpec.describe 'Requests Index' do
       end
     end
     # rubocop:enable RSpec/ExampleLength
+  end
+
+  describe 'using the request creator filter' do
+    before do
+      find_by_id('requests-dropdown-trigger').click if mobile? # open the filter dropdown
+      find_by_id('filter-creator-requests-button').click
+    end
+
+    it 'lists only the requests of the selected creator' do
+      check("creators[#{receiver.login}]")
+
+      expect(page).to have_link(href: "/request/show/#{outgoing_request.number}")
+      expect(page).to have_no_link(href: "/request/show/#{incoming_request.number}")
+      expect(page).to have_no_link(href: "/request/show/#{other_incoming_request.number}")
+    end
+
+    it 'allows to filter by multiple request creators' do
+      check("creators[#{receiver.login}]")
+      check("creators[#{another_submitter.login}]")
+
+      expect(page).to have_link(href: "/request/show/#{outgoing_request.number}")
+      expect(page).to have_link(href: "/request/show/#{other_incoming_request.number}")
+      expect(page).to have_no_link(href: "/request/show/#{incoming_request.number}")
+    end
+
+    it 'only shows the creators that match the search value filled in the dropdown' do
+      fill_in('request-creator-search', with: "#{submitter.login[0, 2]}")
+
+      within('div#request-creator-dropdown') do
+        expect(page).to have_field('creators[]', with: "#{submitter.login}")
+        expect(page).to have_no_field('creators[]', with: "#{receiver.login}")
+      end
+    end
   end
 end
