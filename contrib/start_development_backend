@@ -25,7 +25,7 @@ while getopts "l:d:h:?" opt; do
   case "$opt" in
   l)
     REDIR_LOG=$OPTARG
-    if [[ "REDIR_LOG" =~ [[:space:]] ]]; then
+    if [[ "$REDIR_LOG" =~ [[:space:]] ]]; then
       echo "Directory may not contain whitespaces"
       exit
     fi
