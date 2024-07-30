@@ -1905,8 +1905,6 @@ sub mapslepool {
     $p =~ s/-Build[\d\.]*\d//;
   } elsif ($bin =~ /.*-Media1?(\.license|)$/) {
     $p = "$name$1";
-  } elsif ($bin =~ /.*[_-](?:$binarchs)?(\.license|)$/) {
-    $p = "$name$1";
   } elsif ($bin =~ /-Media3$/ || $bin =~ /-Debug$/) {
     $p = "${name}_debug";
   } elsif ($bin =~ /-Source$/) {
@@ -1919,6 +1917,10 @@ sub mapslepool {
     } else {
       $p = "${name}_debug";    # source is on media 1, 2 is debug
     }
+  } elsif ($rbin =~ /(.*)\.license$/ && (-d "$rdir/$1-Debug" || -d "$rdir/$1-Source")) {
+    $p = "$name.license";
+  } elsif (-d "$rdir/$rbin-Debug" || -d "$rdir/$rbin-Source") {
+    $p = "$name";
   }
   $p .= $sbom;
   return $p;
