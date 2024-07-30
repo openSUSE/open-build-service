@@ -1,6 +1,6 @@
 #!/bin/bash
 
-trap clean_up SIGHUP SIGINT SIGTERM SIGKILL
+trap clean_up SIGHUP SIGINT SIGTERM
 
 #function to help with the usage
 function _print_syntax() {
