@@ -5,14 +5,16 @@ resetFormValidation();
     setFormValidation(element, "#{messages.to_sentence}");
 - else
   :plain
-    $('.in-place-editing').animate({
+    $('.in-place-editing,.action-report-bug').animate({
       opacity: 0.25
     }, 400, function() {
       scrollToInPlace();
       $('.in-place-editing').html("#{escape_javascript(render(partial: 'webui/project/basic_info', locals: { project: @project }))}");
-      $('#project-title').html("#{escape_javascript(@project.title.presence || @project)}")
+      $('#project-title').html("#{escape_javascript(@project.title.presence || @project)}");
+      $('.action-report-bug').html("#{escape_javascript(render(partial: 'webui/project/show_actions/report_bug',
+                                                               locals: { url: @report_bug_or_bugzilla_url }))}");
       setCollapsible();
-      $('.in-place-editing').animate({ opacity: 1 }, 400, function() {
+      $('.in-place-editing,.action-report-bug').animate({ opacity: 1 }, 400, function() {
         $('#flash').html("#{escape_javascript(render(layout: false, partial: 'layouts/webui/flash', object: flash))}");
       });
     });

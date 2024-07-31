@@ -107,6 +107,8 @@ class Webui::ProjectController < Webui::WebuiController
     respond_to do |format|
       format.js do
         if @project.update(project_params)
+          @report_bug_or_bugzilla_url = report_bug_or_bugzilla_url
+
           flash.now[:success] = 'Project was successfully updated.'
         else
           flash.now[:error] = 'Failed to update the project.'
@@ -399,7 +401,8 @@ class Webui::ProjectController < Webui::WebuiController
       :access_protection,
       :source_protection,
       :disable_publishing,
-      :url
+      :url,
+      :report_bug_url
     )
   end
 

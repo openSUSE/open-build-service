@@ -117,6 +117,8 @@ class Webui::PackageController < Webui::WebuiController
     respond_to do |format|
       format.js do
         if @package.update(package_details_params)
+          @report_bug_or_bugzilla_url = report_bug_or_bugzilla_url
+
           flash.now[:success] = 'Package was successfully updated.'
         else
           flash.now[:error] = 'Failed to update the package.'
@@ -331,7 +333,8 @@ class Webui::PackageController < Webui::WebuiController
       .require(:package_details)
       .permit(:title,
               :description,
-              :url)
+              :url,
+              :report_bug_url)
   end
 
   def set_file_details
