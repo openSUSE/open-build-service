@@ -1,7 +1,6 @@
 - content_for :actions do
-  - if bugowners_mail.present? && Configuration.bugzilla_url.present?
-    = render partial: 'webui/package/show_actions/bugzilla_owner', locals: { bugowners_mail: bugowners_mail,
-                                                                                            package_name: package.name, project_name: project.name }
+  %li.nav-item.action-report-bug
+    = render partial: 'webui/package/show_actions/bugzilla_owner', locals: { url: report_bug_or_bugzilla_url }
   - if User.session
     - if current_rev && is_working
       = render partial: 'webui/package/show_actions/branch_package', locals: { package: package, project: project,

@@ -39,7 +39,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def show
-    @bugowners_mail = @project.bugowner_emails
+    @report_bug_or_bugzilla_url = report_bug_or_bugzilla_url
     @release_targets = @project.release_targets
 
     @has_patchinfo = @project.patchinfos.exists?
@@ -464,5 +464,14 @@ class Webui::ProjectController < Webui::WebuiController
     @project = Project.get_by_name(params['project'])
   rescue Project::UnknownObjectError
     @project = nil
+  end
+
+  def report_bug_or_bugzilla_url
+    return @project.report_bug_url if feature_enabled?('foster_collaboration') && @project.report_bug_url.present?
+
+    bugowners_mail = @project.bugowner_emails
+    return helpers.bugzilla_url(bugowners_mail, "#{@project}: Bug") if bugowners_mail.present? && ::Configuration.bugzilla_url.present?
+
+    ''
   end
 end

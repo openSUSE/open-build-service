@@ -50,7 +50,7 @@ class Webui::PackageController < Webui::WebuiController
     @srcmd5 = params[:srcmd5]
     @revision_parameter = params[:rev]
 
-    @bugowners_mail = (@package.bugowner_emails + @project.bugowner_emails).uniq
+    @report_bug_or_bugzilla_url = report_bug_or_bugzilla_url
     @revision = params[:rev]
     @failures = 0
 
@@ -433,5 +433,14 @@ class Webui::PackageController < Webui::WebuiController
       end
     end
     true
+  end
+
+  def report_bug_or_bugzilla_url
+    return @package.report_bug_url if feature_enabled?('foster_collaboration') && @package.report_bug_url.present?
+
+    bugowners_mail = (@package.bugowner_emails + @project.bugowner_emails).uniq
+    return helpers.bugzilla_url(bugowners_mail, "#{@project.name}/#{@package.name}: Bug") if bugowners_mail.present? && ::Configuration.bugzilla_url.present?
+
+    ''
   end
 end
