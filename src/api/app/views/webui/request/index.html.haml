@@ -28,6 +28,7 @@
               %span.ms-3= page_entries_info(@bs_requests, entry_name: 'request')
           = render partial: 'request_item', collection: @bs_requests, as: :bs_request
           = paginate @bs_requests, views_prefix: 'webui'
+  = form.submit(nil, class: 'd-none')
 
 :javascript
   collectMultiSelects();
