@@ -37,17 +37,6 @@ module Webui::NotificationHelper
 
   private
 
-  def mark_as_read_or_unread_button(notification)
-    button = notification.unread? ? 'read' : 'unread'
-    update_path = my_notifications_path(notification_ids: [notification.id], button: button)
-    title, icon = notification.unread? ? ['Mark as read', 'fa-check'] : ['Mark as unread', 'fa-undo']
-    link_to(update_path, id: dom_id(notification, :update), method: :put,
-                         class: 'btn btn-sm btn-outline-success', title: title) do
-      concat(tag.i(class: "#{icon} fas"))
-      concat(" #{title}")
-    end
-  end
-
   def number_of_hidden_avatars(avatar_objects)
     [0, avatar_objects.size - MAXIMUM_DISPLAYED_AVATARS].max
   end
