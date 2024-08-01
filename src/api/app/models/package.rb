@@ -205,16 +205,15 @@ class Package < ApplicationRecord
     if project.scmsync.present?
       return nil unless opts[:follow_project_scmsync_links]
 
-      # rubocop:disable Lint/SuppressedException
       begin
         package_xmlhash = Xmlhash.parse(Backend::Api::Sources::Package.meta(project.name, package_name))
-      rescue Backend::Error
+      rescue Backend::NotFoundError
+        raise UnknownObjectError, "Package not found: #{project.name}/#{package_name}"
       else
         package = project.packages.new(name: package_name)
         package.assign_attributes_from_from_xml(package_xmlhash)
         package.readonly!
       end
-      # rubocop:enable Lint/SuppressedException
     end
 
     if package.nil? && opts[:follow_project_links]
