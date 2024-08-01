@@ -28,8 +28,8 @@ class WorkflowRun < ApplicationRecord
   has_many :artifacts, class_name: 'WorkflowArtifactsPerStep', dependent: :destroy
   has_many :scm_status_reports, class_name: 'SCMStatusReport', dependent: :destroy
   has_many :event_subscriptions, dependent: :destroy
+  has_many :notifications, as: :notifiable, dependent: :delete_all
 
-  after_destroy :remove_associated_notifications
   after_save :create_event, if: :status_changed_to_fail?
 
   scope :pull_request, -> { where(generic_event_type: 'pull_request') }
@@ -168,10 +168,6 @@ class WorkflowRun < ApplicationRecord
   # FIXME: How to get the real commit message for tag_push?
   def tag_push_message
     "Tag #{payload['ref']} got pushed"
-  end
-
-  def remove_associated_notifications
-    Notification.where(notifiable_type: 'WorkflowRun', notifiable_id: id).first&.destroy
   end
 end
 
