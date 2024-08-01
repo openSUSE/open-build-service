@@ -11,8 +11,8 @@ class Label < ApplicationRecord
   #### Associations macros (Belongs to, Has one, Has many)
       belongs_to :labelable, polymorphic: true, required: true
       belongs_to :label_template, required: true
-      delegate :color, to :label_template
-      delegate :name, to :label_template
+      delegate :color, to: :label_template
+      delegate :name, to: :label_template
       
   
   #### Callbacks macros: before_save, after_save, etc.
