@@ -118,13 +118,13 @@ class Webui::PackageController < Webui::WebuiController
       if @package.update(package_details_params)
         format.html do
           flash[:success] = 'Package was successfully updated.'
-          redirect_to package_show_path(@package)
+          redirect_to package_show_path(project: @project, package: @package)
         end
         format.js { flash.now[:success] = 'Package was successfully updated.' }
       else
         format.html do
           flash[:error] = 'Failed to update package'
-          redirect_to package_show_path(@package)
+          redirect_to package_show_path(project: @project, package: @package)
         end
         format.js
       end
