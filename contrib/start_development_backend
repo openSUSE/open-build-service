@@ -1,6 +1,6 @@
 #!/bin/bash
 
-trap clean_up SIGHUP SIGINT SIGTERM SIGKILL
+trap clean_up SIGHUP SIGINT SIGTERM
 
 #function to help with the usage
 function _print_syntax() {
@@ -25,7 +25,7 @@ while getopts "l:d:h:?" opt; do
   case "$opt" in
   l)
     REDIR_LOG=$OPTARG
-    if [[ "REDIR_LOG" =~ [[:space:]] ]]; then
+    if [[ "$REDIR_LOG" =~ [[:space:]] ]]; then
       echo "Directory may not contain whitespaces"
       exit
     fi
@@ -134,22 +134,30 @@ eval $COMMAND_STRING
 function clean_up {
   echo -e "\ncleaning up and exit"
   echo -e "Terminating Services"
-  killall bs_srcserver
+  "$GIT_HOME"/src/backend/bs_srcserver --stop
   echo -e "Terminated SRC Server"
-  killall bs_repserver
+  "$GIT_HOME"/src/backend/bs_repserver --stop
   echo -e "Terminated REP Server"
-  killall bs_sched
-  echo -e "Terminated Scheduler"
-  killall bs_dispatch
+  "$GIT_HOME"/src/backend/bs_sched --stop i586
+  "$GIT_HOME"/src/backend/bs_sched --stop x86_64
+  echo -e "Terminated Schedulers"
+  "$GIT_HOME"/src/backend/bs_dispatch --stop
   echo -e "Terminated Dispatcher"
-  killall bs_publish
+  "$GIT_HOME"/src/backend/bs_publish --stop
   echo -e "Terminated Publisher"
-  killall bs_service
+  "$GIT_HOME"/src/backend/bs_service --stop
   echo -e "Terminated Publisher"
-  killall bs_signer
+  "$GIT_HOME"/src/backend/bs_signer --stop
   echo -e "Terminated Signer"
-  killall bs_servicedispatch
-  echo -e "Terminated service dispatcher"
+  killall signd
+  gpgconf --kill gpg-agent
+  echo -e "Terminated Signd"
+  "$GIT_HOME"/src/backend/bs_servicedispatch --stop
+  echo -e "Terminated service dispatch"
+  "$GIT_HOME"/src/backend/bs_clouduploadserver --stop
+  echo -e "Terminated cloud upload server"
+  "$GIT_HOME"/src/backend/bs_clouduploadworker --stop
+  echo -e "Terminated cloud upload worker"
   exit;
 }
 
