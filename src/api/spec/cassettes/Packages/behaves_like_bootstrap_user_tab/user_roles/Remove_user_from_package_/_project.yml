@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="package_test_user" role="maintainer"/>
         </project>
-  recorded_at: Fri, 24 Feb 2023 13:42:20 GMT
+  recorded_at: Thu, 01 Aug 2024 17:04:03 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user_tab_user/_meta?user=user_tab_user
@@ -79,16 +79,16 @@ http_interactions:
           <description></description>
           <person userid="user_tab_user" role="maintainer"/>
         </project>
-  recorded_at: Fri, 24 Feb 2023 13:42:20 GMT
+  recorded_at: Thu, 01 Aug 2024 17:04:03 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=user_4
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=user_59
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>Wildfire at Midnight</title>
-          <description>Fugit quia rerum et.</description>
+          <title>Brandy of the Damned</title>
+          <description>Consequuntur a nam ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,15 +109,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>Wildfire at Midnight</title>
-          <description>Fugit quia rerum et.</description>
+          <title>Brandy of the Damned</title>
+          <description>Consequuntur a nam ut.</description>
         </package>
-  recorded_at: Fri, 24 Feb 2023 13:42:20 GMT
+  recorded_at: Thu, 01 Aug 2024 17:04:03 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/_meta?user=other_user
@@ -157,16 +157,16 @@ http_interactions:
           <description></description>
           <person userid="other_user" role="maintainer"/>
         </project>
-  recorded_at: Fri, 24 Feb 2023 13:42:21 GMT
+  recorded_at: Thu, 01 Aug 2024 17:04:03 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=user_5
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=user_60
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>Time To Murder And Create</title>
-          <description>Ipsa placeat vel reiciendis.</description>
+          <title>Arms and the Man</title>
+          <description>Aut et sint amet.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -187,21 +187,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '175'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>Time To Murder And Create</title>
-          <description>Ipsa placeat vel reiciendis.</description>
+          <title>Arms and the Man</title>
+          <description>Aut et sint amet.</description>
         </package>
-  recorded_at: Fri, 24 Feb 2023 13:42:21 GMT
+  recorded_at: Thu, 01 Aug 2024 17:04:03 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/branch_test_package/_config
     body:
       encoding: UTF-8
-      string: Reiciendis non velit. Beatae id quos. Aut nesciunt amet.
+      string: Quos velit non. Veritatis autem dolor. Qui in eos.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -225,21 +225,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="59" vrev="59">
-          <srcmd5>275770b180cdae0c0b76cfa5c90315bb</srcmd5>
+        <revision rev="21" vrev="21">
+          <srcmd5>18a3abfab0caaf49e1247d60f981f958</srcmd5>
           <version>unknown</version>
-          <time>1677246141</time>
+          <time>1722531843</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 24 Feb 2023 13:42:21 GMT
+  recorded_at: Thu, 01 Aug 2024 17:04:03 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Voluptas amet voluptatem. Neque aut voluptatem. Ut est nulla.
+      string: Sit ea libero. Accusamus quasi autem. Molestiae eligendi ratione.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -263,15 +263,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="60" vrev="60">
-          <srcmd5>0d9cd02305cb176567f21b66d9b12ef1</srcmd5>
+        <revision rev="22" vrev="22">
+          <srcmd5>a60d2346017231be43e1d7ca6ed763eb</srcmd5>
           <version>unknown</version>
-          <time>1677246141</time>
+          <time>1722531843</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 24 Feb 2023 13:42:21 GMT
+  recorded_at: Thu, 01 Aug 2024 17:04:03 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -280,7 +280,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 050236f3-0097-45f6-9520-132dca67ca9a
+      - a9820ce4-173c-4198-8420-8ff4c835e7ff
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -305,7 +305,7 @@ http_interactions:
       string: |
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:42:22 GMT
+  recorded_at: Thu, 01 Aug 2024 17:04:04 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package?expand=1
@@ -337,41 +337,7 @@ http_interactions:
       string: |
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:42:22 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_history?deleted=0&meta=0
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - 050236f3-0097-45f6-9520-132dca67ca9a
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '31'
-    body:
-      encoding: UTF-8
-      string: |
-        <revisionlist>
-        </revisionlist>
-  recorded_at: Fri, 24 Feb 2023 13:42:22 GMT
+  recorded_at: Thu, 01 Aug 2024 17:04:04 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -380,7 +346,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 050236f3-0097-45f6-9520-132dca67ca9a
+      - a9820ce4-173c-4198-8420-8ff4c835e7ff
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -405,7 +371,7 @@ http_interactions:
       string: |
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:42:22 GMT
+  recorded_at: Thu, 01 Aug 2024 17:04:04 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -414,7 +380,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 050236f3-0097-45f6-9520-132dca67ca9a
+      - a9820ce4-173c-4198-8420-8ff4c835e7ff
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -439,41 +405,7 @@ http_interactions:
       string: |
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:42:22 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - 00cb569d-d08b-48f3-a774-373d21feef85
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '93'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-  recorded_at: Fri, 24 Feb 2023 13:42:22 GMT
+  recorded_at: Thu, 01 Aug 2024 17:04:04 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:user_tab_user/_result?lastbuild=1&locallink=1&multibuild=1&package=group_test_package&view=status
@@ -482,7 +414,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 00cb569d-d08b-48f3-a774-373d21feef85
+      - 3b0384e2-a4ca-4c31-aa4d-39e9e2c1804c
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -507,75 +439,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Fri, 24 Feb 2023 13:42:22 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - b1b20577-0ff6-4469-94ad-a6d696a00b6d
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '93'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-  recorded_at: Fri, 24 Feb 2023 13:42:22 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/home:user_tab_user/_result?lastbuild=1&locallink=1&multibuild=1&package=group_test_package&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - b1b20577-0ff6-4469-94ad-a6d696a00b6d
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '55'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-  recorded_at: Fri, 24 Feb 2023 13:42:22 GMT
+  recorded_at: Thu, 01 Aug 2024 17:04:04 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:user_tab_user/_result?package=group_test_package&view=status
@@ -584,7 +448,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - e55e9b9c-aa19-4723-95b3-6d6d771bdf82
+      - 0ec5a650-2cda-4814-a8b0-4cb09e25130b
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -609,7 +473,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Fri, 24 Feb 2023 13:42:22 GMT
+  recorded_at: Thu, 01 Aug 2024 17:04:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=user_tab_user
@@ -617,8 +481,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>Wildfire at Midnight</title>
-          <description>Fugit quia rerum et.</description>
+          <title>Brandy of the Damned</title>
+          <description>Consequuntur a nam ut.</description>
           <person userid="user_tab_user" role="bugowner"/>
           <person userid="user_tab_user" role="maintainer"/>
         </package>
@@ -641,17 +505,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '268'
+      - '270'
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>Wildfire at Midnight</title>
-          <description>Fugit quia rerum et.</description>
+          <title>Brandy of the Damned</title>
+          <description>Consequuntur a nam ut.</description>
           <person userid="user_tab_user" role="bugowner"/>
           <person userid="user_tab_user" role="maintainer"/>
         </package>
-  recorded_at: Fri, 24 Feb 2023 13:42:24 GMT
+  recorded_at: Thu, 01 Aug 2024 17:04:06 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=user_tab_user
@@ -659,8 +523,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>Wildfire at Midnight</title>
-          <description>Fugit quia rerum et.</description>
+          <title>Brandy of the Damned</title>
+          <description>Consequuntur a nam ut.</description>
           <person userid="user_tab_user" role="bugowner"/>
           <person userid="user_tab_user" role="maintainer"/>
         </package>
@@ -683,15 +547,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '268'
+      - '270'
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>Wildfire at Midnight</title>
-          <description>Fugit quia rerum et.</description>
+          <title>Brandy of the Damned</title>
+          <description>Consequuntur a nam ut.</description>
           <person userid="user_tab_user" role="bugowner"/>
           <person userid="user_tab_user" role="maintainer"/>
         </package>
-  recorded_at: Fri, 24 Feb 2023 13:42:24 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Thu, 01 Aug 2024 17:04:06 GMT
+recorded_with: VCR 6.2.0

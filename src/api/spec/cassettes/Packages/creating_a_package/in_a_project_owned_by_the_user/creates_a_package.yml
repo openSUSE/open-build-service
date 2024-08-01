@@ -1,6 +1,352 @@
 ---
 http_interactions:
 - request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/_meta?user=package_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:package_test_user">
+          <title/>
+          <description/>
+          <person userid="package_test_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:package_test_user">
+          <title></title>
+          <description></description>
+          <person userid="package_test_user" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 01 Aug 2024 17:03:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=user_32
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:package_test_user">
+          <title>A Monstrous Regiment of Women</title>
+          <description>Quis fugiat omnis temporibus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '180'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:package_test_user">
+          <title>A Monstrous Regiment of Women</title>
+          <description>Quis fugiat omnis temporibus.</description>
+        </package>
+  recorded_at: Thu, 01 Aug 2024 17:03:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/test_package/_config
+    body:
+      encoding: UTF-8
+      string: Et est praesentium. Nihil dolorem sapiente. Optio asperiores voluptatem.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="32" vrev="32">
+          <srcmd5>d59db6aee5ae0a8535b5083a401fb6ae</srcmd5>
+          <version>unknown</version>
+          <time>1722531790</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 01 Aug 2024 17:03:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/test_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Alias ullam voluptatem. Qui vel iste. Delectus exercitationem deleniti.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="33" vrev="33">
+          <srcmd5>c0f3fae5c4ead36c08610d0dd11ec603</srcmd5>
+          <version>unknown</version>
+          <time>1722531790</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 01 Aug 2024 17:03:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_package_test_user/_meta?user=other_package_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_package_test_user">
+          <title/>
+          <description/>
+          <person userid="other_package_test_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_package_test_user">
+          <title></title>
+          <description></description>
+          <person userid="other_package_test_user" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 01 Aug 2024 17:03:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=user_33
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_package_test_user">
+          <title>Mother Night</title>
+          <description>Enim corporis qui occaecati.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '175'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_package_test_user">
+          <title>Mother Night</title>
+          <description>Enim corporis qui occaecati.</description>
+        </package>
+  recorded_at: Thu, 01 Aug 2024 17:03:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_config
+    body:
+      encoding: UTF-8
+      string: Necessitatibus exercitationem alias. A ut aliquid. Veniam dolorum non.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="29" vrev="29">
+          <srcmd5>1b7cf3d7137059f1151e953db856abee</srcmd5>
+          <version>unknown</version>
+          <time>1722531790</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 01 Aug 2024 17:03:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Aut non blanditiis. Consectetur vel doloribus. Nihil et reiciendis.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="30" vrev="30">
+          <srcmd5>e7088e00a009eefafb8714aeb4862848</srcmd5>
+          <version>unknown</version>
+          <time>1722531790</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 01 Aug 2024 17:03:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/coolstuff/_meta?user=package_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="coolstuff" project="home:package_test_user">
+          <title>cool stuff everyone needs</title>
+          <description>Sint voluptates facilis. Unde et optio. Earum illum repellendus. Omnis aut sunt. Aut iste velit. Cupiditate consequatur aut. Minima quasi ratione. At aperiam corporis. Est neque quia. Et et sed. Libero sed ea. Omnis quam repellendus. Commodi ex deserunt. Ad cupiditate ut. Soluta inventore ratione. Maiores rem excepturi. Fugit nulla eos. Dolorem maiores et. Quia eveniet explicabo. Modi et officiis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '544'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="coolstuff" project="home:package_test_user">
+          <title>cool stuff everyone needs</title>
+          <description>Sint voluptates facilis. Unde et optio. Earum illum repellendus. Omnis aut sunt. Aut iste velit. Cupiditate consequatur aut. Minima quasi ratione. At aperiam corporis. Est neque quia. Et et sed. Libero sed ea. Omnis quam repellendus. Commodi ex deserunt. Ad cupiditate ut. Soluta inventore ratione. Maiores rem excepturi. Fugit nulla eos. Dolorem maiores et. Quia eveniet explicabo. Modi et officiis.</description>
+        </package>
+  recorded_at: Thu, 01 Aug 2024 17:03:12 GMT
+- request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/coolstuff
     body:
@@ -8,7 +354,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 4f3369c5-5a02-4fb4-b0eb-643e62c221cb
+      - 185eebc2-66b4-4e45-97bb-f041f1d582d3
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -33,7 +379,7 @@ http_interactions:
       string: |
         <directory name="coolstuff" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:00:49 GMT
+  recorded_at: Thu, 01 Aug 2024 17:03:12 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/coolstuff?expand=1
@@ -65,41 +411,7 @@ http_interactions:
       string: |
         <directory name="coolstuff" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:00:49 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:package_test_user/coolstuff/_history?deleted=0&meta=0
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - 4f3369c5-5a02-4fb4-b0eb-643e62c221cb
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '31'
-    body:
-      encoding: UTF-8
-      string: |
-        <revisionlist>
-        </revisionlist>
-  recorded_at: Fri, 24 Feb 2023 13:00:49 GMT
+  recorded_at: Thu, 01 Aug 2024 17:03:12 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/coolstuff
@@ -108,7 +420,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 4f3369c5-5a02-4fb4-b0eb-643e62c221cb
+      - 185eebc2-66b4-4e45-97bb-f041f1d582d3
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -133,7 +445,7 @@ http_interactions:
       string: |
         <directory name="coolstuff" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:00:49 GMT
+  recorded_at: Thu, 01 Aug 2024 17:03:12 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:package_test_user/coolstuff
@@ -142,7 +454,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 4f3369c5-5a02-4fb4-b0eb-643e62c221cb
+      - 185eebc2-66b4-4e45-97bb-f041f1d582d3
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -167,41 +479,7 @@ http_interactions:
       string: |
         <directory name="coolstuff" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 24 Feb 2023 13:00:49 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:package_test_user/coolstuff
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - d04c8182-fa01-4bcd-8612-b0dc84255940
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '84'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="coolstuff" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-  recorded_at: Fri, 24 Feb 2023 13:00:49 GMT
+  recorded_at: Thu, 01 Aug 2024 17:03:12 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/_result?lastbuild=1&locallink=1&multibuild=1&package=coolstuff&view=status
@@ -210,7 +488,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - d04c8182-fa01-4bcd-8612-b0dc84255940
+      - f5b3dcef-4fc9-42ed-b40f-710c1305d532
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -235,75 +513,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Fri, 24 Feb 2023 13:00:50 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:package_test_user/coolstuff
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - 3400acae-9f9a-4af2-b210-75701f300bf1
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '84'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="coolstuff" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-  recorded_at: Fri, 24 Feb 2023 13:00:50 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/home:package_test_user/_result?lastbuild=1&locallink=1&multibuild=1&package=coolstuff&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - 3400acae-9f9a-4af2-b210-75701f300bf1
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '55'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-  recorded_at: Fri, 24 Feb 2023 13:00:50 GMT
+  recorded_at: Thu, 01 Aug 2024 17:03:12 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:package_test_user/_result?package=coolstuff&view=status
@@ -312,7 +522,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 0acad52e-25f5-446e-9780-af19ec937242
+      - 942c7622-368e-40bd-bc52-1c57a8771a58
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -337,5 +547,5 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Fri, 24 Feb 2023 13:00:50 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Thu, 01 Aug 2024 17:03:12 GMT
+recorded_with: VCR 6.2.0
