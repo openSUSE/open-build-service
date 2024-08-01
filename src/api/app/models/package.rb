@@ -55,6 +55,7 @@ class Package < ApplicationRecord
 
   has_many :watched_items, as: :watchable, dependent: :destroy
   has_many :reports, as: :reportable, dependent: :nullify
+  has_many :labels, as: :labelable
 
   before_update :update_activity
   after_update :convert_to_symsync
