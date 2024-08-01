@@ -80,6 +80,11 @@ RSpec.describe WatchlistIconComponent, type: :component do
         expect(rendered_content).to have_css('a > i.fas.fa-eye')
         expect(rendered_content).to have_text('Unwatch')
       end
+
+      it 'displays the watch count' do
+        expect(rendered_content).to have_css('a > span.badge.bg-secondary')
+        expect(rendered_content).to have_text('1')
+      end
     end
 
     context 'and the item is a package' do
@@ -91,6 +96,11 @@ RSpec.describe WatchlistIconComponent, type: :component do
         expect(rendered_content).to have_css('a > i.fas.fa-eye')
         expect(rendered_content).to have_text('Unwatch')
       end
+
+      it 'displays the watch count' do
+        expect(rendered_content).to have_css('a > span.badge.bg-secondary')
+        expect(rendered_content).to have_text('1')
+      end
     end
 
     context 'and the item is a request' do
@@ -100,6 +110,11 @@ RSpec.describe WatchlistIconComponent, type: :component do
       it 'displays the icon to remove item from watchlist' do
         expect(rendered_content).to have_css('a > i.fas.fa-eye')
         expect(rendered_content).to have_text('Unwatch')
+      end
+
+      it 'displays the watch count' do
+        expect(rendered_content).to have_css('a > span.badge.bg-secondary')
+        expect(rendered_content).to have_text('1')
       end
     end
   end

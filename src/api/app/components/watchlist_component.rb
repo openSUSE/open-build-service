@@ -16,6 +16,7 @@ class WatchlistComponent < ApplicationComponent
     @bs_requests = bs_requests
     @packages = packages
     @projects = projects
+    @watch_count = WatchedItem.where(watchable: @object_to_be_watched).count
   end
 
   private
