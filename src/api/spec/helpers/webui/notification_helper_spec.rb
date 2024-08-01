@@ -1,24 +1,4 @@
 RSpec.describe Webui::NotificationHelper do
-  describe '#mark_as_read_or_unread_button' do
-    let(:link) { mark_as_read_or_unread_button(notification) }
-
-    context 'for unread notification' do
-      let(:notification) { create(:notification_for_comment, :web_notification, delivered: false) }
-
-      it { expect(link).to include('button=read') }
-      it { expect(link).to include('Mark as read') }
-      it { expect(link).to include('fa-check fas') }
-    end
-
-    context 'for read notification' do
-      let(:notification) { create(:notification_for_comment, :web_notification, delivered: true) }
-
-      it { expect(link).to include('button=unread') }
-      it { expect(link).to include('Mark as unread') }
-      it { expect(link).to include('fa-undo fas') }
-    end
-  end
-
   describe '#truncate_to_first_new_line' do
     context 'when the text is nil' do
       it {  expect(truncate_to_first_new_line(nil)).to eql('') }
