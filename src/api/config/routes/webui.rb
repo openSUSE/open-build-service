@@ -311,6 +311,7 @@ constraints(RoutesHelper::WebuiMatcher) do
       end
     end
     put 'toggle_watched_item', controller: 'webui/watched_items', constraints: cons
+    resources :label_templates, controller: 'webui/projects/label_templates', only: %i[index], constraints: cons
   end
 
   controller 'webui/request' do

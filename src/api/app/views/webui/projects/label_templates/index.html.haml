@@ -1,0 +1,10 @@
+- @pagetitle = "Label templates for #{@project}"
+.card
+  = render(partial: 'webui/project/tabs', locals: { project: @project })
+
+  .card-body
+    %h3= @pagetitle
+    %ul.list-unstyled
+      - @label_templates.each do |label_template|
+        %li.mb-2
+          = render partial: 'webui/shared/label', locals: { label: label_template }
