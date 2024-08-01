@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_07_10_083919) do
+ActiveRecord::Schema[7.0].define(version: 2024_08_01_091535) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -728,6 +728,26 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_10_083919) do
     t.index ["image_id"], name: "index_kiwi_repositories_on_image_id"
   end
 
+  create_table "label_templates", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.integer "project_id", null: false
+    t.string "name"
+    t.integer "color"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_label_templates_on_project_id"
+  end
+
+  create_table "labels", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.integer "labelable_id", null: false
+    t.string "labelable_type", null: false
+    t.bigint "label_template_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["label_template_id"], name: "index_labels_on_label_template_id"
+    t.index ["labelable_type", "labelable_id", "label_template_id"], name: "index_labels_on_labelable_and_label_template", unique: true
+    t.index ["labelable_type", "labelable_id"], name: "index_labels_on_labelable_type_and_labelable_id"
+  end
+
   create_table "linked_projects", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "db_project_id", null: false
     t.integer "linked_db_project_id"
@@ -1301,6 +1321,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_07_10_083919) do
   add_foreign_key "issues", "users", column: "owner_id", name: "issues_ibfk_1"
   add_foreign_key "kiwi_package_groups", "kiwi_images", column: "image_id"
   add_foreign_key "kiwi_packages", "kiwi_package_groups", column: "package_group_id"
+  add_foreign_key "label_templates", "projects"
+  add_foreign_key "labels", "label_templates"
   add_foreign_key "maintained_projects", "projects", column: "maintenance_project_id", name: "maintained_projects_ibfk_2"
   add_foreign_key "maintained_projects", "projects", name: "maintained_projects_ibfk_1"
   add_foreign_key "package_issues", "issues", name: "package_issues_ibfk_2"
