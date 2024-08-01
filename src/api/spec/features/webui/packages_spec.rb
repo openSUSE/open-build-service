@@ -278,6 +278,7 @@ RSpec.describe 'Packages', :js, :vcr do
 
   describe "editing a package's details" do
     it 'updates the package title and description' do
+      Flipper.enable(:foster_collaboration)
       login user
       visit package_show_path(package: package, project: user.home_project)
       click_link('Edit')
@@ -287,6 +288,7 @@ RSpec.describe 'Packages', :js, :vcr do
         fill_in('package_details[title]', with: 'test "little" title')
         fill_in('package_details[description]', with: 'test description')
         fill_in('package_details[url]', with: 'https://test.url')
+        fill_in('package_details[report_bug_url]', with: 'https://test-report-bug.url')
         click_button('Update')
       end
 
@@ -294,6 +296,8 @@ RSpec.describe 'Packages', :js, :vcr do
       expect(page).to have_text('test "little" title')
       expect(page).to have_text('test description')
       expect(page).to have_text('https://test.url')
+      click_link('Actions') if mobile?
+      expect(page).to have_link('Report Bug', href: 'https://test-report-bug.url')
     end
   end
 

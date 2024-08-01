@@ -20,6 +20,7 @@ RSpec.describe 'Projects', :js, :vcr do
   describe 'changing project title and description' do
     context 'when accepting the changes' do
       it 'updates the project title, description and url' do
+        Flipper.enable(:foster_collaboration)
         login user
         visit project_show_path(project: project)
 
@@ -29,12 +30,15 @@ RSpec.describe 'Projects', :js, :vcr do
         fill_in 'project_title', with: 'My Title "hopefully" got changed'
         fill_in 'project_description', with: 'New description. No kidding.. Brand new!'
         fill_in 'project_url', with: 'https://test.url'
+        fill_in('project_report_bug_url', with: 'https://test-report-bug.url')
         click_button 'Update'
         wait_for_ajax
 
         expect(find_by_id('project-title')).to have_text('My Title "hopefully" got changed')
         expect(find_by_id('description-text')).to have_text('New description. No kidding.. Brand new!')
         expect(page).to have_text('https://test.url')
+        click_link('Actions') if mobile?
+        expect(page).to have_link('Report Bug', href: 'https://test-report-bug.url')
       end
     end
 
