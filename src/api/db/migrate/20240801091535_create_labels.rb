@@ -8,7 +8,6 @@ class CreateLabels < ActiveRecord::Migration[7.0]
       t.timestamps
     end
 
-    add_index :labels, [:labelable_type, :labelable_id]
-    add_index :labels, [:labelable_type, :labelable_id, :label_template_id], unique: true, name: 'index_labels_on_labelable_and_label_template'
+    add_index :labels, %i[labelable_type labelable_id label_template_id], unique: true, name: 'index_labels_on_labelable_and_label_template'
   end
 end

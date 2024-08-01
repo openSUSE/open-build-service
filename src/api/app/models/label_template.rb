@@ -9,24 +9,23 @@ class LabelTemplate < ApplicationRecord
   #### Attributes
 
   #### Associations macros (Belongs to, Has one, Has many)
-      belongs_to :project, required: true
-  
+  belongs_to :project, optional: false
+
   #### Callbacks macros: before_save, after_save, etc.
 
   #### Scopes (first the default_scope macro if is used)
 
   #### Validations macros
+  validates :name, length: { maximum: 255 }
 
   #### Class methods using self. (public and then private)
 
   #### To define class methods as private use private_class_method
   #### private
 
-
   #### Instance methods (public and then protected/private)
 
   #### Alias of methods
-  
 end
 
 # == Schema Information

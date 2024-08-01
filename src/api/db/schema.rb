@@ -745,7 +745,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_08_01_091535) do
     t.datetime "updated_at", null: false
     t.index ["label_template_id"], name: "index_labels_on_label_template_id"
     t.index ["labelable_type", "labelable_id", "label_template_id"], name: "index_labels_on_labelable_and_label_template", unique: true
-    t.index ["labelable_type", "labelable_id"], name: "index_labels_on_labelable_type_and_labelable_id"
   end
 
   create_table "linked_projects", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
