@@ -91,7 +91,7 @@ def ignore_by_backend_400_message?(message)
                         'repoid is empty', 'packid is empty',
                         'bad private key', 'pubkey is already expired',
                         'not a RSA pubkey', ' self-sig does not expire',
-                        'excess hash entries: ', 'conflict in file'].freeze
+                        'excess hash entries: ', 'conflict in file', 'packet too big'].freeze
   messages_to_ignore.each do |ignored_error_message|
     return true if message.include?(ignored_error_message)
   end
