@@ -16,7 +16,8 @@ class LabelTemplate < ApplicationRecord
   #### Scopes (first the default_scope macro if is used)
 
   #### Validations macros
-  validates :name, length: { maximum: 255 }
+  validates :name, length: { maximum: 255 }, presence: true
+  validates :color, presence: true
 
   #### Class methods using self. (public and then private)
 
@@ -33,8 +34,8 @@ end
 # Table name: label_templates
 #
 #  id         :bigint           not null, primary key
-#  color      :integer
-#  name       :string(255)
+#  color      :integer          not null
+#  name       :string(255)      not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #  project_id :integer          not null, indexed
