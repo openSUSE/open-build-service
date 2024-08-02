@@ -28,6 +28,7 @@ class WorkflowRun < ApplicationRecord
   has_many :artifacts, class_name: 'WorkflowArtifactsPerStep', dependent: :destroy
   has_many :scm_status_reports, class_name: 'SCMStatusReport', dependent: :destroy
   has_many :event_subscriptions, dependent: :destroy
+  has_many :notifications, as: :notifiable, dependent: :delete_all
 
   after_save :create_event, if: :status_changed_to_fail?
 
