@@ -186,7 +186,7 @@ class BsRequestPermissionCheck
     # maintenance_release accept check
     if action.action_type == :maintenance_release
       # compare with current sources
-      check_maintenance_release_accept(action)
+      check_maintenance_release_accept(action, opts)
     end
 
     # target must exist
@@ -249,7 +249,7 @@ class BsRequestPermissionCheck
     end
   end
 
-  def check_maintenance_release_accept(action)
+  def check_maintenance_release_accept(action, opts = {})
     if action.source_rev
       # FIXME2.4 we have a directory model
       c = Backend::Api::Sources::Package.files(action.source_project, action.source_package, expand: 1)
@@ -270,6 +270,8 @@ class BsRequestPermissionCheck
 
     # Is the source_project under embargo still?
     return if action.embargo_date.blank?
+    return if opts[:force]
+
     raise BsRequest::Errors::UnderEmbargo, "The project #{action.source_project} is under embargo until #{action.embargo_date}" if action.embargo_date > Time.now.utc
   end
 
