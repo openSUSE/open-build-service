@@ -6,10 +6,8 @@
   content_for(:meta_description, @package.description)
 
   render partial: 'show_actions', locals: { report_bug_or_bugzilla_url: @report_bug_or_bugzilla_url,
-                                            configuration: @configuration,
                                             revision: @revision,
                                             current_rev: @current_rev,
-                                            spec_count: @spec_count,
                                             cleanup_source: @cleanup_source,
                                             services: @services,
                                             project: @project,
