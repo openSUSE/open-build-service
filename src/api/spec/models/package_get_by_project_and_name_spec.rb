@@ -217,7 +217,7 @@ RSpec.describe Package, '#get_by_project_and_name' do
 
       before do
         # Mock Package.exists_on_backend?
-        allow(Backend::Api::Sources::Package).to receive(:meta).and_raise(Backend::Error)
+        allow(Backend::Api::Sources::Package).to receive(:meta).and_raise(Backend::NotFoundError)
       end
 
       it 'raises' do
