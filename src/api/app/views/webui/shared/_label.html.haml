@@ -3,5 +3,5 @@
     color: #{contrast_text(label.color)};
     background-color: ##{label.color.to_s(16).rjust(6, "0")};
   }
-%span.label{ class: "label-#{label.id}" }
+%span.badge{ class: "label-#{label.id}" }
   = label.name
