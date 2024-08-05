@@ -3018,7 +3018,12 @@ sub publish {
 	my $containerinfo = $containers{$bin};
 	my $medium = $bin;
 	$medium =~ s/.*\///;	# basename
-	my $lnk = BSRepServer::Containerinfo::containerinfo2nevra($containerinfo);
+	my $lnk;
+	if (($containerinfo->{'type'} || '') eq 'helm') {
+	  $lnk = BSPublisher::Helm::helminfo2nevra($containerinfo);
+	} else {
+	  $lnk = BSRepServer::Containerinfo::containerinfo2nevra($containerinfo);
+	}
 	my $pt = { 'project' => $projid, 'repository' => $repoid };
 	for (qw{name epoch version release}) {
 	  $pt->{$_} = $lnk->{$_} if defined $lnk->{$_};
