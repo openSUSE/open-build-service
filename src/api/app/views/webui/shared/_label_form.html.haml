@@ -1,17 +1,24 @@
-.dropdown.d-inline-block
-  %button.btn.btn-link.dropdown-toggle{ data: { 'bs-toggle': 'dropdown' }, aria: { expanded: 'false' } }
+.dropdown.d-inline-block#label-dropdown
+  %button.btn.btn-link.dropdown-toggle{ data: { 'bs-toggle': 'dropdown', 'bs-auto-close': 'outside' }, aria: { expanded: 'false' } }
     Edit labels
   .dropdown-menu
     = form_for :labels, url: labels_path(project:, labelable_id: labelable.id, labelable_type: labelable.class), method: :put do |f|
       - project.label_templates.each do |label_template|
         = f.fields_for 'labels_attributes[]', label_template do |la|
-          .dropdown-item
+          .dropdown-item-text
             = la.hidden_field :label_template_id, value: la.object.id
             - if labelable.labels.exists?(label_template: la.object)
               = la.hidden_field :id, value: labelable.labels.find_by(label_template: la.object).id
             .form-check
               = la.check_box :_destroy, { class: 'form-check-input', checked: labelable.labels.exists?(label_template: la.object) }, false, true
-              = la.label class: 'form-check-label' do
+              = la.label :_destroy, class: 'form-check-label' do
                 = render partial: 'webui/shared/label', locals: { label: la.object }
-      .dropdown-item
-        = f.submit
+
+:javascript
+  let labelDropdown = document.getElementById('label-dropdown');
+
+  labelDropdown.addEventListener('change', function() {
+    labelDropdown.addEventListener('hide.bs.dropdown', function() {
+      labelDropdown.querySelector('form').submit();
+    });
+  });
