@@ -4,10 +4,9 @@
       Commenting on this is locked.
       - if CommentLockPolicy.new(User.session, commentable).create?
         = comment_lock_alert(commentable)
-      - if commentable.respond_to?(:bugowner_emails) && commentable.bugowner_emails.present? && Configuration.bugzilla_url.present?
+      - if commentable.respond_to?(:bugowner_emails) && (url = commentable.report_bug_or_bugzilla_url).present?
         If you need to report a bug, make use of the
-        - commentable_name = commentable.respond_to?(:project) ? "#{commentable.project}/#{commentable.name}" : commentable.name
-        = link_to('bug tracker', bugzilla_url(commentable.bugowner_emails, "#{commentable_name}: Bug"))
+        = link_to('bug tracker', url)
   - if policy(Comment.new(commentable:)).create?
     = render(partial: 'webui/comment/comment_field',
       locals: { form_method: :post, comment: Comment.new, commentable: commentable, element_suffix: 'new_comment', has_cancel: false })

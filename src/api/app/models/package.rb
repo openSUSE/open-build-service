@@ -13,6 +13,7 @@ class Package < ApplicationRecord
   include PackageSphinx
   include MultibuildPackage
   include PackageMediumContainer
+  include ReportBugUrl
 
   has_many :relationships, dependent: :destroy, inverse_of: :package
   belongs_to :kiwi_image, class_name: 'Kiwi::Image', inverse_of: :package, optional: true

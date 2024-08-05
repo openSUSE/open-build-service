@@ -61,35 +61,6 @@ RSpec.describe Webui::WebuiHelper do
     end
   end
 
-  describe '#bugzilla_url' do
-    let(:expected_attributes) do
-      {
-        classification: 7340,
-        product: 'openSUSE.org',
-        component: '3rd%20party%20software',
-        assigned_to: '',
-        short_desc: ''
-      }
-    end
-    let(:expected_attributes_as_params) { expected_attributes.map { |key, value| "#{key}=#{value}" }.join('&') }
-    let(:expected_url) { "https://bugzilla.example.org/enter_bug.cgi?#{expected_attributes_as_params}" }
-
-    before do
-      @configuration = { 'bugzilla_url' => 'https://bugzilla.example.org' }
-    end
-
-    it 'returns link to a prefilled bugzilla enter bug form' do
-      expect(bugzilla_url).to eq(expected_url)
-    end
-
-    it 'adds an assignee and description if parameters where given' do
-      expected_attributes[:short_desc] = 'some_description'
-      expected_attributes[:assigned_to] = 'assignee@example.org'
-
-      expect(bugzilla_url(['assignee@example.org'], 'some_description')).to eq(expected_url)
-    end
-  end
-
   describe '#format_projectname' do
     it "shortens project pathes by replacing home projects with '~'" do
       expect(format_projectname('home:bob', 'bob')).to eq('~')

@@ -12,6 +12,7 @@ class Project < ApplicationRecord
   include ProjectLinks
   include ProjectDistribution
   include ProjectMaintenance
+  include ReportBugUrl
 
   TYPES = %w[standard maintenance maintenance_incident
              maintenance_release].freeze

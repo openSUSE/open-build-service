@@ -12,7 +12,7 @@ resetFormValidation();
       $('.in-place-editing').html("#{escape_javascript(render(partial: 'webui/project/basic_info', locals: { project: @project }))}");
       $('#project-title').html("#{escape_javascript(@project.title.presence || @project)}");
       $('.action-report-bug').html("#{escape_javascript(render(partial: 'webui/project/show_actions/report_bug',
-                                                               locals: { url: @report_bug_or_bugzilla_url }))}");
+                                                               locals: { url: @project.report_bug_or_bugzilla_url }))}");
       setCollapsible();
       $('.in-place-editing,.action-report-bug').animate({ opacity: 1 }, 400, function() {
         $('#flash').html("#{escape_javascript(render(layout: false, partial: 'layouts/webui/flash', object: flash))}");

@@ -2,8 +2,7 @@
   content_for(:meta_title, @project.title.presence || @project)
   content_for(:meta_description, @project.description)
   @pagetitle = "Show #{@project}"
-  render partial: 'webui/project/show_actions', locals: { report_bug_or_bugzilla_url: @report_bug_or_bugzilla_url,
-                                                          project: @project,
+  render partial: 'webui/project/show_actions', locals: { project: @project,
                                                           packages: @packages,
                                                           has_patchinfo: @has_patchinfo,
                                                           open_release_requests: @open_release_requests,

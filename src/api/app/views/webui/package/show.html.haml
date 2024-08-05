@@ -5,8 +5,7 @@
   content_for(:meta_title, @package.title.presence || @package.name)
   content_for(:meta_description, @package.description)
 
-  render partial: 'show_actions', locals: { report_bug_or_bugzilla_url: @report_bug_or_bugzilla_url,
-                                            revision: @revision,
+  render partial: 'show_actions', locals: { revision: @revision,
                                             current_rev: @current_rev,
                                             cleanup_source: @cleanup_source,
                                             services: @services,
