@@ -588,9 +588,10 @@ RSpec.describe Webui::PackageController, :vcr do
               project: admins_home_project,
               package_details: package_params,
               package: package_from_admin.name
-            }
+            },
+            format: :js
     end
 
-    it { expect(response).to redirect_to(root_path) }
+    it { expect(response).to have_http_status(:forbidden) }
   end
 end
