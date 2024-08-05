@@ -265,6 +265,7 @@ constraints(RoutesHelper::WebuiMatcher) do
     resource :signing_keys, controller: 'webui/projects/signing_keys', only: [:show], constraints: cons do
       get 'download'
     end
+    resource :contribution_guide, controller: 'webui/projects/contribution_guide', only: [:show], constraints: cons
     resource :pulse, controller: 'webui/projects/pulse', only: [:show], constraints: cons
     resource :meta, controller: 'webui/projects/meta', only: %i[show update], constraints: cons
     resource :prjconf, controller: 'webui/projects/project_configuration', only: %i[show update], as: :config, constraints: cons
@@ -292,6 +293,7 @@ constraints(RoutesHelper::WebuiMatcher) do
         resource :binaries, controller: 'webui/packages/binaries', only: [:destroy], constraints: cons
       end
       resource :meta, controller: 'webui/packages/meta', only: %i[show update], constraints: cons
+      resource :contribution_guide, controller: 'webui/packages/contribution_guide', only: [:show], constraints: cons
       resource :trigger, controller: 'webui/packages/trigger', only: [], constraints: cons do
         defaults format: 'js' do
           member do

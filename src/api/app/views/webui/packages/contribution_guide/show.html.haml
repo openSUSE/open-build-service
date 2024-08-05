@@ -1,0 +1,8 @@
+- @pagetitle = "Contribution Guide of Package #{@package}"
+- @pagetitle += " (inherited from project #{@project})" if @package.text_attachments.find_by(category: :contribution_guide)&.content.blank?
+
+.card
+  = render(partial: 'webui/package/tabs', locals: { project: @project, package: @package })
+  .card-body
+    %h3.mb-4= @pagetitle
+    = sanitize @content
