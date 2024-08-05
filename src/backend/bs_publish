@@ -2030,12 +2030,15 @@ sub readcontainermetafiles {
   return unless $prefix =~ s/\.containerinfo$//;
   if (-e "$prefix.slsa_provenance.json") {
     $containerinfo->{'slsa_provenance_file'} = linkintoblobdir("$prefix.slsa_provenance.json", $blobdirref);
+    push @{$containerinfo->{'_associated'}}, "$prefix.slsa_provenance.json";
   }
   if (-e "$prefix.spdx.json") {
     $containerinfo->{'spdx_file'} = linkintoblobdir("$prefix.spdx.json", $blobdirref);
+    push @{$containerinfo->{'_associated'}}, "$prefix.spdx.json";
   }
   if (-e "$prefix.cdx.json") {
     $containerinfo->{'cyclonedx_file'} = linkintoblobdir("$prefix.cdx.json", $blobdirref);
+    push @{$containerinfo->{'_associated'}}, "$prefix.cdx.json";
   }
   my @intoto;
   if ($cache && $cache->{'intoto_files'}) {
@@ -2046,15 +2049,19 @@ sub readcontainermetafiles {
   }
   @intoto = grep {/^\Q$prefix\E\.[^\.]+\.intoto\.json$/} @intoto;
   push @{$containerinfo->{'intoto_files'}}, map {linkintoblobdir($_, $blobdirref)} @intoto;
+  push @{$containerinfo->{'_associated'}}, @intoto;
   $prefix =~ s/\.docker$// unless -e "$prefix.packages";
   if (-e "$prefix.packages") {
     $containerinfo->{'container_packages'} = linkintoblobdir("$prefix.packages", $blobdirref);
+    push @{$containerinfo->{'_associated'}}, "$prefix.packages";
   }
   if (-e "$prefix.basepackages") {
     $containerinfo->{'container_basepackages'} = linkintoblobdir("$prefix.basepackages", $blobdirref);
+    push @{$containerinfo->{'_associated'}}, "$prefix.basepackages";
   }
   if (-e "$prefix.report") {
     $containerinfo->{'container_report'} = linkintoblobdir("$prefix.report", $blobdirref);
+    push @{$containerinfo->{'_associated'}}, "$prefix.report";
   }
 }
 
@@ -2405,8 +2412,7 @@ sub publish {
 	    $containerinfo->{'arch'} = $arch;
 	    $containerinfo->{'_id'} = "$s[9]/$s[7]/$s[1]";
 	    $containerinfo->{'_origin'} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
-	    $containerinfo->{'publishfile'} = "$extrep/$p";
-	    $containers{$p} = $containerinfo;
+	    $containerinfo->{'publishfile'} = $subdir ? "$extrep/$subdir/$p" : "$extrep/$p";
 	  }
 	} elsif ($bin =~ /(.*)\.tgz.prov$/ && -e "$r/$1.helminfo") {
           eval {
@@ -2433,12 +2439,14 @@ sub publish {
 	  $containerinfo->{'_id'} = "$s[9]/$s[7]/$s[1]";
 	  $containerinfo->{'_origin'} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
 	  $p = $multicontainer ? "$arch/$containerinfo->{'file'}" : $containerinfo->{'file'};
-	  $containers{$p} = $containerinfo;
 	  if ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.containerinfo$/) {
-            $kiwimedium{$p} = "$arch/$2" if -e "$r/$2.packages";
+            $kiwimedium = "$arch/$2" if -e "$r/$2.packages";
 	  } elsif ($bin =~ /(.*)\.containerinfo$/) {
-            $kiwimedium{$p} = "$arch/$1" if -e "$r/$1.packages";
+            $kiwimedium = "$arch/$1" if -e "$r/$1.packages";
 	  }
+	  $containers{$p} = $containerinfo;
+	  $containerinfo->{'_p'} = $p if $containerinfo;
+	  $kiwimedium{$p} = $kiwimedium if $kiwimedium;
           readcontainermetafiles($containerinfo, $r, $bin, \$blobdir, $readcontainermetafiles_cache);
 	  next;
 	} elsif ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256(?:\.asc)?)?$/) {
@@ -2455,7 +2463,7 @@ sub publish {
 	      $containerinfo->{'arch'} = $arch;
 	      $containerinfo->{'_id'} = "$s[9]/$s[7]/$s[1]";
 	      $containerinfo->{'_origin'} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
-	      $containerinfo->{'publishfile'} = "$extrep/$p";
+	      $containerinfo->{'publishfile'} = $subdir ? "$extrep/$subdir/$p" : "$extrep/$p";
 	      undef $containerinfo if $3;
 	    }
             readcontainermetafiles($containerinfo, $r, "$1.containerinfo", \$blobdir, $readcontainermetafiles_cache) if $containerinfo;
@@ -2476,12 +2484,12 @@ sub publish {
 	      $containerinfo->{'arch'} = $arch;
 	      $containerinfo->{'_id'} = "$s[9]/$s[7]/$s[1]";
 	      $containerinfo->{'_origin'} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
-	      $containerinfo->{'publishfile'} = "$extrep/$p";
+	      $containerinfo->{'publishfile'} = $subdir ? "$extrep/$subdir/$p" : "$extrep/$p";
 	      undef $containerinfo if $2;
 	    }
             readcontainermetafiles($containerinfo, $r, "$1.containerinfo", \$blobdir, $readcontainermetafiles_cache) if $containerinfo;
 	  }
-	  next if $bin =~ /-(?:appstream|desktopfiles|polkitactions|mimetypes)\.tar/;
+	  next if !$containerinfo && $bin =~ /-(?:appstream|desktopfiles|polkitactions|mimetypes)\.tar/;
         } elsif ($bin =~ /\.(?:tgz|zip)?(?:\.sha256(?:\.asc)?)?$/) {
           # esp. for Go builds
           $p = $bin;
@@ -2564,6 +2572,7 @@ sub publish {
       $binaryorigins->{$p} = $repoinfo->{'binaryorigins'}->{$rbin};
       $kiwimedium{$p} = $kiwimedium if $kiwimedium;
       $containers{$p} = $containerinfo if $containerinfo;
+      $containerinfo->{'_p'} = $p if $containerinfo;
 
       if ($rbin =~ /^(.*)\.drpm$/) {
 	# we took a delta rpm. collect desq if possible
@@ -3011,7 +3020,12 @@ sub publish {
 	my $containerinfo = $containers{$bin};
 	my $medium = $bin;
 	$medium =~ s/.*\///;	# basename
-	my $lnk = BSRepServer::Containerinfo::containerinfo2nevra($containerinfo);
+	my $lnk;
+	if (($containerinfo->{'type'} || '') eq 'helm') {
+	  $lnk = BSPublisher::Helm::helminfo2nevra($containerinfo);
+	} else {
+	  $lnk = BSRepServer::Containerinfo::containerinfo2nevra($containerinfo);
+	}
 	my $pt = { 'project' => $projid, 'repository' => $repoid };
 	for (qw{name epoch version release}) {
 	  $pt->{$_} = $lnk->{$_} if defined $lnk->{$_};
