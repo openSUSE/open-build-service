@@ -2410,8 +2410,7 @@ sub publish {
 	    $containerinfo->{'arch'} = $arch;
 	    $containerinfo->{'_id'} = "$s[9]/$s[7]/$s[1]";
 	    $containerinfo->{'_origin'} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
-	    $containerinfo->{'publishfile'} = "$extrep/$p";
-	    $containers{$p} = $containerinfo;
+	    $containerinfo->{'publishfile'} = $subdir ? "$extrep/$subdir/$p" : "$extrep/$p";
 	  }
 	} elsif ($bin =~ /(.*)\.tgz.prov$/ && -e "$r/$1.helminfo") {
           eval {
@@ -2438,12 +2437,14 @@ sub publish {
 	  $containerinfo->{'_id'} = "$s[9]/$s[7]/$s[1]";
 	  $containerinfo->{'_origin'} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
 	  $p = $multicontainer ? "$arch/$containerinfo->{'file'}" : $containerinfo->{'file'};
-	  $containers{$p} = $containerinfo;
 	  if ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.containerinfo$/) {
-            $kiwimedium{$p} = "$arch/$2" if -e "$r/$2.packages";
+            $kiwimedium = "$arch/$2" if -e "$r/$2.packages";
 	  } elsif ($bin =~ /(.*)\.containerinfo$/) {
-            $kiwimedium{$p} = "$arch/$1" if -e "$r/$1.packages";
+            $kiwimedium = "$arch/$1" if -e "$r/$1.packages";
 	  }
+	  $containers{$p} = $containerinfo;
+	  $containerinfo->{'_p'} = $p if $containerinfo;
+	  $kiwimedium{$p} = $kiwimedium if $kiwimedium;
           readcontainermetafiles($containerinfo, $r, $bin, \$blobdir, $readcontainermetafiles_cache);
 	  next;
 	} elsif ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256(?:\.asc)?)?$/) {
@@ -2460,7 +2461,7 @@ sub publish {
 	      $containerinfo->{'arch'} = $arch;
 	      $containerinfo->{'_id'} = "$s[9]/$s[7]/$s[1]";
 	      $containerinfo->{'_origin'} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
-	      $containerinfo->{'publishfile'} = "$extrep/$p";
+	      $containerinfo->{'publishfile'} = $subdir ? "$extrep/$subdir/$p" : "$extrep/$p";
 	      undef $containerinfo if $3;
 	    }
             readcontainermetafiles($containerinfo, $r, "$1.containerinfo", \$blobdir, $readcontainermetafiles_cache) if $containerinfo;
@@ -2481,12 +2482,12 @@ sub publish {
 	      $containerinfo->{'arch'} = $arch;
 	      $containerinfo->{'_id'} = "$s[9]/$s[7]/$s[1]";
 	      $containerinfo->{'_origin'} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
-	      $containerinfo->{'publishfile'} = "$extrep/$p";
+	      $containerinfo->{'publishfile'} = $subdir ? "$extrep/$subdir/$p" : "$extrep/$p";
 	      undef $containerinfo if $2;
 	    }
             readcontainermetafiles($containerinfo, $r, "$1.containerinfo", \$blobdir, $readcontainermetafiles_cache) if $containerinfo;
 	  }
-	  next if $bin =~ /-(?:appstream|desktopfiles|polkitactions|mimetypes)\.tar/;
+	  next if !$containerinfo && $bin =~ /-(?:appstream|desktopfiles|polkitactions|mimetypes)\.tar/;
         } elsif ($bin =~ /\.(?:tgz|zip)?(?:\.sha256(?:\.asc)?)?$/) {
           # esp. for Go builds
           $p = $bin;
@@ -2569,6 +2570,7 @@ sub publish {
       $binaryorigins->{$p} = $repoinfo->{'binaryorigins'}->{$rbin};
       $kiwimedium{$p} = $kiwimedium if $kiwimedium;
       $containers{$p} = $containerinfo if $containerinfo;
+      $containerinfo->{'_p'} = $p if $containerinfo;
 
       if ($rbin =~ /^(.*)\.drpm$/) {
 	# we took a delta rpm. collect desq if possible
