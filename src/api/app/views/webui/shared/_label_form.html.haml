@@ -1,5 +1,5 @@
 .dropdown.d-inline-block#label-dropdown
-  %button.btn.btn-link.dropdown-toggle{ data: { 'bs-toggle': 'dropdown', 'bs-auto-close': 'outside' }, aria: { expanded: 'false' } }
+  %button.btn.btn-sm.btn-link.dropdown-toggle{ data: { 'bs-toggle': 'dropdown', 'bs-auto-close': 'outside' }, aria: { expanded: 'false' } }
     Edit labels
   .dropdown-menu
     = form_for :labels, url: labels_path(project:, labelable_id: labelable.id, labelable_type: labelable.class), method: :put do |f|
