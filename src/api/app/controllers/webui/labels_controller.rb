@@ -24,6 +24,12 @@ class Webui::LabelsController < Webui::WebuiController
     case params[:labelable_type]
     when 'Package'
       @labelable = Package.find(params[:labelable_id])
+    when 'BsRequest'
+      @labelable = BsRequest.find(params[:labelable_id])
     end
+  end
+
+  def set_project
+    @project = Project.find_by_name(params[:project])
   end
 end

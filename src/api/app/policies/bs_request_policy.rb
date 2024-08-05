@@ -8,6 +8,10 @@ class BsRequestPolicy < ApplicationPolicy
     false
   end
 
+  def update_labels?
+    user.is_admin? || record.is_target_maintainer?(user)
+  end
+
   def handle_request?
     return false if %i[new review declined].exclude?(record.state)
 

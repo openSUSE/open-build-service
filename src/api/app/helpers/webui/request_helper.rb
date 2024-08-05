@@ -271,4 +271,18 @@ module Webui::RequestHelper
       'fas fa-code-pull-request fa-fw'
     end
   end
+
+  # Note: We don't allow labeling requests with more than 1 target project
+  def project_for_labels(bs_request)
+    target_project_ids = bs_request.bs_request_actions.pluck(:target_project_id).uniq
+    return if target_project_ids.count > 1
+
+    Project.find(target_project_ids.last)
+  end
+
+  def can_apply_labels?(bs_request:, user:)
+    return false if project_for_labels(bs_request).nil?
+
+    user.is_admin? || bs_request.is_target_maintainer?(user)
+  end
 end

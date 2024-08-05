@@ -78,3 +78,8 @@
                                                     prev_action: prev_action, next_action: next_action,
                                                     actions: actions, diff_to_superseded_id: diff_to_superseded_id,
                                                     page_name: page_name }
+  - if Flipper.enabled?(:labels, User.session)
+    .mt-4
+      = render partial: 'webui/shared/label', collection: bs_request.labels, as: :label
+      - if can_apply_labels?(bs_request: bs_request, user: User.session)
+        = render partial: 'webui/shared/label_form', locals: { labelable: bs_request, project: project_for_labels(bs_request)}
