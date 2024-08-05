@@ -37,11 +37,10 @@ RSpec.describe Webui::ProjectController, :vcr do
     context 'with valid parameters' do
       before do
         login user
-        patch :update, params: { id: project.id, project: { description: 'My projects description', title: 'My projects title' } }
+        patch :update, params: { id: project.id, project: { description: 'My projects description', title: 'My projects title' }, format: :js }
         project.reload
       end
 
-      it { expect(response).to redirect_to(project_show_path(project)) }
       it { expect(flash[:success]).to eq('Project was successfully updated.') }
       it { expect(project.title).to eq('My projects title') }
       it { expect(project.description).to eq('My projects description') }
@@ -50,12 +49,11 @@ RSpec.describe Webui::ProjectController, :vcr do
     context 'with invalid data' do
       before do
         login user
-        patch :update, params: { id: project.id, project: { description: 'My projects description', title: 'My projects title' * 200 } }
+        patch :update, params: { id: project.id, project: { description: 'My projects description', title: 'My projects title' * 200 }, format: :js }
         project.reload
       end
 
-      it { expect(response).to redirect_to(project_show_path(project)) }
-      it { expect(flash[:error]).to eq('Failed to update project') }
+      it { expect(flash[:error]).to eq('Failed to update the project.') }
       it { expect(project.title).to be_nil }
       it { expect(project.description).to be_nil }
     end
