@@ -192,7 +192,10 @@ sub upload_all_containers {
   for my $registry (@registries) {
     my $regname = $registry->{'_name'};
     my $registryserver = $registry->{pushserver} || $registry->{server};
+    my $gunprefix = $registry->{'notary_gunprefix'} || $registry->{'server'} || '';
+    $gunprefix =~ s/^https?:\/\///;
 
+    my $tagdata = $data->{'tagdata_cb'} ? {} : undef;
     # collect uploads over all containers, decide which container to take
     # if there is a tag conflict
     my %uploads;
@@ -202,6 +205,10 @@ sub upload_all_containers {
       my $platformstr = BSContar::make_platformstr($containerinfo->{'goarch'} || $containerinfo->{'arch'}, $containerinfo->{'govariant'}, $containerinfo->{'goos'});
       $platformstr = 'any' if ($containerinfo->{'type'} || '') eq 'helm' || ($containerinfo->{'type'} || '') eq 'artifacthub';
       my @tags = $mapper->($registry, $containerinfo, $projid, $repoid, $containerinfo->{'arch'});
+      if ($tagdata) {
+	$tagdata->{$p}->{'platformstr'} = $platformstr;
+	$tagdata->{$p}->{'tags_seen'} = [ BSUtil::unify(map {/^(.*):([^:\/]+)$/ ? $_ : "$_:latest"} @tags) ];
+      }
       for my $tag (@tags) {
 	my ($reponame, $repotag) = ($tag, 'latest');
 	($reponame, $repotag) = ($1, $2) if $tag =~ /^(.*):([^:\/]+)$/;
@@ -213,6 +220,21 @@ sub upload_all_containers {
       }
     }
 
+    # record which tags we pushed to the registry
+    if ($data->{'tagdata_cb'}) {
+      for my $p (sort keys %$containers) {
+	my $containerinfo = $containers->{$p};
+	my $tags_seen = $tagdata->{$p}->{'tags_seen'} || [];
+	my $tags_used = [];
+	my $platformstr = $tagdata->{$p}->{'platformstr'};
+	for my $tag (@$tags_seen) {
+	  next unless $tag =~ /^(.*):([^:\/]+)$/;
+	  push @$tags_used, $tag if $uploads{$1}->{$2}->{$platformstr} eq $p;
+	}
+	$data->{'tagdata_cb'}->($data, $registry, $containerinfo, $platformstr, $tags_seen, $tags_used);
+      }
+    }
+
     # ok, now go through every repository and upload all tags
     for my $repository (sort keys %uploads) {
       $container_repositories{$regname}->{$repository} = 1;
@@ -220,7 +242,6 @@ sub upload_all_containers {
       my $uptags = $uploads{$repository};
 
       if ($registryserver eq 'local:') {
-	my $gunprefix = $registry->{'notary_gunprefix'} || $registry->{'server'};
 	$have_some_trust = 1 if defined($data->{'pubkey'}) && $gunprefix && $gunprefix ne 'local:';
 	do_local_uploads($registry, $projid, $repoid, $repository, $containers, $data, $uptags);
       } else {
@@ -330,7 +351,7 @@ sub open_container_tar {
 }
 
 sub create_container_dist_info {
-  my ($containerinfo, $oci, $platforms) = @_;
+  my ($containerinfo, $oci, $platforms, $imginfo) = @_;
   my ($tar, $mtime) = open_container_tar($containerinfo, $containerinfo->{'publishfile'});
   my %tar = map {$_->{'name'} => $_} @$tar;
   my ($manifest_ent, $manifest) = BSContar::get_manifest(\%tar);
@@ -365,6 +386,14 @@ sub create_container_dist_info {
     'platform' => {'architecture' => $goarch, 'os' => $goos},
   };
   $info->{'platform'}->{'variant'} = $govariant if $govariant;
+  if ($imginfo) {
+    $imginfo->{'imageid'} = $config_data->{'digest'};
+    $imginfo->{'goarch'} = $goarch;
+    $imginfo->{'goos'} = $goos;
+    $imginfo->{'govariant'} = $govariant if $govariant;
+    $imginfo->{'distmanifest'} = $info->{'digest'};
+    $imginfo->{'containerinfo'} = $containerinfo;
+  }
   return $info;
 }
 
@@ -480,7 +509,7 @@ sub create_manifestinfo {
 }
 
 sub compare_to_repostate {
-  my ($registry, $repostate, $repository, $containerinfos, $tags, $multiarch, $oci, $cosign) = @_;
+  my ($registry, $repostate, $repository, $containerinfos, $tags, $multiarch, $oci, $cosign, $taginfo) = @_;
   my %expected;
   my $containerdigests = '';
   my $info;
@@ -496,7 +525,8 @@ sub compare_to_repostate {
     my %platforms;
     my @infos;
     for my $containerinfo (@$containerinfos) {
-      $info = create_container_dist_info($containerinfo, $oci, \%platforms);
+      my $imginfo = $taginfo ? {} : undef;
+      $info = create_container_dist_info($containerinfo, $oci, \%platforms, $imginfo);
       die("create_container_dist_info rejected container\n") unless $info;
       $missing_manifestinfo = 1 if $manifestinfodir && ! -s "$manifestinfodir/$info->{'digest'}";
       my $attestation_layers = ($containerinfo->{'slsa_provenance_file'} ? 1 : 0) + ($containerinfo->{'spdx_file'} ? 1 : 0) + ($containerinfo->{'cyclonedx_file'} ? 1 : 0) + scalar(@{$containerinfo->{'intoto_files'} || []});
@@ -512,11 +542,18 @@ sub compare_to_repostate {
 	$sigtag =~ s/:(.*)/-$1.sig/;
 	$expected{$sigtag} = $cosign_expect;
       }
+      push @{$taginfo->{'images'}}, $imginfo if $taginfo;
     }
     $info = create_container_index_info(\@infos, $oci);
+    if ($taginfo) {
+      $taginfo->{'distmanifesttype'} = 'list';
+      $taginfo->{'distmanifest'} = $info->{'digest'};
+    }
   } else {
     my $containerinfo = $containerinfos->[0];
-    $info = create_container_dist_info($containerinfo, $oci);
+    my $imginfo = $taginfo ? {} : undef;
+    $info = create_container_dist_info($containerinfo, $oci, undef, $imginfo);
+    die("create_container_dist_info rejected container\n") unless $info;
     $missing_manifestinfo = 1 if $manifestinfodir && ! -s "$manifestinfodir/$info->{'digest'}";
     my $attestation_layers = ($containerinfo->{'slsa_provenance_file'} ? 1 : 0) + ($containerinfo->{'spdx_file'} ? 1 : 0) + ($containerinfo->{'cyclonedx_file'} ? 1 : 0) + scalar(@{$containerinfo->{'intoto_files'} || []});
     if ($cosigncookie && $cosign_attestation && $attestation_layers) {
@@ -524,6 +561,11 @@ sub compare_to_repostate {
       $atttag =~ s/:(.*)/-$1.att/;
       $expected{$atttag} = $cosign_expect;
     }
+    push @{$taginfo->{'images'}}, $imginfo if $taginfo;
+  }
+  if ($taginfo) {
+    $taginfo->{'distmanifesttype'} = $multiarch ? 'list' : 'image';
+    $taginfo->{'distmanifest'} = $info->{'digest'};
   }
   $containerdigests .= "$info->{'digest'} $info->{'size'} $_\n" for @$tags;
   $expected{$_} = $info->{'digest'} for @$tags;
@@ -580,8 +622,16 @@ sub upload_to_registry {
 
   # check if the registry is up-to-date
   if ($repostate) {
-    my $containerdigests = compare_to_repostate($registry, $repostate, $repository, $containerinfos, $tags, $multiarch, $oci, $cosign);
-    return $containerdigests if defined $containerdigests;
+    my $taginfo = $data->{'regdata_cb'} ? {} : undef;
+    my $containerdigests = compare_to_repostate($registry, $repostate, $repository, $containerinfos, $tags, $multiarch, $oci, $cosign, $taginfo);
+    if (defined $containerdigests) {
+      if ($data->{'regdata_cb'}) {
+        for my $tag (@$tags) {
+          $data->{'regdata_cb'}->($data, $registry, "$repository:$tag", $taginfo);
+        }
+      }
+      return $containerdigests;
+    }
   }
 
   # decompress tar files
@@ -702,7 +752,13 @@ sub upload_to_registry {
     for my $imginfo (@{$uploadinfo->{'images'} || []}) {
       next unless $imginfo->{'distmanifest'};
       my $containerinfo = $uploadfiles{delete $imginfo->{'file'}};
-      create_manifestinfo($registry, "$projid/$repoid", $repository, $containerinfo, $imginfo);
+      $imginfo->{'containerinfo'} = $containerinfo;
+      create_manifestinfo($registry, "$projid/$repoid", $repository, $containerinfo, $imginfo) if $registry->{'manifestinfos'};
+    }
+    if ($data->{'regdata_cb'}) {
+      for my $tag (@{$uploadinfo->{'tags'} || []}) {
+        $data->{'regdata_cb'}->($data, $registry, "$repository:$tag", $uploadinfo);
+      }
     }
   }
 
