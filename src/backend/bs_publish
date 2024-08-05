@@ -60,6 +60,7 @@ use BSPublisher::Container;
 use BSPublisher::Helm;
 use BSPublisher::Util;
 use BSPublisher::Blobstore;
+use BSPublisher::Diffnotify;
 
 use strict;
 
@@ -2141,6 +2142,18 @@ sub publish {
     }
   }
 
+  # do we need to send publish diff notifications?
+  my $do_diffnotify;
+  if ($BSConfig::publish_diffnotify) {
+    my @diffnotify = @{$BSConfig::publish_diffnotify};
+    while (@diffnotify) {
+      my ($re, $v) = splice(@diffnotify, 0, 2);
+      next unless $prp =~ /^$re/;
+      $do_diffnotify = $v;
+      last;
+    }
+  }
+
   # is there a special subdirectory for binary packages configured?
   my $subdir = '';
   if ($repotype{'packagesubdir'} && $repotype{'packagesubdir'}->[0]) {
@@ -2219,6 +2232,7 @@ sub publish {
   my $kiwiindex = '';	# store collected index parts
 
   my %containers;
+  my %registrydata;
 
   # do iso image renaming where configured
   my $sleimagedata;
@@ -2941,6 +2955,11 @@ sub publish {
       'multiarch' => $multicontainer,
       'signflavor' => $signflavor,
     };
+    if ($do_diffnotify) {
+      $data->{'registrydata'} = \%registrydata;
+      $data->{'tagdata_cb'} = \&BSPublisher::Diffnotify::tagdata_callback;
+      $data->{'regdata_cb'} = \&BSPublisher::Diffnotify::regdata_callback;
+    }
     if ($config->{'publishflags:artifacthub'}) {
       for (@{$config->{'publishflags'} || []}) {
         $data->{'artifacthubdata'}->{$1} = $2 if /^artifacthub:([^:]+):(.+)$/;
@@ -2965,7 +2984,7 @@ sub publish {
   # collect packtrack and source data (if needed)
   my $packtrack;
   my $sources;
-  if ($do_packtrack || $do_sourcepublish) {
+  if ($do_packtrack || $do_sourcepublish || $do_diffnotify) {
     $packtrack = $dbgpacktrack || {};
     $sources = $dbgsources || {};
     my %cache = @{$packtrackcache || []};
@@ -3057,6 +3076,9 @@ sub publish {
 	$pt->{'ismedium'} = $medium;
 	$packtrack->{$bin} = $pt;
       }
+
+      # if we just do notifications we do not care about the content
+      next unless $do_packtrack || $do_sourcepublish;
 
       # add a published source entry
       my $sourceid;
@@ -3253,6 +3275,9 @@ sub publish {
   push @repotags, "obsbuildid:$repoinfo->{'publishid'}" if $repoinfo->{'publishid'};
 
   my $data = {
+    'projid'  => $projid,
+    'repoid'  => $repoid,
+    'xrepoid'  => $xrepoid,
     'subdir' => $subdir,
     'pubkey' => $pubkey,
     'signargs' => $signargs,
@@ -3421,6 +3446,11 @@ publishprog_done:
       @newcache = ();	# free mem
       undef $repoinfo;	# free mem
     }
+  }
+
+  if ($do_diffnotify && $packtrack && !$dbgsplit) {
+    # send diff notification
+    BSPublisher::Diffnotify::notification($data, $do_diffnotify, $packtrack, \%containers, \%registrydata);
   }
 
   if ($do_packtrack && $packtrack && !$dbgsplit) {
