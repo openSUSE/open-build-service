@@ -17,7 +17,7 @@ class LabelTemplate < ApplicationRecord
 
   #### Validations macros
   validates :name, length: { maximum: 255 }, presence: true
-  validates :color, presence: true
+  validates :color, length: { maximum: 255 }, presence: true
 
   #### Class methods using self. (public and then private)
 
@@ -34,7 +34,7 @@ end
 # Table name: label_templates
 #
 #  id         :bigint           not null, primary key
-#  color      :integer          not null
+#  color      :string(255)      not null
 #  name       :string(255)      not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
