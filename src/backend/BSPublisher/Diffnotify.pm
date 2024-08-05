@@ -198,11 +198,12 @@ sub notification {
 
   # create and send notification
   my $n = create_notification($data, $oldstate, $newstate);
+  my $n_json = JSON::XS->new->utf8->canonical->encode($n);
   my $param = {
     'uri' => $notify->{'uri'}, 
     'request' => 'POST',
     'headers' => [ 'Accept: application/json', 'Content-type: application/json' ],
-    'data' => JSON::XS->new->utf8->canonical->encode($n),
+    'data' => $n_json,
   };
   if ($notify->{'user'}) {
     my $auth = $notify->{'user'};
@@ -216,6 +217,9 @@ sub notification {
   # save new state
   mkdir_p("$notify->{'statedir'}/$prp");
   BSUtil::store("$notify->{'statedir'}/$prp/.state", "$notify->{'statedir'}/$prp/state", $newstate);
+
+  # save what we sent
+  BSUtil::store("$notify->{'statedir'}/$prp/.report", "$notify->{'statedir'}/$prp/report", $newstate);
 }
 
 1;
