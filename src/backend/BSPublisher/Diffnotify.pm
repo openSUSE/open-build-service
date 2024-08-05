@@ -125,17 +125,24 @@ sub diffdata {
   for my $k (sort keys %{ { %old, %new } }) {
     my $o = $old{$k};
     my $n = $new{$k};
+    my $r;
     if (!$o) {
-      push @ret, { %$n, 'state' => 'added' }
+      $r = { %$n, 'state' => 'added' };
     } elsif (!$n) {
-      push @ret, { %$o, 'state' => 'removed' }
+      $r = { %$o, 'state' => 'removed' };
     } elsif (!BSUtil::identical($o, $n)) {
       if (is_unchanged($o, $n)) {
-        push @ret, { %$n, 'state' => 'unchanged' }
+        $r = { %$n, 'state' => 'unchanged' };
       } else {
-        push @ret, { %$n, 'state' => 'changed' }
+        $r = { %$n, 'state' => 'changed' };
       }
     }
+    next unless $r;
+    $r->{'flavor'} = '';
+    if (($r->{'package'} || '') =~ /(?<!^_product)(?<!^_patchinfo):./ && $r->{'package'} =~ /^(.*):(.*?)$/) {
+      ($r->{'package'}, $r->{'flavor'}) = ($1, $2);
+    }
+    push @ret, $r;
   }
   return \@ret;
 }
