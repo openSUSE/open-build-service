@@ -17,7 +17,7 @@
                             <em>97561db8664eaf86a1e4c7b77d5fb5d5bff6681e</em></p>'
 
 = form_for(:token, url: token_workflow_runs_path(@token), method: :get, id: 'workflow-run-filter-form') do |form|
-  .list-group.list-group-flush.mt-3.mb-2
+  .mt-3.mb-2
     %h6.px-3.py-2
       %b Status
       = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: status_info_text }
@@ -31,7 +31,7 @@
       = render partial: 'webui/shared/check_box', locals: { label: 'Failed', amount: @count['fail'] || 0,
                                                             key: 'fail', label_icon: 'fas fa-exclamation-triangle text-danger',
                                                             checked: @selected_filter[:status]&.include?('fail')}
-  .list-group.list-group-flush.mt-4.mb-4
+  .mt-4.mb-4
     %h6.px-3.py-2
       %b Event Type
       = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: event_type_info_text }
@@ -43,7 +43,7 @@
       = render partial: 'webui/shared/check_box', locals: { label: 'Tag Push', amount: @count['tag_push'] || 0,
                                                             key: 'tag_push', checked: @selected_filter[:event_type]&.include?('tag_push')}
 
-  .list-group.list-group-flush.mt-4.mb-4
+  .mt-4.mb-4
     %h6.px-3.py-2
       %b Event Action
       = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: pr_mr_request_info_text }
@@ -52,7 +52,7 @@
                                                          selected_value: @selected_filter[:request_action],
                                                          filter_options: SCMWebhook::ALL_POSSIBLE_REQUEST_ACTIONS,
                                                          label: 'Action', visible_inner_label: true }
-  .list-group.list-group-flush.mt-4.mb-4
+  .mt-4.mb-4
     %h6.px-3.py-2
       %b Event Source
       = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: event_source_info_text }

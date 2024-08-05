@@ -1,6 +1,6 @@
 -# haml-lint:disable ViewLength
 = form_for(:notification, url: my_notifications_path, method: :get, id: 'notifications-filter-form') do |form|
-  .list-group.list-group-flush.mt-3.mb-2
+  .mt-3.mb-2
     %h6.px-3.py-2
       %b State
     .px-4
@@ -13,7 +13,7 @@
       = render partial: 'webui/shared/radio_button', locals: { label: 'Read',
                                                                key: 'state[read]', name: 'state', value: 'read',
                                                                checked: selected_filter[:state] == 'read' }
-  .list-group.list-group-flush.mt-4.mb-4
+  .mt-4.mb-4
     %h6.px-3.py-2
       %b Type
     .px-4
@@ -56,7 +56,7 @@
                                                             label_icon: 'fas fa-people-group',
                                                             checked: selected_filter[:kind]&.include?('member_on_groups') }
 
-  .list-group.list-group-flush.mt-4.mb-4
+  .mt-4.mb-4
     %h6.px-3.py-2
       %b Requests
     .px-3
@@ -83,7 +83,7 @@
                                                                     checked: selected_filter[:request_state]&.include?(request_state.to_s) }
 
   - unless projects_for_filter.empty?
-    .list-group.list-group-flush.mt-4.mb-4
+    .mt-4.mb-4
       %h6.px-3.py-2
         %b Projects
       .dropdown.px-3.form-multi-select{ 'data-name': 'projects' }
@@ -96,7 +96,7 @@
                                                                     key: "project[#{project_name}]", name: 'project[]', value: project_name,
                                                                     checked: selected_filter[:project]&.include?(project_name) }
   - unless groups_for_filter.empty?
-    .list-group.list-group-flush.mt-4.mb-4
+    .mt-4.mb-4
       %h6.px-3.py-2
         %b Groups
       .dropdown.px-3.form-multi-select{ 'data-name': 'groups' }
