@@ -2030,12 +2030,15 @@ sub readcontainermetafiles {
   return unless $prefix =~ s/\.containerinfo$//;
   if (-e "$prefix.slsa_provenance.json") {
     $containerinfo->{'slsa_provenance_file'} = linkintoblobdir("$prefix.slsa_provenance.json", $blobdirref);
+    push @{$containerinfo->{'_associated'}}, "$prefix.slsa_provenance.json";
   }
   if (-e "$prefix.spdx.json") {
     $containerinfo->{'spdx_file'} = linkintoblobdir("$prefix.spdx.json", $blobdirref);
+    push @{$containerinfo->{'_associated'}}, "$prefix.spdx.json";
   }
   if (-e "$prefix.cdx.json") {
     $containerinfo->{'cyclonedx_file'} = linkintoblobdir("$prefix.cdx.json", $blobdirref);
+    push @{$containerinfo->{'_associated'}}, "$prefix.cdx.json";
   }
   my @intoto;
   if ($cache && $cache->{'intoto_files'}) {
@@ -2046,15 +2049,19 @@ sub readcontainermetafiles {
   }
   @intoto = grep {/^\Q$prefix\E\.[^\.]+\.intoto\.json$/} @intoto;
   push @{$containerinfo->{'intoto_files'}}, map {linkintoblobdir($_, $blobdirref)} @intoto;
+  push @{$containerinfo->{'_associated'}}, @intoto;
   $prefix =~ s/\.docker$// unless -e "$prefix.packages";
   if (-e "$prefix.packages") {
     $containerinfo->{'container_packages'} = linkintoblobdir("$prefix.packages", $blobdirref);
+    push @{$containerinfo->{'_associated'}}, "$prefix.packages";
   }
   if (-e "$prefix.basepackages") {
     $containerinfo->{'container_basepackages'} = linkintoblobdir("$prefix.basepackages", $blobdirref);
+    push @{$containerinfo->{'_associated'}}, "$prefix.basepackages";
   }
   if (-e "$prefix.report") {
     $containerinfo->{'container_report'} = linkintoblobdir("$prefix.report", $blobdirref);
+    push @{$containerinfo->{'_associated'}}, "$prefix.report";
   }
 }
 
