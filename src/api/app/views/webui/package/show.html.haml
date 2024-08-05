@@ -30,6 +30,8 @@
                                               projects: @watched_projects)
     .row
       .col-md-8
+        .mb-3
+          = render partial: 'webui/shared/label_list', locals: { labelable: @package, project: @project }
         .in-place-editing
           = render partial: 'basic_info', locals: { package: @package, project: @project }
       .col-md-4
