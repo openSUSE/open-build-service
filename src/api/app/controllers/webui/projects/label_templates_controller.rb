@@ -4,7 +4,7 @@ module Webui
       before_action :set_project
 
       def index
-        head :not_found unless Flipper.enabled?(:labels, User.session)
+        authorize LabelTemplate.new(project: @project), :index?
 
         @label_templates = @project.label_templates
       end
