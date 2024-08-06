@@ -1,7 +1,7 @@
 .dropdown.d-inline-block#label-dropdown
   %button.btn.btn-sm.dropdown-toggle.ps-0.border-0{ data: { 'bs-toggle': 'dropdown', 'bs-auto-close': 'outside' }, aria: { expanded: 'false' } }
     %strong
-      Edit Labels
+      Set Labels
   .dropdown-menu
     = form_for :labels, url: labels_path(project:, labelable_id: labelable.id, labelable_type: labelable.class), method: :put do |f|
       - project.label_templates.each do |label_template|
@@ -14,6 +14,10 @@
               = la.check_box :_destroy, { class: 'form-check-input', checked: labelable.labels.exists?(label_template: la.object) }, false, true
               = la.label :_destroy, class: 'form-check-label' do
                 = render partial: 'webui/shared/label', locals: { label: la.object }
+    - if policy(LabelTemplate.new(project:)).index?
+      = link_to project_label_templates_path(project), class: 'dropdown-item' do
+        %i.fas.fa-edit
+        Edit Labels
 
 :javascript
   let labelDropdown = document.getElementById('label-dropdown');
