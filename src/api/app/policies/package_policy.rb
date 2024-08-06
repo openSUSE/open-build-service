@@ -22,6 +22,10 @@ class PackagePolicy < ApplicationPolicy
     user.can_modify?(record)
   end
 
+  def update_labels?
+    user.can_modify?(record)
+  end
+
   def destroy?
     user.can_modify?(record)
   end
