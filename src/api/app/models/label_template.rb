@@ -17,7 +17,7 @@ class LabelTemplate < ApplicationRecord
 
   #### Validations macros
   validates :name, length: { maximum: 255 }, presence: true
-  validates :color, length: { maximum: 255 }, presence: true
+  validates :color, length: { maximum: 7 }, presence: true, format: { with: /\A#[0-9a-f]{6}\z/i, message: 'enter color in valid hex format (#FFFFFF)' }
 
   #### Class methods using self. (public and then private)
 
