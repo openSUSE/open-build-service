@@ -105,18 +105,12 @@ class Webui::ProjectController < Webui::WebuiController
   def update
     authorize @project, :update?
     respond_to do |format|
-      if @project.update(project_params)
-        format.html do
-          flash[:success] = 'Project was successfully updated.'
-          redirect_to project_show_path(@project)
+      format.js do
+        if @project.update(project_params)
+          flash.now[:success] = 'Project was successfully updated.'
+        else
+          flash.now[:error] = 'Failed to update the project.'
         end
-        format.js { flash.now[:success] = 'Project was successfully updated.' }
-      else
-        format.html do
-          flash[:error] = 'Failed to update project'
-          redirect_to project_show_path(@project)
-        end
-        format.js
       end
     end
   end
