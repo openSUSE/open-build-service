@@ -4,12 +4,11 @@
       = category_badge(category)
   - if project.url.present?
     = link_to(project.url, project.url, class: 'mb-3 d-block')
-  #description-text
+  .mb-4#description-text
     - if project.description.blank?
       %i No description set
     - else
       = render partial: 'webui/shared/collapsible_text', locals: { text: project.description }
-
   - if policy(project).update?
     .pt-4
       = link_to(edit_project_path(project), class: 'ps-0', remote: true, title: 'Edit') do

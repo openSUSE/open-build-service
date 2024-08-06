@@ -29,3 +29,5 @@
         = tab_link('Staging', staging_workflow_path(project), active, 'scrollable-tab-link')
       - elsif policy(Staging::Workflow.new(project: project)).create?
         = tab_link('Staging', new_staging_workflow_path(project: project), active, 'scrollable-tab-link')
+      - if policy(LabelTemplate.new(project: project)).index?
+        = tab_link('Label templates', project_label_templates_path(project), false, 'scrollable-tab-link')
