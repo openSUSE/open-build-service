@@ -1396,6 +1396,10 @@ class Project < ApplicationRecord
     attribs.embargo_date&.first&.embargo_date
   end
 
+  def bugowner_emails
+    relationships.bugowners_with_email.pluck(:email)
+  end
+
   private
 
   def bsrequest_repos_map(project)

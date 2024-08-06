@@ -1319,6 +1319,10 @@ class Package < ApplicationRecord
     { project: project.name, package: name }
   end
 
+  def bugowner_emails
+    (relationships.bugowners_with_email.pluck(:email) + project.bugowner_emails).uniq
+  end
+
   private
 
   def extract_kiwi_element(element)
