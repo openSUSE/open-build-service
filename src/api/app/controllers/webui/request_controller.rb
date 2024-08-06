@@ -13,7 +13,8 @@ class Webui::RequestController < Webui::WebuiController
   before_action :require_request,
                 only: %i[changerequest show request_action request_action_changes inline_comment build_results rpm_lint
                          changes mentioned_issues chart_build_results complete_build_results]
-  before_action :set_actions, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues chart_build_results complete_build_results request_action_changes],
+  before_action :set_actions, only: :request_action_changes
+  before_action :set_actions, only: %i[inline_comment show build_results rpm_lint changes mentioned_issues chart_build_results complete_build_results],
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_actions_deprecated, only: [:show]
   before_action :build_results_data, only: [:show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
