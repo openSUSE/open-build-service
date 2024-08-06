@@ -212,14 +212,14 @@ sub notification {
     push @{$param->{'headers'}}, $auth;
   }
   $param->{'ssl_verify'} = $notify->{'ssl_verify'} if defined $notify->{'ssl_verify'};
-  BSRPC::rpc($param);
+  BSRPC::rpc($param) unless $notify->{'uri'} eq 'null:';
 
   # save new state
   mkdir_p("$notify->{'statedir'}/$prp");
-  BSUtil::store("$notify->{'statedir'}/$prp/.state", "$notify->{'statedir'}/$prp/state", $newstate);
+  BSUtil::store("$notify->{'statedir'}/$prp/.state.$$", "$notify->{'statedir'}/$prp/state", $newstate);
 
   # save what we sent
-  BSUtil::store("$notify->{'statedir'}/$prp/.report", "$notify->{'statedir'}/$prp/report", $newstate);
+  writestr("$notify->{'statedir'}/$prp/.report.$$", "$notify->{'statedir'}/$prp/report", $n_json);
 }
 
 1;
