@@ -6,26 +6,22 @@ UseRemoteInstance:
 UseRemoteInstanceIndirect_to_UseRemoteInstance:
   id: 45
   position: 1
-  linked_remote_project_name: nil
   project: UseRemoteInstanceIndirect
   linked_db_project: UseRemoteInstance
 linked_db_projects_42:
   id: 42
   position: 1
   vrevmode: 'extend'
-  linked_remote_project_name: nil
   project: BaseDistro2.0_LinkedUpdateProject
   linked_db_project: BaseDistro2.0
 linked_db_projects_44:
   id: 44
   position: 1
   vrevmode: 'extend'
-  linked_remote_project_name: nil
   project: BaseDistro_Update
   linked_db_project: BaseDistro
 linked_db_projects_46:
   id: 46
   position: 1
-  linked_remote_project_name: nil
   project: BaseDistro_SP1
   linked_db_project: BaseDistro
