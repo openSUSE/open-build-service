@@ -12,19 +12,13 @@
         .toggler.text-center.justify-content-center.nav-item
           = link_to(my_notifications_path, id: 'top-notifications-counter', class: 'nav-link text-light p-0 w-100', alt: 'Notifications') do
             = render partial: 'layouts/webui/unread_notifications_counter', locals: { unread_notifications_count: unread_notifications_count }
-        .toggler.text-center.justify-content-center.nav-item.dropdown
-          = link_to('#', class: 'nav-link dropdown-toggle text-light', id: 'top-navigation-profile-dropdown', role: 'button',
-                    'data-bs-toggle': 'dropdown', aria: { haspopup: true, expanded: false }) do
-            = render(AvatarComponent.new(name: User.session.name, email: User.session.email, size: 32, shape: :circle, custom_css: 'me-2'))
-          .dropdown-menu.dropdown-menu-end{ 'aria-labelledby': 'top-navigation-profile-dropdown' }
-            .dropdown-item
-              = link_to(user_path(User.session), id: 'link-to-user-home', class: 'nav-link text-light p-0 w-100') do
-                = render(AvatarComponent.new(name: User.session.name, email: User.session.email, size: 20, shape: :circle, custom_css: 'me-2'))
-                Your profile
-            .dropdown-item
-              = link_to(session_path, method: :delete, id: 'logout-link', class: 'nav-link text-light p-0 w-100') do
-                %i.fas.fa-sign-out-alt.fa-lg.me-2
-                Logout
+        .toggler.text-center.justify-content-center.nav-item
+          = link_to(user_path(User.session), id: 'link-to-user-home', class: 'nav-link text-light p-0 w-100') do
+            = render(AvatarComponent.new(name: User.session.name, email: User.session.email, size: 32, shape: :circle))
+        .toggler.text-center.justify-content-center.nav-item
+          = link_to(session_path, method: :delete, id: 'logout-link', class: 'nav-link text-light p-0 w-100', alt: 'Logout', data: { toggle: 'logout' }) do
+            %i.fas.fa-sign-out-alt
+            %span.d-block Logout
       - else
         = render partial: 'layouts/webui/top_navigation_nobody'
 
