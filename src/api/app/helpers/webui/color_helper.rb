@@ -1,7 +1,7 @@
 module Webui::ColorHelper
   # Calculates a text color that will contrast well with the given color
   def contrast_text(color)
-    color = color.to_i
+    color = color.delete('#').to_i(16)
     blue_component = color % 0x100
     color_without_blue = ((color - blue_component) / 0x100)
     green_component = color_without_blue % 0x100
