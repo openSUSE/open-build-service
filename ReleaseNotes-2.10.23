@@ -1,0 +1,18 @@
+#
+# Open Build Service 2.10.23
+#
+
+Please read the README.md file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+The dist/README.UPDATERS file has information for people updating
+from a previous OBS release.
+
+
+Bugfixes
+========
+
+* Fixes to support openSUSE Leap 15.6 as OBS server host
+
