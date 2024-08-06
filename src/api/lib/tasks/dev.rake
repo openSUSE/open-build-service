@@ -224,7 +224,7 @@ namespace :dev do
       # Trigger package builds for home:Admin
       home_admin.store
 
-      Rake::Task['dev:labels:data'].invoke
+      create_list(:label_template, 5, project: home_admin)
 
       # Create some Reports
       Rake::Task['dev:reports:data'].invoke
