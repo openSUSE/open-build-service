@@ -238,6 +238,13 @@ sub check {
     } else {
       my $notready = $ctx->{'notready'};
       my $prpnotready = $gctx->{'prpnotready'};
+      for my $bin (@kdeps) {
+        my $p = $dep2pkg{$bin};
+        my $aprp = $pool->pkg2reponame($p);
+        my $pname = $pool->pkg2srcname($p);
+        my $nr = ($prp eq $aprp ? $notready : $prpnotready->{$aprp}) || {};
+        push @blocked, $bin if $nr->{$pname};
+      }
     }
     @blocked = () if $neverblock;
     if (@blocked) {
