@@ -22,11 +22,6 @@ module HasRelationships
     relationships.groups.includes(:group).map(&:group).uniq
   end
 
-  def bugowner_emails
-    # TODO: why on User.rb we accept email blank?
-    relationships.bugowners_with_email.pluck(:email)
-  end
-
   def render_relationships(xml)
     relationships.with_users_and_roles.each do |user, role|
       xml.person(userid: user, role: role)

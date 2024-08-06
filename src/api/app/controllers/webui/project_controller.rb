@@ -39,7 +39,6 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def show
-    @bugowners_mail = @project.bugowner_emails
     @release_targets = @project.release_targets
 
     @has_patchinfo = @project.patchinfos.exists?
@@ -399,7 +398,8 @@ class Webui::ProjectController < Webui::WebuiController
       :access_protection,
       :source_protection,
       :disable_publishing,
-      :url
+      :url,
+      :report_bug_url
     )
   end
 

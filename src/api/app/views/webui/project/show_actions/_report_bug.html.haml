@@ -1,4 +1,4 @@
-%li.nav-item
-  = link_to(bugzilla_url(bugowners_mail, "#{project}: Bug"), class: 'nav-link', title: 'Report Bug') do
+- if url.present?
+  = link_to(url, class: 'nav-link', title: 'Report Bug') do
     %i.fas.fa-bug.fa-lg.me-2
     %span.nav-item-name Report Bug

@@ -50,7 +50,6 @@ class Webui::PackageController < Webui::WebuiController
     @srcmd5 = params[:srcmd5]
     @revision_parameter = params[:rev]
 
-    @bugowners_mail = (@package.bugowner_emails + @project.bugowner_emails).uniq
     @revision = params[:rev]
     @failures = 0
 
@@ -331,7 +330,8 @@ class Webui::PackageController < Webui::WebuiController
       .require(:package_details)
       .permit(:title,
               :description,
-              :url)
+              :url,
+              :report_bug_url)
   end
 
   def set_file_details

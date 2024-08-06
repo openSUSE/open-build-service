@@ -5,18 +5,6 @@ module Webui::WebuiHelper
   include Webui::BuildresultHelper
   include Webui::ElisionsHelper
 
-  def bugzilla_url(email_list = '', desc = '')
-    return '' if @configuration['bugzilla_url'].blank?
-
-    assignee = email_list.first if email_list
-    cc = "&cc=#{email_list[1..].join('&cc=')}" if email_list.length > 1 && email_list
-
-    Addressable::URI.escape(
-      "#{@configuration['bugzilla_url']}/enter_bug.cgi?classification=7340&product=openSUSE.org" \
-      "&component=3rd party software&assigned_to=#{assignee}#{cc}&short_desc=#{desc}"
-    )
-  end
-
   def format_projectname(prjname, login)
     splitted = prjname.split(':', 3)
     if splitted[0] == 'home'

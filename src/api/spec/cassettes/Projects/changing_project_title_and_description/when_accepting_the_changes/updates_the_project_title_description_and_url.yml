@@ -1,45 +1,16 @@
 ---
 http_interactions:
 - request:
-    method: get
-    uri: http://backend:5352/build/home:Jane/_result?code=unresolvable&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home Jane' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '146'
+    method: put
+    uri: http://backend:5352/source/home:user_90/_meta?user=user_90
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:Jane' does not exist</summary>
-          <details>404 project 'home:Jane' does not exist</details>
-        </status>
-  recorded_at: Mon, 15 Mar 2021 15:14:01 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:Jane/_keyinfo?donotcreatecert=1&withsslcert=1
-    body:
-      encoding: US-ASCII
-      string: ''
+        <project name="home:user_90">
+          <title/>
+          <description/>
+          <person userid="user_90" role="maintainer"/>
+        </project>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -59,17 +30,27 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '11'
+      - '136'
     body:
       encoding: UTF-8
-      string: "<keyinfo/>\n"
-  recorded_at: Mon, 15 Mar 2021 15:14:01 GMT
+      string: |
+        <project name="home:user_90">
+          <title></title>
+          <description></description>
+          <person userid="user_90" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 01 Aug 2024 17:04:52 GMT
 - request:
-    method: get
-    uri: http://backend:5352/build/home:Jane/_result?view=summary
+    method: put
+    uri: http://backend:5352/source/home:Jane/_meta?user=Jane
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: |
+        <project name="home:Jane">
+          <title/>
+          <description/>
+          <person userid="Jane" role="maintainer"/>
+        </project>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -79,8 +60,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home Jane' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -89,13 +70,150 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '130'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:Jane' does not exist</summary>
-          <details>404 project 'home:Jane' does not exist</details>
-        </status>
-  recorded_at: Mon, 15 Mar 2021 15:14:01 GMT
-recorded_with: VCR 6.0.0
+        <project name="home:Jane">
+          <title></title>
+          <description></description>
+          <person userid="Jane" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 01 Aug 2024 17:04:52 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:Jane/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 6e6ee97b-f577-4908-97c0-c90ae5117145
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Thu, 01 Aug 2024 17:04:53 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:Jane/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - f2c6f94d-e0e7-4655-845a-a8235341ebd3
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Thu, 01 Aug 2024 17:04:53 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:Jane/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 4327acd4-43c2-475e-9001-c370ae54b672
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Thu, 01 Aug 2024 17:04:54 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:Jane/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - f3477e8c-abb7-415e-90ac-427273afea67
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Thu, 01 Aug 2024 17:04:55 GMT
+recorded_with: VCR 6.2.0

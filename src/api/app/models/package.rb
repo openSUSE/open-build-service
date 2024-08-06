@@ -13,6 +13,7 @@ class Package < ApplicationRecord
   include PackageSphinx
   include MultibuildPackage
   include PackageMediumContainer
+  include ReportBugUrl
 
   has_many :relationships, dependent: :destroy, inverse_of: :package
   belongs_to :kiwi_image, class_name: 'Kiwi::Image', inverse_of: :package, optional: true
@@ -100,7 +101,7 @@ class Package < ApplicationRecord
   validates :releasename, length: { maximum: 200 }
   validates :title, length: { maximum: 250 }
   validates :url, length: { maximum: 255 }
-  validates :description, length: { maximum: 65_535 }
+  validates :description, :report_bug_url, length: { maximum: 65_535 }
   validates :project_id, uniqueness: {
     scope: :name,
     message: lambda do |object, _data|
@@ -1318,6 +1319,10 @@ class Package < ApplicationRecord
     { project: project.name, package: name }
   end
 
+  def bugowner_emails
+    (relationships.bugowners_with_email.pluck(:email) + project.bugowner_emails).uniq
+  end
+
   private
 
   def extract_kiwi_element(element)
@@ -1383,6 +1388,7 @@ end
 #  description     :text(65535)
 #  name            :string(200)      not null, indexed => [project_id]
 #  releasename     :string(255)
+#  report_bug_url  :text(65535)
 #  scmsync         :string(255)
 #  title           :string(255)
 #  url             :string(255)

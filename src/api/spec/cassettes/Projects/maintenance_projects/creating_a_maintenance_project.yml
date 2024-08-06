@@ -1,24 +1,27 @@
 ---
 http_interactions:
 - request:
-    method: get
-    uri: http://backend:5352/build/home:Jane/_result?code=unresolvable&view=status
+    method: put
+    uri: http://backend:5352/source/home:user_89/_meta?user=user_89
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: |
+        <project name="home:user_89">
+          <title/>
+          <description/>
+          <person userid="user_89" role="maintainer"/>
+        </project>
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home Jane' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -27,16 +30,90 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '136'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:Jane' does not exist</summary>
-          <details>404 project 'home:Jane' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Mon, 13 Jun 2016 10:12:23 GMT
+        <project name="home:user_89">
+          <title></title>
+          <description></description>
+          <person userid="user_89" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 01 Aug 2024 17:04:50 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Jane/_meta?user=Jane
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Jane">
+          <title/>
+          <description/>
+          <person userid="Jane" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '130'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Jane">
+          <title></title>
+          <description></description>
+          <person userid="Jane" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 01 Aug 2024 17:04:50 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:Jane/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 3de8b226-3cd8-4f93-8ee5-f5b3385972ef
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Thu, 01 Aug 2024 17:04:51 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:Jane/_result?view=summary
@@ -44,18 +121,18 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
+      X-Request-Id:
+      - 5266485b-4dbd-4c10-9987-5516ee066c06
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home Jane' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -64,23 +141,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+  recorded_at: Thu, 01 Aug 2024 17:04:51 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Jane/_project/_attribute?meta=1&user=user_89
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:Jane' does not exist</summary>
-          <details>404 project 'home:Jane' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Mon, 13 Jun 2016 10:12:23 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:Jane/_keyinfo?withsslcert=1
-    body:
-      encoding: US-ASCII
-      string: ''
+        <attributes>
+          <attribute name="MaintenanceProject" namespace="OBS"/>
+        </attributes>
     headers:
+      X-Request-Id:
+      - f54b55d7-889c-4d76-8846-050d8950bc93
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -99,103 +178,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '12'
+      - '170'
     body:
       encoding: UTF-8
-      string: "<keyinfo />\n"
-    http_version: 
-  recorded_at: Mon, 09 Jan 2017 11:14:39 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:Jane/_keyinfo?withsslcert=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '12'
-    body:
-      encoding: UTF-8
-      string: "<keyinfo />\n"
-    http_version: 
-  recorded_at: Mon, 09 Jan 2017 11:14:39 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:Jane/_keyinfo
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '12'
-    body:
-      encoding: UTF-8
-      string: "<keyinfo />\n"
-    http_version: 
-  recorded_at: Mon, 13 Feb 2017 16:03:17 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:Jane/_keyinfo?donotcreatecert=1&withsslcert=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '12'
-    body:
-      encoding: UTF-8
-      string: "<keyinfo />\n"
-    http_version: 
-  recorded_at: Mon, 08 May 2017 21:10:29 GMT
-recorded_with: VCR 3.0.3
+      string: |
+        <revision rev="12">
+          <srcmd5>306b3b59ffa0c567e2a419fcc3b68d27</srcmd5>
+          <time>1722531892</time>
+          <user>user_89</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 01 Aug 2024 17:04:52 GMT
+recorded_with: VCR 6.2.0

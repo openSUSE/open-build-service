@@ -5,11 +5,8 @@
   content_for(:meta_title, @package.title.presence || @package.name)
   content_for(:meta_description, @package.description)
 
-  render partial: 'show_actions', locals: { bugowners_mail: @bugowners_mail,
-                                            configuration: @configuration,
-                                            revision: @revision,
+  render partial: 'show_actions', locals: { revision: @revision,
                                             current_rev: @current_rev,
-                                            spec_count: @spec_count,
                                             cleanup_source: @cleanup_source,
                                             services: @services,
                                             project: @project,

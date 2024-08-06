@@ -272,24 +272,6 @@ RSpec.describe Webui::ProjectController, :vcr do
 
       it { expect(assigns(:comments)).to match_array(apache_project.comments) }
     end
-
-    context 'with bugowners' do
-      before do
-        create(:relationship_project_user, role: Role.find_by_title('bugowner'), project: apache_project, user: user)
-        get :show, params: { project: apache_project }
-      end
-
-      it { expect(assigns(:bugowners_mail)).to contain_exactly(user.email) }
-    end
-
-    context 'without bugowners' do
-      before do
-        get :show, params: { project: apache_project }
-      end
-
-      it { expect(assigns(:bugowners_mail)).to be_a(Array) }
-      it { expect(assigns(:bugowners_mail)).to be_empty }
-    end
   end
 
   describe 'GET #buildresult' do

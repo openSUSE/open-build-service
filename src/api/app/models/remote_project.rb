@@ -21,6 +21,7 @@ end
 #  name                :string(200)      not null, indexed
 #  remoteproject       :string(255)
 #  remoteurl           :string(255)
+#  report_bug_url      :text(65535)
 #  required_checks     :string(255)
 #  scmsync             :text(65535)
 #  title               :string(255)
