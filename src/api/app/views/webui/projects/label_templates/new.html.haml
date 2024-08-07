@@ -1,0 +1,24 @@
+- @pagetitle = "Create label template for #{@project}"
+.card
+  = render(partial: 'webui/project/tabs', locals: { project: @project })
+
+  .card-body
+    %h3= @pagetitle
+    .row
+      .col-12.col-md-10.col-lg-8
+        = form_with(model: @label_template, url: [@project, @label_template], method: :post) do |f|
+          .row
+            .col-12.col-md-10.col-lg-9
+              .mb-3#name
+                = f.label(:name, 'Name:', class: 'form-label')
+                = f.text_field(:name, class: classes_with_validation(@label_template, :name))
+                - @label_template.errors.where(:name).each do |error|
+                  .error-message= error.message.capitalize
+              .mb-3#color
+                = f.label(:color, 'Color:', class: 'form-label')
+                = f.color_field(:color, class: classes_with_validation(@label_template, :color))
+                - @label_template.errors.where(:color).each do |error|
+                  .error-message= error.message.capitalize
+          .actions
+            = link_to('Cancel', project_label_templates_path(@project), title: 'Cancel', class: 'btn btn-outline-secondary px-4 me-3 mt-3 mt-sm-0')
+            = f.submit('Create', class: 'btn btn-primary px-4 mt-3 mt-sm-0')

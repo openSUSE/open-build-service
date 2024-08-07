@@ -9,8 +9,22 @@ module Webui
         @label_templates = @project.label_templates
       end
 
+      def new
+        @label_template = authorize @project.label_templates.new
+      end
+
       def edit
         @label_template = authorize @project.label_templates.find(params[:id])
+      end
+
+      def create
+        @label_template = authorize @project.label_templates.new(label_template_params)
+
+        if @label_template.save
+          redirect_to project_label_templates_path(@project)
+        else
+          render :new
+        end
       end
 
       def update

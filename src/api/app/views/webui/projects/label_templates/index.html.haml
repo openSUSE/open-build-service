@@ -11,3 +11,7 @@
           = link_to(edit_project_label_template_path(@project, label_template)) do
             %i.fas.fa-edit
             Edit
+    .pt-4
+      = link_to new_project_label_template_path(@project) do
+        %i.fas.fa-plus-circle.text-primary
+        Create Label Template
