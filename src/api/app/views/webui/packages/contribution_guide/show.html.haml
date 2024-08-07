@@ -6,3 +6,8 @@
   .card-body
     %h3.mb-4= @pagetitle
     = sanitize @content
+    - if true # policy(project).update?
+      .pt-4
+        = link_to(edit_project_package_contribution_guide_path(@project, @package), class: 'ps-0', remote: true, title: 'Edit') do
+          %i.fas.fa-edit.text-secondary
+          %span.nav-item-name Edit
