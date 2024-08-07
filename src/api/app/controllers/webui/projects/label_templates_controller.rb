@@ -22,8 +22,10 @@ module Webui
 
         if @label_template.save
           redirect_to project_label_templates_path(@project)
+          flash[:success] = 'Label template created successfully'
         else
           render :new
+          flash[:error] = 'Failed to create the label template'
         end
       end
 
@@ -32,8 +34,10 @@ module Webui
 
         if @label_template.update(label_template_params)
           redirect_to project_label_templates_path(@project)
+          flash[:success] = 'Label template updated successfully'
         else
           render :edit
+          flash[:error] = 'Failed to update the label template'
         end
       end
 
@@ -42,8 +46,10 @@ module Webui
 
         if @label_template.destroy
           redirect_to project_label_templates_path(@project)
+          flash[:success] = 'Label template deleted successfully'
         else
           render :edit
+          flash[:error] = 'Failed to delete the label template'
         end
       end
 
