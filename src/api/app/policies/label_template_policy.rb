@@ -5,4 +5,12 @@ class LabelTemplatePolicy < ApplicationPolicy
 
     true
   end
+
+  def edit?
+    index?
+  end
+
+  def update?
+    index?
+  end
 end

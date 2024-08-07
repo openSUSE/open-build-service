@@ -8,3 +8,6 @@
       - @label_templates.each do |label_template|
         %li.mb-2
           = render partial: 'webui/shared/label', locals: { label: label_template }
+          = link_to(edit_project_label_template_path(@project, label_template)) do
+            %i.fas.fa-edit
+            Edit
