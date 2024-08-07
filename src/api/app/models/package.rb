@@ -161,7 +161,7 @@ class Package < ApplicationRecord
   #   > Package.get_by_project_and_name('home:hennevogel:myfirstproject', 'ctris:hans').name
   #   Package::Errors::UnknownObjectError: Package not found: home:hennevogel:myfirstproject/ctris:hans
   #
-  # You can make it handle multibuild flavors (remove everything after the the first occurance of `:`)
+  # You can make it "follow" multibuild flavors (remove everything after the the first occurance of `:`)
   # in the Package name by setting in the opts hash:
   #   follow_multibuild: true
   #
@@ -182,6 +182,13 @@ class Package < ApplicationRecord
   # Project by setting in the opts hash:
   #   check_update_project: true
   #
+  # It will ignore Project links to remote and not "follow" this type of link to find the Package.
+  # https://github.com/openSUSE/open-build-service/wiki/Links#links-to-remote
+  #
+  # You can follow this type of project link and try to find the Package from the remote Project
+  # by setting in the opts hash:
+  #   follow_project_remote_links: true
+  #
   # It will ignore "scmsync" Projects and not "follow" this type of project link to find the Package.
   # https://github.com/openSUSE/open-build-service/wiki/Links#project-scm-bridge-links
   #
@@ -193,6 +200,7 @@ class Package < ApplicationRecord
     get_by_project_and_name_defaults = { use_source: true,
                                          follow_project_links: true,
                                          follow_project_scmsync_links: false,
+                                         follow_project_remote_links: false,
                                          follow_multibuild: false,
                                          check_update_project: false }
     opts = get_by_project_and_name_defaults.merge(opts)
@@ -205,7 +213,14 @@ class Package < ApplicationRecord
     package = check_cache(project_name, package_name, opts)
     return package if package
 
-    if project.scmsync.present?
+    if package.nil? && opts[:follow_project_links]
+      package = project.find_package(package_name, opts[:check_update_project])
+    elsif package.nil?
+      package = project.update_instance_or_self.packages.find_by_name(package_name) if opts[:check_update_project]
+      package = project.packages.find_by_name(package_name) if package.nil?
+    end
+
+    if package.nil? && project.scmsync.present?
       return nil unless opts[:follow_project_scmsync_links]
 
       begin
@@ -219,21 +234,17 @@ class Package < ApplicationRecord
       end
     end
 
-    if package.nil? && opts[:follow_project_links]
-      package = project.find_package(package_name, opts[:check_update_project])
-    elsif package.nil?
-      package = project.update_instance_or_self.packages.find_by_name(package_name) if opts[:check_update_project]
-      package = project.packages.find_by_name(package_name) if package.nil?
-    end
+    if package.nil? && project.links_to_remote? && opts[:follow_project_links]
+      return nil unless opts[:follow_project_remote_links]
 
-    # FIXME: Why is this returning nil (the package is not found) if _ANY_ of the
-    # linking projects is remote? What if one of the linking projects is local
-    # and the other one remote?
-    if package.nil? && opts[:follow_project_links]
-      # in case we link to a remote project we need to assume that the
-      # backend may be able to find it even when we don't have the package local
-      project.expand_all_projects(allow_remote_projects: true).each do |p|
-        return nil unless p.is_a?(Project)
+      begin
+        package_xmlhash = Xmlhash.parse(Backend::Api::Sources::Package.meta(project.name, package_name))
+      rescue Backend::NotFoundError
+        raise UnknownObjectError, "Package not found: #{project.name}/#{package_name}"
+      else
+        package = project.packages.new(name: package_name)
+        package.assign_attributes_from_from_xml(package_xmlhash)
+        package.readonly!
       end
     end
 
@@ -242,7 +253,7 @@ class Package < ApplicationRecord
 
     package.check_source_access! if opts[:use_source]
 
-    Rails.cache.write(@key, [package.id, package.updated_at, project.updated_at])
+    Rails.cache.write(@key, [package.id, package.updated_at, project.updated_at]) unless package.readonly? # don't cache remote packages...
     package
   end
 
