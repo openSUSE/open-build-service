@@ -37,6 +37,16 @@ module Webui
         end
       end
 
+      def destroy
+        @label_template = authorize @project.label_templates.find(params[:id])
+
+        if @label_template.destroy
+          redirect_to project_label_templates_path(@project)
+        else
+          render :edit
+        end
+      end
+
       private
 
       def label_template_params

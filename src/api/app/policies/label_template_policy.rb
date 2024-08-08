@@ -21,4 +21,8 @@ class LabelTemplatePolicy < ApplicationPolicy
   def update?
     index?
   end
+
+  def destroy?
+    index?
+  end
 end
