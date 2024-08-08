@@ -3450,7 +3450,7 @@ publishprog_done:
 
   if ($do_diffnotify && $packtrack && !$dbgsplit) {
     # send diff notification
-    BSPublisher::Diffnotify::notification($data, $do_diffnotify, $packtrack, \%containers, \%registrydata);
+    BSPublisher::Diffnotify::notification($extrep, $data, $do_diffnotify, $packtrack, \%containers, \%registrydata);
   }
 
   if ($do_packtrack && $packtrack && !$dbgsplit) {
