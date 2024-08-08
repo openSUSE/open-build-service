@@ -325,6 +325,9 @@ sub setup {
     my $lastprojid = (split('/', $prpsearchpath->[-1]))[0];
     return ('broken', "no build type ($lastprojid)");
   }
+  if ($prptype eq 'excluded' || $prptype eq 'disabled') {
+    return ($prptype, undef);
+  }
   $ctx->{'prptype'} = $prptype;
   my $pdatas = $proj->{'package'} || {};
   $ctx->{'packs'} = [ sort keys %$pdatas ];
