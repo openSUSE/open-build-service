@@ -102,7 +102,8 @@ class Package < ApplicationRecord
   validates :releasename, length: { maximum: 200 }
   validates :title, length: { maximum: 250 }
   validates :url, length: { maximum: 255 }
-  validates :description, :report_bug_url, length: { maximum: 65_535 }
+  validates :description, length: { maximum: 65_535 }
+  validates :report_bug_url, length: { maximum: 8192 }
   validates :project_id, uniqueness: {
     scope: :name,
     message: lambda do |object, _data|
@@ -1389,7 +1390,7 @@ end
 #  description     :text(65535)
 #  name            :string(200)      not null, indexed => [project_id]
 #  releasename     :string(255)
-#  report_bug_url  :text(65535)
+#  report_bug_url  :string(8192)
 #  scmsync         :string(255)
 #  title           :string(255)
 #  url             :string(255)
