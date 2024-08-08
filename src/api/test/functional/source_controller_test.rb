@@ -3827,10 +3827,10 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # Branch a package with a defined devel package
     post '/source/kde4/kdelibs', params: { cmd: :branch }
     assert_response :success
-    assert_xml_tag(tag: 'data', attributes: { name: 'targetproject' }, content: 'home:tom:branches:home:coolo:test')
-    assert_xml_tag(tag: 'data', attributes: { name: 'targetpackage' }, content: 'kdelibs_DEVEL_package')
-    assert_xml_tag(tag: 'data', attributes: { name: 'sourceproject' }, content: 'home:coolo:test')
-    assert_xml_tag(tag: 'data', attributes: { name: 'sourcepackage' }, content: 'kdelibs_DEVEL_package')
+    assert_xml_tag(tag: 'data', attributes: { name: 'target_project' }, content: 'home:tom:branches:home:coolo:test')
+    assert_xml_tag(tag: 'data', attributes: { name: 'target_package' }, content: 'kdelibs_DEVEL_package')
+    assert_xml_tag(tag: 'data', attributes: { name: 'project' }, content: 'home:coolo:test')
+    assert_xml_tag(tag: 'data', attributes: { name: 'package' }, content: 'kdelibs_DEVEL_package')
 
     # delete package
     reset_auth
