@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_08_08_084541) do
+ActiveRecord::Schema[7.0].define(version: 2024_08_08_133204) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -624,7 +624,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_08_08_084541) do
     t.column "kind", "enum('other','bugzilla','cve','fate','trac','launchpad','sourceforge','github','jira')", null: false
     t.string "description"
     t.string "url", null: false
-    t.string "show_url"
+    t.string "show_url", limit: 8192
     t.string "regex", null: false
     t.string "user"
     t.string "password"
@@ -1151,7 +1151,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_08_08_084541) do
     t.string "description", limit: 64, default: ""
     t.datetime "triggered_at", precision: nil
     t.string "workflow_configuration_path", default: ".obs/workflows.yml"
-    t.string "workflow_configuration_url"
+    t.string "workflow_configuration_url", limit: 8192
     t.index ["executor_id"], name: "user_id"
     t.index ["package_id"], name: "package_id"
     t.index ["scm_token"], name: "index_tokens_on_scm_token"
