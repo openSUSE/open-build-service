@@ -22,12 +22,15 @@
 
 package BSPublisher::Diffnotify;
 
+use strict;
+
 use MIME::Base64 ();
 use JSON::XS ();
 
 use BSUtil;
 
-use strict;
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 sub tagdata_callback {
   my ($data, $registry, $containerinfo, $platformstr, $tags_seen, $tags_used) = @_;
@@ -67,7 +70,6 @@ sub packtrack2bin {
   }
   $bin->{'architecture'} = $pt->{'binaryarch'} if $pt->{'binaryarch'};
   $bin->{'schedulerarch'} = $pt->{'arch'} if $pt->{'arch'};
-  $bin->{'binary'} = $pt->{'arch'} if $pt->{'arch'};
   my @assoc;
   if ($containers->{$filename}) {
     my $containerinfo = $containers->{$filename};
@@ -92,15 +94,32 @@ sub create_notification {
   my ($data, $oldstate, $newstate) = @_;
 
   my $n = {};
-  $n->{'dag_run_id'} = $data->{'publishid'};
+  $n->{'dag_run_id'} = "$data->{'publishid'}";
   $n->{'conf'}->{'project'} = $data->{'projid'};
   $n->{'conf'}->{'repository'} = $data->{'repoid'};
+  $n->{'conf'}->{'binaries'} = [];
   my $bdiff = diffdata($oldstate->{'binaries'}, $newstate->{'binaries'}, 'path');
-  $n->{'conf'}->{'binaries'} = $bdiff;
+  for $b (@$bdiff) {
+    $b = { %$b };
+    $b->{'binaryname'} = delete $b->{'name'} if exists $b->{'name'};
+    if (defined($b->{'path'})) {
+      $b->{'name'} = $b->{'path'};
+      $b->{'name'} =~ s/.*\///;
+    }
+    push @{$n->{'conf'}->{'binaries'}}, $b;
+  }
   my $registries = $newstate->{'registries'};
   for my $gunprefix (sort keys %$registries) {
     my $rdiff = diffdata((($oldstate->{'registries'} || {})->{$gunprefix} || {})->{'tags'}, $registries->{$gunprefix}->{'tags'}, 'tag');
-    $n->{'conf'}->{'registries'}->{$gunprefix}->{'tags'} = $rdiff if @$rdiff;
+    for $b (@$rdiff) {
+      $b = { %$b };
+      $b->{'binaryname'} = delete $b->{'name'} if exists $b->{'name'};
+      if (defined($b->{'path'})) {
+        $b->{'name'} = $b->{'path'};
+        $b->{'name'} =~ s/.*\///;
+      }
+      push @{$n->{'conf'}->{'registries'}->{$gunprefix}->{'tags'}}, $b;
+    }
   }
   return $n;
 }
@@ -138,9 +157,11 @@ sub diffdata {
       }
     }
     next unless $r;
-    $r->{'flavor'} = '';
-    if (($r->{'package'} || '') =~ /(?<!^_product)(?<!^_patchinfo):./ && $r->{'package'} =~ /^(.*):(.*?)$/) {
-      ($r->{'package'}, $r->{'flavor'}) = ($1, $2);
+    if (defined $r->{'package'}) {
+      $r->{'flavor'} = '';
+      if ($r->{'package'} =~ /(?<!^_product)(?<!^_patchinfo):./ && $r->{'package'} =~ /^(.*):(.*?)$/) {
+        ($r->{'package'}, $r->{'flavor'}) = ($1, $2);
+      }
     }
     push @ret, $r;
   }
@@ -148,7 +169,7 @@ sub diffdata {
 }
 
 sub notification {
-  my ($data, $notify, $packtrack, $containers, $registrydata) = @_;
+  my ($extrep, $data, $notify, $packtrack, $containers, $registrydata) = @_;
 
   die("bad notification configuration\n") unless $notify->{'statedir'} && $notify->{'uri'};
   my @binaries;
@@ -160,6 +181,13 @@ sub notification {
       $bin->{'platform'} = $registrydata->{'tagdata'}->{$filename}->{'platformstr'};
       $bin->{'tags'} = $registrydata->{'tagdata'}->{$filename}->{'tags'};
       $bin->{'visibletags'} = $registrydata->{'tagdata'}->{$filename}->{'visibletags'};
+    }
+    if ($bin->{'path'} =~ /^(.*)\.(?:$binsufsre)$/) {
+      my $slsa = "$1.slsa_provenance.json";
+      if (-e "$extrep/$slsa") {
+	$slsa =~ s/.*\///;
+        push @{$bin->{'associated'}}, $slsa;
+      }
     }
     push @binaries, $bin;
   }
