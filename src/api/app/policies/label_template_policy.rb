@@ -6,6 +6,14 @@ class LabelTemplatePolicy < ApplicationPolicy
     true
   end
 
+  def new?
+    index?
+  end
+
+  def create?
+    index?
+  end
+
   def edit?
     index?
   end
