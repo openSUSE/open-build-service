@@ -8,7 +8,8 @@
     - if package.description.blank?
       %i No description set
     - else
-      = render partial: 'webui/shared/collapsible_text', locals: { text: package.description }
+      = render partial: 'webui/shared/collapsible_text', locals: { text: package.description,
+                                                                   render_markdown: Flipper.enabled?('foster_collaboration', User.session) }
 
   - if policy(package).update?
     .pt-4
