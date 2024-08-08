@@ -22,7 +22,7 @@ class SourceProjectConfigController < SourceController
   def update
     # necessary to pass the policy_class here
     # if its remote prj is a string
-    authorize @project, :update?, policy_class: ProjectPolicy
+    authorize @project, :update_content?, policy_class: ProjectPolicy
 
     params[:user] = User.session.login
     @project.config.file = request.body
