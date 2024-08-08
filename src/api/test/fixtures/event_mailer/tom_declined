@@ -13,6 +13,7 @@ Precedence: bulk
 X-Mailer: OBS Notification System
 X-OBS-URL: http://localhost
 Auto-Submitted: auto-generated
+List-ID: OBS Notification System <declined.request.localhost>
 X-OBS-event-type: request_statechange
 X-OBS-Request-Creator: Iggy
 X-OBS-Request-Id: REQUESTID
