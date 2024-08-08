@@ -91,6 +91,7 @@ class Project < ApplicationRecord
   has_many :notifications, through: :notified_projects
   has_many :reports, as: :reportable, dependent: :nullify
   has_many :label_templates
+  has_many :text_attachments, as: :attachable
 
   default_scope { where.not('projects.id' => Relationship.forbidden_project_ids) }
 

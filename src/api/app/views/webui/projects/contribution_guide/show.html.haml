@@ -1,0 +1,7 @@
+- @pagetitle = "Contribution Guide for #{@project}"
+
+.card.mb-3
+  = render partial: 'webui/project/tabs', locals: { project: @project }
+  .card-body
+    %h3.mb-4= @pagetitle
+    = sanitize @project.text_attachments.find_by(category: :contribution_guide)&.content

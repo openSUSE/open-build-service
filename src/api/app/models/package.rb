@@ -58,6 +58,7 @@ class Package < ApplicationRecord
   has_many :reports, as: :reportable, dependent: :nullify
   has_many :labels, as: :labelable
   accepts_nested_attributes_for :labels, allow_destroy: true
+  has_many :text_attachments, as: :attachable
 
   before_update :update_activity
   after_update :convert_to_symsync
