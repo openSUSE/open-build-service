@@ -525,6 +525,7 @@ sub preparehashes {
     my $rprp = $pool->pkg2reponame($p);
     my $n = $pool->pkg2name($p);
     my $sn = $pool->pkg2srcname($p) || $n;
+    $sn =~ s/^container://;
     $dep2pkg{$n} = $p;
     $dep2src{$n} = $sn;
     if ($rprp eq $prp) {
