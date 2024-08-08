@@ -109,7 +109,7 @@ class Project < ApplicationRecord
 
   validates :name, presence: true, length: { maximum: 200 }, uniqueness: { case_sensitive: true }
   validates :title, length: { maximum: 250 }
-  validates :report_bug_url, length: { maximum: 65_535 }
+  validates :report_bug_url, length: { maximum: 8192 }
   validate :valid_name
 
   validates :kind, inclusion: { in: TYPES }
@@ -1517,7 +1517,7 @@ end
 #  name                :string(200)      not null, indexed
 #  remoteproject       :string(255)
 #  remoteurl           :string(255)
-#  report_bug_url      :text(65535)
+#  report_bug_url      :string(8192)
 #  required_checks     :string(255)
 #  scmsync             :text(65535)
 #  title               :string(255)
