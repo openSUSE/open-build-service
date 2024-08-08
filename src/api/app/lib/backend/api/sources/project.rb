@@ -53,6 +53,18 @@ module Backend
           http_get(['/source/:project/_keyinfo', project_name], params: { withsslcert: 1, donotcreatecert: 1 })
         end
 
+        # Returns the distribution list from a remote instance
+        # @return [String]
+        def self.remotedistributions(project_name)
+          http_get(['/source/:project/_remotedistributions', project_name])
+        end
+
+        # Returns the imagetemplates from a remote instance
+        # @return [String]
+        def self.remoteimagetemplates(project_name)
+          http_get(['/source/:project/_remoteimagetemplates', project_name])
+        end
+
         # Returns the patchinfo for the project
         # @return [String]
         def self.patchinfo(project_name)

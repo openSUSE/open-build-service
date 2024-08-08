@@ -2333,7 +2333,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'directory', attributes: { count: '1' })
     get '/source/BaseDistro2.0:LinkedUpdateProject?expand=1'
     assert_response :success
-    assert_xml_tag(tag: 'directory', attributes: { count: '3' })
+    assert_xml_tag(tag: 'directory') # no count attribute, as the backend has to answer
     assert_xml_tag(tag: 'entry', attributes: { name: 'pack2', originproject: 'BaseDistro2.0' })
     assert_xml_tag(tag: 'entry', attributes: { name: 'pack2.linked', originproject: 'BaseDistro2.0' })
 
