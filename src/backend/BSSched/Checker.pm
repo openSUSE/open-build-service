@@ -325,6 +325,9 @@ sub setup {
     my $lastprojid = (split('/', $prpsearchpath->[-1]))[0];
     return ('broken', "no build type ($lastprojid)");
   }
+  if ($prptype eq 'excluded' || $prptype eq 'disabled') {
+    return ($prptype, undef);
+  }
   $ctx->{'prptype'} = $prptype;
   my $pdatas = $proj->{'package'} || {};
   $ctx->{'packs'} = [ sort keys %$pdatas ];
@@ -525,6 +528,7 @@ sub preparehashes {
     my $rprp = $pool->pkg2reponame($p);
     my $n = $pool->pkg2name($p);
     my $sn = $pool->pkg2srcname($p) || $n;
+    $sn =~ s/^container://;
     $dep2pkg{$n} = $p;
     $dep2src{$n} = $sn;
     if ($rprp eq $prp) {

@@ -221,6 +221,7 @@ sub check {
     my $p = $cbdep->{'p'};
     my $aprp = $cpool->pkg2reponame($p);
     my $n = $cbdep->{'name'};
+    $n =~ s/^container://;
     if ($prp eq $aprp) {
       push @blocked, $n if $notready->{$n};
     } else {
