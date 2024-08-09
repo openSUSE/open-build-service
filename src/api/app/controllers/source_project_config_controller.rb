@@ -12,7 +12,7 @@ class SourceProjectConfigController < SourceController
     content = config.content(sliced_params)
 
     unless content
-      render_404(config.errors.full_messages.to_sentence)
+      render_error status: 404, message: config.errors.full_messages.to_sentence
       return
     end
     send_config(content, config.response[:type])
@@ -30,7 +30,7 @@ class SourceProjectConfigController < SourceController
     response = @project.config.save(slice_and_permit(params, %i[user comment]))
 
     unless response
-      render_404(@project.config.errors.full_messages.to_sentence)
+      render_error status: 404, message: @project.config.errors.full_messages.to_sentence
       return
     end
 
@@ -51,15 +51,11 @@ class SourceProjectConfigController < SourceController
     send_data(content, type: content_type, disposition: :inline)
   end
 
-  def render_404(message)
-    render_error status: 404, message: message
-  end
-
   def ensure_project_exist
     # 'project' can be a local Project in database or a
     #  String that's the name of a remote project, or even raise exceptions
     @project = Project.get_by_name(params[:project])
   rescue Project::ReadAccessError, Project::UnknownObjectError => e
-    render_404(e)
+    render_error status: 404, message: e
   end
 end

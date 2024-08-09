@@ -310,7 +310,8 @@ RSpec.describe Webui::RequestController, :vcr do
       it 'adds submitter as maintainer' do
         login(receiver)
         post :changerequest, params: {
-          number: bs_request.number, accepted: 'accepted', add_submitter_as_maintainer_0: "#{target_project}_#_#{target_package}"
+          number: bs_request.number, accepted: 'accepted',
+          add_submitter_as_maintainer_0: "#{target_project}_#_#{target_package}" # rubocop:disable Naming/VariableNumber
         }
         expect(bs_request.reload.state).to eq(:accepted)
         expect(target_package.relationships.map(&:user_id)).to include(submitter.id)
@@ -321,7 +322,7 @@ RSpec.describe Webui::RequestController, :vcr do
         bs_request
         expect do
           post :changerequest, params: { number: bs_request.number, accepted: 'accepted',
-                                         forward_devel_0: "#{devel_package.project}_#_#{devel_package}",
+                                         forward_devel_0: "#{devel_package.project}_#_#{devel_package}", # rubocop:disable Naming/VariableNumber
                                          description: 'blah blah blah' }
         end.to change(BsRequest, :count).by(1)
         expect(BsRequest.last.bs_request_actions).to eq(devel_package.project.target_of_bs_request_actions)
@@ -338,7 +339,7 @@ RSpec.describe Webui::RequestController, :vcr do
       it 'accepts the parent request and reports an error for the forwarded request' do
         expect do
           post :changerequest, params: { number: bs_request.number, accepted: 'accepted',
-                                         forward_devel_0: "#{devel_package.project}_#_#{devel_package}",
+                                         forward_devel_0: "#{devel_package.project}_#_#{devel_package}", # rubocop:disable Naming/VariableNumber
                                          description: 'blah blah blah' }
         end.not_to change(BsRequest, :count)
         expect(bs_request.reload.state).to eq(:accepted)

@@ -566,15 +566,7 @@ Naming/PredicateName:
 # AllowedIdentifiers: capture3, iso8601, rfc1123_date, rfc822, rfc2822, rfc3339, x86_64
 Naming/VariableNumber:
   Exclude:
-    - 'app/controllers/source_project_config_controller.rb'
     - 'app/controllers/webui/request_controller.rb'
-    - 'spec/controllers/attribute_controller_spec.rb'
-    - 'spec/controllers/staging/excluded_requests_controller_spec.rb'
-    - 'spec/controllers/staging/staging_projects_controller_spec.rb'
-    - 'spec/controllers/webui/attribute_controller_spec.rb'
-    - 'spec/controllers/webui/download_on_demand_controller_spec.rb'
-    - 'spec/controllers/webui/project_controller_spec.rb'
-    - 'spec/controllers/webui/request_controller_spec.rb'
     - 'spec/db/data/backfill_notified_projects_spec.rb'
     - 'spec/db/data/generate_web_notifications_spec.rb'
     - 'spec/db/data/regenerate_notifications_spec.rb'

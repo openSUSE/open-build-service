@@ -688,9 +688,9 @@ RSpec.describe Webui::ProjectController, :vcr do
       end
 
       context 'three path elements' do
-        let(:path_element_2) { create(:path_element, repository: repository) }
-        let(:path_element_3) { create(:path_element, repository: repository) }
-        let(:path_elements) { [path_element, path_element_2, path_element_3] }
+        let(:path_element2) { create(:path_element, repository: repository) }
+        let(:path_element3) { create(:path_element, repository: repository) }
+        let(:path_elements) { [path_element, path_element2, path_element3] }
 
         context 'direction up' do
           let(:move) do
@@ -740,7 +740,7 @@ RSpec.describe Webui::ProjectController, :vcr do
   describe 'GET #monitor' do
     let(:repo_for_user) { create(:repository, name: 'openSUSE_Tumbleweed', project: user.home_project) }
     let(:arch_i586) { Architecture.where(name: 'i586').first }
-    let(:arch_x86_64) { Architecture.where(name: 'x86_64').first }
+    let(:arch_x86_64) { Architecture.where(name: 'x86_64').first } # rubocop:disable Naming/VariableNumber
     let!(:package) { create(:package, project: user.home_project) }
 
     context 'with a project' do
@@ -777,7 +777,7 @@ RSpec.describe Webui::ProjectController, :vcr do
           let(:additional_repo) { create(:repository, name: 'openSUSE_42.2', project: user.home_project) }
           let(:arch_s390x) { Architecture.where(name: 's390x').first }
           let!(:repository_achitecture_i586) { create(:repository_architecture, repository: repo_for_user, architecture: arch_i586) }
-          let!(:repository_achitecture_x86_64) { create(:repository_architecture, repository: repo_for_user, architecture: arch_x86_64) }
+          let!(:repository_achitecture_x86_64) { create(:repository_architecture, repository: repo_for_user, architecture: arch_x86_64) } # rubocop:disable Naming/VariableNumber
           let!(:repository_achitecture_s390x) { create(:repository_architecture, repository: additional_repo, architecture: arch_s390x) }
           let(:fake_buildresult) do
             <<-XML
