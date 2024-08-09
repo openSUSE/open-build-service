@@ -112,6 +112,7 @@ module Event
       attribs.delete 'format'
       attribs.delete 'action'
       attribs.delete 'controller'
+      attribs.delete 'created'
 
       return if attribs.empty?
 
