@@ -35,12 +35,17 @@ class BsRequestActionRelease < BsRequestAction
   end
 
   def execute_accept(opts)
-    pkg = Package.get_by_project_and_name(source_project, source_package)
+    pkg = Package.get_by_project_and_name(source_project, source_package, follow_multibuild: true)
 
     # have a unique time stamp for release
     opts[:acceptTimeStamp] ||= Time.zone.now
 
-    release_package(pkg, Project.get_by_name(target_project), target_package, { action: self, manual: true })
+    flags = { action: self, manual: true }
+    target_package ||= Package.striping_multibuild_suffix(source_package)
+    if source_package.include?(':') && !source_package.starts_with?('_product:')
+      flags[:multibuild_container] = source_package.gsub(/^.*:/, '')
+    end
+    release_package(pkg, Project.get_by_name(target_project), target_package, flags)
   end
 
   def check_permissions!
@@ -50,6 +55,7 @@ class BsRequestActionRelease < BsRequestAction
   # For consistency reasons with the other BsRequestActions
   # rubocop:disable Naming/AccessorMethodName
   def set_acceptinfo(acceptinfo)
+    target_package ||= Package.striping_multibuild_suffix(source_package)
     # released packages are expanded copies, so we can not use
     # the link information. We need to patch the "old" part
     base_package_name = target_package.gsub(/\.[^.]*$/, '')
