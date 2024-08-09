@@ -12,33 +12,15 @@ module Webui::NotificationHelper
     text.truncate(truncation_index)
   end
 
-  def avatars(notification)
-    capture do
-      tag.ul(class: 'list-inline d-flex flex-row-reverse avatars m-0') do
-        hidden_avatars(notification)
-
-        avatars_to_display(notification.avatar_objects).each do |avatar_object|
-          concat(
-            tag.li(class: 'list-inline-item') do
-              case avatar_object.class.name
-              when 'User', 'Group'
-                render(AvatarComponent.new(name: avatar_object.name, email: avatar_object.email, size: 23, shape: :circle))
-              when 'Package'
-                tag.span(class: 'fa fa-archive text-warning rounded-circle bg-body-secondary border simulated-avatar', title: "Package #{avatar_object.project}/#{avatar_object}")
-              when 'Project'
-                tag.span(class: 'fa fa-cubes text-secondary rounded-circle bg-body-secondary border simulated-avatar', title: "Project #{avatar_object}")
-              end
-            end
-          )
-        end
-      end
+  def avatars(avatar_object)
+    case avatar_object.class.name
+    when 'User', 'Group'
+      render(AvatarComponent.new(name: avatar_object.name, email: avatar_object.email, size: 23, shape: :circle))
+    when 'Package'
+      tag.span(class: 'fa fa-archive text-warning rounded-circle bg-body-secondary border simulated-avatar', title: "Package #{avatar_object.project}/#{avatar_object}")
+    when 'Project'
+      tag.span(class: 'fa fa-cubes text-secondary rounded-circle bg-body-secondary border simulated-avatar', title: "Project #{avatar_object}")
     end
-  end
-
-  private
-
-  def number_of_hidden_avatars(avatar_objects)
-    [0, avatar_objects.size - MAXIMUM_DISPLAYED_AVATARS].max
   end
 
   def hidden_avatars(notification)
@@ -55,5 +37,11 @@ module Webui::NotificationHelper
 
   def avatars_to_display(avatar_objects)
     avatar_objects.first(MAXIMUM_DISPLAYED_AVATARS).reverse
+  end
+
+  private
+
+  def number_of_hidden_avatars(avatar_objects)
+    [0, avatar_objects.size - MAXIMUM_DISPLAYED_AVATARS].max
   end
 end

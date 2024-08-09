@@ -24,7 +24,11 @@
           = render NotificationMarkButtonComponent.new(@notification, @selected_filter, @page)
       .row.mt-1.ps-sm-4
         .col-auto.pe-0
-          = helpers.avatars(@notification)
+          %ul.list-inline.d-flex.flex-row-reverse.avatars.m-0
+            = helpers.hidden_avatars(@notification)
+            - helpers.avatars_to_display(@notification.avatar_objects).each do |avatar_object|
+              %li.list-inline-item
+                = helpers.avatars(avatar_object)
         .col-auto.ps-xs-2
           .smart-overflow= @notification.description
       .row.d-none.d-md-block.ps-4
