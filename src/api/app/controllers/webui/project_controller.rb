@@ -106,6 +106,7 @@ class Webui::ProjectController < Webui::WebuiController
     respond_to do |format|
       format.js do
         if @project.update(project_params)
+          @project.store
           flash.now[:success] = 'Project was successfully updated.'
         else
           flash.now[:error] = 'Failed to update the project.'
