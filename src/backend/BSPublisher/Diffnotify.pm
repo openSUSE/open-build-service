@@ -72,6 +72,7 @@ sub packtrack2bin {
   $bin->{'schedulerarch'} = $pt->{'arch'} if $pt->{'arch'};
   my @assoc;
   if ($containers->{$filename}) {
+    $bin->{'architecture'} = 'noarch';
     my $containerinfo = $containers->{$filename};
     for (@{$containerinfo->{'_associated'} || []}) {
       my $assoc = $_;
