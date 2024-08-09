@@ -109,7 +109,7 @@ sub helminfo2nevra {
   $lnk->{'name'} = "helm:$d->{'name'}";
   $lnk->{'version'} = defined($d->{'version'}) ? $d->{'version'} : '0';
   $lnk->{'release'} = defined($d->{'release'}) ? $d->{'release'} : '0';
-  $lnk->{'arch'} = defined($d->{'arch'}) ? $d->{'arch'} : 'noarch';
+  $lnk->{'arch'} = 'noarch';
   return $lnk;
 }
 
