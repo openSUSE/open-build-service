@@ -57,7 +57,7 @@ class Role < ApplicationRecord
   end
 
   def self.global_roles
-    ['Admin']
+    %w[Admin Staff Moderator]
   end
 
   def self.ids_with_permission(perm_string)
