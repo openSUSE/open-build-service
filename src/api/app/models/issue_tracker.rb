@@ -350,7 +350,7 @@ end
 #  password       :string(255)
 #  publish_issues :boolean          default(TRUE)
 #  regex          :string(255)      not null
-#  show_url       :string(255)
+#  show_url       :string(8192)
 #  url            :string(255)      not null
 #  user           :string(255)
 #
