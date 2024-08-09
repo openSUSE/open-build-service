@@ -4,6 +4,21 @@ module Webui::NotificationHelper
 
   MAXIMUM_DISPLAYED_AVATARS = 6
 
+  NOTIFICATION_ICON = {
+    'BsRequest' => 'fa-code-pull-request', 'Comment' => 'fa-comments',
+    'Package' => 'fa-xmark text-danger',
+    'Report' => 'fa-flag', 'Decision' => 'fa-clipboard-check',
+    'Appeal' => 'fa-hand', 'WorkflowRun' => 'fa-book-open',
+    'Group' => 'fa-people-group'
+  }.freeze
+
+  NOTIFICATION_TITLE = {
+    'BsRequest' => 'Request notification', 'Comment' => 'Comment notification',
+    'Package' => 'Package notification', 'Report' => 'Report notification',
+    'Decision' => 'Report decision', 'Appeal' => 'Decision appeal',
+    'WorkflowRun' => 'Workflow run', 'Group' => 'Group members changed'
+  }.freeze
+
   def truncate_to_first_new_line(text)
     return '' if text.blank?
 
@@ -32,6 +47,14 @@ module Webui::NotificationHelper
           )
         end
       end
+    end
+  end
+
+  def notification_icon(notification)
+    if notification.event_type.in?(['Event::RelationshipCreate', 'Event::RelationshipDelete'])
+      tag.i(class: %w[fas fa-user-tag], title: 'Relationship notification')
+    elsif NOTIFICATION_ICON[notification.notifiable_type].present?
+      tag.i(class: ['fas', NOTIFICATION_ICON[notification.notifiable_type]], title: NOTIFICATION_TITLE[notification.notifiable_type])
     end
   end
 
