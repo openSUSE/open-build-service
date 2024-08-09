@@ -83,6 +83,7 @@ class BsRequest < ApplicationRecord
   has_many :watched_items, as: :watchable, dependent: :destroy
   has_many :reports, as: :reportable, dependent: :nullify
   has_many :labels, as: :labelable
+  accepts_nested_attributes_for :labels, allow_destroy: true
 
   validates :state, inclusion: { in: VALID_REQUEST_STATES }
   validates :creator, presence: true
