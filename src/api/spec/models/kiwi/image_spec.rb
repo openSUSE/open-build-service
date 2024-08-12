@@ -350,8 +350,9 @@ RSpec.describe Kiwi::Image, :vcr do
       it { expect(kiwi_image.write_to_backend).to be(false) }
 
       it 'does not call save! method' do
-        expect(kiwi_image).not_to receive(:save!)
+        allow(kiwi_image).to receive(:save!)
         kiwi_image.write_to_backend
+        expect(kiwi_image).not_to have_received(:save!)
       end
     end
 
