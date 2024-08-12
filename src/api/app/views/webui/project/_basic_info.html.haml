@@ -8,7 +8,8 @@
     - if project.description.blank?
       %i No description set
     - else
-      = render partial: 'webui/shared/collapsible_text', locals: { text: project.description }
+      = render partial: 'webui/shared/collapsible_text', locals: { text: project.description,
+                                                                   render_markdown: Flipper.enabled?('foster_collaboration', User.session) }
   - if policy(project).update?
     .pt-4
       = link_to(edit_project_path(project), class: 'ps-0', remote: true, title: 'Edit') do
