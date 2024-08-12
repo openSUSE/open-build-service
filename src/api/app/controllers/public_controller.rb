@@ -100,7 +100,7 @@ class PublicController < ApplicationController
 
   # GET /public/source/:project/:package/_meta
   def package_meta
-    check_package_access(params[:project], params[:package], false)
+    check_package_access(params[:project], params[:package], use_source: false)
 
     path = unshift_public(request.path_info)
     # we should do this via user agent instead, but BSRPC is not only used for interconnect.
@@ -144,7 +144,7 @@ class PublicController < ApplicationController
 
   # GET /public/binary_packages/:project/:package
   def binary_packages
-    check_package_access(params[:project], params[:package], false)
+    check_package_access(params[:project], params[:package], use_source: false)
     @pkg = Package.find_by_project_and_name(params[:project], params[:package])
 
     begin
@@ -210,7 +210,7 @@ class PublicController < ApplicationController
     path =~ %r{/public(.*)} ? Regexp.last_match(1) : path
   end
 
-  def check_package_access(project_name, package_name, use_source = true)
+  def check_package_access(project_name, package_name, use_source: true)
     # don't use the cache for use_source
     if use_source
       begin

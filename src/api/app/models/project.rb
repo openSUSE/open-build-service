@@ -213,8 +213,8 @@ class Project < ApplicationRecord
       project
     end
 
-    def is_remote_project?(name, skip_access = false)
-      lpro = find_remote_project(name, skip_access)
+    def is_remote_project?(name, skip_access: false)
+      lpro = find_remote_project(name, skip_access: skip_access)
 
       lpro && lpro[0].defines_remote_instance?
     end
@@ -285,7 +285,7 @@ class Project < ApplicationRecord
       Project.joins(:attribs).where(attribs: { attrib_type_id: attrib_type.id })
     end
 
-    def find_remote_project(name, skip_access = false)
+    def find_remote_project(name, skip_access: false)
       return unless name
 
       fragments = name.split(':')
@@ -675,7 +675,7 @@ class Project < ApplicationRecord
     raise DeleteError, 'This maintenance project has incident projects and can therefore not be deleted.'
   end
 
-  def can_be_unlocked?(with_exception = true)
+  def can_be_unlocked?(with_exception: true)
     if is_maintenance_incident?
       requests = BsRequest.where(state: %i[new review declined]).joins(:bs_request_actions)
       maintenance_release_requests = requests.where(bs_request_actions: { type: 'maintenance_release', source_project: name })
@@ -1230,7 +1230,7 @@ class Project < ApplicationRecord
   end
 
   def unlock(comment = nil)
-    if can_be_unlocked?(false)
+    if can_be_unlocked?(with_exception: false)
       do_unlock(comment)
     else
       false
