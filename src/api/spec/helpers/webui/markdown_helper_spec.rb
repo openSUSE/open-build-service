@@ -49,8 +49,8 @@ RSpec.describe Webui::MarkdownHelper do
       expect(render_as_markdown("```ruby\ndef\n```")).to eq("<div class=\"CodeRay\">\n  <div class=\"code\"><pre><span class=\"keyword\">def</span>\n</pre></div>\n</div>\n")
     end
 
-    it 'does remove dangerous html from the view' do
-      expect(render_as_markdown('<script></script>')).to eq("\n")
+    it 'escapes dangerous html' do
+      expect(render_as_markdown('<script></script>')).to eq("<p>&lt;script&gt;&lt;/script&gt;</p>\n")
     end
 
     it 'does remove dangerous html from inside the code blocks with a language' do
