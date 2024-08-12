@@ -208,10 +208,10 @@ class Webui::RequestController < Webui::WebuiController
 
     if change_state(changestate, params)
       # TODO: Make this work for each submit action individually
-      if params[:add_submitter_as_maintainer_0]
+      if params[:add_submitter_as_maintainer_0] # rubocop:disable Naming/VariableNumber
         if changestate == 'accepted'
           # split into project and package
-          tprj, tpkg = params[:add_submitter_as_maintainer_0].split('_#_')
+          tprj, tpkg = params[:add_submitter_as_maintainer_0].split('_#_') # rubocop:disable Naming/VariableNumber
           target = if tpkg
                      Package.find_by_project_and_name(tprj, tpkg)
                    else

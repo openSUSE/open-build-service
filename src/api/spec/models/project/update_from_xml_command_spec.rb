@@ -3,9 +3,9 @@ RSpec.describe Project::UpdateFromXmlCommand do
   let(:attribute_type) { AttribType.find_by_namespace_and_name!('OBS', 'ImageTemplates') }
 
   describe '#update_repositories' do
-    let!(:repository_1) { create(:repository, name: 'repo_1', rebuild: 'direct', project: project) }
-    let!(:repository_2) { create(:repository, name: 'repo_2', project: project) }
-    let!(:repository_3) { create(:repository, name: 'repo_3', project: project) }
+    let!(:repository1) { create(:repository, name: 'repo_1', rebuild: 'direct', project: project) }
+    let!(:repository2) { create(:repository, name: 'repo_2', project: project) }
+    let!(:repository3) { create(:repository, name: 'repo_3', project: project) }
 
     context 'updating repository elements' do
       before do
@@ -27,9 +27,9 @@ RSpec.describe Project::UpdateFromXmlCommand do
       end
 
       it 'updates repository attributes of existing repositories' do
-        expect(repository_1.reload.rebuild).to be_nil
-        expect(repository_1.block).to be_nil
-        expect(repository_1.linkedbuild).to be_nil
+        expect(repository1.reload.rebuild).to be_nil
+        expect(repository1.block).to be_nil
+        expect(repository1.linkedbuild).to be_nil
       end
 
       it 'imports repository attributes of newly created repositories' do
@@ -47,7 +47,7 @@ RSpec.describe Project::UpdateFromXmlCommand do
       let!(:remote_repository) do
         create(:repository, name: 'remote_repo', remote_project_name: 'remote_project', project: remote_project)
       end
-      let!(:release_target) { create(:release_target, repository: repository_1) }
+      let!(:release_target) { create(:release_target, repository: repository1) }
 
       it 'updates release targets' do
         xml_hash = Xmlhash.parse(
@@ -61,8 +61,8 @@ RSpec.describe Project::UpdateFromXmlCommand do
         )
         Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
 
-        expect(repository_1.release_targets.count).to eq(1)
-        expect(repository_1.release_targets.first.trigger).to eq('manual')
+        expect(repository1.release_targets.count).to eq(1)
+        expect(repository1.release_targets.first.trigger).to eq('manual')
       end
 
       it 'raises an error if target repository does not exist' do
@@ -110,8 +110,8 @@ RSpec.describe Project::UpdateFromXmlCommand do
         )
         Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
 
-        expect(repository_1.architectures.map(&:name)).to eq(%w[x86_64 i586])
-        expect(repository_1.repository_architectures.map { |repoarch| repoarch.architecture.name }).to eq(%w[x86_64 i586])
+        expect(repository1.architectures.map(&:name)).to eq(%w[x86_64 i586])
+        expect(repository1.repository_architectures.map { |repoarch| repoarch.architecture.name }).to eq(%w[x86_64 i586])
       end
 
       it 'raises an error for unknown architectures' do
@@ -146,26 +146,26 @@ RSpec.describe Project::UpdateFromXmlCommand do
       end
 
       it 'preserves IDs' do
-        create(:repository_architecture, repository: repository_1, architecture: Architecture.find_by_name('i586'))
-        arch2 = create(:repository_architecture, repository: repository_1, architecture: Architecture.find_by_name('x86_64'))
+        create(:repository_architecture, repository: repository1, architecture: Architecture.find_by_name('i586'))
+        arch2 = create(:repository_architecture, repository: repository1, architecture: Architecture.find_by_name('x86_64'))
 
-        ids = repository_1.repository_architectures.pluck(:id)
+        ids = repository1.repository_architectures.pluck(:id)
         xml = "<project name='#{project.name}'><repository name='repo_1'><arch>i586</arch><arch>x86_64</arch></repository></project>"
         xml_hash = Xmlhash.parse(xml)
         Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
-        expect(repository_1.repository_architectures.pluck(:id)).to eq(ids)
+        expect(repository1.repository_architectures.pluck(:id)).to eq(ids)
 
         # turn them around
         xml = "<project name='#{project.name}'><repository name='repo_1'><arch>x86_64</arch><arch>i586</arch></repository></project>"
         xml_hash = Xmlhash.parse(xml)
         Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
-        expect(repository_1.repository_architectures.pluck(:id)).to eq(ids.reverse)
+        expect(repository1.repository_architectures.pluck(:id)).to eq(ids.reverse)
 
         # remove one but preserve the other's ID
         xml = "<project name='#{project.name}'><repository name='repo_1'><arch>x86_64</arch></repository></project>"
         xml_hash = Xmlhash.parse(xml)
         Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
-        expect(repository_1.repository_architectures.pluck(:id)).to contain_exactly(arch2.id)
+        expect(repository1.repository_architectures.pluck(:id)).to contain_exactly(arch2.id)
       end
     end
 
@@ -192,7 +192,7 @@ RSpec.describe Project::UpdateFromXmlCommand do
         end
 
         it 'updates download repositories of a repository' do
-          expect(repository_1.download_repositories).to be_empty
+          expect(repository1.download_repositories).to be_empty
 
           dod_repo = project.repositories.find_by(name: 'dod_repo')
           expect(dod_repo).not_to be_nil
@@ -241,7 +241,7 @@ RSpec.describe Project::UpdateFromXmlCommand do
     describe 'path elements' do
       let!(:other_project) { create(:project, name: 'other_project') }
       let!(:other_projects_repository) { create(:repository, name: 'other_repo', project: other_project) }
-      let!(:path_element) { create(:path_element, repository: repository_3) }
+      let!(:path_element) { create(:path_element, repository: repository3) }
 
       context 'valid usecase' do
         before do
@@ -263,19 +263,19 @@ RSpec.describe Project::UpdateFromXmlCommand do
         end
 
         it 'updates path elements' do
-          expect(repository_1.path_elements.count).to eq(2)
+          expect(repository1.path_elements.count).to eq(2)
 
-          expect(repository_1.path_elements.find_by(position: 1).link.name).to eq('other_repo')
-          expect(repository_1.path_elements.find_by(position: 2).link.name).to eq('repo_3')
+          expect(repository1.path_elements.find_by(position: 1).link.name).to eq('other_repo')
+          expect(repository1.path_elements.find_by(position: 2).link.name).to eq('repo_3')
         end
 
         it 'can handle dependencies between repositories' do
-          expect(repository_2.path_elements.count).to eq(1)
-          expect(repository_2.path_elements.find_by(position: 1).link.name).to eq('repo_3')
+          expect(repository2.path_elements.count).to eq(1)
+          expect(repository2.path_elements.find_by(position: 1).link.name).to eq('repo_3')
         end
 
         it 'removes path elements' do
-          expect(repository_3.path_elements.count).to eq(0)
+          expect(repository3.path_elements.count).to eq(0)
         end
       end
 

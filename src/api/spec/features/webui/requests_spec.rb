@@ -23,16 +23,16 @@ RSpec.describe 'Requests', :js, :vcr do
 
   context 'request show page' do
     let!(:superseded_bs_request) { create(:superseded_bs_request, superseded_by_request: bs_request) }
-    let!(:comment_1) { create(:comment, commentable: bs_request) }
-    let!(:comment_2) { create(:comment, commentable: superseded_bs_request) }
+    let!(:comment1) { create(:comment, commentable: bs_request) }
+    let!(:comment2) { create(:comment, commentable: superseded_bs_request) }
 
     it 'show request comments' do
       visit request_show_path(bs_request)
-      expect(page).to have_text(comment_1.body)
-      expect(page).to have_no_text(comment_2.body)
+      expect(page).to have_text(comment1.body)
+      expect(page).to have_no_text(comment2.body)
       find('a', text: "Comments for request #{superseded_bs_request.number}").click
-      expect(page).to have_text(comment_2.body)
-      expect(page).to have_no_text(comment_1.body)
+      expect(page).to have_text(comment2.body)
+      expect(page).to have_no_text(comment1.body)
     end
 
     describe 'request description field' do

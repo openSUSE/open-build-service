@@ -125,12 +125,12 @@ RSpec.describe RegenerateNotifications, type: :migration do
       end
 
       context 'with review by project and by package' do
-        let(:reviewer_1) { create(:confirmed_user, login: 'reviewer_1') }
-        let(:package_2) { create(:package, name: 'package_2') }
-        let!(:relationship) { create(:relationship_package_user, user: reviewer_1, package: package_2) }
-        let!(:web_subscription) { create(:event_subscription_review_wanted, receiver_role: 'reviewer', user: reviewer_1, channel: :web) }
-        let!(:rss_subscription) { create(:event_subscription_review_wanted, receiver_role: 'reviewer', user: reviewer_1, channel: :rss) }
-        let!(:review_by_package) { create(:review, bs_request: review_request, by_project: package_2.project, by_package: package_2, state: :new) }
+        let(:reviewer1) { create(:confirmed_user, login: 'reviewer_1') }
+        let(:package2) { create(:package, name: 'package_2') }
+        let!(:relationship) { create(:relationship_package_user, user: reviewer1, package: package2) }
+        let!(:web_subscription) { create(:event_subscription_review_wanted, receiver_role: 'reviewer', user: reviewer1, channel: :web) }
+        let!(:rss_subscription) { create(:event_subscription_review_wanted, receiver_role: 'reviewer', user: reviewer1, channel: :rss) }
+        let!(:review_by_package) { create(:review, bs_request: review_request, by_project: package2.project, by_package: package2, state: :new) }
 
         before do
           subject
