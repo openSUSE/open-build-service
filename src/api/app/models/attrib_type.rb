@@ -26,21 +26,21 @@ class AttribType < ApplicationRecord
 
   #### Class methods using self. (public and then private)
   def self.find_by_name!(name)
-    find_by_name(name, true)
+    find_by_name(name, or_fail: true)
   end
 
-  def self.find_by_name(name, or_fail = false)
+  def self.find_by_name(name, or_fail: false)
     name_parts = name.split(':')
     raise InvalidAttributeError, "Attribute '#{name}' must be in the $NAMESPACE:$NAME style" if name_parts.length != 2
 
-    find_by_namespace_and_name(name_parts[0], name_parts[1], or_fail)
+    find_by_namespace_and_name(name_parts[0], name_parts[1], or_fail: or_fail)
   end
 
   def self.find_by_namespace_and_name!(namespace, name)
-    find_by_namespace_and_name(namespace, name, true)
+    find_by_namespace_and_name(namespace, name, or_fail: true)
   end
 
-  def self.find_by_namespace_and_name(namespace, name, or_fail = false)
+  def self.find_by_namespace_and_name(namespace, name, or_fail: false)
     raise ArgumentError, 'Need namespace and name as parameters' unless namespace && name
 
     attribute_type = joins(:attrib_namespace).find_by('attrib_namespaces.name = ? and attrib_types.name = ?', namespace, name)
