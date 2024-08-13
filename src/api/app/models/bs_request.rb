@@ -513,7 +513,7 @@ class BsRequest < ApplicationRecord
       source_project = Project.find_by_name(action.source_project)
 
       # create incident if it is a maintenance project
-      incident_project ||= MaintenanceIncident.build_maintenance_incident(target_project, source_project.nil?, self).project
+      incident_project ||= MaintenanceIncident.build_maintenance_incident(target_project, self, no_access: source_project.nil?).project
       opts[:check_for_patchinfo] = true
 
       raise MultipleMaintenanceIncidents, 'This request handles different maintenance incidents, this is not allowed !' unless incident_project.name.start_with?(target_project.name)

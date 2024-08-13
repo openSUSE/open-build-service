@@ -22,7 +22,7 @@ module Webui
         @project = Project.get_by_name(params[:project_name])
         authorize @project, :update?
 
-        incident = MaintenanceIncident.build_maintenance_incident(@project, params[:noaccess].present?)
+        incident = MaintenanceIncident.build_maintenance_incident(@project, no_access: params[:noaccess].present?)
 
         if incident
           flash[:success] = "Created maintenance incident project #{elide(incident.project.name)}"

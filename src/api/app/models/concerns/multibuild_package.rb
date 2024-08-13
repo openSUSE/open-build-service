@@ -3,7 +3,7 @@ module MultibuildPackage
 
   class_methods do
     def valid_multibuild_name?(name)
-      valid_name?(name, true)
+      valid_name?(name, allow_multibuild: true)
     end
 
     def striping_multibuild_suffix(name)

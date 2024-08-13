@@ -665,7 +665,7 @@ class Project < ApplicationRecord
   def check_weak_dependencies!
     # check all packages
     packages.each do |pkg|
-      pkg.check_weak_dependencies!(true) # ignore project local devel packages
+      pkg.check_weak_dependencies!(ignore_local: true) # ignore project local devel packages
     end
 
     # do not allow to remove maintenance master projects if there are incident projects

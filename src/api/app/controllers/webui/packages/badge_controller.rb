@@ -5,7 +5,7 @@ module Webui
       before_action :set_package
 
       def show
-        results = @package.buildresult(@project, false, true).results[@package.name]
+        results = @package.buildresult(@project, show_all: false, lastbuild: true).results[@package.name]
         results = results.select { |r| r.architecture == params[:architecture] } if params[:architecture]
         results = results.select { |r| r.repository == params[:repository] } if params[:repository]
         results = discard_non_relevant_results(results) unless results.nil?

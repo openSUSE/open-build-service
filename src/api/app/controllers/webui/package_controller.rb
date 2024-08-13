@@ -253,7 +253,7 @@ class Webui::PackageController < Webui::WebuiController
     if @project.repositories.any?
       show_all = params[:show_all].to_s.casecmp?('true')
       @index = params[:index]
-      @buildresults = @package.buildresult(@project, show_all)
+      @buildresults = @package.buildresult(@project, show_all: show_all)
 
       # TODO: this is part of the temporary changes done for 'request_show_redesign'.
       request_show_redesign_partial = 'webui/request/beta_show_tabs/build_status' if params.fetch(:inRequestShowRedesign, false)
