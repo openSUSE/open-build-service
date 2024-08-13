@@ -362,8 +362,8 @@ class BsRequestPermissionCheck
         @write_permission_in_this_action = true
       end
     else
-      @write_permission_in_target = true if @target_project && PackagePolicy.new(accept_user, Package.new(project: @target_project), true).create?
-      @write_permission_in_this_action = true if @target_project && PackagePolicy.new(accept_user, Package.new(project: @target_project), ignore_lock).create?
+      @write_permission_in_target = true if @target_project && PackagePolicy.new(accept_user, Package.new(project: @target_project), ignore_lock: true).create?
+      @write_permission_in_this_action = true if @target_project && PackagePolicy.new(accept_user, Package.new(project: @target_project), ignore_lock: ignore_lock).create?
     end
   end
 end

@@ -318,7 +318,7 @@ class User < ApplicationRecord
     render_axml
   end
 
-  def render_axml(watchlist = false, render_watchlist_only: false)
+  def render_axml(watchlist: false, render_watchlist_only: false)
     # CanRenderModel
     render_xml(watchlist: watchlist, render_watchlist_only: render_watchlist_only)
   end

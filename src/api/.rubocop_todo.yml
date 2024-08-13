@@ -1065,9 +1065,6 @@ Style/OpenStructUse:
 Style/OptionalBooleanParameter:
   Exclude:
     - 'app/helpers/webui/webui_helper.rb'
-    - 'app/jobs/consistency_check_job.rb'
-    - 'app/models/user.rb'
-    - 'app/policies/package_policy.rb'
 
 # Offense count: 86
 # This cop supports unsafe autocorrection (--autocorrect-all).
