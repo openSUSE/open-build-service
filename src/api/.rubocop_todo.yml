@@ -710,13 +710,6 @@ RSpec/IndexedLet:
     - 'spec/shared/contexts/a_user_and_subscriptions.rb'
     - 'spec/shared/contexts/a_user_and_subscriptions_with_defaults.rb'
 
-# Offense count: 1
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: have_received, receive
-RSpec/MessageSpies:
-  Exclude:
-    - 'spec/models/kiwi/image_spec.rb'
-
 # Offense count: 1618
 # Configuration parameters: AllowSubject.
 RSpec/MultipleMemoizedHelpers:
