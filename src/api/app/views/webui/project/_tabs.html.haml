@@ -1,33 +1,33 @@
 .card-header.p-0
   .scrollable-tabs
-    = tab_link('Overview', project_show_path(project), false, 'scrollable-tab-link')
+    = tab_link('Overview', project_show_path(project), 'scrollable-tab-link')
     -# haml-lint:disable InstanceVariables
     - unless @spider_bot
       -# haml-lint:enable InstanceVariables
       - if project.is_maintenance?
-        = tab_link('Incidents', project_maintenance_incidents_path(project), false, 'scrollable-tab-link')
-        = tab_link('Maintained Projects', project_maintained_projects_path(project), false, 'scrollable-tab-link')
+        = tab_link('Incidents', project_maintenance_incidents_path(project), 'scrollable-tab-link')
+        = tab_link('Maintained Projects', project_maintained_projects_path(project), 'scrollable-tab-link')
       - unless project.defines_remote_instance? || project.is_maintenance?
-        = tab_link('Repositories', repositories_path(project), false, 'scrollable-tab-link')
-        = tab_link('Monitor', project_monitor_path(project), false, 'scrollable-tab-link')
-      = tab_link('Requests', project_requests_path(project), false, 'scrollable-tab-link')
+        = tab_link('Repositories', repositories_path(project), 'scrollable-tab-link')
+        = tab_link('Monitor', project_monitor_path(project), 'scrollable-tab-link')
+      = tab_link('Requests', project_requests_path(project), 'scrollable-tab-link')
       - unless project.defines_remote_instance?
-        = tab_link('Users', project_users_path(project), false, 'scrollable-tab-link')
+        = tab_link('Users', project_users_path(project), 'scrollable-tab-link')
       - unless project.defines_remote_instance? || project.is_maintenance?
-        = tab_link('Subprojects', project_subprojects_path(project), false, 'scrollable-tab-link')
-        = tab_link('Project Config', project_config_path(project), false, 'scrollable-tab-link')
-      = tab_link('Attributes', [index_attribs_path(project)], controller_name == 'attribute', 'scrollable-tab-link')
-      = tab_link('Signing Keys', project_signing_keys_path(project), false, 'scrollable-tab-link')
-      = tab_link('Meta', project_meta_path(project), false, 'scrollable-tab-link')
+        = tab_link('Subprojects', project_subprojects_path(project), 'scrollable-tab-link')
+        = tab_link('Project Config', project_config_path(project), 'scrollable-tab-link')
+      = tab_link('Attributes', [index_attribs_path(project)], 'scrollable-tab-link', active: controller_name == 'attribute')
+      = tab_link('Signing Keys', project_signing_keys_path(project), 'scrollable-tab-link')
+      = tab_link('Meta', project_meta_path(project), 'scrollable-tab-link')
       - unless project.defines_remote_instance? || project.is_maintenance?
-        = tab_link('Status', project_status_path(project), false, 'scrollable-tab-link')
-      = tab_link('Pulse', project_pulse_path(project), false, 'scrollable-tab-link')
+        = tab_link('Status', project_status_path(project), 'scrollable-tab-link')
+      = tab_link('Pulse', project_pulse_path(project), 'scrollable-tab-link')
       - active = controller_path.starts_with?('webui/staging')
       - if project.staging_project?
-        = tab_link('Staging', staging_workflow_path(project.staging_workflow.project), false, 'scrollable-tab-link')
+        = tab_link('Staging', staging_workflow_path(project.staging_workflow.project), 'scrollable-tab-link')
       - elsif project.staging&.persisted?
-        = tab_link('Staging', staging_workflow_path(project), active, 'scrollable-tab-link')
+        = tab_link('Staging', staging_workflow_path(project), 'scrollable-tab-link', active: active)
       - elsif policy(Staging::Workflow.new(project: project)).create?
-        = tab_link('Staging', new_staging_workflow_path(project: project), active, 'scrollable-tab-link')
+        = tab_link('Staging', new_staging_workflow_path(project: project), 'scrollable-tab-link', active: active)
       - if policy(LabelTemplate.new(project: project)).index?
-        = tab_link('Label templates', project_label_templates_path(project), false, 'scrollable-tab-link')
+        = tab_link('Label templates', project_label_templates_path(project), 'scrollable-tab-link')

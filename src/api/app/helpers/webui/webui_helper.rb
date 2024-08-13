@@ -211,7 +211,7 @@ module Webui::WebuiHelper
 
   # paths param will accept one or more paths to match to make this tab active.
   # Only the first one will be used as link though if more than one is present.
-  def tab_link(label, paths, active = false, html_class = 'nav-link text-nowrap')
+  def tab_link(label, paths, html_class = 'nav-link text-nowrap', active: false)
     paths = [paths] unless paths.respond_to?(:select)
     paths_match = paths.any? { |path| request.path.eql?(path) }
     html_class << ' active' if active || paths_match
