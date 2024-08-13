@@ -47,7 +47,7 @@ RSpec.describe 'Requests_Submissions', :js, :vcr do
                                                target_project: target_project, target_package: target_package,
                                                creator: submitter)
       end
-      let!(:bs_request_to_supersede_2) do
+      let!(:bs_request_to_supersede2) do
         create(:bs_request_with_submit_action, source_project: source_project, source_package: source_package,
                                                target_project: target_project, target_package: target_package,
                                                creator: submitter)
@@ -63,7 +63,7 @@ RSpec.describe 'Requests_Submissions', :js, :vcr do
 
         expect(page).to have_text('Supersede requests:')
         expect(page).to have_all_of_selectors("#supersede_request_numbers#{bs_request_to_supersede.number}",
-                                              "#supersede_request_numbers#{bs_request_to_supersede_2.number}", visible: false)
+                                              "#supersede_request_numbers#{bs_request_to_supersede2.number}", visible: false)
         toggle_checkbox("supersede_request_numbers#{bs_request_to_supersede.number}")
         click_button('Submit')
         expect(page).to have_text("Submit package #{source_project} / #{source_package} " \

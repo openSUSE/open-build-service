@@ -9,7 +9,7 @@ RSpec.describe 'Repositories', :js do
     let(:repository) { create(:repository, project: project_with_dod_repo) }
     let!(:repo_arch) { create(:repository_architecture, repository: repository, architecture: Architecture.find_by_name('armv7l')) }
     let!(:download_repository_source) { create(:download_repository, repository: repository) }
-    let!(:download_repository_source_2) { create(:download_repository, repository: repository, arch: 'armv7l') }
+    let!(:download_repository_source2) { create(:download_repository, repository: repository, arch: 'armv7l') }
     let(:dod_repository) { download_repository_source.repository }
 
     before do
@@ -106,13 +106,13 @@ RSpec.describe 'Repositories', :js do
       expect(repository.download_repositories.count).to eq(1)
 
       within '#repositories > .card' do
-        find("[data-bs-target='#delete-dod-source-modal-#{download_repository_source_2}']").click
+        find("[data-bs-target='#delete-dod-source-modal-#{download_repository_source2}']").click
       end
 
-      expect(find("#delete-dod-source-modal-#{download_repository_source_2}"))
-        .to have_text("Please confirm deletion of '#{download_repository_source_2.arch}' Download on Demand")
+      expect(find("#delete-dod-source-modal-#{download_repository_source2}"))
+        .to have_text("Please confirm deletion of '#{download_repository_source2.arch}' Download on Demand")
 
-      within("#delete-dod-source-modal-#{download_repository_source_2} .modal-footer") do
+      within("#delete-dod-source-modal-#{download_repository_source2} .modal-footer") do
         click_button('Delete')
       end
 

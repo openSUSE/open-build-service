@@ -97,23 +97,23 @@ RSpec.describe OwnerSearch do
       let(:other_user) { create(:confirmed_user, login: 'hans') }
 
       # A package with bugowner develuser
-      let(:package_42) { create(:package, name: 'package.42', project: project) }
+      let(:package42) { create(:package, name: 'package.42', project: project) }
       # FIXME: bugowner should be a transitive argument to the package factory
-      let!(:bugowner) { create(:relationship_package_user_as_bugowner, user: develuser, package: package_42) }
+      let!(:bugowner) { create(:relationship_package_user_as_bugowner, user: develuser, package: package42) }
 
       # A local link to package.42 with bugowner other_user
       let(:package) { create(:package, name: 'package', project: project) }
       # FIXME: package link should be a transitive argument to the package factory
-      let!(:package_link) { package.build_backend_package.update(links_to_id: package_42) }
+      let!(:package_link) { package.build_backend_package.update(links_to_id: package42) }
       let!(:other_bugowner) { create(:relationship_package_user_as_bugowner, user: other_user, package: package) }
 
       # A patchinfo with bugowner maintenance_user
-      let(:patchinfo_42) { create(:package, name: 'patchinfo.42', project: project) }
+      let(:patchinfo42) { create(:package, name: 'patchinfo.42', project: project) }
       # FIXME: package kind should be a transitive argument to the package factory
-      let!(:kind_patchinfo) { PackageKind.create(package_id: patchinfo_42.id, kind: 'patchinfo') }
+      let!(:kind_patchinfo) { PackageKind.create(package_id: patchinfo42.id, kind: 'patchinfo') }
       let(:maintenance_user) { create(:confirmed_user, login: 'MaintenanceIggy') }
       # FIXME: bugowner should be a transitive argument to the package factory
-      let!(:maintenance_bugowner) { create(:relationship_package_user_as_bugowner, user: maintenance_user, package: patchinfo_42) }
+      let!(:maintenance_bugowner) { create(:relationship_package_user_as_bugowner, user: maintenance_user, package: patchinfo42) }
 
       before do
         allow(Backend::Api::Search).to receive(:binary).and_return(maintenance_collection)

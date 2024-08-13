@@ -2,9 +2,9 @@ require 'browser_helper'
 
 RSpec.describe 'Groups', :js do
   let(:admin) { create(:admin_user, login: 'king') }
-  let(:user_1) { create(:confirmed_user, login: 'eisendieter') }
-  let!(:group_1) { create(:group, title: 'test_group', users: [admin, user_1]) }
-  let!(:group_2) { create(:group, title: 'test_group_b') }
+  let(:user1) { create(:confirmed_user, login: 'eisendieter') }
+  let!(:group1) { create(:group, title: 'test_group', users: [admin, user1]) }
+  let!(:group2) { create(:group, title: 'test_group_b') }
 
   before do
     login admin
@@ -18,7 +18,7 @@ RSpec.describe 'Groups', :js do
   it 'visit groups index page' do
     visit groups_path
 
-    [group_1, group_2].each do |group|
+    [group1, group2].each do |group|
       group_in_datatable(page, group)
     end
 
@@ -26,7 +26,7 @@ RSpec.describe 'Groups', :js do
   end
 
   it 'visit group show page' do
-    visit group_path(group_1)
+    visit group_path(group1)
 
     # TODO: Remove this line if the dropdown is changed to a scrollable tab
     find('.nav-link.dropdown-toggle').click if mobile?
@@ -36,7 +36,7 @@ RSpec.describe 'Groups', :js do
     find_by_id('group-members-tab').click
 
     expect(page).to have_link('Add Member')
-    group_1.users.each { |user| expect(page).to have_link(user.login, href: user_path(user)) }
+    group1.users.each { |user| expect(page).to have_link(user.login, href: user_path(user)) }
   end
 
   it 'create a group' do
@@ -47,7 +47,7 @@ RSpec.describe 'Groups', :js do
     new_group_title = 'group_123'
     fill_in('group_title', with: new_group_title)
     # Typing a comma after a user login selects it (just like clicking on the autocomplete menu popping up). It's a built-in feature of the tokenfield
-    fill_in('group-members_tag', with: "#{admin},#{user_1},")
+    fill_in('group-members_tag', with: "#{admin},#{user1},")
 
     expect { click_button('Create') }.to change(Group, :count).by(1)
     expect(page).to have_content("Group '#{new_group_title}' successfully created.")
@@ -55,19 +55,19 @@ RSpec.describe 'Groups', :js do
   end
 
   it 'remove a member from a group' do
-    visit group_path(group_1)
+    visit group_path(group1)
 
     within('#group-users > .card', text: admin.login) do
       click_link('Remove member from group')
     end
 
-    expect { click_button('Remove') }.to change { group_1.users.count }.by(-1)
-    expect(page).to have_content("Removed user '#{admin}' from group '#{group_1}'")
-    expect(group_1.reload.users.map(&:login)).to eq([user_1.login])
+    expect { click_button('Remove') }.to change { group1.users.count }.by(-1)
+    expect(page).to have_content("Removed user '#{admin}' from group '#{group1}'")
+    expect(group1.reload.users.map(&:login)).to eq([user1.login])
   end
 
   it 'give maintainer rights to a group member' do
-    visit group_path(group_1)
+    visit group_path(group1)
 
     within('#group-users > .card', text: admin.login) do
       check('Maintainer')
@@ -77,7 +77,7 @@ RSpec.describe 'Groups', :js do
   end
 
   it 'add a group member' do
-    visit group_path(group_2)
+    visit group_path(group2)
 
     click_link('Add Member')
 
@@ -86,13 +86,13 @@ RSpec.describe 'Groups', :js do
 
       expect do
         click_button('Accept')
-        group_2.reload
-      end.to change { group_2.users.count }.by(1)
+        group2.reload
+      end.to change { group2.users.count }.by(1)
     end
 
-    expect(page).to have_content("Added user '#{admin}' to group '#{group_2}'")
+    expect(page).to have_content("Added user '#{admin}' to group '#{group2}'")
 
     visit groups_path
-    group_in_datatable(page, group_2)
+    group_in_datatable(page, group2)
   end
 end

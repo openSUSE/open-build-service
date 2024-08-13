@@ -170,8 +170,8 @@ RSpec.describe FullTextSearch do
     context 'attribs' do
       context 'for projects' do
         let(:attrib) { create(:template_attrib, project: project) }
-        let(:project_2) { create(:project, name: 'test_project_2', title: 'This is another project', description: '') }
-        let!(:attrib_for_project2) { create(:template_attrib, project: project_2) }
+        let(:project2) { create(:project, name: 'test_project_2', title: 'This is another project', description: '') }
+        let!(:attrib_for_project2) { create(:template_attrib, project: project2) }
 
         context 'existent attrib' do
           let(:search_params) { { attrib_type_id: attrib.attrib_type_id } }
@@ -183,32 +183,32 @@ RSpec.describe FullTextSearch do
                                             reference: :project, path: [:project])
           end
 
-          it { expect(subject).to contain_exactly(project, project_2) }
+          it { expect(subject).to contain_exactly(project, project2) }
         end
 
         context 'existent attrib with text' do
           let(:search_params) { { attrib_type_id: attrib.attrib_type_id, text: 'another' } }
 
-          it { expect(subject).to contain_exactly(project_2) }
+          it { expect(subject).to contain_exactly(project2) }
         end
       end
 
       context 'for packages' do
         let(:package) { create(:package, project: project) }
         let(:attrib) { create(:maintained_attrib, package: package) }
-        let(:package_2) { create(:package, project: project, name: 'test_package_2', title: 'This is another package', description: '') }
-        let!(:attrib_for_package2) { create(:maintained_attrib, package: package_2) }
+        let(:package2) { create(:package, project: project, name: 'test_package_2', title: 'This is another package', description: '') }
+        let!(:attrib_for_package2) { create(:maintained_attrib, package: package2) }
 
         context 'existent attrib' do
           let(:search_params) { { attrib_type_id: attrib.attrib_type_id } }
 
-          it { expect(subject).to contain_exactly(package, package_2) }
+          it { expect(subject).to contain_exactly(package, package2) }
         end
 
         context 'existent attrib with text' do
           let(:search_params) { { attrib_type_id: attrib.attrib_type_id, text: 'another' } }
 
-          it { expect(subject).to contain_exactly(package_2) }
+          it { expect(subject).to contain_exactly(package2) }
         end
       end
     end
