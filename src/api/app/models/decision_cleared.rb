@@ -6,7 +6,7 @@ class DecisionCleared < Decision
   end
 
   def self.display_name
-    'cleared'
+    'clear'
   end
 
   private

@@ -6,7 +6,7 @@ class DecisionFavored < Decision
   end
 
   def self.display_name
-    'favored'
+    'favor'
   end
 
   private

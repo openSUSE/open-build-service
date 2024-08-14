@@ -8,7 +8,7 @@ class DecisionFavoredWithUserCommentingRestriction < Decision
   end
 
   def self.display_name
-    'favored with applying user commenting restrictions'
+    'favor and apply user commenting restrictions'
   end
 
   def self.display?(reportable)
