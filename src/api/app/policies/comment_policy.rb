@@ -6,7 +6,7 @@ class CommentPolicy < ApplicationPolicy
   def create?
     return false if user.blank? || user.is_nobody?
     return true if maintainer? || important_user?
-    return false if user.blocked_from_commenting
+    return false if user.censored
 
     !locked?
   end

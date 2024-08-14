@@ -71,11 +71,10 @@ class Webui::UsersController < Webui::WebuiController
   def censor
     authorize @displayed_user, :censor?
 
-    @displayed_user.update(params.require(:user).permit(:blocked_from_commenting))
-    @displayed_user.update(censored: @displayed_user.blocked_from_commenting) # TODO: remove when the renaming is finished
+    @displayed_user.update(params.require(:user).permit(:censored))
 
     if @displayed_user.save
-      status = @displayed_user.blocked_from_commenting ? 'blocked from commenting' : 'allowed to comment again'
+      status = @displayed_user.censored ? "censored, they can't comment" : 'allowed to comment again'
       flash[:success] = "User '#{@displayed_user.login}' successfully #{status}."
     else
       flash[:error] = "Couldn't update user: #{@displayed_user.errors.full_messages.to_sentence}."
