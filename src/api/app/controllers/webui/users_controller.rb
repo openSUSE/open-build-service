@@ -3,7 +3,7 @@ class Webui::UsersController < Webui::WebuiController
 
   before_action :require_login, except: %i[show new create tokens autocomplete]
   before_action :require_admin, only: %i[index edit destroy]
-  before_action :check_displayed_user, only: %i[show edit block_commenting update destroy edit_account]
+  before_action :check_displayed_user, only: %i[show edit censor update destroy edit_account]
   before_action :role_titles, only: %i[show edit_account update]
   before_action :account_edit_link, only: %i[show edit_account update]
 
@@ -68,7 +68,7 @@ class Webui::UsersController < Webui::WebuiController
     end
   end
 
-  def block_commenting
+  def censor
     authorize @displayed_user, :censor?
 
     @displayed_user.update(params.require(:user).permit(:blocked_from_commenting))

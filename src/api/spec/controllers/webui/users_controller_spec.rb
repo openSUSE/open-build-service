@@ -375,7 +375,7 @@ RSpec.describe Webui::UsersController do
 
       context 'blocking the ability of a user to create comments' do
         before do
-          put :block_commenting, params: { login: user.login, user: { blocked_from_commenting: 'true' } }
+          put :censor, params: { login: user.login, user: { blocked_from_commenting: 'true' } }
         end
 
         it { expect(user.reload.blocked_from_commenting).to be(true) }
