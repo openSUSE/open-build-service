@@ -7,7 +7,7 @@ class DecisionFavoredWithDeleteRequest < Decision
   end
 
   def self.display_name
-    'favored with delete request'
+    'favor and create a delete request'
   end
 
   def self.display?(reportable)
