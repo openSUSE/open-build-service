@@ -72,6 +72,7 @@ class Webui::UsersController < Webui::WebuiController
     authorize @displayed_user, :block_commenting?
 
     @displayed_user.update(params.require(:user).permit(:blocked_from_commenting))
+    @displayed_user.update(censored: @displayed_user.blocked_from_commenting) # TODO: remove when the renaming is finished
 
     if @displayed_user.save
       status = @displayed_user.blocked_from_commenting ? 'blocked from commenting' : 'allowed to comment again'
