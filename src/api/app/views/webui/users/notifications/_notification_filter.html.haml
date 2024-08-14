@@ -56,6 +56,16 @@
                                                             label_icon: 'fas fa-people-group',
                                                             checked: selected_filter[:kind]&.include?('member_on_groups') }
 
+  - if policy(Report.new).notify?
+    .mt-4.mb-4
+      %h6.px-3.py-2
+        %b Reports
+      .px-3
+        = render partial: 'webui/shared/select', locals: { filter_item: 'report_with_decision',
+                                                          selected_value: selected_filter[:report_with_decision],
+                                                          filter_options: [['All', 'all'], ['With decision', true], ['Without decision', false]],
+                                                          label: 'Reports with decision', visible_inner_label: false }
+
   .mt-4.mb-4
     %h6.px-3.py-2
       %b Requests
@@ -120,7 +130,7 @@
   }
   let submitFiltersTimeout;
 
-  $(document).on('change', '#filters input', function() {
+  $(document).on('change', '#filters input, #filters select', function() {
     $('#notifications-list').hide();
     $('#notifications-list-loading').removeClass('d-none');
     clearTimeout(submitFiltersTimeout);
