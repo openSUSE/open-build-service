@@ -1,11 +1,11 @@
 module FeaturesBento
   def is_bento?
-    ENV['BENTO'].present?
+    false
   end
 
   def skip_unless_bento
     msg = 'The feature tests are executed with BENTO disabled, therefore we skip this test.'
-    skip(msg) if ENV['BENTO'].blank?
+    skip(msg) if is_bento?
   end
 end
 
