@@ -5,6 +5,15 @@ module Webui
       before_action :validate_meta, only: [:update], if: -> { params[:meta] }
       after_action :verify_authorized, only: [:update]
 
+      rescue_from Project::Errors::UnknownObjectError do |exception|
+        if request.xhr?
+          head :not_found
+        else
+          flash[:error] = exception.message
+          redirect_to root_path
+        end
+      end
+
       def show
         @meta = @project.render_xml
       end
