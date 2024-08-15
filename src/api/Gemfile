@@ -177,8 +177,8 @@ group :development, :test do
   gem 'bullet'
   # Use Puma as the app server (rails 5 default)
   gem 'puma', '~> 4.0'
-  # to drive headless chrome
-  gem 'selenium-webdriver'
+  # to drive headless browsers
+  gem 'webdrivers', '= 5.3.0'
   # scan for security vulnerability (circleci only, do not touch)
   # BRAKEMAN
 end
