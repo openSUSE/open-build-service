@@ -25,7 +25,7 @@ images:
     <<: *common_frontend_config
 
   - &frontend_features
-    image: registry.opensuse.org/obs/server/2.10/containers/containers/openbuildservice/frontend-features:210
+    image: registry.opensuse.org/obs/server/2.10/containers/containers/openbuildservice/frontend-features-new:210
     <<: *common_frontend_config
 
 aliases:
@@ -337,7 +337,6 @@ jobs:
       - attach_workspace:
          at: .
       - run: *create_test_db
-      - run: mkdir /home/frontend/feature
       - run:
           name: Run rspec feature tests
           working_directory: src/api
@@ -349,6 +348,8 @@ jobs:
               export CAPYBARA_DRIVER='mobile'
             fi
             echo $message
+            mkdir /home/frontend/feature
+            bundle exec rake webdrivers:geckodriver:update
             bundle exec rspec --format documentation --format RspecJunitFormatter -o /home/frontend/feature/feature.xml spec/features/
             mkdir coverage_results
             cp -R coverage/.resultset.json coverage_results/resultset-feature-${CIRCLE_NODE_INDEX}.json

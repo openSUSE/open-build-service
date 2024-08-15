@@ -57,8 +57,11 @@ require 'support/factory_bot'
 # support database cleanup
 require 'support/database_cleaner'
 
-# support Suse::backend
-require 'support/backend'
+# disallow all outgoing connections
+require 'support/webmock'
+
+# support recording/replaying backend responses
+require 'support/vcr'
 
 # support shoulda matcher
 require 'support/shoulda_matchers'
