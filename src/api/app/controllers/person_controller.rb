@@ -33,10 +33,10 @@ class PersonController < ApplicationController
 
     if user == User.session
       logger.debug "Generating user info for logged in user #{User.session.login}"
-      render xml: User.session.render_axml(true)
+      render xml: User.session.render_axml(watchlist: true)
     else
       logger.debug "Generating for user from parameter #{user.login}"
-      render xml: user.render_axml(User.admin_session?)
+      render xml: user.render_axml(watchlist: User.admin_session?)
     end
   end
 
