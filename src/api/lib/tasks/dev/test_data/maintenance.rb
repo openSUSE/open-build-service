@@ -17,7 +17,7 @@
 module TestData
   module Maintenance
     def create_maintained_project(project_name)
-      admin = User.get_default_admin
+      admin = User.default_admin
       maintained_project = create(:project, name: project_name)
       create(:repository, project: maintained_project, name: 'openSUSE_Tumbleweed', architectures: ['x86_64'])
       create(:package_with_file, name: 'cacti', project: maintained_project, file_name: 'README.txt', file_content: 'Original content', commit_user: admin)
@@ -27,7 +27,7 @@ module TestData
     end
 
     def create_maintenance_project
-      admin = User.get_default_admin
+      admin = User.default_admin
 
       create(
         :maintenance_project,
@@ -39,7 +39,7 @@ module TestData
     end
 
     def create_update_project(maintained_project:, maintenance_project:)
-      admin = User.get_default_admin
+      admin = User.default_admin
 
       # Update Project is a link to the Maintained Project
       create(:update_project,
@@ -99,7 +99,7 @@ module TestData
 
     def create_request_with_maintenance_release_actions(source_project_name:, package_names:, target_project_names:)
       # Common users like Iggy don't have permission to modify openSUSE:Maintenance:0
-      admin = User.get_default_admin
+      admin = User.default_admin
 
       bs_request = create(:bs_request_with_maintenance_release_actions,
                           creator: admin,

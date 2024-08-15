@@ -215,7 +215,7 @@ class User < ApplicationRecord
     Thread.current[:user] = user
   end
 
-  def self.get_default_admin
+  def self.default_admin
     admin = CONFIG['default_admin'] || 'Admin'
     user = User.find_by!(login: admin)
     raise NotFoundError, "Admin not found, user #{admin} has not admin permissions" unless user.is_admin?

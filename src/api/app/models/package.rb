@@ -790,7 +790,7 @@ class Package < ApplicationRecord
     Rails.cache.delete("xml_package_#{id}") if id
   end
 
-  def set_comment(comment)
+  def comment=(comment)
     @commit_opts[:comment] = comment
   end
 

@@ -6,14 +6,14 @@ RSpec.describe IssueTracker::CVEParser, :vcr do
     it { expect(IssueTracker::CVEParser.new).not_to be_nil }
   end
 
-  describe 'set_tracker' do
-    it { expect(cve_parser.set_tracker(issue_tracker)).not_to be_nil }
+  describe 'tracker=' do
+    it { expect(cve_parser.tracker = issue_tracker).not_to be_nil }
   end
 
   describe '#start_element' do
     before do
       allow(IssueTracker).to receive(:find_by).and_return(issue_tracker)
-      cve_parser.set_tracker(issue_tracker)
+      cve_parser.tracker = issue_tracker
     end
 
     it { expect(cve_parser.start_element('item', [%w[name CVE-2010-31337]])).to be_falsey }
@@ -27,7 +27,7 @@ RSpec.describe IssueTracker::CVEParser, :vcr do
   describe '#my_issue_and_desc_name' do
     before do
       allow(IssueTracker).to receive(:find_by).and_return(issue_tracker)
-      cve_parser.set_tracker(issue_tracker)
+      cve_parser.tracker = issue_tracker
       cve_parser.start_element('item', [%w[name CVE-2010-31337]])
     end
 
@@ -56,7 +56,7 @@ RSpec.describe IssueTracker::CVEParser, :vcr do
 
     before do
       allow(IssueTracker).to receive(:find_by).and_return(issue_tracker)
-      cve_parser.set_tracker(issue_tracker)
+      cve_parser.tracker = issue_tracker
     end
 
     it { expect { parser.parse(xml) }.not_to raise_error }

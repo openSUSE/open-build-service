@@ -9,7 +9,7 @@ module BackendProxy
     # Either directly with a file cache or, if configured,
     # transparently with web server specific forwarding headers.
     def pass_to_backend(path = nil)
-      path ||= get_request_path
+      path ||= http_request_path
 
       if request.get? || request.head?
         volley_backend_path(path) unless forward_from_backend(path)
@@ -112,7 +112,7 @@ module BackendProxy
 
   # Get the path/query from ActionDispatch::Request
   # FIXME: Use request.fullpath
-  def get_request_path
+  def http_request_path
     path = request.path_info
     query_string = request.query_string
     if request.form_data?

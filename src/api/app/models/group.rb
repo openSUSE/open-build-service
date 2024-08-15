@@ -109,11 +109,6 @@ class Group < ApplicationRecord
     delete_user(GroupsUser, user.id, id, user_session_login: user_session_login)
   end
 
-  def set_email(email)
-    self.email = email
-    save!
-  end
-
   def to_s
     title
   end
