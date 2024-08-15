@@ -15,7 +15,7 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
 
   def test_create_and_update_new_trackers
     # Create a new issue tracker
-    issue_tracker_xml = <<-EOF
+    issue_tracker_xml = <<-ISSUE_TRACKER
     <issue-tracker>
       <name>test</name>
       <description>My test issue tracker</description>
@@ -28,7 +28,7 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
       <url>http://example.com</url>
       <show-url>http://example.com/@@@</show-url>
     </issue-tracker>
-    EOF
+    ISSUE_TRACKER
     post '/issue_trackers', params: issue_tracker_xml
     assert_response :unauthorized
     login_adrian
@@ -54,7 +54,7 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     # FIXME: check backend data
 
     # Update that issue tracker
-    issue_tracker_xml = <<-EOF
+    issue_tracker_xml = <<-ISSUE_TRACKER
     <issue-tracker>
       <name>test</name>
       <description>My even better test issue tracker</description>
@@ -65,7 +65,7 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
       <url>http://test.com</url>
       <show-url>http://test.com/@@@</show-url>
     </issue-tracker>
-    EOF
+    ISSUE_TRACKER
     login_adrian
     raw_put '/issue_trackers/test', issue_tracker_xml
     assert_response :forbidden

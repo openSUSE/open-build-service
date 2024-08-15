@@ -281,7 +281,7 @@ class ProjectTest < ActiveSupport::TestCase
     User.session = users(:Iggy)
     orig = @project.render_xml
 
-    xml = <<~END
+    xml = <<~PROJECT
       <project name="home:Iggy">
         <title>Iggy"s Home Project</title>
         <description>dummy</description>
@@ -294,7 +294,7 @@ class ProjectTest < ActiveSupport::TestCase
           <arch>x86_64</arch>
         </repository>
       </project>
-    END
+    PROJECT
     axml = Xmlhash.parse(xml)
     assert_raise(ActiveRecord::RecordInvalid) do
       Project.transaction do
@@ -307,7 +307,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   test 'not duplicated repos with remote' do
     User.session = users(:Iggy)
-    xml = <<~END
+    xml = <<~PROJECT
       <project name="home:Iggy">
         <title>Iggy"s Home Project</title>
         <description>dummy</description>
@@ -322,7 +322,7 @@ class ProjectTest < ActiveSupport::TestCase
           <arch>i586</arch>
         </repository>
       </project>
-    END
+    PROJECT
     axml = Xmlhash.parse(xml)
     Project.transaction do
       @project.update_from_xml!(axml)

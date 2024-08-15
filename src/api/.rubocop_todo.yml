@@ -468,17 +468,6 @@ Naming/AccessorMethodName:
     - 'app/models/user.rb'
     - 'test/functional/search_controller_test.rb'
 
-# Offense count: 19
-# Configuration parameters: ForbiddenDelimiters.
-# ForbiddenDelimiters: (?i-mx:(^|\s)(EO[A-Z]{1}|END)(\s|$))
-Naming/HeredocDelimiterNaming:
-  Exclude:
-    - 'db/seeds.rb'
-    - 'spec/models/project/update_from_xml_command_spec.rb'
-    - 'test/functional/issue_trackers_controller_test.rb'
-    - 'test/functional/source_controller_test.rb'
-    - 'test/unit/project_test.rb'
-
 # Offense count: 2
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: EnforcedStyleForLeadingUnderscores.

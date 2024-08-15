@@ -61,7 +61,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   # spec/controllers/source_controller_spec.rb
   def test_post_orderkiwirepos
     # urls with http protocol
-    kiwi_config_http = <<~EOF
+    kiwi_config_http = <<~IMAGE
       <?xml version='1.0' encoding='UTF-8'?>
       <image name='openSUSE_JeOS' displayname='openSUSE_JeOS' schemaversion='5.2'>
         <repository type='rpm-md'>
@@ -71,7 +71,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
           <source path='http://example.com/download/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo'/>
         </repository>
       </image>
-    EOF
+    IMAGE
 
     post '/source?cmd=orderkiwirepos', params: kiwi_config_http, headers: { 'Content-Type' => 'text/xml' }
     assert_response :ok
@@ -82,7 +82,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_equal second['source']['path'], 'http://example.com/download/BaseDistro2.0/BaseDistro2_repo'
 
     # urls with obs protocol
-    kiwi_config_obs = <<~EOF
+    kiwi_config_obs = <<~IMAGE
       <?xml version='1.0' encoding='UTF-8'?>
       <image name='openSUSE_JeOS' displayname='openSUSE_JeOS' schemaversion='5.2'>
         <repository type='rpm-md'>
@@ -92,7 +92,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
           <source path='obs://BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo'/>
         </repository>
       </image>
-    EOF
+    IMAGE
 
     post '/source?cmd=orderkiwirepos', params: kiwi_config_obs, headers: { 'Content-Type' => 'text/xml' }
     assert_response :ok

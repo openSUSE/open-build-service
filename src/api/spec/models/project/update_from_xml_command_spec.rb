@@ -10,12 +10,12 @@ RSpec.describe Project::UpdateFromXmlCommand do
     context 'updating repository elements' do
       before do
         xml_hash = Xmlhash.parse(
-          <<-EOF
+          <<-XML
             <project name="#{project.name}">
               <repository name="repo_1" />
               <repository name="new_repo" rebuild="local" block="never" linkedbuild="all" />
             </project>
-          EOF
+          XML
         )
         Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
       end
@@ -51,13 +51,13 @@ RSpec.describe Project::UpdateFromXmlCommand do
 
       it 'updates release targets' do
         xml_hash = Xmlhash.parse(
-          <<-EOF
+          <<-XML
             <project name="#{project.name}">
               <repository name="repo_1">
                 <releasetarget project="#{target_project.name}" repository="#{target_repository.name}" trigger="manual" />
               </repository>
             </project>
-          EOF
+          XML
         )
         Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
 
@@ -67,13 +67,13 @@ RSpec.describe Project::UpdateFromXmlCommand do
 
       it 'raises an error if target repository does not exist' do
         xml_hash = Xmlhash.parse(
-          <<-EOF
+          <<-XML
             <project name="#{project.name}">
               <repository name="repo_1">
                 <releasetarget project="#{target_project.name}" repository="nonexistent_repo" trigger="manual" />
               </repository>
             </project>
-          EOF
+          XML
         )
         expect { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }.to raise_error(
           Project::SaveError, "Unknown target repository 'target_project/nonexistent_repo'"
@@ -82,13 +82,13 @@ RSpec.describe Project::UpdateFromXmlCommand do
 
       it 'raises an error if target repository is a remote repository' do
         xml_hash = Xmlhash.parse(
-          <<-EOF
+          <<-XML
             <project name="#{project.name}">
               <repository name="repo_1">
                 <releasetarget project="#{remote_project.name}" repository="#{remote_repository.name}" trigger="manual" />
               </repository>
             </project>
-          EOF
+          XML
         )
         expect { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }.to raise_error(
           Project::SaveError, "Can not use remote repository as release target '#{remote_project.name}/remote_repo'"
@@ -99,14 +99,14 @@ RSpec.describe Project::UpdateFromXmlCommand do
     describe 'repository architecture' do
       it 'creates architectures for the repository' do
         xml_hash = Xmlhash.parse(
-          <<-EOF
+          <<-XML
             <project name="#{project.name}">
               <repository name="repo_1">
                 <arch>x86_64</arch>
                 <arch>i586</arch>
               </repository>
             </project>
-          EOF
+          XML
         )
         Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
 
@@ -116,13 +116,13 @@ RSpec.describe Project::UpdateFromXmlCommand do
 
       it 'raises an error for unknown architectures' do
         xml_hash = Xmlhash.parse(
-          <<-EOF
+          <<-XML
             <project name="#{project.name}">
               <repository name="repo_1">
                 <arch>foo</arch>
               </repository>
             </project>
-          EOF
+          XML
         )
         expect { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }.to raise_error(
           ActiveRecord::RecordNotFound, "unknown architecture: 'foo'"
@@ -131,14 +131,14 @@ RSpec.describe Project::UpdateFromXmlCommand do
 
       it 'raises an error for duplicated architecture elements' do
         xml_hash = Xmlhash.parse(
-          <<-EOF
+          <<-XML
             <project name="#{project.name}">
               <repository name="repo_1">
                 <arch>i586</arch>
                 <arch>i586</arch>
               </repository>
             </project>
-          EOF
+          XML
         )
         expect { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }.to raise_error(
           Project::SaveError, "double use of architecture: 'i586'"
@@ -175,7 +175,7 @@ RSpec.describe Project::UpdateFromXmlCommand do
 
         let(:xml_hash) do
           Xmlhash.parse(
-            <<-EOF
+            <<-XML
               <project name="#{project.name}">
                 <repository name="repo_1" />
                 <repository name="dod_repo">
@@ -187,7 +187,7 @@ RSpec.describe Project::UpdateFromXmlCommand do
                   <arch>i586</arch>
                 </repository>
               </project>
-            EOF
+            XML
           )
         end
 
@@ -216,7 +216,7 @@ RSpec.describe Project::UpdateFromXmlCommand do
 
         let(:xml_hash) do
           Xmlhash.parse(
-            <<-EOF
+            <<-XML
               <project name="#{project.name}">
                 <repository name="repo_1" />
                 <repository name="dod_repo">
@@ -228,7 +228,7 @@ RSpec.describe Project::UpdateFromXmlCommand do
                   <arch>i586</arch>
                 </repository>
               </project>
-            EOF
+            XML
           )
         end
 
@@ -246,7 +246,7 @@ RSpec.describe Project::UpdateFromXmlCommand do
       context 'valid usecase' do
         before do
           xml_hash = Xmlhash.parse(
-            <<-EOF
+            <<-XML
               <project name="#{project.name}">
                 <repository name="repo_1">
                   <path project="other_project" repository="other_repo" />
@@ -257,7 +257,7 @@ RSpec.describe Project::UpdateFromXmlCommand do
                 </repository>
                 <repository name="repo_3" />
               </project>
-            EOF
+            XML
           )
           Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false)
         end
@@ -282,13 +282,13 @@ RSpec.describe Project::UpdateFromXmlCommand do
       context 'invalid usecase' do
         it 'raises an error when a repository refers itself' do
           xml_hash = Xmlhash.parse(
-            <<-EOF
+            <<-XML
               <project name="#{project.name}">
                 <repository name="repo_1">
                   <path project="#{project.name}" repository="repo_1" />
                 </repository>
               </project>
-            EOF
+            XML
           )
           expect { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }.to raise_error(
             Project::SaveError, 'Using same repository as path element is not allowed'
@@ -297,13 +297,13 @@ RSpec.describe Project::UpdateFromXmlCommand do
 
         it 'raises an error for non existent repository links' do
           xml_hash = Xmlhash.parse(
-            <<-EOF
+            <<-XML
               <project name="#{project.name}">
                 <repository name="repo_1">
                   <path project="other_project" repository="nonexistent" />
                 </repository>
               </project>
-            EOF
+            XML
           )
           expect { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }.to raise_error(
             Project::SaveError, "Cannot find repository 'other_project/nonexistent'"

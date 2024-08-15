@@ -20,7 +20,7 @@ puts 'Seeding configurations table...'
 # set default configuration settings if no settings exist
 Configuration.skip_callback(:save, :after, :delayed_write_to_backend)
 Configuration.first_or_create(name: 'private', title: 'Open Build Service') do |conf|
-  conf.description = <<-EOT
+  conf.description = <<-DESCRIPTION
   <p class="description">
     The <a href="http://openbuildservice.org">Open Build Service (OBS)</a>
     is an open and complete distribution development platform that provides a transparent
@@ -39,7 +39,7 @@ Configuration.first_or_create(name: 'private', title: 'Open Build Service') do |
     <a href="http://wiki.opensuse.org/openSUSE:Build_Service_installations">this wiki page</a>.
     Have fun and fast build times!
   </p>
-  EOT
+  DESCRIPTION
 end
 
 puts 'Seeding roles table...'
