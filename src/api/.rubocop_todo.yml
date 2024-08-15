@@ -78,17 +78,6 @@ FactoryBot/FactoryAssociationWithStrategy:
 Layout/LineLength:
   Max: 220
 
-# Offense count: 7
-# Configuration parameters: AllowedMethods.
-# AllowedMethods: enums
-Lint/ConstantDefinitionInBlock:
-  Exclude:
-    - 'app/controllers/concerns/webui/rescue_handler.rb'
-    - 'config/initializers/git.rb'
-    - 'lib/tasks/statistics/github/issues.rake'
-    - 'lib/tasks/statistics/github/pull_requests.rake'
-    - 'spec/support/database_cleaner.rb'
-
 # Offense count: 3
 # Configuration parameters: DebuggerMethods, DebuggerRequires.
 Lint/Debugger:

@@ -1,12 +1,12 @@
+# GITHUB login required in order to avoid rate limiting on http requests
+GITHUB_USERNAME = ''.freeze
+GITHUB_PASSWORD = ''.freeze
+
 namespace :statistics do
   namespace :github do
     desc 'Export the number of pull requests merged per week to a file'
     task pull_requests: :environment do
-      # GITHUB login required in order to avoid rate limiting on http requests
-      GITHUB_USERNAME = ''.freeze
-      GITHUB_PASSWORD = ''.freeze
-
-      raise StandardError, "Please set your github username/password in lines 8&9 of this file:\nlib/tasks/statistics/github/pull_requests.rake" if GITHUB_USERNAME.empty? || GITHUB_PASSWORD.empty?
+      raise StandardError, "Please set your github username/password in lines 2&3 of this file:\nlib/tasks/statistics/github/pull_requests.rake" if GITHUB_USERNAME.empty? || GITHUB_PASSWORD.empty?
 
       pull_requests = []
       on_last_page = false
