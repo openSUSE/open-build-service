@@ -402,7 +402,7 @@ class SourceController < ApplicationController
   def actually_create_incident(project)
     raise ModifyProjectNoPermission, "no permission to modify project '#{project.name}'" unless User.session.can_modify?(project)
 
-    incident = MaintenanceIncident.build_maintenance_incident(project, params[:noaccess].present?)
+    incident = MaintenanceIncident.build_maintenance_incident(project, no_access: params[:noaccess].present?)
 
     if incident
       render_ok data: { targetproject: incident.project.name }

@@ -393,7 +393,7 @@ class Package < ApplicationRecord
     true
   end
 
-  def check_weak_dependencies!(ignore_local = false)
+  def check_weak_dependencies!(ignore_local: false)
     # check if other packages have me as devel package
     packs = develpackages
     packs = packs.where.not(project: project) if ignore_local
@@ -919,7 +919,7 @@ class Package < ApplicationRecord
     Service.new(package: self)
   end
 
-  def buildresult(prj = project, show_all = false, lastbuild = false)
+  def buildresult(prj = project, show_all: false, lastbuild: false)
     LocalBuildResult::ForPackage.new(package: self, project: prj, show_all: show_all, lastbuild: lastbuild)
   end
 
@@ -1011,7 +1011,7 @@ class Package < ApplicationRecord
     packages
   end
 
-  def self.valid_name?(name, allow_multibuild = false)
+  def self.valid_name?(name, allow_multibuild: false)
     return false unless name.is_a?(String)
     # this length check is duplicated but useful for other uses for this function
     return false if name.length > 200

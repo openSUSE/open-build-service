@@ -6,7 +6,7 @@ RSpec.describe Badge do
     stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/_result?locallink=1&multibuild=1&lastbuild=1" \
                        "&package=#{source_package}&view=status").and_return(body: body)
   end
-  let(:results) { request && source_package.buildresult(source_project, false, true).results[source_package.name] }
+  let(:results) { request && source_package.buildresult(source_project, show_all: false, lastbuild: true).results[source_package.name] }
   let(:badge) { Badge.new(type, results) }
 
   describe '#new' do

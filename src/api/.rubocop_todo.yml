@@ -1064,11 +1064,8 @@ Style/OpenStructUse:
 # AllowedMethods: respond_to_missing?
 Style/OptionalBooleanParameter:
   Exclude:
-    - 'app/helpers/webui/staging/workflow_helper.rb'
     - 'app/helpers/webui/webui_helper.rb'
     - 'app/jobs/consistency_check_job.rb'
-    - 'app/models/maintenance_incident.rb'
-    - 'app/models/package.rb'
     - 'app/models/user.rb'
     - 'app/policies/package_policy.rb'
 

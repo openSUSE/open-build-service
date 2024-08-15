@@ -20,7 +20,7 @@ RSpec.describe MultibuildPackage do
 
         let(:package_name) { 'foo:bar' }
         let(:package_name_validation) do
-          Package.valid_name?(package_name, true)
+          Package.valid_name?(package_name, allow_multibuild: true)
         end
 
         it { expect(subject).to be_truthy }
@@ -31,7 +31,7 @@ RSpec.describe MultibuildPackage do
 
         let(:package_name) { 'foo:bar' }
         let(:package_name_validation) do
-          Package.valid_name?(package_name, false)
+          Package.valid_name?(package_name, allow_multibuild: false)
         end
 
         it { expect(subject).to be_falsey }

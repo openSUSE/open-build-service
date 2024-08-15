@@ -9,7 +9,7 @@ class MaintenanceIncident < ApplicationRecord
   #
   # Creates a maintenance incident project (target_project), belonging to <project>
   # and a MaintenanceIncident instance that connects both.
-  def self.build_maintenance_incident(project, no_access = false, request = nil)
+  def self.build_maintenance_incident(project, request = nil, no_access: false)
     result = nil
     return result unless project && project.kind == 'maintenance'
 
