@@ -26,7 +26,7 @@
         .col-auto.pe-0
           = helpers.avatars(@notification)
         .col-auto.ps-xs-2
-          .smart-overflow= @notification.description
+          .smart-overflow= description
       .row.d-none.d-md-block.ps-4
         .col
           %p.mt-3.mb-0= helpers.render_without_markdown(helpers.truncate_to_first_new_line(@notification.excerpt))
