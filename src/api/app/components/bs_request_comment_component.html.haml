@@ -24,6 +24,15 @@
                                     action: comment_path(comment) },
                             class: 'dropdown-item delete_link', title: 'Delete comment') do
                 Delete
+            - if policy(Report.new(reportable: comment)).create?
+              = link_to('#', class: 'dropdown-item', id: "js-comment-#{comment.id}",
+                        data: { 'bs-toggle': 'modal',
+                                'bs-target': '#report-modal',
+                                'modal-title': "Report comment from #{comment.user}",
+                                'reportable-type': comment.class.name,
+                                'reportable-id': comment.id }) do
+                Report
+
       .ps-3.pe-5.py-2.border-bottom.d-flex.flex-column.flex-lg-row.justify-content-between.align-items-start.gap-2
         %span
           - if show_username
@@ -60,14 +69,6 @@
     -# This should be refactored to avoid relying on global state
     - if policy(comment).reply?
       .d-flex.justify-content-end.me-2
-        - if policy(Report.new(reportable: comment)).create?
-          = link_to('#', class: 'fst-italic small collapsed me-2', id: "js-comment-#{comment.id}",
-                data: { 'bs-toggle': 'modal',
-                        'bs-target': '#report-modal',
-                        'modal-title': "Report comment from #{comment.user}",
-                        'reportable-type': comment.class.name,
-                        'reportable-id': comment.id }) do
-            Report
         = link_to("#reply_form_of_#{comment.id}", id: "reply_button_of_#{comment.id}", 'data-bs-toggle': 'collapse',
                   class: 'fst-italic small collapsed') do
           Reply
