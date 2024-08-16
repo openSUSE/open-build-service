@@ -708,3 +708,33 @@ function set_gpg_expiry_date {
   [ -z "$EXPIRE" ] && exit 1
 }
 ###############################################################################
+function prepare_gitea {
+
+  [ "$WITH_GITEA" -eq 0 ] && return
+
+  GITEA_DB_NAME=gitea
+  GITEA_PAM_USER_NAME=gitea
+  GITEA_WEB_USER_NAME=obsadmin
+  GITEA_WEB_PASSWD=opensuse
+  GITEA_SERVICE_NAME=gitea.service
+  GITEA_WEB_USER_EMAIL=root@localhost
+
+  echo "Configuring gitea"
+
+  echo "  Checking if database $GITEA_DB_NAME exists"
+  DB_EXISTS=`mysql -uroot -popensuse  -e "SHOW DATABASES" |grep -w $GITEA_DB_NAME`
+ 
+  if [ -z "$DB_EXISTS" ]
+  then
+    echo "    Creating database $GITEA_DB_NAME"
+    mysql -u $MYSQL_USER -p$MYSQL_PASS -e "CREATE DATABASE $GITEA_DB_NAME"
+  else
+    echo "    Found database $GITEA_DB_NAME"
+  fi
+
+  systemctl enable --now $GITEA_SERVICE_NAME
+
+  su -c "gitea migrate" - $GITEA_PAM_USER_NAME
+
+  su -c "gitea admin user create --username $GITEA_WEB_USER_NAME --password $GITEA_WEB_PASSWD --admin --email $GITEA_WEB_USER_EMAIL" - $GITEA_PAM_USER_NAME
+}
