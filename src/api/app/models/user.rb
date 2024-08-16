@@ -888,6 +888,7 @@ end
 #  adminnote                     :text(65535)
 #  biography                     :string(255)      default("")
 #  blocked_from_commenting       :boolean          default(FALSE), not null, indexed
+#  censored                      :boolean          default(FALSE), not null, indexed
 #  color_theme                   :integer          default("system"), not null
 #  deprecated_password           :string(255)      indexed
 #  deprecated_password_hash_type :string(255)
@@ -910,6 +911,7 @@ end
 # Indexes
 #
 #  index_users_on_blocked_from_commenting  (blocked_from_commenting)
+#  index_users_on_censored                 (censored)
 #  index_users_on_in_beta                  (in_beta)
 #  index_users_on_in_rollout               (in_rollout)
 #  index_users_on_rss_secret               (rss_secret) UNIQUE
