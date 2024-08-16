@@ -354,7 +354,7 @@ constraints(RoutesHelper::WebuiMatcher) do
       get 'tokens'
     end
     member do
-      put 'block_commenting'
+      put 'censor'
       post 'change_password'
       post 'rss_secret'
       get 'edit_account'

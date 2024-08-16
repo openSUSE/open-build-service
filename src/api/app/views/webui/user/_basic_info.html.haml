@@ -72,12 +72,12 @@
   - if user != User.possibly_nobody && Flipper.enabled?(:content_moderation, User.possibly_nobody)
     = render partial: 'webui/shared/report_modal'
     - if User.possibly_nobody.is_admin? || User.possibly_nobody.is_moderator?
-      = form_with(url: block_commenting_user_path(user), method: :put, remote: true) do |_form|
+      = form_with(url: censor_user_path(user), method: :put, remote: true) do |_form|
         .form-check.form-switch.mt-3
-          = hidden_field_tag("user[blocked_from_commenting]", !user.blocked_from_commenting, id: nil)
-          = check_box_tag("user[blocked_from_commenting]", !user.blocked_from_commenting, user.blocked_from_commenting,
+          = hidden_field_tag("user[censored]", !user.censored, id: nil)
+          = check_box_tag("user[censored]", !user.censored, user.censored,
                           class: 'form-check-input', onChange: 'this.form.submit()')
-          = label_tag("user[blocked_from_commenting]", 'Comment Block', class: 'form-check-label')
+          = label_tag("user[censored]", 'Comment Block', class: 'form-check-label')
 
 :javascript
   $('#toggle-in-place-editing').on('click', function () {

@@ -3,7 +3,7 @@ class Webui::UsersController < Webui::WebuiController
 
   before_action :require_login, except: %i[show new create tokens autocomplete]
   before_action :require_admin, only: %i[index edit destroy]
-  before_action :check_displayed_user, only: %i[show edit block_commenting update destroy edit_account]
+  before_action :check_displayed_user, only: %i[show edit censor update destroy edit_account]
   before_action :role_titles, only: %i[show edit_account update]
   before_action :account_edit_link, only: %i[show edit_account update]
 
@@ -68,14 +68,13 @@ class Webui::UsersController < Webui::WebuiController
     end
   end
 
-  def block_commenting
-    authorize @displayed_user, :block_commenting?
+  def censor
+    authorize @displayed_user, :censor?
 
-    @displayed_user.update(params.require(:user).permit(:blocked_from_commenting))
-    @displayed_user.update(censored: @displayed_user.blocked_from_commenting) # TODO: remove when the renaming is finished
+    @displayed_user.update(params.require(:user).permit(:censored))
 
     if @displayed_user.save
-      status = @displayed_user.blocked_from_commenting ? 'blocked from commenting' : 'allowed to comment again'
+      status = @displayed_user.censored ? "censored, they can't comment" : 'allowed to comment again'
       flash[:success] = "User '#{@displayed_user.login}' successfully #{status}."
     else
       flash[:error] = "Couldn't update user: #{@displayed_user.errors.full_messages.to_sentence}."

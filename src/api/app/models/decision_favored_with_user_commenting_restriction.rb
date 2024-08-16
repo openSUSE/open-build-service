@@ -13,7 +13,7 @@ class DecisionFavoredWithUserCommentingRestriction < Decision
 
   def self.display?(reportable)
     return false unless reportable.is_a?(Comment)
-    return false if reportable.user.blocked_from_commenting
+    return false if reportable.user.censored
 
     true
   end
@@ -25,7 +25,7 @@ class DecisionFavoredWithUserCommentingRestriction < Decision
   end
 
   def block_user
-    reports.first.reportable.user.update(blocked_from_commenting: true)
+    reports.first.reportable.user.update(censored: true)
   end
 end
 
