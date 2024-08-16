@@ -69,6 +69,10 @@ class NotificationComponent < ApplicationComponent
     Report.where(reportable: accused, decision: nil).count
   end
 
+  def count_of_additional_reports_for_reportable
+    @notification.notifiable.reportable.reports.where(decision: nil).count - 1
+  end
+
   def generate_report_description(reporter, accused, reports_on_comments, reports_on_user, comment: false)
     text = link_to(reporter, user_path(reporter, notification_id: @notification.id))
     text += ' created a report for '
