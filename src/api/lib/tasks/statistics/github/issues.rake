@@ -1,6 +1,6 @@
 # GITHUB login required in order to avoid rate limiting on http requests
-GITHUB_USERNAME = ''.freeze
-GITHUB_PASSWORD = ''.freeze
+# GITHUB_USERNAME = ''.freeze
+# GITHUB_PASSWORD = ''.freeze
 
 namespace :statistics do
   namespace :github do
