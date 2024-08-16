@@ -1,11 +1,11 @@
 %div
   %ul.card-header.nav.nav-tabs.pt-2.px-3.pb-0.flex-nowrap.collapsible.disable-link-generation{ role: 'tablist' }
     %li.nav-item
-      = tab_link('Packages/Projects', search_path, action_name == 'index')
+      = tab_link('Packages/Projects', search_path, active: action_name == 'index')
     %li.nav-item
-      = tab_link('Issues', search_issue_path, action_name == 'issue')
+      = tab_link('Issues', search_issue_path, active: action_name == 'issue')
     %li.nav-item
-      = tab_link('Owners', search_owner_path, action_name == 'owner')
+      = tab_link('Owners', search_owner_path, active: action_name == 'owner')
     %li.nav-item.dropdown
       %a.nav-link.dropdown-toggle{ href: '#', 'data-bs-toggle': 'dropdown', role: 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
       .dropdown-menu.dropdown-menu-end
