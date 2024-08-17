@@ -732,6 +732,57 @@ function prepare_gitea {
     echo "    Found database $GITEA_DB_NAME"
   fi
 
+  for i in INTERNAL_TOKEN JWT_SECRET LFS_JWT_SECRET SECRET_KEY;do
+    F=/etc/gitea/$i
+    su -c "gitea generate secret $i" - $GITEA_PAM_USER_NAME > $F
+    chgrp gitea $F
+    chmod 440 $F
+  done
+
+  cat <<EOF > /etc/gitea/conf/app.ini
+APP_NAME = ; Gitea: Git with a cup of tea
+RUN_USER = ; gitea
+
+[server]
+CERT_FILE = /etc/gitea/https/cert.pem
+KEY_FILE = /etc/gitea/https/key.pem
+STATIC_ROOT_PATH = /usr/share/gitea
+APP_DATA_PATH = /var/lib/gitea/data
+PPROF_DATA_PATH = /var/lib/gitea/data/tmp/pprof
+
+[database]
+DB_TYPE = mysql
+HOST = 127.0.0.1:3306 ; can use socket e.g. /var/run/mysqld/mysqld.sock
+NAME = gitea
+USER = root
+PASSWD = opensuse
+
+[security]
+INSTALL_LOCK = false
+SECRET_KEY_URI = file:///etc/gitea/SECRET_KEY
+INTERNAL_TOKEN_URI = file:///etc/gitea/INTERNAL_TOKEN
+
+[camo]
+
+[oauth2]
+ENABLED = true
+[log]
+ROOT_PATH = /var/log/gitea
+MODE = console, file
+LEVEL = Info
+
+[git]
+
+[service]
+ROOT = /var/lib/gitea/repositories
+TEMP_PATH = /var/lib/gitea/data/tmp/uploads
+DATADIR = /var/lib/gitea/queues/
+AVATAR_UPLOAD_PATH = /var/lib/gitea/data/avatars
+REPOSITORY_AVATAR_UPLOAD_PATH = /var/lib/gitea/data/repo-avatars
+PATH = /var/lib/gitea/data/attachments
+
+EOF
+
   systemctl enable --now $GITEA_SERVICE_NAME
 
   su -c "gitea migrate" - $GITEA_PAM_USER_NAME
