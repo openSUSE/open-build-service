@@ -732,18 +732,12 @@ function prepare_gitea {
     echo "    Found database $GITEA_DB_NAME"
   fi
 
-  for i in INTERNAL_TOKEN JWT_SECRET LFS_JWT_SECRET SECRET_KEY;do
-    F=/etc/gitea/$i
-    su -c "gitea generate secret $i" - $GITEA_PAM_USER_NAME > $F
-    chgrp gitea $F
-    chmod 440 $F
-  done
-
   cat <<EOF > /etc/gitea/conf/app.ini
 APP_NAME = ; Gitea: Git with a cup of tea
 RUN_USER = ; gitea
 
 [server]
+ROOT_URL = https://$FQHOSTNAME/gitea/
 CERT_FILE = /etc/gitea/https/cert.pem
 KEY_FILE = /etc/gitea/https/key.pem
 STATIC_ROOT_PATH = /usr/share/gitea
@@ -782,6 +776,14 @@ REPOSITORY_AVATAR_UPLOAD_PATH = /var/lib/gitea/data/repo-avatars
 PATH = /var/lib/gitea/data/attachments
 
 EOF
+
+  for i in INTERNAL_TOKEN JWT_SECRET LFS_JWT_SECRET SECRET_KEY;do
+    F=/etc/gitea/$i
+    su -c "gitea generate secret $i" - $GITEA_PAM_USER_NAME > $F
+    chgrp gitea $F
+    chmod 440 $F
+  done
+
 
   systemctl enable --now $GITEA_SERVICE_NAME
 
