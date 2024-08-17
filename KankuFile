@@ -37,6 +37,8 @@ jobs:
     options:
       username: root
       commands:
+        - zypper -n --gpg-auto-import-keys ref -s
+        - zypper -n install perl-Test-Most
         - cp -av /tmp/kanku/ .
         - make -C /root/kanku/dist test_system
         - PERL5LIB=/usr/lib/build/ make -C /root/kanku/src/backend test_unit
