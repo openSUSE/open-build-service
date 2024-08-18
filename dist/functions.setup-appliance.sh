@@ -776,7 +776,7 @@ HTTP_PORT = 3000
 DISABLE_SSH = false
 SSH_PORT = 22
 LFS_START_SERVER = true
-LFS_JWT_SECRET_URI = file://etc/gitea/LFS_JWT_SECRET
+LFS_JWT_SECRET_URI = file:///etc/gitea/LFS_JWT_SECRET
 OFFLINE_MODE = true
 
 [database]
