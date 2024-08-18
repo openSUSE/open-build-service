@@ -732,9 +732,36 @@ function prepare_gitea {
     echo "    Found database $GITEA_DB_NAME"
   fi
 
+
+#[service]
+#ROOT = /var/lib/gitea/repositories
+#TEMP_PATH = /var/lib/gitea/data/tmp/uploads
+#DATADIR = /var/lib/gitea/queues/
+#AVATAR_UPLOAD_PATH = /var/lib/gitea/data/avatars
+#REPOSITORY_AVATAR_UPLOAD_PATH = /var/lib/gitea/data/repo-avatars
+#PATH = /var/lib/gitea/data/attachments
+#REGISTER_EMAIL_CONFIRM = false
+#ENABLE_NOTIFY_MAIL = false
+#DISABLE_REGISTRATION = false
+#ALLOW_ONLY_EXTERNAL_REGISTRATION = false
+#ENABLE_CAPTCHA = false
+#REQUIRE_SIGNIN_VIEW = false
+#DEFAULT_KEEP_EMAIL_PRIVATE = false
+#DEFAULT_ALLOW_CREATE_ORGANIZATION = true
+#DEFAULT_ENABLE_TIMETRACKING = true
+#NO_REPLY_ADDRESS = noreply.obs-server.kanku.site
+#
+#[repository]
+#ROOT = /var/lib/gitea/data/gitea-repositories
+#
+#[lfs]
+#PATH = /var/lib/gitea/data/lfs
+
   cat <<EOF > /etc/gitea/conf/app.ini
-APP_NAME = ; Gitea: Git with a cup of tea
-RUN_USER = ; gitea
+APP_NAME = Gitea: Git with a cup of tea
+RUN_USER = gitea
+WORK_PATH = /var/lib/gitea
+RUN_MODE = prod
 
 [server]
 ROOT_URL = https://$FQHOSTNAME/gitea/
@@ -743,23 +770,36 @@ KEY_FILE = /etc/gitea/https/key.pem
 STATIC_ROOT_PATH = /usr/share/gitea
 APP_DATA_PATH = /var/lib/gitea/data
 PPROF_DATA_PATH = /var/lib/gitea/data/tmp/pprof
+SSH_DOMAIN = $FQHOSTNAME
+DOMAIN = $FQHOSTNAME
+HTTP_PORT = 3000
+DISABLE_SSH = false
+SSH_PORT = 22
+LFS_START_SERVER = true
+LFS_JWT_SECRET_URI = file://etc/gitea/LFS_JWT_SECRET
+OFFLINE_MODE = true
 
 [database]
 DB_TYPE = mysql
-HOST = 127.0.0.1:3306 ; can use socket e.g. /var/run/mysqld/mysqld.sock
+HOST = 127.0.0.1:3306
 NAME = gitea
 USER = root
 PASSWD = opensuse
 
 [security]
-INSTALL_LOCK = false
+INSTALL_LOCK = true
 SECRET_KEY_URI = file:///etc/gitea/SECRET_KEY
 INTERNAL_TOKEN_URI = file:///etc/gitea/INTERNAL_TOKEN
+PASSWORD_HASH_ALGO = pbkdf2
+
 
 [camo]
 
 [oauth2]
 ENABLED = true
+JWT_SECRET_URI = file:///etc/gitea/JWT_SECRET
+
+
 [log]
 ROOT_PATH = /var/log/gitea
 MODE = console, file
@@ -774,6 +814,26 @@ DATADIR = /var/lib/gitea/queues/
 AVATAR_UPLOAD_PATH = /var/lib/gitea/data/avatars
 REPOSITORY_AVATAR_UPLOAD_PATH = /var/lib/gitea/data/repo-avatars
 PATH = /var/lib/gitea/data/attachments
+
+
+[mailer]
+ENABLED = false
+
+[openid]
+ENABLE_OPENID_SIGNIN = false
+ENABLE_OPENID_SIGNUP = false
+
+[cron.update_checker]
+ENABLED = false
+
+[session]
+PROVIDER = file
+
+[repository.pull-request]
+DEFAULT_MERGE_STYLE = merge
+
+[repository.signing]
+DEFAULT_TRUST_MODEL = committer
 
 EOF
 
