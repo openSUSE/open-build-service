@@ -57,25 +57,25 @@
                                                             checked: selected_filter[:kind]&.include?('member_on_groups') }
 
   - if policy(Report.new).notify?
-    .mt-4.mb-4
+    .mt-3.mb-2
       %h6.px-3.py-2
-        %b='Reports With/Without Decision'
+        %b Reports
       .px-3
-        = render partial: 'webui/shared/select', locals: { filter_item: 'report_with_decision',
-                                                          selected_value: selected_filter[:report_with_decision],
-                                                          filter_options: [['All', 'all'], ['With decision', true], ['Without decision', false]],
-                                                          label: 'Reports with decision', visible_inner_label: false }
-
-    .mt-4.mb-4
-      %h6.px-3.py-2
-        %b='Reports for'
-      .px-3
-        .dropdown.form-multi-select{ 'data-name': 'type of reportable' }
+        .dropdown.form-multi-select{ 'data-name': 'type of report' }
           %button.form-select.text-start#filter-reportable-type-button{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
-            Select the type of the reported object
           .dropdown-menu.w-100
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: 'With decision',
+                                                                  key: 'report[with_decision]', name: 'report[]',
+                                                                  value: 'with_decision',
+                                                                    checked: selected_filter[:report]&.include?('with_decision') }
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: 'Without decision',
+                                                                      key: 'report[without_decision]', name: 'report[]',
+                                                                      value: 'without_decision',
+                                                                      checked: selected_filter[:report]&.include?('without_decision') }
             %h6.dropdown-header
-              Reported Type
+              Report for
             - Report::REPORTABLE_TYPES.each do |reportable_type|
               .dropdown-item-text
                 = render partial: 'webui/shared/check_box', locals: { label: Report::REPORTABLE_TYPES_STRINGS[reportable_type],
@@ -147,7 +147,7 @@
   }
   let submitFiltersTimeout;
 
-  $(document).on('change', '#filters input, #filters select', function() {
+  $(document).on('change', '#filters input', function() {
     $('#notifications-list').hide();
     $('#notifications-list-loading').removeClass('d-none');
     clearTimeout(submitFiltersTimeout);
