@@ -6,7 +6,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   ALLOWED_STATES = %w[all unread read].freeze
 
   before_action :require_login
-  before_action :set_filter_kind, :set_filter_state, :set_filter_report_with_decision, :set_filter_project, :set_filter_group, :set_filter_request_state
+  before_action :set_filter_kind, :set_filter_state, :set_filter_report_with_decision, :set_filter_reportable_type,
+                :set_filter_project, :set_filter_group, :set_filter_request_state
   before_action :set_notifications
   before_action :set_notifications_to_be_updated, only: :update
   before_action :set_counted_notifications, only: :index
@@ -62,6 +63,11 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @filter_report_with_decision = params[:report_with_decision].presence || 'all'
   end
 
+  def set_filter_reportable_type
+    @filter_reportable_type = params[:reportable_type].presence || []
+    @filter_reportable_type = @filter_reportable_type.intersection(Report::REPORTABLE_TYPES.map(&:to_s))
+  end
+
   def set_filter_project
     @filter_project = params[:project] || []
     @projects_for_filter = ProjectsForFilterFinder.new.call
@@ -105,6 +111,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @notifications = filter_notifications_by_kind(@notifications, @filter_kind)
     @notifications = filter_notifications_by_request_state(@notifications, @filter_request_state)
     @notifications = filter_notifications_by_report_with_decision(@notifications, @filter_report_with_decision)
+    @notifications = filter_notifications_by_reportable_type(@notifications, @filter_reportable_type)
   end
 
   def set_notifications_to_be_updated
@@ -124,7 +131,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
                          report_with_decision: @filter_report_with_decision,
                          project: @filter_project,
                          group: @filter_group,
-                         request_state: @filter_request_state }
+                         request_state: @filter_request_state,
+                         reportable_type: @filter_reportable_type }
   end
 
   def send_notifications_information_rabbitmq(delivered, count)

@@ -75,4 +75,15 @@ module Webui::NotificationsFilter
       notifications.where(notifiable_id: Report.without_decision.select(:id))
     end
   end
+
+  def filter_notifications_by_reportable_type(notifications, filter_reportable_type)
+    relations_reportable_type = filter_reportable_type.map do |reportable_type|
+      notifications.where(notifiable_id: Report.where(reportable_type: reportable_type).select(:id))
+    end
+
+    return notifications if relations_reportable_type.empty?
+
+    notifications = notifications.for_reports
+    notifications.merge(relations_reportable_type.inject(:or))
+  end
 end

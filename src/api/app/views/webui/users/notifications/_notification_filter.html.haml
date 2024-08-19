@@ -59,12 +59,29 @@
   - if policy(Report.new).notify?
     .mt-4.mb-4
       %h6.px-3.py-2
-        %b Reports
+        %b='Reports With/Without Decision'
       .px-3
         = render partial: 'webui/shared/select', locals: { filter_item: 'report_with_decision',
                                                           selected_value: selected_filter[:report_with_decision],
                                                           filter_options: [['All', 'all'], ['With decision', true], ['Without decision', false]],
                                                           label: 'Reports with decision', visible_inner_label: false }
+
+    .mt-4.mb-4
+      %h6.px-3.py-2
+        %b='Reports for'
+      .px-3
+        .dropdown.form-multi-select{ 'data-name': 'type of reportable' }
+          %button.form-select.text-start#filter-reportable-type-button{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
+            Select the type of the reported object
+          .dropdown-menu.w-100
+            %h6.dropdown-header
+              Reported Type
+            - Report::REPORTABLE_TYPES.each do |reportable_type|
+              .dropdown-item-text
+                = render partial: 'webui/shared/check_box', locals: { label: Report::REPORTABLE_TYPES_STRINGS[reportable_type],
+                                                                      key: "reportable_type[#{reportable_type}]", name: 'reportable_type[]',
+                                                                      value: reportable_type,
+                                                                      checked: selected_filter[:reportable_type]&.include?(reportable_type.to_s) }
 
   .mt-4.mb-4
     %h6.px-3.py-2
