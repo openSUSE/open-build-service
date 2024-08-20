@@ -78,13 +78,6 @@ FactoryBot/FactoryAssociationWithStrategy:
 Layout/LineLength:
   Max: 220
 
-# Offense count: 3
-# Configuration parameters: DebuggerMethods, DebuggerRequires.
-Lint/Debugger:
-  Exclude:
-    - 'spec/support/capybara.rb'
-    - 'test/test_helper.rb'
-
 # Offense count: 8
 # Configuration parameters: MaximumRangeSize.
 Lint/MissingCopEnableDirective:

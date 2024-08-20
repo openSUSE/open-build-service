@@ -222,7 +222,7 @@ module Webui
       htmlpath = dirpath.join("#{name}.html")
       if !passed?
         Dir.mkdir(dirpath) unless Dir.exist?(dirpath)
-        save_page(htmlpath)
+        save_page(htmlpath) # rubocop:disable Lint/Debugger
       elsif File.exist?(htmlpath)
         File.unlink(htmlpath)
       end
