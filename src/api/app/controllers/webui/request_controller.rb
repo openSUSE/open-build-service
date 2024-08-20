@@ -277,11 +277,6 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to action: 'show', number: params[:number]
   end
 
-  # used by mixins
-  def main_object
-    BsRequest.find_by_number(params[:number])
-  end
-
   def inline_comment
     @line = params[:line]
     respond_to do |format|
