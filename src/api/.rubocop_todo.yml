@@ -113,13 +113,6 @@ Lint/StructNewOverride:
   Exclude:
     - 'app/models/buildresult.rb'
 
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: AutoCorrect.
-Lint/UselessMethodDefinition:
-  Exclude:
-    - 'app/controllers/webui/requests/submissions_controller.rb'
-
 # Offense count: 899
 # Configuration parameters: AllowedMethods, AllowedPatterns, CountRepeatedAttributes.
 Metrics/AbcSize:
