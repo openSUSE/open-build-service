@@ -102,13 +102,6 @@ Lint/NonLocalExitFromIterator:
     - 'app/models/patchinfo.rb'
 
 # Offense count: 3
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Lint/RedundantDirGlobSort:
-  Exclude:
-    - 'spec/browser_helper.rb'
-    - 'spec/spec_helper.rb'
-
-# Offense count: 3
 Lint/RescueException:
   Exclude:
     - 'app/models/user_ldap_strategy.rb'

@@ -13,4 +13,4 @@ require 'support/wait_helpers'
 
 # Shared examples. Per recommendation of RSpec,
 # https://www.relishapp.com/rspec/rspec-core/v/2-12/docs/example-groups/shared-examples
-Dir['./spec/shared/examples/features/**/*.rb'].sort.each { |example| require example }
+Dir['./spec/shared/examples/features/**/*.rb'].each { |example| require example }
