@@ -220,11 +220,11 @@ module Webui
     teardown do
       dirpath = Rails.root.join('tmp', 'capybara')
       htmlpath = dirpath.join("#{name}.html")
-      if !passed?
-        Dir.mkdir(dirpath) unless Dir.exist?(dirpath)
+      if passed?
+        FileUtils.rm_f(htmlpath)
+      else
+        FileUtils.mkdir_p(dirpath)
         save_page(htmlpath) # rubocop:disable Lint/Debugger
-      elsif File.exist?(htmlpath)
-        File.unlink(htmlpath)
       end
 
       Capybara.reset!

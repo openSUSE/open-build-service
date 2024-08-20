@@ -94,13 +94,6 @@ Lint/MissingSuper:
     - 'app/lib/backend/remember_location.rb'
     - 'app/queries/open_requests_with_project_as_source_or_target_finder.rb'
 
-# Offense count: 8
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Lint/NonAtomicFileOperation:
-  Exclude:
-    - 'script/start_test_backend'
-    - 'test/test_helper.rb'
-
 # Offense count: 4
 Lint/NonLocalExitFromIterator:
   Exclude:
