@@ -31,15 +31,6 @@ module Webui::RescueHandler
       end
     end
 
-    # FIXME: just because there is some data missing to compute the request?
-    # Please check:
-    # http://guides.rubyonrails.org/active_record_validations.html
-    class MissingParameterError < RuntimeError; end # rubocop:disable Lint/ConstantDefinitionInBlock
-    rescue_from MissingParameterError do |exception|
-      logger.debug "#{exception.class.name} #{exception.message} #{exception.backtrace.join('\n')}"
-      render file: Rails.public_path.join('404.html'), status: :not_found, layout: false, formats: [:html]
-    end
-
     rescue_from AjaxDatatablesRails::Error::InvalidSearchColumn, AjaxDatatablesRails::Error::InvalidSearchCondition do
       render json: { data: [] }
     end
