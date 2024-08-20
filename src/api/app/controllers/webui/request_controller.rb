@@ -242,7 +242,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def set_bugowner_request
-    required_parameters :project
+    params.require(:project)
     request = nil
     begin
       request = BsRequest.create!(

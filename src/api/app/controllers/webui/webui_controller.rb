@@ -59,12 +59,6 @@ class Webui::WebuiController < ActionController::Base
     raise Pundit::NotAuthorizedError, reason: ApplicationPolicy::ANONYMOUS_USER unless User.session
   end
 
-  def required_parameters(*parameters)
-    parameters.each do |parameter|
-      raise MissingParameterError, "Required Parameter #{parameter} missing" unless params.include?(parameter.to_s)
-    end
-  end
-
   def lockout_spiders
     return unless request.bot? && Rails.env.production?
 
