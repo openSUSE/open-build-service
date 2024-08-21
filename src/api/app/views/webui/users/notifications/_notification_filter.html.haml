@@ -56,6 +56,33 @@
                                                             label_icon: 'fas fa-people-group',
                                                             checked: selected_filter[:kind]&.include?('member_on_groups') }
 
+  - if policy(Report.new).notify?
+    .mt-3.mb-2
+      %h6.px-3.py-2
+        %b Reports
+      .px-3
+        .dropdown.form-multi-select{ 'data-name': 'type of report' }
+          %button.form-select.text-start#filter-reportable-type-button{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
+          .dropdown-menu.w-100
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: 'With decision',
+                                                                  key: 'report[with_decision]', name: 'report[]',
+                                                                  value: 'with_decision',
+                                                                    checked: selected_filter[:report]&.include?('with_decision') }
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: 'Without decision',
+                                                                      key: 'report[without_decision]', name: 'report[]',
+                                                                      value: 'without_decision',
+                                                                      checked: selected_filter[:report]&.include?('without_decision') }
+            %h6.dropdown-header
+              Report for
+            - Report::REPORTABLE_TYPES.each do |reportable_type|
+              .dropdown-item-text
+                = render partial: 'webui/shared/check_box', locals: { label: Report::REPORTABLE_TYPES_STRINGS[reportable_type],
+                                                                      key: "reportable_type[#{reportable_type}]", name: 'reportable_type[]',
+                                                                      value: reportable_type,
+                                                                      checked: selected_filter[:reportable_type]&.include?(reportable_type.to_s) }
+
   .mt-4.mb-4
     %h6.px-3.py-2
       %b Requests

@@ -63,4 +63,31 @@ module Webui::NotificationsFilter
 
     notifications.merge(relations_request_state.inject(:or))
   end
+
+  def filter_notifications_by_report_decision(notifications, filter_report_decision)
+    return notifications if filter_report_decision.empty?
+
+    notifications = notifications.for_reports
+
+    relations_report_decision = []
+    if filter_report_decision.include?('with_decision')
+      relations_report_decision << notifications.where.not(notifiable_id: Report.without_decision.select(:id))
+    end
+    if filter_report_decision.include?('without_decision')
+      relations_report_decision << notifications.where(notifiable_id: Report.without_decision.select(:id))
+    end
+
+    notifications.merge(relations_report_decision.inject(:or))
+  end
+
+  def filter_notifications_by_reportable_type(notifications, filter_reportable_type)
+    relations_reportable_type = filter_reportable_type.map do |reportable_type|
+      notifications.where(notifiable_id: Report.where(reportable_type: reportable_type).select(:id))
+    end
+
+    return notifications if relations_reportable_type.empty?
+
+    notifications = notifications.for_reports
+    notifications.merge(relations_reportable_type.inject(:or))
+  end
 end

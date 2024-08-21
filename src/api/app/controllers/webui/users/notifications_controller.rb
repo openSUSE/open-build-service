@@ -4,9 +4,11 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   ALLOWED_FILTERS = %w[all comments requests incoming_requests outgoing_requests relationships_created relationships_deleted build_failures
                        reports reviews workflow_runs appealed_decisions member_on_groups].freeze
   ALLOWED_STATES = %w[all unread read].freeze
+  ALLOWED_REPORT_FILTERS = %w[with_decision without_decision reportable_type].freeze
 
   before_action :require_login
-  before_action :set_filter_kind, :set_filter_state, :set_filter_project, :set_filter_group, :set_filter_request_state
+  before_action :set_filter_kind, :set_filter_state, :set_filter_report_decision, :set_filter_reportable_type,
+                :set_filter_project, :set_filter_group, :set_filter_request_state
   before_action :set_notifications
   before_action :set_notifications_to_be_updated, only: :update
   before_action :set_counted_notifications, only: :index
@@ -58,6 +60,16 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @filter_state = 'unread' if ALLOWED_STATES.exclude?(@filter_state)
   end
 
+  def set_filter_report_decision
+    @filter_report_decision = params[:report].presence || []
+    @filter_report_decision.reject! { |report_filter| ALLOWED_REPORT_FILTERS.exclude?(report_filter) }
+  end
+
+  def set_filter_reportable_type
+    @filter_reportable_type = params[:reportable_type].presence || []
+    @filter_reportable_type = @filter_reportable_type.intersection(Report::REPORTABLE_TYPES.map(&:to_s))
+  end
+
   def set_filter_project
     @filter_project = params[:project] || []
     @projects_for_filter = ProjectsForFilterFinder.new.call
@@ -100,6 +112,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @notifications = filter_notifications_by_state(@notifications, @filter_state)
     @notifications = filter_notifications_by_kind(@notifications, @filter_kind)
     @notifications = filter_notifications_by_request_state(@notifications, @filter_request_state)
+    @notifications = filter_notifications_by_report_decision(@notifications, @filter_report_decision)
+    @notifications = filter_notifications_by_reportable_type(@notifications, @filter_reportable_type)
   end
 
   def set_notifications_to_be_updated
@@ -114,7 +128,13 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def set_selected_filter
-    @selected_filter = { kind: @filter_kind, state: @filter_state, project: @filter_project, group: @filter_group, request_state: @filter_request_state }
+    @selected_filter = { kind: @filter_kind,
+                         state: @filter_state,
+                         report: @filter_report_decision,
+                         project: @filter_project,
+                         group: @filter_group,
+                         request_state: @filter_request_state,
+                         reportable_type: @filter_reportable_type }
   end
 
   def send_notifications_information_rabbitmq(delivered, count)
