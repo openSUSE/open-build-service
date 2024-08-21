@@ -56,7 +56,7 @@ function updateBuildResult(index) { // jshint ignore:line
 
 function updateArchDisplay(index) { // jshint ignore:line
   $('.rpmlint_arch_select_' + index).hide();
-  $('#rpmlint_arch_select_' + index + '_' + $('#rpmlint_repo_select_' + index + ' option:selected').attr('value')).show();
+  $('select[name="rpmlint_arch_select_' + index + '_' + $('#rpmlint_repo_select_' + index + ' option:selected').attr('value') + '"]').show();
   updateRpmlintDisplay(index);
 }
 
@@ -64,7 +64,7 @@ function updateRpmlintDisplay(index) {
   var ajaxDataShow = $('#rpmlin-log-' + index).data();
   var repoKey = $('#rpmlint_repo_select_' + index + ' option:selected').attr('value');
   ajaxDataShow.repository = $('#rpmlint_repo_select_' + index + ' option:selected').html();
-  ajaxDataShow.architecture = $('#rpmlint_arch_select_' + index + '_' + repoKey + ' option:selected').attr('value');
+  ajaxDataShow.architecture = $('select[name="rpmlint_arch_select_' + index + '_' + repoKey + '"] option:selected').attr('value');
   $.ajax({
     url: '/package/rpmlint_log',
     data: ajaxDataShow,
