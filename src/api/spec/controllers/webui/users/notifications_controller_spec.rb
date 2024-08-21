@@ -11,6 +11,7 @@ RSpec.describe Webui::Users::NotificationsController do
   let(:read_notification) { create(:notification_for_request, :web_notification, :request_state_change, subscriber: user, delivered: true) }
   let(:notifications_for_other_users) { create(:notification_for_request, :web_notification, :request_state_change, subscriber: other_user) }
   let(:build_failure) { create(:notification_for_package, :web_notification, :build_failure, subscriber: user) }
+  let(:report_notification) { create(:notification_for_report, :web_notification, :create_report, subscriber: user) }
 
   shared_examples 'returning success' do
     it 'returns ok status' do
@@ -195,6 +196,34 @@ RSpec.describe Webui::Users::NotificationsController do
 
       it "@notifications does not include incoming requests for 'outgoing_requests' type" do
         expect(assigns[:notifications]).not_to include(request_created_notification.reload)
+      end
+    end
+
+    context "when filtering by 'reports' param" do
+      let(:params) { default_params.merge(kind: 'reports') }
+
+      before do
+        subject
+      end
+
+      it_behaves_like 'returning success'
+
+      it "sets @notifications to all undelivered notifications of 'reports' type" do
+        expect(assigns[:notifications]).to include(report_notification.reload)
+      end
+    end
+
+    context "when filtering by 'reportable type' as Comment and report 'without decision' params" do
+      let(:params) { default_params.merge(report: ['without_decision'], reportable_type: ['Comment']) }
+
+      before do
+        subject
+      end
+
+      it_behaves_like 'returning success'
+
+      it "sets @notifications to all undelivered notifications of 'reports' type" do
+        expect(assigns[:notifications]).to include(report_notification.reload)
       end
     end
   end
