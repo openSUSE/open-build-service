@@ -1876,7 +1876,7 @@ sub mapsleimage {
     $rbin =~ s/\.sha256.asc$//;
     $rbin =~ s/\.(?:bz2|gz|xz|zst)$//;
     $rbin =~ s/\.(spdx|cdx)\.json$//;
-    $rbin =~ s/\.(install\.iso|iso|packages|raw|tbz|tgz|tar|qcow2|vdi|vhdfixed|vhdx|vmdk|vmx|vagrant\..*\.box)$//;
+    $rbin =~ s/\.(install\.iso|install\.tar|iso|packages|raw|tbz|tgz|tar|qcow2|vdi|vhdfixed|vhdx|vmdk|vmx|vagrant\..*\.box)$//;
     $rbin =~ s/^ChangeLog\.//;
     $rbin =~ s/\.txt$//;
     # if we did not find it yet, try removing the build number
