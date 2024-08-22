@@ -197,11 +197,6 @@ module Webui::WebuiHelper
     role.blank? ? 'become bugowner (previous bugowners will be deleted)' : "get the role #{role}"
   end
 
-  def replace_jquery_meta_characters(input)
-    # The stated characters are c&p from https://api.jquery.com/category/selectors/
-    input.gsub(%r{[!"#$%&'()*+,./:\\;<=>?@\[\]^`{|}~]}, '_')
-  end
-
   def word_break(string, length = 80)
     return '' unless string
 

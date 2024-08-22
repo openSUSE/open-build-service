@@ -155,19 +155,6 @@ RSpec.describe Webui::WebuiHelper do
     skip('Please add some tests')
   end
 
-  describe '#replace_jquery_meta_characters' do
-    context 'with meta character in string' do
-      it { expect(replace_jquery_meta_characters('openSUSE_Leap_42.2')).to eq('openSUSE_Leap_42_2') }
-      it { expect(replace_jquery_meta_characters('openSUSE.Leap.42.2')).to eq('openSUSE_Leap_42_2') }
-      it { expect(replace_jquery_meta_characters('openSUSE_Leap_42\2')).to eq('openSUSE_Leap_42_2') }
-      it { expect(replace_jquery_meta_characters('openSUSE_Leap_42/2')).to eq('openSUSE_Leap_42_2') }
-    end
-
-    context 'without meta character in string' do
-      it { expect(replace_jquery_meta_characters('openSUSE_Tumbleweed')).to eq('openSUSE_Tumbleweed') }
-    end
-  end
-
   describe '#pick_max_problems' do
     subject { pick_max_problems(checks, builds, max_shown) }
 
