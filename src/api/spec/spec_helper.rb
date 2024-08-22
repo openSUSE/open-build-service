@@ -143,8 +143,8 @@ require 'support/haml'
 # and has to be opted in when required
 require 'paper_trail/frameworks/rspec'
 
-Dir['./spec/shared/contexts/*.rb'].sort.each { |file| require file }
-Dir['./spec/shared/examples/*.rb'].sort.each { |file| require file }
+Dir['./spec/shared/contexts/*.rb'].each { |file| require file }
+Dir['./spec/shared/examples/*.rb'].each { |file| require file }
 
 # Generate 30 tests for every property test
 ENV['RANTLY_COUNT'] = '30'

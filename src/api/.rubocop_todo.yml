@@ -78,13 +78,6 @@ FactoryBot/FactoryAssociationWithStrategy:
 Layout/LineLength:
   Max: 220
 
-# Offense count: 3
-# Configuration parameters: DebuggerMethods, DebuggerRequires.
-Lint/Debugger:
-  Exclude:
-    - 'spec/support/capybara.rb'
-    - 'test/test_helper.rb'
-
 # Offense count: 8
 # Configuration parameters: MaximumRangeSize.
 Lint/MissingCopEnableDirective:
@@ -101,26 +94,12 @@ Lint/MissingSuper:
     - 'app/lib/backend/remember_location.rb'
     - 'app/queries/open_requests_with_project_as_source_or_target_finder.rb'
 
-# Offense count: 8
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Lint/NonAtomicFileOperation:
-  Exclude:
-    - 'script/start_test_backend'
-    - 'test/test_helper.rb'
-
 # Offense count: 4
 Lint/NonLocalExitFromIterator:
   Exclude:
     - 'app/controllers/build_controller.rb'
     - 'app/controllers/configurations_controller.rb'
     - 'app/models/patchinfo.rb'
-
-# Offense count: 3
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Lint/RedundantDirGlobSort:
-  Exclude:
-    - 'spec/browser_helper.rb'
-    - 'spec/spec_helper.rb'
 
 # Offense count: 3
 Lint/RescueException:
@@ -133,13 +112,6 @@ Lint/RescueException:
 Lint/StructNewOverride:
   Exclude:
     - 'app/models/buildresult.rb'
-
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: AutoCorrect.
-Lint/UselessMethodDefinition:
-  Exclude:
-    - 'app/controllers/webui/requests/submissions_controller.rb'
 
 # Offense count: 899
 # Configuration parameters: AllowedMethods, AllowedPatterns, CountRepeatedAttributes.

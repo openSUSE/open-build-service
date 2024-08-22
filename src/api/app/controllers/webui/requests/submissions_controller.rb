@@ -17,7 +17,7 @@ module Webui
       end
 
       # We rely on the super class. This is here to respect the RuboCop cop "Rails/LexicallyScopedActionFilter"
-      def create
+      def create # rubocop:disable Lint/UselessMethodDefinition
         super
       end
 
