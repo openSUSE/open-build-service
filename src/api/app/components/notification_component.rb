@@ -29,4 +29,71 @@ class NotificationComponent < ApplicationComponent
       tag.i(class: ['fas', NOTIFICATION_ICON[@notification.notifiable_type]], title: NOTIFICATION_TITLE[@notification.notifiable_type])
     end
   end
+
+  def description
+    case @notification.event_type
+    when 'Event::ReportForUser'
+      description_for_user_report
+    when 'Event::ReportForComment'
+      description_for_comment_report
+    else
+      @notification.description
+    end
+  end
+
+  private
+
+  def description_for_user_report
+    reporter = @notification.notifiable.user
+    accused = @notification.notifiable.reportable
+    reports_on_comments = count_reports_on_comments(accused)
+    reports_on_user = count_reports_on_user(accused)
+
+    generate_report_description(reporter, accused, reports_on_comments, reports_on_user)
+  end
+
+  def description_for_comment_report
+    reporter = @notification.notifiable.user
+    accused = @notification.notifiable.reportable.user
+    reports_on_user = count_reports_on_user(accused)
+    reports_on_comments = count_reports_on_comments(accused)
+
+    generate_report_description(reporter, accused, reports_on_comments, reports_on_user, comment: true)
+  end
+
+  def count_reports_on_comments(accused)
+    Report.where(reportable: accused.comments, decision: nil).count
+  end
+
+  def count_reports_on_user(accused)
+    Report.where(reportable: accused, decision: nil).count
+  end
+
+  def generate_report_description(reporter, accused, reports_on_comments, reports_on_user, comment: false)
+    text = link_to(reporter, user_path(reporter, notification_id: @notification.id))
+    text += ' created a report for '
+    text += 'comment from ' if comment
+    text += link_to(accused, user_path(accused, notification_id: @notification.id))
+    text += create_badge(state: accused.state)
+
+    text += if comment && reports_on_user.positive?
+              create_badge(number_of_reports: "+#{reports_on_user}", icon: 'user')
+            elsif reports_on_comments.positive?
+              create_badge(number_of_reports: "+#{reports_on_comments}", icon: 'comments')
+            end
+
+    sanitize(text)
+  end
+
+  def create_badge(number_of_reports: nil, state: nil, icon: nil)
+    content_tag(
+      :span,
+      state.presence || icon_tag(number_of_reports, icon),
+      class: ['badge', 'mx-1', "#{state.present? ? 'text-bg-secondary' : 'text-bg-warning'}"]
+    )
+  end
+
+  def icon_tag(number_of_reports, icon)
+    sanitize(" #{number_of_reports} #{content_tag(:i, nil, class: "fa fa-#{icon}")} reported")
+  end
 end
