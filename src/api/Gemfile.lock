@@ -559,7 +559,7 @@ DEPENDENCIES
   coderay
   daemons
   dalli
-  data_migrate (~> 9.0)
+  data_migrate
   database_cleaner-active_record
   database_consistency
   deep_cloneable
