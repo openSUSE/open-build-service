@@ -101,7 +101,7 @@ namespace :dev do
       IssueTrackerWriteToBackendJob.perform_now
 
       iggy = create(:staff_user, login: 'Iggy')
-      admin = User.get_default_admin
+      admin = User.default_admin
       User.session = admin
 
       interconnect = create(:remote_project, name: 'openSUSE.org', remoteurl: 'https://api.opensuse.org/public')

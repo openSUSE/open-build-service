@@ -8,7 +8,7 @@ class PersonController < ApplicationController
   skip_before_action :extract_user, only: %i[command register]
   skip_before_action :require_login, only: %i[command register]
 
-  before_action :set_user, only: %i[post_userinfo change_my_password get_watchlist put_watchlist]
+  before_action :set_user, only: %i[post_userinfo change_my_password watchlist put_watchlist]
 
   def show
     @list = if params[:prefix]
@@ -28,7 +28,7 @@ class PersonController < ApplicationController
     raise UnknownCommandError, "Allowed command is 'register'"
   end
 
-  def get_userinfo
+  def userinfo
     user = User.find_by_login!(params[:login])
 
     if user == User.session
@@ -129,7 +129,7 @@ class PersonController < ApplicationController
     render_ok
   end
 
-  def get_watchlist
+  def watchlist
     if @user
       authorize @user, :update?
 

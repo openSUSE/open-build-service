@@ -427,17 +427,8 @@ Metrics/PerceivedComplexity:
 # Offense count: 15
 Naming/AccessorMethodName:
   Exclude:
-    - 'app/controllers/concerns/backend_proxy.rb'
-    - 'app/controllers/person_controller.rb'
-    - 'app/controllers/source_controller.rb'
-    - 'app/controllers/statistics_controller.rb'
-    - 'app/controllers/webui/patchinfo_controller.rb'
     - 'app/models/bs_request_action.rb'
     - 'app/models/bs_request_action_maintenance_release.rb'
-    - 'app/models/group.rb'
-    - 'app/models/issue_tracker/cve_parser.rb'
-    - 'app/models/package.rb'
-    - 'app/models/user.rb'
     - 'test/functional/search_controller_test.rb'
 
 # Offense count: 2

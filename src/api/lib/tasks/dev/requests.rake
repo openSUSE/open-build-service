@@ -8,7 +8,7 @@ namespace :dev do
 
       puts 'Creating a request with multiple actions...'
 
-      admin = User.get_default_admin
+      admin = User.default_admin
       User.session = admin
       iggy = User.find_by(login: 'Iggy') || create(:staff_user, login: 'Iggy')
 
@@ -136,7 +136,7 @@ namespace :dev do
 
       iggy = User.find_by(login: 'Iggy') || create(:staff_user, login: 'Iggy')
       User.session = iggy
-      admin = User.get_default_admin
+      admin = User.default_admin
       iggy_home_project = RakeSupport.find_or_create_project(iggy.home_project_name, iggy)
       home_admin_project = RakeSupport.find_or_create_project(admin.home_project_name, admin)
 
@@ -191,7 +191,7 @@ namespace :dev do
       include FactoryBot::Syntax::Methods
 
       iggy = User.find_by(login: 'Iggy') || create(:staff_user, login: 'Iggy')
-      admin = User.get_default_admin
+      admin = User.default_admin
       home_admin_project = RakeSupport.find_or_create_project(admin.home_project_name, admin)
 
       target_package = create(:package, project: home_admin_project, name: "#{Faker::Lorem.word}_#{Time.now.to_i}")

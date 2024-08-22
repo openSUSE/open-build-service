@@ -37,7 +37,7 @@ These requests are not created for projects with open requests or if you remove 
     return unless cleanup_days && cleanup_days.positive?
 
     # defaults
-    User.get_default_admin.run_as do
+    User.default_admin.run_as do
       @cleanup_attribute = AttribType.find_by_namespace_and_name!('OBS', 'AutoCleanup')
       @cleanup_time = Time.zone.now + cleanup_days.days
 

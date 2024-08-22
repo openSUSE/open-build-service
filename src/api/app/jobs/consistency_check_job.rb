@@ -2,7 +2,7 @@ class ConsistencyCheckJob < ApplicationJob
   queue_as :consistency_check
 
   def perform
-    User.get_default_admin.run_as { _perform(fix: false) }
+    User.default_admin.run_as { _perform(fix: false) }
   end
 
   def check_one_project(project, fix: false)
@@ -13,7 +13,7 @@ class ConsistencyCheckJob < ApplicationJob
 
   # method called by the rake task `fix_project`
   def fix_project(project)
-    User.get_default_admin.run_as { check_project(project, fix: true) }
+    User.default_admin.run_as { check_project(project, fix: true) }
   end
 
   # method called by the rake task `check_project`
@@ -70,7 +70,7 @@ class ConsistencyCheckJob < ApplicationJob
     project_meta_checker = ConsistencyCheckJobService::ProjectMetaChecker.new(project)
     project_meta_checker.call
 
-    project.store(login: User.get_default_admin.login, comment: 'out-of-sync fix') if !project_meta_checker.errors.empty? && fix
+    project.store(login: User.default_admin.login, comment: 'out-of-sync fix') if !project_meta_checker.errors.empty? && fix
 
     project_meta_checker.errors
   end

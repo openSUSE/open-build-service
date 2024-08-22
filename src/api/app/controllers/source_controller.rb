@@ -192,7 +192,7 @@ class SourceController < ApplicationController
   end
 
   # GET /source/:project/:package/:filename
-  def get_file
+  def show_file
     project_name = params[:project]
     package_name = params[:package] || '_project'
     file = params[:filename]
@@ -286,7 +286,7 @@ class SourceController < ApplicationController
 
   # POST /lastevents
   def lastevents
-    path = get_request_path
+    path = http_request_path
 
     # map to a GET, so we can X-forward it
     volley_backend_path(path) unless forward_from_backend(path)

@@ -6,7 +6,7 @@ module Old
     queue_as :consistency_check
 
     def perform
-      User.get_default_admin.run_as { _perform(nil) }
+      User.default_admin.run_as { _perform(nil) }
     end
 
     def check_one_project(project, fix)
@@ -38,7 +38,7 @@ module Old
 
     # for manual fixing by admin via rails command
     def fix_project
-      User.get_default_admin.run_as { check_project(true) }
+      User.default_admin.run_as { check_project(true) }
     end
 
     def check_project(fix = nil)
@@ -74,7 +74,7 @@ module Old
     private
 
     def fix
-      User.get_default_admin.run_as { _perform(true) }
+      User.default_admin.run_as { _perform(true) }
     end
 
     def initialize
@@ -104,7 +104,7 @@ module Old
         errors << "Project meta is different in backend for #{project.name}\n#{diff}\n"
         if fix
           # Assume that api is right
-          project.store(login: User.get_default_admin.login, comment: 'out-of-sync fix')
+          project.store(login: User.default_admin.login, comment: 'out-of-sync fix')
         end
       end
 
