@@ -46,17 +46,17 @@ class NotificationComponent < ApplicationComponent
   def description_for_user_report
     reporter = @notification.notifiable.user
     accused = @notification.notifiable.reportable
-    reports_on_comments = count_reports_on_comments(accused)
-    reports_on_user = count_reports_on_user(accused)
+    reports_on_comments = count_reports_on_comments(accused) if accused
+    reports_on_user = count_reports_on_user(accused) if accused
 
     generate_report_description(reporter, accused, reports_on_comments, reports_on_user)
   end
 
   def description_for_comment_report
     reporter = @notification.notifiable.user
-    accused = @notification.notifiable.reportable.user
-    reports_on_user = count_reports_on_user(accused)
-    reports_on_comments = count_reports_on_comments(accused)
+    accused = @notification.notifiable.reportable&.user
+    reports_on_user = count_reports_on_user(accused) if accused
+    reports_on_comments = count_reports_on_comments(accused) if accused
 
     generate_report_description(reporter, accused, reports_on_comments, reports_on_user, comment: true)
   end
@@ -73,14 +73,16 @@ class NotificationComponent < ApplicationComponent
     text = link_to(reporter, user_path(reporter, notification_id: @notification.id))
     text += ' created a report for '
     text += 'comment from ' if comment
-    text += link_to(accused, user_path(accused, notification_id: @notification.id))
-    text += create_badge(state: accused.state)
+    if accused
+      text += link_to(accused, user_path(accused, notification_id: @notification.id))
+      text += create_badge(state: accused.state)
 
-    text += if comment && reports_on_user.positive?
-              create_badge(number_of_reports: "+#{reports_on_user}", icon: 'user')
-            elsif reports_on_comments.positive?
-              create_badge(number_of_reports: "+#{reports_on_comments}", icon: 'comments')
-            end
+      text += if comment && reports_on_user.positive?
+                create_badge(number_of_reports: "+#{reports_on_user}", icon: 'user')
+              elsif reports_on_comments.positive?
+                create_badge(number_of_reports: "+#{reports_on_comments}", icon: 'comments')
+              end
+    end
 
     sanitize(text)
   end
