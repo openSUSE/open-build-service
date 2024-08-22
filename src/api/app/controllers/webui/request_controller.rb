@@ -242,7 +242,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def set_bugowner_request
-    required_parameters :project
+    params.require(:project)
     request = nil
     begin
       request = BsRequest.create!(
@@ -275,11 +275,6 @@ class Webui::RequestController < Webui::WebuiController
     end
 
     redirect_to action: 'show', number: params[:number]
-  end
-
-  # used by mixins
-  def main_object
-    BsRequest.find_by_number(params[:number])
   end
 
   def inline_comment
