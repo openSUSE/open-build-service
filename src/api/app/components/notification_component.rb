@@ -70,6 +70,8 @@ class NotificationComponent < ApplicationComponent
   end
 
   def count_of_additional_reports_for_reportable
+    return 0 unless @notification.notifiable.reportable
+
     @notification.notifiable.reportable.reports.without_decision.count - 1
   end
 
