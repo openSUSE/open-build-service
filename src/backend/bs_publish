@@ -1177,6 +1177,7 @@ sub createrepo_staticlinks {
   my $versioned = grep {$_ eq 'versioned'} @{$options || []};
   for my $arch ('.', ls($extrep)) {
     next unless -d "$extrep/$arch";
+    my %static_links;
     for (ls("$extrep/$arch")) {
       if (-l "$extrep/$arch/$_") {
         unlink "$extrep/$arch/$_" unless -e "$extrep/$arch/$_";
@@ -1211,27 +1212,34 @@ sub createrepo_staticlinks {
         $link = "$1-$2$profile$5" if $versioned;
       }
       next unless $link;
-      unlink("$extrep/$arch/.$link"); # drop left over
-      symlink($_, "$extrep/$arch/.$link");
-      rename("$extrep/$arch/.$link", "$extrep/$arch/$link"); # atomic update
+      # double match, pick target with latest mtime
+      next if $static_links{$link} && -M "$extrep/$arch/$_" > -M "$extrep/$arch/$static_links{$link}";
+      $static_links{$link} = $_;
+    }
+    # creating links
+    for (keys(%static_links)) {
+      my $target = $static_links{$_};
+      unlink("$extrep/$arch/.$_"); # drop left over
+      symlink($target, "$extrep/$arch/.$_");
+      rename("$extrep/$arch/.$_", "$extrep/$arch/$_"); # atomic update
 
       # check for detached sha256 files
-      if ( -e "$extrep/$arch/$_.sha256" ) {
+      if ( -e "$extrep/$arch/$target.sha256" ) {
         # copy and patch the filename
-        my ($econtent, $ehadsig) = depgp(readstr("$extrep/$arch/$_.sha256"));
-        $econtent =~ s/([ \/])\Q$_\E\n/$link\n/g;
-        unlink("$extrep/$arch/$link.sha256");
-        writestr("$extrep/$arch/$link.sha256", undef, $econtent);
+        my ($econtent, $ehadsig) = depgp(readstr("$extrep/$arch/$target.sha256"));
+        $econtent =~ s/([ \/])\Q$_\E\n/$_\n/g;
+        unlink("$extrep/$arch/$_.sha256");
+        writestr("$extrep/$arch/$_.sha256", undef, $econtent);
       }
-      if ( -e "$extrep/$arch/$_.sha256.asc" ) {
+      if ( -e "$extrep/$arch/$target.sha256.asc" ) {
         # regenerate signature
-        if ($BSConfig::sign && -e "$extrep/$arch/$link.sha256") {
+        if ($BSConfig::sign && -e "$extrep/$arch/$_.sha256") {
           my @signargs;
           push @signargs, '--project', $projid if $BSConfig::sign_project;
           push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
           push @signargs, @{$data->{'signargs'} || []};
-          qsystem($BSConfig::sign, @signargs, '-d', "$extrep/$arch/$link.sha256") && die("    sign failed: $?\n");
-          pickup_detached_signature($data, "$extrep/$arch/$link.sha256");
+          qsystem($BSConfig::sign, @signargs, '-d', "$extrep/$arch/$_.sha256") && die("    sign failed: $?\n");
+          pickup_detached_signature($data, "$extrep/$arch/$_.sha256");
         }
       }
     }
