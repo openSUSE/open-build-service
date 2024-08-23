@@ -62,15 +62,17 @@ class NotificationComponent < ApplicationComponent
   end
 
   def count_reports_on_comments(accused)
-    Report.where(reportable: accused.comments, decision: nil).count
+    Report.without_decision.where(reportable: accused.comments).count
   end
 
   def count_reports_on_user(accused)
-    Report.where(reportable: accused, decision: nil).count
+    Report.without_decision.where(reportable: accused).count
   end
 
   def count_of_additional_reports_for_reportable
-    @notification.notifiable.reportable.reports.where(decision: nil).count - 1
+    return 0 unless @notification.notifiable.reportable
+
+    @notification.notifiable.reportable.reports.without_decision.count - 1
   end
 
   def generate_report_description(reporter, accused, reports_on_comments, reports_on_user, comment: false)
