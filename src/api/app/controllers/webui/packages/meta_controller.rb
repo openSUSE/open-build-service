@@ -22,7 +22,7 @@ module Webui
           @package.update_from_xml(@meta_xml)
           flash.now[:success] = 'The Meta file has been successfully saved.'
           status = 200
-        rescue Backend::Error, NotFoundError => e
+        rescue Backend::Error, NotFoundError, Package::Errors::SaveError => e
           flash.now[:error] = "Error while saving the Meta file: #{e}."
           status = 400
         end
