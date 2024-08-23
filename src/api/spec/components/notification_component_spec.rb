@@ -60,5 +60,43 @@ RSpec.describe NotificationComponent, type: :component do
         expect(rendered_content).to have_css('span', text: '+1', class: 'badge')
       end
     end
+
+    context 'when the reportable of the notification has additional reports and no decision' do
+      let(:project) { create(:project, maintainer: user) }
+      let(:comment) { create(:comment, commentable: project) }
+      let(:event_type) { 'Event::ReportForComment' }
+      let(:notifiable) { create(:report, reportable: comment, reason: 'Some sample text') }
+      let(:event_payload) { { reporter: user.login, reportable_id: comment.id, reportable_type: 'Comment', reason: 'some sample text for reason field', category: 'spam' } }
+      let!(:additional_report) { create(:report, reportable: comment, reason: 'This is spam') }
+
+      before do
+        render_inline(described_class.new(notification: notification, selected_filter: selected_filter, page: 1))
+      end
+
+      it 'renders a badge that indicates that there are more reports' do
+        expect(rendered_content).to have_css('span', text: "\n+1\nReport\n", class: 'badge')
+      end
+
+      it 'renders a badge that indicates that the report waits for a decision' do
+        expect(rendered_content).to have_css('span', text: 'Awaits decision', class: 'badge')
+      end
+    end
+
+    context 'when the report of the notification has a decision' do
+      let(:project) { create(:project, maintainer: user) }
+      let(:comment) { create(:comment, commentable: project) }
+      let(:event_type) { 'Event::ReportForComment' }
+      let(:notifiable) { create(:report, reportable: comment, reason: 'Some sample text') }
+      let(:event_payload) { { reporter: user.login, reportable_id: comment.id, reportable_type: 'Comment', reason: 'some sample text for reason field', category: 'spam' } }
+      let!(:decision) { create(:decision_favored, reports: [notifiable]) }
+
+      before do
+        render_inline(described_class.new(notification: notification, selected_filter: selected_filter, page: 1))
+      end
+
+      it 'renders a badge that indicates that a decision was made for the report' do
+        expect(rendered_content).to have_css('span', text: 'Decided', class: 'badge')
+      end
+    end
   end
 end
