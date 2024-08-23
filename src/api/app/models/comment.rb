@@ -34,7 +34,6 @@ class Comment < ApplicationRecord
 
   scope :on_actions_for_request, ->(bs_request) { where(commentable: BsRequestAction.where(bs_request: bs_request)) }
   scope :without_parent, -> { where(parent_id: nil) }
-  scope :with_commentable, -> { includes(:project).where.not(commentable_id: nil) }
   scope :newest_first, -> { order(created_at: :desc) }
 
   def to_s
