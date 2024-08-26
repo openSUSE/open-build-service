@@ -214,7 +214,7 @@ class BsRequestAction < ApplicationRecord
     end
   end
 
-  def set_acceptinfo(ai)
+  def fill_acceptinfo(ai)
     self.bs_request_action_accept_info = BsRequestActionAcceptInfo.create(ai)
   end
 
@@ -810,7 +810,7 @@ class BsRequestAction < ApplicationRecord
     user && user.can_modify?(target_package_object || target_project_object)
   end
 
-  def set_sourceupdate_default(user)
+  def cleanup_sourceupdate(user)
     return if sourceupdate || %i[submit maintenance_incident].exclude?(action_type)
 
     update(sourceupdate: 'cleanup') if target_project && user.branch_project_name(target_project) == source_project
@@ -883,7 +883,7 @@ class BsRequestAction < ApplicationRecord
     # global_write_through is only disabled in test env. Otherwise, it's always enabled.
     return unless CONFIG['global_write_through']
 
-    set_sourceupdate_default(User.session!)
+    cleanup_sourceupdate(User.session!)
     BsRequestActionWebuiInfosJob.perform_later(self)
   end
 

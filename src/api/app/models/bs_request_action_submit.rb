@@ -89,7 +89,7 @@ class BsRequestActionSubmit < BsRequestAction
                                                    source_project, source_package, User.session!.login, cp_params)
     result = Xmlhash.parse(response)
 
-    set_acceptinfo(result['acceptinfo'])
+    fill_acceptinfo(result['acceptinfo'])
 
     target_package.sources_changed
 

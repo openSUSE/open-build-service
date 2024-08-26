@@ -48,8 +48,7 @@ class BsRequestActionRelease < BsRequestAction
   end
 
   # For consistency reasons with the other BsRequestActions
-  # rubocop:disable Naming/AccessorMethodName
-  def set_acceptinfo(acceptinfo)
+  def fill_acceptinfo(acceptinfo)
     # released packages are expanded copies, so we can not use
     # the link information. We need to patch the "old" part
     base_package_name = target_package.gsub(/\.[^.]*$/, '')
@@ -65,7 +64,6 @@ class BsRequestActionRelease < BsRequestAction
     end
     self.bs_request_action_accept_info = BsRequestActionAcceptInfo.create(acceptinfo)
   end
-  # rubocop:enable Naming/AccessorMethodName
 
   def minimum_priority
     spkg = Package.find_by_project_and_name(source_project, source_package)

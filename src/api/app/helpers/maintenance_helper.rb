@@ -174,7 +174,7 @@ module MaintenanceHelper
                                                                        freezelink withacceptinfo])
     result = Backend::Connection.post(cp_path)
     result = Xmlhash.parse(result.body)
-    action.set_acceptinfo(result['acceptinfo']) if action
+    action.fill_acceptinfo(result['acceptinfo']) if action
   end
 
   def copy_binaries(filter_source_repository, filter_architecture, source_package, target_package_name,
