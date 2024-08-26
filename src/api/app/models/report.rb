@@ -19,7 +19,7 @@ class Report < ApplicationRecord
 
   belongs_to :decision, optional: true
 
-  enum category: {
+  enum :category, {
     spam: 10,
     scam: 20,
     forbidden_license: 30,
