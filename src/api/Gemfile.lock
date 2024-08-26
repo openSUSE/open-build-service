@@ -142,7 +142,7 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
-    database_consistency (1.7.23)
+    database_consistency (1.7.25)
       activerecord (>= 3.2)
     date (3.3.4)
     deep_cloneable (3.2.0)
