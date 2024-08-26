@@ -695,14 +695,6 @@ Rails/ApplicationMailer:
     - 'app/mailers/admin_mailer.rb'
     - 'app/mailers/event_mailer.rb'
 
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: Include.
-# Include: app/models/**/*.rb
-Rails/EnumHash:
-  Exclude:
-    - 'app/models/user.rb'
-
 # Offense count: 10
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: Severity, Include.
