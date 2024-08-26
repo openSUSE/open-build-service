@@ -102,7 +102,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     raise LackingReleaseMaintainership, 'Creating a maintenance release request action requires maintainership in source package'
   end
 
-  def set_acceptinfo(ai)
+  def fill_acceptinfo(ai)
     # packages in maintenance_release projects are expanded copies, so we can not use
     # the link information. We need to patch the "old" part
     base_package_name = target_package.gsub(/\.[^.]*$/, '')

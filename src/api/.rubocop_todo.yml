@@ -424,13 +424,6 @@ Metrics/PerceivedComplexity:
     - 'test/functional/zzz_post_consistency_test.rb'
     - 'test/node_matcher.rb'
 
-# Offense count: 15
-Naming/AccessorMethodName:
-  Exclude:
-    - 'app/models/bs_request_action.rb'
-    - 'app/models/bs_request_action_maintenance_release.rb'
-    - 'test/functional/search_controller_test.rb'
-
 # Offense count: 2
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: EnforcedStyleForLeadingUnderscores.
