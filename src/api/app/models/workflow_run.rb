@@ -43,7 +43,7 @@ class WorkflowRun < ApplicationRecord
 
   paginates_per 20
 
-  enum status: {
+  enum :status, {
     running: 0,
     success: 1,
     fail: 2

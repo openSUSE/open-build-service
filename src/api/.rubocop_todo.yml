@@ -695,22 +695,6 @@ Rails/ApplicationMailer:
     - 'app/mailers/admin_mailer.rb'
     - 'app/mailers/event_mailer.rb'
 
-# Offense count: 10
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: Severity, Include.
-# Include: app/models/**/*.rb
-Rails/EnumSyntax:
-  Exclude:
-    - 'app/models/canned_response.rb'
-    - 'app/models/event_subscription.rb'
-    - 'app/models/kiwi/description.rb'
-    - 'app/models/kiwi/package_group.rb'
-    - 'app/models/kiwi/preference.rb'
-    - 'app/models/report.rb'
-    - 'app/models/scm_status_report.rb'
-    - 'app/models/status_message.rb'
-    - 'app/models/workflow_run.rb'
-
 # Offense count: 70
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: EnforcedStyle.

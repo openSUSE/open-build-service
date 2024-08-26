@@ -24,7 +24,7 @@ class EventSubscription < ApplicationRecord
     member: 'Member'
   }.freeze
 
-  enum channel: {
+  enum :channel, {
     disabled: 0,
     instant_email: 1,
     web: 2,

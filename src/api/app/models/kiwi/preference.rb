@@ -1,7 +1,7 @@
 class Kiwi::Preference < ApplicationRecord
   belongs_to :image, inverse_of: :preferences, optional: true
 
-  enum type_image: {
+  enum :type_image, {
     btrfs: 0,
     clicfs: 1,
     cpio: 2,
@@ -21,7 +21,7 @@ class Kiwi::Preference < ApplicationRecord
     vmx: 16,
     xfs: 17,
     zfs: 18
-  }, _prefix: :image_type
+  }, prefix: :image_type
 
   validates :type_image, inclusion: { in: type_images.keys }, allow_nil: true
   validates :version, format: { with: /\A[\d.]+\z/ }
