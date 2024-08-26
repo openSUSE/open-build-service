@@ -113,6 +113,7 @@ RSpec.describe 'Reports', :js, :vcr do
       end
 
       it 'displays the "You reported this comment." message instantly' do
+        click_link(id: "comment-#{comment.id}-dropdown-toggle")
         click_link('Report', id: "js-comment-#{comment.id}")
         fill_and_submit_report_form
         expect(page).to have_text('You reported this comment.')
@@ -120,6 +121,7 @@ RSpec.describe 'Reports', :js, :vcr do
       end
 
       it 'is possible to report the both the comment and its author' do
+        click_link(id: "comment-#{comment.id}-dropdown-toggle")
         click_link('Report', id: "js-comment-#{comment.id}")
         fill_and_submit_report_form(report_comment_author: true)
         expect(page).to have_text('You reported this comment.')

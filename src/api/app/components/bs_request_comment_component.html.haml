@@ -4,9 +4,9 @@
     = render(AvatarComponent.new(name: comment.user.name, email: comment.user.email, size: 35, shape: :circle, custom_css: 'avatars-counter'))
   .timeline-item-comment.ms-0.flex-fill.overflow-auto
     .comment-bubble.ms-3.position-relative{ id: "comment-#{comment.id}-bubble" }
-      - if policy(comment).update? || policy(comment).destroy?
+      - if policy(comment).update? || policy(comment).destroy? || policy(Report.new(reportable: comment)).create?
         .dropdown.dropleft.float-end.mx-3.position-absolute.top-0.end-0
-          = link_to('#', role: 'button', 'data-bs-toggle': 'dropdown', 'aria-expanded': 'false') do
+          = link_to('#', role: 'button', 'data-bs-toggle': 'dropdown', 'aria-expanded': 'false', id: "comment-#{comment.id}-dropdown-toggle") do
             %i.fas.fa-ellipsis
           .dropdown-menu
             - if policy(comment).update?
@@ -17,13 +17,22 @@
               - if policy(comment).moderate?
                 = button_to(comment.moderated? ? 'Permit' : 'Moderate', moderate_comment_path(comment),
                             class: 'dropdown-item', remote: true, form_class: 'moderate-form', params: { moderation_state: !comment.moderated? })
+            - if policy(Report.new(reportable: comment)).create?
+              = link_to('#', class: 'dropdown-item', id: "js-comment-#{comment.id}",
+                        data: { 'bs-toggle': 'modal',
+                                'bs-target': '#report-modal',
+                                'modal-title': "Report comment from #{comment.user}",
+                                'reportable-type': comment.class.name,
+                                'reportable-id': comment.id }) do
+                Report
             - if policy(comment).destroy?
               = link_to('#', data: { 'bs-toggle': 'modal',
-                                    'bs-target': '#delete-comment-modal',
-                                    confirmation_text: 'Please confirm deletion of comment',
-                                    action: comment_path(comment) },
-                            class: 'dropdown-item delete_link', title: 'Delete comment') do
+                  'bs-target': '#delete-comment-modal',
+                  confirmation_text: 'Please confirm deletion of comment',
+                  action: comment_path(comment) },
+                  class: 'dropdown-item delete_link', title: 'Delete comment') do
                 Delete
+
       .ps-3.pe-5.py-2.border-bottom.d-flex.flex-column.flex-lg-row.justify-content-between.align-items-start.gap-2
         %span
           - if show_username
@@ -60,14 +69,6 @@
     -# This should be refactored to avoid relying on global state
     - if policy(comment).reply?
       .d-flex.justify-content-end.me-2
-        - if policy(Report.new(reportable: comment)).create?
-          = link_to('#', class: 'fst-italic small collapsed me-2', id: "js-comment-#{comment.id}",
-                data: { 'bs-toggle': 'modal',
-                        'bs-target': '#report-modal',
-                        'modal-title': "Report comment from #{comment.user}",
-                        'reportable-type': comment.class.name,
-                        'reportable-id': comment.id }) do
-            Report
         = link_to("#reply_form_of_#{comment.id}", id: "reply_button_of_#{comment.id}", 'data-bs-toggle': 'collapse',
                   class: 'fst-italic small collapsed') do
           Reply
