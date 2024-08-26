@@ -17,13 +17,6 @@
               - if policy(comment).moderate?
                 = button_to(comment.moderated? ? 'Permit' : 'Moderate', moderate_comment_path(comment),
                             class: 'dropdown-item', remote: true, form_class: 'moderate-form', params: { moderation_state: !comment.moderated? })
-            - if policy(comment).destroy?
-              = link_to('#', data: { 'bs-toggle': 'modal',
-                                    'bs-target': '#delete-comment-modal',
-                                    confirmation_text: 'Please confirm deletion of comment',
-                                    action: comment_path(comment) },
-                            class: 'dropdown-item delete_link', title: 'Delete comment') do
-                Delete
             - if policy(Report.new(reportable: comment)).create?
               = link_to('#', class: 'dropdown-item', id: "js-comment-#{comment.id}",
                         data: { 'bs-toggle': 'modal',
@@ -32,6 +25,13 @@
                                 'reportable-type': comment.class.name,
                                 'reportable-id': comment.id }) do
                 Report
+            - if policy(comment).destroy?
+              = link_to('#', data: { 'bs-toggle': 'modal',
+                  'bs-target': '#delete-comment-modal',
+                  confirmation_text: 'Please confirm deletion of comment',
+                  action: comment_path(comment) },
+                  class: 'dropdown-item delete_link', title: 'Delete comment') do
+                Delete
 
       .ps-3.pe-5.py-2.border-bottom.d-flex.flex-column.flex-lg-row.justify-content-between.align-items-start.gap-2
         %span
