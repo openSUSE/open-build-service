@@ -277,7 +277,7 @@ module Webui::RequestHelper
     target_project_ids = bs_request.bs_request_actions.pluck(:target_project_id).uniq
     return if target_project_ids.count > 1
 
-    Project.find(target_project_ids.last)
+    Project.find_by(id: target_project_ids.last)
   end
 
   def can_apply_labels?(bs_request:, user:)
