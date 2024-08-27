@@ -12,8 +12,7 @@
       "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.96 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
       "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Googlebot/2.1; +http://www.google.com/bot.html) Safari/537.36"
     ]
-  }
-  ,
+  },
   {
     "pattern": "Googlebot-Mobile",
     "instances": [
@@ -246,8 +245,9 @@
   }
   ,
   {
-    "pattern": "nutch",
+    "pattern": "Nutch",
     "instances": [
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/605.1.16 (KHTML, like Gecko; compatible; Friendly_Crawler/2.0) Chrome/120.0.6099.217 Safari/605.1.15/Nutch-1.20-SNAPSHOT",
       "NutchCVS/0.7.1 (Nutch; http://lucene.apache.org/nutch/bot.html; nutch-agent@lucene.apache.org)",
       "istellabot-nutch/Nutch-1.10"
     ]
@@ -1109,7 +1109,7 @@
   {
     "pattern": "SeznamBot",
     "addition_date": "2012/03/14",
-    "instances": [	
+    "instances": [
       "Mozilla/5.0 (compatible; SeznamBot/3.2-test1-1; +http://napoveda.seznam.cz/en/seznambot-intro/)",
       "Mozilla/5.0 (compatible; SeznamBot/3.2-test1; +http://napoveda.seznam.cz/en/seznambot-intro/)",
       "Mozilla/5.0 (compatible; SeznamBot/3.2-test2; +http://napoveda.seznam.cz/en/seznambot-intro/)",
@@ -3957,6 +3957,7 @@
       "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5 Build/MRA58N) AppleWebKit/537.36(KHTML, like Gecko) Chrome/69.0.3464.0 Mobile Safari/537.36 Chrome-Lighthouse",
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36(KHTML, like Gecko) Chrome/69.0.3464.0 Safari/537.36 Chrome-Lighthouse",
       "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3694.0 Safari/537.36 Chrome-Lighthouse",
+      "Mozilla/5.0 (Linux; Android 7.0; Moto G (4)) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4695.0 Mobile Safari/537.36 Chrome-Lighthouse",
       "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3694.0 Mobile Safari/537.36 Chrome-Lighthouse"
     ],
     "url": "https://developers.google.com/speed/pagespeed/insights"
@@ -4805,6 +4806,14 @@
     "url": "https://platform.openai.com/docs/gptbot"
   },
   {
+    "pattern": "ChatGPT-User",
+    "addition_date": "2024/04/19",
+    "instances": [
+      "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; ChatGPT-User/1.0; +https://openai.com/bot"
+    ],
+    "url": "https://openai.com/bot"
+  },
+  {
     "pattern": "YandexRenderResourcesBot\\/",
     "addition_date": "2023/08/16",
     "instances": [
@@ -5290,5 +5299,26 @@
       "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; PerplexityBot/1.0; +https://perplexity.ai/perplexitybot)"
     ],
     "url": "https://docs.perplexity.ai/docs/perplexitybot"
+  },
+  {
+    "pattern": "[cC]laude[bB]ot",
+    "addition_date": "2024/04/19",
+    "instances": [
+      "claudebot",
+      "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)"
+    ],
+    "url": "https://www.anthropic.com/"
+  },
+  {
+    "pattern": "Monsidobot",
+    "addition_date": "2024/05/14",
+    "instances": ["Mozilla/5.0 (compatible; Monsidobot/2.2; +http://monsido.com/bot.html; info@monsido.com)"],
+    "url": "http://monsido.com/bot.html"
+  },
+  {
+    "pattern": "GroupMeBot",
+    "addition_date": "2024/05/19",
+    "instances": ["GroupMeBot/1.0"],
+    "url": "https://groupme.com/"
   }
 ]
