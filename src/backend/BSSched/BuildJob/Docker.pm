@@ -63,8 +63,15 @@ sub new {
 
 =cut
 
+# just expand the container deps
 sub expand {
-  return 1, splice(@_, 3);
+  my ($self, $bconf, $subpacks, @deps) = @_;
+  my @containerdeps = grep {/^container:/} @deps;
+  return 1 unless @containerdeps;
+  my ($cok, @cdeps) = Build::expand($bconf, @containerdeps);
+  return $cok, @cdeps unless $cok;
+  return (0, 'weird result of container expansion') unless @cdeps > 0 && @cdeps <= @containerdeps && !grep {!/^container:/} @cdeps;
+  return $cok, @cdeps;
 }
 
 =head2 check - TODO: add summary
@@ -135,26 +142,16 @@ sub check {
   my $prpnotready = $gctx->{'prpnotready'};
   my $neverblock = $ctx->{'isreposerver'} || ($repo->{'block'} || '' eq 'never');
 
-  my @deps = @{$info->{'dep'} || []};
+  my @deps = grep {!/^container:/} @{$info->{'dep'} || []};
   my $cpool;
   my @cbdep;
   my @cmeta;
   my $expanddebug = $ctx->{'expanddebug'};
 
-  my @containerdeps = grep {/^container:/} @deps;
-  if (@containerdeps) {
-    @deps = grep {!/^container:/} @deps;
-
+  my @cdeps = grep {/^container:/} @{$info->{'edeps'} || $ctx->{'edeps'}->{$packid} || []};
+  if (@cdeps) {
     # setup container pool
     $cpool = $ctx->{'pool'};
-
-    # expand to container package name
-    my $xp = BSSolv::expander->new($cpool, $ctx->{'conf'});
-    my ($cok, @cdeps) = $xp->expand(@containerdeps);
-    BSSched::BuildJob::add_expanddebug($ctx, 'container expansion', $xp, $cpool) if $expanddebug;
-    return ('unresolvable', join(', ', @cdeps)) unless $cok;
-    return ('unresolvable', 'weird result of container expansion') unless @cdeps > 0 && @cdeps <= @containerdeps;
-
     for my $cdep (@cdeps) {
       # find container package
       my $p;
