@@ -98,7 +98,7 @@ sub check {
   }
 
   # calculate if we're blocked
-  my $incycle = $ctx->{'incycle'};
+  my $incycle = $ctx->{'incycle'} || 0;
   my @blocked = grep {$notready->{$dep2src->{$_}}} @$edeps;
   @blocked = () if $repo->{'block'} && $repo->{'block'} eq 'never';
   # prune cycle packages from blocked
