@@ -1250,7 +1250,8 @@ sub checkpkgs {
 
     # all checks ok, dispatch to handler
     my $handler = $handlers{$buildtype} || $handlers{default};
-    my ($astatus, $aerror) = $handler->check($ctx, $packid, $pdata, $info, $buildtype);
+    my $edeps = $ctx->{'edeps'}->{$packid} || [];
+    my ($astatus, $aerror) = $handler->check($ctx, $packid, $pdata, $info, $buildtype, $edeps);
     if ($astatus eq 'scheduled') {
       # aerror contains rebuild data in this case
       ($astatus, $aerror) = $handler->build($ctx, $packid, $pdata, $info, $aerror);
@@ -1718,6 +1719,19 @@ sub append_info_path {
     BSSched::ProjPacks::get_remoteproject($gctx, $async, $projid);
   }
   return $ret;
+}
+
+# create an estimation about how each package is needed. We put this information
+# in the build job so that the dispatcher can use it to priorize needed jobs.
+sub create_rebuildpackage_needed {
+  my ($ctx) = @_;
+  my $needed = $ctx->{'rebuildpackage_needed'} = {};
+  my $edeps = $ctx->{'edeps'};
+  my $dep2src = $ctx->{'dep2src'};
+  for my $p (keys %$edeps) {
+    $needed->{$_}++ for map { $dep2src->{$_} || $_ } @{$edeps->{$p}};
+  }
+  return $needed;
 }
 
 1;

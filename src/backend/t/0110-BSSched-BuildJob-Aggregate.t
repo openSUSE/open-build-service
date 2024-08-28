@@ -73,7 +73,7 @@ my $info = {};
 my $h = BSSched::BuildJob::Aggregate->new();
 
 my ($status, $diag);
-($status, $diag) = $h->check($ctx, $packid, $pdata, $info, 'aggregate');
+($status, $diag) = $h->check($ctx, $packid, $pdata, $info, 'aggregate', []);
 is($status, 'scheduled', 'check call');
 
 ($status, $diag) = $h->build($ctx, $packid, $pdata, $info, $diag);

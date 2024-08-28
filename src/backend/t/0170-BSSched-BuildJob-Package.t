@@ -59,7 +59,7 @@ my $h = BSSched::BuildJob::Package->new();
 my ($eok, @edeps) = $h->expand($ctx->{'conf'}, $ctx->{'subpacks'}->{'screen'}, @{$info->{'dep'}});
 ok($eok, 'expander');
 
-($status, $diag) = $h->check($ctx, $packid, $pdata, $info, 'spec');
+($status, $diag) = $h->check($ctx, $packid, $pdata, $info, 'spec', \@edeps);
 is($status, 'scheduled', 'check call');
 
 ($status, $diag) = $h->build($ctx, $packid, $pdata, $info, $diag);
@@ -70,7 +70,7 @@ my $bi = $ctx->{'buildinfo'};
 delete $bi->{'readytime'};
 delete $xbi->{'readytime'};
 
-cmp_buildinfo($ctx->{'buildinfo'}, $xbi, 'buildinfo for screen');
+cmp_buildinfo($bi, $xbi, 'buildinfo for screen');
 is($ctx->{'reason'}->{'explain'}, 'new build', 'reason for build');
 
 exit 0;
