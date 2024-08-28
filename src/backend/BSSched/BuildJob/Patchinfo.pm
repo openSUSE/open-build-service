@@ -274,11 +274,11 @@ sub check {
     }
     my $blockedarch;
     for my $apackid (@packages) {
-      my $code = $apackstatus->{$apackid} || '';
+      my $code = $apackstatus->{$apackid} || 'unknown';
       next if $code eq 'excluded';
       if ($code ne 'done' && $code ne 'failed' && $code ne 'succeeded' && $code ne 'disabled' && $code ne 'locked') {
         $blockedarch = 1;
-        push @blocked, "$arch/$apackid";
+        push @blocked, "$arch/$apackid ($code)";
         next;
       }
       if (-e "$agdst/:logfiles.fail/$apackid") {
