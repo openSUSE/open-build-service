@@ -37,7 +37,9 @@
               .mb-3
                 = f.label(:description, 'Please describe your reasons to submit this package:')
                 %abbr.text-danger{ title: 'required' } *
-                ~ f.text_area(:description, size: '40x3', class: 'form-control', required: true)
+                %br
+                %abbr.form-text (The content of this field is limited to #{BsRequest::MAX_DESCRIPTION_LENGTH_ALLOWED} characters)
+                ~ f.text_area(:description, size: '40x3', class: 'form-control', required: true, maxlength: BsRequest::MAX_DESCRIPTION_LENGTH_ALLOWED)
               .mb-3.d-none#supersede-display
                 = label_tag(:supersede_requests, 'Supersede requests:')
                 #supersede-requests

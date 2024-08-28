@@ -5,6 +5,9 @@ include MaintenanceHelper
 # rubocop:disable Metrics/ClassLength
 class BsRequest < ApplicationRecord
   include BsRequest::Errors
+
+  MAX_DESCRIPTION_LENGTH_ALLOWED = 64_000
+
   SEARCHABLE_FIELDS = [
     'bs_requests.creator',
     'bs_requests.priority',
@@ -90,7 +93,7 @@ class BsRequest < ApplicationRecord
   validate :check_supersede_state
   validate :check_creator, on: %i[create save!]
   validates :comment, length: { maximum: 65_535 }
-  validates :description, length: { maximum: 65_535 }
+  validates :description, length: { maximum: MAX_DESCRIPTION_LENGTH_ALLOWED }
   validates :number, uniqueness: true
   validates_associated :bs_request_actions, message: ->(_, record) { record[:value].map { |r| r.errors.full_messages }.flatten.to_sentence }
 
