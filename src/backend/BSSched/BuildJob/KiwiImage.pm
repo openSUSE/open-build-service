@@ -62,8 +62,16 @@ sub new {
 
 =cut
 
+# try to expand container dependencies. This is just for sorting
+# purposes, as we re-expand in check() with the correct pool setup.
 sub expand {
-  return 1, splice(@_, 3);
+  my ($self, $bconf, $subpacks, @deps) = @_;
+  my @containerdeps = grep {/^container:/} @deps;
+  return 1 unless @containerdeps;
+  my ($cok, @cdeps) = Build::expand($bconf, @containerdeps);
+  return 1 unless $cok;		# continue anyway if the expansion fails as we're not using the correct pool
+  return (0, 'weird result of container expansion') unless @cdeps > 0 && @cdeps <= @containerdeps && !grep {!/^container:/} @cdeps;
+  return $cok, @cdeps;
 }
 
 
