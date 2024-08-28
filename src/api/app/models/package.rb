@@ -20,6 +20,8 @@ class Package < ApplicationRecord
   accepts_nested_attributes_for :kiwi_image
 
   belongs_to :project, inverse_of: :packages
+
+  delegate :check_access?, to: :project
   delegate :name, to: :project, prefix: true
 
   attr_accessor :commit_opts, :commit_user
@@ -119,7 +121,7 @@ class Package < ApplicationRecord
     return false if package.nil?
     return false unless package.instance_of?(Package)
 
-    Project.check_access?(package.project)
+    package.project.check_access?
   end
 
   def self.check_cache(project, package, opts)
@@ -303,10 +305,6 @@ class Package < ApplicationRecord
     return false if (disabled_for?('sourceaccess', nil, nil) || project.disabled_for?('sourceaccess', nil, nil)) && !User.possibly_nobody.can_source_access?(self)
 
     true
-  end
-
-  def check_access?
-    Project.check_access?(project)
   end
 
   def check_source_access!
