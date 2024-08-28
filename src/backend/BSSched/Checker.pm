@@ -1721,4 +1721,17 @@ sub append_info_path {
   return $ret;
 }
 
+# create an estimation about how each package is needed. We put this information
+# in the build job so that the dispatcher can use it to priorize needed jobs.
+sub create_rebuildpackage_needed {
+  my ($ctx) = @_;
+  my $needed = $ctx->{'rebuildpackage_needed'} = {};
+  my $edeps = $ctx->{'edeps'};
+  my $dep2src = $ctx->{'dep2src'};
+  for my $p (keys %$edeps) {
+    $needed->{$_}++ for map { $dep2src->{$_} || $_ } @{$edeps->{$p}};
+  }
+  return $needed;
+}
+
 1;

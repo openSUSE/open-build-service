@@ -129,7 +129,7 @@ sub getpathfromannotation {
 }
 
 sub check {
-  my ($self, $ctx, $packid, $pdata, $info, $buildtype) = @_;
+  my ($self, $ctx, $packid, $pdata, $info, $buildtype, $edeps) = @_;
 
   my $gctx = $ctx->{'gctx'};
   my $myarch = $gctx->{'arch'};
@@ -148,7 +148,7 @@ sub check {
   my @cmeta;
   my $expanddebug = $ctx->{'expanddebug'};
 
-  my @cdeps = grep {/^container:/} @{$info->{'edeps'} || $ctx->{'edeps'}->{$packid} || []};
+  my @cdeps = grep {/^container:/} @$edeps;
   if (@cdeps) {
     # setup container pool
     $cpool = $ctx->{'pool'};
