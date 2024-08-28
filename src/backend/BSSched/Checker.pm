@@ -1250,7 +1250,8 @@ sub checkpkgs {
 
     # all checks ok, dispatch to handler
     my $handler = $handlers{$buildtype} || $handlers{default};
-    my ($astatus, $aerror) = $handler->check($ctx, $packid, $pdata, $info, $buildtype);
+    my $edeps = $ctx->{'edeps'}->{$packid} || [];
+    my ($astatus, $aerror) = $handler->check($ctx, $packid, $pdata, $info, $buildtype, $edeps);
     if ($astatus eq 'scheduled') {
       # aerror contains rebuild data in this case
       ($astatus, $aerror) = $handler->build($ctx, $packid, $pdata, $info, $aerror);
