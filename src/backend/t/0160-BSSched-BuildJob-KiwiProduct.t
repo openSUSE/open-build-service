@@ -62,7 +62,7 @@ my $h = BSSched::BuildJob::KiwiProduct->new();
 my ($eok, @edeps) = $h->expand($ctx->{'conf'}, [], @{$info->{'dep'}});
 ok($eok, 'expander');
 
-($status, $diag) = $h->check($ctx, $packid, $pdata, $info, 'kiwi-product');
+($status, $diag) = $h->check($ctx, $packid, $pdata, $info, 'kiwi-product', \@edeps);
 is($status, 'scheduled', 'check call');
 
 ($status, $diag) = $h->build($ctx, $packid, $pdata, $info, $diag);
