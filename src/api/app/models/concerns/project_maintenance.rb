@@ -20,7 +20,7 @@ module ProjectMaintenance
   class_methods do
     def get_maintenance_project(at = nil)
       at ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
-      maintenance_project = Project.find_by_attribute_type(at).first
+      maintenance_project = Project.joins(:attribs).where(attribs: { attrib_type_id: at.id }).first
 
       return unless maintenance_project && check_access?(maintenance_project)
 

@@ -41,7 +41,7 @@ These requests are not created for projects with open requests or if you remove 
       @cleanup_attribute = AttribType.find_by_namespace_and_name!('OBS', 'AutoCleanup')
       @cleanup_time = Time.zone.now + cleanup_days.days
 
-      Project.find_by_attribute_type(@cleanup_attribute).each do |prj|
+      Project.joins(:attribs).where(attribs: { attrib_type_id: @cleanup_attribute.id }).find_each do |prj|
         autoclean_project(prj)
       end
     end
