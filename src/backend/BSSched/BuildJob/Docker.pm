@@ -338,8 +338,8 @@ sub build {
   my $repoid = $ctx->{'repository'};
   my $repo = $ctx->{'repo'};
 
-  if (!@{$repo->{'path'} || []}) {
-    # repo has no path, use docker repositories also for docker system setup
+  if (!$ctx->{'conf_host'} && !@{$repo->{'path'} || []}) {
+    # repo has no path and not cross building, use docker repositories also for docker system setup
     my $xp = BSSolv::expander->new($epool, $bconf);
     no warnings 'redefine';
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
@@ -373,6 +373,21 @@ sub build {
     }
     $ctx->{'extrabdeps'} = \@bdeps;
     $edeps = [];
+  }
+
+  if ($ctx->{'conf_host'}) {
+    # switch to host repo for buildenv expansion
+    my $xp = BSSolv::expander->new($ctx->{'pool_host'}, $ctx->{'conf_host'});
+    no warnings 'redefine';
+    local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
+    use warnings 'redefine';
+    $ctx->{'crossmode'} = 1;
+    $ctx->{'conf'} = $ctx->{'conf_host'};
+    $ctx->{'pool'} = $ctx->{'pool_host'};
+    $ctx->{'dep2pkg'} = $ctx->{'dep2pkg_host'};
+    $ctx->{'expander'} = $xp;
+    BSSched::BuildJob::add_container_deps($ctx, $cbdep);
+    return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
   }
 
   BSSched::BuildJob::add_container_deps($ctx, $cbdep);
