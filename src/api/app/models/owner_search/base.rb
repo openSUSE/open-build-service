@@ -31,7 +31,7 @@ module OwnerSearch
       return [Project.get_by_name(params[:project])] if params[:project]
 
       # Find all marked projects
-      projects = Project.find_by_attribute_type(attribute)
+      projects = Project.joins(:attribs).where(attribs: { attrib_type_id: attribute.id })
       return projects unless projects.empty?
 
       raise AttributeNotSetError, "The attribute #{attribute.fullname} is not set to define default projects."

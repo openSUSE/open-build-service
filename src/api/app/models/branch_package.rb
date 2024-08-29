@@ -468,7 +468,7 @@ class BranchPackage
         end
         # Find all indirect instance via project links
         ltprj = nil
-        Project.find_by_attribute_type(at).each do |lprj|
+        Project.joins(:attribs).where(attribs: { attrib_type_id: at.id }).find_each do |lprj|
           # FIXME: this will not find packages on linked remote projects
           ltprj = lprj
           pkg2 = lprj.find_package(params[:package])
