@@ -97,12 +97,14 @@ sub check {
     }
   }
 
+  my $rebuildmethod = $repo->{'rebuild'} || 'transitive';
+
   # calculate if we're blocked
   my $incycle = $ctx->{'incycle'} || 0;
   my @blocked = grep {$notready->{$dep2src->{$_}}} @$edeps;
   @blocked = () if $repo->{'block'} && $repo->{'block'} eq 'never';
   # prune cycle packages from blocked
-  if ($incycle > 1) {
+  if (@blocked && $incycle > 1) {
     my $cyclevel = $ctx->{'cyclevel'};
     my $pkg2src = $ctx->{'pkg2src'} || {};
     my $level = $cyclevel->{$packid};
@@ -111,7 +113,8 @@ sub check {
       @blocked = grep {($cycs{$dep2src->{$_}} || 0) < $level} @blocked;
     }
   }
-  if (@blocked) {
+  # if the rebuildmethod is local we postpone the blocked check, see below
+  if (@blocked && ($rebuildmethod ne 'local' || $ctx->{'conf_host'})) {
     # print "      - $packid ($buildtype)\n";
     # print "        blocked\n";
     splice(@blocked, 10, scalar(@blocked), '...') if @blocked > 10;
@@ -162,6 +165,18 @@ sub check {
       undef $mylastcheck;
     }
   }
+
+  if (@blocked) {
+    # ignore blocked if the rebuildmethod is local and we have a successful build
+    if ($rebuildmethod eq 'local' && $mylastcheck && substr($mylastcheck, 0, 32) eq ($pdata->{'verifymd5'} || $pdata->{'srcmd5'}) && substr($mylastcheck, 32, 32) ne 'fakefakefakefakefakefakefakefake' && !$ctx->{'relsynctrigger'}->{$packid}) {
+      return ('done');
+    }
+    # print "      - $packid ($buildtype)\n";
+    # print "        blocked\n";
+    splice(@blocked, 10, scalar(@blocked), '...') if @blocked > 10;
+    return ('blocked', join(', ', @blocked));
+  }
+
   if (!$mylastcheck) {
     if ($ctx->{'verbose'}) {
       print "      - $packid ($buildtype)\n";
@@ -189,7 +204,6 @@ sub check {
     }
     return ('scheduled', [ { 'explain' => 'retrying bad build' }, $hdeps, $edeps ]);
   } else {
-    my $rebuildmethod = $repo->{'rebuild'} || 'transitive';
     my $forcebinaryidmeta = $ctx->{'forcebinaryidmeta'};
     if ($rebuildmethod eq 'local' || $pdata->{'hasbuildenv'} || $info->{'hasbuildenv'}) {
       # rebuild on src changes only
