@@ -269,21 +269,19 @@ Requires:       perl(Compress::Zlib)
 Requires:       perl(Date::Parse)
 Requires:       perl(XML::Parser)
 Requires:       screen
-# for build script
-Requires:       psmisc
 # For runlevel script:
 Requires:       curl
 Recommends:     openslp lvm2
 Requires:       bash
 Requires:       binutils
-Requires:       bsdtar
-# zstd is esp for Arch Linux
-Requires:       zstd
 Summary:        The Open Build Service -- Build Host Component
 Group:          Productivity/Networking/Web/Utilities
 Requires:       util-linux >= 2.16
 # the following may not even exist depending on the architecture
 Recommends:     powerpc32
+# We recommend build script install here as well to follow deps from build script.
+# it won't be used though, because current code will be transfered from rep_server
+Recommends:     build
 
 %description -n obs-worker
 This is the obs build host, to be installed on each machine building
