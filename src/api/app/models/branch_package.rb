@@ -462,7 +462,7 @@ class BranchPackage
         # (who creates the attribute) to create the package instance ?
       else
         # Find all direct instances of a package
-        Package.find_by_attribute_type(at, params[:package]).each do |p|
+        PackagesFinder.new.find_by_attribute_type(at, params[:package]).each do |p|
           logger.info "Found package instance #{p.project.name}/#{p.name} for attribute #{at.name} and given package name #{params[:package]}"
           @packages.push(base_project: p.project, link_target_project: p.project, package: p, target_package: "#{p.name}.#{p.project.name}")
         end
