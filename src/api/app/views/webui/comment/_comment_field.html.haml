@@ -1,5 +1,4 @@
 - entity_type = commentable.class.name == 'BsRequest' ? 'request' : commentable.class.name.downcase
-- modal_id = "lock-#{entity_type}-#{commentable.id}-#{element_suffix}"
 
 = form_for(comment, method: form_method, remote: true, html: { id: "#{element_suffix}_form",
 class: "#{form_method}-comment-form write-and-preview" },
@@ -32,22 +31,11 @@ data: { preview_message_url: preview_comments_path, message_body_param: 'comment
         - case form_method
         - when :post
           = f.submit 'Add comment', class: 'btn btn-primary me-2', data: { disable_with: 'Creating comment...' }, disabled: true
-          - if !comment.parent_id && CommentLockPolicy.new(User.session, commentable).create?
-            = button_tag(type: 'button', class: 'btn btn-warning me-2', data: { 'bs-toggle': 'modal', 'bs-target': "##{modal_id}-modal" }) do
-              - if commentable.comment_lock.blank?
-                %i.fa.fa-lock
-                Lock comments
-              - else
-                %i.fa.fa-unlock
-                Unlock comments
         - when :put
           = f.submit 'Update comment', class: 'btn btn-primary me-2', data: { disable_with: 'Updating comment...' }
         - if has_cancel
           %a.cancel-comment.btn.btn-outline-secondary
             Cancel
-
-- if !comment.parent_id && CommentLockPolicy.new(User.session, commentable).create?
-  = render partial: 'webui/shared/locking_dialog', locals: { commentable: commentable, entity_type: entity_type, modal_id: modal_id }
 
 :javascript
   attachPreviewMessageOnCommentBoxes();
