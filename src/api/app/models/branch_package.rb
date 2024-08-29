@@ -454,7 +454,7 @@ class BranchPackage
       # find packages via attributes
       at = AttribType.find_by_name!(@attribute)
       if params[:value]
-        Package.find_by_attribute_type_and_value(at, params[:value], params[:package]) do |p|
+        PackagesFinder.new.find_by_attribute_type_and_value(at, params[:value], params[:package]) do |p|
           logger.info "Found package instance #{p.project.name}/#{p.name} for attribute #{at.name} with value #{params[:value]}"
           @packages.push(base_project: p.project, link_target_project: p.project, package: p, target_package: "#{p.name}.#{p.project.name}")
         end
