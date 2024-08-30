@@ -2566,14 +2566,13 @@ sub getbinaries_buildenv {
 	  my $id = Build::queryhdrmd5("$dir/$bv->{'name'}");
 	  if ($id eq $bv->{'hdrmd5'}) {
 	    push @cacheold, [$cacheid, $s[7]];
+	    die unless $bv->{'name'} =~ /(.*)\.rpm$/;
+	    $used{$needed} = { 'name' => $1, 'project' => $projid, 'repository' => $repoid, 'hdrmd5' => $id };
 	    delete $needed{$needed};
 	    last;
           }
-	  die unless $bv->{'name'} =~ /(.*)\.rpm$/;
-	  $used{$needed} = { 'name' => $1, 'project' => $projid, 'repository' => $repoid, 'hdrmd5' => $id };
-	} else {
-	  unlink("$dir/$bv->{'name'}");
 	}
+	unlink("$dir/$bv->{'name'}");
       }
     }
   }
@@ -2643,8 +2642,9 @@ sub getbinaries_buildenv {
   my $outbdep = ($buildinfo->{'outbuildinfo'} || {})->{'bdep'};
   if ($outbdep) {
     for (@bdeps) {
-      my $obdep = $used{"$_->{'name'}.$_->{'hdrmd5'}"};
-      die("did not use package $_?\n") unless $obdep;
+      my $needed = "$_->{'name'}.$_->{'hdrmd5'}";
+      my $obdep = $used{$needed};
+      die("did not use package $needed?\n") unless $obdep;
       push @$outbdep, $obdep;
     }
   }
