@@ -91,7 +91,7 @@ sub is_unchanged {
 }
 
 sub create_notification {
-  my ($data, $oldstate, $newstate) = @_;
+  my ($notify, $data, $oldstate, $newstate) = @_;
 
   my $n = {};
   $n->{'dag_run_id'} = "$data->{'publishid'}";
@@ -108,7 +108,7 @@ sub create_notification {
     }
     push @{$n->{'conf'}->{'binaries'}}, $b;
   }
-  my $registries = $newstate->{'registries'};
+  my $registries = $notify->{'no_registries'} ? {} : $newstate->{'registries'};
   for my $gunprefix (sort keys %$registries) {
     my $rdiff = diffdata((($oldstate->{'registries'} || {})->{$gunprefix} || {})->{'tags'}, $registries->{$gunprefix}->{'tags'}, 'tag');
     for $b (@$rdiff) {
@@ -225,7 +225,7 @@ sub notification {
   };
 
   # create and send notification
-  my $n = create_notification($data, $oldstate, $newstate);
+  my $n = create_notification($notify, $data, $oldstate, $newstate);
   my $n_json = JSON::XS->new->utf8->canonical->encode($n);
   my $param = {
     'uri' => $notify->{'uri'}, 
