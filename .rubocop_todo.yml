@@ -123,12 +123,6 @@ Style/FrozenStringLiteralComment:
     - 'docs/dev/controller_template_example.rb'
     - 'docs/dev/model_template_example.rb'
 
-# Offense count: 11
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/GlobalStdStream:
-  Exclude:
-    - 'dist/clouduploader.rb'
-
 # Offense count: 1
 Style/MixinUsage:
   Exclude:
