@@ -68,7 +68,7 @@ module CloudUploader
           # We just omit the SIGTERM because otherwise we would not get logs from ec2uploadimg
           STDOUT.write("Received abort signal, waiting for ec2uploadimg to properly clean up.\n")
         end
-        while line = stdout_stderr.gets
+        while (line = stdout_stderr.gets)
           STDOUT.write(line)
           write_result(Regexp.last_match(1)) if line =~ /^Created\simage:\s+(ami-\w+)$/
         end

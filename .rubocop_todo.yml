@@ -17,13 +17,6 @@ Capybara/ClickLinkOrButtonStyle:
     - 'dist/t/spec/features/0040_package_spec.rb'
     - 'dist/t/spec/spec_helper.rb'
 
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: AllowSafeAssignment.
-Lint/AssignmentInCondition:
-  Exclude:
-    - 'dist/clouduploader.rb'
-
 # Offense count: 2
 # Configuration parameters: DebuggerMethods, DebuggerRequires.
 Lint/Debugger:
