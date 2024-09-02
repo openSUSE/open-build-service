@@ -92,11 +92,8 @@ module FileService
       directory_hash = Xmlhash.parse(directory)
       return false unless directory_hash['error']
 
-      error_files = []
       directory_hash['entry'] = [directory_hash['entry']] if directory_hash['entry'].class != Array
-      directory_hash['entry'].each do |f|
-        error_files << f['name']
-      end
+      error_files = directory_hash['entry'].pluck('name')
       @errors << "#{error_files.join(', ')} #{directory_hash['error']}"
     end
   end

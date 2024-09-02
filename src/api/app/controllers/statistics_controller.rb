@@ -123,9 +123,8 @@ class StatisticsController < ApplicationController
     reqs = reqs.group_by { |r| r.created_at.strftime('%Y-%m') }
     @stats = []
     reqs.sort.each do |month, requests|
-      monstats = []
-      requests.group_by(&:creator).sort.each do |creator, list|
-        monstats << [creator, User.find_by_login(creator).email, list.length]
+      monstats = requests.group_by(&:creator).sort.map do |creator, list|
+        [creator, User.find_by_login(creator).email, list.length]
       end
       @stats << [month, monstats]
     end

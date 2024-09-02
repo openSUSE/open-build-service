@@ -115,8 +115,7 @@ module Event
 
       return if attribs.empty?
 
-      na = []
-      attribs.keys.each { |k| na << k.to_s }
+      na = attribs.keys.map(&:to_s)
       logger.debug "LEFT #{self.class.name} payload_keys :#{na.sort.join(', :')}"
       raise "Unexpected payload_keys :#{na.sort.join(', :')} (#{attribs.inspect}) provided during '#{self.class.name}' event creation. "
     end
