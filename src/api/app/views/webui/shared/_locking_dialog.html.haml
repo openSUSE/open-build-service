@@ -1,4 +1,4 @@
-.modal.fade{ tabindex: -1, id: "#{modal_id}-modal" }
+.modal.fade{ tabindex: -1, id: "locking-#{entity_type}-#{commentable.id}-modal" }
   .modal-dialog
     .modal-content
       - if commentable.comment_lock.blank?

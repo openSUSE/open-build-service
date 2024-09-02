@@ -24,5 +24,7 @@
           = render partial: 'webui/comment/show', locals: { commentable: superseded,
             comment_counter_id: "#comment-counter-request-#{superseded.number}" }
 
+- if CommentLockPolicy.new(User.possibly_nobody, bs_request).create?
+  = render partial: 'webui/shared/locking_dialog', locals: { commentable: bs_request, entity_type: 'request' }
 - if Flipper.enabled?(:content_moderation, User.possibly_nobody)
   = render partial: 'webui/shared/report_modal'

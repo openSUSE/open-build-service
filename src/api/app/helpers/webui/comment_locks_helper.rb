@@ -1,6 +1,6 @@
 module Webui::CommentLocksHelper
   def comment_lock_alert(commentable)
-    alert = 'You can remove the lock by clicking on the button below.'
+    alert = 'You can remove the lock by clicking on the "Unlock Comments" button in the Actions section.'
     return alert if commentable.comment_lock
 
     if commentable.is_a?(Package) && commentable.project.comment_lock
