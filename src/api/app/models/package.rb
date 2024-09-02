@@ -282,14 +282,6 @@ class Package < ApplicationRecord
     PackagesFinder.new.by_package_and_project(package, project).first
   end
 
-  def self.find_by_attribute_type(attrib_type, package = nil)
-    PackagesFinder.new.find_by_attribute_type(attrib_type, package)
-  end
-
-  def self.find_by_attribute_type_and_value(attrib_type, value, package = nil)
-    PackagesFinder.new.find_by_attribute_type_and_value(attrib_type, value, package)
-  end
-
   def meta
     PackageMetaFile.new(project_name: project.name, package_name: name)
   end
