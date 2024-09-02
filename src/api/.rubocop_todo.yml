@@ -951,19 +951,6 @@ Style/InverseMethods:
     - 'app/models/project.rb'
     - 'app/models/repository.rb'
 
-# Offense count: 8
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/MapIntoArray:
-  Exclude:
-    - 'app/controllers/statistics_controller.rb'
-    - 'app/mixins/parse_package_diff.rb'
-    - 'app/models/bs_request.rb'
-    - 'app/models/bs_request_action.rb'
-    - 'app/models/event/base.rb'
-    - 'app/models/group.rb'
-    - 'app/models/project.rb'
-    - 'app/services/file_service/uploader.rb'
-
 # Offense count: 5
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Style/MapToHash:

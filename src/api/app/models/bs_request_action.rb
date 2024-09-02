@@ -1009,12 +1009,11 @@ class BsRequestAction < ApplicationRecord
   # find default reviewers of a project/package via role
   def find_reviewers(obj, disable_project: false)
     # obj can be a project or package object
-    reviewers = []
     reviewer_id = Role.hashed['reviewer'].id
 
     # check for reviewers in a package first
-    obj.relationships.users.where(role_id: reviewer_id).pluck(:user_id).each do |r|
-      reviewers << User.find(r)
+    reviewers = obj.relationships.users.where(role_id: reviewer_id).pluck(:user_id).map do |r|
+      User.find(r)
     end
     obj.relationships.groups.where(role_id: reviewer_id).pluck(:group_id).each do |r|
       reviewers << Group.find(r)

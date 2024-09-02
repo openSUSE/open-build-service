@@ -58,12 +58,9 @@ module ParsePackageDiff
   def sorted_filenames_from_sourcediff(sd)
     return [{}] if sd.blank?
 
-    parsed_sourcediff = []
-
     sd = "<diffs>#{sd}</diffs>"
-    Xmlhash.parse(sd).elements('sourcediff').each do |sourcediff|
-      parsed_sourcediff << parse_one_diff(sourcediff)
+    Xmlhash.parse(sd).elements('sourcediff').map do |sourcediff|
+      parse_one_diff(sourcediff)
     end
-    parsed_sourcediff
   end
 end

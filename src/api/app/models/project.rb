@@ -990,11 +990,9 @@ class Project < ApplicationRecord
   end
 
   def repositories_from_meta
-    result = []
-    Nokogiri::XML(meta.content, &:strict).xpath('//repository').each do |repo|
-      result.push(repo.attributes.values.first.to_s)
+    Nokogiri::XML(meta.content, &:strict).xpath('//repository').map do |repo|
+      repo.attributes.values.first.to_s
     end
-    result
   end
 
   def sync_repository_pathes

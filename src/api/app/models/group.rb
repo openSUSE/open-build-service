@@ -95,9 +95,8 @@ class Group < ApplicationRecord
   end
 
   def replace_members(members)
-    new_members = []
-    members.split(',').each do |m|
-      new_members << User.find_by_login!(m)
+    new_members = members.split(',').map do |m|
+      User.find_by_login!(m)
     end
     users.replace(new_members)
   rescue ActiveRecord::RecordInvalid, NotFoundError => e

@@ -1171,10 +1171,7 @@ class BsRequest < ApplicationRecord
   end
 
   def check_uniq_actions!
-    uniq_keys = []
-    bs_request_actions.each do |action|
-      uniq_keys << action.uniq_key
-    end
+    uniq_keys = bs_request_actions.map(&:uniq_key)
     raise ConflictingActions, 'Conflicting Actions' if uniq_keys.length > uniq_keys.uniq.length
   end
 
