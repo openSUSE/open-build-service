@@ -35,13 +35,6 @@ Lint/RescueException:
   Exclude:
     - 'dist/openQA_mail_notification.rb'
 
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: AutoCorrect.
-Lint/UselessAssignment:
-  Exclude:
-    - 'dist/obs_mirror_project'
-
 # Offense count: 3
 # Configuration parameters: AllowedMethods, AllowedPatterns, CountRepeatedAttributes, Max.
 Metrics/AbcSize:
