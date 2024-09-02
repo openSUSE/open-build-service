@@ -35,7 +35,7 @@ class BsRequestPolicy < ApplicationPolicy
   end
 
   def decline_request?
-    !author?
+    !(author? || record.is_source_maintainer?(user))
   end
 
   private
