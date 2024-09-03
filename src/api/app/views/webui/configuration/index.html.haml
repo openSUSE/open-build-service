@@ -5,6 +5,10 @@
   = render partial: 'tabs'
   .card-body
     %h3 Configure your Open Build Service instance
+    %p
+      Settings that aren't available here are only available by modifying the
+      %code config/options.yml
+      file
     = form_for(@configuration, url: { action: :update }) do |f|
       .h5.mt-4 Frontpage Greeting
       %p Change the text that is displayed as greeting on the frontpage.
@@ -18,11 +22,24 @@
           Description
           %abbr.text-danger{ title: 'required' } *
         ~ f.text_area :description, rows: 7, required: true, class: 'form-control'
+
+      .h5.mt-4 Frontend Configuration
+      .mb-3
+        = f.label(:obs_url) do
+          OBS URL
+          %small.form-text The base URL for this OBS server.
+        ~ f.url_field :obs_url, class: 'form-control'
       .mb-3
         = f.label(:logo) do
           Logo
           %small.form-text The image displayed on the left side of the top navigation bar.
         ~ f.file_field :logo, class: 'form-control'
+      .mb-3
+        = f.label(:default_tracker) do
+          Default Tracker
+        ~ f.collection_select :default_tracker, IssueTracker.all, :name, :description, { include_blank: true }, class: 'form-select'
+
+      .h5.mt-4 Policies
       .mb-3
         = f.label(:tos_url) do
           Terms Of Service URL
@@ -45,6 +62,38 @@
           .col
             = f.label :contact_name, 'Contact URL'
             ~ f.text_field :contact_url, class: 'form-control'
+      .mb-3
+        = f.label(:admin_email) do
+          Admin Email
+          %small.form-text The email address used as From: in emails sent by OBS.
+        ~ f.email_field :admin_email, class: 'form-control'
+
+      .h5.mt-4 Projects Configuration
+      .mb-3
+        = f.label(:unlisted_projects_filter_description) do
+          Unlisted projects filter description
+          %small.form-text The description that will appear in projects list for explaining the exclusion filter.
+        = f.text_field :unlisted_projects_filter_description, class: 'form-control'
+      .mb-3
+        = f.label(:unlisted_projects_filter) do
+          Unlisted projects filter
+          %small.form-text The exclusion filter itself. It is a Regular Expression (eg: ^home:.*).
+        = f.text_field :unlisted_projects_filter, class: 'form-control'
+      .mb-3.form-check
+        ~ f.check_box :cleanup_empty_projects, class: 'form-check-input'
+        = f.label(:cleanup_empty_projects, class: 'form-check-label') do
+          Cleanup Empty Projects
+          %small.form-text Removes projects that have no content.
+      .mb-3
+        = f.label(:cleanup_after_days) do
+          Cleanup After Days
+          %small.form-text Creates a project delete request to branched projects after the number of days given.
+        ~ f.number_field :cleanup_after_days, class: 'form-control'
+      .mb-3.form-check
+        ~ f.check_box :disable_publish_for_branches, class: 'form-check-input'
+        = f.label(:disable_publish_for_branches, class: 'form-check-label') do
+          Disable Publish For Branches
+          %small.form-text Disables publishing by default after creating a new branch project.
 
       .h5.mt-4 Base Configuration
       %p
@@ -57,14 +106,24 @@
           %small.form-text The instance name which gets generated into each package. Short string only, no white spaces recommended.
         = f.text_field :name, required: true, class: 'form-control'
       .mb-3
-        = f.label(:unlisted_projects_filter_description) do
-          Unlisted projects filter description
-          %small.form-text The description that will appear in projects list for explaining the exclusion filter.
-        = f.text_field :unlisted_projects_filter_description, class: 'form-control'
+        = f.label(:api_url) do
+          API URL
+          %small.form-text Optional URL for reaching the API.
+        ~ f.url_field :api_url, class: 'form-control'
       .mb-3
-        = f.label(:unlisted_projects_filter) do
-          Unlisted projects filter
-          %small.form-text The exclusion filter itself. It is a Regular Expression (eg: ^home:.*).
-        = f.text_field :unlisted_projects_filter, class: 'form-control'
+        = f.label(:no_proxy) do
+          No Proxy
+          %small.form-text A comma seperated list of URLs that should be excluded from proxying (supports glob).
+        ~ f.text_field :no_proxy, class: 'form-control'
+      .mb-3.form-check
+        ~ f.check_box :enforce_project_keys, class: 'form-check-input'
+        = f.label(:enforce_project_keys, class: 'form-check-label') do
+          Enforce Project Keys
+          %small.form-text Ensures every repository has a signing key.
+      .mb-3.form-check
+        ~ f.check_box :download_on_demand, class: 'form-check-input'
+        = f.label(:download_on_demand, class: 'form-check-label') do
+          Download on Demand
+          %small.form-text Allows for downloading dependencies from external repositories
 
       = f.submit 'Update', class: 'btn btn-primary'

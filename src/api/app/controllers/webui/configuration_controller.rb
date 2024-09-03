@@ -18,7 +18,10 @@ class Webui::ConfigurationController < Webui::WebuiController
 
   def configuration_params
     params.require(:configuration).permit(:name, :title, :description, :tos_url, :code_of_conduct, :contact_name, :contact_url,
-                                          :unlisted_projects_filter, :unlisted_projects_filter_description, :logo)
+                                          :unlisted_projects_filter, :unlisted_projects_filter_description, :logo, :obs_url,
+                                          :default_tracker, :admin_email, :cleanup_empty_projects, :cleanup_after_days,
+                                          :disable_publish_for_branches, :api_url, :no_proxy, :enforce_project_keys,
+                                          :download_on_demand)
   end
 
   def set_configuration
