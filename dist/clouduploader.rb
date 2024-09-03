@@ -12,8 +12,8 @@ module CloudUploader
   def self.upload(_user, platform, backend_image_file, job_data_file, image_filename, result_path)
     start = Time.now
 
-    STDOUT.sync = true
-    STDOUT.write("Start uploading image #{image_filename}.\n")
+    $stdout.sync = true
+    $stdout.write("Start uploading image #{image_filename}.\n")
 
     job_data = JSON.parse(File.read(job_data_file))
 
@@ -27,7 +27,7 @@ module CloudUploader
     end
 
     diff = Time.now - start
-    STDOUT.write("Upload took: #{Time.at(diff).utc.strftime('%H:%M:%S')}\n")
+    $stdout.write("Upload took: #{Time.at(diff).utc.strftime('%H:%M:%S')}\n")
   end
 
   class EC2
@@ -66,10 +66,10 @@ module CloudUploader
       Open3.popen2e(*command) do |_stdin, stdout_stderr, wait_thr|
         Signal.trap('TERM') do
           # We just omit the SIGTERM because otherwise we would not get logs from ec2uploadimg
-          STDOUT.write("Received abort signal, waiting for ec2uploadimg to properly clean up.\n")
+          $stdout.write("Received abort signal, waiting for ec2uploadimg to properly clean up.\n")
         end
-        while line = stdout_stderr.gets
-          STDOUT.write(line)
+        while (line = stdout_stderr.gets)
+          $stdout.write(line)
           write_result(Regexp.last_match(1)) if line =~ /^Created\simage:\s+(ami-\w+)$/
         end
         status = wait_thr.value
@@ -98,7 +98,7 @@ module CloudUploader
       out, err, status = Open3.capture3(*command)
 
       if status.success?
-        STDOUT.write("Successfully authenticated.\n")
+        $stdout.write("Successfully authenticated.\n")
         json = JSON.parse(out)
         OpenStruct.new(
           access_key_id: json['Credentials']['AccessKeyId'],
@@ -156,7 +156,7 @@ module CloudUploader
       result = run_command(['az', 'image', 'create', '--resource-group', @resource_group, '--name', @image_name,
                             '--source', uploaded_image_url, '--os-type', 'Linux', '--debug'],
                            "Creating image '#{@image_name}' out of the blob '#{@remote_file_name}'")
-      STDOUT.write("#{JSON.parse(result).inspect}\n")
+      $stdout.write("#{JSON.parse(result).inspect}\n")
     end
 
     def blob_delete
@@ -188,18 +188,18 @@ module CloudUploader
     end
 
     def run_command(command, message)
-      STDOUT.write("#{message}...")
+      $stdout.write("#{message}...")
       out, err, status = Open3.capture3(*command)
       if status.success?
-        STDOUT.write("[OK]\n")
+        $stdout.write("[OK]\n")
         out
       else
-        STDOUT.write("[ERROR]\n\nLogging out\n\n")
+        $stdout.write("[ERROR]\n\nLogging out\n\n")
         spawn('az logout')
-        STDOUT.write("---DEBUG INFO----------------------------------------------------\n" \
-                     "Running: '#{safe_str(command)}'\n\n" \
-                     "#{safe_str(out)}\n" \
-                     "---ERROR MESSAGE-------------------------------------------------\n\n")
+        $stdout.write("---DEBUG INFO----------------------------------------------------\n" \
+                      "Running: '#{safe_str(command)}'\n\n" \
+                      "#{safe_str(out)}\n" \
+                      "---ERROR MESSAGE-------------------------------------------------\n\n")
         abort(safe_str(err))
       end
     end
