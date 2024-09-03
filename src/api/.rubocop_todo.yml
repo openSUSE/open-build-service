@@ -768,15 +768,6 @@ Rails/InverseOf:
     - 'app/models/status/report.rb'
     - 'app/models/user.rb'
 
-# Offense count: 9
-# Configuration parameters: Include.
-# Include: app/controllers/**/*.rb, app/mailers/**/*.rb
-Rails/LexicallyScopedActionFilter:
-  Exclude:
-    - 'app/controllers/webui/monitor_controller.rb'
-    - 'app/controllers/webui/package_controller.rb'
-    - 'app/controllers/webui/project_controller.rb'
-
 # Offense count: 5
 Rails/OutputSafety:
   Exclude:
