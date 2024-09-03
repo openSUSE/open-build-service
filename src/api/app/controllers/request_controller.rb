@@ -1,6 +1,6 @@
-include MaintenanceHelper
-
 class RequestController < ApplicationController
+  include MaintenanceHelper
+
   validate_action show: { method: :get, response: :request }
   validate_action request_create: { method: :post, response: :request }
 

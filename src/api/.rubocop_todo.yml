@@ -956,10 +956,7 @@ Style/MissingRespondToMissing:
 # Offense count: 5
 Style/MixinUsage:
   Exclude:
-    - 'app/controllers/request_controller.rb'
-    - 'app/controllers/source_controller.rb'
     - 'app/models/bs_request.rb'
-    - 'script/start_test_backend'
 
 # Offense count: 24
 Style/OpenStructUse:

@@ -1,9 +1,9 @@
-include MaintenanceHelper
-include ValidationHelper
-
 require 'builder/xchar'
 
 class SourceController < ApplicationController
+  include MaintenanceHelper
+  include ValidationHelper
+
   include Source::Errors
 
   SOURCE_UNTOUCHED_COMMANDS = %w[branch diff linkdiff servicediff showlinked rebuild wipe

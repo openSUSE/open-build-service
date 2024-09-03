@@ -5,7 +5,7 @@ ENV['LC_ALL'] = 'C'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
 require 'builder'
 
-include Backend::Test::Tasks
+include Backend::Test::Tasks # rubocop:disable Style/MixinUsage
 
 port_src_server = 3200
 port_rep_server = 3201
