@@ -857,7 +857,7 @@ class SourceController < ApplicationController
 
   # FIXME: obsolete this for 3.0
   # POST /source/<project>/<package>?cmd=createSpecFileTemplate
-  def package_command_createSpecFileTemplate
+  def package_command_createSpecFileTemplate # rubocop:disable Naming/MethodName
     begin
       # TODO: No need to read the whole file for knowing if it exists already
       Backend::Api::Sources::Package.file(params[:project], params[:package], "#{params[:package]}.spec")

@@ -438,9 +438,6 @@ Naming/MemoizedInstanceVariableName:
 # SupportedStyles: snake_case, camelCase
 Naming/MethodName:
   Exclude:
-    - 'app/controllers/source_controller.rb'
-    - 'app/models/maintenance_incident.rb'
-    - 'app/models/product.rb'
     - 'test/functional/maintenance_test.rb'
     - 'test/functional/search_controller_test.rb'
     - 'test/test_helper.rb'
