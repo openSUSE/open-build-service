@@ -47,6 +47,16 @@
         margin-left: calc(2 * (var(--line-index-digits) + 2rem + var(--bs-border-width)) + 0.5rem + var(--bs-border-width) - var(--additional-padding));
         margin-top: -1.75rem !important;
       }
+      // TODO: This is hard-coding 65% of the viewport width. Find a proper solution once the code is refactored.
+      .line-comment {
+        width: 65vw;
+      }
+      // TODO: This is hard-coding 75% of the viewport width. Find a proper solution once the code is refactored.
+      @include media-breakpoint-between(xs,sm) {
+        .line-comment {
+          width: 75vw;
+        }
+      }
       .line-comment .fa-comment {
         display: none;
       }
