@@ -46,7 +46,6 @@ use BSDispatch;
 use BSConfiguration;
 use BSUtil;
 use BSXML;
-use BSKiwiXML;
 use BSHTTP;
 use BSBuild;
 use BSCando;
@@ -3142,98 +3141,113 @@ sub readbuildenv {
   }
 }
 
-sub has_obsrepositories {
-  my ($repos) = @_;
-  for my $repo (@{$repos || []}) {
-     return 1 if ($repo->{'source'} || {})->{'path'} eq 'obsrepositories:/';
-  }
-  return 0;
-}
-
-sub patchproductkiwi {
+sub kiwiproduct_patch_recipe  {
   my ($buildinfo, $kiwifile, $meta) = @_;
 
-  my $kiwi = readxml($kiwifile, $BSKiwiXML::kiwidesc);
-  die("no instsource section in kiwi file\n") unless $kiwi->{'instsource'};
-  my $repo_only;
-  my @vars;
-  my $tag_media;
-  for my $productvar (@{$kiwi->{'instsource'}->{'productoptions'}->{'productvar'} || []}) {
-    push @vars, $productvar;
-    $repo_only = 1 if $productvar->{'name'} eq 'REPO_ONLY' and $productvar->{'_content'} eq 'true';
+  require Build::SimpleXML;
+  my $kiwi_xml = readstr($kiwifile);
+  my $kiwi = Build::SimpleXML::parse($kiwi_xml, 'record' => 1);
+  my @patchlist;
+  die("no image elsement in kiwi file\n") unless $kiwi->{'image'};
+  my $image = $kiwi->{'image'}->[0];
+  die("no instsource section in kiwi file\n") unless $image->{'instsource'};
+  my $instsource = $image->{'instsource'}->[0];
+
+  # patch "MEDIUM_NAME" product variable
+  my $productoptions = $instsource->{'productoptions'} ? $instsource->{'productoptions'}->[0] : {};
+  for my $productvar (@{$productoptions->{'productvar'} || []}) {
     if ($productvar->{'name'} eq 'MEDIUM_NAME') {
       my $mediumbase = $productvar->{'_content'};
       my $cicnt = $buildinfo->{'versrel'};
       $cicnt =~ s/.*-//;
       if ($cicnt eq '1') {
-        # simple case for standard productconverter case
-        $mediumbase .= sprintf("-Build%04d", $buildinfo->{'bcnt'} || 0);
+	# simple case for standard productconverter case
+	$mediumbase .= sprintf("-Build%04d", $buildinfo->{'bcnt'} || 0);
       } else {
-        # standard CI_CNT-BCNT writing
-        $mediumbase .= sprintf("-Build%s.%d", $cicnt, $buildinfo->{'bcnt'} || 0);
-      }
-      pop @vars;
-      push @vars, { 'name' => 'BUILD_ID', '_content' => $mediumbase };
-      push @vars, { 'name' => 'MEDIUM_NAME', '_content' => "$mediumbase-Media" };
-    } elsif ($productvar->{'name'} eq 'RUN_MEDIA_CHECK' && $productvar->{'_content'} eq 'true') {
-      $tag_media = 1;
+	# standard CI_CNT-BCNT writing
+	$mediumbase .= sprintf("-Build%s.%d", $cicnt, $buildinfo->{'bcnt'} || 0);
+      }    
+      my $newxml = Build::SimpleXML::unparse({ 'productvar' => [ { 'name' => 'BUILD_ID', '_content' => $mediumbase }, { 'name' => 'MEDIUM_NAME', '_content' => "$mediumbase-Media" } ] }, 'indent' => '      ');
+      $newxml =~ s/^\s+//;
+      $newxml =~ s/\n$//s;
+      push @patchlist, [ $productvar->{'_start'}, $productvar->{'_end'}, $newxml ];
     }
   }
-  $kiwi->{'instsource'}->{'productoptions'}->{'productvar'} = \@vars;
 
-  # expand obsrepositories:/ directive
-  if (has_obsrepositories($kiwi->{'instsource'}->{'instrepo'})) {
-    # fill in pathes from buildinfo instead
+  # expand obsrepositories:/ in the instrepo path
+  for my $repo (@{$instsource->{'instrepo'} || []}) {
+    next unless $repo->{'source'} && $repo->{'source'}->[0]->{'path'} eq 'obsrepositories:/';
     my @rp;
     my $prio = 0;
     for my $path (@{$buildinfo->{'path'} || []}) {
       $prio = $prio + 1;
-      my $h = { 'source' => { 'path' => "obs://$path->{'project'}/$path->{'repository'}" } };
+      my $h = { 'source' => [ { 'path' => "obs://$path->{'project'}/$path->{'repository'}" } ] };
       $h->{'priority'} = $prio;
       $h->{'name'} = "obsrepositories_$prio";
       push @rp, $h;
     }
-    $kiwi->{'instsource'}->{'instrepo'} = \@rp;
+    my $newxml = Build::SimpleXML::unparse({ 'instrepo' => \@rp }, 'indent' => '    ');
+    $newxml =~ s/^\s+//;
+    $newxml =~ s/\n$//s;
+    push @patchlist, [ $repo->{'_start'}, $repo->{'_end'}, $newxml ];
   }
 
   # expand a "take all packages" for products
-  for my $repopackages (@{$kiwi->{'instsource'}->{'repopackages'} || []}) {
-    next unless grep {$_->{'name'} eq '*'} @{$repopackages->{'repopackage'} || []};
-    # hey, a substitute all modifier!
-    my @rp;
-    my %allpkgs;
-    for my $m (@$meta) {
-      # md5  proj/rep/arch/pack/bin.arch
-      my @s = split('/', $m);
-      next unless $s[-1] =~ /^(.*)\.([^\.]*)$/;
-      next if $2 eq 'src' || $2 eq 'nosrc';
-      $allpkgs{$1} ||= {};
-      $allpkgs{$1}->{$2} = 1;
-    }
-    for my $rp (@{$repopackages->{'repopackage'} || []}) {
-      if ($rp->{'name'} ne '*') {
-        push @rp, $rp;
-        next;
+  for my $repopackages (@{$instsource->{'repopackages'} || []}) {
+    for my $repopackage (@{$repopackages->{'repopackage'} || []}) {
+      next unless $repopackage && $repopackage->{'name'} eq '*';
+      my @rqarch;
+      if ($instsource->{'architectures'}) {
+	for (@{$instsource->{'architectures'}->[0]->{'requiredarch'} || []}) {
+	  push @rqarch, $_->{'ref'} if $_->{'ref'};
+	}
       }
+      my %allpkgs;
+      for my $m (@$meta) {
+	# md5  proj/rep/arch/pack/bin.arch
+	my @s = split('/', $m);
+	next unless $s[-1] =~ /^(.*)\.([^\.]*)$/;
+	$allpkgs{$1}->{$2} = 1 unless $2 eq 'src' || $2 eq 'nosrc';
+      }
+      my @rp;
       for my $pkg (sort keys %allpkgs) {
-        # exclude blind take of all debug packages. They will be taken
-        # automatically if a configured debug medium exists.
-        next if $pkg =~ /-debug(?:info|source)(?:-32bit|-64bit|-x86)?$/;
-        my @a;
-        for my $availableArch (sort keys %{$allpkgs{$pkg}}){
-          if ($availableArch eq 'noarch') {
-            push @a, sort(map { $_->{'ref'} } @{$kiwi->{'instsource'}->{'architectures'}->{'requiredarch'}});
-          } else {
-            push @a, $availableArch;
-          }
-        }
-        my %a = map {$_ => 1} @a;
-        push @rp, {'name' => $pkg, 'arch' => join(',', sort keys %a)};
+	# exclude blind take of all debug packages. They will be taken
+	# automatically if a configured debug medium exists.
+	next if $pkg =~ /-debug(?:info|source)(?:-32bit|-64bit|-x86)?$/;
+	my @a = map { $_ eq 'noarch' ? @rqarch : ($_) } sort keys %{$allpkgs{$pkg}};
+	push @rp, { 'name' => $pkg, 'arch' => join(',', sort(BSUtil::unify(@a))), '_order' => [ 'name', 'arch' ] };
       }
+      my $newxml = Build::SimpleXML::unparse({ 'repopackage' => \@rp }, 'indent' => '      ');
+      $newxml =~ s/^\s+//;
+      $newxml =~ s/\n$//s;
+      push @patchlist, [ $repopackage->{'_start'}, $repopackage->{'_end'}, $newxml ];
     }
-    $repopackages->{'repopackage'} = \@rp;
   }
-  writexml($kiwifile, undef, $kiwi, $BSKiwiXML::kiwidesc);
+
+  my $patchoff = 0;
+  for my $patch (sort {$a->[0] <=> $b->[0]} @patchlist) {
+    substr($kiwi_xml, $patch->[0] + $patchoff, $patch->[1] - $patch->[0], $patch->[2]);
+    $patchoff += length($patch->[2]) - ($patch->[1] - $patch->[0]);
+  }
+
+  writestr($kiwifile, undef, $kiwi_xml);
+}
+
+sub kiwiproduct_is_rpmhdrsonly {
+  my ($kiwifile) = @_;
+
+  require Build::SimpleXML;
+  my $kiwi_xml = readstr($kiwifile);
+  my $kiwi = Build::SimpleXML::parse($kiwi_xml);
+  die("no image elsement in kiwi file\n") unless $kiwi->{'image'};
+  my $image = $kiwi->{'image'}->[0];
+  die("no instsource section in kiwi file\n") unless $image->{'instsource'};
+  my $instsource = $image->{'instsource'}->[0];
+  my $productoptions = $instsource->{'productoptions'} ? $instsource->{'productoptions'}->[0] : {};
+  for my $productvar (@{$productoptions->{'productvar'} || []}) {
+    return 1 if $productvar->{'name'} eq 'RPMHDRS_ONLY' and $productvar->{'_content'} eq 'true';
+  }
+  return 0;
 }
 
 sub xmlescape {
@@ -3895,10 +3909,7 @@ sub dobuild {
     readbuildenv($buildinfo, $srcdir);
     print "packages, ";
     if (($imagemode || '') eq 'kiwiproduct') {
-      my $kiwi = readxml("$srcdir/$buildinfo->{'file'}", $BSKiwiXML::kiwidesc, 1);
-      for my $productvar (@{$kiwi->{'instsource'}->{'productoptions'}->{'productvar'} || []}) {
-        $buildinfo->{'rpmhdrs_only'} = 1 if $productvar->{'name'} eq 'RPMHDRS_ONLY' and $productvar->{'_content'} eq 'true';
-      }
+      $buildinfo->{'rpmhdrs_only'} = 1 if kiwiproduct_is_rpmhdrsonly("$srcdir/$buildinfo->{'file'}");
       push @meta, getbinaries_product($buildinfo, $pkgdir, $srcdir, $kiwiorigins);
     } elsif (($imagemode || '') eq 'productcompose') {
       push @meta, getbinaries_product($buildinfo, $pkgdir, $srcdir, $kiwiorigins);
@@ -4020,7 +4031,7 @@ sub dobuild {
 
   die("$buildinfo->{'error'}\n") if $buildinfo->{'error'};
   if (($imagemode || '') eq 'kiwiproduct') {
-    patchproductkiwi($buildinfo, "$srcdir/$buildinfo->{'file'}", \@meta);
+    kiwiproduct_patch_recipe($buildinfo, "$srcdir/$buildinfo->{'file'}", \@meta);
   }
 
   push @args, "$statedir/build/build";
