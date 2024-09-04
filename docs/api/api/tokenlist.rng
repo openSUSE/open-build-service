@@ -81,7 +81,7 @@
         - rebuild: trigger rebuilds of packages
         - release: trigger project releases
         - runservice: run a service via the POST /trigger/runservice route
-        - workflow: trigger SCM/CI workflows, see https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.scm_ci_workflow_integration.html
+        - workflow: trigger SCM/CI workflows, see https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-scm-ci-workflow-integration
        </a:documentation>
        <ref name="token-kind"/>
       </attribute>
