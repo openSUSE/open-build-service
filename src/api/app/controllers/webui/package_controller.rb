@@ -4,6 +4,8 @@ class Webui::PackageController < Webui::WebuiController
   include Webui::ManageRelationships
   include Webui::NotificationsHandler
 
+  # rubocop:disable Rails/LexicallyScopedActionFilter
+  # The methods save_person, save_group and remove_role are defined in Webui::ManageRelationships
   before_action :set_project, only: %i[show edit update index users requests statistics revisions
                                        new branch_diff_info rdiff create remove
                                        save_person save_group remove_role view_file
@@ -13,6 +15,7 @@ class Webui::PackageController < Webui::WebuiController
                                            branch_diff_info rdiff remove
                                            save_person save_group remove_role view_file
                                            buildresult rpmlint_result rpmlint_log files users]
+  # rubocop:enable Rails/LexicallyScopedActionFilter
 
   before_action :check_ajax, only: %i[devel_project buildresult rpmlint_result]
   # make sure it's after the require_, it requires both
@@ -313,6 +316,9 @@ class Webui::PackageController < Webui::WebuiController
     parsed_messages = RpmlintLogParser.new(content: rpmlint_log_file).call if render_chart
     render partial: 'rpmlint_log', locals: { rpmlint_log_file: rpmlint_log_file, render_chart: render_chart, parsed_messages: parsed_messages }
   end
+
+  def files; end
+  def view_file; end
 
   private
 

@@ -72,6 +72,8 @@ class Webui::MonitorController < Webui::WebuiController
     render json: data
   end
 
+  def old; end
+
   private
 
   HOURS_IN_ONE_YEAR = 8760

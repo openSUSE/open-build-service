@@ -438,9 +438,6 @@ Naming/MemoizedInstanceVariableName:
 # SupportedStyles: snake_case, camelCase
 Naming/MethodName:
   Exclude:
-    - 'app/controllers/source_controller.rb'
-    - 'app/models/maintenance_incident.rb'
-    - 'app/models/product.rb'
     - 'test/functional/maintenance_test.rb'
     - 'test/functional/search_controller_test.rb'
     - 'test/test_helper.rb'
@@ -771,15 +768,6 @@ Rails/InverseOf:
     - 'app/models/status/report.rb'
     - 'app/models/user.rb'
 
-# Offense count: 9
-# Configuration parameters: Include.
-# Include: app/controllers/**/*.rb, app/mailers/**/*.rb
-Rails/LexicallyScopedActionFilter:
-  Exclude:
-    - 'app/controllers/webui/monitor_controller.rb'
-    - 'app/controllers/webui/package_controller.rb'
-    - 'app/controllers/webui/project_controller.rb'
-
 # Offense count: 5
 Rails/OutputSafety:
   Exclude:
@@ -968,10 +956,7 @@ Style/MissingRespondToMissing:
 # Offense count: 5
 Style/MixinUsage:
   Exclude:
-    - 'app/controllers/request_controller.rb'
-    - 'app/controllers/source_controller.rb'
     - 'app/models/bs_request.rb'
-    - 'script/start_test_backend'
 
 # Offense count: 24
 Style/OpenStructUse:

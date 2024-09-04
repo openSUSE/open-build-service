@@ -10,6 +10,8 @@ class Webui::ProjectController < Webui::WebuiController
   before_action :require_login, only: %i[create destroy new release_request
                                          new_release_request edit_comment]
 
+  # rubocop:disable Rails/LexicallyScopedActionFilter
+  # The methods save_person, save_group and remove_role are defined in Webui::ManageRelationships
   before_action :set_project, only: %i[autocomplete_repositories users subprojects
                                        edit release_request
                                        show buildresult
@@ -17,6 +19,7 @@ class Webui::ProjectController < Webui::WebuiController
                                        requests save monitor edit_comment
                                        unlock save_person save_group remove_role
                                        move_path clear_failed_comment pulse]
+  # rubocop:enable Rails/LexicallyScopedActionFilter
   before_action :set_project_by_id, only: :update
 
   before_action :load_project_info, only: :show
@@ -363,6 +366,11 @@ class Webui::ProjectController < Webui::WebuiController
       redirect_to project_show_path(@project), error: "Project can't be unlocked: #{@project.errors.full_messages.to_sentence}"
     end
   end
+
+  def buildresults; end
+  def save; end
+  def pulse; end
+  def edit_comment_form; end
 
   private
 

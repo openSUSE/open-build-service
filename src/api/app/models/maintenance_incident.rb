@@ -62,17 +62,17 @@ class MaintenanceIncident < ApplicationRecord
     "#{maintenance_db_project.name}:#{incident_id}"
   end
 
-  def getUpdateinfoCounter(time, template = '%Y-%C')
+  def get_updateinfo_counter(time, template = '%Y-%C')
     uc = UpdateinfoCounter.find_or_create(time, template)
     IncidentUpdateinfoCounterValue.find_or_create(time, uc, project)
   end
 
-  def getUpdateinfoId(id_template, patch_name)
+  def get_updateinfo_id(id_template, patch_name)
     # this is not used anymore, but we need to keep it for released incidents base on old (OBS 2.5) code
     return updateinfo_id if updateinfo_id
 
     # initialize on first run
-    counter = getUpdateinfoCounter(Time.now.utc, id_template)
+    counter = get_updateinfo_counter(Time.now.utc, id_template)
 
     my_id = id_template
 
