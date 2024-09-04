@@ -2,7 +2,8 @@ get:
   summary: List all distributions.
   description: |
     List all distributions that can be build against.
-    This will not list distributions that are available via [interconnect](https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.concepts.html#id-1.5.10.3.5).
+    This will not list distributions that are available via
+    [interconnect](https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-concepts#id-1.2.10.3.5).
     Check /distributions/include_remotes for this.
   security:
     - basic_authentication: []
