@@ -85,7 +85,7 @@ my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 my @binsufsrsync = map {"--include=*.$_"} @binsufs;
 my $binarchs = join("|", keys(%BSCando::knownarch));
 
-my $trackercacheversion = 2;
+my $trackercacheversion = 3;
 
 my $testmode;
 
@@ -3006,7 +3006,8 @@ sub publish {
 	next unless @s;
 	my $c = $cache{"$bin/$s[9]/$s[7]/$s[1]"};
 	if ($c) {
-	  my @d = qw{arch name epoch version release disturl buildtime cpeid};
+	  # note that we use query names instead of packtrack names here
+	  my @d = qw{arch name epoch version release disturl buildtime cpeid hdrmd5};
 	  $res = {};
 	  for (@$c) {
 	    my $dd = shift @d;
@@ -3446,7 +3447,7 @@ publishprog_done:
     my @newcache;
     for my $pt (values %$packtrack) {
       my $id = delete $pt->{'id'};
-      push @newcache, $id, [ map {$pt->{$_ eq 'arch' ? 'binaryarch' : $_}} qw{arch name epoch version release disturl buildtime cpeid} ] if $id;
+      push @newcache, $id, [ map {$pt->{$_}} qw{binaryarch name epoch version release disturl buildtime cpeid binaryid} ] if $id;
     }
     $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo", 1) || {};
     if (%$repoinfo) {
