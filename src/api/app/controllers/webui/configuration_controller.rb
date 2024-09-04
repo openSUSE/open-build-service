@@ -21,7 +21,10 @@ class Webui::ConfigurationController < Webui::WebuiController
                                           :unlisted_projects_filter, :unlisted_projects_filter_description, :logo, :obs_url,
                                           :default_tracker, :admin_email, :cleanup_empty_projects, :cleanup_after_days,
                                           :disable_publish_for_branches, :api_url, :no_proxy, :enforce_project_keys,
-                                          :download_on_demand)
+                                          :download_on_demand, :ymp_url, :registration, :disallow_group_creation,
+                                          :change_password, :hide_private_options, :gravatar, :default_access_disabled,
+                                          :allow_user_to_create_home_project, :download_url, :http_proxy, :bugzilla_url,
+                                          :anonymous)
   end
 
   def set_configuration

@@ -1,5 +1,7 @@
 :ruby
   @pagetitle = 'Configuration'
+  inherit = sanitize('The value for <code>%s</code> is already set in a configuration file. ' +
+                     "Remove it from <code>config/options.yml</code> in order to modify it here.")
 
 .card.mb-3
   = render partial: 'tabs'
@@ -8,7 +10,9 @@
     %p
       Settings that aren't available here are only available by modifying the
       %code config/options.yml
-      file
+      file for the frontend and
+      %code BSConfig.pm
+      for the backend.
     = form_for(@configuration, url: { action: :update }) do |f|
       .h5.mt-4 Frontpage Greeting
       %p Change the text that is displayed as greeting on the frontpage.
@@ -38,6 +42,81 @@
         = f.label(:default_tracker) do
           Default Tracker
         ~ f.collection_select :default_tracker, IssueTracker.all, :name, :description, { include_blank: true }, class: 'form-select'
+      .mb-3
+        - ymp_url = CONFIG['ymp_url']
+        = f.label(:ymp_url) do
+          YMP URL
+          %small.form-text URL prefix for one-click installation files
+          - unless ymp_url.nil?
+            %small.form-text.text-danger= inherit % ['ymp_url']
+        = f.text_field :ymp_url, value: !ymp_url.nil? ? ymp_url : @configuration.ymp_url, disabled: !ymp_url.nil?, class: 'form-control'
+      .mb-3
+        - bugzilla_host = CONFIG['bugzilla_host']
+        = f.label(:bugzilla_url) do
+          Bugzilla URL
+          %small.form-text Default bugzilla instance for reporting to bugowners
+          - unless bugzilla_host.nil?
+            %small.form-text.text-danger= inherit % ['bugzilla_host']
+        = f.text_field :bugzilla_url, value: !bugzilla_host.nil? ? bugzilla_host : @configuration.bugzilla_url,
+                                      disabled: !bugzilla_host.nil?, class: 'form-control'
+      .mb-3
+        - new_user_registration = CONFIG['new_user_registration']
+        = f.label(:registration) do
+          Registration
+          %small.form-text Allow new users to create accounts on this OBS instance.
+          - unless new_user_registration.nil?
+            %small.form-text.text-danger= inherit % ['new_user_registration']
+        = f.select :registration, %w[allow confirmation deny], {},
+                   selected: !new_user_registration.nil? ? new_user_registration : @configuration.registration,
+                   disabled: !new_user_registration.nil?, class: 'form-select'
+      .mb-3.form-check
+        - allow_anonymous = CONFIG['allow_anonymous']
+        = f.check_box :anonymous, checked: !allow_anonymous.nil? ? allow_anonymous : @configuration.anonymous,
+                                  disabled: !allow_anonymous.nil?, class: 'form-check-input'
+        = f.label(:anonymous, class: 'form-check-label') do
+          Anonymous
+          %small.form-text Allow anonymous browsing of this OBS instance.
+          - unless allow_anonymous.nil?
+            %small.form-text.text-danger= inherit % ['allow_anonymous']
+      .mb-3.form-check
+        - disallow_group_creation = CONFIG['disallow_group_creation_with_api']
+        = f.check_box :disallow_group_creation,
+                      checked: !disallow_group_creation.nil? ? disallow_group_creation : @configuration.disallow_group_creation,
+                      disabled: !disallow_group_creation.nil?, class: 'form-check-input'
+        = f.label(:disallow_group_creation, class: 'form-check-label') do
+          Disallow Group Creation
+          %small.form-text  Disable creating groups via the API. Useful if the groups are provided by LDAP.
+          - unless disallow_group_creation.nil?
+            %small.form-text.text-danger= inherit % ['disallow_group_creation_with_api']
+      .mb-3.form-check
+        - change_passwd = CONFIG['change_passwd']
+        = f.check_box :change_password, checked: !change_passwd.nil? ? change_passwd : @configuration.change_password,
+                                        disabled: !change_passwd.nil?, class: 'form-check-input'
+        = f.label(:change_password, class: 'form-check-label') do
+          Change Password
+          %small.form-text Allows users to change their password. This may not work with some auth mechanisms.
+          - unless change_passwd.nil?
+            %small.form-text.text-danger= inherit % ['change_passwd']
+      .mb-3.form-check
+        - hide_private_options = CONFIG['hide_private_options']
+        = f.check_box :hide_private_options, checked: !hide_private_options.nil? ? hide_private_options : @configuration.hide_private_options,
+                                             disabled: !hide_private_options.nil?, class: 'form-check-input'
+        = f.label(:hide_private_options, class: 'form-check-label') do
+          Hide Private Options
+          %small.form-text Do not show the options to hide projects or packages.
+          - unless hide_private_options.nil?
+            %small.form-text.text-danger= inherit % ['hide_private_options']
+      .mb-3.form-check
+        - use_gravatar = CONFIG['use_gravatar']
+        = f.check_box :gravatar, checked: !use_gravatar.nil? ? use_gravatar : @configuration.gravatar,
+                                 disabled: !use_gravatar.nil?, class: 'form-check-input'
+        = f.label(:gravatar, class: 'form-check-label') do
+          Gravatar
+          %small.form-text Load user profile pictures from Gravatar.
+          - unless use_gravatar.nil?
+            %small.form-text.text-danger= inherit % ['use_gravatar']
+
+
 
       .h5.mt-4 Policies
       .mb-3
@@ -94,6 +173,25 @@
         = f.label(:disable_publish_for_branches, class: 'form-check-label') do
           Disable Publish For Branches
           %small.form-text Disables publishing by default after creating a new branch project.
+      .mb-3.form-check
+        - default_access_disabled = CONFIG['default_access_disabled']
+        = f.check_box :default_access_disabled,
+                      checked: !default_access_disabled.nil? ? default_access_disabled : @configuration.default_access_disabled,
+                      disabled: !default_access_disabled.nil?, class: 'form-check-input'
+        = f.label(:default_access_disabled, class: 'form-check-label') do
+          Default Access Disabled
+          %small.form-text Disable access to newly created projects.
+          - unless default_access_disabled.nil?
+            %small.form-text.text-danger= inherit % ['default_access_disabled']
+      .mb-3.form-check
+        - allow_user_to_create_home = CONFIG['allow_user_to_create_home_project']
+        = f.check_box :allow_user_to_create_home_project,
+                      checked: !allow_user_to_create_home.nil? ? allow_user_to_create_home : @configuration.allow_user_to_create_home_project,
+                      disabled: !allow_user_to_create_home.nil?, class: 'form-check-input'
+        = f.label(:allow_user_to_create_home_project, class: 'form-check-label') do
+          Allow User To Create Home Project
+          - unless allow_user_to_create_home.nil?
+            %small.form-text.text-danger= inherit % ['allow_user_to_create_home_project']
 
       .h5.mt-4 Base Configuration
       %p
@@ -110,6 +208,24 @@
           API URL
           %small.form-text Optional URL for reaching the API.
         ~ f.url_field :api_url, class: 'form-control'
+      .mb-3
+        - download_url = CONFIG['download_url']
+        = f.label(:download_url) do
+          Download URL
+          %small.form-text Base URL of the published repositories.
+          - unless download_url.nil?
+            %small.form-text.text-danger= inherit % ['download_url']
+        = f.text_field :download_url, value: !download_url.nil? ? download_url : @configuration.download_url,
+                                      disabled: !download_url.nil?, class: 'form-control'
+      .mb-3
+        - http_proxy = CONFIG['http_proxy']
+        = f.label(:http_proxy) do
+          HTTP Proxy
+          %small.form-text  Used if external hosts download from external sides
+          - unless http_proxy.nil?
+            %small.form-text.text-danger= inherit % ['http_proxy']
+        = f.text_field :http_proxy, value: !http_proxy.nil? ? http_proxy : @configuration.http_proxy,
+                                    disabled: !http_proxy.nil?, class: 'form-control'
       .mb-3
         = f.label(:no_proxy) do
           No Proxy
