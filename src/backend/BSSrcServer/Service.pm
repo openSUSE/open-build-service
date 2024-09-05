@@ -419,10 +419,15 @@ sub doservicerpc {
     }
   };
   my $error = $@;
+  # get the error right away for obsscm runs
+  if (!$error && $rev->{'rev'} eq 'obsscm' && $newfiles{'_service_error'}) {
+    $error = readstr($newfiles{'_service_error'});
+    chomp $error;
+    $error ||= 'unknown service error';
+  }
   # create cpio archive from new service files for project obsscm service runs
   if (!$error && $rev->{'rev'} eq 'obsscm' && $packid eq '_project') {
-    $error ||= readstr($newfiles{"_service_error"}) if $newfiles{"_service_error"};
-    writeresultascpio($rev, \%newfiles) unless $error;
+    writeresultascpio($rev, \%newfiles);
   }
   # add new service files to file list
   if (!$error && !$rev->{'cpiofd'}) {
