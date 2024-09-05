@@ -555,8 +555,13 @@ sub dod_registry {
   for my $resource (@dodresources) {
     next unless $resource =~ /^container:(.*):([^\/:]+)$/s;
     my ($repo, $tag) = ($1, $2);
-    $repo = "library/$repo" if $url =~ /docker\.io$/ && $repo !~ /\//;
-    $repo = $2 if $repo =~ /^([^\/]+)\/(.+)$/s && $1 eq $urldomain;
+    my $refname = "$repo:$tag";
+    if ($repo !~ /\//) {
+      $repo = "library/$repo" if $url =~ /docker\.io$/;
+    } else {
+      $repo = $2 if $repo =~ /^([^\/]+)\/(.+)$/s && $1 eq $urldomain;
+      $refname = "$repo:$tag";
+    }
     my $oldentry;
     $oldentry = $oldcache->{$resource} if $olddodresources{$resource};
     my ($olddigest, $oldfatdigest);
@@ -605,6 +610,12 @@ sub dod_registry {
       'digest' => $digest,
     };
     $pkg->{'fatdigest'} = $fatdigest if $fatdigest;
+    my $annotation = {
+      'registry_refname' => ($urldomain =~ /docker\.io/ ? '' : "$urldomain/") . $refname,
+      'registry_digest' => $digest,
+    };
+    $annotation->{'registry_fatdigest'} = $fatdigest if $fatdigest;
+    $pkg->{'annotation'} = BSUtil::toxml($annotation, $BSXML::binannotation);
     $cache->{$resource} = $pkg;
   }
   $cache->{'/dodresources'} = \@newdodresources;

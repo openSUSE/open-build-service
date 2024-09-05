@@ -31,7 +31,7 @@ sub import_annotation {
   my ($annotation) = @_;
   return $annotation unless ref($annotation);
   my %a;
-  for (qw{repo disturl buildtime}) {
+  for (qw{repo disturl buildtime registry_refname registry_digest registry_fatdigest}) {
     $a{$_} = $annotation->{$_} if exists $annotation->{$_};
   }
   return BSUtil::toxml(\%a, $BSXML::binannotation);

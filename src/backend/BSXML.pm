@@ -2117,6 +2117,9 @@ our $binannotation = [
 	'buildhost',
 	'disturl',
 	'binaryid',
+	'registry_refname',	# in DoD containers
+	'registry_digest',	# in DoD containers
+	'registry_fatdigest',	# in DoD containers
 	'package',		# only in build job annotation
 	'epoch',		# only in build job annotation
 	'version',		# only in build job annotation
