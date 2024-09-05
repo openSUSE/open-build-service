@@ -140,6 +140,12 @@ module Backend
           http_get(['/source/:project/:package/:filename', project_name, package_name, file_name])
         end
 
+        # Returns the content of the source file
+        # @return [String]
+        def self.blame(project_name, package_name, file_name, options = {})
+          http_get(['/source/:project/:package/:filename', project_name, package_name, file_name], defaults: { view: :blame }, params: options, accepted: %i[meta deleted expand rev view])
+        end
+
         # Writes the content of the source file
         # @return [String]
         def self.write_file(project_name, package_name, file_name, content = '', params = {})
