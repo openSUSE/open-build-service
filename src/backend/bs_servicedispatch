@@ -92,6 +92,7 @@ sub runservice_obsscm {
   push @send, { 'name' => '_service', 'data' => BSSrcServer::Service::generate_obs_scm_bridge_service($data) };
   my $files = {};
   my $error = BSSrcServer::Service::doservicerpc($rev, $files, \@send, 1);
+  return 'retry' if $error && $error =~ /\nTRANSIENT ERROR:[^\n]+\z/s;
   BSSrcServer::Service::addrev_service($rev, $servicemark, $files, $error);
   return $error ? 'failed' : 'succeeded';
 }
@@ -175,6 +176,7 @@ sub servicedispatchevent {
   my $code;
   eval {
     $code = runservice($projid, $packid, $job, @args);
+    die("retrying service run...\n") if $code && $code eq 'retry';
   };
   if ($@) {
     # retry in 10 minutes
