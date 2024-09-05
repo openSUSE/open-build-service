@@ -206,6 +206,7 @@ sub construct_containerinfo {
   BSVerify::verify_nevraquery($lnk);
   $lnk->{'hdrmd5'} = $containerinfo->{'tar_md5sum'};
   $lnk->{'path'} = "$pkgname.tar";
+  $lnk->{'annotation'} = $data->{'annotation'} if $data->{'annotation'};
   BSUtil::store("$dir/.$pkgname.obsbinlnk", "$dir/$pkgname.obsbinlnk", $lnk);
 }
 

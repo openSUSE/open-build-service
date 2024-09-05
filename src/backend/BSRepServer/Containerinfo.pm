@@ -36,9 +36,9 @@ BSRepServer::Containerinfo
 
 =cut
 
-=head2  containerinfo2nevra - convert a containerinfo file to name/epoch/version/release/arch
+=head2  containerinfo2nevra - convert containerinfo data to name/epoch/version/release/arch
 
- input: $containerinfo - containerinfo filename in $dir
+ input: $containerinfo - containerinfo data
 
  output: hash containting name/epoch/...
 
