@@ -174,6 +174,10 @@ class UserLdapStrategy
       # implicitly turn array into string
       user_name = [user_name].flatten.join
 
+      # LDAP bind quietly dies when user_name or password is nil
+      # password can be nil in case of passwordless authentication or anonymous bind
+      password ||= ''
+
       Rails.logger.debug { "UserLdapStrategy: Connecting to server '#{server}' as user '#{user_name}'" }
       port = ldap_port
 
@@ -191,7 +195,7 @@ class UserLdapStrategy
         Rails.logger.info("UserLdapStrategy: Failed to bind as user '#{user_name}': #{con.err2string(con.err)}")
         return
       end
-      Rails.logger.debug { "UserLdapStrategy: Bound as #{user_name}" }
+      Rails.logger.debug { "UserLdapStrategy: Bound as '#{user_name}'" }
       con
     end
 
