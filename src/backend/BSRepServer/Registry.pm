@@ -187,12 +187,19 @@ sub construct_containerinfo {
     'tar_blobids' => $blobs,
     'name' => $pkgname,
     'version' => $data->{'version'},
+    'imageid' => $config,
     'tags' => \@tags,
     'file' => "$pkgname.tar",
   };
   $containerinfo->{'release'} = $data->{'release'} if defined $data->{'release'};
   my ($tar) = BSRepServer::Containertar::construct_container_tar($dir, $containerinfo);
   ($containerinfo->{'tar_md5sum'}, $containerinfo->{'tar_sha256sum'}, $containerinfo->{'tar_size'}) = BSContar::checksum_tar($tar);
+  if ($data->{'annotation'}) {
+    my $annotation = BSUtil::fromxml($data->{'annotation'}, $BSXML::binannotation, 1) || {};
+    $containerinfo->{'registry_refname'} = $annotation->{'registry_refname'} if $annotation->{'registry_refname'};
+    $containerinfo->{'registry_digest'} = $annotation->{'registry_digest'} if $annotation->{'registry_digest'};
+    $containerinfo->{'registry_fatdigest'} = $annotation->{'registry_fatdigest'} if $annotation->{'registry_fatdigest'};
+  }
   BSRepServer::Containerinfo::writecontainerinfo("$dir/.$pkgname.containerinfo", "$dir/$pkgname.containerinfo", $containerinfo);
 
   # write obsbinlnk file (do this last!)
