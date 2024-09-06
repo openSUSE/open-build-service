@@ -87,6 +87,7 @@
 
 - if Flipper.enabled?(:content_moderation, User.possibly_nobody)
   = render partial: 'webui/shared/report_modal'
+  = render partial: 'webui/shared/locking_dialog', locals: { commentable: @project, entity_type: 'project' }
 
 - content_for :ready_function do
   initializeDataTable('#inherited-packages-table');

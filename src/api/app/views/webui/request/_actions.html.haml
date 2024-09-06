@@ -1,7 +1,6 @@
 -# TODO: drop this partial when `request_show_redesign` feature is rolled out
 - content_for :actions do
-  - if CommentLockPolicy.new(User.possibly_nobody, bs_request).create?
-    = render partial: 'webui/request/lock_unlock_comment', locals: { bs_request: bs_request }
+  = render partial: 'webui/shared/lock_unlock_comment', locals: { commentable: bs_request }
   - if can_add_reviews
     %li.nav-item
       = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': '#add-reviewer-modal' }, class: 'nav-link', title: 'Add a Review') do
