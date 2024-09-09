@@ -21,5 +21,6 @@
         %i.fas.fa-compact-disc.fa-lg.me-2
         %span.nav-item-name New Image
 
+  = render partial: 'webui/shared/lock_unlock_comment', locals: { commentable: project }
   - if policy(Report.new(reportable: project)).create?
     = render partial: 'webui/project/show_actions/report_project', locals: { project: project }

@@ -121,4 +121,109 @@ RSpec.describe 'CommentLocks', :vcr do
       end
     end
   end
+
+  context 'on a project' do
+    let(:maintainer) { create(:confirmed_user, :with_home, login: 'titan') }
+    let(:project) { maintainer.home_project }
+
+    describe 'with comments unlocked' do
+      context 'a moderator user' do
+        before do
+          login moderator_user
+          visit project_show_path(project)
+        end
+
+        it 'checks comments are unlocked' do
+          click_link_or_button('Actions') if mobile?
+          expect(page).to have_link('Lock Comments')
+          expect(page).to have_no_text('Commenting on this is locked.')
+        end
+
+        it 'locks comments' do
+          click_link_or_button('Actions') if mobile?
+          find_link('Lock Comments').click
+          find_button('Lock').click
+          expect(page).to have_text('Commenting on this is locked.')
+        end
+      end
+    end
+
+    describe 'with comments locked' do
+      let!(:comment_lock) { create(:comment_lock, commentable: project, moderator: moderator_user) }
+
+      context 'a moderator user' do
+        before do
+          login moderator_user
+          visit project_show_path(project)
+        end
+
+        it 'checks comments are locked' do
+          expect(project.comment_lock).not_to be_nil
+          click_link_or_button('Actions') if mobile?
+          expect(page).to have_link('Unlock Comments')
+          expect(page).to have_text('Commenting on this is locked.')
+        end
+
+        it 'unlocks comments' do
+          click_link_or_button('Actions') if mobile?
+          find_link('Unlock Comments').click
+          find_button('Unlock').click
+          expect(page).to have_no_text('Commenting on this is locked.')
+        end
+      end
+    end
+  end
+
+  context 'on a package' do
+    let(:maintainer) { create(:confirmed_user, :with_home, login: 'titan') }
+    let(:project) { maintainer.home_project }
+    let(:package) { create(:package, name: 'goal', project_id: project.id) }
+
+    describe 'with comments unlocked' do
+      context 'a moderator user' do
+        before do
+          login moderator_user
+          visit package_show_path(project, package)
+        end
+
+        it 'checks comments are unlocked' do
+          click_link_or_button('Actions') if mobile?
+          expect(page).to have_link('Lock Comments')
+          expect(page).to have_no_text('Commenting on this is locked.')
+        end
+
+        it 'locks comments' do
+          click_link_or_button('Actions') if mobile?
+          find_link('Lock Comments').click
+          find_button('Lock').click
+          expect(page).to have_text('Commenting on this is locked.')
+        end
+      end
+    end
+
+    describe 'with comments locked' do
+      let!(:comment_lock) { create(:comment_lock, commentable: package, moderator: moderator_user) }
+
+      context 'a moderator user' do
+        before do
+          login moderator_user
+          visit package_show_path(project, package)
+        end
+
+        it 'checks comments are locked' do
+          expect(package.comment_lock).not_to be_nil
+          click_link_or_button('Actions') if mobile?
+          expect(page).to have_link('Unlock Comments')
+          expect(page).to have_text('Commenting on this is locked.')
+        end
+
+        it 'unlocks comments' do
+          click_link_or_button('Actions') if mobile?
+          find_link('Unlock Comments').click
+          find_button('Unlock').click
+          expect(page).to have_no_text('Commenting on this is locked.')
+        end
+      end
+    end
+  end
 end

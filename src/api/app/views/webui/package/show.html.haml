@@ -90,4 +90,5 @@
 
 - if Flipper.enabled?(:content_moderation, User.possibly_nobody)
   = render partial: 'webui/shared/report_modal'
+  = render partial: 'webui/shared/locking_dialog', locals: { commentable: @package, entity_type: 'package' }
 -# haml-lint:enable ViewLength

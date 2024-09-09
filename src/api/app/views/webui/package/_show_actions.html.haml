@@ -26,4 +26,5 @@
     - if package.develpackage
       = render partial: 'webui/package/show_actions/request_devel_project_change', locals: { package: package, project: project }
 
+  = render partial: 'webui/shared/lock_unlock_comment', locals: { commentable: package }
   = render partial: 'webui/package/show_actions/report_package', locals: { package: package }
