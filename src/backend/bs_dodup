@@ -565,8 +565,17 @@ sub dod_registry {
     my $oldentry;
     $oldentry = $oldcache->{$resource} if $olddodresources{$resource};
     my ($olddigest, $oldfatdigest);
-    ($olddigest, $oldfatdigest) = ($oldentry->{'version'}, $oldentry->{'fatdigest'}) if $oldentry;
+    ($olddigest, $oldfatdigest) = ($oldentry->{'digest'}, $oldentry->{'fatdigest'}) if $oldentry;
     $oldfatdigest = $oldfatmissing->{$resource} if !$oldentry;
+    eval {
+      registry_valid_digest("olddigest of $resource", $olddigest) if $olddigest;
+      registry_valid_digest("oldfatdigest of $resource", $oldfatdigest) if $oldfatdigest;
+    };
+    if ($@) {
+      warn($@);
+      undef $olddigest;
+      undef $oldfatdigest;
+    }
     my ($blobs, $digest, $fatdigest);
     eval { ($blobs, $digest, $fatdigest) = registry_fetch_manifest($url, $arch, $repo, $tag, $olddigest, $oldfatdigest) };
     if ($@) {
@@ -615,6 +624,7 @@ sub dod_registry {
       'registry_refname' => ($urldomain =~ /docker\.io/ ? '' : "$urldomain/") . $refname,
       'registry_digest' => $digest,
     };
+    $annotation->{'binaryid'} =~ s/^sha256://;	# like with Containertar.pm
     $annotation->{'registry_fatdigest'} = $fatdigest if $fatdigest;
     $pkg->{'annotation'} = BSUtil::toxml($annotation, $BSXML::binannotation);
     $cache->{$resource} = $pkg;
