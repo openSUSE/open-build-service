@@ -183,8 +183,8 @@ sub check {
     my @newpath;
     my $annotationbdep = $cbdep[-1];
     my $annotation = BSSched::BuildJob::getcontainerannotation($cpool, $annotationbdep->{'p'}, $annotationbdep);
-    if (!$annotation && !$haveobsrepositories) {
-      # no annotation, assume obsrepositories:/
+    if ((!$annotation || $annotation->{'registry_digest'}) && !$haveobsrepositories) {
+      # no annotation or DoD container, assume obsrepositories:/
       push @newpath, {'project' => '_obsrepositories', 'repository' => ''};
       $annotation = { 'repo' => [ { 'url' => 'obsrepositories:/' } ] };
       $annotationbdep->{'annotation'} = BSUtil::toxml($annotation, $BSXML::binannotation);
