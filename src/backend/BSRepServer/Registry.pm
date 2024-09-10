@@ -191,6 +191,7 @@ sub construct_containerinfo {
     'tags' => \@tags,
     'file' => "$pkgname.tar",
   };
+  $containerinfo->{'imageid'} =~ s/^sha256://;	# like in Containertar.pm
   $containerinfo->{'release'} = $data->{'release'} if defined $data->{'release'};
   my ($tar) = BSRepServer::Containertar::construct_container_tar($dir, $containerinfo);
   ($containerinfo->{'tar_md5sum'}, $containerinfo->{'tar_sha256sum'}, $containerinfo->{'tar_size'}) = BSContar::checksum_tar($tar);
