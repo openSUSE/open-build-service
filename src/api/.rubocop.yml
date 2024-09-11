@@ -262,9 +262,6 @@ Metrics/BlockLength:
     - 'app/views/webui/feeds/notifications.rss.builder'
     - 'config/environments/development.rb'
     - 'config/environments/production.rb'
-    - 'config/initializers/influxdb_dj_subscriber.rb'
-    - 'db/data/20170306084550_remove_duplicate_repositories.rb'
-    - 'db/migrate/20140908125426_convert_request_history.rb'
     - 'lib/memory_debugger.rb'
     - 'script/reformat_memprof'
     - 'test/functional/backend_test.rb'
@@ -275,9 +272,6 @@ Metrics/BlockLength:
   AllowedMethods:
     - 'included'
 ##################### Rails ##################################
-
-Rails:
-  Enabled: true
 
 Rails/CreateTableWithTimestamps:
   Exclude:
@@ -304,10 +298,6 @@ Rails/Output:
     - 'lib/**/*'
     # FIXME: Since exclusions in `.rubocop_todo.yml` are simply ignored when we also exclude files here, the following exclusions are TODOs
     - 'app/lib/backend/test.rb'
-
-Rails/RedundantActiveRecordAllMethod:
-  Exclude:
-  - 'spec/queries/workflow_runs_finder_spec.rb'
 
 # Migrations creating unique indexes are sometimes not possible to run...
 # they raise a pretty weird error about some duplicate entries, even though those entries don't exist.
@@ -339,7 +329,6 @@ RSpec/MultipleExpectations:
   Max: 2
   Exclude:
     - 'spec/features/**/*.rb'
-    - 'spec/bootstrap/features/**/*.rb'
     # FIXME: Since exclusions in `.rubocop_todo.yml` are simply ignored when we also exclude files here, the following exclusions are TODOs
     - 'spec/controllers/attribute_controller_spec.rb'
     - 'spec/controllers/group_controller_spec.rb'
@@ -350,13 +339,11 @@ RSpec/MultipleExpectations:
     - 'spec/controllers/staging/staging_projects_controller_spec.rb'
     - 'spec/controllers/statistics/maintenance_statistics_controller_spec.rb'
     - 'spec/controllers/status/checks_controller_spec.rb'
-    - 'spec/controllers/webui/apidocs_controller_spec.rb'
     - 'spec/controllers/webui/attribute_controller_spec.rb'
     - 'spec/controllers/webui/feeds_controller_spec.rb'
     - 'spec/controllers/webui/groups/bs_requests_controller_spec.rb'
     - 'spec/controllers/webui/groups/users_controller_spec.rb'
     - 'spec/controllers/webui/groups_controller_spec.rb'
-    - 'spec/controllers/webui/package_controller/binaries.spec'
     - 'spec/controllers/webui/package_controller_spec.rb'
     - 'spec/controllers/webui/packages/branches_controller_spec.rb'
     - 'spec/controllers/webui/packages/files_controller_spec.rb'
@@ -404,14 +391,11 @@ RSpec/MultipleExpectations:
     - 'spec/models/unregistered_user_spec.rb'
     - 'spec/models/user_ldap_strategy_spec.rb'
     - 'spec/models/user_spec.rb'
-    - 'spec/requests/package_undelete_spec.rb'
     - 'spec/routing/api_matcher_spec.rb'
-    - 'spec/services/notification_creator_spec.rb'
     - 'spec/shared/examples/a_bs_requests_data_table_controller.rb'
     - 'spec/shared/examples/a_bs_requests_data_table_controller_with_state_and_type_options.rb'
     - 'spec/shared/examples/a_project_status_controller.rb'
     - 'spec/shared/examples/a_subscriptions_form_for_subscriber.rb'
-    - 'spec/shared/examples/features/beta/user_tab.rb'
     - 'spec/shared/examples/features/boostrap_flag_tables.rb'
     - 'spec/shared/examples/features/bootstrap_user_tab.rb'
     - 'spec/shared/examples/features/flags_tables.rb'
