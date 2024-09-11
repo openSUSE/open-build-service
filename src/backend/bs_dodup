@@ -621,7 +621,7 @@ sub dod_registry {
     $pkg->{'fatdigest'} = $fatdigest if $fatdigest;
     my $annotation = {
       'binaryid' => $blobs->[0],
-      'registry_refname' => ($urldomain =~ /docker\.io/ ? '' : "$urldomain/") . $refname,
+      'registry_refname' => ($urldomain =~ /docker\.io/ ? 'docker.io/' : "$urldomain/") . $refname,
       'registry_digest' => $digest,
     };
     $annotation->{'binaryid'} =~ s/^sha256://;	# like with Containertar.pm
