@@ -351,7 +351,7 @@ our $local_registry_signatures_extension = 1;
 #our $container_image="localhost/obs-source-service:latest";
 #
 # special options to use for starting containers in run-service-containerized
-#our $container_custom_opt = [];
+#our $container_custom_opt = '-e DEBUG_TAR_SCM=1';
 #
 # option where to store container images
 #our $containers_root="$bsdir/service/containers";
