@@ -84,7 +84,12 @@ case "$COMMAND" in
     fi
     WITH_NET="1"
     ;;
-  */tar_scm|*/obs_scm|*/obs_scm_bridge|*/download_assets)
+  */tar_scm|*/obs_scm|*/download_assets)
+    SCM_COMMAND=1
+    WITH_NET="1"
+  ;;
+  */obs_scm_bridge)
+    USE_SERVICE_CONFIG="scm-bridge"
     SCM_COMMAND=1
     WITH_NET="1"
   ;;
@@ -173,6 +178,7 @@ else
 fi
 
 CONTAINER_VOLUMES="-v $OUTEROUTDIR:$INNEROUTDIR -v $OUTERSRCDIR:$INNERSRCDIR -v $OUTERHOMEDIR:$INNERHOMEDIR -v $MOUNTDIR$INNERSCRIPTDIR:$INNERSCRIPTDIR:ro"
+[ -n "$USE_SERVICE_CONFIG" ] && CONTAINER_VOLUMES="$CONTAINER_VOLUMES -v /etc/obs/services/$USE_SERVICE_CONFIG:/etc/obs/services/$USE_SERVICE_CONFIG:ro"
 JAILED=""
 
 if [ $SCM_COMMAND -eq 1 ];then
