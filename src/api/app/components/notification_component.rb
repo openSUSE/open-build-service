@@ -78,7 +78,14 @@ class NotificationComponent < ApplicationComponent
   def generate_report_description(reporter, accused, reports_on_comments, reports_on_user, comment: false)
     text = link_to(reporter, user_path(reporter, notification_id: @notification.id))
     text += ' created a report for '
-    text += 'comment from ' if comment
+
+    if comment
+      text += 'a '
+      text += 'deleted ' if !accused
+      text += 'comment '
+      text += 'from ' if accused
+    end
+
     if accused
       text += link_to(accused, user_path(accused, notification_id: @notification.id))
       text += create_badge(state: accused.state)
