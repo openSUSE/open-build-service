@@ -22,10 +22,12 @@ class SCMExceptionHandler
               Octokit::UnverifiedEmail,
               Octokit::InvalidRepository,
               Octokit::PathDiffTooLarge,
-              Octokit::ServiceUnavailable,
-              Octokit::InternalServerError,
               Octokit::UnprocessableEntity,
-              Octokit::BadGateway do |exception|
+              Octokit::InternalServerError,       # 500
+              Octokit::NotImplemented,            # 501
+              Octokit::BadGateway,                # 502
+              Octokit::ServiceUnavailable,        # 503
+              Octokit::ServerError do |exception| # 500..599
     log_to_workflow_run(exception, 'GitHub') if @workflow_run.present?
   end
 
