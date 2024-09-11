@@ -152,6 +152,10 @@ sub check {
   if (@cdeps) {
     # setup container pool
     $cpool = $ctx->{'pool'};
+    my $basecontainer = (grep {/^container:/} @{$info->{'dep'} || []})[-1];
+    my %basep;
+    %basep = map {$_ => 1} $cpool->whatprovides($basecontainer) if $basecontainer;
+    my $basecbdep;
     for my $cdep (@cdeps) {
       # find container package
       my $p;
@@ -174,6 +178,7 @@ sub check {
         $cbdep->{'hdrmd5'} = $d->{'hdrmd5'} if $d->{'hdrmd5'};
       }
       push @cbdep, $cbdep;
+      $basecbdep = $cbdep if $basep{$p};
     }
 
     # append repositories defined in the container annotation to our path
@@ -181,7 +186,7 @@ sub check {
     splice(@infopath, -$info->{'extrapathlevel'}) if $info->{'extrapathlevel'};
     my $haveobsrepositories = grep {$_->{'project'} eq '_obsrepositories'} @infopath;
     my @newpath;
-    my $annotationbdep = $cbdep[-1];
+    my $annotationbdep = $basecbdep || $cbdep[-1];
     my $annotation = BSSched::BuildJob::getcontainerannotation($cpool, $annotationbdep->{'p'}, $annotationbdep);
     if ((!$annotation || (!$annotation->{'repo'} && $annotation->{'registry_digest'})) && !$haveobsrepositories) {
       # no annotation or DoD container, assume obsrepositories:/
