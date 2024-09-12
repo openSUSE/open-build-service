@@ -1,10 +1,5 @@
-class AdminMailer < ActionMailer::Base
-  before_action :set_host
-
-  default Precedence: 'bulk',
-          'X-Mailer': 'OBS Administrator Notification',
-          'X-OBS-URL': ActionDispatch::Http::URL.url_for(controller: :main, action: :index, only_path: false, host: @host),
-          'Auto-Submitted': 'auto-generated',
+class AdminMailer < ApplicationMailer
+  default 'X-Mailer': 'OBS Administrator Notification',
           'Return-Path': mail_sender,
           Sender: mail_sender
 
@@ -31,10 +26,6 @@ class AdminMailer < ActionMailer::Base
   end
 
   private
-
-  def set_host
-    @host = ::Configuration.obs_url
-  end
 
   def mail_sender
     "OBS Admin Notification <#{::Configuration.admin_email}>"

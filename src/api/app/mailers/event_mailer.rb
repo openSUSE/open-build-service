@@ -1,17 +1,13 @@
-class EventMailer < ActionMailer::Base
+class EventMailer < ApplicationMailer
   helper 'webui/markdown'
   helper 'webui/reportables'
 
   before_action :set_configuration_title
-  before_action :set_host
   before_action :set_recipients
   before_action :set_event
   before_action :set_event_headers
 
-  default Precedence: 'bulk',
-          'X-Mailer': 'OBS Notification System',
-          'X-OBS-URL': ActionDispatch::Http::URL.url_for(controller: :main, action: :index, only_path: false, host: @host),
-          'Auto-Submitted': 'auto-generated',
+  default 'X-Mailer': 'OBS Notification System',
           Sender: email_address_with_name(::Configuration.admin_email, 'OBS Notification'),
           'Message-ID': message_id
 
@@ -32,12 +28,6 @@ class EventMailer < ActionMailer::Base
 
   def set_configuration_title
     @configuration_title = ::Configuration.title
-  end
-
-  def set_host
-    # FIXME: This if for the view. Use action_mailer.default_url_options instead
-    # https://guides.rubyonrails.org/action_mailer_basics.html#generating-urls-in-action-mailer-views
-    @host = ::Configuration.obs_url
   end
 
   def set_recipients
