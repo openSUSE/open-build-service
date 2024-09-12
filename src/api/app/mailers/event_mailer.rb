@@ -5,9 +5,15 @@ class EventMailer < ActionMailer::Base
   before_action :set_configuration_title
   before_action :set_host
   before_action :set_recipients
-  before_action :set_default_headers
   before_action :set_event
   before_action :set_event_headers
+
+  default Precedence: 'bulk',
+          'X-Mailer': 'OBS Notification System',
+          'X-OBS-URL': ActionDispatch::Http::URL.url_for(controller: :main, action: :index, only_path: false, host: @host),
+          'Auto-Submitted': 'auto-generated',
+          Sender: email_address_with_name(::Configuration.admin_email, 'OBS Notification'),
+          'Message-ID': message_id
 
   def notification_email
     return if @recipients.blank? || @event.blank?
@@ -38,15 +44,6 @@ class EventMailer < ActionMailer::Base
     return unless params[:subscribers]
 
     @recipients = params[:subscribers].map(&:display_name).compact_blank.sort
-  end
-
-  def set_default_headers
-    headers['Precedence'] = 'bulk'
-    headers['X-Mailer'] = 'OBS Notification System'
-    headers['X-OBS-URL'] = ActionDispatch::Http::URL.url_for(controller: :main, action: :index, only_path: false, host: @host)
-    headers['Auto-Submitted'] = 'auto-generated'
-    headers['Sender'] = email_address_with_name(::Configuration.admin_email, 'OBS Notification')
-    headers['Message-ID'] = message_id
   end
 
   def set_event
