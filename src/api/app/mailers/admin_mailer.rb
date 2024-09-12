@@ -6,14 +6,6 @@ class AdminMailer < ActionMailer::Base
           'Return-Path': mail_sender,
           Sender: mail_sender
 
-  def set_host
-    @host = ::Configuration.obs_url
-  end
-
-  def mail_sender
-    "OBS Admin Notification <#{::Configuration.admin_email}>"
-  end
-
   def error(message)
     warning(message, 'ERROR')
   end
@@ -35,6 +27,16 @@ class AdminMailer < ActionMailer::Base
          from: ::Configuration.admin_email,
          date: Time.now,
          body: message)
+  end
+
+  private
+
+  def set_host
+    @host = ::Configuration.obs_url
+  end
+
+  def mail_sender
+    "OBS Admin Notification <#{::Configuration.admin_email}>"
   end
 
   def admins
