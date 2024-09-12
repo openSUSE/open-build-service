@@ -958,7 +958,6 @@ fi
 /usr/sbin/rcobsservice
 %endif
 %{obs_backend_dir}/bs_service
-%{obs_backend_dir}/call-service-in-docker.sh
 %{obs_backend_dir}/call-service-in-container
 %{obs_backend_dir}/run-service-containerized
 %{obs_backend_dir}/cleanup_scm_cache
