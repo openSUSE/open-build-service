@@ -1,4 +1,6 @@
 class AdminMailer < ActionMailer::Base
+  before_action :set_host
+
   default Precedence: 'bulk',
           'X-Mailer': 'OBS Administrator Notification',
           'X-OBS-URL': ActionDispatch::Http::URL.url_for(controller: :main, action: :index, only_path: false, host: @host),
@@ -11,7 +13,6 @@ class AdminMailer < ActionMailer::Base
   end
 
   def warning(message, level = 'Warning')
-    set_host
     return unless @host
 
     # FIXME/to be implemented:
