@@ -1,7 +1,7 @@
 class AdminMailer < ApplicationMailer
-  default 'X-Mailer': 'OBS Administrator Notification',
-          'Return-Path': mail_sender,
-          Sender: mail_sender
+  before_action :set_admin_headers
+
+  default 'X-Mailer': 'OBS Administrator Notification'
 
   def error(message)
     warning(message, 'ERROR')
@@ -26,6 +26,11 @@ class AdminMailer < ApplicationMailer
   end
 
   private
+
+  def set_admin_headers
+    headers 'Return-Path': mail_sender,
+            Sender: mail_sender
+  end
 
   def mail_sender
     "OBS Admin Notification <#{::Configuration.admin_email}>"

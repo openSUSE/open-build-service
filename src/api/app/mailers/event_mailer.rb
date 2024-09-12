@@ -8,8 +8,7 @@ class EventMailer < ApplicationMailer
   before_action :set_event_headers
 
   default 'X-Mailer': 'OBS Notification System',
-          Sender: email_address_with_name(::Configuration.admin_email, 'OBS Notification'),
-          'Message-ID': message_id
+          Sender: email_address_with_name(::Configuration.admin_email, 'OBS Notification')
 
   def notification_email
     return if @recipients.blank? || @event.blank?
@@ -43,7 +42,9 @@ class EventMailer < ApplicationMailer
   def set_event_headers
     return unless @event
 
-    headers['X-OBS-event-type'] = @event.template_name
+    headers 'Message-ID': message_id,
+            'X-OBS-event-type': @event.template_name
+
     headers(@event.custom_headers)
   end
 
