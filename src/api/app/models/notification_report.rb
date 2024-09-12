@@ -5,8 +5,6 @@ class NotificationReport < Notification
     # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
     when 'Event::CreateReport', 'Event::ReportForProject', 'Event::ReportForPackage'
       "'#{notifiable.user.login}' created a report for a #{event_payload['reportable_type'].downcase}. This is the reason:"
-    when 'Event::ReportForUser'
-      "#{notifiable.user} created a report"
     when 'Event::ReportForRequest'
       "'#{notifiable.user.login}' created a report for a request. This is the reason:"
     when 'Event::FavoredDecision'
