@@ -1,16 +1,13 @@
 class AdminMailer < ActionMailer::Base
-  # avoiding the event mechanism for this, since it might be the actual problem
+  default Precedence: 'bulk',
+          'X-Mailer': 'OBS Administrator Notification',
+          'X-OBS-URL': ActionDispatch::Http::URL.url_for(controller: :main, action: :index, only_path: false, host: @host),
+          'Auto-Submitted': 'auto-generated',
+          'Return-Path': mail_sender,
+          Sender: mail_sender
 
-  def set_headers
+  def set_host
     @host = ::Configuration.obs_url
-    return unless @host
-
-    headers['Precedence'] = 'bulk'
-    headers['X-Mailer'] = 'OBS Administrator Notification'
-    headers['X-OBS-URL'] = ActionDispatch::Http::URL.url_for(controller: :main, action: :index, only_path: false, host: @host)
-    headers['Auto-Submitted'] = 'auto-generated'
-    headers['Return-Path'] = mail_sender
-    headers['Sender'] = mail_sender
   end
 
   def mail_sender
@@ -22,7 +19,7 @@ class AdminMailer < ActionMailer::Base
   end
 
   def warning(message, level = 'Warning')
-    set_headers
+    set_host
     return unless @host
 
     # FIXME/to be implemented:
