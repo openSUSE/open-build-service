@@ -2,7 +2,8 @@ class EventMailer < ActionMailer::Base
   helper 'webui/markdown'
   helper 'webui/reportables'
 
-  before_action :set_configuration
+  before_action :set_configuration_title
+  before_action :set_host
   before_action :set_recipients
   before_action :set_default_headers
   before_action :set_event
@@ -12,7 +13,7 @@ class EventMailer < ActionMailer::Base
     return if @recipients.blank? || @event.blank?
 
     mail(to: @recipients,
-         from: email_address_with_name(@configuration.admin_email, sender_realname),
+         from: email_address_with_name(::Configuration.admin_email, sender_realname),
          subject: @event.subject,
          date: @event.created_at) do |format|
       format.html { render @event.template_name, locals: { event: @event.expanded_payload } } if template_exists?("event_mailer/#{@event.template_name}", formats: [:html])
@@ -23,12 +24,14 @@ class EventMailer < ActionMailer::Base
 
   private
 
-  def set_configuration
-    @configuration = ::Configuration.fetch
+  def set_configuration_title
+    @configuration_title = ::Configuration.title
+  end
 
+  def set_host
     # FIXME: This if for the view. Use action_mailer.default_url_options instead
     # https://guides.rubyonrails.org/action_mailer_basics.html#generating-urls-in-action-mailer-views
-    @host = @configuration.obs_url
+    @host = ::Configuration.obs_url
   end
 
   def set_recipients
@@ -40,9 +43,9 @@ class EventMailer < ActionMailer::Base
   def set_default_headers
     headers['Precedence'] = 'bulk'
     headers['X-Mailer'] = 'OBS Notification System'
-    headers['X-OBS-URL'] = ActionDispatch::Http::URL.url_for(controller: :main, action: :index, only_path: false, host: @configuration.obs_url)
+    headers['X-OBS-URL'] = ActionDispatch::Http::URL.url_for(controller: :main, action: :index, only_path: false, host: @host)
     headers['Auto-Submitted'] = 'auto-generated'
-    headers['Sender'] = email_address_with_name(@configuration.admin_email, 'OBS Notification')
+    headers['Sender'] = email_address_with_name(::Configuration.admin_email, 'OBS Notification')
     headers['Message-ID'] = message_id
   end
 
@@ -65,7 +68,7 @@ class EventMailer < ActionMailer::Base
   end
 
   def message_id
-    domain = URI.parse(@configuration.obs_url).host.downcase
+    domain = URI.parse(@host).host.downcase
     # FIXME: Stop mocking with this in code.
     #        Migrate the unit tests to RSpec and compare headers from the message object...
     content = "<notrandom@#{domain}>" if Rails.env.test?
