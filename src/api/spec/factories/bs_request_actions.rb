@@ -19,7 +19,7 @@ FactoryBot.define do
           source_package_name { 'source_package' }
           target_project_name { 'target_project' }
           target_package_name { 'target_package' }
-          creator { create(:confirmed_user) }
+          creator { association :confirmed_user }
         end
 
         source_project do |evaluator|

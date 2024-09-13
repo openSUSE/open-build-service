@@ -1,10 +1,10 @@
 FactoryBot.define do
   factory :kiwi_package, class: 'Kiwi::Package' do
     transient do
-      image { create(:kiwi_image) }
+      image { association :kiwi_image }
     end
 
-    package_group { create(:kiwi_package_group, image: image) }
+    package_group { association :kiwi_package_group, image: image }
 
     name        { Faker::Creature::Cat.name }
     arch        { Faker::Creature::Cat.name }

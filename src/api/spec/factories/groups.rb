@@ -5,7 +5,7 @@ FactoryBot.define do
 
     factory :group_with_user do
       transient do
-        user { create(:confirmed_user) }
+        user { association :confirmed_user }
       end
 
       after(:create) do |group, evaluator|

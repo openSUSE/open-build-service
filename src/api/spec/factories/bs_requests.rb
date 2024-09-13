@@ -20,7 +20,7 @@ FactoryBot.define do
       creator
     end
     creator do
-      create(:confirmed_user)
+      create(:confirmed_user) # rubocop:disable FactoryBot/FactoryAssociationWithStrategy
     end
 
     reviews do |evaluator|

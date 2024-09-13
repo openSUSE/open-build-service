@@ -49,28 +49,6 @@ Capybara/ClickLinkOrButtonStyle:
     - 'spec/support/features/features_responsive.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 26
-# Configuration parameters: Include.
-# Include: **/*_spec.rb, **/spec/**/*, **/test/**/*, **/features/support/factories/**/*.rb
-FactoryBot/FactoryAssociationWithStrategy:
-  Exclude:
-    - 'spec/factories/attribs.rb'
-    - 'spec/factories/bs_request_actions.rb'
-    - 'spec/factories/bs_requests.rb'
-    - 'spec/factories/comments.rb'
-    - 'spec/factories/download_repository_factory.rb'
-    - 'spec/factories/groups.rb'
-    - 'spec/factories/kiwi_package.rb'
-    - 'spec/factories/packages.rb'
-    - 'spec/factories/path_element.rb'
-    - 'spec/factories/project.rb'
-    - 'spec/factories/release_target.rb'
-    - 'spec/factories/review.rb'
-    - 'spec/factories/status_reports.rb'
-    - 'spec/factories/tokens.rb'
-    - 'spec/factories/watched_items.rb'
-    - 'spec/factories/workflow_runs.rb'
-
 # Offense count: 3310
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, AllowedPatterns.
