@@ -1,13 +1,30 @@
-class AdminMailer < ApplicationMailer
-  before_action :set_admin_headers
+class AdminMailer < ActionMailer::Base
+  # avoiding the event mechanism for this, since it might be the actual problem
 
-  default 'X-Mailer': 'OBS Administrator Notification'
+  def set_headers
+    @host = ::Configuration.obs_url
+    return unless @host
+
+    @configuration = ::Configuration.fetch
+
+    headers['Precedence'] = 'bulk'
+    headers['X-Mailer'] = 'OBS Administrator Notification'
+    headers['X-OBS-URL'] = ActionDispatch::Http::URL.url_for(controller: :main, action: :index, only_path: false, host: @host)
+    headers['Auto-Submitted'] = 'auto-generated'
+    headers['Return-Path'] = mail_sender
+    headers['Sender'] = mail_sender
+  end
+
+  def mail_sender
+    "OBS Admin Notification <#{::Configuration.admin_email}>"
+  end
 
   def error(message)
     warning(message, 'ERROR')
   end
 
   def warning(message, level = 'Warning')
+    set_headers
     return unless @host
 
     # FIXME/to be implemented:
@@ -23,17 +40,6 @@ class AdminMailer < ApplicationMailer
          from: ::Configuration.admin_email,
          date: Time.now,
          body: message)
-  end
-
-  private
-
-  def set_admin_headers
-    headers 'Return-Path': mail_sender,
-            Sender: mail_sender
-  end
-
-  def mail_sender
-    "OBS Admin Notification <#{::Configuration.admin_email}>"
   end
 
   def admins

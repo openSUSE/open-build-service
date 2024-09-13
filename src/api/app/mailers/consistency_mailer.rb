@@ -1,5 +1,6 @@
 class ConsistencyMailer < AdminMailer
   def errors(errors)
+    set_headers
     return unless @host
 
     @errors = errors
