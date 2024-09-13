@@ -6,7 +6,7 @@ RSpec.describe BsRequestPolicy, type: :policy do
     let(:author) { create(:confirmed_user, login: 'foo') }
 
     shared_examples 'a record in state' do |request_state|
-      let(:bs_request) { create(:bs_request_with_submit_action, state: "#{request_state}", creator: author) }
+      let(:bs_request) { create(:bs_request_with_submit_action, state: request_state.to_s, creator: author) }
 
       context 'and the user is a target maintainer' do
         before do

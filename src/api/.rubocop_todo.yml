@@ -963,26 +963,6 @@ Style/OpenStructUse:
     - 'spec/services/trigger_controller_service/token_extractor_spec.rb'
     - 'spec/services/webui_controller_service/user_checker_spec.rb'
 
-# Offense count: 31
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/RedundantInterpolation:
-  Exclude:
-    - 'app/components/add_review_dropdown_component.rb'
-    - 'app/components/workflow_artifacts_per_step_component.rb'
-    - 'app/helpers/webui/notification_helper.rb'
-    - 'app/helpers/webui/reportables_helper.rb'
-    - 'app/jobs/fetch_remote_distributions_job.rb'
-    - 'app/models/user.rb'
-    - 'app/models/workflow/step/submit_request.rb'
-    - 'app/services/workflows/yaml_downloader.rb'
-    - 'spec/components/buildresult_status_link_component_spec.rb'
-    - 'spec/controllers/webui/packages/branches_controller_spec.rb'
-    - 'spec/features/beta/webui/requests_index_spec.rb'
-    - 'spec/features/webui/requests_spec.rb'
-    - 'spec/policies/bs_request_policy_spec.rb'
-    - 'spec/services/diff_parser_spec.rb'
-    - 'spec/services/rpmlint_log_parser_spec.rb'
-
 # Offense count: 86
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: Mode.

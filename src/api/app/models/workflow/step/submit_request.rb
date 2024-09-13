@@ -62,7 +62,7 @@ class Workflow::Step::SubmitRequest < Workflow::Step
       request.change_state(newstate: 'superseded',
                            reason: "Superseded by request #{new_submit_request.number}",
                            superseded_by: new_submit_request.number)
-      (@request_numbers_and_state_for_artifacts["#{request.state}"] ||= []) << request.number
+      (@request_numbers_and_state_for_artifacts[request.state.to_s] ||= []) << request.number
     end
   end
 
@@ -71,7 +71,7 @@ class Workflow::Step::SubmitRequest < Workflow::Step
       Pundit.authorize(@token.executor, submit_request, :revoke_request?)
 
       submit_request.change_state(newstate: 'revoked', comment: "Revoke as #{workflow_run.event_source_url} got closed")
-      (@request_numbers_and_state_for_artifacts["#{submit_request.state}"] ||= []) << submit_request.number
+      (@request_numbers_and_state_for_artifacts[submit_request.state.to_s] ||= []) << submit_request.number
     end
   end
 

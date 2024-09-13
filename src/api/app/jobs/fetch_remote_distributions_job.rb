@@ -28,7 +28,7 @@ class FetchRemoteDistributionsJob < ApplicationJob
       errors << distributions.errors unless distribution.valid?
     end
 
-    raise "#{errors.map(&:full_messages)}" if errors.any? || distributions.empty?
+    raise errors.map(&:full_messages).to_s if errors.any? || distributions.empty?
 
     Distribution.remote.for_project(project).destroy_all
     distributions.map(&:save!)

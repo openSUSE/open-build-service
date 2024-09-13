@@ -621,7 +621,7 @@ class User < ApplicationRecord
 
   def destroy_home_projects(reason:)
     Project.where('name LIKE ?', "#{home_project_name}:%").or(Project.where(name: home_project_name)).find_each do |project|
-      project.commit_opts = { comment: "#{reason}" }
+      project.commit_opts = { comment: reason.to_s }
       project.destroy
     end
   end
