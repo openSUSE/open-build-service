@@ -238,7 +238,7 @@ class Project < ApplicationRecord
       end
       if include_all_packages
         Package.joins(:flags).where(project_id: dbp.id).where("flags.flag='sourceaccess'").find_each do |pkg|
-          raise ReadAccessError, name unless Package.check_access?(pkg)
+          raise ReadAccessError, name unless pkg.project.check_access?
         end
       end
 
@@ -810,7 +810,7 @@ class Project < ApplicationRecord
       # local project, but package may be in a linked remote one
       opts[:allow_remote_packages] && Package.exists_on_backend?(name, self.name)
     else
-      Package.check_access?(pkg)
+      pkg.project.check_access?
     end
   end
 
@@ -828,14 +828,14 @@ class Project < ApplicationRecord
 
     pkg = find_package_on_update_project(package_name) if check_update_project
     pkg ||= packages.find_by(name: package_name)
-    return pkg if pkg&.check_access?
+    return pkg if pkg&.project&.check_access?
 
     # search via all linked projects
     linking_to.local.each do |lp|
       raise CycleError, 'project links against itself, this is not allowed' if self == lp.linked_db_project
 
       pkg = lp.linked_db_project.find_package(package_name, check_update_project, processed)
-      return pkg if pkg&.check_access?
+      return pkg if pkg&.project&.check_access?
     end
 
     # no package found
