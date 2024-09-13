@@ -199,10 +199,6 @@ Style/MultilineBlockChain:
     - 'spec/helpers/webui/**/*'
     - 'spec/models/**/*'
 
-# We disabled this cop because HAML doesn't work well with ActiveSupport::SafeBuffer and the to_s method of it is always returning the same object class
-Style/RedundantInterpolation:
-  Enabled: false
-
 # For routes, we use the EnforcedStyle 'template' while for other files, we should use the EnforcedStyle 'annotated'.
 # We could use this cop, but it's going to litter the code with a bunch of RuboCop comments without adding much value.
 Style/FormatStringToken:
