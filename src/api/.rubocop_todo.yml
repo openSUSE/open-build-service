@@ -679,13 +679,6 @@ Rails/ApplicationController:
   Exclude:
     - 'app/controllers/webui/webui_controller.rb'
 
-# Offense count: 2
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Rails/ApplicationMailer:
-  Exclude:
-    - 'app/mailers/admin_mailer.rb'
-    - 'app/mailers/event_mailer.rb'
-
 # Offense count: 70
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: EnforcedStyle.

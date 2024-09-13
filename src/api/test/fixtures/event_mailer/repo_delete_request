@@ -7,16 +7,16 @@ Mime-Version: 1.0
 Content-Type: text/plain;
  charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Precedence: bulk
-X-Mailer: OBS Notification System
 X-OBS-URL: http://localhost
-Auto-Submitted: auto-generated
 X-OBS-event-type: request_create
 X-OBS-Request-Creator: Iggy
 X-OBS-Request-Id: REQUESTID
 X-OBS-Request-State: new
 X-OBS-Request-Action-type: delete
 X-OBS-Request-Action-target: home:coolo/standard
+Precedence: bulk
+Auto-Submitted: auto-generated
+X-Mailer: OBS Notification System
 
 Visit http://localhost/request/show/REQUESTID
 
