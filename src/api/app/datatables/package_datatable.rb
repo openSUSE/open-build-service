@@ -16,19 +16,19 @@ class PackageDatatable < Datatable
     # or in aliased_join_table.column_name format
     @view_columns ||= {
       name: { source: 'Package.name' },
-      labels: { source: 'Package.labels' },
+      labels: { source: 'LabelTemplate.name' },
       changed: { source: 'Package.updated_at', searchable: false }
     }
   end
 
   # rubocop:disable Naming/AccessorMethodName
   def get_raw_records
-    @project.packages
+    @project.packages.includes(:package_kinds, labels: [:label_template]).references(:labels, :label_template)
   end
   # rubocop:enable Naming/AccessorMethodName
 
   def data
-    records.eager_load(:package_kinds).select("packages.*, bit_or(kind = 'link') AS kind_link").group('packages.id').map do |record|
+    records.map do |record|
       {
         name: name_with_link(record),
         labels: labels_list(record.labels),
@@ -41,7 +41,7 @@ class PackageDatatable < Datatable
   def name_with_link(record)
     name = []
     name << link_to(record.name, package_show_path(package: record, project: @project))
-    name << tag.span('Link', class: 'badge text-bg-info') if record.kind_link == 1
+    name << tag.span('Link', class: 'badge text-bg-info') if record.package_kinds.any? { |package_kind| package_kind.kind == 'link' }
     safe_join(name, ' ')
   end
 
