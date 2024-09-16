@@ -219,19 +219,6 @@ class Project < ApplicationRecord
       lpro && lpro[0].defines_remote_instance?
     end
 
-    def check_access?(project)
-      return false if project.nil?
-      # check for 'access' flag
-
-      return true unless Relationship.forbidden_project_ids.include?(project.id)
-
-      # simple check for involvement --> involved users can access project.id, User.session!
-      project.relationships.groups.includes(:group).any? do |grouprel|
-        # check if User.session! belongs to group.
-        User.session!.is_in_group?(grouprel.group)
-      end
-    end
-
     # This finder is checking for
     #   - a Project in the database
     #   - read authorization of the Project in the database
@@ -251,11 +238,11 @@ class Project < ApplicationRecord
       end
       if include_all_packages
         Package.joins(:flags).where(project_id: dbp.id).where("flags.flag='sourceaccess'").find_each do |pkg|
-          raise ReadAccessError, name unless Package.check_access?(pkg)
+          raise ReadAccessError, name unless pkg.project.check_access?
         end
       end
 
-      raise ReadAccessError, name unless check_access?(dbp)
+      raise ReadAccessError, name unless dbp.check_access?
 
       dbp
     end
@@ -266,7 +253,7 @@ class Project < ApplicationRecord
       if local_project.nil?
         find_remote_project(name).present?
       else
-        check_access?(local_project)
+        local_project.check_access?
       end
     end
 
@@ -276,7 +263,7 @@ class Project < ApplicationRecord
       dbp = find_by(name: name)
 
       return if dbp.nil?
-      return if !opts[:skip_check_access] && !check_access?(dbp)
+      return if !opts[:skip_check_access] && !dbp.check_access?
 
       dbp
     end
@@ -293,7 +280,7 @@ class Project < ApplicationRecord
         logger.debug "Trying to find local project #{local_project}, remote_project #{remote_project}"
 
         project = Project.find_by(name: local_project)
-        if project && (skip_access || check_access?(project)) && project.defines_remote_instance?
+        if project && (skip_access || project.check_access?) && project.defines_remote_instance?
           logger.debug "Found local project #{project.name} for #{remote_project} with remoteurl #{project.remoteurl}"
           return project, remote_project
         end
@@ -450,6 +437,17 @@ class Project < ApplicationRecord
 
   def buildresults
     Buildresult.summary(name)
+  end
+
+  def check_access?
+    # check for 'access' flag
+    return true unless Relationship.forbidden_project_ids.include?(id)
+
+    # simple check for involvement --> involved users can access project.id, User.session!
+    relationships.groups.includes(:group).any? do |grouprel|
+      # check if User.session! belongs to group.
+      User.session!.is_in_group?(grouprel.group)
+    end
   end
 
   def jobhistory(filter: { limit: 100, start_epoch: nil, end_epoch: nil, code: [], package: nil })
@@ -812,7 +810,7 @@ class Project < ApplicationRecord
       # local project, but package may be in a linked remote one
       opts[:allow_remote_packages] && Package.exists_on_backend?(name, self.name)
     else
-      Package.check_access?(pkg)
+      pkg.project.check_access?
     end
   end
 
@@ -830,14 +828,14 @@ class Project < ApplicationRecord
 
     pkg = find_package_on_update_project(package_name) if check_update_project
     pkg ||= packages.find_by(name: package_name)
-    return pkg if pkg&.check_access?
+    return pkg if pkg&.project&.check_access?
 
     # search via all linked projects
     linking_to.local.each do |lp|
       raise CycleError, 'project links against itself, this is not allowed' if self == lp.linked_db_project
 
       pkg = lp.linked_db_project.find_package(package_name, check_update_project, processed)
-      return pkg if pkg&.check_access?
+      return pkg if pkg&.project&.check_access?
     end
 
     # no package found

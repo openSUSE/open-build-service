@@ -22,7 +22,7 @@ module ProjectMaintenance
       at ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
       maintenance_project = Project.joins(:attribs).where(attribs: { attrib_type_id: at.id }).first
 
-      return unless maintenance_project && check_access?(maintenance_project)
+      return unless maintenance_project&.check_access?
 
       maintenance_project
     end
