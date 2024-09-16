@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_08_23_084727) do
+ActiveRecord::Schema[7.0].define(version: 2024_09_16_121900) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -153,7 +153,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_08_23_084727) do
     t.index ["links_to_id"], name: "index_backend_packages_on_links_to_id"
   end
 
-  create_table "binary_releases", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
+  create_table "binary_releases", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "repository_id", null: false
     t.column "operation", "enum('added','removed','modified')", default: "added", collation: "utf8mb3_general_ci"
     t.datetime "obsolete_time", precision: nil
@@ -172,7 +172,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_08_23_084727) do
     t.string "binary_updateinfo"
     t.string "binary_updateinfo_version"
     t.datetime "modify_time", precision: nil
-    t.integer "on_medium_id"
+    t.bigint "on_medium_id"
     t.string "binary_id"
     t.string "flavor"
     t.string "binary_cpeid"
