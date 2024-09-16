@@ -137,7 +137,7 @@ RSpec.describe 'Requests', :js, :vcr do
         desktop? ? click_link('Request Role Addition') : click_menu_link('Actions', 'Request Role Addition')
         choose 'Bugowner'
         choose 'User'
-        fill_in 'User:', with: "#{submitter.login}"
+        fill_in 'User:', with: submitter.login.to_s
         fill_in 'Description:', with: 'I can fix bugs too.'
         expect { click_button('Request') }.to change(BsRequest, :count).by(1)
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants to get the role bugowner for project #{target_project}")

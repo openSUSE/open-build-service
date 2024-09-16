@@ -138,11 +138,11 @@ RSpec.describe 'Requests Index' do
     end
 
     it 'only shows the creators that match the search value filled in the dropdown' do
-      fill_in('request-creator-search', with: "#{submitter.login[0, 2]}")
+      fill_in('request-creator-search', with: submitter.login[0, 2].to_s)
 
       within('div#request-creator-dropdown') do
-        expect(page).to have_field('creators[]', with: "#{submitter.login}")
-        expect(page).to have_no_field('creators[]', with: "#{receiver.login}")
+        expect(page).to have_field('creators[]', with: submitter.login.to_s)
+        expect(page).to have_no_field('creators[]', with: receiver.login.to_s)
       end
     end
   end

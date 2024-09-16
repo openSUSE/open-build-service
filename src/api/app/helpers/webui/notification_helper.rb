@@ -80,7 +80,7 @@ module Webui::NotificationHelper
 
     concat(
       tag.li(class: 'list-inline-item') do
-        tag.span("#{number_of_hidden_avatars(notification.avatar_objects)}",
+        tag.span(number_of_hidden_avatars(notification.avatar_objects).to_s,
                  class: 'rounded-circle bg-body-secondary border avatars-counter',
                  title: "#{number_of_hidden_avatars(notification.avatar_objects)} more users involved")
       end
@@ -145,7 +145,7 @@ module Webui::NotificationHelper
     content_tag(
       :span,
       state.presence || icon_tag(number_of_reports, icon),
-      class: ['badge', 'mx-1', "#{state.present? ? 'text-bg-secondary' : 'text-bg-warning'}"]
+      class: ['badge', 'mx-1', (state.present? ? 'text-bg-secondary' : 'text-bg-warning').to_s]
     )
   end
 

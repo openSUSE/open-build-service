@@ -28,7 +28,7 @@ RSpec.describe BuildresultStatusLinkComponent, type: :component do
     it 'renders a span tag with the correct id and class' do
       expect(rendered_content).to have_css("span.build-state-#{build_status}.toggle-build-info",
                                            id: "id-#{package_name}_#{repository_name}_#{architecture_name}",
-                                           text: "#{build_status}")
+                                           text: build_status.to_s)
     end
   end
 
@@ -36,7 +36,7 @@ RSpec.describe BuildresultStatusLinkComponent, type: :component do
     let(:build_status) { 'succeeded' }
 
     it 'renders a link with the correct class' do
-      expect(rendered_content).to have_text("#{build_status}")
+      expect(rendered_content).to have_text(build_status.to_s)
       expect(rendered_content).to have_link(href: "/package/live_build_log/#{project_name}/#{package_name}/#{repository_name}/#{architecture_name}",
                                             class: "build-state-#{build_status}")
     end
