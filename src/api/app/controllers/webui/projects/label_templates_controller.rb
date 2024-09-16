@@ -10,7 +10,8 @@ module Webui
       end
 
       def new
-        @label_template = authorize @project.label_templates.new(color: "##{(rand * 0xffffff).to_i.to_s(16).rjust(6, '0')}")
+        @label_template = authorize @project.label_templates.new
+        @label_template.set_random_color
       end
 
       def edit

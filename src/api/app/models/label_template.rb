@@ -27,6 +27,11 @@ class LabelTemplate < ApplicationRecord
 
   #### Instance methods (public and then protected/private)
 
+  # Random color from 0x000000 - 0xffffff
+  def set_random_color
+    self.color = "##{(rand * 0xffffff).to_i.to_s(16).rjust(6, '0')}"
+  end
+
   #### Alias of methods
 end
 
