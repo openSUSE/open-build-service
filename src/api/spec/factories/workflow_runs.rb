@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :workflow_run do
-    token { create(:workflow_token) }
+    token { association :workflow_token }
     status { 'running' }
     scm_vendor { 'github' }
     hook_event { 'pull_request' }

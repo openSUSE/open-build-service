@@ -17,7 +17,7 @@ FactoryBot.define do
 
     factory :package_with_maintainer do
       transient do
-        maintainer { build(:confirmed_user) }
+        maintainer { association :confirmed_user }
       end
 
       after(:build) do |package, evaluator|
