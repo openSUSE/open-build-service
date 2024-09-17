@@ -55,7 +55,7 @@ class BsRequestPermissionCheck
     require_permissions_in_target_or_source
   end
 
-  def cmd_changereviewstate_permissions(opts)
+  def cmd_changereviewstate_permissions
     # Basic validations of given parameters
     by_user = User.find_by_login!(opts[:by_user]) if opts[:by_user]
     by_group = Group.find_by_title!(opts[:by_group]) if opts[:by_group]

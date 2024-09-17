@@ -466,7 +466,7 @@ class BsRequest < ApplicationRecord
 
   def permission_check_change_review!(params)
     checker = BsRequestPermissionCheck.new(self, params)
-    checker.cmd_changereviewstate_permissions(params)
+    checker.cmd_changereviewstate_permissions
   end
 
   def permission_check_setincident!(incident)
