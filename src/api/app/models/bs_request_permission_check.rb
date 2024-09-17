@@ -186,7 +186,7 @@ class BsRequestPermissionCheck
     # maintenance_release accept check
     if action.action_type == :maintenance_release
       # compare with current sources
-      check_maintenance_release_accept(action, opts)
+      check_maintenance_release_accept(action)
     end
 
     # target must exist
@@ -249,7 +249,7 @@ class BsRequestPermissionCheck
     end
   end
 
-  def check_maintenance_release_accept(action, opts = {})
+  def check_maintenance_release_accept(action)
     if action.source_rev
       # FIXME2.4 we have a directory model
       c = Backend::Api::Sources::Package.files(action.source_project, action.source_package, expand: 1)
