@@ -16,6 +16,9 @@
             %i.fas.fa-trash-can
             Delete
     .pt-4
-      = link_to new_project_label_template_path(@project) do
+      = link_to new_project_label_template_path(@project), class: 'me-2' do
         %i.fas.fa-plus-circle.text-primary
         Create Label Template
+      = link_to copy_project_label_templates_path(@project) do
+        %i.fas.fa-copy.text-primary
+        Copy from Another Project

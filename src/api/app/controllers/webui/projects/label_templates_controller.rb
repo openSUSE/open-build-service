@@ -53,6 +53,28 @@ module Webui
         end
       end
 
+      def copy
+        authorize @project.label_templates.new, :new?
+      end
+
+      def clone
+        authorize @project.label_templates.new, :new?
+        @source_project = Project.find_by(name: params[:source_project])
+
+        if @project.label_templates << (@source_project&.label_templates&.map(&:dup) || [])
+          redirect_to project_label_templates_path(@project)
+          flash[:success] = 'Label templates copied successfully'
+        else
+          render :copy
+          flash[:error] = 'Failed to copy the label templates'
+        end
+      end
+
+      def preview
+        authorize @project.label_templates.new, :new?
+        render(partial: 'preview', locals: { project: Project.find_by(name: params[:project]) })
+      end
+
       private
 
       def label_template_params
