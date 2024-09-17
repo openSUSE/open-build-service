@@ -83,7 +83,7 @@ class BsRequestPermissionCheck
     raise ReviewChangeStateNoPermission, "review state change for project #{opts[:by_project]} is not permitted for #{User.session!.login}"
   end
 
-  def cmd_changestate_permissions(opts)
+  def cmd_changestate_permissions
     # We do not support to revert changes from accepted requests (yet)
     raise PostRequestNoPermission, 'change state from an accepted state is not allowed.' if req.state == :accepted
 
