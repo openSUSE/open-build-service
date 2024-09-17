@@ -14,6 +14,7 @@ Capybara.register_driver :desktop do |app|
   Capybara::Selenium::Driver.load_selenium
   browser_options = Selenium::WebDriver::Chrome::Options.new
   browser_options.args << '--disable-gpu'
+  browser_options.args << '--disable-dev-shm-usage'
   browser_options.args << '--headless'
   browser_options.args << '--no-sandbox' # to run in docker
   browser_options.args << '--window-size=1280,1024'
@@ -24,6 +25,7 @@ Capybara.register_driver :mobile do |app|
   Capybara::Selenium::Driver.load_selenium
   browser_options = Selenium::WebDriver::Chrome::Options.new
   browser_options.args << '--disable-gpu'
+  browser_options.args << '--disable-dev-shm-usage'
   browser_options.args << '--headless'
   browser_options.args << '--no-sandbox' # to run in docker
   browser_options.add_emulation(device_metrics: { width: 320, height: 568, pixelRatio: 1, touch: true })
