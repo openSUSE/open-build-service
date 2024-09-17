@@ -139,7 +139,7 @@ class BsRequestPermissionCheck
     req.bs_request_actions.each do |action|
       set_permissions_for_action(action, accept_check ? 'accepted' : opts[:newstate])
 
-      check_newstate_action!(action, opts)
+      check_newstate_action!(action)
 
       # TODO: Get the relevant project attribute, from the target project or target package. Retrieve the accepter and check if it's the same person than the creator. And fail if true
       target_package = Package.get_by_project_and_name(action.target_project, action.target_package) if Package.exists_by_project_and_name(action.target_project, action.target_package)
@@ -276,7 +276,7 @@ class BsRequestPermissionCheck
   end
 
   # check if the action can change state - or throw an APIError if not
-  def check_newstate_action!(action, opts)
+  def check_newstate_action!(action)
     # relaxed checks for final exit states
     return if opts[:newstate].in?(%w[declined revoked superseded])
 
