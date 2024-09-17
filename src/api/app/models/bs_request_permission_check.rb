@@ -167,7 +167,7 @@ class BsRequestPermissionCheck
 
   private
 
-  def check_accepted_action(action, opts)
+  def check_accepted_action(action)
     raise NotExistingTarget, "Unable to process project #{action.target_project}; it does not exist." unless @target_project
 
     check_action_target(action)
@@ -281,7 +281,7 @@ class BsRequestPermissionCheck
     return if opts[:newstate].in?(%w[declined revoked superseded])
 
     if opts[:newstate] == 'accepted' || opts[:cmd] == 'approve'
-      check_accepted_action(action, opts)
+      check_accepted_action(action)
     else # only check the target is sane
       check_action_target(action)
     end
