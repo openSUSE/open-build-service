@@ -1,6 +1,22 @@
 class BsRequestPermissionCheck
   include BsRequest::Errors
 
+  attr_accessor :opts, :req, :accept_user
+
+  # check if the request can change state - or throw an APIError if not
+  def initialize(request, options)
+    self.req = request
+    self.opts = options
+    self.accept_user = if request.approver
+                         User.find_by!(login: request.approver)
+                       else
+                         User.session!
+                       end
+
+    @write_permission_in_source = false
+    @write_permission_in_target = false
+  end
+
   def cmd_addreview_permissions(permissions_granted)
     raise ReviewChangeStateNoPermission, 'The request is not in state new or review' unless req.state.in?(%i[review new])
 
@@ -147,22 +163,6 @@ class BsRequestPermissionCheck
     end
 
     extra_permissions_check_changestate unless permission_granted || opts[:cmd] == 'approve'
-  end
-
-  attr_accessor :opts, :req, :accept_user
-
-  # check if the request can change state - or throw an APIError if not
-  def initialize(request, options)
-    self.req = request
-    self.opts = options
-    self.accept_user = if request.approver
-                         User.find_by!(login: request.approver)
-                       else
-                         User.session!
-                       end
-
-    @write_permission_in_source = false
-    @write_permission_in_target = false
   end
 
   private
