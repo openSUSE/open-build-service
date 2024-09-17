@@ -194,7 +194,7 @@ class BsRequestPermissionCheck
       raise NotExistingTarget, "Unable to process package #{action.target_project}/#{action.target_package}; it does not exist."
     end
 
-    check_delete_accept(action, opts) if action.action_type == :delete
+    check_delete_accept(action) if action.action_type == :delete
 
     return unless action.makeoriginolder && Package.exists_by_project_and_name(action.target_project, action.target_package)
 
@@ -235,7 +235,7 @@ class BsRequestPermissionCheck
     raise TargetNotMaintenance, "The target project is not of type maintenance or incident but #{@target_project.kind}"
   end
 
-  def check_delete_accept(action, opts)
+  def check_delete_accept(action)
     if @target_package
       return if opts.include?(:force) && opts[:force].in?([nil, '1'])
 
