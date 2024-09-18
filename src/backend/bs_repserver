@@ -2304,12 +2304,23 @@ sub putjob {
     die($err);
   }
 
+  my $have_problem;
+
+  my @check_json;
+  push @check_json, '_slsa_provenance.json' if -e "$tmpdir/_slsa_provenance.json";
+
   # normalize containers
   for my $file (@$uploaded) {
     my $containerinfofile = $file->{'name'};
     next unless $containerinfofile =~ /(.*)\.containerinfo$/;
-    my $container = "$1.tar";
+    my $prefix = $1;
+    my $container = "$prefix.tar";
     next unless -f "$tmpdir/$container";
+    push @check_json, "$prefix.spdx.json" if -e "$tmpdir/$prefix.spdx.json";
+    push @check_json, "$prefix.cdx.json" if -e "$tmpdir/$prefix.cdx.json";
+    for (grep {$file->{'name'} =~ /^\Q$prefix\E\.[^\.]+\.intoto\.json$/} @$uploaded) {
+      push @check_json, $file->{'name'};
+    }
     eval {
       # check that the containerinfo is well formed
       BSRepServer::Containerinfo::readcontainerinfo($tmpdir, $containerinfofile);
@@ -2318,11 +2329,28 @@ sub putjob {
     };
     if ($@) {
       # fail job if we could not normalize the container
-      BSUtil::appendstr("$tmpdir/logfile", "\ncontainer normalization failed: $@");
-      $cgi->{'code'} = 'failed';
-      for my $filename (sort(ls($tmpdir))) {
-	unlink("$tmpdir/$filename") unless $filename eq 'meta' || $filename eq 'logfile';
-      }
+      BSUtil::appendstr("$tmpdir/logfile", "\ncontainer normalization of $container failed: $@");
+      $have_problem = 1;
+    }
+  }
+
+  # verify the json
+  for my $file (@check_json) {
+    eval {
+      die("too big\n") if (-s "$tmpdir/$file") > 64 * 1024 * 1024;
+      JSON::XS::decode_json(readstr("$tmpdir/$file"));
+    };
+    if ($@) {
+      BSUtil::appendstr("$tmpdir/logfile", "\nproblem with json file $file: $@");
+      $have_problem = 1;
+    }
+  }
+
+  # delete everything but the log if we found a problem
+  if ($have_problem) {
+    $cgi->{'code'} = 'failed';
+    for my $filename (sort(ls($tmpdir))) {
+      unlink("$tmpdir/$filename") unless $filename eq 'meta' || $filename eq 'logfile';
     }
   }
 
