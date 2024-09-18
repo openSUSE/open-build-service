@@ -1,6 +1,22 @@
 class BsRequestPermissionCheck
   include BsRequest::Errors
 
+  attr_accessor :opts, :req, :accept_user
+
+  # check if the request can change state - or throw an APIError if not
+  def initialize(request, options)
+    self.req = request
+    self.opts = options
+    self.accept_user = if request.approver
+                         User.find_by!(login: request.approver)
+                       else
+                         User.session!
+                       end
+
+    @write_permission_in_source = false
+    @write_permission_in_target = false
+  end
+
   def cmd_addreview_permissions(permissions_granted)
     raise ReviewChangeStateNoPermission, 'The request is not in state new or review' unless req.state.in?(%i[review new])
 
@@ -39,7 +55,7 @@ class BsRequestPermissionCheck
     require_permissions_in_target_or_source
   end
 
-  def cmd_changereviewstate_permissions(opts)
+  def cmd_changereviewstate_permissions
     # Basic validations of given parameters
     by_user = User.find_by_login!(opts[:by_user]) if opts[:by_user]
     by_group = Group.find_by_title!(opts[:by_group]) if opts[:by_group]
@@ -67,7 +83,7 @@ class BsRequestPermissionCheck
     raise ReviewChangeStateNoPermission, "review state change for project #{opts[:by_project]} is not permitted for #{User.session!.login}"
   end
 
-  def cmd_changestate_permissions(opts)
+  def cmd_changestate_permissions
     # We do not support to revert changes from accepted requests (yet)
     raise PostRequestNoPermission, 'change state from an accepted state is not allowed.' if req.state == :accepted
 
@@ -123,7 +139,7 @@ class BsRequestPermissionCheck
     req.bs_request_actions.each do |action|
       set_permissions_for_action(action, accept_check ? 'accepted' : opts[:newstate])
 
-      check_newstate_action!(action, opts)
+      check_newstate_action!(action)
 
       # TODO: Get the relevant project attribute, from the target project or target package. Retrieve the accepter and check if it's the same person than the creator. And fail if true
       target_package = Package.get_by_project_and_name(action.target_project, action.target_package) if Package.exists_by_project_and_name(action.target_project, action.target_package)
@@ -149,25 +165,9 @@ class BsRequestPermissionCheck
     extra_permissions_check_changestate unless permission_granted || opts[:cmd] == 'approve'
   end
 
-  attr_accessor :opts, :req, :accept_user
-
-  # check if the request can change state - or throw an APIError if not
-  def initialize(request, options)
-    self.req = request
-    self.opts = options
-    self.accept_user = if request.approver
-                         User.find_by!(login: request.approver)
-                       else
-                         User.session!
-                       end
-
-    @write_permission_in_source = false
-    @write_permission_in_target = false
-  end
-
   private
 
-  def check_accepted_action(action, opts)
+  def check_accepted_action(action)
     raise NotExistingTarget, "Unable to process project #{action.target_project}; it does not exist." unless @target_project
 
     check_action_target(action)
@@ -186,7 +186,7 @@ class BsRequestPermissionCheck
     # maintenance_release accept check
     if action.action_type == :maintenance_release
       # compare with current sources
-      check_maintenance_release_accept(action, opts)
+      check_maintenance_release_accept(action)
     end
 
     # target must exist
@@ -194,7 +194,7 @@ class BsRequestPermissionCheck
       raise NotExistingTarget, "Unable to process package #{action.target_project}/#{action.target_package}; it does not exist."
     end
 
-    check_delete_accept(action, opts) if action.action_type == :delete
+    check_delete_accept(action) if action.action_type == :delete
 
     return unless action.makeoriginolder && Package.exists_by_project_and_name(action.target_project, action.target_package)
 
@@ -235,7 +235,7 @@ class BsRequestPermissionCheck
     raise TargetNotMaintenance, "The target project is not of type maintenance or incident but #{@target_project.kind}"
   end
 
-  def check_delete_accept(action, opts)
+  def check_delete_accept(action)
     if @target_package
       return if opts.include?(:force) && opts[:force].in?([nil, '1'])
 
@@ -249,7 +249,7 @@ class BsRequestPermissionCheck
     end
   end
 
-  def check_maintenance_release_accept(action, opts = {})
+  def check_maintenance_release_accept(action)
     if action.source_rev
       # FIXME2.4 we have a directory model
       c = Backend::Api::Sources::Package.files(action.source_project, action.source_package, expand: 1)
@@ -276,12 +276,12 @@ class BsRequestPermissionCheck
   end
 
   # check if the action can change state - or throw an APIError if not
-  def check_newstate_action!(action, opts)
+  def check_newstate_action!(action)
     # relaxed checks for final exit states
     return if opts[:newstate].in?(%w[declined revoked superseded])
 
     if opts[:newstate] == 'accepted' || opts[:cmd] == 'approve'
-      check_accepted_action(action, opts)
+      check_accepted_action(action)
     else # only check the target is sane
       check_action_target(action)
     end

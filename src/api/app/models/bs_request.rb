@@ -466,7 +466,7 @@ class BsRequest < ApplicationRecord
 
   def permission_check_change_review!(params)
     checker = BsRequestPermissionCheck.new(self, params)
-    checker.cmd_changereviewstate_permissions(params)
+    checker.cmd_changereviewstate_permissions
   end
 
   def permission_check_setincident!(incident)
@@ -487,7 +487,7 @@ class BsRequest < ApplicationRecord
 
   def permission_check_change_state!(opts)
     checker = BsRequestPermissionCheck.new(self, opts)
-    checker.cmd_changestate_permissions(opts)
+    checker.cmd_changestate_permissions
 
     # check target write permissions
     return unless opts[:newstate] == 'accepted'
@@ -1237,7 +1237,7 @@ class BsRequest < ApplicationRecord
     # none of them is supposed to be crucial wrt. permission checking)
     my_opts = opts.merge(newstate: 'accepted', force: true)
     checker = BsRequestPermissionCheck.new(self, my_opts)
-    checker.cmd_changestate_permissions(my_opts)
+    checker.cmd_changestate_permissions
     check_bs_request_actions!(skip_source: true)
 
     self.approver = new_approver
