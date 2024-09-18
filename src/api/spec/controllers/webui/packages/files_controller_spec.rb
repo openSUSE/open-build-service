@@ -200,4 +200,19 @@ RSpec.describe Webui::Packages::FilesController, :vcr do
       it { expect(Package.where(name: 'my_package')).to exist }
     end
   end
+
+  describe 'GET #show' do
+    context 'the file comes from a scmsync project' do
+      let(:scmsync_project) { create(:project, name: 'lorem', scmsync: 'https://github.com/example/scmsync-project.git', maintainer: user) }
+      let(:scmsync_package) { create(:package_with_file, name: 'scmsync_package', project: scmsync_project, file_name: 'README.txt', file_content: 'foo bar') }
+
+      before do
+        login(user)
+        get :show, params: { project_name: scmsync_project.name, package_name: scmsync_package.name, filename: 'README.txt' }
+      end
+
+      it { expect(flash[:error]).to eq('The project lorem is configured through scmsync. This is not yet fully supported by the OBS frontend') }
+      it { expect(response).to redirect_to(project_show_path(scmsync_project)) }
+    end
+  end
 end
