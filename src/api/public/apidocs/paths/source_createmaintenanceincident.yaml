@@ -1,15 +1,8 @@
 post:
   summary: Create maintenance incident projects
-  description: Create a mainatenance incident project based on attribute search.
+  description: Create a maintenance incident project based on the project defined by the attribute `OBS:MaintenanceProject`.
   security:
     - basic_authentication: []
-  parameters:
-    - in: query
-      name: attribute
-      schema:
-        type: string
-      example: OBS:MaintenanceProject
-      description: attribute used for package search, default is OBS:MaintenanceProject
   responses:
     '200':
       description: ok
