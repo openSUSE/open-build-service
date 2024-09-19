@@ -11,6 +11,7 @@ module Webui
 
       def new
         @label_template = authorize @project.label_templates.new
+        @label_template.set_random_color
       end
 
       def edit
