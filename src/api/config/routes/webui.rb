@@ -232,6 +232,7 @@ constraints(RoutesHelper::WebuiMatcher) do
     get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons, as: :edit_comment_form
     post 'project/edit_comment/:project' => :edit_comment, constraints: cons
     post 'project/unlock' => :unlock
+    post 'project/preview_description' => :preview_description
   end
 
   # For backward compatibility

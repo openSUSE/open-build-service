@@ -29,7 +29,7 @@ class Webui::ProjectController < Webui::WebuiController
   after_action :verify_authorized, except: %i[index autocomplete_projects autocomplete_incidents autocomplete_packages
                                               autocomplete_repositories users subprojects new show
                                               buildresult requests monitor new_release_request
-                                              remove_target_request edit_comment edit_comment_form]
+                                              remove_target_request edit_comment edit_comment_form preview_description]
 
   def index
     respond_to do |format|
@@ -364,6 +364,13 @@ class Webui::ProjectController < Webui::WebuiController
       redirect_to project_show_path(@project), success: 'Successfully unlocked project'
     else
       redirect_to project_show_path(@project), error: "Project can't be unlocked: #{@project.errors.full_messages.to_sentence}"
+    end
+  end
+
+  def preview_description
+    markdown = helpers.render_as_markdown(params[:project][:description])
+    respond_to do |format|
+      format.json { render json: { markdown: markdown } }
     end
   end
 
