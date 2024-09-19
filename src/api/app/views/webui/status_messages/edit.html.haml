@@ -13,7 +13,8 @@
                 = form.label(:message) do
                   Message:
                   %abbr.text-danger{ title: 'required' } *
-                = render WriteAndPreviewComponent.new(form, preview_news_items_path)
+                = render WriteAndPreviewComponent.new(form: form, preview_message_url: preview_news_items_path,
+                                                      message_body_param: 'status_message[message]')
               .mb-3
                 = form.label(:severity) do
                   Severity:
