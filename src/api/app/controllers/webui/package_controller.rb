@@ -317,6 +317,13 @@ class Webui::PackageController < Webui::WebuiController
     render partial: 'rpmlint_log', locals: { rpmlint_log_file: rpmlint_log_file, render_chart: render_chart, parsed_messages: parsed_messages }
   end
 
+  def preview_description
+    markdown = helpers.render_as_markdown(params[:package][:description])
+    respond_to do |format|
+      format.json { render json: { markdown: markdown } }
+    end
+  end
+
   def files; end
   def view_file; end
 
