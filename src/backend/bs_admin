@@ -1367,9 +1367,15 @@ while (@ARGV) {
     my $action     = shift @ARGV;
     my $debug      = (@ARGV && $ARGV[0] =~ /^(-d|--debug)$/) ? shift @ARGV : 0;
     die "Please specify a podman command\n" unless $action;
+
+    no warnings 'once';
+    my $root      = $BSConfig::containers_root || "$BSConfig::bsdir/service/containers";
+    my $container = $BSConfig::container_image || "localhost/obs-source-service-podman:latest";
+    use warnings 'all';
+
     my $actions = {
       launch => sub {
-       "podman --root $BSConfig::containers_root run -it --rm $BSConfig::container_image ". (@ARGV ? "@ARGV" : '/bin/bash')
+       "podman --root $root run -it --rm $container ". (@ARGV ? "@ARGV" : '/bin/bash')
       },
       help => sub {
        print $sc_help;
@@ -1379,7 +1385,7 @@ while (@ARGV) {
     print "Starting $action\n" if $debug;
     my $podman_cmd = (ref($actions->{$action}))
                        ? $actions->{$action}->()
-                       : "podman --root $BSConfig::containers_root $action @ARGV";
+                       : "podman --root $root $action @ARGV";
     my @cmd = (qw{su -s /bin/bash -c}, $podman_cmd, '-', $BSConfig::bsserviceuser);
     print "Executing:\n@cmd\n" if $debug;
     system(@cmd);
