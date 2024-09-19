@@ -211,7 +211,7 @@ RSpec.describe Webui::Packages::FilesController, :vcr do
         get :show, params: { project_name: scmsync_project.name, package_name: scmsync_package.name, filename: 'README.txt' }
       end
 
-      it { expect(flash[:error]).to eq('The project lorem is configured through scmsync. This is not yet fully supported by the OBS frontend') }
+      it { expect(flash[:error]).to eq('The project lorem is configured through scmsync. This is not supported by the OBS frontend') }
       it { expect(response).to redirect_to(project_show_path(scmsync_project)) }
     end
   end

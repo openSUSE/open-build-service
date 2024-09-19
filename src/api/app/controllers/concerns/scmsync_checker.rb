@@ -6,7 +6,7 @@ module ScmsyncChecker
   def check_scmsync
     return if @project&.scmsync.blank?
 
-    flash[:error] = "The project #{@project.name} is configured through scmsync. This is not yet fully supported by the OBS frontend"
+    flash[:error] = "The project #{@project.name} is configured through scmsync. This is not supported by the OBS frontend"
     redirect_to project_show_path(project: @project)
   end
 end
