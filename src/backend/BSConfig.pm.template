@@ -348,7 +348,7 @@ our $local_registry_signatures_extension = 1;
 ### Options used by call-service-in-container
 #
 # container image to use
-#our $container_image="localhost/obs-source-service:latest";
+#our $container_image="localhost/obs-source-service-podman:latest";
 #
 # special options to use for starting containers in run-service-containerized
 #our $container_custom_opt = '-e DEBUG_TAR_SCM=1';
