@@ -20,7 +20,11 @@
                 = f.text_field(:title, size: 80, class: 'form-control', placeholder: 'Enter Title')
               .mb-3
                 = f.label(:description)
-                = f.text_area(:description, cols: 80, rows: 10, class: 'form-control')
+                = render WriteAndPreviewComponent.new(form: f, preview_message_url: package_preview_description_path,
+                                                      message_body_param: 'package[description]',
+                                                      text_area_attributes: { rows: 10,
+                                                      placeholder: 'Write your description here... (Markdown markup is supported)',
+                                                      required: false, object_name: :description})
               - unless @configuration['hide_private_options']
                 .mb-3.form-check
                   = check_box_tag :source_protection, 1, false, class: 'form-check-input', type: 'checkbox'
