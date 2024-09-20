@@ -1,0 +1,99 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Net::Domain;
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
+
+use BSConfig;
+no warnings 'once';
+my $hostname=Net::Domain::hostfqdn || '';
+use warnings 'all';
+
+$::LOGLEVEL=0;
+
+my $distro = get_distro();
+my $distro_obj;
+if ($distro =~ /suse/) {
+  print "Using distro family SUSE" if $::LOGLEVEL;
+  require BSSetup::SUSE;
+  BSSetup::SUSE->import;
+  $distro_obj = BSSetup::SUSE->new(hostname=>$hostname);
+} else {
+  die "Operating system not implemented yet!";
+}
+
+my @args = @ARGV;
+
+my %global_options = (
+  '--debug' => sub { $::LOGLEVEL = 1; },
+);
+
+my %commands = (
+  'service-containers' => \&setup_service_containers,
+  'sc' => \&setup_service_containers,
+);
+
+for my $opt (@args) {
+  if (ref($global_options{$opt}) eq 'CODE') {
+    shift @args;
+    $global_options{$opt}->();
+  } else {
+    die "Unknown option: $opt\n" unless $commands{$opt};
+    print "End of global options\n" if $::LOGLEVEL;
+  }
+}
+
+my $cmd_count=0;
+
+for my $cmd (@args) {
+  my $cmd_ref = $commands{$cmd};
+  if (ref($cmd_ref) eq 'CODE') {
+    $cmd_count++;
+    shift @args;
+    die "Command $cmd failed!" unless $cmd_ref->(@args);
+  } else {
+    die "Unknown command: $cmd\n";
+  }
+}
+
+die "No command executed!\n" unless $cmd_count;
+
+exit 0;
+
+###############################################################################
+sub get_distro {
+  return `. /etc/os-release;echo \$ID`;
+}
+
+sub setup_service_containers {
+  my @opts = @_;
+  print "Starting setup of service containers\n" if $::LOGLEVEL;
+
+  my @remove_from_mounts;
+
+  # First install podman, which includes /etc/containers/storage.conf
+  # Before installing any container containment rpm we need to set the
+  # `additionalimagestores` in /etc/containers/storage.conf
+  $distro_obj->install_pkg('podman');
+
+  
+  # Prepare data required for modifing /etc/containers/mounts.conf if file exists
+  # e.g. on SLE
+  $distro_obj->prepare_mounts_conf();
+
+  $distro_obj->prepare_storage_conf();
+  $distro_obj->configure_bsserviceuser($BSConfig::bsserviceuser);
+  $distro_obj->install_pkg('obs-source-service-podman-image');
+  $distro_obj->generate_bsconfig();
+  $distro_obj->restart_bs_service();
+}
+
+__END__
