@@ -104,6 +104,7 @@ class Package < ApplicationRecord
   validates :url, length: { maximum: 255 }
   validates :description, length: { maximum: 65_535 }
   validates :report_bug_url, length: { maximum: 8192 }
+  validate :report_bug_url_is_external
   validates :project_id, uniqueness: {
     scope: :name,
     message: lambda do |object, _data|
@@ -1367,6 +1368,12 @@ class Package < ApplicationRecord
     package_kinds.delete_all
     BackendPackage.where(package_id: id).delete_all
     decline_requests_with_self_as_target("The package '#{project.name} / #{name}' is now maintained at #{scmsync}")
+  end
+
+  def report_bug_url_is_external
+    return true unless report_bug_url
+
+    errors.add(:report_bug_url, 'Local urls are not allowed') if report_bug_url.include?(Configuration.obs_url)
   end
 end
 # rubocop: enable Metrics/ClassLength
