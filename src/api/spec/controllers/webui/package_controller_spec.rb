@@ -388,6 +388,17 @@ RSpec.describe Webui::PackageController, :vcr do
 
       it { expect(assigns(:statistics)).to be_nil }
     end
+
+    context 'the project is an scmsync project' do
+      let(:scmsync_project) { create(:project, name: 'lorem', scmsync: 'https://github.com/example/scmsync-project.git') }
+
+      before do
+        get :statistics, params: { project: scmsync_project.name, package: source_package.name, arch: 'i586', repository: repository.name }
+      end
+
+      it { expect(flash[:error]).to eq('The project lorem is configured through scmsync. This is not supported by the OBS frontend') }
+      it { expect(response).to redirect_to(project_show_path(scmsync_project)) }
+    end
   end
 
   describe '#rpmlint_result' do

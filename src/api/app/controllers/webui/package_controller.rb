@@ -1,5 +1,6 @@
 class Webui::PackageController < Webui::WebuiController
   include ParsePackageDiff
+  include ScmsyncChecker
   include Webui::PackageHelper
   include Webui::ManageRelationships
   include Webui::NotificationsHandler
@@ -10,6 +11,8 @@ class Webui::PackageController < Webui::WebuiController
                                        new branch_diff_info rdiff create remove
                                        save_person save_group remove_role view_file
                                        buildresult rpmlint_result rpmlint_log files]
+
+  before_action :check_scmsync, only: :statistics
 
   before_action :require_package, only: %i[edit update show requests statistics revisions
                                            branch_diff_info rdiff remove
