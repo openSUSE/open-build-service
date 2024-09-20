@@ -202,7 +202,7 @@ RSpec.describe Webui::Packages::FilesController, :vcr do
   end
 
   describe 'GET #show' do
-    context 'the file comes from a scmsync project' do
+    context 'the file comes from an scmsync project' do
       let(:scmsync_project) { create(:project, name: 'lorem', scmsync: 'https://github.com/example/scmsync-project.git', maintainer: user) }
       let(:scmsync_package) { create(:package_with_file, name: 'scmsync_package', project: scmsync_project, file_name: 'README.txt', file_content: 'foo bar') }
 
