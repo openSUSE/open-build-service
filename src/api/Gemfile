@@ -176,7 +176,7 @@ group :development, :test do
   # to find n+1 queries
   gem 'bullet'
   # Use Puma as the app server (rails 5 default)
-  gem 'puma', '~> 4.0'
+  gem 'puma', '~> 6.4'
   # to drive headless chrome
   gem 'selenium-webdriver'
   # scan for security vulnerability (circleci only, do not touch)

@@ -246,7 +246,7 @@ GEM
       railties (>= 3.1)
     mousetrap-rails (1.4.6)
     mysql2 (0.5.2)
-    nio4r (2.5.8)
+    nio4r (2.7.3)
     nokogiri (1.13.10)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
@@ -282,7 +282,7 @@ GEM
       byebug (~> 11.0)
       pry (~> 0.10)
     public_suffix (3.1.0)
-    puma (4.3.5)
+    puma (6.4.3)
       nio4r (~> 2.0)
     pundit (2.0.1)
       activesupport (>= 3.0.0)
@@ -535,7 +535,7 @@ DEPENDENCIES
   peek-mysql2
   pry (>= 0.9.12)
   pry-byebug
-  puma (~> 4.0)
+  puma (~> 6.4)
   pundit
   rails (~> 5.2)
   rails-controller-testing
