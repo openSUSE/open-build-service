@@ -488,8 +488,10 @@ sub create_manifestinfo {
   return unless $dir && $mani_id;
   return if "/$repository/" =~ /\/[\.\/]/;	# hey!
   return if -s "$dir/$repository/$mani_id";
-  $imginfo = { %$imginfo };
   my ($projid, $repoid) = split('/', $prp, 2);
+  # copy so we can add/delete stuff
+  $imginfo = { %$imginfo, 'project' => $projid, 'repository' => $repoid };
+  delete $imginfo->{'containerinfo'};
   $imginfo->{'type'} = $containerinfo->{'type'} if $containerinfo->{'type'};
   $imginfo->{'package'} = $containerinfo->{'_origin'} if $containerinfo->{'_origin'};
   $imginfo->{'disturl'} = $containerinfo->{'disturl'} if $containerinfo->{'disturl'};
@@ -500,8 +502,6 @@ sub create_manifestinfo {
   my $bins = BSPublisher::Containerinfo::create_packagelist($containerinfo);
   $_->{'base'} && ($_->{'base'} = \1) for @{$bins || []};       # turn flag to True
   $imginfo->{'packages'} = $bins if $bins;
-  $imginfo->{'project'} = $projid;
-  $imginfo->{'repository'} = $repoid;
   mkdir_p("$dir/$repository");
   my $imginfo_json = JSON::XS->new->utf8->canonical->encode($imginfo);
   unlink("$dir/$repository/.$mani_id.$$");
