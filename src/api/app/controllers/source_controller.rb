@@ -294,15 +294,7 @@ class SourceController < ApplicationController
 
   # POST /source?cmd=createmaintenanceincident
   def global_command_createmaintenanceincident
-    # set defaults
-    at = nil
-    unless params[:attribute]
-      params[:attribute] = 'OBS:MaintenanceProject'
-      at = AttribType.find_by_name!(params[:attribute])
-    end
-
-    # find maintenance project via attribute
-    prj = Project.get_maintenance_project!(at)
+    prj = Project.get_maintenance_project!
     actually_create_incident(prj)
   end
 
