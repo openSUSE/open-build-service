@@ -45,7 +45,6 @@ class Project < ApplicationRecord
   end
   has_many :patchinfos, -> { with_kind('patchinfo') }, class_name: 'Package'
 
-  has_many :package_kinds, through: :packages
   has_many :issues, through: :packages
   has_many :attribs, dependent: :destroy do
     def embargo_date
