@@ -228,7 +228,7 @@ sub sync_project {
       }
     }
     if ($link && $pack->{'scmsync'}) {
-      warn("$packid: ignoring link file as the package has a scmsync element\n");
+      warn("$packid: ignoring link file as the package has an scmsync element\n");
       undef $link;
     }
     my $info;
