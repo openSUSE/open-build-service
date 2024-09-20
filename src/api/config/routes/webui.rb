@@ -313,7 +313,13 @@ constraints(RoutesHelper::WebuiMatcher) do
       end
     end
     put 'toggle_watched_item', controller: 'webui/watched_items', constraints: cons
-    resources :label_templates, controller: 'webui/projects/label_templates', constraints: cons
+    resources :label_templates, controller: 'webui/projects/label_templates', constraints: cons do
+      collection do
+        get :copy
+        post :clone
+        get :preview
+      end
+    end
   end
 
   controller 'webui/request' do
