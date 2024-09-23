@@ -1373,7 +1373,19 @@ class Package < ApplicationRecord
   def report_bug_url_is_external
     return true unless report_bug_url
 
-    errors.add(:report_bug_url, 'Local urls are not allowed') if report_bug_url.include?(Configuration.obs_url)
+    parsed_instance_url = URI.parse(Configuration.obs_url)
+    parsed_report_bug_url = URI.parse(report_bug_url)
+
+    # If uri's do not have the schema set up, like 'localhost:3000' they are
+    # detected as Generic protocol and the detection of the fragments is a
+    # bit... weird.
+    if parsed_report_bug_url.is_a?(URI::Generic)
+      errors.add(:report_bug_url, 'Local urls are not allowed') if parsed_report_bug_url.path&.starts_with?('/')
+      # urls like localhost:3000 have no path and no host, and the schema is 'localhost'
+      errors.add(:report_bug_url, 'Local urls are not allowed') if parsed_report_bug_url.scheme == parsed_instance_url.host
+    elsif parsed_report_bug_url == parsed_instance_url
+      errors.add(:report_bug_url, 'Local urls are not allowed')
+    end
   end
 end
 # rubocop: enable Metrics/ClassLength
