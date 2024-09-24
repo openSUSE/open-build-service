@@ -66,6 +66,7 @@ end
 #  role                  :string(255)
 #  source_package        :string(255)      indexed
 #  source_project        :string(255)      indexed
+#  source_repository     :string(255)
 #  source_rev            :string(255)
 #  sourceupdate          :string(255)
 #  target_package        :string(255)      indexed

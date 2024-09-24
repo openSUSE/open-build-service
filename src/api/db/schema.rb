@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_08_23_084727) do
+ActiveRecord::Schema[7.0].define(version: 2024_09_24_121900) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -226,6 +226,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_08_23_084727) do
     t.boolean "makeoriginolder", default: false
     t.integer "target_package_id"
     t.integer "target_project_id"
+    t.string "source_repository", collation: "utf8mb3_unicode_ci"
     t.index ["bs_request_id", "target_package_id"], name: "index_bs_request_actions_on_bs_request_id_and_target_package_id"
     t.index ["bs_request_id", "target_project_id"], name: "index_bs_request_actions_on_bs_request_id_and_target_project_id"
     t.index ["bs_request_id"], name: "bs_request_id"

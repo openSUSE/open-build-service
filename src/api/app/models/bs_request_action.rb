@@ -121,6 +121,7 @@ class BsRequestAction < ApplicationRecord
       self.source_package = source.delete('package')
       self.source_project = source.delete('project')
       self.source_rev = source.delete('rev')
+      self.source_repository = source.delete('repository')
 
       raise ArgumentError, "too much information #{source.inspect}" if source.present?
     end
@@ -224,6 +225,7 @@ class BsRequestAction < ApplicationRecord
     ret[:sourceproject] = source_project
     ret[:sourcepackage] = source_package
     ret[:sourcerevision] = source_rev
+    ret[:sourcerepository] = source_repository
     ret[:person] = person_name
     ret[:group] = group_name
     ret[:role] = role
@@ -1026,6 +1028,7 @@ class BsRequestAction < ApplicationRecord
   def render_xml_source(node)
     attributes = xml_package_attributes('source')
     attributes[:rev] = source_rev if source_rev.present?
+    attributes[:repository] = source_repository if source_repository.present?
     node.source(attributes)
   end
 
@@ -1056,6 +1059,7 @@ end
 #  role                  :string(255)
 #  source_package        :string(255)      indexed
 #  source_project        :string(255)      indexed
+#  source_repository     :string(255)
 #  source_rev            :string(255)
 #  sourceupdate          :string(255)
 #  target_package        :string(255)      indexed
