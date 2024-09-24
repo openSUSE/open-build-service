@@ -783,32 +783,35 @@ RSpec.describe Package, :vcr do
   end
 
   describe '#report_bug_url' do
-    # Locally the configuration returns https://unconfigured.openbuildservice.org
-    # as host so we use a better host
-    before { allow(Configuration).to receive(:obs_url).and_return('https://localhost:3000') }
+    before do
+      # Locally the configuration returns https://unconfigured.openbuildservice.org
+      # as host so we use a better host
+      allow(Configuration).to receive(:obs_url).and_return('https://localhost:3000')
+      package.valid?
+    end
 
     context 'url is external' do
       let(:package) { build(:package, report_bug_url: 'https://example.com') }
 
-      it { expect(package).to be_valid }
+      it { expect(package.errors).to be_empty }
     end
 
     context 'url is relative' do
       let(:package) { build(:package, report_bug_url: '/about') }
 
-      it { expect(package).not_to(be_valid) }
+      it { expect(package.errors[:report_bug_url]).to eql(['Local urls are not allowed']) }
     end
 
     context 'url has no protocol' do
       let(:package) { build(:package, report_bug_url: 'example.com') }
 
-      it { expect(package).to be_valid }
+      it { expect(package.errors).to be_empty }
     end
 
     context 'local url has no protocol' do
       let(:package) { build(:package, report_bug_url: 'localhost:3000/about') }
 
-      it { expect(package).not_to(be_valid) }
+      it { expect(package.errors[:report_bug_url]).to eql(['Local urls are not allowed']) }
     end
   end
 end
