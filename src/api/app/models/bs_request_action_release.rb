@@ -40,7 +40,20 @@ class BsRequestActionRelease < BsRequestAction
     # have a unique time stamp for release
     opts[:acceptTimeStamp] ||= Time.zone.now
 
-    release_package(pkg, Project.get_by_name(target_project), target_package, { action: self, manual: true })
+    if source_repository.present?
+      source_repo = Repository.find_by_project_and_name(source_project, source_repository)
+      raise RepositoryMissing, "Source Repository is missing #{source_project} #{source_repository}" if source_repo.empty?
+      flags[:filter_source_repository] = source_repo
+    end
+    target = if target_repository.present? and source_repository.present?
+               # only when source and target repos are defined
+               Repository.find_by_project_and_name(target_project, target_repository)
+             else
+               # otherwise let the release_package code do the release target definition filtering
+               Project.get_by_name(target_project)
+             end
+
+    release_package(pkg, target, target_package, { action: self, manual: true })
   end
 
   def check_permissions!
@@ -89,6 +102,10 @@ class BsRequestActionRelease < BsRequestAction
     manual_targets = prj.repositories.includes(:release_targets).where(release_targets: { trigger: 'manual' })
     raise RepositoryWithoutReleaseTarget, "Release target definition is missing in #{prj.name}" unless manual_targets.any?
 
+    if source_repository.present?
+      raise RepositoryMissing, "Source Repository is missing #{source_project} #{source_repository}" if Repository.find_by_project_and_name(source_project, source_repository).empty?
+    end
+
     manual_targets.each do |repo|
       raise RepositoryWithoutArchitecture, "Repository has no architecture #{prj.name} / #{repo.name}" if repo.architectures.empty?
 
@@ -112,6 +129,7 @@ end
 #  role                  :string(255)
 #  source_package        :string(255)      indexed
 #  source_project        :string(255)      indexed
+#  source_repository     :string(255)
 #  source_rev            :string(255)
 #  sourceupdate          :string(255)
 #  target_package        :string(255)      indexed
