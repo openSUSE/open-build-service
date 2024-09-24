@@ -488,8 +488,10 @@ sub create_manifestinfo {
   return unless $dir && $mani_id;
   return if "/$repository/" =~ /\/[\.\/]/;	# hey!
   return if -s "$dir/$repository/$mani_id";
-  $imginfo = { %$imginfo };
   my ($projid, $repoid) = split('/', $prp, 2);
+  # copy so we can add/delete stuff
+  $imginfo = { %$imginfo, 'project' => $projid, 'repository' => $repoid };
+  delete $imginfo->{'containerinfo'};
   $imginfo->{'type'} = $containerinfo->{'type'} if $containerinfo->{'type'};
   $imginfo->{'package'} = $containerinfo->{'_origin'} if $containerinfo->{'_origin'};
   $imginfo->{'disturl'} = $containerinfo->{'disturl'} if $containerinfo->{'disturl'};
@@ -500,8 +502,6 @@ sub create_manifestinfo {
   my $bins = BSPublisher::Containerinfo::create_packagelist($containerinfo);
   $_->{'base'} && ($_->{'base'} = \1) for @{$bins || []};       # turn flag to True
   $imginfo->{'packages'} = $bins if $bins;
-  $imginfo->{'project'} = $projid;
-  $imginfo->{'repository'} = $repoid;
   mkdir_p("$dir/$repository");
   my $imginfo_json = JSON::XS->new->utf8->canonical->encode($imginfo);
   unlink("$dir/$repository/.$mani_id.$$");
@@ -954,10 +954,7 @@ sub container_tag_deletion_safeguard {
   my ($registry, $repository, $safeguard, $uptags, $repostate, $subdigests) = @_;
 
   return unless $safeguard;
-  if ($registry->{'nodelete'}) {
-    print "container_tag_deletion_safeguard: nodelete option is set, skipping check\n";
-    return;
-  }
+  my $nodelete = $registry->{'nodelete'};
   print "tag deletion safeguard active for $repository (mode=$safeguard)\n";
 
   # query the tags from the registry unless we already have a state
@@ -973,7 +970,7 @@ sub container_tag_deletion_safeguard {
   for my $tag (sort keys %$repostate) {
     next if $tag =~ /^([a-z0-9]+)-([a-f0-9]+)\.(?:sig|att)$/;
     if (!$uptags->{$tag}) {
-      push @missing, $tag;
+      push @missing, $tag unless $nodelete;
       next;
     }
     my $digest = $repostate->{$tag};

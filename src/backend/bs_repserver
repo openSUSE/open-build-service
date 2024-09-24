@@ -2337,7 +2337,7 @@ sub putjob {
   # verify the json
   for my $file (@check_json) {
     eval {
-      die("too big\n") if (-s "$tmpdir/$file") > 64 * 1024 * 1024;
+      die("too big\n") if (-s "$tmpdir/$file") >= 256 * 1024 * 1024;
       JSON::XS::decode_json(readstr("$tmpdir/$file"));
     };
     if ($@) {
