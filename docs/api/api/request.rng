@@ -89,6 +89,11 @@
 		<data type="string" />
               </attribute>
             </optional>
+            <optional>
+              <attribute name="repository">
+		<data type="string" />
+              </attribute>
+            </optional>
             <empty/>
           </element>
 	</optional>
