@@ -954,10 +954,7 @@ sub container_tag_deletion_safeguard {
   my ($registry, $repository, $safeguard, $uptags, $repostate, $subdigests) = @_;
 
   return unless $safeguard;
-  if ($registry->{'nodelete'}) {
-    print "container_tag_deletion_safeguard: nodelete option is set, skipping check\n";
-    return;
-  }
+  my $nodelete = $registry->{'nodelete'};
   print "tag deletion safeguard active for $repository (mode=$safeguard)\n";
 
   # query the tags from the registry unless we already have a state
@@ -973,7 +970,7 @@ sub container_tag_deletion_safeguard {
   for my $tag (sort keys %$repostate) {
     next if $tag =~ /^([a-z0-9]+)-([a-f0-9]+)\.(?:sig|att)$/;
     if (!$uptags->{$tag}) {
-      push @missing, $tag;
+      push @missing, $tag unless $nodelete;
       next;
     }
     my $digest = $repostate->{$tag};
