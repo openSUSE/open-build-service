@@ -886,6 +886,7 @@ fi
 %{obs_backend_dir}/BSSched
 %{obs_backend_dir}/BSSrcServer
 %{obs_backend_dir}/BSPublisher
+%{obs_backend_dir}/BSSetup
 %{obs_backend_dir}/*.pm
 %{obs_backend_dir}/BSConfig.pm.template
 %{obs_backend_dir}/DESIGN
