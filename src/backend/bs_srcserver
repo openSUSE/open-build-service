@@ -1490,6 +1490,11 @@ sub getprojpack {
 	next;
       }
       if ($cgi->{'withsrcmd5'} || $cgi->{'withdeps'}) {
+	my $scm_error;
+	if ($pack->{'scmsync'}) {
+	  my $servicemark = BSSrcServer::Service::genservicemark_obsscm($projid, $packid);
+	  $scm_error = BSSrcrep::getserviceerror($projid, $packid, $servicemark);
+	}
         my $rev;
 	my $linked = [];
 	$BSSrcServer::Remote::collect_remote_getrev = 1 unless $packages_pass;
@@ -1509,7 +1514,7 @@ sub getprojpack {
  	  next;
 	}
 	if (!$rev || $rev->{'srcmd5'} eq 'empty' || $rev->{'srcmd5'} eq $BSSrcrep::emptysrcmd5) {
-	  $pinfo->{'error'} = 'no source uploaded';
+	  $pinfo->{'error'} = $scm_error || 'no source uploaded';
 	  next;
 	}
 	$pinfo->{'srcmd5'} = $rev->{'srcmd5'};
@@ -1525,13 +1530,9 @@ sub getprojpack {
 	    }
 	  }
 	}
-	if ($pack->{'scmsync'}) {
-	  my $servicemark = BSSrcServer::Service::genservicemark_obsscm($projid, $packid);
-	  my $serviceerror = BSSrcrep::getserviceerror($projid, $packid, $servicemark);
-          if ($serviceerror) {
-	    $pinfo->{'error'} = $serviceerror;
-	    next;
-	  }
+	if ($scm_error) {
+	  $pinfo->{'error'} = $scm_error;
+	  next;
 	}
 	my $files;
 	eval {
