@@ -92,7 +92,7 @@ class RequestController < ApplicationController
     # FIXME: this should be moved into the model functions, doing
     #        these actions
     case params[:cmd]
-    when 'create', 'changestate', 'addreview', 'setpriority', 'setincident', 'setacceptat', 'approve', 'cancelapproval'
+    when 'changestate', 'addreview', 'setpriority', 'setincident', 'setacceptat', 'approve', 'cancelapproval'
       # create -> noop
       # permissions are checked by the model
       nil
