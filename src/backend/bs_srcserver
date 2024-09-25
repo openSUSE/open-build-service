@@ -2374,7 +2374,8 @@ sub putpackage {
 sub delpackage {
   my ($cgi, $projid, $packid) = @_;
   $cgi->{'comment'} ||= 'package was deleted';
-  die("404 project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
+  my $proj = BSRevision::readproj_local($projid);
+  die("$projid is controlled by obs-scm\n") if $proj->{'scmsync'};
   die("404 package '$packid' does not exist in project '$projid'\n") unless -e "$projectsdir/$projid.pkg/$packid.xml";
   if ($packid =~ /^_product:/) {
     die("403 cannot delete '$packid' if a '_product' package exists\n") if -e "$projectsdir/$projid.pkg/_product.xml";
@@ -2404,7 +2405,8 @@ sub delpackage {
 sub undeletepackage {
   my ($cgi, $projid, $packid) = @_;
   $cgi->{'comment'} ||= 'package was undeleted';
-  die("404 project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
+  my $proj = BSRevision::readproj_local($projid);
+  die("$projid is controlled by obs-scm\n") if $proj->{'scmsync'};
   die("403 package '$packid' already exists\n") if -e "$projectsdir/$projid.pkg/$packid.xml";
   die("403 package '$packid' was not deleted\n") unless -e "$projectsdir/$projid.pkg/$packid.rev.del";
   BSRevision::undelete_rev($cgi, $projid, $packid, "$projectsdir/$projid.pkg/$packid.mrev.del", "$projectsdir/$projid.pkg/$packid.mrev");
@@ -2715,6 +2717,7 @@ sub getprojectconfig {
 sub putprojectconfig {
   my ($cgi, $projid) = @_;
   my $proj = BSRevision::readproj_local($projid);
+  die("$projid is controlled by obs-scm\n") if $proj->{'scmsync'};
   mkdir_p($uploaddir);
   my $uploadfile = "$uploaddir/$$";
   die("upload failed\n") unless BSServer::read_file($uploadfile);
@@ -2730,6 +2733,8 @@ sub putprojectconfig {
 
 sub delprojectconfig {
   my ($cgi, $projid) = @_;
+  my $proj = BSRevision::readproj_local($projid);
+  die("$projid is controlled by obs-scm\n") if $proj->{'scmsync'};
   BSRevision::addrev_local_replace($cgi, $projid, undef, [ undef, "$projectsdir/$projid.conf", '_config' ]);
   notify_repservers('project', $projid);
   notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
