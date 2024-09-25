@@ -118,7 +118,7 @@ end
 #
 # Table name: binary_releases
 #
-#  id                        :integer          not null, primary key
+#  id                        :bigint           not null, primary key
 #  binary_arch               :string(64)       not null, indexed => [binary_name, binary_epoch, binary_version, binary_release], indexed => [binary_name]
 #  binary_buildtime          :datetime
 #  binary_cpeid              :string(255)
@@ -138,7 +138,7 @@ end
 #  obsolete_time             :datetime
 #  operation                 :string           default("added")
 #  binary_id                 :string(255)      indexed
-#  on_medium_id              :integer
+#  on_medium_id              :bigint
 #  release_package_id        :integer          indexed
 #  repository_id             :integer          not null, indexed => [binary_name]
 #
