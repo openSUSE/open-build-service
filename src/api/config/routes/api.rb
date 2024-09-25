@@ -143,9 +143,8 @@ constraints(RoutesHelper::APIMatcher) do
 
   ### /request
 
-  resources :request, only: %i[index show update destroy]
+  resources :request, only: %i[index show create update destroy]
 
-  post 'request' => 'request#global_command'
   post 'request/:id' => 'request#request_command', constraints: cons
 
   ### /lastevents

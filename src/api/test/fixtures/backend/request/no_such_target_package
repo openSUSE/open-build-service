@@ -4,6 +4,6 @@
     <person name="Iggy" role="maintainer" />
   </action>
   <description/>
-  <state />
+  <state name='new' />
 </request>
 

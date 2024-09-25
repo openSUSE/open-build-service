@@ -11,7 +11,7 @@ RSpec.describe ProjectCreateAutoCleanupRequestsJob, :vcr do
           <request>
             <action type="delete"><target project="foo"/></action>
             <description>bar</description>
-            <state />
+            <state name="new" />
             <accept_at>3</accept_at>
           </request>
         XML

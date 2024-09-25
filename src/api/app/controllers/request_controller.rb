@@ -2,7 +2,7 @@ class RequestController < ApplicationController
   include MaintenanceHelper
 
   validate_action show: { method: :get, response: :request }
-  validate_action request_create: { method: :post, response: :request }
+  validate_action create: { method: :post, request: :request }
 
   # TODO: allow PUT for non-admins
   before_action :require_admin, only: %i[update destroy]
@@ -61,11 +61,20 @@ class RequestController < ApplicationController
   end
 
   # POST /request?cmd=create
-  def global_command
+  def create
     raise UnknownCommandError, "Unknown command '#{params[:cmd]}' for path #{request.path}" unless params[:cmd] == 'create'
 
-    # no need for dispatch_command, there is only one command
-    request_create
+    BsRequest.transaction do
+      @req = BsRequest.new_from_xml(request.raw_post.to_s)
+      authorize @req, :create?
+      @req.set_add_revision       if params[:addrevision].present?
+      @req.set_ignore_delegate    if params[:ignore_delegate].present?
+      @req.set_ignore_build_state if params[:ignore_build_state].present?
+      @req.save!
+      Suse::Validator.validate(:request, @req.render_xml)
+    end
+
+    render xml: @req.render_xml
   end
 
   # POST /request/:id?cmd=$CMD
@@ -135,21 +144,6 @@ class RequestController < ApplicationController
   end
 
   private
-
-  # POST /request?cmd=create
-  def request_create
-    BsRequest.transaction do
-      @req = BsRequest.new_from_xml(request.raw_post.to_s)
-      authorize @req, :create?
-      @req.set_add_revision       if params[:addrevision].present?
-      @req.set_ignore_delegate    if params[:ignore_delegate].present?
-      @req.set_ignore_build_state if params[:ignore_build_state].present?
-      @req.save!
-      Suse::Validator.validate(:request, @req.render_xml)
-    end
-
-    render xml: @req.render_xml
-  end
 
   def request_command_diff
     req = BsRequest.find_by_number!(params[:id])
