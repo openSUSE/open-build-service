@@ -19,7 +19,7 @@ class Architecture < ApplicationRecord
   scope :unavailable, -> { where(available: 0) }
 
   #### Validations macros
-  validates :name, uniqueness: { case_sensitive: false }
+  validates :name, uniqueness: true
   validates :name, presence: true
 
   #### Class methods using self. (public and then private)

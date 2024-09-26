@@ -1,16 +1,10 @@
 ---
 Architecture:
-  arch_name_index:
-    UniqueIndexChecker:
-      enabled: false
   available:
     ThreeStateBooleanChecker:
       enabled: false
   id:
     PrimaryKeyTypeChecker:
-      enabled: false
-  lower(name):
-    MissingUniqueIndexChecker:
       enabled: false
   name:
     LengthConstraintChecker:
