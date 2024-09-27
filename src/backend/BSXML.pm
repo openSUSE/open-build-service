@@ -1138,6 +1138,9 @@ our $result = [
 	'state', # old name of 'code', to be removed
 	'details',
 	'dirty', # marked for re-scheduling if element exists, state might not be correct anymore
+	[],
+	'scmsync',
+	'scminfo',
       [ $buildstatus ],
       [ $binarylist ],
         $summary,
