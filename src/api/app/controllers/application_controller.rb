@@ -23,8 +23,7 @@ class ApplicationController < ActionController::Base
   # Each request starts out with the nobody user set.
   before_action :set_nobody
 
-  before_action :validate_xml_request, :add_api_version
-  after_action :validate_xml_response if CONFIG['response_schema_validation'] == true
+  before_action :add_api_version
 
   # skip the filter for the user stuff
   before_action :extract_user
@@ -32,6 +31,9 @@ class ApplicationController < ActionController::Base
   before_action :shutup_rails
   before_action :validate_params
   before_action :require_login
+
+  before_action :validate_xml_request
+  after_action :validate_xml_response if CONFIG['response_schema_validation'] == true
 
   delegate :extract_user,
            :extract_user_public,

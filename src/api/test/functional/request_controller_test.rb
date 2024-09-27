@@ -53,11 +53,17 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
   def test_invalid_command
     post '/request?cmd=INVALID'
-    assert_response :bad_request
+    assert_response :unauthorized
     login_king
-    post '/request?cmd=INVALID'
+    post '/request?cmd=INVALID', params: '<request>
+                                            <action type="submit">
+                                              <source project="project1" package="package1" />
+                                              <target project="project2" package="package2" />
+                                            </action>
+                                            <description>Description</description>
+                                          </request>'
     assert_response :bad_request
-    assert_xml_tag(tag: 'status', attributes: { code: 'validation_failed' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'unknown_command' })
   end
 
   def test_get_requests_collection
