@@ -132,7 +132,8 @@ sub set_repo_state {
   my ($ctx, $state, $details) = @_;
 
   my $gdst = $ctx->{'gdst'};
-  my $myarch = $ctx->{'gctx'}->{'arch'};
+  my $gctx = $ctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $oldstate = readstr("$gdst/:schedulerstate", 1);
   if ($oldstate) {
     if (substr($oldstate, 0, 4) eq 'pst0') {
@@ -184,6 +185,15 @@ sub set_repo_state {
       $ctx->notify('REPO_BUILD_FINISHED', $id);
     }
     $newstate->{'repostateid'} = $repostateid;
+  }
+  my $proj = $ctx->{'project'} ? ($gctx->{'projpacks'} || {})->{$ctx->{'project'}} : undef;
+  if ($proj) {
+    delete $newstate->{'scmsync'};
+    delete $newstate->{'scminfo'};
+    if ($proj->{'scmsync'}) {
+      $newstate->{'scmsync'} = $proj->{'scmsync'};
+      $newstate->{'scminfo'} = $proj->{'scminfo'} if $proj->{'scminfo'};
+    }
   }
   unlink("$gdst/:schedulerstate.dirty") if $state eq 'scheduling' || $state eq 'broken' || $state eq 'disabled';
   mkdir_p($gdst) unless -d $gdst;
@@ -1344,10 +1354,12 @@ sub checkpkgs {
   BSSched::BuildJob::killunwantedjobs($ctx->{'gctx'}, $prp, \%packstatus);
 
   # write new package status
-  BSUtil::store("$gdst/.:packstatus", "$gdst/:packstatus", {
-    'packstatus' => \%packstatus,
-    'packerror' => \%packerror,
-  });
+  my $prpstatus = { 'packstatus' => \%packstatus, 'packerror' => \%packerror };
+  if ($proj->{'scmsync'}) {
+    $prpstatus->{'scmsync'} = $proj->{'scmsync'};
+    $prpstatus->{'scminfo'} = $proj->{'scminfo'};
+  }
+  BSUtil::store("$gdst/.:packstatus", "$gdst/:packstatus", $prpstatus);
   if (%building) {
     prune_packstatus_finished($gdst, \%building);
   } else {
