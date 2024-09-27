@@ -7,7 +7,7 @@ module Event
     payload_keys :id, :user_id, :reportable_id, :reportable_type, :reason
 
     def parameters_for_notification
-      super.merge(notifiable_type: 'Report')
+      super.merge(notifiable_type: 'Report', type: 'NotificationReport')
     end
   end
 end

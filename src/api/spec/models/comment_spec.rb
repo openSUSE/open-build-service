@@ -1,7 +1,7 @@
 RSpec.describe Comment do
   let(:comment_package) { create(:comment_package) }
   let(:comment_package_with_parent) { create(:comment_package, parent: comment_package, commentable: comment_package.commentable) }
-  let(:comment_package_with_parent_2) { create(:comment_package, parent: comment_package, commentable: comment_package.commentable) }
+  let(:comment_package_with_parent2) { create(:comment_package, parent: comment_package, commentable: comment_package.commentable) }
   let(:comment_package_with_grandparent) { create(:comment_package, parent: comment_package_with_parent, commentable: comment_package.commentable) }
 
   describe 'has a valid Factory' do
@@ -65,7 +65,7 @@ RSpec.describe Comment do
     context 'with nobody parent and a brother' do
       before do
         comment_package_with_parent
-        comment_package_with_parent_2
+        comment_package_with_parent2
         comment_package.blank_or_destroy
       end
 

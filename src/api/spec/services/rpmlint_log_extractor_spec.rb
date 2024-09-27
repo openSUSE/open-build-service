@@ -28,7 +28,7 @@ RSpec.describe RpmlintLogExtractor, type: :service do
           .and_raise(Backend::NotFoundError, 'rpmlint.log: No such file or directory')
       end
 
-      context 'no _log file available since error exceeds allowed badness level' do
+      context 'no _log file available since error exceeds allowed badness level and has invalid byte sequence' do
         before do
           allow(Backend::Api::BuildResults::Binaries).to receive(:file)
             .with('home:user1', 'repo1', 'arch1', 'package1', '_log')
@@ -40,15 +40,27 @@ RSpec.describe RpmlintLogExtractor, type: :service do
         end
       end
 
-      context 'when the _log file contains invalid byte sequences in UTF-8' do
+      context 'no _log file available and no rpmlint mark available' do
+        before do
+          allow(Backend::Api::BuildResults::Binaries).to receive(:file)
+            .with('home:user1', 'repo1', 'arch1', 'package1', '_log')
+            .and_return(file_fixture('rpmlint_log_extractor_log_without_mark').read)
+        end
+
+        it 'returns empty results' do
+          expect(subject).to be_nil
+        end
+      end
+
+      context 'when the _log file contains invalid byte sequences in UTF-8 without mark' do
         before do
           allow(Backend::Api::BuildResults::Binaries).to receive(:file)
             .with('home:user1', 'repo1', 'arch1', 'package1', '_log')
             .and_return(invalid_byte_sequence_in_utf8)
         end
 
-        it 'extracts the summary from the build log file' do
-          expect(subject).to eq('this is an invalid byte sequence �')
+        it 'returns nil' do
+          expect(subject).to be_nil
         end
       end
     end

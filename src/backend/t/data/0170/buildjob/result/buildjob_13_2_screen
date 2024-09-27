@@ -46,22 +46,22 @@
   <bdep name="libelf1" preinstall="1" notmeta="1" />
   <bdep name="liblua5_1" preinstall="1" notmeta="1" />
   <bdep name="libpcre1" preinstall="1" notmeta="1" />
-  <bdep name="util-linux" vminstall="1" notmeta="1" />
-  <bdep name="libmount1" vminstall="1" notmeta="1" />
-  <bdep name="perl-base" vminstall="1" notmeta="1" />
-  <bdep name="libdb-4_8" vminstall="1" notmeta="1" />
-  <bdep name="libsepol1" vminstall="1" notmeta="1" />
-  <bdep name="libblkid1" vminstall="1" notmeta="1" />
-  <bdep name="libuuid1" vminstall="1" notmeta="1" />
-  <bdep name="net-tools" vminstall="1" notmeta="1" />
-  <bdep name="libsmartcols1" vminstall="1" notmeta="1" />
+  <bdep name="util-linux" vminstall="1" />
+  <bdep name="libmount1" vminstall="1" />
+  <bdep name="perl-base" vminstall="1" />
+  <bdep name="libdb-4_8" vminstall="1" />
+  <bdep name="libsepol1" vminstall="1" />
+  <bdep name="libblkid1" vminstall="1" />
+  <bdep name="libuuid1" vminstall="1" />
+  <bdep name="net-tools" vminstall="1" />
+  <bdep name="libsmartcols1" vminstall="1" />
   <bdep name="kernel-obs-build" vminstall="1" notmeta="1" />
-  <bdep name="makeinfo" notmeta="1" />
-  <bdep name="ncurses-devel" notmeta="1" />
-  <bdep name="utempter-devel" notmeta="1" />
-  <bdep name="autoconf" notmeta="1" />
-  <bdep name="automake" notmeta="1" />
-  <bdep name="rpm-build" notmeta="1" />
+  <bdep name="makeinfo" />
+  <bdep name="ncurses-devel" />
+  <bdep name="utempter-devel" />
+  <bdep name="autoconf" />
+  <bdep name="automake" />
+  <bdep name="rpm-build" />
   <bdep name="pam-modules" notmeta="1" />
   <bdep name="perl" notmeta="1" />
   <bdep name="build-mkbaselibs" notmeta="1" />
@@ -72,54 +72,54 @@
   <bdep name="brp-extract-appdata" notmeta="1" />
   <bdep name="rpmlint-Factory-strict" notmeta="1" />
   <bdep name="brp-trim-desktopfiles" notmeta="1" />
-  <bdep name="libzio1" notmeta="1" />
-  <bdep name="libncurses6" notmeta="1" />
-  <bdep name="libutempter0" notmeta="1" />
-  <bdep name="info" notmeta="1" />
-  <bdep name="cpio" notmeta="1" />
-  <bdep name="libgmp10" notmeta="1" />
-  <bdep name="libstdc++6" notmeta="1" />
-  <bdep name="terminfo-base" notmeta="1" />
-  <bdep name="libaudit1" notmeta="1" />
-  <bdep name="libcrack2" notmeta="1" />
-  <bdep name="libmagic1" notmeta="1" />
-  <bdep name="libsemanage1" notmeta="1" />
-  <bdep name="file" notmeta="1" />
-  <bdep name="binutils" notmeta="1" />
-  <bdep name="bzip2" notmeta="1" />
-  <bdep name="gawk" notmeta="1" />
-  <bdep name="gcc" notmeta="1" />
-  <bdep name="glibc-devel" notmeta="1" />
-  <bdep name="xz" notmeta="1" />
-  <bdep name="findutils" notmeta="1" />
-  <bdep name="glibc-locale" notmeta="1" />
-  <bdep name="gzip" notmeta="1" />
-  <bdep name="make" notmeta="1" />
-  <bdep name="patch" notmeta="1" />
-  <bdep name="systemd-rpm-macros" notmeta="1" />
-  <bdep name="which" notmeta="1" />
-  <bdep name="gettext-tools-mini" notmeta="1" />
-  <bdep name="libgdbm4" notmeta="1" />
+  <bdep name="libzio1" />
+  <bdep name="libncurses6" />
+  <bdep name="libutempter0" />
+  <bdep name="info" />
+  <bdep name="cpio" />
+  <bdep name="libgmp10" />
+  <bdep name="libstdc++6" />
+  <bdep name="terminfo-base" />
+  <bdep name="libaudit1" />
+  <bdep name="libcrack2" />
+  <bdep name="libmagic1" />
+  <bdep name="libsemanage1" />
+  <bdep name="file" />
+  <bdep name="binutils" />
+  <bdep name="bzip2" />
+  <bdep name="gawk" />
+  <bdep name="gcc" />
+  <bdep name="glibc-devel" />
+  <bdep name="xz" />
+  <bdep name="findutils" />
+  <bdep name="glibc-locale" />
+  <bdep name="gzip" />
+  <bdep name="make" />
+  <bdep name="patch" />
+  <bdep name="systemd-rpm-macros" />
+  <bdep name="which" />
+  <bdep name="gettext-tools-mini" />
+  <bdep name="libgdbm4" />
   <bdep name="aaa_base-malloccheck" notmeta="1" />
   <bdep name="rpmlint-mini" notmeta="1" />
-  <bdep name="cracklib" notmeta="1" />
-  <bdep name="file-magic" notmeta="1" />
-  <bdep name="libustr-1_0-1" notmeta="1" />
-  <bdep name="libcap-ng0" notmeta="1" />
-  <bdep name="insserv-compat" notmeta="1" />
-  <bdep name="update-alternatives" notmeta="1" />
-  <bdep name="gcc48" notmeta="1" />
-  <bdep name="cpp" notmeta="1" />
-  <bdep name="linux-glibc-devel" notmeta="1" />
-  <bdep name="gettext-runtime-mini" notmeta="1" />
-  <bdep name="libgomp1" notmeta="1" />
-  <bdep name="libisl10" notmeta="1" />
-  <bdep name="libmpfr4" notmeta="1" />
-  <bdep name="libcloog-isl4" notmeta="1" />
-  <bdep name="libmpc3" notmeta="1" />
-  <bdep name="cpp48" notmeta="1" />
-  <bdep name="libasan0" notmeta="1" />
-  <bdep name="libatomic1" notmeta="1" />
-  <bdep name="libitm1" notmeta="1" />
+  <bdep name="cracklib" />
+  <bdep name="file-magic" />
+  <bdep name="libustr-1_0-1" />
+  <bdep name="libcap-ng0" />
+  <bdep name="insserv-compat" />
+  <bdep name="update-alternatives" />
+  <bdep name="gcc48" />
+  <bdep name="cpp" />
+  <bdep name="linux-glibc-devel" />
+  <bdep name="gettext-runtime-mini" />
+  <bdep name="libgomp1" />
+  <bdep name="libisl10" />
+  <bdep name="libmpfr4" />
+  <bdep name="libcloog-isl4" />
+  <bdep name="libmpc3" />
+  <bdep name="cpp48" />
+  <bdep name="libasan0" />
+  <bdep name="libatomic1" />
+  <bdep name="libitm1" />
   <path project="openSUSE:13.2" repository="standard" server="reposerver" />
 </buildinfo>

@@ -30,9 +30,9 @@ RSpec.describe Webui::Packages::BinariesController, :vcr do
         allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_raise(Backend::NotFoundError)
       end
 
-      let(:get_binaries) { get :index, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom } }
+      let(:set_binaries) { get :index, params: { package_name: toms_package, project_name: home_tom, repository_name: repo_for_home_tom } }
 
-      it { expect { get_binaries }.to raise_error(ActiveRecord::RecordNotFound) }
+      it { expect { set_binaries }.to raise_error(ActiveRecord::RecordNotFound) }
     end
   end
 

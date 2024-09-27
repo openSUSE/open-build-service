@@ -37,6 +37,8 @@ class RpmlintLogExtractor
 
   private
 
+  # Note: This method is used when rpmlint.log file is not available in the backend.
+  # It parses the '_log' file and search for rpmlint logs in it
   def retrieve_rpmlint_log_from_log
     @parse_internal_log_file = true
 
@@ -49,7 +51,7 @@ class RpmlintLogExtractor
     mark2 = '\[\s*\d+s\]\sRPMLINT report:\n'
     mark3 = '\[\s*\d+s\]\s===============\n'
 
-    log_content.sub!(/.+#{mark1}#{mark2}#{mark3}/m, '')
+    log_content = log_content.sub!(/.+#{mark1}#{mark2}#{mark3}/m, '')
 
     # Return if the OBS rpmlint mark was not found
     return unless (@mark_found = log_content.present?)

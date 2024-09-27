@@ -36,7 +36,7 @@ module Workflows
       client = Octokit::Client.new(access_token: @token.scm_token, api_endpoint: @scm_payload[:api_endpoint])
       # :ref can be the name of the commit, branch or tag.
       begin
-        content = client.content("#{@scm_payload[:target_repository_full_name]}", path: "/#{@token.workflow_configuration_path}", ref: @scm_payload[:target_branch])[:content]
+        content = client.content((@scm_payload[:target_repository_full_name]).to_s, path: "/#{@token.workflow_configuration_path}", ref: @scm_payload[:target_branch])[:content]
       rescue Octokit::InvalidRepository => e
         raise Token::Errors::NonExistentRepository, e.message
       rescue Octokit::NotFound => e
@@ -59,7 +59,7 @@ module Workflows
     end
 
     def create_temp_file(content)
-      tempfile = Tempfile.new(["#{Time.zone.now}", '.yaml'])
+      tempfile = Tempfile.new([Time.zone.now.to_s, '.yaml'])
       tempfile.write(content)
       tempfile.rewind
       tempfile

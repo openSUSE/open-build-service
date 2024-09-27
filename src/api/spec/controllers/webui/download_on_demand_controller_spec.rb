@@ -88,7 +88,7 @@ RSpec.describe Webui::DownloadOnDemandController do
     end
 
     context 'valid requests' do
-      let!(:dod_repository_2) { create(:download_repository, arch: 'i586', repository: repository) }
+      let!(:dod_repository2) { create(:download_repository, arch: 'i586', repository: repository) }
 
       before do
         login(admin_user)

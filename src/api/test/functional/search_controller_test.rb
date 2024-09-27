@@ -211,7 +211,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
   # <<< Testing package inside HiddenProject - flag "access" set to "disabled" in Project
 
-  def get_repos
+  def repositories
     ret = []
     col = Xmlhash.parse @response.body
     col.elements('repository') do |r|
@@ -273,7 +273,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get '/search/repository/id'
     assert_response :success
     assert_xml_tag tag: 'collection'
-    repos = get_repos
+    repos = repositories
     assert repos.include?('home:Iggy/10.2')
     assert repos.exclude?('HiddenProject/nada'), 'HiddenProject repos public'
 
@@ -281,7 +281,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get '/search/repository/id'
     assert_response :success
     assert_xml_tag tag: 'collection'
-    repos = get_repos
+    repos = repositories
     assert repos.include?('home:Iggy/10.2')
     assert repos.include?('HiddenProject/nada'), 'HiddenProject repos public'
 
@@ -383,7 +383,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  def get_package_count
+  def package_count
     Xmlhash.parse(@response.body).elements('package').length
   end
 
@@ -392,17 +392,17 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get '/search/package?match=*'
     assert_response :success
     assert_xml_tag tag: 'collection'
-    all_packages_count = get_package_count
+    all_packages_count = package_count
 
     get '/search/package?match=*', params: { limit: 3 }
     assert_response :success
     assert_xml_tag tag: 'collection'
-    assert get_package_count == 3
+    assert package_count == 3
 
     get '/search/package?match=*', params: { offset: 3, limit: all_packages_count }
     assert_response :success
     assert_xml_tag tag: 'collection'
-    assert get_package_count == (all_packages_count - 3)
+    assert package_count == (all_packages_count - 3)
   end
 
   def test_find_all_persons

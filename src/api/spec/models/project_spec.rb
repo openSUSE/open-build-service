@@ -444,9 +444,9 @@ RSpec.describe Project, :vcr do
     end
 
     context 'with linked repositories' do
-      let(:repository_1) { create(:repository, name: 'Tumbleweed', architectures: %w[i586 x86_64], project: deleted_project) }
-      let(:repository_2) { create(:repository, name: 'RepoWithLink', architectures: %w[i586 x86_64], project: deleted_project) }
-      let!(:path_elements) { create(:path_element, repository: repository_2, link: repository_1) }
+      let(:repository1) { create(:repository, name: 'Tumbleweed', architectures: %w[i586 x86_64], project: deleted_project) }
+      let(:repository2) { create(:repository, name: 'RepoWithLink', architectures: %w[i586 x86_64], project: deleted_project) }
+      let!(:path_elements) { create(:path_element, repository: repository2, link: repository1) }
 
       it 'project meta is properly restored' do
         reset_project_in_backend
@@ -525,26 +525,26 @@ RSpec.describe Project, :vcr do
 
   # NOTE: the code deletes a user with user.delete (not user.destroy) which has a customized behaviour, setting the user to `state=delete`.
   describe '#maintainers' do
-    subject { user_1.home_project }
+    subject { user1.home_project }
 
-    let(:user_1) { create(:confirmed_user, :with_home) }
-    let(:user_2) { create(:confirmed_user) }
+    let(:user1) { create(:confirmed_user, :with_home) }
+    let(:user2) { create(:confirmed_user) }
     let(:group_user) { create(:confirmed_user) }
     let(:group) { create(:group_with_user, user: group_user) }
-    let!(:user_relationship) { create(:relationship_project_user, project: subject, user: user_2) }
+    let!(:user_relationship) { create(:relationship_project_user, project: subject, user: user2) }
     let!(:group_relationship) { create(:relationship_project_group, project: subject, group: group) }
 
-    before { group.users << user_2 }
+    before { group.users << user2 }
 
     it 'returns all the users but user_2 only once' do
-      expect(subject.maintainers).to match([user_1, user_2, group_user])
+      expect(subject.maintainers).to match([user1, user2, group_user])
     end
 
     context 'when one of the users is deleted' do
-      before { user_2.delete }
+      before { user2.delete }
 
       it 'still returns the deleted user' do
-        expect(subject.maintainers).to match([user_1, user_2, group_user])
+        expect(subject.maintainers).to match([user1, user2, group_user])
       end
     end
 
@@ -554,7 +554,7 @@ RSpec.describe Project, :vcr do
       end
 
       it "returns the deleted user but not the deleted group's user" do
-        expect(subject.maintainers).to match([user_1, user_2])
+        expect(subject.maintainers).to match([user1, user2])
       end
     end
   end

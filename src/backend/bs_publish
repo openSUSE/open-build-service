@@ -60,6 +60,7 @@ use BSPublisher::Container;
 use BSPublisher::Helm;
 use BSPublisher::Util;
 use BSPublisher::Blobstore;
+use BSPublisher::Diffnotify;
 
 use strict;
 
@@ -84,7 +85,7 @@ my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 my @binsufsrsync = map {"--include=*.$_"} @binsufs;
 my $binarchs = join("|", keys(%BSCando::knownarch));
 
-my $trackercacheversion = 2;
+my $trackercacheversion = 3;
 
 my $testmode;
 
@@ -1176,6 +1177,7 @@ sub createrepo_staticlinks {
   my $versioned = grep {$_ eq 'versioned'} @{$options || []};
   for my $arch ('.', ls($extrep)) {
     next unless -d "$extrep/$arch";
+    my %static_links;
     for (ls("$extrep/$arch")) {
       if (-l "$extrep/$arch/$_") {
         unlink "$extrep/$arch/$_" unless -e "$extrep/$arch/$_";
@@ -1200,37 +1202,44 @@ sub createrepo_staticlinks {
       } elsif (/^(.*)-Build(?:\d\d\d\d+|\d+(?:\.\d+)+)(-Media\d?)\.iso$/s) {
         # product builds
         $link = "$1$2.iso"; # no support for versioned links
-      } elsif (/^(.*)-Build(?:\d\d\d\d+|\d+(?:\.\d+)+)(|-Source|-Debug)\.iso$/s) {
-        # product-composer builds
-        $link = "$1$2.iso"; # no support for versioned links
       } elsif (/^(.*\.(?:$binarchs)?)-([^-]+)?(-.*?)?-([^-]+)(\.(raw\.install\.raw\.xz|raw\.xz|raw|tar\.xz|box|json|install\.iso|install\.tar|tbz|tgz|vmx|vmdk|vmdk\.xz|appx|vhdx|vhdx\.xz|vdi|vdi\.xz|vhdfixed\.xz|iso|phar|qcow2|qcow2\.xz|ova|ova\.xz|cpio\.tar\.bz2))$/s) {
         # kiwi appliance
         my $profile = $3 || "";
         $link = "$1$profile$5";
         $link = "$1-$2$profile$5" if $versioned;
+      } elsif (/^(.*)-Build(?:\d\d\d\d+|\d+(?:\.\d+)+)(|-Source|-Debug)\.iso$/s) {
+        # product-composer builds
+        $link = "$1$2.iso"; # no support for versioned links
       }
       next unless $link;
-      unlink("$extrep/$arch/.$link"); # drop left over
-      symlink($_, "$extrep/$arch/.$link");
-      rename("$extrep/$arch/.$link", "$extrep/$arch/$link"); # atomic update
+      # double match, pick target with latest mtime
+      next if $static_links{$link} && -M "$extrep/$arch/$_" > -M "$extrep/$arch/$static_links{$link}";
+      $static_links{$link} = $_;
+    }
+    # creating links
+    for (keys(%static_links)) {
+      my $target = $static_links{$_};
+      unlink("$extrep/$arch/.$_"); # drop left over
+      symlink($target, "$extrep/$arch/.$_");
+      rename("$extrep/$arch/.$_", "$extrep/$arch/$_"); # atomic update
 
       # check for detached sha256 files
-      if ( -e "$extrep/$arch/$_.sha256" ) {
+      if ( -e "$extrep/$arch/$target.sha256" ) {
         # copy and patch the filename
-        my ($econtent, $ehadsig) = depgp(readstr("$extrep/$arch/$_.sha256"));
-        $econtent =~ s/([ \/])\Q$_\E\n/$link\n/g;
-        unlink("$extrep/$arch/$link.sha256");
-        writestr("$extrep/$arch/$link.sha256", undef, $econtent);
+        my ($econtent, $ehadsig) = depgp(readstr("$extrep/$arch/$target.sha256"));
+        $econtent =~ s/([ \/])\Q$_\E\n/$_\n/g;
+        unlink("$extrep/$arch/$_.sha256");
+        writestr("$extrep/$arch/$_.sha256", undef, $econtent);
       }
-      if ( -e "$extrep/$arch/$_.sha256.asc" ) {
+      if ( -e "$extrep/$arch/$target.sha256.asc" ) {
         # regenerate signature
-        if ($BSConfig::sign && -e "$extrep/$arch/$link.sha256") {
+        if ($BSConfig::sign && -e "$extrep/$arch/$_.sha256") {
           my @signargs;
           push @signargs, '--project', $projid if $BSConfig::sign_project;
           push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
           push @signargs, @{$data->{'signargs'} || []};
-          qsystem($BSConfig::sign, @signargs, '-d', "$extrep/$arch/$link.sha256") && die("    sign failed: $?\n");
-          pickup_detached_signature($data, "$extrep/$arch/$link.sha256");
+          qsystem($BSConfig::sign, @signargs, '-d', "$extrep/$arch/$_.sha256") && die("    sign failed: $?\n");
+          pickup_detached_signature($data, "$extrep/$arch/$_.sha256");
         }
       }
     }
@@ -1875,7 +1884,7 @@ sub mapsleimage {
     $rbin =~ s/\.sha256.asc$//;
     $rbin =~ s/\.(?:bz2|gz|xz|zst)$//;
     $rbin =~ s/\.(spdx|cdx)\.json$//;
-    $rbin =~ s/\.(install\.iso|iso|packages|raw|tbz|tgz|tar|qcow2|vdi|vhdfixed|vhdx|vmdk|vmx|vagrant\..*\.box)$//;
+    $rbin =~ s/\.(install\.iso|install\.tar|iso|packages|raw|tbz|tgz|tar|qcow2|vdi|vhdfixed|vhdx|vmdk|vmx|vagrant\..*\.box)$//;
     $rbin =~ s/^ChangeLog\.//;
     $rbin =~ s/\.txt$//;
     # if we did not find it yet, try removing the build number
@@ -1905,8 +1914,6 @@ sub mapslepool {
     $p =~ s/-Build[\d\.]*\d//;
   } elsif ($bin =~ /.*-Media1?(\.license|)$/) {
     $p = "$name$1";
-  } elsif ($bin =~ /.*[_-](?:$binarchs)?(\.license|)$/) {
-    $p = "$name$1";
   } elsif ($bin =~ /-Media3$/ || $bin =~ /-Debug$/) {
     $p = "${name}_debug";
   } elsif ($bin =~ /-Source$/) {
@@ -1919,6 +1926,10 @@ sub mapslepool {
     } else {
       $p = "${name}_debug";    # source is on media 1, 2 is debug
     }
+  } elsif ($rbin =~ /(.*)\.license$/ && (-d "$rdir/$1-Debug" || -d "$rdir/$1-Source")) {
+    $p = "$name.license";
+  } elsif (-d "$rdir/$rbin-Debug" || -d "$rdir/$rbin-Source") {
+    $p = "$name";
   }
   $p .= $sbom;
   return $p;
@@ -2028,12 +2039,15 @@ sub readcontainermetafiles {
   return unless $prefix =~ s/\.containerinfo$//;
   if (-e "$prefix.slsa_provenance.json") {
     $containerinfo->{'slsa_provenance_file'} = linkintoblobdir("$prefix.slsa_provenance.json", $blobdirref);
+    push @{$containerinfo->{'_associated'}}, "$prefix.slsa_provenance.json";
   }
   if (-e "$prefix.spdx.json") {
     $containerinfo->{'spdx_file'} = linkintoblobdir("$prefix.spdx.json", $blobdirref);
+    push @{$containerinfo->{'_associated'}}, "$prefix.spdx.json";
   }
   if (-e "$prefix.cdx.json") {
     $containerinfo->{'cyclonedx_file'} = linkintoblobdir("$prefix.cdx.json", $blobdirref);
+    push @{$containerinfo->{'_associated'}}, "$prefix.cdx.json";
   }
   my @intoto;
   if ($cache && $cache->{'intoto_files'}) {
@@ -2044,15 +2058,19 @@ sub readcontainermetafiles {
   }
   @intoto = grep {/^\Q$prefix\E\.[^\.]+\.intoto\.json$/} @intoto;
   push @{$containerinfo->{'intoto_files'}}, map {linkintoblobdir($_, $blobdirref)} @intoto;
+  push @{$containerinfo->{'_associated'}}, @intoto;
   $prefix =~ s/\.docker$// unless -e "$prefix.packages";
   if (-e "$prefix.packages") {
     $containerinfo->{'container_packages'} = linkintoblobdir("$prefix.packages", $blobdirref);
+    push @{$containerinfo->{'_associated'}}, "$prefix.packages";
   }
   if (-e "$prefix.basepackages") {
     $containerinfo->{'container_basepackages'} = linkintoblobdir("$prefix.basepackages", $blobdirref);
+    push @{$containerinfo->{'_associated'}}, "$prefix.basepackages";
   }
   if (-e "$prefix.report") {
     $containerinfo->{'container_report'} = linkintoblobdir("$prefix.report", $blobdirref);
+    push @{$containerinfo->{'_associated'}}, "$prefix.report";
   }
 }
 
@@ -2129,6 +2147,18 @@ sub publish {
       $do_sourcepublish = 1 if grep {$prp =~ /^$_/} @$BSConfig::sourcepublish_filter;
     } else {
       $do_sourcepublish = 1;
+    }
+  }
+
+  # do we need to send publish diff notifications?
+  my $do_diffnotify;
+  if ($BSConfig::publish_diffnotify) {
+    my @diffnotify = @{$BSConfig::publish_diffnotify};
+    while (@diffnotify) {
+      my ($re, $v) = splice(@diffnotify, 0, 2);
+      next unless $prp =~ /^$re/;
+      $do_diffnotify = $v;
+      last;
     }
   }
 
@@ -2210,6 +2240,7 @@ sub publish {
   my $kiwiindex = '';	# store collected index parts
 
   my %containers;
+  my %registrydata;
 
   # do iso image renaming where configured
   my $sleimagedata;
@@ -2346,7 +2377,9 @@ sub publish {
 	$p = $1 eq 'src' || $1 eq 'nosrc' ? "SRPMS/$bin" : "RPMS/$bin" if $repotype{'resarchhack'};
       } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.[ud]?deb$/) {
 	$p = "$1/$bin";
-      } elsif ($bin =~ /\.(?:AppImage|AppImage.zsync|snap|exe)?$/) {
+      } elsif ($bin =~ /\.(?:AppImage|AppImage.zsync|snap)$/) {
+	$p = "$bin";
+      } elsif ($bin =~ /\.exe(?:\.sha256(?:\.asc)?)?$/) {
 	$p = "$bin";
       } elsif ($bin =~ /\.appx$/) {
 	$p = "$bin";
@@ -2401,8 +2434,7 @@ sub publish {
 	    $containerinfo->{'arch'} = $arch;
 	    $containerinfo->{'_id'} = "$s[9]/$s[7]/$s[1]";
 	    $containerinfo->{'_origin'} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
-	    $containerinfo->{'publishfile'} = "$extrep/$p";
-	    $containers{$p} = $containerinfo;
+	    $containerinfo->{'publishfile'} = $subdir ? "$extrep/$subdir/$p" : "$extrep/$p";
 	  }
 	} elsif ($bin =~ /(.*)\.tgz.prov$/ && -e "$r/$1.helminfo") {
           eval {
@@ -2429,12 +2461,14 @@ sub publish {
 	  $containerinfo->{'_id'} = "$s[9]/$s[7]/$s[1]";
 	  $containerinfo->{'_origin'} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
 	  $p = $multicontainer ? "$arch/$containerinfo->{'file'}" : $containerinfo->{'file'};
-	  $containers{$p} = $containerinfo;
 	  if ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.containerinfo$/) {
-            $kiwimedium{$p} = "$arch/$2" if -e "$r/$2.packages";
+            $kiwimedium = "$arch/$2" if -e "$r/$2.packages";
 	  } elsif ($bin =~ /(.*)\.containerinfo$/) {
-            $kiwimedium{$p} = "$arch/$1" if -e "$r/$1.packages";
+            $kiwimedium = "$arch/$1" if -e "$r/$1.packages";
 	  }
+	  $containers{$p} = $containerinfo;
+	  $containerinfo->{'_p'} = $p if $containerinfo;
+	  $kiwimedium{$p} = $kiwimedium if $kiwimedium;
           readcontainermetafiles($containerinfo, $r, $bin, \$blobdir, $readcontainermetafiles_cache);
 	  next;
 	} elsif ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256(?:\.asc)?)?$/) {
@@ -2451,7 +2485,7 @@ sub publish {
 	      $containerinfo->{'arch'} = $arch;
 	      $containerinfo->{'_id'} = "$s[9]/$s[7]/$s[1]";
 	      $containerinfo->{'_origin'} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
-	      $containerinfo->{'publishfile'} = "$extrep/$p";
+	      $containerinfo->{'publishfile'} = $subdir ? "$extrep/$subdir/$p" : "$extrep/$p";
 	      undef $containerinfo if $3;
 	    }
             readcontainermetafiles($containerinfo, $r, "$1.containerinfo", \$blobdir, $readcontainermetafiles_cache) if $containerinfo;
@@ -2472,12 +2506,12 @@ sub publish {
 	      $containerinfo->{'arch'} = $arch;
 	      $containerinfo->{'_id'} = "$s[9]/$s[7]/$s[1]";
 	      $containerinfo->{'_origin'} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
-	      $containerinfo->{'publishfile'} = "$extrep/$p";
+	      $containerinfo->{'publishfile'} = $subdir ? "$extrep/$subdir/$p" : "$extrep/$p";
 	      undef $containerinfo if $2;
 	    }
             readcontainermetafiles($containerinfo, $r, "$1.containerinfo", \$blobdir, $readcontainermetafiles_cache) if $containerinfo;
 	  }
-	  next if $bin =~ /-(?:appstream|desktopfiles|polkitactions|mimetypes)\.tar/;
+	  next if !$containerinfo && $bin =~ /-(?:appstream|desktopfiles|polkitactions|mimetypes)\.tar/;
         } elsif ($bin =~ /\.(?:tgz|zip)?(?:\.sha256(?:\.asc)?)?$/) {
           # esp. for Go builds
           $p = $bin;
@@ -2560,6 +2594,7 @@ sub publish {
       $binaryorigins->{$p} = $repoinfo->{'binaryorigins'}->{$rbin};
       $kiwimedium{$p} = $kiwimedium if $kiwimedium;
       $containers{$p} = $containerinfo if $containerinfo;
+      $containerinfo->{'_p'} = $p if $containerinfo;
 
       if ($rbin =~ /^(.*)\.drpm$/) {
 	# we took a delta rpm. collect desq if possible
@@ -2930,6 +2965,11 @@ sub publish {
       'multiarch' => $multicontainer,
       'signflavor' => $signflavor,
     };
+    if ($do_diffnotify) {
+      $data->{'registrydata'} = \%registrydata;
+      $data->{'tagdata_cb'} = \&BSPublisher::Diffnotify::tagdata_callback;
+      $data->{'regdata_cb'} = \&BSPublisher::Diffnotify::regdata_callback;
+    }
     if ($config->{'publishflags:artifacthub'}) {
       for (@{$config->{'publishflags'} || []}) {
         $data->{'artifacthubdata'}->{$1} = $2 if /^artifacthub:([^:]+):(.+)$/;
@@ -2954,7 +2994,7 @@ sub publish {
   # collect packtrack and source data (if needed)
   my $packtrack;
   my $sources;
-  if ($do_packtrack || $do_sourcepublish) {
+  if ($do_packtrack || $do_sourcepublish || $do_diffnotify) {
     $packtrack = $dbgpacktrack || {};
     $sources = $dbgsources || {};
     my %cache = @{$packtrackcache || []};
@@ -2966,7 +3006,8 @@ sub publish {
 	next unless @s;
 	my $c = $cache{"$bin/$s[9]/$s[7]/$s[1]"};
 	if ($c) {
-	  my @d = qw{arch name epoch version release disturl buildtime cpeid};
+	  # note that we use query names instead of packtrack names here
+	  my @d = qw{arch name epoch version release disturl buildtime cpeid hdrmd5};
 	  $res = {};
 	  for (@$c) {
 	    my $dd = shift @d;
@@ -3007,7 +3048,12 @@ sub publish {
 	my $containerinfo = $containers{$bin};
 	my $medium = $bin;
 	$medium =~ s/.*\///;	# basename
-	my $lnk = BSRepServer::Containerinfo::containerinfo2nevra($containerinfo);
+	my $lnk;
+	if (($containerinfo->{'type'} || '') eq 'helm') {
+	  $lnk = BSPublisher::Helm::helminfo2nevra($containerinfo);
+	} else {
+	  $lnk = BSRepServer::Containerinfo::containerinfo2nevra($containerinfo);
+	}
 	my $pt = { 'project' => $projid, 'repository' => $repoid };
 	for (qw{name epoch version release}) {
 	  $pt->{$_} = $lnk->{$_} if defined $lnk->{$_};
@@ -3041,6 +3087,9 @@ sub publish {
 	$pt->{'ismedium'} = $medium;
 	$packtrack->{$bin} = $pt;
       }
+
+      # if we just do notifications we do not care about the content
+      next unless $do_packtrack || $do_sourcepublish;
 
       # add a published source entry
       my $sourceid;
@@ -3237,6 +3286,9 @@ sub publish {
   push @repotags, "obsbuildid:$repoinfo->{'publishid'}" if $repoinfo->{'publishid'};
 
   my $data = {
+    'projid'  => $projid,
+    'repoid'  => $repoid,
+    'xrepoid'  => $xrepoid,
     'subdir' => $subdir,
     'pubkey' => $pubkey,
     'signargs' => $signargs,
@@ -3395,7 +3447,7 @@ publishprog_done:
     my @newcache;
     for my $pt (values %$packtrack) {
       my $id = delete $pt->{'id'};
-      push @newcache, $id, [ map {$pt->{$_ eq 'arch' ? 'binaryarch' : $_}} qw{arch name epoch version release disturl buildtime cpeid} ] if $id;
+      push @newcache, $id, [ map {$pt->{$_}} qw{binaryarch name epoch version release disturl buildtime cpeid binaryid} ] if $id;
     }
     $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo", 1) || {};
     if (%$repoinfo) {
@@ -3405,6 +3457,11 @@ publishprog_done:
       @newcache = ();	# free mem
       undef $repoinfo;	# free mem
     }
+  }
+
+  if ($do_diffnotify && $packtrack && !$dbgsplit) {
+    # send diff notification
+    BSPublisher::Diffnotify::notification($extrep, $data, $do_diffnotify, $packtrack, \%containers, \%registrydata);
   }
 
   if ($do_packtrack && $packtrack && !$dbgsplit) {

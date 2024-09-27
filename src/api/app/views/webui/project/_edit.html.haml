@@ -7,9 +7,16 @@
   .mb-3
     = form.label(:url, 'URL:')
     = form.text_field(:url, class: 'form-control')
+  - if feature_enabled?('foster_collaboration')
+    .mb-3
+      = form.label(:report_bug_url, 'Report Bug URL:')
+      = form.url_field(:report_bug_url, class: 'form-control')
   .mb-3
     = form.label(:description, 'Description:')
-    = form.text_area(:description, rows: 8, class: 'form-control')
+    = render WriteAndPreviewComponent.new(form: form, preview_message_url: project_preview_description_path,
+                                        message_body_param: 'project[description]',
+                                        text_area_attributes: { rows: 8, placeholder: 'Write your description here... (Markdown markup is supported)',
+                                        required: false, object_name: :description})
   .mb-3.text-end
     = link_to 'Cancel', project_show_path(project), class: 'cancel btn btn-outline-danger px-4', remote: true
     = submit_tag('Update', class: 'btn btn-primary px-4')

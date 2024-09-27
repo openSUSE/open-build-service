@@ -1,7 +1,8 @@
 RSpec.describe BsRequestOverviewAvatarsComponent, type: :component do
   describe '#package_avatar_objects' do
-    let(:user) { create(:user, login: 'King') }
-    let(:review) { create(:review, by_project: package.project.name, by_package: package.name) }
+    let(:user) { create(:confirmed_user, login: 'King') }
+    let(:bs_request) { create(:bs_request_with_submit_action, creator: user) }
+    let(:review) { create(:review, by_project: package.project.name, by_package: package.name, bs_request: bs_request) }
     let(:project) { create(:project_with_package, name: 'Apache', package_name: 'apache2') }
     let(:package) { project.packages.first }
     let(:other_user) { create(:user, login: 'bob', realname: 'Bob') }

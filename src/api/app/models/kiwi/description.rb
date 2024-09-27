@@ -1,7 +1,7 @@
 class Kiwi::Description < ApplicationRecord
   belongs_to :image, inverse_of: :description, optional: true
 
-  enum description_type: {
+  enum :description_type, {
     system: 0
   }
 

@@ -194,4 +194,39 @@ module Webui::RequestHelper
       request_show_path(parameters)
     end
   end
+
+  private
+
+  def action_type_icon(type)
+    case type
+    when 'maintenance_incident'
+      'fas fa-person-digging fa-fw'
+    when 'add_role'
+      'fas fa-people-arrows fa-fw'
+    when 'set_bugowner'
+      'fas fa-bug-slash fa-fw'
+    when 'delete'
+      'fas fa-trash-can fa-fw'
+    when 'change_devel'
+      'fas fa-house-flag fa-fw'
+    when 'release', 'maintenance_release'
+      'fas fa-road-circle-check fa-fw'
+    else
+      'fas fa-code-pull-request fa-fw'
+    end
+  end
+
+  # Note: We don't allow labeling requests with more than 1 target project
+  def project_for_labels(bs_request)
+    target_project_ids = bs_request.bs_request_actions.pluck(:target_project_id).uniq
+    return if target_project_ids.count > 1
+
+    Project.find_by(id: target_project_ids.last)
+  end
+
+  def can_apply_labels?(bs_request:, user:)
+    return false if project_for_labels(bs_request).nil?
+
+    user.is_admin? || bs_request.is_target_maintainer?(user)
+  end
 end

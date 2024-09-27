@@ -2,26 +2,26 @@ class ConsistencyCheckJob < ApplicationJob
   queue_as :consistency_check
 
   def perform
-    User.get_default_admin.run_as { _perform(false) }
+    User.default_admin.run_as { _perform(fix: false) }
   end
 
-  def check_one_project(project, fix = false)
-    package_existence_consistency_check(project, fix)
-    @errors << project_meta_check(project, fix)
+  def check_one_project(project, fix: false)
+    package_existence_consistency_check(project, fix: fix)
+    @errors << project_meta_check(project, fix: fix)
     @errors.flatten.compact_blank.join("\n")
   end
 
   # method called by the rake task `fix_project`
   def fix_project(project)
-    User.get_default_admin.run_as { check_project(project, true) }
+    User.default_admin.run_as { check_project(project, fix: true) }
   end
 
   # method called by the rake task `check_project`
-  def check_project(project_name, fix = false)
+  def check_project(project_name, fix: false)
     # check frontend
     begin
       project = Project.get_by_name(project_name)
-      @errors << project_meta_check(project, fix)
+      @errors << project_meta_check(project, fix: fix)
     rescue Project::UnknownObjectError
       #
       # specified but does not exist in api. does it also not exist in backend?
@@ -41,7 +41,7 @@ class ConsistencyCheckJob < ApplicationJob
       project.commit_opts = { no_backend_write: 1 }
       project.destroy if fix
     end
-    package_existence_consistency_check(project, fix)
+    package_existence_consistency_check(project, fix: fix)
     errors
   end
 
@@ -56,9 +56,9 @@ class ConsistencyCheckJob < ApplicationJob
     @errors = []
   end
 
-  def _perform(fix = false)
-    project_existence_consistency_check(fix)
-    Project.local.find_each(batch_size: 100) { |project| check_one_project(project, fix) }
+  def _perform(fix: false)
+    project_existence_consistency_check(fix: fix)
+    Project.local.find_each(batch_size: 100) { |project| check_one_project(project, fix: fix) }
     send_error_email unless errors.empty?
   end
 
@@ -66,16 +66,16 @@ class ConsistencyCheckJob < ApplicationJob
     ConsistencyMailer.errors(errors).deliver_now
   end
 
-  def project_meta_check(project, fix = false)
+  def project_meta_check(project, fix: false)
     project_meta_checker = ConsistencyCheckJobService::ProjectMetaChecker.new(project)
     project_meta_checker.call
 
-    project.store(login: User.get_default_admin.login, comment: 'out-of-sync fix') if !project_meta_checker.errors.empty? && fix
+    project.store(login: User.default_admin.login, comment: 'out-of-sync fix') if !project_meta_checker.errors.empty? && fix
 
     project_meta_checker.errors
   end
 
-  def project_existence_consistency_check(fix = false)
+  def project_existence_consistency_check(fix: false)
     project_consistency_checker = ConsistencyCheckJobService::ProjectConsistencyChecker.new.call
 
     diff = project_consistency_checker.diff_frontend_backend
@@ -104,7 +104,7 @@ class ConsistencyCheckJob < ApplicationJob
     @errors << backend_project_importer.errors if backend_project_importer.errors.present?
   end
 
-  def package_existence_consistency_check(project, fix = false)
+  def package_existence_consistency_check(project, fix: false)
     begin
       project.reload
     rescue ActiveRecord::RecordNotFound

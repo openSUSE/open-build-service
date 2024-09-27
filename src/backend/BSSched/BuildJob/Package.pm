@@ -71,14 +71,13 @@ sub expand {
 =cut
 
 sub check {
-  my ($self, $ctx, $packid, $pdata, $info, $buildtype) = @_;
+  my ($self, $ctx, $packid, $pdata, $info, $buildtype, $edeps) = @_;
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $repo = $ctx->{'repo'};
   my $prp = $ctx->{'prp'};
   my $notready = $ctx->{'notready'};
   my $dep2src = $ctx->{'dep2src'};
-  my $edeps = $info->{'edeps'} || $ctx->{'edeps'}->{$packid} || [];
   my $depislocal = $ctx->{'depislocal'};
   my $gdst = $ctx->{'gdst'};
   my $gctx = $ctx->{'gctx'};
@@ -86,7 +85,8 @@ sub check {
   my $myarch = $gctx->{'arch'};
 
   # shortcut for buildinfo queries
-  return ('scheduled', [ {'explain' => 'buildinfo generation'} ]) if $ctx->{'isreposerver'};
+  # it is not a problem that we use undef for hdeps, as it is only used to set the "notmeta" flag in the job
+  return ('scheduled', [ {'explain' => 'buildinfo generation'}, undef, $edeps ]) if $ctx->{'isreposerver'};
 
   # check for localdep repos
   if (exists($pdata->{'originproject'})) {
@@ -97,12 +97,14 @@ sub check {
     }
   }
 
+  my $rebuildmethod = $repo->{'rebuild'} || 'transitive';
+
   # calculate if we're blocked
-  my $incycle = $ctx->{'incycle'};
+  my $incycle = $ctx->{'incycle'} || 0;
   my @blocked = grep {$notready->{$dep2src->{$_}}} @$edeps;
   @blocked = () if $repo->{'block'} && $repo->{'block'} eq 'never';
   # prune cycle packages from blocked
-  if ($incycle > 1) {
+  if (@blocked && $incycle > 1) {
     my $cyclevel = $ctx->{'cyclevel'};
     my $pkg2src = $ctx->{'pkg2src'} || {};
     my $level = $cyclevel->{$packid};
@@ -111,7 +113,8 @@ sub check {
       @blocked = grep {($cycs{$dep2src->{$_}} || 0) < $level} @blocked;
     }
   }
-  if (@blocked) {
+  # if the rebuildmethod is local we postpone the blocked check, see below
+  if (@blocked && ($rebuildmethod ne 'local' || $ctx->{'conf_host'})) {
     # print "      - $packid ($buildtype)\n";
     # print "        blocked\n";
     splice(@blocked, 10, scalar(@blocked), '...') if @blocked > 10;
@@ -162,18 +165,30 @@ sub check {
       undef $mylastcheck;
     }
   }
+
+  if (@blocked) {
+    # ignore blocked if the rebuildmethod is local and we have a successful build
+    if ($rebuildmethod eq 'local' && $mylastcheck && substr($mylastcheck, 0, 32) eq ($pdata->{'verifymd5'} || $pdata->{'srcmd5'}) && substr($mylastcheck, 32, 32) ne 'fakefakefakefakefakefakefakefake' && !$ctx->{'relsynctrigger'}->{$packid}) {
+      return ('done');
+    }
+    # print "      - $packid ($buildtype)\n";
+    # print "        blocked\n";
+    splice(@blocked, 10, scalar(@blocked), '...') if @blocked > 10;
+    return ('blocked', join(', ', @blocked));
+  }
+
   if (!$mylastcheck) {
     if ($ctx->{'verbose'}) {
       print "      - $packid ($buildtype)\n";
       print "        no meta, start build\n";
     }
-    return ('scheduled', [ { 'explain' => 'new build' }, $hdeps ]);
+    return ('scheduled', [ { 'explain' => 'new build' }, $hdeps, $edeps ]);
   } elsif (substr($mylastcheck, 0, 32) ne ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})) {
     if ($ctx->{'verbose'}) {
       print "      - $packid ($buildtype)\n";
       print "        src change, start build\n";
     }
-    return ('scheduled', [ { 'explain' => 'source change', 'oldsource' => substr($mylastcheck, 0, 32) }, $hdeps ]);
+    return ('scheduled', [ { 'explain' => 'source change', 'oldsource' => substr($mylastcheck, 0, 32) }, $hdeps, $edeps ]);
   } elsif (substr($mylastcheck, 32, 32) eq 'fakefakefakefakefakefakefakefake') {
     my @s = stat("$gdst/:meta/$packid");
     if (!@s || $s[9] + 14400 > time()) {
@@ -187,9 +202,8 @@ sub check {
       print "      - $packid ($buildtype)\n";
       print "        retrying bad build\n";
     }
-    return ('scheduled', [ { 'explain' => 'retrying bad build' }, $hdeps ]);
+    return ('scheduled', [ { 'explain' => 'retrying bad build' }, $hdeps, $edeps ]);
   } else {
-    my $rebuildmethod = $repo->{'rebuild'} || 'transitive';
     my $forcebinaryidmeta = $ctx->{'forcebinaryidmeta'};
     if ($rebuildmethod eq 'local' || $pdata->{'hasbuildenv'} || $info->{'hasbuildenv'}) {
       # rebuild on src changes only
@@ -325,7 +339,7 @@ sub check {
       print "        $_\n" for @diff;
       print "        meta change, start build$levelstr\n";
     }
-    return ('scheduled', [ { 'explain' => 'meta change', 'packagechange' => $reason }, $hdeps ] );
+    return ('scheduled', [ { 'explain' => 'meta change', 'packagechange' => $reason }, $hdeps, $edeps ] );
   }
 relsynccheck:
   if ($ctx->{'relsynctrigger'}->{$packid}) {
@@ -333,7 +347,7 @@ relsynccheck:
       print "      - $packid ($buildtype)\n";
       print "        rebuild counter sync, start build\n";
     }
-    return ('scheduled', [ { 'explain' => 'rebuild counter sync' }, $hdeps ] );
+    return ('scheduled', [ { 'explain' => 'rebuild counter sync' }, $hdeps, $edeps ] );
   }
   return ('done');
 }
@@ -347,21 +361,15 @@ relsynccheck:
 sub build {
   my ($self, $ctx, $packid, $pdata, $info, $data) = @_;
 
-  my $reason = $data->[0];
-  my $hdeps = $data->[1];
+  my ($reason, $hdeps, $edeps) = @$data;
 
-  if ($packid && !$ctx->{'rebuildpackage_needed'}) {
-    my $needed = $ctx->{'rebuildpackage_needed'} = {};
-    my $edeps = $ctx->{'edeps'};
-    my $dep2src = $ctx->{'dep2src'};
-    for my $p (keys %$edeps) {
-      $needed->{$_}++ for map { $dep2src->{$_} || $_ } @{$edeps->{$p}};
-    }
+  my $needed = 0;
+  if ($packid && !$ctx->{'isreposerver'}) {
+    $ctx->create_rebuildpackage_needed() unless $ctx->{'rebuildpackage_needed'};
+    $needed = $ctx->{'rebuildpackage_needed'}->{$packid} || 0;
   }
 
-  my $needed = $packid ? ($ctx->{'rebuildpackage_needed'}->{$packid} || 0) : 0;
   my $subpacks = $ctx->{'subpacks'}->{$info->{'name'}} || [];
-  my $edeps = $info->{'edeps'} || $ctx->{'edeps'}->{$packid} || [];
 
   my $nounchanged;
   #$nounchanged = 1 if $packid && $ctx->{'cychash'}->{$packid} && !$ctx->{'forcebinaryidmeta'};
@@ -438,6 +446,7 @@ sub split_hostdeps {
 }
 
 # split build dependencies and expand the sysroot
+# store extracted native packages in $splitdeps[2] if there are any
 sub expand_sysroot {
   my ($bconf, $subpacks, $info) = @_;
   my @splitdeps = split_hostdeps($bconf, $info);

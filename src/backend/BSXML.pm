@@ -342,6 +342,8 @@ our $projpack = [
 	 ]],
 	    'remoteurl',
 	    'remoteproject',
+	    'scmsync',
+	    'scminfo',
 	    @flags,
 	    @roles,
 	  [ $repo ],
@@ -353,6 +355,7 @@ our $projpack = [
 		'versrel',
 		'verifymd5',	# tree id
 		'scmsync',
+		'scminfo',
 		'originproject',
 		'revtime',
 		'constraintsmd5',	# md5sum of constraints file in srcmd5
@@ -1135,6 +1138,9 @@ our $result = [
 	'state', # old name of 'code', to be removed
 	'details',
 	'dirty', # marked for re-scheduling if element exists, state might not be correct anymore
+	[],
+	'scmsync',
+	'scminfo',
       [ $buildstatus ],
       [ $binarylist ],
         $summary,
@@ -2117,6 +2123,9 @@ our $binannotation = [
 	'buildhost',
 	'disturl',
 	'binaryid',
+	'registry_refname',	# in DoD containers
+	'registry_digest',	# in DoD containers
+	'registry_fatdigest',	# in DoD containers
 	'package',		# only in build job annotation
 	'epoch',		# only in build job annotation
 	'version',		# only in build job annotation

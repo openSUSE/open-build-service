@@ -1,18 +1,24 @@
 class Webui::PackageController < Webui::WebuiController
   include ParsePackageDiff
+  include ScmsyncChecker
   include Webui::PackageHelper
   include Webui::ManageRelationships
   include Webui::NotificationsHandler
 
+  # rubocop:disable Rails/LexicallyScopedActionFilter
+  # The methods save_person, save_group and remove_role are defined in Webui::ManageRelationships
   before_action :set_project, only: %i[show edit update index users requests statistics revisions
                                        new branch_diff_info rdiff create remove
                                        save_person save_group remove_role view_file
                                        buildresult rpmlint_result rpmlint_log files]
 
+  before_action :check_scmsync, only: :statistics
+
   before_action :require_package, only: %i[edit update show requests statistics revisions
                                            branch_diff_info rdiff remove
                                            save_person save_group remove_role view_file
                                            buildresult rpmlint_result rpmlint_log files users]
+  # rubocop:enable Rails/LexicallyScopedActionFilter
 
   before_action :check_ajax, only: %i[devel_project buildresult rpmlint_result]
   # make sure it's after the require_, it requires both
@@ -32,7 +38,7 @@ class Webui::PackageController < Webui::WebuiController
     # FIXME: Remove this statement when scmsync is fully supported
     if @project.scmsync.present?
       flash[:error] = "Package sources for project #{@project.name} are received through scmsync.
-                       This is not yet fully supported by the OBS frontend"
+                       This is not supported by the OBS frontend"
       redirect_back_or_to project_show_path(@project)
       return
     end
@@ -50,7 +56,6 @@ class Webui::PackageController < Webui::WebuiController
     @srcmd5 = params[:srcmd5]
     @revision_parameter = params[:rev]
 
-    @bugowners_mail = (@package.bugowner_emails + @project.bugowner_emails).uniq
     @revision = params[:rev]
     @failures = 0
 
@@ -115,18 +120,12 @@ class Webui::PackageController < Webui::WebuiController
   def update
     authorize @package, :update?
     respond_to do |format|
-      if @package.update(package_details_params)
-        format.html do
-          flash[:success] = 'Package was successfully updated.'
-          redirect_to package_show_path(@package)
+      format.js do
+        if @package.update(package_details_params)
+          flash.now[:success] = 'Package was successfully updated.'
+        else
+          flash.now[:error] = 'Failed to update the package.'
         end
-        format.js { flash.now[:success] = 'Package was successfully updated.' }
-      else
-        format.html do
-          flash[:error] = 'Failed to update package'
-          redirect_to package_show_path(@package)
-        end
-        format.js
       end
     end
   end
@@ -151,7 +150,7 @@ class Webui::PackageController < Webui::WebuiController
     @roles = Role.local_roles
     if User.session && params[:notification_id]
       @current_notification = Notification.find(params[:notification_id])
-      authorize @current_notification, :update?, policy_class: NotificationPolicy
+      authorize @current_notification, :update?, policy_class: NotificationCommentPolicy
     end
     @current_request_action = BsRequestAction.find(params[:request_action_id]) if User.session && params[:request_action_id]
   end
@@ -260,7 +259,7 @@ class Webui::PackageController < Webui::WebuiController
     if @project.repositories.any?
       show_all = params[:show_all].to_s.casecmp?('true')
       @index = params[:index]
-      @buildresults = @package.buildresult(@project, show_all)
+      @buildresults = @package.buildresult(@project, show_all: show_all)
 
       # TODO: this is part of the temporary changes done for 'request_show_redesign'.
       request_show_redesign_partial = 'webui/request/beta_show_tabs/build_status' if params.fetch(:inRequestShowRedesign, false)
@@ -321,6 +320,16 @@ class Webui::PackageController < Webui::WebuiController
     render partial: 'rpmlint_log', locals: { rpmlint_log_file: rpmlint_log_file, render_chart: render_chart, parsed_messages: parsed_messages }
   end
 
+  def preview_description
+    markdown = helpers.render_as_markdown(params[:package][:description])
+    respond_to do |format|
+      format.json { render json: { markdown: markdown } }
+    end
+  end
+
+  def files; end
+  def view_file; end
+
   private
 
   def package_params
@@ -337,7 +346,8 @@ class Webui::PackageController < Webui::WebuiController
       .require(:package_details)
       .permit(:title,
               :description,
-              :url)
+              :url,
+              :report_bug_url)
   end
 
   def set_file_details

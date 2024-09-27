@@ -388,6 +388,17 @@ RSpec.describe Webui::PackageController, :vcr do
 
       it { expect(assigns(:statistics)).to be_nil }
     end
+
+    context 'the project is an scmsync project' do
+      let(:scmsync_project) { create(:project, name: 'lorem', scmsync: 'https://github.com/example/scmsync-project.git') }
+
+      before do
+        get :statistics, params: { project: scmsync_project.name, package: source_package.name, arch: 'i586', repository: repository.name }
+      end
+
+      it { expect(flash[:error]).to eq('The project lorem is configured through scmsync. This is not supported by the OBS frontend') }
+      it { expect(response).to redirect_to(project_show_path(scmsync_project)) }
+    end
   end
 
   describe '#rpmlint_result' do
@@ -541,34 +552,6 @@ RSpec.describe Webui::PackageController, :vcr do
   end
 
   describe 'PATCH #update' do
-    context 'when the user is authorized to change the package' do
-      let(:package_params) do
-        {
-          title: 'Updated title',
-          url: 'https://updated.url',
-          description: 'Updated description.'
-        }
-      end
-
-      before do
-        login(user)
-        patch :update,
-              params: {
-                project: source_project,
-                package_details: package_params,
-                package: source_package.name
-              },
-              format: :js
-      end
-
-      it { expect(response).to have_http_status(:success) }
-      it { expect(assigns(:package).title).to eql(package_params[:title]) }
-      it { expect(assigns(:package).url).to eql(package_params[:url]) }
-      it { expect(assigns(:package).description).to eql(package_params[:description]) }
-    end
-  end
-
-  context 'when the user is NOT authorized to change the package' do
     let(:package_params) do
       {
         title: 'Updated title',
@@ -576,21 +559,30 @@ RSpec.describe Webui::PackageController, :vcr do
         description: 'Updated description.'
       }
     end
-    let(:admins_home_project) { admin.home_project }
-    let(:package_from_admin) do
-      create(:package, name: 'admins_package', project: admins_home_project)
-    end
 
     before do
       login(user)
       patch :update,
             params: {
-              project: admins_home_project,
+              project: source_project,
               package_details: package_params,
-              package: package_from_admin.name
-            }
+              package: source_package.name
+            },
+            format: :js
     end
 
-    it { expect(response).to redirect_to(root_path) }
+    context 'when the user is authorized to change the package' do
+      it { expect(response).to have_http_status(:success) }
+      it { expect(assigns(:package).title).to eql(package_params[:title]) }
+      it { expect(assigns(:package).url).to eql(package_params[:url]) }
+      it { expect(assigns(:package).description).to eql(package_params[:description]) }
+    end
+
+    context 'when the user is NOT authorized to change the package' do
+      let(:source_project) { admin.home_project }
+      let(:source_package) { create(:package, name: 'admins_package', project: source_project) }
+
+      it { expect(response).to have_http_status(:forbidden) }
+    end
   end
 end

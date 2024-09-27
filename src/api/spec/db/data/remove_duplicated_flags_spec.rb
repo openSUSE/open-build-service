@@ -5,14 +5,14 @@ RSpec.describe RemoveDuplicatedFlags, type: :migration do
 
   describe 'up' do
     let(:project) { create(:project) }
-    let!(:flag_1) { create(:build_flag, status: 'disable', project: project) }
-    let!(:flag_2) { create(:publish_flag, status: 'disable', project: project) }
-    let!(:flag_3) do
+    let!(:flag1) { create(:build_flag, status: 'disable', project: project) }
+    let!(:flag2) { create(:publish_flag, status: 'disable', project: project) }
+    let!(:flag3) do
       flag = build(:build_flag, status: 'disable', project: project)
       flag.save(validate: false)
       flag
     end
-    let!(:flag_4) do
+    let!(:flag4) do
       flag = build(:build_flag, status: 'enable', project: project)
       flag.save(validate: false)
       flag
@@ -22,6 +22,6 @@ RSpec.describe RemoveDuplicatedFlags, type: :migration do
       RemoveDuplicatedFlags.new.up
     end
 
-    it { expect(project.reload.flags).to contain_exactly(flag_3, flag_2) }
+    it { expect(project.reload.flags).to contain_exactly(flag3, flag2) }
   end
 end

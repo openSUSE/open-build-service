@@ -6,6 +6,6 @@
       Empty
   - else
     - requests.each do |request|
-      %li= info_link(request, excluded)
+      %li= info_link(request, excluded: excluded)
     - unless more_requests.zero?
       %li ... #{more_requests} more

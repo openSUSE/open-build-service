@@ -454,7 +454,7 @@ class BranchPackage
       # find packages via attributes
       at = AttribType.find_by_name!(@attribute)
       if params[:value]
-        Package.find_by_attribute_type_and_value(at, params[:value], params[:package]) do |p|
+        PackagesFinder.new.find_by_attribute_type_and_value(at, params[:value], params[:package]) do |p|
           logger.info "Found package instance #{p.project.name}/#{p.name} for attribute #{at.name} with value #{params[:value]}"
           @packages.push(base_project: p.project, link_target_project: p.project, package: p, target_package: "#{p.name}.#{p.project.name}")
         end
@@ -462,13 +462,13 @@ class BranchPackage
         # (who creates the attribute) to create the package instance ?
       else
         # Find all direct instances of a package
-        Package.find_by_attribute_type(at, params[:package]).each do |p|
+        PackagesFinder.new.find_by_attribute_type(at, params[:package]).each do |p|
           logger.info "Found package instance #{p.project.name}/#{p.name} for attribute #{at.name} and given package name #{params[:package]}"
           @packages.push(base_project: p.project, link_target_project: p.project, package: p, target_package: "#{p.name}.#{p.project.name}")
         end
         # Find all indirect instance via project links
         ltprj = nil
-        Project.find_by_attribute_type(at).each do |lprj|
+        Project.joins(:attribs).where(attribs: { attrib_type_id: at.id }).find_each do |lprj|
           # FIXME: this will not find packages on linked remote projects
           ltprj = lprj
           pkg2 = lprj.find_package(params[:package])

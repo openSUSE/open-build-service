@@ -5,7 +5,7 @@ class IssueTracker::CVEParser < Nokogiri::XML::SAX::Document
   @my_summary = ''
   @is_desc = false
 
-  def set_tracker(tracker)
+  def tracker=(tracker)
     @my_tracker = tracker
   end
 

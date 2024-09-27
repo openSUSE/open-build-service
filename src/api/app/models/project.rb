@@ -12,6 +12,7 @@ class Project < ApplicationRecord
   include ProjectLinks
   include ProjectDistribution
   include ProjectMaintenance
+  include ReportBugUrl
 
   TYPES = %w[standard maintenance maintenance_incident
              maintenance_release].freeze
@@ -44,9 +45,12 @@ class Project < ApplicationRecord
   end
   has_many :patchinfos, -> { with_kind('patchinfo') }, class_name: 'Package'
 
-  has_many :package_kinds, through: :packages
   has_many :issues, through: :packages
-  has_many :attribs, dependent: :destroy
+  has_many :attribs, dependent: :destroy do
+    def embargo_date
+      where(attrib_type_id: AttribType.joins(:attrib_namespace).where(attrib_namespace: { name: 'OBS' }, attrib_types: { name: 'EmbargoDate' }))
+    end
+  end
   has_many :quality_attribs, lambda {
     where(attrib_type_id: AttribType.joins(:attrib_namespace).where(attrib_namespace: { name: 'OBS' }, attrib_types: { name: 'QualityCategory' }))
   }, class_name: 'Attrib'
@@ -85,6 +89,7 @@ class Project < ApplicationRecord
   has_many :notified_projects, dependent: :destroy
   has_many :notifications, through: :notified_projects
   has_many :reports, as: :reportable, dependent: :nullify
+  has_many :label_templates
 
   default_scope { where.not('projects.id' => Relationship.forbidden_project_ids) }
 
@@ -103,6 +108,7 @@ class Project < ApplicationRecord
 
   validates :name, presence: true, length: { maximum: 200 }, uniqueness: { case_sensitive: true }
   validates :title, length: { maximum: 250 }
+  validates :report_bug_url, length: { maximum: 8192 }
   validate :valid_name
 
   validates :kind, inclusion: { in: TYPES }
@@ -206,23 +212,10 @@ class Project < ApplicationRecord
       project
     end
 
-    def is_remote_project?(name, skip_access = false)
-      lpro = find_remote_project(name, skip_access)
+    def is_remote_project?(name, skip_access: false)
+      lpro = find_remote_project(name, skip_access: skip_access)
 
       lpro && lpro[0].defines_remote_instance?
-    end
-
-    def check_access?(project)
-      return false if project.nil?
-      # check for 'access' flag
-
-      return true unless Relationship.forbidden_project_ids.include?(project.id)
-
-      # simple check for involvement --> involved users can access project.id, User.session!
-      project.relationships.groups.includes(:group).any? do |grouprel|
-        # check if User.session! belongs to group.
-        User.session!.is_in_group?(grouprel.group)
-      end
     end
 
     # This finder is checking for
@@ -244,11 +237,11 @@ class Project < ApplicationRecord
       end
       if include_all_packages
         Package.joins(:flags).where(project_id: dbp.id).where("flags.flag='sourceaccess'").find_each do |pkg|
-          raise ReadAccessError, name unless Package.check_access?(pkg)
+          raise ReadAccessError, name unless pkg.project.check_access?
         end
       end
 
-      raise ReadAccessError, name unless check_access?(dbp)
+      raise ReadAccessError, name unless dbp.check_access?
 
       dbp
     end
@@ -259,7 +252,7 @@ class Project < ApplicationRecord
       if local_project.nil?
         find_remote_project(name).present?
       else
-        check_access?(local_project)
+        local_project.check_access?
       end
     end
 
@@ -269,16 +262,12 @@ class Project < ApplicationRecord
       dbp = find_by(name: name)
 
       return if dbp.nil?
-      return if !opts[:skip_check_access] && !check_access?(dbp)
+      return if !opts[:skip_check_access] && !dbp.check_access?
 
       dbp
     end
 
-    def find_by_attribute_type(attrib_type)
-      Project.joins(:attribs).where(attribs: { attrib_type_id: attrib_type.id })
-    end
-
-    def find_remote_project(name, skip_access = false)
+    def find_remote_project(name, skip_access: false)
       return unless name
 
       fragments = name.split(':')
@@ -290,7 +279,7 @@ class Project < ApplicationRecord
         logger.debug "Trying to find local project #{local_project}, remote_project #{remote_project}"
 
         project = Project.find_by(name: local_project)
-        if project && (skip_access || check_access?(project)) && project.defines_remote_instance?
+        if project && (skip_access || project.check_access?) && project.defines_remote_instance?
           logger.debug "Found local project #{project.name} for #{remote_project} with remoteurl #{project.remoteurl}"
           return project, remote_project
         end
@@ -447,6 +436,17 @@ class Project < ApplicationRecord
 
   def buildresults
     Buildresult.summary(name)
+  end
+
+  def check_access?
+    # check for 'access' flag
+    return true unless Relationship.forbidden_project_ids.include?(id)
+
+    # simple check for involvement --> involved users can access project.id, User.session!
+    relationships.groups.includes(:group).any? do |grouprel|
+      # check if User.session! belongs to group.
+      User.session!.is_in_group?(grouprel.group)
+    end
   end
 
   def jobhistory(filter: { limit: 100, start_epoch: nil, end_epoch: nil, code: [], package: nil })
@@ -658,7 +658,7 @@ class Project < ApplicationRecord
   def check_weak_dependencies!
     # check all packages
     packages.each do |pkg|
-      pkg.check_weak_dependencies!(true) # ignore project local devel packages
+      pkg.check_weak_dependencies!(ignore_local: true) # ignore project local devel packages
     end
 
     # do not allow to remove maintenance master projects if there are incident projects
@@ -668,7 +668,7 @@ class Project < ApplicationRecord
     raise DeleteError, 'This maintenance project has incident projects and can therefore not be deleted.'
   end
 
-  def can_be_unlocked?(with_exception = true)
+  def can_be_unlocked?(with_exception: true)
     if is_maintenance_incident?
       requests = BsRequest.where(state: %i[new review declined]).joins(:bs_request_actions)
       maintenance_release_requests = requests.where(bs_request_actions: { type: 'maintenance_release', source_project: name })
@@ -809,7 +809,7 @@ class Project < ApplicationRecord
       # local project, but package may be in a linked remote one
       opts[:allow_remote_packages] && Package.exists_on_backend?(name, self.name)
     else
-      Package.check_access?(pkg)
+      pkg.project.check_access?
     end
   end
 
@@ -827,14 +827,14 @@ class Project < ApplicationRecord
 
     pkg = find_package_on_update_project(package_name) if check_update_project
     pkg ||= packages.find_by(name: package_name)
-    return pkg if pkg&.check_access?
+    return pkg if pkg&.project&.check_access?
 
     # search via all linked projects
     linking_to.local.each do |lp|
       raise CycleError, 'project links against itself, this is not allowed' if self == lp.linked_db_project
 
       pkg = lp.linked_db_project.find_package(package_name, check_update_project, processed)
-      return pkg if pkg&.check_access?
+      return pkg if pkg&.project&.check_access?
     end
 
     # no package found
@@ -987,11 +987,9 @@ class Project < ApplicationRecord
   end
 
   def repositories_from_meta
-    result = []
-    Nokogiri::XML(meta.content, &:strict).xpath('//repository').each do |repo|
-      result.push(repo.attributes.values.first.to_s)
+    Nokogiri::XML(meta.content, &:strict).xpath('//repository').map do |repo|
+      repo.attributes.values.first.to_s
     end
-    result
   end
 
   def sync_repository_pathes
@@ -1223,7 +1221,7 @@ class Project < ApplicationRecord
   end
 
   def unlock(comment = nil)
-    if can_be_unlocked?(false)
+    if can_be_unlocked?(with_exception: false)
       do_unlock(comment)
     else
       false
@@ -1386,6 +1384,14 @@ class Project < ApplicationRecord
     { project: name }
   end
 
+  def embargo_date
+    attribs.embargo_date&.first&.embargo_date
+  end
+
+  def bugowner_emails
+    relationships.bugowners_with_email.pluck(:email)
+  end
+
   private
 
   def bsrequest_repos_map(project)
@@ -1502,8 +1508,9 @@ end
 #  name                :string(200)      not null, indexed
 #  remoteproject       :string(255)
 #  remoteurl           :string(255)
+#  report_bug_url      :string(8192)
 #  required_checks     :string(255)
-#  scmsync             :string(255)
+#  scmsync             :text(65535)
 #  title               :string(255)
 #  url                 :string(255)
 #  created_at          :datetime

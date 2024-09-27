@@ -15,7 +15,7 @@ module Triggerable
     @package = @token.package
     # If the token has no package, let's find one from the parameters
     if @package_name.present?
-      @package ||= Package.get_by_project_and_name(@project,
+      @package ||= Package.get_by_project_and_name(@project.name,
                                                    @package_name,
                                                    package_find_options)
     end

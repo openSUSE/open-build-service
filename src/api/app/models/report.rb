@@ -1,5 +1,14 @@
 # Report class flags abusive content, be it projects, packages, users or comments
 class Report < ApplicationRecord
+  REPORTABLE_TYPES = %i[Comment Package Project User BsRequest].freeze
+  REPORTABLE_TYPES_STRINGS = {
+    Comment: 'Comment',
+    Package: 'Package',
+    Project: 'Project',
+    User: 'User',
+    BsRequest: 'Request'
+  }.freeze
+
   validates :reason, length: { maximum: 65_535 }
   validates :reportable_type, length: { maximum: 255 }
   validates :reportable, presence: true, on: :create
@@ -10,7 +19,7 @@ class Report < ApplicationRecord
 
   belongs_to :decision, optional: true
 
-  enum category: {
+  enum :category, {
     spam: 10,
     scam: 20,
     forbidden_license: 30,

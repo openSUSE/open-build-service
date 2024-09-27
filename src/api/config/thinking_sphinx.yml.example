@@ -4,6 +4,7 @@ development:
   mem_limit: 512M
   charset_table: "0..9, a..z, A..Z->a..z, U+410..U+42F->U+430..U+44F, U+430..U+44F"
   real_time_tidy: true
+  min_infix_len: 6
 test:
   mysql41: 9313
   bin_path: /usr/bin

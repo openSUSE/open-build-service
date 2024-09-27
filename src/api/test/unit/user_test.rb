@@ -46,9 +46,6 @@ class UserTest < ActiveSupport::TestCase
   end
 
   def test_access
-    assert @user.has_local_permission?('change_project', @project)
-    assert @user.has_local_permission?('change_package', packages(:home_Iggy_TestPack))
-
     m = Role.find_by_title('maintainer')
     assert @user.has_local_role?(m, @project)
     assert @user.has_local_role?(m, packages(:home_Iggy_TestPack))
@@ -62,10 +59,6 @@ class UserTest < ActiveSupport::TestCase
     assert_not user.has_local_role?(m, packages(:home_Iggy_TestPack))
     assert user.has_local_role?(m, projects(:kde4))
     assert user.has_local_role?(m, packages(:kde4_kdelibs))
-
-    tom = users(:tom)
-    assert_not tom.has_local_permission?('change_project', projects(:kde4))
-    assert_not tom.has_local_permission?('change_package', packages(:kde4_kdelibs))
   end
 
   def test_group

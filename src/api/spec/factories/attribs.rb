@@ -72,7 +72,7 @@ FactoryBot.define do
     end
 
     factory :attrib_with_default_value do
-      attrib_type { create(:attrib_type_with_default_value) }
+      attrib_type { association :attrib_type_with_default_value }
     end
   end
 end

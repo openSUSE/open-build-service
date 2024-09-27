@@ -18,8 +18,8 @@
         .text-center
           %span.ms-3= page_entries_info notifications, entry_name: ''
         .list-group.list-group-flush.mt-3
-          = render NotificationComponent.with_collection(notifications, selected_filter: selected_filter,
-                                                                        page: params[:page])
+          = render partial: 'notification', collection: notifications, locals: { selected_filter: selected_filter, page: params[:page] }
+
   = paginate notifications, views_prefix: 'webui', window: 2, params: { action: 'index', id: nil }
   = render partial: 'page_size_navigation', locals: { paginated_objects: notifications }
 

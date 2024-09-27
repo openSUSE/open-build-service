@@ -64,9 +64,9 @@ RSpec.describe Webui::MonitorController do
 
     before do
       # x86_64
-      create_list(:status_history, 10, source: 'squeue_high')
-      create_list(:status_history, 20, source: 'squeue_med', range: 0..400)
-      create_list(:status_history, 30, source: 'building', range: 10..42)
+      create_list(:status_history,  2, source: 'squeue_high')
+      create_list(:status_history,  5, source: 'squeue_med', range: 0..400)
+      create_list(:status_history,  9, source: 'building', range: 10..42)
       create_list(:status_history, 10, source: 'waiting', range: 10_000..42_000)
       # i586
       create_list(:status_history, 5, source: 'squeue_high', architecture: 'i586')
@@ -76,9 +76,9 @@ RSpec.describe Webui::MonitorController do
 
     it { expect(json_response['events_max']).to be <= 800 }
     it { expect(json_response['jobs_max']).to be <= 84_000 }
-    it { expect(json_response['squeue_high'].length).to eq(10) }
-    it { expect(json_response['squeue_med'].length).to eq(20) }
-    it { expect(json_response['building'].length).to eq(30) }
+    it { expect(json_response['squeue_high'].length).to eq(2) }
+    it { expect(json_response['squeue_med'].length).to eq(5) }
+    it { expect(json_response['building'].length).to eq(9) }
     it { expect(json_response['waiting'].length).to eq(10) }
   end
 end

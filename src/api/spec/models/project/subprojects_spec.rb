@@ -35,12 +35,12 @@ RSpec.describe Project do
 
   describe '#siblingprojects' do
     let!(:project_a) { create(:project, name: 'A') }
-    let!(:sibling_1) { create(:project, name: 'A:1') }
-    let!(:sibling_2) { create(:project, name: 'A:2') }
-    let!(:sibling_3) { create(:project, name: 'A:3') }
+    let!(:sibling1) { create(:project, name: 'A:1') }
+    let!(:sibling2) { create(:project, name: 'A:2') }
+    let!(:sibling3) { create(:project, name: 'A:3') }
 
     it 'returns all projects that have the same parent project' do
-      expect(sibling_1.siblingprojects).to contain_exactly(sibling_2, sibling_3)
+      expect(sibling1.siblingprojects).to contain_exactly(sibling2, sibling3)
       expect(project_a.siblingprojects).to be_empty
     end
   end

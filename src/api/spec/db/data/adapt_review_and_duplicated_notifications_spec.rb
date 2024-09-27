@@ -13,7 +13,7 @@ RSpec.describe AdaptReviewAndDuplicatedNotifications, type: :migration do
 
     context 'review notifiable' do
       before do
-        create(:notification, :review_wanted, notifiable: subscriber_review, subscriber: subscriber)
+        create(:notification_for_request, :review_wanted, notifiable: subscriber_review, subscriber: subscriber)
         subject
       end
 
@@ -31,20 +31,20 @@ RSpec.describe AdaptReviewAndDuplicatedNotifications, type: :migration do
       let(:comment_request02) { create(:comment_request, commentable: bs_request_with_submit_action) }
 
       let(:first_request_notification) do
-        create(:notification, :request_state_change, notifiable: bs_request_with_submit_action,
-                                                     subscriber: subscriber, web: true)
+        create(:notification_for_request, :request_state_change, notifiable: bs_request_with_submit_action,
+                                                                 subscriber: subscriber, web: true)
       end
       let(:second_request_notification) do
-        create(:notification, :request_state_change, notifiable: bs_request_with_submit_action,
-                                                     subscriber: subscriber, web: true)
+        create(:notification_for_request, :request_state_change, notifiable: bs_request_with_submit_action,
+                                                                 subscriber: subscriber, web: true)
       end
       let(:first_comment_notification) do
-        create(:notification, :comment_for_request, notifiable: comment_request,
-                                                    subscriber: subscriber, web: true)
+        create(:notification_for_comment, :comment_for_request, notifiable: comment_request,
+                                                                subscriber: subscriber, web: true)
       end
       let(:second_comment_notification) do
-        create(:notification, :comment_for_request, notifiable: comment_request02,
-                                                    subscriber: subscriber, web: true)
+        create(:notification_for_comment, :comment_for_request, notifiable: comment_request02,
+                                                                subscriber: subscriber, web: true)
       end
 
       before do

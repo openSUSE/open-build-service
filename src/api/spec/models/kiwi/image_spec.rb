@@ -350,8 +350,9 @@ RSpec.describe Kiwi::Image, :vcr do
       it { expect(kiwi_image.write_to_backend).to be(false) }
 
       it 'does not call save! method' do
-        expect(kiwi_image).not_to receive(:save!)
+        allow(kiwi_image).to receive(:save!)
         kiwi_image.write_to_backend
+        expect(kiwi_image).not_to have_received(:save!)
       end
     end
 
@@ -476,7 +477,7 @@ RSpec.describe Kiwi::Image, :vcr do
     end
 
     before do
-      allow(subject).to receive(:binaries_available).and_return(binaries_available_sample)
+      allow(Kiwi::Image).to receive(:binaries_available).and_return(binaries_available_sample)
     end
 
     it { expect(subject.find_binaries_by_name('', 'project', [], use_project_repositories: true)).to eq(binaries_available_sample) }

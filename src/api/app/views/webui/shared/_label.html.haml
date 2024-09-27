@@ -1,0 +1,7 @@
+:css
+  .label-#{label.id} {
+    color: #{h(contrast_text(label.color))};
+    background-color: #{h(label.color)};
+  }
+%span.badge{ class: "label-#{label.id}" }
+  = label.name

@@ -50,7 +50,7 @@ RSpec.describe Staging::Workflow do
     end
 
     context 'with requests and some are in staging projects and some not' do
-      let!(:bs_request_2) do
+      let!(:bs_request2) do
         create(:bs_request_with_submit_action,
                target_package: target_package,
                source_package: source_package)
@@ -61,7 +61,7 @@ RSpec.describe Staging::Workflow do
         bs_request.save
       end
 
-      it { expect(subject).to contain_exactly(bs_request_2) }
+      it { expect(subject).to contain_exactly(bs_request2) }
     end
   end
 
@@ -79,7 +79,7 @@ RSpec.describe Staging::Workflow do
     end
 
     context 'with request in state review whether they are in staging projects or not' do
-      let(:bs_request_2) do
+      let(:bs_request2) do
         create(:bs_request_with_submit_action,
                target_package: target_package,
                source_package: source_package)
@@ -87,23 +87,23 @@ RSpec.describe Staging::Workflow do
 
       before do
         bs_request
-        bs_request_2.change_review_state(:accepted, by_group: group.title)
-        bs_request_2.update!(staging_project: staging_project)
+        bs_request2.change_review_state(:accepted, by_group: group.title)
+        bs_request2.update!(staging_project: staging_project)
       end
 
-      it { expect(subject).to contain_exactly(bs_request_2) }
+      it { expect(subject).to contain_exactly(bs_request2) }
     end
   end
 
   describe '#autocomplete' do
-    let!(:bs_request_2) do
+    let!(:bs_request2) do
       create(:bs_request_with_submit_action,
              target_package: target_package,
              source_package: source_package)
     end
 
-    it { expect(staging_workflow.autocomplete(bs_request_2.number)).to include(bs_request_2) }
-    it { expect(staging_workflow.autocomplete(bs_request.number)).not_to include(bs_request_2) }
+    it { expect(staging_workflow.autocomplete(bs_request2.number)).to include(bs_request2) }
+    it { expect(staging_workflow.autocomplete(bs_request.number)).not_to include(bs_request2) }
     it { expect(staging_workflow.autocomplete(-1)).to be_empty }
   end
 end

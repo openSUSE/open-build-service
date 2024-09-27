@@ -239,7 +239,6 @@ filelist = Document.new(process)
 filelist.elements.each('binarylist/binary') do |binary|
   fname  = binary.attributes['filename']
   fsize  = binary.attributes['size']
-  fmtime = binary.attributes['mtime']
   puts "Process: #{fname} (#{fsize})"
 
   # skip src, nosrc, debuginfo, and debugsource packages

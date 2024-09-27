@@ -32,10 +32,10 @@ RSpec.describe PackagePolicy do
       end
 
       # We cannot use the `permit` matcher due to the extra argument in `new`
-      it { expect(PackagePolicy.new(admin_user, package, true).create?).to be true }
-      it { expect(PackagePolicy.new(other_user, package, true).create?).to be true }
-      it { expect(PackagePolicy.new(user, package, true).create?).to be true }
-      it { expect(PackagePolicy.new(anonymous_user, package, true).create?).to be false }
+      it { expect(PackagePolicy.new(admin_user, package, ignore_lock: true).create?).to be true }
+      it { expect(PackagePolicy.new(other_user, package, ignore_lock: true).create?).to be true }
+      it { expect(PackagePolicy.new(user, package, ignore_lock: true).create?).to be true }
+      it { expect(PackagePolicy.new(anonymous_user, package, ignore_lock: true).create?).to be false }
     end
   end
 

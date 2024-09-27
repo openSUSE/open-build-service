@@ -117,6 +117,6 @@ module ProjectLinks
   end
 
   def links_to_remote?
-    linking_to.where.not(linked_remote_project_name: nil).any?
+    expand_all_projects(allow_remote_projects: true).any?(String)
   end
 end

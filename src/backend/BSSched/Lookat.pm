@@ -142,6 +142,26 @@ sub changed2lookat {
   %$changed_high = ();
 }
 
+sub extend_lookat_next {
+  my ($gctx) = @_;
+  my $lookat_next = $gctx->{'lookat_next'};
+  my $alllocked = $gctx->{'alllocked'};
+  my $rprpdeps = $gctx->{'rprpdeps'};
+  my @todo = keys %$lookat_next;
+  my $newcnt = 0;
+  while (@todo) {
+    # use chunks to keep memory usage low
+    my @new = grep {!$lookat_next->{$_} && !$alllocked->{$_}} map {@{$rprpdeps->{$_} || []}} splice(@todo, 0, 100);
+    if (@new) {
+      @new = BSUtil::unify(@new);
+      $newcnt += scalar(@new);
+      $lookat_next->{$_} = 1 for @new;
+      push @todo, @new;
+    }
+  }
+  print "extended lookat_next by $newcnt indirect entries\n" if $newcnt;
+}
+
 =head2 nextlookat - calculate the next prp to check
 
  TODO
@@ -180,6 +200,7 @@ sub nextlookat {
 
   # if lookat_low array is empty, start new series with lookat_next
   if (!@$lookat_low && %$lookat_next) {
+    extend_lookat_next($gctx);
     @$lookat_low = grep {$lookat_next->{$_}} @{$gctx->{'prps'}};
     %$lookat_next = ();
   }

@@ -1,6 +1,4 @@
 class FullTextSearch
-  include ActiveModel::Serializers::JSON
-
   LINKED_COUNT_WEIGHT = 100
   ACTIVITY_INDEX_WEIGHT = 500
   LINKS_TO_OTHER_WEIGHT = -1000
@@ -11,16 +9,13 @@ class FullTextSearch
   STAR = false
   MAX_MATCHES = 15_000
 
-  attr_accessor :text, :classes, :fields, :attrib_type_id, :issue_tracker_name, :issue_name
-  attr_reader :result
+  attr_reader :text, :classes, :fields, :attrib_type_id, :issue_tracker_name, :issue_name
 
   def initialize(attrib = {})
-    if attrib
-      attrib.each do |att, value|
-        send(:"#{att}=", value)
-      end
+    attrib.each do |att, value|
+      instance_variable_set(:"@#{att}", value)
     end
-    @result = nil
+    @classes ||= %w[package project]
   end
 
   def search(options = {})
@@ -46,28 +41,19 @@ class FullTextSearch
       args[:with][:issue_ids] = issue_id.to_i unless issue_id.nil?
       args[:with][:attrib_type_ids] = attrib_type_id.to_i unless attrib_type_id.nil?
     end
-    args[:classes] = classes.map { |i| i.to_s.classify.constantize } if classes
+    args[:classes] = classes.map { |i| i.to_s.classify.constantize }
 
-    @result = ThinkingSphinx.search(search_str, args)
-  end
-
-  # Needed by ActiveModel::Serializers
-  def attributes
-    { 'text' => nil, 'classes' => nil, 'fields' => nil, 'attrib_type_id' => nil,
-      'issue_tracker_name' => nil, 'issue_name' => nil,
-      'result' => nil, 'total_entries' => nil }
+    ThinkingSphinx.search(search_str, args)
   end
 
   private
 
   def search_str
-    if text.blank?
-      nil
-    elsif fields.blank?
-      Riddle::Query.escape(text)
-    else
-      "@(#{fields.map(&:to_s).join(',')}) #{Riddle::Query.escape(text)}"
-    end
+    return nil if text.blank?
+
+    return Riddle::Query.escape(text) if fields.blank?
+
+    "@(#{fields.map(&:to_s).join(',')}) #{Riddle::Query.escape(text)}"
   end
 
   def find_issue_id

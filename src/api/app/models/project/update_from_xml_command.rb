@@ -28,7 +28,8 @@ class Project
       project.remoteurl = xmlhash.value('remoteurl')
       project.remoteproject = xmlhash.value('remoteproject')
       project.scmsync = xmlhash.value('scmsync')
-      project.kind = xmlhash.value('kind') if xmlhash.value('kind').present?
+      project.kind = xmlhash.value('kind').presence || 'standard'
+
       #--- update flag group ---#
       project.update_all_flags(xmlhash)
       if ::Configuration.default_access_disabled == true && new_record && xmlhash.elements('access').empty?

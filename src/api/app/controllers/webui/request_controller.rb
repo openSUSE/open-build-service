@@ -1,5 +1,8 @@
 class Webui::RequestController < Webui::WebuiController
   include Webui::NotificationsHandler
+  include Webui::RequestsFilter
+
+  ALLOWED_INVOLVEMENTS = %w[all incoming outgoing].freeze
 
   helper 'webui/package'
 
@@ -25,8 +28,17 @@ class Webui::RequestController < Webui::WebuiController
   before_action :cache_diff_data, only: %i[show build_results rpm_lint changes mentioned_issues],
                                   if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :check_beta_user_redirect, only: %i[build_results rpm_lint changes mentioned_issues]
-
+  before_action :redirect_to_tasks, only: [:index], unless: -> { Flipper.enabled?(:request_index, User.session) }
+  before_action :set_requests, :set_filter_involvement, :set_filter_state, :set_filter_action_type, :set_filter_creators,
+                :filter_requests, :set_selected_filter, only: [:index], if: lambda {
+                                                                              Flipper.enabled?(:request_index, User.session)
+                                                                            }
   after_action :verify_authorized, only: [:create]
+
+  def index
+    @bs_requests = @bs_requests.order('number DESC').page(params[:page])
+    @bs_requests_creators = @bs_requests.distinct.pluck(:creator)
+  end
 
   def show
     # TODO: Remove this `if` condition, and the `else` clause once request_show_redesign is rolled out
@@ -196,10 +208,10 @@ class Webui::RequestController < Webui::WebuiController
 
     if change_state(changestate, params)
       # TODO: Make this work for each submit action individually
-      if params[:add_submitter_as_maintainer_0]
+      if params[:add_submitter_as_maintainer_0] # rubocop:disable Naming/VariableNumber
         if changestate == 'accepted'
           # split into project and package
-          tprj, tpkg = params[:add_submitter_as_maintainer_0].split('_#_')
+          tprj, tpkg = params[:add_submitter_as_maintainer_0].split('_#_') # rubocop:disable Naming/VariableNumber
           target = if tpkg
                      Package.find_by_project_and_name(tprj, tpkg)
                    else
@@ -230,7 +242,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def set_bugowner_request
-    required_parameters :project
+    params.require(:project)
     request = nil
     begin
       request = BsRequest.create!(
@@ -263,11 +275,6 @@ class Webui::RequestController < Webui::WebuiController
     end
 
     redirect_to action: 'show', number: params[:number]
-  end
-
-  # used by mixins
-  def main_object
-    BsRequest.find_by_number(params[:number])
   end
 
   def inline_comment
@@ -317,6 +324,46 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   private
+
+  def redirect_to_tasks
+    redirect_to my_tasks_path
+  end
+
+  def set_requests
+    @bs_requests = BsRequest.all
+  end
+
+  def set_filter_involvement
+    @filter_involvement = params[:involvement].presence || 'all'
+    @filter_involvement = 'all' if ALLOWED_INVOLVEMENTS.exclude?(@filter_involvement)
+  end
+
+  def set_filter_state
+    @filter_state = params[:state].presence || []
+    @filter_state = @filter_state.intersection(BsRequest::VALID_REQUEST_STATES.map(&:to_s))
+  end
+
+  def set_filter_action_type
+    @filter_action_type = params[:action_type].presence || []
+    @filter_action_type = @filter_action_type.intersection(BsRequestAction::TYPES)
+  end
+
+  def set_filter_creators
+    @filter_creators = params[:creators].presence || []
+  end
+
+  def filter_requests
+    @bs_requests = filter_by_text(params[:requests_search_text])
+    @bs_requests = filter_by_involvement(@bs_requests, @filter_involvement)
+    @bs_requests = @bs_requests.where(state: @filter_state) if @filter_state.present?
+    @bs_requests = @bs_requests.with_action_type(@filter_action_type) if @filter_action_type.present?
+    @bs_requests = @bs_requests.where(creator: @filter_creators) if @filter_creators.present?
+  end
+
+  def set_selected_filter
+    @selected_filter = { involvement: @filter_involvement, action_type: @filter_action_type, search_text: params[:requests_search_text],
+                         state: @filter_state, creators: @filter_creators }
+  end
 
   def check_beta_user_redirect
     redirect_to request_show_path(params[:number], params[:request_action_id]) unless Flipper.enabled?(:request_show_redesign, User.session)

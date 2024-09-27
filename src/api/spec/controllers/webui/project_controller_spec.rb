@@ -37,11 +37,10 @@ RSpec.describe Webui::ProjectController, :vcr do
     context 'with valid parameters' do
       before do
         login user
-        patch :update, params: { id: project.id, project: { description: 'My projects description', title: 'My projects title' } }
+        patch :update, params: { id: project.id, project: { description: 'My projects description', title: 'My projects title' }, format: :js }
         project.reload
       end
 
-      it { expect(response).to redirect_to(project_show_path(project)) }
       it { expect(flash[:success]).to eq('Project was successfully updated.') }
       it { expect(project.title).to eq('My projects title') }
       it { expect(project.description).to eq('My projects description') }
@@ -50,12 +49,11 @@ RSpec.describe Webui::ProjectController, :vcr do
     context 'with invalid data' do
       before do
         login user
-        patch :update, params: { id: project.id, project: { description: 'My projects description', title: 'My projects title' * 200 } }
+        patch :update, params: { id: project.id, project: { description: 'My projects description', title: 'My projects title' * 200 }, format: :js }
         project.reload
       end
 
-      it { expect(response).to redirect_to(project_show_path(project)) }
-      it { expect(flash[:error]).to eq('Failed to update project') }
+      it { expect(flash[:error]).to eq('Failed to update the project.') }
       it { expect(project.title).to be_nil }
       it { expect(project.description).to be_nil }
     end
@@ -273,24 +271,6 @@ RSpec.describe Webui::ProjectController, :vcr do
       end
 
       it { expect(assigns(:comments)).to match_array(apache_project.comments) }
-    end
-
-    context 'with bugowners' do
-      before do
-        create(:relationship_project_user, role: Role.find_by_title('bugowner'), project: apache_project, user: user)
-        get :show, params: { project: apache_project }
-      end
-
-      it { expect(assigns(:bugowners_mail)).to contain_exactly(user.email) }
-    end
-
-    context 'without bugowners' do
-      before do
-        get :show, params: { project: apache_project }
-      end
-
-      it { expect(assigns(:bugowners_mail)).to be_a(Array) }
-      it { expect(assigns(:bugowners_mail)).to be_empty }
     end
   end
 
@@ -708,9 +688,9 @@ RSpec.describe Webui::ProjectController, :vcr do
       end
 
       context 'three path elements' do
-        let(:path_element_2) { create(:path_element, repository: repository) }
-        let(:path_element_3) { create(:path_element, repository: repository) }
-        let(:path_elements) { [path_element, path_element_2, path_element_3] }
+        let(:path_element2) { create(:path_element, repository: repository) }
+        let(:path_element3) { create(:path_element, repository: repository) }
+        let(:path_elements) { [path_element, path_element2, path_element3] }
 
         context 'direction up' do
           let(:move) do
@@ -760,7 +740,7 @@ RSpec.describe Webui::ProjectController, :vcr do
   describe 'GET #monitor' do
     let(:repo_for_user) { create(:repository, name: 'openSUSE_Tumbleweed', project: user.home_project) }
     let(:arch_i586) { Architecture.where(name: 'i586').first }
-    let(:arch_x86_64) { Architecture.where(name: 'x86_64').first }
+    let(:arch_x86_64) { Architecture.where(name: 'x86_64').first } # rubocop:disable Naming/VariableNumber
     let!(:package) { create(:package, project: user.home_project) }
 
     context 'with a project' do
@@ -797,7 +777,7 @@ RSpec.describe Webui::ProjectController, :vcr do
           let(:additional_repo) { create(:repository, name: 'openSUSE_42.2', project: user.home_project) }
           let(:arch_s390x) { Architecture.where(name: 's390x').first }
           let!(:repository_achitecture_i586) { create(:repository_architecture, repository: repo_for_user, architecture: arch_i586) }
-          let!(:repository_achitecture_x86_64) { create(:repository_architecture, repository: repo_for_user, architecture: arch_x86_64) }
+          let!(:repository_achitecture_x86_64) { create(:repository_architecture, repository: repo_for_user, architecture: arch_x86_64) } # rubocop:disable Naming/VariableNumber
           let!(:repository_achitecture_s390x) { create(:repository_architecture, repository: additional_repo, architecture: arch_s390x) }
           let(:fake_buildresult) do
             <<-XML

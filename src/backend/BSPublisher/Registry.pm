@@ -540,7 +540,9 @@ sub create_manifestinfo {
 
   my $repodir = "$registrydir/$repo";
   my ($projid, $repoid) = split('/', $prp, 2);
+  # copy so we can add/delete stuff
   $imginfo = { %$imginfo, 'project' => $projid, 'repository' => $repoid };
+  delete $imginfo->{'containerinfo'};
   my $bins = BSPublisher::Containerinfo::create_packagelist($containerinfo);
   $_->{'base'} && ($_->{'base'} = \1) for @{$bins || []};	# turn flag to True
   $imginfo->{'packages'} = $bins if $bins;
@@ -658,8 +660,7 @@ sub push_containers {
       my $govariant = $config->{'variant'} || $containerinfo->{'govariant'};
       my $goarch = $config->{'architecture'} || 'any';
       my $goos = $config->{'os'} || 'any';
-      my $platformstr = "architecture:$goarch os:$goos";
-      $platformstr .= " variant:$govariant" if $govariant;
+      my $platformstr = BSContar::make_platformstr($goarch, $govariant, $goos);
       if ($multiplatforms{$platformstr}) {
 	print "ignoring $containerinfo->{'file'}, already have $platformstr\n";
 	next;
@@ -717,6 +718,7 @@ sub push_containers {
         'goarch' => $goarch,
         'goos' => $goos,
 	'distmanifest' => $mani_id,
+	'containerinfo' => $containerinfo,	# tmp, will be deleted later
       };
       $imginfo->{'govariant'} = $govariant if $govariant;
       $imginfo->{'type'} = $containerinfo->{'type'} if $containerinfo->{'type'};
@@ -766,6 +768,7 @@ sub push_containers {
     $containerdigests .= "$mani_id $mani_size $tag\n";
     $taginfo->{'distmanifest'} = $mani_id;
     $info{$tag} = $taginfo;
+    $data->{'regdata_cb'}->($data, $registry, "$repo:$tag", $taginfo) if $data->{'regdata_cb'};
   }
 
   # write signatures file (need to do this early as it adds manifests/blobs)
@@ -807,6 +810,11 @@ sub push_containers {
     unlink("$repodir/:cosign");
     disownrepo($prp, $repo);
     return $containerdigests;
+  }
+
+  # get rid of the containerinfo elements again
+  for my $taginfo (values %info) {
+    delete $_->{'containerinfo'} for @{$taginfo->{'images'} || []};
   }
 
   # write info file

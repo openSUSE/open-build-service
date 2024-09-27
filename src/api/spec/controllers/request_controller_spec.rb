@@ -41,12 +41,12 @@ RSpec.describe RequestController, :vcr do
     end
   end
 
-  describe '#global_command (cmd=create)' do
+  describe '#create (cmd=create)' do
     context 'requesting creation of a source project that has a project link that is not owned by the requester' do
       include_context 'a BsRequest that has a project link'
 
       it 'prohibits creation of request', :vcr do
-        expect { post :global_command, params: { cmd: :create }, body: xml, format: :xml }.not_to change(BsRequest, :count)
+        expect { post :create, params: { cmd: :create }, body: xml, format: :xml }.not_to change(BsRequest, :count)
         expect(response).to have_http_status(:forbidden)
         expect(response.body).to have_css('status[code=lacking_maintainership] > summary',
                                           text: 'Creating a submit request action with options requires maintainership in source package')

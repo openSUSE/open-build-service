@@ -1,0 +1,52 @@
+.dropdown.d-inline-block#label-dropdown
+  %button.btn.btn-sm.dropdown-toggle.ps-0.border-0{ data: { 'bs-toggle': 'dropdown', 'bs-auto-close': 'outside' }, aria: { expanded: 'false' } }
+    %i.fas.fa-tag
+    %strong
+      Set Labels
+  .dropdown-menu
+    .dropdown-item-text.d-flex.justify-content-end
+      %button.btn-close{ type: 'button', 'data-bs-dismiss': 'dropdown', 'aria-label': 'Close' }
+    .dropdown-item-text
+      %input.form-control#label-search{ placeholder: 'Filter labels' }
+    = form_for :labels, url: labels_path(project:, labelable_id: labelable.id, labelable_type: labelable.class), method: :put do |f|
+      - project.label_templates.each do |label_template|
+        = f.fields_for 'labels_attributes[]', label_template do |la|
+          .dropdown-item-text
+            = la.hidden_field :label_template_id, value: la.object.id
+            - if labelable.labels.exists?(label_template: la.object)
+              = la.hidden_field :id, value: labelable.labels.find_by(label_template: la.object).id
+            .form-check
+              = la.check_box :_destroy, { class: 'form-check-input', checked: labelable.labels.exists?(label_template: la.object) }, false, true
+              = la.label :_destroy, class: 'form-check-label' do
+                = render partial: 'webui/shared/label', locals: { label: la.object }
+    - if policy(LabelTemplate.new(project:)).index?
+      = link_to project_label_templates_path(project), class: 'dropdown-item' do
+        %i.fas.fa-edit
+        Edit Labels
+
+:javascript
+  let labelDropdown = document.getElementById('label-dropdown');
+
+  labelDropdown.addEventListener('change', function() {
+    labelDropdown.addEventListener('hide.bs.dropdown', function() {
+      labelDropdown.querySelector('form').submit();
+    });
+  });
+
+:javascript
+  $("#label-dropdown").on("input", "#label-search", function(event) {
+    var searchInput = event.target;
+    var filterValue = searchInput.value.toLowerCase();
+    var dropdown = document.getElementById("label-dropdown");
+    var dropdownInputFields = dropdown.getElementsByClassName("badge");
+
+    for (i = 0; i < dropdownInputFields.length; i++) {
+      dropdownInputValue = dropdownInputFields[i].textContent;
+
+      if (dropdownInputValue.toLowerCase().indexOf(filterValue) > -1) {
+        dropdownInputFields[i].closest(".dropdown-item-text").style.display = "";
+      } else {
+        dropdownInputFields[i].closest(".dropdown-item-text").style.display = "none";
+      }
+    }
+  });

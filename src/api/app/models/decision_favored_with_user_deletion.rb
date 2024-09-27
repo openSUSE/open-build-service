@@ -7,7 +7,7 @@ class DecisionFavoredWithUserDeletion < Decision
   end
 
   def self.display_name
-    'favored with user deletion'
+    'favor and delete the user'
   end
 
   def self.display?(reportable)

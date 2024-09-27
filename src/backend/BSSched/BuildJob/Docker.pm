@@ -63,8 +63,15 @@ sub new {
 
 =cut
 
+# just expand the container deps
 sub expand {
-  return 1, splice(@_, 3);
+  my ($self, $bconf, $subpacks, @deps) = @_;
+  my @containerdeps = grep {/^container:/} @deps;
+  return 1 unless @containerdeps;
+  my ($cok, @cdeps) = Build::expand($bconf, @containerdeps);
+  return $cok, @cdeps unless $cok;
+  return (0, 'weird result of container expansion') unless @cdeps > 0 && @cdeps <= @containerdeps && !grep {!/^container:/} @cdeps;
+  return $cok, @cdeps;
 }
 
 =head2 check - TODO: add summary
@@ -122,7 +129,7 @@ sub getpathfromannotation {
 }
 
 sub check {
-  my ($self, $ctx, $packid, $pdata, $info, $buildtype) = @_;
+  my ($self, $ctx, $packid, $pdata, $info, $buildtype, $edeps) = @_;
 
   my $gctx = $ctx->{'gctx'};
   my $myarch = $gctx->{'arch'};
@@ -135,26 +142,20 @@ sub check {
   my $prpnotready = $gctx->{'prpnotready'};
   my $neverblock = $ctx->{'isreposerver'} || ($repo->{'block'} || '' eq 'never');
 
-  my @deps = @{$info->{'dep'} || []};
+  my @deps = grep {!/^container:/} @{$info->{'dep'} || []};
   my $cpool;
   my @cbdep;
   my @cmeta;
   my $expanddebug = $ctx->{'expanddebug'};
 
-  my @containerdeps = grep {/^container:/} @deps;
-  if (@containerdeps) {
-    @deps = grep {!/^container:/} @deps;
-
+  my @cdeps = grep {/^container:/} @$edeps;
+  if (@cdeps) {
     # setup container pool
     $cpool = $ctx->{'pool'};
-
-    # expand to container package name
-    my $xp = BSSolv::expander->new($cpool, $ctx->{'conf'});
-    my ($cok, @cdeps) = $xp->expand(@containerdeps);
-    BSSched::BuildJob::add_expanddebug($ctx, 'container expansion', $xp, $cpool) if $expanddebug;
-    return ('unresolvable', join(', ', @cdeps)) unless $cok;
-    return ('unresolvable', 'weird result of container expansion') unless @cdeps > 0 && @cdeps <= @containerdeps;
-
+    my $basecontainer = (grep {/^container:/} @{$info->{'dep'} || []})[-1];
+    my %basep;
+    %basep = map {$_ => 1} $cpool->whatprovides($basecontainer) if $basecontainer;
+    my $basecbdep;
     for my $cdep (@cdeps) {
       # find container package
       my $p;
@@ -177,6 +178,7 @@ sub check {
         $cbdep->{'hdrmd5'} = $d->{'hdrmd5'} if $d->{'hdrmd5'};
       }
       push @cbdep, $cbdep;
+      $basecbdep = $cbdep if $basep{$p};
     }
 
     # append repositories defined in the container annotation to our path
@@ -184,12 +186,13 @@ sub check {
     splice(@infopath, -$info->{'extrapathlevel'}) if $info->{'extrapathlevel'};
     my $haveobsrepositories = grep {$_->{'project'} eq '_obsrepositories'} @infopath;
     my @newpath;
-    my $annotationbdep = $cbdep[-1];
+    my $annotationbdep = $basecbdep || $cbdep[-1];
     my $annotation = BSSched::BuildJob::getcontainerannotation($cpool, $annotationbdep->{'p'}, $annotationbdep);
-    if (!$annotation && !$haveobsrepositories) {
-      # no annotation, assume obsrepositories:/
+    if ((!$annotation || (!$annotation->{'repo'} && $annotation->{'registry_digest'})) && !$haveobsrepositories) {
+      # no annotation or DoD container, assume obsrepositories:/
       push @newpath, {'project' => '_obsrepositories', 'repository' => ''};
-      $annotation = { 'repo' => [ { 'url' => 'obsrepositories:/' } ] };
+      $annotation ||= {};
+      $annotation->{'repo'} = [ { 'url' => 'obsrepositories:/' } ];
       $annotationbdep->{'annotation'} = BSUtil::toxml($annotation, $BSXML::binannotation);
     } elsif ($annotation && !$haveobsrepositories) {
       my $error = getpathfromannotation($ctx, $annotation, $annotationbdep, \@newpath);
@@ -279,10 +282,24 @@ sub check {
   }
 
   my @blocked;
+  if ($cpool && @cbdep && !$neverblock) {
+    for my $cbdep (@cbdep) {
+      my $p = $cbdep->{'p'};
+      my $aprp = $cpool->pkg2reponame($p);
+      my $n = $cbdep->{'name'};
+      $n =~ s/^container://;
+      if ($prp eq $aprp) {
+	push @blocked, $n if $notready->{$n};
+      } else {
+	push @blocked, "$aprp/$n" if $prpnotready->{$aprp}->{$n};
+      }
+    }
+  }
   for my $n (sort @edeps) {
     my $p = $dep2pkg{$n};
     my $aprp = $pool->pkg2reponame($p);
-    push @blocked, $prp ne $aprp ? "$aprp/$n" : $n if $nrs{$aprp}->{$n};
+    my $pname = $pool->pkg2srcname($p);
+    push @blocked, $prp ne $aprp ? "$aprp/$n" : $n if $nrs{$aprp}->{$pname};
     push @new_meta, $pool->pkg2pkgid($p)."  $aprp/$n" unless @blocked;
   }
   if (@blocked) {
@@ -327,8 +344,8 @@ sub build {
   my $repoid = $ctx->{'repository'};
   my $repo = $ctx->{'repo'};
 
-  if (!@{$repo->{'path'} || []}) {
-    # repo has no path, use docker repositories also for docker system setup
+  if (!$ctx->{'conf_host'} && !@{$repo->{'path'} || []}) {
+    # repo has no path and not cross building, use docker repositories also for docker system setup
     my $xp = BSSolv::expander->new($epool, $bconf);
     no warnings 'redefine';
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
@@ -362,6 +379,21 @@ sub build {
     }
     $ctx->{'extrabdeps'} = \@bdeps;
     $edeps = [];
+  }
+
+  if ($ctx->{'conf_host'}) {
+    # switch to host repo for buildenv expansion
+    my $xp = BSSolv::expander->new($ctx->{'pool_host'}, $ctx->{'conf_host'});
+    no warnings 'redefine';
+    local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
+    use warnings 'redefine';
+    $ctx->{'crossmode'} = 1;
+    $ctx->{'conf'} = $ctx->{'conf_host'};
+    $ctx->{'pool'} = $ctx->{'pool_host'};
+    $ctx->{'dep2pkg'} = $ctx->{'dep2pkg_host'};
+    $ctx->{'expander'} = $xp;
+    BSSched::BuildJob::add_container_deps($ctx, $cbdep);
+    return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
   }
 
   BSSched::BuildJob::add_container_deps($ctx, $cbdep);

@@ -13,7 +13,7 @@ class UserPolicy < ApplicationPolicy
     user == record || user.is_staff? || user.is_moderator? || user.is_admin?
   end
 
-  def block_commenting?
+  def censor?
     user.is_admin? || user.is_moderator?
   end
 end

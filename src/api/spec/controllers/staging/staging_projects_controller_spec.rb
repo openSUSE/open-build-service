@@ -297,7 +297,7 @@ RSpec.describe Staging::StagingProjectsController do
       let(:build_flag_disabled) { staging_project.disabled_for?('build', nil, nil) }
       let!(:target_relationship) { create(:relationship, project: target_project, user: user) }
       let!(:staging_relationship) { create(:relationship, project: staging_project, user: staging_owner) }
-      let!(:staged_request_1) do
+      let!(:staged_request) do
         create(
           :bs_request_with_submit_action,
           review_by_project: staging_project,

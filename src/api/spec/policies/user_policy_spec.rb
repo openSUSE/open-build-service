@@ -21,7 +21,7 @@ RSpec.describe UserPolicy do
     it { is_expected.to permit(user, user) }
   end
 
-  permissions :block_commenting? do
+  permissions :censor? do
     it { is_expected.not_to permit(user, other_user) }
     it { is_expected.to permit(admin, user) }
     it { is_expected.to permit(moderator, user) }

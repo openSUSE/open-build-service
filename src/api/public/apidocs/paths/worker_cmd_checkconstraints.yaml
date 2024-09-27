@@ -6,7 +6,7 @@ post:
     This endpoint doesn't create or modify any data.
 
     More information about constraints can be found in the
-    [user guide](https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.build_job_constraints.html).
+    [user guide](https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-build-constraints).
 
     This operation is the same as `POST /worker/command/run?cmd=checkconstraints`.
   security:

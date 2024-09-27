@@ -8,7 +8,7 @@ namespace :dev do
       include FactoryBot::Syntax::Methods
 
       factory = Project.where(name: 'openSUSE:Factory').first
-      admin = User.get_default_admin
+      admin = User.default_admin
       iggy = User.find_by(login: 'Iggy')
       [
         factory.comments.create!(user: admin, body: 'This project is crap!'),
@@ -51,7 +51,7 @@ namespace :dev do
       EventSubscription.create!(eventtype: Event::FavoredDecision.name, channel: :web, receiver_role: :reporter, enabled: true)
       EventSubscription.create!(eventtype: Event::FavoredDecision.name, channel: :web, receiver_role: :offender, enabled: true)
 
-      admin = User.get_default_admin
+      admin = User.default_admin
 
       Report.find_each do |report|
         # Reports with even id will be 'cleared' (0). Those with odd id will be 'favor' (1).

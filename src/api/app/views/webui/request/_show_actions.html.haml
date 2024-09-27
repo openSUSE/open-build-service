@@ -1,3 +1,4 @@
 - content_for :actions do
+  = render partial: 'webui/shared/lock_unlock_comment', locals: { commentable: bs_request }
   - if policy(Report.new(reportable: bs_request)).create?
     = render partial: 'webui/request/report_request', locals: { bs_request: bs_request }

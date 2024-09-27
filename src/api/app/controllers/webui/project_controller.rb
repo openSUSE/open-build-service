@@ -10,6 +10,8 @@ class Webui::ProjectController < Webui::WebuiController
   before_action :require_login, only: %i[create destroy new release_request
                                          new_release_request edit_comment]
 
+  # rubocop:disable Rails/LexicallyScopedActionFilter
+  # The methods save_person, save_group and remove_role are defined in Webui::ManageRelationships
   before_action :set_project, only: %i[autocomplete_repositories users subprojects
                                        edit release_request
                                        show buildresult
@@ -17,6 +19,7 @@ class Webui::ProjectController < Webui::WebuiController
                                        requests save monitor edit_comment
                                        unlock save_person save_group remove_role
                                        move_path clear_failed_comment pulse]
+  # rubocop:enable Rails/LexicallyScopedActionFilter
   before_action :set_project_by_id, only: :update
 
   before_action :load_project_info, only: :show
@@ -26,7 +29,7 @@ class Webui::ProjectController < Webui::WebuiController
   after_action :verify_authorized, except: %i[index autocomplete_projects autocomplete_incidents autocomplete_packages
                                               autocomplete_repositories users subprojects new show
                                               buildresult requests monitor new_release_request
-                                              remove_target_request edit_comment edit_comment_form]
+                                              remove_target_request edit_comment edit_comment_form preview_description]
 
   def index
     respond_to do |format|
@@ -39,7 +42,6 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def show
-    @bugowners_mail = @project.bugowner_emails
     @release_targets = @project.release_targets
 
     @has_patchinfo = @project.patchinfos.exists?
@@ -105,18 +107,13 @@ class Webui::ProjectController < Webui::WebuiController
   def update
     authorize @project, :update?
     respond_to do |format|
-      if @project.update(project_params)
-        format.html do
-          flash[:success] = 'Project was successfully updated.'
-          redirect_to project_show_path(@project)
+      format.js do
+        if @project.update(project_params)
+          @project.store
+          flash.now[:success] = 'Project was successfully updated.'
+        else
+          flash.now[:error] = 'Failed to update the project.'
         end
-        format.js { flash.now[:success] = 'Project was successfully updated.' }
-      else
-        format.html do
-          flash[:error] = 'Failed to update project'
-          redirect_to project_show_path(@project)
-        end
-        format.js
       end
     end
   end
@@ -164,7 +161,7 @@ class Webui::ProjectController < Webui::WebuiController
     @roles = Role.local_roles
     if User.session && params[:notification_id]
       @current_notification = Notification.find(params[:notification_id])
-      authorize @current_notification, :update?, policy_class: NotificationPolicy
+      authorize @current_notification, :update?, policy_class: NotificationCommentPolicy
     end
     @current_request_action = BsRequestAction.find(params[:request_action_id]) if User.session && params[:request_action_id]
   end
@@ -370,6 +367,18 @@ class Webui::ProjectController < Webui::WebuiController
     end
   end
 
+  def preview_description
+    markdown = helpers.render_as_markdown(params[:project][:description])
+    respond_to do |format|
+      format.json { render json: { markdown: markdown } }
+    end
+  end
+
+  def buildresults; end
+  def save; end
+  def pulse; end
+  def edit_comment_form; end
+
   private
 
   def show_all?
@@ -405,7 +414,8 @@ class Webui::ProjectController < Webui::WebuiController
       :access_protection,
       :source_protection,
       :disable_publishing,
-      :url
+      :url,
+      :report_bug_url
     )
   end
 

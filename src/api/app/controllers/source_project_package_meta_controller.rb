@@ -54,7 +54,7 @@ class SourceProjectPackageMetaController < SourceController
       pkg = prj.packages.new(name: @package_name)
     end
 
-    pkg.set_comment(params[:comment])
+    pkg.comment = params[:comment]
     pkg.update_from_xml(@request_data)
     render_ok
   end

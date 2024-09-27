@@ -1,6 +1,6 @@
 - content_for :actions do
-  - if bugowners_mail.present? && Configuration.bugzilla_url.present?
-    = render partial: 'webui/project/show_actions/report_bug', locals: { bugowners_mail: bugowners_mail, project: project }
+  %li.nav-item.action-report-bug
+    = render partial: 'webui/project/show_actions/report_bug', locals: { url: project.report_bug_or_bugzilla_url }
 
   - if project.is_locked? && User.possibly_nobody.can_modify?(project, true)
     = render partial: 'webui/project/show_actions/unlock_project', locals: { project: project }
@@ -21,5 +21,6 @@
         %i.fas.fa-compact-disc.fa-lg.me-2
         %span.nav-item-name New Image
 
+  = render partial: 'webui/shared/lock_unlock_comment', locals: { commentable: project }
   - if policy(Report.new(reportable: project)).create?
     = render partial: 'webui/project/show_actions/report_project', locals: { project: project }

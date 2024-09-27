@@ -34,7 +34,7 @@ module Person
     private
 
     def set_notifications
-      @notifications = User.session!.notifications
+      @notifications = User.session.notifications
       @notifications = @notifications.for_project_name(params[:project]) if params[:project]
       @notifications = @notifications.for_group_title(params[:group]) if params[:group]
       @notifications = filter_notifications_by_kind(@notifications, @filter_kind)
@@ -42,7 +42,7 @@ module Person
     end
 
     def set_notification
-      @notification = User.session!.notifications.find(params[:id])
+      @notification = User.session.notifications.find(params[:id])
     end
 
     def filter_notifications_by_state(notifications, filter_state)

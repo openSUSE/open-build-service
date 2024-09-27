@@ -1,8 +1,8 @@
 require Rails.root.join('db/data/20210205131609_remove_notifications_for_missing_notifiables.rb')
 RSpec.describe RemoveNotificationsForMissingNotifiables, type: :migration do
   describe 'up' do
-    let!(:notification1) { create(:notification, :comment_for_request) }
-    let!(:notification2) { create(:notification, :comment_for_request) }
+    let!(:notification1) { create(:notification_for_comment, :comment_for_request) }
+    let!(:notification2) { create(:notification_for_comment, :comment_for_request) }
 
     before do
       # Simulate the wrong behaviour we had before. When a BsRequest was removed,

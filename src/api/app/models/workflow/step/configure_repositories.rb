@@ -51,8 +51,8 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
     if step_instructions[:repositories].any? { |repository| !repository.key?(:paths) }
       errors.add(:base,
                  "configure_repositories step: Repository paths are now set under the 'paths' key. Refer to " \
-                 'https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.scm_ci_workflow_integration.html' \
-                 '#sec.obs.obs_scm_ci_workflow_integration.obs_workflows.steps.configure_repositories_architectures_for_a_project for an example')
+                 'https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-scm-ci-workflow-integration' \
+                 '#sec-obs-obs-scm-ci-workflow-integration-obs-workflows-steps-configure-repositories-architectures-for-a-project for an example')
     end
 
     required_repository_keys_sentence ||= REQUIRED_REPOSITORY_KEYS.map { |key| "'#{key}'" }.to_sentence

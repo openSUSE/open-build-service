@@ -5,7 +5,7 @@ class Webui::Users::BlockController < Webui::WebuiController
   after_action :verify_authorized
 
   def create
-    @user_block = User.session!.blocked_users.new(blocked: @displayed_user)
+    @user_block = User.session.blocked_users.new(blocked: @displayed_user)
 
     authorize @user_block
 
@@ -33,7 +33,7 @@ class Webui::Users::BlockController < Webui::WebuiController
   private
 
   def set_user_block
-    @user_block = BlockedUser.find_by(blocker: User.session!, blocked: @displayed_user)
+    @user_block = BlockedUser.find_by(blocker: User.session, blocked: @displayed_user)
   rescue ActiveRecord::RecordNotFound => e
     flash[:error] = e.message
     redirect_back_or_to user_path(@displayed_user)

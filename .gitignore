@@ -1,5 +1,4 @@
 # Project specific ignores IN ALPHABETIC ORDER
-/docs/api/html
 /docs/api/restility/doc
 /docs/api/restility/log
 /docs/api/restility/tmp

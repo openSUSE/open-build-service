@@ -13,6 +13,7 @@ class BsRequest
         reviews_conditions
 
         @relation = @relation.where("(#{@where_conditions.join(') or (')})", *@where_values.flatten) if @where_conditions.present?
+        @relation
       end
 
       private

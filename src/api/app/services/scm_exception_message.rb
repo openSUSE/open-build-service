@@ -38,14 +38,18 @@ class SCMExceptionMessage
       'Use the user/repo (String) format, or the repository ID (Integer), or a hash containing :repo and :user keys. Example: sferik/octokit.',
     Octokit::PathDiffTooLarge =>
       'Action can not be performed. File too large.',
-    Octokit::ServiceUnavailable =>
-      'Service is unavailable. Please try again later.',
-    Octokit::InternalServerError =>
-      'Internal error. Please try again later.',
     Octokit::UnprocessableEntity =>
       'Server is unable to process the contained instructions. Please modify your request and try again.',
-    Octokit::BadGateway =>
-      'Bad gateway. Please try again later.'
+    Octokit::InternalServerError => # 500
+      'Internal error. Please try again later.',
+    Octokit::NotImplemented =>      # 501
+      'The server does not support the functionality required to fulfill the request. Please modify your request and try again.',
+    Octokit::BadGateway =>          # 502
+      'Bad gateway. Please try again later.',
+    Octokit::ServiceUnavailable =>  # 503
+      'Service is unavailable. Please try again later.',
+    Octokit::ServerError =>         # 500..599
+      'Generic server error. Please try again later.'
   }.freeze
 
   GITLAB_EXCEPTIONS = {

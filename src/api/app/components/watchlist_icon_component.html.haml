@@ -8,9 +8,14 @@
                     action: toggle_watchable_path }) do
     %i.fas.fa-eye
     Unwatch
+    - if @watch_count.positive?
+      %span.badge.bg-secondary.rounded-pill= @watch_count
+
 - else
   = link_to(toggle_watchable_path, method: :put, remote: true,
             class: 'btn btn-outline-secondary text-nowrap',
             title: "Add #{watchable_type_text} to watchlist") do
     %i.far.fa-eye
     Watch
+    - if @watch_count.positive?
+      %span.badge.bg-secondary.rounded-pill= @watch_count

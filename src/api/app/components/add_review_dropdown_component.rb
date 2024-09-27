@@ -17,11 +17,11 @@ class AddReviewDropdownComponent < ApplicationComponent
     when review.by_package
       tag.i(nil, class: 'fa fa-archive me-2') + "#{review.by_project}/#{review.by_package}"
     when review.by_user
-      tag.i(nil, class: 'fa fa-user me-2') + "#{review.by_user}"
+      tag.i(nil, class: 'fa fa-user me-2') + review.by_user.to_s
     when review.by_group
-      tag.i(nil, class: 'fa fa-users me-2') + "#{review.by_group}"
+      tag.i(nil, class: 'fa fa-users me-2') + review.by_group.to_s
     when review.by_project
-      tag.i(nil, class: 'fa fa-cubes me-2') + "#{review.by_project}"
+      tag.i(nil, class: 'fa fa-cubes me-2') + review.by_project.to_s
     end
   end
 

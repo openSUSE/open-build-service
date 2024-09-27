@@ -1,0 +1,4 @@
+- if Flipper.enabled?(:labels, User.session)
+  = render partial: 'webui/shared/label', collection: LabelTemplate.where(id: labelable.labels.pluck(:label_template_id)), as: :label
+  - if policy(labelable).update_labels?
+    = render partial: 'webui/shared/label_form', locals: { labelable:, project: }

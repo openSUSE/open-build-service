@@ -101,7 +101,7 @@ namespace :dev do
       IssueTrackerWriteToBackendJob.perform_now
 
       iggy = create(:staff_user, login: 'Iggy')
-      admin = User.get_default_admin
+      admin = User.default_admin
       User.session = admin
 
       interconnect = create(:remote_project, name: 'openSUSE.org', remoteurl: 'https://api.opensuse.org/public')
@@ -159,8 +159,8 @@ namespace :dev do
           source_package: leap_apache
         )
         new_package1.staging_project = sworkflow.staging_projects.first
-        new_package1.reviews << create(:review, by_project: new_package1.staging_project)
         new_package1.save
+        create(:review, by_project: new_package1.staging_project, bs_request: new_package1)
         new_package1.change_review_state(:accepted, by_group: sworkflow.managers_group.title)
 
         new_package2 = create(
@@ -171,8 +171,8 @@ namespace :dev do
           source_package: leap_apache
         )
         new_package2.staging_project = sworkflow.staging_projects.second
-        new_package2.reviews << create(:review, by_project: new_package2.staging_project)
         new_package2.save
+        create(:review, by_project: new_package2.staging_project, bs_request: new_package2)
         new_package2.change_review_state(:accepted, by_group: sworkflow.managers_group.title)
         new_package2.change_review_state(:accepted, by_user: checker.login)
         new_package2.change_review_state(:accepted, by_group: osrt.title)
@@ -223,6 +223,8 @@ namespace :dev do
 
       # Trigger package builds for home:Admin
       home_admin.store
+
+      create_list(:label_template, 5, project: home_admin)
 
       # Create some Reports
       Rake::Task['dev:reports:data'].invoke

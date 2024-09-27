@@ -1,6 +1,6 @@
 class PackagePolicy < ApplicationPolicy
   # FIXME: Using more than 2 arguments is considered a code smell.
-  def initialize(user, record, ignore_lock = false)
+  def initialize(user, record, ignore_lock: false)
     super(user, record)
     @ignore_lock = ignore_lock
   end
@@ -19,6 +19,10 @@ class PackagePolicy < ApplicationPolicy
   end
 
   def update?
+    user.can_modify?(record)
+  end
+
+  def update_labels?
     user.can_modify?(record)
   end
 

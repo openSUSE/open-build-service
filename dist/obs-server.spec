@@ -135,36 +135,42 @@ fi										\
 Name:           obs-server
 Summary:        The Open Build Service -- Server Component
 License:        GPL-2.0-only OR GPL-3.0-only
-Group:          Productivity/Networking/Web/Utilities
 Version:        2.10~pre
 Release:        0
 Url:            http://www.openbuildservice.org
-BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        open-build-service-%version.tar.xz
 BuildRequires:  python-devel
+
+# None of our perl modules are for consumption
+%define __provides_exclude ^perl\\(
+
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
 # atm the obs rails version patch above unifies that setting among the applications
 # also see requires in the obs-server-api sub package
 BuildRequires:  openssl
-BuildRequires:  perl-BSSolv >= 0.36
-BuildRequires:  perl-Compress-Zlib
-BuildRequires:  perl-DBD-SQLite
-BuildRequires:  perl-Diff-LibXDiff
-BuildRequires:  perl-File-Sync >= 0.10
-BuildRequires:  perl-JSON-XS
-BuildRequires:  perl-URI
-BuildRequires:  perl-Net-SSLeay
-BuildRequires:  perl-Socket-MsgHdr
-BuildRequires:  perl-TimeDate
-BuildRequires:  perl-XML-Parser
-BuildRequires:  perl-XML-Simple
-BuildRequires:  perl-XML-Structured
-BuildRequires:  perl-YAML-LibYAML
 BuildRequires:  procps
+BuildRequires:  perl-BSSolv >= 0.36
+BuildRequires:  perl(Compress::Zlib)
+BuildRequires:  perl(DBD::SQLite)
+BuildRequires:  perl(Date::Format)
 BuildRequires:  perl(Devel::Cover)
+BuildRequires:  perl(Diff::LibXDiff)
+BuildRequires:  perl(File::Sync) >= 0.10
+BuildRequires:  perl(JSON::XS)
+BuildRequires:  perl(Net::SSLeay)
+BuildRequires:  perl(Socket::MsgHdr)
 BuildRequires:  perl(Test::Simple) > 1
+BuildRequires:  perl(URI)
+BuildRequires:  perl(XML::Parser)
+BuildRequires:  perl(XML::Simple)
+BuildRequires:  perl(YAML::LibYAML)
 # for the resolve_swagger_yaml.rb script
+
+# old obs-server packages provided this module, so hardcode package name for now
+BuildRequires:  perl-XML-Structured
+#BuildRequires:  perl(XML::Structured)
+
 BuildRequires:  %{rubygem hana}
 BuildRequires:  %{rubygem json_refs}
 # /for the resolve_swagger_yaml.rb script
@@ -210,28 +216,30 @@ Recommends:     obs-signd
 Recommends:     inst-source-utils
 %endif
 
-Recommends:     perl-Diff-LibXDiff
+Recommends:     perl(Diff::LibXDiff)
 %else
 Recommends:       dpkg
 Recommends:       yum
 Recommends:       yum-metadata-parser
 %endif
-Requires:       perl-Compress-Zlib
-Requires:       perl-File-Sync >= 0.10
-Requires:       perl-JSON-XS
-Requires:       perl-Net-SSLeay
-Requires:       perl-Socket-MsgHdr
-Requires:       perl-XML-Parser
-Requires:       perl-XML-Simple
-Requires:       perl-XML-Structured
-Requires:       perl-YAML-LibYAML
+Requires:       perl(Compress::Zlib)
+Requires:       perl(DBD::SQLite)
+Requires:       perl(Diff::LibXDiff)
+Requires:       perl(File::Sync) >= 0.10
+Requires:       perl(JSON::XS)
+Requires:       perl(URI)
+Requires:       perl(Net::SSLeay)
+Requires:       perl(Socket::MsgHdr)
+Requires:       perl(Date::Format)
+Requires:       perl(XML::Parser)
+Requires:       perl(XML::Simple)
+Requires:       perl(XML::Structured)
+Requires:       perl(YAML::LibYAML)
+
 Requires:       user(obsrun)
 Requires:       user(obsservicerun)
 # zstd is esp for Arch Linux
 Requires:       zstd
-# needed for optional sqlite databases, which are default for new installations
-Requires:     perl-DBD-SQLite
-Requires:     perl-URI
 
 Obsoletes:      obs-productconverter < 2.9
 Obsoletes:      obs-source_service < 2.9
@@ -257,25 +265,23 @@ calculates the need for new build jobs and distributes it.
 Requires(pre):  obs-common
 Requires:       cpio
 Requires:       curl
-Requires:       perl-Compress-Zlib
-Requires:       perl-TimeDate
-Requires:       perl-XML-Parser
+Requires:       perl(Compress::Zlib)
+Requires:       perl(Date::Parse)
+Requires:       perl(XML::Parser)
 Requires:       screen
-# for build script
-Requires:       psmisc
 # For runlevel script:
 Requires:       curl
 Recommends:     openslp lvm2
 Requires:       bash
 Requires:       binutils
-Requires:       bsdtar
-# zstd is esp for Arch Linux
-Requires:       zstd
 Summary:        The Open Build Service -- Build Host Component
 Group:          Productivity/Networking/Web/Utilities
 Requires:       util-linux >= 2.16
 # the following may not even exist depending on the architecture
 Recommends:     powerpc32
+# We recommend build script install here as well to follow deps from build script.
+# it won't be used though, because current code will be transfered from rep_server
+Recommends:     build
 
 %description -n obs-worker
 This is the obs build host, to be installed on each machine building
@@ -323,6 +329,7 @@ Requires:       ghostscript-fonts-std
 %else
 # - nothing provides ghostscript-fonts-std needed by obs-api-2.11~alpha.20200117T213441.b4cf6c4da5-9555.1.noarch
 %endif
+Requires:       procps
 Requires:       obs-api-deps = %{version}
 Requires:       obs-bundled-gems = %{version}
 
@@ -482,11 +489,6 @@ pushd src/api
 bundle --local --path %_libdir/obs-api/
 rm -rf vendor/cache/* vendor/cache.next/*
 popd
-
-#
-# generate apidocs
-#
-make
 
 %if 0%{?suse_version} >= 1500
 %sysusers_generate_pre dist/system-user-obsrun.conf obsrun system-user-obsrun.conf
@@ -956,7 +958,6 @@ fi
 /usr/sbin/rcobsservice
 %endif
 %{obs_backend_dir}/bs_service
-%{obs_backend_dir}/call-service-in-docker.sh
 %{obs_backend_dir}/call-service-in-container
 %{obs_backend_dir}/run-service-containerized
 %{obs_backend_dir}/cleanup_scm_cache

@@ -1174,8 +1174,13 @@ sub getprojpack {
       }
     }
     next unless $proj;
-    for (qw{kind link}) {
+    for (qw{kind link scmsync}) {
       $jinfo->{$_} = $proj->{$_} if exists $proj->{$_};
+    }
+    if ($proj->{'scmsync'} && !$proj->{'remoteurl'}) {
+      # get the scm info from the last commit
+      my $lastrev = eval { BSRevision::getrev_local($projid, '_project') };
+      $proj->{'scminfo'} = $1 if $lastrev && $lastrev->{'comment'} && $lastrev->{'comment'} =~ /\[info=([0-9a-f]{1,128})\]$/;
     }
 
     my $is_limited;
@@ -1490,6 +1495,11 @@ sub getprojpack {
 	next;
       }
       if ($cgi->{'withsrcmd5'} || $cgi->{'withdeps'}) {
+	my $scm_error;
+	if ($pack->{'scmsync'}) {
+	  my $servicemark = BSSrcServer::Service::genservicemark_obsscm($projid, $packid);
+	  $scm_error = BSSrcrep::getserviceerror($projid, $packid, $servicemark);
+	}
         my $rev;
 	my $linked = [];
 	$BSSrcServer::Remote::collect_remote_getrev = 1 unless $packages_pass;
@@ -1509,7 +1519,7 @@ sub getprojpack {
  	  next;
 	}
 	if (!$rev || $rev->{'srcmd5'} eq 'empty' || $rev->{'srcmd5'} eq $BSSrcrep::emptysrcmd5) {
-	  $pinfo->{'error'} = 'no source uploaded';
+	  $pinfo->{'error'} = $scm_error || 'no source uploaded';
 	  next;
 	}
 	$pinfo->{'srcmd5'} = $rev->{'srcmd5'};
@@ -1525,13 +1535,9 @@ sub getprojpack {
 	    }
 	  }
 	}
-	if ($pack->{'scmsync'}) {
-	  my $servicemark = BSSrcServer::Service::genservicemark_obsscm($projid, $packid);
-	  my $serviceerror = BSSrcrep::getserviceerror($projid, $packid, $servicemark);
-          if ($serviceerror) {
-	    $pinfo->{'error'} = $serviceerror;
-	    next;
-	  }
+	if ($scm_error) {
+	  $pinfo->{'error'} = $scm_error;
+	  next;
 	}
 	my $files;
 	eval {
@@ -2373,7 +2379,8 @@ sub putpackage {
 sub delpackage {
   my ($cgi, $projid, $packid) = @_;
   $cgi->{'comment'} ||= 'package was deleted';
-  die("404 project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
+  my $proj = BSRevision::readproj_local($projid);
+  die("$projid is controlled by obs-scm\n") if $proj->{'scmsync'};
   die("404 package '$packid' does not exist in project '$projid'\n") unless -e "$projectsdir/$projid.pkg/$packid.xml";
   if ($packid =~ /^_product:/) {
     die("403 cannot delete '$packid' if a '_product' package exists\n") if -e "$projectsdir/$projid.pkg/_product.xml";
@@ -2403,7 +2410,8 @@ sub delpackage {
 sub undeletepackage {
   my ($cgi, $projid, $packid) = @_;
   $cgi->{'comment'} ||= 'package was undeleted';
-  die("404 project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
+  my $proj = BSRevision::readproj_local($projid);
+  die("$projid is controlled by obs-scm\n") if $proj->{'scmsync'};
   die("403 package '$packid' already exists\n") if -e "$projectsdir/$projid.pkg/$packid.xml";
   die("403 package '$packid' was not deleted\n") unless -e "$projectsdir/$projid.pkg/$packid.rev.del";
   BSRevision::undelete_rev($cgi, $projid, $packid, "$projectsdir/$projid.pkg/$packid.mrev.del", "$projectsdir/$projid.pkg/$packid.mrev");
@@ -2714,6 +2722,7 @@ sub getprojectconfig {
 sub putprojectconfig {
   my ($cgi, $projid) = @_;
   my $proj = BSRevision::readproj_local($projid);
+  die("$projid is controlled by obs-scm\n") if $proj->{'scmsync'};
   mkdir_p($uploaddir);
   my $uploadfile = "$uploaddir/$$";
   die("upload failed\n") unless BSServer::read_file($uploadfile);
@@ -2729,6 +2738,8 @@ sub putprojectconfig {
 
 sub delprojectconfig {
   my ($cgi, $projid) = @_;
+  my $proj = BSRevision::readproj_local($projid);
+  die("$projid is controlled by obs-scm\n") if $proj->{'scmsync'};
   BSRevision::addrev_local_replace($cgi, $projid, undef, [ undef, "$projectsdir/$projid.conf", '_config' ]);
   notify_repservers('project', $projid);
   notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
@@ -6076,7 +6087,9 @@ sub getsignkey {
       $pk = BSSrcServer::Signkey::getdefaultpubkey($projid, $signtype, $signflavor);
     } else {
       $pk = readstr("$projectsdir/$skprojid.pkg/_pubkey", 1);
+      undef $pk if $pk && length($pk) <= 2;
       $pk = autoextend_check($skprojid, $pk) if $cgi->{'withpubkey'} && $cgi->{'autoextend'};
+      $pk = BSSrcServer::Signkey::getdefaultpubkey($projid, $signtype, $signflavor) if !$pk && $BSConfig::sign_project && $BSConfig::sign;
     }
     if ($cgi->{'withalgo'} && $sk !~ /^\S+:/) {
       my $algo = '?';
@@ -6679,7 +6692,7 @@ sub getdispatchprios {
 ####################################################################
 
 sub sourceinfo {
-  my ($cgi, $projid, $packid, $bconf) = @_;
+  my ($cgi, $projid, $packid, $bconf, $ispkgsourceinfo) = @_;
   my $r = {'package' => $packid};
   my $linked = [];
   my $rev;
@@ -6688,8 +6701,12 @@ sub sourceinfo {
     my $meta = readstr("$projectsdir/$projid.pkg/$packid.xml", 1) || '';
     $r->{'metamd5'} = Digest::MD5::md5_hex($meta);
   }
-  eval {
+  if ($ispkgsourceinfo) {
+    # do the getrev outside of the eval to get better error reporting
     $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'build', $linked);
+  }
+  eval {
+    $rev ||= getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'build', $linked);
     $r->{'srcmd5'} = $rev->{'srcmd5'} if $rev->{'srcmd5'} ne 'empty';
     $r->{'rev'} = $rev->{'rev'} if $rev->{'rev'};
     $r->{'vrev'} = $rev->{'vrev'} if $rev->{'vrev'};
@@ -6883,7 +6900,7 @@ sub getpackagesourceinfo {
     }
     $bconf = Build::read_config($cgi->{'arch'} || 'noarch', $cfile);
   }
-  my $res = sourceinfo($cgi, $projid, $packid, $bconf);
+  my $res = sourceinfo($cgi, $projid, $packid, $bconf, 1);
   return ($res, $BSXML::sourceinfo);
 }
 

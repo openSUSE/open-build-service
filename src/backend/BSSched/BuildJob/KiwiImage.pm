@@ -62,8 +62,16 @@ sub new {
 
 =cut
 
+# try to expand container dependencies. This is just for sorting
+# purposes, as we re-expand in check() with the correct pool setup.
 sub expand {
-  return 1, splice(@_, 3);
+  my ($self, $bconf, $subpacks, @deps) = @_;
+  my @containerdeps = grep {/^container:/} @deps;
+  return 1 unless @containerdeps;
+  my ($cok, @cdeps) = Build::expand($bconf, @containerdeps);
+  return 1 unless $cok;		# continue anyway if the expansion fails as we're not using the correct pool
+  return (0, 'weird result of container expansion') unless @cdeps > 0 && @cdeps <= @containerdeps && !grep {!/^container:/} @cdeps;
+  return $cok, @cdeps;
 }
 
 
@@ -217,10 +225,22 @@ sub check {
   }
 
   my @blocked;
+  if ($cpool && $cbdep && !$neverblock) {
+    my $p = $cbdep->{'p'};
+    my $aprp = $cpool->pkg2reponame($p);
+    my $n = $cbdep->{'name'};
+    $n =~ s/^container://;
+    if ($prp eq $aprp) {
+      push @blocked, $n if $notready->{$n};
+    } else {
+      push @blocked, "$aprp/$n" if $prpnotready->{$aprp}->{$n};
+    }
+  }
   for my $n (sort @edeps) {
     my $p = $dep2pkg{$n};
     my $aprp = $pool->pkg2reponame($p);
-    push @blocked, $prp ne $aprp ? "$aprp/$n" : $n if $nrs{$aprp}->{$n};
+    my $pname = $pool->pkg2srcname($p);
+    push @blocked, $prp ne $aprp ? "$aprp/$n" : $n if $nrs{$aprp}->{$pname};
     push @new_meta, $pool->pkg2pkgid($p)."  $aprp/$n" unless @blocked;
   }
   if (@blocked) {

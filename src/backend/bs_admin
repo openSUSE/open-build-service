@@ -70,6 +70,37 @@ my $sourcedb = "$BSConfig::bsdir/db/source";
 my $rundir  = "$BSConfig::bsdir/run";
 my $dodsdir = "$BSConfig::bsdir/dods";
 
+no warnings 'once';
+my $sc_bsdir       = $BSConfig::bsdir           || '/srv/obs';
+my $sc_root        = $BSConfig::containers_root || "$sc_bsdir/service/containers";
+my $sc_container   = $BSConfig::container_image || "localhost/obs-source-service-podman:latest";
+my $sc_serviceuser = $BSConfig::bsserviceuser   || "obsservicerun";
+use warnings 'all';
+
+my $sc_help = <<SC_HELP;
+Service Containers
+==================
+
+  --sc
+    Short form of --service-container
+
+  --service-container <podman_command> [sc_options] [podman_options]
+    Alias: --sc
+    Run podman command as '$sc_serviceuser' in '$sc_root'
+
+
+  --service-container launch [sc_options] [command] [parameters]
+    Run 'command' with optional 'parameters' in a service container
+    Default command: /bin/bash
+
+  --service-container help
+    Print this help
+
+  Service Container Options:
+  --------------------------
+    --debug - Print additional debug output
+
+SC_HELP
 
 sub echo_help {
     print "\n
@@ -268,6 +299,7 @@ Dispatcher Maintenance
  --drop-badhosts
    Drop information about badhosts in bs_dispatch
 
+$sc_help
 ";
 }
 my $emptymd5 = 'd41d8cd98f00b204e9800998ecf8427e';
@@ -1338,6 +1370,33 @@ while (@ARGV) {
       or die("ERROR: getpwnam($BSConfig::bsuser) FAILED");
     chown $uid, $gid, "$projectsdir/$projid.pkg/_signkey", "$projectsdir/$projid.pkg/_pubkey"
       or die("ERROR: chown $uid, $gid, $projectsdir/$projid.pkg/_signkey, $projectsdir/$projid.pkg/_pubkey FAILED");
+  } elsif ($arg eq "--sc" or $arg eq "--service-container") {
+    my $action     = shift @ARGV;
+    my $debug      = (@ARGV && $ARGV[0] =~ /^(-d|--debug)$/) ? shift @ARGV : 0;
+    die "Please specify a podman command\n" unless $action;
+
+    # Enforce a real subshell to use type as it is an shell builtin
+    my ($podman, undef) = `$::ENV{SHELL} -c "type -P podman"`;
+    die "No 'podman' command found in PATH=$::ENV{PATH}!\n" unless $podman;
+    chomp $podman;
+
+    my $actions = {
+      launch => sub {
+       "$podman --root $sc_root run -it --rm $sc_container ". (@ARGV ? "@ARGV" : '/bin/bash')
+      },
+      help => sub {
+       print $sc_help;
+       exit 0;
+      },
+    };
+    print "Starting $action\n" if $debug;
+    my $podman_cmd = (ref($actions->{$action}))
+                       ? $actions->{$action}->()
+                       : "$podman --root $sc_root $action @ARGV";
+    my @cmd = (qw{su -s /bin/bash -c}, $podman_cmd, '-', $sc_serviceuser);
+    print "Executing:\n@cmd\n" if $debug;
+    system(@cmd);
+    exit $? >> 8;
   } else {
     echo_help();
     exit(1)

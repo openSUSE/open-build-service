@@ -130,26 +130,27 @@ sub pubkeyinfo {
   my ($pk) = @_;
 
   my ($algo, $curve, $keysize);
-  my $fingerprint;
-  my $expire;
-  my $userid;
+  my $pku;
   eval {
-    my $pku = BSPGP::unarmor($pk);
+    $pku = BSPGP::unarmor($pk);
     my $d = BSPGP::pk2keydata($pku);
     $algo = $d->{'algo'} if $d->{'algo'};
     $curve = $d->{'curve'} if $d->{'curve'};
     $keysize = $d->{'keysize'} if $d->{'keysize'};
-    eval { $fingerprint = BSPGP::pk2fingerprint($pku) };
-    eval { $expire = BSPGP::pk2expire($pku) };
-    eval { $userid = BSPGP::pk2userid($pku) };
   };
   warn($@) if $@;
+  my ($fingerprint, $keyid, $expire, $userid);
+  if ($pku) {
+    eval { ($fingerprint, $keyid) = BSPGP::pk2fingerprint_keyid($pku) };
+    eval { $expire = BSPGP::pk2expire($pku) };
+    eval { $userid = BSPGP::pk2userid($pku) };
+  }
   my $pubkey = {};
   $pubkey->{'algo'} = $algo if $algo;
   $pubkey->{'keysize'} = $keysize if $keysize;
   $pubkey->{'userid'} = $userid if defined $userid;
+  $pubkey->{'keyid'} = $keyid if $keyid;
   if ($fingerprint) {
-    $pubkey->{'keyid'} = substr($fingerprint, -16, 16);
     $fingerprint =~ s/(....)/$1 /g;
     $fingerprint =~ s/ $//;
     $pubkey->{'fingerprint'} = $fingerprint;

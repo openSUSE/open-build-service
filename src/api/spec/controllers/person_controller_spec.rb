@@ -17,11 +17,11 @@ RSpec.describe PersonController do
     end
   end
 
-  describe 'GET #get_userinfo' do
+  describe 'GET #userinfo' do
     context 'called by a user' do
       before do
         login user
-        get :get_userinfo, params: { login: user.login }
+        get :userinfo, params: { login: user.login }
       end
 
       it { expect(response.body).to have_css('person > login', text: user.login) }
@@ -37,7 +37,7 @@ RSpec.describe PersonController do
     context 'called by an admin' do
       before do
         login admin_user
-        get :get_userinfo, params: { login: user.login }
+        get :userinfo, params: { login: user.login }
       end
 
       it { expect(response.body).to have_css('person > login', text: user.login) }
@@ -184,7 +184,7 @@ RSpec.describe PersonController do
     end
   end
 
-  describe 'GET #get_watchlist' do
+  describe 'GET #watchlist' do
     context 'user logged-in' do
       let(:xml) do
         <<-XML_DATA
@@ -206,7 +206,7 @@ RSpec.describe PersonController do
         user.watched_items.create(watchable: delete_request)
         login user
 
-        get :get_watchlist, params: { login: user.login }
+        get :watchlist, params: { login: user.login }
       end
 
       it 'returns watchlist' do

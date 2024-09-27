@@ -27,10 +27,10 @@ constraints(RoutesHelper::APIMatcher) do
   put '/my/notifications/:id' => 'person/notifications#update'
 
   # /FIXME3.0
-  get 'person/:login' => 'person#get_userinfo', constraints: cons
+  get 'person/:login' => 'person#userinfo', constraints: cons
   put 'person/:login' => 'person#put_userinfo', constraints: cons
   post 'person/:login' => 'person#post_userinfo', constraints: cons
-  get 'person/:login/watchlist' => 'person#get_watchlist', constraints: cons
+  get 'person/:login/watchlist' => 'person#watchlist', constraints: cons
   put 'person/:login/watchlist' => 'person#put_watchlist', constraints: cons
 
   ### /group
@@ -143,9 +143,8 @@ constraints(RoutesHelper::APIMatcher) do
 
   ### /request
 
-  resources :request, only: %i[index show update destroy]
+  resources :request, only: %i[index show create update destroy]
 
-  post 'request' => 'request#global_command'
   post 'request/:id' => 'request#request_command', constraints: cons
 
   ### /lastevents
@@ -250,7 +249,7 @@ end
 
 controller :source do
   # package level
-  get '/source/:project/_project/:filename' => :get_file, constraints: cons, defaults: { format: 'xml' }
+  get '/source/:project/_project/:filename' => :show_file, constraints: cons, defaults: { format: 'xml' }
 end
 
 controller :source_project_package_meta do
@@ -267,7 +266,7 @@ controller :source do
   get 'source/:project/_pubkey' => :show_project_pubkey, constraints: cons
   delete 'source/:project/_pubkey' => :delete_project_pubkey, constraints: cons
 
-  get 'source/:project/:package/:filename' => :get_file, constraints: cons, defaults: { format: 'xml' }
+  get 'source/:project/:package/:filename' => :show_file, constraints: cons, defaults: { format: 'xml' }
   delete 'source/:project/:package/:filename' => :delete_file, constraints: cons
   put 'source/:project/:package/:filename' => :update_file, constraints: cons
 
@@ -337,8 +336,6 @@ defaults format: 'xml' do
     delete 'comment/:id' => :destroy, constraints: cons, as: :comment_delete
   end
 end
-
-get 'apidocs-old/:filename' => 'webui/apidocs#file', constraints: cons
 
 # spiders request this, not browsers
 controller 'webui/sitemaps' do

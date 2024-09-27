@@ -373,16 +373,16 @@ RSpec.describe Webui::UsersController do
         login(moderator)
       end
 
-      context 'blocking the ability of a user to create comments' do
+      context 'censor the user so they can not comment' do
         before do
-          put :block_commenting, params: { login: user.login, user: { blocked_from_commenting: 'true' } }
+          put :censor, params: { login: user.login, user: { censored: 'true' } }
         end
 
-        it { expect(user.reload.blocked_from_commenting).to be(true) }
-        it { expect(flash[:success]).to eq("User '#{user.login}' successfully blocked from commenting.") }
+        it { expect(user.reload.censored).to be(true) }
+        it { expect(flash[:success]).to eq("User '#{user.login}' successfully censored, they can't comment.") }
       end
 
-      context 'passing parameters other than the blocked_from_commenting' do
+      context 'passing parameters other than censored' do
         before do
           post :update, params: { login: user.login, user: { email: 'foo@bar.baz' } }
         end

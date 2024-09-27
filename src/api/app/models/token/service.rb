@@ -22,7 +22,7 @@ end
 #  triggered_at                :datetime
 #  type                        :string(255)
 #  workflow_configuration_path :string(255)      default(".obs/workflows.yml")
-#  workflow_configuration_url  :string(255)
+#  workflow_configuration_url  :string(8192)
 #  executor_id                 :integer          not null, indexed
 #  package_id                  :integer          indexed
 #

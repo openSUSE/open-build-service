@@ -1,4 +1,4 @@
-.card.write-and-preview{ data: { preview_message_url: preview_message_url, message_body_param: 'status_message[message]' } }
+.card.write-and-preview{ data: { preview_message_url: preview_message_url, message_body_param: message_body_param } }
   %ul.nav.nav-tabs.px-3.pt-2.disable-link-generation{ role: 'tablist' }
     %li.nav-item
       = link_to('Write', '#write_message', class: 'nav-link active', data: { 'bs-toggle': 'tab' }, role: 'tab',
@@ -9,8 +9,8 @@
       role: 'tab', aria: { controls: 'preview-message-tab', selected: 'false' })
   .tab-content.px-3
     .tab-pane.fade.show.active.my-3{ id: 'write_message', role: 'tabpanel', 'aria-labelledby': 'write-message-tab' }
-      ~ form.text_area(:message, rows: '4', required: true,
-        placeholder: 'Write your message here... (Markdown markup is supported)',
+      ~ form.text_area(text_area_attributes[:object_name], rows: text_area_attributes[:rows], required: text_area_attributes[:required],
+        placeholder: text_area_attributes[:placeholder],
         class: 'w-100 form-control message-field')
     .tab-pane.fade{ id: 'preview_message', role: 'tabpanel', 'aria-labelledby': 'preview-message-tab' }
       .message-preview.my-3

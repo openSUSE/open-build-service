@@ -102,6 +102,7 @@ FactoryBot.define do
       end
     end
 
+    # FIXME: Repository.name and architecture should be transient
     factory :project_with_repository do
       after(:create) do |project|
         create(:repository, project: project, architectures: ['i586'])
@@ -113,7 +114,7 @@ FactoryBot.define do
       kind { 'maintenance_incident' }
 
       transient do
-        maintenance_project { create(:maintenance_project) }
+        maintenance_project { create(:maintenance_project) } # rubocop:disable FactoryBot/FactoryAssociationWithStrategy
       end
 
       before(:create) do |project, evaluator|
@@ -163,7 +164,7 @@ FactoryBot.define do
       kind { 'maintenance_release' }
 
       transient do
-        maintained_project { create(:project_with_repository) }
+        maintained_project { association :project_with_repository }
         maintenance_project { nil }
       end
 

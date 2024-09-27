@@ -4,6 +4,7 @@ class BsRequestAction < ApplicationRecord
   include BsRequestAction::Errors
   #### Constants
   VALID_SOURCEUPDATE_OPTIONS = %w[update noupdate cleanup].freeze
+  TYPES = %w[set_bugowner change_devel delete maintenance_incident maintenance_release release add_role submit].freeze
 
   #### Self config
 
@@ -111,7 +112,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def is_from_remote?
-    Project.unscoped.is_remote_project?(source_project, true)
+    Project.unscoped.is_remote_project?(source_project, skip_access: true)
   end
 
   def store_from_xml(hash)
@@ -213,7 +214,7 @@ class BsRequestAction < ApplicationRecord
     end
   end
 
-  def set_acceptinfo(ai)
+  def fill_acceptinfo(ai)
     self.bs_request_action_accept_info = BsRequestActionAcceptInfo.create(ai)
   end
 
@@ -809,7 +810,7 @@ class BsRequestAction < ApplicationRecord
     user && user.can_modify?(target_package_object || target_project_object)
   end
 
-  def set_sourceupdate_default(user)
+  def cleanup_sourceupdate(user)
     return if sourceupdate || %i[submit maintenance_incident].exclude?(action_type)
 
     update(sourceupdate: 'cleanup') if target_project && user.branch_project_name(target_project) == source_project
@@ -870,6 +871,10 @@ class BsRequestAction < ApplicationRecord
     Project.unscoped.find_by(name: source_project)&.disabled_for?('access', nil, nil)
   end
 
+  def embargo_date
+    Project.unscoped.find_by(name: source_project)&.embargo_date
+  end
+
   private
 
   def cache_diffs
@@ -878,7 +883,7 @@ class BsRequestAction < ApplicationRecord
     # global_write_through is only disabled in test env. Otherwise, it's always enabled.
     return unless CONFIG['global_write_through']
 
-    set_sourceupdate_default(User.session!)
+    cleanup_sourceupdate(User.session!)
     BsRequestActionWebuiInfosJob.perform_later(self)
   end
 
@@ -1004,12 +1009,11 @@ class BsRequestAction < ApplicationRecord
   # find default reviewers of a project/package via role
   def find_reviewers(obj, disable_project: false)
     # obj can be a project or package object
-    reviewers = []
     reviewer_id = Role.hashed['reviewer'].id
 
     # check for reviewers in a package first
-    obj.relationships.users.where(role_id: reviewer_id).pluck(:user_id).each do |r|
-      reviewers << User.find(r)
+    reviewers = obj.relationships.users.where(role_id: reviewer_id).pluck(:user_id).map do |r|
+      User.find(r)
     end
     obj.relationships.groups.where(role_id: reviewer_id).pluck(:group_id).each do |r|
       reviewers << Group.find(r)

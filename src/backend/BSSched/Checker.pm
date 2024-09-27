@@ -132,7 +132,8 @@ sub set_repo_state {
   my ($ctx, $state, $details) = @_;
 
   my $gdst = $ctx->{'gdst'};
-  my $myarch = $ctx->{'gctx'}->{'arch'};
+  my $gctx = $ctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $oldstate = readstr("$gdst/:schedulerstate", 1);
   if ($oldstate) {
     if (substr($oldstate, 0, 4) eq 'pst0') {
@@ -184,6 +185,15 @@ sub set_repo_state {
       $ctx->notify('REPO_BUILD_FINISHED', $id);
     }
     $newstate->{'repostateid'} = $repostateid;
+  }
+  my $proj = $ctx->{'project'} ? ($gctx->{'projpacks'} || {})->{$ctx->{'project'}} : undef;
+  if ($proj) {
+    delete $newstate->{'scmsync'};
+    delete $newstate->{'scminfo'};
+    if ($proj->{'scmsync'}) {
+      $newstate->{'scmsync'} = $proj->{'scmsync'};
+      $newstate->{'scminfo'} = $proj->{'scminfo'} if $proj->{'scminfo'};
+    }
   }
   unlink("$gdst/:schedulerstate.dirty") if $state eq 'scheduling' || $state eq 'broken' || $state eq 'disabled';
   mkdir_p($gdst) unless -d $gdst;
@@ -324,6 +334,9 @@ sub setup {
     # could still do channels/aggregates/patchinfos, but hey...
     my $lastprojid = (split('/', $prpsearchpath->[-1]))[0];
     return ('broken', "no build type ($lastprojid)");
+  }
+  if ($prptype eq 'excluded' || $prptype eq 'disabled') {
+    return ($prptype, undef);
   }
   $ctx->{'prptype'} = $prptype;
   my $pdatas = $proj->{'package'} || {};
@@ -525,6 +538,7 @@ sub preparehashes {
     my $rprp = $pool->pkg2reponame($p);
     my $n = $pool->pkg2name($p);
     my $sn = $pool->pkg2srcname($p) || $n;
+    $sn =~ s/^container://;
     $dep2pkg{$n} = $p;
     $dep2src{$n} = $sn;
     if ($rprp eq $prp) {
@@ -1246,7 +1260,8 @@ sub checkpkgs {
 
     # all checks ok, dispatch to handler
     my $handler = $handlers{$buildtype} || $handlers{default};
-    my ($astatus, $aerror) = $handler->check($ctx, $packid, $pdata, $info, $buildtype);
+    my $edeps = $ctx->{'edeps'}->{$packid} || [];
+    my ($astatus, $aerror) = $handler->check($ctx, $packid, $pdata, $info, $buildtype, $edeps);
     if ($astatus eq 'scheduled') {
       # aerror contains rebuild data in this case
       ($astatus, $aerror) = $handler->build($ctx, $packid, $pdata, $info, $aerror);
@@ -1339,10 +1354,12 @@ sub checkpkgs {
   BSSched::BuildJob::killunwantedjobs($ctx->{'gctx'}, $prp, \%packstatus);
 
   # write new package status
-  BSUtil::store("$gdst/.:packstatus", "$gdst/:packstatus", {
-    'packstatus' => \%packstatus,
-    'packerror' => \%packerror,
-  });
+  my $prpstatus = { 'packstatus' => \%packstatus, 'packerror' => \%packerror };
+  if ($proj->{'scmsync'}) {
+    $prpstatus->{'scmsync'} = $proj->{'scmsync'};
+    $prpstatus->{'scminfo'} = $proj->{'scminfo'};
+  }
+  BSUtil::store("$gdst/.:packstatus", "$gdst/:packstatus", $prpstatus);
   if (%building) {
     prune_packstatus_finished($gdst, \%building);
   } else {
@@ -1714,6 +1731,19 @@ sub append_info_path {
     BSSched::ProjPacks::get_remoteproject($gctx, $async, $projid);
   }
   return $ret;
+}
+
+# create an estimation about how each package is needed. We put this information
+# in the build job so that the dispatcher can use it to priorize needed jobs.
+sub create_rebuildpackage_needed {
+  my ($ctx) = @_;
+  my $needed = $ctx->{'rebuildpackage_needed'} = {};
+  my $edeps = $ctx->{'edeps'};
+  my $dep2src = $ctx->{'dep2src'};
+  for my $p (keys %$edeps) {
+    $needed->{$_}++ for map { $dep2src->{$_} || $_ } @{$edeps->{$p}};
+  }
+  return $needed;
 }
 
 1;

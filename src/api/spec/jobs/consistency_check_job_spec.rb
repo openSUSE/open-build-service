@@ -17,7 +17,7 @@ RSpec.describe ConsistencyCheckJob, :vcr do
       # rubocop:enable RSpec/AnyInstance
     end
 
-    it { expect(consistency_checkjob.check_one_project(project, false)).to be_empty }
+    it { expect(consistency_checkjob.check_one_project(project, fix: false)).to be_empty }
   end
 
   describe '#check_project' do
@@ -33,7 +33,7 @@ RSpec.describe ConsistencyCheckJob, :vcr do
     end
 
     context 'fix = false' do
-      it { expect(consistency_checkjob.check_project(project.name, false)).to include(error_message) }
+      it { expect(consistency_checkjob.check_project(project.name, fix: false)).to include(error_message) }
     end
 
     context 'fix = true' do
@@ -45,7 +45,7 @@ RSpec.describe ConsistencyCheckJob, :vcr do
         # rubocop:disable RSpec/MessageSpies
         expect(project).to receive(:store).with(hash_including(login: 'Admin'))
         # rubocop:enable RSpec/MessageSpies
-        consistency_checkjob.check_project(project.name, true)
+        consistency_checkjob.check_project(project.name, fix: true)
       end
     end
   end

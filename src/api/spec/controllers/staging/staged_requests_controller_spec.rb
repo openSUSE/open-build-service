@@ -359,12 +359,11 @@ RSpec.describe Staging::StagedRequestsController do
 
   describe 'DELETE #destroy', :vcr do
     let!(:package) { create(:package, name: target_package, project: staging_project) }
-    let(:review_by_project) { create(:review, by_project: staging_project) }
+    let!(:review_by_project) { create(:review, by_project: staging_project, bs_request: bs_request) }
 
     before do
       login(group.users.first)
       bs_request.staging_project = staging_project
-      bs_request.reviews << review_by_project
       bs_request.save
       bs_request.change_review_state(:accepted, by_group: group.title, comment: 'accepted')
       logout

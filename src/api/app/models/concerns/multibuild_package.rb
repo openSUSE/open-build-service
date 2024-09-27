@@ -3,7 +3,7 @@ module MultibuildPackage
 
   class_methods do
     def valid_multibuild_name?(name)
-      valid_name?(name, true)
+      valid_name?(name, allow_multibuild: true)
     end
 
     def striping_multibuild_suffix(name)
@@ -11,6 +11,14 @@ module MultibuildPackage
       return name if name.start_with?('_patchinfo:', '_product:')
 
       name.gsub(/:.*$/, '')
+    end
+
+    def multibuild_flavor(name)
+      # exception for package names used to have a collon
+      return if name.start_with?('_patchinfo:', '_product:')
+      return unless name.include?(':')
+
+      name.gsub(/^.*:/, '')
     end
   end
 

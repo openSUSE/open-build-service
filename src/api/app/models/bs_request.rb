@@ -5,6 +5,9 @@ include MaintenanceHelper
 # rubocop:disable Metrics/ClassLength
 class BsRequest < ApplicationRecord
   include BsRequest::Errors
+
+  MAX_DESCRIPTION_LENGTH_ALLOWED = 64_000
+
   SEARCHABLE_FIELDS = [
     'bs_requests.creator',
     'bs_requests.priority',
@@ -66,6 +69,8 @@ class BsRequest < ApplicationRecord
       .includes(:reviews)
   }
 
+  scope :with_action_type, ->(action_type) { joins(:bs_request_actions).where(bs_request_actions: { type: action_type }).distinct }
+
   has_many :bs_request_actions, dependent: :destroy
   has_many :reviews, dependent: :delete_all
   has_many :comments, as: :commentable, dependent: :destroy
@@ -80,13 +85,15 @@ class BsRequest < ApplicationRecord
   has_many :notifications, as: :notifiable, dependent: :delete_all
   has_many :watched_items, as: :watchable, dependent: :destroy
   has_many :reports, as: :reportable, dependent: :nullify
+  has_many :labels, as: :labelable
+  accepts_nested_attributes_for :labels, allow_destroy: true
 
   validates :state, inclusion: { in: VALID_REQUEST_STATES }
   validates :creator, presence: true
   validate :check_supersede_state
   validate :check_creator, on: %i[create save!]
   validates :comment, length: { maximum: 65_535 }
-  validates :description, length: { maximum: 65_535 }
+  validates :description, length: { maximum: MAX_DESCRIPTION_LENGTH_ALLOWED }
   validates :number, uniqueness: true
   validates_associated :bs_request_actions, message: ->(_, record) { record[:value].map { |r| r.errors.full_messages }.flatten.to_sentence }
 
@@ -96,6 +103,7 @@ class BsRequest < ApplicationRecord
   after_create :notify
   before_update :send_state_change
   after_save :update_cache
+  after_save { PopulateToSphinxJob.perform_later(id: id, model_name: :bs_request) }
 
   accepts_nested_attributes_for :bs_request_actions
 
@@ -458,7 +466,7 @@ class BsRequest < ApplicationRecord
 
   def permission_check_change_review!(params)
     checker = BsRequestPermissionCheck.new(self, params)
-    checker.cmd_changereviewstate_permissions(params)
+    checker.cmd_changereviewstate_permissions
   end
 
   def permission_check_setincident!(incident)
@@ -479,7 +487,7 @@ class BsRequest < ApplicationRecord
 
   def permission_check_change_state!(opts)
     checker = BsRequestPermissionCheck.new(self, opts)
-    checker.cmd_changestate_permissions(opts)
+    checker.cmd_changestate_permissions
 
     # check target write permissions
     return unless opts[:newstate] == 'accepted'
@@ -498,19 +506,17 @@ class BsRequest < ApplicationRecord
 
   def changestate_accepted(opts)
     # all maintenance_incident actions go into the same incident project
-    incident_project = nil # .where(type: 'maintenance_incident')
+    incident_project = nil
     bs_request_actions.each do |action|
-      source_project = Project.find_by_name(action.source_project)
-      Project::EmbargoHandler.new(source_project).call if action.source_project && action.is_maintenance_release? && source_project.is_a?(Project)
-
       next unless action.is_maintenance_incident?
 
       target_project = Project.get_by_name(action.target_project)
-      # create a new incident if needed
       next unless target_project.is_maintenance?
 
+      source_project = Project.find_by_name(action.source_project)
+
       # create incident if it is a maintenance project
-      incident_project ||= MaintenanceIncident.build_maintenance_incident(target_project, source_project.nil?, self).project
+      incident_project ||= MaintenanceIncident.build_maintenance_incident(target_project, self, no_access: source_project.nil?).project
       opts[:check_for_patchinfo] = true
 
       raise MultipleMaintenanceIncidents, 'This request handles different maintenance incidents, this is not allowed !' unless incident_project.name.start_with?(target_project.name)
@@ -857,7 +863,8 @@ class BsRequest < ApplicationRecord
         begin
           change_state(newstate: 'accepted', comment: 'Auto accept')
         rescue BsRequest::Errors::UnderEmbargo
-          # not yet free to release, postponing it without touching
+          # not yet free to release, postponing it to the embargo date
+          BsRequestAutoAcceptJob.set(wait_until: embargo_date).perform_later(id)
         rescue BsRequestPermissionCheck::NotExistingTarget
           change_state(newstate: 'revoked', comment: 'Target disappeared')
         rescue PostRequestNoPermission
@@ -986,6 +993,33 @@ class BsRequest < ApplicationRecord
     (reviews.accepted.size + reviews.opened.size + reviews.declined.size).positive? &&
       # Declined is not really a final state, since the request can always be reopened...
       (BsRequest::FINAL_REQUEST_STATES.exclude?(state) || state == :declined)
+  end
+
+  # Collects the embargo_date from all actions and returns...
+  # - the newest one
+  # - nil if there are no actions with embargo date
+  # - nil if all embargo_dates are in the past
+  def embargo_date
+    now = Time.zone.now
+    embargo_dates = []
+    bs_request_actions.where.not(source_project: nil).find_each do |action|
+      next unless action.embargo_date
+
+      embargo_dates.push(action.embargo_date)
+    end
+
+    return if embargo_dates.empty?
+
+    embargo_dates.max if embargo_dates.max > now
+  end
+
+  # Methods used by ThinkingSphinx indices to collect multiple values
+  def comments_bodies
+    comments.collect(&:body).join(' ')
+  end
+
+  def reviews_reasons
+    reviews.collect(&:reason).join(' ')
   end
 
   private
@@ -1137,10 +1171,7 @@ class BsRequest < ApplicationRecord
   end
 
   def check_uniq_actions!
-    uniq_keys = []
-    bs_request_actions.each do |action|
-      uniq_keys << action.uniq_key
-    end
+    uniq_keys = bs_request_actions.map(&:uniq_key)
     raise ConflictingActions, 'Conflicting Actions' if uniq_keys.length > uniq_keys.uniq.length
   end
 
@@ -1206,7 +1237,7 @@ class BsRequest < ApplicationRecord
     # none of them is supposed to be crucial wrt. permission checking)
     my_opts = opts.merge(newstate: 'accepted', force: true)
     checker = BsRequestPermissionCheck.new(self, my_opts)
-    checker.cmd_changestate_permissions(my_opts)
+    checker.cmd_changestate_permissions
     check_bs_request_actions!(skip_source: true)
 
     self.approver = new_approver

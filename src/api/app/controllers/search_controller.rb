@@ -96,7 +96,7 @@ class SearchController < ApplicationController
       if params[:project].blank?
         attribute = AttribType.find_by_name!(params[:attribute] || 'OBS:OwnerRootProject')
         # Find marked projects
-        projects = Project.find_by_attribute_type(attribute)
+        projects = Project.joins(:attribs).where(attribs: { attrib_type_id: attribute.id })
         return projects unless params[:package]
 
         pkgs = []

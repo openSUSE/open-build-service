@@ -227,8 +227,17 @@ sub check {
 
       for my $apackid (@apackids) {
 	if ($apackid eq '_repository') {
-	  return ('broken', 'aggregating from a remote _repository is not implemented yet') if $remoteprojs->{$aprojid};
-	  push @blocked, "$aprp/$apackid";	# see prpfinished check above
+	  if ($remoteprojs->{$aprojid}) {
+	    return ('broken', 'need a binary filter for remote _repository aggregates') unless @{$aggregate->{'binary'} || []};
+	    for (grep {$_} values %$ps) {
+	      if ($_ eq 'scheduled' || $_ eq 'blocked' || $_ eq 'finished') {
+	        push @blocked, "$aprp/$apackid";
+		last;
+	      }
+	    }
+	  } else {
+	    push @blocked, "$aprp/$apackid";	# see prpfinished check above
+	  }
 	  next;
 	}
 	my $code = $ps->{$apackid} || 'unknown';
@@ -275,7 +284,7 @@ sub check {
         my $havecontainer;
 	if ($remoteprojs->{$aprojid}) {
 	  my $bininfo = ($gbininfos{"$aprojid/$arepoid/$myarch"} || {})->{$apackid} || {};
-	  for my $bin (sort {$a->{'filename'} cmp $b->{'filename'}} values %$bininfo) {
+	  for my $bin (sort {($a->{'filename'} || '') cmp ($b->{'filename'} || '')} values %$bininfo) {
 	    my $filename = $bin->{'filename'};
 	    next unless $filename;
 	    next unless $filename eq 'updateinfo.xml' || $filename =~ /\.(?:$binsufsre)$/ || $filename =~ /\.obsbinlnk$/;
@@ -417,6 +426,7 @@ sub build {
 	  my $remoteproj = $remoteprojs->{$aprojid};
 	  my @args = 'view=cpio';
 	  push @args, 'noajax=1' if $remoteproj->{'partition'};
+	  push @args, map {"binary=$_"} @{$aggregate->{'binary'}} if $apackid eq '_repository' && $aggregate->{'binary'};
 	  my $param = {
 	    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$arepoid/$myarch/$apackid",
 	    'receiver' => \&BSHTTP::cpio_receiver,

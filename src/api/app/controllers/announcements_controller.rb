@@ -59,6 +59,6 @@ class AnnouncementsController < ApplicationController
     xml = Nokogiri::XML(request.raw_post, &:strict)
     title = xml.xpath('//announcement/title').text
     content = xml.xpath('//announcement/content').text
-    { message: "#{title} #{content}", severity: 'announcement', user: User.session! }
+    { message: "#{title} #{content}", severity: 'announcement', user: User.session }
   end
 end

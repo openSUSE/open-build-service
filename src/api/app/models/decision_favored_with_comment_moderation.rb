@@ -7,7 +7,7 @@ class DecisionFavoredWithCommentModeration < Decision
   end
 
   def self.display_name
-    'favored with comment moderation'
+    'favor and moderate the comment'
   end
 
   def self.display?(reportable)

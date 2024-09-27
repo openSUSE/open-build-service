@@ -76,8 +76,6 @@ info:
     Either against a XML Schema Definition (`.xsd`) or a RELAX NG Schema (`.rng`). The schemas are mentioned
     in the endpoint documentation. If there is no schema file mentioned, no validation of the XML is done.
     In case the XML is not valid, a validation error is reported.
-
-    The legacy API documentation is reachable [here](https://api.opensuse.org/apidocs-old/index).
   version: '2.10.50'
   title: Open Build Service API
   contact:

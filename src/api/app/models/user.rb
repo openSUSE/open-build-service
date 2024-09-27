@@ -10,7 +10,7 @@ class User < ApplicationRecord
   NOBODY_LOGIN = '_nobody_'.freeze
   MAX_BIOGRAPHY_LENGTH_ALLOWED = 250
 
-  enum :color_theme, %w[system light dark]
+  enum :color_theme, { 'system' => 0, 'light' => 1, 'dark' => 2 }
 
   # disable validations because there can be users which don't have a bcrypt
   # password yet. this is for backwards compatibility
@@ -215,7 +215,7 @@ class User < ApplicationRecord
     Thread.current[:user] = user
   end
 
-  def self.get_default_admin
+  def self.default_admin
     admin = CONFIG['default_admin'] || 'Admin'
     user = User.find_by!(login: admin)
     raise NotFoundError, "Admin not found, user #{admin} has not admin permissions" unless user.is_admin?
@@ -318,7 +318,7 @@ class User < ApplicationRecord
     render_axml
   end
 
-  def render_axml(watchlist = false, render_watchlist_only: false)
+  def render_axml(watchlist: false, render_watchlist_only: false)
     # CanRenderModel
     render_xml(watchlist: watchlist, render_watchlist_only: render_watchlist_only)
   end
@@ -610,6 +610,7 @@ class User < ApplicationRecord
     self.realname = ''
     self.state = 'deleted'
     comments.destroy_all
+    event_subscriptions.destroy_all
     save!
 
     # wipe also all home projects
@@ -620,7 +621,7 @@ class User < ApplicationRecord
 
   def destroy_home_projects(reason:)
     Project.where('name LIKE ?', "#{home_project_name}:%").or(Project.where(name: home_project_name)).find_each do |project|
-      project.commit_opts = { comment: "#{reason}" }
+      project.commit_opts = { comment: reason.to_s }
       project.destroy
     end
   end
@@ -654,9 +655,11 @@ class User < ApplicationRecord
 
   # list incoming requests involving this user
   def incoming_requests(search = nil, states: [:new])
-    result = BsRequest.where(state: states).where(id: BsRequestAction.bs_request_ids_of_involved_projects(involved_projects.pluck(:id))).or(
-      BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_packages(involved_packages.pluck(:id)))
-    ).with_actions.where(state: states)
+    result = BsRequest.where(state: states).and(
+      BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_projects(involved_projects.pluck(:id))).or(
+        BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_packages(involved_packages.pluck(:id)))
+      )
+    ).with_actions
 
     search.present? ? result.do_search(search) : result
   end
@@ -884,7 +887,7 @@ end
 #  id                            :integer          not null, primary key
 #  adminnote                     :text(65535)
 #  biography                     :string(255)      default("")
-#  blocked_from_commenting       :boolean          default(FALSE), not null, indexed
+#  censored                      :boolean          default(FALSE), not null, indexed
 #  color_theme                   :integer          default("system"), not null
 #  deprecated_password           :string(255)      indexed
 #  deprecated_password_hash_type :string(255)
@@ -906,11 +909,11 @@ end
 #
 # Indexes
 #
-#  index_users_on_blocked_from_commenting  (blocked_from_commenting)
-#  index_users_on_in_beta                  (in_beta)
-#  index_users_on_in_rollout               (in_rollout)
-#  index_users_on_rss_secret               (rss_secret) UNIQUE
-#  index_users_on_state                    (state)
-#  users_login_index                       (login) UNIQUE
-#  users_password_index                    (deprecated_password)
+#  index_users_on_censored    (censored)
+#  index_users_on_in_beta     (in_beta)
+#  index_users_on_in_rollout  (in_rollout)
+#  index_users_on_rss_secret  (rss_secret) UNIQUE
+#  index_users_on_state       (state)
+#  users_login_index          (login) UNIQUE
+#  users_password_index       (deprecated_password)
 #

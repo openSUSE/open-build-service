@@ -1,0 +1,12 @@
+.row
+  .col-12.col-md-10.col-lg-9
+    .mb-3#name
+      = form.label(:name, 'Name:', class: 'form-label')
+      = form.text_field(:name, class: classes_with_validation(label_template, :name), required: true)
+      - label_template.errors.where(:name).each do |error|
+        .invalid-feedback= error.message.capitalize
+    .mb-3#color
+      = form.label(:color, 'Color:', class: 'form-label')
+      = form.color_field(:color, class: classes_with_validation(label_template, :color), required: true)
+      - label_template.errors.where(:color).each do |error|
+        .invalid-feedback= error.message.capitalize

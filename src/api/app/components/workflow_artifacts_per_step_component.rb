@@ -82,7 +82,7 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
     else
       {
         path: helpers.project_repositories_path(project: flag[:project]),
-        text: "#{flag[:project]}"
+        text: (flag[:project]).to_s
       }
     end
   end
@@ -117,7 +117,7 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
       concat('Configured ')
       concat(link_to('repositories', repositories_path))
       concat(' on project ')
-      concat(link_to("#{parsed_artifacts[:project]}", project_path))
+      concat(link_to((parsed_artifacts[:project]).to_s, project_path))
       concat(': ')
       concat(list_of_repositories(parsed_artifacts[:repositories]))
     end
@@ -132,11 +132,11 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
   end
 
   def repository_sentence(repository)
-    concat(tag.span("#{repository[:name]}", class: 'fst-italic'))
+    concat(tag.span((repository[:name]).to_s, class: 'fst-italic'))
     concat(' for architectures ')
-    concat(tag.span("#{repository[:architectures].to_sentence}", class: 'fst-italic'))
+    concat(tag.span(repository[:architectures].to_sentence.to_s, class: 'fst-italic'))
     concat(' for the paths: ')
-    concat(tag.span("#{paths_sentence(repository)}", class: 'fst-italic'))
+    concat(tag.span(paths_sentence(repository).to_s, class: 'fst-italic'))
     concat('.')
   end
 

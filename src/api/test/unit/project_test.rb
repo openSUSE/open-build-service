@@ -281,7 +281,7 @@ class ProjectTest < ActiveSupport::TestCase
     User.session = users(:Iggy)
     orig = @project.render_xml
 
-    xml = <<~END
+    xml = <<~PROJECT
       <project name="home:Iggy">
         <title>Iggy"s Home Project</title>
         <description>dummy</description>
@@ -294,7 +294,7 @@ class ProjectTest < ActiveSupport::TestCase
           <arch>x86_64</arch>
         </repository>
       </project>
-    END
+    PROJECT
     axml = Xmlhash.parse(xml)
     assert_raise(ActiveRecord::RecordInvalid) do
       Project.transaction do
@@ -307,7 +307,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   test 'not duplicated repos with remote' do
     User.session = users(:Iggy)
-    xml = <<~END
+    xml = <<~PROJECT
       <project name="home:Iggy">
         <title>Iggy"s Home Project</title>
         <description>dummy</description>
@@ -322,7 +322,7 @@ class ProjectTest < ActiveSupport::TestCase
           <arch>i586</arch>
         </repository>
       </project>
-    END
+    PROJECT
     axml = Xmlhash.parse(xml)
     Project.transaction do
       @project.update_from_xml!(axml)
@@ -370,6 +370,36 @@ class ProjectTest < ActiveSupport::TestCase
     xml_string = project_b.to_axml
     assert_no_xml_tag xml_string, tag: :link
     project_b.destroy
+  end
+
+  def test_setting_project_kind
+    User.session = users(:king)
+    prj = Project.create!(name: 'project_1')
+    prj.update_from_xml!(Xmlhash.parse(
+                           "<project name='project_1' kind='maintenance_release'>
+                             <title/>
+                             <description/>
+                           </project>"
+                         ))
+    xml = prj.to_axml
+
+    assert_xml_tag xml, tag: :project, attributes: { kind: 'maintenance_release' }
+    prj.destroy
+  end
+
+  def test_remove_project_kind
+    User.session = users(:king)
+    prj = Project.create!(name: 'project_1', kind: 'maintenance_release')
+    prj.update_from_xml!(Xmlhash.parse(
+                           "<project name='project_1'>
+                             <title/>
+                             <description/>
+                           </project>"
+                         ))
+    xml = prj.to_axml
+
+    assert_no_xml_tag xml, tag: :project, attributes: { kind: 'maintenance_release' }
+    prj.destroy
   end
 
   def test_repository_with_download_url

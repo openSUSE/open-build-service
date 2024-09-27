@@ -8,7 +8,7 @@ class PersonController < ApplicationController
   skip_before_action :extract_user, only: %i[command register]
   skip_before_action :require_login, only: %i[command register]
 
-  before_action :set_user, only: %i[post_userinfo change_my_password get_watchlist put_watchlist]
+  before_action :set_user, only: %i[post_userinfo change_my_password watchlist put_watchlist]
 
   def show
     @list = if params[:prefix]
@@ -28,15 +28,15 @@ class PersonController < ApplicationController
     raise UnknownCommandError, "Allowed command is 'register'"
   end
 
-  def get_userinfo
+  def userinfo
     user = User.find_by_login!(params[:login])
 
     if user == User.session
       logger.debug "Generating user info for logged in user #{User.session.login}"
-      render xml: User.session.render_axml(true)
+      render xml: User.session.render_axml(watchlist: true)
     else
       logger.debug "Generating for user from parameter #{user.login}"
-      render xml: user.render_axml(User.admin_session?)
+      render xml: user.render_axml(watchlist: User.admin_session?)
     end
   end
 
@@ -48,7 +48,7 @@ class PersonController < ApplicationController
     User.find_by_login!(login)
 
     if params[:cmd] == 'change_password'
-      login ||= User.session!.login
+      login ||= User.session.login
       password = request.raw_post.to_s.chomp
       if password.blank?
         render_error status: 404, errorcode: 'password_empty',
@@ -90,7 +90,7 @@ class PersonController < ApplicationController
     end
 
     if user
-      unless user.login == User.session!.login || User.admin_session?
+      unless user.login == User.session.login || User.admin_session?
         logger.debug 'User has no permission to change userinfo'
         render_error(status: 403, errorcode: 'change_userinfo_no_permission',
                      message: "no permission to change userinfo for user #{user.login}") && return
@@ -129,7 +129,7 @@ class PersonController < ApplicationController
     render_ok
   end
 
-  def get_watchlist
+  def watchlist
     if @user
       authorize @user, :update?
 
@@ -157,13 +157,7 @@ class PersonController < ApplicationController
     render_ok
   end
 
-  class NoPermissionToGroupList < APIError
-    setup 401, 'No user logged in, permission to grouplist denied'
-  end
-
   def grouplist
-    raise NoPermissionToGroupList unless User.session
-
     user = User.find_by_login!(params[:login])
     @list = user.list_groups
   end
@@ -267,14 +261,6 @@ class PersonController < ApplicationController
   end
 
   def change_password(login, password)
-    unless User.session!
-      logger.debug 'No user logged in, permission to changing password denied'
-      @errorcode = 401
-      @summary = 'No user logged in, permission to changing password denied'
-      render template: 'error', status: :unauthorized
-      return
-    end
-
     if login.blank? || password.blank?
       render_error status: 404, errorcode: 'failed to change password',
                    message: 'Failed to change password: missing parameter'
@@ -282,7 +268,7 @@ class PersonController < ApplicationController
     end
 
     # change password to LDAP if LDAP is enabled
-    unless ::Configuration.passwords_changable?(User.session!)
+    unless ::Configuration.passwords_changable?(User.session)
       render_error status: 404, errorcode: 'change_passwd_failure',
                    message: 'LDAP passwords can not be changed in OBS. Please refer to your LDAP server to change it.'
       return

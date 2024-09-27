@@ -153,7 +153,7 @@ class Webui::RepositoriesController < Webui::WebuiController
 
   # POST flag/:project(/:package)
   def change_flag
-    required_parameters :flag, :command
+    params.require(%i[flag command])
     authorize @main_object, :update?
 
     flag_type = params[:flag]

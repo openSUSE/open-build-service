@@ -32,7 +32,7 @@ class Product < ApplicationRecord
     end
   end
 
-  def set_CPE(sw_class, vendor, pversion = nil)
+  def set_cpe(sw_class, vendor, pversion = nil)
     # HACK: for old SLE 11 definitions
     vendor = 'suse' if vendor.start_with?('SUSE LINUX')
     self.cpe = "cpe:/#{sw_class}:#{vendor.downcase}:#{name.downcase}"
@@ -71,7 +71,7 @@ class Product < ApplicationRecord
             pversion = p['version']
             pversion = p['baseversion'] if p['baseversion']
             pversion += ":sp#{p['patchlevel']}" if p['patchlevel'] && p['patchlevel'].to_i.positive?
-            set_CPE(sw_class, p['vendor'], pversion)
+            set_cpe(sw_class, p['vendor'], pversion)
             self.version = pversion
             # update update channel connections
             p.elements('register') do |r|

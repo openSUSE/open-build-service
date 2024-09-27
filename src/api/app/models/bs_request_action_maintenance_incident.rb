@@ -208,7 +208,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     cp_params[:orev] = source_rev if source_rev
     response = Backend::Api::Sources::Package.copy(incident_project.name, new_pkg.name, source_project, source_package, User.session!.login, cp_params)
     result = Xmlhash.parse(response)
-    set_acceptinfo(result['acceptinfo'])
+    fill_acceptinfo(result['acceptinfo'])
 
     new_pkg.sources_changed
     new_pkg

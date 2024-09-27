@@ -174,7 +174,7 @@ module MaintenanceHelper
                                                                        freezelink withacceptinfo])
     result = Backend::Connection.post(cp_path)
     result = Xmlhash.parse(result.body)
-    action.set_acceptinfo(result['acceptinfo']) if action
+    action.fill_acceptinfo(result['acceptinfo']) if action
   end
 
   def copy_binaries(filter_source_repository, filter_architecture, source_package, target_package_name,
@@ -275,7 +275,7 @@ module MaintenanceHelper
     end
     id_template = cts.first.id_template if cts.first && cts.first.id_template
 
-    mi.getUpdateinfoId(id_template, patch_name)
+    mi.get_updateinfo_id(id_template, patch_name)
   end
 
   def create_package_container_if_missing(source_package, target_package_name, target_project)

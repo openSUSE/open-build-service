@@ -74,7 +74,7 @@ namespace :dev do
         Event::BuildFail.create({ project: admin_home_project.name, package: package_name, repository: "#{Faker::Lorem.word}_repo", arch: "#{Faker::Lorem.word}_arch", reason: 'meta change' })
 
         # Add admin to a group to generate a Event::AddedUserToGroup.
-        another_group = create(:group, title: Faker::Lorem.word)
+        another_group = create(:group, title: Faker::Lorem.words.map(&:capitalize).join)
         another_group.users << admin
 
         # Admin is already subscribed as token_executor, Iggy and another_group are now subscribed as token_member

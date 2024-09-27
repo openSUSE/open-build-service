@@ -9,4 +9,15 @@
       = link_to(my_notifications_path, class: 'btn btn-sm btn-outline-secondary', title: 'Back to notifications') do
         %i.fas.fa-arrow-left
         Back to notifications
-      = mark_as_read_or_unread_button(notification)
+      - if notification.unread?
+        = link_to(my_notifications_path(notification_ids: [notification.id], button: 'read'),
+                  id: dom_id(notification, :update), method: :put,
+                  class: 'btn btn-sm btn-outline-success', title: 'Mark as read') do
+          %i.fas.fa-check
+          Mark as read
+      - else
+        = link_to(my_notifications_path(notification_ids: [notification.id], button: 'unread'),
+                  id: dom_id(notification, :update), method: :put,
+                  class: 'btn btn-sm btn-outline-success', title: 'Mark as unread') do
+          %i.fas.fa-undo
+          Mark as unread

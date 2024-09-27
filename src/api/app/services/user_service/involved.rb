@@ -42,7 +42,7 @@ module UserService
     end
 
     def owner_root_project_exists?
-      Project.find_by_attribute_type(AttribType.find_by_name!('OBS:OwnerRootProject')).exists?
+      Project.joins(:attribs).exists?(attribs: { attrib_type: AttribType.find_by_name!('OBS:OwnerRootProject') })
     end
 
     def involved_items_as_owner

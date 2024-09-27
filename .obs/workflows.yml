@@ -9,10 +9,10 @@ testbuild:
     - configure_repositories:
         project: home:bs-team
         repositories:
-          - name: 15.5
+          - name: 15.6
             paths:
               - target_project: OBS:Server:Unstable
-                target_repository: 15.5
+                target_repository: 15.6
             architectures:
               - x86_64
   filters:

@@ -110,9 +110,6 @@ if ENV['RUNNING_MINITEST_WITH_DOCKER']
   CONFIG['source_port'] = '5352'
 end
 
-# some defaults enforced
-CONFIG['apidocs_location'] = File.expand_path('../../docs/api/html/')
-
 # Display fake sponsors above the footer on every page
 CONFIG['sponsors'] = [
   ActiveSupport::HashWithIndifferentAccess.new(

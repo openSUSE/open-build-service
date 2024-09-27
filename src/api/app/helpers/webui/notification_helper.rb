@@ -2,120 +2,154 @@ module Webui::NotificationHelper
   TRUNCATION_LENGTH = 100
   TRUNCATION_ELLIPSIS_LENGTH = 3 # `...` is the default ellipsis for String#truncate
 
-  # TODO: Content of ViewComponent. Move to sub-classes once STI is set.
-  def excerpt(notification)
-    text = case notification.notifiable.class.name
-           when 'BsRequest'
-             notification.notifiable.description
-           when 'Comment'
-             notification.notifiable.body
-           when 'Report', 'Decision', 'Appeal', 'DecisionFavoredWithDeleteRequest', 'DecisionFavoredWithUserCommentingRestrictions', 'DecisionFavoredWithCommentModeration', 'DecisionFavoredWithUserDeletion'
-             notification.notifiable.reason
-           when 'WorkflowRun'
-             "In repository #{notification.notifiable.repository_full_name}"
-           else
-             ''
-           end
+  MAXIMUM_DISPLAYED_AVATARS = 6
 
-    truncate_to_first_new_line(text.to_s) # sometimes text can be nil
-  end
+  NOTIFICATION_ICON = {
+    'BsRequest' => 'fa-code-pull-request', 'Comment' => 'fa-comments',
+    'Package' => 'fa-xmark text-danger',
+    'Report' => 'fa-flag', 'Decision' => 'fa-clipboard-check',
+    'Appeal' => 'fa-hand', 'WorkflowRun' => 'fa-book-open',
+    'Group' => 'fa-people-group'
+  }.freeze
 
-  # rubocop:disable Metrics/CyclomaticComplexity
-  # TODO: Content of ViewComponent. Move to sub-classes once STI is set.
-  def description(notification)
-    case notification.event_type
-    when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted', 'Event::CommentForRequest'
-      # TODO: find an alternative when this is moved to the STI model
-      source_and_target(notification)
-    when 'Event::CommentForProject'
-      "#{notification.notifiable.commentable.name}"
-    when 'Event::CommentForPackage'
-      commentable = notification.notifiable.commentable
-      "#{commentable.project.name} / #{commentable.name}"
-    when 'Event::RelationshipCreate'
-      "#{notification.event_payload['who']} made #{recipient(notification)} #{notification.event_payload['role']} of #{target_object(notification)}"
-    when 'Event::RelationshipDelete'
-      "#{notification.event_payload['who']} removed #{recipient(notification)} as #{notification.event_payload['role']} of #{target_object(notification)}"
-    when 'Event::BuildFail'
-      "Build was triggered because of #{notification.event_payload['reason']}"
-    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    when 'Event::CreateReport', 'Event::ReportForProject', 'Event::ReportForPackage', 'Event::ReportForUser'
-      "'#{notification.notifiable.user.login}' created a report for a #{notification.event_payload['reportable_type'].downcase}. This is the reason:"
-    when 'Event::ReportForRequest'
-      "'#{notification.notifiable.user.login}' created a report for a request. This is the reason:"
-    when 'Event::ReportForComment'
-      "'#{notification.notifiable.user.login}' created a report for a comment from #{notification.event_payload['commenter']}. This is the reason:"
-    when 'Event::ClearedDecision'
-      "'#{notification.notifiable.moderator.login}' decided to clear the report. This is the reason:"
-    when 'Event::FavoredDecision'
-      "'#{notification.notifiable.moderator.login}' decided to favor the report. This is the reason:"
-    when 'Event::AppealCreated'
-      "'#{notification.notifiable.appellant.login}' appealed the decision for the following reason:"
-    end
-  end
-  # rubocop:enable Metrics/CyclomaticComplexity
-
-  private
-
-  def mark_as_read_or_unread_button(notification)
-    state = notification.unread? ? 'unread' : 'read'
-    update_path = my_notifications_path(notification_ids: [notification.id], state: state)
-    title, icon = notification.unread? ? ['Mark as read', 'fa-check'] : ['Mark as unread', 'fa-undo']
-    link_to(update_path, id: dom_id(notification, :update), method: :put,
-                         class: 'btn btn-sm btn-outline-success', title: title) do
-      concat(tag.i(class: "#{icon} fas"))
-      concat(" #{title}")
-    end
-  end
+  NOTIFICATION_TITLE = {
+    'BsRequest' => 'Request notification', 'Comment' => 'Comment notification',
+    'Package' => 'Package notification', 'Report' => 'Report notification',
+    'Decision' => 'Report decision', 'Appeal' => 'Decision appeal',
+    'WorkflowRun' => 'Workflow run', 'Group' => 'Group members changed'
+  }.freeze
 
   def truncate_to_first_new_line(text)
+    return '' if text.blank?
+
     first_new_line_index = text.index("\n")
     truncation_index = !first_new_line_index.nil? && first_new_line_index < TRUNCATION_LENGTH ? first_new_line_index + TRUNCATION_ELLIPSIS_LENGTH : TRUNCATION_LENGTH
     text.truncate(truncation_index)
   end
 
-  def bs_request(notification)
-    if notification.notifiable_type == 'BsRequest'
-      notification.notifiable
-    elsif notification.notifiable.commentable.is_a?(BsRequestAction)
-      notification.notifiable.commentable.bs_request
-    else
-      notification.notifiable.commentable
-    end
-  end
-
-  def recipient(notification)
-    # If a notification is for a group, the notified user needs to know for which group. Otherwise, the user is simply referred to as 'you'.
-    notification.event_payload.fetch('group', 'you')
-  end
-
-  def target_object(notification)
-    [notification.event_payload['project'], notification.event_payload['package']].compact.join(' / ')
-  end
-
-  def source(notification)
-    first_bs_request_action = bs_request(notification).bs_request_actions.first
-
-    return '' if bs_request(notification).bs_request_actions.size > 1
-
-    [first_bs_request_action.source_project, first_bs_request_action.source_package].compact.join(' / ')
-  end
-
-  def target(notification)
-    first_bs_request_action = bs_request(notification).bs_request_actions.first
-
-    return first_bs_request_action.target_project if bs_request(notification).bs_request_actions.size > 1
-
-    [first_bs_request_action.target_project, first_bs_request_action.target_package].compact.join(' / ')
-  end
-
-  def source_and_target(notification)
+  def avatars(notification)
     capture do
-      if source(notification).present?
-        concat(tag.span(source(notification)))
-        concat(tag.i(nil, class: 'fas fa-long-arrow-alt-right text-info mx-2'))
+      tag.ul(class: 'list-inline d-flex flex-row-reverse avatars m-0') do
+        hidden_avatars(notification)
+
+        avatars_to_display(notification.avatar_objects).each do |avatar_object|
+          concat(
+            tag.li(class: 'list-inline-item') do
+              case avatar_object.class.name
+              when 'User', 'Group'
+                render(AvatarComponent.new(name: avatar_object.name, email: avatar_object.email, size: 23, shape: :circle))
+              when 'Package'
+                tag.span(class: 'fa fa-archive text-warning rounded-circle bg-body-secondary border simulated-avatar', title: "Package #{avatar_object.project}/#{avatar_object}")
+              when 'Project'
+                tag.span(class: 'fa fa-cubes text-secondary rounded-circle bg-body-secondary border simulated-avatar', title: "Project #{avatar_object}")
+              end
+            end
+          )
+        end
       end
-      concat(tag.span(target(notification)))
     end
+  end
+
+  def notification_icon(notification)
+    if notification.event_type.in?(['Event::RelationshipCreate', 'Event::RelationshipDelete'])
+      tag.i(class: %w[fas fa-user-tag], title: 'Relationship notification')
+    elsif NOTIFICATION_ICON[notification.notifiable_type].present?
+      tag.i(class: ['fas', NOTIFICATION_ICON[notification.notifiable_type]], title: NOTIFICATION_TITLE[notification.notifiable_type])
+    end
+  end
+
+  def description(notification)
+    case notification.event_type
+    when 'Event::ReportForUser'
+      description_for_user_report(notification)
+    when 'Event::ReportForComment'
+      description_for_comment_report(notification)
+    else
+      notification.description
+    end
+  end
+
+  private
+
+  def number_of_hidden_avatars(avatar_objects)
+    [0, avatar_objects.size - MAXIMUM_DISPLAYED_AVATARS].max
+  end
+
+  def hidden_avatars(notification)
+    return unless number_of_hidden_avatars(notification.avatar_objects).positive?
+
+    concat(
+      tag.li(class: 'list-inline-item') do
+        tag.span(number_of_hidden_avatars(notification.avatar_objects).to_s,
+                 class: 'rounded-circle bg-body-secondary border avatars-counter',
+                 title: "#{number_of_hidden_avatars(notification.avatar_objects)} more users involved")
+      end
+    )
+  end
+
+  def avatars_to_display(avatar_objects)
+    avatar_objects.first(MAXIMUM_DISPLAYED_AVATARS).reverse
+  end
+
+  def description_for_user_report(notification)
+    reporter = notification.notifiable.user
+    accused = notification.notifiable.reportable
+    reports_on_comments = count_reports_on_comments(accused) if accused
+    reports_on_user = count_reports_on_user(accused) if accused
+
+    generate_report_description(notification, reporter, accused, reports_on_comments, reports_on_user)
+  end
+
+  def description_for_comment_report(notification)
+    reporter = notification.notifiable.user
+    accused = notification.notifiable.reportable&.user
+    reports_on_user = count_reports_on_user(accused) if accused
+    reports_on_comments = count_reports_on_comments(accused) if accused
+
+    generate_report_description(notification, reporter, accused, reports_on_comments, reports_on_user, comment: true)
+  end
+
+  def count_reports_on_comments(accused)
+    Report.without_decision.where(reportable: accused.comments).count
+  end
+
+  def count_reports_on_user(accused)
+    Report.without_decision.where(reportable: accused).count
+  end
+
+  def count_of_additional_reports_for_reportable(notification)
+    return 0 unless notification.notifiable.reportable
+
+    notification.notifiable.reportable.reports.without_decision.count - 1
+  end
+
+  def generate_report_description(notification, reporter, accused, reports_on_comments, reports_on_user, comment: false)
+    text = link_to(reporter, user_path(reporter, notification_id: notification.id))
+    text += ' created a report for '
+    text += 'comment from ' if comment
+    if accused
+      text += link_to(accused, user_path(accused, notification_id: notification.id))
+      text += create_badge(state: accused.state)
+
+      text += if comment && reports_on_user.positive?
+                create_badge(number_of_reports: "+#{reports_on_user}", icon: 'user')
+              elsif reports_on_comments.positive?
+                create_badge(number_of_reports: "+#{reports_on_comments}", icon: 'comments')
+              end
+    end
+
+    sanitize(text)
+  end
+
+  def create_badge(number_of_reports: nil, state: nil, icon: nil)
+    content_tag(
+      :span,
+      state.presence || icon_tag(number_of_reports, icon),
+      class: ['badge', 'mx-1', (state.present? ? 'text-bg-secondary' : 'text-bg-warning').to_s]
+    )
+  end
+
+  def icon_tag(number_of_reports, icon)
+    sanitize(" #{number_of_reports} #{content_tag(:i, nil, class: "fa fa-#{icon}")} reported")
   end
 end

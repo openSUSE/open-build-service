@@ -69,7 +69,7 @@ module Webui::Staging::WorkflowHelper
     css = 'review' if request[:missing_reviews].present?
     css = 'obsolete' if request[:state].in?(BsRequest::OBSOLETE_STATES)
     css += ' delete' if request[:request_type] == 'delete'
-    link_content = [request[:package]]
+    link_content = [request[:package].match?(/patchinfo\.\d+\.\d+/) ? 'patchinfo' : request[:package]]
     link_content << reviewers_icon(request, users_hash, groups_hash) if request[:missing_reviews].present?
     tag.span(class: "badge state-#{css}") do
       link_to(request_show_path(request[:number]), class: 'request') do
@@ -105,7 +105,7 @@ module Webui::Staging::WorkflowHelper
     end
   end
 
-  def info_link(request, excluded = false)
+  def info_link(request, excluded: false)
     if excluded
       options = { data: { 'bs-content': request.request_exclusion.description,
                           'bs-placement': 'top', 'bs-toggle': 'popover' } }

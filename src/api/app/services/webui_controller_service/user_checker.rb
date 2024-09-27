@@ -18,11 +18,11 @@ module WebuiControllerService
 
       User.session = find_or_create_user!
 
-      if User.session!.is_active?
-        User.session!.update_login_values(http_request.env)
+      if User.session.is_active?
+        User.session.update_login_values(http_request.env)
         true
       else
-        User.session!.count_login_failure
+        User.session.count_login_failure
         http_request.session[:login] = nil
         User.session = User.find_nobody!
         false

@@ -16,6 +16,7 @@ class WatchlistComponent < ApplicationComponent
     @bs_requests = bs_requests
     @packages = packages
     @projects = projects
+    @watch_count = WatchedItem.where(watchable: @object_to_be_watched).count
   end
 
   private
@@ -33,7 +34,7 @@ class WatchlistComponent < ApplicationComponent
     return project unless package
 
     # maybe package is a multibuild flavor? Try to look up the object of the flavor.
-    package = Package.get_by_project_and_name(project, package, { follow_multibuild: true }) if package.is_a?(String)
+    package = Package.get_by_project_and_name(project.name, package, { follow_multibuild: true }) if package.is_a?(String)
 
     # the package is coming via a project link, don't offer watching it.
     return if package.project != project

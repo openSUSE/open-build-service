@@ -617,4 +617,13 @@ sub create_dist_manifest_list_data {
   return $manilist;
 }
 
+sub make_platformstr {
+  my ($goarch, $govariant, $goos) = @_;
+  my $str = $goarch || 'any';
+  $str .= "-$govariant" if defined $govariant;
+  $str .= "\@$goos" if $goos && $goos ne 'linux';
+  $str =~ s/[\/\s,]/_/g;
+  return $str;
+}
+
 1;

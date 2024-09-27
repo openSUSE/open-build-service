@@ -8,7 +8,7 @@ namespace :dev do
 
       puts 'Creating workflow token and workflow runs...'
 
-      admin = User.get_default_admin
+      admin = User.default_admin
       User.session = admin
       project = RakeSupport.find_or_create_project(admin.home_project_name, admin)
 
@@ -67,7 +67,7 @@ namespace :dev do
         next if projects.count > 1
 
         # If there is no project to remove (previously removed), the workflow run should change the status anyway.
-        User.get_default_admin.run_as { projects.first.destroy } if projects.count == 1
+        User.default_admin.run_as { projects.first.destroy } if projects.count == 1
         workflow_run.update(status: 'success')
       rescue StandardError => e
         Airbrake.notify("Failed to remove project created by the workflow: #{e}")

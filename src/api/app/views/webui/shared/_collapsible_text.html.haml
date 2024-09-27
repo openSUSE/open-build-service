@@ -2,7 +2,10 @@
 - if text.present?
   .obs-collapsible-textbox.vanilla-textbox-to-collapse{ class: "#{extra_css_classes if defined?(extra_css_classes)}" }
     .obs-collapsible-text
-      = sanitize(simple_format(text), tags: %w[br p])
+      - if local_assigns[:render_markdown]
+        = render_as_markdown(text)
+      - else
+        = sanitize(simple_format(text), tags: %w[br p])
 
 :javascript
   setCollapsible();

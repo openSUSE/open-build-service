@@ -67,7 +67,7 @@ RSpec.describe Webui::FeedsController, :vcr do
                                                                    person_name: user.login, target_project: project)
                                                           end)
     end
-    let!(:rss_notification) { create(:rss_notification, subscriber: user, event_type: 'Event::RequestCreate', notifiable: bs_request) }
+    let!(:rss_notification) { create(:notification_for_request, :rss_notification, subscriber: user, event_type: 'Event::RequestCreate', notifiable: bs_request) }
 
     context 'with an existing rss secret' do
       render_views
@@ -106,7 +106,7 @@ RSpec.describe Webui::FeedsController, :vcr do
           arch: 'arch'
         }
       end
-      let!(:notification_build_failure) { create(:rss_notification, event_type: 'Event::BuildFail', subscriber: user, notifiable: package, event_payload: event_payload) }
+      let!(:notification_build_failure) { create(:notification_for_request, :rss_notification, event_type: 'Event::BuildFail', subscriber: user, notifiable: package, event_payload: event_payload) }
 
       render_views
       before do
@@ -133,7 +133,7 @@ RSpec.describe Webui::FeedsController, :vcr do
           role: 'role'
         }
       end
-      let!(:notification_relationship_create) { create(:rss_notification, event_type: 'Event::RelationshipCreate', subscriber: user, notifiable: package, event_payload: event_payload) }
+      let!(:notification_relationship_create) { create(:notification_for_request, :rss_notification, event_type: 'Event::RelationshipCreate', subscriber: user, notifiable: package, event_payload: event_payload) }
 
       render_views
       before do

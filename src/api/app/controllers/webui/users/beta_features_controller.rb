@@ -3,7 +3,7 @@ class Webui::Users::BetaFeaturesController < Webui::WebuiController
 
   def index
     @disabled_beta_features = policy_scope(DisabledBetaFeature).pluck(:name)
-    @user = User.session!
+    @user = User.session
     @beta_features = ENABLED_FEATURE_TOGGLES.reject { |feature_toggle| beta_features_to_reject.include?(feature_toggle[:name].to_s) }
                                             .sort_by { |feature_toggle| feature_toggle[:name] }
   end

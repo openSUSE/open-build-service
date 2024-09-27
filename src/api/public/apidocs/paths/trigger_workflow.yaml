@@ -1,7 +1,7 @@
 post:
   summary: Trigger a SCM/CI Workflow via an API token
   description: |
-    This route allows to trigger an [OBS SCM/CI workflow](https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.scm_ci_workflow_integration)
+    This route allows to trigger an [OBS SCM/CI workflow](https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-scm-ci-workflow-integration)
     via an API token.
 
     You are required to authenticate with the API token secret. The API token secret needs

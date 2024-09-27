@@ -1,0 +1,24 @@
+- @pagetitle = "Label templates for #{@project}"
+.card
+  = render(partial: 'webui/project/tabs', locals: { project: @project })
+
+  .card-body
+    %h3= @pagetitle
+    %ul.list-unstyled
+      - @label_templates.each do |label_template|
+        %li.mb-2
+          = render partial: 'webui/shared/label', locals: { label: label_template }
+          = link_to(edit_project_label_template_path(@project, label_template)) do
+            %i.fas.fa-edit
+            Edit
+          = link_to(project_label_template_path(@project, label_template), method: :delete, class: 'text-danger',
+            data: { confirm: 'Are you sure you want to delete this label template?'}) do
+            %i.fas.fa-trash-can
+            Delete
+    .pt-4
+      = link_to new_project_label_template_path(@project), class: 'me-2' do
+        %i.fas.fa-plus-circle.text-primary
+        Create Label Template
+      = link_to copy_project_label_templates_path(@project) do
+        %i.fas.fa-copy.text-primary
+        Copy from Another Project

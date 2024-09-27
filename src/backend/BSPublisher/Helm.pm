@@ -103,4 +103,14 @@ sub mkindex_yaml {
   return toyaml(mkindex(@_));
 }
 
+sub helminfo2nevra {
+  my ($d) = @_;
+  my $lnk = {};
+  $lnk->{'name'} = "helm:$d->{'name'}";
+  $lnk->{'version'} = defined($d->{'version'}) ? $d->{'version'} : '0';
+  $lnk->{'release'} = defined($d->{'release'}) ? $d->{'release'} : '0';
+  $lnk->{'arch'} = 'noarch';
+  return $lnk;
+}
+
 1;

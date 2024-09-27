@@ -5,19 +5,19 @@ FactoryBot.define do
     parent { nil }
 
     factory :comment_package do
-      commentable { create(:package) }
+      commentable { association :package }
     end
 
     factory :comment_project do
-      commentable { create(:project) }
+      commentable { association :project }
     end
 
     factory :comment_request do
-      commentable { create(:set_bugowner_request) }
+      commentable { association :set_bugowner_request }
     end
 
     factory :comment_report do
-      commentable { create(:report) }
+      commentable { association :report }
     end
 
     trait :bs_request_action do

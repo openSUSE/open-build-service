@@ -49,8 +49,8 @@ RSpec.describe Webui::AttributeController do
 
       context 'with more values, nothing changes' do
         let(:attrib_type) { create(:attrib_type, value_count: 2) }
-        let(:attrib_value_2) { build(:attrib_value, value: Faker::Lorem.sentence) }
-        let!(:attrib) { create(:attrib, project: user.home_project, attrib_type: attrib_type, values: [attrib_value, attrib_value_2]) }
+        let(:attrib_value2) { build(:attrib_value, value: Faker::Lorem.sentence) }
+        let!(:attrib) { create(:attrib, project: user.home_project, attrib_type: attrib_type, values: [attrib_value, attrib_value2]) }
 
         before do
           attrib_type.value_count -= 1
@@ -97,9 +97,9 @@ RSpec.describe Webui::AttributeController do
   end
 
   describe 'POST #create' do
-    let(:attribute_type_0) { create(:attrib_type, value_count: 0) }
-    let(:attribute_type_1) { create(:attrib_type, value_count: 1) }
-    let(:attribute_type_1_name) { "#{attribute_type_1.namespace}:#{attribute_type_1.name}" }
+    let(:attribute_type0) { create(:attrib_type, value_count: 0) }
+    let(:attribute_type1) { create(:attrib_type, value_count: 1) }
+    let(:attribute_type1_name) { "#{attribute_type1.namespace}:#{attribute_type1.name}" }
 
     before do
       login user
@@ -107,16 +107,16 @@ RSpec.describe Webui::AttributeController do
 
     context 'with editable values' do
       before do
-        post :create, params: { attrib: { project_id: user.home_project.id, attrib_type_id: attribute_type_1.id } }
+        post :create, params: { attrib: { project_id: user.home_project.id, attrib_type_id: attribute_type1.id } }
       end
 
-      it { expect(response).to redirect_to(edit_attribs_path(project: user.home_project_name, package: '', attribute: attribute_type_1_name)) }
+      it { expect(response).to redirect_to(edit_attribs_path(project: user.home_project_name, package: '', attribute: attribute_type1_name)) }
       it { expect(flash[:success]).to eq('Attribute was successfully created.') }
     end
 
     context 'with non editable values' do
       before do
-        post :create, params: { attrib: { project_id: user.home_project.id, attrib_type_id: attribute_type_0.id } }
+        post :create, params: { attrib: { project_id: user.home_project.id, attrib_type_id: attribute_type0.id } }
       end
 
       it { expect(response).to redirect_to(index_attribs_path(project: user.home_project_name, package: '')) }
@@ -126,7 +126,7 @@ RSpec.describe Webui::AttributeController do
     context 'fails at save' do
       before do
         allow_any_instance_of(Attrib).to receive(:save).and_return(false)
-        post :create, params: { attrib: { project_id: user.home_project.id, attrib_type_id: attribute_type_1.id } }
+        post :create, params: { attrib: { project_id: user.home_project.id, attrib_type_id: attribute_type1.id } }
       end
 
       it { expect(response).to redirect_to(root_path) }

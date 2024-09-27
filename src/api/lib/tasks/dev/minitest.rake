@@ -16,7 +16,7 @@ namespace :dev do
         # Enable writing to the backend
         CONFIG['global_write_through'] = true
         # Login default admin for syncing projects/packages to the backend
-        User.session = User.get_default_admin
+        User.session = User.default_admin
         # Rewrite interconnect url
         Project.where(remoteurl: 'http://localhost:3200').map { |project| project.update!(remoteurl: 'http://backend:5352') }
         # Sync all projects to the backend

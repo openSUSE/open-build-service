@@ -3,7 +3,7 @@ require 'statistics_calculations'
 class StatisticsController < ApplicationController
   validate_action redirect_stats: { method: :get, response: :redirect_stats }
 
-  before_action :get_limit, only: %i[
+  before_action :set_limit, only: %i[
     most_active_packages most_active_projects latest_added latest_updated
   ]
 
@@ -95,7 +95,7 @@ class StatisticsController < ApplicationController
     @packages = Package.count
   end
 
-  def get_limit
+  def set_limit
     return @limit = nil if !params[:limit].nil? && params[:limit].to_i.zero?
 
     @limit = 10 if (@limit = params[:limit].to_i).zero?
@@ -123,9 +123,8 @@ class StatisticsController < ApplicationController
     reqs = reqs.group_by { |r| r.created_at.strftime('%Y-%m') }
     @stats = []
     reqs.sort.each do |month, requests|
-      monstats = []
-      requests.group_by(&:creator).sort.each do |creator, list|
-        monstats << [creator, User.find_by_login(creator).email, list.length]
+      monstats = requests.group_by(&:creator).sort.map do |creator, list|
+        [creator, User.find_by_login(creator).email, list.length]
       end
       @stats << [month, monstats]
     end

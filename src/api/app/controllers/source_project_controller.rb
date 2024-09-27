@@ -61,7 +61,7 @@ class SourceProjectController < SourceController
     project = Project.get_by_name(params[:project])
 
     # checks
-    unless project.is_a?(Project) && User.session!.can_modify?(project)
+    unless project.is_a?(Project) && User.session.can_modify?(project)
       logger.debug "No permission to delete project #{project}"
       render_error status: 403, errorcode: 'delete_project_no_permission',
                    message: "Permission denied (delete project #{project})"
@@ -101,16 +101,16 @@ class SourceProjectController < SourceController
 
     command = params[:cmd]
     project_name = params[:project]
-    params[:user] = User.session!.login
+    params[:user] = User.session.login
 
     return dispatch_command(:project_command, command) if command.in?(%w[undelete release copy move])
 
     @project = Project.get_by_name(project_name)
 
     raise CmdExecutionNoPermission, "no permission to execute command '#{command}'" unless
-      (command == 'unlock' && User.session!.can_modify?(@project, true)) ||
+      (command == 'unlock' && User.session.can_modify?(@project, true)) ||
       command == 'showlinked' ||
-      User.session!.can_modify?(@project)
+      User.session.can_modify?(@project)
 
     dispatch_command(:project_command, command)
   end

@@ -21,6 +21,7 @@ class Comment < ApplicationRecord
 
   after_create :create_event
   after_destroy :delete_parent_if_unused
+  after_commit(if: proc { commentable_type == 'BsRequest' }) { PopulateToSphinxJob.perform_later(id: commentable.id, model_name: :bs_request) }
 
   has_many :children, dependent: :destroy, class_name: 'Comment', foreign_key: 'parent_id'
   has_many :notifications, as: :notifiable, dependent: :delete_all
@@ -33,7 +34,6 @@ class Comment < ApplicationRecord
 
   scope :on_actions_for_request, ->(bs_request) { where(commentable: BsRequestAction.where(bs_request: bs_request)) }
   scope :without_parent, -> { where(parent_id: nil) }
-  scope :with_commentable, -> { includes(:project).where.not(commentable_id: nil) }
   scope :newest_first, -> { order(created_at: :desc) }
 
   def to_s

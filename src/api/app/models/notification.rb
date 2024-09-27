@@ -5,11 +5,15 @@ class Notification < ApplicationRecord
   belongs_to :subscriber, polymorphic: true, optional: true
   belongs_to :notifiable, polymorphic: true, optional: true
 
+  belongs_to :bs_request, -> { where(notifications: { notifiable_type: 'BsRequest' }) }, foreign_key: 'notifiable_id', inverse_of: :notifications, optional: true
+
   has_many :notified_projects, dependent: :destroy
   has_many :projects, through: :notified_projects
   has_and_belongs_to_many :groups
 
   serialize :event_payload, JSON
+
+  validates :type, length: { maximum: 255 }
 
   after_create :track_notification_creation
 
@@ -39,6 +43,7 @@ class Notification < ApplicationRecord
 
   scope :for_project_name, ->(project_name) { joins(:projects).where(projects: { name: project_name }) }
   scope :for_group_title, ->(group_title) { joins(:groups).where(groups: { title: group_title }) }
+  scope :for_request_state, ->(request_state) { joins(:bs_request).where(bs_request: { state: request_state }) }
   scope :stale, -> { where(created_at: ...(CONFIG['notifications_lifetime'] ||= 365).days.ago) }
 
   paginates_per 30
@@ -108,6 +113,7 @@ end
 #  subscriber_type            :string(255)      indexed => [subscriber_id]
 #  subscription_receiver_role :string(255)      not null
 #  title                      :string(255)
+#  type                       :string(255)      indexed
 #  web                        :boolean          default(FALSE), indexed
 #  created_at                 :datetime         not null, indexed
 #  updated_at                 :datetime         not null
@@ -122,5 +128,6 @@ end
 #  index_notifications_on_notifiable_type_and_notifiable_id  (notifiable_type,notifiable_id)
 #  index_notifications_on_rss                                (rss)
 #  index_notifications_on_subscriber_type_and_subscriber_id  (subscriber_type,subscriber_id)
+#  index_notifications_on_type                               (type)
 #  index_notifications_on_web                                (web)
 #

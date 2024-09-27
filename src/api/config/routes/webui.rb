@@ -110,6 +110,7 @@ constraints(RoutesHelper::WebuiMatcher) do
     post 'package/save_person/:project/:package' => :save_person, constraints: cons, as: 'package_save_person'
     post 'package/save_group/:project/:package' => :save_group, constraints: cons, as: 'package_save_group'
     post 'package/remove_role/:project/:package' => :remove_role, constraints: cons, as: 'package_remove_role'
+    post 'package/preview_description' => :preview_description, constraints: cons
   end
 
   resources :packages, only: [], param: :name do
@@ -232,6 +233,7 @@ constraints(RoutesHelper::WebuiMatcher) do
     get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons, as: :edit_comment_form
     post 'project/edit_comment/:project' => :edit_comment, constraints: cons
     post 'project/unlock' => :unlock
+    post 'project/preview_description' => :preview_description
   end
 
   # For backward compatibility
@@ -311,6 +313,13 @@ constraints(RoutesHelper::WebuiMatcher) do
       end
     end
     put 'toggle_watched_item', controller: 'webui/watched_items', constraints: cons
+    resources :label_templates, controller: 'webui/projects/label_templates', constraints: cons do
+      collection do
+        get :copy
+        post :clone
+        get :preview
+      end
+    end
   end
 
   controller 'webui/request' do
@@ -333,7 +342,7 @@ constraints(RoutesHelper::WebuiMatcher) do
     get 'request/:number/complete_build_results' => :complete_build_results, as: 'request_complete_build_results', constraints: cons
   end
 
-  resources :requests, only: [], param: :number, controller: 'webui/bs_requests' do
+  resources :requests, only: [:index], param: :number, controller: 'webui/request' do
     member do
       put :toggle_watched_item, controller: 'webui/watched_items'
       put :toggle, controller: 'webui/action_seen_by_users'
@@ -353,7 +362,7 @@ constraints(RoutesHelper::WebuiMatcher) do
       get 'tokens'
     end
     member do
-      put 'block_commenting'
+      put 'censor'
       post 'change_password'
       post 'rss_secret'
       get 'edit_account'
@@ -435,10 +444,6 @@ constraints(RoutesHelper::WebuiMatcher) do
       post 'preview'
     end
   end
-
-  ### /apidocs-old
-  get 'apidocs-old', to: redirect('/apidocs-old/index')
-  get 'apidocs-old/(index)' => 'webui/apidocs#index', as: 'apidocs_index'
 end
 
 resources :staging_workflows, except: :index, controller: 'webui/staging/workflows', param: :workflow_project, constraints: cons do
@@ -468,5 +473,7 @@ controller 'webui/comment_locks' do
 end
 
 resources :code_of_conduct, only: [:index], controller: 'webui/code_of_conduct'
+
+resource :labels, controller: 'webui/labels', only: %i[update], constraints: cons
 
 resources :global_feature_toggles, only: [:index], controller: 'webui/global_feature_toggles'

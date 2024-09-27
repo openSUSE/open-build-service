@@ -212,9 +212,9 @@ RSpec.describe CommentPolicy do
     it { is_expected.to permit(comment_author, comment) }
     it { is_expected.to permit(admin_user, comment) }
 
-    context 'for a user which is blocked from commenting' do
+    context 'for a user which is censored' do
       before do
-        comment_author.blocked_from_commenting = true
+        comment_author.censored = true
       end
 
       it { is_expected.not_to permit(comment_author, comment) }

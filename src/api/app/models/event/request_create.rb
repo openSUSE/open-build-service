@@ -24,7 +24,7 @@ module Event
     end
 
     def parameters_for_notification
-      super.merge(notifiable_type: 'BsRequest')
+      super.merge(notifiable_type: 'BsRequest', type: 'NotificationBsRequest')
     end
 
     private

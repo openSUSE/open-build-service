@@ -84,9 +84,9 @@ RSpec.describe 'rollout' do
   end
 
   context 'with Staff users' do
-    let!(:staff_user_1) { create(:staff_user, in_rollout: false) }
-    let!(:staff_user_2) { create(:staff_user, in_rollout: false) }
-    let!(:staff_user_3) { create(:staff_user) }
+    let!(:staff_user1) { create(:staff_user, in_rollout: false) }
+    let!(:staff_user2) { create(:staff_user, in_rollout: false) }
+    let!(:staff_user3) { create(:staff_user) }
     let(:users) { User.staff }
 
     describe 'staff_on' do

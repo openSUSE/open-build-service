@@ -71,7 +71,7 @@ sub parsecpiohead {
     return undef if $size < 0xffffffff;
   }
   return undef if $namesize > 8192;
-  my $ent = { 'namesize' => $size , 'size' => $size, 'mtime' => $mtime, 'mode' => $mode, 'cpiotype' => ($mode >> 12 & 0xf) };
+  my $ent = { 'namesize' => $namesize , 'size' => $size, 'mtime' => $mtime, 'mode' => $mode, 'cpiotype' => ($mode >> 12 & 0xf) };
   return ($ent, $namesize, $namepad, $size, $pad);
 }
 
@@ -82,7 +82,7 @@ sub openentfile {
   my $type = ref($file);
   if ($type) {
     if ($type eq 'CODE') {
-      $fd = $file->();
+      $fd = $file->($ent);
       die("$name: open: $!\n") unless $fd;
     } else {
       $fd = $file;
@@ -122,8 +122,9 @@ sub writecpio {
     if ($ent->{'error'}) {
       die("$name: $ent->{'error'}\n") unless $collecterrors;
       $errors->{'data'} .= "$name: $ent->{'error'}\n";
-    } elsif (exists($ent->{'file'}) || exists($ent->{'filename'})) {
+    } elsif (exists($ent->{'file'}) || exists($ent->{'filename'}) || (!exists($ent->{'data'}) && defined($opts{'file'}) && defined($ent->{'offset'}))) {
       my $file = exists($ent->{'file'}) ? $ent->{'file'} : $ent->{'filename'};
+      $file = $opts{'file'} if !defined($file) && defined($ent->{'offset'});
       my ($efd, $error) = openentfile($ent, $file, \@s, $opts{'follow'});
       if ($error) {
 	close($efd) if $efd && !ref($file);

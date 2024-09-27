@@ -17,12 +17,16 @@ FactoryBot.define do
 
     factory :package_with_maintainer do
       transient do
-        maintainer { build(:confirmed_user) }
+        maintainer { association :confirmed_user }
       end
 
       after(:build) do |package, evaluator|
         role = Role.find_by_title('maintainer')
-        package.relationships.build(user: evaluator.maintainer, role: role)
+        if evaluator.maintainer.is_a?(User)
+          package.relationships.build(user: evaluator.maintainer, role: role)
+        elsif evaluator.maintainer.is_a?(Group)
+          package.relationships.build(group: evaluator.maintainer, role: role)
+        end
       end
     end
 

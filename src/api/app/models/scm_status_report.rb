@@ -9,7 +9,7 @@
 class SCMStatusReport < ApplicationRecord
   belongs_to :workflow_run
 
-  enum status: {
+  enum :status, {
     success: 0,
     fail: 1
   }
