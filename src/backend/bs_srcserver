@@ -1174,8 +1174,13 @@ sub getprojpack {
       }
     }
     next unless $proj;
-    for (qw{kind link}) {
+    for (qw{kind link scmsync}) {
       $jinfo->{$_} = $proj->{$_} if exists $proj->{$_};
+    }
+    if ($proj->{'scmsync'} && !$proj->{'remoteurl'}) {
+      # get the scm info from the last commit
+      my $lastrev = eval { BSRevision::getrev_local($projid, '_project') };
+      $proj->{'scminfo'} = $1 if $lastrev && $lastrev->{'comment'} && $lastrev->{'comment'} =~ /\[info=([0-9a-f]{1,128})\]$/;
     }
 
     my $is_limited;
