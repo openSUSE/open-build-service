@@ -20,7 +20,7 @@ These requests are not created for projects with open requests or if you remove 
         <request>
           <action type="delete"><target project="<%= project %>"/></action>
           <description><%= description %></description>
-          <state />
+          <state name="new" />
           <accept_at><%= cleanup_time %></accept_at>
         </request>
       XML

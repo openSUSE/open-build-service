@@ -53,11 +53,11 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
   def test_invalid_command
     post '/request?cmd=INVALID'
-    assert_response :unauthorized
+    assert_response :bad_request
     login_king
     post '/request?cmd=INVALID'
     assert_response :bad_request
-    assert_xml_tag(tag: 'status', attributes: { code: 'unknown_command' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'validation_failed' })
   end
 
   def test_get_requests_collection
@@ -827,8 +827,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
           <source project="home:Iggy" package="TestPack" rev="1"/>
           <target project="home:fred" package="foopkg"/>
         </action>
-        <review by_group="test_group"/>
-        <review by_user="adrian"/>
+        <review state="new" by_group="test_group"/>
+        <review state="new" by_user="adrian"/>
       </request>
     XML_REQUEST
     post '/request?cmd=create', params: req
@@ -885,8 +885,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
           <source project="home:Iggy" package="TestPack" rev="1"/>
           <target project="home:fred" package="foopkg"/>
         </action>
-        <review by_group="test_group"/>
-        <state approver="%<approver>s"/>
+        <review state="new" by_group="test_group"/>
+        <state name="new" approver="%<approver>s"/>
       </request>
     XML_REQUEST
 
@@ -1608,30 +1608,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # cleanup
     delete '/source/home:Iggy/TestPack/_attribute/OBS:RejectRequests'
     assert_response :success
-  end
-
-  # osc is still submitting with old style by default
-  def test_old_style_submit_request
-    prepare_request_with_user('hidden_homer', 'buildservice')
-    post '/request?cmd=create', params: '<request type="submit">
-                                   <submit>
-                                     <source project="HiddenProject" package="pack" rev="1"/>
-                                     <target project="kde4" package="DUMMY"/>
-                                   </submit>
-                                   <state name="new" />
-                                 </request>'
-    assert_response :success
-    node = Xmlhash.parse(@response.body)
-    assert node['id']
-    id = node.value(:id)
-    post "/request/#{id}?cmd=changestate&newstate=revoked"
-    assert_response :success
-
-    # test that old style request got converted
-    get "/request/#{id}"
-    assert_response :success
-    assert_no_xml_tag tag: 'submit'
-    assert_xml_tag tag: 'action', attributes: { type: 'submit' }
   end
 
   def test_submit_request_from_hidden_project_and_hidden_source
@@ -2851,7 +2827,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
             </action>
             <accept_at>2010-07-13 14:00:21.000000000 Z</accept_at>
             <description>SUBMIT</description>
-            <state/>
+            <state name='new' />
           </request>"
     post '/request?cmd=create', params: req
     # user has no write permission in target
@@ -2931,7 +2907,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
               <target project='home:Iggy' package='TestPack' />
             </action>
             <description>delete</description>
-            <state/>
+            <state name='new' />
           </request>"
 
     # works as user with write permission in target
@@ -2995,7 +2971,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
               </options>
             </action>
             <description>SUBMIT</description>
-            <state/>
+            <state name='new' />
           </request>"
     post '/request?cmd=create', params: req
     assert_response :success
