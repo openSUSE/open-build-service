@@ -177,9 +177,13 @@ sub check {
         $cbdep->{'arch'} = $d->{'arch'} if $d->{'arch'};
         $cbdep->{'hdrmd5'} = $d->{'hdrmd5'} if $d->{'hdrmd5'};
       }
-      push @cbdep, $cbdep;
-      $basecbdep = $cbdep if $basep{$p};
+      if (!$basecbdep && $basep{$p}) {
+	$basecbdep = $cbdep;
+      } else {
+        push @cbdep, $cbdep;
+      }
     }
+    push @cbdep, $basecbdep if $basecbdep;	# always put base container last
 
     # append repositories defined in the container annotation to our path
     my @infopath = @{$info->{'path'} || []};
