@@ -22,6 +22,8 @@ ADD Gemfile /obs/src/api/Gemfile
 ADD Gemfile.lock /obs/src/api/Gemfile.lock
 RUN chown -R frontend /obs/src/api
 
+RUN zypper install -y bind-utils iputils openldap2-client telnet
+
 # Now do the rest as the user with the same ID as the user who
 # builds this container
 USER frontend

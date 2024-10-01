@@ -1,4 +1,4 @@
 web: bin/rails server -b 0.0.0.0
-delayed: bundle exec script/delayed_job.api.rb run
-clock: bin/clockworkd --log-dir=log -l -c config/clock.rb run
+# delayed: bundle exec script/delayed_job.api.rb run
+# clock: bin/clockworkd --log-dir=log -l -c config/clock.rb run
 search: bin/rails sphinx:start_for_development

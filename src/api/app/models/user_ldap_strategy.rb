@@ -159,12 +159,13 @@ class UserLdapStrategy
 
       # Do 10 attempts to connect to one of the configured LDAP servers. LDAP server
       # to connect to is chosen randomly.
-      (CONFIG['ldap_max_attempts'] || 10).times do
-        server = ldap_servers[rand(ldap_servers.length)]
-        con = try_ldap_con(server, user_name, password)
+      # (CONFIG['ldap_max_attempts'] || 10).times do
+      server = ldap_servers[rand(ldap_servers.length)]
+      con = try_ldap_con(server, user_name, password)
 
-        return con if con.try(:bound?)
-      end
+      return con if con.try(:bound?)
+
+      # end
 
       Rails.logger.error("UserLdapStrategy:: Unable to bind to any of the servers '#{CONFIG['ldap_servers']}'")
       nil
@@ -189,10 +190,11 @@ class UserLdapStrategy
               end
         con.set_option(LDAP::LDAP_OPT_PROTOCOL_VERSION, 3)
         con.set_option(LDAP::LDAP_OPT_REFERRALS, LDAP::LDAP_OPT_OFF) if CONFIG['ldap_referrals'] == :off
+        # con.set_option(LDAP::LDAP_OPT_X_TLS_REQUIRE_CERT, LDAP::LDAP_OPT_X_TLS_ALLOW) if Rails.env.test_ldap? && (CONFIG['ldap_ssl'] == :on || CONFIG['ldap_start_tls'] == :on)
         con.bind(user_name, password)
-      rescue LDAP::ResultError
+      rescue LDAP::ResultError => e
+        Rails.logger.info("UserLdapStrategy: Failed to bind as user '#{user_name}': #{con.nil? ? e.message : con.err2string(con.err)}")
         con.unbind if con.try(:bound?)
-        Rails.logger.info("UserLdapStrategy: Failed to bind as user '#{user_name}': #{con.err2string(con.err)}")
         return
       end
       Rails.logger.debug { "UserLdapStrategy: Bound as '#{user_name}'" }
@@ -328,7 +330,7 @@ class UserLdapStrategy
     def ldap_port
       return CONFIG['ldap_port'] if CONFIG['ldap_port']
 
-      CONFIG['ldap_ssl'] == :on ? 636 : 389
+      CONFIG['ldap_ssl'] == :on || CONFIG['ldap_start_tls'] == :on ? 636 : 389
     end
   end
 

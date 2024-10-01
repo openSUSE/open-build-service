@@ -13,7 +13,6 @@ Rails.application.configure do
 end
 
 # This isn't going to change since this is how we configure Rails
-# rubocop:disable Metrics/BlockLength
 OBSApi::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
   config.cache_classes = true
@@ -85,7 +84,6 @@ OBSApi::Application.configure do
   # Annotate rendered view with file names.
   # config.action_view.annotate_rendered_view_with_filenames = true
 end
-# rubocop:enable Metrics/BlockLength
 
 CONFIG['response_schema_validation'] = true
 CONFIG['source_url'] = "http://#{CONFIG['source_host']}:#{CONFIG['source_port']}"
@@ -140,3 +138,5 @@ CONFIG['ldap_search_user'] = 'cn=admin,dc=example,dc=org'
 CONFIG['ldap_search_auth'] = 'opensuse'
 CONFIG['ldap_authenticate'] = :ldap
 CONFIG['ldap_auth_attr'] = 'userPassword'
+CONFIG['ldap_group_search_base'] = 'dc=example,dc=org'
+CONFIG['ldap_group_title_attr'] = 'cn'

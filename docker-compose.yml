@@ -4,27 +4,27 @@ services:
     ports:
       - "3306:3306"
     command: /usr/lib/mysql/mysql-systemd-helper start
-  cache:
-    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/memcached
-    ports:
-      - "11211:11211"
-    command: /usr/bin/memcached -u memcached
-  backend:
-    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend
-    volumes:
-      - .:/obs:z
-      - ./dist/aws_credentials:/etc/obs/cloudupload/.aws/config:Z
-      - ./dist/ec2utils.conf:/etc/obs/cloudupload/.ec2utils.conf:Z
-      - ./dist/clouduploader.rb:/usr/bin/clouduploader:Z
-    command: /obs/contrib/start_development_backend -d /obs
-  worker:
-    image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend
-    volumes:
-      - .:/obs:z
-    privileged: true
-    depends_on:
-      - backend
-    command: /obs/contrib/start_development_worker
+  # cache:
+  #   image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/memcached
+  #   ports:
+  #     - "11211:11211"
+  #   command: /usr/bin/memcached -u memcached
+  # backend:
+  #   image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend
+  #   volumes:
+  #     - .:/obs:z
+  #     - ./dist/aws_credentials:/etc/obs/cloudupload/.aws/config:Z
+  #     - ./dist/ec2utils.conf:/etc/obs/cloudupload/.ec2utils.conf:Z
+  #     - ./dist/clouduploader.rb:/usr/bin/clouduploader:Z
+  #   command: /obs/contrib/start_development_backend -d /obs
+  # worker:
+  #   image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend
+  #   volumes:
+  #     - .:/obs:z
+  #   privileged: true
+  #   depends_on:
+  #     - backend
+  #   command: /obs/contrib/start_development_worker
   frontend:
     image: openbuildservice/frontend
     command: foreman start -p 3000
@@ -40,6 +40,6 @@ services:
       - "1080:1080"
     depends_on:
       - db
-      - cache
-      - backend
-      - worker
+    #   - cache
+    #   - backend
+    #   - worker
