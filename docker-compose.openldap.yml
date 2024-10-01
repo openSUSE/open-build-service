@@ -1,0 +1,16 @@
+services:
+  openldap:
+    image: registry.opensuse.org/opensuse/openldap:2.6.8
+    ports:
+      - "389:389"
+      - "636:636"
+    environment:
+      - LDAP_ADMIN_PASSWORD=opensuse
+      - LDAP_CONFIG_PASSWORD=config
+      - LDAP_SEED_LDIF_PATH=/tmp/ldap_seed_ldif
+    hostname: openldap.example.org
+    volumes:
+      - ./docker-files/openldap/certs:/etc/openldap/certs
+      - ./docker-files/openldap/conf:/etc/openldap/slapd.d
+      - ./docker-files/openldap/db:/var/lib/ldap
+      - ./docker-files/openldap/seed_ldif:/tmp/ldap_seed_ldif
