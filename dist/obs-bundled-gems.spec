@@ -170,6 +170,14 @@ for bin in %{buildroot}%_libdir/obs-api/ruby/*/bin/*; do
   sed -i -e '1!b;s,^#!.*/bin/env ruby.*$,#!%{__obs_ruby_interpreter},' $bin
 done
 for bin in %{buildroot}%_libdir/obs-api/ruby/*/gems/*/bin/*; do
+  # Some gems have subdirectories inside bin, so we skip them
+  if [[ -f $bin ]]; then
+    sed -i -e '1!b;s,^#!/usr/bin/ruby.*$,#!%{__obs_ruby_interpreter},' $bin
+    sed -i -e '1!b;s,^#!/usr/bin/env ruby.*$,#!%{__obs_ruby_interpreter},' $bin
+  fi
+done
+# And here process those binaries in subdirectories
+for bin in %{buildroot}%_libdir/obs-api/ruby/*/gems/*/bin/linux/*; do
   sed -i -e '1!b;s,^#!/usr/bin/ruby.*$,#!%{__obs_ruby_interpreter},' $bin
   sed -i -e '1!b;s,^#!/usr/bin/env ruby.*$,#!%{__obs_ruby_interpreter},' $bin
 done
