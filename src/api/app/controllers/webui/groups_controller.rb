@@ -44,6 +44,6 @@ class Webui::GroupsController < Webui::WebuiController
   private
 
   def group_params
-    params.require(:group).permit(:title, :members)
+    params.require(:group).permit(:title, :email, :members)
   end
 end

@@ -10,6 +10,11 @@
           %abbr.text-danger{ title: 'required' } *
           = form.text_field(:title, class: 'form-control', required: true, autofocus: true)
         .mb-3
+          = form.label(:email) do
+            Email
+            %small.form-text (not required for groups)
+          = form.email_field(:email, class: 'form-control')
+        .mb-3
           = label_tag(:members)
           = text_field_tag('group[members]', @members, id: 'group-members', class: 'form-control tag-input',
                                                        data: { source: autocomplete_users_path })
