@@ -140,3 +140,4 @@ CONFIG['ldap_authenticate'] = :ldap
 CONFIG['ldap_auth_attr'] = 'userPassword'
 CONFIG['ldap_group_search_base'] = 'dc=example,dc=org'
 CONFIG['ldap_group_title_attr'] = 'cn'
+CONFIG['ldap_group_objectclass_attr'] = 'posixGroup'

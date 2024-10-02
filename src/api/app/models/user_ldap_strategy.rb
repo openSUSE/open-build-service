@@ -15,7 +15,7 @@ class UserLdapStrategy
       result = []
       @@ldap_search_con.search(CONFIG['ldap_group_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
         result << entry.dn
-        result << entry.attrs
+        # result << entry.attrs
       end
 
       if result.empty?
@@ -152,7 +152,7 @@ class UserLdapStrategy
     # this method returns a ldap object using the provided user name
     # and password
     def initialize_ldap_con(user_name, password)
-      return unless defined?(CONFIG['ldap_servers'])
+      return if CONFIG['ldap_servers'].blank?
 
       require 'ldap'
       ldap_servers = CONFIG['ldap_servers'].split(':')
