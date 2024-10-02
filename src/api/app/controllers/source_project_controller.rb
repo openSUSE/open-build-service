@@ -4,7 +4,7 @@ class SourceProjectController < SourceController
   # GET /source/:project
   def show
     project_name = params[:project]
-    if params.key?(:deleted)
+    if params[:deleted] == '1'
       unless Project.find_by_name(project_name) || Project.is_remote_project?(project_name)
         # project is deleted or not accessible
         validate_visibility_of_deleted_project(project_name)
