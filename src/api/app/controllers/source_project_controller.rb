@@ -22,6 +22,11 @@ class SourceProjectController < SourceController
     @project = Project.find_by_name(project_name)
     raise Project::UnknownObjectError, "Project not found: #{project_name}" unless @project
 
+    if @project.scmsync.present?
+      pass_to_backend
+      return
+    end
+
     # we let the backend list the packages after we verified the project is visible
     if params.key?(:view)
       case params[:view]
@@ -52,7 +57,8 @@ class SourceProjectController < SourceController
   end
 
   def render_project_packages
-    @packages = params.key?(:expand) ? @project.expand_all_packages : @project.packages.pluck(:name)
+    # TODO: Display multibuild flavors when passing the expand param
+    @packages = params.key?(:expand) ? @project.expand_all_packages : @project.packages.sort_by(&:name)
     render locals: { expand: params.key?(:expand) }, formats: [:xml]
   end
 
