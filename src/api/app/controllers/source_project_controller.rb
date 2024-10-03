@@ -52,7 +52,8 @@ class SourceProjectController < SourceController
   end
 
   def render_project_packages
-    @packages = params.key?(:expand) ? @project.expand_all_packages : @project.packages.pluck(:name)
+    # TODO: Look into expand_all_packages
+    @packages = params.key?(:expand) ? @project.expand_all_packages : @project.packages
     render locals: { expand: params.key?(:expand) }, formats: [:xml]
   end
 
