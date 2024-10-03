@@ -422,7 +422,7 @@ constraints(RoutesHelper::WebuiMatcher) do
 
   resource :session, only: %i[new create destroy], controller: 'webui/session'
 
-  resources :groups, only: %i[index show new create], param: :title, constraints: cons, controller: 'webui/groups' do
+  resources :groups, only: %i[index show new create edit update], param: :title, constraints: cons, controller: 'webui/groups' do
     resources :user, only: %i[create destroy update], param: :user_login, constraints: cons, controller: 'webui/groups/users'
     resources :requests, only: [:index], controller: 'webui/groups/bs_requests'
 

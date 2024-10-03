@@ -21,6 +21,11 @@ class Webui::GroupsController < Webui::WebuiController
     authorize Group.new, :create?
   end
 
+  def edit
+    @group = Group.find_by(title: params[:title])
+    authorize @group, :update?
+  end
+
   def create
     group = Group.new(title: group_params[:title])
     authorize group, :create?
@@ -34,6 +39,18 @@ class Webui::GroupsController < Webui::WebuiController
     redirect_to controller: :groups, action: :index
   rescue ActiveRecord::RecordInvalid
     redirect_back_or_to root_path, error: "Group can't be saved: #{group.errors.full_messages.to_sentence}"
+  end
+
+  def update
+    @group = Group.find_by(title: params[:title])
+    authorize @group, :update?
+
+    if @group.update(email: group_params[:email])
+      flash[:success] = 'Group email successfully updated'
+      redirect_to groups_path
+    else
+      flash[:error] = "Couldn't update group: #{@group.errors.full_messages.to_sentence}"
+    end
   end
 
   def autocomplete
