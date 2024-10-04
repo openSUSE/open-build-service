@@ -1,3 +1,5 @@
+%global source_date_epoch_from_changelog 0
+
 Name:           ptf-@patchinfo-incident@
 Version:        @patchinfo-version@
 Release:        0
