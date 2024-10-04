@@ -1,3 +1,5 @@
+%global source_date_epoch_from_changelog 0
+
 Name: worker-deltagen
 Version: 0
 Release: 0
