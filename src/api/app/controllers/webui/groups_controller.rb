@@ -1,6 +1,6 @@
 class Webui::GroupsController < Webui::WebuiController
   before_action :require_login, except: %i[show autocomplete]
-  after_action :verify_authorized, except: %i[show autocomplete]
+  after_action :verify_authorized, except: %i[show autocomplete edit update]
 
   def index
     authorize Group.new, :index?
@@ -23,7 +23,13 @@ class Webui::GroupsController < Webui::WebuiController
 
   def edit
     @group = Group.find_by(title: params[:title])
-    authorize @group, :update?
+
+    if @group
+      authorize(@group, :update?)
+    else
+      flash[:error] = "The group doesn't exist"
+      redirect_to(groups_path)
+    end
   end
 
   def create
@@ -43,6 +49,12 @@ class Webui::GroupsController < Webui::WebuiController
 
   def update
     @group = Group.find_by(title: params[:title])
+
+    unless @group
+      flash[:error] = "The group doesn't exist"
+      redirect_to(groups_path) && return
+    end
+
     authorize @group, :update?
 
     if @group.update(email: group_params[:email])

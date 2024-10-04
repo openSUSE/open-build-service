@@ -91,9 +91,11 @@ RSpec.describe Webui::GroupsController do
   end
 
   describe 'GET #edit' do
+    let(:title) { group.title }
+
     before do
       login(login_as)
-      get :edit, params: { title: group.title }
+      get :edit, params: { title: title }
     end
 
     context 'as a normal user' do
@@ -108,13 +110,23 @@ RSpec.describe Webui::GroupsController do
       let(:login_as) { create(:admin_user) }
 
       it { expect(assigns(:group)).to eq(group) }
+
+      context 'which an inexistent group' do
+        let(:title) { 'no_real_title' }
+
+        it 'does not allow to edit the group' do
+          expect(flash[:error]).to eq("The group doesn't exist")
+        end
+      end
     end
   end
 
   describe 'PUT #update' do
+    let(:title) { group.title }
+
     before do
       login(login_as)
-      put :update, params: { title: group.title, group: { email: email } }
+      put :update, params: { title: title, group: { email: email } }
     end
 
     context 'as a normal user' do
@@ -129,6 +141,15 @@ RSpec.describe Webui::GroupsController do
 
     context 'as an admin' do
       let(:login_as) { create(:admin_user) }
+
+      context 'which an inexistent group' do
+        let(:title) { 'no_real_title' }
+        let(:email) { 'new_email@example.com' }
+
+        it 'does not allow to edit the group' do
+          expect(flash[:error]).to eq("The group doesn't exist")
+        end
+      end
 
       context 'when the email is empty' do
         let(:email) { nil }
