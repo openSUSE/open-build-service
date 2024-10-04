@@ -253,5 +253,12 @@ namespace :dev do
       # Create notifications by running the `dev:notifications:data` task two times
       Rake::Task['dev:notifications:data'].invoke(2)
     end
+
+    desc 'CREATE AT SCALE'
+    task create_at_scale: :development_environment do
+      Rake::Task['dev:requests:multiple_actions_request'].invoke(100)
+      Rake::Task['dev:requests:request_with_multiple_submit_actions_builds_and_diffs'].invoke(100)
+      Rake::Task['dev:requests:request_with_delete_action'].invoke(100)
+    end
   end
 end
