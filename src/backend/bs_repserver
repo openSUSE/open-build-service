@@ -2962,7 +2962,7 @@ sub getresult {
     $sl->{'dirty'} = 'true' if $schedulerstate eq 'scheduling'; # flag already removed, but new state not yet written
     if ($ps->{'scmsync'}) {
       $sl->{'scmsync'} = $ps->{'scmsync'};
-      $sl->{'scminfo'} = $ps->{'scminfo'};
+      $sl->{'scminfo'} = $ps->{'scminfo'} if $ps->{'scminfo'} ;
     }
     $state .= "$schedulerstate\0\0";
     fixpackstatus($prpa, $ps, \%buildingjobs, %code ? \%code : undef) unless $cgi->{'lastbuild'};
