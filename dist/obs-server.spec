@@ -861,6 +861,7 @@ fi
 %{_unitdir}/obsnotifyforward.service
 %{_unitdir}/obsredis.service
 /usr/sbin/obs_admin
+/usr/sbin/obs-setup
 /usr/sbin/obs_serverstatus
 /usr/sbin/obsscheduler
 %if 0%{?suse_version}
@@ -885,12 +886,14 @@ fi
 %{obs_backend_dir}/BSSched
 %{obs_backend_dir}/BSSrcServer
 %{obs_backend_dir}/BSPublisher
+%{obs_backend_dir}/BSSetup
 %{obs_backend_dir}/*.pm
 %{obs_backend_dir}/BSConfig.pm.template
 %{obs_backend_dir}/DESIGN
 %{obs_backend_dir}/License
 %{obs_backend_dir}/README
 %{obs_backend_dir}/bs_admin
+%{obs_backend_dir}/bs_setup
 %{obs_backend_dir}/bs_cleanup
 %{obs_backend_dir}/bs_archivereq
 %{obs_backend_dir}/bs_check_consistency
