@@ -265,6 +265,8 @@ namespace :dev do
 
       # TODO: refactor the task, it is very slow compared to the others
       Rake::Task['dev:notifications:data'].invoke(repetitions)
+
+      Rake::Task['dev:news:data'].invoke(repetitions)
     end
   end
 end
