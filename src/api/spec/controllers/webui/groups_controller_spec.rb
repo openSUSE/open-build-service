@@ -89,4 +89,94 @@ RSpec.describe Webui::GroupsController do
       end
     end
   end
+
+  describe 'GET #edit' do
+    let(:title) { group.title }
+
+    before do
+      login(login_as)
+      get :edit, params: { title: title }
+    end
+
+    context 'as a normal user' do
+      let(:login_as) { create(:user) }
+
+      it 'does not allow to edit the group' do
+        expect(flash[:error]).to eq('Sorry, you are not authorized to update this group.')
+      end
+    end
+
+    context 'as an admin' do
+      let(:login_as) { create(:admin_user) }
+
+      it { expect(assigns(:group)).to eq(group) }
+
+      context 'which an inexistent group' do
+        let(:title) { 'no_real_title' }
+
+        it 'does not allow to edit the group' do
+          expect(flash[:error]).to eq("The group doesn't exist")
+        end
+      end
+    end
+  end
+
+  describe 'PUT #update' do
+    let(:title) { group.title }
+
+    before do
+      login(login_as)
+      put :update, params: { title: title, group: { email: email } }
+    end
+
+    context 'as a normal user' do
+      let(:login_as) { create(:user) }
+      let(:email) { 'new_email@example.com' }
+
+      it 'does not allow to update the group' do
+        expect(flash[:error]).to eq('Sorry, you are not authorized to update this group.')
+        expect(group.reload.email).not_to eq(email)
+      end
+    end
+
+    context 'as an admin' do
+      let(:login_as) { create(:admin_user) }
+
+      context 'which an inexistent group' do
+        let(:title) { 'no_real_title' }
+        let(:email) { 'new_email@example.com' }
+
+        it 'does not allow to edit the group' do
+          expect(flash[:error]).to eq("The group doesn't exist")
+        end
+      end
+
+      context 'when the email is empty' do
+        let(:email) { nil }
+
+        it 'updates the email' do
+          expect(flash[:success]).to eq('Group email successfully updated')
+          expect(group.reload.email).to be_empty
+        end
+      end
+
+      context 'when the email is not empty' do
+        let(:email) { 'new_email@example.com' }
+
+        it 'updates the email' do
+          expect(response).to redirect_to(groups_path)
+          expect(flash[:success]).to eq('Group email successfully updated')
+          expect(group.reload.email).to eq(email)
+        end
+      end
+
+      context 'when the email have the wrong format' do
+        let(:email) { 'is_not_an_email' }
+
+        it 'is not updated' do
+          expect(flash[:error]).to eq("Couldn't update group: Email must be a valid email address")
+        end
+      end
+    end
+  end
 end

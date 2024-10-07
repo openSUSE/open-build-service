@@ -10,6 +10,7 @@
         %tr
           %th Group Name
           %th Members
+          %th Actions
       %tbody
         - @groups.each do |group|
           %tr
@@ -17,7 +18,12 @@
               = link_to(group, group_path(title: group))
             %td
               = safe_join(group.users.map { |user| link_to(truncate(user.login, length: 20), user_path(user), title: user.login) }, ', ')
-
+            %td
+              = link_to(edit_group_path(title: group.title)) do
+                %i.fas.fa-edit.text-secondary.pe-1{ title: 'Edit Group\'s Email' }
+              - if group.email.present?
+                = mail_to(group.email) do
+                  %i.fas.fa-envelope.text-secondary.pe-1{ title: 'Send Email to Group' }
     .pt-4
       = link_to(new_group_path, title: 'Create Group') do
         %i.fas.fa-plus-circle.text-primary

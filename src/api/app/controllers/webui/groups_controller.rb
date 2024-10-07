@@ -1,6 +1,6 @@
 class Webui::GroupsController < Webui::WebuiController
   before_action :require_login, except: %i[show autocomplete]
-  after_action :verify_authorized, except: %i[show autocomplete]
+  after_action :verify_authorized, except: %i[show autocomplete edit update]
 
   def index
     authorize Group.new, :index?
@@ -21,6 +21,17 @@ class Webui::GroupsController < Webui::WebuiController
     authorize Group.new, :create?
   end
 
+  def edit
+    @group = Group.find_by(title: params[:title])
+
+    if @group
+      authorize(@group, :update?)
+    else
+      flash[:error] = "The group doesn't exist"
+      redirect_to(groups_path)
+    end
+  end
+
   def create
     group = Group.new(title: group_params[:title])
     authorize group, :create?
@@ -36,6 +47,24 @@ class Webui::GroupsController < Webui::WebuiController
     redirect_back_or_to root_path, error: "Group can't be saved: #{group.errors.full_messages.to_sentence}"
   end
 
+  def update
+    @group = Group.find_by(title: params[:title])
+
+    unless @group
+      flash[:error] = "The group doesn't exist"
+      redirect_to(groups_path) && return
+    end
+
+    authorize @group, :update?
+
+    if @group.update(email: group_params[:email])
+      flash[:success] = 'Group email successfully updated'
+      redirect_to groups_path
+    else
+      flash[:error] = "Couldn't update group: #{@group.errors.full_messages.to_sentence}"
+    end
+  end
+
   def autocomplete
     groups = Group.where('title LIKE ?', "#{params[:term]}%").pluck(:title) if params[:term]
     render json: groups || []
@@ -44,6 +73,6 @@ class Webui::GroupsController < Webui::WebuiController
   private
 
   def group_params
-    params.require(:group).permit(:title, :members)
+    params.require(:group).permit(:title, :email, :members)
   end
 end

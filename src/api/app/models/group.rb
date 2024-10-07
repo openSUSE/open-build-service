@@ -31,6 +31,11 @@ class Group < ApplicationRecord
   validates :title,
             uniqueness: { case_sensitive: true, message: 'is the name of an already existing group' }
 
+  validates :email,
+            format: { with: /\A([\w\-.\#$%&!?*'+=(){}|~]+)@([0-9a-zA-Z\-.\#$%&!?*'=(){}|~]+)+\z/,
+                      message: 'must be a valid email address',
+                      allow_blank: true }
+
   default_scope { order(:title) }
 
   alias_attribute :name, :title
