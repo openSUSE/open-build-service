@@ -135,9 +135,12 @@ namespace :dev do
 
     # Creates a request with two actions of the same type: 'submit'.
     desc 'Creates a request with only submit actions and some diffs'
-    task :request_with_multiple_submit_actions_builds_and_diffs, [:repetitions] => :development_environment do |_t, args|
+    task :request_with_multiple_submit_actions_builds_and_diffs, %i[repetitions actions_count] => :development_environment do |_t, args|
       args.with_defaults(repetitions: 1)
       repetitions = args.repetitions.to_i
+
+      args.with_defaults(actions_count: 2)
+      actions_count = args.actions_count.to_i
 
       require 'factory_bot'
       include FactoryBot::Syntax::Methods
@@ -170,30 +173,32 @@ namespace :dev do
                             target_project: home_admin_project,
                             target_package: target_package)
 
-        another_source_package_name = "another_source_package_with_multiple_submit_request_and_diff_#{Time.now.to_i}_#{repetition}"
-        another_source_package =
-          Package.find_by_project_and_name(iggy_home_project.name, another_source_package_name) ||
-          create(:package_with_files,
-                 project: iggy_home_project,
-                 name: another_source_package_name,
-                 file_content: '# New content')
+        (1..actions_count).each do |action_index|
+          another_source_package_name = "another_source_package_with_multiple_submit_request_and_diff_#{Time.now.to_i}_#{repetition}_#{action_index}"
+          another_source_package =
+            Package.find_by_project_and_name(iggy_home_project.name, another_source_package_name) ||
+            create(:package_with_files,
+                   project: iggy_home_project,
+                   name: another_source_package_name,
+                   file_content: '# New content')
 
-        another_target_package_name = "another_package_with_diff_#{Time.now.to_i}_#{repetition}"
-        another_target_package =
-          Package.find_by_project_and_name(home_admin_project, another_target_package_name) || create(:package_with_files,
-                                                                                                      project: home_admin_project,
-                                                                                                      name: another_target_package_name,
-                                                                                                      file_content: '# This will be replaced')
+          another_target_package_name = "another_package_with_diff_#{Time.now.to_i}_#{repetition}_#{action_index}"
+          another_target_package =
+            Package.find_by_project_and_name(home_admin_project, another_target_package_name) || create(:package_with_files,
+                                                                                                        project: home_admin_project,
+                                                                                                        name: another_target_package_name,
+                                                                                                        file_content: '# This will be replaced')
 
-        create(:bs_request_action_submit_with_diff,
-               creator: iggy,
-               source_project_name: iggy_home_project.name,
-               source_package_name: another_source_package.name,
-               target_project_name: home_admin_project.name,
-               target_package_name: another_target_package.name,
-               bs_request: bs_request)
+          create(:bs_request_action_submit_with_diff,
+                 creator: iggy,
+                 source_project_name: iggy_home_project.name,
+                 source_package_name: another_source_package.name,
+                 target_project_name: home_admin_project.name,
+                 target_package_name: another_target_package.name,
+                 bs_request: bs_request)
+        end
 
-        puts '* Request with multiple submit actions, builds, diffs and rpm lints.'
+        puts "* Request with #{actions_count} submit actions, builds, diffs and rpm lints."
         puts "  See http://localhost:3000/request/show/#{bs_request.number}."
         puts '  To start the builds confirm or perfom the following steps:'
         puts '  - Create the interconnect with openSUSE.org'

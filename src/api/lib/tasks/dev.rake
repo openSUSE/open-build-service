@@ -261,6 +261,14 @@ namespace :dev do
 
       Rake::Task['dev:requests:multiple_actions_request'].invoke(repetitions)
       Rake::Task['dev:requests:request_with_multiple_submit_actions_builds_and_diffs'].invoke(repetitions)
+
+      actions_count_for_small_request = 10
+      actions_count_for_medium_request = 100
+      actions_count_for_large_request = 1000
+      Rake::Task['dev:requests:request_with_multiple_submit_actions_builds_and_diffs'].invoke(10, actions_count_for_small_request)
+      Rake::Task['dev:requests:request_with_multiple_submit_actions_builds_and_diffs'].invoke(2, actions_count_for_medium_request)
+      Rake::Task['dev:requests:request_with_multiple_submit_actions_builds_and_diffs'].invoke(1, actions_count_for_large_request)
+
       Rake::Task['dev:requests:request_with_delete_action'].invoke(repetitions)
 
       # TODO: refactor the task, it is very slow compared to the others
