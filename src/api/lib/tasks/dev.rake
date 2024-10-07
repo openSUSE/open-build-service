@@ -262,6 +262,9 @@ namespace :dev do
       Rake::Task['dev:requests:multiple_actions_request'].invoke(repetitions)
       Rake::Task['dev:requests:request_with_multiple_submit_actions_builds_and_diffs'].invoke(repetitions)
       Rake::Task['dev:requests:request_with_delete_action'].invoke(repetitions)
+
+      # TODO: refactor the task, it is very slow compared to the others
+      Rake::Task['dev:notifications:data'].invoke(repetitions)
     end
   end
 end
