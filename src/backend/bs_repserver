@@ -1310,13 +1310,14 @@ sub getbinary_info {
     if (@s) {
       my $res = {'mtime' => $s[9], 'size' => $s[7], 'filename' => $path};
       $res->{'filename'} =~ s/.*\///;
+      $res->{'disturl'} = $s[22]->{'disturl'} if $s[22] && $s[22]->{'disturl'};
       data2utf8xml($res);
       return ($res, $BSXML::fileinfo);
     }
   }
   my @s = stat($path);
   die("404 $bin: $!\n") unless @s;
-  my $res = Build::query($path, 'evra' => 1, 'description' => 1, 'weakdeps' => 1, 'filelist' => $cgi->{'withfilelist'}) || {};
+  my $res = Build::query($path, 'evra' => 1, 'description' => 1, 'weakdeps' => 1, 'disturl' => 1, 'filelist' => $cgi->{'withfilelist'}) || {};
   if (!%$res && $path =~ /\/updateinfo\.xml$/) {
     my $updateinfos = readxml($path, $BSXML::updateinfo, 1);
     if ($updateinfos && @{$updateinfos->{'update'} || []} == 1) {
