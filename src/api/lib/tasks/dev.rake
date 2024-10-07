@@ -254,8 +254,8 @@ namespace :dev do
       Rake::Task['dev:notifications:data'].invoke(2)
     end
 
-    desc 'CREATE AT SCALE'
-    task :create_at_scale, [:repetitions] => :development_environment do |_t, args|
+    desc 'Create more data'
+    task :create_more_data, [:repetitions] => :development_environment do |_t, args|
       args.with_defaults(repetitions: 1)
       repetitions = args.repetitions.to_i
 
