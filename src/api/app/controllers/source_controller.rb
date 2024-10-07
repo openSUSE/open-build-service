@@ -961,7 +961,8 @@ class SourceController < ApplicationController
     path = @package.source_path
     path << build_query_from_hash(params, %i[cmd rev user comment oproject opackage orev expand
                                              keeplink repairlink linkrev olinkrev requestid
-                                             withvrev noservice dontupdatesource withhistory])
+                                             withvrev noservice dontupdatesource])
+
     pass_to_backend(path)
 
     @package.sources_changed
