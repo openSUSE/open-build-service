@@ -255,10 +255,13 @@ namespace :dev do
     end
 
     desc 'CREATE AT SCALE'
-    task create_at_scale: :development_environment do
-      Rake::Task['dev:requests:multiple_actions_request'].invoke(100)
-      Rake::Task['dev:requests:request_with_multiple_submit_actions_builds_and_diffs'].invoke(100)
-      Rake::Task['dev:requests:request_with_delete_action'].invoke(100)
+    task :create_at_scale, [:repetitions] => :development_environment do |_t, args|
+      args.with_defaults(repetitions: 1)
+      repetitions = args.repetitions.to_i
+
+      Rake::Task['dev:requests:multiple_actions_request'].invoke(repetitions)
+      Rake::Task['dev:requests:request_with_multiple_submit_actions_builds_and_diffs'].invoke(repetitions)
+      Rake::Task['dev:requests:request_with_delete_action'].invoke(repetitions)
     end
   end
 end
