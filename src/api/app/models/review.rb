@@ -198,7 +198,7 @@ class Review < ApplicationRecord
 
   def users_and_groups_for_review
     return [User.find_by_login!(by_user)] if by_user
-    return [Group.find_by_title!(by_group)] if by_group
+    return [Group.find(by_group)] if by_group
 
     if by_package
       obj = Package.find_by_project_and_name(by_project, by_package)

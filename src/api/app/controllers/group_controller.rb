@@ -34,7 +34,7 @@ class GroupController < ApplicationController
 
   # DELETE for removing it
   def delete
-    group = Group.find_by_title!(params[:title])
+    group = Group.find(params[:title])
     authorize group, :destroy?
     group.destroy
     render_ok
@@ -42,7 +42,7 @@ class GroupController < ApplicationController
 
   # GET for showing the group
   def show
-    @group = Group.find_by_title!(params[:title])
+    @group = Group.find(params[:title])
   end
 
   # PUT for rewriting it completely including defined user list.
@@ -65,7 +65,7 @@ class GroupController < ApplicationController
 
   # POST for editing it, adding or remove users
   def command
-    group = Group.find_by_title!(CGI.unescape(params[:title]))
+    group = Group.find(CGI.unescape(params[:title]))
     authorize group, :update?
 
     user = User.find_by_login!(params[:userid]) if params[:userid]

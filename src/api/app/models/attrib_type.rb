@@ -125,7 +125,7 @@ class AttribType < ApplicationRecord
 
     new_rule = {}
     new_rule[:user] = User.find_by_login!(node['user']) if node['user']
-    new_rule[:group] = Group.find_by_title!(node['group']) if node['group']
+    new_rule[:group] = Group.find(node['group']) if node['group']
     new_rule[:role] = Role.find_by_title!(node['role']) if node['role']
     attrib_type_modifiable_bies << AttribTypeModifiableBy.new(new_rule)
   end

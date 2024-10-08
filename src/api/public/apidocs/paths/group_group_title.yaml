@@ -25,7 +25,7 @@ get:
             $ref: '../components/schemas/api_response.yaml'
           example:
             code: not_found
-            summary: Couldn't find Group 'group-testd'
+            summary: Couldn't find Group with 'title'=group-testd
   tags:
     - Groups
 
@@ -85,7 +85,7 @@ post:
             group_not_found:
               value:
                 code: not_found
-                summary: Couldn't find Group 'group-testd'
+                summary: Couldn't find Group with 'title'=group-testd
               summary: Group Not Found
   tags:
     - Groups
@@ -120,7 +120,7 @@ put:
             $ref: '../components/schemas/api_response.yaml'
           example:
             code: not_found
-            summary: Couldn't find Group 'group-testd'
+            summary: Couldn't find Group with 'title'=group-testd
   tags:
     - Groups
 
@@ -144,6 +144,6 @@ delete:
             $ref: '../components/schemas/api_response.yaml'
           example:
             code: not_found
-            summary: Couldn't find Group 'group-testd'
+            summary: Couldn't find Group with 'title'=group-testd
   tags:
     - Groups

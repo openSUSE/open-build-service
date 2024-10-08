@@ -21,7 +21,7 @@ RSpec.describe BsRequest::FindFor::Group do
     context 'with a not existing group' do
       subject { klass.new(group: 'not-existent') }
 
-      it { expect { subject.all }.to raise_error(ActiveRecord::RecordNotFound, "Couldn't find Group 'not-existent'") }
+      it { expect { subject.all }.to raise_error(ActiveRecord::RecordNotFound, "Couldn't find Group with 'title'=not-existent") }
     end
 
     context 'with a group maintainer relationship' do

@@ -85,7 +85,7 @@ class SearchController < ApplicationController
     if params[:user].present?
       User.find_by_login!(params[:user])
     elsif params[:group].present?
-      Group.find_by_title!(params[:group])
+      Group.find(params[:group])
     end
   end
 

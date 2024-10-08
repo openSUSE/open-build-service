@@ -181,7 +181,7 @@ get:
             Group Not Found:
               value:
                 code: not_found
-                summary: Couldn't find Group 'fake'
+                summary: Couldn't find Group with 'title'=fake
   tags:
     - Search
 

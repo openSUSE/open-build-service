@@ -166,7 +166,7 @@ RSpec.shared_examples 'bootstrap user tab' do
         click_button('Accept')
       end
 
-      expect(page).to have_text("Couldn't find Group 'unknown group'")
+      expect(page).to have_text("Couldn't find Group with 'title'=unknown group")
     end
 
     it 'Add an existing group' do

@@ -19,7 +19,7 @@ class BsRequest
       private
 
       def group
-        @group ||= ::Group.find_by_title!(group_title)
+        @group ||= ::Group.find(group_title)
       end
 
       def union_query

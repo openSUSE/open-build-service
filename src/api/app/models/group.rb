@@ -1,8 +1,10 @@
 # The Group class represents a group record in the database and thus a
 # group model. Groups are arranged in trees and have a title.
 # Groups have an arbitrary number of users assigned to them.
-#
+
 class Group < ApplicationRecord
+  self.primary_key = 'title'
+
   has_one :staging_workflow, class_name: 'Staging::Workflow', foreign_key: :managers_group_id, dependent: :nullify
   has_many :groups_users, inverse_of: :group, dependent: :destroy
   has_many :users, -> { distinct.order(:login) }, through: :groups_users
@@ -39,12 +41,6 @@ class Group < ApplicationRecord
   default_scope { order(:title) }
 
   alias_attribute :name, :title
-
-  def self.find_by_title!(title)
-    find_by!(title: title)
-  rescue ActiveRecord::RecordNotFound => e
-    raise e, "Couldn't find Group '#{title}'", e.backtrace
-  end
 
   def update_from_xml(xmlhash, user_session_login:)
     with_lock do

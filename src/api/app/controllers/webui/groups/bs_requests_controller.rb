@@ -13,7 +13,7 @@ module Webui
       private
 
       def set_group
-        @user_or_group = Group.find_by_title!(params[:group_title])
+        @user_or_group = Group.find(params[:group_title])
       end
 
       def request_method

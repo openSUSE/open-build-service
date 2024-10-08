@@ -640,7 +640,7 @@ class BsRequestAction < ApplicationRecord
     end
     if group_name
       # validate group object
-      Group.find_by_title!(group_name)
+      Group.find(group_name)
     end
     if self.role
       # validate role object

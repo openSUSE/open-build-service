@@ -40,7 +40,7 @@ module Webui::ManageRelationships
 
     return User.find_by_login!(login) if login
 
-    ::Group.find_by_title!(title)
+    ::Group.find(title)
   end
 
   def remove_role
