@@ -9,8 +9,6 @@ class Webui::GroupsController < Webui::WebuiController
 
   def show
     @group = Group.includes(:users).find_by_title(params[:title])
-
-    # Group.find_by_title! is self implemented and would raise an 500 error
     return if @group
 
     flash[:error] = "Group '#{params[:title]}' does not exist"

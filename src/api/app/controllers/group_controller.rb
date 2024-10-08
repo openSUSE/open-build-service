@@ -9,6 +9,8 @@ class GroupController < ApplicationController
   # raise an exception if authorize has not yet been called.
   after_action :verify_authorized, except: %i[index show]
 
+  rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
+
   rescue_from Pundit::NotAuthorizedError do |exception|
     pundit_action = case exception.query.to_s
                     when 'index?' then 'list'
@@ -82,5 +84,11 @@ class GroupController < ApplicationController
     end
 
     render_ok
+  end
+
+  private
+
+  def record_not_found
+    render_error status: 404, message: "Couldn't find Group '#{params[:title]}'"
   end
 end
