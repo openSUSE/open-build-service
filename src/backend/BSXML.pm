@@ -474,6 +474,7 @@ our $fileinfo = [
 	'source',
 	'summary',
 	'description',
+	'disturl',
 	'size',
 	'mtime',
       [ 'provides' ],

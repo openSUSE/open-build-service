@@ -150,6 +150,7 @@ sub stat_container {
   $s[9] = $containerinfo->{'tar_mtime'};
   $s[20] = $containerinfo->{'tar_md5sum'};
   $s[21] = $containerinfo->{'tar_sha256sum'};
+  $s[22] = $containerinfo;
   return @s;
 }
 
