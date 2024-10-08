@@ -207,9 +207,6 @@ BinaryRelease:
   flavor:
     LengthConstraintChecker:
       enabled: false
-  id:
-    PrimaryKeyTypeChecker:
-      enabled: false
   medium:
     LengthConstraintChecker:
       enabled: false
@@ -837,13 +834,15 @@ Group:
     LengthConstraintChecker:
       enabled: false
   id:
-    PrimaryKeyTypeChecker:
+    NullConstraintChecker:
       enabled: false
   staging_workflow:
     MissingIndexChecker:
       enabled: false
   title:
     MissingUniqueIndexChecker:
+      enabled: false
+    PrimaryKeyTypeChecker:
       enabled: false
 GroupMaintainer:
   group:
@@ -1417,8 +1416,6 @@ MaintenanceIncident:
       enabled: false
 Notification:
   bs_request:
-    ColumnPresenceChecker:
-      enabled: false
     ForeignKeyChecker:
       enabled: false
   bs_request_oldstate:
