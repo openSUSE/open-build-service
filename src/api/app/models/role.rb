@@ -1,13 +1,7 @@
-require 'api_error'
-
 # The Role class represents a role in the database. Roles can have permissions
 # associated with themselves. Roles can assigned be to roles and groups.
 
 class Role < ApplicationRecord
-  class NotFound < APIError
-    setup 404
-  end
-
   validates :title,
             format: { with: /\A\w*\z/,
                       message: 'must not contain invalid characters' }
@@ -46,10 +40,6 @@ class Role < ApplicationRecord
 
   def delete_hashed_cache
     Rails.cache.delete('hashed_roles')
-  end
-
-  def self.find_by_title!(title)
-    find_by_title(title) || raise(NotFound, "Couldn't find Role '#{title}'")
   end
 
   def self.local_roles

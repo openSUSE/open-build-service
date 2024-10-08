@@ -34,20 +34,6 @@ RSpec.describe Role do
     end
   end
 
-  describe '::find_by_title!' do
-    context 'called for an existing record' do
-      it 'returns the queried role' do
-        expect(Role.find_by_title!(role.title)).to eq(role)
-      end
-    end
-
-    context 'called for a non-existing record' do
-      it 'raises an APIError' do
-        expect { Role.find_by_title!('foobar') }.to raise_error(Role::NotFound, "Couldn't find Role 'foobar'")
-      end
-    end
-  end
-
   describe '#to_param' do
     it { expect(role.to_param).to eq(role.title) }
   end
