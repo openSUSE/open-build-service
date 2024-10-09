@@ -7,12 +7,12 @@ module Webui
       before_action :set_project
       before_action :check_scmsync, only: :show
       before_action :set_package
-      before_action :set_filename, only: %i[show update destroy]
-      before_action :ensure_existence, only: :show
-      before_action :ensure_viewable, only: :show
-      before_action :set_file, only: :show
+      before_action :set_filename, only: %i[show update destroy blame]
+      before_action :ensure_existence, only: %i[show blame]
+      before_action :ensure_viewable, only: %i[show blame]
+      before_action :set_file, only: %i[show blame]
 
-      after_action :verify_authorized, except: :show
+      after_action :verify_authorized, except: %i[show blame]
 
       def show
         @rev = params[:rev]
@@ -111,10 +111,20 @@ module Webui
         redirect_to package_show_path(project: @project, package: @package)
       end
 
+      def blame
+        blame_file = Backend::Api::Sources::Package.file(@project.name, @package_name, @filename, params.slice(:rev, :expand).permit!.to_h.merge({ view: 'blame' }))
+        blame_parsed = blame_file.each_line.to_a.filter_map { |l| /^\s*(?<file>\d*:)?(?<revision>\d*)\s\((?<login>\S+)\s+(?<date>[\d-]+)\s(?<time>[\d:]+)\s+(?<line>\d+)\)\s(?<content>.*)$/.match(l) }
+        revision_numbers = blame_parsed.pluck('revision').uniq.compact_blank
+        @revisions = revision_numbers.index_with { |r| @package.commit(r) }
+        @blame_info = blame_parsed.slice_when { |a, b| a['revision'] != b['revision'] }.to_a
+        @rev = params[:rev] || revision_numbers.max
+        @expand = params[:expand]
+      end
+
       private
 
       def set_filename
-        @filename = params[:filename]
+        @filename = params[:filename] || params[:file_filename]
       end
 
       def ensure_existence

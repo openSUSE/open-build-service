@@ -1,0 +1,45 @@
+.blame {
+  display: grid;
+  grid-template-columns: [time] max-content [user] 20px [commit] max-content [button] min-content [line] min-content [content] auto;
+  column-gap: 1rem;
+  .revision {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-column: time / span 6;
+    border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+    .info {
+      display: grid;
+      grid-template-columns: subgrid;
+      grid-column: time / span 4;
+      .time {
+        grid-column-start: time;
+      }
+      .user {
+        grid-column-start: user;
+      }
+      .commit {
+        grid-column-start: commit;
+        max-width: 200px;
+      }
+      .button {
+        grid-column-start: button;
+      }
+    }
+    .code {
+      display: grid;
+      grid-template-columns: subgrid;
+      grid-column: line / span 2;
+      font-family: monospace;
+      white-space: pre;
+      text-wrap: wrap;
+      .number {
+        grid-column-start: line;
+        text-align: end;
+        user-select: none;
+      }
+      .content {
+        grid-column-start: content;
+      }
+    }
+  }
+}
