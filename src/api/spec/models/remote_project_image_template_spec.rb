@@ -1,8 +1,8 @@
 require 'webmock/rspec'
 
-RSpec.describe Project do
-  describe '.remote_image_templates' do
-    subject { Project.remote_image_templates }
+RSpec.describe RemoteProject do
+  describe '.image_templates' do
+    subject { RemoteProject.image_templates }
 
     let!(:remote_instance) { create(:project, name: 'RemoteProject', remoteurl: 'http://example.com/public') }
 

@@ -104,6 +104,8 @@ gem 'chartkick'
 gem 'paper_trail'
 # For parsing ansi codes into html in build log
 gem 'ansible'
+# Templating engine used for package templates
+gem 'liquid'
 
 # FIXME: Required by the mail gem
 # See https://github.com/rails/rails/pull/44083

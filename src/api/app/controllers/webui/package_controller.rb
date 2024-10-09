@@ -25,6 +25,7 @@ class Webui::PackageController < Webui::WebuiController
   before_action :require_login, except: %i[show index branch_diff_info
                                            users requests statistics revisions view_file
                                            devel_project buildresult rpmlint_result rpmlint_log files]
+  before_action :set_template, only: :create
 
   prepend_before_action :lockout_spiders, only: %i[revisions rdiff requests]
 
@@ -109,6 +110,7 @@ class Webui::PackageController < Webui::WebuiController
     @package.flags.build(flag: :publish, status: :disable) if params[:disable_publishing]
 
     if @package.save
+      PackageService::Templater.new(package: @package, template: @template).call if @template.present?
       flash[:success] = "Package '#{elide(@package.name)}' was created successfully"
       redirect_to action: :show, project: params[:project], package: @package.name
     else
@@ -449,5 +451,12 @@ class Webui::PackageController < Webui::WebuiController
       end
     end
     true
+  end
+
+  def set_template
+    return unless params['template']
+
+    template_project, template_package = params['template'].split('/')
+    @template = Package.find_by_project_and_name(template_project, template_package)
   end
 end

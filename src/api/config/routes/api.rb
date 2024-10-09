@@ -193,6 +193,7 @@ constraints(RoutesHelper::APIMatcher) do
     get 'public/binary_packages/:project/:package' => :binary_packages, constraints: cons
     get 'public/build/:project(/:repository(/:arch(/:package(/:filename))))' => 'public#build', constraints: cons, as: :public_build
     get 'public/image_templates' => :image_templates, constraints: cons
+    get 'public/package_templates' => :package_templates, constraints: cons
   end
 
   resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'

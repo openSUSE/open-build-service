@@ -105,6 +105,7 @@ class Project < ApplicationRecord
   scope :related_to_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id }) }
   scope :for_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] }) }
   scope :related_to_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id }) }
+  scope :with_package_templates, -> { joins(:attribs).where(attribs: { attrib_type_id: AttribType.joins(:attrib_namespace).where(attrib_namespace: { name: 'OBS' }, attrib_types: { name: 'PackageTemplates' }) }) }
 
   validates :name, presence: true, length: { maximum: 200 }, uniqueness: { case_sensitive: true }
   validates :title, length: { maximum: 250 }
@@ -169,37 +170,11 @@ class Project < ApplicationRecord
     end
 
     def image_templates
-      ProjectsWithImageTemplatesFinder.new.call + remote_image_templates
+      ProjectsWithImageTemplatesFinder.new.call + RemoteProject.image_templates
     end
 
-    def remote_image_templates
-      result = []
-      Project.remote.each do |project|
-        body = load_from_remote(project, '/image_templates.xml')
-        next if body.blank?
-
-        Xmlhash.parse(body).elements('image_template_project').each do |image_template_project|
-          result << remote_image_template_from_xml(project, image_template_project)
-        end
-      end
-      result
-    end
-
-    def load_from_remote(project, path)
-      Rails.cache.fetch("remote_image_templates_#{project.id}", expires_in: 1.hour) do
-        Project::RemoteURL.load(project, path)
-      end
-    end
-
-    def remote_image_template_from_xml(remote_project, image_template_project)
-      # We don't store the project and packages objects because they're fetched from remote instances and stored in cache
-      project = Project.new(name: "#{remote_project.name}:#{image_template_project['name']}")
-      image_template_project.elements('image_template_package').each do |image_template_package|
-        project.packages.new(name: image_template_package['name'].presence,
-                             title: image_template_package['title'].presence,
-                             description: image_template_package['description'].presence)
-      end
-      project
+    def package_templates
+      Project.with_package_templates + RemoteProject.package_templates
     end
 
     def deleted_instance
