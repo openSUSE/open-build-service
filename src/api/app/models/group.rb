@@ -40,12 +40,6 @@ class Group < ApplicationRecord
 
   alias_attribute :name, :title
 
-  def self.find_by_title!(title)
-    find_by!(title: title)
-  rescue ActiveRecord::RecordNotFound => e
-    raise e, "Couldn't find Group '#{title}'", e.backtrace
-  end
-
   def update_from_xml(xmlhash, user_session_login:)
     with_lock do
       self.email = xmlhash.value('email')
