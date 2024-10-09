@@ -4146,32 +4146,49 @@ sub dobuild {
   print "\n";
 
   my $ret = $?;
-  if ($ret == 512) { # system exit code 2 maps to 2 * 256
-    if (($buildinfo->{'reason'} || '') eq "rebuild counter sync") {
-      $ret = 0;
-    } else {
-      if ($vm =~ /(xen|kvm|qemu|zvm|emulator|pvm|openstack)/) {
-        my $statsfile = "$buildroot/.mount/.build.packages/OTHER/_statistics";
-        updatestatsfromfile($stats, $statsfile) if -e $statsfile;
-      }
-      $stats->{'times'}->{'total'}->{'time'} = { 'unit' => 's', '_content' => (time() - $starttime) };
-      mkdir_p("$buildroot/.build.packages/OTHER");
-      writexml("$buildroot/.build.packages/OTHER/_statistics.new", "$buildroot/.build.packages/OTHER/_statistics", $stats, $BSXML::buildstatistics);
-      return 2;
+
+  my $resultdir = "$buildroot/.build.packages";
+  $resultdir = "$buildroot/.mount/.build.packages" if $vm =~ /(xen|kvm|qemu|zvm|emulator|pvm|openstack)/;
+
+  # change exit code to unchanged if the same_result_marker is present
+  if ($ret == 0 && ($buildinfo->{'reason'} || '') ne 'rebuild counter sync') {
+    $ret = 2 * 256 if -e "$resultdir/same_result_marker";
+  }
+
+  # ignore unchanged exit code if we do a rebuild counter sync build
+  $ret = 0 if $ret == 2 * 256 && ($buildinfo->{'reason'} || '') eq 'rebuild counter sync';
+
+  # update the statistics with vm data if the build succeeded or is unchanged
+  if (($ret == 0 || $ret == 2 * 256) && $vm =~ /(xen|kvm|qemu|zvm|emulator|pvm|openstack)/) {
+    my $statsfile = "$resultdir/OTHER/_statistics";
+    updatestatsfromfile($stats, $statsfile) if -e $statsfile;
+  }
+
+  # rename build result to final location for succeeded/dynamic buildrequires changed
+  if (($ret == 0 || $ret == 9 * 256) && $resultdir ne "$buildroot/.build.packages") {
+    rm_rf("$buildroot/.build.packages");
+    if (!rename($resultdir, "$buildroot/.build.packages")) {
+      print "final rename failed: $!\n";
+      return 1;
     }
+  }
+  $resultdir = "$buildroot/.build.packages";
+
+  # write statistics for succeeded/unchanged builds
+  if ($ret == 0 || $ret == 2 * 256) {
+    $stats->{'times'}->{'total'}->{'time'} = { 'unit' => 's', '_content' => (time() - $starttime) };
+    mkdir_p("$resultdir/OTHER");
+    writexml("$resultdir/OTHER/_statistics.new", "$resultdir/OTHER/_statistics", $stats, $BSXML::buildstatistics);
+  }
+
+  if ($ret == 2 * 256) {		# exit code 2: unchanged
+    return 2;
   } elsif ($ret == 3 * 256) {
     return 3;
   } elsif ($ret == 4 * 256) {
     return 4;
-  } elsif ($ret == 9 * 256) {
-    if ($vm =~ /(xen|kvm|qemu|zvm|emulator|pvm|openstack)/) {
-      rm_rf("$buildroot/.build.packages");
-      if (!rename("$buildroot/.mount/.build.packages", "$buildroot/.build.packages")) {
-        print "final rename failed: $!\n";
-        return 1;
-      }
-    }
-    return -e "$buildroot/.build.packages/OTHER/_statistics" ? 9 : 1;
+  } elsif ($ret == 9 * 256) {		# exit code 9: dynamic buildrequires changed
+    return -e "$resultdir/OTHER/_statistics" ? 9 : 1;
   }
   if ($ret) {
     return 1;
@@ -4181,44 +4198,29 @@ sub dobuild {
     return 1;
   }
 
-  if ($vm =~ /(xen|kvm|qemu|zvm|emulator|pvm|openstack)/) {
-    rm_rf("$buildroot/.build.packages");
-    # move directory with extracted build results
-    if(!rename("$buildroot/.mount/.build.packages", "$buildroot/.build.packages")) {
-      print "final rename failed: $!\n";
-      return 1;
-    }
-    # convert build statistics into xml
-    my $statsfile = "$buildroot/.build.packages/OTHER/_statistics";
-    updatestatsfromfile($stats, $statsfile) if -e $statsfile;
-  }
-  $stats->{'times'}->{'total'}->{'time'} = { 'unit' => 's', '_content' => (time() - $starttime) };
-  mkdir_p("$buildroot/.build.packages/OTHER");
-  writexml("$buildroot/.build.packages/OTHER/_statistics.new", "$buildroot/.build.packages/OTHER/_statistics", $stats, $BSXML::buildstatistics);
-
   if ($buildinfo->{'outbuildinfo'}) {
-    writexml("$buildroot/.build.packages/OTHER/_buildenv", undef, $buildinfo->{'outbuildinfo'}, $BSXML::buildinfo);
+    writexml("$resultdir/OTHER/_buildenv", undef, $buildinfo->{'outbuildinfo'}, $BSXML::buildinfo);
   }
 
   if (!$followupmode && $kiwiorigins) {
     $buildinfo->{'buildtime'} = time();
     if (!$imagemode) {
       # some builds like python-venv also write a .packages file
-      createreport($buildinfo, "$buildroot/.build.packages/OTHER", $kiwiorigins, $srcdir);
+      createreport($buildinfo, "$resultdir/OTHER", $kiwiorigins, $srcdir);
     } elsif ($imagemode eq 'docker') {
-      createreport($buildinfo, "$buildroot/.build.packages/DOCKER", $kiwiorigins, $srcdir);
+      createreport($buildinfo, "$resultdir/DOCKER", $kiwiorigins, $srcdir);
     } elsif ($imagemode eq 'kiwiproduct') {
       # as a special service we also create a channel file from the report files
-      createchannel($buildinfo, "$buildroot/.build.packages/OTHER", $kiwiorigins, $srcdir);
+      createchannel($buildinfo, "$resultdir/OTHER", $kiwiorigins, $srcdir);
     } elsif ($imagemode eq 'productcompose') {
-      annotatereport($buildinfo, "$buildroot/.build.packages/PRODUCT", $kiwiorigins);
+      annotatereport($buildinfo, "$resultdir/PRODUCT", $kiwiorigins);
     } else {
-      createreport($buildinfo, "$buildroot/.build.packages/KIWI", $kiwiorigins, $srcdir);
+      createreport($buildinfo, "$resultdir/KIWI", $kiwiorigins, $srcdir);
     }
   }
 
   if (%$followupcopy) {
-    writestr("$buildroot/.build.packages/OTHER/$_", undef, $followupcopy->{$_}) for keys %$followupcopy;
+    writestr("$resultdir/OTHER/$_", undef, $followupcopy->{$_}) for keys %$followupcopy;
   }
   return 0;
 }
@@ -4226,37 +4228,37 @@ sub dobuild {
 
 sub updatestatsfromfile {
   my ($stats, $filepath) = @_;
-      my $iosectors = 0;
-      my $iorequests = 0;
-      open(FILE, "<", $filepath) || die;
-      my %timekeys = (
-	'TIME_preinstall' => 'preinstall',
-	'TIME_install' => 'install',
-	'TIME_main_build' => 'main',
-	'TIME_postchecks' => 'postchecks',
-	'TIME_rpmlint' => 'rpmlint',
-	'TIME_buildcmp' => 'buildcmp',
-	'TIME_deltarpms' => 'deltarpms',
-	'TIME_cpusteal' => 'cpusteal',
-      );
-      while (<FILE>) {
-        chomp;
-        my ($key, $value) = split(": ", $_);
-        if ($key eq "MAX_mb_used_on_disk" ){
-          $stats->{'disk'}->{'usage'}->{'size'} = { 'unit' => 'M', '_content' => $value };
-        } elsif ($key eq "MAX_mb_used_memory" ){
-          $stats->{'memory'}->{'usage'}->{'size'} = { 'unit' => 'M', '_content' => $value };
-        } elsif ($key eq "IO_requests_read" || $key eq "IO_requests_write" ){
-          $iorequests += $value;
-          $stats->{'disk'}->{'usage'}->{'io_requests'} = $iorequests;
-        } elsif ($key eq "IO_sectors_read" || $key eq "IO_sectors_write" ){
-          $iosectors += $value;
-          $stats->{'disk'}->{'usage'}->{'io_sectors'} = $iosectors;
-        } elsif ($timekeys{$key}) {
-          $stats->{'times'}->{$timekeys{$key}}->{'time'} = { 'unit' => 's', '_content' => $value };
-        }
-      }
-      close FILE;
+  my $iosectors = 0;
+  my $iorequests = 0;
+  open(FILE, "<", $filepath) || die;
+  my %timekeys = (
+    'TIME_preinstall' => 'preinstall',
+    'TIME_install' => 'install',
+    'TIME_main_build' => 'main',
+    'TIME_postchecks' => 'postchecks',
+    'TIME_rpmlint' => 'rpmlint',
+    'TIME_buildcmp' => 'buildcmp',
+    'TIME_deltarpms' => 'deltarpms',
+    'TIME_cpusteal' => 'cpusteal',
+  );
+  while (<FILE>) {
+    chomp;
+    my ($key, $value) = split(": ", $_);
+    if ($key eq "MAX_mb_used_on_disk" ){
+      $stats->{'disk'}->{'usage'}->{'size'} = { 'unit' => 'M', '_content' => $value };
+    } elsif ($key eq "MAX_mb_used_memory" ){
+      $stats->{'memory'}->{'usage'}->{'size'} = { 'unit' => 'M', '_content' => $value };
+    } elsif ($key eq "IO_requests_read" || $key eq "IO_requests_write" ){
+      $iorequests += $value;
+      $stats->{'disk'}->{'usage'}->{'io_requests'} = $iorequests;
+    } elsif ($key eq "IO_sectors_read" || $key eq "IO_sectors_write" ){
+      $iosectors += $value;
+      $stats->{'disk'}->{'usage'}->{'io_sectors'} = $iosectors;
+    } elsif ($timekeys{$key}) {
+      $stats->{'times'}->{$timekeys{$key}}->{'time'} = { 'unit' => 's', '_content' => $value };
+    }
+  }
+  close FILE;
 }
 
 sub buildkiwitree {
@@ -4801,6 +4803,7 @@ if ($@) {
   append_nonfatal("$buildroot/.build.log", $workerid ? "$@(worker was $workerid)\n" : $@);
   print $@;
 }
+
 if ($buildinfo->{'followupfile'}) {
   my $buildsrcdir = "$buildroot/.build.packages/SOURCES";
   $buildsrcdir = "$buildroot/.build-srcdir" if $vm =~ /(xen|kvm|qemu|emulator)/;
@@ -4883,7 +4886,7 @@ if ($hostcheck) {
 }
 
 my $send_genbuildreqs;
-if ($ex != 3 && -e "$buildroot/.build.packages/OTHER/_generated_buildreqs") {
+if ($ex != 3 && $ex != 4 && -e "$buildroot/.build.packages/OTHER/_generated_buildreqs") {
   if (-s "$buildroot/.build.packages/OTHER/_generated_buildreqs" > 100000) {
     $ex = 1;
   } else {
@@ -4898,11 +4901,9 @@ if ($ex != 3 && -e "$buildroot/.build.packages/OTHER/_generated_buildreqs") {
   }
 }
 
+# collect files we want to send
 my @send;
 my $kiwitree;
-if ($ex == 0 && $buildinfo->{'reason'} ne "rebuild counter sync" && -f "$buildroot/.build.packages/same_result_marker") {
-  $ex = 2;
-}
 if ($ex == 0) {
   my @d;
   push @d, map {"RPMS/$_"} sort(ls("$buildroot/.build.packages/RPMS"));
@@ -4980,7 +4981,16 @@ if ($ex == 0) {
     print "build did not create anything to send back!\n";
     $ex = 1;
   }
+} elsif ($ex == 2) {
+  my $statsfile = "$buildroot/.build.packages/OTHER/_statistics";
+  push @send, { name => '_statistics', filename => $statsfile } if -e $statsfile;
+  # ccache is enabled and there is no tar from previous builds,
+  # this is a good ccache archive and should be used for subsequent builds.
+  my $ccachetar = "$buildroot/.build.packages/OTHER/_ccache.tar";
+  my $occachetar = "$buildroot/.build.oldpackages/_ccache.tar";
+  push @send, {name => '_ccache.tar', filename => $ccachetar} if -e $ccachetar && !-e $occachetar;
 }
+
 my $code;
 if (!$ex) {
   print "build succeeded, sending everything back...\n";
@@ -4988,14 +4998,6 @@ if (!$ex) {
 } elsif ($ex == 2) {
   print "build succeeded, but does not differ from old build result...\n";
   $code = 'unchanged';
-  my $statsfile = "$buildroot/.build.packages/OTHER/_statistics";
-  push @send, {name => '_statistics', filename => $statsfile} if -e $statsfile;
-
-  # ccache is enabled and there is no tar from previous builds,
-  # this is a good ccache archive and should be used for subsequent builds.
-  my $ccachetar = "$buildroot/.build.packages/OTHER/_ccache.tar";
-  my $occachetar = "$buildroot/.build.oldpackages/_ccache.tar";
-  push @send, {name => '_ccache.tar', filename => $ccachetar} if -e $ccachetar && !-e $occachetar;
 } elsif ($ex == 3 && $buildinfo->{'nobadhost'}) {
   print "build failed (ignored bad build host flag)...\n";
   BSUtil::appendstr("$buildroot/.build.log", "\n$buildinfo->{'nobadhost'}\n");
@@ -5030,8 +5032,11 @@ if (!$ex) {
   print "build failed, send back logfile...\n";
   $code = 'failed';
 }
+
+# always send the log and the meta files
 push @send, {name => 'meta', filename => "$buildroot/.build.meta"} if -e "$buildroot/.build.meta";
 push @send, {name => 'logfile', filename => "$buildroot/.build.log"};
+
 if ($code eq 'badhost') {
   # only transmit the logfile in the badhost case
   @send = ();
@@ -5043,7 +5048,7 @@ if ($code eq 'badhost') {
     push @send, {name => 'logfile', data => "no build log?\n"};
   }
 }
-push @send, $send_genbuildreqs if $send_genbuildreqs && $ex != 2 && $ex != 3;
+push @send, $send_genbuildreqs if $send_genbuildreqs && $ex != 2 && $ex != 3 && $ex != 4;
 
 if (!$testmode) {
   my $param = {
