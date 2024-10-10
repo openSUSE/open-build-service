@@ -107,10 +107,16 @@
         }
       }
       &.added, &.added .number {
-        background-color: rgba($success, 0.2)
+        background-color: rgba($success, 0.2);
+        .inline-diff {
+          background-color: rgba($success, 0.5);
+        }
       }
       &.removed, &.removed .number {
-        background-color: rgba($danger, 0.2)
+        background-color: rgba($danger, 0.2);
+        .inline-diff {
+          background-color: rgba($danger, 0.5);
+        }
       }
       &.range, &.comment {
         border-bottom: var(--bs-border-width) solid var(--bs-border-color);
@@ -130,6 +136,9 @@
         margin-left: 1rem;
         white-space: pre;
         display: inline-block;
+        .inline-diff {
+          border-radius: 4px;
+        }
       }
     }
   }
