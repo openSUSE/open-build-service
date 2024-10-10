@@ -70,9 +70,9 @@ RSpec.describe Token::Release, :vcr do
         allow(Backend::Connection).to receive(:post).with(backend_url).and_return("<status code=\"ok\" />\n")
       end
 
-      context 'when the target_project, targetrepository, filter_source_repository and arch parameters are provided' do
+      context 'when the target_project, targetrepository, repository and arch parameters are provided' do
         subject do
-          token.call(package: package, project: project_staging, targetproject: 'Baz', targetrepository: 'other_target_repository', filter_source_repository: 'other_source_repository')
+          token.call(package: package, project: project_staging, targetproject: 'Baz', targetrepository: 'other_target_repository', repository: 'other_source_repository')
         end
 
         it 'triggers the release process in the backend' do
@@ -86,7 +86,7 @@ RSpec.describe Token::Release, :vcr do
 
       context 'when the user can not modify the target_repository' do
         subject do
-          token.call(package: package, project: project_staging, targetproject: 'Foo', targetrepository: 'other_target_repository', filter_source_repository: 'other_source_repository')
+          token.call(package: package, project: project_staging, targetproject: 'Foo', targetrepository: 'other_target_repository', repository: 'other_source_repository')
         end
 
         let(:other_target_project) { create(:project, name: 'Foo') }
@@ -102,7 +102,7 @@ RSpec.describe Token::Release, :vcr do
 
       context 'when the architecture is provided through parameters and is not included in the target repository' do
         subject do
-          token.call(package: package, project: project_staging, targetproject: 'Baz', targetrepository: 'other_target_repository', filter_source_repository: 'other_source_repository',
+          token.call(package: package, project: project_staging, targetproject: 'Baz', targetrepository: 'other_target_repository', repository: 'other_source_repository',
                      arch: 's390x')
         end
 
@@ -115,7 +115,7 @@ RSpec.describe Token::Release, :vcr do
 
       context 'when the architecture is provided through parameters and is included in the target repository' do
         subject do
-          token.call(package: package, project: project_staging, targetproject: 'Baz', targetrepository: 'other_target_repository', filter_source_repository: 'other_source_repository',
+          token.call(package: package, project: project_staging, targetproject: 'Baz', targetrepository: 'other_target_repository', repository: 'other_source_repository',
                      arch: 'x86_64')
         end
 
