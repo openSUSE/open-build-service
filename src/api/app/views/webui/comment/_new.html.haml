@@ -10,11 +10,3 @@
   - if policy(Comment.new(commentable:)).create?
     = render(partial: 'webui/comment/comment_field',
       locals: { form_method: :post, comment: Comment.new, commentable: commentable, element_suffix: 'new_comment', has_cancel: false })
-- else
-  .alert.alert-warning{ role: 'alert' }
-    Login required, please
-    = link_to('login', new_session_url)
-    - if can_register?
-      or
-      = link_to('signup', new_user_url)
-    in order to comment
