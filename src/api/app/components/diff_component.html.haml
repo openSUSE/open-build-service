@@ -22,11 +22,11 @@
                 .number
             .value<
               .text-muted.ms-3
-                = line.content
+                = sanitize line.content
           - when 'comment'
             .offset
               .text-muted.text
-                = line.content
+                = sanitize line.content
           - else
             = link_to("##{id}", class: 'd-flex') do
               .number<
@@ -35,9 +35,9 @@
                 = line.changed_index
             .value<
               %span.character><
-                = line.content[0]
+                = sanitize line.content[0]
               %span.content><
-                = line.content[1..]
+                = sanitize line.content[1..]
         - if commentable
           .line-comment{ id: "comment#{id}" }
             - if commented_lines.include?(id)

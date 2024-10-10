@@ -1,6 +1,7 @@
 class DiffParser
   class Line
-    attr_reader :content, :state, :index, :original_index, :changed_index
+    attr_reader :state, :index, :original_index, :changed_index
+    attr_accessor :content
 
     def initialize(content:, state:, index:, original_index:, changed_index:)
       @content = content
