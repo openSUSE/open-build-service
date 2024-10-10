@@ -266,6 +266,10 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/' + incident_project + '/pack2.BaseDistro2.0_LinkedUpdateProject/_meta'
     assert_response :success
     assert_xml_tag tag: 'releasename', content: 'pack2'
+    put '/source/' + incident_project + '/pack2.linked.BaseDistro2.0_LinkedUpdateProject/_multibuild', params: '<multibuild><flavor>A</flavor></multibuild>'
+    assert_response :success
+    get '/source/' + incident_project + '/pack2.linked.BaseDistro2.0_LinkedUpdateProject/_multibuild'
+    assert_response :success
     get '/source/' + incident_project + '/pack2.linked.BaseDistro2.0_LinkedUpdateProject/_meta'
     assert_response :success
     assert_xml_tag tag: 'releasename', content: 'pack2.linked'
