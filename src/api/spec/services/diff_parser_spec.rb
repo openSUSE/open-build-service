@@ -56,5 +56,21 @@ RSpec.describe DiffParser, type: :service do
         expect(subject.lines).to eq(result)
       end
     end
+
+    context 'diff with highlights' do
+      let(:file) { 'diff_with_highlights.diff' }
+
+      let(:result_array) do
+        [
+          ["@@ -1,1 +1,1 @@\n", 'range', 1, nil, nil],
+          ["-bef<span class=\"inline-diff\">o</span>re\n", 'removed', 2, 1, nil],
+          ["+bef<span class=\"inline-diff\">after</span>re\n", 'added', 3, nil, 1]
+        ]
+      end
+
+      it 'parses correctly' do
+        expect(subject.lines).to eq(result)
+      end
+    end
   end
 end
