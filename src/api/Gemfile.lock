@@ -369,7 +369,7 @@ GEM
       thor (~> 1.0)
       zeitwerk (~> 2.5)
     rainbow (3.1.1)
-    rake (13.2.1)
+    rake (13.0.6)
     rantly (2.0.0)
     rbtree (0.4.6)
     rbtree3 (0.7.1)
@@ -528,7 +528,7 @@ GEM
     xpath (3.2.0)
       nokogiri (~> 1.8)
     yajl-ruby (1.4.3)
-    zeitwerk (2.7.0)
+    zeitwerk (2.6.18)
 
 PLATFORMS
   ruby
