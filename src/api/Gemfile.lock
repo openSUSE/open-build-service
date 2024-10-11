@@ -134,7 +134,7 @@ GEM
     csv (3.3.0)
     daemons (1.4.1)
     dalli (3.2.8)
-    data_migrate (11.0.0)
+    data_migrate (11.1.0)
       activerecord (>= 6.1)
       railties (>= 6.1)
     database_cleaner-active_record (2.2.0)
@@ -369,7 +369,7 @@ GEM
       thor (~> 1.0)
       zeitwerk (~> 2.5)
     rainbow (3.1.1)
-    rake (13.0.6)
+    rake (13.2.1)
     rantly (2.0.0)
     rbtree (0.4.6)
     rbtree3 (0.7.1)
@@ -528,7 +528,7 @@ GEM
     xpath (3.2.0)
       nokogiri (~> 1.8)
     yajl-ruby (1.4.3)
-    zeitwerk (2.6.18)
+    zeitwerk (2.7.0)
 
 PLATFORMS
   ruby
