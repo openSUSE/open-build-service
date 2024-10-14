@@ -47,8 +47,12 @@ get:
                 14 (Admin        2023-03-13 15:14:21     7)     <value>Development</value>
                 14 (Admin        2023-03-13 15:14:21     8)   </attribute>
                 10 (Admin        2023-03-09 11:46:01     9) </attributes>
-    '400':
-      description: Bad Request.
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+    '501':
+      description: Not Implemented.
       content:
         application/xml; charset=utf-8:
           schema:
@@ -56,9 +60,5 @@ get:
           example:
               code: remote_project
               summary: Attribute access to remote project is not yet supported
-    '401':
-      $ref: '../components/responses/unauthorized.yaml'
-    '404':
-      $ref: '../components/responses/unknown_project.yaml'
   tags:
     - Sources - Projects

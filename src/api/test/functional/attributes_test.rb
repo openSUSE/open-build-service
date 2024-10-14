@@ -349,7 +349,7 @@ ription</description>
 
     # via remote link
     get '/source/RemoteInstance:home:tom/_attribute/OBS:Maintained'
-    assert_response :bad_request
+    assert_response :not_implemented
 
     # via group
     login_adrian
