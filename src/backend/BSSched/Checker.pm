@@ -45,9 +45,9 @@ use BSSched::BuildJob::KiwiImage;
 use BSSched::BuildJob::KiwiProduct;
 use BSSched::BuildJob::ProductCompose;
 use BSSched::BuildJob::Package;
+use BSSched::BuildJob::Image;
 use BSSched::BuildJob::Patchinfo;
 use BSSched::BuildJob::PreInstallImage;
-use BSSched::BuildJob::SimpleImage;
 use BSSched::BuildJob::Unknown;
 
 
@@ -71,8 +71,11 @@ my %handlers = (
   'patchinfo'       => BSSched::BuildJob::Patchinfo->new(),
   'aggregate'       => BSSched::BuildJob::Aggregate->new(),
   'preinstallimage' => BSSched::BuildJob::PreInstallImage->new(),
-  'simpleimage'     => BSSched::BuildJob::SimpleImage->new(),
   'channel'         => BSSched::BuildJob::Channel->new(),
+  'mkosi'           => BSSched::BuildJob::Image->new(),
+  'appimage'        => BSSched::BuildJob::Image->new(),
+  'livebuild'       => BSSched::BuildJob::Image->new(),
+  'simpleimage'     => BSSched::BuildJob::Image->new(),
   'unknown'         => BSSched::BuildJob::Unknown->new(),
 
   'default'	    => BSSched::BuildJob::Package->new(),
