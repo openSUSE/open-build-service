@@ -1,9 +1,17 @@
-- commentable = commentable.bs_request if commentable.is_a?(BsRequestAction)
-- if commentable.is_a?(BsRequest)
-  - Comment.without_parent.on_actions_for_request(commentable).includes(:user).each do |comment|
+:ruby
+  commentable = commentable.bs_request if commentable.is_a?(BsRequestAction)
+  comments_without_parent_on_actions = Comment.without_parent.on_actions_for_request(commentable).includes(:user)
+  comments_without_parent_on_commentable = commentable.comments.without_parent.includes(:user)
+
+- if comments_without_parent_on_actions.empty? && comments_without_parent_on_commentable.empty?
+  .ps-2.pt-2
+    %i No comments available
+- else
+  - if commentable.is_a?(BsRequest)
+    - comments_without_parent_on_actions.each do |comment|
+      = render partial: 'webui/comment/content', locals: { comment: comment, commentable: commentable, level: 1 }
+  - comments_without_parent_on_commentable.each do |comment|
     = render partial: 'webui/comment/content', locals: { comment: comment, commentable: commentable, level: 1 }
-- commentable.comments.without_parent.includes(:user).each do |comment|
-  = render partial: 'webui/comment/content', locals: { comment: comment, commentable: commentable, level: 1 }
 
 .comment_new.mt-3
   = render partial: 'webui/comment/new', locals: { commentable: commentable }
