@@ -8,14 +8,13 @@ class ChartComponent < ApplicationComponent
   def initialize(raw_data:)
     super
 
-    @raw_data = raw_data
+    @raw_data = raw_data.reject { |result| Buildresult.new(result[:status]).refused_status? }
   end
 
   def chart_data
     success = Hash.new(0)
     failed = Hash.new(0)
     building = Hash.new(0)
-    refused = Hash.new(0)
 
     # reshape data in subsets to feed the chart
     # shape of each dataset: {repository name, build count occurrencies}
@@ -29,8 +28,6 @@ class ChartComponent < ApplicationComponent
         failed[key] += 1
       elsif final_status.in_progress_status? # in progress results
         building[key] += 1
-      elsif final_status.refused_status? # non building results
-        refused[key] += 1
       end
     end
 
@@ -38,8 +35,7 @@ class ChartComponent < ApplicationComponent
     [
       { name: 'Published' }.merge({ data: success }),
       { name: 'Failed' }.merge({ data: failed }),
-      { name: 'Building' }.merge({ data: building }),
-      { name: 'Excluded' }.merge({ data: refused })
+      { name: 'Building' }.merge({ data: building })
     ]
   end
 
@@ -51,8 +47,7 @@ class ChartComponent < ApplicationComponent
     build_result = Buildresult.new(status)
     return 'text-bg-success' if build_result.successful_final_status?
     return 'text-bg-danger' if build_result.unsuccessful_final_status?
-    return 'text-bg-warning' if build_result.in_progress_status?
 
-    'text-bg-light' if build_result.refused_status?
+    'text-bg-warning' if build_result.in_progress_status?
   end
 end
