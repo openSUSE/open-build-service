@@ -4,7 +4,7 @@ class SourceAttributeController < SourceController
   before_action :find_attribute_container
 
   class RemoteProject < APIError
-    setup 400, 'Attribute access to remote project is not yet supported'
+    setup 501, 'Attribute access to remote project is not yet supported'
   end
 
   class InvalidAttribute < APIError
