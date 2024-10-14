@@ -152,6 +152,7 @@ GEM
       activerecord (>= 3.0, < 8.0)
       delayed_job (>= 3.0, < 5)
     diff-lcs (1.5.1)
+    dimapa (0.1.0)
     docile (1.4.1)
     down (5.4.2)
       addressable (~> 2.8)
@@ -563,6 +564,7 @@ DEPENDENCIES
   database_consistency
   deep_cloneable
   delayed_job_active_record
+  dimapa
   down
   factory_bot_rails
   faker
