@@ -1029,8 +1029,6 @@ class Package < ApplicationRecord
   # just make sure the backend_package is there
   def update_if_dirty
     backend_package
-  rescue Mysql2::Error
-    # the delayed job might have jumped in and created the entry just before us
   end
 
   def linking_packages
