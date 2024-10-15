@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>The Green Bay Tree</title>
+          <title>Precious Bane</title>
           <description/>
         </project>
     headers:
@@ -29,15 +29,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '111'
+      - '106'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>The Green Bay Tree</title>
+          <title>Precious Bane</title>
           <description></description>
         </project>
-  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:Factory/_project/_staging_workflow?user=user_1
@@ -66,18 +66,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '168'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="101">
+        <revision rev="3">
           <srcmd5>855ca4c8a51f444848eca1a4a8164fe6</srcmd5>
-          <time>1710841758</time>
+          <time>1728912819</time>
           <user>user_1</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:Factory:Staging:A/_meta?user=user_1
@@ -117,7 +117,7 @@ http_interactions:
           <description></description>
           <group groupid="group_1" role="maintainer"/>
         </project>
-  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:Factory/_project/_staging_workflow?user=user_1
@@ -147,18 +147,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '168'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="102">
+        <revision rev="4">
           <srcmd5>761abadd20bf5e8eb79df3df4aad59fc</srcmd5>
-          <time>1710841758</time>
+          <time>1728912819</time>
           <user>user_1</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:Factory:Staging:B/_meta?user=user_1
@@ -198,7 +198,7 @@ http_interactions:
           <description></description>
           <group groupid="group_1" role="maintainer"/>
         </project>
-  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_1
@@ -206,7 +206,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>The Green Bay Tree</title>
+          <title>Precious Bane</title>
           <description/>
           <group groupid="group_1" role="reviewer"/>
         </project>
@@ -229,16 +229,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>The Green Bay Tree</title>
+          <title>Precious Bane</title>
           <description></description>
           <group groupid="group_1" role="reviewer"/>
         </project>
-  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:mr_receiver/_meta?user=mr_receiver
@@ -278,7 +278,7 @@ http_interactions:
           <description></description>
           <person userid="mr_receiver" role="maintainer"/>
         </project>
-  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:mr_receiver/Quebec/_meta?user=mr_receiver
@@ -286,8 +286,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="Quebec" project="home:mr_receiver">
-          <title>His Dark Materials</title>
-          <description>Beatae nobis vitae id.</description>
+          <title>Recalled to Life</title>
+          <description>Ut labore architecto aut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -308,22 +308,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <package name="Quebec" project="home:mr_receiver">
-          <title>His Dark Materials</title>
-          <description>Beatae nobis vitae id.</description>
+          <title>Recalled to Life</title>
+          <description>Ut labore architecto aut.</description>
         </package>
-  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:mr_receiver/Quebec/_config
     body:
       encoding: UTF-8
-      string: Odit atque perspiciatis. Occaecati necessitatibus totam. Eligendi temporibus
-        hic.
+      string: Voluptas quos expedita. Aut sint sed. Culpa aut repellendus.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -343,25 +342,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="197" vrev="197">
-          <srcmd5>8dc1908339413f401d634c8892799a27</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>88552619af5731bb72f25822ed407251</srcmd5>
           <version>unknown</version>
-          <time>1710841758</time>
+          <time>1728912819</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:mr_receiver/Quebec/somefile.txt
     body:
       encoding: UTF-8
-      string: Rerum iure earum. Commodi iste officiis. Eos laboriosam et.
+      string: Deserunt aut inventore. Et modi magni. Ea dolores illum.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -381,19 +380,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '211'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="198" vrev="198">
-          <srcmd5>4dd556cb7581636c9bf9cc0bd35fc7f4</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>755b41379fd3a3b153ee927432756afd</srcmd5>
           <version>unknown</version>
-          <time>1710841758</time>
+          <time>1728912819</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:40 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:madam_submitter/_meta?user=madam_submitter
@@ -433,7 +432,7 @@ http_interactions:
           <description></description>
           <person userid="madam_submitter" role="maintainer"/>
         </project>
-  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:40 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:madam_submitter/package_a/_meta?user=mr_receiver
@@ -441,8 +440,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_a" project="home:madam_submitter">
-          <title>A Glass of Blessings</title>
-          <description>Numquam alias aliquid sequi.</description>
+          <title>The Line of Beauty</title>
+          <description>Magni non quia quas.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -463,21 +462,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '165'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <package name="package_a" project="home:madam_submitter">
-          <title>A Glass of Blessings</title>
-          <description>Numquam alias aliquid sequi.</description>
+          <title>The Line of Beauty</title>
+          <description>Magni non quia quas.</description>
         </package>
-  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:40 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:madam_submitter/package_a/README.txt
     body:
       encoding: UTF-8
-      string: Minus molestiae sed. Et quia accusantium. Quibusdam non fuga.
+      string: Quae tempora labore. Doloremque labore magnam. Velit eius sed.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -497,19 +496,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="124" vrev="124">
-          <srcmd5>2aec50672cbef466a403a198264e2650</srcmd5>
-          <version>1</version>
-          <time>1710841758</time>
+        <revision rev="1" vrev="1">
+          <srcmd5>7000c339a161cdefac42f715ba37a007</srcmd5>
+          <version>unknown</version>
+          <time>1728912820</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:41 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:madam_submitter/package_a/package_a.spec
@@ -562,19 +561,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '201'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="125" vrev="125">
-          <srcmd5>2aec50672cbef466a403a198264e2650</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>0b1fcfd9ad68fb89faca71c21eb7e1ee</srcmd5>
           <version>1</version>
-          <time>1710841758</time>
+          <time>1728912821</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:41 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:madam_submitter/package_a/package_a.changes
@@ -600,19 +599,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '205'
+      - '201'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="126" vrev="126">
-          <srcmd5>2aec50672cbef466a403a198264e2650</srcmd5>
+        <revision rev="3" vrev="3">
+          <srcmd5>1712450b166ffd3b0352bcbb7948159c</srcmd5>
           <version>1</version>
-          <time>1710841758</time>
+          <time>1728912821</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 19 Mar 2024 09:49:18 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:41 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/package_a
@@ -638,16 +637,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '408'
+      - '404'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="126" vrev="126" srcmd5="2aec50672cbef466a403a198264e2650">
-          <entry name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61" mtime="1710841758"/>
-          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1710771250"/>
-          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1709807541"/>
+        <directory name="package_a" rev="3" vrev="3" srcmd5="1712450b166ffd3b0352bcbb7948159c">
+          <entry name="README.txt" md5="2aaf461a4282e8c42719fe06a7fcb107" size="62" mtime="1728912820"/>
+          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1728912821"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1727267716"/>
         </directory>
-  recorded_at: Tue, 19 Mar 2024 09:49:19 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:41 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/package_a
@@ -673,19 +672,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '408'
+      - '404'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="126" vrev="126" srcmd5="2aec50672cbef466a403a198264e2650">
-          <entry name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61" mtime="1710841758"/>
-          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1710771250"/>
-          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1709807541"/>
+        <directory name="package_a" rev="3" vrev="3" srcmd5="1712450b166ffd3b0352bcbb7948159c">
+          <entry name="README.txt" md5="2aaf461a4282e8c42719fe06a7fcb107" size="62" mtime="1728912820"/>
+          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1728912821"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1727267716"/>
         </directory>
-  recorded_at: Tue, 19 Mar 2024 09:49:19 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:42 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:madam_submitter/package_a?cmd=diff&expand=1&filelimit=10000&orev=0&rev=126&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/home:madam_submitter/package_a?cmd=diff&expand=1&filelimit=10000&orev=0&rev=3&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -710,18 +709,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '1773'
+      - '1772'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="b3348aee977f8e1a8edac139a77f0987">
+        <sourcediff key="cdf963d84c3ed1ec3d87781787021c10">
           <old project="home:madam_submitter" package="package_a" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:madam_submitter" package="package_a" rev="126" srcmd5="2aec50672cbef466a403a198264e2650"/>
+          <new project="home:madam_submitter" package="package_a" rev="3" srcmd5="1712450b166ffd3b0352bcbb7948159c"/>
           <files>
             <file state="added">
-              <new name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61"/>
+              <new name="README.txt" md5="2aaf461a4282e8c42719fe06a7fcb107" size="62"/>
               <diff lines="3">@@ -0,0 +1,1 @@
-        +Minus molestiae sed. Et quia accusantium. Quibusdam non fuga.
+        +Quae tempora labore. Doloremque labore magnam. Velit eius sed.
         \ No newline at end of file
         </diff>
             </file>
@@ -770,7 +769,7 @@ http_interactions:
             <issue state="added" tracker="bnc" name="1111101" label="boo#1111101" url="https://bugzilla.opensuse.org/show_bug.cgi?id=1111101"/>
           </issues>
         </sourcediff>
-  recorded_at: Tue, 19 Mar 2024 09:49:19 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:42 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:Factory/package_b/_meta?user=mr_receiver
@@ -778,8 +777,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_b" project="openSUSE:Factory">
-          <title>Pale Kings and Princes</title>
-          <description>Et architecto iste vitae.</description>
+          <title>Brandy of the Damned</title>
+          <description>Labore nostrum reiciendis velit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -800,15 +799,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '165'
     body:
       encoding: UTF-8
       string: |
         <package name="package_b" project="openSUSE:Factory">
-          <title>Pale Kings and Princes</title>
-          <description>Et architecto iste vitae.</description>
+          <title>Brandy of the Damned</title>
+          <description>Labore nostrum reiciendis velit.</description>
         </package>
-  recorded_at: Tue, 19 Mar 2024 09:49:19 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:42 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/package_a
@@ -834,16 +833,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '408'
+      - '404'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="126" vrev="126" srcmd5="2aec50672cbef466a403a198264e2650">
-          <entry name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61" mtime="1710841758"/>
-          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1710771250"/>
-          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1709807541"/>
+        <directory name="package_a" rev="3" vrev="3" srcmd5="1712450b166ffd3b0352bcbb7948159c">
+          <entry name="README.txt" md5="2aaf461a4282e8c42719fe06a7fcb107" size="62" mtime="1728912820"/>
+          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1728912821"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1727267716"/>
         </directory>
-  recorded_at: Tue, 19 Mar 2024 09:49:19 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:42 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:madam_submitter/package_a?cmd=diff&expand=1&filelimit=10000&opackage=package_b&oproject=openSUSE:Factory&tarlimit=10000&view=xml&withissues=1
@@ -871,18 +870,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '1769'
+      - '1768'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="55d0b19d5ab612317f6e3e27c2de295a">
+        <sourcediff key="216ca18c49f38156dd759ae2702d1eb5">
           <old project="openSUSE:Factory" package="package_b" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:madam_submitter" package="package_a" rev="126" srcmd5="2aec50672cbef466a403a198264e2650"/>
+          <new project="home:madam_submitter" package="package_a" rev="3" srcmd5="1712450b166ffd3b0352bcbb7948159c"/>
           <files>
             <file state="added">
-              <new name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61"/>
+              <new name="README.txt" md5="2aaf461a4282e8c42719fe06a7fcb107" size="62"/>
               <diff lines="3">@@ -0,0 +1,1 @@
-        +Minus molestiae sed. Et quia accusantium. Quibusdam non fuga.
+        +Quae tempora labore. Doloremque labore magnam. Velit eius sed.
         \ No newline at end of file
         </diff>
             </file>
@@ -931,7 +930,41 @@ http_interactions:
             <issue state="added" tracker="bnc" name="1111101" label="boo#1111101" url="https://bugzilla.opensuse.org/show_bug.cgi?id=1111101"/>
           </issues>
         </sourcediff>
-  recorded_at: Tue, 19 Mar 2024 09:49:19 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:42 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/openSUSE:Factory/package_b
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - bbc0eac0-569e-4bbd-bca9-ee0ff25625b2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '84'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_b" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 14 Oct 2024 13:33:49 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:madam_submitter/_result?lastbuild=0&locallink=1&multibuild=1&package=package_a&view=status
@@ -940,7 +973,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - aaf9db80-e9d4-41fc-b668-a313e16c4ff9
+      - 65ff3097-03d5-4016-8f19-fae29291b90e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -965,7 +998,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Tue, 19 Mar 2024 09:49:24 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:49 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:madam_submitter/_result?lastbuild=0&locallink=1&multibuild=1&package=package_a&view=status
@@ -974,7 +1007,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - aaf9db80-e9d4-41fc-b668-a313e16c4ff9
+      - 65ff3097-03d5-4016-8f19-fae29291b90e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -999,7 +1032,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Tue, 19 Mar 2024 09:49:24 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/package_a
@@ -1008,7 +1041,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - aaf9db80-e9d4-41fc-b668-a313e16c4ff9
+      - 65ff3097-03d5-4016-8f19-fae29291b90e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1027,16 +1060,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '408'
+      - '404'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="126" vrev="126" srcmd5="2aec50672cbef466a403a198264e2650">
-          <entry name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61" mtime="1710841758"/>
-          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1710771250"/>
-          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1709807541"/>
+        <directory name="package_a" rev="3" vrev="3" srcmd5="1712450b166ffd3b0352bcbb7948159c">
+          <entry name="README.txt" md5="2aaf461a4282e8c42719fe06a7fcb107" size="62" mtime="1728912820"/>
+          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1728912821"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1727267716"/>
         </directory>
-  recorded_at: Tue, 19 Mar 2024 09:49:24 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/package_a
@@ -1045,7 +1078,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - aaf9db80-e9d4-41fc-b668-a313e16c4ff9
+      - 65ff3097-03d5-4016-8f19-fae29291b90e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1064,19 +1097,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '408'
+      - '404'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="126" vrev="126" srcmd5="2aec50672cbef466a403a198264e2650">
-          <entry name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61" mtime="1710841758"/>
-          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1710771250"/>
-          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1709807541"/>
+        <directory name="package_a" rev="3" vrev="3" srcmd5="1712450b166ffd3b0352bcbb7948159c">
+          <entry name="README.txt" md5="2aaf461a4282e8c42719fe06a7fcb107" size="62" mtime="1728912820"/>
+          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1728912821"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1727267716"/>
         </directory>
-  recorded_at: Tue, 19 Mar 2024 09:49:24 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:49 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:madam_submitter/package_a?cacheonly=1&cmd=diff&expand=1&filelimit=10000&orev=0&rev=126&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/home:madam_submitter/package_a?cacheonly=1&cmd=diff&expand=1&filelimit=10000&orev=0&rev=3&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -1084,7 +1117,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Request-Id:
-      - aaf9db80-e9d4-41fc-b668-a313e16c4ff9
+      - 65ff3097-03d5-4016-8f19-fae29291b90e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1099,7 +1132,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '1773'
+      - '1772'
       Cache-Control:
       - no-cache
       Connection:
@@ -1107,14 +1140,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="b3348aee977f8e1a8edac139a77f0987">
+        <sourcediff key="cdf963d84c3ed1ec3d87781787021c10">
           <old project="home:madam_submitter" package="package_a" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:madam_submitter" package="package_a" rev="126" srcmd5="2aec50672cbef466a403a198264e2650"/>
+          <new project="home:madam_submitter" package="package_a" rev="3" srcmd5="1712450b166ffd3b0352bcbb7948159c"/>
           <files>
             <file state="added">
-              <new name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61"/>
+              <new name="README.txt" md5="2aaf461a4282e8c42719fe06a7fcb107" size="62"/>
               <diff lines="3">@@ -0,0 +1,1 @@
-        +Minus molestiae sed. Et quia accusantium. Quibusdam non fuga.
+        +Quae tempora labore. Doloremque labore magnam. Velit eius sed.
         \ No newline at end of file
         </diff>
             </file>
@@ -1163,7 +1196,7 @@ http_interactions:
             <issue state="added" tracker="bnc" name="1111101" label="boo#1111101" url="https://bugzilla.opensuse.org/show_bug.cgi?id=1111101"/>
           </issues>
         </sourcediff>
-  recorded_at: Tue, 19 Mar 2024 09:49:24 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/package_a
@@ -1172,7 +1205,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - aaf9db80-e9d4-41fc-b668-a313e16c4ff9
+      - 65ff3097-03d5-4016-8f19-fae29291b90e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1191,16 +1224,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '408'
+      - '404'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="126" vrev="126" srcmd5="2aec50672cbef466a403a198264e2650">
-          <entry name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61" mtime="1710841758"/>
-          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1710771250"/>
-          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1709807541"/>
+        <directory name="package_a" rev="3" vrev="3" srcmd5="1712450b166ffd3b0352bcbb7948159c">
+          <entry name="README.txt" md5="2aaf461a4282e8c42719fe06a7fcb107" size="62" mtime="1728912820"/>
+          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1728912821"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1727267716"/>
         </directory>
-  recorded_at: Tue, 19 Mar 2024 09:49:24 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:madam_submitter/package_a
@@ -1209,7 +1242,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - aaf9db80-e9d4-41fc-b668-a313e16c4ff9
+      - 65ff3097-03d5-4016-8f19-fae29291b90e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1228,19 +1261,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '408'
+      - '404'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="126" vrev="126" srcmd5="2aec50672cbef466a403a198264e2650">
-          <entry name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61" mtime="1710841758"/>
-          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1710771250"/>
-          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1709807541"/>
+        <directory name="package_a" rev="3" vrev="3" srcmd5="1712450b166ffd3b0352bcbb7948159c">
+          <entry name="README.txt" md5="2aaf461a4282e8c42719fe06a7fcb107" size="62" mtime="1728912820"/>
+          <entry name="package_a.changes" md5="76b9e6eb94954487f45e468537669d17" size="33" mtime="1728912821"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1727267716"/>
         </directory>
-  recorded_at: Tue, 19 Mar 2024 09:49:24 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:49 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:madam_submitter/package_a?cacheonly=1&cmd=diff&expand=1&filelimit=10000&orev=0&rev=126&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/home:madam_submitter/package_a?cacheonly=1&cmd=diff&expand=1&filelimit=10000&orev=0&rev=3&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -1248,7 +1281,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Request-Id:
-      - aaf9db80-e9d4-41fc-b668-a313e16c4ff9
+      - 65ff3097-03d5-4016-8f19-fae29291b90e
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1263,7 +1296,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '1773'
+      - '1772'
       Cache-Control:
       - no-cache
       Connection:
@@ -1271,14 +1304,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="b3348aee977f8e1a8edac139a77f0987">
+        <sourcediff key="cdf963d84c3ed1ec3d87781787021c10">
           <old project="home:madam_submitter" package="package_a" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:madam_submitter" package="package_a" rev="126" srcmd5="2aec50672cbef466a403a198264e2650"/>
+          <new project="home:madam_submitter" package="package_a" rev="3" srcmd5="1712450b166ffd3b0352bcbb7948159c"/>
           <files>
             <file state="added">
-              <new name="README.txt" md5="f4881ec465d3477add3015f181ceb738" size="61"/>
+              <new name="README.txt" md5="2aaf461a4282e8c42719fe06a7fcb107" size="62"/>
               <diff lines="3">@@ -0,0 +1,1 @@
-        +Minus molestiae sed. Et quia accusantium. Quibusdam non fuga.
+        +Quae tempora labore. Doloremque labore magnam. Velit eius sed.
         \ No newline at end of file
         </diff>
             </file>
@@ -1327,7 +1360,7 @@ http_interactions:
             <issue state="added" tracker="bnc" name="1111101" label="boo#1111101" url="https://bugzilla.opensuse.org/show_bug.cgi?id=1111101"/>
           </issues>
         </sourcediff>
-  recorded_at: Tue, 19 Mar 2024 09:49:24 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:49 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:madam_submitter/_result?lastbuild=0&locallink=1&multibuild=1&package=package_a&view=status
@@ -1336,7 +1369,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - cfe16a8e-7dd5-4b7b-8bc8-f6f9d6272e5d
+      - 0e726d22-67ba-4b04-ae16-5172cde62ee3
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1361,7 +1394,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Tue, 19 Mar 2024 09:49:25 GMT
+  recorded_at: Mon, 14 Oct 2024 13:33:50 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:madam_submitter/_result?lastbuild=0&locallink=1&multibuild=1&package=package_a&view=status
@@ -1370,7 +1403,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - cfe16a8e-7dd5-4b7b-8bc8-f6f9d6272e5d
+      - 0e726d22-67ba-4b04-ae16-5172cde62ee3
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1395,5 +1428,5 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Tue, 19 Mar 2024 09:49:25 GMT
-recorded_with: VCR 6.2.0
+  recorded_at: Mon, 14 Oct 2024 13:33:50 GMT
+recorded_with: VCR 6.3.1
