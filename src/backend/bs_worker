@@ -2267,7 +2267,6 @@ sub getpreinstallimage {
   for my $repo (@{$buildinfo->{'path'} || []}) {
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
     my $nometa = $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid ? 1 : 0;
-    $nometa = 1 if $buildinfo->{'file'} eq '_preinstallimage';
     $nometa = 1 if $buildinfo->{'forcebinaryidmeta'};
     $nometa = 1 if $buildinfo->{'crossarch'};	# preinstallimage is always native
     my $callers_time = time();
@@ -2898,7 +2897,6 @@ sub getbinaries {
     last unless @todo;
     my $repoprp = "$repo->{'project'}/$repo->{'repository'}";
     my $nometa = $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid ? 1 : 0;
-    $nometa = 1 if $buildinfo->{'file'} eq '_preinstallimage';
     $nometa = 1 if $buildinfo->{'forcebinaryidmeta'};
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
     my $arch = $buildinfo->{'arch'};
@@ -3880,18 +3878,17 @@ sub dobuild {
     my $needpubkey;
     my $needsslcert;
     my $needappxsslcert;
+    my $needsbinariesforbuild;
     push @meta, getsources($buildinfo, $srcdir);
     importbuild() unless defined &Build::queryhdrmd5;
+    $buildinfo->{'buildtype'} = Build::recipe2buildtype($buildinfo->{'file'});
     if (!$imagemode && -s "$srcdir/$buildinfo->{'file'}") {
       # check for build markers
       local *F;
       if (open(F, '<', "$srcdir/$buildinfo->{'file'}")) {
 	while(<F>) {
 	  chomp;
-	  if (/^#\s*needsbinariesforbuild\s*$/s) {
-	    undef $preinstallimagedata;		# can't use an image, sorry
-	    $kiwiorigins = {};			# but collect origins
-	  }
+	  $needsbinariesforbuild = 1 if /^#\s*needsbinariesforbuild\s*$/s;
 	  $needpubkey = 1 if /^#\s*needspubkeyforbuild\s*$/s;
 	  $needsslcert = 1 if /^#\s*needssslcertforbuild\s*$/s;
 	  # On Debian we cannot add a commented out line in a dsc, use a tag instead
@@ -3903,6 +3900,13 @@ sub dobuild {
 	close F;
       }
     }
+    my $buildtype = $buildinfo->{'buildtype'} || '';
+    $needsbinariesforbuild = 1 if $buildtype eq 'mkosi' || $buildtype eq 'livebuild' || $buildtype eq 'appimage' || $buildtype eq 'simpleimage';
+    if ($needsbinariesforbuild) {
+      undef $preinstallimagedata;		# can't use a preinstall image, sorry
+      $kiwiorigins = {};			# but collect origins
+    }
+    $buildinfo->{'forcebinaryidmeta'} = 1 if $buildtype eq 'mkosi' || $buildtype eq 'livebuild' || $buildtype eq 'appimage' || $buildtype eq 'simpleimage' || $buildtype eq 'preinstallimage';
     getobsgendiffdata($buildinfo, $srcdir) if $buildinfo->{'obsgendiff'};
     getsslcert($buildinfo, $srcdir, $needappxsslcert ? 'appx' : undef) if $needsslcert || $needappxsslcert;
     getpubkey($buildinfo, $srcdir) if $needpubkey;
