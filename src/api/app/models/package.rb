@@ -460,15 +460,8 @@ class Package < ApplicationRecord
     if opts[:wait_for_update]
       update_if_dirty
     else
-      retries = 10
-      begin
-        # NOTE: Its important that this job run in queue 'default' in order to avoid concurrency
-        PackageUpdateIfDirtyJob.perform_later(id)
-      rescue ActiveRecord::StatementInvalid
-        # mysql lock errors in delayed job handling... we need to retry
-        retries -= 1
-        retry if retries.positive?
-      end
+      # NOTE: Its important that this job run in queue 'default' in order to avoid concurrency
+      PackageUpdateIfDirtyJob.perform_later(id)
     end
   end
 
