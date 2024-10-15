@@ -61,4 +61,42 @@ RSpec.describe BsRequestPolicy, type: :policy do
       it { expect(subject).not_to permit(author, bs_request) }
     end
   end
+
+  permissions :accept_request? do
+    let(:user) { create(:confirmed_user, login: 'iggy') }
+    let(:author) { create(:confirmed_user, login: 'foo') }
+    let(:project) { create(:project, maintainer: user) }
+
+    context 'when the user is not a target maintainer' do
+      let(:bs_request) { create(:bs_request_with_submit_action, state: request_state.to_s, creator: author) }
+
+      context 'when the request state is "new"' do
+        let(:request_state) { 'new' }
+
+        it { expect(subject).not_to permit(user, bs_request) }
+      end
+
+      context 'when the request state is "declined"' do
+        let(:request_state) { 'declined' }
+
+        it { expect(subject).not_to permit(user, bs_request) }
+      end
+    end
+
+    context 'when the user is a target maintainer' do
+      let(:bs_request) { create(:bs_request_with_submit_action, state: request_state.to_s, creator: author, target_project: project) }
+
+      context 'when the request state is "new"' do
+        let(:request_state) { 'new' }
+
+        it { expect(subject).to permit(user, bs_request) }
+      end
+
+      context 'when the request state is "declined"' do
+        let(:request_state) { 'declined' }
+
+        it { expect(subject).not_to permit(user, bs_request) }
+      end
+    end
+  end
 end

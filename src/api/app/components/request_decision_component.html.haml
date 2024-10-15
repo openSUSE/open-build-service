@@ -25,7 +25,7 @@
       = submit_tag 'Revoke request', name: 'revoked', class: 'btn btn-danger me-2'
     - if can_reopen_request?
       = submit_tag 'Reopen request', name: 'new', class: 'btn btn-warning me-2'
-    - if can_accept_request?
+    - if policy(@bs_request).accept_request?
       - if policy(@bs_request).decline_request?
         = submit_tag('Decline request', name: 'declined', title: 'Decline the request, as the author of the request you can reopen it again.',
                      class: 'btn btn-danger me-2')

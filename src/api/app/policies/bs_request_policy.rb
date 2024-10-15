@@ -38,6 +38,11 @@ class BsRequestPolicy < ApplicationPolicy
     !(author? || record.is_source_maintainer?(user))
   end
 
+  def accept_request?
+    is_target_maintainer = record.is_target_maintainer?(user)
+    record.state.in?(%i[new review]) && is_target_maintainer
+  end
+
   private
 
   def author?

@@ -29,11 +29,6 @@ class RequestDecisionComponent < ApplicationComponent
     @action.type == 'submit' && !@action.creator_is_target_maintainer
   end
 
-  # TODO: Move all those "can_*" checks to a pundit policy
-  def can_accept_request?
-    @bs_request.state.in?(%i[new review]) && @is_target_maintainer
-  end
-
   def can_reopen_request?
     @bs_request.state == :declined
   end
