@@ -21,7 +21,7 @@ jobs:
         run: |
           echo "pr_number=$(cat comment_text_and_pr_number/pr_number.txt)" >> $GITHUB_ENV
       - name: Add Comment to PR
-        uses: thollander/actions-comment-pull-request@v2
+        uses: thollander/actions-comment-pull-request@v3
         with:
           filePath: comment_text_and_pr_number/comment_text.txt
           pr_number: ${{ env.pr_number }}
