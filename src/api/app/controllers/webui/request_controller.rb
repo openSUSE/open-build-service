@@ -204,9 +204,16 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def changerequest
-    changestate = (%w[accepted declined revoked new] & params.keys).last
+    changestate = (%w[accepted commented declined revoked new] & params.keys).last
 
-    if change_state(changestate, params)
+    if changestate == 'commented'
+
+      @commented = BsRequest.find_by(number: params[:number])
+      @comment = @commented.comments.new(body: params[:reason])
+      authorize @comment, :create?
+      User.session.comments << @comment
+
+    elsif change_state(changestate, params)
       # TODO: Make this work for each submit action individually
       if params[:add_submitter_as_maintainer_0] # rubocop:disable Naming/VariableNumber
         if changestate == 'accepted'
