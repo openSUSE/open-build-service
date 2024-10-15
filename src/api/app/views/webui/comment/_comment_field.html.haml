@@ -1,5 +1,3 @@
-- entity_type = commentable.class.name == 'BsRequest' ? 'request' : commentable.class.name.downcase
-
 = form_for(comment, method: form_method, remote: true, html: { id: "#{element_suffix}_form",
 class: "#{form_method}-comment-form write-and-preview" },
 data: { preview_message_url: preview_comments_path, message_body_param: 'comment[body]' }) do |f|
