@@ -39,8 +39,11 @@ class BsRequestPolicy < ApplicationPolicy
   end
 
   def accept_request?
-    is_target_maintainer = record.is_target_maintainer?(user)
-    record.state.in?(%i[new review]) && is_target_maintainer
+    record.state.in?(%i[new review]) && record.is_target_maintainer?(user)
+  end
+
+  def reopen_request?
+    record.state == :declined
   end
 
   private

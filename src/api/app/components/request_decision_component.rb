@@ -28,8 +28,4 @@ class RequestDecisionComponent < ApplicationComponent
   def show_add_submitter_as_maintainer_option?
     @action.type == 'submit' && !@action.creator_is_target_maintainer
   end
-
-  def can_reopen_request?
-    @bs_request.state == :declined
-  end
 end
