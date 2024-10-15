@@ -34,7 +34,7 @@ class SourceProjectController < SourceController
 
     raise InvalidParameterError, "'#{params[:view]}' is not a valid 'view' parameter value." unless params[:view].in?(%w[verboseproductlist productlist issues info])
 
-    # we let the backend list the packages after we verified the project is visible
+    # rubocop:disable Style/RedundantReturn
     case params[:view]
     when 'verboseproductlist'
       @products = Product.all_products(@project, params[:expand])
@@ -49,6 +49,7 @@ class SourceProjectController < SourceController
     when 'info'
       pass_to_backend
     end
+    # rubocop:enable Style/RedundantReturn
   end
 
   def render_project_issues
