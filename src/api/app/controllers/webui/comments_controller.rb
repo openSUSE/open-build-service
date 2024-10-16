@@ -175,9 +175,8 @@ class Webui::CommentsController < Webui::WebuiController
     return unless @comment.root.commentable_type == 'BsRequestAction' && @comment.root.diff_ref
     return unless (ref = @comment.root.diff_ref&.match(/diff_([0-9]+)/))
 
-    diffs = @comment.root.commentable.bs_request.webui_actions(action_id: @comment.root.commentable_id, diffs: true, cacheonly: 1).first
+    sourcediff = @comment.root.commentable.webui_sourcediff({ rev: @comment.root.source_rev, orev: @comment.root.target_rev }.compact).first
     file_index = ref.captures.first
-    sourcediff = diffs[:sourcediff].first
     filename = sourcediff.dig('filenames', file_index.to_i)
     sourcediff.dig('files', filename)
   end

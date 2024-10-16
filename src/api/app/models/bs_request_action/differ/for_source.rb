@@ -43,7 +43,7 @@ class BsRequestAction
       end
 
       def query
-        query = {}
+        query = options.slice(:rev, :orev)
         query[:view] = :xml if options[:view].to_s == 'xml'
         query[:withissues] = 1 if options[:withissues].present?
         if options[:nodiff].present?
