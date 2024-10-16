@@ -1,4 +1,6 @@
 class Webui::CommentsController < Webui::WebuiController
+  include BuildNewComment
+
   before_action :require_login
   before_action :set_commented, only: :create
   before_action :set_comment, only: %i[moderate history]
@@ -6,9 +8,7 @@ class Webui::CommentsController < Webui::WebuiController
   def create
     return commented_unavailable if @commented.nil?
 
-    @comment = @commented.comments.new(permitted_params)
-    authorize @comment, :create?
-    User.session.comments << @comment
+    build_new_comment(@commented, permitted_params)
     @commentable = @comment.commentable
 
     status = if @comment.save
