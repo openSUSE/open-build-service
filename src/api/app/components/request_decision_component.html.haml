@@ -6,6 +6,9 @@
       in mind that also package maintainers would like to review this request.
   = form_tag({ action: 'changerequest' }, id: 'request_handle_form') do
     = hidden_field_tag(:number, @bs_request.number)
+    - if Flipper.enabled?(:content_moderation, User.session)
+      .d-flex.justify-content-end
+        = render CannedResponsesDropdownComponent.new(User.session.canned_responses.where(decision_type: nil).order(:title))
     = text_area_tag(:reason, nil, placeholder: 'Write your comment or decision...', rows: 4, class: 'w-100 form-control mb-2')
     - if single_action_request && @is_target_maintainer && @bs_request.state.in?([:new, :review])
       - if show_add_submitter_as_maintainer_option?
