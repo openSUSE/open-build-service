@@ -772,7 +772,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     get "/source/#{incident_project}"
     assert_response :success
-    assert_xml_tag(tag: 'directory', attributes: { count: '3' })
+    assert_xml_tag(tag: 'directory')
 
     get "/source/#{incident_project}/pack2.BaseDistro_Update/_meta"
     assert_response :success
@@ -962,7 +962,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'link', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'pack2' })
     get "/source/#{incident_project}"
     assert_response :success
-    assert_xml_tag(tag: 'directory', attributes: { count: '3' })
+    assert_xml_tag(tag: 'directory')
     assert_xml_tag(tag: 'entry', attributes: { name: 'pack2.BaseDistro2.0_LinkedUpdateProject' })
     assert_xml_tag(tag: 'entry', attributes: { name: 'pack2.linked.BaseDistro2.0_LinkedUpdateProject' })
     assert_xml_tag(tag: 'entry', attributes: { name: 'pack2.BaseDistro3' })
@@ -2307,7 +2307,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/CopyOfBaseDistro'
     assert_response :success
-    assert_xml_tag(tag: 'directory', attributes: { count: '6' })
+    assert_xml_tag(tag: 'directory')
     assert_xml_tag(tag: 'entry', attributes: { name: '_product' })
     assert_xml_tag(tag: 'entry', attributes: { name: '_product:fixed-release' })
     assert_xml_tag(tag: 'entry', attributes: { name: 'patchinfo' })

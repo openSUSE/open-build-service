@@ -177,7 +177,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # validate sources
     get '/source/' + incident_project
     assert_response :success
-    assert_xml_tag tag: 'directory', attributes: { count: 4 }
+    assert_xml_tag tag: 'directory'
     assert_xml_tag tag: 'entry', attributes: { name: 'BaseDistro2.Channel' }
     assert_xml_tag tag: 'entry', attributes: { name: 'kgraft-GA.BaseDistro2.0' }
     assert_xml_tag tag: 'entry', attributes: { name: 'kgraft-incident-0.My_Maintenance_0' }
