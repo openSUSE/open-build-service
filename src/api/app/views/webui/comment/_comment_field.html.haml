@@ -5,6 +5,9 @@ data: { preview_message_url: preview_comments_path, message_body_param: 'comment
   = hidden_field_tag :commentable_id, commentable.id, { id: "#{element_suffix}_commentable_id" }
   - if defined?(line)
     = f.hidden_field :diff_ref, value: line, id: "#{element_suffix}_diff_ref"
+  - if defined?(source_rev) && defined?(target_rev)
+    = f.hidden_field :source_rev, value: source_rev, id: "#{element_suffix}_source_rev"
+    = f.hidden_field :target_rev, value: target_rev, id: "#{element_suffix}_target_rev"
   = f.hidden_field :parent_id, value: comment.parent_id, id: "#{element_suffix}_parent_id"
   .card
     %ul.card-header.nav.nav-tabs.px-3.pt-2.pb-0.disable-link-generation{ role: 'tablist' }

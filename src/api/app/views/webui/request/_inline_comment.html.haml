@@ -1,7 +1,7 @@
-- commentable.comments.where(diff_ref:).each do |comment|
+- commentable.comments.where(diff_ref:, source_rev: [source_rev, nil], target_rev: [target_rev, nil]).each do |comment|
   .comments-thread
     = render BsRequestCommentComponent.new(comment: comment, level: 1, commentable: commentable)
 .comments-thread
   = render(partial: 'webui/comment/comment_field',
   locals: { form_method: :post, comment: Comment.new, commentable: commentable,
-            line: diff_ref, element_suffix: "new_comment_#{diff_ref}", has_cancel: true })
+            line: diff_ref, source_rev:, target_rev:, element_suffix: "new_comment_#{diff_ref}", has_cancel: true })

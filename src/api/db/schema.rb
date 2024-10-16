@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_10_16_135555) do
+ActiveRecord::Schema[7.0].define(version: 2024_10_17_103843) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -375,6 +375,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_16_135555) do
     t.integer "moderator_id"
     t.integer "diff_file_index"
     t.integer "diff_line_number"
+    t.string "source_rev"
+    t.string "target_rev"
     t.index ["commentable_type", "commentable_id"], name: "index_comments_on_commentable_type_and_commentable_id"
     t.index ["moderator_id"], name: "moderated_comments_fk"
     t.index ["parent_id"], name: "parent_id"

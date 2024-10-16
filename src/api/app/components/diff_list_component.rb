@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 class DiffListComponent < ApplicationComponent
-  attr_reader :diff_list, :view_id, :commentable, :commented_lines, :source_package, :target_package, :source_rev
+  attr_reader :diff_list, :view_id, :commentable, :commented_lines, :source_package, :target_package, :source_rev, :target_rev
 
-  def initialize(diff_list:, view_id: nil, commentable: nil, source_package: nil, target_package: nil, source_rev: nil)
+  def initialize(diff_list:, view_id: nil, commentable: nil, source_package: nil, target_package: nil, source_rev: nil, target_rev: nil)
     super
     @diff_list = diff_list
     @view_id = view_id
@@ -12,6 +12,7 @@ class DiffListComponent < ApplicationComponent
     @source_package = source_package
     @target_package = target_package
     @source_rev = source_rev
+    @target_rev = target_rev
   end
 
   # We expand the diff if the changeset:
@@ -37,8 +38,8 @@ class DiffListComponent < ApplicationComponent
 
   def target_file(filename)
     return nil unless @target_package
-    return nil unless @target_package.file_exists?(filename, expand: 1)
+    return nil unless @target_package.file_exists?(filename, { rev: @target_rev, expand: 1 }.compact)
 
-    project_package_file_path(@target_package.project, @target_package, filename, expand: 1)
+    project_package_file_path(@target_package.project, @target_package, filename, rev: @target_rev, expand: 1)
   end
 end
