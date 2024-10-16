@@ -6,41 +6,43 @@
       in mind that also package maintainers would like to review this request.
   = form_tag({ action: 'changerequest' }, id: 'request_handle_form') do
     = hidden_field_tag(:number, @bs_request.number)
-    - if Flipper.enabled?(:content_moderation, User.session)
-      .d-flex.justify-content-end
-        = render CannedResponsesDropdownComponent.new(User.session.canned_responses.where(decision_type: nil).order(:title))
-    = text_area_tag(:reason, nil, placeholder: 'Write your comment or decision...', rows: 4, class: 'w-100 form-control mb-2')
-    - if single_action_request && @is_target_maintainer && @bs_request.state.in?([:new, :review])
-      - if show_add_submitter_as_maintainer_option?
-        .form-check.mb-2
-          = check_box_tag('add_submitter_as_maintainer_0', "#{@action.target_project}_#_#{@action.target_package}", false, class: 'form-check-input')
-          %label.form-check-label{ for: 'add_submitter_as_maintainer_0' }
-            Add #{link_to(@bs_request.creator, user_path(@bs_request.creator))} as maintainer for
-            #{helpers.project_or_package_link(project: @action.target_project, package: @action.target_package, short: true)}
-      - if @action.type == 'submit'
-        - @action.forward.each_with_index do |forward, index|
+    .px-3.py-1.border.border-1.pb-2
+      - if Flipper.enabled?(:content_moderation, User.session)
+        .d-flex.justify-content-end
+          = render CannedResponsesDropdownComponent.new(User.session.canned_responses.where(decision_type: nil).order(:title))
+      = text_area_tag(:reason, nil, placeholder: 'Write your comment or decision...', rows: 4, class: 'w-100 form-control mb-2 rounded-2')
+      - if single_action_request && @is_target_maintainer && @bs_request.state.in?([:new, :review])
+        - if show_add_submitter_as_maintainer_option?
           .form-check.mb-2
-            = check_box_tag("forward-#{index}", "#{forward[:project]}_#_#{forward[:package]}", true, class: 'form-check-input')
-            %label.form-check-label{ for: "forward-#{index}" }
-              Forward submit request to
-              #{helpers.project_or_package_link(project: forward[:project], package: forward[:package], short: true)}
-    - if policy(Comment.new(commentable:@bs_request)).create?
-      = submit_tag 'Add comment', class: 'btn btn-primary me-2', data: { disable_with: 'Creating comment...' }, name: 'commented'
-    %span.dropdown
-      = button_tag('Decision', type: 'button', role: 'button', id: 'decision-buttons-group', class: 'btn btn-gray dropdown-toggle',
-                    data: { 'bs-toggle': 'dropdown'}, aria: { 'haspopup': 'true', 'expanded': 'false' })
-      .dropdown-menu{ aria: { labelledby: 'decision-buttons-group' } }
-        - if policy(@bs_request).revoke_request?
-          .dropdown-item
-            = submit_tag 'Revoke request', name: 'revoked', class: 'btn btn-danger me-2'
-        - if policy(@bs_request).reopen_request?
-          .dropdown-item
-            = submit_tag 'Reopen request', name: 'new', class: 'btn btn-warning me-2'
-        - if policy(@bs_request).accept_request?
-          - if policy(@bs_request).decline_request?
+            = check_box_tag('add_submitter_as_maintainer_0', "#{@action.target_project}_#_#{@action.target_package}",
+                            false, class: 'form-check-input')
+            %label.form-check-label{ for: 'add_submitter_as_maintainer_0' }
+              Add #{link_to(@bs_request.creator, user_path(@bs_request.creator))} as maintainer for
+              #{helpers.project_or_package_link(project: @action.target_project, package: @action.target_package, short: true)}
+        - if @action.type == 'submit'
+          - @action.forward.each_with_index do |forward, index|
+            .form-check.mb-2
+              = check_box_tag("forward-#{index}", "#{forward[:project]}_#_#{forward[:package]}", true, class: 'form-check-input')
+              %label.form-check-label{ for: "forward-#{index}" }
+                Forward submit request to
+                #{helpers.project_or_package_link(project: forward[:project], package: forward[:package], short: true)}
+      - if policy(Comment.new(commentable:@bs_request)).create?
+        = submit_tag 'Add comment', class: 'btn btn-primary me-2', data: { disable_with: 'Creating comment...' }, name: 'commented'
+      %span.dropdown
+        = button_tag('Decision', type: 'button', role: 'button', id: 'decision-buttons-group', class: 'btn btn-gray border dropdown-toggle',
+                      data: { 'bs-toggle': 'dropdown'}, aria: { 'haspopup': 'true', 'expanded': 'false' })
+        .dropdown-menu{ aria: { labelledby: 'decision-buttons-group' } }
+          - if policy(@bs_request).revoke_request?
             .dropdown-item
-              = submit_tag('Decline request', name: 'declined', title: 'Decline the request, as the author of the request you can reopen it again.',
-                          class: 'btn btn-danger me-2')
-          .dropdown-item
-            = submit_tag('Accept request', name: 'accepted', title: 'Accept the request, this will apply the changes on the target.',
-                         class: 'btn btn-secondary me-2', data: confirmation)
+              = submit_tag 'Revoke request', name: 'revoked', class: 'btn btn-danger me-2'
+          - if policy(@bs_request).reopen_request?
+            .dropdown-item
+              = submit_tag 'Reopen request', name: 'new', class: 'btn btn-warning me-2'
+          - if policy(@bs_request).accept_request?
+            - if policy(@bs_request).decline_request?
+              .dropdown-item
+                = submit_tag('Decline request', name: 'declined', title: 'Decline the request, as the author of the request you can reopen it again.',
+                            class: 'btn btn-danger me-2')
+            .dropdown-item
+              = submit_tag('Accept request', name: 'accepted', title: 'Accept the request, this will apply the changes on the target.',
+                          class: 'btn btn-secondary me-2', data: confirmation)
