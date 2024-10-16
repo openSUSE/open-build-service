@@ -1,7 +1,7 @@
 .request-decision
   = form_tag({ action: 'changerequest' }, id: 'request_handle_form') do
     = hidden_field_tag(:number, @bs_request.number)
-    .px-3.py-1.border.border-1.pb-2
+    .px-3.py-1.border.border-1.pb-2{ 'data-canned-controller': '' }
       - if Flipper.enabled?(:content_moderation, User.session)
         .d-flex.justify-content-end
           = render CannedResponsesDropdownComponent.new(User.session.canned_responses.where(decision_type: nil).order(:title))
