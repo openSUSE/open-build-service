@@ -4,4 +4,5 @@
 .comments-thread
   = render(partial: 'webui/comment/comment_field',
   locals: { form_method: :post, comment: Comment.new, commentable: commentable,
-            line: diff_ref, source_rev:, target_rev:, element_suffix: "new_comment_#{diff_ref}", has_cancel: true })
+            line: diff_ref, file_index:, line_number:, source_rev:, target_rev:,
+            element_suffix: "new_comment_#{diff_ref}", has_cancel: true })
