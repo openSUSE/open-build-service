@@ -138,6 +138,8 @@ end
 #  id               :integer          not null, primary key
 #  body             :text(65535)
 #  commentable_type :string(255)      indexed => [commentable_id]
+#  diff_file_index  :integer
+#  diff_line_number :integer
 #  diff_ref         :string(255)
 #  moderated_at     :datetime
 #  created_at       :datetime
