@@ -1,6 +1,7 @@
 class Webui::RequestController < Webui::WebuiController
   include Webui::NotificationsHandler
   include Webui::RequestsFilter
+  include BuildNewComment
 
   ALLOWED_INVOLVEMENTS = %w[all incoming outgoing].freeze
 
@@ -208,10 +209,8 @@ class Webui::RequestController < Webui::WebuiController
 
     if changestate == 'commented'
 
-      @commented = BsRequest.find_by(number: params[:number])
-      @comment = @commented.comments.new(body: params[:reason])
-      authorize @comment, :create?
-      User.session.comments << @comment
+      build_new_comment(BsRequest.find_by(number: params[:number]),
+                        body: params[:reason])
 
     elsif change_state(changestate, params)
       # TODO: Make this work for each submit action individually
