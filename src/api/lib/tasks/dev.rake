@@ -253,5 +253,41 @@ namespace :dev do
       # Create notifications by running the `dev:notifications:data` task two times
       Rake::Task['dev:notifications:data'].invoke(2)
     end
+
+    desc 'Create more data'
+    task :create_more_data, [:repetitions] => :development_environment do |_t, args|
+      args.with_defaults(repetitions: 1)
+      repetitions = args.repetitions.to_i
+
+      require 'factory_bot'
+      include FactoryBot::Syntax::Methods
+
+      admin = User.default_admin
+      User.session = admin
+
+      # Create n project with n packages each
+      repetitions.times do |repetition|
+        new_project_name = "#{Faker::Lorem.words.join(':')}_#{repetition}"
+        new_project = create(:project, name: new_project_name, commit_user: admin)
+        repetitions.times do |repetition_package|
+          create(:package_with_file, name: "#{Faker::Lorem.words.join('_')}_#{repetition_package}", project: new_project, file_content: 'some content')
+        end
+      end
+
+      Rake::Task['dev:requests:multiple_actions_request'].invoke(repetitions)
+      Rake::Task['dev:requests:request_with_multiple_submit_actions_builds_and_diffs'].invoke(repetitions)
+
+      # requests with multiple actions: invoke(x, y) where x = how many times requests to create, y = how many submit actions per each
+      Rake::Task['dev:requests:request_with_multiple_submit_actions_builds_and_diffs'].invoke(10, 10)
+      Rake::Task['dev:requests:request_with_multiple_submit_actions_builds_and_diffs'].invoke(2, 100)
+      Rake::Task['dev:requests:request_with_multiple_submit_actions_builds_and_diffs'].invoke(1, 1000)
+
+      Rake::Task['dev:requests:request_with_delete_action'].invoke(repetitions)
+
+      # TODO: refactor the task, it is very slow compared to the others
+      Rake::Task['dev:notifications:data'].invoke(repetitions)
+
+      Rake::Task['dev:news:data'].invoke(repetitions)
+    end
   end
 end
