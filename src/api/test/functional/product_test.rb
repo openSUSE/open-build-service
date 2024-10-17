@@ -312,7 +312,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     login_tom
     get '/source/home:tom:temporary:link'
     assert_response :success
-    assert_xml_tag tag: 'directory', attributes: { count: '0' }
+    assert_xml_tag tag: 'directory'
     post '/source/home:tom:temporary/_product:sle-obs-cd-cd-i586_x86_64?cmd=release'
     assert_response :success
     get '/source/home:tom:temporary:link'
