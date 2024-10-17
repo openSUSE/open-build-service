@@ -26,7 +26,7 @@ class BsRequestActivityTimelineComponent < ApplicationComponent
     return unless (ref = comment.diff_ref&.match(/diff_([0-9]+)/))
 
     file_index = ref.captures.first
-    sourcediff = @commented_actions.find(comment.commentable.id).first.webui_sourcediff.first
+    sourcediff = @commented_actions.find(comment.commentable.id).first.webui_sourcediff({ rev: comment.source_rev, orev: comment.target_rev }.compact).first
     filename = sourcediff.dig('filenames', file_index.to_i)
     sourcediff.dig('files', filename)
   end
