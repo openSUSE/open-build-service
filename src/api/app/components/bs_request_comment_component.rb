@@ -16,7 +16,7 @@ class BsRequestCommentComponent < ApplicationComponent
   end
 
   def range
-    line_index = @comment.diff_ref.match(/diff_[0-9]+_n([0-9]+)/).captures.first
-    ((line_index.to_i - 4).clamp(0..)..(line_index.to_i - 1))
+    line_index = @comment.diff_line_number
+    ((line_index - 4).clamp(0..)..(line_index - 1))
   end
 end

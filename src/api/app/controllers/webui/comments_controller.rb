@@ -77,7 +77,8 @@ class Webui::CommentsController < Webui::WebuiController
              end
 
     if Flipper.enabled?(:request_show_redesign, User.session) && %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
-      if @comment.commentable_type == 'BsRequestAction' && Comment.where(commentable: @comment.commentable, diff_ref: @comment.root.diff_ref).count.zero?
+      if @comment.commentable_type == 'BsRequestAction' &&
+         Comment.where(commentable: @comment.commentable, diff_file_index: @comment.root.diff_file_index, diff_line_number: @comment.root.diff_line_number).count.zero?
         return render(partial: 'webui/request/add_inline_comment',
                       locals: { commentable: @comment.root.commentable, diff_ref: @comment.root.diff_ref },
                       status: status)
@@ -172,13 +173,12 @@ class Webui::CommentsController < Webui::WebuiController
   end
 
   def diff
-    return unless @comment.root.commentable_type == 'BsRequestAction' && @comment.root.diff_ref
-    return unless (ref = @comment.root.diff_ref&.match(/diff_([0-9]+)/))
+    return unless @comment.root.commentable_type == 'BsRequestAction'
+    return unless (file_index = @comment.root.diff_file_index)
 
     diffs = @comment.root.commentable.bs_request.webui_actions(action_id: @comment.root.commentable_id, diffs: true, cacheonly: 1).first
-    file_index = ref.captures.first
     sourcediff = diffs[:sourcediff].first
-    filename = sourcediff.dig('filenames', file_index.to_i)
+    filename = sourcediff.dig('filenames', file_index)
     sourcediff.dig('files', filename)
   end
 end
