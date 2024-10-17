@@ -175,7 +175,7 @@ group :test do
   gem 'bunny-mock'
 end
 
-group :development, :test do
+group :development, :test, :test_ldap do
   # as testing framework
   gem 'rspec'
   gem 'rspec-rails'

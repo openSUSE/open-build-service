@@ -1,4 +1,4 @@
-RSpec.shared_examples 'a ldap connection' do
+RSpec.shared_examples 'a mocked ldap connection' do
   context 'when a connection can be established' do
     before do
       allow(ldap_mock).to receive(:bind).with('tux', 'tux_password')
@@ -6,7 +6,7 @@ RSpec.shared_examples 'a ldap connection' do
     end
 
     it 'returns the connection object' do
-      expect(UserLdapStrategy.send(:initialize_ldap_con, 'tux', 'tux_password')).to be(ldap_mock)
+      expect(UserLdapStrategy.send(:initialize_ldap_con, 'tux', 'tux_password')).to be_bound
     end
   end
 
