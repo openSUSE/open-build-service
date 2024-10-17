@@ -97,7 +97,7 @@ sub check {
 
 sub build {
   my ($self, $ctx, $packid, $pdata, $info, $data) = @_;
-  my ($reason, $edeps) = @$data;
+  my ($edeps, $reason) = @$data;
   local $ctx->{'forcebinaryidmeta'} = 1;	# force using the pkgid in the meta
   my ($state, $job) = BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
   return ($state, $job);
