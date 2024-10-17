@@ -35,6 +35,9 @@ def resubmit_all_fixtures
     assert_response :success
     packages = Xmlhash.parse(@response.body)
     packages.elements('entry') do |p|
+      # skip multibuild flavors
+      next if p['name'].include?(':')
+
       get "/source/#{name}/#{p['name']}/_meta"
       assert_response :success
       r = @response.body
