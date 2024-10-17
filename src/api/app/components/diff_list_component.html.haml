@@ -13,4 +13,4 @@
           = render(DiffSubjectComponent.new(state:, old_filename:, new_filename: name))
       .accordion-collapse.collapse{ class: expanded ? 'show' : '', id: "diff-item-#{name.parameterize}", 'data-object': view_id }
         = render(DiffComponent.new(diff: file_info.dig('diff', '_content'), file_index:, commentable:, commented_lines:,
-                                   source_file: source_file(old_filename), target_file: target_file(name)))
+                                   source_file: source_file(old_filename), target_file: target_file(name), source_rev:, target_rev:))

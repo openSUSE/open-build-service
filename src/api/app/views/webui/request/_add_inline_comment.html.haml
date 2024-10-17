@@ -1,5 +1,5 @@
 - if User.session
-  = link_to(request_inline_comment_path(commentable.bs_request, request_action_id: commentable, line: diff_ref),
+  = link_to(request_inline_comment_path(commentable.bs_request, request_action_id: commentable, line: diff_ref, source_rev:, target_rev:),
             class: 'btn btn-sm btn-primary line-new-comment', remote: true, title: 'Add comment') do
     %i.fas.fa-comment-medical
     .visually-hidden

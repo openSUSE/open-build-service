@@ -279,6 +279,8 @@ class Webui::RequestController < Webui::WebuiController
 
   def inline_comment
     @line = params[:line]
+    @source_rev = params[:source_rev]
+    @target_rev = params[:target_rev]
     respond_to do |format|
       format.js
     end

@@ -8,6 +8,8 @@
         = render partial: 'webui/shared/loading', locals: { text: 'Loading changes...', wrapper_css: ['loading', 'invisible'] }
     - else
       - (@action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded })).each do |sourcediff|
+        - source_rev = sourcediff.dig('new', 'srcmd5') || @action.source_rev
+        - target_rev = sourcediff.dig('old', 'srcmd5')
         .clearfix.mb-2
           .btn-group.float-end
             %button.btn.btn-outline-secondary.expand-diffs{ data: { object: @action.source_package } }
@@ -26,7 +28,7 @@
           - if sourcediff['filenames'].present?
             - diff_list = sourcediff['files'].sort_by { |k, _v| sourcediff['filenames'].find_index(k) }.to_h
             = render(DiffListComponent.new(diff_list:, view_id: @action.source_package, commentable:, source_package:,
-                                           target_package:, source_rev: @action.source_rev))
+                                           target_package:, source_rev:, target_rev:))
           - else
             .mb-2
               %p.lead

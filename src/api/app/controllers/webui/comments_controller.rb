@@ -146,7 +146,7 @@ class Webui::CommentsController < Webui::WebuiController
   private
 
   def permitted_params
-    params.require(:comment).permit(:body, :parent_id, :diff_ref)
+    params.require(:comment).permit(:body, :parent_id, :diff_ref, :source_rev, :target_rev)
   end
 
   # FIXME: Use this function for the rest of the actions
