@@ -283,8 +283,9 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def inline_comment
-    @line = params[:line]
-    @file_index, @line_number = @line.match(/diff_([0-9]+)_n([0-9]+)/).captures
+    @file_index = params[:diff_file_index]
+    @line_number = params[:diff_line_number]
+    @line = "diff_#{@file_index}_n#{@line_number}"
     @source_rev = params[:source_rev]
     @target_rev = params[:target_rev]
     respond_to do |format|

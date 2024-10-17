@@ -8,7 +8,7 @@ class DiffListComponent < ApplicationComponent
     @diff_list = diff_list
     @view_id = view_id
     @commentable = commentable
-    @commented_lines = commentable ? commentable.comments.where.not(diff_ref: nil).select(:diff_ref).distinct.pluck(:diff_ref) : []
+    @commented_lines = commentable ? commentable.comments.where.not(diff_file_index: nil).select(:diff_file_index, :diff_line_number).distinct.pluck(:diff_file_index, :diff_line_number) : []
     @source_package = source_package
     @target_package = target_package
     @source_rev = source_rev

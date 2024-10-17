@@ -19,15 +19,13 @@
                             class: 'dropdown-item', remote: true, form_class: 'moderate-form', params: { moderation_state: !comment.moderated? })
             - if policy(Report.new(reportable: comment)).create?
               = link_to('#', class: 'dropdown-item', id: "js-comment-#{comment.id}",
-                        data: { 'bs-toggle': 'modal',
-                                'bs-target': '#report-modal',
+                        data: { 'bs-toggle': 'modal', 'bs-target': '#report-modal',
                                 'modal-title': "Report comment from #{comment.user}",
                                 'reportable-type': comment.class.name,
                                 'reportable-id': comment.id }) do
                 Report
             - if policy(comment).destroy?
-              = link_to('#', data: { 'bs-toggle': 'modal',
-                  'bs-target': '#delete-comment-modal',
+              = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-comment-modal',
                   confirmation_text: 'Please confirm deletion of comment',
                   action: comment_path(comment) },
                   class: 'dropdown-item delete_link', title: 'Delete comment') do
@@ -47,14 +45,15 @@
           - helpers.comment_user_role_titles(comment).each do |title|
             %span.badge.border.border-secondary.text-secondary.text-capitalize
               = title
-      - if comment.diff_ref
+      - if comment.diff_file_index
         .comment-diff
           - if diff
             - action = comment.commentable
+            - anchor = "diff_#{comment.diff_file_index}_n#{comment.diff_line_number}"
             .px-3.pt-3.pb-2
               = link_to(action.uniq_key, request_show_path(number: action.bs_request, request_action_id: action))
               >
-              = link_to request_changes_path(number: action.bs_request, request_action_id: action, anchor: comment.diff_ref) do
+              = link_to request_changes_path(number: action.bs_request, request_action_id: action, anchor:) do
                 = render(DiffSubjectComponent.new(state: diff['state'], old_filename: diff.dig('old', 'name'), new_filename: diff.dig('new', 'name')))
               - if comment.outdated?
                 %span.badge.text-bg-warning Outdated
