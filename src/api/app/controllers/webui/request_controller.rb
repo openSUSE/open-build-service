@@ -1,6 +1,7 @@
 class Webui::RequestController < Webui::WebuiController
   include Webui::NotificationsHandler
   include Webui::RequestsFilter
+  include BuildNewComment
 
   ALLOWED_INVOLVEMENTS = %w[all incoming outgoing].freeze
 
@@ -204,9 +205,14 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def changerequest
-    changestate = (%w[accepted declined revoked new] & params.keys).last
+    changestate = (%w[accepted commented declined revoked new] & params.keys).last
 
-    if change_state(changestate, params)
+    if changestate == 'commented'
+
+      build_new_comment(BsRequest.find_by(number: params[:number]),
+                        body: params[:reason])
+
+    elsif change_state(changestate, params)
       # TODO: Make this work for each submit action individually
       if params[:add_submitter_as_maintainer_0] # rubocop:disable Naming/VariableNumber
         if changestate == 'accepted'
