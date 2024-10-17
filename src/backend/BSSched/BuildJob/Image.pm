@@ -82,7 +82,7 @@ sub check {
   # create meta and compare to old version
   my $pool = $ctx->{'pool'};
   my @new_meta;
-  for my $dep (@$edeps) {
+  for my $dep (sort @$edeps) {
     my $p = $dep2pkg->{$dep};
     push @new_meta, $pool->pkg2pkgid($p)."  $dep";
   }
