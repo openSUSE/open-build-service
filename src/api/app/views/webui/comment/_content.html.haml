@@ -19,7 +19,8 @@
       - unless sourcediff[:error]
         :ruby
           target = "#{comment.commentable.target_project}/#{comment.commentable.target_package}"
-          file_index, line_number = comment.diff_ref.match(/diff_([0-9]+)_n([0-9]+)/).captures
+          file_index = comment.diff_file_index
+          line_number = comment.diff_line_number
           filename = sourcediff['filenames'][file_index.to_i]
         %p
           %i Inline comment for target: '#{target}', file: '#{filename}', and line: #{line_number}.

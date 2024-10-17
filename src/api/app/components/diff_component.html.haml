@@ -40,8 +40,9 @@
                 = sanitize line.content[1..]
         - if commentable
           .line-comment{ id: "comment#{id}" }
-            - if commented_lines.include?(id)
-              - commentable.comments.where(diff_ref: id, source_rev: [source_rev, nil], target_rev: [target_rev, nil]).each do |comment|
+            - if commented_lines.include?([file_index, line.index])
+              - commentable.comments.where(diff_file_index: file_index, diff_line_number: line.index,
+                                           source_rev: [source_rev, nil], target_rev: [target_rev, nil]).each do |comment|
                 .diff-comments
                   .comments-thread
                     = render BsRequestCommentComponent.new(comment: comment, level: 1, commentable: commentable)
