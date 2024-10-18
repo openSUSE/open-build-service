@@ -27,7 +27,7 @@
             .comment-preview.message-preview.border-bottom.border-gray-300.my-3
       - if single_action_request && @is_target_maintainer && @bs_request.state.in?([:new, :review])
         - if show_add_submitter_as_maintainer_option?
-          .form-check.mb-2
+          .form-check.mb-2.mt-2
             = check_box_tag('add_submitter_as_maintainer_0', "#{@action.target_project}_#_#{@action.target_package}",
                             false,
                             class: 'form-check-input')
