@@ -23,7 +23,9 @@
             - if Flipper.enabled?(:content_moderation, User.session)
               .d-flex.justify-content-end
                 = render CannedResponsesDropdownComponent.new(User.session.canned_responses.where(decision_type: nil).order(:title))
-            = text_area_tag(:reason, nil, placeholder: 'Write your comment or decision...', rows: 4,
+            = text_area_tag(:reason, nil,
+                            placeholder: 'Write your comment or decision...(markdown is only supported for comments, not for decisions)',
+                            rows: 4,
             class: 'w-100 form-control mb-2 rounded-2 message-field')
           - unless policy(Comment.new(commentable: @bs_request)).locked?
             .tab-pane.fade{ id: 'preview_new_comment', role: 'tabpanel', 'aria-labelledby': 'preview-message-tab' }
