@@ -28,6 +28,7 @@ RSpec.describe Webui::InterconnectsController do
   describe 'POST #create' do
     context 'as admin' do
       before do
+        allow(Backend::Api::Sources::Project).to receive(:remotedistributions).and_return('<xml></xml>')
         login(admin_user)
         post :create, params: { project: attributes_for(:remote_project, name: 'MyRemoteProject') }
       end
