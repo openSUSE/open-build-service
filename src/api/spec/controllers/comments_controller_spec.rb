@@ -55,7 +55,7 @@ RSpec.describe CommentsController do
     context 'of a bs_request_action (inline comment)', :vcr do
       let(:submit_request) { create(:bs_request_with_submit_action) }
       let(:object) { create(:bs_request_action_submit_with_diff, bs_request: submit_request) }
-      let(:comment) { create(:comment, commentable: object, diff_ref: 'diff_0_n1') }
+      let(:comment) { create(:comment, commentable: object, diff_file_index: 0, diff_line_number: 1) }
 
       before do
         login user

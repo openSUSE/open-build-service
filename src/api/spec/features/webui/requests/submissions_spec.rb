@@ -186,7 +186,7 @@ RSpec.describe 'Requests_Submissions', :js, :vcr do
                  source_project: source_project,
                  source_package: source_package)
         end
-        let!(:comment) { create(:comment, commentable: bs_request.bs_request_actions.first, diff_ref: 'diff_0_n1') }
+        let!(:comment) { create(:comment, commentable: bs_request.bs_request_actions.first, diff_file_index: 0, diff_line_number: 1) }
 
         it 'displays the comment in the timeline' do
           login submitter
@@ -204,7 +204,7 @@ RSpec.describe 'Requests_Submissions', :js, :vcr do
                  source_project: source_project,
                  source_package: source_package)
         end
-        let!(:comment) { create(:comment, commentable: bs_request, diff_ref: '') }
+        let!(:comment) { create(:comment, commentable: bs_request) }
 
         it 'displays the comment in the timeline' do
           login submitter
