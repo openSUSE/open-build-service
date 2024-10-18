@@ -65,7 +65,7 @@ sub regdata_callback {
 sub packtrack2bin {
   my ($pt, $filename, $containers) = @_;
   my $bin = { 'path' => $filename };
-  for (qw{name epoch version release binaryid package}) {
+  for (qw{name epoch version release binaryid package disturl}) {
     $bin->{$_} = $pt->{$_} if defined $pt->{$_};
   }
   $bin->{'architecture'} = $pt->{'binaryarch'} if $pt->{'binaryarch'};
@@ -162,6 +162,8 @@ sub diffdata {
       if ($r->{'package'} =~ /(?<!^_product)(?<!^_patchinfo):./ && $r->{'package'} =~ /^(.*):(.*?)$/) {
         ($r->{'package'}, $r->{'flavor'}) = ($1, $2);
       }
+      # hack: try to get flavor from disturl for aggregated containers
+      $r->{'flavor'} = $1 if $r->{'flavor'} eq '' && $r->{'disturl'} && $r->{'disturl'} =~ /:([^:\/]+)/;
     }
     push @ret, $r;
   }
