@@ -22,7 +22,9 @@
             - if Flipper.enabled?(:content_moderation, User.session)
               .d-flex.justify-content-end
                 = render CannedResponsesDropdownComponent.new(User.session.canned_responses.where(decision_type: nil).order(:title))
-            = text_area_tag(:reason, nil, placeholder: 'write your comment or decision...', rows: 4, class: 'w-100 form-control mb-2 message-field')
+            = text_area_tag(:reason, nil,
+                            placeholder: 'Write your comment or decision...(markdown is only supported for comments, not for decisions)',
+                            rows: 4, class: 'w-100 form-control mb-2 message-field')
           .tab-pane.fade{ id: 'preview_new_comment', role: 'tabpanel', 'aria-labelledby': 'preview-message-tab' }
             .comment-preview.message-preview.border-bottom.border-gray-300.my-3
       - if single_action_request && @is_target_maintainer && @bs_request.state.in?([:new, :review])
