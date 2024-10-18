@@ -83,6 +83,20 @@ class Comment < ApplicationRecord
     super
   end
 
+  def revisions?
+    return false if diff_ref.blank?
+    return false if source_rev.nil? || target_rev.nil?
+
+    true
+  end
+
+  def outdated?
+    return false unless revisions?
+    return true unless commentable.target_srcmd5 == target_rev && commentable.source_srcmd5 == source_rev
+
+    false
+  end
+
   private
 
   def create_event

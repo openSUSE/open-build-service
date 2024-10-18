@@ -170,6 +170,14 @@ class BsRequestActionSubmit < BsRequestAction
     forward_object
   end
 
+  def source_srcmd5
+    source_package_object&.dir_hash({ rev: source_rev }.compact)&.[]('srcmd5')
+  end
+
+  def target_srcmd5
+    target_package_object&.dir_hash&.[]('srcmd5')
+  end
+
   #### Alias of methods
 end
 

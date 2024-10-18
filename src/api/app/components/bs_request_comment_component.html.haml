@@ -52,11 +52,12 @@
           - if diff
             - action = comment.commentable
             .px-3.pt-3.pb-2
-              = link_to request_show_path(number: action.bs_request, request_action_id: action) do
-                = action.uniq_key
+              = link_to(action.uniq_key, request_show_path(number: action.bs_request, request_action_id: action))
               >
               = link_to request_changes_path(number: action.bs_request, request_action_id: action, anchor: comment.diff_ref) do
                 = render(DiffSubjectComponent.new(state: diff['state'], old_filename: diff.dig('old', 'name'), new_filename: diff.dig('new', 'name')))
+              - if comment.outdated?
+                %span.badge.text-bg-warning Outdated
             = render(DiffComponent.new(diff: diff.dig('diff', '_content'), range:))
           - else
             %p.border-bottom.fst-italic.px-3.pt-3.pb-2
