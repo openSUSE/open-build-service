@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Wealth of Nations</title>
+          <title>The Wings of the Dove</title>
           <description/>
         </project>
     headers:
@@ -34,10 +34,10 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Wealth of Nations</title>
+          <title>The Wings of the Dove</title>
           <description></description>
         </project>
-  recorded_at: Mon, 21 Oct 2024 07:55:26 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:25 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/target_package/_meta?user=user_2
@@ -45,8 +45,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Shall not Perish</title>
-          <description>Dolores doloribus perspiciatis et.</description>
+          <title>The Heart Is Deceitful Above All Things</title>
+          <description>Magni animi accusantium nihil.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -67,15 +67,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '185'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Shall not Perish</title>
-          <description>Dolores doloribus perspiciatis et.</description>
+          <title>The Heart Is Deceitful Above All Things</title>
+          <description>Magni animi accusantium nihil.</description>
         </package>
-  recorded_at: Mon, 21 Oct 2024 07:55:26 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:25 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=user_3
@@ -83,7 +83,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Things Fall Apart</title>
+          <title>For a Breath I Tarry</title>
           <description/>
         </project>
     headers:
@@ -105,15 +105,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '108'
+      - '111'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Things Fall Apart</title>
+          <title>For a Breath I Tarry</title>
           <description></description>
         </project>
-  recorded_at: Mon, 21 Oct 2024 07:55:26 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:26 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_3
@@ -142,18 +142,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '169'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4">
-          <srcmd5>f827c7465192760ab7701d3df7b20386</srcmd5>
-          <time>1729497327</time>
+        <revision rev="14">
+          <srcmd5>fa961170fbd6e86995a8de46ad3da396</srcmd5>
+          <time>1729504346</time>
           <user>user_3</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 21 Oct 2024 07:55:27 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:26 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/package_a/_meta?user=user_4
@@ -161,8 +161,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_a" project="source_project">
-          <title>Alone on a Wide, Wide Sea</title>
-          <description>Repellat nesciunt ut exercitationem.</description>
+          <title>Eyeless in Gaza</title>
+          <description>Qui laborum nostrum omnis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -183,21 +183,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <package name="package_a" project="source_project">
-          <title>Alone on a Wide, Wide Sea</title>
-          <description>Repellat nesciunt ut exercitationem.</description>
+          <title>Eyeless in Gaza</title>
+          <description>Qui laborum nostrum omnis.</description>
         </package>
-  recorded_at: Mon, 21 Oct 2024 07:55:27 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:27 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/package_a/README.txt
     body:
       encoding: UTF-8
-      string: Atque maxime aut. Libero non sunt. Asperiores ipsum molestias.
+      string: Asperiores odio sunt. Assumenda et labore. Excepturi dolore et.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -217,19 +217,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '201'
+      - '203'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
-          <srcmd5>a09afa482a997030612d990e3b7733aa</srcmd5>
+        <revision rev="19" vrev="19">
+          <srcmd5>fafdb3cebde7662ca252456e669f6005</srcmd5>
           <version>1</version>
-          <time>1729497327</time>
+          <time>1729504347</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 21 Oct 2024 07:55:27 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:27 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/package_a/package_a.spec
@@ -282,19 +282,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '201'
+      - '203'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5" vrev="5">
-          <srcmd5>a09afa482a997030612d990e3b7733aa</srcmd5>
+        <revision rev="20" vrev="20">
+          <srcmd5>fafdb3cebde7662ca252456e669f6005</srcmd5>
           <version>1</version>
-          <time>1729497327</time>
+          <time>1729504347</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 21 Oct 2024 07:55:27 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:27 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/package_a/package_a.changes
@@ -320,19 +320,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '201'
+      - '203'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6" vrev="6">
-          <srcmd5>a09afa482a997030612d990e3b7733aa</srcmd5>
+        <revision rev="21" vrev="21">
+          <srcmd5>fafdb3cebde7662ca252456e669f6005</srcmd5>
           <version>1</version>
-          <time>1729497327</time>
+          <time>1729504347</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 21 Oct 2024 07:55:27 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:27 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/package_a
@@ -358,16 +358,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '404'
+      - '406'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="6" vrev="6" srcmd5="a09afa482a997030612d990e3b7733aa">
-          <entry name="README.txt" md5="2e6518277c9d443c0ae45a18ec0c0f1d" size="62" mtime="1729497327"/>
-          <entry name="package_a.changes" md5="3bf7f645ebf1daed37ac2524846a9e7c" size="14" mtime="1729496885"/>
-          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1729496885"/>
+        <directory name="package_a" rev="21" vrev="21" srcmd5="fafdb3cebde7662ca252456e669f6005">
+          <entry name="README.txt" md5="08c4f5154f4ac71662adaff8cbbea780" size="63" mtime="1729504347"/>
+          <entry name="package_a.changes" md5="3bf7f645ebf1daed37ac2524846a9e7c" size="14" mtime="1726738320"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1726738320"/>
         </directory>
-  recorded_at: Mon, 21 Oct 2024 07:55:27 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:28 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/package_a?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
@@ -395,18 +395,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '1468'
+      - '1470'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="28b63c9ef03cfaa924b929d19d95b27b">
+        <sourcediff key="cc8cf8185ff82c911137d585cbc3b110">
           <old project="target_project" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="source_project" package="package_a" rev="6" srcmd5="a09afa482a997030612d990e3b7733aa"/>
+          <new project="source_project" package="package_a" rev="21" srcmd5="fafdb3cebde7662ca252456e669f6005"/>
           <files>
             <file state="added">
-              <new name="README.txt" md5="2e6518277c9d443c0ae45a18ec0c0f1d" size="62"/>
+              <new name="README.txt" md5="08c4f5154f4ac71662adaff8cbbea780" size="63"/>
               <diff lines="3">@@ -0,0 +1,1 @@
-        +Atque maxime aut. Libero non sunt. Asperiores ipsum molestias.
+        +Asperiores odio sunt. Assumenda et labore. Excepturi dolore et.
         \ No newline at end of file
         </diff>
             </file>
@@ -453,7 +453,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 21 Oct 2024 07:55:27 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:28 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -462,7 +462,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - fecc60ac-1d3d-4e26-a3ac-149c5bac0d02
+      - 91635938-0ca0-4d8e-a6c6-cb49ec212bd7
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -487,7 +487,7 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 21 Oct 2024 07:55:32 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:35 GMT
 - request:
     method: get
     uri: http://backend:5352/build/source_project/_result?lastbuild=0&locallink=1&multibuild=1&package=package_a&view=status
@@ -496,7 +496,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 047c5eed-e875-4597-94d9-4eb7aabb462f
+      - 9084fd55-5204-4d8f-bf08-4dea4a44763c
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -521,7 +521,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Mon, 21 Oct 2024 07:55:32 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/package_a
@@ -530,7 +530,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 047c5eed-e875-4597-94d9-4eb7aabb462f
+      - 9084fd55-5204-4d8f-bf08-4dea4a44763c
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -549,16 +549,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '404'
+      - '406'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="6" vrev="6" srcmd5="a09afa482a997030612d990e3b7733aa">
-          <entry name="README.txt" md5="2e6518277c9d443c0ae45a18ec0c0f1d" size="62" mtime="1729497327"/>
-          <entry name="package_a.changes" md5="3bf7f645ebf1daed37ac2524846a9e7c" size="14" mtime="1729496885"/>
-          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1729496885"/>
+        <directory name="package_a" rev="21" vrev="21" srcmd5="fafdb3cebde7662ca252456e669f6005">
+          <entry name="README.txt" md5="08c4f5154f4ac71662adaff8cbbea780" size="63" mtime="1729504347"/>
+          <entry name="package_a.changes" md5="3bf7f645ebf1daed37ac2524846a9e7c" size="14" mtime="1726738320"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1726738320"/>
         </directory>
-  recorded_at: Mon, 21 Oct 2024 07:55:32 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:35 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/package_a?cacheonly=1&cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
@@ -569,7 +569,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Request-Id:
-      - 047c5eed-e875-4597-94d9-4eb7aabb462f
+      - 9084fd55-5204-4d8f-bf08-4dea4a44763c
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -584,7 +584,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '1468'
+      - '1470'
       Cache-Control:
       - no-cache
       Connection:
@@ -592,14 +592,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="28b63c9ef03cfaa924b929d19d95b27b">
+        <sourcediff key="cc8cf8185ff82c911137d585cbc3b110">
           <old project="target_project" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="source_project" package="package_a" rev="6" srcmd5="a09afa482a997030612d990e3b7733aa"/>
+          <new project="source_project" package="package_a" rev="21" srcmd5="fafdb3cebde7662ca252456e669f6005"/>
           <files>
             <file state="added">
-              <new name="README.txt" md5="2e6518277c9d443c0ae45a18ec0c0f1d" size="62"/>
+              <new name="README.txt" md5="08c4f5154f4ac71662adaff8cbbea780" size="63"/>
               <diff lines="3">@@ -0,0 +1,1 @@
-        +Atque maxime aut. Libero non sunt. Asperiores ipsum molestias.
+        +Asperiores odio sunt. Assumenda et labore. Excepturi dolore et.
         \ No newline at end of file
         </diff>
             </file>
@@ -646,7 +646,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 21 Oct 2024 07:55:32 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/package_a
@@ -655,7 +655,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 047c5eed-e875-4597-94d9-4eb7aabb462f
+      - 9084fd55-5204-4d8f-bf08-4dea4a44763c
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -674,16 +674,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '404'
+      - '406'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="6" vrev="6" srcmd5="a09afa482a997030612d990e3b7733aa">
-          <entry name="README.txt" md5="2e6518277c9d443c0ae45a18ec0c0f1d" size="62" mtime="1729497327"/>
-          <entry name="package_a.changes" md5="3bf7f645ebf1daed37ac2524846a9e7c" size="14" mtime="1729496885"/>
-          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1729496885"/>
+        <directory name="package_a" rev="21" vrev="21" srcmd5="fafdb3cebde7662ca252456e669f6005">
+          <entry name="README.txt" md5="08c4f5154f4ac71662adaff8cbbea780" size="63" mtime="1729504347"/>
+          <entry name="package_a.changes" md5="3bf7f645ebf1daed37ac2524846a9e7c" size="14" mtime="1726738320"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1726738320"/>
         </directory>
-  recorded_at: Mon, 21 Oct 2024 07:55:32 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:35 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/package_a?cacheonly=1&cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
@@ -694,7 +694,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Request-Id:
-      - 047c5eed-e875-4597-94d9-4eb7aabb462f
+      - 9084fd55-5204-4d8f-bf08-4dea4a44763c
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -709,7 +709,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '1468'
+      - '1470'
       Cache-Control:
       - no-cache
       Connection:
@@ -717,14 +717,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="28b63c9ef03cfaa924b929d19d95b27b">
+        <sourcediff key="cc8cf8185ff82c911137d585cbc3b110">
           <old project="target_project" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="source_project" package="package_a" rev="6" srcmd5="a09afa482a997030612d990e3b7733aa"/>
+          <new project="source_project" package="package_a" rev="21" srcmd5="fafdb3cebde7662ca252456e669f6005"/>
           <files>
             <file state="added">
-              <new name="README.txt" md5="2e6518277c9d443c0ae45a18ec0c0f1d" size="62"/>
+              <new name="README.txt" md5="08c4f5154f4ac71662adaff8cbbea780" size="63"/>
               <diff lines="3">@@ -0,0 +1,1 @@
-        +Atque maxime aut. Libero non sunt. Asperiores ipsum molestias.
+        +Asperiores odio sunt. Assumenda et labore. Excepturi dolore et.
         \ No newline at end of file
         </diff>
             </file>
@@ -771,7 +771,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 21 Oct 2024 07:55:32 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/package_a
@@ -780,7 +780,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 047c5eed-e875-4597-94d9-4eb7aabb462f
+      - 9084fd55-5204-4d8f-bf08-4dea4a44763c
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -799,16 +799,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '404'
+      - '406'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="6" vrev="6" srcmd5="a09afa482a997030612d990e3b7733aa">
-          <entry name="README.txt" md5="2e6518277c9d443c0ae45a18ec0c0f1d" size="62" mtime="1729497327"/>
-          <entry name="package_a.changes" md5="3bf7f645ebf1daed37ac2524846a9e7c" size="14" mtime="1729496885"/>
-          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1729496885"/>
+        <directory name="package_a" rev="21" vrev="21" srcmd5="fafdb3cebde7662ca252456e669f6005">
+          <entry name="README.txt" md5="08c4f5154f4ac71662adaff8cbbea780" size="63" mtime="1729504347"/>
+          <entry name="package_a.changes" md5="3bf7f645ebf1daed37ac2524846a9e7c" size="14" mtime="1726738320"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1726738320"/>
         </directory>
-  recorded_at: Mon, 21 Oct 2024 07:55:32 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:35 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/package_a?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
@@ -819,7 +819,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Request-Id:
-      - 047c5eed-e875-4597-94d9-4eb7aabb462f
+      - 9084fd55-5204-4d8f-bf08-4dea4a44763c
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -834,7 +834,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '1468'
+      - '1470'
       Cache-Control:
       - no-cache
       Connection:
@@ -842,14 +842,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="28b63c9ef03cfaa924b929d19d95b27b">
+        <sourcediff key="cc8cf8185ff82c911137d585cbc3b110">
           <old project="target_project" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="source_project" package="package_a" rev="6" srcmd5="a09afa482a997030612d990e3b7733aa"/>
+          <new project="source_project" package="package_a" rev="21" srcmd5="fafdb3cebde7662ca252456e669f6005"/>
           <files>
             <file state="added">
-              <new name="README.txt" md5="2e6518277c9d443c0ae45a18ec0c0f1d" size="62"/>
+              <new name="README.txt" md5="08c4f5154f4ac71662adaff8cbbea780" size="63"/>
               <diff lines="3">@@ -0,0 +1,1 @@
-        +Atque maxime aut. Libero non sunt. Asperiores ipsum molestias.
+        +Asperiores odio sunt. Assumenda et labore. Excepturi dolore et.
         \ No newline at end of file
         </diff>
             </file>
@@ -896,7 +896,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 21 Oct 2024 07:55:33 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -905,7 +905,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 047c5eed-e875-4597-94d9-4eb7aabb462f
+      - 9084fd55-5204-4d8f-bf08-4dea4a44763c
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -930,7 +930,41 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 21 Oct 2024 07:55:33 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:35 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 9084fd55-5204-4d8f-bf08-4dea4a44763c
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 21 Oct 2024 09:52:35 GMT
 - request:
     method: get
     uri: http://backend:5352/build/source_project/_result?lastbuild=0&locallink=1&multibuild=1&package=package_a&view=status
@@ -939,7 +973,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 7ffcb582-1689-449b-92f7-3e8282eda9e2
+      - 2db5cf56-850d-4431-b639-ccfcfe1417a1
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -964,7 +998,7 @@ http_interactions:
       string: '<resultlist state="00000000000000000000000000000000"/>
 
 '
-  recorded_at: Mon, 21 Oct 2024 07:55:33 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:36 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/package_a
@@ -973,7 +1007,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - a548b1a6-9a97-4727-896c-b86fe4f8b29d
+      - b35accbf-a1fc-4dc1-a206-4aeed1fbf94d
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -992,19 +1026,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '404'
+      - '406'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="6" vrev="6" srcmd5="a09afa482a997030612d990e3b7733aa">
-          <entry name="README.txt" md5="2e6518277c9d443c0ae45a18ec0c0f1d" size="62" mtime="1729497327"/>
-          <entry name="package_a.changes" md5="3bf7f645ebf1daed37ac2524846a9e7c" size="14" mtime="1729496885"/>
-          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1729496885"/>
+        <directory name="package_a" rev="21" vrev="21" srcmd5="fafdb3cebde7662ca252456e669f6005">
+          <entry name="README.txt" md5="08c4f5154f4ac71662adaff8cbbea780" size="63" mtime="1729504347"/>
+          <entry name="package_a.changes" md5="3bf7f645ebf1daed37ac2524846a9e7c" size="14" mtime="1726738320"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1726738320"/>
         </directory>
-  recorded_at: Mon, 21 Oct 2024 07:55:34 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:37 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/source_project/package_a?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/source_project/package_a?cacheonly=1&cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -1012,7 +1046,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Request-Id:
-      - a548b1a6-9a97-4727-896c-b86fe4f8b29d
+      - b35accbf-a1fc-4dc1-a206-4aeed1fbf94d
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1027,7 +1061,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '1468'
+      - '1470'
       Cache-Control:
       - no-cache
       Connection:
@@ -1035,14 +1069,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="28b63c9ef03cfaa924b929d19d95b27b">
+        <sourcediff key="cc8cf8185ff82c911137d585cbc3b110">
           <old project="target_project" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="source_project" package="package_a" rev="6" srcmd5="a09afa482a997030612d990e3b7733aa"/>
+          <new project="source_project" package="package_a" rev="21" srcmd5="fafdb3cebde7662ca252456e669f6005"/>
           <files>
             <file state="added">
-              <new name="README.txt" md5="2e6518277c9d443c0ae45a18ec0c0f1d" size="62"/>
+              <new name="README.txt" md5="08c4f5154f4ac71662adaff8cbbea780" size="63"/>
               <diff lines="3">@@ -0,0 +1,1 @@
-        +Atque maxime aut. Libero non sunt. Asperiores ipsum molestias.
+        +Asperiores odio sunt. Assumenda et labore. Excepturi dolore et.
         \ No newline at end of file
         </diff>
             </file>
@@ -1089,5 +1123,39 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 21 Oct 2024 07:55:34 GMT
+  recorded_at: Mon, 21 Oct 2024 09:52:37 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - b35accbf-a1fc-4dc1-a206-4aeed1fbf94d
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 21 Oct 2024 09:52:37 GMT
 recorded_with: VCR 6.3.1
