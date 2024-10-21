@@ -106,7 +106,7 @@ Metrics/BlockNesting:
     - 'app/models/bs_request_action.rb'
     - 'lib/xpath_engine.rb'
 
-# Offense count: 85
+# Offense count: 86
 # Configuration parameters: CountComments, Max, CountAsOne.
 Metrics/ClassLength:
   Exclude:
@@ -143,6 +143,7 @@ Metrics/ClassLength:
     - 'app/models/bs_request_permission_check.rb'
     - 'app/models/buildresult.rb'
     - 'app/models/channel.rb'
+    - 'app/models/comment.rb'
     - 'app/models/event/base.rb'
     - 'app/models/event/request.rb'
     - 'app/models/group.rb'
