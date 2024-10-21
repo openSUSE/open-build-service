@@ -2895,7 +2895,11 @@ sub publish {
   # add state for external container registries
   my $container_state = '';
   if (%containers) {
-    $container_state = BSPublisher::Container::calculate_container_state($projid, $repoid, \%containers, $multicontainer);
+    my $data = {
+      'config' => $config,
+      'multiarch' => $multicontainer,
+    };
+    $container_state = BSPublisher::Container::calculate_container_state($projid, $repoid, \%containers, $data);
   }
 
   my $modulemds_state = '';
