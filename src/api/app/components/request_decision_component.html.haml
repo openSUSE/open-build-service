@@ -27,35 +27,71 @@
                             rows: 4, class: 'w-100 form-control mb-2 message-field')
           .tab-pane.fade{ id: 'preview_new_comment', role: 'tabpanel', 'aria-labelledby': 'preview-message-tab' }
             .comment-preview.message-preview.border-bottom.border-gray-300.my-3
-      - if single_action_request && @is_target_maintainer && @bs_request.state.in?([:new, :review])
-        - if show_add_submitter_as_maintainer_option?
-          .form-check.mb-2.mt-2
-            = check_box_tag('add_submitter_as_maintainer_0', "#{@action.target_project}_#_#{@action.target_package}",
-                            false,
-                            class: 'form-check-input')
-            %label.form-check-label{ for: 'add_submitter_as_maintainer_0' }
-              Add #{link_to(@bs_request.creator, user_path(@bs_request.creator))} as maintainer for
-              #{helpers.project_or_package_link(project: @action.target_project, package: @action.target_package, short: true)}
-        - if @action.type == 'submit'
-          - @action.forward.each_with_index do |forward, index|
-            .form-check.mb-2
-              = check_box_tag("forward-#{index}", "#{forward[:project]}_#_#{forward[:package]}", true, class: 'form-check-input')
-              %label.form-check-label{ for: "forward-#{index}" }
-                Forward submit request to
-                #{helpers.project_or_package_link(project: forward[:project], package: forward[:package], short: true)}
       .mt-2
+        - if policy(Comment.new(commentable:@bs_request)).create?
+          = submit_tag 'Add comment', class: 'btn btn-primary me-2', data: { disable_with: 'Creating comment...' }, name: 'commented'
         - if policy(@bs_request).revoke_request?
           = submit_tag 'Revoke request', name: 'revoked', class: 'btn btn-danger me-2', data: other_decision_confirmation('revoke')
+        - if policy(@bs_request).decline_request?
+          = submit_tag('Decline request', name: 'declined', class: 'btn btn-danger me-2', data: other_decision_confirmation('decline'),
+                        title: 'Decline the request, as the author of the request you can reopen it again.')
+        - if policy(@bs_request).accept_request?
+          -# Hidden checkbox input to flag make_maintainer option
+          - if accept_with_options_allowed? && show_add_submitter_as_maintainer_option?
+            .form-check.mb-2.mt-2.d-none
+              = check_box_tag('add_submitter_as_maintainer_0', "#{@action.target_project}_#_#{@action.target_package}",
+                              false, class: 'form-check-input')
+          -# Accept buttons
+          %span.dropdown.me-2
+            = button_tag('Accept', type: 'button', role: 'button', id: 'decision-buttons-group', class: 'btn btn-secondary dropdown-toggle',
+                          data: { 'bs-toggle': 'dropdown'}, aria: { 'haspopup': 'true', 'expanded': 'false' })
+            .dropdown-menu{ aria: { labelledby: 'decision-buttons-group' } }
+              -# Simple Accept request submit
+              = submit_tag('Accept request', name: 'accepted', class: 'btn-link dropdown-item', data: confirmation,
+                            title: 'Accept the request, this will apply the changes on the target.')
+              -# Accept and make maintainer submit
+              - if accept_with_options_allowed? && show_add_submitter_as_maintainer_option?
+                = submit_tag("Accept and make #{@bs_request.creator} maintainer of #{make_maintainer_of}",
+                            name: 'accepted',
+                            class: 'btn-link dropdown-item', data: confirmation,
+                            title: 'Accept the request. this will apply the changes on the target.',
+                            id: 'accept-and-make-maintainer')
+          -# Accept and forward buttons
+          - if forward_allowed?
+            %span.dropdown.me-2
+              = button_tag('Accept and Forward', type: 'button', role: 'button', id: 'decision-forward-buttons-group',
+                            class: 'btn btn-secondary dropdown-toggle',
+                            data: { 'bs-toggle': 'dropdown'}, aria: { 'haspopup': 'true', 'expanded': 'false' })
+              .dropdown-menu{ aria: { labelledby: 'decision-forward-buttons-group' } }
+                - @action.forward.each_with_index do |forward, index|
+                  .form-check.m-2
+                    = check_box_tag("forward-#{index}", "#{forward[:project]}_#_#{forward[:package]}", true,
+                                    class: 'form-check-input forward-check-inputs')
+                    %label.form-check-label{ for: "forward-#{index}" }
+                      Forward submit request to
+                      #{helpers.project_or_package_link(project: forward[:project], package: forward[:package], short: true)}
+                %hr.dropdown-divider
+                -# Accept and forward submit
+                = submit_tag('Accept and forward request to the selected projects ', name: 'accepted', class: 'btn-link dropdown-item',
+                              data: confirmation, title: 'Accept the request. this will apply the changes on the target.',
+                              id: 'accept-and-forward')
+                -# Accept and make maintainer and forward submit
+                - if show_add_submitter_as_maintainer_option?
+                  = submit_tag("Accept and make #{@bs_request.creator} maintainer of #{make_maintainer_of} and forward request to the selected projects",
+                                name: 'accepted', class: 'btn-link dropdown-item', data: confirmation,
+                                title: 'Accept the request. this will apply the changes on the target.',
+                                id: 'accept-and-make-maintainer-and-forward')
+
         - if policy(@bs_request).reopen_request?
           = submit_tag 'Reopen request', name: 'new', class: 'btn btn-warning me-2', data: other_decision_confirmation('reopen')
-        - if policy(@bs_request).accept_request?
-          - if policy(@bs_request).decline_request?
-            = submit_tag('Decline request', name: 'declined', title: 'Decline the request, as the author of the request you can reopen it again.',
-                        class: 'btn btn-danger me-2', data: other_decision_confirmation('decline'))
-          = submit_tag('Accept request', name: 'accepted', title: 'Accept the request, this will apply the changes on the target.',
-                      class: 'btn btn-primary me-2', data: confirmation)
-        - if policy(Comment.new(commentable:@bs_request)).create?
-          = submit_tag 'Add comment', class: 'btn btn-secondary me-2', data: { disable_with: 'Creating comment...' }, name: 'commented'
 
 :javascript
   attachPreviewMessageOnCommentBoxes();
+
+  // Check the proper checkbox behind the scene on different type of accept submit
+  $('#accept-and-make-maintainer').on('click', function(){
+    $('input[name=add_submitter_as_maintainer_0]').prop('checked', 'checked');
+  });
+  $('#accept-and-make-maintainer-and-forward').on('click', function(){
+    $('input[name=add_submitter_as_maintainer_0]').prop('checked', 'checked');
+  });
