@@ -25,9 +25,8 @@ class Webui::CommentsController < Webui::WebuiController
              status: status)
     else
       render(partial: 'webui/comment/comment_list',
-             locals: { commentable: @commentable, diff_ref: @comment.root.diff_ref },
-             status: status,
-             root_comment: @comment.root)
+             locals: { commentable: @commentable },
+             status: status)
     end
   end
 
@@ -52,7 +51,7 @@ class Webui::CommentsController < Webui::WebuiController
                  status: status)
         else
           render(partial: 'webui/comment/comment_list',
-                 locals: { commentable: @comment.commentable, diff_ref: @comment.root.diff_ref },
+                 locals: { commentable: @comment.commentable },
                  status: status)
         end
       end
@@ -96,7 +95,7 @@ class Webui::CommentsController < Webui::WebuiController
              locals: { comment: @comment.root, commentable: @commentable, level: 1, diff: diff },
              status: status)
     else
-      render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable, diff_ref: @comment.root.diff_ref }, status: status)
+      render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable }, status: status)
     end
   end
   # rubocop: enable Metrics/CyclomaticComplexity
@@ -128,9 +127,8 @@ class Webui::CommentsController < Webui::WebuiController
              status: status)
     else
       render(partial: 'webui/comment/comment_list',
-             locals: { commentable: @comment.commentable, diff_ref: @comment.root.diff_ref },
-             status: status,
-             root_comment: @comment.root)
+             locals: { commentable: @comment.commentable },
+             status: status)
     end
   end
 
