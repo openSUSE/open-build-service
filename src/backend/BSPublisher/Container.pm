@@ -132,10 +132,10 @@ sub default_container_mapper {
 }
 
 sub calculate_container_state {
-  my ($projid, $repoid, $containers, $multicontainer) = @_;
+  my ($projid, $repoid, $containers, $data) = @_;
   my @registries = registries_for_prp($projid, $repoid);
   my $container_state = '';
-  $container_state .= "//multi//" if $multicontainer;
+  $container_state .= "//multi//" if $data->{'multiarch'};
   my @cs;
   for my $registry (@registries) {
     my $regname = $registry->{'_name'};
@@ -143,8 +143,8 @@ sub calculate_container_state {
     for my $p (sort keys %$containers) {
       my $containerinfo = $containers->{$p};
       my $arch = $containerinfo->{'arch'};
-      my @tags = $mapper->($registry, $containerinfo, $projid, $repoid, $arch);
-      my $prefix = "$containerinfo->{'_id'}/$regname/$containerinfo->{'arch'}/";
+      my @tags = $mapper->($registry, $containerinfo, $projid, $repoid, $arch, $data->{'config'});
+      my $prefix = "$containerinfo->{'_id'}/$regname/$arch/";
       push @cs, map { "$prefix$_" } @tags;
     }
   }
@@ -204,7 +204,7 @@ sub upload_all_containers {
       my $containerinfo = $containers->{$p};
       my $platformstr = BSContar::make_platformstr($containerinfo->{'goarch'} || $containerinfo->{'arch'}, $containerinfo->{'govariant'}, $containerinfo->{'goos'});
       $platformstr = 'any' if ($containerinfo->{'type'} || '') eq 'helm' || ($containerinfo->{'type'} || '') eq 'artifacthub';
-      my @tags = $mapper->($registry, $containerinfo, $projid, $repoid, $containerinfo->{'arch'});
+      my @tags = $mapper->($registry, $containerinfo, $projid, $repoid, $containerinfo->{'arch'}, $data->{'config'});
       if ($tagdata) {
 	$tagdata->{$p}->{'platformstr'} = $platformstr;
 	$tagdata->{$p}->{'tags_seen'} = [ BSUtil::unify(map {/^(.*):([^:\/]+)$/ ? $_ : "$_:latest"} @tags) ];
