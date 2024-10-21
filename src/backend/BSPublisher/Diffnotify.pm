@@ -163,7 +163,7 @@ sub diffdata {
         ($r->{'package'}, $r->{'flavor'}) = ($1, $2);
       }
       # hack: try to get flavor from disturl for aggregated containers
-      $r->{'flavor'} = $1 if $r->{'flavor'} eq '' && $r->{'disturl'} && $r->{'disturl'} =~ /:([^:\/]+)/;
+      $r->{'flavor'} = $1 if $r->{'flavor'} eq '' && $r->{'disturl'} && $r->{'disturl'} =~ /:([^:\/]+)$/;
     }
     push @ret, $r;
   }
