@@ -52,9 +52,9 @@
           = submit_tag('Decline request', name: 'declined', title: 'Decline the request, as the author of the request you can reopen it again.',
                       class: 'btn btn-danger me-2', data: other_decision_confirmation('decline'))
         = submit_tag('Accept request', name: 'accepted', title: 'Accept the request, this will apply the changes on the target.',
-                    class: 'btn btn-secondary me-2', data: confirmation)
+                    class: 'btn btn-primary me-2', data: confirmation)
       - if policy(Comment.new(commentable:@bs_request)).create?
-        = submit_tag 'Add comment', class: 'btn btn-primary me-2', data: { disable_with: 'Creating comment...' }, name: 'commented'
+        = submit_tag 'Add comment', class: 'btn btn-secondary me-2', data: { disable_with: 'Creating comment...' }, name: 'commented'
 
 :javascript
   attachPreviewMessageOnCommentBoxes();
