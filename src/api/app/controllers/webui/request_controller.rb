@@ -209,8 +209,7 @@ class Webui::RequestController < Webui::WebuiController
 
     if changestate == 'commented'
 
-      build_new_comment(BsRequest.find_by(number: params[:number]),
-                        body: params[:reason])
+      build_new_comment(@bs_request, body: params[:reason])
 
     elsif change_state(changestate, params)
       # TODO: Make this work for each submit action individually
