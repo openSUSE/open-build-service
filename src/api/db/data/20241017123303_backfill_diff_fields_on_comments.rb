@@ -2,7 +2,7 @@
 
 class BackfillDiffFieldsOnComments < ActiveRecord::Migration[7.0]
   def up
-    Comment.where.not(diff_ref: nil).where(diff_file_index: nil).in_batches do |batch|
+    Comment.where.not(diff_ref: [nil, '']).where(diff_file_index: nil).in_batches do |batch|
       batch.find_each do |comment|
         diff_file_index, diff_line_number = comment.diff_ref.match(/diff_([0-9]+)_n([0-9]+)/).captures
 
