@@ -28,6 +28,7 @@
 %global apache_confdir /etc/httpd
 %global apache_vhostdir %{apache_confdir}/conf.d
 %global apache_logdir /var/log/httpd
+%global apache_datadir /srv/www
 %define apache_group_requires Requires(pre):  httpd
 %global apache_requires \
 Requires:       httpd\
@@ -42,7 +43,7 @@ Requires:       rubygem-rails\
 %define __obs_ruby_bin /usr/bin/ruby
 %define __obs_bundle_bin /usr/bin/bundle
 %define __obs_rake_bin /usr/bin/rake
-%define __obs_document_root /srv/www/obs
+%define __obs_document_root %{apache_datadir}/obs
 %define __obs_api_prefix %{__obs_document_root}/api
 %define __obs_build_package_name obs-build
 
@@ -52,6 +53,7 @@ Requires:       rubygem-rails\
 %global apache_confdir /etc/apache2
 %global apache_vhostdir %{apache_confdir}/vhosts.d
 %global apache_logdir /var/log/apache2
+%global apache_datadir /srv/www
 %if 0%{?suse_version} < 1500
 %define apache_group_requires Requires(pre):  apache2
 %else
@@ -69,7 +71,7 @@ Requires:       ruby(abi) = %{__obs_ruby_abi_version}\
 %define __obs_ruby_bin /usr/bin/ruby.ruby3.1
 %define __obs_bundle_bin /usr/bin/bundle.ruby3.1
 %define __obs_rake_bin /usr/bin/rake.ruby3.1
-%define __obs_document_root /srv/www/obs
+%define __obs_document_root %{apache_datadir}/obs
 %define __obs_api_prefix %{__obs_document_root}/api
 %define __obs_build_package_name build
 
@@ -991,6 +993,7 @@ usermod -a -G docker obsservicerun
 %config(noreplace) %{__obs_api_prefix}/config/thinking_sphinx.yml
 %attr(-,%{apache_user},%{apache_group}) %config(noreplace) %{__obs_api_prefix}/config/production.sphinx.conf
 
+%dir %{apache_datadir}
 %dir %{__obs_document_root}
 %dir %{__obs_api_prefix}
 %dir %{__obs_api_prefix}/config
