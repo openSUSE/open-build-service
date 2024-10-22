@@ -13,7 +13,6 @@ class Comment < ApplicationRecord
   validates :body, length: { maximum: 65_535 }
   validates :body, format: { with: /\A[^\u0000]*\Z/,
                              message: 'must not contain null characters' }
-  validates :diff_ref, length: { maximum: 255 }
   validates :source_rev, length: { maximum: 32 }
   validates :target_rev, length: { maximum: 32 }
 
@@ -156,7 +155,6 @@ end
 #  commentable_type :string(255)      indexed => [commentable_id]
 #  diff_file_index  :integer
 #  diff_line_number :integer
-#  diff_ref         :string(255)
 #  moderated_at     :datetime
 #  source_rev       :string(255)
 #  target_rev       :string(255)

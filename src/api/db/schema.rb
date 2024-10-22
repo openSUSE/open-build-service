@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_10_17_103843) do
+ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -370,7 +370,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_17_103843) do
     t.integer "user_id", null: false
     t.string "commentable_type"
     t.integer "commentable_id"
-    t.string "diff_ref"
     t.datetime "moderated_at"
     t.integer "moderator_id"
     t.integer "diff_file_index"
