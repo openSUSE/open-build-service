@@ -17,7 +17,7 @@ RSpec.describe 'Comments with diff', :js, :vcr do
            source_package: source_package)
   end
 
-  let!(:comment) { create(:comment, commentable: bs_request.bs_request_actions.first, diff_ref: 'diff_0_n1', user: admin) }
+  let!(:comment) { create(:comment, commentable: bs_request.bs_request_actions.first, diff_file_index: 0, diff_line_number: 1, user: admin) }
 
   context 'reply comment' do
     describe 'when under the beta program' do
