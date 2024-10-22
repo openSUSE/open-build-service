@@ -76,9 +76,10 @@ class Webui::CommentsController < Webui::WebuiController
              end
 
     if Flipper.enabled?(:request_show_redesign, User.session) && %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
-      if @comment.commentable_type == 'BsRequestAction' && Comment.where(commentable: @comment.commentable, diff_ref: @comment.root.diff_ref).count.zero?
+      if @comment.commentable_type == 'BsRequestAction' &&
+         Comment.where(commentable: @comment.commentable, diff_file_index: @comment.root.diff_file_index, diff_line_number: @comment.root.diff_line_number).count.zero?
         return render(partial: 'webui/request/add_inline_comment',
-                      locals: { commentable: @comment.root.commentable, diff_ref: @comment.root.diff_ref },
+                      locals: { commentable: @comment.root.commentable, diff_file_index: @comment.root.diff_file_index, diff_line_number: @comment.root.diff_line_number },
                       status: status)
       end
       # if we're a root comment with no replies there is no need to re-render anything
@@ -91,9 +92,7 @@ class Webui::CommentsController < Webui::WebuiController
       return head(:ok) if !@comment.root? && @comment.ancestors.all?(&:destroyed?)
 
       # if we're a reply or a comment with replies we should re-render the updated thread
-      render(partial: 'webui/comment/beta/comments_thread',
-             locals: { comment: @comment.root, commentable: @commentable, level: 1, diff: diff },
-             status: status)
+      render(partial: 'webui/comment/beta/comments_thread', locals: { comment: @comment.root, commentable: @commentable, level: 1, diff: diff }, status: status)
     else
       render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable }, status: status)
     end
@@ -170,12 +169,11 @@ class Webui::CommentsController < Webui::WebuiController
   end
 
   def diff
-    return unless @comment.root.commentable_type == 'BsRequestAction' && @comment.root.diff_ref
-    return unless (ref = @comment.root.diff_ref&.match(/diff_([0-9]+)/))
+    return unless @comment.root.commentable_type == 'BsRequestAction'
+    return unless @comment.root.diff_file_index
 
     sourcediff = @comment.root.commentable.webui_sourcediff(rev: @comment.root.source_rev, orev: @comment.root.target_rev).first
-    file_index = ref.captures.first
-    filename = sourcediff.dig('filenames', file_index.to_i)
+    filename = sourcediff.dig('filenames', @comment.root.diff_file_index)
     sourcediff.dig('files', filename)
   end
 end

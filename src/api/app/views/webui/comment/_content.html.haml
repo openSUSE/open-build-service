@@ -19,10 +19,9 @@
       - unless sourcediff[:error]
         :ruby
           target = "#{comment.commentable.target_project}/#{comment.commentable.target_package}"
-          file_index, line_number = comment.diff_ref.match(/diff_([0-9]+)_n([0-9]+)/).captures
-          filename = sourcediff['filenames'][file_index.to_i]
+          filename = sourcediff['filenames'][comment.diff_file_index.to_i]
         %p
-          %i Inline comment for target: '#{target}', file: '#{filename}', and line: #{line_number}.
+          %i Inline comment for target: '#{target}', file: '#{filename}', and line: #{comment.diff_line_number}.
     = render ReportsNoticeComponent.new(reportable: comment, user: User.session)
     = render_as_markdown(comment)
     = render partial: 'webui/comment/reply', locals: { comment: comment, level: 0, commentable: comment.commentable }

@@ -22,7 +22,7 @@ class CommentComponent < ApplicationComponent
   end
 
   def body
-    return inline_comment_body if comment.commentable.is_a?(BsRequestAction) && comment.diff_ref.present?
+    return inline_comment_body if comment.commentable.is_a?(BsRequestAction) && comment.diff_file_index
 
     comment.body.delete("\u0000")
   end
@@ -37,9 +37,8 @@ class CommentComponent < ApplicationComponent
     return comment.body if sourcediff[:error]
 
     target = "#{comment.commentable.target_project}/#{comment.commentable.target_package}"
-    file_index, line_number = comment.diff_ref.match(/diff_([0-9]+)_n([0-9]+)/).captures
-    filename = sourcediff['filenames'][file_index.to_i]
+    filename = sourcediff['filenames'][comment.diff_file_index]
 
-    "Inline comment for target: '#{target}', file: '#{filename}', and line: #{line_number}:\n\n#{comment.body}"
+    "Inline comment for target: '#{target}', file: '#{filename}', and line: #{comment.diff_line_number}:\n\n#{comment.body}"
   end
 end
