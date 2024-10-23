@@ -167,7 +167,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       # it is fine to have new packages
       branch_params[:missingok] = 1 unless Package.exists_by_project_and_name(branch_params[:project], package_name)
       ret = BranchPackage.new(branch_params).branch
-      new_pkg = Package.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
+      new_pkg = Package.get_by_project_and_name(ret[:data][:target_project], ret[:data][:target_package])
 
       # use link target as fallback
     elsif linkinfo && !linkinfo['missingok']
@@ -183,7 +183,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
                         comment: 'Initial new branch',
                         project: linked_project, package: linked_package }
       ret = BranchPackage.new(branch_params).branch
-      new_pkg = Package.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
+      new_pkg = Package.get_by_project_and_name(ret[:data][:target_project], ret[:data][:target_package])
     elsif linkinfo && linkinfo['package'] # a new package for all targets
       if Package.exists_by_project_and_name(incident_project.name, source_package, follow_project_links: false)
         new_pkg = Package.get_by_project_and_name(incident_project.name, source_package, use_source: false, follow_project_links: false)
