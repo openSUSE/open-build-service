@@ -5,5 +5,20 @@ post:
     only allows API tokens with the operation 'rebuild' to be triggered.
   security:
     - GitLab_key_authentication: []
+  parameters:
+    - in: query
+      name: repository
+      description: |
+        Restrict the rebuild to this repository.
+      schema:
+        type: string
+      example: openSUSE_Factory
+    - in: query
+      name: arch
+      description: |
+        Restrict the rebuild to this scheduler architecture.
+      schema:
+        type: string
+      example: x86_64
   tags:
     - Trigger
