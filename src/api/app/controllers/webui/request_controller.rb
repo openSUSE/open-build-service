@@ -29,11 +29,9 @@ class Webui::RequestController < Webui::WebuiController
   before_action :cache_diff_data, only: %i[beta_show build_results rpm_lint changes mentioned_issues],
                                   if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :check_beta_user_redirect, only: %i[beta_show build_results rpm_lint changes mentioned_issues]
-  before_action :redirect_to_tasks, only: [:index], unless: -> { Flipper.enabled?(:request_index, User.session) }
   before_action :set_filter_involvement, :set_filter_state, :set_filter_action_type, :set_filter_creators,
-                :filter_requests, :set_selected_filter, only: [:index], if: lambda {
-                                                                              Flipper.enabled?(:request_index, User.session)
-                                                                            }
+                :filter_requests, :set_selected_filter, only: [:index]
+
   after_action :verify_authorized, only: [:create]
 
   def index
