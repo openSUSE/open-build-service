@@ -3,8 +3,6 @@ class Webui::RequestController < Webui::WebuiController
   include Webui::RequestsFilter
   include BuildNewComment
 
-  ALLOWED_INVOLVEMENTS = %w[all incoming outgoing].freeze
-
   helper 'webui/package'
 
   before_action :require_login,
@@ -340,25 +338,6 @@ class Webui::RequestController < Webui::WebuiController
 
   def redirect_to_tasks
     redirect_to my_tasks_path
-  end
-
-  def set_filter_involvement
-    @filter_involvement = params[:involvement].presence || 'all'
-    @filter_involvement = 'all' if ALLOWED_INVOLVEMENTS.exclude?(@filter_involvement)
-  end
-
-  def set_filter_state
-    @filter_state = params[:state].presence || []
-    @filter_state = @filter_state.intersection(BsRequest::VALID_REQUEST_STATES.map(&:to_s))
-  end
-
-  def set_filter_action_type
-    @filter_action_type = params[:action_type].presence || []
-    @filter_action_type = @filter_action_type.intersection(BsRequestAction::TYPES)
-  end
-
-  def set_filter_creators
-    @filter_creators = params[:creators].presence || []
   end
 
   def filter_requests
