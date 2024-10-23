@@ -30,7 +30,7 @@ class Webui::RequestController < Webui::WebuiController
                                   if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :check_beta_user_redirect, only: %i[beta_show build_results rpm_lint changes mentioned_issues]
   before_action :redirect_to_tasks, only: [:index], unless: -> { Flipper.enabled?(:request_index, User.session) }
-  before_action :set_requests, :set_filter_involvement, :set_filter_state, :set_filter_action_type, :set_filter_creators,
+  before_action :set_filter_involvement, :set_filter_state, :set_filter_action_type, :set_filter_creators,
                 :filter_requests, :set_selected_filter, only: [:index], if: lambda {
                                                                               Flipper.enabled?(:request_index, User.session)
                                                                             }
@@ -336,10 +336,6 @@ class Webui::RequestController < Webui::WebuiController
 
   def redirect_to_tasks
     redirect_to my_tasks_path
-  end
-
-  def set_requests
-    @bs_requests = BsRequest.all
   end
 
   def set_filter_involvement
