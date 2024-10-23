@@ -1,4 +1,4 @@
-.request-decision
+.request-decision.mt-n1
   = form_tag({ action: 'changerequest' }, id: 'request_handle_form', class: 'write-and-preview',
     data: { preview_message_url: preview_comments_path, message_body_param: 'comment[body]' }) do
     = hidden_field_tag(:number, @bs_request.number)
@@ -8,7 +8,7 @@
           Commenting on this is locked.
           - if CommentLockPolicy.new(User.session, @bs_request).create?
             = helpers.comment_lock_alert(@bs_request)
-      .card.rounded-0.rounded-bottom
+      .card
         %ul.card-header.nav.nav-tabs.px-3.pt-2.pb-0.disable-link-generation{ role: 'tablist' }
           %li.nav-item
             = link_to('Write', "#write_new_comment", class: 'nav-link active', data: { 'bs-toggle': 'tab' },
