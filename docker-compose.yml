@@ -25,6 +25,20 @@ services:
     depends_on:
       - backend
     command: /obs/contrib/start_development_worker
+  ldap:
+    image: registry.opensuse.org/opensuse/openldap:2.6.7
+    environment:
+      - LDAP_ADMIN_PASSWORD=opensuse
+      - LDAP_CONFIG_PASSWORD=config
+    ports:
+      - "389:389"
+      - "636:636"
+  ldap-admin:
+    image: osixia/phpldapadmin:0.9.0
+    environment:
+      - PHPLDAPADMIN_LDAP_HOSTS=ldap
+    ports:
+      - "6443:443"
   frontend:
     image: openbuildservice/frontend
     command: foreman start -p 3000
@@ -43,3 +57,5 @@ services:
       - cache
       - backend
       - worker
+      - ldap
+      - ldap-admin
