@@ -29,12 +29,18 @@ class Webui::RequestController < Webui::WebuiController
   before_action :cache_diff_data, only: %i[beta_show build_results rpm_lint changes mentioned_issues],
                                   if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :check_beta_user_redirect, only: %i[beta_show build_results rpm_lint changes mentioned_issues]
-  before_action :set_filter_involvement, :set_filter_state, :set_filter_action_type, :set_filter_creators,
-                :filter_requests, :set_selected_filter, only: [:index]
 
   after_action :verify_authorized, only: [:create]
 
   def index
+    set_filter_involvement
+    set_filter_state
+    set_filter_action_type
+    set_filter_creators
+
+    filter_requests
+    set_selected_filter
+
     @bs_requests = @bs_requests.order('number DESC').page(params[:page])
     @bs_requests_creators = @bs_requests.distinct.pluck(:creator)
   end
