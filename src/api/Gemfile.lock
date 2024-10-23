@@ -507,8 +507,8 @@ GEM
     uri (0.13.1)
     vcr (6.3.1)
       base64
-    view_component (3.18.0)
-      activesupport (>= 5.2.0, < 8.0)
+    view_component (3.19.0)
+      activesupport (>= 5.2.0, < 8.1)
       concurrent-ruby (~> 1.0)
       method_source (~> 1.0)
     voight_kampff (2.0.0)
