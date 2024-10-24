@@ -44,8 +44,6 @@ namespace :dev do
       require 'factory_bot'
       include FactoryBot::Syntax::Methods
 
-      puts 'Taking decisions regarding some reports'
-
       # This automatically subscribes everyone to the cleared and favored decision events
       EventSubscription.create!(eventtype: Event::ClearedDecision.name, channel: :web, receiver_role: :reporter, enabled: true)
       EventSubscription.create!(eventtype: Event::FavoredDecision.name, channel: :web, receiver_role: :reporter, enabled: true)

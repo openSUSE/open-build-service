@@ -10,8 +10,6 @@ namespace :dev do
       include FactoryBot::Syntax::Methods
 
       repetitions.times do
-        puts 'Creating a request with multiple actions...'
-
         admin = User.default_admin
         User.session = admin
         iggy = User.find_by(login: 'Iggy') || create(:staff_user, login: 'Iggy')
