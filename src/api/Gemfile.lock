@@ -371,7 +371,7 @@ GEM
       zeitwerk (~> 2.5)
     rainbow (3.1.1)
     rake (13.0.6)
-    rantly (2.0.0)
+    rantly (3.0.0)
     rbtree (0.4.6)
     rbtree3 (0.7.1)
     redcarpet (3.6.0)
