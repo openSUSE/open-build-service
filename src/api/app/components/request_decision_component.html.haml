@@ -43,18 +43,19 @@
               %label.form-check-label{ for: "forward-#{index}" }
                 Forward submit request to
                 #{helpers.project_or_package_link(project: forward[:project], package: forward[:package], short: true)}
-      - if policy(@bs_request).revoke_request?
-        = submit_tag 'Revoke request', name: 'revoked', class: 'btn btn-danger me-2', data: other_decision_confirmation('revoke')
-      - if policy(@bs_request).reopen_request?
-        = submit_tag 'Reopen request', name: 'new', class: 'btn btn-warning me-2', data: other_decision_confirmation('reopen')
-      - if policy(@bs_request).accept_request?
-        - if policy(@bs_request).decline_request?
-          = submit_tag('Decline request', name: 'declined', title: 'Decline the request, as the author of the request you can reopen it again.',
-                      class: 'btn btn-danger me-2', data: other_decision_confirmation('decline'))
-        = submit_tag('Accept request', name: 'accepted', title: 'Accept the request, this will apply the changes on the target.',
-                    class: 'btn btn-primary me-2', data: confirmation)
-      - if policy(Comment.new(commentable:@bs_request)).create?
-        = submit_tag 'Add comment', class: 'btn btn-secondary me-2', data: { disable_with: 'Creating comment...' }, name: 'commented'
+      .mt-2
+        - if policy(@bs_request).revoke_request?
+          = submit_tag 'Revoke request', name: 'revoked', class: 'btn btn-danger me-2', data: other_decision_confirmation('revoke')
+        - if policy(@bs_request).reopen_request?
+          = submit_tag 'Reopen request', name: 'new', class: 'btn btn-warning me-2', data: other_decision_confirmation('reopen')
+        - if policy(@bs_request).accept_request?
+          - if policy(@bs_request).decline_request?
+            = submit_tag('Decline request', name: 'declined', title: 'Decline the request, as the author of the request you can reopen it again.',
+                        class: 'btn btn-danger me-2', data: other_decision_confirmation('decline'))
+          = submit_tag('Accept request', name: 'accepted', title: 'Accept the request, this will apply the changes on the target.',
+                      class: 'btn btn-primary me-2', data: confirmation)
+        - if policy(Comment.new(commentable:@bs_request)).create?
+          = submit_tag 'Add comment', class: 'btn btn-secondary me-2', data: { disable_with: 'Creating comment...' }, name: 'commented'
 
 :javascript
   attachPreviewMessageOnCommentBoxes();
