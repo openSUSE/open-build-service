@@ -2418,6 +2418,10 @@ sub publish {
 	  $kiwimedium = "$arch/$1" if $bin =~ /(.+)ONIE\.bin$/;
 	} elsif ($bin =~ /(.*)\.raw(?:\.install)?(?:\.(?:gz|bz2|xz|zst|zstd))?(?:\.sha256(?:\.asc)?)?$/) {
 	  $p = $bin;
+	  if (my @files = glob("$r/mkosi.*")) {
+		# mkosi image names don't include the arch
+		$p = "$arch/$bin";
+	  }
 	  $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
 	  $kiwimedium = "$arch/$1" if !$2 && -e "$r/$1.packages";
 	} elsif ($bin =~ /(.*)\.install.tar?(?:\.sha256(?:\.asc)?)?$/) {
