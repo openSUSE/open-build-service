@@ -4,7 +4,7 @@ class SourceProjectController < SourceController
   # GET /source/:project
   def show
     project_name = params[:project]
-    if params.key?(:deleted)
+    if params[:deleted] == '1'
       unless Project.find_by_name(project_name) || Project.is_remote_project?(project_name)
         # project is deleted or not accessible
         validate_visibility_of_deleted_project(project_name)
@@ -21,6 +21,10 @@ class SourceProjectController < SourceController
 
     @project = Project.find_by_name(project_name)
     raise Project::UnknownObjectError, "Project not found: #{project_name}" unless @project
+
+    pass_to_backend
+
+    return if @project.scmsync.present?
 
     # we let the backend list the packages after we verified the project is visible
     if params.key?(:view)
@@ -52,7 +56,8 @@ class SourceProjectController < SourceController
   end
 
   def render_project_packages
-    @packages = params.key?(:expand) ? @project.expand_all_packages : @project.packages.pluck(:name)
+    # TODO: Display multibuild flavors when passing the expand param
+    @packages = params.key?(:expand) ? @project.expand_all_packages : @project.packages.sort_by(&:name)
     render locals: { expand: params.key?(:expand) }, formats: [:xml]
   end
 
