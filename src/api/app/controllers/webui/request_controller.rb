@@ -3,8 +3,6 @@ class Webui::RequestController < Webui::WebuiController
   include Webui::RequestsFilter
   include BuildNewComment
 
-  ALLOWED_INVOLVEMENTS = %w[all incoming outgoing].freeze
-
   helper 'webui/package'
 
   before_action :require_login,
@@ -29,14 +27,18 @@ class Webui::RequestController < Webui::WebuiController
   before_action :cache_diff_data, only: %i[beta_show build_results rpm_lint changes mentioned_issues],
                                   if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :check_beta_user_redirect, only: %i[beta_show build_results rpm_lint changes mentioned_issues]
-  before_action :redirect_to_tasks, only: [:index], unless: -> { Flipper.enabled?(:request_index, User.session) }
-  before_action :set_requests, :set_filter_involvement, :set_filter_state, :set_filter_action_type, :set_filter_creators,
-                :filter_requests, :set_selected_filter, only: [:index], if: lambda {
-                                                                              Flipper.enabled?(:request_index, User.session)
-                                                                            }
+
   after_action :verify_authorized, only: [:create]
 
   def index
+    set_filter_involvement
+    set_filter_state
+    set_filter_action_type
+    set_filter_creators
+
+    filter_requests
+    set_selected_filter
+
     @bs_requests = @bs_requests.order('number DESC').page(params[:page])
     @bs_requests_creators = @bs_requests.distinct.pluck(:creator)
   end
@@ -336,29 +338,6 @@ class Webui::RequestController < Webui::WebuiController
 
   def redirect_to_tasks
     redirect_to my_tasks_path
-  end
-
-  def set_requests
-    @bs_requests = BsRequest.all
-  end
-
-  def set_filter_involvement
-    @filter_involvement = params[:involvement].presence || 'all'
-    @filter_involvement = 'all' if ALLOWED_INVOLVEMENTS.exclude?(@filter_involvement)
-  end
-
-  def set_filter_state
-    @filter_state = params[:state].presence || []
-    @filter_state = @filter_state.intersection(BsRequest::VALID_REQUEST_STATES.map(&:to_s))
-  end
-
-  def set_filter_action_type
-    @filter_action_type = params[:action_type].presence || []
-    @filter_action_type = @filter_action_type.intersection(BsRequestAction::TYPES)
-  end
-
-  def set_filter_creators
-    @filter_creators = params[:creators].presence || []
   end
 
   def filter_requests

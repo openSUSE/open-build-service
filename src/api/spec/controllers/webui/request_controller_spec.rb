@@ -29,7 +29,6 @@ RSpec.describe Webui::RequestController, :vcr do
 
   describe 'GET #index' do
     before do
-      Flipper.enable(:request_index)
       bs_request
       request_with_review
       login receiver
