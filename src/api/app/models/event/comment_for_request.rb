@@ -3,7 +3,7 @@ module Event
     include CommentEvent
     self.message_bus_routing_key = 'request.comment'
     self.description = 'New comment for request created'
-    payload_keys :request_number, :diff_file_index, :diff_line_number, :diff_ref
+    payload_keys :request_number, :diff_file_index, :diff_line_number
     receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_project_watcher, :target_project_watcher,
                    :source_package_watcher, :target_package_watcher, :request_watcher
 

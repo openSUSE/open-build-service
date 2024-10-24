@@ -4,7 +4,6 @@ data: { preview_message_url: preview_comments_path, message_body_param: 'comment
   = hidden_field_tag :commentable_type, commentable.class.name, { id: "#{element_suffix}_commentable_type" }
   = hidden_field_tag :commentable_id, commentable.id, { id: "#{element_suffix}_commentable_id" }
   - if defined?(file_index)
-    = f.hidden_field :diff_ref, value: line, id: "#{element_suffix}_diff_ref"
     = f.hidden_field :diff_file_index, value: file_index, id: "#{element_suffix}_diff_file_index"
     = f.hidden_field :diff_line_number, value: line_number, id: "#{element_suffix}_diff_line_number"
   - if defined?(source_rev) && defined?(target_rev)
