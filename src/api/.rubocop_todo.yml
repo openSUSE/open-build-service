@@ -165,6 +165,7 @@ Metrics/ClassLength:
     - 'app/models/user_ldap_strategy.rb'
     - 'app/models/workflow/step/branch_package_step.rb'
     - 'app/services/user_service/involved.rb'
+    - 'app/services/diff_parser.rb'
     - 'db/migrate/20230727110437_migrate_to_utf8mb4.rb'
     - 'lib/xpath_engine.rb'
     - 'test/functional/attributes_test.rb'

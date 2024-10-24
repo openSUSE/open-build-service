@@ -35,6 +35,7 @@ class DiffParser
 
   private
 
+  # rubocop:disable Metrics/CyclomaticComplexity
   def generate_inline_diffs
     @blocks.each do |block|
       next unless added_and_removed?(block)
@@ -46,10 +47,16 @@ class DiffParser
 
       block.zip(processed_lines) do |line, content|
         sign = line.state == 'added' ? '+' : '-'
+
+        # Known scenario https://github.com/openSUSE/open-build-service/pull/17006
+        # Log if a different unexpected scenario happen instead
+        Rails.logger.warn "generate_inline_diffs: content is nil - line='#{line.to_json}'" if content.nil? && line.content != '+'
+
         line.content = "#{sign}#{content}" unless full_line_diff(content)
       end
     end
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   def added_and_removed?(block)
     block.any? { |l| l.state == 'added' } && block.any? { |l| l.state == 'removed' }
@@ -61,6 +68,7 @@ class DiffParser
   end
 
   def full_line_diff(line)
+    return false unless line
     return false unless line.start_with?('<')
     return false unless line.end_with?(">\n", '>')
     return false unless line.scan(/<.*?>/).size == 2
