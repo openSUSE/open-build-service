@@ -30,8 +30,6 @@ namespace :dev do
       end
 
       repetitions.times do |repetition|
-        puts 'Creating entries for which a notification is automatically generated...'
-
         package_name = "package_#{Time.now.to_i}_#{repetition}"
         admin_package = create(:package_with_file, name: package_name, project: admin_home_project)
         requestor_package = create(:package_with_file, name: admin_package.name, project: requestor_project)
