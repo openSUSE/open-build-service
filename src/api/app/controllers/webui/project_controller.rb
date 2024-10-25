@@ -4,6 +4,7 @@ class Webui::ProjectController < Webui::WebuiController
   include Webui::ManageRelationships
   include Webui::NotificationsHandler
   include Webui::ProjectBuildResultParsing
+  include Webui::RequestsFilter
 
   before_action :lockout_spiders, only: %i[requests buildresults]
 
@@ -223,8 +224,15 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def requests
-    @default_request_type = params[:type] if params[:type]
-    @default_request_state = params[:state] if params[:state]
+    set_filter_involvement
+    set_filter_state
+    set_filter_action_type
+    set_filter_creators
+    filter_requests
+    set_selected_filter
+
+    @bs_requests = @bs_requests.order('number DESC').page(params[:page])
+    @bs_requests_creators = @bs_requests.distinct.pluck(:creator)
   end
 
   def restore
@@ -480,5 +488,28 @@ class Webui::ProjectController < Webui::WebuiController
     @project = Project.get_by_name(params['project'])
   rescue Project::UnknownObjectError
     @project = nil
+  end
+
+  def filter_requests
+    case params[:involvement]
+    when 'incoming'
+      ids = OpenRequestsFinder.new(BsRequest, @project.name).incoming_requests(@project.open_requests.values.sum).ids
+      params[:ids] = ids
+    when 'outgoing'
+      ids = OpenRequestsFinder.new(BsRequest, @project.name).outgoing_requests(@project.open_requests.values.sum).ids
+      params[:ids] = ids
+    end
+
+    params[:user] = @filter_creators if @filter_creators.present?
+    params[:states] = @filter_state if @filter_state.present?
+    params[:types] = @filter_action_type if @filter_action_type.present?
+    params[:search] = params[:requests_search_text] if params[:requests_search_text].present?
+
+    @bs_requests = BsRequest::FindFor::Query.new(params).all
+  end
+
+  def set_selected_filter
+    @selected_filter = { involvement: @filter_involvement, action_type: @filter_action_type, search_text: params[:requests_search_text],
+                         state: @filter_state, creators: @filter_creators }
   end
 end
