@@ -59,6 +59,7 @@ constraints(RoutesHelper::WebuiMatcher) do
   resources :package, only: [:index], controller: 'webui/package', constraints: cons
   controller 'webui/requests_listing' do
     get 'requests', action: :index, constraints: cons, as: 'requests'
+    get 'project/requests/:project', action: :index, constraints: cons, as: 'project_requests'
   end
 
   controller 'webui/packages/build_log' do

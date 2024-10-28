@@ -1,4 +1,4 @@
-- @pagetitle = requests_listing_pagetitle
+- @pagetitle = requests_listing_pagetitle(@project)
 
 = form_for(:request, url: @url, method: :get, id: 'requests-filter-form') do |form|
   .row
