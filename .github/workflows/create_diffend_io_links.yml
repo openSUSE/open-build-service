@@ -18,8 +18,8 @@ jobs:
         run: |
           # Receive added and removed file names from the git diff, filter out everything besides the gem files and receive
           # the basename without the gem file extension
-          ADDED_GEMS=( $(git diff --name-only --diff-filter=A origin/${GITHUB_BASE_REF} $GITHUB_SHA | grep .gem$ | xargs basename -s .gem) )
-          REMOVED_GEMS=( $(git diff --name-only --diff-filter=D origin/${GITHUB_BASE_REF} $GITHUB_SHA | grep .gem$ | xargs basename -s .gem) )
+          ADDED_GEMS=( $(git diff --name-only --diff-filter=A origin/${GITHUB_BASE_REF} $GITHUB_SHA | grep .gem$ | xargs -r basename -s .gem) )
+          REMOVED_GEMS=( $(git diff --name-only --diff-filter=D origin/${GITHUB_BASE_REF} $GITHUB_SHA | grep .gem$ | xargs -r basename -s .gem) )
 
           COMMENT_TEXT="Please see the links listed bellow to review the changes applied to the gems:"$'\n'
 
