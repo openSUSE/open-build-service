@@ -34,14 +34,14 @@ module Webui::RequestsFilter
     BsRequest.where(id: BsRequest.search_for_ids(text, per_page: TEXT_SEARCH_MAX_RESULTS))
   end
 
-  def filter_by_involvement(requests, filter_involvement)
+  def filter_by_involvement(filter_involvement)
     case filter_involvement
     when 'all'
-      requests.where(id: User.session.requests)
+      User.session.requests
     when 'incoming'
-      requests.where(id: User.session.incoming_requests)
+      User.session.incoming_requests
     when 'outgoing'
-      requests.where(id: User.session.outgoing_requests)
+      User.session.outgoing_requests
     end
   end
 end
