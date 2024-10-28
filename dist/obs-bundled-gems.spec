@@ -127,6 +127,8 @@ bundle config build.sassc --disable-march-tune-native
 bundle config build.nio4r --with-cflags='%{optflags} -Wno-return-type'
 bundle config force_ruby_platform true
 bundle config set --local path %{buildroot}%_libdir/obs-api/
+# patched gem with the fies from devel:languages:ruby:extensions
+cp %{_sourcedir}/open-build-service-*/dist/ruby-ldap-0.9.20.gem %{_sourcedir}/open-build-service-*/src/api/vendor/cache
 
 bundle install --local
 popd
