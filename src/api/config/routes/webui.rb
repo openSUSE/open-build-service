@@ -57,6 +57,9 @@ constraints(RoutesHelper::WebuiMatcher) do
   end
 
   resources :package, only: [:index], controller: 'webui/package', constraints: cons
+  controller 'webui/requests_listing' do
+    get 'requests', action: :index, constraints: cons, as: 'requests'
+  end
 
   controller 'webui/packages/build_log' do
     get 'package/live_build_log/:project/:package/:repository/:arch' => :live_build_log, constraints: cons, as: 'package_live_build_log'
@@ -353,7 +356,7 @@ constraints(RoutesHelper::WebuiMatcher) do
     get 'request/:number/complete_build_results' => :complete_build_results, as: 'request_complete_build_results', constraints: cons
   end
 
-  resources :requests, only: [:index], param: :number, controller: 'webui/request' do
+  resources :requests, only: [], param: :number, controller: 'webui/request' do
     member do
       put :toggle_watched_item, controller: 'webui/watched_items'
       put :toggle, controller: 'webui/action_seen_by_users'
