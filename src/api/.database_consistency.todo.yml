@@ -1,8 +1,5 @@
 ---
 Architecture:
-  available:
-    ThreeStateBooleanChecker:
-      enabled: false
   id:
     PrimaryKeyTypeChecker:
       enabled: false
