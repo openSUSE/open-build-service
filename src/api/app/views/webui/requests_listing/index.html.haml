@@ -1,6 +1,6 @@
-- @pagetitle = 'Requests'
+- @pagetitle = requests_listing_pagetitle
 
-= form_for(:request, url: requests_path, method: :get, id: 'requests-filter-form') do |form|
+= form_for(:request, url: @url, method: :get, id: 'requests-filter-form') do |form|
   .row
     .col-md-4.col-lg-3.px-0.px-md-3.sticky-top.mb-3#requests-filter-desktop
       .card
@@ -9,7 +9,7 @@
           Filtered by: #{params[:status]&.humanize}
           %i.float-end.mt-1.fa.fa-chevron-down#requests-dropdown-trigger
         .collapse#filters
-          = render partial: 'requests_filter', locals: { selected_filter: @selected_filter, creators: @bs_requests_creators  }
+          = render partial: 'requests_filter', locals: { selected_filter: @selected_filter, creators: @bs_requests_creators, url: @url  }
     .col-md-8.col-lg-9.px-0.px-md-3.d-none#requests-list-loading
       = render partial: 'webui/shared/loading', locals: { text: 'Loading...', wrapper_css: ['loading'] }
     .col-md-8.col-lg-9.px-0.px-md-3#requests-list

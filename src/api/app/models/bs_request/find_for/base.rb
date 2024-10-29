@@ -60,6 +60,10 @@ class BsRequest
       def quote(str)
         BsRequest.connection.quote(str)
       end
+
+      def creator
+        @parameters[:creator]
+      end
     end
   end
 end

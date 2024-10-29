@@ -1,5 +1,6 @@
 class Webui::RequestsListingController < Webui::WebuiController
-  before_action :lockout_spiders, :require_login
+  before_action :require_login
+  before_action :assign_attributes
 
   include Webui::RequestsFilter
 
@@ -18,12 +19,18 @@ class Webui::RequestsListingController < Webui::WebuiController
 
   private
 
+  # Initialize shared attributes
+  def assign_attributes
+    @url = requests_path
+  end
+
   def filter_requests
-    @bs_requests = filter_by_text(params[:requests_search_text])
-    @bs_requests = filter_by_involvement(@bs_requests, @filter_involvement)
-    @bs_requests = @bs_requests.where(state: @filter_state) if @filter_state.present?
-    @bs_requests = @bs_requests.with_action_type(@filter_action_type) if @filter_action_type.present?
-    @bs_requests = @bs_requests.where(creator: @filter_creators) if @filter_creators.present?
+    params[:ids] = filter_by_involvement(@filter_involvement).ids
+    params[:creator] = @filter_creators if @filter_creators.present?
+    params[:states] = @filter_state if @filter_state.present?
+    params[:types] = @filter_action_type if @filter_action_type.present?
+
+    @bs_requests = BsRequest::FindFor::Query.new(params, filter_by_text(params[:requests_search_text])).all
   end
 
   def set_selected_filter
