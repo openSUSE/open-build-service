@@ -29,10 +29,12 @@ module Webui::RequestsFilter
       return BsRequest.none
     end
 
-    BsRequest.where(id: BsRequest.search_for_ids(text, per_page: TEXT_SEARCH_MAX_RESULTS))
+    BsRequest.with_actions.where(id: BsRequest.search_for_ids(text, per_page: TEXT_SEARCH_MAX_RESULTS))
   end
 
-  def filter_by_involvement(filter_involvement)
+  def filter_by_involvement(filter_involvement, project = nil)
+    return filter_by_involvement_for_project(filter_involvement, project) if project
+
     case filter_involvement
     when 'all'
       User.session.requests
@@ -40,6 +42,17 @@ module Webui::RequestsFilter
       User.session.incoming_requests
     when 'outgoing'
       User.session.outgoing_requests
+    end
+  end
+
+  def filter_by_involvement_for_project(filter_by_involvement, project)
+    case filter_by_involvement
+    when 'all'
+      BsRequest.with_actions.where('bs_request_actions.target_project = (?) OR bs_request_actions.source_project = (?)', project.name, project.name)
+    when 'incoming'
+      OpenRequestsFinder.new(BsRequest, project.name).incoming_requests(project.open_requests.values.sum)
+    when 'outgoing'
+      OpenRequestsFinder.new(BsRequest, project.name).outgoing_requests(project.open_requests.values.sum)
     end
   end
 end

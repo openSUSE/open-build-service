@@ -10,7 +10,7 @@ class BsRequest
         @relation = BsRequest::FindFor::Project.new(@parameters, @relation).all
         @relation = BsRequest::FindFor::User.new(@parameters, @relation).all if user_login.present?
         @relation = BsRequest::FindFor::Group.new(@parameters, @relation).all if group_title.present?
-        @relation = @relation.in_ids(ids) if ids.present?
+        @relation = @relation.in_ids(ids) if @parameters.key?('ids')
         @relation = @relation.do_search(search) if search.present?
         @relation
       end

@@ -1,5 +1,11 @@
 - @pagetitle = requests_listing_pagetitle
 
+- if @project
+  .row
+    .px-0.px-md-3.mb-3
+      .card
+        = render(partial: 'webui/project/tabs', locals: { project: @project })
+
 = form_for(:request, url: @url, method: :get, id: 'requests-filter-form') do |form|
   .row
     .col-md-4.col-lg-3.px-0.px-md-3.sticky-top.mb-3#requests-filter-desktop
