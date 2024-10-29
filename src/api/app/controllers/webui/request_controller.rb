@@ -177,6 +177,8 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def request_action_changes
+    return head :unauthorized unless @actions
+
     @action = @actions.where(id: params['id'].to_i).first
 
     cache_diff_data
