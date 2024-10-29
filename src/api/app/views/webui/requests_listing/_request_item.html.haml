@@ -1,8 +1,9 @@
 - bs_request_actions_count = bs_request.bs_request_actions.count
+- bs_request_actions_types = bs_request.bs_request_actions.pluck(:type).uniq
 = link_to(request_show_path(bs_request.number), class: 'list-group-item list-group-item-action', id: "request-heading#{bs_request.number}") do
   .row.flex-nowrap
     .col-auto
-      - bs_request.bs_request_actions.pluck(:type).uniq.each do |action_type|
+      - bs_request_actions_types.each do |action_type|
         %div{ title: action_type.humanize.titleize }
           %i{ class: "#{action_type_icon(action_type)}" }
     .col.col-with-icon
@@ -10,7 +11,7 @@
         %strong
           - if bs_request_actions_count != 1
             Multiple Action
-          - if bs_request.bs_request_actions.pluck(:type).uniq.count == 1
+          - if bs_request_actions_types.count == 1
             = bs_request.bs_request_actions.first.type.humanize.titleize
           Request ##{bs_request.number}
         = render BsRequestStateBadgeComponent.new(state: bs_request.state, css_class: 'mb-auto')
