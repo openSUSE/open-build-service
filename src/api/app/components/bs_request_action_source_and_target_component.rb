@@ -4,9 +4,8 @@ class BsRequestActionSourceAndTargetComponent < ApplicationComponent
   def initialize(bs_request)
     super
 
-    @bs_request = bs_request
-    @bs_request_action = @bs_request.bs_request_actions.first
-    @number_of_bs_request_actions = @bs_request.bs_request_actions.size
+    @bs_request_action = bs_request.bs_request_actions.first
+    @number_of_bs_request_actions = bs_request.bs_request_actions.size
   end
 
   def call
