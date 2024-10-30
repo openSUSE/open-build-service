@@ -17,8 +17,9 @@ class Webui::WebuiController < ActionController::Base
 
   before_action :setup_view_path
   before_action :check_user
-  before_action :check_anonymous
+  before_action :check_spider
   before_action :set_influxdb_data
+  before_action :check_anonymous
   before_action :require_configuration
   before_action :current_announcement, unless: -> { request.xhr? }
   before_action :fetch_watchlist_items
@@ -96,7 +97,6 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def check_user
-    @spider_bot = request.bot? && Rails.env.production?
     User.session = nil # reset old users hanging around
 
     unless WebuiControllerService::UserChecker.new(http_request: request).call
@@ -274,10 +274,19 @@ class Webui::WebuiController < ActionController::Base
     ret
   end
 
+  def check_spider
+    @spider_bot = if Rails.env.production?
+                    request.bot?
+                  else
+                    false
+                  end
+  end
+
   def set_influxdb_data
     InfluxDB::Rails.current.tags = {
       beta: User.possibly_nobody.in_beta?,
       anonymous: !User.session,
+      spider: @spider_bot,
       interface: :webui
     }
   end
