@@ -24,8 +24,6 @@ module Webui::RequestsFilter
   end
 
   def filter_by_text(text)
-    return BsRequest.all if text.blank?
-
     if BsRequest.search_count(text) > TEXT_SEARCH_MAX_RESULTS
       flash[:error] = 'Your text search pattern matches too many results. Please, try again with a more restrictive search pattern.'
       return BsRequest.none
