@@ -1,6 +1,11 @@
 - @pagetitle = requests_listing_pagetitle
 
-- if @project
+- if @package
+  .row
+    .px-0.px-md-3.mb-3
+      .card
+        = render(partial: 'webui/package/tabs', locals: { project: @project, package: @package })
+- elsif @project
   .row
     .px-0.px-md-3.mb-3
       .card

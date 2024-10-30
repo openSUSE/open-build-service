@@ -1,7 +1,9 @@
 class Webui::RequestsListingController < Webui::WebuiController
-  before_action :require_login, unless: -> { params[:project_name].present? }
+  before_action :require_login, unless: -> { params[:project_name].present? || params[:package_name].present? }
   before_action :check_beta_user, if: -> { params[:project_name].present? }
+  before_action :redirect_back_for_package, if: -> { params[:package_name].present? }
   before_action :find_project
+  before_action :find_package
   before_action :assign_attributes
 
   include Webui::RequestsFilter
@@ -26,7 +28,9 @@ class Webui::RequestsListingController < Webui::WebuiController
 
   # Initialize shared attributes
   def assign_attributes
-    @url = if @project
+    @url = if @package
+             project_package_requests_path(@project, @package)
+           elsif @project
              project_requests_beta_path(@project)
            else
              requests_path
@@ -36,9 +40,9 @@ class Webui::RequestsListingController < Webui::WebuiController
   def filter_requests
     if params[:requests_search_text].present?
       initial_bs_requests = filter_by_text(params[:requests_search_text])
-      params[:ids] = filter_by_involvement(@filter_involvement, @project).ids
+      params[:ids] = filter_by_involvement(@filter_involvement, @project, @package).ids
     else
-      initial_bs_requests = filter_by_involvement(@filter_involvement, @project)
+      initial_bs_requests = filter_by_involvement(@filter_involvement, @project, @package)
     end
 
     params[:project] = @project.name if @project
@@ -64,7 +68,21 @@ class Webui::RequestsListingController < Webui::WebuiController
     redirect_back_or_to(root_path)
   end
 
+  def find_package
+    return if params[:package_name].nil? || @project.blank?
+
+    @package = Package.find_by_project_and_name(@project.name, params[:package_name])
+    return unless @package.nil?
+
+    flash[:error] = "Package '#{@project.name}/#{params[:package_name]}' does not exist"
+    redirect_back_or_to(root_path)
+  end
+
   def check_beta_user
     redirect_to project_requests_path(params[:project_name]) unless Flipper.enabled?(:request_index, User.session)
+  end
+
+  def redirect_back_for_package
+    redirect_to package_requests_path(params[:project_name], params[:package_name]) unless Flipper.enabled?(:request_index, User.session)
   end
 end
