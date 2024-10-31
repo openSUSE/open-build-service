@@ -114,7 +114,7 @@ RSpec.describe 'Requests Index' do
     # rubocop:enable RSpec/ExampleLength
   end
 
-  describe 'using the request creator filter' do
+  describe 'using the request creator filter', skip: 'Temporarily disable list of creators due to performance issues' do
     before do
       find_by_id('requests-dropdown-trigger').click if mobile? # open the filter dropdown
       find_by_id('filter-creator-requests-button').click
