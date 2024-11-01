@@ -29,7 +29,7 @@ class Webui::RequestsListingController < Webui::WebuiController
   # Initialize shared attributes
   def assign_attributes
     @url = if @package
-             project_package_requests_path(@project, @package)
+             project_package_requests_beta_path(@project, @package)
            elsif @project
              project_requests_beta_path(@project)
            else

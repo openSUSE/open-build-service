@@ -35,7 +35,7 @@ RSpec.describe 'Package Requests' do
 
   context 'package with requests' do
     before do
-      visit project_package_requests_path(target_project, target_package)
+      visit project_package_requests_beta_path(target_project, target_package)
     end
 
     it 'lists all requests by default' do
@@ -97,7 +97,7 @@ RSpec.describe 'Package Requests' do
 
   context 'project without requests' do
     before do
-      visit project_package_requests_path(another_source_project, another_source_project.packages.first)
+      visit project_package_requests_beta_path(another_source_project, another_source_project.packages.first)
     end
 
     it 'shows no requests' do
