@@ -143,10 +143,8 @@ sub run_source_update {
   # chdir into a clean temp directory
   my $myworkdir = "$tempdir/$$";
   rm_rf($myworkdir);
-  die("cannot get rid of old work dir\n") if -e $myworkdir;
-  mkdir_p($myworkdir);
-  die("$myworkdir not writable for me") unless -w $myworkdir;
-  mkdir("$myworkdir/src") || die("mkdir $myworkdir/src: $!\n");
+  die("500 cannot get rid of old work dir\n") if -e $myworkdir;
+  mkdir_p("$myworkdir/src") || die("mkdir $myworkdir/src: $!\n");
   chdir("$myworkdir/src") || die("chdir $myworkdir/src: $!\n");
 
   # unpack source data
