@@ -30,7 +30,7 @@ class PackageIssue < ApplicationRecord
     rescue ActiveRecord::StatementInvalid, Mysql2::Error => e
       retries -= 1
       if retries.positive?
-        Airbrake.notify("Failed to update PackageIssue : retries left: #{retries}, package: #{package.inspect}, issues: #{issues.inspect}, #{e}")
+        Airbrake.notify("Failed to update PackageIssue : retries left: #{retries}, #{e}, package: #{package.inspect}")
         retry
       end
     end
