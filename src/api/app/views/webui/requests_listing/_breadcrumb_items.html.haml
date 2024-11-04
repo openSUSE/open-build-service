@@ -6,6 +6,6 @@
   - if @package
     %li.breadcrumb-item.text-word-break-all
       %i.fa.fa-archive
-      = link_to @project, package_show_path(@project, @package)
+      = link_to @package, package_show_path(@project, @package)
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Requests
