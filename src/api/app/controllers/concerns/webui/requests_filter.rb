@@ -32,7 +32,8 @@ module Webui::RequestsFilter
     BsRequest.with_actions.where(id: BsRequest.search_for_ids(text, per_page: TEXT_SEARCH_MAX_RESULTS))
   end
 
-  def filter_by_involvement(filter_involvement, project = nil)
+  def filter_by_involvement(filter_involvement, project = nil, package = nil)
+    return filter_by_involvement_for_package(filter_involvement, project, package) if package
     return filter_by_involvement_for_project(filter_involvement, project) if project
 
     case filter_involvement
@@ -53,6 +54,18 @@ module Webui::RequestsFilter
       OpenRequestsFinder.new(BsRequest, project.name).incoming_requests(project.open_requests.values.sum)
     when 'outgoing'
       OpenRequestsFinder.new(BsRequest, project.name).outgoing_requests(project.open_requests.values.sum)
+    end
+  end
+
+  def filter_by_involvement_for_package(filter_by_involvement, project, package)
+    case filter_by_involvement
+    when 'all'
+      BsRequest.with_actions.where('(bs_request_actions.target_project = (?) AND bs_request_actions.target_package = (?)) OR (bs_request_actions.source_project = (?) AND bs_request_actions.source_package = (?))',
+                                   project.name, package.name, project.name, package.name)
+    when 'incoming'
+      package.open_requests_with_package_as_target.with_actions
+    when 'outgoing'
+      package.open_requests_with_package_as_source.with_actions
     end
   end
 end
