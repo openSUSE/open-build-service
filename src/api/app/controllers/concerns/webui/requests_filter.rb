@@ -47,25 +47,28 @@ module Webui::RequestsFilter
   end
 
   def filter_by_involvement_for_project(filter_by_involvement, project)
+    target = BsRequest.with_actions.where(bs_request_actions: { target_project: project.name })
+    source = BsRequest.with_actions.where(bs_request_actions: { source_project: project.name })
     case filter_by_involvement
     when 'all'
-      BsRequest.with_actions.where('bs_request_actions.target_project = (?) OR bs_request_actions.source_project = (?)', project.name, project.name)
+      target.or(source)
     when 'incoming'
-      OpenRequestsFinder.new(BsRequest, project.name).incoming_requests(project.open_requests.values.sum)
+      target
     when 'outgoing'
-      OpenRequestsFinder.new(BsRequest, project.name).outgoing_requests(project.open_requests.values.sum)
+      source
     end
   end
 
   def filter_by_involvement_for_package(filter_by_involvement, project, package)
+    target = BsRequest.with_actions.where(bs_request_actions: { target_project: project.name, target_package: package.name })
+    source = BsRequest.with_actions.where(bs_request_actions: { source_project: project.name, source_package: package.name })
     case filter_by_involvement
     when 'all'
-      BsRequest.with_actions.where('(bs_request_actions.target_project = (?) AND bs_request_actions.target_package = (?)) OR (bs_request_actions.source_project = (?) AND bs_request_actions.source_package = (?))',
-                                   project.name, package.name, project.name, package.name)
+      target.or(source)
     when 'incoming'
-      package.open_requests_with_package_as_target.with_actions
+      target
     when 'outgoing'
-      package.open_requests_with_package_as_source.with_actions
+      source
     end
   end
 end
