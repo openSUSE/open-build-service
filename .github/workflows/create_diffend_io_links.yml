@@ -16,28 +16,7 @@ jobs:
           fetch-depth: 0
       - name: Create Diffend.io Links and Comment Text
         run: |
-          # Receive added and removed file names from the git diff, filter out everything besides the gem files and receive
-          # the basename without the gem file extension
-          ADDED_GEMS=( $(git diff --name-only --diff-filter=A origin/${GITHUB_BASE_REF} $GITHUB_SHA | grep .gem$ | xargs basename -s .gem) )
-          REMOVED_GEMS=( $(git diff --name-only --diff-filter=D origin/${GITHUB_BASE_REF} $GITHUB_SHA | grep .gem$ | xargs basename -s .gem) )
-
-          COMMENT_TEXT="Please see the links listed bellow to review the changes applied to the gems:"$'\n'
-
-          for i in "${!ADDED_GEMS[@]}"; do
-            # Receive gem name without version number
-            GEM_NAME=$(echo ${ADDED_GEMS[i]} | rev | cut -d "-" -f2- | rev)
-
-            # Receive added and removed gem version numbers
-            ADDED_GEM_VERSION=$(echo ${ADDED_GEMS[i]} | rev | cut -d "-" -f1 | rev)
-            REMOVED_GEM_VERSION=$(echo ${REMOVED_GEMS[i]} | rev | cut -d "-" -f1 | rev)
-
-            # Create the link to diffend.io
-            DIFFEND_LINK=("https://my.diffend.io/gems/${GEM_NAME}/${REMOVED_GEM_VERSION}/${ADDED_GEM_VERSION}")
-            COMMENT_TEXT+="- [${GEM_NAME} ${REMOVED_GEM_VERSION} -> ${ADDED_GEM_VERSION}](${DIFFEND_LINK})"$'\n'
-          done
-
-          mkdir ./artifacts
-          echo "$COMMENT_TEXT" > ./artifacts/comment_text.txt
+          ./create_diffend_io_links.rb -b $GITHUB_BASE_REF -s $GITHUB_SHA
           echo ${{ github.event.number }} > ./artifacts/pr_number.txt
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
