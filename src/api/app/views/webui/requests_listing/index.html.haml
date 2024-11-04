@@ -28,7 +28,7 @@
       .card
         .card-body.list-group.list-group-flush.p-3#requests
           .text-center.mb-3
-            - if @bs_requests.blank?
+            - if @bs_requests.total_count == 0
               %p There are no requests available
             - else
               %span.ms-3= page_entries_info(@bs_requests, entry_name: 'request')
