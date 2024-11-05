@@ -223,7 +223,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def requests
-    redirect_to project_requests_beta_path(@project) if Flipper.enabled?(:request_index, User.session)
+    redirect_to project_requests_beta_path(@project, involvement: 'incoming', state: %w[new review]) if Flipper.enabled?(:request_index, User.session)
 
     @default_request_type = params[:type] if params[:type]
     @default_request_state = params[:state] if params[:state]
