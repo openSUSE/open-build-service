@@ -1084,9 +1084,10 @@ eval {
     BSSched::DoD::dodfetch($ctx) if $ctx->{'doddownloads'};
 
     # we always publish some build types right away...
-    my $noearlypublish = $bconf->{'publishflags:noearlypublish'} || $bconf->{'publishflags:noearlykiwipublish'};
-    if ($isfinished || (!$noearlypublish &&
-                        ($ctx->{'prptype'} eq 'kiwi' || $ctx->{'prptype'} eq 'productcompose'))) {
+    my $earlypublish = $ctx->{'prptype'} eq 'kiwi' || $ctx->{'prptype'} eq 'productcompose';
+    $earlypublish = 0 if $bconf->{'publishflags:noearlypublish'} || $bconf->{'publishflags:noearlykiwipublish'};
+    $earlypublish = 0 if $bconf->{'publishflags:archsync'};
+    if ($isfinished || $earlypublish) {
       my ($pubstate, $pubdetails) = $ctx->publish();
       if ($pubstate && $pubstate eq 'delayed') {
 	$details = $pubdetails if $isfinished && $pubdetails;

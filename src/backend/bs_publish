@@ -2204,7 +2204,7 @@ sub publish {
       $lastchange++ if $as->{'lastcheck'} && $as->{'lastcheck'} == $lastchange;
     }
     if (@bad) {
-      print "    delaying publishing as archirectures ".join(',', @bad)." are not ready\n";
+      print "    delaying publishing as architectures ".join(',', @bad)." are not ready\n";
       for my $a (@bad) {
 	# hack: use the .archsync.new file to signal the scheduler that we are waiting
 	eval { BSUtil::touch("$reporoot/$prp/$a/:repo/.archsync.new") };
