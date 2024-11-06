@@ -139,14 +139,13 @@ sub check {
   my @deps = @{$info->{'dep'} || []};
 
   my $cpool;	# pool used for container expansion
-  my $cbdep;    # container bdep for job
-  my $cmeta;    # container meta entry
+  my @cbdep;    # container bdep for job
+  my @cmeta;    # container meta entry
   my $expanddebug = $ctx->{'expanddebug'};
 
   my @containerdeps = grep {/^container:/} @deps;
   if (@containerdeps) {
     @deps = grep {!/^container:/} @deps;
-    return ('broken', 'multiple containers') if @containerdeps != 1;
 
     # setup container pool
     $cpool = $ctx->{'pool'};
@@ -162,30 +161,44 @@ sub check {
     my ($cok, @cdeps) = $xp->expand(@containerdeps);
     BSSched::BuildJob::add_expanddebug($ctx, 'container expansion', $xp, $cpool) if $expanddebug;
     return ('unresolvable', join(', ', @cdeps)) unless $cok;
-    return ('unresolvable', 'weird result of container expansion') if @cdeps != 1;
+    return ('unresolvable', 'weird result of container expansion') unless @cdeps > 0 && @cdeps <= @containerdeps && !grep {!/^container:/} @cdeps;
 
-    # find container package
-    my $p;
-    for ($cpool->whatprovides($cdeps[0])) {
-      $p = $_ if $cpool->pkg2name($_) eq $cdeps[0];
-    }
-    return ('unresolvable', 'weird result of container expansion') unless $p;
+    my $basecontainer = $containerdeps[-1];
+    my %basep;
+    %basep = map {$_ => 1} $cpool->whatprovides($basecontainer) if $basecontainer;
+    my $basecbdep;
+    for my $cdep (@cdeps) {
+      # find container package
+      my $p;
+      for ($cpool->whatprovides($cdep)) {
+	$p = $_ if $cpool->pkg2name($_) eq $cdep;
+      }
+      return ('unresolvable', 'weird result of container expansion') unless $p;
 
-    # generate bdep entry
-    $cbdep = {'name' => $cdeps[0], 'noinstall' => 1, 'p' => $p};
-    my $cprp = $cpool->pkg2reponame($p);
-    $cmeta = $cpool->pkg2pkgid($p) . "  $cprp/$cdeps[0]";
-    ($cbdep->{'project'}, $cbdep->{'repository'}) = split('/', $cprp, 2) if $cprp;
-    if ($ctx->{'dobuildinfo'}) {
-      my $d = $cpool->pkg2data($p);
-      $cbdep->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
-      $cbdep->{'version'} = $d->{'version'};
-      $cbdep->{'release'} = $d->{'release'} if defined $d->{'release'};
-      $cbdep->{'arch'} = $d->{'arch'} if $d->{'arch'};
-      $cbdep->{'hdrmd5'} = $d->{'hdrmd5'} if $d->{'hdrmd5'};
+      # generate bdep entry
+      my $cbdep = {'name' => $cdeps[0], 'noinstall' => 1, 'p' => $p};
+      my $cprp = $cpool->pkg2reponame($p);
+      push @cmeta, $cpool->pkg2pkgid($p) . "  $cprp/$cdep";
+      ($cbdep->{'project'}, $cbdep->{'repository'}) = split('/', $cprp, 2) if $cprp;
+      if ($ctx->{'dobuildinfo'}) {
+	my $d = $cpool->pkg2data($p);
+	$cbdep->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
+	$cbdep->{'version'} = $d->{'version'};
+	$cbdep->{'release'} = $d->{'release'} if defined $d->{'release'};
+	$cbdep->{'arch'} = $d->{'arch'} if $d->{'arch'};
+	$cbdep->{'hdrmd5'} = $d->{'hdrmd5'} if $d->{'hdrmd5'};
+      }
+      if (!$basecbdep && $basep{$p}) {
+	$basecbdep = $cbdep;
+      } else {
+	push @cbdep, $cbdep;
+      }
     }
+    push @cbdep, $basecbdep if $basecbdep;	# always put base container last
+
     # put annotation in dep
-    BSSched::BuildJob::getcontainerannotation($cpool, $p, $cbdep);
+    my $annotationbdep = $basecbdep || $cbdep[-1];
+    BSSched::BuildJob::getcontainerannotation($cpool, $annotationbdep->{'p'}, $annotationbdep) if $annotationbdep;
   }
 
   local $Build::expand_dbg = 1 if $expanddebug;
@@ -225,15 +238,17 @@ sub check {
   }
 
   my @blocked;
-  if ($cpool && $cbdep && !$neverblock) {
-    my $p = $cbdep->{'p'};
-    my $aprp = $cpool->pkg2reponame($p);
-    my $n = $cbdep->{'name'};
-    $n =~ s/^container://;
-    if ($prp eq $aprp) {
-      push @blocked, $n if $notready->{$n};
-    } else {
-      push @blocked, "$aprp/$n" if $prpnotready->{$aprp}->{$n};
+  if ($cpool && @cbdep && !$neverblock) {
+    for my $cbdep (@cbdep) {
+      my $p = $cbdep->{'p'};
+      my $aprp = $cpool->pkg2reponame($p);
+      my $n = $cbdep->{'name'};
+      $n =~ s/^container://;
+      if ($prp eq $aprp) {
+        push @blocked, $n if $notready->{$n};
+      } else {
+        push @blocked, "$aprp/$n" if $prpnotready->{$aprp}->{$n};
+      }
     }
   }
   for my $n (sort @edeps) {
@@ -251,14 +266,14 @@ sub check {
     }
     return ('blocked', join(', ', @blocked));
   }
-  push @new_meta, $cmeta if $cmeta;
+  push @new_meta, @cmeta;
   @new_meta = sort {substr($a, 34) cmp substr($b, 34) || $a cmp $b} @new_meta;
   unshift @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
-  my ($state, $data) = BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'kiwi-image', \@new_meta, [ $bconf, \@edeps, $pool, \%dep2pkg, $cbdep, $unorderedrepos ]);
+  my ($state, $data) = BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'kiwi-image', \@new_meta, [ $bconf, \@edeps, $pool, \%dep2pkg, \@cbdep, $unorderedrepos ]);
   if ($state eq 'scheduled') {
     my $dods = BSSched::DoD::dodcheck($ctx, $pool, $myarch, @edeps);
     return ('blocked', $dods) if $dods;
-    $dods = BSSched::DoD::dodcheck($ctx, $cpool, $myarch, $cbdep->{'name'}) if $cpool && $cbdep;
+    $dods = BSSched::DoD::dodcheck($ctx, $cpool, $myarch, map {$_->{'name'}} @cbdep) if $cpool && @cbdep;
     return ('blocked', $dods) if $dods;
   }
   return ($state, $data);
@@ -287,7 +302,7 @@ sub build {
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
     $ctx = bless { %$ctx, 'conf' => $bconf, 'prpsearchpath' => [], 'pool' => $epool, 'dep2pkg' => $edep2pkg, 'realctx' => $ctx, 'expander' => $xp, 'unorderedrepos' => $unorderedrepos}, ref($ctx);
-    BSSched::BuildJob::add_container_deps($ctx, [ $cbdep ]) if $cbdep;
+    BSSched::BuildJob::add_container_deps($ctx, $cbdep) if @{$cbdep || []};
     return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
   }
 
@@ -322,7 +337,7 @@ sub build {
     use warnings 'redefine';
     $ctx = bless { %$ctx, 'conf' => $ctx->{'conf_host'}, 'pool' => $ctx->{'pool_host'}, 'dep2pkg' => $ctx->{'dep2pkg_host'}, 'realctx' => $ctx, 'expander' => $xp, 'prpsearchpath' => $ctx->{'prpsearchpath_host'} }, ref($ctx);
     $ctx->{'extrabdeps'} = $extrabdeps if $extrabdeps;
-    BSSched::BuildJob::add_container_deps($ctx, [ $cbdep ]) if $cbdep;
+    BSSched::BuildJob::add_container_deps($ctx, $cbdep) if @{$cbdep || []};
     return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
   }
 
@@ -330,7 +345,7 @@ sub build {
   $ctx = bless { %$ctx, 'realctx' => $ctx}, ref($ctx);
   $ctx->{'extrabdeps'} = $extrabdeps if $extrabdeps;
 
-  BSSched::BuildJob::add_container_deps($ctx, [ $cbdep ]) if $cbdep;
+  BSSched::BuildJob::add_container_deps($ctx, $cbdep) if @{$cbdep || []};
 
   # repo has a configured path, expand kiwi build system with it
   return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
