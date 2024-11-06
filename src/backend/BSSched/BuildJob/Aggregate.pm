@@ -371,8 +371,7 @@ sub tweak_container_tags {
 sub build {
   my ($self, $ctx, $packid, $pdata, $info, $data) = @_;
 
-  my $new_meta = $data->[0];
-  my $aggregates = $data->[1];
+  my ($new_meta, $aggregates) = @$data;
   my $gctx = $ctx->{'gctx'};
   my $myarch = $gctx->{'arch'};
   my $projid = $ctx->{'project'};

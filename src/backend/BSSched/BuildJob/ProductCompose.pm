@@ -643,6 +643,7 @@ sub check {
 
 sub build {
   my ($self, $ctx, $packid, $pdata, $info, $data) = @_;
+  my ($bconf, $rpms, $pool, $dep2pkg, $rpms_hdrmd5, $reason) = @$data;
 
   my $gctx = $ctx->{'gctx'};
   my $myarch = $gctx->{'arch'};
@@ -652,9 +653,8 @@ sub build {
   my $relsyncmax = $ctx->{'relsyncmax'};
   my $remoteprojs = $gctx->{'remoteprojs'};
   my $gdst = $ctx->{'gdst'};
-
-  my ($bconf, $rpms, $pool, $dep2pkg, $rpms_hdrmd5, $reason) = @$data;
   my $prp = "$projid/$repoid";
+
   my $dobuildinfo = $ctx->{'dobuildinfo'};
   my @bdeps;
   for my $rpm (BSUtil::unify(@{$rpms || []})) {

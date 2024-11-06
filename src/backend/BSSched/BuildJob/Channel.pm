@@ -307,9 +307,7 @@ sub genbininfo {
 
 sub build {
   my ($self, $ctx, $packid, $pdata, $info, $data) = @_;
-  my $new_meta = $data->[0];
-  my $channelbins = $data->[1];
-  my $forme = $data->[2];
+  my ($new_meta, $channelbins, $forme) = @$data;
   my $gctx = $ctx->{'gctx'};
   my $myarch = $gctx->{'arch'};
   my $projid = $ctx->{'project'};
