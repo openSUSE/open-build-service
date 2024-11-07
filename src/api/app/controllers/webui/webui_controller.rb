@@ -133,6 +133,7 @@ class Webui::WebuiController < ActionController::Base
 
     begin
       @package = Package.get_by_project_and_name(@project.name, @package_name, follow_multibuild: true)
+      raise APIError unless @package
     # why it's not found is of no concern
     rescue APIError
       raise Package::UnknownObjectError, "Package not found: #{@project.name}/#{@package_name}"
