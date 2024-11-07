@@ -58,8 +58,7 @@ sub new {
 sub build {
   my ($self, $ctx, $packid, $pdata, $info, $data) = @_;
 
-  my $suffix = $data->[0];
-  my $needdelta = $data->[1];
+  my ($suffix, $needdelta) = @$data;
 
   my $gctx = $ctx->{'gctx'};
   my $projid = $ctx->{'project'};

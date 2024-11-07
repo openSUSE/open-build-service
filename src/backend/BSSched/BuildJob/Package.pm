@@ -360,7 +360,6 @@ relsynccheck:
 
 sub build {
   my ($self, $ctx, $packid, $pdata, $info, $data) = @_;
-
   my ($reason, $hdeps, $edeps) = @$data;
 
   my $needed = 0;

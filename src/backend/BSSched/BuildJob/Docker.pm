@@ -335,14 +335,8 @@ sub check {
 
 sub build {
   my ($self, $ctx, $packid, $pdata, $info, $data) = @_;
-  my $bconf = $data->[0];	# this is the config used to expand the image packages
-  my $edeps = $data->[1];
-  my $epool = $data->[2];
-  my $edep2pkg = $data->[3];
-  my $cbdep = $data->[4];
-  my $unorderedrepos = $data->[5];
-  my $reason = $data->[6];
-
+  # bconf is the config used to expand the image packages
+  my ($bconf, $edeps, $epool, $edep2pkg, $cbdep, $unorderedrepos, $reason) = @$data;
   my $gctx = $ctx->{'gctx'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};

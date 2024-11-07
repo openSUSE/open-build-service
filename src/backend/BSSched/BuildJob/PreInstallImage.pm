@@ -117,8 +117,7 @@ sub check {
 
 sub build {
   my ($self, $ctx, $packid, $pdata, $info, $data) = @_;
-  my $bdeps = $data->[0];
-  my $reason = $data->[1];
+  my ($bdeps, $reason) = @$data;
   return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $bdeps, $reason, 0);
 }
 
