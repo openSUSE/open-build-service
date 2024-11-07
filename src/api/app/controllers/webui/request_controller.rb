@@ -15,7 +15,6 @@ class Webui::RequestController < Webui::WebuiController
   before_action :set_actions, only: %i[inline_comment beta_show build_results rpm_lint changes mentioned_issues chart_build_results complete_build_results request_action_changes],
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_actions_deprecated, only: [:show]
-  before_action :build_results_data, only: [:beta_show], if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_action, only: %i[inline_comment beta_show build_results rpm_lint changes mentioned_issues],
                              if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_influxdb_data_request_actions, only: %i[beta_show build_results rpm_lint changes mentioned_issues],
