@@ -52,7 +52,7 @@ namespace :dev do
             target_package: target_package_b
           }
           bs_req_action = build(:bs_request_action, action_attributes.merge(type: 'submit', bs_request: request))
-          bs_req_action.save! if bs_req_action.valid?
+          bs_req_action.save!
         end
 
         # Create an action to add role
@@ -65,7 +65,7 @@ namespace :dev do
           bs_request: request
         }
         bs_req_action = build(:bs_request_action, action_attributes)
-        bs_req_action.save! if bs_req_action.valid?
+        bs_req_action.save!
 
         # Create an action to set a user as bugowner
         action_attributes = {
@@ -76,7 +76,7 @@ namespace :dev do
           bs_request: request
         }
         bs_req_action = build(:bs_request_action, action_attributes)
-        bs_req_action.save! if bs_req_action.valid?
+        bs_req_action.save!
 
         # Create an action to set a group as bugowner
         action_attributes = {
@@ -87,7 +87,7 @@ namespace :dev do
           bs_request: request
         }
         bs_req_action = build(:bs_request_action, action_attributes)
-        bs_req_action.save! if bs_req_action.valid?
+        bs_req_action.save!
 
         create(:bs_request_action_delete,
                target_project: target_project,
@@ -122,7 +122,7 @@ namespace :dev do
           bs_request: request
         }
         bs_req_action = build(:bs_request_action_change_devel, action_attributes)
-        bs_req_action.save! if bs_req_action.valid?
+        bs_req_action.save!
 
         puts "* Request #{request.number} contains multiple actions and mentioned issues."
         puts 'To start the builds confirm or perfom the following steps:'
