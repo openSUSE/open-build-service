@@ -50,7 +50,9 @@
               .diff-comments
                 -# rubocop:disable ViewComponent/AvoidGlobalState
                 - if User.session
-                  = link_to(request_inline_comment_path(commentable.bs_request, request_action_id: commentable, line: id, source_rev:, target_rev:),
+                  = link_to(request_inline_comment_path(commentable.bs_request, request_action_id: commentable, line: id,
+                                                        diff_file_index: file_index, diff_line_number: line.index,
+                                                        source_rev:, target_rev:),
                             class: 'btn btn-sm btn-primary line-new-comment', remote: true, title: 'Add comment') do
                     %i.fas.fa-comment-medical
                     .visually-hidden
