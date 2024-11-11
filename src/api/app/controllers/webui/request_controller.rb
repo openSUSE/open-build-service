@@ -30,13 +30,14 @@ class Webui::RequestController < Webui::WebuiController
   after_action :verify_authorized, only: [:create]
 
   def beta_show
+    @current_notification = handle_notification
     @history_elements = @bs_request.history_elements.includes(:user)
     @active_tab = 'conversation'
   end
 
   # TODO: Remove this once request_show_redesign is rolled out
   def show
-    redirect_to request_beta_show_path(params[:number], params[:request_action_id]) if Flipper.enabled?(:request_show_redesign, User.session)
+    redirect_to request_beta_show_path(params[:number], params[:request_action_id], { notification_id: params[:notification_id] }) if Flipper.enabled?(:request_show_redesign, User.session)
     @diff_limit = params[:full_diff] ? 0 : nil
     @is_author = @bs_request.creator == User.possibly_nobody.login
 
@@ -329,7 +330,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def check_beta_user_redirect
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless Flipper.enabled?(:request_show_redesign, User.session)
+    redirect_to request_show_path(params[:number], params[:request_action_id], { notification_id: params[:notification_id] }) unless Flipper.enabled?(:request_show_redesign, User.session)
   end
 
   def addreview_opts
