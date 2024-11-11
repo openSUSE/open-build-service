@@ -49,8 +49,10 @@ class DiffParser
         sign = line.state == 'added' ? '+' : '-'
 
         # Known scenario https://github.com/openSUSE/open-build-service/pull/17006
-        # Log if a different unexpected scenario happen instead
-        Rails.logger.warn "generate_inline_diffs: content is nil - line='#{line.to_json}'" if content.nil? && line.content != '+'
+        # Notify the exception if a different unexpected scenario happen instead
+        if content.nil? && line.content != '+'
+          Airbreak.notify("Unknown scenario in generate_inline_diffs - content is nil but line is not '+': line='#{line.to_json}'")
+        end
 
         line.content = "#{sign}#{content}" unless full_line_diff(content)
       end
