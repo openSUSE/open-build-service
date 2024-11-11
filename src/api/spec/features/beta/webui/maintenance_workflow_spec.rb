@@ -53,6 +53,7 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
         visit request_show_path(bs_request)
         fill_in('reason', with: 'really? ok')
 
+        click_button('Accept')
         click_button('Accept request')
       end
 
@@ -96,6 +97,7 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
         visit request_show_path(bs_request)
         fill_in('reason', with: 'really? ok')
 
+        click_button('Accept')
         click_button('Accept request')
       end
 
