@@ -2,12 +2,12 @@ class Webui::AppealsController < Webui::WebuiController
   include Webui::NotificationsHandler
 
   after_action :verify_authorized
-  before_action :handle_notification, only: :show
 
   def show
     @appeal = Appeal.find(params[:id])
 
     authorize @appeal
+    @current_notification = handle_notification
   end
 
   def new
