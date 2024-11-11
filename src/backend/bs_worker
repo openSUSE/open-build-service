@@ -3624,13 +3624,15 @@ sub generate_slsa_sourceuri {
 
   my $filename_suf = defined($filename) ? "/$filename" : '';
   my $uri;
+  my $packid = $buildinfo->{'package'};
+  $packid =~ s/:.*// if $packid =~ /(?<!^_product)(?<!^_patchinfo):./;
   if ($buildinfo->{'slsadownloadurl'} && $buildinfo->{'slsadownloadurl'} =~ /(.*)\/_slsa$/) {
     # using the source publishing server
     my $server = $1;
-    $uri = BSHTTP::urlencode("$server/$buildinfo->{'project'}/$buildinfo->{'package'}/$buildinfo->{'srcmd5'}$filename_suf");
+    $uri = BSHTTP::urlencode("$server/$buildinfo->{'project'}/$packid/$buildinfo->{'srcmd5'}$filename_suf");
   } else {
     my $server = $buildinfo->{'slsadownloadurl'} || $buildinfo->{'srcserver'} || $srcserver;
-    $uri = BSHTTP::urlencode("$server/source/$buildinfo->{'project'}/$buildinfo->{'package'}$filename_suf")."?rev=$buildinfo->{'srcmd5'}";
+    $uri = BSHTTP::urlencode("$server/source/$buildinfo->{'project'}/$packid$filename_suf")."?rev=$buildinfo->{'srcmd5'}";
   }
   return $uri;
 }
