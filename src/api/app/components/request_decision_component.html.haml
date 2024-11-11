@@ -51,7 +51,7 @@
                             title: 'Accept the request, this will apply the changes on the target.')
               -# Accept and make maintainer submit
               - if accept_with_options_allowed? && show_add_submitter_as_maintainer_option?
-                = submit_tag("Accept and make #{@bs_request.creator} maintainer of #{make_maintainer_of}",
+                = submit_tag("Accept and make #{@creator} maintainer of #{make_maintainer_of}",
                             name: 'accepted',
                             class: 'btn-link dropdown-item', data: confirmation,
                             title: 'Accept the request. this will apply the changes on the target.',
@@ -72,7 +72,7 @@
                               id: 'accept-and-forward')
                 -# Accept and make maintainer and forward submit
                 - if show_add_submitter_as_maintainer_option?
-                  = submit_tag("Accept and make #{@bs_request.creator} maintainer of #{make_maintainer_of} and forward request to the selected projects",
+                  = submit_tag("Accept and make #{@creator} maintainer of #{make_maintainer_of} and forward request to the selected projects",
                                 name: 'accepted', class: 'btn-link dropdown-item', data: confirmation,
                                 title: 'Accept the request. this will apply the changes on the target.',
                                 id: 'accept-and-make-maintainer-and-forward')

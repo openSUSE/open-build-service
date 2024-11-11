@@ -6,6 +6,7 @@ class RequestDecisionComponent < ApplicationComponent
     @is_target_maintainer = is_target_maintainer
     @action = action
     @package_maintainers = package_maintainers
+    @creator = bs_request.creator
 
     return unless render? && show_project_maintainer_hint
 
