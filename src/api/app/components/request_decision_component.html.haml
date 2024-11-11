@@ -56,13 +56,8 @@
                             class: 'btn-link dropdown-item', data: confirmation,
                             title: 'Accept the request. this will apply the changes on the target.',
                             id: 'accept-and-make-maintainer')
-          -# Accept and forward buttons
-          - if forward_allowed?
-            %span.dropdown.me-2
-              = button_tag('Accept and Forward', type: 'button', role: 'button', id: 'decision-forward-buttons-group',
-                            class: 'btn btn-secondary dropdown-toggle',
-                            data: { 'bs-toggle': 'dropdown'}, aria: { 'haspopup': 'true', 'expanded': 'false' })
-              .dropdown-menu{ aria: { labelledby: 'decision-forward-buttons-group' } }
+              -# Accept and forward buttons
+              - if forward_allowed?
                 - @action.forward.each_with_index do |forward, index|
                   .form-check.m-2
                     = check_box_tag("forward-#{index}", "#{forward[:project]}_#_#{forward[:package]}", true,
