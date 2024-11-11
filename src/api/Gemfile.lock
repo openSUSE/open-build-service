@@ -504,7 +504,7 @@ GEM
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.6.0)
     uniform_notifier (1.16.0)
-    uri (0.13.1)
+    uri (1.0.1)
     vcr (6.3.1)
       base64
     view_component (3.20.0)
