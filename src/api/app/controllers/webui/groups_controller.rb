@@ -1,4 +1,6 @@
 class Webui::GroupsController < Webui::WebuiController
+  include Webui::NotificationsHandler
+
   before_action :require_login, except: %i[show autocomplete]
   after_action :verify_authorized, except: %i[show autocomplete edit update]
 
@@ -9,10 +11,13 @@ class Webui::GroupsController < Webui::WebuiController
 
   def show
     @group = Group.includes(:users).find_by_title(params[:title])
-    return if @group
+    unless @group
+      flash[:error] = "Group '#{params[:title]}' does not exist"
+      redirect_back_or_to({ controller: 'main', action: 'index' })
+      return
+    end
 
-    flash[:error] = "Group '#{params[:title]}' does not exist"
-    redirect_back_or_to({ controller: 'main', action: 'index' })
+    @current_notification = handle_notification
   end
 
   def new

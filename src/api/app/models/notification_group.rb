@@ -23,7 +23,7 @@ class NotificationGroup < Notification
   def link_path
     return unless Group.exists?(title: event_payload['group'])
 
-    Rails.application.routes.url_helpers.group_path(event_payload['group'])
+    Rails.application.routes.url_helpers.group_path(event_payload['group'], notification_id: id)
   end
 end
 
