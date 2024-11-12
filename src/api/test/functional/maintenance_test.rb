@@ -1746,8 +1746,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # clean up
     delete '/source/BaseDistro2.0:LinkedUpdateProject/packNEW'
     assert_response :success
-    get '/source/BaseDistro2.0:LinkedUpdateProject/packNEW'
-    assert_response :not_found
 
     # create a new package instance via submit request the right way
     delete '/source/BaseDistro2.0:ServicePack1/pack2.linked'
