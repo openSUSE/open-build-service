@@ -1,5 +1,8 @@
 class Webui::RepositoriesController < Webui::WebuiController
+  include ScmsyncChecker
+
   before_action :set_project
+  before_action :check_scmsync, if: -> { params[:package] }
   before_action :set_repository, only: [:state]
   before_action :set_architectures, only: %i[index change_flag]
   before_action :set_package, only: %i[index change_flag]
