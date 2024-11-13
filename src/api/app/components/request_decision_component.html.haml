@@ -28,7 +28,7 @@
           .tab-pane.fade{ id: 'preview_new_comment', role: 'tabpanel', 'aria-labelledby': 'preview-message-tab' }
             .comment-preview.message-preview.border-bottom.border-gray-300.my-3
       .mt-2
-        - if forward_allowed?
+        - if @forward_allowed
           - @action.forward.each_with_index do |forward, index|
             .form-check.m-2
               = check_box_tag("forward-#{index}", "#{forward[:project]}_#_#{forward[:package]}", true,
@@ -65,7 +65,7 @@
                             title: 'Accept the request. this will apply the changes on the target.',
                             id: 'accept-and-make-maintainer')
               -# Accept and forward buttons
-              - if forward_allowed?
+              - if @forward_allowed
                 -# Accept and forward submit
                 = submit_tag('Accept and forward request to the selected projects ', name: 'accepted', class: 'btn-link dropdown-item',
                               data: confirmation, title: 'Accept the request. this will apply the changes on the target.',
