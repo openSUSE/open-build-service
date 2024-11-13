@@ -3376,121 +3376,27 @@ sub getbuildinfo {
   return ($binfo, $BSXML::buildinfo);
 }
 
-sub getbuildinfo_post_cpio {
-  my ($cgi, $projid, $repoid, $arch, $packid, $fp) = @_;
-
-  my $fn = $cgi->{'_fn'};
-  local *F;
-  open(F, '<', $fn) || die("$fn: $!\n");
-  unlink($fn);
-  my $dir = "$uploaddir/$$.dir";
-  mkdir_p($dir);
-  my $uploaded = BSHTTP::cpio_receiver(BSHTTP::fd2req(\*F), {'directory' => $dir});
-  close(F);
-  my %files = map {$_->{'name'} => "$dir/$_->{'name'}"} @$uploaded;
-  # should we check if the cpio archive contains <= 2 files?
-  $fn = (grep { $_->{'name'} ne 'deps' && $_->{'name'} ne 'buildenv' && $_->{'name'} ne '_service'} @$uploaded)[0];
-  die("no build recipe file found\n") unless $fn;
-  my @r;
-  eval {
-    @r = getbuildinfo_post({ %$cgi, '_fn' => "$dir/$fn->{'name'}", '_buildtype' => Build::recipe2buildtype($fn->{'name'}), '_files' => \%files}, $projid, $repoid, $arch, $packid);
-  };
-  # cleanup
-  unlink("$dir/$_") for ls($dir);
-  rmdir($dir) if -d $dir;
-  die("$@\n") if $@;
-  return @r;
-}
-
-sub getbuildinfo_rpm_includecallback {
-  my ($files, $fn) = @_;
-  my %files = %$files;
-  if ($files{'_service'}) {
-    for (sort keys %files) {
-      next unless /^_service:.*:(.*?)$/s;
-      $files{$1} = delete($files{$_}) if $files{$_};
-    }
-  }
-  $fn =~ s/.*\///;
-  $fn = $files{$fn};
-  return undef unless $fn;
-  my @s = stat($fn);
-  return undef if !@s || $s[7] > 100000;
-  return readstr($fn);
-}
-
-sub getbuildinfo_post {
-  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
-
-  my $fn = $cgi->{'_fn'};
-  if (!$fn) {
-    # get POST body
-    mkdir_p($uploaddir);
-    $fn = "$uploaddir/$$";
-    die("upload failed\n") unless BSServer::read_file($fn);
-
-    # check if the upload is a cpio archive by looking at the first 6 bytes
-    local *F;
-    open(F, '<', $fn) || die("$fn: $!\n");
-    my $magic;
-    sysread(F, $magic, 6);
-    close(F);
-    return getbuildinfo_post_cpio({ %$cgi, '_fn' => $fn }, $projid, $repoid, $arch, $packid) if $magic eq '070701';
-  }
-
-  my $files = $cgi->{'_files'} || {};
+sub getbuildinfo_post_common {
+  my ($cgi, $projid, $repoid, $arch, $packid, $fn, $buildtype, $files) = @_;
 
   my $bconf = BSRepServer::getconfig($projid, $repoid, $arch);
-  $bconf->{'type'} = $cgi->{'_buildtype'} if $cgi->{'_buildtype'};
-  my $type = $bconf->{'type'};
-  if (defined($packid)) {
-    if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
-      $packid =~ /^(.*):(.*?)$/;
-      $packid = $1;
-      $bconf->{'buildflavor'} = $2;
-    }
-    undef $packid if $packid eq '_repository';
+  if (defined($packid) && $packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
+    $packid =~ /^(.*):(.*?)$/;
+    $packid = $1;
+    $bconf->{'buildflavor'} = $2;
   }
+  undef $packid if $packid && $packid eq '_repository';
   $bconf->{'obspackage'} = $packid if defined $packid;
-  local $Build::Rpm::includecallback = sub { getbuildinfo_rpm_includecallback($files, @_) };
-  my $d = Build::parse_typed($bconf, $fn, $type);
-  unlink($fn);
-  die("unknown repository type $type\n") unless $d;
-  die("could not parse build description ($type): $d->{'error'}\n") if $d->{'error'};
-  die("could not parse name in build description ($type)\n") unless defined $d->{'name'};
+  $bconf->{'type'} = $buildtype if $buildtype;
 
-  # build info from parsed data
-  my $info = { 'repository' => $repoid };
-  $info->{'name'} = $d->{'name'};
-  $info->{'dep'} = $d->{'deps'};
-  $info->{'subpacks'} = $d->{'subpacks'} if $d->{'subpacks'};
-  if ($d->{'prereqs'}) {
-    my %deps = map {$_ => 1} (@{$d->{'deps'} || []}, @{$d->{'subpacks'} || []});
-    my @prereqs = grep {!$deps{$_} && !/^%/} @{$d->{'prereqs'}};
-    $info->{'prereq'} = \@prereqs if @prereqs;
-  }
-  $info->{'path'} = $d->{'path'} if $d->{'path'};
-  $info->{'containerpath'} = $d->{'containerpath'} if $d->{'containerpath'};
-  if ($type eq 'kiwi' || $type eq 'productcompose') {
-    $info->{'imagetype'} = $d->{'imagetype'} if $d->{'imagetype'};
-    $info->{'imagearch'} = $d->{'exclarch'} if $d->{'exclarch'};
-    my $imagetype = $type eq 'kiwi' && $d->{'imagetype'} ? ($d->{'imagetype'}->[0] || '') : '';
-    if ($type eq 'productcompose' || $imagetype eq 'product') {
-      $info->{'nodbgpkgs'} = 1 if defined($d->{'debugmedium'}) && $d->{'debugmedium'} <= 0;
-      $info->{'nosrcpkgs'} = 1 if defined($d->{'sourcemedium'}) && $d->{'sourcemedium'} <= 0;
-    }
-  }
+  $files ||= {};
+  my $info = eval { BSRepServer::BuildInfo::parse_recipe($bconf, $fn, $files) };
+  die $@ if $@;
+  $info->{'repository'} = $repoid;
 
-  my $pdata = {'buildtype' => $type, 'info' => [ $info ]};
+  my $pdata = {'buildtype' => $bconf->{'type'}, 'info' => [ $info ]};
   $pdata->{'buildenv'} = readxml($files->{'buildenv'}, $BSXML::buildinfo) if $files->{'buildenv'};
   $pdata->{'ldepfile'} = $files->{'deps'} if $files->{'deps'};
-  if ($files->{'_service'}) {
-    my $services = readxml($files->{'_service'}, $BSXML::services);
-    for my $service (@{$services->{'service'} || []}) {
-       next unless $service->{'mode'} && $service->{'mode'} eq 'buildtime';
-       push @{$info->{'buildtimeservice'}}, $service->{'name'};
-     }
-  }
 
   my $binfo = BSRepServer::BuildInfo::buildinfo($projid, $repoid, $arch, $packid,
 	  pdata	   => $pdata,
@@ -3499,6 +3405,51 @@ sub getbuildinfo_post {
 	  debug    => $cgi->{'debug'},
 	);
   return ($binfo, $BSXML::buildinfo);
+}
+
+sub getbuildinfo_post_cpio {
+  my ($cgi, $projid, $repoid, $arch, $packid, $cpiofn) = @_;
+
+  local *F;
+  open(F, '<', $cpiofn) || die("$cpiofn: $!\n");
+  unlink($cpiofn);
+  my $dir = "$uploaddir/$$.dir";
+  mkdir_p($dir);
+  my $uploaded = BSHTTP::cpio_receiver(BSHTTP::fd2req(\*F), {'directory' => $dir});
+  close(F);
+  my %files = map {$_->{'name'} => "$dir/$_->{'name'}"} @$uploaded;
+  # should we check if the cpio archive contains <= 2 files?
+  my $fn = (grep { $_->{'name'} ne 'deps' && $_->{'name'} ne 'buildenv' && $_->{'name'} ne '_service'} @$uploaded)[0];
+  die("no build recipe file found\n") unless $fn;
+  my $buildtype = Build::recipe2buildtype($fn->{'name'});
+  my @r = eval { getbuildinfo_post_common($cgi, $projid, $repoid, $arch, $packid, "$dir/$fn->{'name'}", $buildtype, \%files) };
+  # cleanup
+  unlink("$dir/$_") for ls($dir);
+  rmdir($dir) if -d $dir;
+  die("$@\n") if $@;
+  return @r;
+}
+
+sub getbuildinfo_post {
+  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+
+  mkdir_p($uploaddir);
+  my $fn = "$uploaddir/$$";
+  die("upload failed\n") unless BSServer::read_file($fn);
+
+  # check if the upload is a cpio archive by looking at the first 6 bytes
+  local *F;
+  open(F, '<', $fn) || die("$fn: $!\n");
+  my $magic;
+  sysread(F, $magic, 6);
+  close(F);
+  return getbuildinfo_post_cpio($cgi, $projid, $repoid, $arch, $packid, $fn) if $magic eq '070701';
+
+  # it's a simple recipe file 
+  my @r = eval { getbuildinfo_post_common($cgi, $projid, $repoid, $arch, $packid, $fn) };
+  unlink($fn);
+  die("$@\n") if $@;
+  return @r;
 }
 
 sub getbuilddepinfo {
