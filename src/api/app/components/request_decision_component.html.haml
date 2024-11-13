@@ -64,18 +64,6 @@
                             class: 'btn-link dropdown-item', data: confirmation,
                             title: 'Accept the request. this will apply the changes on the target.',
                             id: 'accept-and-make-maintainer')
-              -# Accept and forward buttons
-              - if @forward_allowed
-                -# Accept and forward submit
-                = submit_tag('Accept and forward request to the selected projects ', name: 'accepted', class: 'btn-link dropdown-item',
-                              data: confirmation, title: 'Accept the request. this will apply the changes on the target.',
-                              id: 'accept-and-forward')
-                -# Accept and make maintainer and forward submit
-                - if show_add_submitter_as_maintainer_option?
-                  = submit_tag("Accept and make #{@creator} maintainer of #{make_maintainer_of} and forward request to the selected projects",
-                                name: 'accepted', class: 'btn-link dropdown-item', data: confirmation,
-                                title: 'Accept the request. this will apply the changes on the target.',
-                                id: 'accept-and-make-maintainer-and-forward')
 
         - if policy(@bs_request).reopen_request?
           = submit_tag 'Reopen request', name: 'new', class: 'btn btn-warning me-2', data: other_decision_confirmation('reopen')
