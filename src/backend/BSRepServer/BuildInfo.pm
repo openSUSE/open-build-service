@@ -229,4 +229,61 @@ sub fixupbuildinfo {
   $binfo->{'modularity_yaml'} = getmodulemddata($binfo) if $binfo->{'modularity_label'};
 }
 
+# callback for the recipe parser
+sub parse_recipe_includecallback {
+  my ($files, $fn) = @_;
+  my %files = %$files;
+  if ($files{'_service'}) {
+    for (sort keys %files) {
+      next unless /^_service:.*:(.*?)$/s;
+      $files{$1} = delete($files{$_}) if $files{$_};
+    }
+  }
+  $fn =~ s/.*\///;
+  $fn = $files{$fn};
+  return undef unless $fn;
+  my @s = stat($fn);
+  return undef if !@s || $s[7] > 100000;
+  return readstr($fn);
+}
+
+# this is similar to the getprojpack code in bs_srcserver
+sub parse_recipe {
+  my ($bconf, $recipefile, $files) = @_;
+  my $type = $bconf->{'type'};
+  local $Build::Rpm::includecallback = sub { parse_recipe_includecallback($files, @_) };
+  my $d = Build::parse_typed($bconf, $recipefile, $type);
+  die("unknown repository type $type\n") unless $d;
+  die("could not parse build description ($type): $d->{'error'}\n") if $d->{'error'};
+  die("could not parse name in build description ($type)\n") unless defined $d->{'name'};
+
+  # build info from parsed data
+  my $info = { 'name' => $d->{'name'}, 'dep' => $d->{'deps'} };
+  $info->{'subpacks'} = $d->{'subpacks'} if $d->{'subpacks'};
+  if ($d->{'prereqs'}) {
+    my %deps = map {$_ => 1} (@{$d->{'deps'} || []}, @{$d->{'subpacks'} || []});
+    my @prereqs = grep {!$deps{$_} && !/^%/} @{$d->{'prereqs'}};
+    $info->{'prereq'} = \@prereqs if @prereqs;
+  }
+  $info->{'path'} = $d->{'path'} if $d->{'path'};
+  $info->{'containerpath'} = $d->{'containerpath'} if $d->{'containerpath'};
+  if ($type eq 'kiwi' || $type eq 'productcompose') {
+    $info->{'imagetype'} = $d->{'imagetype'} if $d->{'imagetype'};
+    $info->{'imagearch'} = $d->{'exclarch'} if $d->{'exclarch'};
+    my $imagetype = $type eq 'kiwi' && $d->{'imagetype'} ? ($d->{'imagetype'}->[0] || '') : '';
+    if ($type eq 'productcompose' || $imagetype eq 'product') {
+      $info->{'nodbgpkgs'} = 1 if defined($d->{'debugmedium'}) && $d->{'debugmedium'} <= 0;
+      $info->{'nosrcpkgs'} = 1 if defined($d->{'sourcemedium'}) && $d->{'sourcemedium'} <= 0;
+    }
+  }
+  if ($files->{'_service'}) {
+    my $services = readxml($files->{'_service'}, $BSXML::services);
+    for my $service (@{$services->{'service'} || []}) {
+       next unless $service->{'mode'} && $service->{'mode'} eq 'buildtime';
+       push @{$info->{'buildtimeservice'}}, $service->{'name'};
+     }
+  }
+  return $info;
+}
+
 1;
