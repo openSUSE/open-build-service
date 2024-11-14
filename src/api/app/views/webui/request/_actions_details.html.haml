@@ -20,9 +20,11 @@
                 %span Seen
               %span Action
               %span.float-end Revision
+          - seen_by_user = BsRequestActionsSeenByUser.where(user: User.session, bs_request_action: actions).pluck(:bs_request_action_id)
           - actions.each_with_index do |action_item, action_index|
             %li.border-top
-              = link_to((render partial: 'action_text', locals: { action: action_item, action_index: action_index }),
+              = link_to((render partial: 'action_text', locals: { action: action_item, action_index: action_index,
+                                                                  seen_by_user: seen_by_user.include?(action_item.id) }),
                                                         next_prev_path(number: bs_request.number,
                                                                        request_action_id: action_item.id,
                                                                        diff_to_superseded: diff_to_superseded_id, page_name: page_name),
