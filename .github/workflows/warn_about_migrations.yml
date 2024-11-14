@@ -23,7 +23,7 @@ jobs:
           echo "pr_number=$(cat migrations_artifacts/pr_number.txt)" >> $GITHUB_ENV
 
       - name: Add comment about migration to PR
-        uses: thollander/actions-comment-pull-request@v2
+        uses: thollander/actions-comment-pull-request@v3
         if: ${{ hashFiles('migrations_artifacts/comment_text_migrations.txt') != '' }}
         with:
           filePath: migrations_artifacts/comment_text_migrations.txt
@@ -31,7 +31,7 @@ jobs:
           comment_tag: comment_about_migrations
 
       - name: Add comment about missing db schema to PR
-        uses: thollander/actions-comment-pull-request@v2
+        uses: thollander/actions-comment-pull-request@v3
         if: ${{ hashFiles('migrations_artifacts/comment_text_db_schema.txt') != '' }}
         with:
           filePath: migrations_artifacts/comment_text_db_schema.txt
@@ -39,7 +39,7 @@ jobs:
           comment_tag: comment_about_db_schema
 
       - name: Add comment about missing data schema to PR
-        uses: thollander/actions-comment-pull-request@v2
+        uses: thollander/actions-comment-pull-request@v3
         if: ${{ hashFiles('migrations_artifacts/comment_text_data_schema.txt') != '' }}
         with:
           filePath: migrations_artifacts/comment_text_data_schema.txt
