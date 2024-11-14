@@ -46,5 +46,8 @@ post:
     - $ref: '../components/parameters/repository_name.yaml'
     - $ref: '../components/parameters/architecture_name.yaml'
     - $ref: '../components/parameters/package_name.yaml'
+    - $ref: '../components/parameters/diff_rev.yaml'
+    - $ref: '../components/parameters/limit.yaml'
+    - $ref: '../components/parameters/package_meta.yaml'
   tags:
     - Build
