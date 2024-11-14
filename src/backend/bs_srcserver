@@ -1036,13 +1036,13 @@ sub readbuildenv {
 sub rpm_includecallback {
   my ($rev, $files, $fn) = @_;
   my %files = map {$_ => $_} keys %$files;
-  if ($files{'_service'}) {
+  $fn =~ s/.*\///;
+  if ($fn ne '_service' && $files{'_service'}) {
     for (sort keys %files) {
       next unless /^_service:.*:(.*?)$/s;
       $files{$1} = delete($files{$_}) if $files{$_};
     }
   }
-  $fn =~ s/.*\///;
   $fn = $files{$fn};
   return undef unless $fn;
   my @s = BSRevision::revstat($rev, $fn, $files->{$fn});
@@ -6708,7 +6708,7 @@ sub sourceinfo_findrecipe {
 }
 
 sub sourceinfo_parse {
-  my ($r, $projid, $packid, $bconf, $recipe, $fn) = @_;
+  my ($r, $projid, $packid, $bconf, $recipe, $recipefn, $servicefn) = @_;
   my $buildtype = Build::recipe2buildtype($recipe);
   if (!$buildtype) {
     $r->{'error'} = "don't know how to build $recipe";
@@ -6721,7 +6721,7 @@ sub sourceinfo_parse {
     $bconf->{'obspackage'} = $1;
     $bconf->{'buildflavor'} = $2;
   }
-  my $d = eval { Build::parse_typed($bconf, $fn, $buildtype) };
+  my $d = eval { Build::parse_typed($bconf, $recipefn, $buildtype) };
   if ($@) {
     $r->{'error'} = "parse error: $@";
     $r->{'error'} =~ s/\n.*//s;
@@ -6729,6 +6729,12 @@ sub sourceinfo_parse {
     $d ||= { 'error' => 'parse error' };
     for (qw{name version release subpacks deps prereqs exclarch badarch error}) {
       $r->{$_} = $d->{$_} if defined $d->{$_};
+    }
+  }
+  if ($servicefn) {
+    my $services = readxml($servicefn, $BSXML::services, 1) || {};
+    for my $service (@{$services->{'service'} || []}) {
+      push @{$r->{'buildtimeservice'}}, $service->{'name'} if ($service->{'mode'} || '') eq 'buildtime';
     }
   }
 }
@@ -6816,21 +6822,17 @@ sub sourceinfo {
   }
   return $r if $cgi->{'nofilename'} || $packid eq '_pattern';
   my $type = $bconf->{'type'} && $bconf->{'type'} ne 'UNDEFINED' ? $bconf->{'type'} : undef;
-  my $file = sourceinfo_findrecipe($rev, $cgi->{'repository'}, $type, $files);
-  if (!$file) {
+  my $recipe = sourceinfo_findrecipe($rev, $cgi->{'repository'}, $type, $files);
+  if (!$recipe) {
     $r->{'error'} = $type ? "no file found for build type '$type'" : 'bad build configuration, no build type defined or detected';
     return $r;
   }
-  $r->{'filename'} = $file;
-  if ($cgi->{'parse'} && $file ne '_aggregate' && $file ne '_patchinfo') {
+  $r->{'filename'} = $recipe;
+  if ($cgi->{'parse'} && $recipe ne '_aggregate' && $recipe ne '_patchinfo') {
     local $Build::Rpm::includecallback = sub { rpm_includecallback($rev, $files, @_) };
-    sourceinfo_parse($r, $projid, $packid, $bconf, $file, BSRevision::revfilename($rev, $file, $files->{$file}));
-    if ($files->{'_service'}) {
-      my $services = BSRevision::revreadxml($rev, '_service', $files->{'_service'}, $BSXML::services, 1) || {};
-      for my $service (@{$services->{'service'} || []}) {
-        push @{$r->{'buildtimeservice'}}, $service->{'name'} if ($service->{'mode'} || '') eq 'buildtime';
-      }
-    }
+    my $recipefile = BSRevision::revfilename($rev, $recipe, $files->{$recipe});
+    my $servicefile = $files->{'_service'} ? BSRevision::revfilename($rev, '_service', $files->{'_service'}) : undef;
+    sourceinfo_parse($r, $projid, $packid, $bconf, $recipe, $recipefile, $servicefile);
   }
   return $r;
 }
@@ -6900,13 +6902,13 @@ sub getpackagesourceinfo {
 sub getpackagesourceinfo_post_includecallback {
   my ($files, $fn) = @_;
   my %files = %$files;
-  if ($files{'_service'}) {
+  $fn =~ s/.*\///;
+  if ($fn ne '_service' && $files{'_service'}) {
     for (sort keys %files) {
       next unless /^_service:.*:(.*?)$/s;
       $files{$1} = delete($files{$_}) if $files{$_};
     }
   }
-  $fn =~ s/.*\///;
   $fn = $files{$fn};
   return undef unless $fn;
   my @s = stat($fn);
@@ -6950,13 +6952,7 @@ sub getpackagesourceinfo_post_common {
   $r->{'filename'} = $recipe;
   if ($cgi->{'parse'} && $recipe ne '_aggregate' && $recipe ne '_patchinfo') {
     local $Build::Rpm::includecallback = sub { getpackagesourceinfo_post_includecallback($files, @_) };
-    sourceinfo_parse($r, $projid, $packid, $bconf, $recipe, $files->{$recipe});
-    if ($files->{'_service'}) {
-      my $services = readxml($files->{'_service'}, $BSXML::services, 1) || {};
-      for my $service (@{$services->{'service'} || []}) {
-        push @{$r->{'buildtimeservice'}}, $service->{'name'} if ($service->{'mode'} || '') eq 'buildtime';
-      }
-    }
+    sourceinfo_parse($r, $projid, $packid, $bconf, $recipe, $files->{$recipe}, $files->{'_service'});
   }
   return ($r, $BSXML::sourceinfo);
 }
