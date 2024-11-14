@@ -22,7 +22,7 @@ RSpec.configure do |config|
   # or record new ones you can enable writing to the backend here.
   config.before do
     stub_request(:get, /download.opensuse.org/).to_return(status: [500, 'Internal Server Error'])
-    stub_request(:get, /www.gravatar.com/).to_return(body: File.new(Rails.root.join('app', 'assets', 'images', 'default_face.png')))
+    stub_request(:get, /www.gravatar.com/).to_return(body: File.new(Rails.root.join('app/assets/images/default_face.png')))
     CONFIG['global_write_through'] = true if ENV.fetch('GLOBAL_WRITE_THROUGH', 'false').in?([:on, ':on', 'on', 'true'])
   end
   # You can also limit this to the type of test with

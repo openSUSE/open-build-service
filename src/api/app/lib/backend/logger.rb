@@ -1,7 +1,7 @@
 module Backend
   # Class that implements a logger to write output in the backend logs
   class Logger
-    @backend_logger = ::Logger.new("#{Rails.root}/log/backend_access.log")
+    @backend_logger = ::Logger.new(Rails.root.join('log/backend_access.log').to_s)
     @backend_time = 0
 
     def self.reset_runtime

@@ -7,7 +7,7 @@ RSpec.shared_context 'rake' do
     Rake.application = Rake::Application.new
     Rake.application.rake_require(
       self.class.top_level_description,
-      [Rails.root.join('lib', 'tasks').to_s, Rails.root.join('lib', 'tasks', 'dev').to_s]
+      [Rails.root.join('lib/tasks').to_s, Rails.root.join('lib/tasks/dev').to_s]
     )
     Rake::Task.define_task(:environment)
   end

@@ -20,7 +20,7 @@ module Backend
 
     # Sets the content File object for that model instance, calculates the right response data
     def file=(input_stream)
-      Tempfile.open('backend_file', "#{Rails.root}/tmp", encoding: 'ascii-8bit') do |tempfile|
+      Tempfile.open('backend_file', Rails.root.join('tmp').to_s, encoding: 'ascii-8bit') do |tempfile|
         buffer = ''
         tempfile.write(buffer) while input_stream.read(BUFFER_SIZE, buffer)
         @file = tempfile

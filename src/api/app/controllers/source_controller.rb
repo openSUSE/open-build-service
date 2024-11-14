@@ -857,7 +857,7 @@ class SourceController < ApplicationController
                    message: 'SPEC file already exists.'
       return
     rescue Backend::NotFoundError
-      specfile_content = File.read("#{Rails.root}/files/specfiletemplate")
+      specfile_content = File.read(Rails.root.join('files/specfiletemplate').to_s)
       Backend::Api::Sources::Package.write_file(params[:project], params[:package], "#{params[:package]}.spec", specfile_content)
     end
     render_ok
