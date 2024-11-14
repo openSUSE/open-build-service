@@ -23,7 +23,7 @@
 package BSPGP;
 
 use MIME::Base64 ();
-use Digest;
+use Digest::SHA ();
 
 use strict;
 
@@ -216,9 +216,7 @@ sub pk2fingerprint_keyid {
   die("not a public key\n") unless $tag == 6;
   my $ver = unpack('C', substr($pack, 0, 1));
   die("fingerprint calculation needs at least V4 keys\n") if $ver < 4;
-  my $ctx = Digest->new("SHA-1");
-  $ctx->add(pack('Cn', 0x99, length($pack)).$pack);
-  my $fp = $ctx->hexdigest();
+  my $fp = Digest::SHA::sha1_hex(pack('Cn', 0x99, length($pack)).$pack);
   return $fp, substr($fp, -16, 16), $ver;
 }
 
