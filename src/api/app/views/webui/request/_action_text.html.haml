@@ -5,7 +5,9 @@
       = render ActionSeenByUserComponent.new(action: action, user: user, render_only: true)
 
   .d-block.w-100
-    - details = action.commit_details
+    -# TODO: Load the revision details after the initial page load, otherwise this is very slow with many actions
+    - details = false
+    -# details = action.commit_details
     - if details
       - if details.key?('comment') && details['comment'].instance_of?(String)
         %p.mt-0.mb-0.fw-normal
