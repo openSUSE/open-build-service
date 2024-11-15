@@ -2,7 +2,7 @@
 .d-flex.align-items-center
   - if (user = User.session)
     .ms-1.me-3{ id: "action-seen-by-user-wrapper-in-select-#{action.id}" }
-      = render ActionSeenByUserComponent.new(action: action, user: user, render_only: true)
+      = render ActionSeenByUserComponent.new(action: action, user: user, seen_by_user: seen_by_user, render_only: true)
 
   .d-block.w-100
     -# TODO: Load the revision details after the initial page load, otherwise this is very slow with many actions
