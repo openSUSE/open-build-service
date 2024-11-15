@@ -269,7 +269,7 @@ GEM
     method_source (1.1.0)
     middleware (0.1.0)
     mini_mime (1.1.5)
-    mini_portile2 (2.8.7)
+    mini_portile2 (2.8.8)
     minitest (5.25.1)
     minitest-ci (3.4.0)
       minitest (>= 5.0.6)
