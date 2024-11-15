@@ -31,6 +31,8 @@ class BsRequestActionRelease < BsRequestAction
   # rubocop:enable Naming/PredicateName
 
   def uniq_key
+    return "#{target_project}/#{target_package}/#{target_repository}" if target_repository.present?
+
     "#{target_project}/#{target_package}"
   end
 
