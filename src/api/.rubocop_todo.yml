@@ -659,21 +659,6 @@ Rails/ApplicationController:
 # SupportedStyles: slashes, arguments
 Rails/FilePath:
   Exclude:
-    - 'app/controllers/concerns/backend_proxy.rb'
-    - 'app/controllers/source_controller.rb'
-    - 'app/controllers/webui/projects/rebuild_times_controller.rb'
-    - 'app/lib/backend/file.rb'
-    - 'app/lib/backend/logger.rb'
-    - 'app/lib/backend/test.rb'
-    - 'app/lib/backend/test/tasks.rb'
-    - 'config/environment.rb'
-    - 'config/initializers/secret_token.rb'
-    - 'config/initializers/tempdir.rb'
-    - 'lib/tasks/extract.rake'
-    - 'script/start_test_backend'
-    - 'spec/shared/contexts/rake.rb'
-    - 'spec/support/capybara.rb'
-    - 'spec/support/vcr.rb'
     - 'test/functional/backend_test.rb'
     - 'test/functional/channel_maintenance_test.rb'
     - 'test/functional/kgraft_maintenance_test.rb'

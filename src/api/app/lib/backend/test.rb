@@ -10,7 +10,7 @@ module Backend
       return if ENV['BACKEND_STARTED']
 
       print 'Starting test backend...'
-      @backend = IO.popen("#{Rails.root}/script/start_test_backend")
+      @backend = IO.popen(Rails.root.join('script/start_test_backend').to_s)
       Rails.logger.debug { "Test backend started with pid: #{@backend.pid}" }
       loop do
         line = @backend.gets
@@ -34,7 +34,7 @@ module Backend
 
       Rails.logger.debug 'Wait for scheduler thread to finish start'
       counter = 0
-      marker = Rails.root.join('tmp', 'scheduler.done')
+      marker = Rails.root.join('tmp/scheduler.done')
       while counter < 100
         return if ::File.exist?(marker)
 

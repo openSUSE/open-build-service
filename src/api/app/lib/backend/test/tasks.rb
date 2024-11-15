@@ -17,7 +17,7 @@ module Backend
       def run_admin(args)
         Rails.logger.debug 'run admin'
         ret = -1
-        perlopts = "-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
+        perlopts = "-I#{Rails.root.join('../backend')} -I#{Rails.root.join('../backend/build')}"
         IO.popen("cd #{backend_config}; exec perl #{perlopts} ./bs_admin #{args}") do |io|
           io.each { |line| Rails.logger.debug { "bs_admin: #{line.strip.chomp}" } if line.present? }
           io.close
@@ -30,7 +30,7 @@ module Backend
 
       def execute_backend_daemon(name:, command:)
         Rails.logger.debug { "run #{name}" }
-        perlopts = "-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
+        perlopts = "-I#{Rails.root.join('../backend')} -I#{Rails.root.join('../backend/build')}"
         IO.popen("cd #{backend_config}; exec perl #{perlopts} #{command}") do |io|
           io.each_line { |line| Rails.logger.debug { "#{name}: #{line.strip.chomp}" } if line.present? }
         end
