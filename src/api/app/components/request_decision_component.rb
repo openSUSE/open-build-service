@@ -6,6 +6,8 @@ class RequestDecisionComponent < ApplicationComponent
     @is_target_maintainer = is_target_maintainer
     @action = action
     @package_maintainers = package_maintainers
+    @creator = bs_request.creator
+    @forward_allowed = forward_allowed?
 
     return unless render? && show_project_maintainer_hint
 
@@ -37,5 +39,17 @@ class RequestDecisionComponent < ApplicationComponent
 
   def show_add_submitter_as_maintainer_option?
     @action.type == 'submit' && !@action.creator_is_target_maintainer
+  end
+
+  def accept_with_options_allowed?
+    single_action_request && @is_target_maintainer && @bs_request.state.in?(%i[new review])
+  end
+
+  def forward_allowed?
+    @action.type == 'submit' && policy(@bs_request).accept_request? && @action.forward.any?
+  end
+
+  def make_maintainer_of
+    @action.target_project + ("/#{@action.target_package}" if @action.target_package)
   end
 end
