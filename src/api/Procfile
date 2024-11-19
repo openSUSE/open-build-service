@@ -1,4 +1,5 @@
 web: bin/rails server -b 0.0.0.0
+css: bin/rails dartsass:watch
 delayed: bundle exec script/delayed_job.api.rb run
 clock: bin/clockworkd --log-dir=log -l -c config/clock.rb run
 search: bin/rails sphinx:start_for_development

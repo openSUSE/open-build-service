@@ -232,7 +232,7 @@ group :assets do
   # for minifying JavaScript
   gem 'terser'
   # to use sass in the asset pipeline
-  gem 'sassc-rails'
+  gem 'dartsass-rails'
   # assets for jQuery DataTables
   gem 'jquery-datatables'
   # assets for jQuery and jQuery-ujs
