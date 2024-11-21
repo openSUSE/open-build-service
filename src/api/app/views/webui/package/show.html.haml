@@ -24,10 +24,7 @@
           = render WatchlistIconComponent.new(user: User.session,
                                               package: @package,
                                               project: @project,
-                                              current_object: @package,
-                                              bs_requests: @watched_requests,
-                                              packages: @watched_packages,
-                                              projects: @watched_projects)
+                                              current_object: @package)
     .row
       .col-md-8
         .mb-3

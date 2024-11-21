@@ -18,10 +18,7 @@
         .d-inline.ms-1#watchlist-icon-wrapper
           = render WatchlistIconComponent.new(user: User.session,
                                               project: @project,
-                                              current_object: @project,
-                                              bs_requests: @watched_requests,
-                                              packages: @watched_packages,
-                                              projects: @watched_projects)
+                                              current_object: @project)
     .row
       .col-md-8
         = render partial: 'basic_info', locals: { project: @project }

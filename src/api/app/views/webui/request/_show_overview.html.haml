@@ -6,10 +6,7 @@
     .d-inline.ms-2#watchlist-icon-wrapper
       = render WatchlistIconComponent.new(user: User.session,
                                           bs_request: bs_request,
-                                          current_object: bs_request,
-                                          bs_requests: bs_requests,
-                                          packages: packages,
-                                          projects: projects)
+                                          current_object: bs_request)
 
 #description-text
   - if bs_request.description.present?
