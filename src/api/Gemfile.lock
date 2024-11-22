@@ -312,7 +312,7 @@ GEM
     parser (3.3.6.0)
       ast (~> 2.4.1)
       racc
-    pkg-config (1.5.7)
+    pkg-config (1.5.8)
     popper_js (2.11.8)
     power_assert (2.0.4)
     pry (0.14.2)
