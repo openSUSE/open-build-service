@@ -1036,13 +1036,13 @@ sub readbuildenv {
 sub rpm_includecallback {
   my ($rev, $files, $fn) = @_;
   my %files = map {$_ => $_} keys %$files;
-  if ($files{'_service'}) {
+  $fn =~ s/.*\///;
+  if ($fn ne '_service' && $files{'_service'}) {
     for (sort keys %files) {
       next unless /^_service:.*:(.*?)$/s;
       $files{$1} = delete($files{$_}) if $files{$_};
     }
   }
-  $fn =~ s/.*\///;
   $fn = $files{$fn};
   return undef unless $fn;
   my @s = BSRevision::revstat($rev, $fn, $files->{$fn});
@@ -6691,6 +6691,54 @@ sub getdispatchprios {
 
 ####################################################################
 
+sub sourceinfo_findrecipe {
+  my ($rev, $repoid, $type, $files) = @_;
+  return '_aggregate' if $files->{'_aggregate'};
+  return '_patchinfo' if $files->{'_patchinfo'};
+  if ($type) {
+    return findfile($rev, $repoid, $type, $files);
+  } else {
+    for my $t ('spec', 'dsc', 'kiwi', 'docker', 'productcompose') {
+      my $file = findfile($rev, $repoid, $t, $files);
+      next unless defined $file;
+      return $file;
+    }
+    return undef;
+  }
+}
+
+sub sourceinfo_parse {
+  my ($r, $projid, $packid, $bconf, $recipe, $recipefn, $servicefn) = @_;
+  my $buildtype = Build::recipe2buildtype($recipe);
+  if (!$buildtype) {
+    $r->{'error'} = "don't know how to build $recipe";
+    return;
+  }
+  local $bconf->{'obspackage'} = $packid;
+  local $bconf->{'buildflavor'};
+  if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
+    $packid =~ /^(.*):(.*?)$/;
+    $bconf->{'obspackage'} = $1;
+    $bconf->{'buildflavor'} = $2;
+  }
+  my $d = eval { Build::parse_typed($bconf, $recipefn, $buildtype) };
+  if ($@) {
+    $r->{'error'} = "parse error: $@";
+    $r->{'error'} =~ s/\n.*//s;
+  } else {
+    $d ||= { 'error' => 'parse error' };
+    for (qw{name version release subpacks deps prereqs exclarch badarch error}) {
+      $r->{$_} = $d->{$_} if defined $d->{$_};
+    }
+  }
+  if ($servicefn) {
+    my $services = readxml($servicefn, $BSXML::services, 1) || {};
+    for my $service (@{$services->{'service'} || []}) {
+      push @{$r->{'buildtimeservice'}}, $service->{'name'} if ($service->{'mode'} || '') eq 'buildtime';
+    }
+  }
+}
+
 sub sourceinfo {
   my ($cgi, $projid, $packid, $bconf, $ispkgsourceinfo) = @_;
   my $r = {'package' => $packid};
@@ -6772,73 +6820,19 @@ sub sourceinfo {
       }
     }
   }
-  return $r if $cgi->{'nofilename'};
-  return $r if $packid eq '_pattern';
-  if ($files->{'_aggregate'}) {
-    $r->{'filename'} = '_aggregate';
-    return $r;
-  } elsif ($files->{'_patchinfo'}) {
-    $r->{'filename'} = '_patchinfo';
+  return $r if $cgi->{'nofilename'} || $packid eq '_pattern';
+  my $type = $bconf->{'type'} && $bconf->{'type'} ne 'UNDEFINED' ? $bconf->{'type'} : undef;
+  my $recipe = sourceinfo_findrecipe($rev, $cgi->{'repository'}, $type, $files);
+  if (!$recipe) {
+    $r->{'error'} = $type ? "no file found for build type '$type'" : 'bad build configuration, no build type defined or detected';
     return $r;
   }
-  my $type = $bconf->{'type'};
-  my $file;
-  if (!$type || $type eq 'UNDEFINED') {
-    undef $type;
-    for my $t ('spec', 'dsc', 'kiwi', 'productcompose') {
-      $file = findfile($rev, $cgi->{'repository'}, $t, $files);
-      next unless defined $file;
-      $type = $t;
-      last;
-    }
-  } else {
-    $file = findfile($rev, $cgi->{'repository'}, $type, $files);
-  }
-  if (!$type) {
-    $r->{'error'} = 'bad build configuration, no build type defined or detected';
-    return $r;
-  }
-  if (!$file) {
-    $r->{'error'} = "no file found for build type '$type'";
-    return $r;
-  }
-  $r->{'filename'} = $file;
-  return $r unless $cgi->{'parse'};
-  my $buildtype = Build::recipe2buildtype($file);
-  if (!$buildtype) {
-    $r->{'error'} = "don't know how to build $file";
-    return $r;
-  }
-  local $bconf->{'obspackage'} = $packid;
-  local $bconf->{'buildflavor'};
-  if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
-    $packid =~ /^(.*):(.*?)$/;
-    $bconf->{'obspackage'} = $1;
-    $bconf->{'buildflavor'} = $2;
-  }
-  
-  local $Build::Rpm::includecallback = sub { rpm_includecallback($rev, $files, @_) };
-  my $d;
-  eval {
-    $d = Build::parse_typed($bconf, BSRevision::revfilename($rev, $file, $files->{$file}), $buildtype);
-  };
-  if ($@) {
-    $r->{'error'} = "parse error: $@";
-    $r->{'error'} =~ s/\n.*//s;
-    return $r;
-  }
-  if (!$d) {
-    $r->{'error'} = 'parse error';
-    return $r;
-  }
-  for (qw{name version release subpacks deps prereqs exclarch badarch}) {
-    $r->{$_} = $d->{$_} if defined $d->{$_};
-  }
-  if ($files->{'_service'}) {
-    my $services = BSRevision::revreadxml($rev, '_service', $files->{'_service'}, $BSXML::services, 1) || {};
-    for my $service (@{$services->{'service'} || []}) {
-      push @{$r->{'buildtimeservice'}}, $service->{'name'} if ($service->{'mode'} || '') eq 'buildtime';
-    }
+  $r->{'filename'} = $recipe;
+  if ($cgi->{'parse'} && $recipe ne '_aggregate' && $recipe ne '_patchinfo') {
+    local $Build::Rpm::includecallback = sub { rpm_includecallback($rev, $files, @_) };
+    my $recipefile = BSRevision::revfilename($rev, $recipe, $files->{$recipe});
+    my $servicefile = $files->{'_service'} ? BSRevision::revfilename($rev, '_service', $files->{'_service'}) : undef;
+    sourceinfo_parse($r, $projid, $packid, $bconf, $recipe, $recipefile, $servicefile);
   }
   return $r;
 }
@@ -6902,6 +6896,105 @@ sub getpackagesourceinfo {
   }
   my $res = sourceinfo($cgi, $projid, $packid, $bconf, 1);
   return ($res, $BSXML::sourceinfo);
+}
+
+# callback for the recipe parser
+sub getpackagesourceinfo_post_includecallback {
+  my ($files, $fn) = @_;
+  my %files = %$files;
+  $fn =~ s/.*\///;
+  if ($fn ne '_service' && $files{'_service'}) {
+    for (sort keys %files) {
+      next unless /^_service:.*:(.*?)$/s;
+      $files{$1} = delete($files{$_}) if $files{$_};
+    }
+  }
+  $fn = $files{$fn};
+  return undef unless $fn;
+  my @s = stat($fn);
+  return undef if !@s || $s[7] > 100000;
+  return readstr($fn);
+}
+
+sub getpackagesourceinfo_post_common {
+  my ($cgi, $projid, $packid, $recipe, $buildtype, $files) = @_;
+  $files ||= {};
+  die("file '$recipe' does not exist\n") if $recipe && !$files->{$recipe};
+  checkprojrepoarch($projid, $cgi->{'repository'}, $cgi->{'arch'}, 1);
+  my $cfile;
+  if (!$cgi->{'repository'}) {
+    $cfile = "$projectsdir/$projid.conf" if -e "$projectsdir/$projid.conf";
+  } else {
+    print "expandsearchpath $projid $cgi->{'repository'}...\n";
+    my @path = expandsearchpath($projid, $cgi->{'repository'});
+    my $c = concatconfigs($projid, $cgi->{'repository'}, undef, @path);
+    $cfile = [ split("\n", $c) ];
+  }
+  my $bconf = Build::read_config($cgi->{'arch'} || 'noarch', $cfile);
+  $bconf->{'type'} = $buildtype if $buildtype;
+  my $r = {'package' => $packid};
+  if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
+    $packid =~ /^(.*):(.*?)$/;
+    $r->{'originpackage'} = $1;
+  }
+  return ($r, $BSXML::sourceinfo) if $packid eq '_pattern';
+  if (!$recipe) {
+    # create fake rev for findfile()
+    my $rev = { 'package' => $packid };
+    $rev = { 'package' => $r->{'originpackage'}, 'originpackage' => $packid } if $r->{'originpackage'};
+    my $type = $bconf->{'type'} && $bconf->{'type'} ne 'UNDEFINED' ? $bconf->{'type'} : undef;
+    $recipe = sourceinfo_findrecipe($rev, $cgi->{'repository'}, $type, $files);
+    if (!$recipe) {
+      $r->{'error'} = $type ? "no file found for build type '$type'" : 'bad build configuration, no build type defined or detected';
+      return ($r, $BSXML::sourceinfo);
+    }
+  }
+  $r->{'filename'} = $recipe;
+  if ($cgi->{'parse'} && $recipe ne '_aggregate' && $recipe ne '_patchinfo') {
+    local $Build::Rpm::includecallback = sub { getpackagesourceinfo_post_includecallback($files, @_) };
+    sourceinfo_parse($r, $projid, $packid, $bconf, $recipe, $files->{$recipe}, $files->{'_service'});
+  }
+  return ($r, $BSXML::sourceinfo);
+}
+
+sub getpackagesourceinfo_post_cpio {
+  my ($cgi, $projid, $packid, $cpiofn) = @_;
+  local *F;
+  open(F, '<', $cpiofn) || die("$cpiofn: $!\n");
+  unlink($cpiofn);
+  my $dir = "$uploaddir/$$.dir";
+  mkdir_p($dir);
+  my $uploaded = BSHTTP::cpio_receiver(BSHTTP::fd2req(\*F), {'directory' => $dir});
+  close(F);
+  my %files = map {$_->{'name'} => "$dir/$_->{'name'}"} @$uploaded;
+  my @r = eval { getpackagesourceinfo_post_common($cgi, $projid, $packid, $cgi->{'filename'}, undef, \%files) };
+  unlink("$dir/$_") for ls($dir);
+  rmdir($dir) if -d $dir;
+  die("$@\n") if $@;
+  return @r;
+}
+
+sub getpackagesourceinfo_post {
+  my ($cgi, $projid, $packid) = @_;
+  mkdir_p($uploaddir);
+  my $fn = "$uploaddir/$$";
+  die("upload failed\n") unless BSServer::read_file($fn);
+  # check if the upload is a cpio archive by looking at the first 6 bytes
+  local *F;
+  open(F, '<', $fn) || die("$fn: $!\n");
+  my $magic;
+  sysread(F, $magic, 6);
+  close(F);
+  return getpackagesourceinfo_post_cpio($cgi, $projid, $packid, $fn) if $magic eq '070701';
+  if (!$cgi->{'filename'}) {
+    unlink($fn);
+    die("need a recipe filename\n");
+  }
+  my $files = { $cgi->{'filename'} => $fn };
+  my @r = eval { getpackagesourceinfo_post_common($cgi, $projid, $packid, $cgi->{'filename'}, undef, $files) };
+  unlink($fn);
+  die("$@\n") if $@;
+  return @r;
 }
 
 ####################################################################
@@ -7774,6 +7867,8 @@ my $dispatches = [
 
   '/source/$project/_history rev? meta:bool? deleted:bool? limit:num? startbefore:num?' => \&getpackagehistory,
   '/source/$project/_keyinfo withsslcert:bool? autoextend:bool? donotcreatecert:bool? signtype:? signflavor:?' => \&getkeyinfo,
+
+  'POST:/source/$project/$package view=info parse:bool? repository? arch? filename?' => \&getpackagesourceinfo_post,
 
   'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:? unified:bool? missingok:bool? meta:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool? nocache:bool? cacheonly:bool? nodiff:bool?' => \&sourcediff,
   'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool? nocache:bool? cacheonly:bool? nodiff:bool?' => \&linkdiff,

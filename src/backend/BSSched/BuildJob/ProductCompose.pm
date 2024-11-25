@@ -289,6 +289,8 @@ sub check {
   $mode |= 2 if $nosrcpkgs;
   $mode |= 4 if $allpacks;
   $mode |= 8 if $versioned_deps;
+  my $no_repo_layering;
+  $no_repo_layering = 1 if $deps{'--unorderedproductrepos'} || $deps{'--use-newest-package'};
 
   my $maxblocked = 20;
   my %blockedarch;
@@ -380,10 +382,20 @@ sub check {
       my @unneeded_na_revert;
 
       @apackids = BSSched::ProjPacks::orderpackids($aproj, @apackids);
-      my @apackids_patchinfos = grep {($pdatas->{$_} || {})->{'patchinfo'}} @apackids;
-      if (@apackids_patchinfos) {
-	@apackids = grep {!($pdatas->{$_} || {})->{'patchinfo'}} @apackids;
-	unshift @apackids, @apackids_patchinfos;
+
+      # bring patchinfos to the front
+      if ($gbininfo) {
+        my %patchinfos;
+	for (@apackids) {
+	  $patchinfos{$_} = 1 if $gbininfo->{$_}->{'updateinfo.xml'};
+	}
+        if (%patchinfos) {
+          my @apackids_patchinfos = grep {$patchinfos{$_}} @apackids;
+          if (@apackids_patchinfos) {
+	    @apackids = grep {!$patchinfos{$_}} @apackids;
+	    unshift @apackids, @apackids_patchinfos;
+	  }
+        }
       }
 
       for my $apackid (@apackids) {
@@ -559,13 +571,15 @@ sub check {
 	}
       }
       last if @blocked > $maxblocked;
+      # revert unneeded_na decisions for the next architecture
       if (@unneeded_na_revert) {
 	delete $unneeded_na{$_} for @unneeded_na_revert;
       }
     }
-    @next_unneeded_na = () if $deps{'--use-newest-package'};
     # now commit all name.arch entries to the unneeded_na hash
-    $unneeded_na{$_} = 1 for @next_unneeded_na;
+    if (!$no_repo_layering) {
+      $unneeded_na{$_} = 1 for @next_unneeded_na;
+    }
     last if @blocked > $maxblocked;
   }
 
