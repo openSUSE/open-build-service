@@ -134,7 +134,7 @@ GEM
     csv (3.3.0)
     daemons (1.4.1)
     dalli (3.2.8)
-    data_migrate (11.1.0)
+    data_migrate (11.2.0)
       activerecord (>= 6.1)
       railties (>= 6.1)
     database_cleaner-active_record (2.2.0)
