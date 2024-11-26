@@ -28,6 +28,7 @@ use Digest::MD5 ();
 use Compress::Zlib ();
 use Scalar::Util;
 use POSIX;
+use Encode;
 
 use BSUtil;
 use BSTar;
@@ -56,6 +57,7 @@ sub blobid {
 
 sub make_blob_entry {
   my ($name, $blob, %extra) = @_;
+  Encode::_utf8_off($blob);
   my $blobid = blobid($blob);
   my $ent = { %extra, 'name' => $name, 'size' => length($blob), 'data' => $blob, 'blobid' => $blobid };
   return ($ent, $blobid);
