@@ -1,4 +1,4 @@
-RSpec.describe UserLdapStrategy do
+RSpec.describe UserLdapStrategy, skip: !Rails.env.test_ldap? do
   let(:dn_string_no_uid)   { 'cn=jsmith,ou=Promotions,dc=noam,dc=com' }
   let(:dn_string_no_dc)    { 'cn=jsmith,ou=Promotions,uid=dister' }
   let(:dn_string_complete) { 'cn=jsmith,ou=Promotions,dc=noam,dc=com,uid=dister' }
@@ -87,97 +87,86 @@ RSpec.describe UserLdapStrategy do
   end
 
   describe '.initialize_ldap_con' do
-    context 'when no ldap_servers are configured' do
-      it { expect(UserLdapStrategy.send(:initialize_ldap_con, 'tux', 'tux_password')).to be_nil }
+    skip 'mocking SSL is a bit hard for now'
+
+    context 'for SSL' do
+      include_context 'setup ldap mock', for_ssl: true
+
+      before do
+        stub_const('CONFIG', CONFIG.merge('ldap_ssl' => :on))
+      end
+
+      it_behaves_like 'a mocked ldap connection'
     end
 
-    context 'when ldap servers are configured' do
+    context 'configured for TSL' do
+      include_context 'setup ldap mock', for_ssl: true, start_tls: true
+
       before do
-        stub_const('CONFIG', CONFIG.merge('ldap_servers' => 'my_ldap_server.com'))
+        stub_const('CONFIG', CONFIG.merge('ldap_start_tls' => :on))
       end
 
-      context 'for SSL' do
-        include_context 'setup ldap mock', for_ssl: true
+      it_behaves_like 'a mocked ldap connection'
+    end
 
+    context 'not configured for TSL or SSL' do
+      context 'when no ldap_servers are configured' do
         before do
-          stub_const('CONFIG', CONFIG.merge('ldap_ssl' => :on))
+          stub_const('CONFIG', CONFIG.merge('ldap_servers' => nil))
         end
 
-        it_behaves_like 'a ldap connection'
+        it { expect(UserLdapStrategy.send(:initialize_ldap_con, 'tux', 'tux_password')).to be_nil }
       end
 
-      context 'configured for TSL' do
-        include_context 'setup ldap mock', for_ssl: true, start_tls: true
-
-        before do
-          stub_const('CONFIG', CONFIG.merge('ldap_start_tls' => :on))
+      context 'when a connection can be established' do
+        it 'returns the connection object' do
+          expect(UserLdapStrategy.send(:initialize_ldap_con, CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])).to be_bound
         end
-
-        it_behaves_like 'a ldap connection'
       end
 
-      context 'not configured for TSL or SSL' do
-        include_context 'setup ldap mock'
-
-        before do
-          stub_const('CONFIG', CONFIG.merge('ldap_ssl' => :off))
-        end
-
-        it_behaves_like 'a ldap connection'
+      context 'when a connection can not be established' do
+        it { expect(UserLdapStrategy.send(:initialize_ldap_con, CONFIG['ldap_search_user'], 'WRONG_password')).to be_nil }
       end
     end
   end
 
   describe '.find_group_with_ldap' do
+    after do
+      # rspec-mocks doubles are not designed to last longer than for one
+      # example. Therefore we have to clear the stored connection.
+      UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
+    end
+
     context 'when there is no connection' do
+      before do
+        stub_const('CONFIG', CONFIG.reject { |key, _| key == 'ldap_servers' })
+      end
+
       it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to be_blank }
     end
 
     context 'when there is a connection' do
-      include_context 'setup ldap mock', for_ssl: true
-
-      before do
-        stub_const('CONFIG', CONFIG.merge('ldap_search_user' => 'tux',
-                                          'ldap_search_auth' => 'tux_password',
-                                          'ldap_group_title_attr' => 'ldap_group'))
-
-        allow(ldap_mock).to receive(:bind).with('tux', 'tux_password')
-        allow(ldap_mock).to receive(:bound?).and_return(true)
-      end
-
-      after do
-        # rspec-mocks doubles are not designed to last longer than for one
-        # example. Therefore we have to clear the stored connection.
-        UserLdapStrategy.class_variable_set(:@@ldap_search_con, nil)
-      end
-
       context "with 'ldap_group_objectclass_attr' configured" do
-        before do
-          allow(ldap_mock).to receive(:search).with(
-            'ou=OBSGROUPS,dc=EXAMPLE,dc=COM', LDAP::LDAP_SCOPE_SUBTREE, '(&(ldap_group=any_group)(objectclass=groupOfNames))'
-          ).and_yield(double(dn: 'some_dn', attrs: 'some_attr'))
-        end
-
-        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to eq(%w[some_dn some_attr]) }
+        it { expect(UserLdapStrategy.find_group_with_ldap('users')).to eq(%w[cn=users,ou=groups,dc=example,dc=org]) }
       end
 
       context "without 'ldap_group_objectclass_attr' configured" do
         before do
           stub_const('CONFIG', CONFIG.reject { |key, _| key == 'ldap_group_objectclass_attr' })
 
-          allow(ldap_mock).to receive(:search).with(
-            'ou=OBSGROUPS,dc=EXAMPLE,dc=COM', LDAP::LDAP_SCOPE_SUBTREE, '(ldap_group=any_group)'
-          ).and_yield(double(dn: 'some_dn', attrs: 'some_attr'))
+          # allow(ldap_mock).to receive(:search).with(
+          #   'ou=OBSGROUPS,dc=EXAMPLE,dc=COM', LDAP::LDAP_SCOPE_SUBTREE, '(ldap_group=any_group)'
+          # ).and_yield(double(dn: 'some_dn', attrs: 'some_attr'))
         end
 
-        it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to eq(%w[some_dn some_attr]) }
+        it { expect(UserLdapStrategy.find_group_with_ldap('users')).to eq(%w[cn=users,ou=groups,dc=example,dc=org]) }
       end
 
       context 'when there is no result' do
         before do
-          allow(ldap_mock).to receive(:search).with(
-            'ou=OBSGROUPS,dc=EXAMPLE,dc=COM', LDAP::LDAP_SCOPE_SUBTREE, '(&(ldap_group=any_group)(objectclass=groupOfNames))'
-          )
+          # allow(ldap_mock).to receive(:search).with(
+          #   'ou=OBSGROUPS,dc=EXAMPLE,dc=COM', LDAP::LDAP_SCOPE_SUBTREE, '(&(ldap_group=any_group)(objectclass=groupOfNames))'
+          # )
         end
 
         it { expect(UserLdapStrategy.find_group_with_ldap('any_group')).to eq([]) }
