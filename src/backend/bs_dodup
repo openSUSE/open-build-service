@@ -409,29 +409,26 @@ sub getdodresources {
 my %registry_authenticators;
 my $registry_timeout = 60;
 
+sub registry_arch2goarch {
+  my ($arch) = @_;
+  return ('amd64') if $arch eq 'x86_64';
+  return ('386') if $arch =~ /^i[3456]86$/;
+  return ('arm64', 'v8') if $arch eq 'aarch64';
+  return ('arm', "v$1") if $arch =~ /^armv(\d+)/;
+  return $arch;
+}
+
 sub registry_select_manifest {
   my ($manifests, $arch) = @_;
-  my $goarch;
-  my $govariant;
-  if ($arch =~ /^i[3456]86$/) {
-    $goarch = '386';
-  } elsif ($arch eq 'x86_64') {
-    $goarch = 'amd64';
-  } elsif ($arch eq 'aarch64') {
-    $goarch = 'arm64';
-    $govariant= 'v8';
-  } elsif ($arch =~ /^arm(v\d+)/) {
-    $goarch = 'arm';
-    $govariant= $1;
-  } else {
-    $goarch = $arch;
-  }
+  my ($goarch, $govariant) = registry_arch2goarch($arch);
+  my $goos = 'linux';
   for my $m (@{$manifests || []}) {
     next unless $m->{'digest'};
     my $platform = $m->{'platform'};
     if ($platform) {
       next if $goarch && $platform->{'architecture'} && $platform->{'architecture'} ne $goarch;
       next if $govariant && $platform->{'variant'} && $platform->{'variant'} ne $govariant;
+      next if $goos && $platform->{'os'} && $platform->{'os'} ne $goos;
     }
     return $m;
   }
