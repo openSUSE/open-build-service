@@ -44,10 +44,11 @@ use Fcntl qw(:DEFAULT :flock);
 use POSIX;
 use Digest::MD5 ();
 
-use BSUtil;
 use BSConfiguration;
+use BSOBS;
+use BSUtil;
 use BSUrlmapper;
-use Build::Rpm;		# for verscmp
+use Build::Rpm;			# for verscmp
 
 use BSSched::ProjPacks;		# for orderpackids
 use BSSched::BuildJob::DeltaRpm;
@@ -55,7 +56,7 @@ use BSSched::EventSource::Directory;  # sendpublishevent
 use BSSched::Blobstore;
 
 my $default_publishfilter;
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 

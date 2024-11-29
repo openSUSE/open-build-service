@@ -18,6 +18,7 @@ package BSRepServer::DoD;
 
 use Digest::SHA ();
 
+use BSOBS;
 use BSWatcher ':https';
 use BSVerify;
 use BSHandoff;
@@ -34,7 +35,7 @@ $proxy = $BSConfig::proxy if defined($BSConfig::proxy);
 
 my $maxredirects = 10;
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 sub remove_dot_segments {

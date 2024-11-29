@@ -85,15 +85,17 @@ formerly in autobuild ':full' repository
 use strict;
 use warnings;
 
-use BSUtil;
 use BSConfiguration;
-use Build::Rpm;
+use BSOBS;
+use BSUtil;
 use BSSched::ProjPacks;		# for orderpackids
 use BSSched::DoD;
 #use BSSched::BuildResult;	# circular dep
 
+use Build::Rpm;			# for verscmp
+
 my $exportcnt = 0;
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = @BSOBS::binsufs;
 my @binsufs_lnk = (@binsufs, 'obsbinlnk');
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 my $binsufsre_lnk = join('|', map {"\Q$_\E"} @binsufs_lnk);
