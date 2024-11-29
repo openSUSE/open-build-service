@@ -829,6 +829,29 @@ sub createrepo_rpmmd {
     close(FILE) || die("close: $!\n");
     rename("$extrep/$projid.repo$$", "$extrep/$projid.repo") || die("rename $extrep/$projid.repo$$ $extrep/$projid.repo: $!\n");
   }
+
+  for my $format ( 'spdx', 'cyclonedx' ) {
+    my $formatshort = $format;
+    $formatshort =~ s/cyclonedx/cdx/;
+    # container and kiwi images builds generate them already
+    last if glob("$extrep/*.$formatshort.json");
+    next unless $options{"sbom-$format"};
+    die("    generate_sbom not installed\n") unless -x '/usr/lib/build/generate_sbom';
+
+    print "    generating $format sbom file\n";
+    my $sbomfile = "$extrep/repodata/sbom-$formatshort.json";
+    qsystem( 'stdout', $sbomfile, '/usr/lib/build/generate_sbom', '--format', "$format", '--rpmmd', "$extrep" )
+      && die("    generate_sbom failed: $?\n");
+
+    open( my $fh, '<', "$sbomfile") || die "cannot open $sbomfile: $!\n";
+    my $sha256sum = Digest::SHA::sha256_hex(<$fh>);
+    close($fh);
+
+    open( my $cfh, '>', "$sbomfile.sha256" ) || die "cannot write to $sbomfile.sha256 : $!\n";
+    print $cfh "$sha256sum  sbom-$formatshort.json\n";
+    close($cfh);
+  }
+
 }
 
 sub deleterepo_rpmmd {
