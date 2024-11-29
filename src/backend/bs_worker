@@ -4920,6 +4920,7 @@ if ($ex == 0) {
     push @d, 'SDEBS';
   }
   @d = ('ARCHPKGS') if $buildinfo->{'file'} =~ /PKGBUILD$/;
+  @d = ('APKS') if $buildinfo->{'file'} =~ /APKBUILD$/;
   @d = ('KIWI') if $buildinfo->{'file'} =~ /\.kiwi$/;
   @d = ('PRODUCT') if $buildinfo->{'file'} =~ /\.productcompose$/;
   @d = ('DOCKER') if $buildinfo->{'file'} =~ /Dockerfile(?:\.|$)/;

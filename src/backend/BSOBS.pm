@@ -22,6 +22,6 @@
 
 package BSOBS;
 
-our @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+our @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst apk};
  
 1;

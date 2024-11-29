@@ -30,6 +30,7 @@ use Build::Repo;
 use Build::Rpmmd;
 use Build::Deb;
 use Build::Rpm;
+use Build::Apk;
 use Build::Modules;
 
 use strict;
@@ -377,6 +378,18 @@ sub dod_arch {
   return ($newcookie, $url);
 }
 
+sub dod_apk {
+  my ($doddata, $cookie, $file) = @_;
+  my $url = $doddata->{'url'};
+  my $sslfingerprint = getsslfingerprint($doddata);
+  $url .= '/' unless $url =~ /\/$/;
+  my $r = fetch("${url}APKINDEX.tar.gz", $sslfingerprint, $timeout_large, $file, 1);
+  die unless $r->{'md5'};
+  my $newcookie = Digest::MD5::md5_hex("$url\n$r->{'md5'}");
+  return undef if ($cookie || '') eq $newcookie;
+  return ($newcookie, $url);
+}
+
 sub dod_mdk {
   my ($doddata, $cookie, $file) = @_;
   my $url = $doddata->{'url'};
@@ -641,6 +654,7 @@ my %handler = (
   'susetags'  => \&dod_susetags,
   'rpmmd'     => \&dod_rpmmd,
   'mdk'       => \&dod_mdk,
+  'apk'       => \&dod_apk,
   'registry'  => \&dod_registry,
 );
 
@@ -653,6 +667,8 @@ sub cmppkg {
   $oevr .= "-$op->{'release'}" if defined $op->{'release'};
   if ($p->{'path'} =~ /\.deb$/) {
     return Build::Deb::verscmp($oevr, $evr);
+  } elsif ($p->{'path'} =~ /\.apk$/) {
+    return Build::Apk::verscmp($oevr, $evr);
   } else {
     return Build::Rpm::verscmp($oevr, $evr);
   }
