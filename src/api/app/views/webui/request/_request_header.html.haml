@@ -15,10 +15,7 @@
     .d-inline.align-bottom.ms-1#watchlist-icon-wrapper
       = render WatchlistIconComponent.new(user: User.session,
                                           bs_request: bs_request,
-                                          current_object: bs_request,
-                                          bs_requests: bs_requests,
-                                          packages: packages,
-                                          projects: projects)
+                                          current_object: bs_request)
 
 -# author + datetime + (if superseding -> "Superseds something")
 .card-text.px-4.pb-4
