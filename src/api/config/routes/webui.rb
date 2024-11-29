@@ -365,6 +365,9 @@ constraints(RoutesHelper::WebuiMatcher) do
     end
   end
 
+  get 'projects/:project/requests' => 'webui/projects/bs_requests#index', constraints: cons, as: 'projects_requests'
+  get 'projects/:project/packages/:package/requests' => 'webui/packages/bs_requests#index', constraints: cons, as: 'packages_requests'
+
   controller 'webui/search' do
     get 'search' => :index
     get 'search/owner' => :owner

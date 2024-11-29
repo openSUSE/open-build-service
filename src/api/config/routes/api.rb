@@ -196,10 +196,6 @@ constraints(RoutesHelper::APIMatcher) do
   end
 
   resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
-
-  ### /projects
-  get 'projects/:project/requests' => 'webui/projects/bs_requests#index', constraints: cons, as: 'projects_requests'
-  get 'projects/:project/packages/:package/requests' => 'webui/packages/bs_requests#index', constraints: cons, as: 'packages_requests'
 end
 
 # StagingWorkflow API
