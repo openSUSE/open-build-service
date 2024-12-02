@@ -4,6 +4,8 @@
              request_show_path(requests.first)
            elsif package
              package_requests_path(project, package)
+           elsif Flipper.enabled?(:request_index, User.session)
+             projects_requests_path(project)
            else
              project_requests_path(project)
            end
