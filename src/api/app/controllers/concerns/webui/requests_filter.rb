@@ -47,8 +47,8 @@ module Webui::RequestsFilter
   end
 
   def filter_by_involvement_for_project(filter_by_involvement, project)
-    target = BsRequest.with_actions.where(bs_request_actions: { target_project: project.name })
-    source = BsRequest.with_actions.where(bs_request_actions: { source_project: project.name })
+    target = BsRequest.with_actions.joins(:reviews).where(reviews: { by_project: project.name })
+    source = BsRequest.with_actions.joins(:reviews).where(reviews: { by_project: project.name })
     case filter_by_involvement
     when 'all'
       target.or(source)
