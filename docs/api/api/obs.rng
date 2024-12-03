@@ -258,6 +258,7 @@
                 <value>arch</value>
                 <value>mdk</value>
                 <value>registry</value>
+                <value>apk</value>
               </choice>
               <!--
               Type of the repository meta data.
