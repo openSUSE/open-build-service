@@ -30,6 +30,7 @@ use Build::Repo;
 use Build::Rpmmd;
 use Build::Deb;
 use Build::Rpm;
+use Build::Apk;
 use Build::Modules;
 
 use strict;
@@ -377,6 +378,18 @@ sub dod_arch {
   return ($newcookie, $url);
 }
 
+sub dod_apk {
+  my ($doddata, $cookie, $file) = @_;
+  my $url = $doddata->{'url'};
+  my $sslfingerprint = getsslfingerprint($doddata);
+  $url .= '/' unless $url =~ /\/$/;
+  my $r = fetch("${url}APKINDEX.tar.gz", $sslfingerprint, $timeout_large, $file, 1);
+  die unless $r->{'md5'};
+  my $newcookie = Digest::MD5::md5_hex("$url\n$r->{'md5'}");
+  return undef if ($cookie || '') eq $newcookie;
+  return ($newcookie, $url);
+}
+
 sub dod_mdk {
   my ($doddata, $cookie, $file) = @_;
   my $url = $doddata->{'url'};
@@ -409,29 +422,26 @@ sub getdodresources {
 my %registry_authenticators;
 my $registry_timeout = 60;
 
+sub registry_arch2goarch {
+  my ($arch) = @_;
+  return ('amd64') if $arch eq 'x86_64';
+  return ('386') if $arch =~ /^i[3456]86$/;
+  return ('arm64', 'v8') if $arch eq 'aarch64';
+  return ('arm', "v$1") if $arch =~ /^armv(\d+)/;
+  return $arch;
+}
+
 sub registry_select_manifest {
   my ($manifests, $arch) = @_;
-  my $goarch;
-  my $govariant;
-  if ($arch =~ /^i[3456]86$/) {
-    $goarch = '386';
-  } elsif ($arch eq 'x86_64') {
-    $goarch = 'amd64';
-  } elsif ($arch eq 'aarch64') {
-    $goarch = 'arm64';
-    $govariant= 'v8';
-  } elsif ($arch =~ /^arm(v\d+)/) {
-    $goarch = 'arm';
-    $govariant= $1;
-  } else {
-    $goarch = $arch;
-  }
+  my ($goarch, $govariant) = registry_arch2goarch($arch);
+  my $goos = 'linux';
   for my $m (@{$manifests || []}) {
     next unless $m->{'digest'};
     my $platform = $m->{'platform'};
     if ($platform) {
       next if $goarch && $platform->{'architecture'} && $platform->{'architecture'} ne $goarch;
       next if $govariant && $platform->{'variant'} && $platform->{'variant'} ne $govariant;
+      next if $goos && $platform->{'os'} && $platform->{'os'} ne $goos;
     }
     return $m;
   }
@@ -644,6 +654,7 @@ my %handler = (
   'susetags'  => \&dod_susetags,
   'rpmmd'     => \&dod_rpmmd,
   'mdk'       => \&dod_mdk,
+  'apk'       => \&dod_apk,
   'registry'  => \&dod_registry,
 );
 
@@ -656,6 +667,8 @@ sub cmppkg {
   $oevr .= "-$op->{'release'}" if defined $op->{'release'};
   if ($p->{'path'} =~ /\.deb$/) {
     return Build::Deb::verscmp($oevr, $evr);
+  } elsif ($p->{'path'} =~ /\.apk$/) {
+    return Build::Apk::verscmp($oevr, $evr);
   } else {
     return Build::Rpm::verscmp($oevr, $evr);
   }

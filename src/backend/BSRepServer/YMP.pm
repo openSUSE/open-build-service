@@ -20,6 +20,7 @@ package BSRepServer::YMP;
 use strict;
 
 use BSConfiguration;
+use BSOBS;
 use BSRPC ':https';
 use BSUtil;
 use BSHTTP;
@@ -27,7 +28,7 @@ use BSXML;
 use BSUrlmapper;
 use Build;
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 # find a binary given a binary name. Note that the binary

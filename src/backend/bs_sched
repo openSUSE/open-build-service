@@ -82,9 +82,6 @@ $maxserverload = $BSConfig::sched_maxserverload if $BSConfig::sched_maxserverloa
 my $genmetaalgo = 0;
 my $bsdir = $BSConfig::bsdir || "/srv/obs";
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
-my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
-
 BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
 BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
