@@ -34,7 +34,6 @@ module Webui::RequestsFilter
 
   def filter_by_involvement(filter_involvement, project = nil, package = nil)
     return filter_by_involvement_for_package(filter_involvement, project, package) if package
-    return filter_by_involvement_for_project(filter_involvement, project) if project
 
     case filter_involvement
     when 'all'
@@ -43,19 +42,6 @@ module Webui::RequestsFilter
       User.session.incoming_requests
     when 'outgoing'
       User.session.outgoing_requests
-    end
-  end
-
-  def filter_by_involvement_for_project(filter_by_involvement, project)
-    target = BsRequest.with_actions.where(bs_request_actions: { target_project: project.name })
-    source = BsRequest.with_actions.where(bs_request_actions: { source_project: project.name })
-    case filter_by_involvement
-    when 'all'
-      target.or(source)
-    when 'incoming'
-      target
-    when 'outgoing'
-      source
     end
   end
 
