@@ -39,9 +39,9 @@ module Webui
       def filter_requests
         if params[:requests_search_text].present?
           initial_bs_requests = filter_by_text(params[:requests_search_text])
-          params[:ids] = filter_by_users_involvement(@filter_involvement).ids
+          params[:ids] = filter_by_involvement(@filter_involvement).ids
         else
-          initial_bs_requests = filter_by_users_involvement(@filter_involvement)
+          initial_bs_requests = filter_by_involvement(@filter_involvement)
         end
 
         params[:creator] = @filter_creators if @filter_creators.present?
@@ -51,7 +51,7 @@ module Webui
         @bs_requests = BsRequest::FindFor::Query.new(params, initial_bs_requests).all
       end
 
-      def filter_by_users_involvement(filter_involvement)
+      def filter_by_involvement(filter_involvement)
         case filter_involvement
         when 'all'
           User.session.requests
