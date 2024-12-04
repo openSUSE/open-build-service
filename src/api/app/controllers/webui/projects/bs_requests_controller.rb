@@ -31,21 +31,6 @@ module Webui
 
       private
 
-      def filter_requests
-        if params[:requests_search_text].present?
-          initial_bs_requests = filter_by_text(params[:requests_search_text])
-          params[:ids] = filter_by_involvement(@filter_involvement).ids
-        else
-          initial_bs_requests = filter_by_involvement(@filter_involvement)
-        end
-
-        params[:creator] = @filter_creators if @filter_creators.present?
-        params[:states] = @filter_state if @filter_state.present?
-        params[:types] = @filter_action_type if @filter_action_type.present?
-
-        @bs_requests = BsRequest::FindFor::Query.new(params, initial_bs_requests).all
-      end
-
       def set_selected_filter
         @selected_filter = { involvement: @filter_involvement, action_type: @filter_action_type, search_text: params[:requests_search_text],
                              state: @filter_state, creators: @filter_creators }
