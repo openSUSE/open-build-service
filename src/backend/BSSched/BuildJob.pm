@@ -1432,7 +1432,8 @@ sub diffsortedmd5 {
 
 sub createextrapool {
   my ($ctx, $bconf, $prps, $unorderedrepos, $prios, $arch) = @_;
-  my $pool = $ctx->newpool($bconf);
+  my $pool = eval { $ctx->newpool($bconf) };
+  return (undef, 'extra pool creation failed') unless $pool;
   my $delayed = '';
   for my $prp (@{$prps || []}) {
     return (undef, "repository '$prp' is unavailable") if !$ctx->checkprpaccess($prp);

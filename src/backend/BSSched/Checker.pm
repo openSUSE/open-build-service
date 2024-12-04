@@ -560,6 +560,7 @@ sub newpool {
   if ($bconf) {
     $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
     $pool->settype('arch') if $bconf->{'binarytype'} eq 'arch';
+    $pool->settype('apk') if $bconf->{'binarytype'} eq 'apk';
     $pool->setmodules($bconf->{'modules'}) if $bconf->{'modules'} && defined &BSSolv::pool::setmodules;
   }
   return $pool;
@@ -568,9 +569,14 @@ sub newpool {
 sub createpool {
   my ($ctx, $bconf, $prpsearchpath, $arch) = @_;
 
-  my $pool = $ctx->newpool($bconf);
   my $delayed = '';
   my $error;
+  my $pool = eval { $ctx->newpool($bconf) };
+  if ($@) {
+    $error = $@;
+    chomp $error;
+    return (undef, $error || 'pool creation failed');
+  }
   my %missingmods;
   for my $rprp (@$prpsearchpath) {
     if (!$ctx->checkprpaccess($rprp)) {
