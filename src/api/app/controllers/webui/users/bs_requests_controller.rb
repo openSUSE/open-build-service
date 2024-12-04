@@ -16,9 +16,7 @@ module Webui
 
       def index
         if Flipper.enabled?(:request_index, User.session)
-          set_filters
           filter_requests
-          set_selected_filter
 
           # TODO: Temporarily disable list of creators due to performance issues
           # @bs_requests_creators = @bs_requests.distinct.pluck(:creator)

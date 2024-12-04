@@ -7,9 +7,7 @@ module Webui
 
       def index
         if Flipper.enabled?(:request_index, User.session)
-          set_filters
           filter_requests
-          set_selected_filter
 
           @bs_requests = @bs_requests.order('number DESC').page(params[:page])
           @bs_requests = @bs_requests.includes(:bs_request_actions, :comments, :reviews)

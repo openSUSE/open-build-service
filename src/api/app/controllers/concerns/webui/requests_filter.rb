@@ -5,6 +5,8 @@ module Webui::RequestsFilter
   TEXT_SEARCH_MAX_RESULTS = 10_000
 
   def filter_requests
+    set_filters
+
     if params[:requests_search_text].present?
       initial_bs_requests = filter_by_text(params[:requests_search_text])
       params[:ids] = filter_by_involvement(@filter_involvement).ids
@@ -17,6 +19,7 @@ module Webui::RequestsFilter
     params[:types] = @filter_action_type if @filter_action_type.present?
 
     @bs_requests = BsRequest::FindFor::Query.new(params, initial_bs_requests).all
+    set_selected_filter
   end
 
   def set_filters
