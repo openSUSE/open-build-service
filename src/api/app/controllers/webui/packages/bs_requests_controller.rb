@@ -7,11 +7,7 @@ module Webui
 
       def index
         if Flipper.enabled?(:request_index, User.session)
-          set_filter_involvement
-          set_filter_state
-          set_filter_action_type
-          set_filter_creators
-
+          set_filters
           filter_requests
           set_selected_filter
 

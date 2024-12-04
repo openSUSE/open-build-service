@@ -4,25 +4,6 @@ module Webui::RequestsFilter
   ALLOWED_INVOLVEMENTS = %w[all incoming outgoing].freeze
   TEXT_SEARCH_MAX_RESULTS = 10_000
 
-  def set_filter_involvement
-    @filter_involvement = params[:involvement].presence || 'all'
-    @filter_involvement = 'all' if ALLOWED_INVOLVEMENTS.exclude?(@filter_involvement)
-  end
-
-  def set_filter_state
-    @filter_state = params[:state].presence || []
-    @filter_state = @filter_state.intersection(BsRequest::VALID_REQUEST_STATES.map(&:to_s))
-  end
-
-  def set_filter_action_type
-    @filter_action_type = params[:action_type].presence || []
-    @filter_action_type = @filter_action_type.intersection(BsRequestAction::TYPES)
-  end
-
-  def set_filter_creators
-    @filter_creators = params[:creators].presence || []
-  end
-
   def filter_requests
     if params[:requests_search_text].present?
       initial_bs_requests = filter_by_text(params[:requests_search_text])
@@ -36,6 +17,19 @@ module Webui::RequestsFilter
     params[:types] = @filter_action_type if @filter_action_type.present?
 
     @bs_requests = BsRequest::FindFor::Query.new(params, initial_bs_requests).all
+  end
+
+  def set_filters
+    @filter_involvement = params[:involvement].presence || 'all'
+    @filter_involvement = 'all' if ALLOWED_INVOLVEMENTS.exclude?(@filter_involvement)
+
+    @filter_state = params[:state].presence || []
+    @filter_state = @filter_state.intersection(BsRequest::VALID_REQUEST_STATES.map(&:to_s))
+
+    @filter_action_type = params[:action_type].presence || []
+    @filter_action_type = @filter_action_type.intersection(BsRequestAction::TYPES)
+
+    @filter_creators = params[:creators].presence || []
   end
 
   def filter_by_text(text)
