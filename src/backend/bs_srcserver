@@ -41,6 +41,7 @@ use Symbol;
 use JSON::XS ();
 
 use BSConfiguration;
+use BSOBS;
 use BSRPC ':https';
 use BSHTTP;
 use BSServer;
@@ -154,7 +155,7 @@ my $notificationlay = [qw{number type time data []}];
 my $ajaxsocket = "$rundir/bs_srcserver.ajax";
 my $uploaddir = "$srcrep/:upload";
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 my $datarepoid;
@@ -942,6 +943,7 @@ sub findfile {
   return $files{'Chart.yaml'} if $ext eq 'helm';
   return $files{'appimage.yml'} if $ext eq 'appimage';
   return $files{'PKGBUILD'} if $ext eq 'arch';
+  return $files{'APKBUILD'} if $ext eq 'apk';
   return $files{'fissile.yml'} if $ext eq 'fissile';
   return $files{'simpleimage'} if $files{'simpleimage'};
   return $files{'snapcraft.yaml'} if $ext eq 'snapcraft';

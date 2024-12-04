@@ -19,12 +19,14 @@ use strict;
 use warnings;
 
 use Digest::MD5 ();
+
+use BSOBS;
 use Build;		# for get_deps
 use BSBuild;		# for add_meta
 use BSSolv;		# for add_meta/gen_meta
 use BSSched::BuildJob;
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 =head1 NAME

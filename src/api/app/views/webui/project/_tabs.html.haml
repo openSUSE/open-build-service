@@ -10,7 +10,10 @@
       - unless project.defines_remote_instance? || project.is_maintenance?
         = tab_link('Repositories', repositories_path(project), 'scrollable-tab-link')
         = tab_link('Monitor', project_monitor_path(project), 'scrollable-tab-link')
-      = tab_link('Requests', project_requests_path(project), 'scrollable-tab-link', active: controller_name == 'requests_listing')
+      - if Flipper.enabled?(:request_index, User.session)
+        = tab_link('Requests', projects_requests_path(project), 'scrollable-tab-link', active: controller_name == 'requests_listing')
+      - else
+        = tab_link('Requests', project_requests_path(project), 'scrollable-tab-link', active: controller_name == 'requests_listing')
       - unless project.defines_remote_instance?
         = tab_link('Users', project_users_path(project), 'scrollable-tab-link')
       - unless project.defines_remote_instance? || project.is_maintenance?

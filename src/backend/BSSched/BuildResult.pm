@@ -49,8 +49,7 @@ package BSSched::BuildResult;
 use strict;
 use warnings;
 
-use Build;
-
+use BSOBS;
 use BSUtil;
 use BSXML;
 use BSVerify;
@@ -63,7 +62,10 @@ use BSSched::BuildJob::PreInstallImage;	# for update_preinstallimage
 use BSSched::Access;			# for checkaccess
 use BSSched::ProjPacks;			# for getconfig
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+use Build;
+
+
+my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 my $binsufsre_binlnk = join('|', map {"\Q$_\E"} (@binsufs, 'obsbinlnk'));
 

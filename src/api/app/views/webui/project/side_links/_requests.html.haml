@@ -3,7 +3,13 @@
     path = if requests.size == 1
              request_show_path(requests.first)
            elsif package
-             package_requests_path(project, package)
+             if Flipper.enabled?(:request_index, User.session)
+              packages_requests_path(project, package)
+             else
+              package_requests_path(project, package)
+             end
+           elsif Flipper.enabled?(:request_index, User.session)
+             projects_requests_path(project)
            else
              project_requests_path(project)
            end

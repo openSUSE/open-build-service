@@ -27,9 +27,10 @@ use strict;
 use MIME::Base64 ();
 use JSON::XS ();
 
+use BSOBS;
 use BSUtil;
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 sub tagdata_callback {

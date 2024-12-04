@@ -38,6 +38,7 @@ use Storable ();
 use Symbol;
 
 use BSConfiguration;
+use BSOBS;
 use BSRPC ':https';
 use BSServer;
 use BSStdServer;
@@ -46,7 +47,7 @@ use Build;
 
 use strict;
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 my $gettimeout = 3600;

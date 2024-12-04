@@ -22,6 +22,7 @@ use Digest::MD5 ();
 use JSON::XS ();		# for containerinfo reading/writing
 use POSIX;
 
+use BSOBS;
 use BSUtil;
 use BSXML;
 use BSRPC;			# FIXME: only async calls, please
@@ -32,7 +33,7 @@ use BSSched::RPC;		# for is_transient_error
 use BSSched::ProjPacks;		# for orderpackids
 use BSVerify;			# for verify_nevraquery
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 my @binsufs_sign = qw{rpm pkg.tar.gz pkg.tar.xz pkg.tar.zst};

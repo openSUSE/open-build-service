@@ -41,6 +41,7 @@ use MIME::Base64;
 use JSON::XS ();
 
 use BSConfiguration;
+use BSOBS;
 use BSCando;
 use BSRPC ':https';
 use BSUtil;
@@ -80,7 +81,7 @@ my $extrepodb = "$BSConfig::bsdir/db/published";
 
 my $myeventdir = "$eventdir/publish";
 
-my @binsufs = qw{rpm udeb ddeb deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = (@BSOBS::binsufs, 'udeb', 'ddeb');
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 my @binsufsrsync = map {"--include=*.$_"} @binsufs;
 my $binarchs = join("|", keys(%BSCando::knownarch));

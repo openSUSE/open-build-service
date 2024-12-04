@@ -20,6 +20,7 @@ use warnings;
 
 use Digest::MD5 ();
 
+use BSOBS;
 use BSUtil;
 use BSSched::BuildJob;
 use BSSched::ProjPacks;		# for orderpackids
@@ -27,7 +28,7 @@ use BSXML;
 use Build;			# for query
 use BSVerify;			# for verify_nevraquery
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 =head1 NAME

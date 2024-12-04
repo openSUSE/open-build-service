@@ -35,15 +35,15 @@ use Digest::SHA ();
 use XML::Structured ':bytes';
 use Data::Dumper;
 use POSIX;
+use Storable;
 use Fcntl qw(:DEFAULT :flock);
 BEGIN { Fcntl->import(':seek') unless defined &SEEK_SET; }
 
-use Storable;
-
+use BSConfiguration;
+use BSOBS;
 use BSRPC;
 use BSServer;
 use BSDispatch;
-use BSConfiguration;
 use BSUtil;
 use BSXML;
 use BSHTTP;
@@ -62,7 +62,7 @@ eval { BSRPC::import(':https') };
 
 use strict;
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 my $buildroot;
@@ -4920,6 +4920,7 @@ if ($ex == 0) {
     push @d, 'SDEBS';
   }
   @d = ('ARCHPKGS') if $buildinfo->{'file'} =~ /PKGBUILD$/;
+  @d = ('APKS') if $buildinfo->{'file'} =~ /APKBUILD$/;
   @d = ('KIWI') if $buildinfo->{'file'} =~ /\.kiwi$/;
   @d = ('PRODUCT') if $buildinfo->{'file'} =~ /\.productcompose$/;
   @d = ('DOCKER') if $buildinfo->{'file'} =~ /Dockerfile(?:\.|$)/;

@@ -18,13 +18,14 @@ package BSSched::BuildJob::Import;
 use strict;
 use warnings;
 
+use BSOBS;
 use BSUtil;
 use BSXML;
 use BSSched::BuildResult;
 use BSSched::EventSource::Directory; # for sendimportevent
 my $exportcnt = 0;
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
+my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 =head1 NAME
