@@ -41,6 +41,11 @@ function changeUserRole(obj) { // jshint ignore:line
     },
     complete: function() {
       spinner.addClass('d-none');
+    },
+    success: function() {
+      if (!obj.is(':checked') && obj.data('role') === 'maintainer') {
+        window.location.reload();
+      }
     }
   });
 }
