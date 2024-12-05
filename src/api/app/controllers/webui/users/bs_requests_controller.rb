@@ -16,13 +16,7 @@ module Webui
 
       def index
         if Flipper.enabled?(:request_index, User.session)
-          set_filter_involvement
-          set_filter_state
-          set_filter_action_type
-          set_filter_creators
-
           filter_requests
-          set_selected_filter
 
           # TODO: Temporarily disable list of creators due to performance issues
           # @bs_requests_creators = @bs_requests.distinct.pluck(:creator)
@@ -36,22 +30,7 @@ module Webui
 
       private
 
-      def filter_requests
-        if params[:requests_search_text].present?
-          initial_bs_requests = filter_by_text(params[:requests_search_text])
-          params[:ids] = filter_by_users_involvement(@filter_involvement).ids
-        else
-          initial_bs_requests = filter_by_users_involvement(@filter_involvement)
-        end
-
-        params[:creator] = @filter_creators if @filter_creators.present?
-        params[:states] = @filter_state if @filter_state.present?
-        params[:types] = @filter_action_type if @filter_action_type.present?
-
-        @bs_requests = BsRequest::FindFor::Query.new(params, initial_bs_requests).all
-      end
-
-      def filter_by_users_involvement(filter_involvement)
+      def filter_by_involvement(filter_involvement)
         case filter_involvement
         when 'all'
           User.session.requests

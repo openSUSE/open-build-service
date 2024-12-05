@@ -4,22 +4,34 @@ module Webui::RequestsFilter
   ALLOWED_INVOLVEMENTS = %w[all incoming outgoing].freeze
   TEXT_SEARCH_MAX_RESULTS = 10_000
 
-  def set_filter_involvement
+  def filter_requests
+    set_filters
+
+    if params[:requests_search_text].present?
+      initial_bs_requests = filter_by_text(params[:requests_search_text])
+      params[:ids] = filter_by_involvement(@filter_involvement).ids
+    else
+      initial_bs_requests = filter_by_involvement(@filter_involvement)
+    end
+
+    params[:creator] = @filter_creators if @filter_creators.present?
+    params[:states] = @filter_state if @filter_state.present?
+    params[:types] = @filter_action_type if @filter_action_type.present?
+
+    @bs_requests = BsRequest::FindFor::Query.new(params, initial_bs_requests).all
+    set_selected_filter
+  end
+
+  def set_filters
     @filter_involvement = params[:involvement].presence || 'all'
     @filter_involvement = 'all' if ALLOWED_INVOLVEMENTS.exclude?(@filter_involvement)
-  end
 
-  def set_filter_state
     @filter_state = params[:state].presence || []
     @filter_state = @filter_state.intersection(BsRequest::VALID_REQUEST_STATES.map(&:to_s))
-  end
 
-  def set_filter_action_type
     @filter_action_type = params[:action_type].presence || []
     @filter_action_type = @filter_action_type.intersection(BsRequestAction::TYPES)
-  end
 
-  def set_filter_creators
     @filter_creators = params[:creators].presence || []
   end
 
@@ -34,7 +46,6 @@ module Webui::RequestsFilter
 
   def filter_by_involvement(filter_involvement, project = nil, package = nil)
     return filter_by_involvement_for_package(filter_involvement, project, package) if package
-    return filter_by_involvement_for_project(filter_involvement, project) if project
 
     case filter_involvement
     when 'all'
@@ -43,19 +54,6 @@ module Webui::RequestsFilter
       User.session.incoming_requests
     when 'outgoing'
       User.session.outgoing_requests
-    end
-  end
-
-  def filter_by_involvement_for_project(filter_by_involvement, project)
-    target = BsRequest.with_actions.where(bs_request_actions: { target_project: project.name })
-    source = BsRequest.with_actions.where(bs_request_actions: { source_project: project.name })
-    case filter_by_involvement
-    when 'all'
-      target.or(source)
-    when 'incoming'
-      target
-    when 'outgoing'
-      source
     end
   end
 

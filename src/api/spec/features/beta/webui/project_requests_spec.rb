@@ -32,7 +32,7 @@ RSpec.describe 'Project Requests' do
 
   context 'project with requests' do
     before do
-      visit project_requests_beta_path(target_project)
+      visit projects_requests_path(target_project)
     end
 
     it 'lists all requests by default' do
@@ -93,7 +93,7 @@ RSpec.describe 'Project Requests' do
 
   context 'project without requests' do
     before do
-      visit project_requests_beta_path(another_source_project)
+      visit projects_requests_path(another_source_project)
     end
 
     it 'shows no requests' do
