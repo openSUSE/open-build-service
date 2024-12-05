@@ -47,9 +47,9 @@ module Webui::RequestsFilter
   end
 
   def filter_by_involvement_for_project(filter_by_involvement, project)
-    binding.pry
-    target = BsRequest.with_actions.joins(:reviews).where(reviews: { by_project: project.name })
-    source = BsRequest.with_actions.joins(:reviews).where(reviews: { by_project: project.name })
+    project = root_project(project)
+    target = BsRequest.with_actions.where(bs_request_actions: { target_project: project.name })
+    source = BsRequest.with_actions.where(bs_request_actions: { source_project: project.name })
     case filter_by_involvement
     when 'all'
       target.or(source)
@@ -61,8 +61,9 @@ module Webui::RequestsFilter
   end
 
   def filter_by_involvement_for_package(filter_by_involvement, project, package)
-    target = BsRequest.with_actions.joins(:reviews).where(reviews: { by_project: project.name, by_package: package.name })
-    source = BsRequest.with_actions.joins(:reviews).where(reviews: { by_project: project.name, by_package: package.name })
+    project = root_project(project)
+    target = BsRequest.with_actions.where(bs_request_actions: { target_project: project.name, target_package: package.name })
+    source = BsRequest.with_actions.where(bs_request_actions: { source_project: project.name, source_package: package.name })
     case filter_by_involvement
     when 'all'
       target.or(source)
@@ -71,5 +72,13 @@ module Webui::RequestsFilter
     when 'outgoing'
       source
     end
+  end
+
+  private
+
+  def root_project(project)
+    return project unless project.staging_project?
+
+    project.staging_workflow.project
   end
 end
