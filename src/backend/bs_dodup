@@ -16,6 +16,7 @@ use Fcntl qw(:DEFAULT :flock);
 use XML::Structured ':bytes';
 use Getopt::Long ();
 use JSON::XS;
+use MIME::Base64 ();
 
 use BSConfiguration;
 use BSRPC ':https';
@@ -683,6 +684,17 @@ sub addpkg {
     return if grep {$p->{'name'} =~ /^$_/s } @$BSConfig::dodupblacklist;
   }
   $p->{'path'} = delete $p->{'location'};
+  if (!$p->{'hdrid'} && $p->{'apkchksum'}) {
+    # convert to hdrid
+    my $chk = delete $p->{'apkchksum'};
+    if (length($chk) == 30 && $chk =~ /^Q1/) {
+      $chk = unpack('H*', MIME::Base64::decode_base64(substr($chk, 2, 28)));
+    } elsif ($chk !~ /^[a-fA-F0-9]*$/) {
+      $chk = '';
+    }
+    $p->{'hdrid'} = "sha1:$chk" if length($chk) == 40;
+    $p->{'hdrid'} = "sha256:$chk" if length($chk) == 64;
+  }
   my $name = $p->{'name'};
   my $arch = $p->{'arch'};
   my $key = "$name.$arch";

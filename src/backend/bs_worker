@@ -4135,8 +4135,8 @@ sub dobuild {
 	push @args, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', $prio;	# different prio for smart?
       }
     }
-    for my $containerurl (@{$buildinfo->{'containerurl'} || []}) {
-      push @args, '--kiwi-parameter', "--set-container-derived-from=$containerurl";
+    if (@{$buildinfo->{'containerurl'} || []}) {
+      push @args, '--kiwi-parameter', '--set-container-derived-from='.join(',', @{$buildinfo->{'containerurl'}});
     }
   }
   if ($imagemode && $imagemode ne 'kiwiproduct' && $imagemode ne 'productcompose') {
