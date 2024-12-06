@@ -35,6 +35,11 @@ module Webui::RequestsFilter
     @filter_creators = params[:creators].presence || []
   end
 
+  def set_selected_filter
+    @selected_filter = { involvement: @filter_involvement, action_type: @filter_action_type, search_text: params[:requests_search_text],
+                         state: @filter_state, creators: @filter_creators }
+  end
+
   def filter_by_text(text)
     if BsRequest.search_count(text) > TEXT_SEARCH_MAX_RESULTS
       flash[:error] = 'Your text search pattern matches too many results. Please, try again with a more restrictive search pattern.'
