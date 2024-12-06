@@ -26,11 +26,6 @@ module Webui
 
       private
 
-      def set_selected_filter
-        @selected_filter = { involvement: @filter_involvement, action_type: @filter_action_type, search_text: params[:requests_search_text],
-                             state: @filter_state, creators: @filter_creators }
-      end
-
       def filter_by_involvement(filter_by_involvement)
         target = BsRequest.with_actions.where(bs_request_actions: { target_project: @project.name, target_package: @package.name })
         source = BsRequest.with_actions.where(bs_request_actions: { source_project: @project.name, source_package: @package.name })

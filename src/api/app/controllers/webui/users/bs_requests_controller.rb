@@ -41,11 +41,6 @@ module Webui
         end
       end
 
-      def set_selected_filter
-        @selected_filter = { involvement: @filter_involvement, action_type: @filter_action_type, search_text: params[:requests_search_text],
-                             state: @filter_state, creators: @filter_creators }
-      end
-
       def set_user
         @user_or_group = User.session
       end
