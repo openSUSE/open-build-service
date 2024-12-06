@@ -26,10 +26,10 @@ module Webui
 
       private
 
-      def filter_by_involvement(filter_by_involvement)
+      def filter_by_direction(direction)
         target = BsRequest.with_actions.where(bs_request_actions: { target_project: @project.name, target_package: @package.name })
         source = BsRequest.with_actions.where(bs_request_actions: { source_project: @project.name, source_package: @package.name })
-        case filter_by_involvement
+        case direction
         when 'all'
           target.or(source)
         when 'incoming'
