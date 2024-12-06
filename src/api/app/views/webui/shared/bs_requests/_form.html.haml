@@ -34,15 +34,16 @@
 
   function submitRequestFilters() {
     $('#requests-filter-form').submit();
+    $('#filters input').attr('disabled', 'disabled');
+    $('#requests-list').hide();
+    $('#requests-list-loading').removeClass('d-none');
   }
 
   let submitFiltersTimeout;
 
   $(document).on('change', '#filters input', function() {
-    $('#requests-list').hide();
-    $('#requests-list-loading').removeClass('d-none');
     clearTimeout(submitFiltersTimeout);
-    submitFiltersTimeout = setTimeout(submitRequestFilters, 1500);
+    submitFiltersTimeout = setTimeout(submitRequestFilters, 2000);
   });
 
   $(document).on("input", "#request-creator-search", function(event) {
