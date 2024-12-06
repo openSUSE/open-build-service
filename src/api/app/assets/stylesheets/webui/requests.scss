@@ -74,6 +74,22 @@
   &.sticky-top { top: $top-navigation-height; }
 }
 
+.accordion-button.no-style {
+  cursor: pointer;
+  padding: 0;
+  background: none;
+  border: none;
+  &:focus {
+    box-shadow: none;
+  }
+  &:not(.collapsed) {
+    box-shadow: none;
+  }
+  &:hover {
+    background-color: var(--bs-secondary-bg);
+  }
+}
+
 @include media-breakpoint-up(sm) {
   .order-sm-1 {
     order: 1;
@@ -94,7 +110,7 @@
   }
 
   #requests-filter-desktop {
-    .collapse {
+    #filters.collapse {
       display: block !important;
     }
   }
