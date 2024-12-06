@@ -71,27 +71,26 @@
                                                             checked: selected_filter[:action_type]&.include?('submit')}
 
 -# TODO: Temporarily disable list of creators due to performance issues
-  .mt-4.mb-4
-    %h6.px-3.py-2
+  .mt-2.mb-2.accordion-item.border-0
+    %h6.px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-creator' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-creator' } }
       %b Creator
-    .px-3
-      .dropdown.form-multi-select{ 'data-name': 'creators of requests' }
-        %button.form-select.text-start#filter-creator-requests-button{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
-        .dropdown-menu.w-100#request-creator-dropdown
-          .dropdown-header
-            = text_field_tag('request-creator-search', nil, autocomplete: 'off', placeholder: 'Search creators...', class: 'form-control')
-          - if creators.include?(User.session.login)
-            .dropdown-item-text
-              = render partial: 'webui/shared/check_box', locals: { label: "#{User.session.login} (me)",
-                                                                    key: "creators[#{User.session.login}]", name: 'creators[]',
-                                                                    value: User.session.login,
-                                                                    checked: selected_filter[:creators]&.include?(User.session.login) }
-          - creators.each do |creator|
-            - next if creator == User.session.login
-            .dropdown-item-text
-              = render partial: 'webui/shared/check_box', locals: { label: creator,
-                                                                    key: "creators[#{creator}]", name: 'creators[]',
-                                                                    value: creator,
-                                                                    checked: selected_filter[:creators]&.include?(creator) }
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-creator
+      #request-creator-dropdown
+        = text_field_tag('request-creator-search', nil, autocomplete: 'off', placeholder: 'Search creators...', class: 'form-control mb-2')
+
+        - if creators.include?(User.session.login)
+          .dropdown-item-text
+            = render partial: 'webui/shared/check_box', locals: { label: "#{User.session.login} (me)",
+                                                                  key: "creators[#{User.session.login}]", name: 'creators[]',
+                                                                  value: User.session.login,
+                                                                  checked: selected_filter[:creators]&.include?(User.session.login) }
+        - creators.each do |creator|
+          - next if creator == User.session.login
+          .dropdown-item-text
+            = render partial: 'webui/shared/check_box', locals: { label: creator,
+                                                                  key: "creators[#{creator}]", name: 'creators[]',
+                                                                  value: creator,
+                                                                  checked: selected_filter[:creators]&.include?(creator) }
 .text-center.mt-4.mb-4
   = link_to('Clear', url, class: 'btn btn-light border')
