@@ -43,7 +43,7 @@
 
   $(document).on('change', '#filters input', function() {
     clearTimeout(submitFiltersTimeout);
-    submitFiltersTimeout = setTimeout(submitRequestFilters, 1500);
+    submitFiltersTimeout = setTimeout(submitRequestFilters, 2000);
   });
 
   $(document).on("input", "#request-creator-search", function(event) {
