@@ -1,8 +1,6 @@
-RSpec.describe '/users/:user/requests routes' do
-  let(:user) { Faker::Name.first_name }
-
+RSpec.describe '/my/requests routes' do
   it do
-    expect(get("/users/#{user}/requests"))
-      .to route_to('webui/users/bs_requests#index', user_login: user)
+    expect(get('/my/requests'))
+      .to route_to('webui/users/bs_requests#index')
   end
 end

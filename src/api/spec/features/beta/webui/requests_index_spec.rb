@@ -32,7 +32,7 @@ RSpec.describe 'Requests Index' do
   before do
     Flipper.enable(:request_index)
     login receiver
-    visit user_requests_path(receiver)
+    visit my_requests_path
   end
 
   it 'lists all requests by default' do
