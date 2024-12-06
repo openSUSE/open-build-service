@@ -1,6 +1,7 @@
 module Webui
   module Users
     class BsRequestsController < WebuiController
+      before_action :redirect_legacy
       before_action :require_login
       before_action :set_user
 
@@ -15,16 +16,24 @@ module Webui
       }.freeze
 
       def index
-        if Flipper.enabled?(:request_index, User.session)
-          filter_requests
+        respond_to do |format|
+          format.html do
+            filter_requests
 
-          # TODO: Temporarily disable list of creators due to performance issues
-          # @bs_requests_creators = @bs_requests.distinct.pluck(:creator)
-          @bs_requests = @bs_requests.order('number DESC').page(params[:page])
-          @bs_requests = @bs_requests.includes(:bs_request_actions, :comments, :reviews)
-          @bs_requests = @bs_requests.includes(:labels) if Flipper.enabled?(:labels, User.session)
-        else
-          index_legacy
+            # TODO: Temporarily disable list of creators due to performance issues
+            # @bs_requests_creators = @bs_requests.distinct.pluck(:creator)
+            @bs_requests = @bs_requests.order('number DESC').page(params[:page])
+            @bs_requests = @bs_requests.includes(:bs_request_actions, :comments, :reviews)
+            @bs_requests = @bs_requests.includes(:labels) if Flipper.enabled?(:labels, User.session)
+          end
+          # TODO: Remove this old index action when request_index feature is rolled-over
+          format.json do
+            parsed_params = BsRequest::DataTable::ParamsParser.new(params).parsed_params
+            requests_query = BsRequest::DataTable::FindForUserOrGroupQuery.new(@user_or_group, request_method, parsed_params)
+            @requests_data_table = BsRequest::DataTable::Table.new(requests_query, parsed_params[:draw])
+
+            render 'webui/shared/bs_requests/index'
+          end
         end
       end
 
@@ -49,15 +58,8 @@ module Webui
         REQUEST_METHODS[params[:dataTableId]] || :requests
       end
 
-      # TODO: Remove this old index action when request_index feature is rolled-over
-      def index_legacy
-        parsed_params = BsRequest::DataTable::ParamsParser.new(params).parsed_params
-        requests_query = BsRequest::DataTable::FindForUserOrGroupQuery.new(@user_or_group, request_method, parsed_params)
-        @requests_data_table = BsRequest::DataTable::Table.new(requests_query, parsed_params[:draw])
-
-        respond_to do |format|
-          format.json { render 'webui/shared/bs_requests/index' }
-        end
+      def redirect_legacy
+        redirect_to(my_tasks_path) unless Flipper.enabled?(:request_index, User.session) || request.format.json?
       end
     end
   end
