@@ -375,7 +375,6 @@ constraints(RoutesHelper::WebuiMatcher) do
   end
 
   resources :users, controller: 'webui/users', param: :login, constraints: cons do
-    resources :requests, only: [:index], controller: 'webui/users/bs_requests'
     collection do
       get 'autocomplete'
       get 'tokens'
@@ -391,6 +390,7 @@ constraints(RoutesHelper::WebuiMatcher) do
 
   scope :my do
     resources :tasks, only: [:index], controller: 'webui/users/tasks', as: :my_tasks
+    resources :requests, only: [:index], controller: 'webui/users/bs_requests', as: :my_requests
 
     resources :notifications, only: [:index], controller: 'webui/users/notifications', as: :my_notifications do
       collection do
