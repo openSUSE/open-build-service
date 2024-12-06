@@ -1,6 +1,7 @@
 module Webui
   module Users
     class BsRequestsController < WebuiController
+      before_action :redirect_legacy
       before_action :require_login
       before_action :set_user
 
@@ -60,6 +61,10 @@ module Webui
 
       def request_method
         REQUEST_METHODS[params[:dataTableId]] || :requests
+      end
+
+      def redirect_legacy
+        redirect_to(my_tasks_path) unless Flipper.enabled?(:request_index, User.session) || request.format.json?
       end
     end
   end
