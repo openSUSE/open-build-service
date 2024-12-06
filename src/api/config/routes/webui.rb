@@ -57,11 +57,6 @@ constraints(RoutesHelper::WebuiMatcher) do
   end
 
   resources :package, only: [:index], controller: 'webui/package', constraints: cons
-  controller 'webui/requests_listing' do
-    get 'requests', action: :index, constraints: cons, as: 'requests'
-    get 'projects/:project_name/requests/beta', action: :index, constraints: cons, as: :project_requests_beta
-    get 'projects/:project_name/packages/:package_name/requests/beta', action: :index, constraints: cons, as: :project_package_requests_beta
-  end
 
   controller 'webui/packages/build_log' do
     get 'package/live_build_log/:project/:package/:repository/:arch' => :live_build_log, constraints: cons, as: 'package_live_build_log'
