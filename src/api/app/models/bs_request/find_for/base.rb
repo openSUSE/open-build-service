@@ -64,6 +64,10 @@ class BsRequest
       def creator
         @parameters[:creator]
       end
+
+      def source_or_target
+        @parameters[:source_or_target]
+      end
     end
   end
 end
