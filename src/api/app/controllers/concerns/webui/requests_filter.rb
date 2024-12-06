@@ -47,8 +47,8 @@ module Webui::RequestsFilter
   end
 
   def filter_by_involvement_for_project(filter_by_involvement, project)
-    target = BsRequest.with_actions.where(bs_request_actions: { target_project: project.name })
-    source = BsRequest.with_actions.where(bs_request_actions: { source_project: project.name })
+    target = BsRequest::FindFor::Project.new({ project: project.name, source_or_target: 'target' }).all
+    source = BsRequest::FindFor::Project.new({ project: project.name, source_or_target: 'source' }).all
     case filter_by_involvement
     when 'all'
       target.or(source)
@@ -60,8 +60,8 @@ module Webui::RequestsFilter
   end
 
   def filter_by_involvement_for_package(filter_by_involvement, project, package)
-    target = BsRequest.with_actions.where(bs_request_actions: { target_project: project.name, target_package: package.name })
-    source = BsRequest.with_actions.where(bs_request_actions: { source_project: project.name, source_package: package.name })
+    target = BsRequest::FindFor::Project.new({ project: project.name, package: package.name, source_or_target: 'target' }).all
+    source = BsRequest::FindFor::Project.new({ project: project.name, package: package.name, source_or_target: 'source' }).all
     case filter_by_involvement
     when 'all'
       target.or(source)

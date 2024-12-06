@@ -7,8 +7,12 @@ class BsRequest
         @where_conditions = []
         @where_values = []
 
-        bs_request_actions_conditions('source')
-        bs_request_actions_conditions('target')
+        if source_or_target.present?
+          bs_request_actions_conditions(source_or_target)
+        else
+          bs_request_actions_conditions('source')
+          bs_request_actions_conditions('target')
+        end
 
         reviews_conditions
 
@@ -18,18 +22,18 @@ class BsRequest
 
       private
 
-      def bs_request_actions_conditions(source_or_target)
-        return unless roles.empty? || roles.include?(source_or_target)
+      def bs_request_actions_conditions(type)
+        return unless roles.empty? || roles.include?(type)
 
         bs_request_actions_filters = []
         if project_name.present?
           bs_request_actions_filters << if subprojects.blank?
-                                          ["bs_request_actions.#{source_or_target}_project = ?", project_name]
+                                          ["bs_request_actions.#{type}_project = ?", project_name]
                                         else
-                                          ["bs_request_actions.#{source_or_target}_project like ?", "#{project_name}:%"]
+                                          ["bs_request_actions.#{type}_project like ?", "#{project_name}:%"]
                                         end
         end
-        bs_request_actions_filters << ["bs_request_actions.#{source_or_target}_package = ?", package_name] if package_name.present?
+        bs_request_actions_filters << ["bs_request_actions.#{type}_package = ?", package_name] if package_name.present?
 
         @where_conditions << bs_request_actions_filters.pluck(0).join(' and ')
         @where_values << bs_request_actions_filters.pluck(1)
