@@ -39,8 +39,8 @@ module Webui
 
       private
 
-      def filter_by_involvement(filter_involvement)
-        case filter_involvement
+      def filter_by_direction(direction)
+        case direction
         when 'all'
           User.session.requests
         when 'incoming'
