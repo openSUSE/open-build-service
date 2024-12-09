@@ -18,6 +18,7 @@
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-state' },
                                                        aria: { expanded: 'true', controls: 'request-filter-state' } }
       %b State
+      .selected-content.small.ms-1
     .px-4.pb-2.accordion-collapse.collapse.show#request-filter-state
       - BsRequest::VALID_REQUEST_STATES.each do |state|
         = render partial: 'webui/shared/check_box', locals: { label: render(BsRequestStateBadgeComponent.new(state: state)),
@@ -29,6 +30,7 @@
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-action' },
                                                        aria: { expanded: 'true', controls: 'request-filter-action' } }
       %b Action Type
+      .selected-content.small.ms-1
     .px-4.pb-2.accordion-collapse.collapse.show#request-filter-action
       = render partial: 'webui/shared/check_box', locals: { label: 'Bugowner Change', key: 'action_type[set_bugowner]',
                                                             name: 'action_type[]', value: 'set_bugowner',
