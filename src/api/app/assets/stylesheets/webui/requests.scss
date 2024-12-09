@@ -90,6 +90,11 @@
   }
 }
 
+.accordion-button.content-selected b::after {
+  content: '(*)';
+  margin-left: 0.25rem;
+}
+
 @include media-breakpoint-up(sm) {
   .order-sm-1 {
     order: 1;

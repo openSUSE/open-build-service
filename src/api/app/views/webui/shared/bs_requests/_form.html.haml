@@ -39,9 +39,30 @@
     $('#requests-list-loading').removeClass('d-none');
   }
 
+  function highlightSelectedFilters() {
+    var filters = $('#filters .accordion .accordion-item');
+    filters.each(function() {
+      var currentFilter = $(this);
+      var anySelected = false
+      $(this).find('input').each(function() {
+        if ($(this).is(':checked')) {
+          anySelected = true;
+        }
+      });
+      if (anySelected) {
+        currentFilter.children('.accordion-button').addClass('content-selected');
+      }
+      else {
+        currentFilter.children('.accordion-button').removeClass('content-selected');
+      }
+    });
+  }
+  highlightSelectedFilters();
+
   let submitFiltersTimeout;
 
   $(document).on('change', '#filters input', function() {
+    highlightSelectedFilters();
     clearTimeout(submitFiltersTimeout);
     submitFiltersTimeout = setTimeout(submitRequestFilters, 2000);
   });
