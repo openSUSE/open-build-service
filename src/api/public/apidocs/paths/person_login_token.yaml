@@ -86,7 +86,7 @@ post:
       name: operation
       schema:
         type: string
-        enum: [runservice, rebuild, release]
+        enum: [runservice, rebuild, release, wipe]
       description: |
         Operation indicates the kind of token that is going to be created.
 

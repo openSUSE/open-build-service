@@ -517,6 +517,8 @@ paths:
     $ref: 'paths/trigger_release.yaml'
   /trigger/runservice:
     $ref: 'paths/trigger_runservice.yaml'
+  /trigger/wipe:
+    $ref: 'paths/trigger_wipe.yaml'
   /trigger/workflow:
     $ref: 'paths/trigger_workflow.yaml'
   /trigger/webhook:
