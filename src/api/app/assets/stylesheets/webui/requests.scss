@@ -90,6 +90,13 @@
   }
 }
 
+.accordion-button .selected-content {
+  display: none;
+}
+.accordion-button.collapsed .selected-content {
+  display: inline;
+}
+
 @include media-breakpoint-up(sm) {
   .order-sm-1 {
     order: 1;
