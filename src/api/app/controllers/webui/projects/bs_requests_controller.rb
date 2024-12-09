@@ -26,8 +26,8 @@ module Webui
       private
 
       def filter_by_involvement(filter_by_involvement)
-        target = BsRequest.with_actions.where(bs_request_actions: { target_project: @project.name })
-        source = BsRequest.with_actions.where(bs_request_actions: { source_project: @project.name })
+        target = BsRequest::FindFor::Project.new({ project: @project.name, source_or_target: 'target' }).all
+        source = BsRequest::FindFor::Project.new({ project: @project.name, source_or_target: 'source' }).all
         case filter_by_involvement
         when 'all'
           target.or(source)
