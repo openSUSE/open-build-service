@@ -4,18 +4,7 @@ module Statistics
 
     def index
       @project = Project.get_by_name(params[:project])
-      if @project.is_a?(String)
-        # FIXME: This could be simplified by redirecting to the remote instead
-        remote_instance, remote_project = Project.find_remote_project(@project)
-        remote_response = Project::RemoteURL.load(remote_instance, maintenance_statistics_path(project: remote_project))
-        if remote_response
-          render xml: remote_response
-        else
-          render_error status: 404, errorcode: 'remote_project', message: "Project '#{@project}' not found"
-        end
-      else
-        @maintenance_statistics = MaintenanceStatistic.find_by_project(@project)
-      end
+      @maintenance_statistics = MaintenanceStatistic.find_by_project(@project)
     end
   end
 end
