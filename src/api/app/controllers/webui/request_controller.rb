@@ -354,7 +354,7 @@ class Webui::RequestController < Webui::WebuiController
   def any_project_maintained_by_current_user?
     projects = @actions.select(:target_project).distinct.pluck(:target_project)
     maintainer_role = Role.find_by_title('maintainer')
-    projects.any? { |project| Project.find_by_name(project).user_has_role?(User.possibly_nobody, maintainer_role) }
+    projects.any? { |project| Project.find_by_name(project)&.user_has_role?(User.possibly_nobody, maintainer_role) }
   end
 
   def new_state
