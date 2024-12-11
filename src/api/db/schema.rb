@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
+ActiveRecord::Schema[7.0].define(version: 2024_12_05_104819) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -778,7 +778,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_134922) do
 
   create_table "notifications", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "event_type", null: false
-    t.text "event_payload", null: false
+    t.text "event_payload", size: :medium, null: false
     t.string "subscription_receiver_role", null: false
     t.boolean "delivered", default: false
     t.datetime "created_at", precision: nil, null: false
