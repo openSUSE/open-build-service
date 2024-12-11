@@ -60,8 +60,6 @@ class BsRequest < ApplicationRecord
       .includes(:reviews)
   }
 
-  scope :with_action_type, ->(action_type) { joins(:bs_request_actions).where(bs_request_actions: { type: action_type }).distinct }
-
   has_many :bs_request_actions, dependent: :destroy
   has_many :reviews, dependent: :delete_all
   has_many :comments, as: :commentable, dependent: :destroy
