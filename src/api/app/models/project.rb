@@ -1172,14 +1172,14 @@ class Project < ApplicationRecord
     incidents = BsRequest.to_project(name)
                          .or(BsRequest.from_project(name))
                          .where(state: :new)
-                         .with_types(:maintenance_incident)
+                         .with_action_types(:maintenance_incident)
                          .pluck(:number)
 
     maintenance_release = if is_maintenance?
                             BsRequest.to_project("#{name}:%")
                                      .or(BsRequest.from_project("#{name}:%"))
                                      .where(state: :new)
-                                     .with_types(:maintenance_release)
+                                     .with_action_types(:maintenance_release)
                                      .pluck(:number)
                           else
                             []
