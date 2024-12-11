@@ -36,7 +36,6 @@ class BsRequest < ApplicationRecord
   scope :from_project, ->(project_name) { where('bs_request_actions.source_project like ?', project_name) }
   scope :to_project, ->(project_name) { where('bs_request_actions.target_project like ?', project_name) }
 
-  scope :in_ids, ->(ids) { where(id: ids) }
   # Searching capabilities using dataTable (1.9)
   scope :do_search, lambda { |search|
     includes(:bs_request_actions)
