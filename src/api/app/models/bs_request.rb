@@ -49,11 +49,6 @@ class BsRequest < ApplicationRecord
 
   scope :with_actions_and_reviews, -> { joins(:bs_request_actions).left_outer_joins(:reviews).distinct.order(priority: :asc, id: :desc) }
 
-  scope :by_user_reviews, ->(user_ids) { where(reviews: { user: user_ids }) }
-  scope :by_project_reviews, ->(project_ids) { where(reviews: { project: project_ids }) }
-  scope :by_package_reviews, ->(package_ids) { where(reviews: { package: package_ids }) }
-  scope :by_group_reviews, ->(group_ids) { where(reviews: { group: group_ids }) }
-
   scope :obsolete, -> { where(state: OBSOLETE_STATES) }
 
   has_many :bs_request_actions, dependent: :destroy
