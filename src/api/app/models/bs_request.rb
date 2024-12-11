@@ -61,9 +61,6 @@ class BsRequest < ApplicationRecord
   scope :by_group_reviews, ->(group_ids) { where(reviews: { group: group_ids }) }
 
   scope :obsolete, -> { where(state: OBSOLETE_STATES) }
-  scope :with_target_project, lambda { |target_project|
-    includes(:bs_request_actions).where('bs_request_actions.target_project': target_project)
-  }
   scope :with_open_reviews_for, lambda { |review_attributes|
     where(state: 'review', id: Review.where(review_attributes).where(state: 'new').select(:bs_request_id))
       .includes(:reviews)
