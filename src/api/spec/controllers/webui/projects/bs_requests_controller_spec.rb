@@ -1,19 +1,163 @@
 RSpec.describe Webui::Projects::BsRequestsController do
   describe 'GET #index' do
-    include_context 'a set of bs requests'
+    context 'when the user has the request_index feature flag disabled' do
+      include_context 'a set of bs requests'
 
-    let(:base_params) { { project: source_project, format: :json } }
-    let(:context_params) { {} }
-    let(:params) { base_params.merge(context_params) }
+      let(:base_params) { { project: source_project, format: :json } }
+      let(:context_params) { {} }
+      let(:params) { base_params.merge(context_params) }
 
-    before do
-      get :index, params: params
+      before do
+        get :index, params: params
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(subject).to render_template(:index) }
+
+      it_behaves_like 'a bs requests data table controller'
+      it_behaves_like 'a bs requests data table controller with state and type options'
     end
 
-    it { expect(response).to have_http_status(:success) }
-    it { expect(subject).to render_template(:index) }
+    context 'when the user has the request_index feature flag enabled' do
+      let!(:user) { create(:confirmed_user, login: 'king') }
 
-    it_behaves_like 'a bs requests data table controller'
-    it_behaves_like 'a bs requests data table controller with state and type options'
+      context 'when looking at the target_projects requests' do
+        let(:target_project) { create(:project_with_package) }
+        let(:target_package) { target_project.packages.first }
+        let!(:incoming_request) do
+          create(:bs_request_with_submit_action,
+                 creator: user,
+                 priority: 'critical',
+                 source_package: create(:project),
+                 target_package: target_package)
+        end
+        let!(:outgoing_request) do
+          create(:bs_request_with_submit_action,
+                 creator: user,
+                 priority: 'critical',
+                 source_package: target_package,
+                 target_package: create(:project))
+        end
+
+        context 'and the direction parameters is "incoming"' do
+          let(:base_params) { { project: target_project, format: :json } }
+          let(:context_params) { { direction: 'incoming' } }
+          let(:params) { base_params.merge(context_params) }
+
+          before do
+            login user
+            Flipper.enable(:request_index, user)
+            get :index, params: params, format: :html
+          end
+
+          it { expect(assigns[:bs_requests]).to include(incoming_request) }
+          it { expect(assigns[:bs_requests]).not_to include(outgoing_request) }
+        end
+
+        context 'and the direction parameters is "outgoing"' do
+          let(:base_params) { { project: target_project, format: :json } }
+          let(:context_params) { { direction: 'outgoing' } }
+          let(:params) { base_params.merge(context_params) }
+
+          before do
+            login user
+            Flipper.enable(:request_index, user)
+            get :index, params: params, format: :html
+          end
+
+          it { expect(response).to have_http_status(:success) }
+          it { expect(subject).to render_template(:index) }
+          it { expect(assigns[:bs_requests]).not_to include(incoming_request) }
+          it { expect(assigns[:bs_requests]).to include(outgoing_request) }
+        end
+
+        context 'and the direction parameters is "all"' do
+          let(:base_params) { { project: target_project, format: :json } }
+          let(:context_params) { { direction: 'all' } }
+          let(:params) { base_params.merge(context_params) }
+
+          before do
+            login user
+            Flipper.enable(:request_index, user)
+            get :index, params: params, format: :html
+          end
+
+          it { expect(response).to have_http_status(:success) }
+          it { expect(subject).to render_template(:index) }
+          it { expect(assigns[:bs_requests]).to include(incoming_request) }
+          it { expect(assigns[:bs_requests]).to include(outgoing_request) }
+        end
+      end
+
+      context 'when looking at the source_projects requests' do
+        let(:source_project) { create(:project_with_package) }
+        let(:source_package) { source_project.packages.first }
+        let!(:incoming_request) do
+          create(:bs_request_with_submit_action,
+                 creator: user,
+                 priority: 'critical',
+                 source_package: create(:project),
+                 target_package: source_package)
+        end
+        let!(:outgoing_request) do
+          create(:bs_request_with_submit_action,
+                 creator: user,
+                 priority: 'critical',
+                 source_package: source_package,
+                 target_package: create(:project))
+        end
+
+        context 'and the direction parameters is "incoming"' do
+          let(:base_params) { { project: source_project, format: :json } }
+          let(:context_params) { { direction: 'incoming' } }
+          let(:params) { base_params.merge(context_params) }
+
+          before do
+            login user
+            Flipper.enable(:request_index, user)
+            get :index, params: params, format: :html
+          end
+
+          it { expect(response).to have_http_status(:success) }
+          it { expect(subject).to render_template(:index) }
+          it { expect(assigns[:bs_requests]).not_to include(outgoing_request) }
+          it { expect(assigns[:bs_requests]).to include(incoming_request) }
+        end
+
+        context 'and the direction parameters is "outgoing"' do
+          let(:base_params) { { project: source_project, format: :json } }
+          let(:context_params) { { direction: 'outgoing' } }
+          let(:params) { base_params.merge(context_params) }
+
+          before do
+            login user
+            Flipper.enable(:request_index, user)
+            get :index, params: params, format: :html
+          end
+
+          it { expect(response).to have_http_status(:success) }
+          it { expect(subject).to render_template(:index) }
+          it { expect(assigns[:bs_requests]).not_to include(incoming_request) }
+          it { expect(assigns[:bs_requests]).to include(outgoing_request) }
+        end
+
+        context 'and the direction parameters is "all"' do
+          let(:base_params) { { project: source_project, format: :json } }
+          let(:context_params) { { direction: 'all' } }
+          let(:params) { base_params.merge(context_params) }
+
+          before do
+            login user
+            Flipper.enable(:request_index, user)
+            get :index, params: params, format: :html
+          end
+
+          it { expect(response).to have_http_status(:success) }
+          it { expect(subject).to render_template(:index) }
+          it { expect(assigns[:bs_requests]).to include(incoming_request) }
+          it { expect(assigns[:bs_requests]).to include(outgoing_request) }
+        end
+      end
+    end
   end
 end
