@@ -14,8 +14,11 @@
   / limit download for anonymous user to avoid getting killed by crawlers
   - unless nobody
     %td.text-center<
+      - if viewable_file?(file['name'], file['size'].to_i)
+        = link_to(project_package_file_blame_path(project, package, file['name'], expand: expand), title: 'Blame file') do
+          %i.fas.fa-fw.fa-file-waveform
       = link_to(file_url(project.name, package.name, file['name'], srcmd5), title: 'Download file', class: 'me-1') do
-        %i.fas.fa-download.text-secondary
+        %i.fas.fa-fw.fa-download.text-secondary
       - if can_be_removed
         = link_to('#', title: 'Delete file', data: { 'bs-toggle': 'modal',
                                                      'bs-target': '#delete-file-modal',
@@ -25,4 +28,4 @@
                                                                      project_name: project,
                                                                      package_name: package,
                                                                      filename: file['name']) }) do
-          %i.fas.fa-times-circle.text-danger
+          %i.fas.fa-fw.fa-times-circle.text-danger
