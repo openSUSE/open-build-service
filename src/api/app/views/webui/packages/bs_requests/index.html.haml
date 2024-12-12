@@ -5,5 +5,6 @@
     .card
       = render(partial: 'webui/package/tabs', locals: { project: @project, package: @package })
 
-= render(partial: 'webui/shared/bs_requests/form',
-         locals: { selected_filter: @selected_filter, bs_requests_creators: @bs_requests_creators, url: @url, bs_requests: @bs_requests })
+      .card-body
+        = render(partial: 'webui/shared/bs_requests/form',
+                locals: { selected_filter: @selected_filter, bs_requests_creators: @bs_requests_creators, url: @url, bs_requests: @bs_requests })
