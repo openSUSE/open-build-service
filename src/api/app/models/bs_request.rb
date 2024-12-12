@@ -29,18 +29,13 @@ class BsRequest < ApplicationRecord
   scope :to_accept_by_time, -> { where(state: %w[new review]).where(accept_at: ...Time.now) }
   # Scopes for collections
   scope :with_actions, -> { joins(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
-  scope :with_involved_projects, ->(project_ids) { where(bs_request_actions: { target_project_id: project_ids }) }
-  scope :with_involved_packages, ->(package_ids) { where(bs_request_actions: { target_package_id: package_ids }) }
 
-  scope :with_source_subprojects, ->(project_name) { where('bs_request_actions.source_project like ?', project_name) }
-  scope :with_target_subprojects, ->(project_name) { where('bs_request_actions.target_project like ?', project_name) }
-
-  scope :with_types, lambda { |types|
+  scope :with_action_types, lambda { |types|
     includes(:bs_request_actions).where(bs_request_actions: { type: types }).distinct.order(priority: :asc, id: :desc)
   }
-  scope :from_source_project, ->(source_project) { where(bs_request_actions: { source_project: source_project }) }
-  scope :in_ids, ->(ids) { where(id: ids) }
-  scope :not_creator, ->(login) { where.not(creator: login) }
+  scope :from_project, ->(project_name) { where('bs_request_actions.source_project like ?', project_name) }
+  scope :to_project, ->(project_name) { where('bs_request_actions.target_project like ?', project_name) }
+
   # Searching capabilities using dataTable (1.9)
   scope :do_search, lambda { |search|
     includes(:bs_request_actions)
@@ -53,23 +48,8 @@ class BsRequest < ApplicationRecord
   }
 
   scope :with_actions_and_reviews, -> { joins(:bs_request_actions).left_outer_joins(:reviews).distinct.order(priority: :asc, id: :desc) }
-  scope :with_submit_requests, -> { joins(:bs_request_actions).where(bs_request_actions: { type: 'submit' }) }
-
-  scope :by_user_reviews, ->(user_ids) { where(reviews: { user: user_ids }) }
-  scope :by_project_reviews, ->(project_ids) { where(reviews: { project: project_ids }) }
-  scope :by_package_reviews, ->(package_ids) { where(reviews: { package: package_ids }) }
-  scope :by_group_reviews, ->(group_ids) { where(reviews: { group: group_ids }) }
 
   scope :obsolete, -> { where(state: OBSOLETE_STATES) }
-  scope :with_target_project, lambda { |target_project|
-    includes(:bs_request_actions).where('bs_request_actions.target_project': target_project)
-  }
-  scope :with_open_reviews_for, lambda { |review_attributes|
-    where(state: 'review', id: Review.where(review_attributes).where(state: 'new').select(:bs_request_id))
-      .includes(:reviews)
-  }
-
-  scope :with_action_type, ->(action_type) { joins(:bs_request_actions).where(bs_request_actions: { type: action_type }).distinct }
 
   has_many :bs_request_actions, dependent: :destroy
   has_many :reviews, dependent: :delete_all

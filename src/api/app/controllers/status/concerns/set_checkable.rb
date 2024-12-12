@@ -38,7 +38,7 @@ module Status
       end
 
       def set_bs_request
-        @checkable = BsRequest.with_submit_requests.find_by(number: params[:bs_request_number])
+        @checkable = BsRequest.with_action_types(:submit).find_by(number: params[:bs_request_number])
         @event_class = Event::StatusCheckForRequest
         return if @checkable
 
