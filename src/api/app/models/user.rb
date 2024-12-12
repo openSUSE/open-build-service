@@ -637,10 +637,10 @@ class User < ApplicationRecord
 
   # lists reviews involving this user
   def involved_reviews(search = nil)
-    result = BsRequest.by_user_reviews(id).or(
-      BsRequest.by_project_reviews(involved_projects).or(
-        BsRequest.by_package_reviews(involved_packages).or(
-          BsRequest.by_group_reviews(groups)
+    result = BsRequest.where(reviews: { user: id }).or(
+      BsRequest.where(reviews: { project: involved_projects }).or(
+        BsRequest.where(reviews: { package: involved_packages }).or(
+          BsRequest.where(reviews: { group: groups })
         )
       )
     ).with_actions_and_reviews.where(state: :review, reviews: { state: :new }).where.not(creator: login)

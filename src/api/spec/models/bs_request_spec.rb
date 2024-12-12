@@ -652,34 +652,6 @@ RSpec.describe BsRequest, :vcr do
     end
   end
 
-  describe '::with_open_reviews_for' do
-    include_context 'a BsRequest with reviews'
-
-    context "when request state is 'review' but review state is not 'new'" do
-      before do
-        bs_request.reviews.find_by(by_user: reviewer.login).update(state: 'accepted')
-      end
-
-      it { expect(BsRequest.with_open_reviews_for(by_user: reviewer.login)).to be_empty }
-    end
-
-    context "when request state is 'review' and review state is 'new'" do
-      it 'queries requests with reviews by user' do
-        expect(BsRequest.with_open_reviews_for(by_user: reviewer.login)).to contain_exactly(bs_request)
-      end
-
-      it 'queries requests with reviews by group' do
-        bs_request.reviews.create!(by_group: group.title)
-        expect(BsRequest.with_open_reviews_for(by_group: group.title)).to contain_exactly(bs_request)
-      end
-
-      it 'queries requests with reviews by package' do
-        bs_request.reviews.create!(by_package: target_package, by_project: target_project)
-        expect(BsRequest.with_open_reviews_for(by_package: target_package.name)).to contain_exactly(bs_request)
-      end
-    end
-  end
-
   describe '#as_json' do
     subject { submit_request.as_json }
 
