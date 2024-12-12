@@ -72,22 +72,23 @@
                                                             label_icon: action_type_icon('submit'),
                                                             checked: selected_filter[:action_type]&.include?('submit')}
 
--# TODO: Temporarily disable list of creators due to performance issues
   .mt-2.mb-2.accordion-item.border-0
     %h6.px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-creator' },
                                                        aria: { expanded: 'true', controls: 'request-filter-creator' } }
       %b Creator
     .px-4.pb-2.accordion-collapse.collapse.show#request-filter-creator
       #request-creator-dropdown
-        = text_field_tag('request-creator-search', nil, autocomplete: 'off', placeholder: 'Search creators...', class: 'form-control mb-2')
+        = render partial: 'webui/shared/autocomplete', locals: { html_id: 'creators_search', label: 'Creators:',
+                                                                 html_name: 'creators[]', required: false,
+                                                                 data: { source: autocomplete_users_path } }
 
-        - if creators.include?(User.session.login)
+        - if selected_filter[:creators].include?(User.session.login)
           .dropdown-item-text
             = render partial: 'webui/shared/check_box', locals: { label: "#{User.session.login} (me)",
                                                                   key: "creators[#{User.session.login}]", name: 'creators[]',
                                                                   value: User.session.login,
                                                                   checked: selected_filter[:creators]&.include?(User.session.login) }
-        - creators.each do |creator|
+        - selected_filter[:creators].each do |creator|
           - next if creator == User.session.login
           .dropdown-item-text
             = render partial: 'webui/shared/check_box', locals: { label: creator,

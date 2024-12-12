@@ -69,20 +69,3 @@
     clearTimeout(submitFiltersTimeout);
     submitFiltersTimeout = setTimeout(submitRequestFilters, 2000);
   });
-
-  $(document).on("input", "#request-creator-search", function(event) {
-    var searchInput = event.target;
-    var filterValue = searchInput.value.toLowerCase();
-    var dropdown = document.getElementById("request-creator-dropdown");
-    var dropdownInputFields = dropdown.getElementsByTagName("input");
-
-    for (i = 1; i < dropdownInputFields.length; i++) {
-      dropdownInputValue = dropdownInputFields[i].value;
-
-      if (dropdownInputValue.toLowerCase().indexOf(filterValue) > -1) {
-        dropdownInputFields[i].closest(".dropdown-item-text").style.display = "";
-      } else {
-        dropdownInputFields[i].closest(".dropdown-item-text").style.display = "none";
-      }
-    }
-  });

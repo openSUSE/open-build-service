@@ -32,7 +32,7 @@ module Webui::RequestsFilter
     @filter_action_type = params[:action_type].presence || []
     @filter_action_type = @filter_action_type.intersection(BsRequestAction::TYPES)
 
-    @filter_creators = params[:creators].presence || []
+    @filter_creators = params[:creators].present? ? params[:creators].compact_blank! : []
   end
 
   def set_selected_filter
