@@ -11,9 +11,11 @@
         = tab_link('Repositories', repositories_path(project), 'scrollable-tab-link')
         = tab_link('Monitor', project_monitor_path(project), 'scrollable-tab-link')
       - if Flipper.enabled?(:request_index, User.session)
-        = tab_link('Requests', projects_requests_path(project), 'scrollable-tab-link', active: controller_name == 'requests_listing')
+        = tab_link('Requests', projects_requests_path(project,
+                                                      state: %w[new review]),
+                               'scrollable-tab-link', active: controller_name == 'bs_requests')
       - else
-        = tab_link('Requests', project_requests_path(project), 'scrollable-tab-link', active: controller_name == 'requests_listing')
+        = tab_link('Requests', project_requests_path(project), 'scrollable-tab-link')
       - unless project.defines_remote_instance?
         = tab_link('Users', project_users_path(project), 'scrollable-tab-link')
       - unless project.defines_remote_instance? || project.is_maintenance?
