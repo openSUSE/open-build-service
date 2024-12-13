@@ -27,15 +27,16 @@ module Webui
       private
 
       def filter_by_direction(direction)
-        target = BsRequest.with_actions.where(bs_request_actions: { target_project: @project.name, target_package: @package.name })
-        source = BsRequest.with_actions.where(bs_request_actions: { source_project: @project.name, source_package: @package.name })
         case direction
         when 'all'
-          target.or(source)
+          target = BsRequest.with_actions_and_reviews.where(bs_request_actions: { target_project: @project.name, target_package: @package.name })
+          source = BsRequest.with_actions_and_reviews.where(bs_request_actions: { source_project: @project.name, source_package: @package.name })
+          reviews = BsRequest.with_actions_and_reviews.where(reviews: { package: @package })
+          target.or(source).or(reviews)
         when 'incoming'
-          target
+          BsRequest.with_actions.where(bs_request_actions: { target_project: @project.name, target_package: @package.name })
         when 'outgoing'
-          source
+          BsRequest.with_actions.where(bs_request_actions: { source_project: @project.name, source_package: @package.name })
         end
       end
     end
