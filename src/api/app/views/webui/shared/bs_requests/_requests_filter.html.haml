@@ -76,6 +76,7 @@
     %h6.px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-creator' },
                                                        aria: { expanded: 'true', controls: 'request-filter-creator' } }
       %b Creator
+      .selected-content.small.ms-1
     .px-4.pb-2.accordion-collapse.collapse.show#request-filter-creator
       #request-creator-dropdown
         = render partial: 'webui/shared/autocomplete', locals: { html_id: 'creators_search', label: 'Creators:',
