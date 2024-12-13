@@ -1399,6 +1399,14 @@ class Project < ApplicationRecord
     relationships.bugowners_with_email.pluck(:email)
   end
 
+  # Returns an ActiveRecord::Relation with all BsRequest that the project is somehow involved in
+  def bs_requests
+    BsRequest.order('number DESC').includes(:bs_request_actions, :comments, :reviews, :labels)
+             .where(bs_request_actions: { source_project_id: id })
+             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(bs_request_actions: { target_project_id: id }))
+             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(reviews: { by_project: name }))
+  end
+
   private
 
   def bsrequest_repos_map(project)

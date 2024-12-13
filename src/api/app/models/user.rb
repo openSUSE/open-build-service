@@ -696,6 +696,20 @@ class User < ApplicationRecord
     search.present? ? result.do_search(search) : result
   end
 
+  # Returns an ActiveRecord::Relation with all BsRequest that the user is somehow involved in
+  def bs_requests
+    BsRequest.order('number DESC').includes(:bs_request_actions, :comments, :reviews, :labels)
+             .where(creator: login)
+             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(reviews: { by_user: login }))
+             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(reviews: { group: groups }))
+             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(reviews: { project: involved_projects }))
+             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(reviews: { package: involved_packages }))
+             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(bs_request_actions: { target_project_id: involved_projects }))
+             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(bs_request_actions: { target_package_id: involved_packages }))
+             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(bs_request_actions: { source_project_id: involved_projects }))
+             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(bs_request_actions: { source_package_id: involved_packages }))
+  end
+
   # TODO: This should be in a query object
   def involved_patchinfos
     @involved_patchinfos ||= Package.joins(:issues).includes({ issues: :issue_tracker }, :package_kinds, :project)

@@ -15,6 +15,7 @@ FactoryBot.define do
     comment { nil }
     priority { 'moderate' }
     superseded_by { nil }
+    staging_project { nil }
 
     commenter do
       creator

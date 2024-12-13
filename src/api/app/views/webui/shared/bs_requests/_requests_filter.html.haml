@@ -3,18 +3,17 @@
   .mt-2.mb-2.accordion-item.border-0
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-direction' },
                                              aria: { expanded: 'true', controls: 'request-filter-direction' } }
-      %b Direction
+      %b Involvement
     .px-4.pb-2.accordion-collapse.collapse.show#request-filter-direction
-      = render partial: 'webui/shared/radio_button', locals: { label: 'All',
-                                                              key: 'direction[all]', name: 'direction', value: 'all',
-                                                              checked: selected_filter[:direction] == 'all' }
-      = render partial: 'webui/shared/radio_button', locals: { label: 'Incoming',
-                                                              key: 'direction[incoming]', name: 'direction', value: 'incoming',
-                                                              checked: selected_filter[:direction] == 'incoming' }
-      = render partial: 'webui/shared/radio_button', locals: { label: 'Outgoing',
-                                                              key: 'direction[outgoing]', name: 'direction', value: 'outgoing',
-                                                              checked: selected_filter[:direction] == 'outgoing' }
-
+      = render partial: 'webui/shared/check_box', locals: { label: 'Incoming',
+                                                              key: 'involvement[incoming]', name: 'involvement', value: 'incoming',
+                                                              checked: selected_filter[:involvement] == 'incoming' }
+      = render partial: 'webui/shared/check_box', locals: { label: 'Outgoing',
+                                                              key: 'involvement[outgoing]', name: 'involvement', value: 'outgoing',
+                                                              checked: selected_filter[:involvement] == 'outgoing' }
+      = render partial: 'webui/shared/check_box', locals: { label: 'Review',
+                                                              key: 'involvement[review]', name: 'involvement', value: 'review',
+                                                              checked: selected_filter[:involvement] == 'review' }
   .mt-2.mb-2.accordion-item.border-0
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-state' },
                                                        aria: { expanded: 'true', controls: 'request-filter-state' } }

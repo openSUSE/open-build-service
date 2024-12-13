@@ -51,30 +51,6 @@ RSpec.describe 'Requests Index' do
     visit my_requests_path
   end
 
-  it 'lists all requests by default' do
-    expect(page).to have_link(href: "/request/show/#{incoming_request.number}")
-    expect(page).to have_link(href: "/request/show/#{other_incoming_request.number}")
-    expect(page).to have_link(href: "/request/show/#{outgoing_request.number}")
-  end
-
-  it 'filters incoming requests' do
-    find_by_id('requests-dropdown-trigger').click if mobile? # open the filter dropdown
-    choose('Incoming')
-
-    expect(page).to have_link(href: "/request/show/#{incoming_request.number}")
-    expect(page).to have_link(href: "/request/show/#{other_incoming_request.number}")
-    expect(page).to have_no_link(href: "/request/show/#{outgoing_request.number}")
-  end
-
-  it 'filters outgoing requests' do
-    find_by_id('requests-dropdown-trigger').click if mobile? # open the filter dropdown
-    choose('Outgoing')
-
-    expect(page).to have_link(href: "/request/show/#{outgoing_request.number}")
-    expect(page).to have_no_link(href: "/request/show/#{incoming_request.number}")
-    expect(page).to have_no_link(href: "/request/show/#{other_incoming_request.number}")
-  end
-
   describe 'filters request by state' do
     let!(:request_in_review) do
       create(:bs_request_with_submit_action,
