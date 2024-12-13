@@ -1,95 +1,98 @@
-.mt-3.mb-2
-  .px-4
-    = render partial: 'webui/shared/radio_button', locals: { label: 'All',
-                                                             key: 'direction[all]', name: 'direction', value: 'all',
-                                                             checked: selected_filter[:direction] == 'all' }
-    = render partial: 'webui/shared/radio_button', locals: { label: 'Incoming',
-                                                             key: 'direction[incoming]', name: 'direction', value: 'incoming',
-                                                             checked: selected_filter[:direction] == 'incoming' }
-    = render partial: 'webui/shared/radio_button', locals: { label: 'Outgoing',
-                                                             key: 'direction[outgoing]', name: 'direction', value: 'outgoing',
-                                                             checked: selected_filter[:direction] == 'outgoing' }
-.mt-4.mb-4
-  %h6.px-3.py-2
-    %b State
-  .px-3
-    .dropdown.form-multi-select{ 'data-name': 'state of request' }
-      %button.form-select.text-start#filter-state-requests-button{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
-        Select the state of request
-      .dropdown-menu.w-100
-        - BsRequest::VALID_REQUEST_STATES.each do |state|
-          .dropdown-item-text
-            = render partial: 'webui/shared/check_box', locals: { label: render(BsRequestStateBadgeComponent.new(state: state)),
-                                                                  key: "state[#{state}]", name: 'state[]',
-                                                                  value: state,
-                                                                  checked: selected_filter[:state]&.include?(state.to_s) }
+.accordion.accordion-flush
+  .mt-2.mb-2.accordion-item.border-0
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-direction' },
+                                             aria: { expanded: 'true', controls: 'request-filter-direction' } }
+      %b Direction
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-direction
+      = render partial: 'webui/shared/radio_button', locals: { label: 'All',
+                                                              key: 'direction[all]', name: 'direction', value: 'all',
+                                                              checked: selected_filter[:direction] == 'all' }
+      = render partial: 'webui/shared/radio_button', locals: { label: 'Incoming',
+                                                              key: 'direction[incoming]', name: 'direction', value: 'incoming',
+                                                              checked: selected_filter[:direction] == 'incoming' }
+      = render partial: 'webui/shared/radio_button', locals: { label: 'Outgoing',
+                                                              key: 'direction[outgoing]', name: 'direction', value: 'outgoing',
+                                                              checked: selected_filter[:direction] == 'outgoing' }
 
-.mt-3.mb-2
-  %h6.px-3.py-2
-    %b Action Type
-  .px-4
-    = render partial: 'webui/shared/check_box', locals: { label: 'Bugowner Change', key: 'action_type[set_bugowner]',
-                                                          name: 'action_type[]', value: 'set_bugowner',
-                                                          label_icon: action_type_icon('set_bugowner'),
-                                                          checked: selected_filter[:action_type]&.include?('set_bugowner')}
+  .mt-2.mb-2.accordion-item.border-0
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-state' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-state' } }
+      %b State
+      .selected-content.small.ms-1
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-state
+      - BsRequest::VALID_REQUEST_STATES.each do |state|
+        = render partial: 'webui/shared/check_box', locals: { label: render(BsRequestStateBadgeComponent.new(state: state)),
+                                                              key: "state[#{state}]", name: 'state[]',
+                                                              value: state,
+                                                              checked: selected_filter[:state]&.include?(state.to_s) }
 
-    = render partial: 'webui/shared/check_box', locals: { label: 'Change Devel Project', key: 'action_type[change_devel]',
-                                                          name: 'action_type[]', value: 'change_devel',
-                                                          label_icon: action_type_icon('change_devel'),
-                                                          checked: selected_filter[:action_type]&.include?('change_devel')}
+  .mt-2.mb-2.accordion-item.border-0
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-action' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-action' } }
+      %b Action Type
+      .selected-content.small.ms-1
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-action
+      = render partial: 'webui/shared/check_box', locals: { label: 'Bugowner Change', key: 'action_type[set_bugowner]',
+                                                            name: 'action_type[]', value: 'set_bugowner',
+                                                            label_icon: action_type_icon('set_bugowner'),
+                                                            checked: selected_filter[:action_type]&.include?('set_bugowner')}
 
-    = render partial: 'webui/shared/check_box', locals: { label: 'Delete', key: 'action_type[delete]',
-                                                          name: 'action_type[]', value: 'delete',
-                                                          label_icon: action_type_icon('delete'),
-                                                          checked: selected_filter[:action_type]&.include?('delete')}
+      = render partial: 'webui/shared/check_box', locals: { label: 'Change Devel Project', key: 'action_type[change_devel]',
+                                                            name: 'action_type[]', value: 'change_devel',
+                                                            label_icon: action_type_icon('change_devel'),
+                                                            checked: selected_filter[:action_type]&.include?('change_devel')}
 
-    = render partial: 'webui/shared/check_box', locals: { label: 'Maintenance Incident', key: 'action_type[maintenance_incident]',
-                                                          name: 'action_type[]', value: 'maintenance_incident',
-                                                          label_icon: action_type_icon('maintenance_incident'),
-                                                          checked: selected_filter[:action_type]&.include?('maintenance_incident')}
+      = render partial: 'webui/shared/check_box', locals: { label: 'Delete', key: 'action_type[delete]',
+                                                            name: 'action_type[]', value: 'delete',
+                                                            label_icon: action_type_icon('delete'),
+                                                            checked: selected_filter[:action_type]&.include?('delete')}
 
-    = render partial: 'webui/shared/check_box', locals: { label: 'Maintenance Release', key: 'action_type[maintenance_release]',
-                                                          name: 'action_type[]', value: 'maintenance_release',
-                                                          label_icon: action_type_icon('maintenance_release'),
-                                                          checked: selected_filter[:action_type]&.include?('maintenance_release')}
+      = render partial: 'webui/shared/check_box', locals: { label: 'Maintenance Incident', key: 'action_type[maintenance_incident]',
+                                                            name: 'action_type[]', value: 'maintenance_incident',
+                                                            label_icon: action_type_icon('maintenance_incident'),
+                                                            checked: selected_filter[:action_type]&.include?('maintenance_incident')}
 
-    = render partial: 'webui/shared/check_box', locals: { label: 'Release', key: 'action_type[release]',
-                                                          name: 'action_type[]', value: 'release',
-                                                          label_icon: action_type_icon('release'),
-                                                          checked: selected_filter[:action_type]&.include?('release')}
+      = render partial: 'webui/shared/check_box', locals: { label: 'Maintenance Release', key: 'action_type[maintenance_release]',
+                                                            name: 'action_type[]', value: 'maintenance_release',
+                                                            label_icon: action_type_icon('maintenance_release'),
+                                                            checked: selected_filter[:action_type]&.include?('maintenance_release')}
 
-    = render partial: 'webui/shared/check_box', locals: { label: 'Role Change', key: 'action_type[add_role]',
-                                                          name: 'action_type[]', value: 'add_role',
-                                                          label_icon: action_type_icon('add_role'),
-                                                          checked: selected_filter[:action_type]&.include?('add_role')}
+      = render partial: 'webui/shared/check_box', locals: { label: 'Release', key: 'action_type[release]',
+                                                            name: 'action_type[]', value: 'release',
+                                                            label_icon: action_type_icon('release'),
+                                                            checked: selected_filter[:action_type]&.include?('release')}
 
-    = render partial: 'webui/shared/check_box', locals: { label: 'Submit', key: 'action_type[submit]',
-                                                          name: 'action_type[]', value: 'submit',
-                                                          label_icon: action_type_icon('submit'),
-                                                          checked: selected_filter[:action_type]&.include?('submit')}
+      = render partial: 'webui/shared/check_box', locals: { label: 'Role Change', key: 'action_type[add_role]',
+                                                            name: 'action_type[]', value: 'add_role',
+                                                            label_icon: action_type_icon('add_role'),
+                                                            checked: selected_filter[:action_type]&.include?('add_role')}
+
+      = render partial: 'webui/shared/check_box', locals: { label: 'Submit', key: 'action_type[submit]',
+                                                            name: 'action_type[]', value: 'submit',
+                                                            label_icon: action_type_icon('submit'),
+                                                            checked: selected_filter[:action_type]&.include?('submit')}
 
 -# TODO: Temporarily disable list of creators due to performance issues
-  .mt-4.mb-4
-    %h6.px-3.py-2
+  .mt-2.mb-2.accordion-item.border-0
+    %h6.px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-creator' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-creator' } }
       %b Creator
-    .px-3
-      .dropdown.form-multi-select{ 'data-name': 'creators of requests' }
-        %button.form-select.text-start#filter-creator-requests-button{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
-        .dropdown-menu.w-100#request-creator-dropdown
-          .dropdown-header
-            = text_field_tag('request-creator-search', nil, autocomplete: 'off', placeholder: 'Search creators...', class: 'form-control')
-          - if creators.include?(User.session.login)
-            .dropdown-item-text
-              = render partial: 'webui/shared/check_box', locals: { label: "#{User.session.login} (me)",
-                                                                    key: "creators[#{User.session.login}]", name: 'creators[]',
-                                                                    value: User.session.login,
-                                                                    checked: selected_filter[:creators]&.include?(User.session.login) }
-          - creators.each do |creator|
-            - next if creator == User.session.login
-            .dropdown-item-text
-              = render partial: 'webui/shared/check_box', locals: { label: creator,
-                                                                    key: "creators[#{creator}]", name: 'creators[]',
-                                                                    value: creator,
-                                                                    checked: selected_filter[:creators]&.include?(creator) }
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-creator
+      #request-creator-dropdown
+        = text_field_tag('request-creator-search', nil, autocomplete: 'off', placeholder: 'Search creators...', class: 'form-control mb-2')
+
+        - if creators.include?(User.session.login)
+          .dropdown-item-text
+            = render partial: 'webui/shared/check_box', locals: { label: "#{User.session.login} (me)",
+                                                                  key: "creators[#{User.session.login}]", name: 'creators[]',
+                                                                  value: User.session.login,
+                                                                  checked: selected_filter[:creators]&.include?(User.session.login) }
+        - creators.each do |creator|
+          - next if creator == User.session.login
+          .dropdown-item-text
+            = render partial: 'webui/shared/check_box', locals: { label: creator,
+                                                                  key: "creators[#{creator}]", name: 'creators[]',
+                                                                  value: creator,
+                                                                  checked: selected_filter[:creators]&.include?(creator) }
 .text-center.mt-4.mb-4
   = link_to('Clear', url, class: 'btn btn-light border')

@@ -74,9 +74,8 @@ RSpec.describe 'Requests Index' do
     it 'shows all requests with the selected state' do
       find_by_id('requests-dropdown-trigger').click if mobile? # open the filter dropdown
       within('#filters') do
-        click_on('filter-state-requests-button') # open the filter
         check('review')
-        sleep 1.5 # there is a timeout before firing the filtering
+        sleep 2 # there is a timeout before firing the filtering
       end
 
       within('#requests') do
@@ -102,7 +101,7 @@ RSpec.describe 'Requests Index' do
       find_by_id('requests-dropdown-trigger').click if mobile? # open the filter dropdown
       within('#filters') do
         check('Maintenance Release')
-        sleep 1.5 # there is a timeout before firing the filtering
+        sleep 2 # there is a timeout before firing the filtering
       end
 
       within('#requests') do

@@ -75,9 +75,8 @@ RSpec.describe 'Project Requests' do
       it 'shows requests with the selected state' do
         find_by_id('requests-dropdown-trigger').click if mobile?
         within('#filters') do
-          click_on('filter-state-requests-button')
           check('new')
-          sleep 1.5
+          sleep 2
         end
         execute_script('$("#requests-filter-form").submit()')
 
