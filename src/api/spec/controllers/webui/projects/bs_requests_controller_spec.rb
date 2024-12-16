@@ -20,6 +20,13 @@ RSpec.describe Webui::Projects::BsRequestsController do
 
     context 'when the user has the request_index feature flag enabled' do
       let!(:user) { create(:confirmed_user, login: 'king') }
+      let(:params) { base_params.merge(context_params) }
+
+      before do
+        login user
+        Flipper.enable(:request_index, user)
+        get :index, params: params, format: :html
+      end
 
       context 'when looking at the target_projects requests' do
         let(:target_project) { create(:project_with_package) }
@@ -38,32 +45,19 @@ RSpec.describe Webui::Projects::BsRequestsController do
                  source_package: target_package,
                  target_package: create(:project))
         end
+        let(:base_params) { { project: target_project, format: :json } }
 
         context 'and the direction parameters is "incoming"' do
-          let(:base_params) { { project: target_project, format: :json } }
           let(:context_params) { { direction: 'incoming' } }
-          let(:params) { base_params.merge(context_params) }
 
-          before do
-            login user
-            Flipper.enable(:request_index, user)
-            get :index, params: params, format: :html
-          end
-
+          it { expect(response).to have_http_status(:success) }
+          it { expect(subject).to render_template(:index) }
           it { expect(assigns[:bs_requests]).to include(incoming_request) }
           it { expect(assigns[:bs_requests]).not_to include(outgoing_request) }
         end
 
         context 'and the direction parameters is "outgoing"' do
-          let(:base_params) { { project: target_project, format: :json } }
           let(:context_params) { { direction: 'outgoing' } }
-          let(:params) { base_params.merge(context_params) }
-
-          before do
-            login user
-            Flipper.enable(:request_index, user)
-            get :index, params: params, format: :html
-          end
 
           it { expect(response).to have_http_status(:success) }
           it { expect(subject).to render_template(:index) }
@@ -72,15 +66,7 @@ RSpec.describe Webui::Projects::BsRequestsController do
         end
 
         context 'and the direction parameters is "all"' do
-          let(:base_params) { { project: target_project, format: :json } }
           let(:context_params) { { direction: 'all' } }
-          let(:params) { base_params.merge(context_params) }
-
-          before do
-            login user
-            Flipper.enable(:request_index, user)
-            get :index, params: params, format: :html
-          end
 
           it { expect(response).to have_http_status(:success) }
           it { expect(subject).to render_template(:index) }
@@ -106,17 +92,10 @@ RSpec.describe Webui::Projects::BsRequestsController do
                  source_package: source_package,
                  target_package: create(:project))
         end
+        let(:base_params) { { project: source_project, format: :json } }
 
         context 'and the direction parameters is "incoming"' do
-          let(:base_params) { { project: source_project, format: :json } }
           let(:context_params) { { direction: 'incoming' } }
-          let(:params) { base_params.merge(context_params) }
-
-          before do
-            login user
-            Flipper.enable(:request_index, user)
-            get :index, params: params, format: :html
-          end
 
           it { expect(response).to have_http_status(:success) }
           it { expect(subject).to render_template(:index) }
@@ -125,15 +104,7 @@ RSpec.describe Webui::Projects::BsRequestsController do
         end
 
         context 'and the direction parameters is "outgoing"' do
-          let(:base_params) { { project: source_project, format: :json } }
           let(:context_params) { { direction: 'outgoing' } }
-          let(:params) { base_params.merge(context_params) }
-
-          before do
-            login user
-            Flipper.enable(:request_index, user)
-            get :index, params: params, format: :html
-          end
 
           it { expect(response).to have_http_status(:success) }
           it { expect(subject).to render_template(:index) }
@@ -142,15 +113,7 @@ RSpec.describe Webui::Projects::BsRequestsController do
         end
 
         context 'and the direction parameters is "all"' do
-          let(:base_params) { { project: source_project, format: :json } }
           let(:context_params) { { direction: 'all' } }
-          let(:params) { base_params.merge(context_params) }
-
-          before do
-            login user
-            Flipper.enable(:request_index, user)
-            get :index, params: params, format: :html
-          end
 
           it { expect(response).to have_http_status(:success) }
           it { expect(subject).to render_template(:index) }
