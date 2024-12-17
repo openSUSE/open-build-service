@@ -12,6 +12,7 @@ module Webui
 
       before_action :set_project
       before_action :set_package
+      before_action :set_multibuild_flavor
       before_action :set_repository
       before_action :set_architecture, only: %i[show dependency filelist]
       before_action :set_dependant_project, only: :dependency
@@ -115,6 +116,10 @@ module Webui
       def set_filename
         # Ensure it really is just a file name, no '/..', etc.
         @filename = File.basename(params[:binary_filename] || params[:filename])
+      end
+
+      def set_multibuild_flavor
+        @multibuild_flavor = @package_name.gsub(/.*:/, '') if @package_name.present? && @package_name.include?(':')
       end
 
       # Get an URL to a binary produced by the build.
