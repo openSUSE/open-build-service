@@ -113,36 +113,57 @@ RSpec.describe 'Requests Index' do
     # rubocop:enable RSpec/ExampleLength
   end
 
-  describe 'using the request creator filter', skip: 'Temporarily disable list of creators due to performance issues' do
+  describe 'using the request creator filter' do
     before do
-      find_by_id('requests-dropdown-trigger').click if mobile? # open the filter dropdown
-      find_by_id('filter-creator-requests-button').click
+      if mobile?
+        find_by_id('requests-dropdown-trigger').click # open the filter dropdown
+        sleep 0.5 # wait for dropdown to open
+      end
+
+      within('#filters') do
+        fill_in('creators_search', with: receiver.login[0, 2])
+        find('.ui-menu-item-wrapper', match: :first).click
+        # Remove focus from autocomplete search to allow the autosubmit
+        find('label[for="creators_search"]').click
+        sleep 2
+      end
+
+      if mobile?
+        find_by_id('requests-dropdown-trigger').click # open the filter dropdown
+        sleep 0.5 # wait for dropdown to open
+      end
+
+      within('#filters') do
+        fill_in('creators_search', with: another_submitter.login[0, 2])
+        find('.ui-menu-item-wrapper', match: :first).click
+        # Remove focus from autocomplete search to allow the autosubmit
+        find('label[for="creators_search"]').click
+        sleep 2
+      end
     end
 
-    it 'lists only the requests of the selected creator' do
-      check("creators[#{receiver.login}]")
-
-      expect(page).to have_link(href: "/request/show/#{outgoing_request.number}")
-      expect(page).to have_no_link(href: "/request/show/#{incoming_request.number}")
-      expect(page).to have_no_link(href: "/request/show/#{other_incoming_request.number}")
-    end
-
-    it 'allows to filter by multiple request creators' do
-      check("creators[#{receiver.login}]")
-      check("creators[#{another_submitter.login}]")
-
+    it 'filters the requests by multiple creators' do
       expect(page).to have_link(href: "/request/show/#{outgoing_request.number}")
       expect(page).to have_link(href: "/request/show/#{other_incoming_request.number}")
       expect(page).to have_no_link(href: "/request/show/#{incoming_request.number}")
     end
 
-    it 'only shows the creators that match the search value filled in the dropdown' do
-      fill_in('request-creator-search', with: submitter.login[0, 2].to_s)
-
-      within('div#request-creator-dropdown') do
-        expect(page).to have_field('creators[]', with: submitter.login.to_s)
-        expect(page).to have_no_field('creators[]', with: receiver.login.to_s)
+    # rubocop:disable RSpec/ExampleLength
+    it 'allows to modify the filter selection' do
+      if mobile?
+        find_by_id('requests-dropdown-trigger').click # open the filter dropdown
+        sleep 0.5 # wait for dropdown to open
       end
+
+      within('#filters') do
+        uncheck("creators[#{receiver.login}]")
+        sleep 2
+      end
+
+      expect(page).to have_no_link(href: "/request/show/#{outgoing_request.number}")
+      expect(page).to have_link(href: "/request/show/#{other_incoming_request.number}")
+      expect(page).to have_no_link(href: "/request/show/#{incoming_request.number}")
     end
+    # rubocop:enable RSpec/ExampleLength
   end
 end
