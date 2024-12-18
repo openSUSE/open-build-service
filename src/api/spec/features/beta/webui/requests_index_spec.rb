@@ -124,7 +124,7 @@ RSpec.describe 'Requests Index' do
         fill_in('creators_search', with: receiver.login[0, 2])
         find('.ui-menu-item-wrapper', match: :first).click
         # Remove focus from autocomplete search to allow the autosubmit
-        find('label[for="creators_search"]').click
+        find(:xpath, '//*[@id="request-creator-dropdown"]/div/div/span/i').click
         sleep 2
       end
 
@@ -137,7 +137,7 @@ RSpec.describe 'Requests Index' do
         fill_in('creators_search', with: another_submitter.login[0, 2])
         find('.ui-menu-item-wrapper', match: :first).click
         # Remove focus from autocomplete search to allow the autosubmit
-        find('label[for="creators_search"]').click
+        find(:xpath, '//*[@id="request-creator-dropdown"]/div/div/span/i').click
         sleep 2
       end
     end

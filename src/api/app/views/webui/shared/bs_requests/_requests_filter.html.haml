@@ -80,7 +80,7 @@
     .px-4.pb-2.accordion-collapse.collapse.show#request-filter-creator
       #request-creator-dropdown
         = render partial: 'webui/shared/autocomplete', locals: { html_id: 'creators_search', label: 'Creators:',
-                                                                 html_name: 'creators[]', required: false,
+                                                                 html_name: 'creators[]', required: false, with_label: false,
                                                                  data: { source: autocomplete_users_path } }
 
         - if selected_filter[:creators].include?(User.session.login)

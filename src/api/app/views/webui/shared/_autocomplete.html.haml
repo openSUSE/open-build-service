@@ -4,9 +4,11 @@
   disabled = local_assigns.fetch(:disabled, false)
   data = local_assigns.fetch(:data, {})
   html_name = local_assigns.fetch(:html_name, html_id)
+  with_label = local_assigns.fetch(:with_label, true)
 
 .mb-3.ui-front
-  = label_tag(html_id, label)
+  - if with_label
+    = label_tag(html_id, label)
   - if required
     %abbr.text-danger{ title: 'required' } *
   .input-group
