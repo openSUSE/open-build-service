@@ -10,6 +10,9 @@ class BsRequest
         @relation = BsRequest::FindFor::Project.new(@parameters, @relation).all
         @relation = BsRequest::FindFor::User.new(@parameters, @relation).all if user_login.present?
         @relation = BsRequest::FindFor::Group.new(@parameters, @relation).all if group_title.present?
+        created_at_from = Date.parse(@parameters['created_at_from']) if @parameters['created_at_from'].present?
+        created_at_to = Date.parse(@parameters['created_at_to']) if @parameters['created_at_to'].present?
+        @relation = @relation.where(created_at: (created_at_from&.beginning_of_day..created_at_to&.end_of_day))
         @relation = @relation.where(id: ids) if @parameters.key?('ids')
         @relation = @relation.do_search(search) if search.present?
         @relation
