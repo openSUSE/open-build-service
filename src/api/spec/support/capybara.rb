@@ -8,14 +8,13 @@ Capybara.javascript_driver = :desktop
 # Attempt to click the associated label element if a checkbox/radio button are non-visible (This is especially useful for Bootstrap custom controls)
 Capybara.automatic_label_click = true
 
-Selenium::WebDriver::Chrome::Service.driver_path = '/usr/lib64/chromium/chromedriver'
-
 Capybara.register_driver :desktop do |app|
   Capybara::Selenium::Driver.load_selenium
   browser_options = Selenium::WebDriver::Chrome::Options.new
+  browser_options.browser_version = '119'
   browser_options.args << '--disable-gpu'
   browser_options.args << '--disable-dev-shm-usage'
-  browser_options.args << '--headless'
+  browser_options.args << '--headless=new'
   browser_options.args << '--no-sandbox' # to run in docker
   browser_options.args << '--window-size=1280,1024'
   Capybara::Selenium::Driver.new(app, browser: :chrome, options: browser_options)
@@ -24,9 +23,10 @@ end
 Capybara.register_driver :mobile do |app|
   Capybara::Selenium::Driver.load_selenium
   browser_options = Selenium::WebDriver::Chrome::Options.new
+  browser_options.browser_version = '119'
   browser_options.args << '--disable-gpu'
   browser_options.args << '--disable-dev-shm-usage'
-  browser_options.args << '--headless'
+  browser_options.args << '--headless=new'
   browser_options.args << '--no-sandbox' # to run in docker
   browser_options.add_emulation(device_metrics: { width: 320, height: 568, pixelRatio: 1, touch: true })
   Capybara::Selenium::Driver.new(app, browser: :chrome, options: browser_options)
