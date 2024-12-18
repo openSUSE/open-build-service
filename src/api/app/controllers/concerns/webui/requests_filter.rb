@@ -18,10 +18,15 @@ module Webui::RequestsFilter
     params[:states] = @filter_state if @filter_state.present?
     params[:types] = @filter_action_type if @filter_action_type.present?
 
+    params[:created_at_from] = @filter_created_at_from if @filter_created_at_from.present?
+    params[:created_at_to] = @filter_created_at_to if @filter_created_at_to.present?
+
     @bs_requests = BsRequest::FindFor::Query.new(params, initial_bs_requests).all
     set_selected_filter
   end
 
+  # rubocop:disable Metrics/PerceivedComplexity
+  # rubocop:disable Metrics/CyclomaticComplexity
   def set_filters
     @filter_direction = params[:direction].presence || 'all'
     @filter_direction = 'all' if ALLOWED_DIRECTIONS.exclude?(@filter_direction)
@@ -33,11 +38,17 @@ module Webui::RequestsFilter
     @filter_action_type = @filter_action_type.intersection(BsRequestAction::TYPES)
 
     @filter_creators = params[:creators].present? ? params[:creators].compact_blank! : []
+
+    @filter_created_at_from = params[:created_at_from].presence || ''
+    @filter_created_at_to = params[:created_at_to].presence || ''
   end
+  # rubocop:enable Metrics/PerceivedComplexity
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   def set_selected_filter
     @selected_filter = { direction: @filter_direction, action_type: @filter_action_type, search_text: params[:requests_search_text],
-                         state: @filter_state, creators: @filter_creators }
+                         state: @filter_state, creators: @filter_creators, created_at_from: @filter_created_at_from,
+                         created_at_to: @filter_created_at_to }
   end
 
   def filter_by_text(text)
