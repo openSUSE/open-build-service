@@ -4,7 +4,7 @@ ol.breadcrumb {
   & li {
     font-size: 0.9rem;
 
-    &.active {
+    .active, &.active {
       color: var(--breadcrumbs-item-text-color);
       font-weight: bold;
     }
