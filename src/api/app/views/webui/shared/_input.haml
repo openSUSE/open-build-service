@@ -4,4 +4,5 @@
   .col-9.d-flex
     = text_field_tag(filter_item, '',
                      class: 'form-control form-control-sm',
-                     placeholder: placeholder, value: selected_input_value)
+                     placeholder: defined?(placeholder) ? placeholder : '', value: selected_input_value,
+                     type: defined?(type) ? type : 'text')

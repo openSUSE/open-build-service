@@ -166,4 +166,35 @@ RSpec.describe 'Requests Index' do
     end
     # rubocop:enable RSpec/ExampleLength
   end
+
+  describe 'filters request by created_at' do
+    let!(:request_in_review) do
+      create(:bs_request_with_submit_action,
+             description: 'This is in review state',
+             creator: receiver,
+             source_package: source_project.packages.first,
+             target_project: other_source_project,
+             state: :review,
+             review_by_user: receiver)
+    end
+
+    # rubocop:disable RSpec/ExampleLength
+    it 'shows only requests within the selected date range' do
+      request_in_review.created_at = DateTime.now - 10.days # set request to be older
+      request_in_review.save # update and store the new value
+      find_by_id('requests-dropdown-trigger').click if mobile? # open the filter dropdown
+      within('#content-selector-filters') do
+        # filter from yesterday to tomorrow
+        fill_in 'created_at_from', with: DateTime.now - 1.day
+        fill_in 'created_at_to', with: DateTime.now + 1.day
+        sleep 2 # there is a timeout before firing the filtering
+      end
+
+      within('#requests') do
+        expect(page).to have_no_link(href: "/request/show/#{request_in_review.number}")
+        expect(page).to have_link(href: "/request/show/#{outgoing_request.number}")
+      end
+    end
+    # rubocop:enable RSpec/ExampleLength
+  end
 end
