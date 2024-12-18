@@ -60,7 +60,8 @@ function initializeMonitorDataTable() {
         data: null,
         render: function (packageName) {
           if (scmsync !== undefined) return packageName;
-          var url = '/package/show/' + projectName + '/' + packageName;
+          var packageNameWithoutMultibuildFlavor = packageName.replace(/:\w+$/, '');
+          var url = '/package/show/' + projectName + '/' + packageNameWithoutMultibuildFlavor;
           return '<a href="' + url + '">' + packageName + '</a>';
         }
       },
