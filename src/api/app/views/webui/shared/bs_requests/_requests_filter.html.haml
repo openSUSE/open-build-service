@@ -27,6 +27,25 @@
                                                               checked: selected_filter[:state]&.include?(state.to_s) }
 
   .mt-2.mb-2.accordion-item.border-0
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-stag-proj' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-stag-proj' } }
+      %b Staging  Project
+      .selected-content.small.ms-1
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-stag-proj
+      .dropdown.form-multi-select{ 'data-name': 'staging projects' }
+        %button.form-select.text-start#filter-staging-projects-button{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
+          Select staging project
+        .dropdown-menu.w-100#stag-proj-dropdown
+          %input.form-control#stag-proj-search{ placeholder: 'Filter staging project' }
+          - Project.where.not(staging_workflow_id: nil).each do |sp|
+            .dropdown-item-text
+              - checked = selected_filter[:staging_project]&.include?(sp.name) || defined?(project) && project == sp
+              = render partial: 'webui/shared/check_box', locals: { label: sp.name,
+                                                                    key: "staging_project[#{sp.id}]", name: 'staging_project[]',
+                                                                    value: sp.name,
+                                                                    checked: checked }
+
+  .mt-2.mb-2.accordion-item.border-0
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-action' },
                                                        aria: { expanded: 'true', controls: 'request-filter-action' } }
       %b Action Type
