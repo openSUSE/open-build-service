@@ -1,3 +1,4 @@
+-# haml-lint:disable ViewLength
 .accordion.accordion-flush
   .mt-2.mb-2.accordion-item.border-0
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-direction' },
@@ -73,7 +74,7 @@
                                                             checked: selected_filter[:action_type]&.include?('submit')}
 
   .mt-2.mb-2.accordion-item.border-0
-    %h6.px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-creator' },
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-creator' },
                                                        aria: { expanded: 'true', controls: 'request-filter-creator' } }
       %b Creator
       .selected-content.small.ms-1
@@ -96,5 +97,19 @@
                                                                   key: "creators[#{creator}]", name: 'creators[]',
                                                                   value: creator,
                                                                   checked: selected_filter[:creators]&.include?(creator) }
+
+  .mt-2.mb-2.accordion-item.border-0
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-created-at' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-created-at' } }
+      %b Created at
+      .selected-content.small.ms-1
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-created-at
+      = render partial: 'webui/shared/input', locals: { label: 'From', filter_item: 'created_at_from', type: 'date',
+                                                        placeholder: 'mm/dd/yyyy', selected_input_value: selected_filter[:created_at_from] }
+      = render partial: 'webui/shared/input', locals: { label: 'To', filter_item: 'created_at_to', type: 'date',
+                                                        placeholder: 'mm/dd/yyyy', selected_input_value: selected_filter[:created_at_to] }
+
 .text-center.mt-4.mb-4
   = link_to('Clear', url, class: 'btn btn-light border')
+
+-# haml-lint:enable ViewLength
