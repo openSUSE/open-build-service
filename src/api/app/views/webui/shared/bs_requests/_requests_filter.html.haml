@@ -32,18 +32,16 @@
       %b Staging  Project
       .selected-content.small.ms-1
     .px-4.pb-2.accordion-collapse.collapse.show#request-filter-stag-proj
-      .dropdown.form-multi-select{ 'data-name': 'staging projects' }
-        %button.form-select.text-start#filter-staging-projects-button{ type: 'button', data: { 'bs-toggle': 'dropdown' } }
-          Select staging project
-        .dropdown-menu.w-100#stag-proj-dropdown
-          %input.form-control#stag-proj-search{ placeholder: 'Filter staging project' }
-          - Project.where.not(staging_workflow_id: nil).each do |sp|
-            .dropdown-item-text
-              - checked = selected_filter[:staging_project]&.include?(sp.name) || defined?(project) && project == sp
-              = render partial: 'webui/shared/check_box', locals: { label: sp.name,
-                                                                    key: "staging_project[#{sp.id}]", name: 'staging_project[]',
-                                                                    value: sp.name,
-                                                                    checked: checked }
+      .mb-3.ui-front
+        %input.form-control#stag-proj-search{ placeholder: 'Filter staging project' }
+      .scroll-list-wrapper
+        - Project.where.not(staging_workflow_id: nil).each do |sp|
+          .dropdown-item-text.request-filter-stag-proj-item
+            - checked = selected_filter[:staging_project]&.include?(sp.name) || defined?(project) && project == sp
+            = render partial: 'webui/shared/check_box', locals: { label: sp.name,
+                                                                  key: "staging_project[#{sp.id}]", name: 'staging_project[]',
+                                                                  value: sp.name,
+                                                                  checked: checked }
 
   .mt-2.mb-2.accordion-item.border-0
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-action' },
@@ -102,18 +100,19 @@
                                                                  html_name: 'creators[]', required: false, with_label: false,
                                                                  data: { source: autocomplete_users_path } }
 
-        - if selected_filter[:creators].include?(User.session.login)
-          .dropdown-item-text
-            = render partial: 'webui/shared/check_box', locals: { label: "#{User.session.login} (me)",
-                                                                  key: "creators[#{User.session.login}]", name: 'creators[]',
-                                                                  value: User.session.login,
-                                                                  checked: selected_filter[:creators]&.include?(User.session.login) }
-        - selected_filter[:creators].each do |creator|
-          - next if creator == User.session.login
-          .dropdown-item-text
-            = render partial: 'webui/shared/check_box', locals: { label: creator,
-                                                                  key: "creators[#{creator}]", name: 'creators[]',
-                                                                  value: creator,
-                                                                  checked: selected_filter[:creators]&.include?(creator) }
+        .scroll-list-wrapper
+          - if selected_filter[:creators].include?(User.session.login)
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: "#{User.session.login} (me)",
+                                                                    key: "creators[#{User.session.login}]", name: 'creators[]',
+                                                                    value: User.session.login,
+                                                                    checked: selected_filter[:creators]&.include?(User.session.login) }
+          - selected_filter[:creators].each do |creator|
+            - next if creator == User.session.login
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: creator,
+                                                                    key: "creators[#{creator}]", name: 'creators[]',
+                                                                    value: creator,
+                                                                    checked: selected_filter[:creators]&.include?(creator) }
 .text-center.mt-4.mb-4
   = link_to('Clear', url, class: 'btn btn-light border')

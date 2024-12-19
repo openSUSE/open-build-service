@@ -97,6 +97,15 @@
   display: inline;
 }
 
+#filters {
+  .accordion-item {
+    .scroll-list-wrapper {
+      overflow-y: scroll;
+      max-height: 15rem;
+    }
+  }
+}
+
 @include media-breakpoint-up(sm) {
   .order-sm-1 {
     order: 1;
