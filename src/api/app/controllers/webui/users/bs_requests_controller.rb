@@ -20,8 +20,6 @@ module Webui
           format.html do
             filter_requests
 
-            # TODO: Temporarily disable list of creators due to performance issues
-            # @bs_requests_creators = @bs_requests.distinct.pluck(:creator)
             @bs_requests = @bs_requests.order('number DESC').page(params[:page])
             @bs_requests = @bs_requests.includes(:bs_request_actions, :comments, :reviews)
             @bs_requests = @bs_requests.includes(:labels) if Flipper.enabled?(:labels, User.session)
