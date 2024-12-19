@@ -17,11 +17,13 @@ module Webui::RequestsFilter
     params[:creator] = @filter_creators if @filter_creators.present?
     params[:states] = @filter_state if @filter_state.present?
     params[:types] = @filter_action_type if @filter_action_type.present?
+    params[:staging_project] = @filter_staging_project if @filter_staging_project.present?
 
     @bs_requests = BsRequest::FindFor::Query.new(params, initial_bs_requests).all
     set_selected_filter
   end
 
+  # rubocop:disable Metrics/CyclomaticComplexity
   def set_filters
     @filter_direction = params[:direction].presence || 'all'
     @filter_direction = 'all' if ALLOWED_DIRECTIONS.exclude?(@filter_direction)
@@ -33,11 +35,14 @@ module Webui::RequestsFilter
     @filter_action_type = @filter_action_type.intersection(BsRequestAction::TYPES)
 
     @filter_creators = params[:creators].present? ? params[:creators].compact_blank! : []
+
+    @filter_staging_project = params[:staging_project].presence || []
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   def set_selected_filter
     @selected_filter = { direction: @filter_direction, action_type: @filter_action_type, search_text: params[:requests_search_text],
-                         state: @filter_state, creators: @filter_creators }
+                         state: @filter_state, creators: @filter_creators, staging_project: @filter_staging_project }
   end
 
   def filter_by_text(text)
@@ -47,5 +52,9 @@ module Webui::RequestsFilter
     end
 
     BsRequest.with_actions.where(id: BsRequest.search_for_ids(text, per_page: TEXT_SEARCH_MAX_RESULTS))
+  end
+
+  def staging_projects
+    Project.where(name: @filter_staging_project)
   end
 end

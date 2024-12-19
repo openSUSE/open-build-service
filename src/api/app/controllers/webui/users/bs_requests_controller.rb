@@ -38,6 +38,8 @@ module Webui
       private
 
       def filter_by_direction(direction)
+        return filter_by_direction_staging_project(direction) if staging_projects.present?
+
         case direction
         when 'all'
           User.session.requests
@@ -45,6 +47,17 @@ module Webui
           User.session.incoming_requests
         when 'outgoing'
           User.session.outgoing_requests
+        end
+      end
+
+      def filter_by_direction_staging_project(direction)
+        case direction
+        when 'all'
+          User.session.requests.where(staging_project: staging_projects)
+        when 'incoming'
+          User.session.incoming_requests.where(staging_project: staging_projects)
+        when 'outgoing'
+          User.session.outgoing_requests.where(staging_project: staging_projects)
         end
       end
 

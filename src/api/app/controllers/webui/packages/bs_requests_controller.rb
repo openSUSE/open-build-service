@@ -27,6 +27,8 @@ module Webui
       private
 
       def filter_by_direction(direction)
+        return filter_by_direction_staging_project(direction) if staging_projects.present?
+
         case direction
         when 'all'
           target = BsRequest.with_actions_and_reviews.where(bs_request_actions: { target_project: @project.name, target_package: @package.name })
@@ -37,6 +39,20 @@ module Webui
           BsRequest.with_actions.where(bs_request_actions: { target_project: @project.name, target_package: @package.name })
         when 'outgoing'
           BsRequest.with_actions.where(bs_request_actions: { source_project: @project.name, source_package: @package.name })
+        end
+      end
+
+      def filter_by_direction_staging_project(direction)
+        case direction
+        when 'all'
+          target = BsRequest.with_actions_and_reviews.where(staging_project: staging_projects, bs_request_actions: { target_project: @project.name, target_package: @package.name })
+          source = BsRequest.with_actions_and_reviews.where(staging_project: staging_projects, bs_request_actions: { source_project: @project.name, source_package: @package.name })
+          reviews = BsRequest.with_actions_and_reviews.where(staging_project: staging_projects, reviews: { package: @package })
+          target.or(source).or(reviews)
+        when 'incoming'
+          BsRequest.with_actions.where(staging_project: staging_projects, bs_request_actions: { target_project: @project.name, target_package: @package.name })
+        when 'outgoing'
+          BsRequest.with_actions.where(staging_project: staging_projects, bs_request_actions: { source_project: @project.name, source_package: @package.name })
         end
       end
     end

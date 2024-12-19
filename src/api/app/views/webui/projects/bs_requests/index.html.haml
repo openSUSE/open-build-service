@@ -7,4 +7,4 @@
       .card-body
         = render(partial: 'webui/shared/bs_requests/form',
                 locals: { selected_filter: @selected_filter, bs_requests_creators: @bs_requests_creators,
-                          url: projects_requests_path(@project), bs_requests: @bs_requests })
+                          url: projects_requests_path(@project), bs_requests: @bs_requests, project: @project })
