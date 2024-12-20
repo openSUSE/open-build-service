@@ -74,16 +74,16 @@
   $(document).on("input", "#stag-proj-search", function(event) {
     var searchInput = event.target;
     var filterValue = searchInput.value.toLowerCase();
-    var dropdown = document.getElementById("stag-proj-dropdown");
-    var dropdownInputFields = dropdown.getElementsByTagName("input");
+    var filterContent = document.getElementById("request-filter-stag-proj");
+    var filterItems = filterContent.getElementsByClassName("request-filter-stag-proj-item");
 
-    for (i = 1; i < dropdownInputFields.length; i++) {
-      dropdownInputValue = dropdownInputFields[i].value;
+    for (i = 0; i < filterItems.length; i++) {
+      var itemValue = filterItems[i].getElementsByTagName('input')[0].value;
 
-      if (dropdownInputValue.toLowerCase().indexOf(filterValue) > -1) {
-        dropdownInputFields[i].closest(".dropdown-item-text").style.display = "";
+      if (itemValue.toLowerCase().indexOf(filterValue) > -1) {
+        filterItems[i].style.display = "";
       } else {
-        dropdownInputFields[i].closest(".dropdown-item-text").style.display = "none";
+        filterItems[i].style.display = "none";
       }
     }
   });
