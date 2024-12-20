@@ -102,6 +102,7 @@
     .scroll-list-wrapper {
       overflow-y: scroll;
       max-height: 15rem;
+      word-break: break-all;
     }
   }
 }
