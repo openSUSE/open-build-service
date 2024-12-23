@@ -70,7 +70,7 @@
   max-width: calc(100% - 2.5rem)
 }
 
-#requests-filter-desktop, #requests-filter-search-text {
+#filter-desktop, #requests-filter-search-text {
   &.sticky-top { top: $top-navigation-height; }
 }
 
@@ -95,7 +95,7 @@
 }
 
 @include media-breakpoint-between(xs, md) {
-  #requests-filter-desktop {
+  #filter-desktop {
     &.sticky-top { top: $top-navigation-height; }
     height: $top-navigation-height;
     // To not overlap with the notification action bar
@@ -111,7 +111,7 @@
   }
 
   @media (orientation: landscape) {
-    #requests-filter-desktop {
+    #filter-desktop {
       #filters { max-height: 20vw; }
     }
   }
