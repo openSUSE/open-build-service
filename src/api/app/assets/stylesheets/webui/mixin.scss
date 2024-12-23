@@ -10,3 +10,49 @@
   color: var(--placeholder-text)!important;
   font-style: italic;
 }
+
+
+#filters {
+  .accordion-item {
+    .accordion-button {
+      &.no-style {
+        cursor: pointer;
+        padding: 0;
+        background: none;
+      }
+      &:focus {
+        box-shadow: none;
+      }
+      &:not(.collapsed) {
+        box-shadow: none;
+      }
+      &:hover {
+        background-color: var(--bs-secondary-bg);
+      }
+    }
+
+    .accordion-button {
+      .selected-content {
+        display: none;
+      }
+    }
+    .accordion-button.collapsed {
+      .selected-content {
+        display: inline;
+      }
+    }
+
+    .scroll-list-wrapper {
+      overflow-y: scroll;
+      max-height: 15rem;
+      word-break: break-all;
+    }
+  }
+}
+
+
+@include media-breakpoint-up(md) {
+  #filters.collapse {
+    display: block !important;
+  }
+}
