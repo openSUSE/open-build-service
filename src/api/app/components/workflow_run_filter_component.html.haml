@@ -1,3 +1,4 @@
+-# haml-lint:disable ViewLength
 :ruby
   status_info_text = '<p>Filter your workflow runs by the current state</p>
                       <p><b>Succeeded: </b>Workflow run execution was successful</p>
@@ -17,64 +18,105 @@
                             <em>97561db8664eaf86a1e4c7b77d5fb5d5bff6681e</em></p>'
 
 = form_for(:token, url: token_workflow_runs_path(@token), method: :get, id: 'workflow-run-filter-form') do |form|
-  .mt-3.mb-2
-    %h6.px-3.py-2
-      %b Status
-      = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: status_info_text }
-    .px-4
-      = render partial: 'webui/shared/check_box', locals: { label: 'Succeeded', amount: @count['success'] || 0,
-                                                            key: 'success', label_icon: 'fas fa-check text-primary',
-                                                            checked: @selected_filter[:status]&.include?('success')}
-      = render partial: 'webui/shared/check_box', locals: { label: 'Running', amount: @count['running'] || 0,
-                                                            key: 'running', label_icon: 'fas fa-running',
-                                                            checked: @selected_filter[:status]&.include?('running')}
-      = render partial: 'webui/shared/check_box', locals: { label: 'Failed', amount: @count['fail'] || 0,
-                                                            key: 'fail', label_icon: 'fas fa-exclamation-triangle text-danger',
-                                                            checked: @selected_filter[:status]&.include?('fail')}
-  .mt-4.mb-4
-    %h6.px-3.py-2
-      %b Event Type
-      = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: event_type_info_text }
-    .px-4
-      = render partial: 'webui/shared/check_box', locals: { label: 'Pull/Merge Request', amount: @count['pull_request'] || 0,
-                                                            key: 'pull_request', checked: @selected_filter[:event_type]&.include?('pull_request')}
-      = render partial: 'webui/shared/check_box', locals: { label: 'Push', amount: @count['push'] || 0,
-                                                            key: 'push', checked: @selected_filter[:event_type]&.include?('push')}
-      = render partial: 'webui/shared/check_box', locals: { label: 'Tag Push', amount: @count['tag_push'] || 0,
-                                                            key: 'tag_push', checked: @selected_filter[:event_type]&.include?('tag_push')}
+  .accordion.accordion-flush
+    .mt-2.mb-2.accordion-item.border-0
+      .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#workflow-filter-status' },
+                                              aria: { expanded: 'true', controls: 'workflow-filter-status' } }
+        %b Status
+        %span.ms-1
+          = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: status_info_text }
+        .selected-content.small.ms-1
+      .px-4.pb-2.accordion-collapse.collapse.show#workflow-filter-status
+        = render partial: 'webui/shared/check_box', locals: { label: 'Succeeded', amount: @count['success'] || 0,
+                                                              key: 'success', label_icon: 'fas fa-check text-primary',
+                                                              checked: @selected_filter[:status]&.include?('success')}
+        = render partial: 'webui/shared/check_box', locals: { label: 'Running', amount: @count['running'] || 0,
+                                                              key: 'running', label_icon: 'fas fa-running',
+                                                              checked: @selected_filter[:status]&.include?('running')}
+        = render partial: 'webui/shared/check_box', locals: { label: 'Failed', amount: @count['fail'] || 0,
+                                                              key: 'fail', label_icon: 'fas fa-exclamation-triangle text-danger',
+                                                              checked: @selected_filter[:status]&.include?('fail')}
+    .mt-4.mb-2.accordion-item.border-0
+      .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#workflow-filter-event-type' },
+                                              aria: { expanded: 'true', controls: 'workflow-filter-event-type' } }
+        %b Event Type
+        %span.ms-1
+          = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: event_type_info_text }
+        .selected-content.small.ms-1
+      .px-4.pb-2.accordion-collapse.collapse.show#workflow-filter-event-type
+        = render partial: 'webui/shared/check_box', locals: { label: 'Pull/Merge Request', amount: @count['pull_request'] || 0,
+                                                              key: 'pull_request', checked: @selected_filter[:event_type]&.include?('pull_request')}
+        = render partial: 'webui/shared/check_box', locals: { label: 'Push', amount: @count['push'] || 0,
+                                                              key: 'push', checked: @selected_filter[:event_type]&.include?('push')}
+        = render partial: 'webui/shared/check_box', locals: { label: 'Tag Push', amount: @count['tag_push'] || 0,
+                                                              key: 'tag_push', checked: @selected_filter[:event_type]&.include?('tag_push')}
 
-  .mt-4.mb-4
-    %h6.px-3.py-2
-      %b Event Action
-      = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: pr_mr_request_info_text }
-    .px-4
-      = render partial: 'webui/shared/select', locals: { filter_item: 'request_action',
-                                                         selected_value: @selected_filter[:request_action],
-                                                         filter_options: SCMWebhook::ALL_POSSIBLE_REQUEST_ACTIONS,
-                                                         label: 'Action', visible_inner_label: true }
-  .mt-4.mb-4
-    %h6.px-3.py-2
-      %b Event Source
-      = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: event_source_info_text }
-    .px-4
-      = render partial: 'webui/shared/input', locals: { label: 'PR/MR', filter_item: 'pr_mr',
-                                                        placeholder: 'eg. 12345', selected_input_value: @selected_filter[:pr_mr] }
-      = render partial: 'webui/shared/input', locals: { label: 'Commit', filter_item: 'commit_sha',
-                                                        placeholder: 'eg. 97561db8664eaf86a1e4c7b77d5fb5d5bff6681e',
-                                                        selected_input_value: @selected_filter[:commit_sha] }
+    .mt-4.mb-2.accordion-item.border-0
+      .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#workflow-filter-event-action' },
+                                              aria: { expanded: 'true', controls: 'workflow-filter-event-action' } }
+        %b Event Action
+        %span.ms-1
+          = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: pr_mr_request_info_text }
+        .selected-content.small.ms-1
+      .px-4.pb-2.accordion-collapse.collapse.show#workflow-filter-event-action
+        = render partial: 'webui/shared/select', locals: { filter_item: 'request_action',
+                                                          selected_value: @selected_filter[:request_action],
+                                                          filter_options: SCMWebhook::ALL_POSSIBLE_REQUEST_ACTIONS,
+                                                          label: 'Action', visible_inner_label: true }
+    .mt-4.mb-2.accordion-item.border-0
+      .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#workflow-filter-event-source' },
+                                              aria: { expanded: 'true', controls: 'workflow-filter-event-source' } }
+        %b Event Source
+        %span.ms-1
+          = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: event_source_info_text }
+        .selected-content.small.ms-1
+      .px-4.pb-2.accordion-collapse.collapse.show#workflow-filter-event-source
+        = render partial: 'webui/shared/input', locals: { label: 'PR/MR', filter_item: 'pr_mr',
+                                                          placeholder: 'eg. 12345', selected_input_value: @selected_filter[:pr_mr] }
+        = render partial: 'webui/shared/input', locals: { label: 'Commit', filter_item: 'commit_sha',
+                                                          placeholder: 'eg. 97561db8664eaf86a1e4c7b77d5fb5d5bff6681e',
+                                                          selected_input_value: @selected_filter[:commit_sha] }
 
   .text-center.mt-4.mb-4
     = link_to('Clear', token_workflow_runs_path(@token, []), class: 'btn btn-light border')
 
 :javascript
+
+  function highlightSelectedFilters() {
+    var filters = $('#filters .accordion .accordion-item');
+    filters.each(function() {
+      var currentFilter = $(this);
+      var selectedContentWrapper = currentFilter.find('.selected-content');
+      if (selectedContentWrapper.length > 0) {
+        var anySelected = []
+        $(this).find('input').each(function() {
+          if ($(this).is(':checked')) {
+            anySelected.push($(this).next('label').html());
+          }
+        });
+        if (anySelected.length > 0) {
+          currentFilter.find('.selected-content').html(anySelected.join(', '));
+        }
+        else {
+          currentFilter.find('.selected-content').text("");
+        }
+      }
+    });
+  }
+  highlightSelectedFilters();
+
   function submitWorkflowFilters() {
     $('#workflow-run-filter-form').submit();
+    $('#filters input').attr('disabled', 'disabled');
+    $('#requests-list').hide();
+    $('#requests-list-loading').removeClass('d-none');
   }
   let submitFiltersTimeout;
 
-  $(document).on('change keyup', '#workflow-runs-filter-desktop input, #workflow-runs-filter-desktop select', function() {
-    $('#workflow-run-list').hide();
-    $('#workflow-run-list-loading').removeClass('d-none');
+  $(document).on('change keyup', '#filter input, #filter select', function() {
+    highlightSelectedFilters();
     clearTimeout(submitFiltersTimeout);
     submitFiltersTimeout = setTimeout(submitWorkflowFilters, 1500);
   });
+
+-# haml-lint:enable ViewLength
