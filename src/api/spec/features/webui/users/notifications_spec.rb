@@ -67,9 +67,9 @@ RSpec.describe 'User notifications', :js do
       it 'shows all unread project notifications' do
         find_by_id('notifications-dropdown-trigger').click if mobile? # open the filter dropdown
         within('#filters') do
-          click_button('filter-projects-button') # open the filter
-          check(project.name)
-          click_button('filter-projects-button') # close the filter
+          within('#notification-filter-projects') do
+            check(project.name)
+          end
         end
 
         expect(page).to have_text(notification_for_projects_comment.notifiable.commentable_type)
@@ -94,9 +94,9 @@ RSpec.describe 'User notifications', :js do
       it 'shows all unread request notifications' do
         find_by_id('notifications-dropdown-trigger').click if mobile? # open the filter dropdown
         within('#filters') do
-          click_button('filter-requests-button') # open the filter
-          check('new')
-          click_button('filter-requests-button') # close the filter
+          within('#notification-filter-requests') do
+            check('new')
+          end
         end
 
         expect(page).to have_text(notification_for_request.notifiable.number)
