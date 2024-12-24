@@ -1,4 +1,4 @@
-= form_for(:request, url: url, method: :get, id: 'requests-filter-form') do |form|
+= form_for(:request, url: url, method: :get, id: 'filter-form') do |form|
   .row
     .col-md-4.col-lg-3.px-0.px-md-3.sticky-top.mb-3#filter-desktop
       .card
@@ -31,44 +31,6 @@
   = form.submit(nil, class: 'd-none')
 
 :javascript
-  function submitRequestFilters() {
-    $('#requests-filter-form').submit();
-    $('#filters input').attr('disabled', 'disabled');
-    $('#requests-list').hide();
-    $('#requests-list-loading').removeClass('d-none');
-  }
-
-  function highlightSelectedFilters() {
-    var filters = $('#filters .accordion .accordion-item');
-    filters.each(function() {
-      var currentFilter = $(this);
-      var selectedContentWrapper = currentFilter.find('.selected-content');
-      if (selectedContentWrapper.length > 0) {
-        var anySelected = []
-        $(this).find('input').each(function() {
-          if ($(this).is(':checked')) {
-            anySelected.push($(this).next('label').html());
-          }
-        });
-        if (anySelected.length > 0) {
-          currentFilter.find('.selected-content').html(anySelected.join(', '));
-        }
-        else {
-          currentFilter.find('.selected-content').text("");
-        }
-      }
-    });
-  }
-  highlightSelectedFilters();
-
-  let submitFiltersTimeout;
-
-  $(document).on('change', '#filters input', function() {
-    highlightSelectedFilters();
-    clearTimeout(submitFiltersTimeout);
-    submitFiltersTimeout = setTimeout(submitRequestFilters, 2000);
-  });
-
   $(document).on("input", "#stag-proj-search", function(event) {
     var searchInput = event.target;
     var filterValue = searchInput.value.toLowerCase();

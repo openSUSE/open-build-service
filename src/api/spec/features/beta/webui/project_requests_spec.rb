@@ -42,7 +42,7 @@ RSpec.describe 'Project Requests' do
     it 'filters incoming requests' do
       find_by_id('requests-dropdown-trigger').click if mobile?
       choose('Incoming', allow_label_click: true)
-      execute_script('$("#requests-filter-form").submit()')
+      execute_script('$("#filter-form").submit()')
 
       expect(page).to have_link(href: "/request/show/#{incoming_request.number}")
       expect(page).to have_link(href: "/request/show/#{other_incoming_request.number}")
@@ -52,7 +52,7 @@ RSpec.describe 'Project Requests' do
     it 'filters outgoing requests' do
       find_by_id('requests-dropdown-trigger').click if mobile?
       choose('Outgoing', allow_label_click: true)
-      execute_script('$("#requests-filter-form").submit()')
+      execute_script('$("#filter-form").submit()')
 
       expect(page).to have_link(href: "/request/show/#{outgoing_request.number}")
       expect(page).to have_no_link(href: "/request/show/#{incoming_request.number}")
@@ -75,7 +75,7 @@ RSpec.describe 'Project Requests' do
           check('new')
           sleep 2
         end
-        execute_script('$("#requests-filter-form").submit()')
+        execute_script('$("#filter-form").submit()')
 
         within('#requests') do
           expect(page).to have_link(href: "/request/show/#{new_request.number}")

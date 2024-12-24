@@ -1,5 +1,5 @@
 -# haml-lint:disable ViewLength
-= form_for(:notification, url: my_notifications_path, method: :get, id: 'notifications-filter-form') do |form|
+= form_for(:notification, url: my_notifications_path, method: :get, id: 'filter-form') do |form|
   .accordion.accordion-flush
     .mt-2.mb-2.accordion-item.border-0
       .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-state' },
@@ -135,43 +135,5 @@
 
   .text-center.mt-4.mb-4
     = link_to('Clear', my_notifications_path, class: 'btn btn-light border')
-
-:javascript
-  function highlightSelectedFilters() {
-    var filters = $('#filters .accordion .accordion-item');
-    filters.each(function() {
-      var currentFilter = $(this);
-      var selectedContentWrapper = currentFilter.find('.selected-content');
-      if (selectedContentWrapper.length > 0) {
-        var anySelected = []
-        $(this).find('input').each(function() {
-          if ($(this).is(':checked')) {
-            anySelected.push($(this).next('label').html());
-          }
-        });
-        if (anySelected.length > 0) {
-          currentFilter.find('.selected-content').html(anySelected.join(', '));
-        }
-        else {
-          currentFilter.find('.selected-content').text("");
-        }
-      }
-    });
-  }
-  highlightSelectedFilters();
-
-  function submitNotificationFilters() {
-    $('#notifications-filter-form').submit();
-    $('#filters input').attr('disabled', 'disabled');
-    $('#notifications-list').hide();
-    $('#notifications-list-loading').removeClass('d-none');
-  }
-  let submitFiltersTimeout;
-
-  $(document).on('change', '#filters input', function() {
-    highlightSelectedFilters();
-    clearTimeout(submitFiltersTimeout);
-    submitFiltersTimeout = setTimeout(submitNotificationFilters, 1500);
-  });
 
 -# haml-lint:enable ViewLength
