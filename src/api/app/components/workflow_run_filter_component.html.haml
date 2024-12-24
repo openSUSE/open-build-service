@@ -79,3 +79,5 @@
 
   .text-center.mt-4.mb-4
     = link_to('Clear', token_workflow_runs_path(@token, []), class: 'btn btn-light border')
+
+- content_for(:content_for_head, javascript_include_tag('webui/content-selector-filters'))

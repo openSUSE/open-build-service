@@ -136,4 +136,5 @@
   .text-center.mt-4.mb-4
     = link_to('Clear', my_notifications_path, class: 'btn btn-light border')
 
+- content_for(:content_for_head, javascript_include_tag('webui/content-selector-filters'))
 -# haml-lint:enable ViewLength

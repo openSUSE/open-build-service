@@ -116,3 +116,5 @@
                                                                   checked: checked }
 .text-center.mt-4.mb-4
   = link_to('Clear', url, class: 'btn btn-light border')
+
+- content_for(:content_for_head, javascript_include_tag('webui/content-selector-filters'))
