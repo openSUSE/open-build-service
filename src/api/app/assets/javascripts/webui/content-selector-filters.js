@@ -23,14 +23,14 @@ $(document).ready(function(){
   highlightSelectedFilters();
 
   function submitFilters() {
-    $('#filter-form').submit();
+    $('#content-selector-filters-form').submit();
     $('#content-selector-filters input').attr('disabled', 'disabled');
     $('#requests-list').hide();
     $('#requests-list-loading').removeClass('d-none');
   }
   let submitFiltersTimeout;
 
-  $(document).on('change keyup', '#filter-form input, #filter-form select', function() {
+  $(document).on('change keyup', '#content-selector-filters-form input, #content-selector-filters-form select', function() {
     highlightSelectedFilters();
     window.clearTimeout(submitFiltersTimeout);
     submitFiltersTimeout = window.setTimeout(submitFilters, 2000);
