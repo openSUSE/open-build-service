@@ -31,7 +31,7 @@ RSpec.describe 'User notifications', :js do
     context 'when clicking on the Comments filter' do
       before do
         find_by_id('notifications-dropdown-trigger').click if mobile?
-        within('#filters') { check('Comments') }
+        within('#content-selector-filters') { check('Comments') }
       end
 
       it 'shows all unread comment notifications' do
@@ -66,7 +66,7 @@ RSpec.describe 'User notifications', :js do
       # rubocop:disable RSpec/ExampleLength
       it 'shows all unread project notifications' do
         find_by_id('notifications-dropdown-trigger').click if mobile? # open the filter dropdown
-        within('#filters') do
+        within('#content-selector-filters') do
           within('#notification-filter-projects') do
             check(project.name)
           end
@@ -93,7 +93,7 @@ RSpec.describe 'User notifications', :js do
       # rubocop:disable RSpec/ExampleLength
       it 'shows all unread request notifications' do
         find_by_id('notifications-dropdown-trigger').click if mobile? # open the filter dropdown
-        within('#filters') do
+        within('#content-selector-filters') do
           within('#notification-filter-requests') do
             check('new')
           end

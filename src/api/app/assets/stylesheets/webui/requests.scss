@@ -101,7 +101,7 @@
     // To not overlap with the notification action bar
     z-index: calc(#{$zindex-sticky} + 1);
 
-    #filters {
+    #content-selector-filters {
       max-height: 100vw;
       overflow: auto;
     }
@@ -112,7 +112,7 @@
 
   @media (orientation: landscape) {
     #filter-desktop {
-      #filters { max-height: 20vw; }
+      #content-selector-filters { max-height: 20vw; }
     }
   }
 }
