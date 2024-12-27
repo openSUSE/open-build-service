@@ -72,4 +72,4 @@
 //= require webui/canned_responses.js
 //= require webui/multi_select.js
 //= require webui/dropdown.js
-//= require webui/filters.js
+//= require webui/content-selector-filters.js

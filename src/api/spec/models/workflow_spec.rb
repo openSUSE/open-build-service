@@ -421,7 +421,7 @@ RSpec.describe Workflow, :vcr do
     end
   end
 
-  describe '#filters' do
+  describe '#content-selector-filters' do
     let(:extractor_payload) do
       {
         scm: 'github',

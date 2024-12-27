@@ -73,7 +73,7 @@ RSpec.describe 'Requests Index' do
     # rubocop:disable RSpec/ExampleLength
     it 'shows all requests with the selected state' do
       find_by_id('requests-dropdown-trigger').click if mobile? # open the filter dropdown
-      within('#filters') do
+      within('#content-selector-filters') do
         check('review')
         sleep 2 # there is a timeout before firing the filtering
       end
@@ -99,7 +99,7 @@ RSpec.describe 'Requests Index' do
     # rubocop:disable RSpec/ExampleLength
     it 'shows all requests with the selected action' do
       find_by_id('requests-dropdown-trigger').click if mobile? # open the filter dropdown
-      within('#filters') do
+      within('#content-selector-filters') do
         check('Maintenance Release')
         sleep 2 # there is a timeout before firing the filtering
       end
@@ -120,7 +120,7 @@ RSpec.describe 'Requests Index' do
         sleep 0.5 # wait for dropdown to open
       end
 
-      within('#filters') do
+      within('#content-selector-filters') do
         fill_in('creators_search', with: receiver.login[0, 2])
         find('.ui-menu-item-wrapper', match: :first).click
         # Remove focus from autocomplete search to allow the autosubmit
@@ -133,7 +133,7 @@ RSpec.describe 'Requests Index' do
         sleep 0.5 # wait for dropdown to open
       end
 
-      within('#filters') do
+      within('#content-selector-filters') do
         fill_in('creators_search', with: another_submitter.login[0, 2])
         find('.ui-menu-item-wrapper', match: :first).click
         # Remove focus from autocomplete search to allow the autosubmit
@@ -155,7 +155,7 @@ RSpec.describe 'Requests Index' do
         sleep 0.5 # wait for dropdown to open
       end
 
-      within('#filters') do
+      within('#content-selector-filters') do
         uncheck("creators[#{receiver.login}]")
         sleep 2
       end
