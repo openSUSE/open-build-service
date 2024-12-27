@@ -25,8 +25,8 @@ $(document).ready(function(){
   function submitFilters() {
     $('#content-selector-filters-form').submit();
     $('#content-selector-filters input').attr('disabled', 'disabled');
-    $('#requests-list').hide();
-    $('#requests-list-loading').removeClass('d-none');
+    $('.content-list').hide();
+    $('.content-list-loading').removeClass('d-none');
   }
   let submitFiltersTimeout;
 

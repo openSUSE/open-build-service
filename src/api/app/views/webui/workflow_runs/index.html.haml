@@ -10,9 +10,9 @@
       .collapse#content-selector-filters
         = render WorkflowRunFilterComponent.new(token: @token, selected_filter: @selected_filter,
                                                 workflow_runs_relation: @workflow_runs_relation)
-  .col-md-8.col-lg-9.px-0.px-md-3.d-none#workflow-run-list-loading
+  .col-md-8.col-lg-9.px-0.px-md-3.d-none.content-list-loading
     = render partial: 'webui/shared/loading', locals: { text: 'Loading...', wrapper_css: ['loading'] }
-  .col-md-8.col-lg-9.px-0.px-md-3#workflow-run-list
+  .col-md-8.col-lg-9.px-0.px-md-3.content-list#workflow-run-list
     .card
       .card-body
         - if @workflow_runs.blank?
