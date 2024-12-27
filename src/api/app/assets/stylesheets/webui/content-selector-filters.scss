@@ -1,4 +1,4 @@
-#filters {
+#content-selector-filters {
   .accordion-item {
     .accordion-button {
       &.no-style {
@@ -38,7 +38,7 @@
 
 
 @include media-breakpoint-up(md) {
-  #filters.collapse {
+  #content-selector-filters.collapse {
     display: block !important;
   }
 }
@@ -51,7 +51,7 @@
     // To not overlap with the notification action bar
     z-index: calc(#{$zindex-sticky} + 1);
 
-    #filters {
+    #content-selector-filters {
       max-height: 100vw; overflow: auto;
       -webkit-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
       -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
@@ -60,6 +60,6 @@
   }
 
   @media (orientation: landscape) {
-    #filters { max-height: 20vw; }
+    #content-selector-filters { max-height: 20vw; }
   }
 }

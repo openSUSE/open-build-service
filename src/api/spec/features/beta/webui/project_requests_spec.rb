@@ -71,7 +71,7 @@ RSpec.describe 'Project Requests' do
       # rubocop:disable RSpec/ExampleLength
       it 'shows requests with the selected state' do
         find_by_id('requests-dropdown-trigger').click if mobile?
-        within('#filters') do
+        within('#content-selector-filters') do
           check('new')
           sleep 2
         end
