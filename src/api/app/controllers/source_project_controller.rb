@@ -4,11 +4,12 @@ class SourceProjectController < SourceController
   # GET /source/:project
   def show
     project_name = params[:project]
-    if params.key?(:deleted)
-      unless Project.find_by_name(project_name) || Project.is_remote_project?(project_name)
-        # project is deleted or not accessible
-        validate_visibility_of_deleted_project(project_name)
-      end
+
+    if params[:deleted] == '1' && !(Project.find_by_name(project_name) || Project.is_remote_project?(project_name))
+      # project is deleted or not accessible
+      validate_visibility_of_deleted_project(project_name)
+      # We have to pass it to the backend at this point, because the rest
+      # of the method expects an existing project
       pass_to_backend
       return
     end
@@ -19,41 +20,41 @@ class SourceProjectController < SourceController
       return
     end
 
+    # This implicitly also checks if the user can access the project (for hidden projects).
+    # We have to make sure to initialize the project already at this
+    # point, even we dont need the object in most cases because of that fact.
+    # TODO: Don't implicitly use the finder logic to authorize!
     @project = Project.find_by_name(project_name)
     raise Project::UnknownObjectError, "Project not found: #{project_name}" unless @project
 
-    # we let the backend list the packages after we verified the project is visible
-    if params.key?(:view)
-      case params[:view]
-      when 'verboseproductlist'
-        @products = Product.all_products(@project, params[:expand])
-        render 'source/verboseproductlist', formats: [:xml]
-        return
-      when 'productlist'
-        @products = Product.all_products(@project, params[:expand])
-        render 'source/productlist', formats: [:xml]
-        return
-      when 'issues'
-        render_project_issues
-      when 'info'
-        pass_to_backend
-      else
-        raise InvalidParameterError, "'#{params[:view]}' is not a valid 'view' parameter value."
-      end
+    unless params.key?(:view)
+      pass_to_backend
       return
     end
 
-    render_project_packages
+    raise InvalidParameterError, "'#{params[:view]}' is not a valid 'view' parameter value." unless params[:view].in?(%w[verboseproductlist productlist issues info])
+
+    # rubocop:disable Style/RedundantReturn
+    case params[:view]
+    when 'verboseproductlist'
+      @products = Product.all_products(@project, params[:expand])
+      render 'source/verboseproductlist', formats: [:xml]
+      return
+    when 'productlist'
+      @products = Product.all_products(@project, params[:expand])
+      render 'source/productlist', formats: [:xml]
+      return
+    when 'issues'
+      render_project_issues
+    when 'info'
+      pass_to_backend
+    end
+    # rubocop:enable Style/RedundantReturn
   end
 
   def render_project_issues
     set_issues_defaults
     render partial: 'source/project_issues', formats: [:xml]
-  end
-
-  def render_project_packages
-    @packages = params.key?(:expand) ? @project.expand_all_packages : @project.packages.pluck(:name)
-    render locals: { expand: params.key?(:expand) }, formats: [:xml]
   end
 
   # DELETE /source/:project

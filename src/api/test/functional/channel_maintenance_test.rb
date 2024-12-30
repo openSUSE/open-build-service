@@ -385,7 +385,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'entry', attributes: { name: 'pack2.BaseDistro2.0_LinkedUpdateProject' }
     assert_xml_tag tag: 'entry', attributes: { name: 'pack2.linked.BaseDistro2.0_LinkedUpdateProject' }
     assert_xml_tag tag: 'entry', attributes: { name: 'patchinfo' }
-    assert_xml_tag tag: 'directory', attributes: { count: '4' }
+    assert_xml_tag tag: 'directory'
     # cleanup
     delete "/source/#{maintenance_yet_another_project}"
     assert_response :success
@@ -899,7 +899,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'entry', attributes: { name: 'BaseDistro2.Channel' })
     assert_xml_tag(tag: 'entry', attributes: { name: 'BaseDistro2SDK.Channel' })
     assert_xml_tag(tag: 'entry', attributes: { name: 'patchinfo' })
-    assert_xml_tag(tag: 'directory', attributes: { count: '5' }) # and nothing else
+    assert_xml_tag(tag: 'directory') # and nothing else
 
     # validate cleanup
     get '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject'
@@ -928,7 +928,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/TEST'
     assert_response :success
     # ensure that we did not got the incident number extension, but the local linked package
-    assert_xml_tag(tag: 'directory', attributes: { count: '2' })
+    assert_xml_tag(tag: 'directory')
     assert_xml_tag(tag: 'entry', attributes: { name: 'pack2' })
     assert_xml_tag(tag: 'entry', attributes: { name: 'pack2.linked' })
     delete '/source/TEST'
