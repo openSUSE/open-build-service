@@ -105,7 +105,7 @@
       .selected-content.small.ms-1
     .px-4.pb-2.accordion-collapse.collapse.show#request-filter-stag-proj
       .mb-3.ui-front
-        %input.form-control#stag-proj-search{ placeholder: 'Filter staging project' }
+        %input.form-control#stag-proj-search{ placeholder: 'Filter staging project', type: 'search' }
       .scroll-list-wrapper
         - Project.where.not(staging_workflow_id: nil).each do |sp|
           .dropdown-item-text.request-filter-stag-proj-item

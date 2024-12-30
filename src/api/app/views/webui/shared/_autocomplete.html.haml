@@ -14,5 +14,5 @@
   .input-group
     %span.input-group-text
       %i.fas.fa-search
-    = text_field_tag(html_id, value, required: required, disabled: disabled, placeholder: 'Type to autocomplete...',
-                     class: 'obs-autocomplete form-control', data: data, name: html_name)
+    = search_field_tag(html_id, value, required: required, disabled: disabled, placeholder: 'Type to autocomplete...',
+                       class: 'obs-autocomplete form-control', data: data, name: html_name)
