@@ -5,6 +5,7 @@
 //= link webui/cm2/codemirror-file.js
 //= link webui/cm2/codemirror-prjconf.js
 //= link webui/cm2/codemirror-xml.js
+//= link webui/content-selector-filters.js
 //= link_tree ../images
 
 
