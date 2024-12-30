@@ -6,15 +6,15 @@
     %i.far.fa-pause-circle
     Stop refresh
 
-  - if User.session
-    = link_to(raw_logfile_path(package: package_name, project: project, arch: arch, repository: repo),
+  - if ::Configuration.anonymous
+    = link_to(public_build_path(package: package_name, project: project, arch: arch, repository: repo, filename: '_log'),
               target: :_blank,
               rel: 'noopener',
               class: 'live-link-action btn-secondary') do
       %i.fas.fa-download
       Download logfile
   - else
-    = link_to(public_build_path(package: package_name, project: project, arch: arch, repository: repo, filename: '_log'),
+    = link_to(raw_logfile_path(package: package_name, project: project, arch: arch, repository: repo),
               target: :_blank,
               rel: 'noopener',
               class: 'live-link-action btn-secondary') do
