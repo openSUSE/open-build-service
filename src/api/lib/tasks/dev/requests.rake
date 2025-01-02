@@ -225,12 +225,14 @@ namespace :dev do
       end
     end
 
-    desc 'Copy 10 requests from openSUSE:Factory'
-    task requests_from_opensuse_factory: :development_environment do
+    desc 'Copy 10 submit requests from openSUSE:Factory'
+    task copy_requests_from_opensuse_factory: :development_environment do
       require 'factory_bot'
       include FactoryBot::Syntax::Methods
 
-      admin = User.get_default_admin
+      # List of users created as a result of the `copy_requests_from_opensuse_factory` task.
+      @users_list = {}
+      admin = User.default_admin
       admin.run_as do
         # Setup interconnect
         remote_proj = Project.find_or_create_by(name: 'openSUSE.org', remoteurl: 'https://api.opensuse.org/public')
@@ -241,16 +243,16 @@ namespace :dev do
 
         # Get the list of requests from openSUSE:Factory
         url = "#{base_api_url}/search/request"
-        params = { match: "target/@project='openSUSE:Factory' and state/@name='review'", project: 'openSUSE:Factory', limit: '10', withhistory: '1', withfullhistory: '1' }
+        params = { match: "target/@project='openSUSE:Factory' and state/@name='review' and action/@type='submit'", project: 'openSUSE:Factory', limit: '10', withhistory: '1', withfullhistory: '1' }
+        # Get the total number of submit requests
         temp_request = make_api_request(url: url, params: params.merge(limit: '1'))
         offset = Xmlhash.parse(temp_request)['matches'].to_i / 2
+        # Take subset of requests from middle
         request = make_api_request(url: url, params: params.merge(offset: offset.to_s))
         requests_list = Xmlhash.parse(request)
         print_message 'Successfully got the requests list'
 
         requests_list['request'].each do |req|
-          next if req['action']['type'] != 'submit'
-
           branch_package(
             source_project_name: 'openSUSE.org:openSUSE:Factory',
             source_package_name: req['action']['target']['package'],
@@ -265,10 +267,17 @@ namespace :dev do
             target_project: req['action']['source']['project']
           )
 
+          # Don't copy existing requests
+          bs_request = BsRequest.where(description: "Bs request ##{req['id']}").last
+          if bs_request.present?
+            print_message("Duplicate request #{bs_request.number}")
+            next
+          end
+
           request_params = {
             bs_request: {
               description: "Bs request ##{req['id']}",
-              creator: req['creator'],
+              creator: alias_for_login(req['creator']),
               state: req['state']['name']
             },
             bs_request_actions: {
@@ -292,7 +301,11 @@ namespace :dev do
         force: 1
       }
 
-      BranchPackage.new(branch_params).branch
+      begin
+        BranchPackage.new(branch_params).branch
+      rescue Backend::NotFoundError
+        # do nothing
+      end
     end
 
     def create_bs_request(params)
@@ -317,7 +330,7 @@ namespace :dev do
         {
           review: {
             reviewer: reviewer,
-            by_user: params['by_user'],
+            by_user: alias_for_login(params['by_user']),
             state: params['state'],
             reason: params['comment'],
             by_group: params['by_group'],
@@ -392,6 +405,10 @@ namespace :dev do
       params = ActionController::Parameters.new({ meta: meta, comment: comment, project: project.name })
       meta_validator = MetaControllerService::MetaXMLValidator.new(params)
       meta_validator.call
+
+      [meta_validator.request_data['person']].flatten.each do |person|
+        person['userid'] = find_user(person['userid']).login
+      end
       updater = MetaControllerService::ProjectUpdater.new(project: project, request_data: meta_validator.request_data).call
       print_message(updater.errors) if updater.errors
     end
@@ -479,10 +496,17 @@ namespace :dev do
     # rubocop:enable Metrics/PerceivedComplexity
 
     def find_user(login)
-      user = User.find_by_login(login)
-      return user if user
+      alias_for_login(login)
+      user = User.find_by_login(@users_list[login])
+      user ||= create(:confirmed_user, login: @users_list[login])
 
-      create(:confirmed_user, login: login)
+      user
+    end
+
+    def alias_for_login(login = nil)
+      return if login.blank?
+
+      @users_list[login] ||= Faker::Alphanumeric.alpha(number: 10)
     end
 
     def find_group(title)
@@ -514,6 +538,9 @@ namespace :dev do
     def make_api_request(url:, params: {}, headers: { 'Content-Type' => 'application/xml' })
       username = ''
       password = ''
+
+      abort("#{'=' * 50}\nusername or password not present.") unless username.present? && password.present?
+
       conn = Faraday.new(
         url: url,
         params: params,
