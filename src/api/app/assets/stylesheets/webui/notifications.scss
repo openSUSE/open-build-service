@@ -19,49 +19,13 @@ ul.avatars{
   }
 }
 
-#notifications-filter-desktop {
-  strong { cursor: pointer; }
-  .collapse {
-    &.show { border-top: 1px solid $gray-300;}
-  }
-
-  .form-check-input:checked {
-    @extend .text-bg-info;
-  }
-}
 #notification-action-bar {
   &.sticky-top { top: $top-navigation-height; }
 }
 
-@include media-breakpoint-up(md) {
-  #notifications-filter-desktop {
-    .collapse { display: block !important; }
-  }
-}
-
 @include media-breakpoint-between(xs, md) {
-  #notifications-filter-desktop {
-    &.show { border-top: 1px solid $gray-300; }
-    &.sticky-top { top: $top-navigation-height; }
-    height: $notifications-filter-box-height;
-    // To not overlap with the notification action bar
-    z-index: calc(#{$zindex-sticky} + 1);
-
-    #filters {
-      max-height: 100vw; overflow: auto;
-      -webkit-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
-      -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
-      box-shadow: 2px 3px 5px rgba(0,0,0,.2);
-    }
-  }
   #notification-action-bar {
     &.sticky-top { top: calc(#{$top-navigation-height} + #{$notifications-filter-box-height}); }
-  }
-
-  @media (orientation: landscape) {
-    #notifications-filter-desktop {
-      #filters { max-height: 20vw; }
-    }
   }
 }
 
