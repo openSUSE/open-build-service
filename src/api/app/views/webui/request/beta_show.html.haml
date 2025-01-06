@@ -125,4 +125,33 @@
     = render partial: 'webui/shared/locking_dialog', locals: { commentable: @bs_request, entity_type: 'request' }
   - if Flipper.enabled?(:content_moderation, User.possibly_nobody)
     = render partial: 'webui/shared/report_modal'
+  -# list of url's
+  .urls-list{data: { page1: request_beta_show_path(@bs_request),
+                     page2: request_build_results_path(@bs_request.number, @action),
+                     page3: request_rpm_lint_path(@bs_request.number, @action),
+                     page4: request_changes_path(@bs_request.number, @action),
+                     page5: request_mentioned_issues_path(@bs_request.number, @action) } }
 -# haml-lint:enable ViewLength
+
+:javascript
+  hotkeys('alt+1,alt+2,alt+3,alt+4,alt+5', function (event, handler){
+    switch (handler.key) {
+      case 'alt+1':
+        url = $('.urls-list').data('page1')
+        break;
+      case 'alt+2':
+        url = $('.urls-list').data('page2')
+        break;
+      case 'alt+3':
+        url = $('.urls-list').data('page3')
+        break;
+      case 'alt+4':
+        url = $('.urls-list').data('page4')
+        break;
+      case 'alt+5':
+        url = $('.urls-list').data('page5')
+        break;
+    }
+    event.preventDefault();
+    document.location.href = url;
+  });
