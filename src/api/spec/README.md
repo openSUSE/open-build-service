@@ -1,188 +1,117 @@
 # Open Build Service Test Suite
 
-This is a test suite based on [RSpec](http://rspec.info/). We are trying to
-test things based on the following rules:
+This is a test suite based on [RSpec](http://rspec.info/).
 
-* Every method that isn't private must be tested
-* Every main workflow has a feature test
+## Using the Test Suite
 
-## Running Specs
+Run the whole suite
 
-```bundle exec rspec```
-
-and to run a single test file:
-
+```shell
+bundle exec rspec
 ```
+
+run a single spec
+
+```shell
 bundle exec rspec spec/models/user_spec.rb
 ```
 
-## Directory Structure
+run the tests on line 33 in a spec
 
-All specs live under the [spec](https://github.com/openSUSE/open-build-service/tree/master/src/api/spec) directory and files matching `spec/**/*_spec.rb` are run by default.
-Ruby files with custom matchers, macros or configuration belong in [spec/support/](https://github.com/openSUSE/open-build-service/tree/master/src/api/spec/support) and its subdirectories.
-Require them in the individual `*_spec.rb` or `_helper.rb` files.
-
-Shared examples that are shared among different spec files are stored in [spec/shared/examples/](https://github.com/openSUSE/open-build-service/tree/master/src/api/spec/shared/examples).
-Use subdirectories to group them depending on the type of specs they are meant for (_features_, _controllers_, etc...).
-
-## Spec Types
-
-There are many different [types of specs](https://relishapp.com/rspec/rspec-rails/docs/directory-structure) possible in RSpec. We concentrate on 3 types:
-
-* [Model specs](https://relishapp.com/rspec/rspec-rails/docs/model-specs) reside in the `spec/models` directory and test methods in Models.
-* [Controller specs](https://relishapp.com/rspec/rspec-rails/docs/controller-specs) reside in the `spec/controllers` directory and test methods in Controllers.
-* [Feature specs](https://relishapp.com/rspec/rspec-rails/docs/feature-specs/feature-spec) reside in the `spec/features` directory and test workflows through the webui.
-
-## Adding Specs
-
-We are using the standard [RSpec generators](https://relishapp.com/rspec/rspec-rails/docs/generators) like:
-
-`rails generate rspec:model package` or `rails generate rspec:controller webui::blah`
-
-### Factory Bot
-
-We use [Factory Bot](https://github.com/thoughtbot/factory_bot_rails) to create our Ruby objects.
-Unlike fixtures, factories run through ActiveRecord validations.
-All factories reside under [spec/factories/](https://github.com/openSUSE/open-build-service/tree/master/src/api/spec/factories).
-
-#### has_many associations
-
-For creating has_many associations we use `create_list`:
-
-```ruby
-project.packages = create_list(:package, 2)
+```shell
+bundle exec rspec spec/models/user_spec.rb:33
 ```
 
-Please also have a look at the [Factory Bot documentation](https://github.com/thoughtbot/factory_bot/blob/master/GETTING_STARTED.md#associations).
+### Configuration
 
-#### Use a sequence for unique values
+- To extend the suite with custom configuration or custom methods we use ruby modules in `spec/support`
+- To configure how it's run by default we use an [.rspec](https://github.com/openSUSE/open-build-service/blob/master/src/api/.rspec) file.
 
-It's necessary to use a [sequence](https://github.com/thoughtbot/factory_bot/blob/master/GETTING_STARTED.md#sequences) for attributes which have to be unique like project.title or user.login.
+## What to Test and How
 
-```ruby
-sequence(:login) { |n| "user_#{n}" }
-```
+You *can* test a lot of different things in a Ruby on Rails test suite. From behavior of units (as in methods of a Ruby object), to interactions between different units end-to-end (as in plugging different Ruby objects together to provide a feature). Like testing that `ActionDispatch`+`ActionController`+`ActiveRecord`+`ActionView` behave in a certain way from a browser, accessibility testing or even more esoteric things like visual testing.
 
-Please keep in mind that you have to overwrite these attributes if they are part of the URI and you use it in combination with VCR.
-Otherwise, your tests will fail as VCR matches the cassette by the URI.
+But as we all know, too many cooks spoil the broth! That is why we are trying really hard to:
 
-```
-let!(:user) { create(:confirmed_user, login: "proxy_user") }
-```
+- limit the amount of code involved in running the test
+- limit the amount of times we test the same code
+- limit the specs to "custom" logic we wrote ourselves
 
-By passing ```login: "proxy_user"``` to the create statement, the username is now always proxy_user and not random (e.g. user_42).
+First and foremost because a test suite is code that needs to be maintained and that is work, a lot of work. So writing the right type of spec, that tests *once* the code we have influence on, means *less* specs. Less specs, less code, less time spent on maintaining it. Secondly we think that CI time is developer time. A fast feedback loop from the test suite makes you wait for it less. So with those limitations we are trying to save the most precious thing we have as a project: The time you developer have, to work on something.
 
-#### Factories should be the bare minimum
+### Limit the Amount of Code Involved in Running the Test
 
-Different to fixtures, Factory Bot runs through your ActiveRecord validations.
-That said, only add the bare minimum to your factory which is required to be valid.
-You can use an inherited factory to add or override attributes.
+Please use the type of spec with the least amount if computing time required to run it. You can test the four branch logic of your `ThingController#update` action by firing up four browsers, clicking through 4 web pages until you reach a form, fill the form in 4 different ways, click submit and then expect 4 different responses. Or you use a controller unit spec, doing that removes the need to run the browser every time you run the spec. If the logic that branches 4 times is in the `Thing` model and not in the `ThingsController`, rather write *one* model spec.
+This will remove the need to run all of `ActionDispatch` every time you run the spec.
 
-```
-  factory :user do
-    email { Faker::Internet.email }
-    realname { Faker::Name.name }
-    sequence(:login) { |n| "user_#{n}" }
-    password 'buildservice'
+### Limit the Amount of Times the Same Code Is Tested
 
-    factory :confirmed_user do
-      state 2
-    end
-```
+Please test your code *once*. If you wrote a custom validation with complex logic and an awesome model spec for it, please do not test the results of this validation logic again from a controller spec and then again by clicking in a browser through the feature that you built upon this model. No need to make the CI jump through the same hoop three times or worse have a fellow developer adapt all three specs because they changed your logic.
 
-See this [blog article](https://robots.thoughtbot.com/factories-should-be-the-bare-minimum) for the reasoning behind this.
+### Limit the Specs to “Custom” Logic We Wrote Ourselves
 
-#### When Transient Attributes Make Sense
+Please avoid testing code that is a scaffold or that consists of very simple Ruby / Ruby on Rails "standard" logic. No need to test a simple `case`, a variable assignment or `Array.count`. The Ruby test suite does this and if any of those things do not work anymore our test suite will not even reach the spec you write. Because Ruby is broken and *everything* around you will be on fire 🔥🔥🔥.
 
-Use [transient attributes](https://github.com/thoughtbot/factory_bot/blob/master/GETTING_STARTED.md#transient-attributes) to DRY your factories.
+Same reason to not test a standard ActiveRecord presence validation, a resourceful route or even a scaffolded controller action. The Ruby on Rails test suite does this and if those features are broken in Ruby on Rails, you'll be in panic because GitHub will be offline 💥💥💥.
 
-```
-  factory :project_with_package do
-    transient do
-      package_name nil
-    end
+## Unit Specs
 
-    after(:create) do |project, evaluator|
-      new_package = if evaluator.package_name
-                      create(:package, project_id: project.id, name: evaluator.package_name)
-                    else
-                      create(:package, project_id: project.id)
-                    end
-      project.packages << new_package
-    end
-  end
-```
+Unit specs are limited in scope and only test a single "unit"/"object" without testing interactions between different "units". Their purpose is to test each unit's functionality in isolation before integrating them into the larger system.
 
-Without the transient attribute package_name it would be necessary to explicit create a package with a different name.
-Now you can just do:
+There are several types of "units"/"objects" in every rails app so there are also several types of unit specs in our test suite.
 
-```
-create(:project_with_package, package_name: 'foobar')
-```
+Unit specs:
 
-#### Generating Fake Data
+- for the respective classes are in `spec/[models, controllers, components, policies]` etc.
+- are configured in and inherit from `spec/spec_helper.rb`
+- use `login(user)` and `logout(user)` for authenticating users
+- truncate the database after each example (we omit truncating what we have set up in `db/seeds.rb``)
+- reset the User.session after each example
+- disable HTTP requests
+- automatically mock the responses from the OBS backend with [VCR](https://github.com/vcr/vcr)
 
-We use the [faker gem](https://github.com/stympy/faker) to generate more realistic test data.
-However, we don't use this in cases where we use the data to identify objects (like user.login or project.title), to simplify debugging.
-In that case, please use a simple sequence.
-Attention: Faker generates random but **NOT** unique data!
+## Feature Specs
 
-### Backend Responses
+Feature specs test user workflows (features) end-to-end through our web user interface by operating the UI with a browser.
 
-We use [VCR](https://github.com/vcr/vcr) to record the response from the backend.
-VCR records the HTTP interactions with the backend and replays them during future test runs for fast, deterministic, accurate tests.
-Once your test ran successfully for the first time, [VCR](https://github.com/vcr/vcr) will have recorded a new cassette (a simple yml file) in `spec/cassettes`.
+Feature specs:
 
-#### VCR Cassette Matching
+- are in `spec/features`
+- are configured in and inherit from `spec/browser_helper.rb`
+- do everything that unit specs do (`spec/browser_helper.rb` inherits from `spec/spec_helper.rb`)
+- run a Chromium browser
+- run in a desktop sized browser window by default
+- run twice in CI, once with a desktop and once with a mobile sized browser window
+- that failed save the HTML of the page to `tmp/capybara/#{example_filename}.html`
+- that failed save a screenshot of the page to `tmp/capybara/#{example_filename}.png`
 
-VCR matches cassettes to responses you request from the backend by comparing the `request.uri`.
-That means you should avoid random parts, like project/package names, in the URL requested.
-Otherwise the cassette will not match and VCR tries record a new cassette each time which will fail because the backend is not running anymore.
+## Fixtures / Factories / Mocks
 
-```ruby
-  let(:apache_project) { create(:project, name: 'Apache') }
-```
+To generate test data we use [FactoryBot](https://thoughtbot.github.io/factory_bot/) factories in `spec/factories/` and lint them with [rubocop-factory_bot](https://docs.rubocop.org/rubocop-factory_bot/cops_factorybot.html).
 
-#### Enable VCR
+### Fake Data
 
-You may want to store a backend response in a spec test.
-Make sure you enable VCR in the test metadata like this:
+To generate fake test data in factories (like names/words/sentences etc.) we use [faker](https://github.com/stympy/faker) . Attention: Faker generates random but **NOT** unique data!
 
-```
-  RSpec.describe Package, vcr: true do
-    ...
-  end
-```
+### VCR
 
-#### Remove All Cassettes and Run the Test Again Before You Commit
+To automatically mock the response from the OBS backend we use [VCR](https://github.com/vcr/vcr).
+VCR records the HTTP interactions with the backend and replays them during future test runs.
 
-Before you finally commit your test, you should remove the generated cassettes and run your test again.
-This ensures that only by the test needed responses are included in the cassette and nothing more.
-You can also review the cassette manually (but **NEVER** edit them manually)!
+- VCR cassettes are recorded to `spec/cassettes`
+- There is more documentation about [using VCR in specs our wiki](https://github.com/openSUSE/open-build-service/wiki/Testing-with-VCR)
 
-### Shared Examples
+## Shared Examples
 
-To DRY our specs we use in rare situations [shared examples](https://www.relishapp.com/rspec/rspec-core/docs/example-groups/shared-examples).
-You should only use shared examples where you have the exact same functionality (e.g. package/project or user/group tab).
-Otherwise, these specs are a nightmare to refactor and review.
-In our experience, shared examples are used mainly for controllers. Since models are pretty different from each other, they (usually) do not share much logic.
+To DRY our specs we use in rare situations [shared examples](https://rspec.info/documentation/3.12/rspec-core/RSpec/Core/SharedExampleGroup.html).
 
-#### Setup
+- only use shared examples if you must, they are a nightmare to refactor and review
+- shared examples are in `spec/shared/examples`
+- shared contexts are in `spec/shared/contexts`
 
-In both services we use docker containers for running our tests. The docker containers are built with OBS in the container subprojects of [O:S:U](https://build.opensuse.org/project/subprojects/OBS:Server:Unstable) (e.g. https://build.opensuse.org/project/show/OBS:Server:Unstable:container:SLE12:SP3). With this approach we can test on our supported platforms like openSUSE or SLE and easily migrate to new platforms if necessary.
+## Resources
 
-More information about the setup can be found in our wiki [here](https://github.com/openSUSE/open-build-service/wiki/Development-Environment-Overview) and [here](https://github.com/openSUSE/open-build-service/wiki/Development-Environment-Tips-&-Tricks).
-
-### Migrating Tests
-
-When migrating tests from the old minitest based suite to rspec, please add the
-file path of the new one to every test covered.
-
-### Untested Methods
-
-When you work on the test suite and you notice a method or part of a feature that
-is not tested, please add a test for it.
-
-## Better Specs
-As a set of "rules" to follow in our specs we use [BetterSpecs.org](http://betterspecs.org/).
-Please read those guidelines before you start coding new specs.
+- [BetterSpecs.org](http://betterspecs.org/)
+- [RSpec Styleguide](https://rspec.rubystyle.guide/) (we lint this with rubocop)
+- [Martin Fowlers Test Pyramid](https://martinfowler.com/bliki/TestPyramid.html)
+- [Kent C. Dodds Talk: Write tests. Not too many. Mostly integration.](https://www.youtube.com/watch?v=Fha2bVoC8SE)
