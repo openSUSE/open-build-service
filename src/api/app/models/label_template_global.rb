@@ -1,0 +1,40 @@
+# TODO: Please overwrite this comment with something explaining the model target
+class LabelTemplateGlobal < ApplicationRecord
+  #### Includes and extends
+
+  #### Constants
+
+  #### Self config
+
+  #### Attributes
+
+  #### Associations macros (Belongs to, Has one, Has many)
+
+  #### Callbacks macros: before_save, after_save, etc.
+
+  #### Scopes (first the default_scope macro if is used)
+
+  #### Validations macros
+  validates :name, length: { maximum: 255 }, presence: true
+  validates :color, length: { maximum: 7 }, presence: true, format: { with: /\A#[0-9a-f]{6}\z/i, message: 'enter color in valid hex format (#FFFFFF)' }
+
+  #### Class methods using self. (public and then private)
+
+  #### To define class methods as private use private_class_method
+  #### private
+
+  #### Instance methods (public and then protected/private)
+
+  #### Alias of methods
+end
+
+# == Schema Information
+#
+# Table name: label_template_globals
+#
+#  id         :bigint           not null, primary key
+#  color      :string(255)      not null
+#  name       :string(255)      not null
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
