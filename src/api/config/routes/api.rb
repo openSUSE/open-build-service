@@ -72,6 +72,7 @@ constraints(RoutesHelper::APIMatcher) do
   post 'trigger/rebuild' => 'trigger#rebuild'
   post 'trigger/release' => 'trigger#release'
   post 'trigger/runservice' => 'trigger#runservice'
+  post 'trigger/wipe' => 'trigger#wipe'
   post 'trigger/workflow' => 'trigger_workflow#create'
 
   ### /issue_trackers
