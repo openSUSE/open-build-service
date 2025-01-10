@@ -52,7 +52,7 @@ sub extract_stored {
 sub extract_inflate {
   my ($handle, $size, $csize, $writer) = @_;
   return unless $size > 0;
-  require Compress::Raw::Zlib unless defined &Compress::Raw::Zlib::Inflate;
+  require Compress::Raw::Zlib unless defined &Compress::Raw::Zlib::Inflate::new;
   my ($decomp, $status) = Compress::Raw::Zlib::Inflate->new('-WindowBits' => -Compress::Raw::Zlib::MAX_WBITS(), '-Bufsize' => 65536);
   die("Compress::Raw::Zlib::Inflate::new failed\n") unless $decomp && $status == Compress::Raw::Zlib::Z_OK();
   while ($size > 0 || $csize > 0) {

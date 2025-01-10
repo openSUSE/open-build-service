@@ -1,0 +1,98 @@
+#!/usr/bin/perl
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
+use strict;
+
+use Compress::Zlib;
+
+use BSUtil;
+use Build::Apk;
+
+my $v3;
+my $description;
+my $rewrite_arch;
+
+while (1) {
+  if (@ARGV && $ARGV[0] eq '--v3') {
+    $v3 = shift @ARGV;
+  } elsif (@ARGV && $ARGV[0] eq '--description') {
+    (undef, $description) = splice(@ARGV, 0, 2);
+  } elsif (@ARGV && $ARGV[0] eq '--rewrite-arch') {
+    (undef, $rewrite_arch) = splice(@ARGV, 0, 2);
+  } else {
+    last;
+  }
+}
+
+die("Usage: bs_mkapkrepo [--v3] [--description <desc>] [--rewrite-arch <arch] <dir>\n") unless @ARGV == 1;
+my $dir = $ARGV[0];
+my @pkgs = grep {/\.apk$/} sort(ls($dir));
+
+die("apkv3 index support not implemented yet\n") if $v3;
+
+my @vmap = (
+  'apkchksum' => 'C',
+  'pkgname' => 'P',
+  'pkgver' => 'V',
+  'arch' => 'A',
+  'filesize' => 'S',
+  'size' => 'I',
+  'pkgdesc' => 'T',
+  'url' => 'U',
+  'license' => 'L',
+  'origin' => 'o',
+  'maintainer' => 'm',
+  'builddate' => 't',
+  'commit' => 'c',
+  'provider_priority' => 'k',
+  'depend' => 'D',
+  'provides', => 'p',
+  'install_if' => 'i',
+  #'replaces' => 'r',
+);
+
+my $idx = '';
+for my $pkg (@pkgs) {
+  my ($hash, $vars);
+  my @s = stat("$dir/$pkg");
+  next unless -f _;
+  eval {
+    $hash = Build::Apk::calcapkchksum("$dir/$pkg");
+    $vars = Build::Apk::queryvars("$dir/$pkg");
+  };
+  warn($@) if $@;
+  next unless $vars && $hash;
+  $vars->{'arch'} = $rewrite_arch if $rewrite_arch;
+  $vars->{'apkchksum'} = $hash;
+  $vars->{'filesize'} = $s[7];
+  my @v = @vmap;
+  while (@v) {
+    my ($vk, $vi) = splice(@v, 0, 2);
+    my $vv = $vars->{$vk};
+    next unless defined $vv;
+    $vv = join(' ', @$vv) if ref $vv;
+    $idx .= "$vi:$vv\n";
+  }
+  $idx .= "\n";
+}
+
+my $t = time();
+
+my $tar = '';
+$tar .= Build::Apk::mktar('DESCRIPTION', '0', $t, $description) if defined $description;
+$tar .= Build::Apk::mktar('APKINDEX', '0', $t, $idx);
+$tar = Compress::Zlib::memGzip($tar);
+
+my $sigtar = Compress::Zlib::memGzip('');
+
+my $fh;
+open($fh, '>', "$dir/APKINDEX.tar.gz") || die("$dir/APKINDEX.tar.gz: $!\n");
+print $fh $sigtar or die("write: $!\n");
+print $fh $tar or die("write: $!\n");
+close($fh) || die("write: $!\n");

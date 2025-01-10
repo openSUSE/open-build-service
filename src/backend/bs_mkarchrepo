@@ -50,7 +50,7 @@ my %todo = (
 die("Usage: bs_mkarchrepo <reponame> <dir>\n") unless @ARGV == 2;
 my $reponame = $ARGV[0];
 my $dir = $ARGV[1];
-my @pkgs = grep {/\.pkg\.tar\.(?:gz|xz|zst)$/} ls($dir);
+my @pkgs = grep {/\.pkg\.tar\.(?:gz|xz|zst)$/} sort(ls($dir));
 
 my $rdir = "$dir/$reponame.db";
 mkdir_p($rdir);

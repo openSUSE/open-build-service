@@ -905,6 +905,7 @@ fi
 %{obs_backend_dir}/bs_getbinariesproxy
 %{obs_backend_dir}/bs_mergechanges
 %{obs_backend_dir}/bs_mkarchrepo
+%{obs_backend_dir}/bs_mkapkrepo
 %{obs_backend_dir}/bs_notar
 %{obs_backend_dir}/bs_regpush
 %{obs_backend_dir}/bs_dispatch

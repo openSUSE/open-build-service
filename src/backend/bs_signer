@@ -449,6 +449,28 @@ sub signappx {
   die($@) if $@;
 }
 
+sub signapk {
+  my ($data, $signfile, @signargs) = @_;
+  my $pk = BSPGP::unarmor($data->{'pubkey'});
+  my $keydata = BSPGP::pk2keydata($pk);
+  my $algo = $keydata->{'algo'};
+  die("signapk: unsupported signing algo '$algo'\n") if $algo ne 'rsa';
+  my $times = BSPGP::pk2times($pk);
+  my $userid = BSPGP::pk2userid($pk);
+  die("signapk: missing userid\n") unless $userid;
+  die("signapk: missing email in userid\n") unless $userid =~ /\<(.+?)\>/;
+  my $email = $1;
+  my $tbsdata = Build::Apk::gettbsdata($signfile);
+  # if the first byte of tbsdata is not 0x1f, it's an apkv3 package
+  my $hash = ord($tbsdata) == 0x1f ? 'sha1' : 'sha512';
+  my $sig = BSUtil::xsystem($tbsdata, $BSConfig::sign, @signargs, '-O', '-h', $hash);
+  my $keyname = sprintf("%s-%08x.%s.pub", $email, $times->{'key_create'}, $algo);
+  my $tmpfile = "$signfile.sIgN$$";
+  unlink($tmpfile);
+  Build::Apk::replacesignature($signfile, $tmpfile, $sig, $data->{'time'}, $algo, $hash, $keyname);
+  rename($tmpfile, $signfile) || die("rename $tmpfile $signfile: $!\n");
+}
+
 sub signhelm {
   my ($data, $signfile, @signargs) = @_;
   my $chart = $signfile;
@@ -814,7 +836,7 @@ sub signjob {
   my $packid = $info->{'package'};
   $prpa_stats = "$projid/$info->{'repository'}/$arch";
   my @files = sort(ls($jobdir));
-  my @signfiles = grep {$_ eq '_slsa_provenance.json' || /\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz|pkg\.tar\.zst|rsasign|AppImage|appx|helminfo)$/} @files;
+  my @signfiles = grep {$_ eq '_slsa_provenance.json' || /\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz|pkg\.tar\.zst|rsasign|AppImage|appx|helminfo|apk)$/} @files;
   my $needpubkey;
   if (grep {$_ eq '.kiwitree_tosign'} @files) {
     for my $f (split("\n", readstr("$jobdir/.kiwitree_tosign"))) {
@@ -839,7 +861,7 @@ sub signjob {
       die("Illegal signflavor '$signflavor'\n") unless grep {$_ eq $signflavor} @{$BSConfig::sign_flavor || []};
     }
     my $needcert = grep {/\.appx$/} @signfiles;
-    $needpubkey ||= grep {/\.iso$/} @signfiles;
+    $needpubkey ||= grep {/\.(?:iso|apk)$/} @signfiles;
     $needpubkey = 1 if $info->{'file'} eq '_aggregate' && grep {/\.d?rpm$/} @signfiles;
     my ($algo, $signkey, $pubkey, $cert) = getsignkey($projid, $packid, $needpubkey, $needcert, undef, $signflavor);
     my $pubkey_create_time;
@@ -888,6 +910,7 @@ sub signjob {
       'signkey' => $signkey,
       'cert' => $cert,
       'signflavor' => $signflavor,
+      'time' => time(),
     };
 
     eval {
@@ -904,6 +927,10 @@ sub signjob {
 	  signappx($data, "$jobdir/$signfile", @signargs);
 	  next;
         }
+	if ($signfile =~ /\.apk$/) {
+	  signapk($data, "$jobdir/$signfile", @signargs);
+	  next;
+	}
 	if ($signfile =~ /\.iso$/) {
 	  signiso($data, "$jobdir/$signfile", @signargs);
 	  next;

@@ -54,6 +54,8 @@ use BSVerify;
 use BSStdRunner;
 use BSUrlmapper;
 use BSPGP;
+use BSASN1;
+use BSX509;
 use BSHTTP;
 use BSRekor;
 use BSRepServer::Containerinfo;
@@ -1165,6 +1167,60 @@ sub deleterepo_arch {
     next unless -d "$extrep/$arch";
     next if $arch eq 'repodata' || $arch eq 'repocache' || $arch eq 'media.1' || $arch eq 'descr';
     for (grep {/\.(?:\?db|db\.tar\.gz|files|files\.tar\.gz|key)(?:\.sig)?$/} ls("$extrep/$arch")) {
+      unlink("$extrep/$arch/$_");
+    }
+  }
+}
+
+##########################################################################
+
+sub createrepo_apk {
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
+  deleterepo_apk($extrep);
+  for my $arch (ls($extrep)) {
+    next unless -d "$extrep/$arch";
+    print "    running bs_mkapkrepo $arch\n";
+    qsystem("$INC[0]/bs_mkapkrepo", '--rewrite-arch', $arch, "$extrep/$arch") && die("    repo creation failed: $?\n");
+    my $idxfile = "$extrep/$arch/APKINDEX.tar.gz";
+    if ($BSConfig::sign && -e $idxfile) {
+      my $pk = BSPGP::unarmor($data->{'pubkey'});
+      my $keydata = BSPGP::pk2keydata($pk);
+      my $algo = $keydata->{'algo'};
+      if ($algo ne 'rsa') {
+        warn("createrepo_apk: unsupported signing algo '$algo'\n");
+	next;
+      }
+      my $times = BSPGP::pk2times($pk);
+      my $userid = BSPGP::pk2userid($pk);
+      die("signapk: missing userid\n") unless $userid;
+      die("signapk: missing email in userid\n") unless $userid =~ /\<([^\.\/].*?)\>/;
+      my $email = $1;
+      my @signargs;
+      push @signargs, '--project', $projid if $BSConfig::sign_project;
+      push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
+      push @signargs, @{$data->{'signargs'} || []};
+      my $tbsdata = Build::Apk::gettbsdata($idxfile);
+      my $hash = ord($tbsdata) == 0x1f ? 'sha1' : 'sha512';
+      my $sig = BSUtil::xsystem($tbsdata, $BSConfig::sign, @signargs, '-O', '-h', $hash);
+      my $keyname = sprintf("%s-%08x.%s.pub", $email, $times->{'key_create'}, $algo);
+      $keyname =~ s/[\000-\037 \/]//g;
+      Build::Apk::replacesignature($idxfile, "$idxfile.signed", $sig, $data->{'time'}, $algo, $hash, $keyname);
+      rename("$idxfile.signed", $idxfile) || die("rename $idxfile.signed $idxfile: $!\n");
+      my $pubk = eval { BSX509::keydata2pubkey($keydata) };
+      writestr("$extrep/$arch/$keyname", undef, BSASN1::der2pem($pubk, 'PUBLIC KEY')) if $pubk;
+    }
+  }
+}
+
+sub deleterepo_apk {
+  my ($extrep) = @_;
+  for my $arch (ls($extrep)) {
+    next unless -d "$extrep/$arch";
+    next if $arch eq 'repodata' || $arch eq 'repocache' || $arch eq 'media.1' || $arch eq 'descr';
+    next unless -e "$extrep/$arch/APKINDEX.tar.gz";
+    unlink("$extrep/$arch/APKINDEX.tar.gz");
+    unlink("$extrep/$arch/APKINDEX.tar.gz.signed");
+    for (grep {/\.rsa\.pub$/} ls("$extrep/$arch")) {
       unlink("$extrep/$arch/$_");
     }
   }
@@ -2399,6 +2455,10 @@ sub publish {
 	# special arch linux handling
 	$p = "$arch/$bin";
 	$p = "i686/$bin" if $arch eq 'i586';	# HACK
+      } elsif ($bin =~ /\.apk$/) {
+	# special apk handling
+	$p = "$arch/$bin";
+	$p = "x86/$bin" if $arch eq 'i586';
       } elsif ($bin =~ /\.(?:$binsufsre)$/) {
 	# our default
 	my $q = Build::query("$r/$rbin", 'evra' => 1);
@@ -3312,6 +3372,7 @@ sub publish {
     'sigs' => [],
     'publishid' => $publishid,
     'signflavor' => $signflavor,
+    'time' => $starttime,
   };
 
   if ($repotype{'rpm-md'}) {
@@ -3339,6 +3400,11 @@ sub publish {
     createrepo_arch($extrep, $projid, $xrepoid, $data, $repotype{'arch'});
   } else {
     deleterepo_arch($extrep, $projid, $xrepoid, $data);
+  }
+  if ($repotype{'apk'}) {
+    createrepo_apk($extrep, $projid, $xrepoid, $data, $repotype{'apk'});
+  } else {
+    deleterepo_apk($extrep, $projid, $xrepoid, $data);
   }
   if ($repotype{'vagrant'}) {
     createrepo_vagrant($extrep, $projid, $xrepoid, $data, $repotype{'vagrant'});
