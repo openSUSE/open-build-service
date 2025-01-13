@@ -139,6 +139,7 @@ class PackageBuildStatus
     @everbuilt = false
     @eversucceeded = false
     @buildcode = nil
+    codes = %w[succeeded unchanged]
 
     # first we check the lastfailures. This route is fast but only has up to
     # two results per package. If the md5sum does not match, we have to dig deeper
@@ -154,7 +155,7 @@ class PackageBuildStatus
       next unless entry.verifymd5 == @verifymd5 || entry.srcmd5 == @srcmd5
 
       @everbuilt = true
-      if entry.code == 'succeeded' || entry.code == 'unchanged'
+      if codes.include?(entry.code)
         @buildcode = 'succeeded'
         @eversucceeded = true
       end
