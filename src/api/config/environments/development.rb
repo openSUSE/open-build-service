@@ -6,13 +6,10 @@ OBSApi::Application.configure do
   # In the development environment your application's code is reloaded any time
   # it changes. This slows down response time but is perfect for development
   # since you don't have to restart the web server when you make code changes.
-  config.cache_classes = false
+  config.enable_reloading = true
 
   # Do not eager load code on boot.
   config.eager_load = false
-
-  # Server timing middleware (https://github.com/rails/rails/pull/36289)
-  config.server_timing = true
 
   # Eager load sub-classes we use in associations
   # (ack class_name app/models |ack ::)
@@ -26,10 +23,11 @@ OBSApi::Application.configure do
     sti_classes_to_eager_load.each { |f| require_dependency("#{Dir.pwd}/#{f}") }
   end
 
-  # see http://guides.rubyonrails.org/action_mailer_basics.html#example-action-mailer-configuration
-  config.action_mailer.delivery_method = :test
-  config.action_mailer.raise_delivery_errors = true
-  config.action_mailer.perform_caching = false
+  # Show full error reports.
+  config.consider_all_requests_local = true
+
+  # Enable server timing
+  config.server_timing = true
 
   # Show full error reports and enable caching
   config.consider_all_requests_local = true
@@ -38,14 +36,22 @@ OBSApi::Application.configure do
   # Use memcache for cache/session storage
   if CONFIG['memcached_host']
     config.cache_store = :mem_cache_store, CONFIG['memcached_host']
-    config.session_store = :mem_cache_store, CONFIG['memcached_host']
+    config.action_dispatch.session_store = :mem_cache_store, CONFIG['memcached_host']
   else
     config.cache_store = :mem_cache_store
-    config.session_store = :mem_cache_store
+    config.action_dispatch.session_store = :mem_cache_store
   end
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
+
+  # Take care if the mailer can't send.
+  config.action_mailer.raise_delivery_errors = true
+
+  config.action_mailer.perform_caching = false
+
+  # see http://guides.rubyonrails.org/action_mailer_basics.html#example-action-mailer-configuration
+  config.action_mailer.delivery_method = :test
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
@@ -64,6 +70,9 @@ OBSApi::Application.configure do
 
   # Highlight code that triggered database queries in logs.
   config.active_record.verbose_query_logs = true
+
+  # Highlight code that enqueued background job in logs.
+  config.active_job.verbose_enqueue_logs = true
 
   # Do not compress assets
   config.assets.compress = false
@@ -88,6 +97,11 @@ OBSApi::Application.configure do
 
   # Annotate rendered view with file names.
   config.action_view.annotate_rendered_view_with_filenames = true
+
+  if RailsVersion.is_7_1?
+    # Raise error when a before_action's only/except options reference missing actions
+    config.action_controller.raise_on_missing_callback_actions = true
+  end
 
   # Use an evented file watcher to asynchronously detect changes in source code,
   # routes, locales, etc. This feature depends on the listen gem.
