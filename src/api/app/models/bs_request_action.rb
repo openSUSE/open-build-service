@@ -651,7 +651,7 @@ class BsRequestAction < ApplicationRecord
     tprj = check_action_permission_target!
 
     # Type specific checks
-    if action_type == :delete || action_type == :add_role || action_type == :set_bugowner
+    if %i[delete add_role set_bugowner].include?(action_type)
       # check existence of target
       raise UnknownProject, 'No target project specified' unless tprj
 

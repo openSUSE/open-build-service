@@ -581,7 +581,7 @@ class BsRequest < ApplicationRecord
   end
 
   def assignreview(opts = {})
-    raise InvalidStateError, 'request is not in review state' unless state == :review || state == :new
+    raise InvalidStateError, 'request is not in review state' unless %i[review new].include?(state)
 
     reviewer = User.find_by_login!(opts[:reviewer])
 
@@ -824,7 +824,7 @@ class BsRequest < ApplicationRecord
   def auto_accept
     # do not run for processed requests. Ignoring review on purpose since this
     # must also work when people do not react anymore
-    return unless state == :new || state == :review
+    return unless %i[new review].include?(state)
 
     # use approve mechanic in case you want to wait for reviews
     return if approver && state == :review
