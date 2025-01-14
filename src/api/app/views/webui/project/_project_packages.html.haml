@@ -16,7 +16,8 @@
         %thead
           %tr
             %th.w-50 Name
-            %th.w-30 Labels
+            - if Flipper.enabled?(:labels, User.session)
+              %th.w-30 Labels
             %th.w-20 Changed
         %tbody
   - else
@@ -35,11 +36,20 @@
             Branch Package
 
 - content_for :ready_function do
-  :plain
-    initializeRemoteDatatable('#packages-table', {
-        "columns": [
-          {"data": "name"},
-          {"data": "labels", "orderable": false},
-          {"data": "changed"}
-        ]
-      });
+  - if Flipper.enabled?(:labels, User.session)
+    :plain
+      initializeRemoteDatatable('#packages-table', {
+          "columns": [
+            {"data": "name"},
+            {"data": "labels", "orderable": false},
+            {"data": "changed"}
+          ]
+        });
+  - else
+    :plain
+      initializeRemoteDatatable('#packages-table', {
+          "columns": [
+            {"data": "name"},
+            {"data": "changed"}
+          ]
+        });
