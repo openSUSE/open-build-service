@@ -49,6 +49,8 @@ constraints(RoutesHelper::WebuiMatcher) do
 
   resources :architectures, only: %i[index update], controller: 'webui/architectures'
 
+  resources :label_templates, controller: 'webui/label_templates', constraints: cons
+
   controller 'webui/monitor' do
     get 'monitor/' => :index
     get 'monitor/old' => :old
