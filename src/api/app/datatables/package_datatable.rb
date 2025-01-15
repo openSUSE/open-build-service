@@ -41,7 +41,7 @@ class PackageDatatable < Datatable
   def name_with_link(record)
     name = []
     name << link_to(record.name, package_show_path(package: record, project: @project))
-    name << tag.span('Link', class: 'badge text-bg-info') if record.package_kinds.any? { |package_kind| package_kind.kind == 'link' }
+    name << link_tag if record.package_kinds.any? { |package_kind| package_kind.kind == 'link' }
     safe_join(name, ' ')
   end
 
@@ -50,5 +50,16 @@ class PackageDatatable < Datatable
 
     list = labels.map { |label| tag.span(label.name, class: "badge label-#{label.id}") }
     safe_join(list, ' ')
+  end
+
+  private
+
+  def link_tag
+    tag.span(class: 'badge text-body border') do
+      # Using String Concatenation changes the behavior of this line
+      # rubocop:disable Style/StringConcatenation
+      tag.i(class: 'fas fa-link') + ' Link'
+      # rubocop:enable Style/StringConcatenation
+    end
   end
 end
