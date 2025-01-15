@@ -207,9 +207,6 @@ BinaryRelease:
   flavor:
     LengthConstraintChecker:
       enabled: false
-  id:
-    PrimaryKeyTypeChecker:
-      enabled: false
   medium:
     LengthConstraintChecker:
       enabled: false
@@ -1421,8 +1418,6 @@ MaintenanceIncident:
       enabled: false
 Notification:
   bs_request:
-    ColumnPresenceChecker:
-      enabled: false
     ForeignKeyChecker:
       enabled: false
   bs_request_oldstate:
