@@ -2055,7 +2055,11 @@ sub receivekiwitree_scan {
       next unless $bininfo;
       filtersources_bininfo($bininfo) if $bininfo->{'.nosourceaccess'};
       for my $bin (values %$bininfo) {
-	$res{$bin->{'leadsigmd5'}} = "$prpa/$packid/$bin->{'filename'}" if $bin->{'leadsigmd5'};
+        if ($bin->{'leadsigmd5'}) {
+	  $res{$bin->{'leadsigmd5'}} = "$prpa/$packid/$bin->{'filename'}";
+        } elsif ($bin->{'md5sum'} && $bin->{'filename'} =~ /slsa_provenance\.json$/) {
+	  $res{'slsa:'.$bin->{'md5sum'}} = "$prpa/$packid/$bin->{'filename'}";
+	}
       }
     }
   }
@@ -2106,26 +2110,42 @@ sub receivekiwitree {
 	die("bad upref in symlink\n") if "/$extra/" =~ /\/\.\.\//;
       }
       symlink($extra, "$dir/$file") || die("symlink $extra $dir/$file: $!\n");
-    } else {
+    } elsif ($extra) {
       my $found;
-      if ($extra) {
-	die("extra is not a md5 sum\n") unless $extra =~ /^[0-9a-f]{32}$/s;
-	$leads ||= receivekiwitree_scan($info);
-	if ($leads->{$extra} && link("$reporoot/$leads->{$extra}", "$dir/$file")) {
-	  # make sure it's really the correct file
-	  my $leadsigmd5;
-	  eval { Build::queryhdrmd5("$dir/$file", \$leadsigmd5); };
-	  if ($@ || !$leadsigmd5 || $leadsigmd5 ne $extra) {
-	    unlink("$dir/$file");
-	  } else {
-	    $nlinked++;
-	    $found = 1;
+      die("extra is not a md5 sum\n") unless $extra =~ /^[0-9a-f]{32}$/s;
+      $leads ||= receivekiwitree_scan($info);
+      if ($file =~ /\.slsa_provenance\.json$/ && $leads->{"slsa:$extra"}) {
+        # we could use hardlinks here but we might run into some filesystem limit
+	my ($fd, $ofd, $buf);
+	if (open($fd, '<', "$reporoot/$leads->{'slsa:'.$extra}")) {
+	  my @s = stat($fd);
+	  my $ctx = Digest::MD5->new;
+	  if (open($ofd, '>', "$dir/$file")) {
+	    while (sysread($fd, $buf, 8192)) {
+	      (syswrite($ofd, $buf) || 0) == length($buf) || die("$dir/$file write: $!\n");
+	      $ctx->add($buf);
+	    }
+	    utime($s[9], $s[9], $ofd) if $s[9];
+	    close($ofd) || die("$dir/$file close: $!\n");
 	  }
+	  close($fd);
+	  $found = 1 if $ctx->hexdigest() eq $extra;
 	}
-      } elsif ($file =~ /\.(?:asc|key)$/s) {
-	push @tosign, $file;
+	unlink("$dir/$file") unless $found;
+      } elsif ($leads->{$extra} && link("$reporoot/$leads->{$extra}", "$dir/$file")) {
+	# make sure it's really the correct file
+	my $leadsigmd5;
+	eval { Build::queryhdrmd5("$dir/$file", \$leadsigmd5); };
+	if (!$@ && $leadsigmd5 && $leadsigmd5 eq $extra) {
+	  $found = 1;
+	  $nlinked++;
+	}
+	unlink("$dir/$file") unless $found;
       }
       $todo{$file} = 1 unless $found;
+    } else {
+      push @tosign, $file if $file =~ /\.(?:asc|key)$/s;
+      $todo{$file} = 1;
     }
     $done{$file} = $type;
   }

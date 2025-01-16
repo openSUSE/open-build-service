@@ -4294,13 +4294,13 @@ sub buildkiwitree {
 	$tree{$sf} = "d ". BSHTTP::urlencode($sf);
 	push @todo, $f, "$sf/";
       } elsif (-f $f) {
-        my $leadsigmd5 = '';
-	Build::queryhdrmd5($f, \$leadsigmd5) if $f =~ /\.rpm$/;
-	if ($leadsigmd5) {
-	  $tree{$sf} = "f ". BSHTTP::urlencode($sf) . " " . $leadsigmd5;
-	} else {
-	  $tree{$sf} = "f ". BSHTTP::urlencode($sf);
+	my $extra;
+	if ($f =~ /\.slsa_provenance\.json$/) {
+	  $extra = md5file($f);
+	} elsif ($f =~ /\.rpm$/) {
+	  Build::queryhdrmd5($f, \$extra);
 	}
+	$tree{$sf} = 'f ' . BSHTTP::urlencode($sf) . ($extra ? " $extra" : '');
       }
     }
   }
