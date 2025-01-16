@@ -1,0 +1,52 @@
+.dropdown.d-inline-block#label-dropdown
+  %button.btn.btn-sm.dropdown-toggle.ps-0.border-0{ data: { 'bs-toggle': 'dropdown', 'bs-auto-close': 'outside' }, aria: { expanded: 'false' } }
+    %i.fas.fa-tag
+    %strong
+      Set Global Labels
+  .dropdown-menu
+    .dropdown-item-text.d-flex.justify-content-end
+      %button.btn-close{ type: 'button', 'data-bs-dismiss': 'dropdown', 'aria-label': 'Close' }
+    .dropdown-item-text
+      %input.form-control#label-search{ placeholder: 'Filter labels' }
+    = form_for :label_globals, url: project_label_globals_path(project_name: project.name), method: :put do |f|
+      - LabelTemplateGlobal.all.each do |label_template_global|
+        = f.fields_for 'label_globals_attributes[]', label_template_global do |la|
+          .dropdown-item-text
+            = la.hidden_field :label_template_global_id, value: la.object.id
+            - if project.label_globals.exists?(label_template_global: la.object)
+              = la.hidden_field :id, value: project.label_globals.find_by(label_template_global: la.object).id
+            .form-check
+              = la.check_box :_destroy,
+                { class: 'form-check-input', checked: project.label_globals.exists?(label_template_global: la.object) }, false, true
+              = la.label :_destroy, class: 'form-check-label' do
+                = render partial: 'webui/shared/label', locals: { label: la.object, global_label: true }
+    - if policy(LabelTemplateGlobal.new).index?
+      = link_to label_templates_path, class: 'dropdown-item' do
+        %i.fas.fa-edit
+        Edit Global Labels
+
+:javascript
+  let labelDropdown = document.getElementById('label-dropdown');
+
+  labelDropdown.addEventListener('change', function() {
+    labelDropdown.addEventListener('hide.bs.dropdown', function() {
+      labelDropdown.querySelector('form').submit();
+    });
+  });
+
+  $("#label-dropdown").on("input", "#label-search", function(event) {
+    var searchInput = event.target;
+    var filterValue = searchInput.value.toLowerCase();
+    var dropdown = document.getElementById("label-dropdown");
+    var dropdownInputFields = dropdown.getElementsByClassName("badge");
+
+    for (i = 0; i < dropdownInputFields.length; i++) {
+      dropdownInputValue = dropdownInputFields[i].textContent;
+
+      if (dropdownInputValue.toLowerCase().indexOf(filterValue) > -1) {
+        dropdownInputFields[i].closest(".dropdown-item-text").style.display = "";
+      } else {
+        dropdownInputFields[i].closest(".dropdown-item-text").style.display = "none";
+      }
+    }
+  });
