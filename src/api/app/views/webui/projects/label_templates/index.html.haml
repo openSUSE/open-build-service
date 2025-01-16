@@ -4,6 +4,8 @@
 
   .card-body
     %h3= @pagetitle
+    .mb-3
+      = render partial: 'webui/shared/label_global_list', locals: { project: @project }
     %ul.list-unstyled
       - @label_templates.each do |label_template|
         %li.mb-2
