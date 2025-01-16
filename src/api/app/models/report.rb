@@ -2,11 +2,11 @@
 class Report < ApplicationRecord
   REPORTABLE_TYPES = %i[Comment Package Project User BsRequest].freeze
   REPORTABLE_TYPES_STRINGS = {
-    Comment: 'Comment',
-    Package: 'Package',
-    Project: 'Project',
-    User: 'User',
-    BsRequest: 'Request'
+    Comment: 'comment',
+    Package: 'package',
+    Project: 'project',
+    User: 'user',
+    BsRequest: 'request'
   }.freeze
 
   validates :reason, length: { maximum: 65_535 }

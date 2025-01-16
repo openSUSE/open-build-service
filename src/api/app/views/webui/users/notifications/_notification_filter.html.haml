@@ -77,11 +77,9 @@
                                                                     key: 'report[without_decision]', name: 'report[]',
                                                                     value: 'without_decision',
                                                                     checked: selected_filter[:report]&.include?('without_decision') }
-          %h6.dropdown-header.mt-2
-            Report for
           - Report::REPORTABLE_TYPES.each do |reportable_type|
             .dropdown-item-text
-              = render partial: 'webui/shared/check_box', locals: { label: Report::REPORTABLE_TYPES_STRINGS[reportable_type],
+              = render partial: 'webui/shared/check_box', locals: { label: "For #{Report::REPORTABLE_TYPES_STRINGS[reportable_type]}",
                                                                     key: "reportable_type[#{reportable_type}]", name: 'reportable_type[]',
                                                                     value: reportable_type,
                                                                     checked: selected_filter[:reportable_type]&.include?(reportable_type.to_s) }
@@ -101,8 +99,6 @@
           = render partial: 'webui/shared/check_box', locals: { label: 'Outgoing', amount: counted_notifications['outgoing_requests'],
                                                                 key: 'kind[outgoing_requests]', name: 'kind[]', value: 'outgoing_requests',
                                                                 checked: selected_filter[:kind]&.include?('outgoing_requests') }
-        %h6.dropdown-header.mt-2
-          State
         - BsRequest::VALID_REQUEST_STATES.each do |request_state|
           .dropdown-item-text
             = render partial: 'webui/shared/check_box', locals: { label: render(BsRequestStateBadgeComponent.new(state: request_state)),
