@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_01_09_112624) do
+ActiveRecord::Schema[7.0].define(version: 2025_01_14_124751) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -731,6 +731,16 @@ ActiveRecord::Schema[7.0].define(version: 2025_01_09_112624) do
     t.index ["image_id"], name: "index_kiwi_repositories_on_image_id"
   end
 
+  create_table "label_globals", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.integer "project_id", null: false
+    t.bigint "label_template_global_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["label_template_global_id"], name: "index_label_globals_on_label_template_global_id"
+    t.index ["project_id", "label_template_global_id"], name: "index_label_globals_on_project_and_label_template_global", unique: true
+    t.index ["project_id"], name: "index_label_globals_on_project_id"
+  end
+
   create_table "label_template_globals", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "color", null: false
@@ -1332,6 +1342,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_01_09_112624) do
   add_foreign_key "issues", "users", column: "owner_id", name: "issues_ibfk_1"
   add_foreign_key "kiwi_package_groups", "kiwi_images", column: "image_id"
   add_foreign_key "kiwi_packages", "kiwi_package_groups", column: "package_group_id"
+  add_foreign_key "label_globals", "label_template_globals"
+  add_foreign_key "label_globals", "projects"
   add_foreign_key "label_templates", "projects"
   add_foreign_key "labels", "label_templates"
   add_foreign_key "maintained_projects", "projects", column: "maintenance_project_id", name: "maintained_projects_ibfk_2"

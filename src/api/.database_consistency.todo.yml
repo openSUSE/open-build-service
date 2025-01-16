@@ -207,9 +207,6 @@ BinaryRelease:
   flavor:
     LengthConstraintChecker:
       enabled: false
-  id:
-    PrimaryKeyTypeChecker:
-      enabled: false
   medium:
     LengthConstraintChecker:
       enabled: false
@@ -1385,6 +1382,10 @@ Kiwi::Repository:
   username:
     LengthConstraintChecker:
       enabled: false
+LabelGlobal:
+  index_label_globals_on_project_id:
+    RedundantIndexChecker:
+      enabled: false
 LinkedProject:
   db_project_id+linked_remote_project_name:
     MissingUniqueIndexChecker:
@@ -1417,8 +1418,6 @@ MaintenanceIncident:
       enabled: false
 Notification:
   bs_request:
-    ColumnPresenceChecker:
-      enabled: false
     ForeignKeyChecker:
       enabled: false
   bs_request_oldstate:
