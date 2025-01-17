@@ -96,7 +96,7 @@ class Project < ApplicationRecord
   default_scope { where.not('projects.id' => Relationship.forbidden_project_ids) }
 
   scope :filtered_for_list, lambda {
-    where.not('name rlike ?', ::Configuration.unlisted_projects_filter) if ::Configuration.unlisted_projects_filter.present?
+    where.not('projects.name rlike ?', ::Configuration.unlisted_projects_filter) if ::Configuration.unlisted_projects_filter.present?
   }
 
   scope :remote, -> { where('NOT ISNULL(projects.remoteurl)') }
