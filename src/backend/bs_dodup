@@ -31,7 +31,6 @@ use Build::Repo;
 use Build::Rpmmd;
 use Build::Deb;
 use Build::Rpm;
-use Build::Apk;
 use Build::Modules;
 
 use strict;
@@ -668,7 +667,7 @@ sub cmppkg {
   $oevr .= "-$op->{'release'}" if defined $op->{'release'};
   if ($p->{'path'} =~ /\.deb$/) {
     return Build::Deb::verscmp($oevr, $evr);
-  } elsif ($p->{'path'} =~ /\.apk$/) {
+  } elsif ($p->{'path'} =~ /\.apk$/ && defined(&Build::Apk::verscmp)) {
     return Build::Apk::verscmp($oevr, $evr);
   } else {
     return Build::Rpm::verscmp($oevr, $evr);
