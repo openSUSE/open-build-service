@@ -23,9 +23,10 @@ function initializeProjectDatatable() { // jshint ignore:line
         "data": function (d) {
           d.all = $("#projects-datatable").data("all");
         }
-      }, "responsive" : true, 
+      }, "responsive" : true,
       "columns": [
         { "data": "name" },
+        { "data": "labels"},
         { "data": "title" }
       ], "dom": "ftpi"
     }
