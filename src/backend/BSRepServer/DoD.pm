@@ -56,8 +56,18 @@ sub remove_dot_segments {
 
 sub is_wanted_dodbinary {
   my ($pool, $p, $path, $doverify) = @_;
-  my $q;
-  eval { $q = Build::query($path, 'evra' => 1) };
+  my @opts = ('evra' => 1);
+  if ($doverify && $path =~ /\.apk$/) {
+    push @opts, 'verifyapkdatasection' => 1;
+    my $hdrid = defined(&BSSolv::pool::pkg2hdrid) ? $pool->pkg2hdrid($p) : undef;
+    if ($hdrid) {
+      $hdrid =~ s/^sha1:/X1/;
+      $hdrid =~ s/^sha256:/X2/;
+      push @opts, 'verifyapkchksum' => $hdrid;
+    }
+  }
+  my $q = eval { Build::query($path, @opts) };
+  warn("binary query of $path: $@") if $@;
   return 0 unless $q;
   my $data = $pool->pkg2data($p);
   $data->{'arch'} = $q->{'arch'} if $path =~ /\.apk$/;	# apk metadata has wrong arch
@@ -69,10 +79,6 @@ sub is_wanted_dodbinary {
 	      $data->{'version'} ne $q->{'version'} ||
 	      $data->{'release'} ne $q->{'release'};
   BSVerify::verify_nevraquery($q) if $doverify;		# just in case
-  if ($doverify && $path =~ /\.apk$/ && $q->{'apkdatachksum'} && defined &Build::Apk::calcapkchksum) {
-    my $apkdatachksum = Build::Apk::calcapkchksum($path, 'sha256', 'data', 1);
-    die("downloaded binary $path does not match apk data checksum: $q->{'apkdatachksum'} != $apkdatachksum\n") if $q->{'apkdatachksum'} ne $apkdatachksum;
-  }
   return 1;
 }
 
@@ -155,15 +161,9 @@ sub fetchdodbinary {
   return unless defined $r;
   my $checksum;
   $checksum = $pool->pkg2checksum($p) if defined &BSSolv::pool::pkg2checksum;
-  my $hdrid;
-  $hdrid = $pool->pkg2hdrid($p) if $suf eq 'apk' && defined &BSSolv::pool::pkg2hdrid;
   eval {
     # verify the checksum if we know it
     die("checksum error for $tmp, expected $checksum\n") if $checksum && !$pool->verifypkgchecksum($p, $tmp);
-    if ($suf eq 'apk' && $hdrid && defined &Build::Apk::calcapkchksum) {
-      my $apkchksum = 'sha1:'.Build::Apk::calcapkchksum($tmp, 'sha1');
-      die("apk checksum error for $tmp, expected $hdrid\n") if $apkchksum ne $hdrid;
-    }
     # also make sure that the evra matches what we want
     die("downloaded package is not the one we want\n") unless is_wanted_dodbinary($pool, $p, $tmp, 1);
   };
