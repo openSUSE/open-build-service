@@ -122,6 +122,10 @@ gem 'matrix', '~> 0.4'
 # until we have a fix for https://github.com/rubygems/rubygems/pull/5529
 gem 'strscan', '3.0.1'
 
+# TODO: Remove it after Rails 7.2 update.
+# Rack middleware for blocking & throttling
+gem 'rack-attack'
+
 group :development, :production do
   # to have the delayed job daemon
   gem 'daemons'
