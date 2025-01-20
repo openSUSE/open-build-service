@@ -39,9 +39,15 @@
       %thead
         %tr
           %th Name
-          %th Labels
+          - if Flipper.enabled?(:labels, User.session)
+            %th Labels
           %th Title
       %tbody
 
 - content_for :ready_function do
-  initializeProjectDatatable();
+  - if Flipper.enabled?(:labels, User.session)
+    :plain
+      initializeProjectDatatableLabelBeta();
+  - else
+    :plain
+      initializeProjectDatatable();
