@@ -90,6 +90,8 @@ class Project < ApplicationRecord
   has_many :notifications, through: :notified_projects
   has_many :reports, as: :reportable, dependent: :nullify
   has_many :label_templates
+  has_many :label_globals
+  accepts_nested_attributes_for :label_globals, allow_destroy: true
 
   default_scope { where.not('projects.id' => Relationship.forbidden_project_ids) }
 
