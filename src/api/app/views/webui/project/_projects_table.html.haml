@@ -5,8 +5,15 @@
   %thead
     %tr
       %th= table_title
+      - if Flipper.enabled?(:labels, User.session)
+        %th Labels
       %th Title
   %tbody
 
 - content_for :ready_function do
-  initializeRemoteDatatable("##{table_id}", { columns: [ { data: 'name' }, { data: 'title' }] });
+  - if Flipper.enabled?(:labels, User.session)
+    :plain
+      initializeRemoteDatatable("##{table_id}", { columns: [ { data: 'name' }, {data: 'labels'}, { data: 'title' }] });
+  - else
+    :plain
+      initializeRemoteDatatable("##{table_id}", { columns: [ { data: 'name' }, { data: 'title' }] });
