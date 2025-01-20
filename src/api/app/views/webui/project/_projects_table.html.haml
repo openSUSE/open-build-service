@@ -5,8 +5,9 @@
   %thead
     %tr
       %th= table_title
+      %th Labels
       %th Title
   %tbody
 
 - content_for :ready_function do
-  initializeRemoteDatatable("##{table_id}", { columns: [ { data: 'name' }, { data: 'title' }] });
+  initializeRemoteDatatable("##{table_id}", { columns: [ { data: 'name' }, {data: 'labels'}, { data: 'title' }] });

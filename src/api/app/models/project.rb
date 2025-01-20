@@ -456,7 +456,7 @@ class Project < ApplicationRecord
   end
 
   def subprojects
-    Project.where('name like ?', "#{name}:%")
+    Project.where('projects.name like ?', "#{name}:%")
   end
 
   def siblingprojects
