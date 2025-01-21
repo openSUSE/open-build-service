@@ -5,22 +5,22 @@
 .row
   .col-md-4.col-lg-3.px-0.px-md-3.sticky-top#filter-desktop
     .card.mb-3
-      %strong.d-block.d-md-none.p-3{ data: { 'bs-toggle': 'collapse', 'bs-target': '#filters' },
+      %strong.d-block.d-md-none.p-3{ data: { 'bs-toggle': 'collapse', 'bs-target': '#content-selector-filters' },
                                   aria: { expanded: true, controls: 'filters' } }
         Filtered by state:
         = @filter_state.to_s.humanize
         and type:
         = @filter_kind.map { |s| s.to_s.humanize }.join(', ')
         %i.float-end.mt-1.fa.fa-chevron-down#notifications-dropdown-trigger
-      .collapse#filters
+      .collapse#content-selector-filters
         = render partial: 'notification_filter', locals: { selected_filter: @selected_filter,
                                                            counted_notifications: @counted_notifications,
                                                            projects_for_filter: @projects_for_filter,
                                                            groups_for_filter: @groups_for_filter }
 
-  .col-md-8.col-lg-9.px-0.px-md-3.d-none#notifications-list-loading
+  .col-md-8.col-lg-9.px-0.px-md-3.d-none.content-list-loading
     = render partial: 'webui/shared/loading', locals: { text: 'Loading...', wrapper_css: ['loading'] }
-  .col-md-8.col-lg-9.px-0.px-md-3#notifications-list
+  .col-md-8.col-lg-9.px-0.px-md-3.content-list#notifications-list
     = render partial: 'notifications_list', locals: { notifications: @notifications,
                                                       counted_notifications: @counted_notifications,
                                                       selected_filter: @selected_filter }

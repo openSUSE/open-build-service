@@ -1,0 +1,65 @@
+#content-selector-filters {
+  .accordion-item {
+    .accordion-button {
+      &.no-style {
+        cursor: pointer;
+        padding: 0;
+        background: none;
+      }
+      &:focus {
+        box-shadow: none;
+      }
+      &:not(.collapsed) {
+        box-shadow: none;
+      }
+      &:hover {
+        background-color: var(--bs-secondary-bg);
+      }
+    }
+
+    .accordion-button {
+      .selected-content {
+        display: none;
+      }
+    }
+    .accordion-button.collapsed {
+      .selected-content {
+        display: inline;
+      }
+    }
+
+    .scroll-list-wrapper {
+      overflow-y: scroll;
+      max-height: 15rem;
+      word-break: break-all;
+    }
+  }
+}
+
+
+@include media-breakpoint-up(md) {
+  #content-selector-filters.collapse {
+    display: block !important;
+  }
+}
+
+@include media-breakpoint-between(xs, md) {
+  #filter-desktop {
+    &.show { border-top: 1px solid $gray-300; }
+    &.sticky-top { top: $top-navigation-height; }
+    height: $notifications-filter-box-height;
+    // To not overlap with the notification action bar
+    z-index: calc(#{$zindex-sticky} + 1);
+
+    #content-selector-filters {
+      max-height: 100vw; overflow: auto;
+      -webkit-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+      -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+      box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+    }
+  }
+
+  @media (orientation: landscape) {
+    #content-selector-filters { max-height: 20vw; }
+  }
+}
