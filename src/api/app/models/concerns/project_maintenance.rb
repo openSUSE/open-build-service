@@ -18,7 +18,7 @@ module ProjectMaintenance
   end
 
   class_methods do
-    def get_maintenance_project # rubocop:disable Naming/AccessorMethodName
+    def get_maintenance_project
       at = AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
       maintenance_project = Project.joins(:attribs).where(attribs: { attrib_type_id: at.id }).first
 

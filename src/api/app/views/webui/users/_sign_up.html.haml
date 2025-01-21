@@ -27,10 +27,16 @@
     = hidden_field_tag 'register', 'true'
     = submit_tag submit_btn_text, class: 'btn btn-primary w-100'
 
-    -# This should be refactored to avoid relying on global state
-    - unless User.session # rubocop:disable ViewComponent/AvoidGlobalState
-      .login-separator.text-center
-        %hr.my-4
-        %span.bg-card.px-3.text-muted or
-      .text-center
-        = link_to('Log In', new_session_path)
+  -# This should be refactored to avoid relying on global state
+  - unless User.session # rubocop:disable ViewComponent/AvoidGlobalState
+    .login-separator.text-center
+      %hr.my-4
+      %span.bg-modal.px-3.text-muted or
+      = form_tag('/auth/github', method: 'post', data: { turbo: false }) do
+        %button{ class: 'btn btn-primary', type: 'submit' }
+          Login with Github
+    .login-separator.text-center
+      %hr.my-4
+      %span.bg-card.px-3.text-muted or
+    .text-center
+      = link_to('Log In', new_session_path)

@@ -19,3 +19,9 @@
     - if with_sign_up && can_sign_up?
       %span or
       %span= sign_up_link
+.text-center
+  %hr.my-4
+  %span.bg-modal.px-3.text-muted or
+  = form_tag('/auth/github', method: 'post', data: { turbo: false }) do
+    %button{ class: 'btn btn-primary', type: 'submit' }
+      Login with Github
