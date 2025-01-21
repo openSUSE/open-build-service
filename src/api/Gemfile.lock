@@ -158,7 +158,7 @@ GEM
     down (5.4.2)
       addressable (~> 2.8)
     erubi (1.13.1)
-    execjs (2.9.1)
+    execjs (2.10.0)
     factory_bot (6.5.0)
       activesupport (>= 5.0.0)
     factory_bot_rails (6.4.4)
@@ -487,7 +487,7 @@ GEM
     temple (0.10.3)
     terminal-table (3.0.2)
       unicode-display_width (>= 1.1.1, < 3)
-    terser (1.2.4)
+    terser (1.2.5)
       execjs (>= 0.3.0, < 3)
     test-unit (3.6.7)
       power_assert
