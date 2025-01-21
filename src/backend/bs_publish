@@ -2718,13 +2718,13 @@ sub publish {
   if (defined($dbgsplit)) {
     if ($dbgsplit) {
       for my $p (keys %bins) {
-        next if $p =~ /-debug(?:info|source)-.*rpm$/;
+        next if $p =~ /-debug(?:info|source)-.*(?:rpm|slsa_provenance\.json)$/;
         delete $bins{$p};
         delete $deltainfos{$p};
       }
     } else {
       for my $p (keys %bins) {
-        next unless $p =~ /-debug(?:info|source)-.*rpm$/;
+        next unless $p =~ /-debug(?:info|source)-.*(?:rpm|slsa_provenance\.json)$/;
         delete $bins{$p};
         delete $deltainfos{$p};
       }
