@@ -929,7 +929,7 @@ class Project < ApplicationRecord
 
     branch_copy_flags(project)
 
-    return unless pkg_to_enable.channel?
+    return unless pkg_to_enable && pkg_to_enable.channel?
 
     # explicit call for a channel package, so create the repos for it
     pkg_to_enable.channels.each do |channel|
