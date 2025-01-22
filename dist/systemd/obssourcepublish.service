@@ -3,6 +3,7 @@ Description=OBS Source Publisher
 After=network-online.target obsstoragesetup.service
 
 [Service]
+OOMPolicy=continue
 EnvironmentFile=/etc/sysconfig/obs-server
 ExecStart=/usr/lib/obs/server/bs_sourcepublish --logfile sourcepublish.log
 ExecStop=/usr/lib/obs/server/bs_sourcepublish --stop
