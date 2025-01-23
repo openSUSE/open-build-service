@@ -11,7 +11,6 @@ Capybara.automatic_label_click = true
 Capybara.register_driver :desktop do |app|
   Capybara::Selenium::Driver.load_selenium
   browser_options = Selenium::WebDriver::Chrome::Options.new
-  browser_options.browser_version = '119'
   browser_options.args << '--disable-gpu'
   browser_options.args << '--disable-dev-shm-usage'
   browser_options.args << '--headless=new'
@@ -23,7 +22,6 @@ end
 Capybara.register_driver :mobile do |app|
   Capybara::Selenium::Driver.load_selenium
   browser_options = Selenium::WebDriver::Chrome::Options.new
-  browser_options.browser_version = '119'
   browser_options.args << '--disable-gpu'
   browser_options.args << '--disable-dev-shm-usage'
   browser_options.args << '--headless=new'
