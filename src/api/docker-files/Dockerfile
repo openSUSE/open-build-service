@@ -22,9 +22,6 @@ ADD Gemfile /obs/src/api/Gemfile
 ADD Gemfile.lock /obs/src/api/Gemfile.lock
 RUN chown -R frontend /obs/src/api
 
-# Remove chromedriver binary to allow selenium-manager manage versions
-RUN rm -rf /usr/bin/chromedriver
-
 # Now do the rest as the user with the same ID as the user who
 # builds this container
 USER frontend
