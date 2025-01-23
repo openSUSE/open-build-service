@@ -323,6 +323,12 @@ class Webui::RequestController < Webui::WebuiController
     render partial: 'webui/request/beta_show_tabs/build_status', locals: { build_results_data: build_results_data, bs_request_number: @bs_request.number, filters: filters }
   end
 
+  def autocomplete_reviewers
+    users = User.where(['lower(login) like lower(?)', "#{params[:term]}%"]).order(Arel.sql('length(login)'), :login).pluck(:login)
+    groups = Group.where(['lower(title) like lower(?)', "#{params[:term]}%"]).order(Arel.sql('length(title)'), :title).pluck(:title)
+    render json: [users, groups].flatten
+  end
+
   private
 
   def redirect_to_tasks

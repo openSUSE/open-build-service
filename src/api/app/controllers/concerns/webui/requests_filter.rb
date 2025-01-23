@@ -21,6 +21,7 @@ module Webui::RequestsFilter
     params[:priorities] = @filter_priority if @filter_priority.present?
     params[:types] = @filter_action_type if @filter_action_type.present?
     params[:staging_project] = @filter_staging_project if @filter_staging_project.present?
+    params[:reviewers] = @filter_reviewers if @filter_reviewers.present?
 
     params[:created_at_from] = @filter_created_at_from if @filter_created_at_from.present?
     params[:created_at_to] = @filter_created_at_to if @filter_created_at_to.present?
@@ -52,6 +53,8 @@ module Webui::RequestsFilter
 
     @filter_created_at_from = params[:created_at_from].presence || ''
     @filter_created_at_to = params[:created_at_to].presence || ''
+
+    @filter_reviewers = params[:reviewers].present? ? params[:reviewers].compact_blank! : []
   end
   # rubocop:enable Metrics/CyclomaticComplexity
   # rubocop:enable Metrics/PerceivedComplexity
@@ -59,7 +62,7 @@ module Webui::RequestsFilter
   def set_selected_filter
     @selected_filter = { direction: @filter_direction, action_type: @filter_action_type, search_text: params[:requests_search_text],
                          state: @filter_state, creators: @filter_creators, staging_project: @filter_staging_project, priority: @filter_priority,
-                         created_at_from: @filter_created_at_from, created_at_to: @filter_created_at_to }
+                         created_at_from: @filter_created_at_from, created_at_to: @filter_created_at_to, reviewers: @filter_reviewers }
   end
 
   def filter_by_text(text)

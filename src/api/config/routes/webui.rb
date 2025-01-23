@@ -354,6 +354,7 @@ constraints(RoutesHelper::WebuiMatcher) do
     get 'request/:number/request_action/:request_action_id/inline_comment' => :inline_comment, constraints: cons, as: 'request_inline_comment'
     get 'request/:number/chart_build_results' => :chart_build_results, as: 'request_chart_build_results', constraints: cons
     get 'request/:number/complete_build_results' => :complete_build_results, as: 'request_complete_build_results', constraints: cons
+    get 'autocomplete_reviewers' => :autocomplete_reviewers, as: 'autocomplete_reviewers'
   end
 
   resources :requests, only: [], param: :number, controller: 'webui/request' do

@@ -8,6 +8,7 @@ class BsRequest
         @relation = @relation.where(state: states) if states.present?
         @relation = @relation.where(priority: priorities) if priorities.present?
         @relation = @relation.from_project(source_project_name) if source_project_name.present?
+        @relation = @relation.joins(:reviews).where('reviews.by_user IN (?) OR reviews.by_group IN (?)', reviewers, reviewers) if reviewers.present?
         @relation = BsRequest::FindFor::Project.new(@parameters, @relation).all
         @relation = BsRequest::FindFor::User.new(@parameters, @relation).all if user_login.present?
         @relation = BsRequest::FindFor::Group.new(@parameters, @relation).all if group_title.present?
