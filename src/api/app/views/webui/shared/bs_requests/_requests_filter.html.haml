@@ -73,6 +73,18 @@
                                                             checked: selected_filter[:action_type]&.include?('submit')}
 
   .mt-2.mb-2.accordion-item.border-0
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-priority' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-priority' } }
+      %b Priority
+      .selected-content.small.ms-1
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-priority
+      - BsRequest::VALID_REQUEST_PRIORITIES.each do |priority|
+        = render partial: 'webui/shared/check_box', locals: { label: render(BsRequestPriorityBadgeComponent.new(priority: priority)),
+                                                              key: "priority[#{priority}]", name: 'priority[]',
+                                                              value: priority,
+                                                              checked: selected_filter[:priority]&.include?(priority.to_s) }
+
+  .mt-2.mb-2.accordion-item.border-0
     %h6.px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-creator' },
                                                        aria: { expanded: 'true', controls: 'request-filter-creator' } }
       %b Creator

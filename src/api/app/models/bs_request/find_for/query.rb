@@ -6,6 +6,7 @@ class BsRequest
         @relation = @relation.where(creator: creator) if creator.present?
         @relation = @relation.with_action_types(types) if types.present?
         @relation = @relation.where(state: states) if states.present?
+        @relation = @relation.where(priority: priorities) if priorities.present?
         @relation = @relation.from_project(source_project_name) if source_project_name.present?
         @relation = BsRequest::FindFor::Project.new(@parameters, @relation).all
         @relation = BsRequest::FindFor::User.new(@parameters, @relation).all if user_login.present?
