@@ -6,6 +6,7 @@
     Request #{bs_request.number}
     -# state badge
     %small
+      = render BsRequestPriorityBadgeComponent.new(priority: bs_request.priority, css_class: 'ms-2', overview: true)
       = render badge_state
       %span.ms-2
         = render ReportsNoticeComponent.new(reportable: bs_request, user: User.session)

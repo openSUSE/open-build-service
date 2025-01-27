@@ -1,14 +1,19 @@
 class BsRequestPriorityBadgeComponent < ApplicationComponent
-  attr_reader :priority, :css_class
+  attr_reader :priority, :css_class, :overview
 
-  def initialize(priority:, css_class: nil)
+  def initialize(priority:, css_class: nil, overview: false)
     super
 
     @priority = priority
     @css_class = css_class
+    @overview = overview
   end
 
   def call
+    return if overview && priority == 'moderate'
+
+    priority = "#{priority} priority" if overview && priority == 'low'
+
     content_tag(:span, priority, class: ['badge', "text-bg-#{decode_priority_color}", css_class])
   end
 
