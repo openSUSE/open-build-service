@@ -15,7 +15,6 @@ class BsRequestActionDescriptionComponent < ApplicationComponent
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity
-  # rubocop:disable Metrics/PerceivedComplexity
   # rubocop:disable Rails/OutputSafety
   # rubocop:disable Style/FormatString
   def description
@@ -24,21 +23,19 @@ class BsRequestActionDescriptionComponent < ApplicationComponent
     source_project_hash = { project: action.source_project, package: action.source_package, trim_to: nil }
     target_project_hash = { project: action.target_project, package: action.target_package, trim_to: nil }
 
-    source_and_target_component = BsRequestActionSourceAndTargetComponent.new(action.bs_request)
+    if text_only
+      source_and_target_component = BsRequestActionSourceAndTargetComponent.new(action.bs_request)
 
-    source_text = source_and_target_component.source
-    target_text = source_and_target_component.target
-    source_and_target_text = source_and_target_component.call
-
-    source_container = text_only ? source_text : project_or_package_link(source_project_hash)
-    target_container = text_only ? target_text : project_or_package_link(target_project_hash)
-    source_and_target_container = if text_only
-                                    source_and_target_text
-                                  else
-                                    tag.span(source_container)
+      source_container = source_and_target_component.source
+      target_container = source_and_target_component.target
+      source_and_target_container = source_and_target_component.call
+    else
+      source_container = project_or_package_link(source_project_hash)
+      target_container = project_or_package_link(target_project_hash)
+      source_and_target_container = tag.span(source_container)
                                        .concat(tag.i(nil, class: 'fas fa-long-arrow-alt-right text-info mx-2'))
                                        .concat(tag.span(target_container))
-                                  end
+    end
 
     description = case action.type
                   when 'submit'
@@ -75,7 +72,6 @@ class BsRequestActionDescriptionComponent < ApplicationComponent
     description.html_safe
   end
   # rubocop:enable Metrics/CyclomaticComplexity
-  # rubocop:enable Metrics/PerceivedComplexity
   # rubocop:enable Rails/OutputSafety
   # rubocop:enable Style/FormatString
 end
