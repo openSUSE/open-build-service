@@ -1,35 +1,51 @@
 # This component renders the request action description based on the type of the action
 
 class BsRequestActionDescriptionComponent < ApplicationComponent
-  attr_reader :action
+  attr_reader :action, :text_only
 
   delegate :project_or_package_link, to: :helpers
   delegate :user_with_realname_and_icon, to: :helpers
   delegate :requester_str, to: :helpers
   delegate :creator_intentions, to: :helpers
 
-  def initialize(action:)
+  def initialize(action:, text_only: false)
     super
     @action = action
+    @text_only = text_only
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity
+  # rubocop:disable Metrics/PerceivedComplexity
   # rubocop:disable Rails/OutputSafety
   # rubocop:disable Style/FormatString
   def description
     creator = action.bs_request.creator
+
     source_project_hash = { project: action.source_project, package: action.source_package, trim_to: nil }
     target_project_hash = { project: action.target_project, package: action.target_package, trim_to: nil }
 
-    source_container = project_or_package_link(source_project_hash)
-    target_container = project_or_package_link(target_project_hash)
+    source_and_target_component = BsRequestActionSourceAndTargetComponent.new(action.bs_request)
+
+    source_text = source_and_target_component.source
+    target_text = source_and_target_component.target
+    source_and_target_text = source_and_target_component.call
+
+    source_container = text_only ? source_text : project_or_package_link(source_project_hash)
+    target_container = text_only ? target_text : project_or_package_link(target_project_hash)
+    source_and_target_container = if text_only
+                                    source_and_target_text
+                                  else
+                                    tag.span(source_container)
+                                       .concat(tag.i(nil, class: 'fas fa-long-arrow-alt-right text-info mx-2'))
+                                       .concat(tag.span(target_container))
+                                  end
 
     description = case action.type
                   when 'submit'
-                    'Submit %{source_container} to %{target_container}' %
-                    { source_container: source_container, target_container: target_container }
+                    'Submit %{source_and_target_container}' % { source_and_target_container: source_and_target_container }
                   when 'delete'
-                    target_repository = "repository #{link_to(action.target_repository, repositories_path(target_project_hash))} for " if action.target_repository
+                    repository_content = text_only ? action.target_repository : link_to(action.target_repository, repositories_path(target_project_hash))
+                    target_repository = "repository #{repository_content} for " if action.target_repository
 
                     'Delete %{target_repository}%{target_container}' %
                     { target_repository: target_repository, target_container: target_container }
@@ -44,14 +60,14 @@ class BsRequestActionDescriptionComponent < ApplicationComponent
                     'Set %{source_container} to be devel project/package of %{target_container}' %
                     { source_container: source_container, target_container: target_container }
                   when 'maintenance_incident'
-                    'Submit update from %{source_container} to %{target_container}' %
-                    { source_container: source_container, target_container: target_container }
+                    'Submit update from %{source_and_target_container}' %
+                    { source_and_target_container: source_and_target_container }
                   when 'maintenance_release'
-                    'Maintenance release %{source_container} to %{target_container}' %
-                    { source_container: source_container, target_container: target_container }
+                    'Maintenance release %{source_and_target_container}' %
+                    { source_and_target_container: source_and_target_container }
                   when 'release'
-                    'Release %{source_container} to %{target_container}' %
-                    { source_container: source_container, target_container: target_container }
+                    'Release %{source_and_target_container}' %
+                    { source_and_target_container: source_and_target_container }
                   end
 
     # HACK: this is just a porting of the already existing way of passing the string to the view
@@ -59,6 +75,7 @@ class BsRequestActionDescriptionComponent < ApplicationComponent
     description.html_safe
   end
   # rubocop:enable Metrics/CyclomaticComplexity
+  # rubocop:enable Metrics/PerceivedComplexity
   # rubocop:enable Rails/OutputSafety
   # rubocop:enable Style/FormatString
 end

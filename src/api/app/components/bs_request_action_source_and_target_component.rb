@@ -18,8 +18,6 @@ class BsRequestActionSourceAndTargetComponent < ApplicationComponent
     end
   end
 
-  private
-
   def source
     @source ||= if number_of_bs_request_actions > 1
                   ''
