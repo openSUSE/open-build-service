@@ -7,6 +7,7 @@ RSpec.describe 'Requests Index' do
   let(:target_project) { create(:project_with_package, package_name: 'goal', maintainer: receiver) }
   let(:source_project) { create(:project_with_package, package_name: 'ball', maintainer: submitter) }
   let(:other_source_project) { create(:project_with_package, package_name: 'package_2', maintainer: another_submitter) }
+  let(:reviewer) { create(:confirmed_user, login: 'reviewer_1') }
 
   let!(:incoming_request) do
     create(:bs_request_with_submit_action, description: 'Please take this',
@@ -196,5 +197,29 @@ RSpec.describe 'Requests Index' do
       end
     end
     # rubocop:enable RSpec/ExampleLength
+  end
+
+  describe 'filters request by reviewer' do
+    before do
+      incoming_request.reviews.create(by_user: reviewer, state: 'new')
+
+      if mobile?
+        find_by_id('requests-dropdown-trigger').click # open the filter dropdown
+        sleep 0.5 # wait for dropdown to open
+      end
+
+      within('#content-selector-filters') do
+        fill_in('reviewer_search', with: reviewer.login)
+        find('.ui-menu-item-wrapper', match: :first).click
+        # Remove focus from autocomplete search to allow the autosubmit
+        find(:xpath, '//*[@id="request-reviewer-dropdown"]/div/div/span/i').click
+        sleep 2
+      end
+    end
+
+    it 'shows requests with reviews by the selected reviewers' do
+      expect(page).to have_link(href: "/request/show/#{incoming_request.number}")
+      expect(page).to have_no_link(href: "/request/show/#{outgoing_request.number}")
+    end
   end
 end
