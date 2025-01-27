@@ -879,8 +879,8 @@ sub signjob {
     unlink("$jobdir/.checksums");
 
     my $followupfile;
-    # check for followup files, but don't allow more than 10 stages to avoid loops
-    if ((!$info->{'signingstage'} || $info->{'signingstage'} < 10) && ($info->{'file'} || '') ne '_aggregate') {
+    # check for followup files, but don't allow more than 3 steps to avoid loops
+    if (($info->{'followupsteps'} || 0) < 3 && ($info->{'file'} || '') ne '_aggregate') {
       if (grep {/\.rsasign$/} @signfiles) {
         $followupfile = (grep {/\.(spec|dsc)$/} @files)[0];
         @signfiles = grep {/\.rsasign$/} @signfiles if $followupfile;
@@ -1074,12 +1074,8 @@ sub signjob {
       # we need to create a followup job to integrate the signatures
       $info->{'followupfile'} = $followupfile;
       $info->{'readytime'} = time();
-      # to avoid loops keep track of how many stages we have done for this job
-      if (!$info->{'signingstage'}) {
-        $info->{'signingstage'} = 0;
-      } else {
-        $info->{'signingstage'}++;
-      }
+      # to avoid loops keep track of how many steps we have done for this job
+      $info->{'followupsteps'}++;
       writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
       updateredisjobstatus($arch, $job, $info);
       unlink("$jobsdir/$arch/$job:status");
