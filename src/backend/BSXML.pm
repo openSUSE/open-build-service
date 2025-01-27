@@ -644,7 +644,8 @@ our $buildinfo = [
      ]],
 	'containerannotation',	# temporary hack
 	'expanddebug',
-	'followupfile',	# for two-stage builds
+	'followupfile',	# for multi-stage builds
+	'signingstage',	# for multi-stage builds, to avoid loops
 	'masterdispatched',	# dispatched through a master dispatcher
 	'nounchanged',	# do not check for "unchanged" builds
       [ 'module' ],	# list of modules to use
