@@ -9,13 +9,7 @@ class BsRequestActionSourceAndTargetComponent < ApplicationComponent
   end
 
   def call
-    capture do
-      if source.present?
-        concat(tag.span(source))
-        concat(tag.i(nil, class: 'fas fa-long-arrow-alt-right text-info mx-2'))
-      end
-      concat(tag.span(target))
-    end
+    combine(source, target)
   end
 
   def source
@@ -30,5 +24,15 @@ class BsRequestActionSourceAndTargetComponent < ApplicationComponent
     return bs_request_action.target_project if number_of_bs_request_actions > 1
 
     [bs_request_action.target_project, bs_request_action.target_package].compact.join(' / ')
+  end
+
+  def combine(source, target)
+    capture do
+      if source.present?
+        concat(tag.span(source))
+        concat(tag.i(nil, class: 'fas fa-long-arrow-alt-right text-info mx-2'))
+      end
+      concat(tag.span(target))
+    end
   end
 end
