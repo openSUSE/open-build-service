@@ -24,6 +24,8 @@ class BsRequest < ApplicationRecord
 
   OBSOLETE_STATES = %i[declined superseded revoked].freeze
 
+  VALID_REQUEST_PRIORITIES = %w[low moderate important critical].freeze
+
   ACTION_NOTIFY_LIMIT = 50
 
   scope :to_accept_by_time, -> { where(state: %w[new review]).where(accept_at: ...Time.now) }
@@ -718,7 +720,7 @@ class BsRequest < ApplicationRecord
   def setpriority(opts)
     permission_check_setpriority!
 
-    raise SaveError, "Illegal priority '#{opts[:priority]}'" unless opts[:priority].in?(%w[low moderate important critical])
+    raise SaveError, "Illegal priority '#{opts[:priority]}'" unless opts[:priority].in?(VALID_REQUEST_PRIORITIES)
 
     p = { request: self, user_id: User.session!.id, description_extension: "#{priority} => #{opts[:priority]}" }
     p[:comment] = opts[:comment] if opts[:comment]

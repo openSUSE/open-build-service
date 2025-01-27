@@ -16,6 +16,7 @@ module Webui::RequestsFilter
 
     params[:creator] = @filter_creators if @filter_creators.present?
     params[:states] = @filter_state if @filter_state.present?
+    params[:priorities] = @filter_priority if @filter_priority.present?
     params[:types] = @filter_action_type if @filter_action_type.present?
     params[:staging_project] = @filter_staging_project if @filter_staging_project.present?
 
@@ -24,6 +25,7 @@ module Webui::RequestsFilter
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity
+  # rubocop:disable Metrics/PerceivedComplexity
   def set_filters
     @filter_direction = params[:direction].presence || 'all'
     @filter_direction = 'all' if ALLOWED_DIRECTIONS.exclude?(@filter_direction)
@@ -34,15 +36,19 @@ module Webui::RequestsFilter
     @filter_action_type = params[:action_type].presence || []
     @filter_action_type = @filter_action_type.intersection(BsRequestAction::TYPES)
 
+    @filter_priority = params[:priority].presence || []
+    @filter_priority = @filter_priority.intersection(BsRequest::VALID_REQUEST_PRIORITIES)
+
     @filter_creators = params[:creators].present? ? params[:creators].compact_blank! : []
 
     @filter_staging_project = params[:staging_project].presence || []
   end
+  # rubocop:enable Metrics/PerceivedComplexity
   # rubocop:enable Metrics/CyclomaticComplexity
 
   def set_selected_filter
     @selected_filter = { direction: @filter_direction, action_type: @filter_action_type, search_text: params[:requests_search_text],
-                         state: @filter_state, creators: @filter_creators, staging_project: @filter_staging_project }
+                         state: @filter_state, creators: @filter_creators, staging_project: @filter_staging_project, priority: @filter_priority }
   end
 
   def filter_by_text(text)

@@ -985,6 +985,7 @@ ViewComponent/MissingPreviewFile:
     - 'app/components/bs_request_activity_timeline_component.rb'
     - 'app/components/bs_request_comment_component.rb'
     - 'app/components/bs_request_overview_avatars_component.rb'
+    - 'app/components/bs_request_priority_badge_component.rb'
     - 'app/components/bs_request_state_badge_component.rb'
     - 'app/components/copy_to_clipboard_input_component.rb'
     - 'app/components/delete_confirmation_dialog_component.rb'

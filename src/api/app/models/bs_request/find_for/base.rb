@@ -24,6 +24,10 @@ class BsRequest
         @parameters[:package]
       end
 
+      def priorities
+        @parameters[:priorities] || []
+      end
+
       def project_name
         @parameters[:project]
       end
