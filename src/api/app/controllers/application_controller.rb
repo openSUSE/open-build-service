@@ -267,10 +267,17 @@ class ApplicationController < ActionController::Base
     User.session = User.find_nobody!
   end
 
+  def check_spider
+    return request.bot? if Rails.env.production?
+
+    false
+  end
+
   def set_influxdb_data
     InfluxDB::Rails.current.tags = {
       beta: User.possibly_nobody.in_beta?,
       anonymous: !User.session,
+      spider: check_spider,
       interface: :api
     }
   end
