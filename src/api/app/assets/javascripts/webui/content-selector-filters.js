@@ -28,8 +28,21 @@ function submitFilters() {
 
 let submitFiltersTimeout;
 $(document).on('change keyup', '#content-selector-filters-form input, #content-selector-filters-form select', function() {
-  highlightSelectedFilters();
+  // Clear the timeout to prevent the pending submission, if any
   window.clearTimeout(submitFiltersTimeout);
+
+  // Validate datetime-local inputs
+  if ($(this).attr('type') === 'datetime-local') {
+    // Parse the value
+    const datetime = new Date($(this).val());
+    if (isNaN(datetime.getTime())) {
+      window.console.error("Invalid date or time format");
+      return;
+    }
+  }
+  highlightSelectedFilters();
+
+  // Set a timeout to submit the filters
   submitFiltersTimeout = window.setTimeout(submitFilters, 2000);
 });
 

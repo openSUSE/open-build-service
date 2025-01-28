@@ -1,3 +1,4 @@
+-# haml-lint:disable ViewLength
 .accordion.accordion-flush
   .mt-2.mb-2.accordion-item.border-0
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-direction' },
@@ -85,7 +86,7 @@
                                                               checked: selected_filter[:priority]&.include?(priority.to_s) }
 
   .mt-2.mb-2.accordion-item.border-0
-    %h6.px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-creator' },
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-creator' },
                                                        aria: { expanded: 'true', controls: 'request-filter-creator' } }
       %b Creator
       .selected-content.small.ms-1
@@ -94,7 +95,6 @@
         = render partial: 'webui/shared/autocomplete', locals: { html_id: 'creators_search', label: 'Creators:',
                                                                  html_name: 'creators[]', required: false, with_label: false,
                                                                  data: { source: autocomplete_users_path } }
-
         .scroll-list-wrapper
           - if selected_filter[:creators].include?(User.session.login)
             .dropdown-item-text
@@ -126,7 +126,21 @@
                                                                   key: "staging_project[#{sp.id}]", name: 'staging_project[]',
                                                                   value: sp.name,
                                                                   checked: checked }
+
+  .mt-2.mb-2.accordion-item.border-0
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-created-at' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-created-at' } }
+      %b Created datetime
+      .selected-content.small.ms-1
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-created-at
+      = render partial: 'webui/shared/input', locals: { label: 'From', filter_item: 'created_at_from', type: 'datetime-local',
+                                                        selected_input_value: selected_filter[:created_at_from] }
+      = render partial: 'webui/shared/input', locals: { label: 'To', filter_item: 'created_at_to', type: 'datetime-local',
+                                                        selected_input_value: selected_filter[:created_at_to] }
+
 .text-center.mt-4.mb-4
   = link_to('Clear', url, class: 'btn btn-light border')
 
 - content_for(:content_for_head, javascript_include_tag('webui/content-selector-filters'))
+
+-# haml-lint:enable ViewLength
