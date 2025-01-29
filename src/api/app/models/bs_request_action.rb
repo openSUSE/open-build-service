@@ -39,7 +39,7 @@ class BsRequestAction < ApplicationRecord
   validates :sourceupdate, inclusion: { in: VALID_SOURCEUPDATE_OPTIONS, allow_nil: true }
   validate :check_sanity
   validates :type, presence: true
-  before_validation :set_target_associations
+  before_validation :set_source_and_target_associations
   after_create :cache_diffs
 
   #### Class methods using self. (public and then private)
@@ -1043,7 +1043,9 @@ class BsRequestAction < ApplicationRecord
     @source_project_object ||= Project.find_by_name(source_project)
   end
 
-  def set_target_associations
+  def set_source_and_target_associations
+    self.source_package_object = Package.find_by_project_and_name(source_project, source_package)
+    self.source_project_object = Project.find_by_name(source_project)
     self.target_package_object = Package.find_by_project_and_name(target_project, target_package)
     self.target_project_object = Project.find_by_name(target_project)
   end
