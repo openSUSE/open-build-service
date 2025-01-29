@@ -68,6 +68,10 @@ class BsRequest
       def creator
         @parameters[:creator]
       end
+
+      def reviewers
+        @parameters[:reviewers]
+      end
     end
   end
 end

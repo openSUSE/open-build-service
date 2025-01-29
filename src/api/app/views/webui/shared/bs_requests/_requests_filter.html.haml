@@ -111,6 +111,33 @@
                                                                     checked: selected_filter[:creators]&.include?(creator) }
 
   .mt-2.mb-2.accordion-item.border-0
+    %h6.px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-reviewer' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-reviewer' } }
+      %b Reviewer
+      .px-1 (Users and Groups)
+      .selected-content.small.ms-1
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-reviewer
+      #request-reviewer-dropdown
+        = render partial: 'webui/shared/autocomplete', locals: { html_id: 'reviewer_search', label: 'Reviewers:',
+                                                                 html_name: 'reviewers[]', required: false, with_label: false,
+                                                                 data: { source: autocomplete_reviewers_path } }
+
+        .scroll-list-wrapper
+          - if selected_filter[:reviewers].include?(User.session.login)
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: "#{User.session.login} (me)",
+                                                                    key: "reviewers[#{User.session.login}]", name: 'reviewers[]',
+                                                                    value: User.session.login,
+                                                                    checked: selected_filter[:reviewers]&.include?(User.session.login) }
+          - selected_filter[:reviewers].each do |reviewer|
+            - next if reviewer == User.session.login
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: reviewer,
+                                                                    key: "reviewers[#{reviewer}]", name: 'reviewers[]',
+                                                                    value: reviewer,
+                                                                    checked: selected_filter[:reviewers]&.include?(reviewer) }
+
+  .mt-2.mb-2.accordion-item.border-0
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-stag-proj' },
                                                        aria: { expanded: 'true', controls: 'request-filter-stag-proj' } }
       %b Staging  Project
