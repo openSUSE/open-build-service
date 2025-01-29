@@ -1032,17 +1032,6 @@ class BsRequestAction < ApplicationRecord
     node.source(attributes)
   end
 
-  # TODO: We now have explicit associations for source_package_object and source_project_object.
-  # We should remove these two method once we backfill the associations. Otherwise, these two methods
-  # are overriding the association methods.
-  def source_package_object
-    @source_package_object ||= Package.find_by_project_and_name(source_project, source_package)
-  end
-
-  def source_project_object
-    @source_project_object ||= Project.find_by_name(source_project)
-  end
-
   def set_target_associations
     self.target_package_object = Package.find_by_project_and_name(target_project, target_package)
     self.target_project_object = Project.find_by_name(target_project)
