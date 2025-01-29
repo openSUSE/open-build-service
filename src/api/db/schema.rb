@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_01_14_124751) do
+ActiveRecord::Schema[7.0].define(version: 2025_01_29_110812) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -226,11 +226,15 @@ ActiveRecord::Schema[7.0].define(version: 2025_01_14_124751) do
     t.boolean "makeoriginolder", default: false
     t.integer "target_package_id"
     t.integer "target_project_id"
+    t.integer "source_project_id"
+    t.integer "source_package_id"
     t.index ["bs_request_id", "target_package_id"], name: "index_bs_request_actions_on_bs_request_id_and_target_package_id"
     t.index ["bs_request_id", "target_project_id"], name: "index_bs_request_actions_on_bs_request_id_and_target_project_id"
     t.index ["bs_request_id"], name: "bs_request_id"
     t.index ["source_package"], name: "index_bs_request_actions_on_source_package"
+    t.index ["source_package_id"], name: "index_bs_request_actions_on_source_package_id"
     t.index ["source_project"], name: "index_bs_request_actions_on_source_project"
+    t.index ["source_project_id"], name: "index_bs_request_actions_on_source_project_id"
     t.index ["target_package"], name: "index_bs_request_actions_on_target_package"
     t.index ["target_package_id"], name: "index_bs_request_actions_on_target_package_id"
     t.index ["target_project"], name: "index_bs_request_actions_on_target_project"
