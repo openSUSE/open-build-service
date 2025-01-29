@@ -1068,6 +1068,10 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=linktobranch
   def package_command_linktobranch
+    if @target_package_name.in?(%w[_project _pattern])
+      render_error status: 400, message: "cannot turn a #{@target_package_name} package into a branch"
+      return
+    end
     pkg_rev = params[:rev]
     pkg_linkrev = params[:linkrev]
 
