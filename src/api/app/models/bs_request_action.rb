@@ -19,6 +19,9 @@ class BsRequestAction < ApplicationRecord
   belongs_to :target_package_object, class_name: 'Package', foreign_key: 'target_package_id', optional: true
   belongs_to :target_project_object, class_name: 'Project', foreign_key: 'target_project_id', optional: true
 
+  belongs_to :source_package_object, class_name: 'Package', foreign_key: 'source_package_id', optional: true
+  belongs_to :source_project_object, class_name: 'Project', foreign_key: 'source_project_id', optional: true
+
   has_many :bs_request_actions_seen_by_users, dependent: :nullify
   has_many :seen_by_users, through: :bs_request_actions_seen_by_users, source: :user
 
@@ -1029,6 +1032,9 @@ class BsRequestAction < ApplicationRecord
     node.source(attributes)
   end
 
+  # TODO: We now have explicit associations for source_package_object and source_project_object.
+  # We should remove these two method once we backfill the associations. Otherwise, these two methods
+  # are overriding the association methods.
   def source_package_object
     @source_package_object ||= Package.find_by_project_and_name(source_project, source_package)
   end
