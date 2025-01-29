@@ -19,6 +19,9 @@ class BsRequestAction < ApplicationRecord
   belongs_to :target_package_object, class_name: 'Package', foreign_key: 'target_package_id', optional: true
   belongs_to :target_project_object, class_name: 'Project', foreign_key: 'target_project_id', optional: true
 
+  belongs_to :source_package_object, class_name: 'Package', foreign_key: 'source_package_id', optional: true
+  belongs_to :source_project_object, class_name: 'Project', foreign_key: 'source_project_id', optional: true
+
   has_many :bs_request_actions_seen_by_users, dependent: :nullify
   has_many :seen_by_users, through: :bs_request_actions_seen_by_users, source: :user
 
@@ -1029,6 +1032,9 @@ class BsRequestAction < ApplicationRecord
     node.source(attributes)
   end
 
+  # TODO: We now have explicit associations for source_package_object and source_project_object.
+  # We should remove these two method once we backfill the associations. Otherwise, these two methods
+  # are overriding the association methods.
   def source_package_object
     @source_package_object ||= Package.find_by_project_and_name(source_project, source_package)
   end
@@ -1066,6 +1072,8 @@ end
 #  updatelink            :boolean          default(FALSE)
 #  created_at            :datetime
 #  bs_request_id         :integer          indexed, indexed => [target_package_id], indexed => [target_project_id]
+#  source_package_id     :integer          indexed
+#  source_project_id     :integer          indexed
 #  target_package_id     :integer          indexed => [bs_request_id], indexed
 #  target_project_id     :integer          indexed => [bs_request_id], indexed
 #
@@ -1075,7 +1083,9 @@ end
 #  index_bs_request_actions_on_bs_request_id_and_target_package_id  (bs_request_id,target_package_id)
 #  index_bs_request_actions_on_bs_request_id_and_target_project_id  (bs_request_id,target_project_id)
 #  index_bs_request_actions_on_source_package                       (source_package)
+#  index_bs_request_actions_on_source_package_id                    (source_package_id)
 #  index_bs_request_actions_on_source_project                       (source_project)
+#  index_bs_request_actions_on_source_project_id                    (source_project_id)
 #  index_bs_request_actions_on_target_package                       (target_package)
 #  index_bs_request_actions_on_target_package_id                    (target_package_id)
 #  index_bs_request_actions_on_target_project                       (target_project)

@@ -267,8 +267,14 @@ BsRequestAction:
   source_package:
     LengthConstraintChecker:
       enabled: false
+  source_package_object:
+    ForeignKeyChecker:
+      enabled: false
   source_project:
     LengthConstraintChecker:
+      enabled: false
+  source_project_object:
+    ForeignKeyChecker:
       enabled: false
   source_rev:
     LengthConstraintChecker:

@@ -84,6 +84,9 @@ class Project < ApplicationRecord
   has_many :target_of_bs_request_actions, class_name: 'BsRequestAction', foreign_key: 'target_project_id'
   has_many :target_of_bs_requests, through: :target_of_bs_request_actions, source: :bs_request
 
+  has_many :source_of_bs_request_actions, class_name: 'BsRequestAction', foreign_key: 'source_project_id', dependent: :nullify
+  has_many :source_of_bs_requests, through: :source_of_bs_request_actions, source: :bs_request
+
   has_one :staging, class_name: 'Staging::Workflow', inverse_of: :project, dependent: :destroy
 
   has_many :notified_projects, dependent: :destroy
