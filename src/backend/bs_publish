@@ -2504,10 +2504,10 @@ sub publish {
           };
 	} elsif ($bin =~ /\.(manifest|efi|verity|roothash|roothash\.p7s|usrhash|usrhash\.p7s)(?:\.(?:gz|bz2|xz|zst|zstd))?(?:\.sha[0-9]*)?$/) {
 	  # split dm-verity/EFI artifacts from mkosi, or image manifest file
-	  $p = "$arch/$bin";
+	  $p = "$bin";
 	} elsif ($bin =~ /^SHA[0-9]*SUMS(?:\.gpg)?$/) {
 	  # list of hashes (possibly signed) from mkosi
-	  $p = "$arch/$bin";
+	  $p = "$bin";
 	} elsif ($bin =~ /^mkosi\./) {
 	  # mkosi recipe file
 	  $p = "$bin";
