@@ -10,11 +10,11 @@
                                         project: selected_filter[:project], group: selected_filter[:group],
                                         page: params[:page])
   = form_tag(update_path, method: :put, remote: true) do
-    = render(NotificationActionBarComponent.new(state: selected_filter[:state],
+    .card
+      .card-body.pt-1
+        = render(NotificationActionBarComponent.new(state: selected_filter[:state],
                                                 update_path: update_path,
                                                 counted_notifications: counted_notifications))
-    .card
-      .card-body
         .text-center
           %span.ms-3= page_entries_info notifications, entry_name: ''
         .list-group.list-group-flush.mt-3

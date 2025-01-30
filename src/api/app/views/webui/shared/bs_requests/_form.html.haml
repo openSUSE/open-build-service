@@ -13,14 +13,14 @@
     .col-md-8.col-lg-9.px-0.px-md-3.d-none.content-list-loading
       = render partial: 'webui/shared/loading', locals: { text: 'Loading...', wrapper_css: ['loading'] }
     .col-md-8.col-lg-9.px-0.px-md-3.content-list#requests-list
-      .card.sticky-top.mb-3#requests-filter-search-text
-        .card-body.row
-          .col
-          .col-lg
-            %input.ms-auto.form-control{ 'aria-label': 'Search', name: 'requests_search_text',
-              placeholder: 'Search Requests', type: 'search', value: selected_filter[:search_text] }
       .card
-        .card-body.list-group.list-group-flush.p-3#requests
+        .card-body.list-group.list-group-flush.p-3.pt-0#requests
+          .card.border-0.border-bottom.rounded-0.sticky-top.mb-3#requests-filter-search-text
+            .card-body.row
+              .col
+              .col-lg
+                %input.ms-auto.form-control{ 'aria-label': 'Search', name: 'requests_search_text',
+                  placeholder: 'Search Requests', type: 'search', value: selected_filter[:search_text] }
           .text-center.mb-3
             - if bs_requests.total_count == 0
               %p There are no requests available
