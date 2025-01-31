@@ -3595,6 +3595,7 @@ sub check_publish_prg_running {
 my %publish_retry;
 my %publish_lasttime;
 my %publish_duration;
+my %publish_lastfailed;
 
 sub writepublishtimeevent {
   my ($projid, $repoid, $now, $duration, $evn) = @_;
@@ -3710,7 +3711,12 @@ sub publishevent {
   if ($@) {
     my $now = time();
     $code = 'failed';
-    warn("publish failed for $projid/$repoid : $@");
+    $publish_lastfailed{$prp}++;
+    if ($publish_lastfailed{$prp} > 1) {
+      BSUtil::logcritical("publish failed for $projid/$repoid : $@ ($publish_lastfailed{$prp} times)");
+    } else {
+      warn("publish failed for $projid/$repoid : $@");
+    }
     # delete state from repoinfo so that we will always re-publish
     my $err = $@;
     $err =~ s/\n.*//s;
@@ -3730,6 +3736,7 @@ sub publishevent {
   my $now = time();
   $publish_lasttime{$prp} = $now;
   $publish_duration{$prp} = $now - $starttime;
+  delete $publish_lastfailed{$prp};
   writepublishtimeevent($projid, $repoid, $now, $now - $starttime) if $req->{'forked'};
   publishstats($req, $prp, $code, $starttime, $now);
   notify_state($projid, $repoid, 'published');
