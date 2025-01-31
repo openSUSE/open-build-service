@@ -22,6 +22,7 @@ RSpec.describe 'Project', type: :feature do
       click_link('Your Home Project')
     end
     click_link('Repositories')
+    sleep(5)
     click_link('Add from a Distribution')
     check('openSUSE Leap 15.5')
     visit current_path
