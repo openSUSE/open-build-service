@@ -51,7 +51,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_01_29_110812) do
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false
-    t.boolean "available", default: false
+    t.boolean "available", default: false, null: false
     t.index ["name"], name: "arch_name_index", unique: true
   end
 
