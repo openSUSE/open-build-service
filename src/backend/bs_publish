@@ -3710,7 +3710,7 @@ sub publishevent {
   if ($@) {
     my $now = time();
     $code = 'failed';
-    warn("publish failed for $projid/$repoid : $@");
+    BSUtil::logcritical("publish failed for $projid/$repoid: $@");
     # delete state from repoinfo so that we will always re-publish
     my $err = $@;
     $err =~ s/\n.*//s;
