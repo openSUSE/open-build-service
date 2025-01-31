@@ -104,9 +104,15 @@ sub fetch {
     'maxredirects' => 10,
   };
   $param->{'withmd5'} = 1 if $withmd5;
-  $param->{'sslpeerfingerprint'} = $peerfp if $peerfp;
   $param->{'timeout'} = $timeout if $timeout;
   $param->{'proxy'} = $proxy;
+  if ($peerfp) {
+    if ($BSConfig::sslfingerprints && $BSConfig::sslfingerprints->{$peerfp}) {
+      $param->{'sslpeerfingerprint'} = $BSConfig::sslfingerprints->{$peerfp};
+    } else {
+      $param->{'sslpeerfingerprint'} = $peerfp;
+    }
+  }
   if ($filename) {
     $param->{'receiver'} = \&BSHTTP::file_receiver;
     $param->{'filename'} = $filename;
