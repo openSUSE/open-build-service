@@ -789,6 +789,7 @@ class BsRequest < ApplicationRecord
 
     params[:oldstate] = state_was if state_changed?
     params[:who] = commenter if commenter.present?
+    params[:accept_at] = accept_at if accept_at.present?
 
     # Use a nested data structure to support multiple actions in one request
     params[:actions] = []
