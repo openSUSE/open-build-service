@@ -18,6 +18,8 @@ class Project < ApplicationRecord
              maintenance_release].freeze
 
   after_initialize :init
+  after_create :backfill_bs_request_actions
+
   before_destroy :cleanup_before_destroy, prepend: true
   after_destroy_commit :delete_on_backend
 
@@ -1464,6 +1466,16 @@ class Project < ApplicationRecord
 
   def discard_cache
     Relationship.discard_cache
+  end
+
+  def backfill_bs_request_actions
+    # rubocop:disable Rails/SkipsModelValidations
+    # Source project
+    BsRequestAction.where(source_project: name).update_all(source_project_id: id)
+
+    # Target project
+    BsRequestAction.where(target_project: name).update_all(target_project_id: id)
+    # rubocop:enable Rails/SkipsModelValidations
   end
 
   def status_reports(checkables)
