@@ -62,6 +62,8 @@ class Package < ApplicationRecord
   has_many :labels, as: :labelable
   accepts_nested_attributes_for :labels, allow_destroy: true
 
+  after_create :backfill_bs_request_actions
+
   before_update :update_activity
   after_update :convert_to_symsync
 
@@ -1356,6 +1358,16 @@ class Package < ApplicationRecord
 
   def delete_from_sphinx
     DeleteFromSphinxJob.perform_later(id, self.class)
+  end
+
+  def backfill_bs_request_actions
+    # rubocop:disable Rails/SkipsModelValidations
+    # Source package
+    BsRequestAction.where(source_project: project.name, source_package: name).update_all(source_package_id: id)
+
+    # Target package
+    BsRequestAction.where(target_project: project.name, target_package: name).update_all(target_package_id: id)
+    # rubocop:enable Rails/SkipsModelValidations
   end
 
   def convert_to_symsync
