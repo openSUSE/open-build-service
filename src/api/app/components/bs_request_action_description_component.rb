@@ -46,7 +46,7 @@ class BsRequestActionDescriptionComponent < ApplicationComponent
                     { target_repository: target_repository, target_container: target_container }
                   when 'add_role', 'set_bugowner'
                     '%{creator} wants %{requester} to %{task} for %{target_container}' % {
-                      creator: user_with_realname_and_icon(creator),
+                      creator: text_only ? creator : user_with_realname_and_icon(creator),
                       requester: requester_str(creator, action.person_name, action.group_name),
                       task: creator_intentions(action.role),
                       target_container: target_container
