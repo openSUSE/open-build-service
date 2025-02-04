@@ -15,5 +15,5 @@
             link_to("#{item[:package]} by #{item[:by]}", request_show_path(item[:request]))
           when 'building_repositories'
             link_to("#{item['repository']}-#{item['arch']} (#{item['state']})",
-                    project_repository_state_path(project: @staging_project.name, repository: item['repository']))
+                    project_repository_state_path(project: staging_project.name, repository: item['repository']))
           end
