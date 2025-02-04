@@ -59,7 +59,7 @@ module Person
       # - webUI: https://github.com/openSUSE/open-build-service/blob/master/src/api/app/models/token.rb#L27
       # - API: https://github.com/openSUSE/open-build-service/blob/master/src/api/public/apidocs/paths/person_login_token.yaml#L89
       return if operation_param.nil? ||
-                %w[runservice rebuild release workflow].include?(operation_param) # possible API parameter values
+                %w[runservice rebuild release wipe workflow].include?(operation_param) # possible API parameter values
 
       render_error status: 400,
                    errorcode: 'invalid_token_type',

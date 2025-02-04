@@ -16,6 +16,6 @@ module Trigger::Errors
   end
 
   class MissingPackage < APIError
-    setup 'bad_request', 400, 'A package must be provided for the operations rebuild, release and runservice'
+    setup 'bad_request', 400, 'A package must be provided for the operations rebuild, release, wipe and runservice'
   end
 end

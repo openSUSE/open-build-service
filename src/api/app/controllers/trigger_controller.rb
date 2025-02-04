@@ -52,13 +52,18 @@ class TriggerController < ApplicationController
     create
   end
 
+  # validate_token_type callback uses the action_name
+  def wipe
+    create
+  end
+
   private
 
   def validate_parameters_by_token
     case @token.type
     when 'Token::Workflow'
       raise InvalidToken, 'Invalid token found'
-    when 'Token::Rebuild', 'Token::Release'
+    when 'Token::Rebuild', 'Token::Release', 'Token::Wipe'
       return if params[:project].present?
     when 'Token::Service'
       return if params[:project].present? && params[:package].present?
