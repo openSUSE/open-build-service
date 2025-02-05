@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class NullifyTargetsOnBsRequestActions < ActiveRecord::Migration[7.0]
+  disable_ddl_transaction!
+
   # rubocop:disable Rails/SkipsModelValidations
   def up
     bs_request_actions = BsRequestAction.where('target_project_id IS NOT NULL AND target_package_id IS NULL')

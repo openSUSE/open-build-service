@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class BackfillSourcesOnBsRequestActions < ActiveRecord::Migration[7.0]
+  disable_ddl_transaction!
+
   # rubocop:disable Rails/SkipsModelValidations
   def up
     bs_request_actions = BsRequestAction.where(source_project_id: nil, source_package_id: nil).where.not(source_project: nil)
