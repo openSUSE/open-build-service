@@ -26,13 +26,13 @@ class SCMStatusReporter
   def call
     return if EVENT_ACTIONS_TO_SKIP.include?(@event_payload[:action])
 
-    REPORTERS[@event_subscription_payload[:scm]].new(@event_payload,
-                                                     @event_subscription_payload,
-                                                     @scm_token,
-                                                     @state,
-                                                     @workflow_run,
-                                                     @event_type,
-                                                     initial_report: @initial_report).call
+    REPORTERS[@workflow_run.scm_vendor].new(@event_payload,
+                                            @event_subscription_payload,
+                                            @scm_token,
+                                            @state,
+                                            @workflow_run,
+                                            @event_type,
+                                            initial_report: @initial_report).call
   end
 
   private

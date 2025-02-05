@@ -13,15 +13,15 @@ class GithubStatusReporter < SCMExceptionHandler
   # rubocop:disable Metrics/PerceivedComplexity
   def call
     github_client = Octokit::Client.new(access_token: @scm_token,
-                                        api_endpoint: @event_subscription_payload[:api_endpoint])
+                                        api_endpoint: @workflow_run.api_endpoint)
     # https://docs.github.com/en/rest/reference/repos#create-a-commit-status
-    github_client.create_status(@event_subscription_payload[:target_repository_full_name],
-                                @event_subscription_payload[:commit_sha],
+    github_client.create_status(@workflow_run.target_repository_full_name,
+                                @workflow_run.commit_sha,
                                 @state,
                                 status_options)
     if @workflow_run.present?
       @workflow_run.save_scm_report_success(request_context)
-      RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=success,scm=#{@event_subscription_payload[:scm]} value=1")
+      RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=success,scm=#{@workflow_run.scm_vendor} value=1")
     end
   rescue Octokit::InvalidRepository => e
     package = Package.find_by_project_and_name(@event_payload[:project], @event_payload[:package])
@@ -38,7 +38,7 @@ class GithubStatusReporter < SCMExceptionHandler
   rescue Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::SSLError => e
     @workflow_run.save_scm_report_failure("Failed to report back to GitHub: #{e.message}", request_context) if @workflow_run.present?
   ensure
-    RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=fail,scm=#{@event_subscription_payload[:scm]},exception=#{e.class} value=1") if e.present? && @workflow_run.present?
+    RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=fail,scm=#{@workflow_run.scm_vendor},exception=#{e.class} value=1") if e.present? && @workflow_run.present?
   end
   # rubocop:enable Metrics/PerceivedComplexity
   # rubocop:enable Metrics/CyclomaticComplexity
@@ -60,9 +60,9 @@ class GithubStatusReporter < SCMExceptionHandler
   # TODO: extract to a parent class
   def request_context
     {
-      api_endpoint: @event_subscription_payload[:api_endpoint],
-      target_repository_full_name: @event_subscription_payload[:target_repository_full_name],
-      commit_sha: @event_subscription_payload[:commit_sha],
+      api_endpoint: @workflow_run.api_endpoint,
+      target_repository_full_name: @workflow_run.target_repository_full_name,
+      commit_sha: @workflow_run.commit_sha,
       state: @state,
       status_options: status_options
     }

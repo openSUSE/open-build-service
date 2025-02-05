@@ -6,11 +6,11 @@ class Workflow::Step::SubmitRequest < Workflow::Step
 
     @request_numbers_and_state_for_artifacts = {}
     case
-    when scm_webhook.closed_merged_pull_request?
+    when workflow_run.closed_merged_pull_request?
       revoke_submit_requests
-    when scm_webhook.updated_pull_request?
+    when workflow_run.updated_pull_request?
       supersede_previous_and_submit_request
-    when scm_webhook.new_pull_request?, scm_webhook.reopened_pull_request?, scm_webhook.push_event?, scm_webhook.tag_push_event?
+    when workflow_run.new_pull_request?, workflow_run.reopened_pull_request?, workflow_run.push_event?, workflow_run.tag_push_event?
       submit_package
     end
   end
@@ -41,9 +41,9 @@ class Workflow::Step::SubmitRequest < Workflow::Step
     Pundit.authorize(@token.executor, @bs_request, :create?)
     @bs_request.save!
 
-    Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, @bs_request).call
+    Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, @bs_request).call
     SCMStatusReporter.new(event_payload: { number: @bs_request.number, state: @bs_request.state },
-                          event_subscription_payload: scm_webhook.payload,
+                          event_subscription_payload: workflow_run.payload,
                           scm_token: @token.scm_token,
                           workflow_run: workflow_run,
                           event_type: 'Event::RequestStatechange').call

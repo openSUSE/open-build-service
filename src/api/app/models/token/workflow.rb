@@ -23,31 +23,28 @@ class Token::Workflow < Token
 
   def call(options)
     set_triggered_at
-    @scm_webhook = options[:scm_webhook]
     workflow_run = options[:workflow_run]
-    raise Token::Errors::MissingPayload, 'A payload is required' if @scm_webhook.payload.blank?
-
-    workflow_run.update(response_url: @scm_webhook.payload[:api_endpoint])
+    # FIXME: This makes little sense, wherever we use response_url, just use api_endpoint...
+    workflow_run.update(response_url: workflow_run.api_endpoint)
 
     # We return early with a ping event, since it doesn't make sense to perform payload checks with it, just respond
-    if @scm_webhook.ping_event?
-      SCMStatusReporter.new(event_payload: @scm_webhook.payload, event_subscription_payload: @scm_webhook.payload, scm_token: scm_token, workflow_run: workflow_run, event_type: 'success', initial_report: true).call
+    if workflow_run.ping_event?
+      SCMStatusReporter.new(event_payload: workflow_run.payload, event_subscription_payload: workflow_run.payload, scm_token: scm_token, workflow_run: workflow_run, event_type: 'success', initial_report: true).call
       return []
     end
-
-    yaml_file = Workflows::YAMLDownloader.new(@scm_webhook.payload, token: self).call
-    @workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_webhook: @scm_webhook, token: self, workflow_run: workflow_run).call
+    yaml_file = Workflows::YAMLDownloader.new(workflow_run, token: self).call
+    @workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, token: self, workflow_run: workflow_run).call
 
     return validation_errors unless validation_errors.none?
 
     # This is just an initial generic report to give a feedback asap. Initial status pending
-    SCMStatusReporter.new(event_payload: @scm_webhook.payload, event_subscription_payload: @scm_webhook.payload, scm_token: scm_token, workflow_run: workflow_run, initial_report: true).call
+    SCMStatusReporter.new(event_payload: workflow_run.payload, event_subscription_payload: workflow_run.payload, scm_token: scm_token, workflow_run: workflow_run, initial_report: true).call
     @workflows.each do |workflow|
       return workflow.errors.full_messages if workflow.invalid?(:call)
 
       workflow.call
     end
-    SCMStatusReporter.new(event_payload: @scm_webhook.payload, event_subscription_payload: @scm_webhook.payload, scm_token: scm_token, workflow_run: workflow_run, event_type: 'success', initial_report: true).call
+    SCMStatusReporter.new(event_payload: workflow_run.payload, event_subscription_payload: workflow_run.payload, scm_token: scm_token, workflow_run: workflow_run, event_type: 'success', initial_report: true).call
     # Always returning validation errors to report them back to the SCM in order to help users debug their workflows
     validation_errors
   rescue Octokit::Unauthorized, Gitlab::Error::Unauthorized
@@ -75,7 +72,6 @@ class Token::Workflow < Token
     @validation_errors ||= begin
       error_messages = []
 
-      error_messages << @scm_webhook.errors.full_messages unless @scm_webhook.valid?
       @workflows.each do |workflow|
         error_messages << workflow.errors.full_messages unless workflow.valid?
       end

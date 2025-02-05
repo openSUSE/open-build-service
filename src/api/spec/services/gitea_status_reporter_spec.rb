@@ -1,5 +1,22 @@
 RSpec.describe GiteaStatusReporter, type: :service do
   let(:scm_status_reporter) { GiteaStatusReporter.new(event_payload, event_subscription_payload, token, state, workflow_run, event_type, initial_report: initial_report) }
+  let(:workflow_run) { create(:workflow_run, scm_vendor: 'gitea', request_payload: request_payload, token: create(:workflow_token, string: token)) }
+  let(:request_payload) do
+    {
+      action: 'opened',
+      number: 1,
+      pull_request: {
+        base: {
+          repo: {
+            full_name: 'danidoni/hello_world'
+          }
+        },
+        head: {
+          sha: '123456789'
+        }
+      }
+    }.to_json
+  end
 
   describe '.new' do
     context 'status pending when event_type is missing' do
@@ -10,7 +27,6 @@ RSpec.describe GiteaStatusReporter, type: :service do
       let(:token) { 'XYCABC' }
       let(:event_type) { nil }
       let(:state) { 'pending' }
-      let(:workflow_run) { nil }
       let(:initial_report) { false }
 
       it { expect(subject.state).to eq('pending') }
@@ -24,7 +40,6 @@ RSpec.describe GiteaStatusReporter, type: :service do
       let(:token) { 'XYCABC' }
       let(:event_type) { 'Event::BuildFail' }
       let(:state) { 'failure' }
-      let(:workflow_run) { nil }
       let(:initial_report) { false }
 
       it { expect(subject.state).to eq('failure') }
@@ -45,7 +60,6 @@ RSpec.describe GiteaStatusReporter, type: :service do
       let(:token) { 'XYCABC' }
       let(:event_type) { nil }
       let(:state) { 'pending' }
-      let(:workflow_run) { nil }
       let(:initial_report) { false }
       let(:status_options) do
         {
@@ -79,7 +93,6 @@ RSpec.describe GiteaStatusReporter, type: :service do
       let(:token) { 'XYCABC' }
       let(:event_type) { 'Event::RequestStatechange' }
       let(:state) { 'pending' }
-      let(:workflow_run) { nil }
       let(:initial_report) { false }
       let(:status_options) do
         {
