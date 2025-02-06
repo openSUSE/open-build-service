@@ -3,22 +3,14 @@
 class BackfillSourcesOnBsRequestActions < ActiveRecord::Migration[7.0]
   # rubocop:disable Rails/SkipsModelValidations
   def up
-    bs_request_actions = BsRequestAction.where(source_project_id: nil, source_package_id: nil).where.not(source_project: nil)
-    bs_request_actions.in_batches do |batch|
-      batch.find_each do |action|
-        if action.source_package.present?
-          source_package = Package.find_by_project_and_name(action.source_project, action.source_package)
-          if source_package
-            action.update_columns(source_project_id: source_package.project.id, source_package_id: source_package.id)
-          end
-          next
-        end
+    # Backfill source_project_id of BsRequestAction that have source_project set
+    BsRequestAction.where(source_project_id: nil).where.not(source_project: nil).find_each do |action|
+      action.update_columns(source_project_id: Project.find_by(name: action.source_project)&.id)
+    end
 
-        source_project = Project.find_by(name: action.source_project)
-        if source_project
-          action.update_columns(source_project_id: source_project.id)
-        end
-      end
+    # Backfill source_package_id of BsRequestAction that have source_project and source_package and source_project_id set
+    BsRequestAction.where(source_package_id: nil).where.not(source_project: nil).where.not(source_package: nil).where.not(source_project_id: nil).find_each do |action|
+      action.update_columns(source_package_id: Package.find_by(name: action.source_package, project_id: action.source_project_id)&.id)
     end
   end
   # rubocop:enable Rails/SkipsModelValidations
