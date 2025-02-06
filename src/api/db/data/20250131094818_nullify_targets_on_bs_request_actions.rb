@@ -3,31 +3,15 @@
 class NullifyTargetsOnBsRequestActions < ActiveRecord::Migration[7.0]
   # rubocop:disable Rails/SkipsModelValidations
   def up
-    bs_request_actions = BsRequestAction.where('target_project_id IS NOT NULL AND target_package_id IS NULL')
-    bs_request_actions.in_batches do |batch|
-      batch.find_each do |action|
-        target_project = Project.find_by(name: action.target_project)
-        if target_project.nil?
-          action.update_columns(target_project_id: nil)
-        end
-      end
-    end
+    BsRequestAction
+      .joins('LEFT JOIN projects ON bs_request_actions.target_project_id = projects.id WHERE bs_request_actions.target_project_id IS NOT NULL AND projects.id IS NULL')
+      .in_batches
+      .update_all(target_project_id: nil)
 
-    bs_request_actions = BsRequestAction.where('target_project_id IS NOT NULL AND target_package_id IS NOT NULL')
-    bs_request_actions.in_batches do |batch|
-      batch.find_each do |action|
-        target_project = Project.find_by(name: action.target_project)
-        if target_project.nil?
-          action.update_columns(target_project_id: nil, target_package_id: nil)
-          next
-        end
-
-        target_package = Package.find_by_project_and_name(action.target_project, action.target_package)
-        if target_package.nil?
-          action.update_columns(target_package_id: nil)
-        end
-      end
-    end
+    BsRequestAction
+      .joins('LEFT JOIN packages ON bs_request_actions.target_package_id = packages.id WHERE bs_request_actions.target_package_id IS NOT NULL AND packages.id IS NULL')
+      .in_batches
+      .update_all(target_package_id: nil)
   end
   # rubocop:enable Rails/SkipsModelValidations
 
