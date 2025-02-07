@@ -133,6 +133,8 @@ group :development, :production do
   gem 'ruby-ldap', require: false
   # to have better logs
   gem 'lograge'
+  # for asking user input e.g. in rake tasks...
+  gem 'highline'
 end
 
 group :production do
