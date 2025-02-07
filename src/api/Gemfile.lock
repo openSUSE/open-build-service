@@ -215,6 +215,8 @@ GEM
       rubocop (>= 1.0)
       sysexits (~> 1.1)
     hashdiff (1.1.2)
+    highline (3.1.2)
+      reline
     httparty (0.22.0)
       csv
       mini_mime (>= 1.0.0)
@@ -226,6 +228,7 @@ GEM
       influxdb (~> 0.6, >= 0.6.4)
       railties (>= 5.0)
     innertube (1.1.0)
+    io-console (0.8.0)
     joiner (0.6.0)
       activerecord (>= 6.1.0)
     jquery-datatables (1.10.20)
@@ -379,6 +382,8 @@ GEM
     rbtree3 (0.7.1)
     redcarpet (3.6.0)
     regexp_parser (2.10.0)
+    reline (0.6.0)
+      io-console (~> 0.5)
     request_store (1.7.0)
       rack (>= 1.4)
     rexml (3.4.0)
@@ -586,6 +591,7 @@ DEPENDENCIES
   haml
   haml-rails
   haml_lint
+  highline
   influxdb-rails
   jquery-datatables
   jquery-rails
