@@ -4,14 +4,17 @@ class NullifyTargetsOnBsRequestActions < ActiveRecord::Migration[7.0]
   # rubocop:disable Rails/SkipsModelValidations
   def up
     BsRequestAction
-      .joins('LEFT JOIN projects ON bs_request_actions.target_project_id = projects.id WHERE bs_request_actions.target_project_id IS NOT NULL AND projects.id IS NULL')
+      .left_joins(:target_project_object)
+      .where.not(bs_request_actions: { target_project_id: nil })
+      .where(projects: { id: nil })
       .in_batches
       .update_all(target_project_id: nil)
 
     BsRequestAction
-      .joins('LEFT JOIN packages ON bs_request_actions.target_package_id = packages.id WHERE bs_request_actions.target_package_id IS NOT NULL AND packages.id IS NULL')
-      .in_batches
-      .update_all(target_package_id: nil)
+      .left_joins(:target_package_object)
+      .where.not(bs_request_actions: { target_package_id: nil })
+      .where(packages: { id: nil })
+      .in_batches.update_all(target_package_id: nil)
   end
   # rubocop:enable Rails/SkipsModelValidations
 
