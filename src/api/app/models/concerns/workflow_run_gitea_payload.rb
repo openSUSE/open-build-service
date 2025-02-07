@@ -1,4 +1,4 @@
-# Methods to fetch information from a Github webhook payload
+# Methods to fetch information from a Gitea webhook payload
 module WorkflowRunGiteaPayload
   extend ActiveSupport::Concern
 

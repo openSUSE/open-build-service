@@ -1,4 +1,4 @@
-# Methods to know which webhook we are dealing with based on the request_payload attribute
+# Methods to abstract GitHub/GitLab/Gitea webhook payloads
 module WorkflowRunPayload
   extend ActiveSupport::Concern
 

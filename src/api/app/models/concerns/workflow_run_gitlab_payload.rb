@@ -1,4 +1,4 @@
-# Methods to know which webhook we are dealing with based on the request_payload attribute
+# Methods to fetch information from a GitLab webhook payload
 module WorkflowRunGitlabPayload
   extend ActiveSupport::Concern
 
