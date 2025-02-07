@@ -61,7 +61,7 @@
       .px-4.pb-2.accordion-collapse.collapse.show#workflow-filter-event-action
         = render partial: 'webui/shared/select', locals: { filter_item: 'request_action',
                                                           selected_value: @selected_filter[:request_action],
-                                                          filter_options: SCMWebhook::ALL_POSSIBLE_REQUEST_ACTIONS,
+                                                          filter_options: WorkflowRun::ALL_POSSIBLE_REQUEST_ACTIONS,
                                                           label: 'Action', visible_inner_label: true }
     .mt-4.mb-2.accordion-item.border-0
       .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#workflow-filter-event-source' },
