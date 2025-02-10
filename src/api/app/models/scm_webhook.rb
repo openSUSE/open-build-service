@@ -7,7 +7,7 @@ class SCMWebhook
 
   validates_with SCMWebhookEventValidator
 
-  ALLOWED_PULL_REQUEST_ACTIONS = %w[closed opened reopened synchronize synchronized].freeze
+  ALLOWED_PULL_REQUEST_ACTIONS = %w[closed opened reopened synchronize synchronized labeled].freeze
   ALLOWED_MERGE_REQUEST_ACTIONS = %w[close merge open reopen update].freeze
   ALL_POSSIBLE_REQUEST_ACTIONS = ['all'] + ALLOWED_PULL_REQUEST_ACTIONS + ALLOWED_MERGE_REQUEST_ACTIONS
 
