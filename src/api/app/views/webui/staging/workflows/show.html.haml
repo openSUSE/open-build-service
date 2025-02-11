@@ -11,13 +11,13 @@
             - content_for(:actions) do
               %li.nav-item
                 = link_to(edit_staging_workflow_path(@staging_workflow.project), title: 'Edit Staging', class: 'nav-link') do
-                  %i.fas.fa-edit.fa-lg.me-2
+                  %i.fas.fa-edit.fa-fw.me-2
                   %span.nav-item-name Edit Staging
           - if policy(@staging_workflow).destroy?
             - content_for(:actions) do
               %li.nav-item
                 = link_to('#', title: 'Delete Staging', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-staging-workflow' }, class: 'nav-link') do
-                  %i.fas.fa-lg.me-2.fa-times-circle
+                  %i.fas.fa-fw.me-2.fa-times-circle
                   %span.nav-item-name Delete Staging
         - if policy(@staging_workflow).destroy? # This is outside of the h3 to prevent the font in the modal to be oversized
           = render(partial: 'delete', locals: { staging_workflow: @staging_workflow, project: @project })

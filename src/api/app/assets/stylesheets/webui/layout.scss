@@ -56,19 +56,6 @@
   z-index: $zindex-fixed;
 }
 
-#left-navigation-area, #bottom-navigation-area {
-  .fa-stack {
-    width: 1.9rem;
-
-    .top-icon {
-      font-size: 0.9rem;
-      padding-left: 1rem;
-      padding-top: 0.5rem;
-      text-shadow: -1.5px 0 $dark, 0 1.5px $dark, 1.5px 0 $dark, 0 -1.5px $dark;
-    }
-  }
-}
-
 // BREADCRUMBS
 
 .breadcrumb {

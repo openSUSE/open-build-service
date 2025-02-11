@@ -31,7 +31,7 @@
         - content_for :actions do
           %li.nav-item
             = link_to(new_project_path, class: 'nav-link', title: 'Create Project') do
-              %i.fas.fa-lg.me-2.fa-plus-circle
+              %i.fas.fa-fw.me-2.fa-plus-circle
               %span.nav-item-name Create Project
 
     %table.responsive.table.table-sm.table-bordered.table-hover.w-100#projects-datatable{ data: { source: projects_path(format: :json),

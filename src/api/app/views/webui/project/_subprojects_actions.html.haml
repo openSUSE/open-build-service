@@ -1,5 +1,5 @@
 - content_for :actions do
   - if User.possibly_nobody.can_modify?(project)
     = link_to(new_project_path(namespace: project), class: 'nav-link', title: 'Create Subproject') do
-      %i.fas.fa-plus-circle.fa-lg.me-2
+      %i.fas.fa-plus-circle.fa-fw.me-2
       %span.nav-item-name Create Subproject
