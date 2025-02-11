@@ -16,14 +16,41 @@
           = link_to('#', class: 'nav-link dropdown-toggle text-light', id: 'top-navigation-profile-dropdown', role: 'button',
                     'data-bs-toggle': 'dropdown', aria: { haspopup: true, expanded: false }) do
             = render(AvatarComponent.new(name: User.session.name, email: User.session.email, size: 32, shape: :circle, custom_css: 'me-2'))
-          .dropdown-menu.dropdown-menu-end{ 'aria-labelledby': 'top-navigation-profile-dropdown' }
-            .dropdown-item
+          %ul.dropdown-menu.dropdown-menu-end{ 'aria-labelledby': 'top-navigation-profile-dropdown' }
+            %li.dropdown-item
               = link_to(user_path(User.session), id: 'link-to-user-home', class: 'nav-link text-light p-0 w-100') do
-                = render(AvatarComponent.new(name: User.session.name, email: User.session.email, size: 20, shape: :circle, custom_css: 'me-2'))
+                %i.fas.fa-user.fa-fw.me-2
                 Your profile
-            .dropdown-item
+            %li.dropdown-item
+              = link_to(my_requests_path(direction: 'incoming', state: %w[new review]), class: 'nav-link text-light p-0 w-100') do
+                %i.fas.fa-code-pull-request.fa-fw.me-2
+                Your Requests
+            - if User.session.home_project
+              %li.dropdown-item
+                = link_to(project_show_path(User.session.home_project), class: 'nav-link text-light p-0 w-100') do
+                  %i.fas.fa-cubes.fa-fw.me-2
+                  Your Home Project
+            %li.dropdown-item
+              = link_to(my_subscriptions_path, class: 'nav-link text-light p-0 w-100') do
+                %i.fas.fa-code-pull-request.fa-fw.me-2
+                Your Subscriptions
+            %li.dropdown-item
+              = link_to(tokens_path, class: 'nav-link text-light p-0 w-100') do
+                %i.fas.fa-key.fa-fw.me-2
+                Your Tokens
+            %li.dropdown-item
+              = link_to(my_beta_features_path, class: 'nav-link text-light p-0 w-100') do
+                %i.fas.fa-flask.fa-fw.me-2
+                Your Beta Features
+            %li.dropdown-item
+              = link_to(canned_responses_path, class: 'nav-link text-light p-0 w-100') do
+                %i.fas.fa-comment-dots.fa-fw.me-2
+                Your Responses
+            %li
+              %hr.dropdown-divider
+            %li.dropdown-item
               = link_to(session_path, method: :delete, id: 'logout-link', class: 'nav-link text-light p-0 w-100') do
-                %i.fas.fa-sign-out-alt.fa-lg.me-2
+                %i.fas.fa-sign-out-alt.fa-fw.me-2
                 Logout
       - else
         = render partial: 'layouts/webui/top_navigation_nobody'

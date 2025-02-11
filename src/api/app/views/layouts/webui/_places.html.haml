@@ -6,62 +6,80 @@
     - if navigation != :left
       %li.nav-item
         = link_to(user_path(User.session), id: 'link-to-user-home', class: 'nav-link') do
-          = render(AvatarComponent.new(name: User.session.name, email: User.session.email, size: 23, shape: :circle, custom_css: 'me-2'))
-          Profile
-    - if Flipper.enabled?(:request_index, User.session)
-      %li.nav-item
-        = link_to(my_requests_path(direction: 'incoming', state: %w[new review]), class: 'nav-link', title: 'Requests') do
-          %i.fas.fa-code-pull-request.fa-lg.me-2
-          %span.nav-item-name Requests
-    - else
-      %li.nav-item
-        - tasks = User.session.tasks
-        = link_to(my_tasks_path, class: 'nav-link', title: 'Tasks') do
-          %i.fas.fa-tasks.fa-lg.me-2
-          %span.nav-item-name Tasks
-          - unless tasks.zero?
-            %span.badge.text-bg-primary.align-text-top= tasks
+          %i.fas.fa-user.fa-fw.me-2
+          Your Profile
+    %li.nav-item
+      = link_to(my_requests_path(direction: 'incoming', state: %w[new review]), class: 'nav-link', title: 'Requests') do
+        - if Flipper.enabled?(:request_index, User.session)
+          %i.fas.fa-code-pull-request.fa-fw.me-2
+          %span.nav-item-name Your Requests
+        - else
+          %i.fas.fa-tasks.fa-fw.me-2
+          %span.nav-item-name Your Tasks
+          - unless User.session.tasks.zero?
+            %span.badge.text-bg-primary.align-text-top= User.session.tasks
     %li.nav-item
       - if User.session.home_project
         = link_to(project_show_path(User.session.home_project), class: 'nav-link', title: 'Your Home Project') do
-          %i.fas.fa-cubes.fa-lg.me-2
+          %i.fas.fa-cubes.fa-fw.me-2
           %span.nav-item-name Your Home Project
       - else
         = link_to(new_project_path(name: User.session.home_project_name), class: 'nav-link', title: 'Create Your Home Project') do
-          %i.fas.fa-cubes.fa-lg.me-2
+          %i.fas.fa-cubes.fa-fw.me-2
           %span.nav-item-name Create Your Home Project
+    - if navigation != :left
+      %li.nav-item
+        = link_to(my_subscriptions_path, class: 'nav-link') do
+          %i.fas.fa-code-pull-request.fa-fw.me-2
+          Your Subscriptions
+      %li.nav-item
+        = link_to(tokens_path, class: 'nav-link') do
+          %i.fas.fa-key.fa-fw.me-2
+          Your Tokens
+      %li.nav-item
+        = link_to(my_beta_features_path, class: 'nav-link') do
+          %i.fas.fa-flask.fa-fw.me-2
+          Your Beta Features
+      %li.nav-item
+        = link_to(canned_responses_path, class: 'nav-link') do
+          %i.fas.fa-comment-dots.fa-fw.me-2
+          Your Responses
+    %li
+      %hr
     %li.nav-item
       = link_to(projects_path, class: 'nav-link', title: 'All Projects') do
-        %i.fas.fa-list.fa-lg.me-2
+        %i.fas.fa-list.fa-fw.me-2
         %span.nav-item-name All Projects
     %li.nav-item
       = link_to(monitor_path, class: 'nav-link', title: 'Status Monitor') do
-        %i.fas.fa-heartbeat.fa-lg.me-2
+        %i.fas.fa-heartbeat.fa-fw.me-2
         %span.nav-item-name Status Monitor
     - if User.admin_session?
       %li.nav-item
         = link_to(configuration_path, class: 'nav-link', title: 'Configuration') do
-          %i.fas.fa-cogs.me-2
+          %i.fas.fa-cogs.fa-fw.me-2
           %span.nav-item-name Configuration
     - if User.possibly_nobody.is_staff? && !User.admin_session?
       %li.nav-item
         = link_to("#{root_url}/flipper", class: 'nav-link',
                   title: 'Global Feature Toggles',
                   data: { confirm: 'Do you really want to manage feature toggles globally? This might affect all the users of the application.' }) do
-          %i.fas.fa-toggle-on.me-2
+          %i.fas.fa-toggle-on.fa-fw.me-2
           %span.nav-item-name Global Feature Toggles
     - if navigation != :left
+      %li
+        %hr
       %li.nav-item
         = link_to(session_path, method: :delete, id: 'logout-link', class: 'nav-link') do
-          %i.fas.fa-sign-out-alt.fa-lg.me-2
+          %i.fas.fa-sign-out-alt.fa-fw.me-2
           Logout
   - else
     %li.nav-item
       = link_to(projects_path, class: 'nav-link', title: 'All Projects') do
-        %i.fas.fa-list.fa-lg.me-2
+        %i.fas.fa-list.fa-fw.me-2
         %span.nav-item-name All Projects
     - unless spider_bot
       %li.nav-item
         = link_to(monitor_path, class: 'nav-link', title: 'Status Monitor') do
-          %i.fas.fa-heartbeat.fa-lg.me-2
+          %i.fas.fa-heartbeat.fa-fw.me-2
           %span.nav-item-name Status Monitor
