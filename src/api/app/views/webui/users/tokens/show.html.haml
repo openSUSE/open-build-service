@@ -5,6 +5,9 @@
   .card-body
     %h3.mb-3
       = @pagetitle
+      - unless @token.enabled
+        .fas.fa-ban.text-danger
+        %span.text-warning Disabled
 
     .row
       .col-12.col-md-10.col-lg-8

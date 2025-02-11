@@ -14,12 +14,15 @@
       Last trigger on #{@token.triggered_at}
 
   - component.with_header do
-    = link_to token_path(@token) do
+    %h5.card-title
+      - unless @token.enabled
+        .pb-3
+          .fas.fa-ban.text-danger
+          %span.text-warning Disabled
       - if @token.description.present?
-        %h5.card-title
-          = @token.description
+        = link_to @token.description, token_path(@token)
       - else
-        %h5.card-title.fst-italic No description
+        = link_to 'No description', token_path(@token), class: 'fst-italic'
 
   - if policy(@token).destroy?
     - component.with_delete_button do
