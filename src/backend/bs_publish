@@ -1284,7 +1284,7 @@ sub createrepo_staticlinks {
       if ( -e "$extrep/$arch/$target.sha256" ) {
         # copy and patch the filename
         my ($econtent, $ehadsig) = depgp(readstr("$extrep/$arch/$target.sha256"));
-        $econtent =~ s/([ \/])\Q$_\E\n/$_\n/g;
+        $econtent =~ s/([ \/])\Q$target\E\n/$_\n/g;
         unlink("$extrep/$arch/$_.sha256");
         writestr("$extrep/$arch/$_.sha256", undef, $econtent);
       }
