@@ -6,11 +6,11 @@ class Workflow::Step::SubmitRequest < Workflow::Step
 
     @request_numbers_and_state_for_artifacts = {}
     case
-    when scm_webhook.closed_merged_pull_request?
+    when scm_webhook.closed_merged_pull_request?, scm_webhook.pull_request_unlabeled?
       revoke_submit_requests
     when scm_webhook.updated_pull_request?
       supersede_previous_and_submit_request
-    when scm_webhook.new_pull_request?, scm_webhook.reopened_pull_request?, scm_webhook.push_event?, scm_webhook.tag_push_event?
+    when scm_webhook.new_pull_request?, scm_webhook.reopened_pull_request?, scm_webhook.push_event?, scm_webhook.tag_push_event?, scm_webhook.pull_request_labeled?
       submit_package
     end
   end

@@ -7,7 +7,7 @@ class SCMWebhook
 
   validates_with SCMWebhookEventValidator
 
-  ALLOWED_PULL_REQUEST_ACTIONS = %w[closed opened reopened synchronize synchronized labeled].freeze
+  ALLOWED_PULL_REQUEST_ACTIONS = %w[closed opened reopened synchronize synchronized labeled unlabeled].freeze
   ALLOWED_MERGE_REQUEST_ACTIONS = %w[close merge open reopen update].freeze
   ALL_POSSIBLE_REQUEST_ACTIONS = ['all'] + ALLOWED_PULL_REQUEST_ACTIONS + ALLOWED_MERGE_REQUEST_ACTIONS
 
@@ -41,6 +41,14 @@ class SCMWebhook
     (github_pull_request? && @payload[:action] == 'reopened') ||
       (gitlab_merge_request? && @payload[:action] == 'reopen') ||
       (gitea_pull_request? && @payload[:action] == 'reopened')
+  end
+
+  def pull_request_labeled?
+    github_pull_request? && @payload[:action] == 'labeled'
+  end
+
+  def pull_request_unlabeled?
+    github_pull_request? && @payload[:action] == 'unlabeled'
   end
 
   def new_commit_event?

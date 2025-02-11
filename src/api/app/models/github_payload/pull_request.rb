@@ -10,13 +10,7 @@ class GithubPayload::PullRequest < GithubPayload
       action: webhook_payload[:action],
       source_repository_full_name: webhook_payload.dig(:pull_request, :head, :repo, :full_name),
       target_repository_full_name: webhook_payload.dig(:pull_request, :base, :repo, :full_name),
-      labels: extract_labels
+      label: webhook_payload.dig(:label, :name)
     )
-  end
-
-  def extract_labels
-    return [] unless webhook_payload.dig(:pull_request, :labels).present?
-
-    webhook_payload.dig(:pull_request, :labels).map{ |label| label[:name] }
   end
 end

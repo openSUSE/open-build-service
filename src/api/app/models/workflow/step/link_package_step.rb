@@ -9,11 +9,11 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
   def call
     return unless valid?
 
-    if scm_webhook.closed_merged_pull_request?
+    if scm_webhook.closed_merged_pull_request? || scm_webhook.pull_request_unlabeled?
       destroy_target_project
     elsif scm_webhook.reopened_pull_request?
       restore_target_project
-    elsif scm_webhook.new_commit_event?
+    elsif scm_webhook.new_commit_event? || scm_webhook.pull_request_labeled?
       create_target_package
 
       Pundit.authorize(@token.executor, target_package, :update?)

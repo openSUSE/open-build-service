@@ -119,13 +119,14 @@ class Workflow
   # rubocop:disable Metrics/CyclomaticComplexity
   # Execute only if labeled or unlabeled
   def label_matches_labels_filter?
+    return true unless scm_webhook.pull_request_labeled? || scm_webhook.pull_request_unlabeled?
     return true unless supported_filters.key?(:labels)
 
     labels_only = filters[:labels].fetch(:only, [])
     labels_ignore = filters[:labels].fetch(:ignore, [])
 
-    return true if labels_only.present? && labels_only.include?(scm_webhook.payload[:labels])
-    return true if labels_ignore.present? && labels_ignore.exclude?(scm_webhook.payload[:labels])
+    return true if labels_only.present? && labels_only.include?(scm_webhook.payload[:label])
+    return true if labels_ignore.present? && labels_ignore.exclude?(scm_webhook.payload[:label])
 
     false
   end

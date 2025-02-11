@@ -8,7 +8,7 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
   validate :validate_architectures
 
   def call
-    return if scm_webhook.closed_merged_pull_request? || scm_webhook.reopened_pull_request?
+    return if scm_webhook.closed_merged_pull_request? || scm_webhook.reopened_pull_request? || scm_webhook.pull_request_unlabeled?
     return unless valid?
 
     configure_repositories
