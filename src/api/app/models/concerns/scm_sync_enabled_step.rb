@@ -4,7 +4,7 @@ module ScmSyncEnabledStep
 
     # only change the fragment here and leave the query alone!
     parsed_scmsync_url = Addressable::URI.parse(scmsync_url)
-    parsed_scmsync_url.fragment = scm_webhook.payload[:commit_sha]
+    parsed_scmsync_url.fragment = workflow_run.commit_sha
 
     # if we use scmsync to sync a whole project, then each package will be
     # fetched from a subdirectory

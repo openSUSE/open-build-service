@@ -6,7 +6,7 @@ class Workflow::Step::RebuildPackage < Workflow::Step
   attr_reader :project_name, :package_name
 
   def call
-    return if scm_webhook.closed_merged_pull_request? || scm_webhook.reopened_pull_request?
+    return if workflow_run.closed_merged_pull_request? || workflow_run.reopened_pull_request?
     return unless valid?
 
     # Call Triggerable method to set all the elements needed for rebuilding
@@ -19,7 +19,7 @@ class Workflow::Step::RebuildPackage < Workflow::Step
 
     Pundit.authorize(@token.executor, @token.object_to_authorize, :update?)
     rebuild_package
-    Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, @package).call
+    Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, @package).call
   end
 
   def set_project_name

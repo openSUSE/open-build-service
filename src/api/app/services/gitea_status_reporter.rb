@@ -10,20 +10,20 @@ class GiteaStatusReporter < SCMExceptionHandler
   end
 
   def call
-    gitea_client = GiteaAPI::V1::Client.new(api_endpoint: @event_subscription_payload[:api_endpoint],
+    gitea_client = GiteaAPI::V1::Client.new(api_endpoint: @workflow_run.api_endpoint,
                                             token: @scm_token)
-    owner, repository_name = @event_subscription_payload[:target_repository_full_name].split('/')
+    owner, repository_name = @workflow_run.target_repository_full_name.split('/')
     gitea_client.create_commit_status(owner: owner, repo: repository_name,
-                                      sha: @event_subscription_payload[:commit_sha],
+                                      sha: @workflow_run.commit_sha,
                                       state: @state, **status_options)
     if @workflow_run.present?
       @workflow_run.save_scm_report_success(request_context)
-      RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=success,scm=#{@event_subscription_payload[:scm]} value=1")
+      RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=success,scm=#{@workflow_run.scm_vendor} value=1")
     end
   rescue GiteaAPI::V1::Client::GiteaApiError => e
     rescue_with_handler(e) || raise(e)
   ensure
-    RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=fail,scm=#{@event_subscription_payload[:scm]},exception=#{e.class} value=1") if e.present? && @workflow_run.present?
+    RabbitmqBus.send_to_bus('metrics', "scm_status_report,status=fail,scm=#{@workflow_run.scm_vendor},exception=#{e.class} value=1") if e.present? && @workflow_run.present?
   end
 
   private
@@ -45,9 +45,9 @@ class GiteaStatusReporter < SCMExceptionHandler
   # TODO: extract to a parent class
   def request_context
     {
-      api_endpoint: @event_subscription_payload[:api_endpoint],
-      target_repository_full_name: @event_subscription_payload[:target_repository_full_name],
-      commit_sha: @event_subscription_payload[:commit_sha],
+      api_endpoint: @workflow_run.api_endpoint,
+      target_repository_full_name: @workflow_run.target_repository_full_name,
+      commit_sha: @workflow_run.commit_sha,
       state: @state,
       status_options: status_options
     }

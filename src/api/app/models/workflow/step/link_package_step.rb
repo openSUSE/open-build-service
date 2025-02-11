@@ -9,17 +9,17 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
   def call
     return unless valid?
 
-    if scm_webhook.closed_merged_pull_request?
+    if workflow_run.closed_merged_pull_request?
       destroy_target_project
-    elsif scm_webhook.reopened_pull_request?
+    elsif workflow_run.reopened_pull_request?
       restore_target_project
-    elsif scm_webhook.new_commit_event?
+    elsif workflow_run.new_commit_event?
       create_target_package
 
       Pundit.authorize(@token.executor, target_package, :update?)
 
       create_link
-      Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, scm_webhook, target_package).call
+      Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, target_package).call
 
       target_package
     end
