@@ -1,0 +1,24 @@
+#
+# Open Build Service 2.10.24
+#
+
+Please read the README.md file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+The dist/README.UPDATERS file has information for people updating
+from a previous OBS release.
+
+This is a compability release to support changes of upcoming
+OBS 2.11.
+
+Compability
+===========
+
+* Support usage of scmsync source from remote OBS instances
+* Fix linking of remote backend only packages
+* Handle "manual" source service modes
+* bs_worker: export cpu features as flags (for s390)
+* Update kiwi schema to current state
+
