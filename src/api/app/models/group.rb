@@ -34,6 +34,12 @@ class Group < ApplicationRecord
 
   alias_attribute :name, :title
 
+  after_save :discard_cache
+
+  def discard_cache
+    Relationship.discard_cache
+  end
+
   def self.find_by_title!(title)
     find_by_title(title) || (raise NotFoundError, "Couldn't find Group '#{title}'")
   end
