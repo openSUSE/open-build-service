@@ -91,6 +91,7 @@ end
 #
 #  id                          :integer          not null, primary key
 #  description                 :string(64)       default("")
+#  enabled                     :boolean          default(TRUE), not null
 #  scm_token                   :string(255)      indexed
 #  string                      :string(255)      indexed
 #  triggered_at                :datetime
