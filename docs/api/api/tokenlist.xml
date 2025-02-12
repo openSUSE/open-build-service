@@ -1,5 +1,5 @@
 <directory count="3">
-  <entry id="18" string="thisIsASuperSecretValue" kind="rss" triggered_at="2021-10-28 12:32:18 UTC"/>
-  <entry id="265" string="thisIsAnotherSuperSecretValue" kind="runservice" description="Runservice without package" triggered_at="2021-10-28 12:32:18 UTC"/>
-  <entry id="267" string="aSuperSecretValue" kind="release" triggered_at="2021-10-28 12:32:18 UTC" project="devel:libraries:c_c++" package="notmuch"/>
+  <entry id="18" enabled="true" string="thisIsASuperSecretValue" kind="rss" triggered_at="2021-10-28 12:32:18 UTC"/>
+  <entry id="265" enabled="true" string="thisIsAnotherSuperSecretValue" kind="runservice" description="Runservice without package" triggered_at="2021-10-28 12:32:18 UTC"/>
+  <entry id="267" enabled="false" string="aSuperSecretValue" kind="release" triggered_at="2021-10-28 12:32:18 UTC" project="devel:libraries:c_c++" package="notmuch"/>
 </directory>
