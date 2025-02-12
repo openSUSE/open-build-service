@@ -6,7 +6,7 @@ class Workflow::Step::RebuildPackage < Workflow::Step
   attr_reader :project_name, :package_name
 
   def call
-    return if workflow_run.closed_merged_pull_request? || workflow_run.reopened_pull_request?
+    return if workflow_run.closed_merged_pull_request? || workflow_run.reopened_pull_request? || workflow_run.unlabeled_pull_request?
     return unless valid?
 
     # Call Triggerable method to set all the elements needed for rebuilding

@@ -6,11 +6,11 @@ class Workflow::Step::SubmitRequest < Workflow::Step
 
     @request_numbers_and_state_for_artifacts = {}
     case
-    when workflow_run.closed_merged_pull_request?
+    when workflow_run.closed_merged_pull_request?, workflow_run.unlabeled_pull_request?
       revoke_submit_requests
     when workflow_run.updated_pull_request?
       supersede_previous_and_submit_request
-    when workflow_run.new_pull_request?, workflow_run.reopened_pull_request?, workflow_run.push_event?, workflow_run.tag_push_event?
+    when workflow_run.new_pull_request?, workflow_run.reopened_pull_request?, workflow_run.push_event?, workflow_run.tag_push_event?, workflow_run.labeled_pull_request?
       submit_package
     end
   end
