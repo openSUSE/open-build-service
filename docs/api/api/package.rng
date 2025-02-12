@@ -53,13 +53,17 @@
         <attribute name="updated"/>
       </optional>
 
-      <element ns="" name="title">
-        <text/>
-      </element>
+      <optional>
+        <element ns="" name="title">
+          <text/>
+        </element>
+      </optional>
 
-      <element ns="" name="description">
-        <text/>
-      </element>
+      <optional>
+        <element ns="" name="description">
+          <text/>
+        </element>
+      </optional>
 
 <interleave>
 
