@@ -42,3 +42,13 @@ test:
   pool: 30
   reconnect: true
 
+test_ldap:
+  adapter: mysql2
+  database: api_test
+  username: root
+  password: opensuse
+  encoding: utf8mb4
+  collation: utf8mb4_unicode_ci
+  timeout: 15
+  pool: 30
+  reconnect: true
