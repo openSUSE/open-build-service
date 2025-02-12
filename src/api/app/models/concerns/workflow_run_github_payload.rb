@@ -3,7 +3,7 @@ module WorkflowRunGithubPayload
   extend ActiveSupport::Concern
 
   ALLOWED_GITHUB_EVENTS = %w[pull_request push ping].freeze
-  ALLOWED_GITHUB_PULL_REQUEST_ACTIONS = %w[closed opened reopened synchronize synchronized].freeze
+  ALLOWED_GITHUB_PULL_REQUEST_ACTIONS = %w[closed opened reopened synchronize synchronized labeled unlabeled].freeze
 
   private
 
@@ -61,6 +61,10 @@ module WorkflowRunGithubPayload
     end
   end
 
+  def github_pull_request_label
+    payload.dig(:label, :name)
+  end
+
   def github_push_event?
     scm_vendor == 'github' && hook_event == 'push' && payload.fetch(:ref, '').start_with?('refs/heads/')
   end
@@ -103,5 +107,13 @@ module WorkflowRunGithubPayload
 
   def github_reopened_pull_request?
     github_pull_request? && github_hook_action == 'reopened'
+  end
+
+  def github_labeled_pull_request?
+    github_pull_request? && payload[:action] == 'labeled'
+  end
+
+  def github_unlabeled_pull_request?
+    github_pull_request? && payload[:action] == 'unlabeled'
   end
 end

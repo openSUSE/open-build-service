@@ -106,4 +106,17 @@ module WorkflowRunGitlabPayload
   def gitlab_reopened_pull_request?
     gitlab_merge_request? && gitlab_hook_action == 'reopen'
   end
+
+  # These methods are just to ensure consistent because github and gitea support labels
+  def gitlab_merge_request_label
+    nil
+  end
+
+  def gitlab_labeled_merge_request?
+    false
+  end
+
+  def gitlab_unlabeled_merge_request?
+    false
+  end
 end

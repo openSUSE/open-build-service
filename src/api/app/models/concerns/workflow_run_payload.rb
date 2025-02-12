@@ -101,6 +101,18 @@ module WorkflowRunPayload
     gitlab_path_with_namespace
   end
 
+  def label
+    github_pull_request_label || gitea_pull_request_label || gitlab_merge_request_label
+  end
+
+  def labeled_pull_request?
+    github_labeled_pull_request? || gitea_labeled_pull_request? || gitlab_labeled_merge_request?
+  end
+
+  def unlabeled_pull_request?
+    github_unlabeled_pull_request? || gitea_unlabeled_pull_request? || gitlab_unlabeled_merge_request?
+  end
+
   private
 
   def payload_generic_event_type

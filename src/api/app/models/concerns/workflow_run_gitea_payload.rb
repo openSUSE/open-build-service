@@ -3,7 +3,7 @@ module WorkflowRunGiteaPayload
   extend ActiveSupport::Concern
 
   ALLOWED_GITEA_EVENTS = %w[pull_request push ping].freeze
-  ALLOWED_GITEA_PULL_REQUEST_ACTIONS = %w[closed opened reopened synchronize synchronized].freeze
+  ALLOWED_GITEA_PULL_REQUEST_ACTIONS = %w[closed opened reopened synchronize synchronized labeled unlabeled].freeze
 
   private
 
@@ -99,5 +99,17 @@ module WorkflowRunGiteaPayload
 
   def gitea_pr_number
     payload[:number]
+  end
+
+  def gitea_pull_request_label
+    payload.dig(:label, :name)
+  end
+
+  def gitea_labeled_pull_request?
+    gitea_pull_request? && payload[:action] == 'labeled'
+  end
+
+  def gitea_unlabeled_pull_request?
+    gitea_pull_request? && payload[:action] == 'unlabeled'
   end
 end
