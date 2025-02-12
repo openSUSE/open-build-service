@@ -278,6 +278,7 @@ class ApplicationController < ActionController::Base
       beta: User.possibly_nobody.in_beta?,
       anonymous: !User.session,
       spider: check_spider,
+      interconnect: false,
       interface: :api
     }
   end
