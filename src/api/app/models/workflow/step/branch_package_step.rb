@@ -8,11 +8,11 @@ class Workflow::Step::BranchPackageStep < Workflow::Step
   def call
     return unless valid?
 
-    if workflow_run.closed_merged_pull_request?
+    if workflow_run.closed_merged_pull_request? || workflow_run.unlabeled_pull_request?
       destroy_target_project
     elsif workflow_run.reopened_pull_request?
       restore_target_project
-    elsif workflow_run.new_commit_event?
+    elsif workflow_run.new_commit_event? || workflow_run.labeled_pull_request?
       create_branched_package
       write_branch_request_file
       write_scmsync_branch_information

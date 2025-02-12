@@ -8,7 +8,7 @@ class Workflow::Step::ConfigureRepositories < Workflow::Step
   validate :validate_architectures
 
   def call
-    return if workflow_run.closed_merged_pull_request? || workflow_run.reopened_pull_request?
+    return if workflow_run.closed_merged_pull_request? || workflow_run.reopened_pull_request? || workflow_run.unlabeled_pull_request?
     return unless valid?
 
     configure_repositories
