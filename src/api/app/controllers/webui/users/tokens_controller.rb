@@ -92,7 +92,7 @@ class Webui::Users::TokensController < Webui::WebuiController
   end
 
   def update_parameters
-    params.require(:token).except(:string_readonly).permit(:description, :scm_token, :workflow_configuration_path, :workflow_configuration_url)
+    params.require(:token).except(:string_readonly).permit(:description, :enabled, :scm_token, :workflow_configuration_path, :workflow_configuration_url)
           .reject! { |k, v| k == 'scm_token' && (@token.type != 'Token::Workflow' || v.empty?) }
   end
 
