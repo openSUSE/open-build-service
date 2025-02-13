@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="cameron" role="maintainer"/>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:06:25 GMT
+  recorded_at: Thu, 13 Feb 2025 15:43:55 GMT
 - request:
     method: put
     uri: http://backend:5352/source/test-project/_meta?user=cameron
@@ -47,7 +47,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="test-project">
-          <title>For a Breath I Tarry</title>
+          <title>Paths of Glory</title>
           <description/>
           <person userid="cameron" role="maintainer"/>
         </project>
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <project name="test-project">
-          <title>For a Breath I Tarry</title>
+          <title>Paths of Glory</title>
           <description></description>
           <person userid="cameron" role="maintainer"/>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:06:25 GMT
+  recorded_at: Thu, 13 Feb 2025 15:43:55 GMT
 - request:
     method: put
     uri: http://backend:5352/source/test-project/test-package/_meta?user=cameron
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test-package" project="test-project">
-          <title>The Doors of Perception</title>
-          <description>Omnis hic aut sit.</description>
+          <title>Terrible Swift Sword</title>
+          <description>Corporis doloribus rem quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,15 +109,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="test-package" project="test-project">
-          <title>The Doors of Perception</title>
-          <description>Omnis hic aut sit.</description>
+          <title>Terrible Swift Sword</title>
+          <description>Corporis doloribus rem quia.</description>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:06:25 GMT
+  recorded_at: Thu, 13 Feb 2025 15:43:55 GMT
 - request:
     method: post
     uri: http://backend:5352/source/test-project/test-package?cmd=waitservice
@@ -151,7 +151,7 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Wed, 02 Aug 2023 10:06:25 GMT
+  recorded_at: Thu, 13 Feb 2025 15:43:55 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22test-package%22%20and%20linkinfo/@project=%22test-project%22%20and%20@project=%22test-project%22)
@@ -185,16 +185,17 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Wed, 02 Aug 2023 10:06:25 GMT
+  recorded_at: Thu, 13 Feb 2025 15:43:55 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/_meta?user=cameron
+    uri: http://backend:5352/source/test-project:rubhanazeem:hello_world:PR-14/_meta?user=cameron
     body:
       encoding: UTF-8
       string: |
-        <project name="test-project:iggy:test-project:PR-1">
+        <project name="test-project:rubhanazeem:hello_world:PR-14">
           <title>Branch project for package test-package</title>
           <description>This project was created for package test-package via attribute OBS:Maintained</description>
+          <url>https://github.com/rubhanazeem/hello_world/pull/14</url>
           <person userid="cameron" role="maintainer"/>
         </project>
     headers:
@@ -216,25 +217,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '276'
+      - '347'
     body:
       encoding: UTF-8
       string: |
-        <project name="test-project:iggy:test-project:PR-1">
+        <project name="test-project:rubhanazeem:hello_world:PR-14">
           <title>Branch project for package test-package</title>
           <description>This project was created for package test-package via attribute OBS:Maintained</description>
+          <url>https://github.com/rubhanazeem/hello_world/pull/14</url>
           <person userid="cameron" role="maintainer"/>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:06:25 GMT
+  recorded_at: Thu, 13 Feb 2025 15:43:55 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package/_meta?user=cameron
+    uri: http://backend:5352/source/test-project:rubhanazeem:hello_world:PR-14/test-package/_meta?user=cameron
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package" project="test-project:iggy:test-project:PR-1">
-          <title>The Doors of Perception</title>
-          <description>Omnis hic aut sit.</description>
+        <package name="test-package" project="test-project:rubhanazeem:hello_world:PR-14">
+          <title>Terrible Swift Sword</title>
+          <description>Corporis doloribus rem quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -255,18 +257,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '176'
+      - '190'
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package" project="test-project:iggy:test-project:PR-1">
-          <title>The Doors of Perception</title>
-          <description>Omnis hic aut sit.</description>
+        <package name="test-package" project="test-project:rubhanazeem:hello_world:PR-14">
+          <title>Terrible Swift Sword</title>
+          <description>Corporis doloribus rem quia.</description>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:06:25 GMT
+  recorded_at: Thu, 13 Feb 2025 15:43:55 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package?cmd=branch&noservice=1&opackage=test-package&oproject=test-project&user=cameron
+    uri: http://backend:5352/source/test-project:rubhanazeem:hello_world:PR-14/test-package?cmd=branch&noservice=1&opackage=test-package&oproject=test-project&user=cameron
     body:
       encoding: UTF-8
       string: ''
@@ -291,28 +293,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="33" vrev="33">
+        <revision rev="3" vrev="3">
           <srcmd5>411c6fd260778a3381a135e5cc0c1797</srcmd5>
           <version>unknown</version>
-          <time>1690970785</time>
+          <time>1739461435</time>
           <user>cameron</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
+  recorded_at: Thu, 13 Feb 2025 15:43:55 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package/_meta?user=cameron
+    uri: http://backend:5352/source/test-project:rubhanazeem:hello_world:PR-14/test-package/_meta?user=cameron
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package" project="test-project:iggy:test-project:PR-1">
-          <title>The Doors of Perception</title>
-          <description>Omnis hic aut sit.</description>
+        <package name="test-package" project="test-project:rubhanazeem:hello_world:PR-14">
+          <title>Terrible Swift Sword</title>
+          <description>Corporis doloribus rem quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -333,18 +335,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '176'
+      - '190'
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package" project="test-project:iggy:test-project:PR-1">
-          <title>The Doors of Perception</title>
-          <description>Omnis hic aut sit.</description>
+        <package name="test-package" project="test-project:rubhanazeem:hello_world:PR-14">
+          <title>Terrible Swift Sword</title>
+          <description>Corporis doloribus rem quia.</description>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
+  recorded_at: Thu, 13 Feb 2025 15:43:55 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package
+    uri: http://backend:5352/source/test-project:rubhanazeem:hello_world:PR-14/test-package
     body:
       encoding: US-ASCII
       string: ''
@@ -367,18 +369,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '430'
+      - '428'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test-package" rev="33" vrev="33" srcmd5="411c6fd260778a3381a135e5cc0c1797">
+        <directory name="test-package" rev="3" vrev="3" srcmd5="411c6fd260778a3381a135e5cc0c1797">
           <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797"/>
-          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1690960191"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1739456820"/>
         </directory>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
+  recorded_at: Thu, 13 Feb 2025 15:43:55 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package?view=info
+    uri: http://backend:5352/source/test-project:rubhanazeem:hello_world:PR-14/test-package?view=info
     body:
       encoding: US-ASCII
       string: ''
@@ -401,18 +403,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '333'
+      - '331'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="test-package" rev="33" vrev="33" srcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+        <sourceinfo package="test-package" rev="3" vrev="3" srcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="test-project" package="test-package"/>
         </sourceinfo>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
+  recorded_at: Thu, 13 Feb 2025 15:43:55 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package
+    uri: http://backend:5352/source/test-project:rubhanazeem:hello_world:PR-14/test-package
     body:
       encoding: US-ASCII
       string: ''
@@ -435,18 +437,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '430'
+      - '428'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test-package" rev="33" vrev="33" srcmd5="411c6fd260778a3381a135e5cc0c1797">
+        <directory name="test-package" rev="3" vrev="3" srcmd5="411c6fd260778a3381a135e5cc0c1797">
           <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="6dee1c1851207b12d4c251e1946048c7" lsrcmd5="411c6fd260778a3381a135e5cc0c1797"/>
-          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1690960191"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1739456820"/>
         </directory>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
+  recorded_at: Thu, 13 Feb 2025 15:43:55 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/test-project:rubhanazeem:hello_world:PR-14/test-package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -471,21 +473,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '357'
+      - '370'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="ad107bbdef7bd5625871bfcf3028d727">
-          <old project="test-project:iggy:test-project:PR-1" package="test-package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="test-project:iggy:test-project:PR-1" package="test-package" rev="33" srcmd5="411c6fd260778a3381a135e5cc0c1797"/>
+        <sourcediff key="562dd781bc34137aed72348bb7572987">
+          <old project="test-project:rubhanazeem:hello_world:PR-14" package="test-package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="test-project:rubhanazeem:hello_world:PR-14" package="test-package" rev="3" srcmd5="411c6fd260778a3381a135e5cc0c1797"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
+  recorded_at: Thu, 13 Feb 2025 15:43:55 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://backend:5352/source/test-project:rubhanazeem:hello_world:PR-14/test-package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -510,25 +512,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '372'
+      - '379'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="75acdc9a055abb30e7578c938e4901fc">
+        <sourcediff key="6f65a9179485c595260df3f12a14ca15">
           <old project="test-project" package="test-package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="test-project:iggy:test-project:PR-1" package="test-package" rev="6dee1c1851207b12d4c251e1946048c7" srcmd5="6dee1c1851207b12d4c251e1946048c7"/>
+          <new project="test-project:rubhanazeem:hello_world:PR-14" package="test-package" rev="6dee1c1851207b12d4c251e1946048c7" srcmd5="6dee1c1851207b12d4c251e1946048c7"/>
           <files/>
         </sourcediff>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
+  recorded_at: Thu, 13 Feb 2025 15:43:55 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/_meta?user=cameron
+    uri: http://backend:5352/source/test-project:rubhanazeem:hello_world:PR-14/_meta?user=cameron
     body:
       encoding: UTF-8
       string: |
-        <project name="test-project:iggy:test-project:PR-1">
+        <project name="test-project:rubhanazeem:hello_world:PR-14">
           <title>Branch project for package test-package</title>
           <description>This project was created for package test-package via attribute OBS:Maintained</description>
+          <url>https://github.com/rubhanazeem/hello_world/pull/14</url>
           <person userid="cameron" role="maintainer"/>
           <publish>
             <disable/>
@@ -553,25 +556,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '316'
+      - '387'
     body:
       encoding: UTF-8
       string: |
-        <project name="test-project:iggy:test-project:PR-1">
+        <project name="test-project:rubhanazeem:hello_world:PR-14">
           <title>Branch project for package test-package</title>
           <description>This project was created for package test-package via attribute OBS:Maintained</description>
+          <url>https://github.com/rubhanazeem/hello_world/pull/14</url>
           <person userid="cameron" role="maintainer"/>
           <publish>
             <disable/>
           </publish>
         </project>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
+  recorded_at: Thu, 13 Feb 2025 15:43:56 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package/_branch_request?comment=Updated%20_branch_request%20file%20via%20SCM/CI%20Workflow%20run&user=cameron
+    uri: http://backend:5352/source/test-project:rubhanazeem:hello_world:PR-14/test-package/_branch_request?comment=Updated%20_branch_request%20file%20via%20SCM/CI%20Workflow%20run&user=cameron
     body:
       encoding: UTF-8
-      string: '{"action":"opened","pull_request":{"head":{"repo":{"full_name":null},"sha":null}}}'
+      string: '{"action":"opened","pull_request":{"head":{"repo":{"full_name":"rubhanazeem/hello_world"},"sha":"8bf25b5afb0209e264124df05435233d818b05c7"}}}'
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -591,28 +595,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '259'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="34" vrev="34">
-          <srcmd5>ecaed09bd00635972ad5b7008a349eef</srcmd5>
+        <revision rev="4" vrev="4">
+          <srcmd5>778d9294f2026fc3c03037c519ed3ac5</srcmd5>
           <version>unknown</version>
-          <time>1690970786</time>
+          <time>1739461436</time>
           <user>cameron</user>
-          <comment></comment>
+          <comment>Updated _branch_request file via SCM/CI Workflow run</comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
+  recorded_at: Thu, 13 Feb 2025 15:43:56 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package/_meta?user=cameron
+    uri: http://backend:5352/source/test-project:rubhanazeem:hello_world:PR-14/test-package/_meta?user=cameron
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package" project="test-project:iggy:test-project:PR-1">
-          <title>The Doors of Perception</title>
-          <description>Omnis hic aut sit.</description>
+        <package name="test-package" project="test-project:rubhanazeem:hello_world:PR-14">
+          <title>Terrible Swift Sword</title>
+          <description>Corporis doloribus rem quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -633,18 +637,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '176'
+      - '190'
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package" project="test-project:iggy:test-project:PR-1">
-          <title>The Doors of Perception</title>
-          <description>Omnis hic aut sit.</description>
+        <package name="test-package" project="test-project:rubhanazeem:hello_world:PR-14">
+          <title>Terrible Swift Sword</title>
+          <description>Corporis doloribus rem quia.</description>
         </package>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
+  recorded_at: Thu, 13 Feb 2025 15:43:56 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package
+    uri: http://backend:5352/source/test-project:rubhanazeem:hello_world:PR-14/test-package
     body:
       encoding: US-ASCII
       string: ''
@@ -667,19 +671,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '532'
+      - '531'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test-package" rev="34" vrev="34" srcmd5="ecaed09bd00635972ad5b7008a349eef">
-          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="3f2794130d6c60ddbfc7b7caa9ff69c6" lsrcmd5="ecaed09bd00635972ad5b7008a349eef"/>
-          <entry name="_branch_request" md5="5d8aefeee8f093120d1d26f3aeebbdfb" size="82" mtime="1690960191"/>
-          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1690960191"/>
+        <directory name="test-package" rev="4" vrev="4" srcmd5="778d9294f2026fc3c03037c519ed3ac5">
+          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="36bc5f87aa4fa0bd7dff52219a709956" lsrcmd5="778d9294f2026fc3c03037c519ed3ac5"/>
+          <entry name="_branch_request" md5="56ad453675100ae3e0ddea3eda992d62" size="141" mtime="1739456820"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1739456820"/>
         </directory>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
+  recorded_at: Thu, 13 Feb 2025 15:43:56 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package?view=info
+    uri: http://backend:5352/source/test-project:rubhanazeem:hello_world:PR-14/test-package?view=info
     body:
       encoding: US-ASCII
       string: ''
@@ -702,18 +706,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '333'
+      - '331'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="test-package" rev="34" vrev="34" srcmd5="3f2794130d6c60ddbfc7b7caa9ff69c6" lsrcmd5="ecaed09bd00635972ad5b7008a349eef" verifymd5="f069616f8884480463bb7cde6d9c83cc">
+        <sourceinfo package="test-package" rev="4" vrev="4" srcmd5="36bc5f87aa4fa0bd7dff52219a709956" lsrcmd5="778d9294f2026fc3c03037c519ed3ac5" verifymd5="7d5031f42b93649aad3cf99a3250ff7e">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="test-project" package="test-package"/>
         </sourceinfo>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
+  recorded_at: Thu, 13 Feb 2025 15:43:56 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package
+    uri: http://backend:5352/source/test-project:rubhanazeem:hello_world:PR-14/test-package
     body:
       encoding: US-ASCII
       string: ''
@@ -736,19 +740,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '532'
+      - '531'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test-package" rev="34" vrev="34" srcmd5="ecaed09bd00635972ad5b7008a349eef">
-          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="3f2794130d6c60ddbfc7b7caa9ff69c6" lsrcmd5="ecaed09bd00635972ad5b7008a349eef"/>
-          <entry name="_branch_request" md5="5d8aefeee8f093120d1d26f3aeebbdfb" size="82" mtime="1690960191"/>
-          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1690960191"/>
+        <directory name="test-package" rev="4" vrev="4" srcmd5="778d9294f2026fc3c03037c519ed3ac5">
+          <linkinfo project="test-project" package="test-package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="36bc5f87aa4fa0bd7dff52219a709956" lsrcmd5="778d9294f2026fc3c03037c519ed3ac5"/>
+          <entry name="_branch_request" md5="56ad453675100ae3e0ddea3eda992d62" size="141" mtime="1739456820"/>
+          <entry name="_link" md5="7ab3a1829b804e8f1739b15e9d7904a7" size="120" mtime="1739456820"/>
         </directory>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
+  recorded_at: Thu, 13 Feb 2025 15:43:56 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/test-project:rubhanazeem:hello_world:PR-14/test-package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -773,21 +777,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '357'
+      - '370'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="0d9d5be0643092bd9b6fbd063650affc">
-          <old project="test-project:iggy:test-project:PR-1" package="test-package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="test-project:iggy:test-project:PR-1" package="test-package" rev="34" srcmd5="ecaed09bd00635972ad5b7008a349eef"/>
+        <sourcediff key="46e68da30ce4f0054b5e1b74eaf0f207">
+          <old project="test-project:rubhanazeem:hello_world:PR-14" package="test-package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="test-project:rubhanazeem:hello_world:PR-14" package="test-package" rev="4" srcmd5="778d9294f2026fc3c03037c519ed3ac5"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
+  recorded_at: Thu, 13 Feb 2025 15:43:56 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/test-project:iggy:test-project:PR-1/test-package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://backend:5352/source/test-project:rubhanazeem:hello_world:PR-14/test-package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -808,7 +812,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '395'
+      - '402'
       Cache-Control:
       - no-cache
       Connection:
@@ -816,12 +820,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="3b01b2f7b34d95332d49cebaeb06bcb3">
+        <sourcediff key="267f7101f7bf84652ce21eec25b917f8">
           <old project="test-project" package="test-package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="test-project:iggy:test-project:PR-1" package="test-package" rev="3f2794130d6c60ddbfc7b7caa9ff69c6" srcmd5="3f2794130d6c60ddbfc7b7caa9ff69c6"/>
+          <new project="test-project:rubhanazeem:hello_world:PR-14" package="test-package" rev="36bc5f87aa4fa0bd7dff52219a709956" srcmd5="36bc5f87aa4fa0bd7dff52219a709956"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 02 Aug 2023 10:06:26 GMT
-recorded_with: VCR 6.2.0
+  recorded_at: Thu, 13 Feb 2025 15:43:56 GMT
+recorded_with: VCR 6.3.1
