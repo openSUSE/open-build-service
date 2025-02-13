@@ -1,11 +1,15 @@
 require 'xmlhash'
 module Person
   class TokenController < ApplicationController
+    include ValidationHelper
+
     rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
     before_action :set_user
     before_action :validate_operation, only: [:create]
     after_action :verify_authorized
+
+    validate_action update: { method: :put, request: :token, response: :status }
 
     # GET /person/<login>/token
     def index
@@ -34,6 +38,21 @@ module Person
 
       @user.tokens.find(params[:id]).destroy
       render_ok
+    end
+
+    # PUT /person/<login>/token/<id>
+    def update
+      authorize @user, :update?
+
+      xml = Nokogiri::XML(request.raw_post, &:strict)
+      xml_attributes = xml.xpath('/token').first.to_h.slice('enabled', 'description', 'scm_token', 'workflow_configuration_path', 'workflow_configuration_url')
+
+      token = @user.tokens.find(params[:id])
+      if token.update(xml_attributes)
+        render_ok
+      else
+        render_error status: 400, errorcode: 'invalid_token_attribute_value', message: token.errors.full_messages.to_sentence
+      end
     end
 
     private
