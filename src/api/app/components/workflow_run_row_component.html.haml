@@ -5,7 +5,6 @@
   - if hook_action
     %span.ms-2.badge.text-bg-primary= hook_action.humanize
 .col.text-start
-  = link_to_if repository_url, repository_name, repository_url
   - if event_source_name
     - popover_content = render partial: 'webui/workflow_runs/event_links', locals: { hook_event: hook_event,
                                                                                      formatted_event_source_name: formatted_event_source_name,
