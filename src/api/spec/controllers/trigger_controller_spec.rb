@@ -37,6 +37,15 @@ RSpec.describe TriggerController do
 
       it { expect(subject).to have_http_status(:success) }
     end
+
+    context 'token is not enabled' do
+      subject { post :rebuild, params: { project: project.name, format: :xml } }
+
+      let(:token) { create(:rebuild_token, enabled: false, executor: user) }
+
+      it { expect(subject).to have_http_status(:forbidden) }
+      it { expect(subject.body).to include('This token is not enabled.') }
+    end
   end
 
   describe '#release', :vcr do
