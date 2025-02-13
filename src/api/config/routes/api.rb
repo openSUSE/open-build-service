@@ -15,6 +15,7 @@ constraints(RoutesHelper::APIMatcher) do
   get 'person/:login/token' => 'person/token#index', constraints: cons
   post 'person/:login/token' => 'person/token#create', constraints: cons
   delete 'person/:login/token/:id' => 'person/token#delete', constraints: cons
+  put 'person/:login/token/:id' => 'person/token#update', constraints: cons
 
   # FIXME3.0: this is no clean namespace, a person "register" or "changepasswd" could exist ...
   #           remove these for OBS 3.0
