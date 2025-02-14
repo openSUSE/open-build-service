@@ -198,6 +198,7 @@ default: &default
   #   user: guest
   #   pass: guest
   #   vhost: vhost
+  #   recovery_attempts: 75
   #
   # Exchange options -> http://rubybunny.info/articles/exchanges.html
   # amqp_exchange_name: pubsub

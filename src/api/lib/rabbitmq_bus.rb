@@ -4,16 +4,8 @@ class RabbitmqBus
   def self.send_to_bus(channel, data)
     channel = "#{Configuration.amqp_namespace}.#{channel}"
     publish(channel, data)
-    self.failed = false
-  rescue Bunny::ConnectionClosedError
-    # if bunny can't recover itself, we need to reset the connection
-    self.exchange = nil
-    unless failed
-      self.failed = true
-      publish(channel, data)
-    end
-  rescue StandardError => e
-    Rails.logger.error "Publishing to RabbitMQ failed: #{e.message}"
+  rescue Bunny::Exception => e
+    Rails.logger.error "Publishing to AMQP failed, automatic recovery too: #{e.message}"
     Airbrake.notify(e)
   end
 
