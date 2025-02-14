@@ -4662,7 +4662,7 @@ sub periodic {
 	  warn("could not kill job\n");
 	  last;
 	}
-	append_nonfatal("$buildroot/.build.log", "\n\nJob seems to be stuck here, killed. (after $maxidle seconds of inactivity)\n");
+	append_nonfatal("$buildroot/.build.log", "\n\nJob seems to be stuck here, killed. (after configured $maxidle seconds of no output)\n");
 	$state->{'state'} = 'killed';
 	commitstate($state);
 	$locked = 0;
