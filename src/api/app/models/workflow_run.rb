@@ -70,6 +70,18 @@ class WorkflowRun < ApplicationRecord
   # Marks the workflow run as failed and records the relevant debug information in response_body
   def update_as_failed(message)
     update(response_body: message, status: 'fail')
+
+    #
+    # Circuit breaker for authorization problems
+    #
+    #   If message is one of these strings, we disable the token:
+    #
+    # "Failed to report back to GitLab: Unauthorized request. Please check your credentials again."
+    # "Failed to report back to GitLab: Request forbidden."
+    # "Failed to report back to GitHub: Unauthorized request. Please check your credentials again."
+    # "Failed to report back to GitHub: Request is forbidden."
+
+    token.update(enabled: false) if message.include?('Unauthorized request') || /Request (is )?forbidden/.match?(message)
   end
 
   # Stores debug info to help figure out what went wrong when trying to save a Status in the SCM.
