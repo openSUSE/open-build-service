@@ -21,6 +21,46 @@ RSpec.describe Workflow, :vcr do
       end
     end
 
+    context 'with matching labels filter' do
+      let(:project) { create(:project, name: 'test-project', maintainer: user) }
+      let!(:package) { create(:package, name: 'test-package', project: project) }
+      let(:filters) do
+        { filters: { event: 'pull_request', labels: { only: ['duplicate'] } } }
+      end
+      let(:yaml) do
+        { steps: [{ branch_package: { source_project: 'test-project', source_package: 'test-package', target_project: 'test-target-project',
+                                      target_package: 'test-target-package' } }],
+          filters: filters[:filters] }
+      end
+      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled, token: token) }
+
+      before do
+        allow(subject.steps.first).to receive(:call)
+      end
+
+      it 'successfully runs the workflow' do
+        subject.call
+        expect(subject.steps.first).to have_received(:call)
+      end
+    end
+
+    context 'with unmatched labels filter' do
+      let(:project) { create(:project, name: 'test-project', maintainer: user) }
+      let!(:package) { create(:package, name: 'test-package', project: project) }
+      let(:filters) do
+        { filters: { event: 'pull_request', labels: { only: ['randon-label'] } } }
+      end
+      let(:yaml) do
+        { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package', 'target_project' => 'test-target-project',
+                                              'target_package' => 'test-target-package' } }], 'filters' => filters[:filters] }
+      end
+      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled, token: token) }
+
+      it 'does not run' do
+        expect(subject.call).to be_nil
+      end
+    end
+
     context 'with GitHub "pull_request" event not matching the "push" event filter' do
       let(:yaml) { { filters: { event: 'push' } } }
       let!(:workflow_run) { create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', hook_action: 'opened', token: token) }
@@ -270,6 +310,26 @@ RSpec.describe Workflow, :vcr do
 
     before do
       login user
+    end
+
+    context 'with matching labels filter' do
+      let(:yaml) do
+        { steps: [{ branch_package: { source_project: project.name, source_package: package.name, target_project: project.name } }],
+          filters: { event: 'pull_request', labels: { only: ['duplicate'] } } }
+      end
+      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled, token: token) }
+
+      it { expect { subject.call }.to change(WorkflowArtifactsPerStep, :count).by(1) }
+    end
+
+    context 'with unmatched labels filter' do
+      let(:yaml) do
+        { steps: [{ branch_package: { source_project: project.name, source_package: package.name, target_project: project.name } }],
+          filters: { event: 'pull_request', labels: { only: ['random-label'] } } }
+      end
+      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled, token: token) }
+
+      it { expect { subject.call }.not_to change(WorkflowArtifactsPerStep, :count) }
     end
 
     context 'with a supported step' do

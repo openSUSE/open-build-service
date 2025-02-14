@@ -5,7 +5,7 @@ class Workflow::Step::TriggerServices < Workflow::Step
   REQUIRED_KEYS = %i[project package].freeze
 
   def call
-    return if workflow_run.closed_merged_pull_request? || workflow_run.reopened_pull_request?
+    return if workflow_run.closed_merged_pull_request? || workflow_run.reopened_pull_request? || workflow_run.unlabeled_pull_request?
 
     @project_name = step_instructions[:project]
     @package_name = step_instructions[:package]

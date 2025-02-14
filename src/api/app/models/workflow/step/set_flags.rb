@@ -6,7 +6,7 @@ class Workflow::Step::SetFlags < Workflow::Step
   validate :validate_flags
 
   def call
-    return if workflow_run.closed_merged_pull_request? || workflow_run.reopened_pull_request?
+    return if workflow_run.closed_merged_pull_request? || workflow_run.reopened_pull_request? || workflow_run.unlabeled_pull_request?
     return unless valid?
 
     set_flags
