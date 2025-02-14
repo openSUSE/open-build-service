@@ -36,6 +36,32 @@ module Person
       render_ok
     end
 
+    # PUT /person/<login>/token/<id>
+    def update
+      authorize @user, :update?
+
+      permitted_params = params.slice(:enabled).permit(:enabled)
+
+      if permitted_params.blank?
+        render_ok
+        return
+      end
+
+      unless %(true, false).include?(permitted_params[:enabled])
+        render_error status: 400,
+                     errorcode: 'invalid_token_attribute_value',
+                     message: "'#{permitted_params[:enabled]}' is not a valid 'enabled' attribute value. Use 'true' or 'false'."
+        return
+      end
+
+      token = @user.tokens.find(params[:id])
+      if token.update(permitted_params)
+        render_ok
+      else
+        render_error status: 400, errorcode: 'invalid_token_attribute_value', message: token.errors.full_messages.to_sentence
+      end
+    end
+
     private
 
     def record_not_found(exception)
