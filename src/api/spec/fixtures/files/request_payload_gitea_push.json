@@ -1,0 +1,22 @@
+{
+  "ref": "refs/heads/master",
+  "before": "594440dcbe3eb630a2125ab443f0131c8a16d6d5",
+  "after": "d1b6a25fb371902586974d922ff4789dd4ed7d2e",
+  "base_ref": null,
+  "head_commit": {
+    "id": "d1b6a25fb371902586974d922ff4789dd4ed7d2e",
+    "url": "https://gitea.opensuse.org/iggy/hello_world/commit/d1b6a25fb371902586974d922ff4789dd4ed7d2e"
+  },
+  "repository": {
+    "id": 371734220,
+    "name": "hello_world",
+    "html_url": "https://gitea.opensuse.org/iggy/hello_world",
+    "clone_url": "https://gitea.opensuse.org",
+    "url": "https://gitea.opensuse.org/iggy/hello_world",
+    "git_url": "git://gitea.opensuse.org/iggy/hello_world.git",
+    "master_branch": "master",
+    "owner": {
+      "login": "iggy"
+    }
+  }
+}

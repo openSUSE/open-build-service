@@ -3,7 +3,7 @@
   "number": 1,
   "pull_request": {
     "number": 1,
-    "html_url": "http://github.com/something",
+    "html_url": "http://gitea.opensuse.org/something",
     "base": {
       "ref": "master",
       "repo": {
@@ -16,12 +16,10 @@
   },
   "repository": {
     "name": "hello_world",
-    "html_url": "https://github.com",
+    "html_url": "https://gitea.opensuse.org",
+    "clone_url": "https://gitea.opensuse.org",
     "owner": {
       "login": "iggy"
     }
-  },
-  "sender": {
-    "url": "https://api.github.com"
   }
 }

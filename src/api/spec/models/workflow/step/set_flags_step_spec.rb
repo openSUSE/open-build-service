@@ -14,23 +14,7 @@ RSpec.describe Workflow::Step::SetFlags do
   describe '#call' do
     let(:hook_event) { 'pull_request' }
     let(:scm_vendor) { 'github' }
-    let(:request_payload) do
-      {
-        action: 'opened',
-        number: 1,
-        pull_request: {
-          html_url: 'http://github.com/something',
-          base: {
-            repo: {
-              full_name: 'openSUSE/repo123'
-            }
-          },
-          head: {
-            sha: '123456789'
-          }
-        }
-      }.to_json
-    end
+    let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
 
     let(:step_instructions) do
       {

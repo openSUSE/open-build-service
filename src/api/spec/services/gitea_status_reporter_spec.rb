@@ -1,22 +1,7 @@
 RSpec.describe GiteaStatusReporter, type: :service do
   let(:scm_status_reporter) { GiteaStatusReporter.new(event_payload, event_subscription_payload, token, state, workflow_run, event_type, initial_report: initial_report) }
   let(:workflow_run) { create(:workflow_run, scm_vendor: 'gitea', request_payload: request_payload, token: create(:workflow_token, string: token)) }
-  let(:request_payload) do
-    {
-      action: 'opened',
-      number: 1,
-      pull_request: {
-        base: {
-          repo: {
-            full_name: 'danidoni/hello_world'
-          }
-        },
-        head: {
-          sha: '123456789'
-        }
-      }
-    }.to_json
-  end
+  let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
 
   describe '.new' do
     context 'status pending when event_type is missing' do
@@ -55,7 +40,7 @@ RSpec.describe GiteaStatusReporter, type: :service do
           repository: 'openSUSE_Tumbleweed', arch: 'x86_64' }
       end
       let(:event_subscription_payload) do
-        { scm: 'gitea', target_repository_full_name: 'danidoni/hello_world', commit_sha: '123456789' }
+        { scm: 'gitea', target_repository_full_name: 'openSUSE/repo123', commit_sha: '123456789' }
       end
       let(:token) { 'XYCABC' }
       let(:event_type) { nil }
@@ -75,7 +60,7 @@ RSpec.describe GiteaStatusReporter, type: :service do
       end
 
       it 'sends a short commit sha' do
-        expect(gitea_client).to have_received(:create_commit_status).with(owner: 'danidoni', repo: 'hello_world', sha: '123456789', state: state, **status_options)
+        expect(gitea_client).to have_received(:create_commit_status).with(owner: 'openSUSE', repo: 'repo123', sha: '123456789', state: state, **status_options)
       end
     end
 
@@ -88,7 +73,7 @@ RSpec.describe GiteaStatusReporter, type: :service do
           number: 1, state: 'new' }
       end
       let(:event_subscription_payload) do
-        { scm: 'gitea', target_repository_full_name: 'danidoni/hello_world', commit_sha: '123456789' }
+        { scm: 'gitea', target_repository_full_name: 'openSUSE/repo123', commit_sha: '123456789' }
       end
       let(:token) { 'XYCABC' }
       let(:event_type) { 'Event::RequestStatechange' }
@@ -108,7 +93,7 @@ RSpec.describe GiteaStatusReporter, type: :service do
       end
 
       it 'creates a commit status' do
-        expect(gitea_client).to have_received(:create_commit_status).with(owner: 'danidoni', repo: 'hello_world', sha: '123456789', state: state, **status_options)
+        expect(gitea_client).to have_received(:create_commit_status).with(owner: 'openSUSE', repo: 'repo123', sha: '123456789', state: state, **status_options)
       end
     end
   end

@@ -1,27 +1,23 @@
 {
-  "action": "opened",
+  "action": "synchronize",
   "number": 1,
   "pull_request": {
-    "number": 1,
     "html_url": "http://github.com/something",
     "base": {
       "ref": "master",
       "repo": {
-        "full_name": "openSUSE/repo123"
+        "full_name": "rubhanazeem/hello_world"
       }
     },
     "head": {
-      "sha": "123456789"
+      "sha": "5d175d7f4c58d06907bba188fe9a4c8b6bd723da"
     }
   },
   "repository": {
     "name": "hello_world",
     "html_url": "https://github.com",
     "owner": {
-      "login": "iggy"
+      "login": "rubhanazeem"
     }
-  },
-  "sender": {
-    "url": "https://api.github.com"
   }
 }

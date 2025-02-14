@@ -1,0 +1,20 @@
+{
+  "action": "assigned",
+  "pull_request": {
+    "head": {
+      "repo": {
+        "full_name": "username/test_repo"
+      }
+    },
+    "base": {
+      "ref": "main",
+      "repo": {
+        "full_name": "rubhanazeem/hello_world"
+      }
+    }
+  },
+  "number": 4,
+  "sender": { 
+    "url": "https://api.github.com"
+  }
+}
