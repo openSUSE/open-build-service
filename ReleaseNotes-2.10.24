@@ -22,3 +22,10 @@ Compability
 * bs_worker: export cpu features as flags (for s390)
 * Update kiwi schema to current state
 
+Bugfixes
+========
+
+Frontend:
+ * Update rack to version 2.2.11
+   - [CVE-2025-25184] Fix possible log Injection in `Rack::CommonLogger`
+
