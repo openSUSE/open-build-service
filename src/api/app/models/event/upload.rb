@@ -1,5 +1,7 @@
 module Event
   class Upload < Base
+    include EventObjectPackage
+
     self.message_bus_routing_key = 'package.upload'
     self.description = 'Package sources uploaded'
     payload_keys :project, :package, :sender, :comment, :filename, :requestid, :target, :user, :meta

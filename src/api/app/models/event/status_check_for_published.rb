@@ -1,5 +1,7 @@
 module Event
   class StatusCheckForPublished < StatusCheck
+    include EventObjectRepository
+
     self.message_bus_routing_key = 'published.status_report'
     self.description = 'Status check for published repository created'
     payload_keys :project, :repo, :buildid

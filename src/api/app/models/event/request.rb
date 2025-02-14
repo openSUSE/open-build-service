@@ -1,5 +1,7 @@
 module Event
   class Request < Base
+    include EventObjectRequest
+
     self.description = 'Request updated'
     self.abstract_class = true
     payload_keys :author, :comment, :description, :id, :number, :actions, :state, :when, :who, :namespace

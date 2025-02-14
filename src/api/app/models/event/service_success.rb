@@ -1,5 +1,7 @@
 module Event
   class ServiceSuccess < Base
+    include EventObjectPackage
+
     self.message_bus_routing_key = 'package.service_success'
     self.description = 'Package source service succeeded'
     payload_keys :project, :package, :sender, :comment, :rev, :user, :requestid

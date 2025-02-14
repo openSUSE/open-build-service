@@ -1,6 +1,8 @@
 module Event
   class CommentForProject < Base
     include CommentEvent
+    include EventObjectProject
+
     self.message_bus_routing_key = 'project.comment'
     self.description = 'New comment for project created'
     payload_keys :project

@@ -1,5 +1,7 @@
 module Event
   class StatusCheckForBuild < StatusCheck
+    include EventObjectRepository
+
     self.message_bus_routing_key = 'repo.status_report'
     self.description = 'Status check for finished repository created'
     payload_keys :project, :repo, :arch, :buildid

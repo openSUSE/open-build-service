@@ -22,6 +22,10 @@ module Event
       super.merge(notifiable_type: 'WorkflowRun', notifiable_id: payload['id'], type: 'NotificationWorkflowRun')
     end
 
+    def event_object
+      WorkflowRun.find(payload['id'])
+    end
+
     private
 
     def token

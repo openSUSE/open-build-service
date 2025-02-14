@@ -1,5 +1,7 @@
 module Event
   class RepoPublishState < Base
+    include EventObjectRepository
+
     self.message_bus_routing_key = 'repo.publish_state'
     self.description = 'Publish state of repository changed'
     payload_keys :project, :repo, :state

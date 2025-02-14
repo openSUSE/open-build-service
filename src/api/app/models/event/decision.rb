@@ -6,6 +6,10 @@ module Event
     def parameters_for_notification
       super.merge(notifiable_type: 'Decision', type: 'NotificationReport')
     end
+
+    def event_object
+      Report.find_by(payload['report_last_id'])
+    end
   end
 end
 

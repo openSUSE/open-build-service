@@ -1,5 +1,7 @@
 module Event
   class StatusCheckForRequest < StatusCheck
+    include EventObjectRequest
+
     self.message_bus_routing_key = 'request.status_report'
     payload_keys :number
   end
