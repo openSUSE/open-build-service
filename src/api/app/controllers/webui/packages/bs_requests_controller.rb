@@ -3,6 +3,7 @@ module Webui
     class BsRequestsController < Webui::WebuiController
       before_action :set_project
       before_action :require_package
+      before_action :redirect_legacy
       include Webui::RequestsFilter
 
       def index
@@ -54,6 +55,10 @@ module Webui
         when 'outgoing'
           BsRequest.with_actions.where(staging_project: staging_projects, bs_request_actions: { source_project: @project.name, source_package: @package.name })
         end
+      end
+
+      def redirect_legacy
+        redirect_to(package_requests_path(@project, @package)) unless Flipper.enabled?(:request_index, User.session) || request.format.json?
       end
     end
   end
