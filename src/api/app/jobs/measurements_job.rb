@@ -97,5 +97,8 @@ class MeasurementsJob < ApplicationJob
 
     tokens_with_custom_configuration_url = Token::Workflow.where.not(workflow_configuration_url: nil).count + Token::Workflow.where.not(workflow_configuration_url == '').count
     RabbitmqBus.send_to_bus('metrics', "token_workflow_count,custom_configuration_url=true value=#{tokens_with_custom_configuration_url}")
+
+    RabbitmqBus.send_to_bus('metrics', "user_with_tokens value=#{User.joins(:shared_workflow_tokens).distinct}")
+    RabbitmqBus.send_to_bus('metrics', "groups_sharing_tokens value=#{Group.joins(:shared_workflow_tokens).distinct}")
   end
 end
