@@ -645,7 +645,31 @@ Event::BuildUnchanged:
   payload:
     LengthConstraintChecker:
       enabled: false
+Event::ClearedDecision:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
 Event::CommentForRequest:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+Event::FavoredDecision:
   eventtype:
     LengthConstraintChecker:
       enabled: false
