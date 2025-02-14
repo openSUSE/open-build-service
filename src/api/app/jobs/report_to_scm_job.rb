@@ -4,40 +4,30 @@ class ReportToSCMJob < CreateJob
   queue_as :scm
 
   def perform(event_id)
-    return false unless perform_job?(event_id)
+    event = Event::Base.find(event_id)
+    return unless event
+    return unless event.undone_jobs.positive?
+    return unless ALLOWED_EVENTS.include?(event.eventtype)
+    return unless event.event_object
 
-    matched_event_subscription.each do |event_subscription|
-      SCMStatusReporter.new(event_payload: @event.payload,
+    matched_event_subscription(event: event).each do |event_subscription|
+      SCMStatusReporter.new(event_payload: event.payload,
                             event_subscription_payload: event_subscription.payload,
                             scm_token: event_subscription.token.scm_token,
                             workflow_run: event_subscription.workflow_run,
                             event_type: event_subscription.eventtype).call
     end
-    true
   end
 
   private
 
-  def perform_job?(event_id)
-    @event = Event::Base.find(event_id)
-    return false unless @event.undone_jobs.positive?
+  def matched_event_subscription(event:)
+    subscriptions = EventSubscription.joins(:token).where(channel: :scm).where(eventtype: event.eventtype).where(token: { enabled: true })
 
-    @event_type = @event.eventtype
-    return false unless ALLOWED_EVENTS.include?(@event_type)
-
-    @event_package_or_request = if @event_type == 'Event::RequestStatechange'
-                                  BsRequest.find_by_number(@event.payload['number'])
-                                else
-                                  Package.find_by_project_and_name(@event.payload['project'], Package.striping_multibuild_suffix(@event.payload['package']))
-                                end
-
-    return false if @event_package_or_request.blank?
-
-    true
-  end
-
-  def matched_event_subscription
-    EventSubscriptionsFinder.new(event_package_or_request: @event_package_or_request)
-                            .for_scm_channel_with_token(event_type: @event_type)
+    if event.eventtype == 'Event::RequestStatechange'
+      subscriptions.where(bs_request: event.event_object)
+    else
+      subscriptions.where(package: event.event_object)
+    end
   end
 end
