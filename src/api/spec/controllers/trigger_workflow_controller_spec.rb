@@ -2,6 +2,22 @@ RSpec.describe TriggerWorkflowController do
   render_views
 
   describe 'POST :create' do
+    context 'token is not enabled' do
+      let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
+      let(:token) { create(:workflow_token, enabled: false, executor: create(:confirmed_user)) }
+
+      before do
+        allow(TriggerControllerService::TokenExtractor).to receive(:new).and_return(token_extractor_instance)
+        allow(token_extractor_instance).to receive(:call).and_return(token)
+        request.headers['ACCEPT'] = '*/*'
+
+        post :create
+      end
+
+      it { expect(response).to have_http_status(:forbidden) }
+      it { expect(response.body).to include('This token is not enabled.') }
+    end
+
     context 'workflows.yml do not exist' do
       let(:octokit_client) { instance_double(Octokit::Client) }
       let(:token_extractor_instance) { instance_double(TriggerControllerService::TokenExtractor) }
