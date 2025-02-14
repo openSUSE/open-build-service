@@ -13,7 +13,7 @@ module Event
     end
 
     def any_roles
-      [User.find_by(login: payload['user']) || Group.find_by(title: payload['group'])]
+      [User.find_by(login: payload['user']) || ::Group.find_by(title: payload['group'])]
     end
 
     def notifiable_type
