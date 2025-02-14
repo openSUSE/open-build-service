@@ -57,6 +57,8 @@ class Package < ApplicationRecord
   has_many :source_of_bs_request_actions, class_name: 'BsRequestAction', foreign_key: 'source_package_id', dependent: :nullify
   has_many :source_of_bs_requests, through: :source_of_bs_request_actions, source: :bs_request
 
+  has_many :event_subscription, dependent: :destroy
+
   has_many :watched_items, as: :watchable, dependent: :destroy
   has_many :reports, as: :reportable, dependent: :nullify
   has_many :labels, as: :labelable
