@@ -29,24 +29,7 @@ RSpec.describe Token::Workflow do
       end
       let(:scm_vendor) { 'github' }
       let(:hook_event) { 'pull_request' }
-      let(:request_payload) do
-        {
-          action: 'opened',
-          pull_request: {
-            head: {
-              ref: 'my_branch',
-              repo: { full_name: 'username/test_repo' },
-              sha: '12345678'
-            },
-            base: {
-              ref: 'main',
-              repo: { full_name: 'openSUSE/open-build-service' }
-            }
-          },
-          number: '4',
-          sender: { url: 'https://api.github.com' }
-        }.to_json
-      end
+      let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
       let(:yaml_downloader) { Workflows::YAMLDownloader.new(workflow_run, token: workflow_token) }
       let(:yaml_file) { file_fixture('workflows.yml') }
       let(:yaml_to_workflows_service) { Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, token: workflow_token, workflow_run: workflow_run) }
@@ -89,24 +72,7 @@ RSpec.describe Token::Workflow do
       end
       let(:scm_vendor) { 'github' }
       let(:hook_event) { 'pull_request' }
-      let(:request_payload) do
-        {
-          action: 'opened',
-          pull_request: {
-            head: {
-              ref: 'my_branch',
-              repo: { full_name: 'username/test_repo' },
-              sha: '12345678'
-            },
-            base: {
-              ref: 'main',
-              repo: { full_name: 'openSUSE/open-build-service' }
-            }
-          },
-          number: '4',
-          sender: { url: 'https://api.github.com' }
-        }.to_json
-      end
+      let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
       let(:yaml_downloader) { Workflows::YAMLDownloader.new(workflow_run, token: workflow_token) }
       let(:yaml_file) { file_fixture('workflows.yml') }
       let(:yaml_to_workflows_service) { Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, token: workflow_token, workflow_run: workflow_run) }
@@ -166,24 +132,7 @@ RSpec.describe Token::Workflow do
         create(:workflow_run, token: workflow_token, scm_vendor: 'github', hook_event: 'pull_request',
                               request_payload: request_payload)
       end
-      let(:request_payload) do
-        {
-          action: 'opened',
-          pull_request: {
-            head: {
-              ref: 'my_branch',
-              repo: { full_name: 'username/test_repo' },
-              sha: '12345678'
-            },
-            base: {
-              ref: 'main',
-              repo: { full_name: 'openSUSE/open-build-service' }
-            }
-          },
-          number: '4',
-          sender: { url: 'https://api.github.com' }
-        }.to_json
-      end
+      let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
 
       let(:workflow_token_a) { build(:workflow_token, workflow_configuration_path: nil) }
       let(:workflow_token_b) { build(:workflow_token, workflow_configuration_path: nil, workflow_configuration_url: 'https://example.com/subdir/config_file.yml') }
@@ -229,24 +178,7 @@ RSpec.describe Token::Workflow do
 
       let(:scm_vendor) { 'github' }
       let(:hook_event) { 'pull_request' }
-      let(:github_payload) do
-        {
-          action: 'opened',
-          pull_request: {
-            head: {
-              ref: 'my_branch',
-              repo: { full_name: 'username/test_repo' },
-              sha: '12345678'
-            },
-            base: {
-              ref: 'main',
-              repo: { full_name: 'openSUSE/open-build-service' }
-            }
-          },
-          number: '4',
-          sender: { url: 'https://api.github.com' }
-        }.to_json
-      end
+      let(:github_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
 
       let(:workflow_run) do
         create(:workflow_run, token: workflow_token, scm_vendor: scm_vendor, hook_event: hook_event,
@@ -285,24 +217,7 @@ RSpec.describe Token::Workflow do
 
       let(:scm_vendor) { 'github' }
       let(:hook_event) { 'pull_request' }
-      let(:github_payload) do
-        {
-          action: 'closed',
-          pull_request: {
-            head: {
-              ref: 'my_branch',
-              repo: { full_name: 'username/test_repo' },
-              sha: '12345678'
-            },
-            base: {
-              ref: 'main',
-              repo: { full_name: 'openSUSE/open-build-service' }
-            }
-          },
-          number: '4',
-          sender: { url: 'https://api.github.com' }
-        }.to_json
-      end
+      let(:github_payload) { file_fixture('request_payload_github_pull_request_closed.json').read }
 
       let(:workflow_run) do
         create(:workflow_run, token: workflow_token, scm_vendor: scm_vendor, hook_event: hook_event,

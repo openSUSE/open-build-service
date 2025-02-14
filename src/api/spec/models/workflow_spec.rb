@@ -162,15 +162,7 @@ RSpec.describe Workflow, :vcr do
         { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
           'filters' => { 'branches' => { 'only' => %w[something main] } } }
       end
-      let(:request_payload) do
-        {
-          pull_request: {
-            base: {
-              ref: 'master'
-            }
-          }
-        }.to_json
-      end
+      let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
       let!(:workflow_run) { create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', hook_action: 'opened', token: token, request_payload: request_payload) }
 
       before do
@@ -214,15 +206,7 @@ RSpec.describe Workflow, :vcr do
         { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
           'filters' => { 'branches' => { 'only' => %w[master develop] } } }
       end
-      let(:request_payload) do
-        {
-          pull_request: {
-            base: {
-              ref: 'master'
-            }
-          }
-        }.to_json
-      end
+      let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
       let!(:workflow_run) { create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', hook_action: 'opened', token: token, request_payload: request_payload) }
 
       before do
@@ -253,19 +237,7 @@ RSpec.describe Workflow, :vcr do
   describe '#steps' do
     let(:project) { create(:project, name: 'test-project', maintainer: user) }
     let(:package) { create(:package, name: 'test-package', project: project) }
-    let(:request_payload) do
-      {
-        action: 'opened',
-        number: 1,
-        pull_request: {
-          base: {
-            repo: {
-              full_name: 'iggy/test-project'
-            }
-          }
-        }
-      }.to_json
-    end
+    let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
     let!(:workflow_run) { create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', hook_action: 'opened', token: token, request_payload: request_payload) }
 
     before do

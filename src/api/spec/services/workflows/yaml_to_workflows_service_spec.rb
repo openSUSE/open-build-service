@@ -1,31 +1,6 @@
 RSpec.describe Workflows::YAMLToWorkflowsService, type: :service do
-  let(:workflow_run_github_payload) do
-    {
-      action: 'opened',
-      number: 123,
-      pull_request: {
-        base: {
-          repo: {
-            full_name: 'openSUSE/open-build-service'
-          }
-        },
-        head: {
-          sha: '387185b7df2b572377712994116c19cd7dd13150'
-        }
-      }
-    }.to_json
-  end
-  let(:workflow_run_gitlab_payload) do
-    {
-      object_kind: 'merge_request',
-      after: 'da1560886d4f094c3e6c9ef40349f7d38b5d27d7',
-      object_attributes: {
-        target: {
-          path_with_namespace: 'gitlabhq/gitlab-test'
-        }
-      }
-    }.to_json
-  end
+  let(:workflow_run_github_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
+  let(:workflow_run_gitlab_payload) { file_fixture('request_payload_gitlab_pull_request_opened.json').read }
   let(:workflows_yml_file) { file_fixture('workflows.yml') }
   let(:token) { create(:workflow_token) }
   let(:scm_vendor) { 'github' }
@@ -51,12 +26,12 @@ RSpec.describe Workflows::YAMLToWorkflowsService, type: :service do
       let(:request_payload) { workflow_run_github_payload }
 
       it 'maps them to their values from the webhook event payload' do
-        expect(subject.first.workflow_instructions).to include(steps: [{ branch_package: { source_project: 'test-project:openSUSE', source_package: 'open-build-service',
+        expect(subject.first.workflow_instructions).to include(steps: [{ branch_package: { source_project: 'test-project:openSUSE', source_package: 'repo123',
                                                                                            target_project: 'test-target-project' } }])
 
         expect(subject.second.workflow_instructions).to include(steps: [{ branch_package: { source_project: 'test-project',
-                                                                                            source_package: 'test-package:387185b7df2b572377712994116c19cd7dd13150',
-                                                                                            target_project: 'test-target-project:PR-123' } }])
+                                                                                            source_package: 'test-package:123456789',
+                                                                                            target_project: 'test-target-project:PR-1' } }])
       end
     end
 

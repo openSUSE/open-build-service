@@ -34,23 +34,7 @@ RSpec.describe Workflow::Step::ConfigureRepositories do
       }
     end
 
-    let(:request_payload) do
-      {
-        action: 'opened',
-        number: 1,
-        pull_request: {
-          html_url: 'http://github.com/something',
-          base: {
-            repo: {
-              full_name: 'openSUSE/repo123'
-            }
-          },
-          head: {
-            sha: '123456789'
-          }
-        }
-      }.to_json
-    end
+    let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
 
     let(:workflow_run) do
       create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', request_payload: request_payload)
