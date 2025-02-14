@@ -67,6 +67,7 @@ class BsRequest < ApplicationRecord
   has_many :notifications, as: :notifiable, dependent: :delete_all
   has_many :watched_items, as: :watchable, dependent: :destroy
   has_many :reports, as: :reportable, dependent: :nullify
+  has_many :event_subscriptions, dependent: :destroy
   has_many :labels, as: :labelable
   accepts_nested_attributes_for :labels, allow_destroy: true
 
