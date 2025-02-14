@@ -9,6 +9,8 @@ class MeasurementsJob < ApplicationJob
     notifications_measurements
     subscription_measurements
     beta_features_measurements
+
+    RabbitmqBus.send_to_bus('metrics', "token_workflow #{measurement_to_fields(token_workflow_measurements)}")
   end
 
   private
@@ -83,5 +85,20 @@ class MeasurementsJob < ApplicationJob
     ENABLED_FEATURE_TOGGLES.pluck(:name).each do |feature_name|
       RabbitmqBus.send_to_bus('metrics', "beta_feature_count,feature=#{feature_name},status=disabled value=#{DisabledBetaFeature.where(name: feature_name).count}")
     end
+  end
+
+  def token_workflow_measurements
+    tokens_with_custom_configuration_path = Token::Workflow.where.not(workflow_configuration_path: [nil, '']).count
+    tokens_with_custom_configuration_url = Token::Workflow.where.not(workflow_configuration_url: [nil, '']).count
+
+    {
+      total_count: Token::Workflow.count,
+      enabled: Token::Workflow.where(enabled: true).count,
+      disabled: Token::Workflow.where(enabled: false).count,
+      custom_configuration_path: tokens_with_custom_configuration_path,
+      custom_configuration_url: tokens_with_custom_configuration_url,
+      user_with_tokens: User.joins(:shared_workflow_tokens).distinct.count,
+      groups_sharing_tokens: Group.joins(:shared_workflow_tokens).distinct.count
+    }
   end
 end
