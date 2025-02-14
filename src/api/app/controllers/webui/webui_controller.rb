@@ -287,6 +287,7 @@ class Webui::WebuiController < ActionController::Base
       beta: User.possibly_nobody.in_beta?,
       anonymous: !User.session,
       spider: @spider_bot,
+      interconnect: false,
       interface: :webui
     }
   end

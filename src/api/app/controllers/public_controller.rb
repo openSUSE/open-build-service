@@ -3,7 +3,7 @@ class PublicController < ApplicationController
   include ValidationHelper
 
   # we need to fall back to _nobody_ (_public_)
-  before_action :extract_user_public, :set_response_format_to_xml
+  before_action :extract_user_public, :set_response_format_to_xml, :set_influxdb_data_interconnect
   skip_before_action :extract_user
   skip_before_action :require_login
 
@@ -204,6 +204,12 @@ class PublicController < ApplicationController
   end
 
   private
+
+  def set_influxdb_data_interconnect
+    InfluxDB::Rails.current.tags = {
+      interconnect: true
+    }
+  end
 
   # removes /private prefix from path
   def unshift_public(path)
