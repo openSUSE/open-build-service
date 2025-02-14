@@ -9,6 +9,7 @@ class MeasurementsJob < ApplicationJob
     notifications_measurements
     subscription_measurements
     beta_features_measurements
+    token_workflow_measurements
   end
 
   private
@@ -83,5 +84,9 @@ class MeasurementsJob < ApplicationJob
     ENABLED_FEATURE_TOGGLES.pluck(:name).each do |feature_name|
       RabbitmqBus.send_to_bus('metrics', "beta_feature_count,feature=#{feature_name},status=disabled value=#{DisabledBetaFeature.where(name: feature_name).count}")
     end
+  end
+
+  def token_workflow_measurements
+    RabbitmqBus.send_to_bus('metrics', "token_workflow_count value=#{Token::Workflow.count}")
   end
 end
