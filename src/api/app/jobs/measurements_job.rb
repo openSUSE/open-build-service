@@ -88,5 +88,8 @@ class MeasurementsJob < ApplicationJob
 
   def token_workflow_measurements
     RabbitmqBus.send_to_bus('metrics', "token_workflow_count value=#{Token::Workflow.count}")
+
+    RabbitmqBus.send_to_bus('metrics', "token_workflow_count,enabled=true value=#{Token::Workflow.where(enabled: true).count}")
+    RabbitmqBus.send_to_bus('metrics', "token_workflow_count,enabled=false value=#{Token::Workflow.where(enabled: false).count}")
   end
 end
