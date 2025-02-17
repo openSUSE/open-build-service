@@ -87,7 +87,7 @@ end
 #
 #  id                          :integer          not null, primary key
 #  description                 :string(64)       default("")
-#  enabled                     :boolean          default(TRUE), not null
+#  enabled                     :boolean          default(TRUE), not null, indexed
 #  scm_token                   :string(255)      indexed
 #  string                      :string(255)      indexed
 #  triggered_at                :datetime
@@ -99,6 +99,7 @@ end
 #
 # Indexes
 #
+#  index_tokens_on_enabled    (enabled)
 #  index_tokens_on_scm_token  (scm_token)
 #  index_tokens_on_string     (string) UNIQUE
 #  package_id                 (package_id)

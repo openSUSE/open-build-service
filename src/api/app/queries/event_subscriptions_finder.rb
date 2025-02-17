@@ -9,8 +9,9 @@ class EventSubscriptionsFinder
 
   def for_scm_channel_with_token(event_type:)
     @relation
+      .joins(:token)
       .where(eventtype: event_type,
              channel: :scm)
-      .where.not(token_id: nil)
+      .where(token: { enabled: true })
   end
 end
