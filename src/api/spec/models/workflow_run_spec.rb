@@ -100,4 +100,32 @@ RSpec.describe WorkflowRun, :vcr do
       end
     end
   end
+
+  describe '#labeled_pull_request?' do
+    context 'when event is pull request opened' do
+      let(:workflow_run) { create(:workflow_run) }
+
+      it { expect(workflow_run).not_to be_labeled_pull_request }
+    end
+
+    context 'when event is pull request labeled' do
+      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled) }
+
+      it { expect(workflow_run).to be_labeled_pull_request }
+    end
+  end
+
+  describe '#unlabeled_pull_request?' do
+    context 'when event is pull request labeled' do
+      let(:workflow_run) { create(:workflow_run) }
+
+      it { expect(workflow_run).not_to be_unlabeled_pull_request }
+    end
+
+    context 'when event is pull request unlabeled' do
+      let!(:workflow_run) { create(:workflow_run, :pull_request_unlabeled) }
+
+      it { expect(workflow_run).to be_unlabeled_pull_request }
+    end
+  end
 end
