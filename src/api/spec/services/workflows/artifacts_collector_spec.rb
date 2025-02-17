@@ -19,25 +19,13 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
       end
 
       context 'and pull_request event' do
-        let(:request_payload) do
-          {
-            action: 'opened',
-            number: 1,
-            pull_request: {
-              base: {
-                repo: {
-                  full_name: 'iggy/hello_world'
-                }
-              }
-            }
-          }.to_json
-        end
+        let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
 
         let(:artifacts) do
           {
             source_project: step_instructions[:source_project],
             source_package: step_instructions[:source_package],
-            target_project: 'home:Iggy:sandbox:iggy:hello_world:PR-1',
+            target_project: 'home:Iggy:sandbox:openSUSE:repo123:PR-1',
             target_package: step_instructions[:source_package]
           }
         end
@@ -54,22 +42,14 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
       end
 
       context 'and push for commit event' do
-        let(:request_payload) do
-          {
-            ref: 'refs/heads/branch_123',
-            after: '2a6b530bcdf7a54d881c62333c9f13b6ce16f3fc',
-            repository: {
-              full_name: 'iggy/hello_world'
-            }
-          }.to_json
-        end
+        let(:request_payload) { file_fixture('request_payload_github_push.json').read }
 
         let(:artifacts) do
           {
             source_project: step_instructions[:source_project],
             source_package: step_instructions[:source_package],
             target_project: step_instructions[:target_project],
-            target_package: 'hello_world-2a6b530bcdf7a54d881c62333c9f13b6ce16f3fc'
+            target_package: 'hello_world-d1b6a25fb371902586974d922ff4789dd4ed7d2e'
           }
         end
 
@@ -85,18 +65,14 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
       end
 
       context 'and push for tag event' do
-        let(:request_payload) do
-          {
-            ref: 'refs/tags/release_abc'
-          }.to_json
-        end
+        let(:request_payload) { file_fixture('request_payload_github_tag_push.json').read }
 
         let(:artifacts) do
           {
             source_project: step_instructions[:source_project],
             source_package: step_instructions[:source_package],
             target_project: step_instructions[:target_project],
-            target_package: 'hello_world-release_abc'
+            target_package: 'hello_world-v1'
           }
         end
 
@@ -128,25 +104,13 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
       end
 
       context 'and pull_request event' do
-        let(:request_payload) do
-          {
-            action: 'opened',
-            number: 1,
-            pull_request: {
-              base: {
-                repo: {
-                  full_name: 'iggy/hello_world'
-                }
-              }
-            }
-          }.to_json
-        end
+        let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
 
         let(:artifacts) do
           {
             source_project: step_instructions[:source_project],
             source_package: step_instructions[:source_package],
-            target_project: 'home:Iggy:sandbox:iggy:hello_world:PR-1',
+            target_project: 'home:Iggy:sandbox:openSUSE:repo123:PR-1',
             target_package: step_instructions[:source_package]
           }
         end
@@ -163,19 +127,14 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
       end
 
       context 'and push for commit event' do
-        let(:request_payload) do
-          {
-            ref: 'refs/heads/branch_123',
-            after: '2a6b530bcdf7a54d881c62333c9f13b6ce16f3fc'
-          }.to_json
-        end
+        let(:request_payload) { file_fixture('request_payload_github_push.json').read }
 
         let(:artifacts) do
           {
             source_project: step_instructions[:source_project],
             source_package: step_instructions[:source_package],
             target_project: step_instructions[:target_project],
-            target_package: 'hello_world-2a6b530bcdf7a54d881c62333c9f13b6ce16f3fc'
+            target_package: 'hello_world-d1b6a25fb371902586974d922ff4789dd4ed7d2e'
           }
         end
 
@@ -191,18 +150,14 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
       end
 
       context 'and push for tag event' do
-        let(:request_payload) do
-          {
-            ref: 'refs/tags/release_abc'
-          }.to_json
-        end
+        let(:request_payload) { file_fixture('request_payload_github_tag_push.json').read }
 
         let(:artifacts) do
           {
             source_project: step_instructions[:source_project],
             source_package: step_instructions[:source_package],
             target_project: step_instructions[:target_project],
-            target_package: 'hello_world-release_abc'
+            target_package: 'hello_world-v1'
           }
         end
 
@@ -232,19 +187,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
         }
       end
 
-      let(:request_payload) do
-        {
-          action: 'opened',
-          number: 1,
-          pull_request: {
-            base: {
-              repo: {
-                full_name: 'iggy/hello_world'
-              }
-            }
-          }
-        }.to_json
-      end
+      let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
 
       let(:artifacts) { step_instructions }
       let(:workflow_run) { create(:workflow_run, token: token, scm_vendor: 'github', hook_event: 'pull_request', request_payload: request_payload) }
@@ -272,19 +215,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
         }
       end
 
-      let(:request_payload) do
-        {
-          action: 'opened',
-          number: 1,
-          pull_request: {
-            base: {
-              repo: {
-                full_name: 'iggy/hello_world'
-              }
-            }
-          }
-        }.to_json
-      end
+      let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
 
       let(:artifacts) { step_instructions }
       let(:workflow_run) { create(:workflow_run, token: token, scm_vendor: 'github', hook_event: 'pull_request', request_payload: request_payload) }
@@ -337,23 +268,11 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
         }
       end
 
-      let(:request_payload) do
-        {
-          action: 'opened',
-          number: 1,
-          pull_request: {
-            base: {
-              repo: {
-                full_name: 'iggy/hello_world'
-              }
-            }
-          }
-        }.to_json
-      end
+      let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
 
       let(:artifacts) do
         {
-          project: 'home:Iggy:sandbox:iggy:hello_world:PR-1',
+          project: 'home:Iggy:sandbox:openSUSE:repo123:PR-1',
           repositories: step_instructions[:repositories]
         }
       end
@@ -379,19 +298,7 @@ RSpec.describe Workflows::ArtifactsCollector, type: :service do
         }
       end
 
-      let(:request_payload) do
-        {
-          action: 'opened',
-          number: 1,
-          pull_request: {
-            base: {
-              repo: {
-                full_name: 'iggy/hello_world'
-              }
-            }
-          }
-        }.to_json
-      end
+      let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
 
       let(:artifacts) do
         {

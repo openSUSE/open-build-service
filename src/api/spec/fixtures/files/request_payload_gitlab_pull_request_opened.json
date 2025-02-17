@@ -10,7 +10,14 @@
     "id": 49732567,
     "iid": 1,
     "action": "open",
-    "url": "http://github.com/something"
+    "url": "http://github.com/something",
+    "source_project_id": "26_212_710",
+    "target": {
+      "path_with_namespace": "gitlabhq/gitlab-test"
+    },
+    "last_commit": {
+      "id": "123456789"
+    }
   },
   "repository": {
     "name": "hello_world",

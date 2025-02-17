@@ -6,23 +6,7 @@ RSpec.describe Workflow::Step do
       create(:workflow_run, scm_vendor: scm_vendor, hook_event: hook_event, request_payload: request_payload)
     end
 
-    let(:request_payload) do
-      {
-        action: 'opened',
-        number: 1,
-        pull_request: {
-          html_url: 'http://github.com/something',
-          base: {
-            repo: {
-              full_name: 'reponame'
-            }
-          },
-          head: {
-            sha: '123456789'
-          }
-        }
-      }.to_json
-    end
+    let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
 
     context 'for a pull request_event when target_package is in the step instructions' do
       let(:step_instructions) { { target_package: 'hello_world' } }
@@ -134,23 +118,7 @@ RSpec.describe Workflow::Step do
       create(:workflow_run, scm_vendor: scm_vendor, hook_event: hook_event, hook_action: hook_action, request_payload: request_payload)
     end
     let(:hook_action) { 'opened' }
-    let(:request_payload) do
-      {
-        action: 'opened',
-        number: 1,
-        pull_request: {
-          html_url: 'http://github.com/something',
-          base: {
-            repo: {
-              full_name: 'openSUSE/repo123'
-            }
-          },
-          head: {
-            sha: '123456789'
-          }
-        }
-      }.to_json
-    end
+    let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
 
     let(:step) do
       Class.new(described_class) do
@@ -195,22 +163,9 @@ RSpec.describe Workflow::Step do
         let(:scm_vendor) { 'gitlab' }
         let(:hook_action) { 'open' }
 
-        let(:request_payload) do
-          {
-            object_kind: 'merge_request',
-            event_type: 'merge_request',
-            object_attributes: {
-              iid: 1,
-              action: 'open',
-              url: 'http://github.com/something',
-              target: {
-                path_with_namespace: 'openSUSE/repo123'
-              }
-            }
-          }.to_json
-        end
+        let(:request_payload) { file_fixture('request_payload_gitlab_pull_request_opened.json').read }
 
-        it { is_expected.to eq('OBS:Server:Unstable:openSUSE:repo123:PR-1') }
+        it { is_expected.to eq('OBS:Server:Unstable:gitlabhq:gitlab-test:PR-1') }
       end
     end
 

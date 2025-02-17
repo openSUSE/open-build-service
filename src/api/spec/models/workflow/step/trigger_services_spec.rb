@@ -11,23 +11,7 @@ RSpec.describe Workflow::Step::TriggerServices do
   let(:package) { create(:package, name: 'hello_world', project: project) }
 
   let(:step_instructions) { { package: package.name, project: project.name } }
-  let(:request_payload) do
-    {
-      action: 'opened',
-      number: 1,
-      pull_request: {
-        html_url: 'http://github.com/something',
-        base: {
-          repo: {
-            full_name: 'reponame'
-          }
-        },
-        head: {
-          sha: '123456789'
-        }
-      }
-    }.to_json
-  end
+  let(:request_payload) { file_fixture('request_payload_github_pull_request_opened.json').read }
 
   let(:workflow_run) do
     create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', request_payload: request_payload)
