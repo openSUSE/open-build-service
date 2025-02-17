@@ -107,7 +107,7 @@ module Webui
         return unless currentpack['firstfail'] || currentpack['failedcomment'] || currentpack['upstream_version'] ||
                       !currentpack['problems'].empty? || !currentpack['requests_from'].empty? || !currentpack['requests_to'].empty?
 
-        return if @limit_to_old && !(currentpack['upstream_version'])
+        return if @limit_to_old && !currentpack['upstream_version']
 
         @packages << currentpack
       end
