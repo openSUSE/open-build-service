@@ -23,7 +23,7 @@ RSpec.describe Project, '.find_package' do
       let(:package) { create(:package, project: project) }
 
       it 'returns the package from the link' do
-        expect(subject.project).equal?(link_target) # rubocop:disable RSpec/MissingExpectationTargetMethod FIXME
+        expect(subject.project).equal?(link_target) # rubocop:disable RSpec/MissingExpectationTargetMethod -- FIXME
       end
     end
 
@@ -40,7 +40,7 @@ RSpec.describe Project, '.find_package' do
       let(:package) { create(:package, name: package_in_linked_project.name, project: project) }
 
       it 'returns the package from the link' do
-        expect(subject.project).equal?(link_target) # rubocop:disable RSpec/MissingExpectationTargetMethod FIXME
+        expect(subject.project).equal?(link_target) # rubocop:disable RSpec/MissingExpectationTargetMethod -- FIXME
       end
     end
 
