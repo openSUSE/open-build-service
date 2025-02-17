@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_02_11_133315) do
+ActiveRecord::Schema[7.0].define(version: 2025_02_17_123130) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -1177,6 +1177,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_02_11_133315) do
     t.string "workflow_configuration_path", default: ".obs/workflows.yml"
     t.string "workflow_configuration_url", limit: 8192
     t.boolean "enabled", default: true, null: false
+    t.index ["enabled"], name: "index_tokens_on_enabled"
     t.index ["executor_id"], name: "user_id"
     t.index ["package_id"], name: "package_id"
     t.index ["scm_token"], name: "index_tokens_on_scm_token"
