@@ -1,6 +1,90 @@
+put:
+  summary: Update a token of a person.
+  description: |
+    Update a specified token of a person.
+
+    The only token attribute which can be updated is `enabled`. A token is
+    created with this attribute set to `true`. However, this attribute may be
+    automatically set to `false` depending on the number of failed trigger
+    requests associated with the token.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/login.yaml'
+    - in: path
+      name: id
+      schema:
+        type: string
+      required: true
+      description: Id of the token to be removed.
+      example: 3
+  requestBody:
+    description: |
+      Token definition.
+
+      XML Schema used for token validation: [token.rng](../schema/token.rng)
+    required: true
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/token.yaml'
+  responses:
+    '200':
+      description: |
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: ok
+            summary: Ok
+    '400':
+      description: |
+        Bad Request.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: validation_failed
+            summary: 'token validation error: 1:0: ERROR: Invalid attribute enabled for element token'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: |
+        Forbidden.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: update_user_not_authorized
+            summary: 'You are not authorized to update this User.'
+    '404':
+      description: |
+        Not Found.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: Couldn't find Token with 'id'=33
+  tags:
+    - Person
+
 delete:
   summary: Delete a token of a person.
-  description: Delete a token of the specified person.
+  description: Delete a specific token of a person.
   security:
     - basic_authentication: []
   parameters:

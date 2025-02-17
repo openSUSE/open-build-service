@@ -17,6 +17,10 @@ properties:
           type: string
           xml:
             attribute: true
+        enabled:
+          type: string
+          xml:
+            attribute: true
         string:
           type: string
           xml:

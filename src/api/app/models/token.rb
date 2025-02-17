@@ -12,6 +12,7 @@ class Token < ApplicationRecord
   end
 
   validates :description, length: { maximum: 64 }
+  validates :enabled, inclusion: { in: [true, false], message: "must be 'true' or 'false'." }
   validates :string, uniqueness: { case_sensitive: false }
   validates :scm_token, absence: true, if: -> { type != 'Token::Workflow' }
 

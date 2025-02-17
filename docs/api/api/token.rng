@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://buildservice.org/api"
+         xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"
+         xmlns:a="http://www.example.com/annotation">
+
+  <include href="obs.rng" />
+
+  <start>
+   <ref name="token-element"/>
+  </start>
+
+  <define name="token-element">
+   <element ns="" name="token">
+    <a:documentation>
+     Token
+    </a:documentation>
+
+    <optional>
+     <attribute name="id">
+      <data type="nonNegativeInteger"/>
+      <a:documentation>
+       The unique id of this token.
+      </a:documentation>
+     </attribute>
+    </optional>
+
+    <optional>
+     <attribute name="string">
+      <a:documentation>
+       The token secret. This string can be used instead of the password to
+       authenticate the user or to trigger service runs via the
+       `POST /trigger/runservice` route.
+      </a:documentation>
+      <data type="string"/>
+     </attribute>
+    </optional>
+
+    <optional>
+     <attribute name="description">
+      <a:documentation>
+       It helps to identify a token from the rest of the tokens of a user.
+      </a:documentation>
+      <data type="string"/>
+     </attribute>
+    </optional>
+
+    <optional>
+     <attribute name="enabled">
+      <a:documentation>
+       Indicates whether a token can accept trigger requests or not.
+      </a:documentation>
+      <data type="boolean"/>
+     </attribute>
+    </optional>
+
+    <optional>
+     <attribute name="project">
+      <a:documentation>
+       Project name. Should be provided, together with the package query
+       parameter, to limit the token to a specific package.
+      </a:documentation>
+      <data type="string"/>
+     </attribute>
+     <attribute name="package">
+      <a:documentation>
+       Package name. Should be provided, together with the project query
+       parameter, to limit the token to a specific package.
+      </a:documentation>
+      <data type="string"/>
+     </attribute>
+    </optional>
+
+    <optional>
+     <attribute name="kind">
+      <a:documentation>
+       This attribute indicates the kind of token. When operation is not
+       specified, 'runservice' is the default value.
+       - rss: used to retrieve the notification RSS feed
+       - rebuild: trigger rebuilds of packages
+       - release: trigger project releases
+       - runservice: run a service via the POST /trigger/runservice route
+       - workflow: trigger SCM/CI workflows, see
+         https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-scm-ci-workflow-integration
+      </a:documentation>
+      <ref name="token-kind"/>
+     </attribute>
+    </optional>
+
+    <optional>
+     <attribute name="scm_token">
+      <a:documentation>
+       SCM token used in OBS workflows to report back the workflow status, when
+       the operation is workflow. It's normally possible to generate SCM tokens
+       directly on the SCM's website like GitHub or GitLab.
+      </a:documentation>
+      <data type="string"/>
+     </attribute>
+    </optional>
+
+    <optional>
+     <attribute name="workflow_configuration_path">
+      <a:documentation>
+       The default path is '.obs/workflows.yml'.
+      </a:documentation>
+      <data type="string"/>
+     </attribute>
+    </optional>
+
+    <optional>
+     <attribute name="workflow_configuration_url">
+      <a:documentation>
+       When the URL is given, the path will be ignored. The URL should be accessible for the OBS instance.
+      </a:documentation>
+      <data type="string"/>
+     </attribute>
+    </optional>
+
+    <optional>
+     <attribute name="triggered_at">
+      <a:documentation>
+       The date and time a token got triggered the last time.
+      </a:documentation>
+      <data type="string"/>
+     </attribute>
+    </optional>
+   </element>
+  </define>
+</grammar>
