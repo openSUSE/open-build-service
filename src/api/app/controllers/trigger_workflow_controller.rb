@@ -14,6 +14,7 @@ class TriggerWorkflowController < ApplicationController
 
   before_action :set_token
   before_action :validate_token_type
+  before_action :check_token_enabled
 
   # overwrite the exception handling inherited from the rescue handler
   rescue_from ActiveRecord::RecordInvalid do |exception|
@@ -66,6 +67,10 @@ class TriggerWorkflowController < ApplicationController
 
   def validate_token_type
     raise Trigger::Errors::InvalidToken, 'Wrong token type. Please use workflow tokens only.' unless @token.is_a?(Token::Workflow)
+  end
+
+  def check_token_enabled
+    raise Trigger::Errors::NotEnabledToken, 'This token is not enabled.' unless @token.enabled
   end
 
   def request_headers

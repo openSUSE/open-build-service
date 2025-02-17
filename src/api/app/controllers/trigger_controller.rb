@@ -12,6 +12,7 @@ class TriggerController < ApplicationController
 
   before_action :set_token
   before_action :validate_parameters_by_token
+  before_action :check_token_enabled
   before_action :set_project_name
   before_action :set_package_name
   # From Triggerable
@@ -54,6 +55,12 @@ class TriggerController < ApplicationController
 
   private
 
+  # AUTHENTICATION
+  def set_token
+    @token = ::TriggerControllerService::TokenExtractor.new(request).call
+    raise InvalidToken, 'No valid token found' unless @token
+  end
+
   def validate_parameters_by_token
     case @token.type
     when 'Token::Workflow'
@@ -69,10 +76,8 @@ class TriggerController < ApplicationController
     raise MissingParameterError
   end
 
-  # AUTHENTICATION
-  def set_token
-    @token = ::TriggerControllerService::TokenExtractor.new(request).call
-    raise InvalidToken, 'No valid token found' unless @token
+  def check_token_enabled
+    raise Trigger::Errors::NotEnabledToken, 'This token is not enabled.' unless @token.enabled
   end
 
   def pundit_user
