@@ -1264,10 +1264,12 @@ sub createrepo_staticlinks {
         my $profile = $3 || "";
         $link = "$1$profile$5";
         $link = "$1-$2$profile$5" if $versioned;
-      } elsif (/^(.*)_([^_]*)\.(manifest|efi|vmlinuz|initrd|tar|cpio|img|raw|verity|roothash|roothash\.p7s|usrhash|usrhash\.p7s)(?:\.(?:gz|bz2|xz|zst|zstd))?$/s) {
+      } elsif (/^(.*)_([^_]*)\.(manifest|efi|vmlinuz|initrd|tar|cpio|img|raw|verity|roothash|roothash\.p7s|usrhash|usrhash\.p7s)(\.(?:gz|bz2|xz|zst|zstd))?$/s) {
         # mkosi appliance
-        $link = "$1.$3";
-        $link = "${1}_$2.$3" if $versioned;
+        my $compression = "";
+        $compression = $4 if defined $4;
+        $link = "${1}.${3}${compression}";
+        $link = "${1}_${2}.${3}${compression}" if $versioned;
       } elsif (/^(.*)-Build(?:\d\d\d\d+|\d+(?:\.\d+)+)(|-Source|-Debug)\.iso$/s) {
         # product-composer builds
         $link = "$1$2.iso"; # no support for versioned links
