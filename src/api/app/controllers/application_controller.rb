@@ -108,11 +108,11 @@ class ApplicationController < ActionController::Base
   def require_scmsync_host_check
     scm_cookie = request.env['HTTP_X_SCM_BRIDGE_COOKIE']
     raise MissingParameterError, 'X-SCM_BRIDGE_COOKIE is not set' if scm_cookie.blank?
-    raise MissingParameterError, 'Incorrect scm bridge cookie' if scm_cookie != (CONFIG['scm_bridge_cookie']).to_s
+    raise MissingParameterError, 'Incorrect scm bridge cookie' if scm_cookie != CONFIG['scm_bridge_cookie'].to_s
   end
 
   def add_api_version
-    response.headers['X-Opensuse-APIVersion'] = (CONFIG['version']).to_s
+    response.headers['X-Opensuse-APIVersion'] = CONFIG['version'].to_s
   end
 
   def require_parameter!(parameter)
