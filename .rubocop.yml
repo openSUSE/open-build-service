@@ -1,9 +1,11 @@
 inherit_from: .rubocop_todo.yml
 
+plugins:
+  - rubocop-rspec
+
 require:
   - rubocop-capybara
   - rubocop-performance
-  - rubocop-rspec
   - rubocop-rspec_rails
 
 AllCops:
