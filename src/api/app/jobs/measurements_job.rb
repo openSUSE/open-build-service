@@ -10,7 +10,7 @@ class MeasurementsJob < ApplicationJob
     subscription_measurements
     beta_features_measurements
 
-    RabbitmqBus.send_to_bus('metrics', "token_workflow #{measurement_to_fields(token_workflow_measurements)}")
+    RabbitmqBus.send_to_bus('metrics', "token_workflow #{measurements_to_fields(token_workflow_measurements)}")
   end
 
   private
