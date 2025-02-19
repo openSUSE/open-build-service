@@ -306,6 +306,7 @@ Metrics/ModuleLength:
     - 'app/helpers/webui/request_helper.rb'
     - 'app/helpers/webui/user_helper.rb'
     - 'app/models/concerns/has_relationships.rb'
+    - 'app/models/concerns/workflow_run_payload.rb'
 
 # Offense count: 19
 # Configuration parameters: Max, CountKeywordArgs, MaxOptionalParameters.

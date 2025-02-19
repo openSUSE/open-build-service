@@ -12,7 +12,7 @@ class Workflow
     submit_request: Workflow::Step::SubmitRequest
   }.freeze
 
-  SUPPORTED_FILTERS = %i[branches event].freeze
+  SUPPORTED_FILTERS = %i[branches event labels].freeze
 
   attr_accessor :workflow_instructions, :token, :workflow_run, :workflow_version_number
 
@@ -31,8 +31,7 @@ class Workflow
 
   def call
     run_callbacks(:call) do
-      return unless event_matches_event_filter?
-      return unless branch_matches_branches_filter?
+      return unless filters_match?
 
       steps.each do |step|
         # ArtifactsCollector can only be called if the step.call doesn't return nil because of a validation error
@@ -112,5 +111,25 @@ class Workflow
     return true if branches_ignore.present? && branches_ignore.exclude?(workflow_run.target_branch)
 
     false
+  end
+
+  # rubocop:disable Metrics/CyclomaticComplexity
+  # Execute only if labeled or unlabeled
+  def label_matches_labels_filter?
+    return true unless workflow_run.labeled_pull_request? || workflow_run.unlabeled_pull_request?
+    return true unless supported_filters.key?(:labels)
+
+    labels_only = filters[:labels].fetch(:only, [])
+    labels_ignore = filters[:labels].fetch(:ignore, [])
+
+    return true if labels_only.present? && labels_only.include?(workflow_run.label)
+    return true if labels_ignore.present? && labels_ignore.exclude?(workflow_run.label)
+
+    false
+  end
+  # rubocop:enable Metrics/CyclomaticComplexity
+
+  def filters_match?
+    event_matches_event_filter? && branch_matches_branches_filter? && label_matches_labels_filter?
   end
 end

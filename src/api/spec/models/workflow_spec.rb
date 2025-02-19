@@ -359,4 +359,63 @@ RSpec.describe Workflow, :vcr do
       end
     end
   end
+
+  describe '#label_matches_labels_filter?' do
+    context 'label matches only filter' do
+      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled, token: token) }
+      let(:yaml) do
+        { steps: [{ branch_package: { source_project: 'test-project', source_package: 'test-package', target_project: 'test-project' } }],
+          filters: { event: 'pull_request', labels: { only: ['duplicate'] } } }
+      end
+
+      it { expect(subject.send(:label_matches_labels_filter?)).to be_truthy }
+    end
+
+    context "workflow instructions don't have labels filter" do
+      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled, token: token) }
+      let(:yaml) do
+        { steps: [{ branch_package: { source_project: 'test-project', source_package: 'test-package', target_project: 'test-project' } }] }
+      end
+
+      it 'does not stop the execution of steps' do
+        expect(subject.send(:label_matches_labels_filter?)).to be_truthy
+      end
+    end
+
+    context 'label does not match only filter' do
+      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled, token: token) }
+      let(:yaml) do
+        { steps: [{ branch_package: { source_project: 'test-project', source_package: 'test-package', target_project: 'test-project' } }],
+          filters: { event: 'pull_request', labels: { only: ['random-label'] } } }
+      end
+
+      it 'stops the execution of steps' do
+        expect(subject.send(:label_matches_labels_filter?)).not_to be_truthy
+      end
+    end
+
+    context 'label matches ignore filter' do
+      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled, token: token) }
+      let(:yaml) do
+        { steps: [{ branch_package: { source_project: 'test-project', source_package: 'test-package', target_project: 'test-project' } }],
+          filters: { event: 'pull_request', labels: { ignore: ['duplicate'] } } }
+      end
+
+      it 'stops the execution of steps' do
+        expect(subject.send(:label_matches_labels_filter?)).not_to be_truthy
+      end
+    end
+
+    context 'label does not match ignore filter' do
+      let!(:workflow_run) { create(:workflow_run, :pull_request_labeled, token: token) }
+      let(:yaml) do
+        { steps: [{ branch_package: { source_project: 'test-project', source_package: 'test-package', target_project: 'test-project' } }],
+          filters: { event: 'pull_request', labels: { ignore: ['random-label'] } } }
+      end
+
+      it 'stops the execution of steps' do
+        expect(subject.send(:label_matches_labels_filter?)).to be_truthy
+      end
+    end
+  end
 end

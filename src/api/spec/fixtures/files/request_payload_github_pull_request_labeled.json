@@ -1,0 +1,36 @@
+{
+  "action": "labeled",
+  "number": 1,
+  "pull_request": {
+    "number": 1,
+    "html_url": "http://github.com/something",
+    "base": {
+      "ref": "master",
+      "repo": {
+        "full_name": "openSUSE/repo123"
+      }
+    },
+    "head": {
+      "sha": "123456789"
+    }
+  },
+  "label": {
+    "id": 5531927976,
+    "node_id": "LA_kwDOJmH3Ks8AAAABSbqFqA",
+    "url": "https://api.github.com/repos/rubhanazeem/hello_world/labels/duplicate",
+    "name": "duplicate",
+    "color": "cfd3d7",
+    "default": true,
+    "description": "This issue or pull request already exists"
+  },
+  "repository": {
+    "name": "hello_world",
+    "html_url": "https://github.com",
+    "owner": {
+      "login": "iggy"
+    }
+  },
+  "sender": {
+    "url": "https://api.github.com"
+  }
+}
