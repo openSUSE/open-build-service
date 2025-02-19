@@ -31,9 +31,7 @@ class Workflow
 
   def call
     run_callbacks(:call) do
-      return unless event_matches_event_filter?
-      return unless branch_matches_branches_filter?
-      return unless label_matches_labels_filter?
+      return unless filters_match?
 
       steps.each do |step|
         # ArtifactsCollector can only be called if the step.call doesn't return nil because of a validation error
@@ -130,4 +128,8 @@ class Workflow
     false
   end
   # rubocop:enable Metrics/CyclomaticComplexity
+
+  def filters_match?
+    event_matches_event_filter? && branch_matches_branches_filter? && label_matches_labels_filter?
+  end
 end
