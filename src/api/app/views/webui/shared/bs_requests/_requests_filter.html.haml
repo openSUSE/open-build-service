@@ -86,6 +86,24 @@
                                                               checked: selected_filter[:priority]&.include?(priority.to_s) }
 
   .mt-2.mb-2.accordion-item.border-0
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-project-name' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-project-name' } }
+      %b Project name
+      .selected-content.small.ms-1
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-project-name
+      #request-project-name-dropdown
+        = render partial: 'webui/shared/autocomplete', locals: { html_id: 'project_names_search', label: 'Project names:',
+                                                                 html_name: 'project_names[]', required: false, with_label: false,
+                                                                 data: { source: autocomplete_projects_path } }
+        .scroll-list-wrapper
+          - selected_filter[:project_names].each do |project_name|
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: project_name,
+                                                                    key: "project_names[#{project_name}]", name: 'project_names[]',
+                                                                    value: project_name,
+                                                                    checked: selected_filter[:project_names]&.include?(project_name) }
+
+  .mt-2.mb-2.accordion-item.border-0
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-creator' },
                                                        aria: { expanded: 'true', controls: 'request-filter-creator' } }
       %b Creator

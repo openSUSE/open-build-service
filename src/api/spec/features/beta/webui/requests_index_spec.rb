@@ -7,6 +7,7 @@ RSpec.describe 'Requests Index' do
   let(:target_project) { create(:project_with_package, package_name: 'goal', maintainer: receiver) }
   let(:source_project) { create(:project_with_package, package_name: 'ball', maintainer: submitter) }
   let(:other_source_project) { create(:project_with_package, package_name: 'package_2', maintainer: another_submitter) }
+  let(:yet_another_project) { create(:project_with_package, package_name: 'goal', maintainer: receiver) }
   let(:reviewer) { create(:confirmed_user, login: 'reviewer_1') }
 
   let!(:incoming_request) do
@@ -21,6 +22,20 @@ RSpec.describe 'Requests Index' do
                                            creator: another_submitter,
                                            source_package: other_source_project.packages.first,
                                            target_project: target_project)
+  end
+
+  let!(:yet_another_incoming_request) do
+    create(:bs_request_with_submit_action, description: 'This is very important',
+                                           creator: submitter,
+                                           source_package: source_project.packages.first,
+                                           target_project: yet_another_project)
+  end
+
+  let!(:yet_another_incoming_request2) do
+    create(:bs_request_with_submit_action, description: 'This is very important again',
+                                           creator: submitter,
+                                           source_package: source_project.packages.first,
+                                           target_project: yet_another_project)
   end
 
   let!(:outgoing_request) do
@@ -220,6 +235,31 @@ RSpec.describe 'Requests Index' do
     it 'shows requests with reviews by the selected reviewers' do
       expect(page).to have_link(href: "/request/show/#{incoming_request.number}")
       expect(page).to have_no_link(href: "/request/show/#{outgoing_request.number}")
+    end
+  end
+
+  describe 'filters request by multiple project names' do
+    before do
+      if mobile?
+        find_by_id('requests-dropdown-trigger').click # open the filter dropdown
+        sleep 0.5 # wait for dropdown to open
+      end
+
+      within('#content-selector-filters') do
+        fill_in('project_names_search', with: yet_another_project.name)
+        find('.ui-menu-item-wrapper', match: :first).click
+        fill_in('project_names_search', with: source_project.name)
+        find('.ui-menu-item-wrapper', match: :first).click
+        # Remove focus from autocomplete search to allow the autosubmit
+        find(:xpath, '//*[@id="request-project-name-dropdown"]/div/div/span/i').click
+        sleep 2
+      end
+    end
+
+    it 'shows requests with source or target project by the selected project names' do
+      expect(page).to have_link(href: "/request/show/#{yet_another_incoming_request.number}")
+      expect(page).to have_link(href: "/request/show/#{yet_another_incoming_request2.number}")
+      expect(page).to have_no_link(href: "/request/show/#{other_incoming_request.number}")
     end
   end
 end
