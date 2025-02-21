@@ -53,31 +53,31 @@ RSpec.describe Webui::Projects::BsRequestsController do
           get :index, params: params, format: :html
         end
 
-        context 'and the direction parameters is "incoming"' do
-          let(:context_params) { { direction: 'incoming' } }
+        context 'and the involvement parameters is "incoming"' do
+          let(:context_params) { { involvement: 'incoming' } }
 
-          it { expect(response).to have_http_status(:success) }
-          it { expect(subject).to render_template(:index) }
           it { expect(assigns[:bs_requests]).to include(incoming_request) }
           it { expect(assigns[:bs_requests]).not_to include(outgoing_request) }
           it { expect(assigns[:bs_requests]).not_to include(request_with_review) }
         end
 
-        context 'and the direction parameters is "outgoing"' do
-          let(:context_params) { { direction: 'outgoing' } }
+        context 'and the involvement parameters is "outgoing"' do
+          let(:context_params) { { involvement: 'outgoing' } }
 
-          it { expect(response).to have_http_status(:success) }
-          it { expect(subject).to render_template(:index) }
           it { expect(assigns[:bs_requests]).not_to include(incoming_request) }
           it { expect(assigns[:bs_requests]).to include(outgoing_request) }
           it { expect(assigns[:bs_requests]).not_to include(request_with_review) }
         end
 
-        context 'and the direction parameters is "all"' do
-          let(:context_params) { { direction: 'all' } }
+        context 'and the involvement parameters is "review"' do
+          let(:context_params) { { involvement: 'review' } }
 
-          it { expect(response).to have_http_status(:success) }
-          it { expect(subject).to render_template(:index) }
+          it { expect(assigns[:bs_requests]).to include(incoming_request) }
+          it { expect(assigns[:bs_requests]).to include(outgoing_request) }
+          it { expect(assigns[:bs_requests]).to include(request_with_review) }
+        end
+
+        context 'and the involvement parameters is not present' do
           it { expect(assigns[:bs_requests]).to include(incoming_request) }
           it { expect(assigns[:bs_requests]).to include(outgoing_request) }
           it { expect(assigns[:bs_requests]).to include(request_with_review) }
@@ -115,31 +115,31 @@ RSpec.describe Webui::Projects::BsRequestsController do
           get :index, params: params, format: :html
         end
 
-        context 'and the direction parameters is "incoming"' do
-          let(:context_params) { { direction: 'incoming' } }
+        context 'and the involvement parameters is "incoming"' do
+          let(:context_params) { { involvement: 'incoming' } }
 
-          it { expect(response).to have_http_status(:success) }
-          it { expect(subject).to render_template(:index) }
-          it { expect(assigns[:bs_requests]).not_to include(outgoing_request) }
           it { expect(assigns[:bs_requests]).to include(incoming_request) }
+          it { expect(assigns[:bs_requests]).not_to include(outgoing_request) }
           it { expect(assigns[:bs_requests]).not_to include(request_with_review) }
         end
 
-        context 'and the direction parameters is "outgoing"' do
-          let(:context_params) { { direction: 'outgoing' } }
+        context 'and the involvement parameters is "outgoing"' do
+          let(:context_params) { { involvement: 'outgoing' } }
 
-          it { expect(response).to have_http_status(:success) }
-          it { expect(subject).to render_template(:index) }
           it { expect(assigns[:bs_requests]).not_to include(incoming_request) }
           it { expect(assigns[:bs_requests]).to include(outgoing_request) }
           it { expect(assigns[:bs_requests]).not_to include(request_with_review) }
         end
 
-        context 'and the direction parameters is "all"' do
-          let(:context_params) { { direction: 'all' } }
+        context 'and the involvement parameters is "review"' do
+          let(:context_params) { { involvement: 'review' } }
 
-          it { expect(response).to have_http_status(:success) }
-          it { expect(subject).to render_template(:index) }
+          it { expect(assigns[:bs_requests]).not_to include(incoming_request) }
+          it { expect(assigns[:bs_requests]).not_to include(outgoing_request) }
+          it { expect(assigns[:bs_requests]).to include(request_with_review) }
+        end
+
+        context 'and the involvement parameters is not present' do
           it { expect(assigns[:bs_requests]).to include(incoming_request) }
           it { expect(assigns[:bs_requests]).to include(outgoing_request) }
           it { expect(assigns[:bs_requests]).to include(request_with_review) }

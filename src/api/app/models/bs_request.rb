@@ -36,7 +36,9 @@ class BsRequest < ApplicationRecord
     includes(:bs_request_actions).where(bs_request_actions: { type: types }).distinct.order(priority: :asc, id: :desc)
   }
   scope :from_project, ->(project_name) { where('bs_request_actions.source_project like ?', project_name) }
+  scope :from_package, ->(package_name) { where('bs_request_actions.source_package like ?', package_name) }
   scope :to_project, ->(project_name) { where('bs_request_actions.target_project like ?', project_name) }
+  scope :to_package, ->(package_name) { where('bs_request_actions.target_package like ?', package_name) }
 
   scope :from_project_names, ->(project_names) { where(bs_request_actions: { source_project: project_names }) }
   scope :to_project_names, ->(project_names) { where(bs_request_actions: { target_project: project_names }) }

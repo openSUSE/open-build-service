@@ -5,14 +5,13 @@ module Webui
 
       before_action :set_project
       before_action :redirect_legacy
+      before_action :set_bs_requests
 
       def index
         if Flipper.enabled?(:request_index, User.session)
+          # FIXME: Once we roll out filter_requests should become a before_action
           filter_requests
-
-          @bs_requests = @bs_requests.order('number DESC').page(params[:page])
-          @bs_requests = @bs_requests.includes(:bs_request_actions, :comments, :reviews)
-          @bs_requests = @bs_requests.includes(:labels) if Flipper.enabled?(:labels, User.session)
+          @bs_requests = @bs_requests.page(params[:page])
         else
           parsed_params = BsRequest::DataTable::ParamsParserWithStateAndType.new(params).parsed_params
           requests_query = BsRequest::DataTable::FindForProjectQuery.new(@project, parsed_params)
@@ -26,20 +25,24 @@ module Webui
 
       private
 
-      def filter_by_direction(direction)
-        return filter_by_direction_staging_project(direction) if staging_projects.present?
+      def set_bs_requests
+        return unless Flipper.enabled?(:request_index, User.session)
 
-        case direction
-        when 'all'
-          target = BsRequest.with_actions_and_reviews.where(bs_request_actions: { target_project: @project.name })
-          source = BsRequest.with_actions_and_reviews.where(bs_request_actions: { source_project: @project.name })
-          reviews = BsRequest.with_actions_and_reviews.where(reviews: { project: @project, package: nil })
-          target.or(source).or(reviews)
-        when 'incoming'
-          BsRequest.with_actions.where(bs_request_actions: { target_project: @project.name })
-        when 'outgoing'
-          BsRequest.with_actions.where(bs_request_actions: { source_project: @project.name })
-        end
+        @bs_requests = @project.bs_requests
+      end
+
+      def filter_involvement
+        @filter_involvement = params[:involvement].presence
+        return unless %w[incoming outgoing].include?(@filter_involvement)
+
+        @bs_requests =  case @filter_involvement
+                        when 'incoming'
+                          @bs_requests.to_project(@project.name)
+                        when 'outgoing'
+                          @bs_requests.from_project(@project.name)
+                        when 'review'
+                          @bs_requests.where(reviews: { by_project: name })
+                        end
       end
 
       def filter_by_direction_staging_project(direction)
