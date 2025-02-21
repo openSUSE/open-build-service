@@ -113,8 +113,9 @@ class PublicController < ApplicationController
   def source_file
     if params[:rev].present? && params[:rev].length >= 32 &&
        !Package.exists_by_project_and_name(params[:project], params[:package])
+      prj = Project.find_by_name(params[:project])
       # automatic fallback
-      params[:deleted] = '1'
+      params[:deleted] = '1' unless prj && prj.scmsync.present?
     end
 
     if params[:deleted].present?
