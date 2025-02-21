@@ -117,7 +117,7 @@ RSpec.describe 'Requests Index' do
       find_by_id('requests-dropdown-trigger').click if mobile? # open the filter dropdown
       within('#content-selector-filters') do
         check('Maintenance Release')
-        sleep 2 # there is a timeout before firing the filtering
+        page.execute_script('submitFilters()') # autosubmit form
       end
 
       within('#requests') do
@@ -141,7 +141,7 @@ RSpec.describe 'Requests Index' do
         find('.ui-menu-item-wrapper', match: :first).click
         # Remove focus from autocomplete search to allow the autosubmit
         find(:xpath, '//*[@id="request-creator-dropdown"]/div/div/span/i').click
-        sleep 2
+        page.execute_script('submitFilters()') # autosubmit form
       end
 
       if mobile?
@@ -154,7 +154,7 @@ RSpec.describe 'Requests Index' do
         find('.ui-menu-item-wrapper', match: :first).click
         # Remove focus from autocomplete search to allow the autosubmit
         find(:xpath, '//*[@id="request-creator-dropdown"]/div/div/span/i').click
-        sleep 2
+        page.execute_script('submitFilters()') # autosubmit form
       end
     end
 
@@ -173,7 +173,7 @@ RSpec.describe 'Requests Index' do
 
       within('#content-selector-filters') do
         uncheck("creators[#{receiver.login}]")
-        sleep 2
+        page.execute_script('submitFilters()') # autosubmit form
       end
 
       expect(page).to have_no_link(href: "/request/show/#{outgoing_request.number}")
@@ -203,7 +203,7 @@ RSpec.describe 'Requests Index' do
         # filter from yesterday to tomorrow
         fill_in 'created_at_from', with: DateTime.now - 1.day
         fill_in 'created_at_to', with: DateTime.now + 1.day
-        sleep 2 # there is a timeout before firing the filtering
+        page.execute_script('submitFilters()') # autosubmit form
       end
 
       within('#requests') do
@@ -228,7 +228,7 @@ RSpec.describe 'Requests Index' do
         find('.ui-menu-item-wrapper', match: :first).click
         # Remove focus from autocomplete search to allow the autosubmit
         find(:xpath, '//*[@id="request-reviewer-dropdown"]/div/div/span/i').click
-        sleep 2
+        page.execute_script('submitFilters()') # autosubmit form
       end
     end
 
