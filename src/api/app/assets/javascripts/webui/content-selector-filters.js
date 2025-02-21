@@ -27,7 +27,7 @@ function submitFilters() {
 }
 
 let submitFiltersTimeout;
-$(document).on('change keyup', '#content-selector-filters-form input, #content-selector-filters-form select', function() {
+$(document).on('change keyup', '.auto-submit-on-change input, .auto-submit-on-change select', function() {
   // Clear the timeout to prevent the pending submission, if any
   window.clearTimeout(submitFiltersTimeout);
 
