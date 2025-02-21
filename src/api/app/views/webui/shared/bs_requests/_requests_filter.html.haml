@@ -1,6 +1,6 @@
 -# haml-lint:disable ViewLength
 .accordion.accordion-flush
-  .mt-2.mb-2.accordion-item.border-0
+  .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-direction' },
                                              aria: { expanded: 'true', controls: 'request-filter-direction' } }
       %b Direction
@@ -15,7 +15,7 @@
                                                               key: 'direction[outgoing]', name: 'direction', value: 'outgoing',
                                                               checked: selected_filter[:direction] == 'outgoing' }
 
-  .mt-2.mb-2.accordion-item.border-0
+  .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-state' },
                                                        aria: { expanded: 'true', controls: 'request-filter-state' } }
       %b State
@@ -27,7 +27,7 @@
                                                               value: state,
                                                               checked: selected_filter[:state]&.include?(state.to_s) }
 
-  .mt-2.mb-2.accordion-item.border-0
+  .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-action' },
                                                        aria: { expanded: 'true', controls: 'request-filter-action' } }
       %b Action Type
@@ -73,7 +73,7 @@
                                                             label_icon: action_type_icon('submit'),
                                                             checked: selected_filter[:action_type]&.include?('submit')}
 
-  .mt-2.mb-2.accordion-item.border-0
+  .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-priority' },
                                                        aria: { expanded: 'true', controls: 'request-filter-priority' } }
       %b Priority
@@ -95,7 +95,7 @@
         = render partial: 'webui/shared/autocomplete', locals: { html_id: 'project_names_search', label: 'Project names:',
                                                                  html_name: 'project_names[]', required: false, with_label: false,
                                                                  data: { source: autocomplete_projects_path } }
-        .scroll-list-wrapper
+        .scroll-list-wrapper.auto-submit-on-change
           - selected_filter[:project_names].each do |project_name|
             .dropdown-item-text
               = render partial: 'webui/shared/check_box', locals: { label: project_name,
@@ -113,7 +113,7 @@
         = render partial: 'webui/shared/autocomplete', locals: { html_id: 'creators_search', label: 'Creators:',
                                                                  html_name: 'creators[]', required: false, with_label: false,
                                                                  data: { source: autocomplete_users_path } }
-        .scroll-list-wrapper
+        .scroll-list-wrapper.auto-submit-on-change
           - if selected_filter[:creators].include?(User.session.login)
             .dropdown-item-text
               = render partial: 'webui/shared/check_box', locals: { label: "#{User.session.login} (me)",
@@ -140,7 +140,7 @@
                                                                  html_name: 'reviewers[]', required: false, with_label: false,
                                                                  data: { source: autocomplete_reviewers_path } }
 
-        .scroll-list-wrapper
+        .scroll-list-wrapper.auto-submit-on-change
           - if selected_filter[:reviewers].include?(User.session.login)
             .dropdown-item-text
               = render partial: 'webui/shared/check_box', locals: { label: "#{User.session.login} (me)",
@@ -163,7 +163,7 @@
     .px-4.pb-2.accordion-collapse.collapse.show#request-filter-stag-proj
       .mb-3.ui-front
         %input.form-control#stag-proj-search{ placeholder: 'Filter staging project', type: 'search' }
-      .scroll-list-wrapper
+      .scroll-list-wrapper.auto-submit-on-change
         - Project.where.not(staging_workflow_id: nil).each do |sp|
           .dropdown-item-text.request-filter-stag-proj-item
             - checked = selected_filter[:staging_project]&.include?(sp.name) || defined?(project) && project == sp
@@ -172,7 +172,7 @@
                                                                   value: sp.name,
                                                                   checked: checked }
 
-  .mt-2.mb-2.accordion-item.border-0
+  .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-created-at' },
                                                        aria: { expanded: 'true', controls: 'request-filter-created-at' } }
       %b Created datetime
