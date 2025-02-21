@@ -46,6 +46,21 @@ $(document).on('change keyup', '.auto-submit-on-change input, .auto-submit-on-ch
   submitFiltersTimeout = window.setTimeout(submitFilters, 2000);
 });
 
+// NOTE: no need to implement a keypress ENTER event, pressing enter on a form input will submit the form by default
+// Implement a click event on the search icon below
+const autoSubmitOnClickSelector = '#content-selector-filters-form .input-group-text';
+$(document).on('click', autoSubmitOnClickSelector, function() {
+  // Do nothing if there is no search icon inside
+  if ($(this).children('.fa-search').length === 0) {
+    return;
+  }
+  // Clear the timeout to prevent the pending submission, if any
+  window.clearTimeout(submitFiltersTimeout);
+
+  submitFilters();
+});
+
 $(document).ready(function(){
   highlightSelectedFilters();
+  $(autoSubmitOnClickSelector).each(function() {$(this).css('cursor', 'pointer');});
 });
