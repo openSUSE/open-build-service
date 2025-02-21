@@ -602,6 +602,7 @@ DEPENDENCIES
   jquery-ui-rails (~> 4.2.1)
   kaminari
   launchy
+  logger
   lograge
   matrix (~> 0.4)
   minitest
