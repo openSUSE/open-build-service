@@ -1296,6 +1296,7 @@ sub createrepo_staticlinks {
       } elsif (/^(.*?)(?:_(.*?))?(?:_(.*))?\.(manifest|metainfo.xml|efi|vmlinuz|initrd|tar|cpio|img|raw|verity|roothash|roothash\.p7s|usrhash|usrhash\.p7s)(\.(?:gz|bz2|xz|zst|zstd))?$/s) {
         # mkosi appliance, format is 'name_version_architecture.extension' as defined in https://www.freedesktop.org/software/systemd/man/257/systemd.v.html
         # architecture and compression are optional
+        next unless defined $2; # No version? Nothing to do
         my $compression = "";
         $compression = $5 if defined $5;
         my $architecture = "";
