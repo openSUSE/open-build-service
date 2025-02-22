@@ -20,8 +20,29 @@ MYSQL_PASS=opensuse
 PID_FILE=/run/setup-appliance.pid
 
 # package or appliance defaults
-if [ -e /etc/sysconfig/obs-server ]; then
-  source /etc/sysconfig/obs-server
+if [ -e /etc/os-release ];then
+  # execute in subshell to preserve the values of the variables
+  # $NAME and $VERSION as these are very generic
+  OS_NAME=`. /etc/os-release;echo $NAME`
+  OS_VERSION=`. /etc/os-release;echo $VERSION`
+  OS_ID_LIKE=`. /etc/os-release;echo $ID_LIKE`
+  OS_ID=`. /etc/os-release;echo $ID`
+  OS="$OS_NAME $OS_VERSION"
+else
+  OS="UNKNOWN"
+fi
+DEBIAN_FAMILY="no"
+for d in $OS_ID_LIKE $OS_ID;do
+  case $d in
+    ubuntu|debian)
+      defaultsfile="/etc/default/obs-server"
+      DEBIAN_FAMILY="yes"
+      ;;
+    *) defaultsfile="/etc/sysconfig/obs-server" ;;
+  esac
+done
+if [ -e "$defaultsfile" ]; then
+  source "$defaultsfile"
 fi
 
 # Set default directories
@@ -112,16 +133,12 @@ fi
 
 echo "$FQHOSTNAME" > $backenddir/.oldfqhostname
 
-OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
-if [ -e /etc/os-release ];then
-  # execute in subshell to preserve the values of the variables
-  # $NAME and $VERSION as these are very generic
-  OS_NAME=`. /etc/os-release;echo $NAME`
-  OS_VERSION=`. /etc/os-release;echo $VERSION`
-  OS="$OS_NAME $OS_VERSION"
+if [[ "$DEBIAN_FAMILY" == "yes" ]]; then
+  OBSVERSION=`dpkg-query --showformat='${Version}' --show obs-server`
 else
-  OS="UNKNOWN"
+  OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
 fi
+
 RUN_INITIAL_SETUP=""
 
 prepare_database_setup
@@ -157,7 +174,11 @@ if [[ $DETECTED_CERT_CHANGE && ! $SETUP_ONLY ]];then
     systemctl reload $HTTPD_SERVICE.service
 fi
 
-check_unit obs-api-support.target
+if [[ "$DEBIAN_FAMILY" == "yes" ]]; then
+  check_unit obs-api.target
+else
+  check_unit obs-api-support.target
+fi
 
 create_issue_file
 
