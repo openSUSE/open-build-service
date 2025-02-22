@@ -182,7 +182,9 @@ class Project < ApplicationRecord
     def remote_image_templates
       result = []
       Project.remote.each do |project|
-        body = load_from_remote(project, '/image_templates.xml')
+        body = Rails.cache.fetch("remote_image_templates_#{project.id}", expires_in: 1.hour) do
+          Backend::Api::Sources::Project.remoteimagetemplates(project)
+        end
         next if body.blank?
 
         Xmlhash.parse(body).elements('image_template_project').each do |image_template_project|
@@ -190,12 +192,6 @@ class Project < ApplicationRecord
         end
       end
       result
-    end
-
-    def load_from_remote(project, path)
-      Rails.cache.fetch("remote_image_templates_#{project.id}", expires_in: 1.hour) do
-        Project::RemoteURL.load(project, path)
-      end
     end
 
     def remote_image_template_from_xml(remote_project, image_template_project)
