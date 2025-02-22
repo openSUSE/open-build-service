@@ -3,12 +3,16 @@ class Token::Release < Token
 
   def call(options)
     set_triggered_at
-    return unless options[:package]
 
     # uniq timestring for all targets
     time_now = Time.now.utc
 
     package_to_release = options[:package]
+    if package_to_release.is_a?(String)
+      package_to_release = options[:project].packages.new(name: Package.striping_multibuild_suffix(options[:package]))
+      meta = Xmlhash.parse(Backend::Api::Sources::Package.meta(options[:project].name, package_to_release.name))
+      package_to_release.read_from_xml(meta)
+    end
     if options[:targetproject].present? && options[:targetrepository].present? && options[:filter_source_repository].present?
       source_repository = Repository.find_by_project_and_name(options[:project].name, options[:filter_source_repository])
       target_repository = Repository.find_by_project_and_name(options[:targetproject], options[:targetrepository])
