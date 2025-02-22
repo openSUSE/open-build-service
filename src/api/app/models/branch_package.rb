@@ -141,9 +141,12 @@ class BranchPackage
   # would be just the cosmetic parts like title and description. Other elemnts should
   # not be used anyway for scmsync packages.
   def create_fork(project)
-    package = project.packages.find_or_initialize_by(name: params[:package])
-    package.scmsync = @scmsync
-    package.store
+    package = nil
+    unless params[:package] == '_project'
+      package = project.packages.find_or_initialize_by(name: params[:package])
+      package.scmsync = @scmsync
+      package.store
+    end
 
     # add repositories
     opts = {}
@@ -152,9 +155,17 @@ class BranchPackage
     source_project = Project.get_by_name(params[:project])
     project.branch_to_repositories_from(source_project, package, opts)
     project.sync_repository_pathes
-
+    project.scmsync = @scmsync if params[:package] == '_project'
     project.store
-    { targetproject: package.project.name, targetpackage: package.name, sourceproject: params[:project], sourcepackage: params[:package] }
+    if params[:package] == '_project'
+      return { targetproject: project.name,
+               sourceproject: params[:project] }
+    end
+
+    { targetproject: project.name,
+      targetpackage: package.name,
+      sourceproject: params[:project],
+      sourcepackage: params[:package] }
   end
 
   def create_branch_packages(tprj)
