@@ -829,6 +829,7 @@ sub createrepo_rpmmd {
       }
     }
     print FILE "enabled=1\n";
+    print FILE "autorefresh=1\n";
     close(FILE) || die("close: $!\n");
     rename("$extrep/$projid.repo$$", "$extrep/$projid.repo") || die("rename $extrep/$projid.repo$$ $extrep/$projid.repo: $!\n");
   }
