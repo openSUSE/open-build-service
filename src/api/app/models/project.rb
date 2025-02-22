@@ -1117,7 +1117,7 @@ class Project < ApplicationRecord
             release_package(pkg,
                             releasetarget.target_repository,
                             pkg.release_target_name(releasetarget.target_repository, time_now),
-                            { filter_source_repository: repo,
+                            { repository: repo,
                               setrelease: params[:setrelease],
                               manual: true,
                               comment: comment })
