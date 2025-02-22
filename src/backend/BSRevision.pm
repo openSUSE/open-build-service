@@ -41,6 +41,61 @@ my $readproj_local_cache;
 
 our $storelinkinfo;	# linkinfo database store function
 
+=head1 NAME
+
+BSRevision - Helpers to handle revisions in OBS
+
+=head1 DESCRIPTION
+
+=over 4
+
+=item * Projects & packages creation and deletion
+
+=item * Projects & packages listing
+
+=item * Functions for storing and retrieving revisions of projects and packages
+
+=over 8
+
+=item - Revision history
+
+=item - Revisions for files and meta data
+
+=item - Revisions for deleted projects & packages
+
+=back
+
+=back
+
+=head1 SYNOPSIS
+
+  use BSRevision;
+
+  my $deleted = 0;
+
+  my @_proj = BSRevision::lsprojects_local($deleted);
+  my @_pack = BSRevision::lspackages_local($projid, $deleted);
+
+  my $revid = undef; # returns latest revision
+  my $rev = BSRevision::getrev_local($projid, $packid, $revid, $deleted);
+  my $mrev = BSRevision::getrev_meta($projid, $packid, $revid, $deleted);
+
+  my $lastrev = BSRevision::findlastrev($orig_rev);
+
+  BSRevision::delete_rev($cgi, $projid, $packid, $revfilefrom, $revfileto);
+
+  my $new_rev = BSRevision::undelete_rev($cgi, $projid, $packid, $revfilefrom, $revfileto);
+
+
+
+=head1 FUNCTIONS
+
+=head2 getrev_deleted_srcmd5 -
+
+TODO: write documentation
+
+=cut
+
 sub getrev_deleted_srcmd5 {
   my ($projid, $packid, $srcmd5) = @_;
   return undef unless BSSrcrep::existstree($projid, $packid, $srcmd5);
@@ -51,9 +106,44 @@ sub getrev_deleted_srcmd5 {
   return {'project' => $projid, 'package' => $packid, 'rev' => $srcmd5, 'srcmd5' => $srcmd5};
 }
 
-#
-# get a revision object from a revision identifier, local case only
-#
+=head2 getrev_local - get a revision object from a revision identifier, local case only
+
+=over 4
+
+=item Example:
+
+    my $rev = BSRevision::getrev_local($projid, $packid, $revid, $deleted);
+
+=item Result:
+
+    $rev = {
+      'user' => 'Admin',
+      'version' => 'unknown',
+      'vrev' => '1',
+      'rev' => '2',
+      'time' => '1593651124',
+      'comment' => '1',
+      'project' => 'home:Admin',
+      'srcmd5' => '3057aaf90db8773f6d2312cbb592fdb8',
+      'package' => 'obs-testpackage'
+    };
+
+=back
+
+=over 4
+
+=item * A packid of '_project' selects the revisions of the project
+
+=item * The revid parameter selects a specific revision, undef selects the last revision.
+
+Revision zero is always empty
+
+=item * The deleted option can be used to get a revision of a deleted project or package
+
+=back
+
+=cut
+
 sub getrev_local {
   my ($projid, $packid, $revid, $deleted) = @_;
   die("bad projid\n") if $projid =~ /\// || $projid =~ /^\./;
@@ -106,7 +196,14 @@ sub getrev_local {
   return $rev;
 }
 
-# find last revision that consisted of the same srcmd5
+=head2 findlastrev - find last revision that consisted of the same srcmd5
+
+  Example:
+
+   my $lastrev = BSRevision::findlastrev($orig_rev);
+
+=cut
+
 sub findlastrev {
   my ($orev) = @_;
   my $rev = BSFileDB::fdb_getmatch("$projectsdir/$orev->{'project'}.pkg/$orev->{'package'}.rev", $srcrevlay, 'srcmd5', $orev->{'srcmd5'});
@@ -115,6 +212,16 @@ sub findlastrev {
   $rev->{'package'} = $orev->{'package'};
   return $rev;
 }
+
+=head2 getrev_meta - get revision object for meta_data
+
+  Example:
+
+   my $rev = BSRevision::getrev_meta($projid, $packid, $revid, $deleted);
+
+If $revid is undef or C<'latest'> the object for the latest revision will be returned.
+
+=cut
 
 sub getrev_meta {
   my ($projid, $packid, $revid, $deleted) = @_;
@@ -305,10 +412,22 @@ sub addrev_replace_common {
   return $nrev;
 }
 
+=head2 addrev_local_replace -
+
+TODO: write documentation
+
+=cut 
+
 sub addrev_local_replace {
   my ($cgi, $projid, $packid, @todo) = @_;
   return addrev_replace_common($cgi, $projid, $packid, 'rev', @todo);
 }
+
+=head2 addrev_meta_replace -
+
+TODO: write documentation
+
+=cut 
 
 sub addrev_meta_replace {
   my ($cgi, $projid, $packid, @todo) = @_;
@@ -385,6 +504,17 @@ sub addrev_meta {
   die("addrev_meta is not implemented (yet)\n");
 }
 
+=head2 undelete_rev - Undelete last revision block from the deleted revisions
+
+  Example:
+    my $new_rev = BSRevision::undelete_rev($cgi, $projid, $packid, $revfilefrom, $revfileto);
+
+Copies last revision block from C<$revfilefrom> to C<$revfileto>.
+
+Returns the new revision object.
+
+=cut
+
 sub undelete_rev {
   my ($cgi, $projid, $packid, $revfilefrom, $revfileto) = @_;
   my @rev = BSFileDB::fdb_getall($revfilefrom, $srcrevlay);
@@ -426,6 +556,15 @@ sub undelete_rev {
   }
   return $nrev;
 }
+
+=head2 delete_rev - Delete all revisions (adding them as block to the list of deleted revisions)
+
+  Example:
+    BSRevision::delete_rev($cgi, $projid, $packid, $revfilefrom, $revfileto);
+
+Appends all revisions from C<$revfilefrom> to C<$revfileto>.
+
+=cut 
 
 sub delete_rev {
   my ($cgi, $projid, $packid, $revfilefrom, $revfileto) = @_;
@@ -470,6 +609,16 @@ sub delete_deleted {
   }
 }
 
+=head2 lsprojects_local - list projects in local filesystem
+
+ Example:
+
+   my @_proj = BSRevision::lsprojects_local($deleted);
+
+ Result: A list of all projects
+
+=cut
+
 sub lsprojects_local {
   my ($deleted) = @_;
   if ($deleted) {
@@ -483,6 +632,16 @@ sub lsprojects_local {
   closedir(D);
   return sort @projids;
 }
+
+=head2 lspackages_local - list packages in a project in local filesystem
+
+  Example:
+
+   my @_proj = BSRevision::lspackages_local($projid, $deleted);
+
+  Result: A list of all packages in the given project dependent on $deleted
+
+=cut
 
 sub lspackages_local {
   my ($projid, $deleted) = @_;
@@ -537,6 +696,15 @@ sub revcpiofile {
   my ($rev, $filename, $md5, $forcehandle) = @_;
   return BSSrcrep::cpiofile($rev->{'project'}, $rev->{'package'}, $filename, $md5, $forcehandle);
 }
+
+=head2 lsrev - TODO: find summary
+
+  Example:
+
+    my $linkinfo = {};
+    my $result   = BSRevision::lsrev($rev, $linkinfo);
+
+=cut
 
 sub lsrev {
   my ($rev, $linkinfo) = @_;
