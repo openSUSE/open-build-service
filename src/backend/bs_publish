@@ -832,6 +832,35 @@ sub createrepo_rpmmd {
     close(FILE) || die("close: $!\n");
     rename("$extrep/$projid.repo$$", "$extrep/$projid.repo") || die("rename $extrep/$projid.repo$$ $extrep/$projid.repo: $!\n");
   }
+
+  for my $format ('spdx', 'cyclonedx') {
+    my $formatshort = $format;
+    $formatshort =~ s/cyclonedx/cdx/;
+    my $sbomfile = "$extrep/repodata/sbom-$formatshort.json";
+    # cleanup files
+    if(!$options{"sbom-$format"}) {
+      unlink($sbomfile, "$sbomfile.sha256");
+      next;
+    }
+    # container and kiwi images builds generate SBOM files already
+    next if grep {/^[^\.].*\.$formatshort\.json$/} sort(ls($extrep));
+    die("    generate_sbom not installed\n") unless -x '/usr/lib/build/generate_sbom';
+
+    print "    generating $format sbom file\n";
+    qsystem('stdout', $sbomfile, '/usr/lib/build/generate_sbom', '--format', $format, '--rpmmd', $extrep)
+      && die("    generate_sbom failed: $?\n");
+
+    open(my $fh, '<', $sbomfile) or die("cannot open $sbomfile: $!\n");
+    my $ctx = Digest::SHA->new(256);
+    $ctx->addfile($fh);
+    close($fh);
+    my $sha256sum = $ctx->hexdigest();
+
+    open(my $cfh, '>', "$sbomfile.sha256") or die("cannot write to $sbomfile.sha256: $!\n");
+    print $cfh "$sha256sum  sbom-$formatshort.json\n";
+    close($cfh);
+  }
+
 }
 
 sub deleterepo_rpmmd {
