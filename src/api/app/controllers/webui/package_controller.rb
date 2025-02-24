@@ -330,6 +330,10 @@ class Webui::PackageController < Webui::WebuiController
     end
   end
 
+  def autocomplete
+    render json: AutocompleteFinder::Package.new(Package, params[:term]).call.pluck(:name).uniq
+  end
+
   def files; end
   def view_file; end
 
