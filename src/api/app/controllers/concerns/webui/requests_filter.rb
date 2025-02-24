@@ -21,7 +21,7 @@ module Webui::RequestsFilter
     params[:states] = @filter_state if @filter_state.present?
     params[:priorities] = @filter_priority if @filter_priority.present?
     params[:types] = @filter_action_type if @filter_action_type.present?
-    params[:staging_project] = @filter_staging_project if @filter_staging_project.present?
+    params[:staging_projects] = @filter_staging_projects if @filter_staging_projects.present?
     params[:reviewers] = @filter_reviewers if @filter_reviewers.present?
 
     params[:created_at_from] = @filter_created_at_from if @filter_created_at_from.present?
@@ -51,7 +51,7 @@ module Webui::RequestsFilter
     @filter_creators = params[:creators].present? ? params[:creators].compact_blank! : []
 
     @filter_project_names = params[:project_names].present? ? params[:project_names].compact_blank! : []
-    @filter_staging_project = params[:staging_project].presence || []
+    @filter_staging_projects = params[:staging_projects].presence || []
 
     @filter_created_at_from = params[:created_at_from].presence || ''
     @filter_created_at_to = params[:created_at_to].presence || ''
@@ -64,7 +64,7 @@ module Webui::RequestsFilter
   def set_selected_filter
     @selected_filter = { direction: @filter_direction, action_type: @filter_action_type, search_text: params[:requests_search_text],
                          state: @filter_state, creators: @filter_creators, project_names: @filter_project_names,
-                         staging_project: @filter_staging_project, priority: @filter_priority,
+                         staging_projects: @filter_staging_projects, priority: @filter_priority,
                          created_at_from: @filter_created_at_from, created_at_to: @filter_created_at_to, reviewers: @filter_reviewers }
   end
 
@@ -78,6 +78,6 @@ module Webui::RequestsFilter
   end
 
   def staging_projects
-    Project.where(name: @filter_staging_project)
+    Project.where(name: @filter_staging_projects)
   end
 end

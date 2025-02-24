@@ -29,21 +29,3 @@
           = render partial: 'webui/shared/bs_requests/request_item', collection: bs_requests, as: :bs_request
           = paginate bs_requests, views_prefix: 'webui'
   = form.submit(nil, class: 'd-none')
-
-:javascript
-  $(document).on("input", "#stag-proj-search", function(event) {
-    var searchInput = event.target;
-    var filterValue = searchInput.value.toLowerCase();
-    var filterContent = document.getElementById("request-filter-stag-proj");
-    var filterItems = filterContent.getElementsByClassName("request-filter-stag-proj-item");
-
-    for (i = 0; i < filterItems.length; i++) {
-      var itemValue = filterItems[i].getElementsByTagName('input')[0].value;
-
-      if (itemValue.toLowerCase().indexOf(filterValue) > -1) {
-        filterItems[i].style.display = "";
-      } else {
-        filterItems[i].style.display = "none";
-      }
-    }
-  });
