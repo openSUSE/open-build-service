@@ -16,7 +16,7 @@
         %p
           A project with the same name existed in the past. You can restore the old state instead of starting from scratch.
           = link_to 'Click here', projects_restore_path(project: @project.name), method: :post
-          if you want to restore the project. If you want to start from scratch, click the 'Create Project' button again.
+          if you want to restore the project. If you want to start from scratch, click the 'Accept' button below.
           %strong (Be aware that starting from scratch would mean that you'd delete the old state of the project and it can never get restored again!)
     = form_for(@project, url: projects_create_path, method: :post) do |form|
       - locals = { form: form, configuration: @configuration, show_restore_message: @show_restore_message }
