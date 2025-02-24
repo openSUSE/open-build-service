@@ -51,7 +51,7 @@ module Webui::RequestsFilter
     @filter_creators = params[:creators].present? ? params[:creators].compact_blank! : []
 
     @filter_project_names = params[:project_names].present? ? params[:project_names].compact_blank! : []
-    @filter_staging_projects = params[:staging_projects].presence || []
+    @filter_staging_projects = params[:staging_projects].present? ? params[:staging_projects].compact_blank! : []
 
     @filter_created_at_from = params[:created_at_from].presence || ''
     @filter_created_at_to = params[:created_at_to].presence || ''
