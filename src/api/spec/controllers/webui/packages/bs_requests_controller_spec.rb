@@ -42,6 +42,7 @@ RSpec.describe Webui::Packages::BsRequestsController do
                creator: user,
                priority: 'critical')
       end
+      let(:context_params) { {} }
       let(:base_params) { { project: a_project, package: a_package, format: :json } }
 
       before do
@@ -50,34 +51,18 @@ RSpec.describe Webui::Packages::BsRequestsController do
         get :index, params: base_params.merge(context_params), format: :html
       end
 
+      it { expect(assigns[:bs_requests]).to contain_exactly(incoming_request, outgoing_request, request_with_review) }
+
       context 'and the direction parameters is "incoming"' do
         let(:context_params) { { direction: 'incoming' } }
 
-        it { expect(response).to have_http_status(:success) }
-        it { expect(subject).to render_template(:index) }
-        it { expect(assigns[:bs_requests]).to include(incoming_request) }
-        it { expect(assigns[:bs_requests]).not_to include(outgoing_request) }
-        it { expect(assigns[:bs_requests]).not_to include(request_with_review) }
+        it { expect(assigns[:bs_requests]).to contain_exactly(incoming_request) }
       end
 
       context 'and the direction parameters is "outgoing"' do
         let(:context_params) { { direction: 'outgoing' } }
 
-        it { expect(response).to have_http_status(:success) }
-        it { expect(subject).to render_template(:index) }
-        it { expect(assigns[:bs_requests]).not_to include(incoming_request) }
-        it { expect(assigns[:bs_requests]).to include(outgoing_request) }
-        it { expect(assigns[:bs_requests]).not_to include(request_with_review) }
-      end
-
-      context 'and the direction parameters is "all"' do
-        let(:context_params) { { direction: 'all' } }
-
-        it { expect(response).to have_http_status(:success) }
-        it { expect(subject).to render_template(:index) }
-        it { expect(assigns[:bs_requests]).to include(incoming_request) }
-        it { expect(assigns[:bs_requests]).to include(outgoing_request) }
-        it { expect(assigns[:bs_requests]).to include(request_with_review) }
+        it { expect(assigns[:bs_requests]).to contain_exactly(outgoing_request) }
       end
     end
   end

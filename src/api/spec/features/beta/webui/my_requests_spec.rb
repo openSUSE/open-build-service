@@ -1,28 +1,28 @@
 require 'browser_helper'
 
-RSpec.describe 'Project Requests' do
+RSpec.describe 'My Requests' do
   let(:user) { create(:confirmed_user, login: 'titan') }
-  let(:target_project) { create(:project_with_package, package_name: 'goal') }
+  let(:target_project) { create(:project_with_package, package_name: 'goal', maintainer: user) }
   let(:source_project) { create(:project_with_package, package_name: 'ball') }
-  let(:other_target_project) { create(:project_with_package, package_name: 'package_2') }
+  let(:other_target_project) { create(:project) }
 
   let!(:incoming_request) do
-    create(:bs_request_with_submit_action, description: 'Please take this',
+    create(:bs_request_with_submit_action, description: 'Incoming Request',
                                            source_package: source_project.packages.first,
                                            target_project: target_project)
   end
 
   let!(:outgoing_request) do
-    create(:bs_request_with_submit_action, description: 'How about this?',
+    create(:bs_request_with_submit_action, description: 'Outgoing Request',
                                            source_package: target_project.packages.first,
                                            target_project: other_target_project)
   end
 
-  context 'project with requests' do
+  context 'user with requests' do
     before do
       Flipper.enable(:request_index)
       login user
-      visit projects_requests_path(target_project)
+      visit my_requests_path
     end
 
     it 'lists requests' do
