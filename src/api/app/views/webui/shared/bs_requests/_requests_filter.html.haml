@@ -156,21 +156,22 @@
                                                                     checked: selected_filter[:reviewers]&.include?(reviewer) }
 
   .mt-2.mb-2.accordion-item.border-0
-    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-stag-proj' },
-                                                       aria: { expanded: 'true', controls: 'request-filter-stag-proj' } }
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-staging-project' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-staging-project' } }
       %b Staging  Project
       .selected-content.small.ms-1
-    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-stag-proj
-      .mb-3.ui-front
-        %input.form-control#stag-proj-search{ placeholder: 'Filter staging project', type: 'search' }
-      .scroll-list-wrapper
-        - Project.where.not(staging_workflow_id: nil).each do |sp|
-          .dropdown-item-text.request-filter-stag-proj-item
-            - checked = selected_filter[:staging_project]&.include?(sp.name) || defined?(project) && project == sp
-            = render partial: 'webui/shared/check_box', locals: { label: sp.name,
-                                                                  key: "staging_project[#{sp.id}]", name: 'staging_project[]',
-                                                                  value: sp.name,
-                                                                  checked: checked }
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-staging-project
+      #request-staging-project-dropdown
+        = render partial: 'webui/shared/autocomplete', locals: { html_id: 'staging_project_search', label: 'Staging Project:',
+                                                                 html_name: 'staging_projects[]', required: false, with_label: false,
+                                                                 data: { source: autocomplete_staging_projects_path } }
+        .scroll-list-wrapper.auto-submit-on-change
+          - selected_filter[:staging_projects].each do |staging_project|
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: staging_project,
+                                                                    key: "staging_projects[#{staging_project}]", name: 'staging_project[]',
+                                                                    value: staging_project,
+                                                                    checked: selected_filter[:staging_projects]&.include?(staging_project) }
 
   .mt-2.mb-2.accordion-item.border-0
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-created-at' },

@@ -26,7 +26,8 @@ class Webui::ProjectController < Webui::WebuiController
 
   before_action :check_ajax, only: %i[buildresult edit_comment_form]
 
-  after_action :verify_authorized, except: %i[index autocomplete_projects autocomplete_incidents autocomplete_packages
+  after_action :verify_authorized, except: %i[index autocomplete_projects autocomplete_staging_projects
+                                              autocomplete_incidents autocomplete_packages
                                               autocomplete_repositories users subprojects new show
                                               buildresult requests monitor new_release_request
                                               remove_target_request edit_comment edit_comment_form preview_description]
@@ -136,6 +137,10 @@ class Webui::ProjectController < Webui::WebuiController
 
   def autocomplete_projects
     render json: Project.autocomplete(params[:term], params[:local]).not_maintenance_incident.pluck(:name)
+  end
+
+  def autocomplete_staging_projects
+    render json: Project.autocomplete(params[:term]).where.not(staging_workflow_id: nil).pluck(:name)
   end
 
   def autocomplete_incidents
