@@ -37,9 +37,7 @@ class BranchPackage
     @update_path_elements = true
   end
 
-  def logger
-    Rails.logger
-  end
+  delegate :logger, to: :Rails
 
   def branch
     #

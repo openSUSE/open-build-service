@@ -81,21 +81,13 @@ module Event
     end
 
     # just for convenience
-    def payload_keys
-      self.class.payload_keys
-    end
+    delegate :payload_keys, to: :class
 
-    def shortenable_key
-      self.class.shortenable_key
-    end
+    delegate :shortenable_key, to: :class
 
-    def create_jobs
-      self.class.create_jobs
-    end
+    delegate :create_jobs, to: :class
 
-    def receiver_roles
-      self.class.receiver_roles
-    end
+    delegate :receiver_roles, to: :class
 
     def initialize(attribs)
       attributes = attribs.dup.with_indifferent_access

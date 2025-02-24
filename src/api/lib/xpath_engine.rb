@@ -245,9 +245,7 @@ class XpathEngine
     @joins = []
   end
 
-  def logger
-    Rails.logger
-  end
+  delegate :logger, to: :Rails
 
   # Careful: there is no return value, the items found are passed to the calling block
   def find(xpath)

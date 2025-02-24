@@ -17,9 +17,7 @@ module Suse
     class << self
       attr_reader :schema_location
 
-      def logger
-        Rails.logger
-      end
+      delegate :logger, to: :Rails
 
       # Adds an action to schema mapping. Internally, the mapping is done like this:
       #

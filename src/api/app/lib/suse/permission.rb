@@ -78,8 +78,6 @@ module Suse
       end
     end
 
-    def logger
-      Rails.logger
-    end
+    delegate :logger, to: :Rails
   end
 end
