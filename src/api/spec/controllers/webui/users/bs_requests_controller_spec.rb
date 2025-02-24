@@ -49,17 +49,24 @@ RSpec.describe Webui::Users::BsRequestsController do
       let(:target_package) { target_project.packages.first }
       let!(:incoming_request) do
         create(:bs_request_with_submit_action,
-               priority: 'critical',
                source_package: create(:project),
                target_package: target_package)
       end
       let!(:outgoing_request) do
         create(:bs_request_with_submit_action,
                creator: user,
-               priority: 'critical',
                source_package: target_package,
                target_package: create(:project))
       end
+      let!(:request_with_review) do
+        create(:delete_bs_request,
+               target_project: create(:project),
+               staging_project: create(:project),
+               review_by_user: user,
+               priority: :critical)
+      end
+
+      let(:context_params) { {} }
       let(:params) { { format: :json }.merge(context_params) }
 
       before do
@@ -68,31 +75,70 @@ RSpec.describe Webui::Users::BsRequestsController do
         get :index, params: params, format: :html
       end
 
-      context 'and the direction parameters is "incoming"' do
+      it { expect(assigns[:bs_requests]).to contain_exactly(incoming_request, outgoing_request, request_with_review) }
+
+      context 'and the direction parameter is incoming' do
         let(:context_params) { { direction: 'incoming' } }
 
-        it { expect(response).to have_http_status(:success) }
-        it { expect(subject).to render_template(:index) }
-        it { expect(assigns[:bs_requests]).to include(incoming_request) }
-        it { expect(assigns[:bs_requests]).not_to include(outgoing_request) }
+        it { expect(assigns[:bs_requests]).to contain_exactly(incoming_request) }
       end
 
-      context 'and the direction parameters is "outgoing"' do
+      context 'and the direction parameter is outgoing' do
         let(:context_params) { { direction: 'outgoing' } }
 
-        it { expect(response).to have_http_status(:success) }
-        it { expect(subject).to render_template(:index) }
-        it { expect(assigns[:bs_requests]).not_to include(incoming_request) }
-        it { expect(assigns[:bs_requests]).to include(outgoing_request) }
+        it { expect(assigns[:bs_requests]).to contain_exactly(outgoing_request) }
       end
 
-      context 'and the direction parameters is "all"' do
-        let(:context_params) { { direction: 'all' } }
+      context 'and the state parameter is used' do
+        let(:context_params) { { state: ['review'] } }
 
-        it { expect(response).to have_http_status(:success) }
-        it { expect(subject).to render_template(:index) }
-        it { expect(assigns[:bs_requests]).to include(incoming_request) }
-        it { expect(assigns[:bs_requests]).to include(outgoing_request) }
+        it { expect(assigns[:bs_requests]).to contain_exactly(request_with_review) }
+      end
+
+      context 'and the action_type parameter is used' do
+        let(:context_params) { { action_type: ['delete'] } }
+
+        it { expect(assigns[:bs_requests]).to contain_exactly(request_with_review) }
+      end
+
+      context 'and the creators parameter is used' do
+        let(:context_params) { { creators: [user.login] } }
+
+        it { expect(assigns[:bs_requests]).to contain_exactly(outgoing_request) }
+      end
+
+      context 'and the priority parameter is used' do
+        let(:context_params) { { priority: ['critical'] } }
+
+        it { expect(assigns[:bs_requests]).to contain_exactly(request_with_review) }
+      end
+
+      context 'and the staging_project parameter is used' do
+        let(:context_params) { { staging_projects: [request_with_review.staging_project.name] } }
+
+        it { expect(assigns[:bs_requests]).to contain_exactly(request_with_review) }
+      end
+
+      context 'and the reviewers parameter is used' do
+        let(:context_params) { { reviewers: [user.login] } }
+
+        it { expect(assigns[:bs_requests]).to contain_exactly(request_with_review) }
+      end
+
+      context 'and the created_at parameters are used' do
+        before do
+          request_with_review.update(created_at: DateTime.parse('Mon, 10 Feb 2025 12:00:00'))
+        end
+
+        let(:context_params) { { created_at_from: DateTime.parse('Mon, 10 Feb 2025 00:00:00').to_s, created_at_to: DateTime.parse('Mon, 10 Feb 2025 23:59:00').to_s } }
+
+        it { expect(assigns[:bs_requests]).to contain_exactly(request_with_review) }
+      end
+
+      context 'and the project_name parameter is used' do
+        let(:context_params) { { project_name: request_with_review.bs_request_actions.first.target_project } }
+
+        it { expect(assigns[:bs_requests]).to contain_exactly(request_with_review) }
       end
     end
   end
