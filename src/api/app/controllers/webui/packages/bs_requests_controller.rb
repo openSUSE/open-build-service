@@ -27,10 +27,10 @@ module Webui
 
       private
 
-      def filter_by_direction(direction)
-        return filter_by_direction_staging_project(direction) if staging_projects.present?
+      def filter_by_involvement(involvement)
+        return filter_by_involvement_staging_project(involvement) if staging_projects.present?
 
-        case direction
+        case involvement
         when 'all'
           target = BsRequest.with_actions_and_reviews.where(bs_request_actions: { target_project: @project.name, target_package: @package.name })
           source = BsRequest.with_actions_and_reviews.where(bs_request_actions: { source_project: @project.name, source_package: @package.name })
@@ -43,8 +43,8 @@ module Webui
         end
       end
 
-      def filter_by_direction_staging_project(direction)
-        case direction
+      def filter_by_involvement_staging_project(involvement)
+        case involvement
         when 'all'
           target = BsRequest.with_actions_and_reviews.where(staging_project: staging_projects, bs_request_actions: { target_project: @project.name, target_package: @package.name })
           source = BsRequest.with_actions_and_reviews.where(staging_project: staging_projects, bs_request_actions: { source_project: @project.name, source_package: @package.name })

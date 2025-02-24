@@ -37,10 +37,10 @@ module Webui
 
       private
 
-      def filter_by_direction(direction)
-        return filter_by_direction_staging_project(direction) if staging_projects.present?
+      def filter_by_involvement(involvement)
+        return filter_by_involvement_staging_project(involvement) if staging_projects.present?
 
-        case direction
+        case involvement
         when 'all'
           User.session.requests
         when 'incoming'
@@ -50,8 +50,8 @@ module Webui
         end
       end
 
-      def filter_by_direction_staging_project(direction)
-        case direction
+      def filter_by_involvement_staging_project(involvement)
+        case involvement
         when 'all'
           User.session.requests.where(staging_project: staging_projects)
         when 'incoming'
