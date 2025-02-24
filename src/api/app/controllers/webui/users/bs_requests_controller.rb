@@ -44,9 +44,9 @@ module Webui
         when 'all'
           User.session.requests
         when 'incoming'
-          User.session.incoming_requests
+          User.session.incoming_requests.unscope(where: :state)
         when 'outgoing'
-          User.session.outgoing_requests
+          User.session.outgoing_requests.unscope(where: :state)
         end
       end
 
