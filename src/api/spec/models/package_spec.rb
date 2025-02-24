@@ -814,4 +814,14 @@ RSpec.describe Package, :vcr do
       it { expect(package.errors[:report_bug_url]).to eql(['Local urls are not allowed']) }
     end
   end
+
+  describe '#bs_requests' do
+    let(:package) { create(:package) }
+    let!(:incoming_request) { create(:bs_request_with_submit_action, target_package: package) }
+    let!(:outgoing_request) { create(:bs_request_with_submit_action, source_package: package) }
+    let!(:request_with_review) { create(:delete_bs_request, target_project: create(:project), review_by_package: package) }
+    let!(:unrelated_request) { create(:bs_request_with_submit_action, target_package: create(:package)) }
+
+    it { expect(package.bs_requests).to contain_exactly(incoming_request, outgoing_request, request_with_review) }
+  end
 end
