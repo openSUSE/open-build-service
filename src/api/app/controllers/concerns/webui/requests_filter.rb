@@ -7,7 +7,7 @@ module Webui::RequestsFilter
     @selected_filter = { states: [], action_types: [], creators: [],
                          priorities: [], staging_projects: [], reviewers: [],
                          project_names: [], created_at_from: nil, created_at_to: nil,
-                         involvement: [], search: nil }.with_indifferent_access
+                         involvement: [], search: nil, package_names: [] }.with_indifferent_access
 
     filter_states
     filter_action_types
@@ -16,6 +16,7 @@ module Webui::RequestsFilter
     filter_staging_projects
     filter_reviewers
     filter_project_names
+    filter_package_names
     filter_created_at
     filter_involvement
     filter_search_text
@@ -70,6 +71,13 @@ module Webui::RequestsFilter
 
     @selected_filter['project_names'] = params[:project_names]
     @bs_requests = @bs_requests.where(bs_request_actions: { source_project: @selected_filter['project_names'] }).or(@bs_requests.where(bs_request_actions: { target_project: @selected_filter['project_names'] }))
+  end
+
+  def filter_package_names
+    return if params[:package_names]&.compact_blank.blank?
+
+    @selected_filter['package_names'] = params[:package_names]
+    @bs_requests = @bs_requests.where(bs_request_actions: { source_package: @selected_filter['package_names'] }).or(@bs_requests.where(bs_request_actions: { target_package: @selected_filter['package_names'] }))
   end
 
   def filter_created_at
