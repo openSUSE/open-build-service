@@ -1,0 +1,27 @@
+{
+  "action": "opened",
+  "number": 1,
+  "pull_request": {
+    "number": 1,
+    "html_url": "http://github.com/something",
+    "base": {
+      "ref": "16.0",
+      "repo": {
+        "full_name": "openSUSE/repo123"
+      }
+    },
+    "head": {
+      "sha": "123456789"
+    }
+  },
+  "repository": {
+    "name": "hello_world",
+    "html_url": "https://github.com",
+    "owner": {
+      "login": "iggy"
+    }
+  },
+  "sender": {
+    "url": "https://api.github.com"
+  }
+}

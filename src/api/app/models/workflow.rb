@@ -1,4 +1,4 @@
-class Workflow
+class Workflow # rubocop:disable Metrics/ClassLength
   include ActiveModel::Model
   include WorkflowInstrumentation # for run_callbacks
   include WorkflowVersionMatcher
@@ -104,13 +104,21 @@ class Workflow
   def branch_matches_branches_filter?
     return true unless supported_filters.key?(:branches)
 
-    branches_only = filters[:branches].fetch(:only, [])
-    branches_ignore = filters[:branches].fetch(:ignore, [])
+    return true if branch_matches_branches_only_filter?
 
-    return true if branches_only.present? && branches_only.include?(workflow_run.target_branch)
-    return true if branches_ignore.present? && branches_ignore.exclude?(workflow_run.target_branch)
+    return true if branch_matches_branches_ignore_filter?
 
     false
+  end
+
+  def branch_matches_branches_only_filter?
+    branches_only = filters[:branches].fetch(:only, []).map(&:to_s)
+    branches_only.present? && branches_only.include?(workflow_run.target_branch)
+  end
+
+  def branch_matches_branches_ignore_filter?
+    branches_ignore = filters[:branches].fetch(:ignore, []).map(&:to_s)
+    branches_ignore.present? && branches_ignore.exclude?(workflow_run.target_branch)
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity

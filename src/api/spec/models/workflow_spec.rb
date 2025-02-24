@@ -217,6 +217,19 @@ RSpec.describe Workflow, :vcr do
         subject.call
         expect(subject.steps.first).to have_received(:call)
       end
+
+      context 'the branches filter contains a number' do
+        let(:yaml) do
+          { 'steps' => [{ 'branch_package' => { 'source_project' => 'test-project', 'source_package' => 'test-package' } }],
+            'filters' => { 'branches' => { 'only' => [16.0, 'develop'] } } }
+        end
+        let(:request_payload) { file_fixture('request_payload_github_pull_request_opened_branch_number.json').read }
+
+        it 'the workflow runs' do
+          subject.call
+          expect(subject.steps.first).to have_received(:call)
+        end
+      end
     end
 
     context 'when the webhook event is not supported by the branches filter' do
