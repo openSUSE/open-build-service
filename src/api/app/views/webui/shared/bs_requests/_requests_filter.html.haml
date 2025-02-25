@@ -169,7 +169,7 @@
           - selected_filter[:staging_projects].each do |staging_project|
             .dropdown-item-text
               = render partial: 'webui/shared/check_box', locals: { label: staging_project,
-                                                                    key: "staging_projects[#{staging_project}]", name: 'staging_project[]',
+                                                                    key: "staging_projects[#{staging_project}]", name: 'staging_projects[]',
                                                                     value: staging_project,
                                                                     checked: selected_filter[:staging_projects]&.include?(staging_project) }
 
