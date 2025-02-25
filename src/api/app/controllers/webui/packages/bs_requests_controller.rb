@@ -1,19 +1,20 @@
 module Webui
   module Packages
     class BsRequestsController < Webui::WebuiController
+      include Webui::RequestsFilter
+
       before_action :set_project
       before_action :require_package
       before_action :redirect_legacy
-      include Webui::RequestsFilter
+      before_action :set_bs_requests
 
       def index
         if Flipper.enabled?(:request_index, User.session)
+          # FIXME: Once we roll out filter_requests should become a before_action
           filter_requests
+          @bs_requests = @bs_requests.page(params[:page])
 
           @url = packages_requests_path(@project, @package)
-          @bs_requests = @bs_requests.order('number DESC').page(params[:page])
-          @bs_requests = @bs_requests.includes(:bs_request_actions, :comments, :reviews)
-          @bs_requests = @bs_requests.includes(:labels) if Flipper.enabled?(:labels, User.session)
         else
           parsed_params = BsRequest::DataTable::ParamsParserWithStateAndType.new(params).parsed_params
           requests_query = BsRequest::DataTable::FindForPackageQuery.new(@project, @package, parsed_params)
@@ -27,34 +28,23 @@ module Webui
 
       private
 
-      def filter_by_involvement(involvement)
-        return filter_by_involvement_staging_project(involvement) if staging_projects.present?
+      def set_bs_requests
+        return unless Flipper.enabled?(:request_index, User.session)
 
-        case involvement
-        when 'all'
-          target = BsRequest.with_actions_and_reviews.where(bs_request_actions: { target_project: @project.name, target_package: @package.name })
-          source = BsRequest.with_actions_and_reviews.where(bs_request_actions: { source_project: @project.name, source_package: @package.name })
-          reviews = BsRequest.with_actions_and_reviews.where(reviews: { package: @package })
-          target.or(source).or(reviews)
-        when 'incoming'
-          BsRequest.with_actions.where(bs_request_actions: { target_project: @project.name, target_package: @package.name })
-        when 'outgoing'
-          BsRequest.with_actions.where(bs_request_actions: { source_project: @project.name, source_package: @package.name })
-        end
+        @bs_requests = @package.bs_requests
       end
 
-      def filter_by_involvement_staging_project(involvement)
-        case involvement
-        when 'all'
-          target = BsRequest.with_actions_and_reviews.where(staging_project: staging_projects, bs_request_actions: { target_project: @project.name, target_package: @package.name })
-          source = BsRequest.with_actions_and_reviews.where(staging_project: staging_projects, bs_request_actions: { source_project: @project.name, source_package: @package.name })
-          reviews = BsRequest.with_actions_and_reviews.where(staging_project: staging_projects, reviews: { package: @package })
-          target.or(source).or(reviews)
-        when 'incoming'
-          BsRequest.with_actions.where(staging_project: staging_projects, bs_request_actions: { target_project: @project.name, target_package: @package.name })
-        when 'outgoing'
-          BsRequest.with_actions.where(staging_project: staging_projects, bs_request_actions: { source_project: @project.name, source_package: @package.name })
-        end
+      def filter_involvement
+        return if params[:involvement]&.compact_blank.blank?
+
+        @selected_filter['involvement'] = params[:involvement]
+        @bs_requests = case
+                       when @selected_filter['involvement'].include?('incoming')
+                         @bs_requests.where(bs_request_actions: { target_package_id: @package.id })
+                                     .or(@bs_requests.where(reviews: { package: @package }))
+                       when @selected_filter['involvement'].include?('outgoing')
+                         @bs_requests.where(bs_request_actions: { source_package_id: @package.id })
+                       end
       end
 
       def redirect_legacy

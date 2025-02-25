@@ -54,13 +54,13 @@ RSpec.describe Webui::Packages::BsRequestsController do
       it { expect(assigns[:bs_requests]).to contain_exactly(incoming_request, outgoing_request, request_with_review) }
 
       context 'and the involvement parameters is "incoming"' do
-        let(:context_params) { { involvement: 'incoming' } }
+        let(:context_params) { { involvement: ['incoming'] } }
 
-        it { expect(assigns[:bs_requests]).to contain_exactly(incoming_request) }
+        it { expect(assigns[:bs_requests]).to contain_exactly(incoming_request, request_with_review) }
       end
 
       context 'and the involvement parameters is "outgoing"' do
-        let(:context_params) { { involvement: 'outgoing' } }
+        let(:context_params) { { involvement: ['outgoing'] } }
 
         it { expect(assigns[:bs_requests]).to contain_exactly(outgoing_request) }
       end

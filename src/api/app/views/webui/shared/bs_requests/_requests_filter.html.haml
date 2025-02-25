@@ -1,16 +1,16 @@
 -# haml-lint:disable ViewLength
 .accordion.accordion-flush
-  .mt-2.mb-2.accordion-item.border-0
+  .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-involvement' },
                                              aria: { expanded: 'true', controls: 'request-filter-involvement' } }
       %b Involvement
     .px-4.pb-2.accordion-collapse.collapse.show#request-filter-involvement
       = render partial: 'webui/shared/check_box', locals: { label: 'Incoming',
-                                                            key: 'involvement[incoming]', name: 'involvement', value: 'incoming',
-                                                            checked: selected_filter[:involvement] == 'incoming' }
+                                                            key: 'involvement[incoming]', name: 'involvement[]', value: 'incoming',
+                                                            checked: selected_filter[:involvement]&.include?('incoming') }
       = render partial: 'webui/shared/check_box', locals: { label: 'Outgoing',
-                                                            key: 'involvement[outgoing]', name: 'involvement', value: 'outgoing',
-                                                            checked: selected_filter[:involvement] == 'outgoing' }
+                                                            key: 'involvement[outgoing]', name: 'involvement[]', value: 'outgoing',
+                                                            checked: selected_filter[:involvement]&.include?('outgoing') }
 
   .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-state' },

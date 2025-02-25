@@ -63,7 +63,8 @@ RSpec.describe Webui::Users::BsRequestsController do
                target_project: create(:project),
                staging_project: create(:project),
                review_by_user: user,
-               priority: :critical)
+               priority: :critical,
+               description: 'Hello Rutzelfuz')
       end
 
       let(:context_params) { {} }
@@ -78,13 +79,13 @@ RSpec.describe Webui::Users::BsRequestsController do
       it { expect(assigns[:bs_requests]).to contain_exactly(incoming_request, outgoing_request, request_with_review) }
 
       context 'and the involvement parameter is incoming' do
-        let(:context_params) { { involvement: 'incoming' } }
+        let(:context_params) { { involvement: ['incoming'] } }
 
         it { expect(assigns[:bs_requests]).to contain_exactly(incoming_request, request_with_review) }
       end
 
       context 'and the involvement parameter is outgoing' do
-        let(:context_params) { { involvement: 'outgoing' } }
+        let(:context_params) { { involvement: ['outgoing'] } }
 
         it { expect(assigns[:bs_requests]).to contain_exactly(outgoing_request) }
       end
@@ -137,6 +138,12 @@ RSpec.describe Webui::Users::BsRequestsController do
 
       context 'and the project_name parameter is used' do
         let(:context_params) { { project_names: [request_with_review.bs_request_actions.first.target_project] } }
+
+        it { expect(assigns[:bs_requests]).to contain_exactly(request_with_review) }
+      end
+
+      context 'and the search parameter is used', :thinking_sphinx do
+        let(:context_params) { { search: 'Rutzelfuz' } }
 
         it { expect(assigns[:bs_requests]).to contain_exactly(request_with_review) }
       end
