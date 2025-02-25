@@ -1,19 +1,19 @@
 -# haml-lint:disable ViewLength
 .accordion.accordion-flush
-  .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
-    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-direction' },
-                                             aria: { expanded: 'true', controls: 'request-filter-direction' } }
-      %b Direction
-    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-direction
+  .mt-2.mb-2.accordion-item.border-0
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-involvement' },
+                                             aria: { expanded: 'true', controls: 'request-filter-involvement' } }
+      %b Involvement
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-involvement
       = render partial: 'webui/shared/radio_button', locals: { label: 'All',
-                                                              key: 'direction[all]', name: 'direction', value: 'all',
-                                                              checked: selected_filter[:direction] == 'all' }
+                                                              key: 'involvement[all]', name: 'involvement', value: 'all',
+                                                              checked: selected_filter[:involvement] == 'all' }
       = render partial: 'webui/shared/radio_button', locals: { label: 'Incoming',
-                                                              key: 'direction[incoming]', name: 'direction', value: 'incoming',
-                                                              checked: selected_filter[:direction] == 'incoming' }
+                                                              key: 'involvement[incoming]', name: 'involvement', value: 'incoming',
+                                                              checked: selected_filter[:involvement] == 'incoming' }
       = render partial: 'webui/shared/radio_button', locals: { label: 'Outgoing',
-                                                              key: 'direction[outgoing]', name: 'direction', value: 'outgoing',
-                                                              checked: selected_filter[:direction] == 'outgoing' }
+                                                              key: 'involvement[outgoing]', name: 'involvement', value: 'outgoing',
+                                                              checked: selected_filter[:involvement] == 'outgoing' }
 
   .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-state' },
