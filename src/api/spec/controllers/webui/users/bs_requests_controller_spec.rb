@@ -80,7 +80,7 @@ RSpec.describe Webui::Users::BsRequestsController do
       context 'and the involvement parameter is incoming' do
         let(:context_params) { { involvement: 'incoming' } }
 
-        it { expect(assigns[:bs_requests]).to contain_exactly(incoming_request) }
+        it { expect(assigns[:bs_requests]).to contain_exactly(incoming_request, request_with_review) }
       end
 
       context 'and the involvement parameter is outgoing' do
@@ -90,13 +90,13 @@ RSpec.describe Webui::Users::BsRequestsController do
       end
 
       context 'and the state parameter is used' do
-        let(:context_params) { { state: ['review'] } }
+        let(:context_params) { { states: ['review'] } }
 
         it { expect(assigns[:bs_requests]).to contain_exactly(request_with_review) }
       end
 
       context 'and the action_type parameter is used' do
-        let(:context_params) { { action_type: ['delete'] } }
+        let(:context_params) { { action_types: ['delete'] } }
 
         it { expect(assigns[:bs_requests]).to contain_exactly(request_with_review) }
       end
@@ -108,7 +108,7 @@ RSpec.describe Webui::Users::BsRequestsController do
       end
 
       context 'and the priority parameter is used' do
-        let(:context_params) { { priority: ['critical'] } }
+        let(:context_params) { { priorities: ['critical'] } }
 
         it { expect(assigns[:bs_requests]).to contain_exactly(request_with_review) }
       end
@@ -136,7 +136,7 @@ RSpec.describe Webui::Users::BsRequestsController do
       end
 
       context 'and the project_name parameter is used' do
-        let(:context_params) { { project_name: request_with_review.bs_request_actions.first.target_project } }
+        let(:context_params) { { project_names: [request_with_review.bs_request_actions.first.target_project] } }
 
         it { expect(assigns[:bs_requests]).to contain_exactly(request_with_review) }
       end
