@@ -470,6 +470,12 @@ case "$1" in
 		WORKER="--vm-worker ${WORKERS[$I_INDEX]}"
 		WORKER_NR="--vm-worker-nr $I"
 		OBS_WORKER_OPT="$OBS_WORKER_OPT1 $WORKER $WORKER_NR $VMDISK_FILESYSTEM $VMDISK_MOUNT_OPTIONS $VMDISK_CLEAN"
+            elif [ -n "$vmopt" -a "$OBS_VM_TYPE" = 'lxc' ]; then
+                DEVICE=
+                SWAP=
+                if [ -n "$OBS_INSTANCE_MEMORY" ]; then
+                    MEMORY="--vm-memory $OBS_INSTANCE_MEMORY"
+                fi
             else
                 mkdir -p $R
                 DEVICE=
