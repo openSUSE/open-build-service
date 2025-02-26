@@ -31,19 +31,30 @@ module Webui
         @bs_requests = @project.bs_requests
       end
 
+      # rubocop:disable Metrics/CyclomaticComplexity
       def filter_involvement
-        return if params[:involvement]&.compact_blank.blank?
-
-        @selected_filter['involvement'] = params[:involvement]
-        @bs_requests =  case
-                        when @selected_filter['involvement'].include?('incoming')
+        @selected_filter['involvement'] = params[:involvement] if params[:involvement]&.compact_blank.present?
+        @bs_requests =  case @selected_filter['involvement'].sort
+                        when ['incoming']
                           @bs_requests.where(bs_request_actions: { target_project_id: @project.id })
-                        when @selected_filter['involvement'].include?('outgoing')
+                        when ['outgoing']
                           @bs_requests.where(bs_request_actions: { source_project_id: @project.id })
-                        when @selected_filter['involvement'].include?('review')
+                        when ['review']
                           @bs_requests.where(reviews: { project: @project })
+                        when %w[incoming outgoing]
+                          @bs_requests.where(bs_request_actions: { target_project_id: @project.id })
+                                      .or(@bs_requests.where(bs_request_actions: { source_project_id: @project.id }))
+                        when %w[incoming review]
+                          @bs_requests.where(bs_request_actions: { target_project_id: @project.id })
+                                      .or(@bs_requests.where(reviews: { project: @project }))
+                        when %w[outgoing review]
+                          @bs_requests.where(bs_request_actions: { source_project_id: @project.id })
+                                      .or(@bs_requests.where(reviews: { project: @project }))
+                        else
+                          @bs_requests
                         end
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
 
       def redirect_legacy
         redirect_to(project_requests_path(@project)) unless Flipper.enabled?(:request_index, User.session) || request.format.json?
