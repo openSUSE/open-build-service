@@ -3,6 +3,7 @@ module Webui
     class BsRequestsController < WebuiController
       before_action :set_group
       before_action :require_login
+      before_action :redirect_legacy
       before_action :set_bs_request
 
       include Webui::RequestsFilter
@@ -57,6 +58,10 @@ module Webui
                        when @selected_filter['involvement'].include?('review')
                          BsRequest::FindFor::Query.new({ group: @user_or_group.title, roles: [:reviewer] }, @bs_requests).all
                        end
+      end
+
+      def redirect_legacy
+        redirect_to(group_path(@user_or_group)) unless Flipper.enabled?(:request_index, User.session) || request.format.json?
       end
     end
   end
