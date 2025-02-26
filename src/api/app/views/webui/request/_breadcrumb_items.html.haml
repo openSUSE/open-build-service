@@ -4,7 +4,7 @@
       Requests
   - else
     %li.breadcrumb-item
-      = link_to('Requests', my_requests_path(involvement: 'incoming', state: %w[new review]))
+      = link_to('Requests', my_requests_path)
 - if @bs_request.present?
   :ruby
     current_page = current_page?(request_show_path(@bs_request.number, params[:request_action_id])) ||

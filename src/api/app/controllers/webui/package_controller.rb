@@ -157,7 +157,7 @@ class Webui::PackageController < Webui::WebuiController
 
   # TODO: Remove this once request_index beta is rolled out
   def requests
-    redirect_to(packages_requests_path(@project, @package, state: %w[new review])) if Flipper.enabled?(:request_index, User.session)
+    redirect_to(packages_requests_path(@project, @package)) if Flipper.enabled?(:request_index, User.session)
 
     @default_request_type = params[:type] if params[:type]
     @default_request_state = params[:state] if params[:state]

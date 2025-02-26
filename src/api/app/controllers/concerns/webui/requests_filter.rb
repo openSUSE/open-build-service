@@ -4,7 +4,7 @@ module Webui::RequestsFilter
   TEXT_SEARCH_MAX_RESULTS = 10_000
 
   def filter_requests
-    @selected_filter = { states: [], action_types: [], creators: [],
+    @selected_filter = { states: %w[new review], action_types: [], creators: [],
                          priorities: [], staging_projects: [], reviewers: [],
                          project_names: [], created_at_from: nil, created_at_to: nil,
                          involvement: [], search: nil }.with_indifferent_access
@@ -24,9 +24,7 @@ module Webui::RequestsFilter
   private
 
   def filter_states
-    return if params[:states]&.compact_blank.blank?
-
-    @selected_filter['states'] = params[:states]
+    @selected_filter['states'] = params[:states] if params[:states]&.compact_blank.present?
     @bs_requests = @bs_requests.where(state: @selected_filter['states'])
   end
 
