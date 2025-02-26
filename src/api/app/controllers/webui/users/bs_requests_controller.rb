@@ -50,14 +50,15 @@ module Webui
                        when @selected_filter['involvement'].include?('incoming')
                          @bs_requests.where(bs_request_actions: { target_project_id: User.session.involved_projects })
                                      .or(@bs_requests.where(bs_request_actions: { target_package_id: User.session.involved_packages }))
-                                     .or(@bs_requests.where(reviews: { user: User.session }))
-                                     .or(@bs_requests.where(reviews: { group: User.session.groups }))
-                                     .or(@bs_requests.where(reviews: { project: User.session.involved_projects }))
-                                     .or(@bs_requests.where(reviews: { package: User.session.involved_packages }))
                        when @selected_filter['involvement'].include?('outgoing')
                          @bs_requests.where(creator: User.session)
                                      .or(@bs_requests.where(bs_request_actions: { source_project_id: User.session.involved_projects }))
                                      .or(@bs_requests.where(bs_request_actions: { source_package_id: User.session.involved_packages }))
+                       when @selected_filter['involvement'].include?('review')
+                         @bs_requests.where(reviews: { user: User.session })
+                                     .or(@bs_requests.where(reviews: { group: User.session.groups }))
+                                     .or(@bs_requests.where(reviews: { project: User.session.involved_projects }))
+                                     .or(@bs_requests.where(reviews: { package: User.session.involved_packages }))
                        end
       end
 
