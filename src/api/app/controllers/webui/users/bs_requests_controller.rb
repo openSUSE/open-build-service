@@ -42,25 +42,48 @@ module Webui
         @bs_requests = User.session.bs_requests
       end
 
+      # rubocop:disable Metrics/CyclomaticComplexity
       def filter_involvement
-        return if params[:involvement]&.compact_blank.blank?
-
-        @selected_filter['involvement'] = params[:involvement]
-        @bs_requests = case
-                       when @selected_filter['involvement'].include?('incoming')
+        @selected_filter['involvement'] = params[:involvement] if params[:involvement]&.compact_blank.present?
+        @bs_requests = case @selected_filter['involvement'].sort
+                       when ['incoming']
                          @bs_requests.where(bs_request_actions: { target_project_id: User.session.involved_projects })
                                      .or(@bs_requests.where(bs_request_actions: { target_package_id: User.session.involved_packages }))
-                       when @selected_filter['involvement'].include?('outgoing')
+                       when ['outgoing']
                          @bs_requests.where(creator: User.session)
                                      .or(@bs_requests.where(bs_request_actions: { source_project_id: User.session.involved_projects }))
                                      .or(@bs_requests.where(bs_request_actions: { source_package_id: User.session.involved_packages }))
-                       when @selected_filter['involvement'].include?('review')
+                       when ['review']
                          @bs_requests.where(reviews: { user: User.session })
                                      .or(@bs_requests.where(reviews: { group: User.session.groups }))
                                      .or(@bs_requests.where(reviews: { project: User.session.involved_projects }))
                                      .or(@bs_requests.where(reviews: { package: User.session.involved_packages }))
+                       when %w[incoming outgoing]
+                         @bs_requests.where(creator: User.session)
+                                     .or(@bs_requests.where(bs_request_actions: { target_project_id: User.session.involved_projects }))
+                                     .or(@bs_requests.where(bs_request_actions: { target_package_id: User.session.involved_packages }))
+                                     .or(@bs_requests.where(bs_request_actions: { source_project_id: User.session.involved_projects }))
+                                     .or(@bs_requests.where(bs_request_actions: { source_package_id: User.session.involved_packages }))
+                       when %w[incoming review]
+                         @bs_requests.where(bs_request_actions: { target_project_id: User.session.involved_projects })
+                                     .or(@bs_requests.where(bs_request_actions: { target_package_id: User.session.involved_packages }))
+                                     .or(@bs_requests.where(reviews: { user: User.session }))
+                                     .or(@bs_requests.where(reviews: { group: User.session.groups }))
+                                     .or(@bs_requests.where(reviews: { project: User.session.involved_projects }))
+                                     .or(@bs_requests.where(reviews: { package: User.session.involved_packages }))
+                       when %w[outgoing review]
+                         @bs_requests.where(creator: User.session)
+                                     .or(@bs_requests.where(bs_request_actions: { source_project_id: User.session.involved_projects }))
+                                     .or(@bs_requests.where(bs_request_actions: { source_package_id: User.session.involved_packages }))
+                                     .or(@bs_requests.where(reviews: { user: User.session }))
+                                     .or(@bs_requests.where(reviews: { group: User.session.groups }))
+                                     .or(@bs_requests.where(reviews: { project: User.session.involved_projects }))
+                                     .or(@bs_requests.where(reviews: { package: User.session.involved_packages }))
+                       else
+                         @bs_requests
                        end
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
 
       def set_user
         @user_or_group = User.session
