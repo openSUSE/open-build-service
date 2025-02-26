@@ -644,4 +644,15 @@ RSpec.describe User do
       end
     end
   end
+
+  describe '#bs_requests' do
+    let!(:incoming_request) { create(:bs_request_with_submit_action, source_project: user.home_project) }
+    let!(:outgoing_request) { create(:bs_request_with_submit_action, target_project: user.home_project) }
+    let!(:request_with_user_review) { create(:delete_bs_request, target_project: create(:project), review_by_user: user) }
+    let!(:request_with_project_review) { create(:delete_bs_request, target_project: create(:project), review_by_project: user.home_project) }
+    let!(:request_with_package_review) { create(:delete_bs_request, target_project: create(:project), review_by_package: create(:package, project: user.home_project)) }
+    let!(:unrelated_request) { create(:bs_request_with_submit_action, source_project: create(:project)) }
+
+    it { expect(user.bs_requests).to contain_exactly(incoming_request, outgoing_request, request_with_user_review, request_with_project_review, request_with_package_review) }
+  end
 end

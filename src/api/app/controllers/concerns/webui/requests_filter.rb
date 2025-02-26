@@ -1,83 +1,89 @@
 module Webui::RequestsFilter
   extend ActiveSupport::Concern
 
-  ALLOWED_INVOLVEMENTS = %w[all incoming outgoing].freeze
   TEXT_SEARCH_MAX_RESULTS = 10_000
 
-  # rubocop:disable Metrics/CyclomaticComplexity
-  # rubocop:disable Metrics/PerceivedComplexity
   def filter_requests
-    set_filters
+    @selected_filter = { states: [], action_types: [], creators: [],
+                         priorities: [], staging_projects: [], reviewers: [],
+                         project_names: [], created_at_from: nil, created_at_to: nil,
+                         involvement: [], search: nil }.with_indifferent_access
 
-    if params[:requests_search_text].present?
-      initial_bs_requests = filter_by_text(params[:requests_search_text])
-      params[:ids] = filter_by_involvement(@filter_involvement).ids
-    else
-      initial_bs_requests = filter_by_involvement(@filter_involvement)
-    end
-
-    params[:creator] = @filter_creators if @filter_creators.present?
-    params[:project_name] = @filter_project_names if @filter_project_names.present?
-    params[:states] = @filter_state if @filter_state.present?
-    params[:priorities] = @filter_priority if @filter_priority.present?
-    params[:types] = @filter_action_type if @filter_action_type.present?
-    params[:staging_projects] = @filter_staging_projects if @filter_staging_projects.present?
-    params[:reviewers] = @filter_reviewers if @filter_reviewers.present?
-
-    params[:created_at_from] = @filter_created_at_from if @filter_created_at_from.present?
-    params[:created_at_to] = @filter_created_at_to if @filter_created_at_to.present?
-
-    @bs_requests = BsRequest::FindFor::Query.new(params, initial_bs_requests).all
-    set_selected_filter
-  end
-  # rubocop:enable Metrics/CyclomaticComplexity
-  # rubocop:enable Metrics/PerceivedComplexity
-
-  # rubocop:disable Metrics/CyclomaticComplexity
-  # rubocop:disable Metrics/PerceivedComplexity
-  def set_filters
-    @filter_involvement = params[:involvement].presence || 'all'
-    @filter_involvement = 'all' if ALLOWED_INVOLVEMENTS.exclude?(@filter_involvement)
-
-    @filter_state = params[:state].presence || []
-    @filter_state = @filter_state.intersection(BsRequest::VALID_REQUEST_STATES.map(&:to_s))
-
-    @filter_action_type = params[:action_type].presence || []
-    @filter_action_type = @filter_action_type.intersection(BsRequestAction::TYPES)
-
-    @filter_priority = params[:priority].presence || []
-    @filter_priority = @filter_priority.intersection(BsRequest::VALID_REQUEST_PRIORITIES)
-
-    @filter_creators = params[:creators].present? ? params[:creators].compact_blank! : []
-
-    @filter_project_names = params[:project_names].present? ? params[:project_names].compact_blank! : []
-    @filter_staging_projects = params[:staging_projects].present? ? params[:staging_projects].compact_blank! : []
-
-    @filter_created_at_from = params[:created_at_from].presence || ''
-    @filter_created_at_to = params[:created_at_to].presence || ''
-
-    @filter_reviewers = params[:reviewers].present? ? params[:reviewers].compact_blank! : []
-  end
-  # rubocop:enable Metrics/CyclomaticComplexity
-  # rubocop:enable Metrics/PerceivedComplexity
-
-  def set_selected_filter
-    @selected_filter = { involvement: @filter_involvement, action_type: @filter_action_type, search_text: params[:requests_search_text],
-                         state: @filter_state, creators: @filter_creators, project_names: @filter_project_names,
-                         staging_projects: @filter_staging_projects, priority: @filter_priority,
-                         created_at_from: @filter_created_at_from, created_at_to: @filter_created_at_to, reviewers: @filter_reviewers }
+    filter_states
+    filter_action_types
+    filter_creators
+    filter_priorities
+    filter_staging_projects
+    filter_reviewers
+    filter_project_names
+    filter_created_at
+    filter_involvement
+    filter_search_text
   end
 
-  def filter_by_text(text)
-    if BsRequest.search_count(text) > TEXT_SEARCH_MAX_RESULTS
-      flash[:error] = 'Your text search pattern matches too many results. Please, try again with a more restrictive search pattern.'
-      return BsRequest.none
-    end
+  private
 
-    BsRequest.with_actions.where(id: BsRequest.search_for_ids(text, per_page: TEXT_SEARCH_MAX_RESULTS))
+  def filter_states
+    return if params[:states]&.compact_blank.blank?
+
+    @selected_filter['states'] = params[:states]
+    @bs_requests = @bs_requests.where(state: @selected_filter['states'])
   end
 
-  def staging_projects
-    Project.where(name: @filter_staging_projects)
+  def filter_action_types
+    return if params[:action_types]&.compact_blank.blank?
+
+    @selected_filter['action_types'] = params[:action_types]
+    @bs_requests = @bs_requests.where(bs_request_actions: { type: @selected_filter['action_types'] })
+  end
+
+  def filter_creators
+    return if params[:creators]&.compact_blank.blank?
+
+    @selected_filter['creators'] = params[:creators]
+    @bs_requests = @bs_requests.where(creator: @selected_filter['creators'])
+  end
+
+  def filter_priorities
+    return if params[:priorities]&.compact_blank.blank?
+
+    @selected_filter['priorities'] = params[:priorities]
+    @bs_requests = @bs_requests.where(priority: @selected_filter['priorities'])
+  end
+
+  def filter_staging_projects
+    return if params[:staging_projects]&.compact_blank.blank?
+
+    @selected_filter['staging_projects'] = params[:staging_projects]
+    @bs_requests = @bs_requests.where(staging_project: Project.find_by(name: @selected_filter['staging_projects']))
+  end
+
+  def filter_reviewers
+    return if params[:reviewers]&.compact_blank.blank?
+
+    @selected_filter['reviewers'] = params[:reviewers]
+    @bs_requests = @bs_requests.where(reviews: { by_user: @selected_filter['reviewers'] }).or(@bs_requests.where(reviews: { by_group: @selected_filter['reviewers'] }))
+  end
+
+  def filter_project_names
+    return if params[:project_names]&.compact_blank.blank?
+
+    @selected_filter['project_names'] = params[:project_names]
+    @bs_requests = @bs_requests.where(bs_request_actions: { source_project: @selected_filter['project_names'] }).or(@bs_requests.where(bs_request_actions: { target_project: @selected_filter['project_names'] }))
+  end
+
+  def filter_created_at
+    return if params[:created_at_from].blank? && params[:created_at_to].blank?
+
+    @selected_filter['created_at_from'] = DateTime.parse(params[:created_at_from]) if params[:created_at_from].present?
+    @selected_filter['created_at_to'] = DateTime.parse(params[:created_at_to]) if params[:created_at_to].present?
+    @bs_requests = @bs_requests.where(created_at: @selected_filter['created_at_from']..@selected_filter['created_at_to'])
+  end
+
+  def filter_search_text
+    return if params[:search].blank?
+
+    @selected_filter['search'] = params[:search]
+    @bs_requests = @bs_requests.where(id: BsRequest.search_for_ids(@selected_filter['search']))
   end
 end

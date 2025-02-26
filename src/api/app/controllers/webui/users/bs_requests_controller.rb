@@ -4,6 +4,7 @@ module Webui
       before_action :redirect_legacy
       before_action :require_login
       before_action :set_user
+      before_action :set_bs_requests
 
       include Webui::RequestsFilter
 
@@ -18,11 +19,9 @@ module Webui
       def index
         respond_to do |format|
           format.html do
+            # FIXME: Once we roll out request_index filter_requests should become a before_action
             filter_requests
-
-            @bs_requests = @bs_requests.order('number DESC').page(params[:page])
-            @bs_requests = @bs_requests.includes(:bs_request_actions, :comments, :reviews)
-            @bs_requests = @bs_requests.includes(:labels) if Flipper.enabled?(:labels, User.session)
+            @bs_requests = @bs_requests.page(params[:page])
           end
           # TODO: Remove this old index action when request_index feature is rolled-over
           format.json do
@@ -37,28 +36,29 @@ module Webui
 
       private
 
-      def filter_by_involvement(involvement)
-        return filter_by_involvement_staging_project(involvement) if staging_projects.present?
+      def set_bs_requests
+        return unless Flipper.enabled?(:request_index, User.session)
 
-        case involvement
-        when 'all'
-          User.session.requests
-        when 'incoming'
-          User.session.incoming_requests.unscope(where: :state)
-        when 'outgoing'
-          User.session.outgoing_requests.unscope(where: :state)
-        end
+        @bs_requests = User.session.bs_requests
       end
 
-      def filter_by_involvement_staging_project(involvement)
-        case involvement
-        when 'all'
-          User.session.requests.where(staging_project: staging_projects)
-        when 'incoming'
-          User.session.incoming_requests.where(staging_project: staging_projects)
-        when 'outgoing'
-          User.session.outgoing_requests.where(staging_project: staging_projects)
-        end
+      def filter_involvement
+        return if params[:involvement]&.compact_blank.blank?
+
+        @selected_filter['involvement'] = params[:involvement]
+        @bs_requests = case
+                       when @selected_filter['involvement'].include?('incoming')
+                         @bs_requests.where(bs_request_actions: { target_project_id: User.session.involved_projects })
+                                     .or(@bs_requests.where(bs_request_actions: { target_package_id: User.session.involved_packages }))
+                                     .or(@bs_requests.where(reviews: { user: User.session }))
+                                     .or(@bs_requests.where(reviews: { group: User.session.groups }))
+                                     .or(@bs_requests.where(reviews: { project: User.session.involved_projects }))
+                                     .or(@bs_requests.where(reviews: { package: User.session.involved_packages }))
+                       when @selected_filter['involvement'].include?('outgoing')
+                         @bs_requests.where(creator: User.session)
+                                     .or(@bs_requests.where(bs_request_actions: { source_project_id: User.session.involved_projects }))
+                                     .or(@bs_requests.where(bs_request_actions: { source_package_id: User.session.involved_packages }))
+                       end
       end
 
       def set_user

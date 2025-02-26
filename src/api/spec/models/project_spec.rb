@@ -812,4 +812,14 @@ RSpec.describe Project, :vcr do
     it { expect(Project.find_remote_project('hans:wurst:leber')).to eq([project, 'leber']) }
     it { expect(Project.find_remote_project('hans:wurst:leber:salami')).to eq([project, 'leber:salami']) }
   end
+
+  describe '#bs_requests' do
+    let(:project) { create(:project) }
+    let!(:incoming_request) { create(:bs_request_with_submit_action, source_project: project) }
+    let!(:outgoing_request) { create(:bs_request_with_submit_action, target_project: project) }
+    let!(:request_with_review) { create(:delete_bs_request, target_project: create(:project), review_by_project: project) }
+    let!(:unrelated_request) { create(:bs_request_with_submit_action, source_project: create(:project)) }
+
+    it { expect(project.bs_requests).to contain_exactly(incoming_request, outgoing_request, request_with_review) }
+  end
 end

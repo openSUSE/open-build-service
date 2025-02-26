@@ -19,8 +19,8 @@
             .card-body.row
               .col
               .col-lg
-                %input.ms-auto.form-control{ 'aria-label': 'Search', name: 'requests_search_text',
-                  placeholder: 'Search Requests', type: 'search', value: selected_filter[:search_text] }
+                %input.ms-auto.form-control{ 'aria-label': 'Search', name: 'search',
+                  placeholder: 'Search', type: 'search', value: selected_filter[:search] }
           .text-center.mb-3
             - if bs_requests.total_count == 0
               %p There are no requests available
