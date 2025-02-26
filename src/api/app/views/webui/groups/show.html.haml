@@ -9,26 +9,34 @@
           Group Members
           %span.badge.text-bg-primary
             = @group.users.size
-      %li.nav-item
-        %a.nav-link.text-nowrap#reviews-in-tab{ aria: { controls: 'reviews-in', selected: 'true' },
-        data: { 'bs-toggle': 'tab' }, href: '#reviews-in', role: 'tab' }
-          Incoming Reviews
-          %span.badge.text-bg-primary
-            = @group.involved_reviews.size
-      %li.nav-item
-        %a.nav-link.text-nowrap#requests-in-tab{ aria: { controls: 'requests-in' }, data: { 'bs-toggle': 'tab' }, href: '#requests-in', role: 'tab' }
-          Incoming Requests
-          %span.badge.text-bg-primary
-            = @group.incoming_requests.size
-      %li.nav-item
-        %a.nav-link.text-nowrap#all-requests-tab{ aria: { controls: 'all-requests' }, data: { 'bs-toggle': 'tab' }, href: '#all-requests',
-                                                  role: 'tab' }
-          All Requests
-          %span.badge.text-bg-primary
-            = @group.all_requests_count
-      %li.nav-item.dropdown
-        %a.nav-link.dropdown-toggle{ href: '#', 'data-bs-toggle': 'dropdown', role: 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
-        .dropdown-menu.dropdown-menu-end
+      - if Flipper.enabled?(:request_index, User.session)
+        %li.nav-item
+          = link_to(group_requests_path(@group, state: %w[new review]), class: 'nav-link', title: 'Requests') do
+            Group Requests
+            %span.badge.text-bg-primary
+              = @group.requests.count
+      - else
+        %li.nav-item
+          %a.nav-link.text-nowrap#reviews-in-tab{ aria: { controls: 'reviews-in', selected: 'true' },
+          data: { 'bs-toggle': 'tab' }, href: '#reviews-in', role: 'tab' }
+            Incoming Reviews
+            %span.badge.text-bg-primary
+              = @group.involved_reviews.size
+        %li.nav-item
+          %a.nav-link.text-nowrap#requests-in-tab{ aria: { controls: 'requests-in' }, data: { 'bs-toggle': 'tab' },
+                                                   href: '#requests-in', role: 'tab' }
+            Incoming Requests
+            %span.badge.text-bg-primary
+              = @group.incoming_requests.size
+        %li.nav-item
+          %a.nav-link.text-nowrap#all-requests-tab{ aria: { controls: 'all-requests' }, data: { 'bs-toggle': 'tab' }, href: '#all-requests',
+                                                    role: 'tab' }
+            All Requests
+            %span.badge.text-bg-primary
+              = @group.all_requests_count
+        %li.nav-item.dropdown
+          %a.nav-link.dropdown-toggle{ href: '#', 'data-bs-toggle': 'dropdown', role: 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
+          .dropdown-menu.dropdown-menu-end
 
   .card-body
     .tab-content

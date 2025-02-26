@@ -29,6 +29,7 @@ RSpec.describe Webui::Groups::BsRequestsController do
     let!(:another_review) { create(:review, by_group: another_group.title, bs_request: another_bs_request) }
 
     before do
+      login User.find_by(login: bs_request.creator)
       bs_request.state = :review
       bs_request.save
       another_bs_request.state = :review

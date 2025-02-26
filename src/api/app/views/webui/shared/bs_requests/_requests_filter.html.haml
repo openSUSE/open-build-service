@@ -8,15 +8,18 @@
         = render partial: 'webui/shared/bs_requests/filter_help_involvement', locals: { viewed_object: viewed_object }
 
     .px-4.pb-2.accordion-collapse.collapse.show#request-filter-involvement
-      = render partial: 'webui/shared/check_box', locals: { label: "To #{viewed_object}",
-                                                            key: 'involvement[incoming]', name: 'involvement[]', value: 'incoming',
-                                                            checked: selected_filter[:involvement]&.include?('incoming') }
-      = render partial: 'webui/shared/check_box', locals: { label: "From #{viewed_object}",
-                                                            key: 'involvement[outgoing]', name: 'involvement[]', value: 'outgoing',
-                                                            checked: selected_filter[:involvement]&.include?('outgoing') }
-      = render partial: 'webui/shared/check_box', locals: { label: "Review for #{viewed_object}",
-                                                            key: 'involvement[review]', name: 'involvement[]', value: 'review',
-                                                            checked: selected_filter[:involvement]&.include?('review') }
+      - if displayed_involvement.include?(:incoming)
+        = render partial: 'webui/shared/check_box', locals: { label: "To #{viewed_object}",
+                                                              key: 'involvement[incoming]', name: 'involvement[]', value: 'incoming',
+                                                              checked: selected_filter[:involvement]&.include?('incoming') }
+      - if displayed_involvement.include?(:outgoing)
+        = render partial: 'webui/shared/check_box', locals: { label: "From #{viewed_object}",
+                                                              key: 'involvement[outgoing]', name: 'involvement[]', value: 'outgoing',
+                                                              checked: selected_filter[:involvement]&.include?('outgoing') }
+      - if displayed_involvement.include?(:review)
+        = render partial: 'webui/shared/check_box', locals: { label: "Review by #{viewed_object}",
+                                                              key: 'involvement[review]', name: 'involvement[]', value: 'review',
+                                                              checked: selected_filter[:involvement]&.include?('review') }
 
   .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-state' },
