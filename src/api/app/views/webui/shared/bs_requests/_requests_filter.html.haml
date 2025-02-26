@@ -109,6 +109,24 @@
                                                                     checked: selected_filter[:project_names]&.include?(project_name) }
 
   .mt-2.mb-2.accordion-item.border-0
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-package-name' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-package-name' } }
+      %b Package name
+      .selected-content.small.ms-1
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-package-name
+      #request-package-name-dropdown
+        = render partial: 'webui/shared/autocomplete', locals: { html_id: 'package_names_search', label: 'Package names:',
+                                                                 html_name: 'package_names[]', required: false, with_label: false,
+                                                                 data: { source: package_autocomplete_path } }
+        .scroll-list-wrapper.auto-submit-on-change
+          - selected_filter[:package_names].each do |package_name|
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: package_name,
+                                                                    key: "package_names[#{package_name}]", name: 'package_names[]',
+                                                                    value: package_name,
+                                                                    checked: selected_filter[:package_names]&.include?(package_name) }
+
+  .mt-2.mb-2.accordion-item.border-0
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-creator' },
                                                        aria: { expanded: 'true', controls: 'request-filter-creator' } }
       %b Creators

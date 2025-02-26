@@ -71,6 +71,7 @@ constraints(RoutesHelper::WebuiMatcher) do
     defaults format: 'js' do
       get 'package/edit/:project/:package' => :edit, constraints: cons, as: 'edit_package'
       patch 'package/update' => :update, constraints: cons
+      get 'package/autocomplete' => :autocomplete
     end
   end
 
