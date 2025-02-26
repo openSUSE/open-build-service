@@ -32,17 +32,22 @@ module Webui
       end
 
       def filter_involvement
-        return if params[:involvement]&.compact_blank.blank?
+        @selected_filter['involvement'] = params[:involvement] if params[:involvement]&.compact_blank.present?
+        bs_requests_filters = []
 
-        @selected_filter['involvement'] = params[:involvement]
-        @bs_requests =  case
-                        when @selected_filter['involvement'].include?('incoming')
-                          @bs_requests.where(bs_request_actions: { target_project_id: @project.id })
-                        when @selected_filter['involvement'].include?('outgoing')
-                          @bs_requests.where(bs_request_actions: { source_project_id: @project.id })
-                        when @selected_filter['involvement'].include?('review')
-                          @bs_requests.where(reviews: { project: @project })
-                        end
+        if @selected_filter['involvement'].include?('incoming')
+          bs_requests_filters << @bs_requests.where(bs_request_actions: { target_project_id: @project.id })
+        end
+
+        if @selected_filter['involvement'].include?('outgoing')
+          bs_requests_filters << @bs_requests.where(bs_request_actions: { source_project_id: @project.id })
+        end
+
+        if @selected_filter['involvement'].include?('review')
+          bs_requests_filters << @bs_requests.where(reviews: { project_id: @project.id })
+        end
+
+        @bs_requests = @bs_requests.merge(bs_requests_filters.inject(:or)) if bs_requests_filters.length.positive?
       end
 
       def redirect_legacy

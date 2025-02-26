@@ -7,7 +7,7 @@ module Webui::RequestsFilter
     @selected_filter = { states: %w[new review], action_types: [], creators: [],
                          priorities: [], staging_projects: [], reviewers: [],
                          project_names: [], created_at_from: nil, created_at_to: nil,
-                         involvement: [], search: nil, package_names: [] }.with_indifferent_access
+                         involvement: %w[incoming outgoing review], search: nil, package_names: [] }.with_indifferent_access
 
     filter_states
     filter_action_types

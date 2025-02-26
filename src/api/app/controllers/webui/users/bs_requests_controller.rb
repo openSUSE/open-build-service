@@ -42,23 +42,31 @@ module Webui
       end
 
       def filter_involvement
-        return if params[:involvement]&.compact_blank.blank?
+        @selected_filter['involvement'] = params[:involvement] if params[:involvement]&.compact_blank.present?
+        bs_requests_filters = []
 
-        @selected_filter['involvement'] = params[:involvement]
-        @bs_requests = case
-                       when @selected_filter['involvement'].include?('incoming')
-                         @bs_requests.where(bs_request_actions: { target_project_id: User.session.involved_projects })
-                                     .or(@bs_requests.where(bs_request_actions: { target_package_id: User.session.involved_packages }))
-                       when @selected_filter['involvement'].include?('outgoing')
-                         @bs_requests.where(creator: User.session)
-                                     .or(@bs_requests.where(bs_request_actions: { source_project_id: User.session.involved_projects }))
-                                     .or(@bs_requests.where(bs_request_actions: { source_package_id: User.session.involved_packages }))
-                       when @selected_filter['involvement'].include?('review')
-                         @bs_requests.where(reviews: { user: User.session })
-                                     .or(@bs_requests.where(reviews: { group: User.session.groups }))
-                                     .or(@bs_requests.where(reviews: { project: User.session.involved_projects }))
-                                     .or(@bs_requests.where(reviews: { package: User.session.involved_packages }))
-                       end
+        # We want to hit the database immediately, the @bs_request query is already complicated enough. No need to add sub-queries to it...
+        # rubocop:disable Rails/PluckInWhere
+        if @selected_filter['involvement'].include?('incoming')
+          bs_requests_filters << @bs_requests.where(bs_request_actions: { target_project_id: User.session.relationships.projects.maintainers.pluck(:project_id) })
+          bs_requests_filters << @bs_requests.where(bs_request_actions: { target_package_id: User.session.relationships.packages.maintainers.pluck(:package_id) })
+        end
+
+        if @selected_filter['involvement'].include?('outgoing')
+          bs_requests_filters << @bs_requests.where(creator: User.session)
+          bs_requests_filters << @bs_requests.where(bs_request_actions: { source_project_id: User.session.relationships.projects.maintainers.pluck(:project_id) })
+          bs_requests_filters << @bs_requests.where(bs_request_actions: { source_package_id: User.session.relationships.packages.maintainers.pluck(:package_id) })
+        end
+
+        if @selected_filter['involvement'].include?('review')
+          bs_requests_filters << @bs_requests.where(reviews: { user_id: User.session.id })
+          bs_requests_filters << @bs_requests.where(reviews: { group_id: User.session.groups.pluck(:id) })
+          bs_requests_filters << @bs_requests.where(reviews: { project_id: User.session.relationships.projects.maintainers.pluck(:project_id) })
+          bs_requests_filters << @bs_requests.where(reviews: { package_id: User.session.relationships.packages.maintainers.pluck(:package_id) })
+        end
+        # rubocop:enable Rails/PluckInWhere
+
+        @bs_requests = @bs_requests.merge(bs_requests_filters.inject(:or)) if bs_requests_filters.length.positive?
       end
 
       def request_method

@@ -43,7 +43,8 @@ RSpec.describe 'Package Requests' do
 
     it 'filters requests' do
       find_by_id('requests-dropdown-trigger').click if mobile? # open the filter dropdown
-      check('To Package', allow_label_click: true)
+      uncheck('From Package', allow_label_click: true)
+      uncheck('Review for Package', allow_label_click: true)
       execute_script('$("#content-selector-filters-form").submit()')
 
       expect(page).to have_link(href: "/request/show/#{incoming_request.number}")
