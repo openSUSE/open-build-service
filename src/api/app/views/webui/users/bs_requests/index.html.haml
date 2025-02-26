@@ -1,4 +1,5 @@
 - @pagetitle = requests_listing_pagetitle(@project)
 
 = render(partial: 'webui/shared/bs_requests/form',
-         locals: { selected_filter: @selected_filter, bs_requests_creators: @bs_requests_creators, url: @url, bs_requests: @bs_requests })
+         locals: { selected_filter: @selected_filter, bs_requests_creators: @bs_requests_creators,
+                   url: @url, bs_requests: @bs_requests, viewed_object: 'You' })

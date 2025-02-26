@@ -41,9 +41,10 @@ module Webui
         @bs_requests = case
                        when @selected_filter['involvement'].include?('incoming')
                          @bs_requests.where(bs_request_actions: { target_package_id: @package.id })
-                                     .or(@bs_requests.where(reviews: { package: @package }))
                        when @selected_filter['involvement'].include?('outgoing')
                          @bs_requests.where(bs_request_actions: { source_package_id: @package.id })
+                       when @selected_filter['involvement'].include?('review')
+                         @bs_requests.where(reviews: { package: @package })
                        end
       end
 
