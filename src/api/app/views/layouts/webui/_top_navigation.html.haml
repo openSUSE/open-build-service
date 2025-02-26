@@ -22,7 +22,7 @@
                 %i.fas.fa-user.fa-fw.me-2
                 Your profile
             %li.dropdown-item
-              = link_to(my_requests_path(direction: 'incoming', state: %w[new review]), class: 'nav-link text-light p-0 w-100') do
+              = link_to(my_requests_path, class: 'nav-link text-light p-0 w-100') do
                 %i.fas.fa-code-pull-request.fa-fw.me-2
                 Your Requests
             - if User.session.home_project

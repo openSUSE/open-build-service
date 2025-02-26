@@ -9,7 +9,7 @@
           %i.fas.fa-user.fa-fw.me-2
           Your Profile
     %li.nav-item
-      = link_to(my_requests_path(direction: 'incoming', state: %w[new review]), class: 'nav-link', title: 'Requests') do
+      = link_to(my_requests_path, class: 'nav-link', title: 'Requests') do
         - if Flipper.enabled?(:request_index, User.session)
           %i.fas.fa-code-pull-request.fa-fw.me-2
           %span.nav-item-name Your Requests
