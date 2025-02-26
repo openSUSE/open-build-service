@@ -50,7 +50,7 @@
 
 - if %w[add_role set_bugowner].include?(action.type)
   :ruby
-    parameters = { project: action.target_project, request_action_id: action.id, notification_id: @current_notification }
+    parameters = { project: action.target_project, request_action_id: action.id, notification_id: current_notification }
     roles_link = if action.target_package
                    package_users_path(parameters.merge!(package: action.target_package))
                  else
