@@ -13,6 +13,8 @@
         %li.nav-item
           = link_to(group_requests_path(@group, state: %w[new review]), class: 'nav-link', title: 'Requests') do
             Group Requests
+            %span.badge.text-bg-primary
+              = @group.requests.count
       - else
         %li.nav-item
           %a.nav-link.text-nowrap#reviews-in-tab{ aria: { controls: 'reviews-in', selected: 'true' },
