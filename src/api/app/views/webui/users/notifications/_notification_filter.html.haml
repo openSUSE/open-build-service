@@ -1,7 +1,7 @@
 -# haml-lint:disable ViewLength
 = form_for(:notification, url: my_notifications_path, method: :get, id: 'content-selector-filters-form') do |form|
   .accordion.accordion-flush
-    .mt-2.mb-2.accordion-item.border-0
+    .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
       .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-state' },
                                               aria: { expanded: 'true', controls: 'notification-filter-state' } }
         %b State
@@ -15,7 +15,7 @@
         = render partial: 'webui/shared/radio_button', locals: { label: 'Read',
                                                                 key: 'state[read]', name: 'state', value: 'read',
                                                                 checked: selected_filter[:state] == 'read' }
-    .mt-2.mb-2.accordion-item.border-0
+    .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
       .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-type' },
                                               aria: { expanded: 'true', controls: 'notification-filter-type' } }
         %b Type
@@ -61,7 +61,7 @@
                                                               checked: selected_filter[:kind]&.include?('member_on_groups') }
 
     - if policy(Report.new).notify?
-      .mt-2.mb-2.accordion-item.border-0
+      .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
         .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-reports' },
                                                 aria: { expanded: 'true', controls: 'notification-filter-reports' } }
           %b Reports
@@ -84,7 +84,7 @@
                                                                     value: reportable_type,
                                                                     checked: selected_filter[:reportable_type]&.include?(reportable_type.to_s) }
 
-    .mt-2.mb-2.accordion-item.border-0
+    .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
       .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-requests' },
                                               aria: { expanded: 'true', controls: 'notification-filter-requests' } }
         %b Requests
@@ -107,7 +107,7 @@
                                                                   checked: selected_filter[:request_state]&.include?(request_state.to_s) }
 
     - unless projects_for_filter.empty?
-      .mt-2.mb-2.accordion-item.border-0
+      .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
         .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-projects' },
                                                 aria: { expanded: 'true', controls: 'notification-filter-projects' } }
           %b Projects
@@ -120,7 +120,7 @@
                                                                       key: "project[#{project_name}]", name: 'project[]', value: project_name,
                                                                       checked: selected_filter[:project]&.include?(project_name) }
     - unless groups_for_filter.empty?
-      .mt-2.mb-2.accordion-item.border-0
+      .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
         .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-groups' },
                                                 aria: { expanded: 'true', controls: 'notification-filter-groups' } }
           %b Groups

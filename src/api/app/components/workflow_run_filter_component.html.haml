@@ -19,7 +19,7 @@
 
 = form_for(:token, url: token_workflow_runs_path(@token), method: :get, id: 'content-selector-filters-form') do |form|
   .accordion.accordion-flush
-    .mt-2.mb-2.accordion-item.border-0
+    .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
       .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#workflow-filter-status' },
                                               aria: { expanded: 'true', controls: 'workflow-filter-status' } }
         %b Status
@@ -36,7 +36,7 @@
         = render partial: 'webui/shared/check_box', locals: { label: 'Failed', amount: @count['fail'] || 0,
                                                               key: 'fail', label_icon: 'fas fa-exclamation-triangle text-danger',
                                                               checked: @selected_filter[:status]&.include?('fail')}
-    .mt-4.mb-2.accordion-item.border-0
+    .mt-4.mb-2.accordion-item.border-0.auto-submit-on-change
       .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#workflow-filter-event-type' },
                                               aria: { expanded: 'true', controls: 'workflow-filter-event-type' } }
         %b Event Type
@@ -51,7 +51,7 @@
         = render partial: 'webui/shared/check_box', locals: { label: 'Tag Push', amount: @count['tag_push'] || 0,
                                                               key: 'tag_push', checked: @selected_filter[:event_type]&.include?('tag_push')}
 
-    .mt-4.mb-2.accordion-item.border-0
+    .mt-4.mb-2.accordion-item.border-0.auto-submit-on-change
       .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#workflow-filter-event-action' },
                                               aria: { expanded: 'true', controls: 'workflow-filter-event-action' } }
         %b Event Action
@@ -63,7 +63,7 @@
                                                           selected_value: @selected_filter[:request_action],
                                                           filter_options: WorkflowRun::ALL_POSSIBLE_REQUEST_ACTIONS,
                                                           label: 'Action', visible_inner_label: true }
-    .mt-4.mb-2.accordion-item.border-0
+    .mt-4.mb-2.accordion-item.border-0.auto-submit-on-change
       .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#workflow-filter-event-source' },
                                               aria: { expanded: 'true', controls: 'workflow-filter-event-source' } }
         %b Event Source
