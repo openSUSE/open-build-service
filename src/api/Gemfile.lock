@@ -381,7 +381,7 @@ GEM
     rantly (2.0.0)
     rbtree (0.4.6)
     rbtree3 (0.7.1)
-    redcarpet (3.6.0)
+    redcarpet (3.6.1)
     regexp_parser (2.10.0)
     reline (0.6.0)
       io-console (~> 0.5)
