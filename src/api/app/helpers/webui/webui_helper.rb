@@ -57,7 +57,7 @@ module Webui::WebuiHelper
   end
 
   def check_first(first)
-    first.nil? ? true : nil
+    first.nil? || nil
   end
 
   def image_template_icon(template)

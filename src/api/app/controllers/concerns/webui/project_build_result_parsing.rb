@@ -135,7 +135,7 @@ module Webui::ProjectBuildResultParsing
       result = if no_invert[1] == '!'
                  input.include?(no_invert[2]) ? result : true
                else
-                 input.include?(no_invert[2]) ? true : result
+                 input.include?(no_invert[2]) || result
                end
     end
     result
