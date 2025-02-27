@@ -33,7 +33,7 @@
         <optional>
           <element name="change_password">
             <a:documentation>
-              Users can change their password. This may not work with ldap or proxy_auth mechanisms.
+              Users can change their password. This may not work with proxy_auth mechanisms or external authentication mechanisms (formerly LDAP).
             </a:documentation>
             <choice>
               <value>on</value>
@@ -44,7 +44,7 @@
         <optional>
           <element name="disallow_group_creation">
             <a:documentation>
-              Disallow group creation via the API. Useful when groups are provided via LDAP.
+              Disallow group creation via the API. This is useful when groups are provided by external authentication mechanisms (fomerly LDAP).
             </a:documentation>
             <choice>
               <value>on</value>

@@ -1,4 +1,4 @@
-function initializeUserConfigurationDatatable(ldapEnabled) { // jshint ignore:line
+function initializeUserConfigurationDatatable() { // jshint ignore:line
   initializeRemoteDatatable( // jshint ignore:line
     '#user-table',
     {
@@ -6,7 +6,7 @@ function initializeUserConfigurationDatatable(ldapEnabled) { // jshint ignore:li
       columns: [
         { 'data': 'name' },
         { 'data': 'realname', 'visible': false },
-        { 'data': 'local_user', 'visible': ldapEnabled === 'true' },
+        { 'data': 'local_user' },
         { 'data': 'state'},
         { 'data': 'actions', 'orderable': false, 'searchable': false }
       ]

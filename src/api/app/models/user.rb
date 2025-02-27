@@ -179,11 +179,7 @@ class User < ApplicationRecord
   # This static method tries to find a user with the given login and password
   # in the database. Returns the user or nil if they could not be found
   def self.find_with_credentials(login, password)
-    if CONFIG['ldap_mode'] == :on
-      UserLdapStrategy.find_with_credentials(login, password)
-    else
-      find_by(login: login)&.authenticate_via_password(password)
-    end
+    find_by(login: login)&.authenticate_via_password(password)
   end
 
   # Currently logged in user or nobody user if there is no user logged in.
@@ -888,8 +884,6 @@ class User < ApplicationRecord
   end
 
   def lookup_strategy
-    return UserLdapStrategy.new if Configuration.ldapgroup_enabled?
-
     UserBasicStrategy.new
   end
 end

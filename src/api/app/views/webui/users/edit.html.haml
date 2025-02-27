@@ -8,12 +8,11 @@
         = form.hidden_field(:login)
         .mb-3
           = form.label(:realname, 'Name:')
-          = form.text_field(:realname, disabled: user_is_configurable(@displayed_user), class: 'form-control')
+          = form.text_field(:realname, class: 'form-control')
         .mb-3
           = form.label(:email, 'Email:')
           %abbr.text-danger{ title: 'required' } *
-          = form.text_field(:email, required: true, email: true, disabled: user_is_configurable(@displayed_user),
-            class: 'form-control')
+          = form.text_field(:email, required: true, email: true, class: 'form-control')
         .mb-3
           = form.collection_check_boxes(:role_ids, Role.global, :id, :title, {}) do |checkbox|
             .form-check
@@ -24,7 +23,7 @@
             .form-check.custom-control-inline
               = radio.radio_button(class: 'form-check-input')
               = radio.label(class: 'form-check-label')
-        - if Configuration.ldap_enabled? && User.admin_session?
+        - if User.admin_session?
           .mb-3
             .form-check
               = form.check_box(:ignore_auth_services, { class: 'form-check-input' }, true)
