@@ -1320,10 +1320,10 @@ class Package < ApplicationRecord
 
   # Returns an ActiveRecord::Relation with all BsRequest that the package is somehow involved in
   def bs_requests
-    BsRequest.order('number DESC').includes(:bs_request_actions, :comments, :reviews, :labels)
-             .where(bs_request_actions: { source_package_id: id })
-             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(bs_request_actions: { target_package_id: id }))
-             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(reviews: { package_id: id }))
+    BsRequest.left_outer_joins(:bs_request_actions, :reviews)
+             .where(reviews: { package_id: id })
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { source_package_id: id }))
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { target_package_id: id }))
              .distinct
   end
 

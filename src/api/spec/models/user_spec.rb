@@ -1,7 +1,7 @@
 RSpec.describe User do
   let(:admin_user) { create(:admin_user, login: 'king') }
   let(:user) { create(:user, :with_home, login: 'eisendieter') }
-  let(:confirmed_user) { create(:confirmed_user, login: 'confirmed_user') }
+  let(:confirmed_user) { create(:confirmed_user, :with_home, login: 'confirmed_user') }
   let(:user_belongs_to_confirmed_owner) { create(:user, owner: confirmed_user) }
   let(:user_belongs_to_unconfirmed_owner) { create(:confirmed_user, owner: user) }
   let(:input) { { 'Event::RequestCreate' => { source_maintainer: '1' } } }
@@ -646,13 +646,13 @@ RSpec.describe User do
   end
 
   describe '#bs_requests' do
-    let!(:incoming_request) { create(:bs_request_with_submit_action, source_project: user.home_project) }
-    let!(:outgoing_request) { create(:bs_request_with_submit_action, target_project: user.home_project) }
-    let!(:request_with_user_review) { create(:delete_bs_request, target_project: create(:project), review_by_user: user) }
-    let!(:request_with_project_review) { create(:delete_bs_request, target_project: create(:project), review_by_project: user.home_project) }
-    let!(:request_with_package_review) { create(:delete_bs_request, target_project: create(:project), review_by_package: create(:package, project: user.home_project)) }
-    let!(:unrelated_request) { create(:bs_request_with_submit_action, source_project: create(:project)) }
+    let!(:incoming_request) { create(:bs_request_with_submit_action, target_project: confirmed_user.home_project, description: 'incoming') }
+    let!(:outgoing_request) { create(:bs_request_with_submit_action, creator: confirmed_user, description: 'outgoing') }
+    let!(:request_with_user_review) { create(:delete_bs_request, target_project: create(:project), review_by_user: confirmed_user, description: 'user_review') }
+    let!(:request_with_project_review) { create(:delete_bs_request, target_project: create(:project), review_by_project: confirmed_user.home_project, description: 'project_review') }
+    let!(:request_with_package_review) { create(:delete_bs_request, target_project: create(:project), review_by_package: create(:package_with_maintainer, maintainer: confirmed_user), description: 'package_review') }
+    let!(:unrelated_request) { create(:bs_request_with_submit_action, source_project: create(:project), description: 'unrelated') }
 
-    it { expect(user.bs_requests).to contain_exactly(incoming_request, outgoing_request, request_with_user_review, request_with_project_review, request_with_package_review) }
+    it { expect(confirmed_user.bs_requests.pluck(:description)).to contain_exactly('incoming', 'outgoing', 'user_review', 'project_review', 'package_review') }
   end
 end
