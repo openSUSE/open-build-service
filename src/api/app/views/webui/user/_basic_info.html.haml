@@ -37,7 +37,7 @@
         - component.with_text_area do
           = label_tag('Adminnote', 'Admin note:', for: 'adminnote')
           = text_area_tag(:adminnote, '', placeholder: 'Please explain the reason for the deletion...', class: 'form-control')
-    - if Configuration.accounts_editable?(user) && policy(user).update?
+    - if Configuration.accounts_editable? && policy(user).update?
       = link_to('#', id: 'toggle-in-place-editing', title: 'Edit Your Account') do
         %i.fas.fa-user-edit
         %span.nav-item-name Edit
