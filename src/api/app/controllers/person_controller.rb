@@ -83,7 +83,7 @@ class PersonController < ApplicationController
     login = params[:login]
     user = User.find_by_login(login) if login
 
-    unless ::Configuration.accounts_editable?(user)
+    unless ::Configuration.accounts_editable?
       render_error(status: 403, errorcode: 'change_userinfo_no_permission',
                    message: "no permission to change userinfo for user #{user.login}")
       return
@@ -171,15 +171,6 @@ class PersonController < ApplicationController
   end
 
   def internal_register
-    if ::Configuration.ldap_enabled?
-      render_error(
-        status: 403,
-        errorcode: 'permission_denied',
-        message: 'User accounts can not be registered via OBS when in LDAP mode. Please refer to your LDAP server to create new users.'
-      )
-      return
-    end
-
     xml = REXML::Document.new(request.raw_post)
 
     logger.debug("register XML: #{request.raw_post}")
@@ -268,7 +259,7 @@ class PersonController < ApplicationController
     end
 
     # change password to LDAP if LDAP is enabled
-    unless ::Configuration.passwords_changable?(User.session)
+    unless ::Configuration.passwords_changable?
       render_error status: 404, errorcode: 'change_passwd_failure',
                    message: 'LDAP passwords can not be changed in OBS. Please refer to your LDAP server to change it.'
       return
