@@ -153,6 +153,12 @@ RSpec.describe Webui::Users::BsRequestsController do
 
         it { expect(assigns[:bs_requests]).to contain_exactly(request_with_review) }
       end
+
+      context 'and the package_name parameter is used' do
+        let(:context_params) { { package_names: [incoming_request.bs_request_actions.first.source_package] } }
+
+        it { expect(assigns[:bs_requests]).to contain_exactly(incoming_request) }
+      end
     end
   end
 end
