@@ -1,6 +1,4 @@
 class Webui::SessionController < Webui::WebuiController
-  before_action :kerberos_auth, only: [:new]
-
   before_action :session_creator, only: [:create]
   before_action :authenticate, only: [:create]
   before_action :check_user_active, only: [:create]
