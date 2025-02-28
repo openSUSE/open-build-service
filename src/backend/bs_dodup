@@ -25,6 +25,8 @@ use BSXML;
 use BSUtil;
 use BSContar;
 use BSBearer;
+use BSASN1;
+use BSX509;
 use File::Temp ();
 
 use Build::Repo;
@@ -134,8 +136,8 @@ sub chkverify {
   die("checksum mismatch for $file: $chk != $res\n") unless lc($chk) eq lc($res);
 }
 
-sub gpgverify {
-  my ($data, $sig, $pubkey) = @_;
+sub expandpubkeys {
+  my ($pubkey) = @_;
   if ($pubkeydir) {
     # expand pubkeys coming from pubkeydir
     my $extradata = '';
@@ -150,6 +152,12 @@ sub gpgverify {
     }
     $pubkey = "$extradata$pubkey";
   }
+  return $pubkey;
+}
+
+sub gpgverify {
+  my ($data, $sig, $pubkey) = @_;
+  $pubkey = expandpubkeys($pubkey) if $pubkeydir;
   my $tempdir = File::Temp->newdir();
   writestr("$tempdir/pubkey", undef, $pubkey);
   system('gpg2', '-q', '--homedir', $tempdir, '--import', "$tempdir/pubkey") && die("gpg2 key import failed: $?\n");
@@ -378,6 +386,45 @@ sub dod_arch {
   return ($newcookie, $url);
 }
 
+sub rsa_verify {
+  my ($keydata, $hash, $digest, $signature) = @_;
+  my $prefix;
+  $prefix = "3021300906052b0e03021a05000414" if $hash eq 'sha1';
+  $prefix = "3031300d060960864801650304020105000420" if $hash eq 'sha256';
+  $prefix = "3051300d060960864801650304020305000440" if $hash eq 'sha512';
+  return 0 unless $prefix;
+  require Math::BigInt;
+  die("weird number of mpis in rsa pubkey\n") unless @{$keydata->{'mpis'} || []} == 2;
+  my $n = Math::BigInt->from_bytes($keydata->{'mpis'}->[0]->{'data'});
+  my $e = Math::BigInt->from_bytes($keydata->{'mpis'}->[1]->{'data'});
+  my $s = Math::BigInt->from_bytes($signature);
+  return 0 if $s >= $n;
+  my $c = $s->bmodpow($e, $n)->as_bytes();
+  $c = unpack('H*', $c);
+  return 0 unless substr($c, 0, 8) eq '01ffffff';
+  $c =~ s/^01(?:ff)+//;
+  return $c eq "00$prefix$digest" ? 1 : 0
+}
+
+sub dod_apk_sigverify {
+  my ($file, $pubkey) = @_;
+  $pubkey = expandpubkeys($pubkey) if $pubkeydir;
+  my $ok = 0;
+  my @sigs = Build::Apk::getsignatures($file);
+  die("apk file is not signed\n") unless @sigs;
+  my @pub;
+  push @pub, "$1\n" while $pubkey =~ s/(-----BEGIN PUBLIC KEY-----\n.*?\n-----END PUBLIC KEY-----)//s;
+  for my $pub (@pub) {
+    for my $sig (@sigs) {
+      my $keydata = BSX509::pubkey2keydata(BSASN1::pem2der($pub, 'PUBLIC KEY'));
+      next unless $keydata->{'algo'} eq $sig->{'algo'};
+      my $digest = Build::Apk::calcapkchksum($file, $sig->{'hash'});
+      return if $sig->{'algo'} eq 'rsa' && rsa_verify($keydata, $sig->{'hash'}, $digest, $sig->{'signature'});
+    }
+  }
+  die("signature verification failed\n");
+}
+
 sub dod_apk {
   my ($doddata, $cookie, $file) = @_;
   my $url = $doddata->{'url'};
@@ -385,6 +432,7 @@ sub dod_apk {
   $url .= '/' unless $url =~ /\/$/;
   my $r = fetch("${url}APKINDEX.tar.gz", $sslfingerprint, $timeout_large, $file, 1);
   die unless $r->{'md5'};
+  dod_apk_sigverify($file, $doddata->{'pubkey'}) if $doddata->{'pubkey'};
   my $newcookie = Digest::MD5::md5_hex("$url\n$r->{'md5'}");
   return undef if ($cookie || '') eq $newcookie;
   return ($newcookie, $url);
