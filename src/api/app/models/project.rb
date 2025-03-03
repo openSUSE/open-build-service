@@ -1405,6 +1405,7 @@ class Project < ApplicationRecord
              .where(bs_request_actions: { source_project_id: id })
              .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(bs_request_actions: { target_project_id: id }))
              .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(reviews: { project_id: id }))
+             .distinct
   end
 
   private

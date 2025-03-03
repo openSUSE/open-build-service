@@ -708,6 +708,7 @@ class User < ApplicationRecord
              .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(bs_request_actions: { target_package_id: involved_packages }))
              .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(bs_request_actions: { source_project_id: involved_projects }))
              .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(bs_request_actions: { source_package_id: involved_packages }))
+             .distinct
   end
 
   # TODO: This should be in a query object
