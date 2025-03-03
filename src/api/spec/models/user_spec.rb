@@ -46,20 +46,20 @@ RSpec.describe User do
 
   describe '#active?' do
     it 'returns true if user is confirmed' do
-      expect(confirmed_user).to be_is_active
+      expect(confirmed_user).to be_active
     end
 
     it 'returns false if user is NOT confirmed' do
-      expect(user).not_to be_is_active
+      expect(user).not_to be_active
     end
 
     context 'when user has owner' do
       it 'returns true if owner is confirmed' do
-        expect(user_belongs_to_confirmed_owner).to be_is_active
+        expect(user_belongs_to_confirmed_owner).to be_active
       end
 
       it 'returns false if owner not confirmed' do
-        expect(user_belongs_to_unconfirmed_owner).not_to be_is_active
+        expect(user_belongs_to_unconfirmed_owner).not_to be_active
       end
     end
   end

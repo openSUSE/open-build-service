@@ -135,11 +135,11 @@ RSpec.describe BsRequestAction do
       let(:action_without_target) { build(:bs_request_action) }
 
       it 'is false' do
-        expect(action_without_target).not_to be_is_target_maintainer(user)
+        expect(action_without_target).not_to be_target_maintainer(user)
       end
 
       it 'works on nil' do
-        expect(action_without_target).not_to be_is_target_maintainer(nil)
+        expect(action_without_target).not_to be_target_maintainer(nil)
       end
     end
 
@@ -151,15 +151,15 @@ RSpec.describe BsRequestAction do
       let(:bs_request_action) { bs_request.bs_request_actions.first }
 
       it 'is true for user' do
-        expect(bs_request_action).to be_is_target_maintainer(user)
+        expect(bs_request_action).to be_target_maintainer(user)
       end
 
       it 'works on nil' do
-        expect(bs_request_action).not_to be_is_target_maintainer(nil)
+        expect(bs_request_action).not_to be_target_maintainer(nil)
       end
 
       it 'is false for another user' do
-        expect(bs_request_action).not_to be_is_target_maintainer(another_user)
+        expect(bs_request_action).not_to be_target_maintainer(another_user)
       end
     end
   end
