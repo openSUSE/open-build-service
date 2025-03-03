@@ -1324,6 +1324,7 @@ class Package < ApplicationRecord
              .where(bs_request_actions: { source_package_id: id })
              .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(bs_request_actions: { target_package_id: id }))
              .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(reviews: { package_id: id }))
+             .distinct
   end
 
   private
