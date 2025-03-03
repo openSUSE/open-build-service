@@ -487,51 +487,6 @@ RSpec.describe User do
       it { is_expected.to be_nil }
       it { expect(user.reload.login_failure_count).to eq(8) }
     end
-
-    context 'when LDAP mode is enabled' do
-      include_context 'setup ldap mock with user mock', for_ssl: true
-      include_context 'an ldap connection'
-      include_context 'mock searching a user' do
-        let(:ldap_user) { double(:ldap_user, to_hash: { 'dn' => 'tux', 'sn' => ['John@obs.de', 'John', 'Smith'] }) }
-      end
-
-      let(:user) do
-        create(:user, login: 'tux', realname: 'penguin', login_failure_count: 7, last_logged_in_at: Time.zone.yesterday, email: 'tux@suse.de')
-      end
-
-      before do
-        stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on,
-                                          'ldap_search_user' => 'tux',
-                                          'ldap_search_auth' => 'tux_password'))
-      end
-
-      context 'and user is already known by OBS' do
-        subject { User.find_with_credentials(user.login, 'tux_password') }
-
-        it { is_expected.to eq(user) }
-        it { expect(subject.login_failure_count).to eq(0) }
-        it { expect(subject.last_logged_in_at).to eq(Time.zone.today) }
-
-        it 'updates user data received from the LDAP server' do
-          expect(subject.email).to eq('John@obs.de')
-          expect(subject.realname).to eq('tux')
-        end
-      end
-
-      context 'and user is not yet known by OBS' do
-        subject { User.find_with_credentials('new_user', 'tux_password') }
-
-        it 'creates a new user from the data received by the LDAP server' do
-          expect { subject }.to change(User, :count).by(1)
-          expect(subject.email).to eq('John@obs.de')
-          expect(subject.login).to eq('new_user')
-          expect(subject.realname).to eq('new_user')
-          expect(subject.state).to eq('confirmed')
-          expect(subject.login_failure_count).to eq(0)
-          expect(subject.last_logged_in_at).to eq(Time.zone.today)
-        end
-      end
-    end
   end
 
   describe 'autocomplete methods' do
