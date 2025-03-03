@@ -1,0 +1,7 @@
+%li.breadcrumb-item
+  - if User.admin_session?
+    = link_to 'Manage Groups', groups_path
+  - else
+    Groups
+%li.breadcrumb-item.active{ 'aria-current' => 'page' }
+  = @group

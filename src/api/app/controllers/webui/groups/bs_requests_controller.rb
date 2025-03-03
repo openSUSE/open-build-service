@@ -2,6 +2,10 @@ module Webui
   module Groups
     class BsRequestsController < WebuiController
       before_action :set_group
+      before_action :redirect_legacy
+      before_action :set_bs_request
+
+      include Webui::RequestsFilter
 
       REQUEST_METHODS = {
         'all_requests_table' => :requests,
@@ -10,23 +14,56 @@ module Webui
       }.freeze
 
       def index
-        parsed_params = BsRequest::DataTable::ParamsParser.new(params).parsed_params
-        requests_query = BsRequest::DataTable::FindForUserOrGroupQuery.new(@user_or_group, request_method, parsed_params)
-        @requests_data_table = BsRequest::DataTable::Table.new(requests_query, parsed_params[:draw])
-
         respond_to do |format|
-          format.json { render 'webui/shared/bs_requests/index' }
+          format.html do
+            filter_requests
+
+            @bs_requests = @bs_requests.order('number DESC').page(params[:page])
+          end
+          format.json do
+            parsed_params = BsRequest::DataTable::ParamsParser.new(params).parsed_params
+            requests_query = BsRequest::DataTable::FindForUserOrGroupQuery.new(@group, request_method, parsed_params)
+            @requests_data_table = BsRequest::DataTable::Table.new(requests_query, parsed_params[:draw])
+
+            render 'webui/shared/bs_requests/index'
+          end
         end
       end
 
       private
 
       def set_group
-        @user_or_group = Group.find_by_title!(params[:group_title])
+        @group = Group.find_by_title!(params[:group_title])
       end
 
       def request_method
         REQUEST_METHODS[params[:dataTableId]]
+      end
+
+      def set_bs_request
+        return unless Flipper.enabled?(:request_index, User.possibly_nobody)
+
+        @bs_requests = @group.bs_requests
+      end
+
+      def filter_involvement
+        return if params[:involvement]&.compact_blank.blank?
+
+        @selected_filter['involvement'] = params[:involvement]
+
+        @bs_requests = case
+                       when @selected_filter['involvement'].include?('incoming')
+                         @bs_requests.where(bs_request_actions: { target_project_id: @group.relationships.projects.maintainers.pluck(:project_id) })
+                                     .or(@bs_requests.where(bs_request_actions: { target_package_id: @group.relationships.packages.maintainers.pluck(:package_id) }))
+                       when @selected_filter['involvement'].include?('review')
+                         @bs_requests.where(reviews: { group: @group })
+                                     .or(@bs_requests.where(reviews: { project_id: @group.relationships.projects.maintainers.pluck(:project_id) }))
+                                     .or(@bs_requests.where(reviews: { package_id: @group.relationships.packages.maintainers.pluck(:package_id) }))
+                       end
+      end
+
+      def redirect_legacy
+        redirect_to(group_path(@group)) unless Flipper.enabled?(:request_index, User.possibly_nobody) || request.format.json?
       end
     end
   end
