@@ -18,7 +18,7 @@ module WebuiControllerService
 
       User.session = find_or_create_user!
 
-      if User.session.is_active?
+      if User.session.active?
         User.session.update_login_values(http_request.env)
         true
       else

@@ -1,5 +1,5 @@
-RSpec.describe User, '.has_local_permission?' do
-  subject { user.has_local_permission?(perm_string, object) }
+RSpec.describe User, '.local_permission?' do
+  subject { user.local_permission?(perm_string, object) }
 
   let(:user) { create(:confirmed_user) }
 

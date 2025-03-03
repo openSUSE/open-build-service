@@ -1,6 +1,6 @@
 class ReportPolicy < ApplicationPolicy
   def show?
-    return true if user.is_admin? || user.is_moderator? || user.is_staff?
+    return true if user.admin? || user.moderator? || user.staff?
     return true if record.user == user
 
     CommentPolicy.new(user, record.reportable).maintainer? if record.reportable_type == 'Comment'
@@ -32,8 +32,8 @@ class ReportPolicy < ApplicationPolicy
 
   def notify?
     return false unless Flipper.enabled?(:content_moderation, user)
-    return true if User.moderators.blank? && (user.is_admin? || user.is_staff?)
-    return true if user.is_moderator?
+    return true if User.moderators.blank? && (user.admin? || user.staff?)
+    return true if user.moderator?
 
     false
   end

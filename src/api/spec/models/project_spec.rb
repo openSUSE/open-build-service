@@ -60,15 +60,15 @@ RSpec.describe Project, :vcr do
     end
   end
 
-  describe '#has_distribution' do
+  describe '#distribution?' do
     context 'remote distribution' do
       let(:remote_distribution) { create(:repository, name: 'snapshot', remote_project_name: 'openSUSE:Factory', project: remote_project) }
       let(:other_remote_distribution) { create(:repository, name: 'standard', remote_project_name: 'openSUSE:Leap:42.1', project: remote_project) }
       let(:repository) { create(:repository, name: 'openSUSE_Tumbleweed', project: project) }
       let!(:path_element) { create(:path_element, parent_id: repository.id, repository_id: remote_distribution.id, position: 1) }
 
-      it { expect(project.has_distribution('openSUSE.org:openSUSE:Factory', 'snapshot')).to be(true) }
-      it { expect(project.has_distribution('openSUSE.org:openSUSE:Leap:42.1', 'standard')).to be(false) }
+      it { expect(project.distribution?('openSUSE.org:openSUSE:Factory', 'snapshot')).to be(true) }
+      it { expect(project.distribution?('openSUSE.org:openSUSE:Leap:42.1', 'standard')).to be(false) }
     end
 
     context 'local distribution' do
@@ -78,14 +78,14 @@ RSpec.describe Project, :vcr do
         let(:repository) { create(:repository, name: 'Base_repo2', project: project) }
         let!(:path_element) { create(:path_element, parent_id: repository.id, repository_id: distribution_repository.id, position: 1) }
 
-        it { expect(project.has_distribution('BaseDistro2.0', 'BaseDistro2_repo')).to be(true) }
+        it { expect(project.distribution?('BaseDistro2.0', 'BaseDistro2_repo')).to be(true) }
       end
 
       context 'with not linked distribution' do
         let(:not_linked_distribution) { create(:project, name: 'BaseDistro') }
         let!(:not_linked_distribution_repository) { create(:repository, name: 'BaseDistro_repo', project: not_linked_distribution) }
 
-        it { expect(project.has_distribution('BaseDistro', 'BaseDistro_repo')).to be(false) }
+        it { expect(project.distribution?('BaseDistro', 'BaseDistro_repo')).to be(false) }
       end
 
       context 'with linked distribution but wrong query' do
@@ -94,8 +94,8 @@ RSpec.describe Project, :vcr do
         let(:other_repository) { create(:repository, name: 'Base_repo3', project: project) }
         let!(:path_element) { create(:path_element, parent_id: other_repository.id, repository_id: other_distribution_repository.id, position: 1) }
 
-        it { expect(project.has_distribution('BaseDistro3.0', 'standard')).to be(false) }
-        it { expect(project.has_distribution('BaseDistro4.0', 'BaseDistro3_repo')).to be(false) }
+        it { expect(project.distribution?('BaseDistro3.0', 'standard')).to be(false) }
+        it { expect(project.distribution?('BaseDistro4.0', 'BaseDistro3_repo')).to be(false) }
       end
     end
   end

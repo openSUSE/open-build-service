@@ -4,10 +4,10 @@
     -# haml-lint:disable InstanceVariables
     - unless @spider_bot
       -# haml-lint:enable InstanceVariables
-      - if project.is_maintenance?
+      - if project.maintenance?
         = tab_link('Incidents', project_maintenance_incidents_path(project), 'scrollable-tab-link')
         = tab_link('Maintained Projects', project_maintained_projects_path(project), 'scrollable-tab-link')
-      - unless project.defines_remote_instance? || project.is_maintenance?
+      - unless project.defines_remote_instance? || project.maintenance?
         = tab_link('Repositories', repositories_path(project), 'scrollable-tab-link')
         = tab_link('Monitor', project_monitor_path(project), 'scrollable-tab-link')
       - if Flipper.enabled?(:request_index, User.session)
@@ -18,13 +18,13 @@
         = tab_link('Requests', project_requests_path(project), 'scrollable-tab-link')
       - unless project.defines_remote_instance?
         = tab_link('Users', project_users_path(project), 'scrollable-tab-link')
-      - unless project.defines_remote_instance? || project.is_maintenance?
+      - unless project.defines_remote_instance? || project.maintenance?
         = tab_link('Subprojects', project_subprojects_path(project), 'scrollable-tab-link')
         = tab_link('Project Config', project_config_path(project), 'scrollable-tab-link')
       = tab_link('Attributes', [index_attribs_path(project)], 'scrollable-tab-link', active: controller_name == 'attribute')
       = tab_link('Signing Keys', project_signing_keys_path(project), 'scrollable-tab-link')
       = tab_link('Meta', project_meta_path(project), 'scrollable-tab-link')
-      - unless project.defines_remote_instance? || project.is_maintenance?
+      - unless project.defines_remote_instance? || project.maintenance?
         = tab_link('Status', project_status_path(project), 'scrollable-tab-link')
       = tab_link('Pulse', project_pulse_path(project), 'scrollable-tab-link')
       - active = controller_path.starts_with?('webui/staging')

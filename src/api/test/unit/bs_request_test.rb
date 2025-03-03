@@ -33,8 +33,8 @@ class BsRequestTest < ActiveSupport::TestCase
   def test_target_maintainer
     req = bs_requests(:missing_source_project)
 
-    assert req.is_target_maintainer?(users(:adrian))
-    assert_not req.is_target_maintainer?(users(:user1))
+    assert req.target_maintainer?(users(:adrian))
+    assert_not req.target_maintainer?(users(:user1))
   end
 
   def test_incremental_request_numbers
@@ -55,7 +55,7 @@ class BsRequestTest < ActiveSupport::TestCase
 
     assert_equal req.state, :review
     assert_equal req.creator, 'Iggy'
-    assert_equal req.is_target_maintainer?(nil), false
+    assert_equal req.target_maintainer?(nil), false
 
     wia = req.webui_actions(diffs: false)[0]
     assert_equal wia[:type], :add_role
@@ -65,7 +65,7 @@ class BsRequestTest < ActiveSupport::TestCase
 
     assert_equal req.state, :review
     assert_equal req.creator, 'Iggy'
-    assert_equal req.is_target_maintainer?(users(:fred)), true
+    assert_equal req.target_maintainer?(users(:fred)), true
 
     req.destroy
   end
@@ -133,7 +133,7 @@ class BsRequestTest < ActiveSupport::TestCase
     assert_equal expected, newxml
 
     # iggy is *not* target maintainer
-    assert_equal req.is_target_maintainer?(users(:Iggy)), false
+    assert_equal req.target_maintainer?(users(:Iggy)), false
     wia = req.webui_actions(diffs: false)
     assert_equal wia[0], type: :submit,
                          id: wia[0][:id],
@@ -184,7 +184,7 @@ class BsRequestTest < ActiveSupport::TestCase
     BsRequest.find_each do |r|
       # puts r.render_xml
       expect = trues.include?(r.number)
-      assert_equal expect, r.is_target_maintainer?(User.find_by_login(user)),
+      assert_equal expect, r.target_maintainer?(User.find_by_login(user)),
                    "Request #{r.number} should have #{expect} in target_maintainer for #{user}"
     end
   end

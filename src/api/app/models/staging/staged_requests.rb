@@ -178,7 +178,7 @@ class Staging::StagedRequests
 
   def stage_request(request)
     bs_request_action = request.bs_request_actions.first
-    if bs_request_action.is_submit?
+    if bs_request_action.submit?
       if Package.find_by(project: staging_project, name: bs_request_action.target_package)
         errors << "Can't stage request '#{request.number}': package '#{bs_request_action.target_package}' already exists in '#{staging_project}'."
         return

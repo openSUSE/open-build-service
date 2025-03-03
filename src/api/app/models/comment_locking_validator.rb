@@ -21,7 +21,7 @@ class CommentLockingValidator < ActiveModel::Validator
     user = User.session
     policy = CommentPolicy.new(user, record)
     # Allow maintainers and admins, moderators and staff to create comments despite the lock
-    return true if policy.maintainer? || user&.is_admin? || user&.is_moderator? || user&.is_staff?
+    return true if policy.maintainer? || user&.admin? || user&.moderator? || user&.staff?
 
     # Check if there is a lock, including the parents (project for package and bs_request for bs_request_action)
     !policy.locked?

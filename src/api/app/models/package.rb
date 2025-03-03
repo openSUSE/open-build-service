@@ -306,10 +306,10 @@ class Package < ApplicationRecord
     raise ReadSourceAccessError, "#{project.name}/#{name}"
   end
 
-  def is_locked?
+  def locked?
     return true if flags.find_by_flag_and_status('lock', 'enable')
 
-    project.is_locked?
+    project.locked?
   end
 
   def kiwi_image?
@@ -492,23 +492,23 @@ class Package < ApplicationRecord
     Directory.hashed(opts.update(project: project.name, package: name))
   end
 
-  def is_patchinfo?
-    is_of_kind?(:patchinfo)
+  def patchinfo?
+    of_kind?(:patchinfo)
   end
 
-  def is_link?
-    is_of_kind?(:link)
+  def link?
+    of_kind?(:link)
   end
 
-  def is_channel?
-    is_of_kind?(:channel)
+  def channel?
+    of_kind?(:channel)
   end
 
-  def is_product?
-    is_of_kind?(:product)
+  def product?
+    of_kind?(:product)
   end
 
-  def is_of_kind?(kind)
+  def of_kind?(kind)
     package_kinds.exists?(kind: kind)
   end
 
@@ -518,7 +518,7 @@ class Package < ApplicationRecord
 
   def update_issue_list
     current_issues = {}
-    if is_patchinfo?
+    if patchinfo?
       xml = Patchinfo.new.read_patchinfo_xmlhash(self)
       xml.elements('issue') do |i|
         current_issues['kept'] ||= []
@@ -561,7 +561,7 @@ class Package < ApplicationRecord
     query = { cmd: :diff, orev: 0, onlyissues: 1, linkrev: :base, view: :xml }
     issue_change = parse_issues_xml(query, 'kept')
     # issues introduced by local changes
-    if is_link?
+    if link?
       query = { cmd: :linkdiff, onlyissues: 1, linkrev: :base, view: :xml }
       new_issues = parse_issues_xml(query)
       (issue_change.keys + new_issues.keys).uniq.each do |key|
@@ -603,7 +603,7 @@ class Package < ApplicationRecord
 
   # rubocop:disable Style/GuardClause
   def update_channel_list
-    if is_channel?
+    if channel?
       xml = Backend::Connection.get(source_path('_channel'))
       begin
         channels.first_or_create.update_from_xml(xml.body.to_s)
@@ -622,7 +622,7 @@ class Package < ApplicationRecord
 
   def update_product_list
     # short cut to ensure that no products are left over
-    unless is_product?
+    unless product?
       products.destroy_all
       return
     end
@@ -921,7 +921,7 @@ class Package < ApplicationRecord
     PackageServiceErrorFile.new(project_name: project.name, package_name: name).content(rev: revision)
   end
 
-  def is_local_link?
+  def local_link?
     linkinfo = dir_hash['linkinfo']
 
     linkinfo && (linkinfo['project'] == project.name)
@@ -938,7 +938,7 @@ class Package < ApplicationRecord
 
   def add_channels(mode = :add_disabled)
     raise InvalidParameterError unless %i[add_disabled skip_disabled enable_all].include?(mode)
-    return if is_channel?
+    return if channel?
 
     opkg = origin_container(local: false)
     # remote or broken link?
@@ -954,7 +954,7 @@ class Package < ApplicationRecord
     name = opkg.name.dup
     # strip incident suffix in update release projects
     # but beware of packages where the name has already a dot
-    name.gsub!(/\.[^.]*$/, '') if opkg.project.is_maintenance_release? && !opkg.is_link?
+    name.gsub!(/\.[^.]*$/, '') if opkg.project.maintenance_release? && !opkg.link?
     ChannelBinary.find_by_project_and_package(project_name, name).each do |cb|
       _add_channel(mode, cb, "Listed in #{project_name} #{name}")
     end
@@ -966,12 +966,12 @@ class Package < ApplicationRecord
     # rubocop:enable Rails/SkipsModelValidations
 
     # and all possible existing local links
-    opkg = opkg.project.packages.find_by_name(opkg.linkinfo['package']) if opkg.project.is_maintenance_release? && opkg.is_link?
+    opkg = opkg.project.packages.find_by_name(opkg.linkinfo['package']) if opkg.project.maintenance_release? && opkg.link?
 
     opkg.find_project_local_linking_packages.each do |p|
       name = p.name
       # strip incident suffix in update release projects
-      name.gsub!(/\.[^.]*$/, '') if opkg.project.is_maintenance_release?
+      name.gsub!(/\.[^.]*$/, '') if opkg.project.maintenance_release?
       ChannelBinary.find_by_project_and_package(project_name, name).each do |cb|
         _add_channel(mode, cb, "Listed in #{project_name} #{name}")
       end
@@ -1261,7 +1261,7 @@ class Package < ApplicationRecord
   end
 
   def release_target_name(target_repo = nil, time = Time.now.utc)
-    if releasename.nil? && project.is_maintenance_incident? && linkinfo && linkinfo['package']
+    if releasename.nil? && project.maintenance_incident? && linkinfo && linkinfo['package']
       # old incidents special case
       return linkinfo['package']
     end
@@ -1269,11 +1269,11 @@ class Package < ApplicationRecord
     basename = releasename || name
 
     # The maintenance ID is always the sub project name of the maintenance project
-    return "#{basename}.#{project.basename}" if project.is_maintenance_incident?
+    return "#{basename}.#{project.basename}" if project.maintenance_incident?
 
     # Fallback for releasing into a release project outside of maintenance incident
     # avoid overwriting existing binaries in this case
-    return "#{basename}.#{time.strftime('%Y%m%d%H%M%S')}" if target_repo && target_repo.project.is_maintenance_release?
+    return "#{basename}.#{time.strftime('%Y%m%d%H%M%S')}" if target_repo && target_repo.project.maintenance_release?
 
     basename
   end
@@ -1282,7 +1282,7 @@ class Package < ApplicationRecord
     dir_hash(opts).key?('entry') && [dir_hash(opts)['entry']].flatten.compact.any? { |item| item['name'] == filename }
   end
 
-  def has_icon?
+  def icon?
     file_exists?('_icon')
   end
 
@@ -1339,7 +1339,7 @@ class Package < ApplicationRecord
     return if channel_binary.channel_binary_list.channel.disabled
 
     # add source container
-    return if mode == :skip_disabled && !channel_binary.channel_binary_list.channel.is_active?
+    return if mode == :skip_disabled && !channel_binary.channel_binary_list.channel.active?
 
     cpkg = channel_binary.create_channel_package_into(project, message)
     return unless cpkg
@@ -1347,7 +1347,7 @@ class Package < ApplicationRecord
     # be sure that the object exists or a background job get launched
     cpkg.backend_package
     # add and enable repos
-    return if mode == :add_disabled && !channel_binary.channel_binary_list.channel.is_active?
+    return if mode == :add_disabled && !channel_binary.channel_binary_list.channel.active?
 
     cpkg.channels.first.add_channel_repos_to_project(cpkg, mode)
   end

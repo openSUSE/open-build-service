@@ -1,6 +1,6 @@
 class StatusMessagePolicy < ApplicationPolicy
   def create?
-    user.is_admin? || user.is_staff?
+    user.admin? || user.staff?
   end
 
   def update?

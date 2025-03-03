@@ -1,5 +1,5 @@
 class UserBasicStrategy
-  def is_in_group?(user, group)
+  def in_group?(user, group)
     user.groups_users.exists?(group_id: group.id)
   end
 

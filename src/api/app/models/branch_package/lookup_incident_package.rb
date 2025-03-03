@@ -41,7 +41,7 @@ class BranchPackage::LookupIncidentPackage
 
   # TODO: there is not a better way to find it?
   def incident?(pkg)
-    pkg.project.is_maintenance_incident? && pkg.project.is_unreleased?
+    pkg.project.maintenance_incident? && pkg.project.unreleased?
   end
 
   def obs_maintenance_project

@@ -30,7 +30,7 @@ class Webui::SessionController < Webui::WebuiController
   end
 
   def check_user_active
-    return true if @session_creator.user.is_active?
+    return true if @session_creator.user.active?
 
     send_login_information_rabbitmq(:disabled)
     redirect_to(root_path, error: 'Your account is disabled. Please contact the administrator for details.')

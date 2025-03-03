@@ -13,7 +13,7 @@ class UpdateBackendInfosJob < CreateJob
 
   def update_package(package)
     return if @checked_pkgs.key?(package.id)
-    return if package.project.is_locked?
+    return if package.project.locked?
 
     package.update_backendinfo
     @checked_pkgs[package.id] = 1

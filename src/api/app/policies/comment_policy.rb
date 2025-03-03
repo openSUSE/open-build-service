@@ -4,7 +4,7 @@ class CommentPolicy < ApplicationPolicy
   end
 
   def create?
-    return false if user.blank? || user.is_nobody?
+    return false if user.blank? || user.nobody?
     return true if maintainer? || important_user?
     return false if user.censored
 
@@ -13,9 +13,9 @@ class CommentPolicy < ApplicationPolicy
 
   def destroy?
     # Can't destroy comments without being logged in or a comment that was already deleted (ie. Comment#user is nobody)
-    return false if user.blank? || record.user.is_nobody?
+    return false if user.blank? || record.user.nobody?
     # Admins can always delete all comments
-    return true if user.is_admin?
+    return true if user.admin?
 
     # Users can always delete their own comments
     return true if user == record.user
@@ -24,22 +24,22 @@ class CommentPolicy < ApplicationPolicy
   end
 
   def update?
-    return false if user.blank? || user.is_nobody?
+    return false if user.blank? || user.nobody?
 
     user == record.user
   end
 
   def reply?
-    return false if record.user.is_nobody?
+    return false if record.user.nobody?
 
     create?
   end
 
   # Only logged-in Admins/Staff members or user with moderator role can moderate comments
   def moderate?
-    return false if record.user.is_nobody? # soft-deleted comments
+    return false if record.user.nobody? # soft-deleted comments
     return false if user == record.user
-    return true if user.try(:is_moderator?) || user.try(:is_admin?) || user.try(:is_staff?)
+    return true if user.try(:moderator?) || user.try(:admin?) || user.try(:staff?)
 
     false
   end
@@ -49,11 +49,11 @@ class CommentPolicy < ApplicationPolicy
 
     case record.commentable_type
     when 'Package'
-      user.has_local_permission?('change_package', record.commentable)
+      user.local_permission?('change_package', record.commentable)
     when 'Project'
-      user.has_local_permission?('change_project', record.commentable)
+      user.local_permission?('change_project', record.commentable)
     when 'BsRequest'
-      record.commentable.is_target_maintainer?(user)
+      record.commentable.target_maintainer?(user)
     end
   end
 
@@ -73,15 +73,15 @@ class CommentPolicy < ApplicationPolicy
   def history?
     return false unless Flipper.enabled?(:content_moderation, user)
     # Always display the comment history if the user is admin or moderator
-    return true if user.is_admin? || user.is_staff? || user.is_moderator?
+    return true if user.admin? || user.staff? || user.moderator?
 
     # Don't display history for moderated and soft deleted comments
-    !(record.moderated? || record.user.is_nobody?)
+    !(record.moderated? || record.user.nobody?)
   end
 
   private
 
   def important_user?
-    user.is_admin? || user.is_moderator? || user.is_staff?
+    user.admin? || user.moderator? || user.staff?
   end
 end

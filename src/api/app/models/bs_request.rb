@@ -285,10 +285,10 @@ class BsRequest < ApplicationRecord
 
     user = User.not_deleted.find_by(login: creator)
     # FIXME: We should run the authorization on controller level
-    raise APIError unless User.possibly_nobody.is_admin? || User.possibly_nobody == user
+    raise APIError unless User.possibly_nobody.admin? || User.possibly_nobody == user
 
     errors.add(:creator, "Invalid creator specified #{creator}") unless user
-    return if user.is_active?
+    return if user.active?
 
     errors.add(:creator, "Login #{user.login} is not an active user")
   end
@@ -406,14 +406,14 @@ class BsRequest < ApplicationRecord
                               Nokogiri::XML::Node::SaveOptions::FORMAT)
   end
 
-  def is_reviewer?(user)
+  def reviewer?(user)
     return false if reviews.blank?
 
     reviews.each do |r|
       if r.by_user
         return true if user.login == r.by_user
       elsif r.by_group
-        return true if user.is_in_group?(r.by_group)
+        return true if user.in_group?(r.by_group)
       elsif r.by_project
         if r.by_package
           pkg = Package.find_by_project_and_name(r.by_project, r.by_package)
@@ -468,7 +468,7 @@ class BsRequest < ApplicationRecord
   def permission_check_addreview!
     # allow request creator to add further reviewers
     checker = BsRequestPermissionCheck.new(self, {})
-    checker.cmd_addreview_permissions(creator == User.session!.login || is_reviewer?(User.session!))
+    checker.cmd_addreview_permissions(creator == User.session!.login || reviewer?(User.session!))
   end
 
   def permission_check_change_state!(opts)
@@ -494,10 +494,10 @@ class BsRequest < ApplicationRecord
     # all maintenance_incident actions go into the same incident project
     incident_project = nil
     bs_request_actions.each do |action|
-      next unless action.is_maintenance_incident?
+      next unless action.maintenance_incident?
 
       target_project = Project.get_by_name(action.target_project)
-      next unless target_project.is_maintenance?
+      next unless target_project.maintenance?
 
       source_project = Project.find_by_name(action.source_project)
 
@@ -526,11 +526,11 @@ class BsRequest < ApplicationRecord
     bs_request_actions.where(type: 'maintenance_release').find_each do |action|
       # unlock incident project in the soft way
       prj = Project.get_by_name(action.source_project)
-      if prj.is_locked?
+      if prj.locked?
         prj.unlock_by_request(self)
       elsif !opts.key?(:keep_packages_locked)
         pkg = Package.get_by_project_and_name(action.source_project, action.source_package)
-        pkg.unlock_by_request(self) if pkg.is_locked?
+        pkg.unlock_by_request(self) if pkg.locked?
       end
     end
   end
@@ -745,7 +745,7 @@ class BsRequest < ApplicationRecord
       tprj = Project.get_by_name(action.target_project)
 
       # use an existing incident
-      if tprj.is_maintenance?
+      if tprj.maintenance?
         tprj = Project.get_by_name("#{action.target_project}:#{incident}")
         action.target_project = tprj.name
         action.save!
@@ -864,13 +864,13 @@ class BsRequest < ApplicationRecord
   end
 
   # Check if 'user' is maintainer in _all_ request sources:
-  def is_source_maintainer?(user)
-    bs_request_actions.all? { |action| action.is_source_maintainer?(user) }
+  def source_maintainer?(user)
+    bs_request_actions.all? { |action| action.source_maintainer?(user) }
   end
 
   # Check if 'user' is maintainer in _all_ request targets:
-  def is_target_maintainer?(user)
-    bs_request_actions.all? { |action| action.is_target_maintainer?(user) }
+  def target_maintainer?(user)
+    bs_request_actions.all? { |action| action.target_maintainer?(user) }
   end
 
   def sanitize!
@@ -1038,7 +1038,7 @@ class BsRequest < ApplicationRecord
       action[:sourcediff] = xml.webui_sourcediff(opts) if with_diff
       creator = User.find_by_login(self.creator)
       target_package = Package.find_by_project_and_name(action[:tprj], action[:tpkg])
-      action[:creator_is_target_maintainer] = true if creator.has_local_role?(Role.hashed['maintainer'], target_package)
+      action[:creator_is_target_maintainer] = true if creator.local_role?(Role.hashed['maintainer'], target_package)
 
       if target_package
         linkinfo = target_package.linkinfo

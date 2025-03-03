@@ -6,10 +6,10 @@ class PackagePolicy < ApplicationPolicy
   end
 
   def create?
-    return false if !@ignore_lock && record.project.is_locked?
-    return true if user.is_admin? ||
-                   user.has_global_permission?('create_package') ||
-                   user.has_local_permission?('create_package', record.project)
+    return false if !@ignore_lock && record.project.locked?
+    return true if user.admin? ||
+                   user.global_permission?('create_package') ||
+                   user.local_permission?('create_package', record.project)
 
     false
   end
@@ -37,8 +37,8 @@ class PackagePolicy < ApplicationPolicy
   private
 
   def source_access?
-    return true if user.has_global_permission?(:source_access)
-    return true if user.has_local_permission?(:source_access, record)
+    return true if user.global_permission?(:source_access)
+    return true if user.local_permission?(:source_access, record)
 
     record.enabled_for?('sourceaccess', nil, nil)
   end

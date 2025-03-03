@@ -23,7 +23,7 @@ class Webui::DistributionsController < Webui::WebuiController
     @distribution = Distribution.find(params[:distribution])
 
     @repository = @project.repositories.find_by(name: @distribution.reponame)
-    if @project.has_distribution(@distribution.project, @distribution.repository)
+    if @project.distribution?(@distribution.project, @distribution.repository)
       destroy_repository
     else
       create_repository_from_distribution

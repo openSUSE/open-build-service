@@ -227,6 +227,6 @@ module Webui::RequestHelper
   def can_apply_labels?(bs_request:, user:)
     return false if project_for_labels(bs_request).nil?
 
-    user.is_admin? || bs_request.is_target_maintainer?(user)
+    user.admin? || bs_request.target_maintainer?(user)
   end
 end

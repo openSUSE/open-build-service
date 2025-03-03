@@ -76,7 +76,7 @@ class BsRequestAction < ApplicationRecord
   def check_sanity
     if action_type.in?(%i[submit release maintenance_incident maintenance_release change_devel])
       errors.add(:source_project, "should not be empty for #{action_type} requests") if source_project.blank?
-      errors.add(:source_package, "should not be empty for #{action_type} requests") if !is_maintenance_incident? && source_package.blank?
+      errors.add(:source_package, "should not be empty for #{action_type} requests") if !maintenance_incident? && source_package.blank?
       errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
       errors.add(:target_package, 'No source changes are allowed, if source and target is identical') if source_package == target_package && source_project == target_project && (sourceupdate || updatelink)
     end
@@ -94,19 +94,19 @@ class BsRequestAction < ApplicationRecord
   end
 
   # convenience functions to check types
-  def is_submit?
+  def submit?
     false
   end
 
-  def is_release?
+  def release?
     false
   end
 
-  def is_maintenance_release?
+  def maintenance_release?
     false
   end
 
-  def is_maintenance_incident?
+  def maintenance_incident?
     false
   end
 
@@ -300,7 +300,7 @@ class BsRequestAction < ApplicationRecord
 
     tpkg = nil
     if target_package
-      tpkg = if is_maintenance_release?
+      tpkg = if maintenance_release?
                # use orignal/stripped name and also GA projects for maintenance packages.
                # But do not follow project links, if we have a branch target project, like in Evergreen case
                if tprj.find_attribute('OBS', 'BranchTarget')
@@ -323,7 +323,7 @@ class BsRequestAction < ApplicationRecord
       # if the user is not a maintainer if current devel package, the current maintainer gets added as reviewer of this request
       reviews.push(tpkg.develpackage) if action_type == :change_devel && tpkg.develpackage && !User.session!.can_modify?(tpkg.develpackage, 1)
 
-      unless is_maintenance_release?
+      unless maintenance_release?
         # Creating requests from packages where no maintainer right exists will enforce a maintainer review
         # to avoid that random people can submit versions without talking to the maintainers
         # projects may skip this by setting OBS:ApprovedRequestSource attributes
@@ -344,7 +344,7 @@ class BsRequestAction < ApplicationRecord
     # package may exist in linked projects, we take the reviewers from there as default
     # avoid the project level maintainers for maintenance_release request, the need to be
     # defined in update project
-    reviews += find_reviewers(tpkg, disable_project: is_maintenance_release?) if tpkg
+    reviews += find_reviewers(tpkg, disable_project: maintenance_release?) if tpkg
 
     # project reviewers get added additionaly - might be dups
     reviews += find_reviewers(tprj) if tprj
@@ -420,7 +420,7 @@ class BsRequestAction < ApplicationRecord
     incident_suffix = ''
 
     # The maintenance ID is always the sub project name of the maintenance project
-    incident_suffix = ".#{source_project.gsub(/.*:/, '')}" if is_maintenance_release?
+    incident_suffix = ".#{source_project.gsub(/.*:/, '')}" if maintenance_release?
 
     found_patchinfo = false
     new_packages = []
@@ -437,7 +437,7 @@ class BsRequestAction < ApplicationRecord
       suffix          = ''
       tprj            = pkg.project
 
-      unless is_release?
+      unless release?
         while tprj == pkg.project
           data = Directory.hashed(project: tprj.name, package: ltpkg)
           data_linkinfo = data['linkinfo']
@@ -454,10 +454,10 @@ class BsRequestAction < ApplicationRecord
       tpkg = if target_package
                # manual specified
                target_package
-             elsif pkg.releasename && is_maintenance_release?
+             elsif pkg.releasename && maintenance_release?
                # incidents created since OBS 2.8 should have this information already.
                pkg.releasename
-             elsif tprj.try(:is_maintenance_incident?) && is_maintenance_release?
+             elsif tprj.try(:maintenance_incident?) && maintenance_release?
                # fallback, how can we get rid of it?
                data = Directory.hashed(project: tprj.name, package: ltpkg)
                data_linkinfo = data['linkinfo']
@@ -472,10 +472,10 @@ class BsRequestAction < ApplicationRecord
 
       # overwrite target if defined
       tprj = Project.get_by_name(target_project) if target_project
-      raise UnknownTargetProject, "Package #{pkg.project.name} / #{pkg.name} has no target" unless tprj || is_maintenance_release? || is_release?
+      raise UnknownTargetProject, "Package #{pkg.project.name} / #{pkg.name} has no target" unless tprj || maintenance_release? || release?
 
       # do not allow release requests without binaries
-      if is_maintenance_release? && pkg.is_patchinfo? && data && !opts[:ignore_build_state]
+      if maintenance_release? && pkg.patchinfo? && data && !opts[:ignore_build_state]
         # check for build state and binaries
         results = pkg.project.build_results
         raise BuildNotFinished, "The project'#{pkg.project.name}' has no building repositories" unless results
@@ -508,14 +508,14 @@ class BsRequestAction < ApplicationRecord
       end
 
       # re-route (for the kgraft case building against GM or former incident)
-      if is_maintenance_release? && tprj
+      if maintenance_release? && tprj
         tprj = tprj.update_instance_or_self
-        if tprj.is_maintenance_incident?
+        if tprj.maintenance_incident?
           release_target = nil
           pkg.project.repositories.includes(:release_targets).find_each do |repo|
             repo.release_targets.each do |rt|
               next if rt.trigger != 'maintenance'
-              next unless rt.target_repository.project.is_maintenance_release?
+              next unless rt.target_repository.project.maintenance_release?
               raise MultipleReleaseTargets if release_target && release_target != rt.target_repository.project
 
               release_target = rt.target_repository.project
@@ -531,7 +531,7 @@ class BsRequestAction < ApplicationRecord
       # check if the main package container exists in target.
       # take into account that an additional local link with spec file might got added
       if !missing_ok_link && !(data_linkinfo && tprj && tprj.exists_package?(ltpkg, follow_project_links: true, allow_remote_packages: false))
-        if is_maintenance_release? || is_release?
+        if maintenance_release? || release?
           pkg.project.repositories.includes(:release_targets).find_each do |repo|
             repo.release_targets.each do |rt|
               new_targets << rt.target_repository.project
@@ -540,21 +540,21 @@ class BsRequestAction < ApplicationRecord
           new_packages << pkg
           next
         end
-        raise UnknownTargetPackage if !is_maintenance_incident? && !is_submit?
+        raise UnknownTargetPackage if !maintenance_incident? && !submit?
       end
       # call dup to work on a copy of self
       new_action = dup
       new_action.source_package = pkg.name
-      if is_maintenance_incident?
+      if maintenance_incident?
         new_targets << tprj if tprj
         new_action.target_releaseproject = releaseproject.name if releaseproject
-      elsif !pkg.is_channel?
+      elsif !pkg.channel?
         new_targets << tprj
         new_action.target_project = tprj.name
         new_action.target_package = tpkg + incident_suffix
       end
-      if is_maintenance_release? || is_release?
-        if pkg.is_channel?
+      if maintenance_release? || release?
+        if pkg.channel?
 
           if new_action.source_rev.blank?
             # set revision
@@ -569,7 +569,7 @@ class BsRequestAction < ApplicationRecord
           new_action.destroy
           new_action = submit_action
         else # non-channel package
-          next unless has_matching_target?(pkg.project, tprj)
+          next unless matching_target?(pkg.project, tprj)
 
           unless pkg.project.can_be_released_to_project?(tprj)
             raise WrongLinkedPackageSource, 'According to the source link of package ' \
@@ -589,20 +589,20 @@ class BsRequestAction < ApplicationRecord
         newactions << new_action
       end
     end
-    raise MissingPatchinfo if is_maintenance_release? && !found_patchinfo && !opts[:ignore_build_state]
+    raise MissingPatchinfo if maintenance_release? && !found_patchinfo && !opts[:ignore_build_state]
 
     # new packages (eg patchinfos) go to all target projects by default in maintenance requests
     new_targets.uniq!
     new_packages.uniq!
     new_packages.each do |pkg|
-      release_targets = pkg.is_patchinfo? ? Patchinfo.new.fetch_release_targets(pkg) : nil
+      release_targets = pkg.patchinfo? ? Patchinfo.new.fetch_release_targets(pkg) : nil
       new_targets.each do |new_target_project|
         next if release_targets.present? && !release_targets.any? { |rt| rt['project'] == new_target_project.name }
 
         # skip if there is no active maintenance trigger for this package
-        next if is_maintenance_release? && !has_matching_target?(pkg.project, new_target_project)
+        next if maintenance_release? && !matching_target?(pkg.project, new_target_project)
 
-        if is_release?
+        if release?
           # unfiltered release actions got to all release targets in addition
           pkg.project.repositories.includes(:release_targets).find_each do |repo|
             repo.release_targets.each do |rt|
@@ -621,7 +621,7 @@ class BsRequestAction < ApplicationRecord
         else
           new_action = dup
           new_action.source_package = pkg.name
-          unless is_maintenance_incident?
+          unless maintenance_incident?
             new_action.target_project = new_target_project
             new_action.target_package = pkg.name + incident_suffix
           end
@@ -666,7 +666,7 @@ class BsRequestAction < ApplicationRecord
         raise UnknownProject, 'No target project specified'
       end
 
-      if is_maintenance_incident?
+      if maintenance_incident?
         raise IllegalRequest, 'Maintenance requests accept only projects as target' if target_package
         raise 'We should have expanded a target_project' unless target_project
 
@@ -805,11 +805,11 @@ class BsRequestAction < ApplicationRecord
     end
   end
 
-  def is_source_maintainer?(user)
+  def source_maintainer?(user)
     user && user.can_modify?(source_package_object || source_project_object)
   end
 
-  def is_target_maintainer?(user)
+  def target_maintainer?(user)
     user && user.can_modify?(target_package_object || target_project_object)
   end
 
@@ -931,7 +931,7 @@ class BsRequestAction < ApplicationRecord
     "The repository '#{prj}' / '#{repo}' / #{arch} did not finish the #{state} yet"
   end
 
-  def has_matching_target?(source_project, target_project)
+  def matching_target?(source_project, target_project)
     ReleaseTarget.exists?(repository: source_project.repositories,
                           target_repository: target_project.repositories,
                           trigger: 'maintenance')
@@ -959,7 +959,7 @@ class BsRequestAction < ApplicationRecord
 
     tprj = Project.get_by_name(target_project)
     if tprj.is_a?(Project)
-      if tprj.is_maintenance_release? && action_type == :submit &&
+      if tprj.maintenance_release? && action_type == :submit &&
          !tprj.find_attribute('OBS', 'AllowSubmitToMaintenanceRelease')
         raise SubmitRequestRejected, "The target project #{target_project} is a maintenance release project, " \
                                      'a submit self is not possible, please use the maintenance workflow instead.'

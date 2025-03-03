@@ -39,12 +39,12 @@ RSpec.describe User do
     it { expect(subject).to include(active_user) }
   end
 
-  context 'is_admin?' do
-    it { expect(admin_user.is_admin?).to be(true) }
-    it { expect(user.is_admin?).to be(false) }
+  context 'admin?' do
+    it { expect(admin_user.admin?).to be(true) }
+    it { expect(user.admin?).to be(false) }
   end
 
-  describe '#is_active?' do
+  describe '#active?' do
     it 'returns true if user is confirmed' do
       expect(confirmed_user).to be_is_active
     end

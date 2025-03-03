@@ -37,7 +37,7 @@ module Webui::ProjectHelper
   end
 
   def can_be_released?(project, packages, open_release_requests, has_patchinfo)
-    !project.defines_remote_instance? && project.is_maintenance_incident? && packages.present? && has_patchinfo && open_release_requests.blank?
+    !project.defines_remote_instance? && project.maintenance_incident? && packages.present? && has_patchinfo && open_release_requests.blank?
   end
 
   def project_labels(project, &block)

@@ -43,7 +43,7 @@ class SourceProjectMetaController < SourceController
     if project.is_a?(Project)
       # project exists, change it
       unless User.session.can_modify?(project)
-        if project.is_locked?
+        if project.locked?
           logger.debug "no permission to modify LOCKED project #{project.name}"
           raise ChangeProjectNoPermission, "The project #{project.name} is locked"
         end

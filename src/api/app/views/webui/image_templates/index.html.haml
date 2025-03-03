@@ -7,7 +7,7 @@
     .mb-3
       - first_template = nil
       - @projects.each do |project|
-        - remote = Project.is_remote_project?(project.name)
+        - remote = Project.remote_project?(project.name)
         .row
           .col-12.fw-bold
             = link_to_if(!remote, title_or_name(project), project_show_path(project))

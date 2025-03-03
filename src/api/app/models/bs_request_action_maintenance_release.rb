@@ -22,7 +22,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
   #### To define class methods as private use private_class_method
   #### private
   #### Instance methods (public and then protected/private)
-  def is_maintenance_release?
+  def maintenance_release?
     true
   end
 
@@ -41,7 +41,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     opts[:projectCommit][target_project] = source_project
 
     # lock project when last package is released
-    return if pkg.project.is_locked?
+    return if pkg.project.locked?
 
     f = pkg.project.flags.find_by_flag_and_status('lock', 'disable')
     pkg.project.flags.delete(f) if f # remove possible existing disable lock flag
@@ -122,7 +122,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
   def create_post_permissions_hook
     spkg = Package.find_by_project_and_name(source_project, source_package)
     # we avoid patchinfo's to be able to complete meta data about the update
-    return if spkg.is_patchinfo?
+    return if spkg.patchinfo?
 
     return if spkg.enabled_for?('lock', nil, nil)
 
@@ -135,7 +135,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
   def minimum_priority
     spkg = Package.find_by_project_and_name(source_project, source_package)
-    return unless spkg && spkg.is_patchinfo?
+    return unless spkg && spkg.patchinfo?
 
     pi = Xmlhash.parse(spkg.patchinfo.document.to_xml)
     pi['rating']

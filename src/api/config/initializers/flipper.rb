@@ -16,7 +16,7 @@ Flipper.configure do
   # store anything in database.
 
   Flipper.register(:staff) do |user|
-    user.respond_to?(:is_staff?) && user.is_staff?
+    user.respond_to?(:staff?) && user.staff?
   end
 
   Flipper.register(:beta) do |user|

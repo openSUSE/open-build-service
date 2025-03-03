@@ -70,7 +70,7 @@ class NotificationReport < Notification
     when 'Event::ReportForProject', 'Event::ReportForPackage'
       event_type.constantize.notification_link_path(self)
     when 'Event::ReportForUser'
-      Rails.application.routes.url_helpers.user_path(accused, notification_id: id) if !accused.is_deleted? || User.session!.is_admin?
+      Rails.application.routes.url_helpers.user_path(accused, notification_id: id) if !accused.deleted? || User.session!.admin?
     when 'Event::ReportForRequest'
       bs_request = notifiable.reportable
       Rails.application.routes.url_helpers.request_show_path(bs_request.number, notification_id: id)

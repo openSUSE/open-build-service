@@ -219,7 +219,7 @@ class Project < ApplicationRecord
       project
     end
 
-    def is_remote_project?(name, skip_access: false)
+    def remote_project?(name, skip_access: false)
       lpro = find_remote_project(name, skip_access: skip_access)
 
       lpro && lpro[0].defines_remote_instance?
@@ -325,14 +325,14 @@ class Project < ApplicationRecord
       # either OBS interconnect or repository "download on demand" feature used
       if request_data.key?('remoteurl') ||
          request_data.key?('remoteproject') ||
-         has_dod_elements?(request_data['repository'])
+         dod_elements?(request_data['repository'])
         return { error: 'Admin rights are required to change projects using remote resources' }
       end
 
       {}
     end
 
-    def has_dod_elements?(request_data)
+    def dod_elements?(request_data)
       case request_data
       when Array
         request_data.any? { |r| r['download'] }
@@ -452,7 +452,7 @@ class Project < ApplicationRecord
     # simple check for involvement --> involved users can access project.id, User.session!
     relationships.groups.includes(:group).any? do |grouprel|
       # check if User.session! belongs to group.
-      User.session!.is_in_group?(grouprel.group)
+      User.session!.in_group?(grouprel.group)
     end
   end
 
@@ -615,11 +615,11 @@ class Project < ApplicationRecord
     user.can_modify?(self, ignore_lock)
   end
 
-  def is_locked?
-    @is_locked ||= flags.exists?(flag: 'lock', status: 'enable')
+  def locked?
+    @locked ||= flags.exists?(flag: 'lock', status: 'enable')
   end
 
-  def is_unreleased?
+  def unreleased?
     # returns true if NONE of the defined release targets are used
     repositories.includes(:release_targets).find_each do |repo|
       repo.release_targets.each do |rt|
@@ -629,7 +629,7 @@ class Project < ApplicationRecord
     true
   end
 
-  def is_standard?
+  def standard?
     self.kind == 'standard'
   end
 
@@ -669,14 +669,14 @@ class Project < ApplicationRecord
     end
 
     # do not allow to remove maintenance master projects if there are incident projects
-    return unless is_maintenance?
+    return unless maintenance?
     return unless MaintenanceIncident.find_by_maintenance_db_project_id(id)
 
     raise DeleteError, 'This maintenance project has incident projects and can therefore not be deleted.'
   end
 
   def can_be_unlocked?(with_exception: true)
-    if is_maintenance_incident?
+    if maintenance_incident?
       requests = BsRequest.where(state: %i[new review declined]).joins(:bs_request_actions)
       maintenance_release_requests = requests.where(bs_request_actions: { type: 'maintenance_release', source_project: name })
       if maintenance_release_requests.exists?
@@ -867,7 +867,7 @@ class Project < ApplicationRecord
     trepo.save
 
     trigger = nil # no trigger is set by default
-    trigger = 'maintenance' if is_maintenance_incident?
+    trigger = 'maintenance' if maintenance_incident?
 
     return if add_target_repos.empty?
 
@@ -897,7 +897,7 @@ class Project < ApplicationRecord
       next if skip_repos.include?(repo.name)
 
       repo_name = opts[:extend_names] ? repo.extended_name : repo.name
-      next if repo.is_local_channel?
+      next if repo.local_channel?
 
       pkg_to_enable.enable_for_repository(repo_name) if pkg_to_enable
       next if repositories.find_by_name(repo_name)
@@ -916,14 +916,14 @@ class Project < ApplicationRecord
       next if skip_repos.include?(repo.name)
 
       # copy target repository when operating on a channel
-      targets = repo.release_targets if pkg_to_enable && pkg_to_enable.is_channel?
+      targets = repo.release_targets if pkg_to_enable && pkg_to_enable.channel?
       # base is a maintenance incident, take its target instead (kgraft case)
-      targets = repo.release_targets if repo.project.is_maintenance_incident?
+      targets = repo.release_targets if repo.project.maintenance_incident?
 
       target_repos = []
       target_repos = targets.map(&:target_repository) if targets
       # or branch from official release project? release to it ...
-      target_repos = [repo] if repo.project.is_maintenance_release?
+      target_repos = [repo] if repo.project.maintenance_release?
 
       update_project = repo.project.update_instance_or_self
       if update_project != repo.project
@@ -934,7 +934,7 @@ class Project < ApplicationRecord
       trepo = repositories.find_by_name(repo_name)
       unless trepo
         # channel case
-        next unless is_maintenance_incident?
+        next unless maintenance_incident?
 
         trepo = repositories.create(name: repo_name)
       end
@@ -943,7 +943,7 @@ class Project < ApplicationRecord
 
     branch_copy_flags(project)
 
-    return unless pkg_to_enable.is_channel?
+    return unless pkg_to_enable.channel?
 
     # explicit call for a channel package, so create the repos for it
     pkg_to_enable.channels.each do |channel|
@@ -1129,7 +1129,7 @@ class Project < ApplicationRecord
 
   after_save do
     Rails.cache.delete "bsrequest_repos_map-#{name}"
-    @is_locked = nil
+    @locked = nil
   end
 
   def valid_name
@@ -1182,7 +1182,7 @@ class Project < ApplicationRecord
                          .with_action_types(:maintenance_incident)
                          .pluck(:number)
 
-    maintenance_release = if is_maintenance?
+    maintenance_release = if maintenance?
                             BsRequest.to_project("#{name}:%")
                                      .or(BsRequest.from_project("#{name}:%"))
                                      .where(state: :new)
@@ -1215,7 +1215,7 @@ class Project < ApplicationRecord
       flags.delete(delete_flag)
 
       # maintenance incidents need special treatment when unlocking
-      reopen_release_targets if is_maintenance_incident?
+      reopen_release_targets if maintenance_incident?
 
       store(comment: comment)
     end
@@ -1321,7 +1321,7 @@ class Project < ApplicationRecord
     result
   end
 
-  def has_remote_repositories?
+  def remote_repositories?
     DownloadRepository.exists?(repository_id: repositories.select(:id))
   end
 

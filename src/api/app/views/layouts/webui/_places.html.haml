@@ -59,7 +59,7 @@
         = link_to(configuration_path, class: 'nav-link', title: 'Configuration') do
           %i.fas.fa-cogs.fa-fw.me-2
           %span.nav-item-name Configuration
-    - if User.possibly_nobody.is_staff? && !User.admin_session?
+    - if User.possibly_nobody.staff? && !User.admin_session?
       %li.nav-item
         = link_to("#{root_url}/flipper", class: 'nav-link',
                   title: 'Global Feature Toggles',

@@ -130,7 +130,7 @@ RSpec.describe BsRequestAction do
     end
   end
 
-  describe '#is_target_maintainer?' do
+  describe '#target_maintainer?' do
     context 'without target' do
       let(:action_without_target) { build(:bs_request_action) }
 

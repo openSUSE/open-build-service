@@ -2,7 +2,7 @@
   %li.nav-item.action-report-bug
     = render partial: 'webui/project/show_actions/report_bug', locals: { url: project.report_bug_or_bugzilla_url }
 
-  - if project.is_locked? && User.possibly_nobody.can_modify?(project, true)
+  - if project.locked? && User.possibly_nobody.can_modify?(project, true)
     = render partial: 'webui/project/show_actions/unlock_project', locals: { project: project }
 
   - if User.possibly_nobody.can_modify?(project)

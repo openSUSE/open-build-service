@@ -11,9 +11,9 @@ RSpec.describe PackagePolicy do
   context 'create in locked project without ignore lock' do
     permissions :create? do
       before do
-        allow(package.project).to receive(:is_locked?).and_return(true)
-        allow(other_user).to receive(:has_global_permission?).with('create_package').and_return(true)
-        allow(user).to receive(:has_local_permission?).with('create_package', package.project).and_return(true)
+        allow(package.project).to receive(:locked?).and_return(true)
+        allow(other_user).to receive(:global_permission?).with('create_package').and_return(true)
+        allow(user).to receive(:local_permission?).with('create_package', package.project).and_return(true)
       end
 
       it { is_expected.not_to permit(user, package) }
@@ -26,9 +26,9 @@ RSpec.describe PackagePolicy do
   context 'create in locked project with ignore lock' do
     permissions :create? do
       before do
-        allow(package.project).to receive(:is_locked?).and_return(true)
-        allow(other_user).to receive(:has_global_permission?).with('create_package').and_return(true)
-        allow(user).to receive(:has_local_permission?).with('create_package', package.project).and_return(true)
+        allow(package.project).to receive(:locked?).and_return(true)
+        allow(other_user).to receive(:global_permission?).with('create_package').and_return(true)
+        allow(user).to receive(:local_permission?).with('create_package', package.project).and_return(true)
       end
 
       # We cannot use the `permit` matcher due to the extra argument in `new`
@@ -42,8 +42,8 @@ RSpec.describe PackagePolicy do
   context 'create in unlocked project' do
     permissions :create? do
       before do
-        allow(other_user).to receive(:has_global_permission?).with('create_package').and_return(true)
-        allow(user).to receive(:has_local_permission?).with('create_package', package.project).and_return(true)
+        allow(other_user).to receive(:global_permission?).with('create_package').and_return(true)
+        allow(user).to receive(:local_permission?).with('create_package', package.project).and_return(true)
       end
 
       it { is_expected.to permit(admin_user, package) }

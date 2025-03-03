@@ -45,11 +45,11 @@ class BsRequestPermissionCheck
     req.bs_request_actions.each do |action|
       set_permissions_for_action(action)
 
-      raise TargetNotMaintenance, 'The target project is already an incident, changing is not possible via set_incident' if @target_project.is_maintenance_incident?
+      raise TargetNotMaintenance, 'The target project is already an incident, changing is not possible via set_incident' if @target_project.maintenance_incident?
       raise TargetNotMaintenance, "The target project is not of type maintenance but #{@target_project.kind}" unless @target_project.kind == 'maintenance'
 
       tip = Project.get_by_name("#{action.target_project}:#{opts[:incident]}")
-      raise ProjectLocked if tip && tip.is_locked?
+      raise ProjectLocked if tip && tip.locked?
     end
 
     require_permissions_in_target_or_source
@@ -71,7 +71,7 @@ class BsRequestPermissionCheck
     raise ReviewChangeStateNoPermission, 'The request is neither in state review nor new' unless req.state.in?(%i[review new])
     raise ReviewNotSpecified, 'The review must specified via by_user, by_group or by_project(by_package) argument.' unless by_user || by_group || by_package || by_project
     raise ReviewChangeStateNoPermission, "review state change is not permitted for #{User.session!.login}" if by_user && User.session! != by_user
-    raise ReviewChangeStateNoPermission, "review state change for group #{by_group.title} is not permitted for #{User.session!.login}" if by_group && !User.session!.is_in_group?(by_group)
+    raise ReviewChangeStateNoPermission, "review state change for group #{by_group.title} is not permitted for #{User.session!.login}" if by_group && !User.session!.in_group?(by_group)
 
     if by_package && !User.session!.can_modify?(by_package, true)
       raise ReviewChangeStateNoPermission, "review state change for package #{opts[:by_project]}/#{opts[:by_package]} " \
@@ -229,7 +229,7 @@ class BsRequestPermissionCheck
       raise SourceMissing, err if err
     end
     # maintenance incident target permission checks
-    return unless action.is_maintenance_incident?
+    return unless action.maintenance_incident?
     return if @target_project.kind.in?(%w[maintenance maintenance_incident])
 
     raise TargetNotMaintenance, "The target project is not of type maintenance or incident but #{@target_project.kind}"
