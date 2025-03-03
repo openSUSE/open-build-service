@@ -59,6 +59,14 @@ $(document).on('click', autoSubmitOnClickSelector, function() {
 
   submitFilters();
 });
+// Cannot apply the .auto-submit-on-change class to the autocomplete input, so we need to handle it separately
+$(document).on('change', '.obs-autocomplete', function() {
+  // Clear the timeout to prevent the pending submission, if any
+  window.clearTimeout(submitFiltersTimeout);
+
+  // Set a timeout to submit the filters
+  submitFiltersTimeout = window.setTimeout(submitFilters, 2000);
+});
 
 $(document).ready(function(){
   highlightSelectedFilters();
