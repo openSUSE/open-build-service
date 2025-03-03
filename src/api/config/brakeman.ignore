@@ -70,6 +70,25 @@
       "note": ""
     },
     {
+      "warning_type": "Unmaintained Dependency",
+      "warning_code": 123,
+      "fingerprint": "40be17ee84017c91503dab23873e24bdd71665ab665bf6f351cfc09ff83e6582",
+      "check_name": "EOLRuby",
+      "message": "Support for Ruby 3.1.6 ends on 2025-03-31",
+      "file": ".ruby-version",
+      "line": 1,
+      "link": "https://brakemanscanner.org/docs/warning_types/unmaintained_dependency/",
+      "code": null,
+      "render_path": null,
+      "location": null,
+      "user_input": null,
+      "confidence": "Medium",
+      "cwe_id": [
+        1104
+      ],
+      "note": ""
+    },
+    {
       "warning_type": "SQL Injection",
       "warning_code": 0,
       "fingerprint": "45840f44547aeced1506343b80e3fe0ad1b6262ae3799e5086907ff71bddb03c",
@@ -156,25 +175,6 @@
       "confidence": "Weak",
       "cwe_id": [
         79
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "Unmaintained Dependency",
-      "warning_code": 123,
-      "fingerprint": "715ee6d743a8af33c7b930d728708ce19c765fb40e2ad9d2b974db04d92dc7d1",
-      "check_name": "EOLRuby",
-      "message": "Support for Ruby 3.1.6 ends on 2025-03-31",
-      "file": ".ruby-version",
-      "line": 1,
-      "link": "https://brakemanscanner.org/docs/warning_types/unmaintained_dependency/",
-      "code": null,
-      "render_path": null,
-      "location": null,
-      "user_input": null,
-      "confidence": "Weak",
-      "cwe_id": [
-        1104
       ],
       "note": ""
     },
@@ -407,6 +407,6 @@
       "note": "We track this with a comment in the code"
     }
   ],
-  "updated": "2025-01-30 14:05:08 +0000",
+  "updated": "2025-03-03 11:55:03 +0000",
   "brakeman_version": "6.2.1"
 }
