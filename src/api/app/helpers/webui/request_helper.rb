@@ -229,12 +229,4 @@ module Webui::RequestHelper
 
     user.is_admin? || bs_request.is_target_maintainer?(user)
   end
-
-  def requests_listing_pagetitle(thing = nil)
-    if thing
-      "Requests for #{thing}"
-    else
-      'Requests'
-    end
-  end
 end
