@@ -35,8 +35,6 @@ my %todo = (
     'BUILDDATE' => 'builddate',
     'PACKAGER' => 'packager',
     'REPLACES' => 'replaces',
-  ],
-  'depends' => [
     'DEPENDS' => 'depend',
     'CONFLICTS' => 'conflict',
     'PROVIDES' => 'provides',
