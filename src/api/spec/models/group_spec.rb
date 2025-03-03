@@ -67,4 +67,18 @@ RSpec.describe Group do
       end
     end
   end
+
+  describe '#involved_projects' do
+    let!(:involved_project) { create(:project, maintainer: group) }
+
+    it { expect(group.involved_projects).to contain_exactly(involved_project) }
+  end
+
+  describe '#involved_packages' do
+    let!(:involved_package) { create(:package_with_maintainer, maintainer: group) }
+    let!(:involved_project) { create(:project_with_package, package_name: 'blah', maintainer: group) }
+
+    it { expect(group.involved_packages).to contain_exactly(involved_package) }
+  end
+
 end
