@@ -117,21 +117,12 @@ class Group < ApplicationRecord
 
   def involved_projects
     # now filter the projects that are not visible
-    Project.where(id: involved_projects_ids)
+    Project.where(id: relationships.projects.maintainers.pluck(:project_id))
   end
 
   # lists packages maintained by this user and are not in maintained projects
   def involved_packages
-    # just for maintainer for now.
-    role = maintainer_roler
-
-    projects = involved_projects_ids
-    projects << -1 if projects.empty?
-
-    # all packages where group is maintainer
-    packages = Relationship.where(group_id: id, role_id: role.id).joins(:package).where.not('packages.project_id' => projects).pluck(:package_id)
-
-    Package.where(id: packages).where.not(project_id: projects)
+    Package.where(id: relationships.packages.maintainers.pluck(:package_id))
   end
 
   # returns the users that actually want email for this group's notifications
@@ -164,6 +155,18 @@ class Group < ApplicationRecord
     BsRequest::FindFor::Query.new(group: title, states: [:new], roles: [:maintainer], search: search).all
   end
 
+  def bs_requests
+    BsRequest.left_outer_joins(:bs_request_actions, :reviews)
+             .where(reviews: { group_id: id })
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(reviews: { project_id: involved_projects_ids }))
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(reviews: { package_id: involved_packages_ids }))
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { target_project_id: involved_projects_ids }))
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { target_package_id: involved_packages_ids }))
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { source_project_id: involved_projects_ids }))
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { source_package_id: involved_packages_ids }))
+             .distinct
+  end
+
   def requests(search = nil)
     BsRequest::FindFor::Query.new(group: title, search: search).all
   end
@@ -192,21 +195,19 @@ class Group < ApplicationRecord
 
   private
 
-  def maintainer_roler
-    @maintainer_roler ||= Role.hashed['maintainer']
-  end
-
   def delete_user(klass, login_id, group_id, user_session_login: nil)
     klass.where('user_id = ? AND group_id = ?', login_id, group_id).delete_all if [GroupMaintainer, GroupsUser].include?(klass)
     Event::RemovedUserFromGroup.create(group: Group.find(group_id).title, member: User.find(login_id).login, who: user_session_login) if klass == GroupsUser
   end
 
+  # IDs of the Projects where the group is maintainer
   def involved_projects_ids
-    # just for maintainer for now.
-    role = maintainer_roler
+    relationships.projects.maintainers.pluck(:project_id)
+  end
 
-    ### all projects where user is maintainer
-    Relationship.projects.where(group_id: id, role_id: role.id).distinct.pluck(:project_id)
+  # IDs of the Packages where the group is maintainer
+  def involved_packages_ids
+    relationships.packages.maintainers.pluck(:package_id)
   end
 end
 

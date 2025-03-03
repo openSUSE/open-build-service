@@ -3,7 +3,6 @@ module Webui
     class BsRequestsController < WebuiController
       before_action :redirect_legacy
       before_action :require_login
-      before_action :set_user
       before_action :set_bs_requests
 
       include Webui::RequestsFilter
@@ -26,7 +25,7 @@ module Webui
           # TODO: Remove this old index action when request_index feature is rolled-over
           format.json do
             parsed_params = BsRequest::DataTable::ParamsParser.new(params).parsed_params
-            requests_query = BsRequest::DataTable::FindForUserOrGroupQuery.new(@user_or_group, request_method, parsed_params)
+            requests_query = BsRequest::DataTable::FindForUserOrGroupQuery.new(User.session, request_method, parsed_params)
             @requests_data_table = BsRequest::DataTable::Table.new(requests_query, parsed_params[:draw])
 
             render 'webui/shared/bs_requests/index'
@@ -60,10 +59,6 @@ module Webui
                                      .or(@bs_requests.where(reviews: { project: User.session.involved_projects }))
                                      .or(@bs_requests.where(reviews: { package: User.session.involved_packages }))
                        end
-      end
-
-      def set_user
-        @user_or_group = User.session
       end
 
       def request_method

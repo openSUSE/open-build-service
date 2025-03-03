@@ -1,0 +1,25 @@
+- @pagetitle = "Requests for #{@group}"
+
+.card
+  %div
+    %ul.card-header.nav.nav-tabs.pt-2.px-3.pb-0.flex-nowrap
+      %li.nav-item
+      = link_to(group_path(@group), class: 'nav-link', title: 'Requests') do
+        Group Members
+        %span.badge.text-bg-primary
+          = @group.users.size
+      %li.nav-item
+        %a.nav-link.active
+          Group Requests
+          %span.badge.text-bg-primary
+            = @bs_requests.count
+  .card-body
+    .tab-content
+      .tab-pane.active
+        %h3 Group Requests
+        = render(partial: 'webui/shared/bs_requests/form',
+                 locals: { selected_filter: @selected_filter,
+                           bs_requests_creators: @bs_requests_creators,
+                           viewed_object: 'the Group',
+                           url: @url,
+                           bs_requests: @bs_requests})
