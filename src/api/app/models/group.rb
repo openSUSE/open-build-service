@@ -155,6 +155,18 @@ class Group < ApplicationRecord
     BsRequest::FindFor::Query.new(group: title, states: [:new], roles: [:maintainer], search: search).all
   end
 
+  def bs_requests
+    BsRequest.left_outer_joins(:bs_request_actions, :reviews)
+             .where(reviews: { group_id: id })
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(reviews: { project_id: involved_projects_ids }))
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(reviews: { package_id: involved_packages_ids }))
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { target_project_id: involved_projects_ids }))
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { target_package_id: involved_packages_ids }))
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { source_project_id: involved_projects_ids }))
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { source_package_id: involved_packages_ids }))
+             .distinct
+  end
+
   def requests(search = nil)
     BsRequest::FindFor::Query.new(group: title, search: search).all
   end
