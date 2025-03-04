@@ -1401,10 +1401,10 @@ class Project < ApplicationRecord
 
   # Returns an ActiveRecord::Relation with all BsRequest that the project is somehow involved in
   def bs_requests
-    BsRequest.order('number DESC').includes(:bs_request_actions, :comments, :reviews, :labels)
-             .where(bs_request_actions: { source_project_id: id })
-             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(bs_request_actions: { target_project_id: id }))
-             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(reviews: { project_id: id }))
+    BsRequest.left_outer_joins(:bs_request_actions, :reviews)
+             .where(reviews: { project_id: id })
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { source_project_id: id }))
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { target_project_id: id }))
              .distinct
   end
 

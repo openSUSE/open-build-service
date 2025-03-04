@@ -698,16 +698,15 @@ class User < ApplicationRecord
 
   # Returns an ActiveRecord::Relation with all BsRequest that the user is somehow involved in
   def bs_requests
-    BsRequest.order('number DESC').includes(:bs_request_actions, :comments, :reviews, :labels)
-             .where(creator: login)
-             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(reviews: { user_id: id }))
-             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(reviews: { group: groups }))
-             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(reviews: { project: involved_projects }))
-             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(reviews: { package: involved_packages }))
-             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(bs_request_actions: { target_project_id: involved_projects }))
-             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(bs_request_actions: { target_package_id: involved_packages }))
-             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(bs_request_actions: { source_project_id: involved_projects }))
-             .or(BsRequest.includes(:bs_request_actions, :comments, :reviews, :labels).where(bs_request_actions: { source_package_id: involved_packages }))
+    BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(creator: login)
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(reviews: { user_id: id }))
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(reviews: { group_id: groups.pluck(:id) }))
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(reviews: { project_id: involved_projects.pluck(:id) }))
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(reviews: { package_id: involved_packages.pluck(:id) }))
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { target_project_id: involved_projects.pluck(:id) }))
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { target_package_id: involved_packages.pluck(:id) }))
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { source_project_id: involved_projects.pluck(:id) }))
+             .or(BsRequest.left_outer_joins(:bs_request_actions, :reviews).where(bs_request_actions: { source_package_id: involved_packages.pluck(:id) }))
              .distinct
   end
 
