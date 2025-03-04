@@ -37,7 +37,7 @@ class EventSubscription
     def find_or_initialize_subscription(eventtype, receiver_role, channel)
       opts = { eventtype: eventtype, receiver_role: receiver_role, channel: channel }
 
-      if subscriber.is_a?(User) && subscriber.is_active?
+      if subscriber.is_a?(User) && subscriber.active?
         opts[:user] = subscriber
       elsif subscriber.is_a?(Group)
         opts[:group] = subscriber

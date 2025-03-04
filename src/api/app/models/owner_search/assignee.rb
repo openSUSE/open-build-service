@@ -91,11 +91,11 @@ module OwnerSearch
       return false if binary['project'] != project.name || binary['package'].blank?
 
       package_name = binary['package']
-      package_name.gsub!(/\.[^.]*$/, '') if project.is_maintenance_release?
+      package_name.gsub!(/\.[^.]*$/, '') if project.maintenance_release?
       package_name = Package.striping_multibuild_suffix(package_name)
       package = project.packages.find_by_name(package_name)
 
-      return false if package.nil? || package.is_patchinfo?
+      return false if package.nil? || package.patchinfo?
 
       package_owner = lookup_package_owner(package)
 

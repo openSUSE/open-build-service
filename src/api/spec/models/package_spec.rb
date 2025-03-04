@@ -171,17 +171,17 @@ RSpec.describe Package, :vcr do
     end
   end
 
-  describe '#has_icon?' do
+  describe '#icon?' do
     it 'returns true if the icon exist' do
       if CONFIG['global_write_through']
         Backend::Connection.put("/source/#{CGI.escape(package_with_file.project.name)}/#{CGI.escape(package_with_file.name)}/_icon",
                                 Faker::Lorem.paragraph)
       end
-      expect(package_with_file.has_icon?).to be(true)
+      expect(package_with_file.icon?).to be(true)
     end
 
     it 'returns false if the icon does not exist' do
-      expect(package.has_icon?).to be(false)
+      expect(package.icon?).to be(false)
     end
   end
 

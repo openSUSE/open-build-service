@@ -54,7 +54,7 @@ RSpec.describe BranchPackage::LookupIncidentPackage do
     before do
       allow_any_instance_of(BranchPackage::LookupIncidentPackage).to receive(:incident_packages).and_return(Nokogiri::XML(xml_response))
       allow(Package).to receive(:find_by_project_and_name).with(project1.name, package1.name).and_return(package1)
-      allow_any_instance_of(Project).to receive(:is_maintenance_incident?).and_return(true)
+      allow_any_instance_of(Project).to receive(:maintenance_incident?).and_return(true)
       allow(Package).to receive(:find_by_project_and_name).with(project1.name, package1.name).and_return(package1)
     end
 

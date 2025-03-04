@@ -71,8 +71,8 @@ class EventSubscription
       receivers.inject([]) do |new_receivers, receiver|
         case receiver
         when User
-          new_receivers << receiver if receiver.is_active?
-          puts "Skipped receiver #{receiver} because it's inactive" if @debug && !receiver.is_active?
+          new_receivers << receiver if receiver.active?
+          puts "Skipped receiver #{receiver} because it's inactive" if @debug && !receiver.active?
         when Group
           new_receivers += expand_receivers_for_groups(receiver, channel)
         end

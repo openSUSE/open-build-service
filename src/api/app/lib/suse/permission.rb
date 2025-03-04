@@ -32,7 +32,7 @@ module Suse
 
       raise ArgumentError, "unable to find project object for #{project}" if prj.nil?
 
-      return true if @user.has_global_permission?('global_project_change')
+      return true if @user.global_permission?('global_project_change')
 
       @user.can_modify?(prj)
     end
@@ -65,7 +65,7 @@ module Suse
       logger.debug "Dynamic Permission requested: <#{perm}>"
 
       if @user
-        if @user.has_global_permission?(perm.to_s)
+        if @user.global_permission?(perm.to_s)
           logger.debug "User #{@user.login} has permission #{perm}"
           true
         else

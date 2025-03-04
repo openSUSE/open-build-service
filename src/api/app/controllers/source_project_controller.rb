@@ -5,7 +5,7 @@ class SourceProjectController < SourceController
   def show
     project_name = params[:project]
     if params.key?(:deleted)
-      unless Project.find_by_name(project_name) || Project.is_remote_project?(project_name)
+      unless Project.find_by_name(project_name) || Project.remote_project?(project_name)
         # project is deleted or not accessible
         validate_visibility_of_deleted_project(project_name)
       end
@@ -13,7 +13,7 @@ class SourceProjectController < SourceController
       return
     end
 
-    if Project.is_remote_project?(project_name)
+    if Project.remote_project?(project_name)
       # not a local project, hand over to backend
       pass_to_backend
       return

@@ -16,7 +16,7 @@ else
       xml.globalrole(role.title)
     end
 
-    xml.ignore_auth_services(my_model.ignore_auth_services) if my_model.is_admin?
+    xml.ignore_auth_services(my_model.ignore_auth_services) if my_model.admin?
 
     # Show the watchlist only to the user for privacy reasons
     render partial: 'person/watchlist', locals: { builder: xml, my_model: my_model } if watchlist

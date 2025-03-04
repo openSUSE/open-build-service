@@ -23,7 +23,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
   #### To define class methods as private use private_class_method
   #### private
   #### Instance methods (public and then protected/private)
-  def is_maintenance_incident?
+  def maintenance_incident?
     true
   end
 
@@ -33,7 +33,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
   end
 
   def get_releaseproject(pkg, tprj)
-    return if pkg.is_patchinfo?
+    return if pkg.patchinfo?
 
     releaseproject = target_releaseproject ? Project.get_by_name(target_releaseproject) : tprj
     if releaseproject.try(:name).blank?
@@ -43,7 +43,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
 
     # Automatically switch to update project
     releaseproject = releaseproject.update_instance_or_self
-    unless releaseproject.is_maintenance_release?
+    unless releaseproject.maintenance_release?
       raise NoMaintenanceReleaseTarget, 'Maintenance incident request contains release target ' \
                                         "project #{releaseproject.name} with invalid project " \
                                         "kind \"#{releaseproject.kind}\" (should be " \
@@ -98,7 +98,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       maintenance_project = Project.get_maintenance_project!
       self.target_project = maintenance_project.name
     end
-    unless maintenance_project.is_maintenance_incident? || maintenance_project.is_maintenance?
+    unless maintenance_project.maintenance_incident? || maintenance_project.maintenance?
       raise NoMaintenanceProject,
             'Maintenance incident requests have to go to projects of type maintenance or maintenance_incident'
     end
@@ -160,7 +160,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
                         project: target_releaseproject, package: package_name }
       # accept branching from former update incidents or GM (for kgraft case)
       linkprj = Project.find_by_name(linkinfo['project']) if linkinfo
-      if defined?(linkprj) && linkprj && (linkprj.is_maintenance_incident? || linkprj != linkprj.update_instance_or_self || kinds.include?('channel'))
+      if defined?(linkprj) && linkprj && (linkprj.maintenance_incident? || linkprj != linkprj.update_instance_or_self || kinds.include?('channel'))
         branch_params[:project] = linkinfo['project']
         branch_params[:ignoredevel] = '1'
       end

@@ -10,7 +10,7 @@ RSpec.describe BsRequestPolicy, type: :policy do
 
       context 'and the user is a target maintainer' do
         before do
-          allow(bs_request).to receive(:is_target_maintainer?).with(user).and_return(true)
+          allow(bs_request).to receive(:target_maintainer?).with(user).and_return(true)
         end
 
         it { expect(subject).to permit(user, bs_request) }
@@ -18,7 +18,7 @@ RSpec.describe BsRequestPolicy, type: :policy do
 
       context 'and the user is not a target maintainer' do
         before do
-          allow(bs_request).to receive(:is_target_maintainer?).with(user).and_return(false)
+          allow(bs_request).to receive(:target_maintainer?).with(user).and_return(false)
         end
 
         it { expect(subject).not_to permit(user, bs_request) }
@@ -55,7 +55,7 @@ RSpec.describe BsRequestPolicy, type: :policy do
       let!(:review) { create(:review, state: 'new', by_user: user.login, bs_request: bs_request) }
 
       before do
-        allow(bs_request).to receive(:is_target_maintainer?).with(author).and_return(true)
+        allow(bs_request).to receive(:target_maintainer?).with(author).and_return(true)
       end
 
       it { expect(subject).not_to permit(author, bs_request) }

@@ -332,7 +332,7 @@ class UserLdapStrategy
     end
   end
 
-  def is_in_group?(user, group)
+  def in_group?(user, group)
     group = (group.is_a?(String) ? Group.find_by_title(group) : group)
 
     begin
@@ -375,7 +375,7 @@ class UserLdapStrategy
       return false if relationship.group.nil?
       # check whether current user is in this group
       # FIXME: What is "login" supposed to be? User.session?
-      return true if is_in_group?(login, relationship.group)
+      return true if in_group?(login, relationship.group)
     end
 
     Rails.logger.info("UserLdapStrategy: Failed to check roles with method '#{method_name}'")

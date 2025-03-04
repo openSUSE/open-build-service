@@ -61,7 +61,7 @@ class Comment < ApplicationRecord
   end
 
   def unused_parent?
-    parent && parent.user.is_nobody? && parent.children.empty?
+    parent && parent.user.nobody? && parent.children.empty?
   end
 
   def moderated?

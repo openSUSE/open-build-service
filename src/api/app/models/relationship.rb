@@ -173,7 +173,7 @@ class Relationship < ApplicationRecord
   # Relationship::AddRole#add_role handling.
   # We could also check other banned users, not only nobody.
   def allowed_user
-    raise NotFoundError, "Couldn't find user #{user.login}" if user && user.is_nobody?
+    raise NotFoundError, "Couldn't find user #{user.login}" if user && user.nobody?
   end
 
   def create_relationship_create_event

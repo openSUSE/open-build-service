@@ -449,30 +449,6 @@ Naming/MethodParameterName:
     - 'lib/memory_debugger.rb'
     - 'script/reformat_memprof'
 
-# Offense count: 53
-# Configuration parameters: NamePrefix, ForbiddenPrefixes, AllowedMethods, MethodDefinitionMacros.
-# NamePrefix: is_, has_, have_
-# ForbiddenPrefixes: is_, has_, have_
-# AllowedMethods: is_a?
-# MethodDefinitionMacros: define_method, define_singleton_method
-Naming/PredicateName:
-  Exclude:
-    - 'app/models/bs_request.rb'
-    - 'app/models/bs_request_action.rb'
-    - 'app/models/bs_request_action_maintenance_incident.rb'
-    - 'app/models/bs_request_action_maintenance_release.rb'
-    - 'app/models/bs_request_action_submit.rb'
-    - 'app/models/channel.rb'
-    - 'app/models/concerns/project_distribution.rb'
-    - 'app/models/concerns/project_maintenance.rb'
-    - 'app/models/package.rb'
-    - 'app/models/patchinfo.rb'
-    - 'app/models/project.rb'
-    - 'app/models/repository.rb'
-    - 'app/models/user.rb'
-    - 'app/models/user_basic_strategy.rb'
-    - 'app/models/user_ldap_strategy.rb'
-
 # Offense count: 20
 # Configuration parameters: EnforcedStyle, CheckMethodNames, CheckSymbols, AllowedIdentifiers, AllowedPatterns.
 # SupportedStyles: snake_case, normalcase, non_integer

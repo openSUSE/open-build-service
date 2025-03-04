@@ -8,7 +8,7 @@ module RoutesHelper
       current_user_login = request.session[:login]
       current_user = current_user_login.present? ? User.find_by_login(current_user_login) : User.possibly_nobody
 
-      current_user.is_admin? || current_user.is_staff?
+      current_user.admin? || current_user.staff?
     end
   end
 end

@@ -28,12 +28,12 @@ class UserTest < ActiveSupport::TestCase
 
     axml = robot.render_axml
     assert_xml_tag axml, tag: :owner, attributes: { userid: 'adrian' }
-    assert robot.is_active?
+    assert robot.active?
 
     # alias follows the user on disable
     user.state = 'locked'
     user.save!
-    assert_equal false, robot.is_active?
+    assert_equal false, robot.active?
   end
 
   def test_basics
@@ -47,26 +47,26 @@ class UserTest < ActiveSupport::TestCase
 
   def test_access
     m = Role.find_by_title('maintainer')
-    assert @user.has_local_role?(m, @project)
-    assert @user.has_local_role?(m, packages(:home_Iggy_TestPack))
+    assert @user.local_role?(m, @project)
+    assert @user.local_role?(m, packages(:home_Iggy_TestPack))
 
     b = Role.find_by_title('bugowner')
-    assert_not @user.has_local_role?(b, @project)
-    assert_not @user.has_local_role?(m, projects(:kde4))
+    assert_not @user.local_role?(b, @project)
+    assert_not @user.local_role?(m, projects(:kde4))
 
     user = users(:adrian)
-    assert_not user.has_local_role?(m, @project)
-    assert_not user.has_local_role?(m, packages(:home_Iggy_TestPack))
-    assert user.has_local_role?(m, projects(:kde4))
-    assert user.has_local_role?(m, packages(:kde4_kdelibs))
+    assert_not user.local_role?(m, @project)
+    assert_not user.local_role?(m, packages(:home_Iggy_TestPack))
+    assert user.local_role?(m, projects(:kde4))
+    assert user.local_role?(m, packages(:kde4_kdelibs))
   end
 
   def test_group
-    assert_not @user.is_in_group?('notexistent')
-    assert_not @user.is_in_group?('test_group')
-    assert users(:adrian).is_in_group?('test_group')
-    assert_not users(:adrian).is_in_group?('test_group_b')
-    assert_not users(:adrian).is_in_group?('notexistent')
+    assert_not @user.in_group?('notexistent')
+    assert_not @user.in_group?('test_group')
+    assert users(:adrian).in_group?('test_group')
+    assert_not users(:adrian).in_group?('test_group_b')
+    assert_not users(:adrian).in_group?('notexistent')
   end
 
   def test_attribute

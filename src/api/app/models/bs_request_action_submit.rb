@@ -19,7 +19,7 @@ class BsRequestActionSubmit < BsRequestAction
   #### private
 
   #### Instance methods (public and then protected/private)
-  def is_submit?
+  def submit?
     true
   end
 
@@ -145,7 +145,7 @@ class BsRequestActionSubmit < BsRequestAction
 
   def creator_is_target_maintainer
     request_creator = User.find_by_login(bs_request.creator)
-    request_creator.has_local_role?(Role.hashed['maintainer'], target_package_object)
+    request_creator.local_role?(Role.hashed['maintainer'], target_package_object)
   end
 
   def forward

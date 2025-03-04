@@ -1,7 +1,7 @@
 class LabelTemplateGlobalPolicy < ApplicationPolicy
   def index?
     return false unless Flipper.enabled?(:labels, user)
-    return false unless user.is_admin?
+    return false unless user.admin?
 
     true
   end

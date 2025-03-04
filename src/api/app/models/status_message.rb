@@ -39,7 +39,7 @@ class StatusMessage < ApplicationRecord
     scopes = [:all_users]
     return scopes unless User.session
 
-    scopes << :admin_users if User.session.is_admin?
+    scopes << :admin_users if User.session.admin?
     scopes << :in_rollout_users if User.session.in_rollout?
     scopes << :in_beta_users if User.session.in_beta?
     scopes << :logged_in_users

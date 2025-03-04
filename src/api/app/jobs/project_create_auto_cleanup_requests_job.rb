@@ -80,7 +80,7 @@ These requests are not created for projects with open requests or if you remove 
 
   def project_ready_to_autoclean?(project)
     # project may be locked?
-    return false if project.is_locked?
+    return false if project.locked?
     # open requests do block the cleanup
     return false if open_requests_count(project.name).positive?
     return false unless project.check_weak_dependencies?

@@ -394,7 +394,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def set_linkinfo
-    return unless @package.is_link?
+    return unless @package.link?
 
     # FIXME: We have a rails bug here.
     # the `.backend_package.links_to` is an association chain.

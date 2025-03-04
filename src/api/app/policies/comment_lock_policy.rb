@@ -4,7 +4,7 @@ class CommentLockPolicy < ApplicationPolicy
 
     return false if record.is_a?(Report)
 
-    return true if user.is_moderator? || user.is_admin?
+    return true if user.moderator? || user.admin?
 
     case record
     # Maintainers of Package or Project can lock comments
@@ -12,9 +12,9 @@ class CommentLockPolicy < ApplicationPolicy
       return record.maintainers.include?(user)
     # Request receivers (maintainers of target package) can also lock comments
     when BsRequest
-      return record.is_target_maintainer?(user)
+      return record.target_maintainer?(user)
     when BsRequestAction
-      return record.bs_request.is_target_maintainer?(user)
+      return record.bs_request.target_maintainer?(user)
     end
 
     false

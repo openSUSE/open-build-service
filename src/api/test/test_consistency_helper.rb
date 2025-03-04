@@ -19,7 +19,7 @@ def resubmit_all_fixtures
     assert_response :success
     r = @response.body
     User.session = User.find_by_login('king')
-    next if Project.find_by_name(name).is_locked?
+    next if Project.find_by_name(name).locked?
 
     User.session = nil
     # FIXME: add some more validation checks here

@@ -103,7 +103,7 @@ class SourceAttributeController < SourceController
                                                              use_source: false)
     else
       # project
-      raise RemoteProject if Project.is_remote_project?(params[:project])
+      raise RemoteProject if Project.remote_project?(params[:project])
 
       @attribute_container = Project.get_by_name(params[:project])
     end

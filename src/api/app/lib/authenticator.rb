@@ -68,7 +68,7 @@ class Authenticator
 
   def require_admin
     Rails.logger.debug { "Checking for Admin role for user #{@http_user.login}" }
-    unless @http_user.is_admin?
+    unless @http_user.admin?
       Rails.logger.debug 'not granted!'
       raise AdminUserRequiredError, 'Requires admin privileges'
     end

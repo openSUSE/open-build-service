@@ -188,7 +188,7 @@ class User < ApplicationRecord
 
   # Currently logged in user or nobody user if there is no user logged in.
   # Use this to check permissions, but don't treat it as logged in user. Check
-  # is_nobody? on the returned object
+  # nobody? on the returned object
   def self.possibly_nobody
     current || nobody
   end
@@ -203,11 +203,11 @@ class User < ApplicationRecord
 
   # Currently logged in user or nil
   def self.session
-    current if current && !current.is_nobody?
+    current if current && !current.nobody?
   end
 
   def self.admin_session?
-    current && current.is_admin?
+    current && current.admin?
   end
 
   # set the user as current session user (should be real user)
@@ -218,7 +218,7 @@ class User < ApplicationRecord
   def self.default_admin
     admin = CONFIG['default_admin'] || 'Admin'
     user = User.find_by!(login: admin)
-    raise NotFoundError, "Admin not found, user #{admin} has not admin permissions" unless user.is_admin?
+    raise NotFoundError, "Admin not found, user #{admin} has not admin permissions" unless user.admin?
 
     user
   end
@@ -339,33 +339,33 @@ class User < ApplicationRecord
   # permission checks #
   #####################
 
-  def is_admin?
+  def admin?
     return @is_admin unless @is_admin.nil?
 
     @is_admin = roles.exists?(title: 'Admin')
   end
 
-  def is_staff?
+  def staff?
     return @is_staff unless @is_staff.nil?
 
     @is_staff = roles.exists?(title: 'Staff')
   end
 
-  def is_nobody?
+  def nobody?
     login == NOBODY_LOGIN
   end
 
-  def is_moderator?
+  def moderator?
     roles.exists?(title: 'Moderator')
   end
 
-  def is_active?
-    return owner.is_active? if owner
+  def active?
+    return owner.active? if owner
 
     self.state == 'confirmed'
   end
 
-  def is_deleted?
+  def deleted?
     state == 'deleted'
   end
 
@@ -373,7 +373,7 @@ class User < ApplicationRecord
     lookup_strategy.list_groups(self)
   end
 
-  def is_in_group?(group)
+  def in_group?(group)
     case group
     when String
       group = Group.find_by_title(group)
@@ -382,16 +382,16 @@ class User < ApplicationRecord
     when Group, nil
       nil
     else
-      raise ArgumentError, "illegal parameter type to User#is_in_group?: #{group.class}"
+      raise ArgumentError, "illegal parameter type to User#in_group?: #{group.class}"
     end
 
-    group && lookup_strategy.is_in_group?(self, group)
+    group && lookup_strategy.in_group?(self, group)
   end
 
   # This method returns true if the user is granted the permission with one
   # of the given permission titles.
-  def has_global_permission?(perm_string)
-    logger.debug "has_global_permission? #{perm_string}"
+  def global_permission?(perm_string)
+    logger.debug "global_permission? #{perm_string}"
     roles.detect do |role|
       return true if role.static_permissions.find_by(title: perm_string)
     end
@@ -429,10 +429,10 @@ class User < ApplicationRecord
   def can_modify_package?(package, ignore_lock = nil)
     return false if package.nil? # happens with remote packages easily
     raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}" unless package.is_a?(Package)
-    return false if !ignore_lock && package.is_locked?
-    return true if is_admin?
-    return true if has_global_permission?('change_package')
-    return true if has_local_permission?('change_package', package)
+    return false if !ignore_lock && package.locked?
+    return true if admin?
+    return true if global_permission?('change_package')
+    return true if local_permission?('change_package', package)
 
     false
   end
@@ -444,13 +444,13 @@ class User < ApplicationRecord
     return true if project_name == home_project_name && Configuration.allow_user_to_create_home_project
     return true if /^#{home_project_name}:/ =~ project_name && Configuration.allow_user_to_create_home_project
 
-    return true if has_global_permission?('create_project')
+    return true if global_permission?('create_project')
 
     parent_project = Project.new(name: project_name).parent
     return false if parent_project.nil?
-    return true  if is_admin?
+    return true  if admin?
 
-    has_local_permission?('create_project', parent_project)
+    local_permission?('create_project', parent_project)
   end
 
   # FIXME: This should be a policy
@@ -460,7 +460,7 @@ class User < ApplicationRecord
 
   def attribute_modifier_rule_matches?(rule)
     return false if rule.user && rule.user != self
-    return false if rule.group && !is_in_group?(rule.group)
+    return false if rule.group && !in_group?(rule.group)
 
     true
   end
@@ -470,7 +470,7 @@ class User < ApplicationRecord
     object = object.attrib_namespace if object.is_a?(AttribType)
     raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}" unless object.is_a?(AttribNamespace)
 
-    return true if is_admin?
+    return true if admin?
 
     abies = object.attrib_namespace_modifiable_bies.includes(%i[user group])
     abies.any? { |rule| attribute_modifier_rule_matches?(rule) }
@@ -478,7 +478,7 @@ class User < ApplicationRecord
 
   def attribute_modification_rule_matches?(rule, object)
     return false unless attribute_modifier_rule_matches?(rule)
-    return false if rule.role && !has_local_role?(rule.role, object)
+    return false if rule.role && !local_role?(rule.role, object)
 
     true
   end
@@ -487,7 +487,7 @@ class User < ApplicationRecord
   def can_create_attribute_in?(object, atype)
     raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}" if !object.is_a?(Project) && !object.is_a?(Package)
 
-    return true if is_admin?
+    return true if admin?
 
     abies = atype.attrib_type_modifiable_bies.includes(%i[user group role])
     # no rules -> maintainer
@@ -508,12 +508,12 @@ class User < ApplicationRecord
 
   # FIXME: This should be a policy
   def can?(key, package)
-    is_admin? ||
-      has_global_permission?(key.to_s) ||
-      has_local_permission?(key.to_s, package)
+    admin? ||
+      global_permission?(key.to_s) ||
+      local_permission?(key.to_s, package)
   end
 
-  def has_local_role?(role, object)
+  def local_role?(role, object)
     if object.is_a?(Package) || object.is_a?(Project)
       logger.debug "running local role package check: user #{login}, package #{object.name}, role '#{role.title}'"
       rels = object.relationships.where(role_id: role.id, user_id: id)
@@ -525,7 +525,7 @@ class User < ApplicationRecord
       return true if lookup_strategy.local_role_check(role, object)
     end
 
-    return has_local_role?(role, object.project) if object.is_a?(Package)
+    return local_role?(role, object.project) if object.is_a?(Package)
 
     false
   end
@@ -535,7 +535,7 @@ class User < ApplicationRecord
   # if context is a project, check it, then if needed go down through all namespaces until hitting the root
   # return false if none of the checks succeed
   # rubocop:disable Metrics/PerceivedComplexity
-  def has_local_permission?(perm_string, object)
+  def local_permission?(perm_string, object)
     roles = Role.ids_with_permission(perm_string)
     return false unless roles
 
@@ -559,7 +559,7 @@ class User < ApplicationRecord
       # check permission for given project
       parent = object.parent
     when nil
-      return has_global_permission?(perm_string)
+      return global_permission?(perm_string)
     else
       return false
     end
@@ -574,7 +574,7 @@ class User < ApplicationRecord
     if parent
       # check permission of parent project
       logger.debug "permission not found, trying parent project '#{parent.name}'"
-      return has_local_permission?(perm_string, parent)
+      return local_permission?(perm_string, parent)
     end
 
     false
@@ -587,7 +587,7 @@ class User < ApplicationRecord
 
     # lock also all home projects to avoid unneccessary builds
     Project.where('name like ?', "#{home_project_name}%").find_each do |prj|
-      next if prj.is_locked?
+      next if prj.locked?
 
       prj.lock('User account got locked')
     end
@@ -867,11 +867,11 @@ class User < ApplicationRecord
   # FIXME: This should be a policy
   def can_modify_project_internal(project, ignore_lock)
     # The ordering is important because of the lock status check
-    return false if !ignore_lock && project.is_locked?
-    return true if is_admin?
+    return false if !ignore_lock && project.locked?
+    return true if admin?
 
-    return true if has_global_permission?('change_project')
-    return true if has_local_permission?('change_project', project)
+    return true if global_permission?('change_project')
+    return true if local_permission?('change_project', project)
 
     false
   end

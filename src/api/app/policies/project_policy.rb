@@ -13,7 +13,7 @@ class ProjectPolicy < ApplicationPolicy
     return false unless user
     return false unless local_project_and_allowed_to_create_package_in?
     # The ordering is important because of the lock status check
-    return true if user.is_admin?
+    return true if user.admin?
     return false unless user.can_modify?(record, true)
 
     # Regular users are not allowed to modify projects with remote references
@@ -39,8 +39,8 @@ class ProjectPolicy < ApplicationPolicy
   end
 
   def source_access?
-    return true if user.has_global_permission?(:source_access)
-    return true if user.has_local_permission?(:source_access, record)
+    return true if user.global_permission?(:source_access)
+    return true if user.local_permission?(:source_access, record)
 
     record.enabled_for?('sourceaccess', nil, nil)
   end
@@ -61,7 +61,7 @@ class ProjectPolicy < ApplicationPolicy
   private
 
   def no_remote_instance_defined_and_has_not_remote_repositories?
-    !record.defines_remote_instance? && !record.has_remote_repositories?
+    !record.defines_remote_instance? && !record.remote_repositories?
   end
 
   def local?

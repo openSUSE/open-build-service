@@ -5,11 +5,11 @@ class GroupPolicy < ApplicationPolicy
 
   def create?
     # Only admins can create new groups atm
-    user.is_admin?
+    user.admin?
   end
 
   def update?
-    user.is_admin? || record.group_maintainers.exists?(user: user)
+    user.admin? || record.group_maintainers.exists?(user: user)
   end
 
   def destroy?
@@ -17,6 +17,6 @@ class GroupPolicy < ApplicationPolicy
   end
 
   def display_email?
-    !user.is_nobody?
+    !user.nobody?
   end
 end

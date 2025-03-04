@@ -251,7 +251,7 @@ class Review < ApplicationRecord
   def matches_user?(user)
     return false unless user
     return user.login == by_user if by_user
-    return user.is_in_group?(by_group) if by_group
+    return user.in_group?(by_group) if by_group
 
     matches_maintainers?(user)
   end
@@ -315,9 +315,9 @@ class Review < ApplicationRecord
     return false unless by_project
 
     if by_package
-      user.has_local_permission?('change_package', Package.find_by_project_and_name(by_project, by_package))
+      user.local_permission?('change_package', Package.find_by_project_and_name(by_project, by_package))
     else
-      user.has_local_permission?('change_project', Project.find_by_name(by_project))
+      user.local_permission?('change_project', Project.find_by_name(by_project))
     end
   end
 

@@ -1,6 +1,6 @@
 
 = render(CardComponent.new) do |component|
-  - if repository.is_dod_repository?
+  - if repository.dod_repository?
     = render partial: 'dod_repository_card_content', locals: { project: project, repository: repository,
                 available_architectures: available_architectures }
     - component.with_delete_button do

@@ -1,5 +1,5 @@
 class Token::WorkflowPolicy < TokenPolicy
   def trigger?
-    user.is_active?
+    user.active?
   end
 end

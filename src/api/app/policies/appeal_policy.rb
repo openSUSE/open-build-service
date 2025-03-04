@@ -7,7 +7,7 @@ class AppealPolicy < ApplicationPolicy
     return false unless Flipper.enabled?(:content_moderation, user)
     return true if record.appellant == user
 
-    user.is_admin? || user.is_moderator? || user.is_staff?
+    user.admin? || user.moderator? || user.staff?
   end
 
   # A user can create an appeal for a decision which is against them
@@ -23,7 +23,7 @@ class AppealPolicy < ApplicationPolicy
     return false if @report.reportable_type.nil?
 
     decision_cleared_report_from_user? || decision_favored_report_of_action_from_user? ||
-      user.is_admin? || user.is_staff?
+      user.admin? || user.staff?
   end
 
   private

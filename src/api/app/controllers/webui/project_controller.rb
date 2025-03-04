@@ -465,13 +465,13 @@ class Webui::ProjectController < Webui::WebuiController
       @project_maintenance_project = pm.maintenance_project.name
     end
 
-    @is_maintenance_project = @project.is_maintenance?
+    @is_maintenance_project = @project.maintenance?
     if @is_maintenance_project
       @open_maintenance_incidents = @project.maintenance_incidents.distinct.order('projects.name').pluck('projects.name')
 
       @maintained_projects = @project.maintained_project_names
     end
-    @is_incident_project = @project.is_maintenance_incident?
+    @is_incident_project = @project.maintenance_incident?
     return unless @is_incident_project
 
     @open_release_requests = BsRequest::FindFor::Query.new(project: @project.name,

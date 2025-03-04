@@ -24,11 +24,9 @@ class BsRequestActionRelease < BsRequestAction
   #### Instance methods (public and then protected/private)
 
   # For consistency reasons with the other BsRequestActions
-  # rubocop:disable Naming/PredicateName
-  def is_release?
+  def release?
     true
   end
-  # rubocop:enable Naming/PredicateName
 
   def uniq_key
     return "#{target_project}/#{target_package}/#{target_repository}" if target_repository.present?
@@ -69,7 +67,7 @@ class BsRequestActionRelease < BsRequestAction
 
   def minimum_priority
     spkg = Package.find_by_project_and_name(source_project, source_package)
-    return unless spkg && spkg.is_patchinfo?
+    return unless spkg && spkg.patchinfo?
 
     pi = Xmlhash.parse(spkg.patchinfo.document.to_xml)
     pi['rating']

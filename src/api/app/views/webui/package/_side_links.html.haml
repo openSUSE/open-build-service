@@ -12,7 +12,7 @@
   - if package.developed_packages.present?
     = render partial: 'webui/package/side_links/show_developed_packages', locals: { developed_packages: package.developed_packages }
 
-  - if package.is_patchinfo?
+  - if package.patchinfo?
     = render partial: 'webui/package/side_links/show_patchinfo', locals: { package: package, project: project }
 
   - if package.linking_packages.present?

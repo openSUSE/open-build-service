@@ -45,8 +45,8 @@ RSpec.describe CommentPolicy do
 
     context 'with a comment on a Package' do
       before do
-        allow(user).to receive(:has_local_permission?).with('change_package', package).and_return(true)
-        allow(other_user).to receive(:has_local_permission?).with('change_package', package).and_return(false)
+        allow(user).to receive(:local_permission?).with('change_package', package).and_return(true)
+        allow(other_user).to receive(:local_permission?).with('change_package', package).and_return(false)
       end
 
       it { is_expected.to permit(user, comment_on_package) }
@@ -55,8 +55,8 @@ RSpec.describe CommentPolicy do
 
     context 'with a comment on a Project' do
       before do
-        allow(user).to receive(:has_local_permission?).with('change_project', project).and_return(true)
-        allow(other_user).to receive(:has_local_permission?).with('change_project', project).and_return(false)
+        allow(user).to receive(:local_permission?).with('change_project', project).and_return(true)
+        allow(other_user).to receive(:local_permission?).with('change_project', project).and_return(false)
       end
 
       it { is_expected.to permit(user, comment) }
@@ -65,8 +65,8 @@ RSpec.describe CommentPolicy do
 
     context 'with a comment on a Request' do
       before do
-        allow(request).to receive(:is_target_maintainer?).with(user).and_return(true)
-        allow(request).to receive(:is_target_maintainer?).with(other_user).and_return(false)
+        allow(request).to receive(:target_maintainer?).with(user).and_return(true)
+        allow(request).to receive(:target_maintainer?).with(other_user).and_return(false)
       end
 
       it { is_expected.to permit(user, comment_on_request) }

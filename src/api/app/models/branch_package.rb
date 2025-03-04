@@ -104,7 +104,7 @@ class BranchPackage
   def copy_package_message(package_hash)
     copy_from_devel = package_hash[:copy_from_devel]
 
-    if copy_from_devel.project.is_maintenance_incident?
+    if copy_from_devel.project.maintenance_incident?
       "fetch updates from open incident project #{copy_from_devel.project.name}"
     else
       "fetch updates from devel package #{copy_from_devel.project.name}/#{copy_from_devel.name}"
@@ -209,7 +209,7 @@ class BranchPackage
         opts[:noservice] = '1' if params[:noservice].present?
         opts[:orev] = p[:rev] if p[:rev].present?
         # New incident updates need the vrev extension
-        if tpkg.project.is_maintenance_incident? && p[:package].is_a?(Package) &&
+        if tpkg.project.maintenance_incident? && p[:package].is_a?(Package) &&
            p[:package].project != p[:link_target_project]
           opts[:extendvrev] = '1'
         end
@@ -241,7 +241,7 @@ class BranchPackage
         tprj.branch_to_repositories_from(p[:link_target_project], tpkg, opts)
       end
 
-      tpkg.add_channels if tprj.is_maintenance_incident? && !tprj.parent.find_attribute('OBS', 'SkipChannelBranch')
+      tpkg.add_channels if tprj.maintenance_incident? && !tprj.parent.find_attribute('OBS', 'SkipChannelBranch')
     end
     tprj.sync_repository_pathes if @update_path_elements
 
@@ -355,7 +355,7 @@ class BranchPackage
     return unless p[:package].is_a?(Package) # only for local packages
 
     pkg = p[:package]
-    if pkg.is_link?
+    if pkg.link?
       # is the package itself a local link ?
       link = Backend::Api::Sources::Package.link_info(p[:package].project.name, p[:package].name)
       ret = Xmlhash.parse(link)
