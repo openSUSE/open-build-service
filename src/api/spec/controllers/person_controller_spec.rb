@@ -68,31 +68,6 @@ RSpec.describe PersonController do
         expect(old_password_digest).not_to eq(user.reload.password_digest)
       end
     end
-
-    context 'when in LDAP mode' do
-      before do
-        request.env['RAW_POST_DATA'] = 'password_has_changed'
-        stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
-      end
-
-      context 'and the user is configured to authorize on the LDAP server' do
-        before do
-          post :post_userinfo, params: { login: user.login, cmd: 'change_password', format: :xml }
-        end
-
-        it { expect(response.header['X-Opensuse-Errorcode']).to eq('update_user_not_authorized') }
-        it { expect(old_password_digest).to eq(user.reload.password_digest) }
-      end
-
-      context 'and the user is configured to authorize locally' do
-        before do
-          user.update(ignore_auth_services: true)
-          post :post_userinfo, params: { login: user.login, cmd: 'change_password', format: :xml }
-        end
-
-        it { expect(old_password_digest).not_to eq(user.reload.password_digest) }
-      end
-    end
   end
 
   describe 'PUT #put_userinfo' do
@@ -125,61 +100,6 @@ RSpec.describe PersonController do
       it "adds projects, requests and packages to user's watchlist" do
         expect(test_user.watched_items.count).to eq(3)
         expect(test_user.watched_items.collect(&:watchable)).to include(project, package, delete_request)
-      end
-    end
-
-    context 'when in LDAP mode' do
-      subject { put :put_userinfo, params: { login: user.login, format: :xml } }
-
-      before do
-        stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
-        request.env['RAW_POST_DATA'] = xml
-      end
-
-      context 'as an admin' do
-        before do
-          login admin_user
-        end
-
-        it_behaves_like 'not allowed to change user details'
-      end
-
-      context 'as a user' do
-        before do
-          login user
-        end
-
-        it_behaves_like 'not allowed to change user details'
-      end
-    end
-  end
-
-  describe 'POST #register' do
-    context 'when in LDAP mode' do
-      before do
-        stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
-
-        post :register
-      end
-
-      it 'sets an error code' do
-        expect(response.header['X-Opensuse-Errorcode']).to eq('permission_denied')
-      end
-    end
-  end
-
-  describe 'POST #command' do
-    context 'with param cmd = register' do
-      context 'when in LDAP mode' do
-        before do
-          stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
-
-          post :command, params: { cmd: 'register' }
-        end
-
-        it 'sets an error code' do
-          expect(response.header['X-Opensuse-Errorcode']).to eq('permission_denied')
-        end
       end
     end
   end
