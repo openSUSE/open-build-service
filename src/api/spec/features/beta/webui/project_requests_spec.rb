@@ -40,7 +40,8 @@ RSpec.describe 'Project Requests' do
 
     it 'filter requests' do
       find_by_id('requests-dropdown-trigger').click if mobile?
-      check('To Project', allow_label_click: true)
+      uncheck('From Project', allow_label_click: true)
+      uncheck('Review for Project', allow_label_click: true)
       execute_script('$("#content-selector-filters-form").submit()')
 
       expect(page).to have_link(href: "/request/show/#{incoming_request.number}")
