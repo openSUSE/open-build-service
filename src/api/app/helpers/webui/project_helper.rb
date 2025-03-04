@@ -36,10 +36,6 @@ module Webui::ProjectHelper
     true
   end
 
-  def can_be_released?(project, packages, open_release_requests, has_patchinfo)
-    !project.defines_remote_instance? && project.maintenance_incident? && packages.present? && has_patchinfo && open_release_requests.blank?
-  end
-
   def project_labels(project, &block)
     project.label_templates.includes([:labels]).find_each do |label_template|
       label_template.labels.each(&block)
