@@ -8,12 +8,11 @@
       = render partial: 'webui/project/side_links/project_monitor', locals: { project: project,
                                                                               nr_of_problem_packages: nr_of_problem_packages }
 
-    - if has_patchinfo
+    - if project.patchinfos.exists?
       = render partial: 'webui/project/side_links/patchinfo_present', locals: { project: project }
 
     - if project.maintenance_incident?
-      = render partial: 'webui/project/side_links/incident_project', locals: { has_patchinfo: has_patchinfo,
-                                                                               project: project,
+      = render partial: 'webui/project/side_links/incident_project', locals: { project: project,
                                                                                open_release_requests: open_release_requests }
 
     - if release_targets.present?
