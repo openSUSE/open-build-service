@@ -31,13 +31,9 @@ module Webui::ProjectHelper
     return false if @project.scmsync.present?
     return false if @project.defines_remote_instance?
     return false if @is_incident_project && @packages.present? &&
-                    @has_patchinfo && @open_release_requests.empty?
+                    @project.patchinfos.exists? && @open_release_requests.empty?
 
     true
-  end
-
-  def can_be_released?(project, packages, open_release_requests, has_patchinfo)
-    !project.defines_remote_instance? && project.maintenance_incident? && packages.present? && has_patchinfo && open_release_requests.blank?
   end
 
   def project_labels(project, &block)

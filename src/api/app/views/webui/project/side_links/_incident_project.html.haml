@@ -1,4 +1,4 @@
-- unless has_patchinfo
+- unless project.patchinfos.exists?
   %li
     %i.fa.fa-exclamation-circle.text-danger
     = link_to_if(User.possibly_nobody.can_modify?(project), 'Patchinfo missing',

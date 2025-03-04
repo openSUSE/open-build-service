@@ -45,7 +45,6 @@ class Webui::ProjectController < Webui::WebuiController
   def show
     @release_targets = @project.release_targets
 
-    @has_patchinfo = @project.patchinfos.exists?
     @comments = @project.comments
     @comment = Comment.new
     @current_notification = handle_notification

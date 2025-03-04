@@ -8,7 +8,6 @@
   - if User.possibly_nobody.can_modify?(project)
     = render partial: 'webui/project/show_actions/modify_project', locals: { project: project,
                                                                              packages: packages,
-                                                                             has_patchinfo: has_patchinfo,
                                                                              open_release_requests: open_release_requests,
                                                                              release_targets: release_targets }
     = render partial: 'webui/project/show_actions/delete_project', locals: { project: project }

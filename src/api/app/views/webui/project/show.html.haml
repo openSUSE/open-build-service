@@ -4,7 +4,6 @@
   @pagetitle = "Show #{@project}"
   render partial: 'webui/project/show_actions', locals: { project: @project,
                                                           packages: @packages,
-                                                          has_patchinfo: @has_patchinfo,
                                                           open_release_requests: @open_release_requests,
                                                           release_targets: @release_targets }
 
@@ -27,7 +26,6 @@
                                                   project: @project,
                                                   maintained_projects: @maintained_projects,
                                                   nr_of_problem_packages: @nr_of_problem_packages,
-                                                  has_patchinfo: @has_patchinfo,
                                                   open_release_requests: @open_release_requests,
                                                   release_targets: @release_targets,
                                                   requests: @requests,
