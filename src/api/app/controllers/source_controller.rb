@@ -107,6 +107,13 @@ class SourceController < ApplicationController
   def package_command
     params[:user] = User.session.login
 
+    if params[:view] == 'info'
+      valid_project_name!(params[:project])
+      valid_package_name!(params[:package]) # is not used at all
+      @project = Project.get_by_name(params[:project])
+      return pass_to_backend(path)
+    end
+
     raise MissingParameterError, 'POST request without given cmd parameter' unless params[:cmd]
 
     # valid post commands
