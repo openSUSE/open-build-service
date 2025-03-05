@@ -97,7 +97,6 @@ CONFIG['global_write_through'] = false
 CONFIG['frontend_host'] = 'localhost'
 CONFIG['frontend_port'] = 3203
 CONFIG['frontend_protocol'] = 'http'
-CONFIG['frontend_ldap_mode'] = :off
 
 if ENV['RUNNING_MINITEST']
   CONFIG['source_host'] = 'localhost'
