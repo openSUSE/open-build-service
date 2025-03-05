@@ -254,12 +254,12 @@ module Event
     end
 
     def reporters
-      decision = Decision.find(payload['id'])
+      decision = ::Decision.find(payload['id'])
       decision.reports.map(&:user)
     end
 
     def offenders
-      decision = Decision.find(payload['id'])
+      decision = ::Decision.find(payload['id'])
       reportables = decision.reports.map(&:reportable)
       reportables.map do |reportable|
         case reportable
