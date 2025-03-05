@@ -1,4 +1,4 @@
-- unless has_patchinfo
+- unless project.patchinfos.exists?
   %li.nav-item
     = link_to(patchinfo_path(project: project), method: :post, class: 'nav-link', title: 'Create Patchinfo') do
       %i.fas.fa-band-aid.fa-fw.me-2

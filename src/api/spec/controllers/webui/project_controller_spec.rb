@@ -246,24 +246,6 @@ RSpec.describe Webui::ProjectController, :vcr do
       allow_any_instance_of(Project).to receive(:number_of_build_problems).and_return(0)
     end
 
-    context 'without patchinfo' do
-      before do
-        get :show, params: { project: apache_project }
-      end
-
-      it { expect(assigns(:has_patchinfo)).to be_falsey }
-    end
-
-    context 'with patchinfo' do
-      before do
-        login admin_user
-        create(:patchinfo, project_name: apache_project.name, comment: 'Fake comment', force: false)
-        get :show, params: { project: apache_project }
-      end
-
-      it { expect(assigns(:has_patchinfo)).to be_truthy }
-    end
-
     context 'with comments' do
       before do
         apache_project.comments << build(:comment_project, user: user)
