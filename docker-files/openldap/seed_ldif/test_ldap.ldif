@@ -1,0 +1,55 @@
+# extended LDIF
+#
+# LDAPv3
+# base <dc=example,dc=org> with scope subtree
+# filter: (objectclass=*)
+# requesting: ALL
+#
+
+# groups, example.org
+dn: ou=groups,dc=example,dc=org
+objectClass: organizationalUnit
+ou: groups
+
+# users, groups, example.org
+dn: cn=users,ou=groups,dc=example,dc=org
+objectClass: top
+objectClass: posixGroup
+gidNumber: 100
+cn: users
+
+# people, example.org
+dn: ou=people,dc=example,dc=org
+objectClass: organizationalUnit
+ou: people
+
+# tux, people, example.org
+dn: cn=tux,ou=people,dc=example,dc=org
+objectClass: top
+objectClass: account
+objectClass: posixAccount
+cn: tux
+uid: tux
+uidNumber: 60001
+gidNumber: 100
+homeDirectory: /home/tux
+userPassword:: e1NTSEF9UkJHUmZHVUxQNDdZQTdqQXBxUmJMdmZpNXZTdlJuR3M=
+
+# admins, groups, example.org
+dn: cn=admins,ou=groups,dc=example,dc=org
+objectClass: top
+objectClass: posixGroup
+gidNumber: 200
+cn: admins
+
+# duck, people, example.org
+dn: cn=duck,ou=people,dc=example,dc=org
+objectClass: top
+objectClass: account
+objectClass: posixAccount
+cn: duck
+uid: duck
+uidNumber: 60002
+gidNumber: 200
+homeDirectory: /home/duck
+userPassword:: e1NTSEF9d3Mzb1pVZ3lvbmZOREJIRng4Mi9xd3ZhSjNKVzJoUlQ=

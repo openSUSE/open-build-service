@@ -96,14 +96,14 @@ require 'support/view_component'
 # support fixtures
 require 'support/factory_bot'
 
-# support database cleanup
-require 'support/database_cleaner'
+# # support database cleanup
+# require 'support/database_cleaner'
 
-# support Suse::backend
-require 'support/backend'
+# # support Suse::backend
+# require 'support/backend'
 
-# support shoulda matcher
-require 'support/shoulda_matchers'
+# # support shoulda matcher
+# require 'support/shoulda_matchers'
 
 # helper methods for authentication
 require 'support/controllers/controllers_authentication'
