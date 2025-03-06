@@ -114,6 +114,10 @@
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-package-name' },
                                                        aria: { expanded: 'true', controls: 'request-filter-package-name' } }
       %b Packages
+      %span.ms-1
+        = render partial: 'webui/shared/info_popover',
+                 locals: { position: 'bottom',
+                           text: "<p>Filter the requests by involvement of this package as target or source.</p>" }
       .selected-content.small.ms-1
     .px-4.pb-2.accordion-collapse.collapse.show#request-filter-package-name
       #request-package-name-dropdown
