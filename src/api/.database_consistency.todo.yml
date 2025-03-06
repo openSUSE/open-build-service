@@ -597,6 +597,18 @@ DownloadRepository:
   url:
     LengthConstraintChecker:
       enabled: false
+Event::AddedUserToGroup:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
 Event::Base:
   eventtype:
     LengthConstraintChecker:
@@ -694,6 +706,18 @@ Event::RelationshipCreate:
     LengthConstraintChecker:
       enabled: false
 Event::RelationshipDelete:
+  eventtype:
+    LengthConstraintChecker:
+      enabled: false
+    NullConstraintChecker:
+      enabled: false
+  mails_sent:
+    ThreeStateBooleanChecker:
+      enabled: false
+  payload:
+    LengthConstraintChecker:
+      enabled: false
+Event::RemovedUserFromGroup:
   eventtype:
     LengthConstraintChecker:
       enabled: false
