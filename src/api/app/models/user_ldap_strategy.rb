@@ -288,7 +288,7 @@ class UserLdapStrategy
     group = (group.is_a?(String) ? Group.find_by_title(group) : group)
 
     begin
-      render_grouplist_ldap([group], user).any?
+      UserLdapStrategy.render_grouplist_ldap([group], user).any?
     rescue Exception
       Rails.logger.info 'Error occurred in searching user_group in ldap.'
       false
@@ -367,7 +367,7 @@ class UserLdapStrategy
     relationships.each do |relationship|
       return false if relationship.group.nil?
       # check whether current user is in this group
-      return true if user_in_group_ldap?(login, relationship.group)
+      return true if user_in_group_ldap?(User.session, relationship.group)
     end
 
     Rails.logger.info "Failed with #{method_name}"
