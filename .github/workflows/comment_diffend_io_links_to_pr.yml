@@ -23,6 +23,6 @@ jobs:
       - name: Add Comment to PR
         uses: thollander/actions-comment-pull-request@v3
         with:
-          filePath: comment_text_and_pr_number/comment_text.txt
-          pr_number: ${{ env.pr_number }}
-          comment_tag: comment_with_diffend_io_links
+          file-path: comment_text_and_pr_number/comment_text.txt
+          pr-number: ${{ env.pr_number }}
+          comment-tag: comment_with_diffend_io_links
