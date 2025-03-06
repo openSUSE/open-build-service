@@ -93,7 +93,9 @@
                                                        aria: { expanded: 'true', controls: 'request-filter-project-name' } }
       %b Projects
       %span.ms-1
-        = render partial: 'webui/shared/bs_requests/filter_help_project_names'
+        = render partial: 'webui/shared/info_popover',
+                 locals: { position: 'bottom',
+                           text: "<p>Filter the requests by involvement of this project as target or source.</p>" }
       .selected-content.small.ms-1
     .px-4.pb-2.accordion-collapse.collapse.show#request-filter-project-name
       #request-project-name-dropdown
