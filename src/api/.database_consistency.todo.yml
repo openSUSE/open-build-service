@@ -6,9 +6,6 @@ Architecture:
   id:
     PrimaryKeyTypeChecker:
       enabled: false
-  name:
-    LengthConstraintChecker:
-      enabled: false
 Attrib:
   attribs_index:
     UniqueIndexChecker:
