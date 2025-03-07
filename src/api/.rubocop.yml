@@ -1,11 +1,11 @@
 plugins:
+  - rubocop-factory_bot
   - rubocop-performance
   - rubocop-rails
   - rubocop-rspec
 
 require:
   - rubocop-capybara
-  - rubocop-factory_bot
   - rubocop-rspec_rails
   - ./lib/rubocop/cop/view_component/avoid_global_state.rb
   - ./lib/rubocop/cop/view_component/file_name.rb
