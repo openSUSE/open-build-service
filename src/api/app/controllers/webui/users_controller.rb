@@ -17,7 +17,7 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def show
-    @groups = @displayed_user.groups
+    @groups = @displayed_user.groups.order(:title)
     @involved_items_service = UserService::Involved.new(user: @displayed_user, filters: extract_filter_params, page: params[:page])
     @comments = paged_comments
 

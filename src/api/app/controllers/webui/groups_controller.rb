@@ -6,7 +6,7 @@ class Webui::GroupsController < Webui::WebuiController
 
   def index
     authorize Group.new, :index?
-    @groups = Group.includes(:users)
+    @groups = Group.includes(:users).order(:title)
   end
 
   def show
@@ -69,7 +69,7 @@ class Webui::GroupsController < Webui::WebuiController
   end
 
   def autocomplete
-    groups = Group.where('title LIKE ?', "#{params[:term]}%").pluck(:title) if params[:term]
+    groups = Group.where('title LIKE ?', "#{params[:term]}%").order(:title).pluck(:title) if params[:term]
     render json: groups || []
   end
 
