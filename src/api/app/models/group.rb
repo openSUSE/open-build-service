@@ -36,8 +36,6 @@ class Group < ApplicationRecord
                       message: 'must be a valid email address',
                       allow_blank: true }
 
-  default_scope { order(:title) }
-
   alias_attribute :name, :title
 
   def update_from_xml(xmlhash, user_session_login:)

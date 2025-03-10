@@ -31,6 +31,7 @@ class GroupController < ApplicationController
     else
       @list = Group.all
     end
+    @list = @list.order(:title)
     @list = @list.where('title LIKE ?', "#{params[:prefix]}%") if params[:prefix].present?
   end
 
