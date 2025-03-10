@@ -11,8 +11,8 @@
     = label_tag(html_id, label)
   - if required
     = render partial: 'webui/shared/required_label_mark'
-  .input-group
-    %span.input-group-text
-      %i.fas.fa-search
+  = render(InputComponent.new) do |component|
     = search_field_tag(html_id, value, required: required, disabled: disabled, placeholder: 'Type to autocomplete...',
                        class: 'obs-autocomplete form-control', data: data, name: html_name)
+    - component.with_icon do
+      %i.fa.fa-search
