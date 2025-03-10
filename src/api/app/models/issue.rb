@@ -149,7 +149,7 @@ end
 #
 #  id               :integer          not null, primary key
 #  name             :string(255)      not null, indexed => [issue_tracker_id]
-#  state            :string
+#  state            :string           indexed
 #  summary          :string(255)
 #  created_at       :datetime
 #  updated_at       :datetime
@@ -159,6 +159,7 @@ end
 # Indexes
 #
 #  index_issues_on_name_and_issue_tracker_id  (name,issue_tracker_id)
+#  index_issues_on_state                      (state)
 #  issue_tracker_id                           (issue_tracker_id)
 #  owner_id                                   (owner_id)
 #
