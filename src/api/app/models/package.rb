@@ -105,6 +105,8 @@ class Package < ApplicationRecord
   scope :with_product_name, -> { where(name: '_product') }
   scope :with_kind, ->(kind) { joins(:package_kinds).where(package_kinds: { kind: kind }) }
 
+  scope :dirty_backend_packages, -> { left_outer_joins(:backend_package).where(backend_package: { package_id: nil }) }
+
   validates :name, presence: true, length: { maximum: 200 }
   validates :releasename, length: { maximum: 200 }
   validates :title, length: { maximum: 250 }
