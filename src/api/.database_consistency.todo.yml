@@ -7,12 +7,6 @@ Architecture:
     PrimaryKeyTypeChecker:
       enabled: false
 Attrib:
-  attribs_index:
-    UniqueIndexChecker:
-      enabled: false
-  attribs_on_proj_and_pack:
-    UniqueIndexChecker:
-      enabled: false
   binary:
     LengthConstraintChecker:
       enabled: false

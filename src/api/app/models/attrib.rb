@@ -31,6 +31,8 @@ class Attrib < ApplicationRecord
            :validate_issues,
            :validate_allowed_values_for_attrib_type
 
+  validates :attrib_type_id, uniqueness: { scope: %i[package_id project_id binary] }
+
   after_save :populate_to_sphinx
   after_commit :write_container_attributes, on: %i[create destroy update]
 
