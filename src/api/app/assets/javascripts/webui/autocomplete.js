@@ -6,10 +6,10 @@ function setupAutocomplete() {
       source:    $(this).data('source'),
       minLength: 2,
       search: function() {
-        $(this).prev().find('i').toggleClass('fa-search fa-spinner fa-spin');
+        $(this).next().find('i').toggleClass('fa-search fa-spinner fa-spin');
       },
       response: function() {
-        $(this).prev().find('i').toggleClass('fa-search fa-spinner fa-spin');
+        $(this).next().find('i').toggleClass('fa-search fa-spinner fa-spin');
       }
     });
   });
