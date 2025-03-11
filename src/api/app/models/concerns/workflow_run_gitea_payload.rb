@@ -9,28 +9,28 @@ module WorkflowRunGiteaPayload
 
   def gitea_commit_sha
     return payload.dig(:pull_request, :head, :sha) if gitea_pull_request?
-    return payload[:after] if gitea_push_event?
+    return payload.dig(:head_commit, :id) if gitea_tag_push_event?
 
-    payload.dig(:head_commit, :id) if gitea_tag_push_event?
+    payload[:after]
   end
 
   def gitea_source_repository_full_name
     return payload.dig(:pull_request, :head, :repo, :full_name) if gitea_pull_request?
 
-    payload.dig(:repository, :full_name) if gitea_push_event? || gitea_tag_push_event?
+    payload.dig(:repository, :full_name)
   end
 
   def gitea_target_repository_full_name
     return payload.dig(:pull_request, :base, :repo, :full_name) if gitea_pull_request?
 
-    payload.dig(:repository, :full_name) if gitea_push_event? || gitea_tag_push_event?
+    payload.dig(:repository, :full_name)
   end
 
   def gitea_target_branch
     return payload.dig(:pull_request, :base, :ref) if gitea_pull_request?
-    return payload.fetch(:ref, '').sub('refs/heads/', '') if gitea_push_event?
+    return payload.dig(:head_commit, :id) if gitea_tag_push_event?
 
-    payload.dig(:head_commit, :id) if gitea_tag_push_event?
+    payload.fetch(:ref, '').sub('refs/heads/', '')
   end
 
   def gitea_hook_action
