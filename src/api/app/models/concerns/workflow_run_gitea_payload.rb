@@ -61,18 +61,6 @@ module WorkflowRunGiteaPayload
     scm_vendor == 'gitea' && hook_event == 'ping'
   end
 
-  def gitea_supported_event?
-    scm_vendor == 'gitea' && ALLOWED_GITEA_EVENTS.include?(hook_event)
-  end
-
-  def gitea_supported_pull_request_action?
-    gitea_pull_request? && ALLOWED_GITEA_PULL_REQUEST_ACTIONS.include?(hook_action)
-  end
-
-  def gitea_supported_push_action?
-    gitea_push_event? && !payload[:deleted]
-  end
-
   def gitea_new_pull_request?
     gitea_pull_request? && gitea_hook_action == 'opened'
   end

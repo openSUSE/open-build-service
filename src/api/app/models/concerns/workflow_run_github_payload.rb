@@ -81,18 +81,6 @@ module WorkflowRunGithubPayload
     scm_vendor == 'github' && hook_event == 'ping'
   end
 
-  def github_supported_event?
-    scm_vendor == 'github' && ALLOWED_GITHUB_EVENTS.include?(hook_event)
-  end
-
-  def github_supported_pull_request_action?
-    github_pull_request? && ALLOWED_GITHUB_PULL_REQUEST_ACTIONS.include?(hook_action)
-  end
-
-  def github_supported_push_action?
-    github_push_event? && !payload[:deleted]
-  end
-
   def github_new_pull_request?
     github_pull_request? && github_hook_action == 'opened'
   end
