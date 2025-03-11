@@ -3,7 +3,7 @@ module WorkflowRunGitlabPayload
   extend ActiveSupport::Concern
 
   ALLOWED_GITLAB_EVENTS = ['Merge Request Hook', 'Push Hook', 'Tag Push Hook'].freeze
-  ALLOWED_MERGE_REQUEST_ACTIONS = %w[close merge open reopen update].freeze
+  ALLOWED_GITLAB_PULL_REQUEST_ACTIONS = %w[close merge open reopen update].freeze
 
   def gitlab_project_id
     return payload.dig(:object_attributes, :source_project_id) if gitlab_merge_request?
