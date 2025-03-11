@@ -1197,7 +1197,7 @@ class Project < ApplicationRecord
 
   # for the clockworkd - called delayed
   def update_packages_if_dirty
-    PackagesFinder.new(packages).dirty_backend_packages.each(&:update_if_dirty)
+    packages.dirty_backend_packages.each(&:update_if_dirty)
   end
 
   def lock(comment = nil)

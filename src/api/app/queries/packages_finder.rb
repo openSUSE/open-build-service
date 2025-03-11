@@ -34,11 +34,6 @@ class PackagesFinder
     @relation.where(project_id: Relationship.forbidden_project_ids)
   end
 
-  def dirty_backend_packages
-    @relation.joins('left outer join backend_packages on backend_packages.package_id = packages.id')
-             .where('backend_packages.package_id' => nil)
-  end
-
   private
 
   def find_package(args)
