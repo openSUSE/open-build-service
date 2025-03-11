@@ -14,7 +14,6 @@ RSpec.describe Workflow::Step::SubmitRequest, :vcr do
   let(:target_project) { create(:project, name: 'baz_project') }
   let(:request_payload) do
     {
-      action: action,
       number: 1,
       pull_request: {
         html_url: 'http://github.com/something',
@@ -37,8 +36,10 @@ RSpec.describe Workflow::Step::SubmitRequest, :vcr do
     }
   end
   let(:workflow_run) do
-    create(:workflow_run, scm_vendor: 'github', hook_event: hook_event, request_payload: request_payload)
+    create(:workflow_run, scm_vendor: 'github', hook_event: hook_event, hook_action: hook_action, request_payload: request_payload)
   end
+  let(:hook_event) { nil }
+  let(:hook_action) { nil }
 
   describe '#call' do
     before do
@@ -47,8 +48,8 @@ RSpec.describe Workflow::Step::SubmitRequest, :vcr do
     end
 
     context 'for a newly opened PR' do
-      let(:action) { 'opened' }
       let(:hook_event) { 'pull_request' }
+      let(:hook_action) { 'opened' }
 
       it 'creates a submit request' do
         expect { subject.call }.to(change(BsRequest.where(state: 'new'), :count).by(1))
@@ -60,8 +61,8 @@ RSpec.describe Workflow::Step::SubmitRequest, :vcr do
     end
 
     context 'for a closed PR' do
-      let(:action) { 'closed' }
       let(:hook_event) { 'pull_request' }
+      let(:hook_action) { 'closed' }
 
       context 'when the token user is authorized' do
         let!(:bs_request) do
@@ -81,8 +82,8 @@ RSpec.describe Workflow::Step::SubmitRequest, :vcr do
     end
 
     context 'for an updated PR' do
-      let(:action) { 'synchronize' }
       let(:hook_event) { 'pull_request' }
+      let(:hook_action) { 'synchronize' }
 
       context 'when the token user is authorized' do
         let!(:bs_request) do

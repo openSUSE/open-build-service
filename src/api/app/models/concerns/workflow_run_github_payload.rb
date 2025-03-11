@@ -45,10 +45,6 @@ module WorkflowRunGithubPayload
     payload.dig(:head_commit, :id) if github_tag_push_event?
   end
 
-  def github_hook_action
-    payload['action']
-  end
-
   def github_api_endpoint
     sender_url = payload.dig(:sender, :url)
     return unless sender_url
@@ -94,26 +90,26 @@ module WorkflowRunGithubPayload
   end
 
   def github_new_pull_request?
-    github_pull_request? && github_hook_action == 'opened'
+    github_pull_request? && hook_action == 'opened'
   end
 
   def github_updated_pull_request?
-    github_pull_request? && github_hook_action == 'synchronize'
+    github_pull_request? && hook_action == 'synchronize'
   end
 
   def github_closed_merged_pull_request?
-    github_pull_request? && github_hook_action == 'closed'
+    github_pull_request? && hook_action == 'closed'
   end
 
   def github_reopened_pull_request?
-    github_pull_request? && github_hook_action == 'reopened'
+    github_pull_request? && hook_action == 'reopened'
   end
 
   def github_labeled_pull_request?
-    github_pull_request? && payload[:action] == 'labeled'
+    github_pull_request? && hook_action == 'labeled'
   end
 
   def github_unlabeled_pull_request?
-    github_pull_request? && payload[:action] == 'unlabeled'
+    github_pull_request? && hook_action == 'unlabeled'
   end
 end

@@ -54,10 +54,6 @@ module WorkflowRunGitlabPayload
     payload[:after] if gitlab_tag_push_event?
   end
 
-  def gitlab_hook_action
-    payload.dig('object_attributes', 'action')
-  end
-
   def gitlab_api_endpoint
     project_url = payload.dig(:project, :http_url)
     return unless project_url
@@ -92,19 +88,19 @@ module WorkflowRunGitlabPayload
   end
 
   def gitlab_new_pull_request?
-    gitlab_merge_request? && gitlab_hook_action == 'open'
+    gitlab_merge_request? && hook_action == 'open'
   end
 
   def gitlab_updated_pull_request?
-    gitlab_merge_request? && gitlab_hook_action == 'update'
+    gitlab_merge_request? && hook_action == 'update'
   end
 
   def gitlab_closed_merged_pull_request?
-    gitlab_merge_request? && %w[close merge].include?(gitlab_hook_action)
+    gitlab_merge_request? && %w[close merge].include?(hook_action)
   end
 
   def gitlab_reopened_pull_request?
-    gitlab_merge_request? && gitlab_hook_action == 'reopen'
+    gitlab_merge_request? && hook_action == 'reopen'
   end
 
   # These methods are just to ensure consistent because github and gitea support labels
