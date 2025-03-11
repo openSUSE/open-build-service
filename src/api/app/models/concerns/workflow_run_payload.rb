@@ -33,6 +33,14 @@ module WorkflowRunPayload
     github_push_event? || gitlab_push_event? || gitea_push_event?
   end
 
+  def committed_push_event?
+    github_committed_push_event? || gitlab_committed_push_event? || gitea_committed_push_event?
+  end
+
+  def deleted_push_event?
+    github_deleted_push_event? || gitlab_deleted_push_event? || gitea_deleted_push_event?
+  end
+
   def tag_push_event?
     github_tag_push_event? || gitlab_tag_push_event? || gitea_tag_push_event?
   end

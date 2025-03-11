@@ -66,6 +66,15 @@ module WorkflowRunGitlabPayload
     scm_vendor == 'gitlab' && hook_event == 'Push Hook'
   end
 
+  def gitlab_committed_push_event?
+    scm_vendor == 'gitlab' && hook_event == 'Push Hook' && !gitlab_commit_sha.match?(/\A0+\z/)
+  end
+
+  # In Push Hook events to delete a branch, the commit_sha field is '0000000000000000000000000000000000000000'
+  def gitlab_deleted_push_event?
+    scm_vendor == 'gitlab' && hook_event == 'Push Hook' && gitlab_commit_sha.match?(/\A0+\z/)
+  end
+
   def gitlab_tag_push_event?
     scm_vendor == 'gitlab' && hook_event == 'Tag Push Hook'
   end
