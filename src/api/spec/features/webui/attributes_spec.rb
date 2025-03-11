@@ -20,7 +20,7 @@ RSpec.describe 'Attributes', :js do
       expect(attrib.values.pluck(:value)).to eq(["test\n2nd line", 'test 1'])
 
       visit index_attribs_path(project: user.home_project_name)
-      attribute_type_value = page.all('#attributes tr td', exact_text: attribute_type.fullname)[0].sibling('td', match: :first).text
+      attribute_type_value = page.first('#attributes tr td', exact_text: attribute_type.fullname).sibling('td', match: :first).text
       expect(attribute_type_value).to eq("test\n2nd line\ntest 1")
     end
 
@@ -98,7 +98,7 @@ RSpec.describe 'Attributes', :js do
         expect(page).to have_content('Attribute was successfully updated.')
 
         visit index_attribs_path(project: user.home_project_name, package: package.name)
-        attribute_type_value = page.all('#attributes tr td', exact_text: attribute_type.fullname)[0].sibling('td', match: :first).text
+        attribute_type_value = page.first('#attributes tr td', exact_text: attribute_type.fullname).sibling('td', match: :first).text
         expect(attribute_type_value).to eq("test\n2nd line\ntest 1")
       end
     end
