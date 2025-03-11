@@ -65,6 +65,14 @@ module WorkflowRunGithubPayload
     scm_vendor == 'github' && hook_event == 'push' && payload.fetch(:ref, '').start_with?('refs/heads/')
   end
 
+  def github_committed_push_event?
+    scm_vendor == 'github' && hook_event == 'push' && !payload[:deleted]
+  end
+
+  def github_deleted_push_event?
+    scm_vendor == 'github' && hook_event == 'push' && payload[:deleted]
+  end
+
   def github_tag_push_event?
     scm_vendor == 'github' && hook_event == 'push' && payload.fetch(:ref, '').starts_with?('refs/tags/')
   end
