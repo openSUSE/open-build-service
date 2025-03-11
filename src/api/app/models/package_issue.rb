@@ -8,17 +8,7 @@ class PackageIssue < ApplicationRecord
     retries = 10
     begin
       PackageIssue.transaction do
-        allissues = []
-        issues.map { |h| allissues += h.last }
-
-        # drop not anymore existing relations
-        PackageIssue.where('package_id = ? AND NOT issue_id IN (?)', package, allissues).lock(true).delete_all
-
-        # create missing in an efficient way
-        sql = ApplicationRecord.connection
-        (allissues - package.issues.to_ary).each do |i|
-          sql.execute("INSERT INTO `package_issues` (`package_id`, `issue_id`) VALUES (#{package.id},#{i.id})")
-        end
+        package.issue_ids = issues.values.flatten.pluck(:id)
 
         # set change value for all
         issues.each do |pair|
