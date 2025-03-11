@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_02_17_123130) do
+ActiveRecord::Schema[7.0].define(version: 2025_03_10_164218) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -653,6 +653,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_02_17_123130) do
     t.index ["issue_tracker_id"], name: "issue_tracker_id"
     t.index ["name", "issue_tracker_id"], name: "index_issues_on_name_and_issue_tracker_id"
     t.index ["owner_id"], name: "owner_id"
+    t.index ["state"], name: "index_issues_on_state"
   end
 
   create_table "kiwi_descriptions", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
