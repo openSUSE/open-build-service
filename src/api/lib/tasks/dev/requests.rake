@@ -1,3 +1,5 @@
+BASE_API_URL = 'https://api.opensuse.org'.freeze
+
 namespace :dev do
   namespace :requests do
     # Run this task with: rails dev:requests:multiple_actions_request
@@ -242,7 +244,7 @@ namespace :dev do
         clone_project(project_name: 'openSUSE:Factory')
 
         # Get the list of requests from openSUSE:Factory
-        url = "#{base_api_url}/search/request"
+        url = "#{BASE_API_URL}/search/request"
         params = { match: "target/@project='openSUSE:Factory' and state/@name='review' and action/@type='submit'", project: 'openSUSE:Factory', limit: '10', withhistory: '1', withfullhistory: '1' }
         # Get the total number of submit requests
         temp_request = make_api_request(url: url, params: params.merge(limit: '1'))
@@ -390,10 +392,10 @@ namespace :dev do
 
     def clone_project(project_name:)
       project = Project.find_or_create_by(name: project_name)
-      config = make_api_request(url: "#{base_api_url}/source/#{project.name}/_config")
+      config = make_api_request(url: "#{BASE_API_URL}/source/#{project.name}/_config")
       clone_prj_configs(config: config, project: project, comment: "Cloned from #{project.name}")
 
-      request = make_api_request(url: "#{base_api_url}/source/#{project.name}/_meta")
+      request = make_api_request(url: "#{BASE_API_URL}/source/#{project.name}/_meta")
       request_data = Xmlhash.parse(request)
 
       create_users_and_groups_from_meta(request_data: request_data)
@@ -550,10 +552,6 @@ namespace :dev do
       request = conn.get
 
       request.body
-    end
-
-    def base_api_url
-      'https://api.opensuse.org'
     end
 
     def print_message(message)
