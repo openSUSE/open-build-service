@@ -192,7 +192,7 @@ RSpec.describe 'Repositories', :js do
       click_link('Add from a Project')
       fill_in('target_project', with: repository.project)
       # Select the first autocomplete result
-      find('.ui-menu-item-wrapper', match: :first).click
+      first('.ui-menu-item-wrapper').click
       # Remove focus from autocomplete. Needed to trigger update of the other input fields.
       find_by_id('target_repo').click
 

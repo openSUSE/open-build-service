@@ -6,14 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 8
-# This cop supports safe autocorrection (--autocorrect).
-Capybara/FindAllFirst:
-  Exclude:
-    - 'spec/features/webui/attributes_spec.rb'
-    - 'spec/features/webui/kiwi/images_spec.rb'
-    - 'spec/features/webui/repositories_spec.rb'
-
 # Offense count: 11
 Capybara/NegationMatcherAfterVisit:
   Exclude:
