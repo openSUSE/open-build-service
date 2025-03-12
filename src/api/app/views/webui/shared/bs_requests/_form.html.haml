@@ -19,9 +19,9 @@
             .card-body.row
               .col
               .col-lg
-                = render partial: 'webui/shared/search_box', locals: { html_id: 'search', placeholder: 'Search',
+                = render partial: 'webui/shared/search_box', locals: { html_id: 'search',
                                                                        value: selected_filter[:search],
-                                                                       required: false, with_label: false,
+                                                                       required: false,
                                                                        button: { type: 'submit' } }
           .text-center.mb-3
             - if bs_requests.total_count == 0

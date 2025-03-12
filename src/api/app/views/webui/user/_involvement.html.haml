@@ -17,9 +17,9 @@
     .card-body
       = form_with(model: displayed_user, method: :get, local: true, class: 'row row-cols-auto justify-content-end') do
         .mb-3
-          = render partial: 'webui/shared/search_box', locals: { html_id: 'search_text', placeholder: 'Search',
+          = render partial: 'webui/shared/search_box', locals: { html_id: 'search_text',
                                                                  value: filters[:search_text],
-                                                                 required: false, with_label: false }
+                                                                 required: false }
         %span.dropdown.mb-3#involved-project-package
           %button.btn.btn-outline-secondary.dropdown-toggle.form-control{ data: { 'bs-toggle': :dropdown }, type: :button }
             %span.caret

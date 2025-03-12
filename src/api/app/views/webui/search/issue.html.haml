@@ -11,7 +11,7 @@
             = select_tag(:issue_tracker, options_for_select(@issue_tracker_list, params[:issue_tracker] || @default_tracker),
                           class: 'form-select rounded-end-0')
           .w-50
-            = render partial: 'webui/shared/search_box', locals: { html_id: 'issue', with_label: false,
+            = render partial: 'webui/shared/search_box', locals: { html_id: 'issue',
                                                                   value: params[:issue],
                                                                   placeholder: 'Issue ID',
                                                                   required: true,

@@ -1,3 +1,2 @@
 = form_tag(search_path(project: 1, package: 1, name: 1), method: :get, class: 'my-auto') do
-  = render partial: 'webui/shared/search_box', locals: { html_id: 'search_text', placeholder: 'Search',
-                                                         with_label: false, required: false, button: { type: 'submit' } }
+  = render partial: 'webui/shared/search_box', locals: { html_id: 'search_text', required: false, button: { type: 'submit' } }

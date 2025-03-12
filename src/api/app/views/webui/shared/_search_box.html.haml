@@ -4,7 +4,7 @@
   disabled = local_assigns.fetch(:disabled, false)
   data = local_assigns.fetch(:data, {})
   html_name = local_assigns.fetch(:html_name, html_id)
-  with_label = local_assigns.fetch(:with_label, true)
+  label = local_assigns.fetch(:label, nil)
   placeholder = local_assigns.fetch(:placeholder, !data.empty? ? 'Type to autocomplete...' : 'Search')
   icon = local_assigns.fetch(:icon, 'fa-search')
   button = local_assigns.fetch(:button, false)
@@ -13,7 +13,7 @@
   input_class = local_assigns.fetch(:input_class, '')
 
 .ui-front
-  - if with_label
+  - if !label.nil?
     = label_tag(html_id, label)
     - if required
       = render partial: 'webui/shared/required_label_mark'

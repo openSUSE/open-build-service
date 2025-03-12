@@ -7,7 +7,7 @@
     .d-flex.justify-content-center
       = form_tag(search_path, method: :get, class: 'my-3 w-75') do
         .mb-3
-          = render partial: 'webui/shared/search_box', locals: { html_id: 'search_input', with_label: false,
+          = render partial: 'webui/shared/search_box', locals: { html_id: 'search_input',
                                                                 value: params[:search_text],
                                                                 html_name: 'search_text', required: true,
                                                                 minlength: 2, autofocus: true,
