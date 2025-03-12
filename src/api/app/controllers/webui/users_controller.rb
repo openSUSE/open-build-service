@@ -130,13 +130,13 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def change_password
-    user = User.session
-
-    unless ::Configuration.passwords_changable?(user)
+    unless ::Configuration.passwords_changable?
       flash[:error] = "You're not authorized to change your password."
       redirect_back_or_to root_path
       return
     end
+
+    user = User.session
 
     if user.authenticate(params[:password])
       user.password = params[:new_password]

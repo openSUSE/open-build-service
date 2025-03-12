@@ -51,7 +51,6 @@ Lint/NonLocalExitFromIterator:
 # Offense count: 3
 Lint/RescueException:
   Exclude:
-    - 'app/models/user_ldap_strategy.rb'
     - 'config/environment.rb'
     - 'lib/tasks/extract.rake'
 
@@ -130,7 +129,6 @@ Metrics/ClassLength:
     - 'app/models/review.rb'
     - 'app/models/staging/staged_requests.rb'
     - 'app/models/user.rb'
-    - 'app/models/user_ldap_strategy.rb'
     - 'app/models/workflow/step/branch_package_step.rb'
     - 'app/services/diff_parser.rb'
     - 'app/services/user_service/involved.rb'
@@ -244,7 +242,6 @@ Metrics/CyclomaticComplexity:
     - 'app/models/unregistered_user.rb'
     - 'app/models/update_notification_events.rb'
     - 'app/models/user.rb'
-    - 'app/models/user_ldap_strategy.rb'
     - 'app/policies/attrib_policy.rb'
     - 'app/policies/comment_lock_policy.rb'
     - 'lib/memory_debugger.rb'
@@ -361,7 +358,6 @@ Metrics/PerceivedComplexity:
     - 'app/models/relationship.rb'
     - 'app/models/repository.rb'
     - 'app/models/unregistered_user.rb'
-    - 'app/models/user_ldap_strategy.rb'
     - 'app/policies/attrib_policy.rb'
     - 'lib/memory_debugger.rb'
     - 'lib/xpath_engine.rb'
@@ -411,7 +407,6 @@ Naming/MethodParameterName:
     - 'app/models/package.rb'
     - 'app/models/patchinfo.rb'
     - 'app/models/product.rb'
-    - 'app/models/user_ldap_strategy.rb'
     - 'app/models/worker_status.rb'
     - 'app/services/monitor_controller_service/building_information_updater.rb'
     - 'lib/memory_debugger.rb'
@@ -588,11 +583,8 @@ RSpec/VerifiedDoubles:
     - 'spec/mixins/parse_package_diff_spec.rb'
     - 'spec/models/issue_tracker_spec.rb'
     - 'spec/models/project_spec.rb'
-    - 'spec/models/user_ldap_strategy_spec.rb'
     - 'spec/models/user_spec.rb'
     - 'spec/shared/contexts/a_kerberos_mock.rb'
-    - 'spec/shared/contexts/setup_ldap_mock.rb'
-    - 'spec/shared/examples/a_ldap_connection.rb'
 
 # Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).
@@ -774,9 +766,6 @@ Style/ClassAndModuleChildren:
 # Offense count: 12
 Style/ClassVars:
   Exclude:
-    - 'app/models/user_ldap_strategy.rb'
-    - 'spec/models/user_ldap_strategy_spec.rb'
-    - 'spec/shared/contexts/setup_ldap_mock.rb'
     - 'test/functional/branch_publish_flag_test.rb'
     - 'test/test_helper.rb'
 
@@ -817,19 +806,6 @@ Style/ExplicitBlockArgument:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/HashExcept:
-  Exclude:
-    - 'spec/models/user_ldap_strategy_spec.rb'
-
-# Offense count: 2
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/HashSlice:
-  Exclude:
-    - 'app/models/user_ldap_strategy.rb'
-
-# Offense count: 313
 # This cop supports safe autocorrection (--autocorrect).
 Style/IfUnlessModifier:
   Enabled: false

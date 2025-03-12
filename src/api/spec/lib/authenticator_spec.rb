@@ -44,17 +44,6 @@ RSpec.describe Authenticator do
       end
     end
 
-    context 'in ldap mode' do
-      it_behaves_like 'a confirmed user logs in' do
-        let(:request_mock) { double(:request, env: { 'Authorization' => "Basic #{Base64.encode64("#{user.login}:buildservice")}" }) }
-
-        before do
-          stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
-          allow(UserLdapStrategy).to receive(:find_with_ldap).and_return([user.email, user.realname])
-        end
-      end
-    end
-
     context 'in basic authentication mode' do
       it_behaves_like 'a confirmed user logs in' do
         let(:request_mock) { double(:request, env: { 'Authorization' => "Basic #{Base64.encode64("#{user.login}:buildservice")}" }) }

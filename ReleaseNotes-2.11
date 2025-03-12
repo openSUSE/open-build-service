@@ -88,3 +88,5 @@ Breaking API changes:
    - GET /statistics/rating/<project>/<package>
  * The API endpoints '/search/*' with the HTTP method POST are deprecated
    since they are exactly the same as their GET counterparts.
+ * The LDAP connection feature has been temporarily removed. As a workaround,
+   administrators can migrate to an authentication proxy setup.

@@ -316,56 +316,6 @@ RSpec.describe Webui::UsersController do
       end
     end
 
-    context 'when LDAP mode is enabled' do
-      let!(:old_realname) { user.realname }
-      let!(:old_email) { user.email }
-      let(:http_request) do
-        post :update, params: { user: { login: user.login, realname: 'another real name', email: 'new_valid@email.es' }, login: user.login }
-      end
-
-      before do
-        stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
-      end
-
-      describe 'as an admin user' do
-        before do
-          login admin_user
-
-          http_request
-          user.reload
-        end
-
-        it { expect(user.realname).to eq(old_realname) }
-        it { expect(user.email).to eq(old_email) }
-      end
-
-      describe 'as a user' do
-        before do
-          login user
-
-          http_request
-          user.reload
-        end
-
-        it { expect(controller).to set_flash[:error] }
-        it { expect(user.realname).to eq(old_realname) }
-        it { expect(user.email).to eq(old_email) }
-      end
-
-      describe 'but user is configured to authorize locally' do
-        before do
-          user.update(ignore_auth_services: true)
-          login user
-
-          http_request
-          user.reload
-        end
-
-        it { expect(user.realname).to eq('another real name') }
-        it { expect(user.email).to eq('new_valid@email.es') }
-      end
-    end
-
     context 'for a moderator' do
       let(:moderator) { create(:moderator) }
 
@@ -416,22 +366,9 @@ RSpec.describe Webui::UsersController do
   describe 'POST #change_password' do
     it { is_expected.to use_after_action(:verify_authorized) }
 
-    context 'LDAP mode on' do
-      before do
-        login non_admin_user
-        stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
-        post :change_password, params: { login: non_admin_user }
-      end
-
-      it 'shows an error message when in LDAP mode' do
-        expect(controller).to set_flash[:error]
-      end
-    end
-
     context 'authenticated' do
       before do
         login non_admin_user
-        stub_const('CONFIG', CONFIG.merge('ldap_mode' => :off))
         post :change_password, params: { login: non_admin_user, password: 'buildservice',
                                          new_password: 'opensuse', repeat_password: 'opensuse' }
       end
@@ -444,7 +381,6 @@ RSpec.describe Webui::UsersController do
 
     context 'unauthenticated' do
       before do
-        stub_const('CONFIG', CONFIG.merge('ldap_mode' => :off))
         post :change_password, params: { login: non_admin_user, password: 'buildservice',
                                          new_password: 'opensuse', repeat_password: 'opensuse' }
       end
