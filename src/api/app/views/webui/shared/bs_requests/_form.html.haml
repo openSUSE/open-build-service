@@ -19,8 +19,10 @@
             .card-body.row
               .col
               .col-lg
-                %input.ms-auto.form-control{ 'aria-label': 'Search', name: 'search',
-                  placeholder: 'Search', type: 'search', value: selected_filter[:search] }
+                = render partial: 'webui/shared/search_box', locals: { html_id: 'search', placeholder: 'Search',
+                                                                       value: selected_filter[:search],
+                                                                       required: false, with_label: false,
+                                                                       button: { type: 'submit' } }
           .text-center.mb-3
             - if bs_requests.total_count == 0
               %p There are no requests available

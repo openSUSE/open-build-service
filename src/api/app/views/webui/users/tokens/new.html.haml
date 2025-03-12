@@ -31,10 +31,10 @@
 
           .row#package-project-form
             .col-sm
-              = render partial: 'webui/shared/autocomplete', locals: { html_id: 'project_name', label: 'Project name', required: false,
+              = render partial: 'webui/shared/search_box', locals: { html_id: 'project_name', label: 'Project name', required: false,
                                                                        data: { source: autocomplete_projects_path(local: true) } }
             .col-sm
-              = render partial: 'webui/shared/autocomplete', locals: { html_id: 'package_name', label: 'Package name', required: false,
+              = render partial: 'webui/shared/search_box', locals: { html_id: 'package_name', label: 'Package name', required: false,
                                                                        data: { source: autocomplete_packages_path }, disabled: true }
             .col-12
               .mb-3.form-text.text-muted

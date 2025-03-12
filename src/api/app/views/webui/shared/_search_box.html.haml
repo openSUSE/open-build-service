@@ -5,17 +5,18 @@
   data = local_assigns.fetch(:data, {})
   html_name = local_assigns.fetch(:html_name, html_id)
   with_label = local_assigns.fetch(:with_label, true)
+  placeholder = local_assigns.fetch(:placeholder, !data.empty? ? 'Type to autocomplete...' : 'Search')
   icon = local_assigns.fetch(:icon, 'fa-search')
   button = local_assigns.fetch(:button, false)
 
-.mb-3.ui-front
+.ui-front
   - if with_label
     = label_tag(html_id, label)
-  - if required
-    = render partial: 'webui/shared/required_label_mark'
+    - if required
+      = render partial: 'webui/shared/required_label_mark'
   = render(InputComponent.new) do |component|
-    = search_field_tag(html_id, value, required: required, disabled: disabled, placeholder: 'Type to autocomplete...',
-                       class: 'obs-autocomplete form-control', data: data, name: html_name)
+    = search_field_tag(html_id, value, required: required, disabled: disabled, placeholder: placeholder,
+                       class: "form-control #{!data.empty? ? 'obs-autocomplete' : ''}", data: data, name: html_name)
     - if button
       - component.with_button do
         %button.btn.border{ type: button[:type], class: button[:class] ? button[:class] : 'btn-light' }

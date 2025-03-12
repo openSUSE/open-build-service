@@ -5,7 +5,7 @@
         %h5.modal-title#exclude-request-modal-label Exclude Request
       = form_for Staging::RequestExclusion.new, url: excluded_requests_path do |f|
         .modal-body
-          = render partial: 'webui/shared/autocomplete', locals: { html_id: 'staging_request_exclusion[number]',
+          = render partial: 'webui/shared/search_box', locals: { html_id: 'staging_request_exclusion[number]',
                                                                   label: 'Request', value: f.object.number,
                                                                   data: { source: autocomplete_excluded_requests_path(staging_workflow_project) } }
           .mb-3

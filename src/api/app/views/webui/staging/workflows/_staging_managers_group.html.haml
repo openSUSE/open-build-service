@@ -10,7 +10,7 @@
             Assigned group is:
             %strong= actual_group
 
-          = render partial: 'webui/shared/autocomplete', locals: { html_id: 'managers_title', label: 'Replace the group with:',
+          = render partial: 'webui/shared/search_box', locals: { html_id: 'managers_title', label: 'Replace the group with:',
                                                                    data: { source: autocomplete_groups_path } }
         .modal-footer
           = render partial: 'webui/shared/dialog_action_buttons'

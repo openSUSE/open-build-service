@@ -23,7 +23,7 @@
                 = bs_request_action.hidden_field(:source_project)
               .mb-3
                 -# Reproduce the naming convention for nested fields since we cannot use the FormBuilder (we replace ][, ] and [ by _)
-                = render partial: 'webui/shared/autocomplete',
+                = render partial: 'webui/shared/search_box',
                          locals: { html_id: "#{bs_request_action.object_name.gsub(/\]\[|\]|\[/, '_')}target_project",
                                    html_name: "#{bs_request_action.object_name}[target_project]",
                                    label: 'To target project:',

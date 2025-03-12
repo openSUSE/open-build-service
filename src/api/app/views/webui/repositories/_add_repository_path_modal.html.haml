@@ -5,7 +5,7 @@
         .modal-header
           %h5.modal-title Add additional path to #{repository}
         .modal-body.repository-autocomplete
-          = render partial: 'webui/shared/autocomplete', locals: { html_id: 'target_project', label: '<strong>Project:</strong>'.html_safe,
+          = render partial: 'webui/shared/search_box', locals: { html_id: 'target_project', label: '<strong>Project:</strong>'.html_safe,
                                                                    data: { source: autocomplete_projects_path } }
           .mb-3
             = label_tag :repositories do

@@ -8,7 +8,7 @@
       .col-12.col-md-10.col-lg-8
         = form_with(url: clone_project_label_templates_path(@project), method: :post) do |f|
           .mb-3#label-templates-source-project
-            = render partial: 'webui/shared/autocomplete',
+            = render partial: 'webui/shared/search_box',
                      locals: { html_id: "source_project",
                                html_name: "source_project",
                                label: 'Source Project:', required: true,

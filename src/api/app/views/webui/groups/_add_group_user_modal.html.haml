@@ -6,7 +6,7 @@
         .modal-header
           %h5.modal-title#add-group-user-modal-label Add Member
         .modal-body
-          = render partial: 'webui/shared/autocomplete', locals: { html_id: 'user_login', label: 'User:',
+          = render partial: 'webui/shared/search_box', locals: { html_id: 'user_login', label: 'User:',
                                                             data: { source: autocomplete_users_path } }
         .modal-footer
           = render partial: 'webui/shared/dialog_action_buttons'

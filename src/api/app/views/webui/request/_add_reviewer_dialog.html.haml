@@ -14,18 +14,18 @@
             %p.text-wrap.mt-1#reviewer-meaning
               The review will be requested from the selected user
           .hideable.review-user
-            = render partial: 'webui/shared/autocomplete', locals: { html_id: 'review_user', label: 'User:', required: true,
+            = render partial: 'webui/shared/search_box', locals: { html_id: 'review_user', label: 'User:', required: true,
                                                                      data: { source: autocomplete_users_path } }
 
           .hideable.review-group.d-none
-            = render partial: 'webui/shared/autocomplete', locals: { html_id: 'review_group', label: 'Group:', required: true,
+            = render partial: 'webui/shared/search_box', locals: { html_id: 'review_group', label: 'Group:', required: true,
                                                                      data: { source: autocomplete_groups_path } }
           .hideable.review-project.review-package.d-none
-            = render partial: 'webui/shared/autocomplete', locals: { html_id: 'review_project', label: 'Project:', required: true,
+            = render partial: 'webui/shared/search_box', locals: { html_id: 'review_project', label: 'Project:', required: true,
                                                                      data: { source: autocomplete_projects_path } }
 
           .hideable.review-package.d-none
-            = render partial: 'webui/shared/autocomplete', locals: { html_id: 'review_package', label: 'Package:', required: true,
+            = render partial: 'webui/shared/search_box', locals: { html_id: 'review_package', label: 'Package:', required: true,
                                                                      data: { source: autocomplete_packages_path } }
 
           .mb-3

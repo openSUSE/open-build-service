@@ -41,14 +41,14 @@
                     = label_tag(:role_type, 'Group', for: 'role_type_group', class: 'form-check-label')
                 .hideable.user
                   -# Reproduce the naming convention for nested fields since we cannot use the FormBuilder (we replace ][, ] and [ by _)
-                  = render partial: 'webui/shared/autocomplete',
+                  = render partial: 'webui/shared/search_box',
                            locals: { html_id: "#{bs_request_actions.object_name.gsub(/\]\[|\]|\[/, '_')}person_name",
                                      html_name: "#{bs_request_actions.object_name}[person_name]",
                                      label: 'User:', required: true,
                                      data: { source: autocomplete_users_path } }
                 .hideable.group.d-none
                   -# Reproduce the naming convention for nested fields since we cannot use the FormBuilder (we replace ][, ] and [ by _)
-                  = render partial: 'webui/shared/autocomplete',
+                  = render partial: 'webui/shared/search_box',
                            locals: { html_id: "#{bs_request_actions.object_name.gsub(/\]\[|\]|\[/, '_')}group_name",
                                      html_name: "#{bs_request_actions.object_name}[group_name]",
                                      label: 'Group:', required: true,
