@@ -8,6 +8,9 @@
   placeholder = local_assigns.fetch(:placeholder, !data.empty? ? 'Type to autocomplete...' : 'Search')
   icon = local_assigns.fetch(:icon, 'fa-search')
   button = local_assigns.fetch(:button, false)
+  minlength = local_assigns.fetch(:minlength, 0)
+  autofocus = local_assigns.fetch(:autofocus, false)
+  input_class = local_assigns.fetch(:input_class, '')
 
 .ui-front
   - if with_label
@@ -16,7 +19,8 @@
       = render partial: 'webui/shared/required_label_mark'
   = render(InputComponent.new) do |component|
     = search_field_tag(html_id, value, required: required, disabled: disabled, placeholder: placeholder,
-                       class: "form-control #{!data.empty? ? 'obs-autocomplete' : ''}", data: data, name: html_name)
+                       class: "form-control #{!data.empty? ? 'obs-autocomplete' : ''} #{input_class}", data: data, name: html_name,
+                       minlength: minlength, autofocus: autofocus)
     - if button
       - component.with_button do
         %button.btn.border{ type: button[:type], class: button[:class] ? button[:class] : 'btn-light' }
