@@ -19,6 +19,8 @@ package BSSrcServer::Remote;
 use strict;
 use warnings;
 
+use Digest::MD5;
+
 use BSConfiguration;
 use BSOBS;
 use BSRPC;
@@ -653,6 +655,16 @@ sub getremotebinarylist {
   return $binarylist;
 }
 
+sub getserialkey {
+  my ($op, $projid) = @_;
+  my $key = "$op/$projid";
+  if ($BSConfig::interconnect_serialize_slots) {
+    $key = unpack('N', Digest::MD5::md5($key)) % $BSConfig::interconnect_serialize_slots;
+    $key = "interconnect_serialize_slots#$key";
+  }
+  return $key;
+}
+
 sub getremotebinaryversions {
   my ($proj, $projid, $repoid, $arch, $binaries, $modules, $withevr) = @_;
 
@@ -671,7 +683,7 @@ sub getremotebinaryversions {
     $jev->{'binaryversions_key'} = $key;
   }
 
-  my $serialkey = "getremotebinaryversions/$projid";
+  my $serialkey = getserialkey('getremotebinaryversions', $projid);
   my $serial;
   if ($BSStdServer::isajax) {
     $serial = BSWatcher::serialize($serialkey);
@@ -746,7 +758,7 @@ sub getpackagebinaryversionlist {
   my $elname = $view eq 'binarychecksums' ? 'binarychecksums' : 'binaryversionlist';
   my $jev = $BSStdServer::isajax ? $BSServerEvents::gev : undef;
 
-  my $serialkey = "getpackagebinaryversionlist/$projid";
+  my $serialkey = getserialkey('getpackagebinaryversionlist', $projid);
   my $serial;
   if ($BSStdServer::isajax) {
     $serial = BSWatcher::serialize($serialkey);
