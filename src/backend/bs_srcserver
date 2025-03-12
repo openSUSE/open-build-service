@@ -2652,7 +2652,7 @@ sub getbuildconfig_ajax {
     return ($jev->{'getbuildconfig_shared_result'}, 'Content-Type: text/plain');
   }
   $jev->{'getbuildconfig_key'} = "$projid/$repoid";
-  my $serialkey = "getbuildconfig/$projid";
+  my $serialkey = BSSrcServer::Remote::getserialkey('getbuildconfig', $projid);
   my $serial = BSWatcher::serialize($serialkey);
   return undef unless $serial;
   my @path;
