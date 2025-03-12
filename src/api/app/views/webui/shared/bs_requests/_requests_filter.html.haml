@@ -101,7 +101,8 @@
       #request-project-name-dropdown
         = render partial: 'webui/shared/autocomplete', locals: { html_id: 'project_names_search', label: 'Project names:',
                                                                  html_name: 'project_names[]', required: false, with_label: false,
-                                                                 data: { source: autocomplete_projects_path } }
+                                                                 data: { source: autocomplete_projects_path },
+                                                                 button: { type: 'submit' } }
         .scroll-list-wrapper.auto-submit-on-change
           - selected_filter[:project_names].each do |project_name|
             .dropdown-item-text
@@ -123,7 +124,8 @@
       #request-package-name-dropdown
         = render partial: 'webui/shared/autocomplete', locals: { html_id: 'package_names_search', label: 'Package names:',
                                                                  html_name: 'package_names[]', required: false, with_label: false,
-                                                                 data: { source: package_autocomplete_path } }
+                                                                 data: { source: package_autocomplete_path },
+                                                                 button: { type: 'submit' } }
         .scroll-list-wrapper.auto-submit-on-change
           - selected_filter[:package_names].each do |package_name|
             .dropdown-item-text
@@ -141,7 +143,8 @@
       #request-creator-dropdown
         = render partial: 'webui/shared/autocomplete', locals: { html_id: 'creators_search', label: 'Creators:',
                                                                  html_name: 'creators[]', required: false, with_label: false,
-                                                                 data: { source: autocomplete_users_path } }
+                                                                 data: { source: autocomplete_users_path },
+                                                                 button: { type: 'submit' } }
         .scroll-list-wrapper.auto-submit-on-change
           - if selected_filter[:creators].include?(User.session.login)
             .dropdown-item-text
@@ -167,7 +170,8 @@
       #request-reviewer-dropdown
         = render partial: 'webui/shared/autocomplete', locals: { html_id: 'reviewer_search', label: 'Reviewers:',
                                                                  html_name: 'reviewers[]', required: false, with_label: false,
-                                                                 data: { source: autocomplete_reviewers_path } }
+                                                                 data: { source: autocomplete_reviewers_path },
+                                                                 button: { type: 'submit' } }
 
         .scroll-list-wrapper.auto-submit-on-change
           - if selected_filter[:reviewers].include?(User.session.login)
@@ -195,7 +199,8 @@
       #request-staging-project-dropdown
         = render partial: 'webui/shared/autocomplete', locals: { html_id: 'staging_project_search', label: 'Staging Project:',
                                                                  html_name: 'staging_projects[]', required: false, with_label: false,
-                                                                 data: { source: autocomplete_staging_projects_path } }
+                                                                 data: { source: autocomplete_staging_projects_path },
+                                                                 button: { type: 'submit' } }
         .scroll-list-wrapper.auto-submit-on-change
           - selected_filter[:staging_projects].each do |staging_project|
             .dropdown-item-text
