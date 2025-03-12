@@ -71,11 +71,17 @@
           = render partial: 'webui/shared/info_popover', locals: { position: 'bottom', text: event_source_info_text }
         .selected-content.small.ms-1
       .px-4.pb-2.accordion-collapse.collapse.show#workflow-filter-event-source
-        = render partial: 'webui/shared/input', locals: { label: 'PR/MR', filter_item: 'pr_mr',
-                                                          placeholder: 'eg. 12345', selected_input_value: @selected_filter[:pr_mr] }
-        = render partial: 'webui/shared/input', locals: { label: 'Commit', filter_item: 'commit_sha',
-                                                          placeholder: 'eg. 97561db8664eaf86a1e4c7b77d5fb5d5bff6681e',
-                                                          selected_input_value: @selected_filter[:commit_sha] }
+        = render partial: 'webui/shared/input', locals: { html_id: 'pr_mr',
+                                                          class: 'auto-submit-on-change',
+                                                          placeholder: 'eg. 12345',
+                                                          label: 'PR/MR',
+                                                          value: @selected_filter[:pr_mr] }
+        .mt-1
+          = render partial: 'webui/shared/input', locals: { html_id: 'commit_sha',
+                                                            class: 'auto-submit-on-change',
+                                                            placeholder: 'eg. 97561db8664eaf86a1e4c7b77d5fb5d5bff6681e',
+                                                            label: 'Commit',
+                                                            value: @selected_filter[:commit_sha] }
   .text-center.mt-4.mb-4
     = link_to('Clear', token_workflow_runs_path(@token, []), class: 'btn btn-light border')
 

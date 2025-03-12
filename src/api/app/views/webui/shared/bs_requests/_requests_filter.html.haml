@@ -212,10 +212,13 @@
         = render partial: 'webui/shared/bs_requests/filter_help_created_at'
       .selected-content.small.ms-1
     .px-4.pb-2.accordion-collapse.collapse.show#request-filter-created-at
-      = render partial: 'webui/shared/input', locals: { label: 'From', filter_item: 'created_at_from', type: 'datetime-local',
-                                                        selected_input_value: selected_filter[:created_at_from] }
-      = render partial: 'webui/shared/input', locals: { label: 'To', filter_item: 'created_at_to', type: 'datetime-local',
-                                                        selected_input_value: selected_filter[:created_at_to] }
+      = render partial: 'webui/shared/input', locals: { html_id: 'created_at_from', type: 'datetime-local',
+                                                        class: 'auto-submit-on-change',
+                                                        label: 'From', value: selected_filter[:created_at_from] }
+      .mt-1
+        = render partial: 'webui/shared/input', locals: { html_id: 'created_at_to', type: 'datetime-local',
+                                                          class: 'auto-submit-on-change',
+                                                          label: 'To', value: selected_filter[:created_at_to] }
 
 .text-center.mt-4.mb-4
   = link_to('Clear', url, class: 'btn btn-light border')

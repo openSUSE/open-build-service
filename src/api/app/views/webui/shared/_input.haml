@@ -1,8 +1,17 @@
-.form-group.d-flex.justify-content-between
-  .col-3
-    = label_tag filter_item, "#{label}:", class: 'fs-6'
-  .col-9.d-flex
-    = text_field_tag(filter_item, '',
-                     class: 'form-control form-control-sm',
-                     placeholder: defined?(placeholder) ? placeholder : '', value: selected_input_value,
-                     type: defined?(type) ? type : 'text')
+:ruby
+  html_name = local_assigns.fetch(:html_name, html_id)
+  input_class = local_assigns.fetch(:class, '')
+  value = local_assigns.fetch(:value, '')
+  placeholder = local_assigns.fetch(:placeholder, '')
+  label = local_assigns.fetch(:label, nil)
+  type = local_assigns.fetch(:type, 'text')
+
+= render(InputComponent.new) do |component|
+  = text_field_tag(html_id, '', type: type,
+                   name: html_name,
+                   class: "form-control #{input_class}",
+                   value: value,
+                   placeholder: placeholder)
+  - if !label.nil?
+    - component.with_label do
+      = label_tag(html_id, label)
