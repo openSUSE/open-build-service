@@ -616,7 +616,7 @@ class Project < ApplicationRecord
   end
 
   def standard?
-    self.kind == 'standard'
+    kind == 'standard'
   end
 
   def defines_remote_instance?
