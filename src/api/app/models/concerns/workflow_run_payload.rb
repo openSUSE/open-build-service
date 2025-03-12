@@ -132,6 +132,14 @@ module WorkflowRunPayload
   end
 
   def payload_hook_action
-    payload['action'] || payload.dig('object_attributes', 'action')
+    payload['action'] || payload.dig('object_attributes', 'action') || push_hook_action
+  end
+
+  def push_hook_action
+    return 'committed' if committed_push_event?
+    return 'deleted' if deleted_push_event?
+    return 'tagged' if tag_push_event?
+
+    'unknown'
   end
 end
