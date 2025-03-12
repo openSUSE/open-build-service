@@ -24,6 +24,8 @@ class WorkflowRun < ApplicationRecord
 
   ALL_POSSIBLE_REQUEST_ACTIONS = (['all'] + ALLOWED_GITHUB_PULL_REQUEST_ACTIONS + ALLOWED_GITLAB_PULL_REQUEST_ACTIONS + ALLOWED_GITEA_PULL_REQUEST_ACTIONS).uniq
 
+  ALLOWED_PUSH_ACTIONS = %w[committed deleted tagged].freeze
+
   validates :scm_vendor, :response_url,
             :workflow_configuration_path, :workflow_configuration_url,
             :hook_event, :hook_action, :generic_event_type,
@@ -31,12 +33,13 @@ class WorkflowRun < ApplicationRecord
   validates :request_headers, :status, :scm_vendor, :hook_event, :request_payload, presence: true
   validates :workflow_configuration, length: { maximum: 65_535 }
   validates :scm_vendor, inclusion: { in: %w[github gitlab gitea], message: "unsupported '%{value}'" }, if: -> { scm_vendor.present? }
-  validates :hook_event, inclusion: { in: ALLOWED_GITHUB_EVENTS, allow_nil: true, message: "unsupported '%{value}'" }, if: -> { scm_vendor == 'github' }
-  validates :hook_event, inclusion: { in: ALLOWED_GITLAB_EVENTS, allow_nil: true, message: "unsupported '%{value}'" }, if: -> { scm_vendor == 'gitlab' }
-  validates :hook_event, inclusion: { in: ALLOWED_GITEA_EVENTS, allow_nil: true, message: "unsupported '%{value}'" }, if: -> { scm_vendor == 'gitea' }
-  validates :hook_action, inclusion: { in: ALLOWED_GITHUB_PULL_REQUEST_ACTIONS, allow_nil: true, message: "unsupported '%{value}'" }, if: -> { scm_vendor == 'github' && hook_event == 'pull_request' }
-  validates :hook_action, inclusion: { in: ALLOWED_GITEA_PULL_REQUEST_ACTIONS, allow_nil: true, message: "unsupported '%{value}'" }, if: -> { scm_vendor == 'gitea' && hook_event == 'pull_request' }
-  validates :hook_action, inclusion: { in: ALLOWED_GITLAB_PULL_REQUEST_ACTIONS, allow_nil: true, message: "unsupported '%{value}'" }, if: -> { scm_vendor == 'gitlab' && hook_event == 'Merge Request Hook' }
+  validates :hook_event, inclusion: { in: ALLOWED_GITHUB_EVENTS, message: "unsupported '%{value}'" }, if: -> { scm_vendor == 'github' }
+  validates :hook_event, inclusion: { in: ALLOWED_GITEA_EVENTS, message: "unsupported '%{value}'" }, if: -> { scm_vendor == 'gitea' }
+  validates :hook_event, inclusion: { in: ALLOWED_GITLAB_EVENTS, message: "unsupported '%{value}'" }, if: -> { scm_vendor == 'gitlab' }
+  validates :hook_action, inclusion: { in: ALLOWED_GITHUB_PULL_REQUEST_ACTIONS, message: "unsupported '%{value}'" }, if: -> { scm_vendor == 'github' && hook_event == 'pull_request' }
+  validates :hook_action, inclusion: { in: ALLOWED_GITEA_PULL_REQUEST_ACTIONS, message: "unsupported '%{value}'" }, if: -> { scm_vendor == 'gitea' && hook_event == 'pull_request' }
+  validates :hook_action, inclusion: { in: ALLOWED_GITLAB_PULL_REQUEST_ACTIONS, message: "unsupported '%{value}'" }, if: -> { scm_vendor == 'gitlab' && hook_event == 'Merge Request Hook' }
+  validates :hook_action, inclusion: { in: ALLOWED_PUSH_ACTIONS, message: "unsupported '%{value}'" }, if: -> { ['push', 'Push Hook', 'Tag Push Hook'].include?(hook_event) }
   validate :validate_payload_is_json
 
   belongs_to :token, class_name: 'Token::Workflow', optional: true
