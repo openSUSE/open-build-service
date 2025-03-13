@@ -13,9 +13,6 @@ Attrib:
   attribs_on_proj_and_pack:
     UniqueIndexChecker:
       enabled: false
-  binary:
-    LengthConstraintChecker:
-      enabled: false
   id:
     PrimaryKeyTypeChecker:
       enabled: false
