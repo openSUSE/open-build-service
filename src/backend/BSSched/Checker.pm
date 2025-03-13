@@ -275,6 +275,34 @@ sub neededdodresources {
   return sort keys %needed;
 }
 
+sub check_for_running_src_updates {
+  my ($ctx) = @_;
+  my $gctx = $ctx->{'gctx'};
+  my $projid = $ctx->{'project'};
+  my $proj = $ctx->{'proj'};
+  my $pdatas = $proj->{'package'} || {};
+  my @delayed;
+  if ($proj->{'missingpackages'}) {
+    $gctx->{'retryevents'}->addretryevent({'type' => 'package', 'project' => $projid});
+    push @delayed, 'missingpackages';
+  }
+  for my $packid (@{$ctx->{'packs'} || []}) {
+    my $pdata = $pdatas->{$packid};
+    my $err = $pdata->{'error'};
+    next unless $err;
+    if ($err =~ /download in progress/) {
+      push @delayed, $packid;
+    } elsif ($err =~ /source update running/ || $err =~ /service in progress/) {
+      push @delayed, $packid;
+    } elsif ($err eq 'delayed startup' || $err =~ /interconnect error:/  || $err =~ /5\d\d remote error:/) {
+      $gctx->{'retryevents'}->addretryevent({'type' => 'package', 'project' => $projid, 'package' => $packid});
+      push @delayed, $packid;
+    }
+  }
+  return "source update in progress for: ".join(', ',  @delayed) if @delayed;
+  return undef;
+}
+
 sub setup {
   my ($ctx) = @_;
   my $prp = $ctx->{'prp'};
@@ -448,6 +476,13 @@ sub setup {
     $ctx->{'modularity_extramacros'} = $modulemd->{'macros'} if $modulemd->{'macros'};
     $ctx->{'modularity_platform'} = $bconf->{'buildflags:modulemdplatform'};
     $ctx->{'modularity_distindex'} = $modulemd->{'distindex'} if $modulemd->{'distindex'};
+  }
+
+  if ($proj->{'scmsync'} && ($repo->{'rebuild'} || '') eq 'local') {
+    # Scmsync project with rebuildmethod set to local. We want to support "atomic" switches to a new source state,
+    # so delay the scheduler run if source updates are in progess.
+    my $err = check_for_running_src_updates($ctx);
+    return ('blocked', $err) if $err;
   }
 
   return ('scheduling', undef);
