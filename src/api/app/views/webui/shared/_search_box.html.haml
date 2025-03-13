@@ -13,7 +13,7 @@
   input_class = local_assigns.fetch(:input_class, '')
 
 .ui-front
-  - if !label.nil?
+  - unless label.nil?
     = label_tag(html_id, label)
     - if required
       = render partial: 'webui/shared/required_label_mark'

@@ -12,6 +12,6 @@
                    class: "form-control #{input_class}",
                    value: value,
                    placeholder: placeholder)
-  - if !label.nil?
+  - unless label.nil?
     - component.with_label do
       = label_tag(html_id, label)
