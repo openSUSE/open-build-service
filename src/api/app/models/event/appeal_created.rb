@@ -12,6 +12,10 @@ module Event
       appeal = Appeal.find(payload['id'])
       "Appeal to #{appeal.decision.reports.first.reportable&.class&.name || appeal.decision.reports.first.reportable_type} decision".squish
     end
+
+    def event_object
+      ::Decision.find_by(payload['decision_id'])
+    end
   end
 end
 

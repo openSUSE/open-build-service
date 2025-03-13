@@ -1,5 +1,7 @@
 module Event
   class Commit < Base
+    include EventObjectPackage
+
     self.message_bus_routing_key = 'package.commit'
     self.description = 'New revision of a package committed'
     payload_keys :project, :package, :sender, :comment, :user, :files, :rev, :requestid

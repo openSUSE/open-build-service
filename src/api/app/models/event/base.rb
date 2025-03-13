@@ -305,6 +305,10 @@ module Event
       false
     end
 
+    def event_object
+      nil
+    end
+
     private
 
     def message_bus_routing_key

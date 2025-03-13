@@ -21,5 +21,9 @@ module Event
                     notifiable_id: ::Group.find_by(title: payload['group']).id,
                     type: 'NotificationGroup' })
     end
+
+    def event_object
+      ::Group.find_by(name: payload['group'])
+    end
   end
 end

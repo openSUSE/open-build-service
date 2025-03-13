@@ -1,5 +1,7 @@
 module Event
   class RepoBuildStarted < Base
+    include EventObjectRepository
+
     self.message_bus_routing_key = 'repo.build_started'
     self.description = 'Repository (re)started building'
     payload_keys :project, :repo, :arch, :buildid

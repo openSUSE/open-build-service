@@ -1,6 +1,8 @@
 module Event
   class CommentForPackage < Base
     include CommentEvent
+    include EventObjectPackage
+
     self.message_bus_routing_key = 'package.comment'
     self.description = 'New comment for package created'
     receiver_roles :maintainer, :bugowner, :project_watcher, :package_watcher

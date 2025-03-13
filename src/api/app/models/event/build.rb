@@ -1,5 +1,7 @@
 module Event
   class Build < Base
+    include EventObjectPackage
+
     self.description = 'Package finished building'
     self.abstract_class = true
     payload_keys :project, :package, :sender, :repository, :arch, :release, :readytime, :srcmd5,
