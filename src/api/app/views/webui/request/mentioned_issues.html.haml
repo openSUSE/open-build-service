@@ -9,7 +9,8 @@
         locals: { bs_request: @bs_request, staging_status: @staging_status, action: @action,
                   prev_action: @prev_action, next_action: @next_action, actions: @actions,
                   diff_to_superseded_id: @diff_to_superseded_id, page_name: 'request_mentioned_issues',
-                  bs_requests: @watched_requests, packages: @watched_packages, projects: @watched_projects }
+                  bs_requests: @watched_requests, packages: @watched_packages, projects: @watched_projects,
+                  current_notification: @current_notification }
     = render partial: 'request_tabs',
         locals: { bs_request: @bs_request, action: @action, issues: @issues,
                   actions_count: @actions.count, active_tab: @active_tab }
