@@ -23,7 +23,9 @@
                        minlength: minlength, autofocus: autofocus)
     - if button
       - component.with_button do
-        %button.btn.border{ type: button[:type], class: button[:class] ? button[:class] : 'btn-light' }
+        %button.btn.border{ type: button[:type], class: button[:class] ? button[:class] : 'btn-light', title: button[:title] }
+          - if button[:text]
+            %span.me-1= button[:text]
           %i.fa{ class: button[:icon] ? button[:icon] : 'fa-search' }
     - else
       - component.with_icon do
