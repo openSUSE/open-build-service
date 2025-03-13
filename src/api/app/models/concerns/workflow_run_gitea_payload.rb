@@ -33,10 +33,6 @@ module WorkflowRunGiteaPayload
     payload.dig(:head_commit, :id) if gitea_tag_push_event?
   end
 
-  def gitea_hook_action
-    payload['action']
-  end
-
   def gitea_api_endpoint
     repositoy_url = payload.dig(:repository, :clone_url)
     return unless repositoy_url
@@ -74,19 +70,19 @@ module WorkflowRunGiteaPayload
   end
 
   def gitea_new_pull_request?
-    gitea_pull_request? && gitea_hook_action == 'opened'
+    gitea_pull_request? && hook_action == 'opened'
   end
 
   def gitea_updated_pull_request?
-    gitea_pull_request? && gitea_hook_action == 'synchronized'
+    gitea_pull_request? && hook_action == 'synchronized'
   end
 
   def gitea_closed_merged_pull_request?
-    gitea_pull_request? && gitea_hook_action == 'closed'
+    gitea_pull_request? && hook_action == 'closed'
   end
 
   def gitea_reopened_pull_request?
-    gitea_pull_request? && gitea_hook_action == 'reopened'
+    gitea_pull_request? && hook_action == 'reopened'
   end
 
   def gitea_checkout_http_url
@@ -106,10 +102,10 @@ module WorkflowRunGiteaPayload
   end
 
   def gitea_labeled_pull_request?
-    gitea_pull_request? && payload[:action] == 'labeled'
+    gitea_pull_request? && hook_action == 'labeled'
   end
 
   def gitea_unlabeled_pull_request?
-    gitea_pull_request? && payload[:action] == 'unlabeled'
+    gitea_pull_request? && hook_action == 'unlabeled'
   end
 end

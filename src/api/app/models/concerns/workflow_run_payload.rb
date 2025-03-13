@@ -140,6 +140,6 @@ module WorkflowRunPayload
   end
 
   def payload_hook_action
-    github_hook_action || gitea_hook_action || gitlab_hook_action
+    payload['action'] || payload.dig('object_attributes', 'action')
   end
 end

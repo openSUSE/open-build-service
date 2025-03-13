@@ -11,7 +11,6 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
   let(:long_commit_sha) { '123456789' }
   let(:request_payload) do
     {
-      action: action,
       number: 1,
       pull_request: {
         html_url: 'http://github.com/something',
@@ -41,9 +40,10 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       target_project: target_project_name
     }
   end
+  let(:hook_action) { nil }
 
   let(:workflow_run) do
-    create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', request_payload: request_payload)
+    create(:workflow_run, scm_vendor: 'github', hook_event: 'pull_request', hook_action: hook_action, request_payload: request_payload)
   end
 
   before do
@@ -62,7 +62,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
 
     context 'for a new_commit SCM webhook event' do
       context 'it creates the _branch_request file' do
-        let(:action) { 'opened' }
+        let(:hook_action) { 'opened' }
 
         it { expect { subject.call.source_file('_branch_request') }.not_to raise_error }
         it { expect(subject.call.source_file('_branch_request')).to include('123') }
@@ -73,7 +73,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       end
 
       context 'it sets the scmsync url' do
-        let(:action) { 'opened' }
+        let(:hook_action) { 'opened' }
         let(:scmsync_url) { 'https://github.com/krauselukas/test_scmsync.git' }
 
         before do
@@ -84,7 +84,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       end
 
       context 'without branch permissions' do
-        let(:action) { 'opened' }
+        let(:hook_action) { 'opened' }
         let(:branch_package_mock) { instance_double(BranchPackage) }
 
         before do
@@ -96,7 +96,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       end
 
       context 'when the branch target package already exists' do
-        let(:action) { 'synchronize' }
+        let(:hook_action) { 'synchronize' }
         let(:long_commit_sha) { 'abcdefghijk' }
 
         # Emulate the branched project/package and the subcription created in a previous new PR/MR event
@@ -138,7 +138,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       end
 
       context 'when the branch target package does not exist' do
-        let(:action) { 'synchronize' }
+        let(:hook_action) { 'synchronize' }
 
         it { expect { subject.call }.to(change(Package, :count).by(1)) }
         it { expect { subject.call }.to(change(EventSubscription.where(eventtype: 'Event::BuildFail'), :count).by(1)) }
@@ -148,7 +148,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
 
     context 'for a closed_merged SCM webhook event' do
       let!(:other_project) { create(:project, name: 'hans:openSUSE:open-build-service:PR-1') }
-      let(:action) { 'closed' }
+      let(:hook_action) { 'closed' }
       let(:step_instructions) do
         {
           source_project: package.project.name,
@@ -163,7 +163,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
     end
 
     context 'for a reopened event SCM webhook event' do
-      let(:action) { 'reopened' }
+      let(:hook_action) { 'reopened' }
       let(:step_instructions) do
         {
           source_project: package.project.name,
@@ -181,7 +181,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
   describe '.parse_scmsync_for_target_package' do
     let(:project) { create(:project, name: 'foo_scm_synced_project', maintainer: user) }
     let(:package) { create(:package_with_file, name: 'bar_scm_synced_package', project: project) }
-    let(:action) { 'opened' }
+    let(:hook_action) { 'opened' }
     let(:scmsync_url) { 'https://github.com/krauselukas/test_scmsync.git' }
 
     before do
@@ -237,7 +237,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
   describe '#skip_repositories?' do
     let(:project) { create(:project, name: 'foo_project', maintainer: user, url: 'https://my-foo-project.com/example') }
     let(:package) { create(:package_with_file, name: 'bar_package', project: project) }
-    let(:action) { 'opened' }
+    let(:hook_action) { 'opened' }
 
     context 'when add_repositories is enabled' do
       let(:step_instructions) { { source_project: package.project.name, source_package: package.name, target_project: target_project_name, add_repositories: 'enabled' } }
@@ -262,7 +262,7 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
 
   describe '#check_source_access' do
     let(:project) { create(:project, name: 'foo_project', maintainer: user) }
-    let(:action) { 'opened' }
+    let(:hook_action) { 'opened' }
     let(:step_instructions) do
       {
         source_project: project.name,
