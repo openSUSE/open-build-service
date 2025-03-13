@@ -13,13 +13,13 @@
       .mb-3.col-md-6
         = form.label(:summary) do
           Summary
-          %abbr.text-danger{ title: 'required' } *
+          = render partial: 'webui/shared/required_label_mark'
           %small.form-text Summarize the changes (minimum 10 characters)
         = form.text_area(:summary, required: true, class: 'form-control', minlength: 10)
       .mb-3.col-md-6
         = form.label(:description) do
           Description
-          %abbr.text-danger{ title: 'required' } *
+          = render partial: 'webui/shared/required_label_mark'
           %small.form-text Fully describe the changes (minimum 50 characters)
         = form.text_area(:description, required: true, rows: 8, class: 'form-control', minlength: 50)
       .mb-3.col-sm-6.col-md-2

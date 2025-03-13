@@ -19,31 +19,31 @@
       .mb-3.row
         .col-md-2
           = upload_job_form.label(:image_name, 'Image Name:', class: 'col-form-label')
-          %abbr.text-danger{ title: 'required' } *
+          = render partial: 'webui/shared/required_label_mark'
         .col-md-10
           = text_field('cloud_backend_upload_job', 'image_name', size: 35, required: true)
       .mb-3.row
         .col-md-2
           = upload_job_form.label(:subscription, 'Subscription:', class: 'col-form-label')
-          %abbr.text-danger{ title: 'required' } *
+          = render partial: 'webui/shared/required_label_mark'
         .col-md-10
           = text_field('cloud_backend_upload_job', 'subscription', size: 35, required: true)
       .mb-3.row
         .col-md-2
           = upload_job_form.label(:storage_account, 'Storage Account:', class: 'col-form-label')
-          %abbr.text-danger{ title: 'required' } *
+          = render partial: 'webui/shared/required_label_mark'
         .col-md-10
           = text_field('cloud_backend_upload_job', 'storage_account', size: 35, required: true)
       .mb-3.row
         .col-md-2
           = upload_job_form.label(:resource_group, 'Resource Group:', class: 'col-form-label')
-          %abbr.text-danger{ title: 'required' } *
+          = render partial: 'webui/shared/required_label_mark'
         .col-md-10
           = text_field('cloud_backend_upload_job', 'resource_group', size: 35, required: true)
       .mb-3.row
         .col-md-2
           = upload_job_form.label(:container, 'Container:', class: 'col-form-label')
-          %abbr.text-danger{ title: 'required' } *
+          = render partial: 'webui/shared/required_label_mark'
         .col-md-10
           = text_field('cloud_backend_upload_job', 'container', size: 35, required: true)
       = submit_tag('Upload Image', class: 'btn btn-primary')

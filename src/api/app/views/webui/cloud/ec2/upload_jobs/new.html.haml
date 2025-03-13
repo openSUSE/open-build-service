@@ -19,7 +19,7 @@
       .mb-3.row
         .col-md-2
           = upload_job_form.label(:ami_name, 'AMI Name:', class: 'col-form-label')
-          %abbr.text-danger{ title: 'required' } *
+          = render partial: 'webui/shared/required_label_mark'
         .col-md-10
           = text_field('cloud_backend_upload_job', 'ami_name', size: 35, required: true)
       .mb-3.row

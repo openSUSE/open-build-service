@@ -34,7 +34,7 @@
                 = hidden_field_tag('package', package)
           .mb-3
             = label_tag(:description, 'Description:')
-            %abbr.text-danger{ title: 'required' } *
+            = render partial: 'webui/shared/required_label_mark'
             ~ text_area_tag(:description, nil, size: '40x3', class: 'form-control', required: true)
 
         .modal-footer

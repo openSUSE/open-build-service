@@ -10,7 +10,7 @@
   - if with_label
     = label_tag(html_id, label)
   - if required
-    %abbr.text-danger{ title: 'required' } *
+    = render partial: 'webui/shared/required_label_mark'
   .input-group
     %span.input-group-text
       %i.fas.fa-search
