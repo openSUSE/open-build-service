@@ -11,7 +11,7 @@
           = form.text_field(:realname, class: 'form-control')
         .mb-3
           = form.label(:email, 'Email:')
-          %abbr.text-danger{ title: 'required' } *
+          = render partial: 'webui/shared/required_label_mark'
           = form.text_field(:email, required: true, email: true, class: 'form-control')
         .mb-3
           = form.collection_check_boxes(:role_ids, Role.global, :id, :title, {}) do |checkbox|

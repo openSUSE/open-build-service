@@ -19,12 +19,12 @@
       .mb-3
         = f.label(:title) do
           Title
-          %abbr.text-danger{ title: 'required' } *
+          = render partial: 'webui/shared/required_label_mark'
         = f.text_field :title, required: true, autofocus: true, class: 'form-control'
       .mb-3
         = f.label(:description) do
           Description
-          %abbr.text-danger{ title: 'required' } *
+          = render partial: 'webui/shared/required_label_mark'
         ~ f.text_area :description, rows: 7, required: true, class: 'form-control'
 
       .h5.mt-4 Frontend Configuration
@@ -200,7 +200,7 @@
       .mb-3
         = f.label(:name) do
           Name
-          %abbr.text-danger{ title: 'required' } *
+          = render partial: 'webui/shared/required_label_mark'
           %small.form-text The instance name which gets generated into each package. Short string only, no white spaces recommended.
         = f.text_field :name, required: true, class: 'form-control'
       .mb-3

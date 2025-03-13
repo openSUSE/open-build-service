@@ -30,7 +30,7 @@
                     = bs_request_actions.text_field(:target_project, disabled: true, class: 'form-control')
               .mb-3
                 = f.label(:description, "Please describe your reasons to request the deletion of this #{@package ? 'package' : 'project'}:")
-                %abbr.text-danger{ title: 'required' } *
+                = render partial: 'webui/shared/required_label_mark'
                 = f.text_area(:description, row: 3, class: 'form-control', required: true)
 
               = submit_tag('Request', class: 'btn btn-primary px-4')

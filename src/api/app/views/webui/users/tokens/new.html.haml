@@ -44,7 +44,7 @@
             .col-12.col-md-10.col-lg-9
               .mb-3
                 = f.label(:scm_token, 'SCM Token:')
-                %abbr.text-danger{ title: 'required' } *
+                = render partial: 'webui/shared/required_label_mark'
                 = f.password_field(:scm_token, size: 80, class: 'form-control', placeholder: 'Please enter your SCM token')
               .mb-3
                 = f.label(:workflow_configuration_path, 'Path for Workflows Configuration File:')

@@ -13,7 +13,7 @@
             = form_for(:package, url: packages_url(@project)) do |f|
               .mb-3
                 = f.label(:name)
-                %abbr.text-danger{ title: 'required' } *
+                = render partial: 'webui/shared/required_label_mark'
                 = f.text_field(:name, size: 80, required: true, class: 'form-control', placeholder: 'Enter Name', autofocus: true)
               .mb-3
                 = f.label(:title)
