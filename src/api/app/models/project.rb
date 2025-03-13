@@ -17,7 +17,7 @@ class Project < ApplicationRecord
   TYPES = %w[standard maintenance maintenance_incident
              maintenance_release].freeze
 
-  after_initialize :init
+  after_initialize :init_defaults
   after_create :backfill_bs_request_actions
 
   before_destroy :cleanup_before_destroy, prepend: true
@@ -32,12 +32,6 @@ class Project < ApplicationRecord
 
   serialize :required_checks, Array
   attr_accessor :commit_opts, :commit_user
-
-  after_initialize do
-    @commit_opts = {}
-    # might be nil - in this case we rely on the caller to set it
-    @commit_user = User.session
-  end
 
   has_many :relationships, dependent: :destroy, inverse_of: :project
   has_many :packages, inverse_of: :project do
@@ -429,14 +423,6 @@ class Project < ApplicationRecord
     # class_methods
   end
 
-  def init
-    # We often use select in a query which would raise a MissingAttributeError
-    # if the kind attribute hasn't been included in the select clause.
-    # Therefore it's necessary to check self.has_attribute? :kind
-    self.kind ||= 'standard' if has_attribute?(:kind)
-    @config = nil
-  end
-
   def config
     @config ||= ProjectConfigFile.new(project_name: name)
   end
@@ -630,7 +616,7 @@ class Project < ApplicationRecord
   end
 
   def standard?
-    self.kind == 'standard'
+    kind == 'standard'
   end
 
   def defines_remote_instance?
@@ -1409,6 +1395,18 @@ class Project < ApplicationRecord
   end
 
   private
+
+  def init_defaults
+    # We often use select in a query which would raise a MissingAttributeError
+    # if the kind attribute hasn't been included in the select clause.
+    # Therefore it's necessary to check self.has_attribute? :kind
+    self.kind ||= 'standard' if has_attribute?(:kind)
+    @config = nil
+
+    @commit_opts = {}
+    # might be nil - in this case we rely on the caller to set it
+    @commit_user = User.session
+  end
 
   def bsrequest_repos_map(project)
     Rails.cache.fetch("bsrequest_repos_map-#{project}", expires_in: 2.hours) do
