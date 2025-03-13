@@ -28,7 +28,7 @@ RSpec.describe 'Search', :js do
       page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
       fill_in 'search_input', with: package.name
-      click_button 'Search'
+      find('input', id: 'search_input').sibling('button[type=submit]').click
 
       within '#search-results' do
         expect(page).to have_link(user.home_project_name)
@@ -46,7 +46,7 @@ RSpec.describe 'Search', :js do
       click_button 'Advanced'
       select('Projects', from: 'search_for')
 
-      click_button 'Search'
+      find('input', id: 'search_input').sibling('button[type=submit]').click
 
       within '#search-results' do
         expect(page).to have_link(apache2.name)
@@ -67,7 +67,7 @@ RSpec.describe 'Search', :js do
       select('Packages', from: 'search_for')
 
       check 'title'
-      click_button 'Search'
+      find('input', id: 'search_input').sibling('button[type=submit]').click
 
       within '#search-results' do
         expect(page).to have_link(user.home_project_name)
@@ -88,7 +88,7 @@ RSpec.describe 'Search', :js do
       check 'title'
       uncheck 'name'
       uncheck 'description'
-      click_button 'Search'
+      find('input', id: 'search_input').sibling('button[type=submit]').click
 
       within '#search-results' do
         expect(page).to have_link(apache.name)
@@ -108,7 +108,7 @@ RSpec.describe 'Search', :js do
       uncheck 'title'
       uncheck 'name'
       check 'description'
-      click_button 'Search'
+      find('input', id: 'search_input').sibling('button[type=submit]').click
 
       within '#search-results' do
         expect(page).to have_link(apache.name)
@@ -124,7 +124,7 @@ RSpec.describe 'Search', :js do
       page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
       fill_in 'search_input', with: 'fooo'
-      click_button 'Search'
+      find('input', id: 'search_input').sibling('button[type=submit]').click
 
       within('#flash') do
         expect(page).to have_text('Your search did not return any results.')
@@ -143,7 +143,7 @@ RSpec.describe 'Search', :js do
       click_button 'Advanced'
       uncheck 'name'
       check 'title'
-      click_button 'Search'
+      find('input', id: 'search_input').sibling('button[type=submit]').click
 
       within '#search-results' do
         expect(page).to have_link(russian_project.name)
@@ -162,7 +162,7 @@ RSpec.describe 'Search', :js do
         fill_in 'search_input', with: 'hidden'
         click_button 'Advanced'
         check 'title'
-        click_button 'Search'
+        find('input', id: 'search_input').sibling('button[type=submit]').click
 
         within('#flash') do
           expect(page).to have_text('Your search did not return any results.')
@@ -183,7 +183,7 @@ RSpec.describe 'Search', :js do
         fill_in 'search_input', with: 'hidden'
         click_button 'Advanced'
         check 'title'
-        click_button 'Search'
+        find('input', id: 'search_input').sibling('button[type=submit]').click
 
         within '#search-results' do
           expect(page).to have_link(hidden_package.name)
@@ -226,7 +226,7 @@ RSpec.describe 'Search', :js do
       page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
       fill_in 'search_input', with: apache_package.name
-      click_button 'Search'
+      find('input', id: 'search_input').sibling('button[type=submit]').click
 
       within '#search-results' do
         expect(page).to have_text(relationship_package_user.user.name)
@@ -247,7 +247,7 @@ RSpec.describe 'Search', :js do
 
       fill_in 'search_input', with: apache_package.name
 
-      click_button 'Search'
+      find('input', id: 'search_input').sibling('button[type=submit]').click
 
       within '#search-results' do
         expect(page).to have_text(relationship_package_user.user.name)
@@ -265,7 +265,7 @@ RSpec.describe 'Search', :js do
       page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
       fill_in 'search_input', with: apache_package.name
-      click_button 'Search'
+      find('input', id: 'search_input').sibling('button[type=submit]').click
 
       within '#search-results' do
         expect(page).to have_text(relationship_package_group.group.title)
@@ -280,7 +280,7 @@ RSpec.describe 'Search', :js do
       page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
       fill_in 'search_input', with: apache_package.name
-      click_button 'Search'
+      find('input', id: 'search_input').sibling('button[type=submit]').click
 
       expect(page).to have_no_css('#serach-results')
     end

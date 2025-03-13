@@ -22,7 +22,7 @@ RSpec.describe 'ChangeBugowner', :js do
 
     visit search_owner_path
     fill_in :search_input, with: package.name
-    click_button 'Search'
+    find('input', id: 'search_input').sibling('button[type=submit]').click
     click_link 'Request bugowner change'
   end
 
