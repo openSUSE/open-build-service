@@ -9,21 +9,21 @@ module WorkflowRunGithubPayload
 
   def github_commit_sha
     return payload.dig(:pull_request, :head, :sha) if github_pull_request?
-    return payload[:after] if github_push_event?
+    return payload.dig(:head_commit, :id) if github_tag_push_event?
 
-    payload.dig(:head_commit, :id) if github_tag_push_event?
+    payload[:after]
   end
 
   def github_source_repository_full_name
     return payload.dig(:pull_request, :head, :repo, :full_name) if github_pull_request?
 
-    payload.dig(:repository, :full_name) if github_push_event? || github_tag_push_event?
+    payload.dig(:repository, :full_name)
   end
 
   def github_target_repository_full_name
     return payload.dig(:pull_request, :base, :repo, :full_name) if github_pull_request?
 
-    payload.dig(:repository, :full_name) if github_push_event? || github_tag_push_event?
+    payload.dig(:repository, :full_name)
   end
 
   def github_pr_number
@@ -40,9 +40,9 @@ module WorkflowRunGithubPayload
 
   def github_target_branch
     return payload.dig(:pull_request, :base, :ref) if github_pull_request?
-    return payload.fetch(:ref, '').sub('refs/heads/', '') if github_push_event?
+    return payload.dig(:head_commit, :id) if github_tag_push_event?
 
-    payload.dig(:head_commit, :id) if github_tag_push_event?
+    payload.fetch(:ref, '').sub('refs/heads/', '')
   end
 
   def github_api_endpoint

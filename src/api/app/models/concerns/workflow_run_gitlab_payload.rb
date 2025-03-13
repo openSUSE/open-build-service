@@ -8,11 +8,11 @@ module WorkflowRunGitlabPayload
   def gitlab_project_id
     return payload.dig(:object_attributes, :source_project_id) if gitlab_merge_request?
 
-    payload[:project_id] if gitlab_push_event? || gitlab_tag_push_event?
+    payload[:project_id]
   end
 
   def gitlab_path_with_namespace
-    payload.dig(:project, :path_with_namespace) if gitlab_push_event? || gitlab_tag_push_event?
+    payload.dig(:project, :path_with_namespace)
   end
 
   private
@@ -20,19 +20,19 @@ module WorkflowRunGitlabPayload
   def gitlab_commit_sha
     return payload.dig(:object_attributes, :last_commit, :id) if gitlab_merge_request?
 
-    payload[:after] if gitlab_push_event? || gitlab_tag_push_event?
+    payload[:after]
   end
 
   def gitlab_source_repository_full_name
     return payload.dig(:object_attributes, :source, :path_with_namespace) if gitlab_merge_request?
 
-    payload.dig(:project, :path_with_namespace) if gitlab_push_event? || gitlab_tag_push_event?
+    payload.dig(:project, :path_with_namespace)
   end
 
   def gitlab_target_repository_full_name
     return payload.dig(:object_attributes, :target, :path_with_namespace) if gitlab_merge_request?
 
-    payload.dig(:project, :path_with_namespace) if gitlab_push_event? || gitlab_tag_push_event?
+    payload.dig(:project, :path_with_namespace)
   end
 
   def gitlab_pr_number
@@ -49,9 +49,9 @@ module WorkflowRunGitlabPayload
 
   def gitlab_target_branch
     return payload.dig(:object_attributes, :target_branch) if gitlab_merge_request?
-    return payload[:ref].sub('refs/heads/', '') if gitlab_push_event?
+    return payload[:after] if gitlab_tag_push_event?
 
-    payload[:after] if gitlab_tag_push_event?
+    payload[:ref].sub('refs/heads/', '')
   end
 
   def gitlab_api_endpoint
