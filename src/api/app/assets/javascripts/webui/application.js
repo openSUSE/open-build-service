@@ -23,7 +23,6 @@
 //= require jquery.flot.time
 //= require jquery.flot.stack.js
 //= require tokenfield.js
-//= require webui/plotbusyworkers.js
 //= require webui/datatables.js
 //= require webui/flash.js
 //= require webui/tabs.js
