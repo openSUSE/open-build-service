@@ -2432,6 +2432,26 @@ sub undeletepackage {
   return $BSStdServer::return_ok;
 }
 
+sub getremotedistributions {
+  my ($cgi, $projid) = @_;
+
+  my $proj = BSRevision::readproj_local($projid);
+  if ($proj->{'remoteurl'}) {
+    return BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/distributions.xml", 'proxy' => $proxy});
+  }
+  die("400 $projid is not a remote instance")
+}
+
+sub getremoteimagetemplates {
+  my ($cgi, $projid) = @_;
+
+  my $proj = BSRevision::readproj_local($projid);
+  if ($proj->{'remoteurl'}) {
+    return BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/image_templates.xml", 'proxy' => $proxy});
+  }
+  die("400 $projid is not a remote instance")
+}
+
 sub getpackagehistory {
   my ($cgi, $projid, $packid) = @_;
   my @res;
@@ -7869,6 +7889,8 @@ my $dispatches = [
 
   '/source/$project/_history rev? meta:bool? deleted:bool? limit:num? startbefore:num?' => \&getpackagehistory,
   '/source/$project/_keyinfo withsslcert:bool? autoextend:bool? donotcreatecert:bool? signtype:? signflavor:?' => \&getkeyinfo,
+  '/source/$project/_remotedistributions' => \&getremotedistributions,
+  '/source/$project/_remoteimagetemplates' => \&getremoteimagetemplates,
 
   'POST:/source/$project/$package view=info parse:bool? repository? arch? filename?' => \&getpackagesourceinfo_post,
 
