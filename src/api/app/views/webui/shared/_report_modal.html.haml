@@ -38,5 +38,11 @@
 
 :javascript
   $(document).ready(function() {
+    $('#report-category').on('change', '.form-check-input', function(e) {
+      $('#report-reason textarea').attr('required', (e.target.value !== 'other' ? null : true));
+    });
+
     collectReportModalsAndSetValues();
   });
+
+- content_for(:content_for_head, javascript_include_tag('webui/report'))
