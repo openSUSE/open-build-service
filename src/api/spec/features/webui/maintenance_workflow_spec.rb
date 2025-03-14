@@ -72,7 +72,7 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
 
     click_button('Accept request')
     # Looks like accepting the request takes some time, so we allow it to take a bit more than usual
-    wait_up_to(12.seconds) do
+    Capybara.using_wait_time(12.seconds) do
       expect(page).to have_css('#overview h3', text: "Request #{bs_request.number} accepted")
     end
 
