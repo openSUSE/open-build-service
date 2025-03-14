@@ -71,7 +71,7 @@ end
 # Table name: architectures
 #
 #  id        :integer          not null, primary key
-#  available :boolean          default(FALSE)
+#  available :boolean          default(FALSE), not null
 #  name      :string(255)      not null, indexed
 #
 # Indexes
