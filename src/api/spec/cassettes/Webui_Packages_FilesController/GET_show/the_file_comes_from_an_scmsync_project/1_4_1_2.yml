@@ -1,0 +1,122 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 12 Mar 2025 10:27:00 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/lorem/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="lorem">
+          <title>Unweaving the Rainbow</title>
+          <description/>
+          <scmsync>https://github.com/example/scmsync-project.git</scmsync>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '214'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="lorem">
+          <title>Unweaving the Rainbow</title>
+          <description></description>
+          <scmsync>https://github.com/example/scmsync-project.git</scmsync>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 12 Mar 2025 10:27:00 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/lorem/scmsync_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="scmsync_package" project="lorem">
+          <title>The Wings of the Dove</title>
+          <description>Non earum natus architecto.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 400
+      message: lorem is controlled by obs-scm
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '82'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="400">
+          <summary>lorem is controlled by obs-scm</summary>
+        </status>
+  recorded_at: Wed, 12 Mar 2025 10:27:00 GMT
+recorded_with: VCR 6.3.1

@@ -215,4 +215,37 @@ RSpec.describe Webui::Packages::FilesController, :vcr do
       it { expect(response).to redirect_to(project_show_path(scmsync_project)) }
     end
   end
+
+  describe 'GET #blame' do
+    before do
+      allow_any_instance_of(Package).to receive(:file_exists?).with('aaa_base.spec', {}).and_return(true)
+      allow(Backend::Api::Sources::Package).to receive(:blame).with(source_project.name, source_package.name, 'aaa_base.spec', {}).and_return(file_fixture('aaa_base.spec.blame').read)
+      get :blame, params: { project_name: source_project, package_name: source_package, file_filename: 'aaa_base.spec' }
+    end
+
+    it 'sets @blame_info instance' do
+      blame_info = assigns(:blame_info)
+
+      # Corresponds to the number of groups of lines with the same commit in a row in the blame fixture
+      expect(blame_info.size).to eq(112)
+    end
+
+    it 'groups lines correctly' do
+      blame_group = assigns(:blame_info)[5]
+
+      # This corresponds to the data in group between lines 8 and 16 in the blame fixture
+      expect(blame_group.size).to eq(9)
+      expect(blame_group.map { |g| g['revision'] }.uniq).to eq(['104'])
+    end
+
+    it 'parses lines correctly' do
+      blame_line = assigns(:blame_info)[5][0]
+
+      # This corresponds to the data in line number 8 in the blame fixture
+      expect(blame_line['file']).to eq('1:')
+      expect(blame_line['login']).to eq('unknown')
+      expect(blame_line['line']).to eq('6')
+      expect(blame_line['content']).to eq('# All modifications and additions to the file contributed by third parties')
+    end
+  end
 end
