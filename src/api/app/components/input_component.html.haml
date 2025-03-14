@@ -1,0 +1,11 @@
+.form-group.d-flex.justify-content-between.align-items-center
+  - if label?
+    .col-3.fs-6
+      = label
+  .input-group
+    = content
+    - if icon?
+      %span.input-group-text
+        = icon
+    - if button?
+      = button

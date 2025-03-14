@@ -1,2 +1,2 @@
 = form_tag(search_path(project: 1, package: 1, name: 1), method: :get, class: 'my-auto') do
-  %input.form-control.w-100{ 'aria-label': 'Search', name: 'search_text', placeholder: 'Search', type: 'search' }/
+  = render partial: 'webui/shared/search_box', locals: { html_id: 'search_text', required: false, button: { type: 'submit' } }

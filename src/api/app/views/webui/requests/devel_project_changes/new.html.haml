@@ -17,7 +17,7 @@
                 = bs_request_actions.hidden_field(:type)
                 = bs_request_actions.hidden_field(:target_project)
                 = bs_request_actions.hidden_field(:target_package)
-                = render partial: 'webui/shared/autocomplete',
+                = render partial: 'webui/shared/search_box',
                            locals: { html_id: "#{bs_request_actions.object_name.gsub(/\]\[|\]|\[/, '_')}source_project",
                                      html_name: "#{bs_request_actions.object_name}[source_project]",
                                      label: 'New Devel Project:', required: true,

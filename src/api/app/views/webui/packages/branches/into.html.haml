@@ -23,9 +23,9 @@
                     = link_to("#{name}: #{title}", project_show_path(project: name))
           .col-12.col-md-9.col-lg-6
             = form_tag(packages_branches_path) do
-              = render partial: 'webui/shared/autocomplete', locals: { html_id: 'linked_project', label: 'Original project name',
+              = render partial: 'webui/shared/search_box', locals: { html_id: 'linked_project', label: 'Original project name',
                                                                        data: { source: autocomplete_projects_path } }
-              = render partial: 'webui/shared/autocomplete', locals: { html_id: 'linked_package', label: 'Original package name', disabled: true,
+              = render partial: 'webui/shared/search_box', locals: { html_id: 'linked_package', label: 'Original package name', disabled: true,
                                                                        data: { source: autocomplete_packages_path } }
               = hidden_field_tag 'target_project', @project
               = render partial: 'webui/shared/package_branch_form', locals: { show_project_field: false, target_project: @project,
