@@ -225,5 +225,24 @@ FactoryBot.define do
         create(:project_status_package_fail_comment_attrib, package: package)
       end
     end
+
+    factory :package_with_templates do
+      transient do
+        file_name { '{{ project.name }}.test.liquid' }
+        file_content { Faker::Lorem.paragraph }
+        spec_file_name { '{{ package.name }}.spec.liquid' }
+        spec_file_content { Pathname.new(File.join('spec', 'fixtures', 'files', 'template.spec')).read }
+        changes_file_name { '{{ package.name }}.changes.liquid' }
+        changes_file_content { Pathname.new(File.join('spec', 'fixtures', 'files', 'template.changes')).read }
+      end
+
+      after(:create) do |package, evaluator|
+        if CONFIG['global_write_through']
+          package.save_file(filename: evaluator.file_name, file: evaluator.file_content)
+          package.save_file(filename: evaluator.spec_file_name, file: evaluator.spec_file_content)
+          package.save_file(filename: evaluator.changes_file_name, file: evaluator.changes_file_content)
+        end
+      end
+    end
   end
 end
