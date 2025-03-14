@@ -145,7 +145,8 @@ sub dispatch {
     $req = $BSServerEvents::gev->{'request'};
   }
   $msg .= " [$requestid]" if $requestid;
-  BSUtil::printlog($msg, undef, $req->{'reqid'});
+  my $id = $req->{'reqid'} || $req->{'keepalive_count'};
+  BSUtil::printlog($msg, undef, $id ? "$$.$id" : $$);
   return BSDispatch::dispatch($conf, $req);
 }
 
