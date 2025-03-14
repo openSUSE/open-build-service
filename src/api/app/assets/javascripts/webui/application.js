@@ -68,7 +68,6 @@
 //= require webui/add_file.js
 //= require chartkick
 //= require Chart.bundle
-//= require webui/report.js
 //= require webui/canned_responses.js
 //= require webui/multi_select.js
 //= require webui/dropdown.js
