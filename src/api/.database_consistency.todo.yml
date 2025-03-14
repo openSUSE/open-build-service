@@ -13,9 +13,6 @@ Attrib:
   id:
     PrimaryKeyTypeChecker:
       enabled: false
-  values:
-    ForeignKeyCascadeChecker:
-      enabled: false
 AttribAllowedValue:
   id:
     PrimaryKeyTypeChecker:

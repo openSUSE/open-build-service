@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_03_12_082500) do
+ActiveRecord::Schema[7.0].define(version: 2025_03_13_151625) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -1306,7 +1306,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_03_12_082500) do
   add_foreign_key "attrib_type_modifiable_bies", "roles", name: "attrib_type_modifiable_bies_ibfk_3"
   add_foreign_key "attrib_type_modifiable_bies", "users", name: "attrib_type_modifiable_bies_ibfk_1"
   add_foreign_key "attrib_types", "attrib_namespaces", name: "attrib_types_ibfk_1"
-  add_foreign_key "attrib_values", "attribs", name: "attrib_values_ibfk_1"
+  add_foreign_key "attrib_values", "attribs", on_delete: :cascade
   add_foreign_key "attribs", "attrib_types", name: "attribs_ibfk_1"
   add_foreign_key "attribs", "packages", name: "attribs_ibfk_2"
   add_foreign_key "attribs", "projects", name: "attribs_ibfk_3"
