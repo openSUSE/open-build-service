@@ -16,3 +16,5 @@
       .aligncenter#overallgraph
   :javascript
     plotbusyworkers(#{Webui::MonitorHelper.print_statistics_array(busy)});
+
+- content_for(:content_for_head, javascript_include_tag('webui/plotbusyworkers'))
