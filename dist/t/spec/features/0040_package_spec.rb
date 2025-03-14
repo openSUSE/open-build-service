@@ -37,8 +37,7 @@ RSpec.describe "Package" do
       click_link('Home Project')
     end
     click_link('Branch Existing Package')
-    sleep 1 # wait for the modal to appear
-    within('#new-package-branch-modal') do
+    within('#new-package-branch-modal', wait: 5) do # wait for the modal to appear
       fill_in 'linked_project', with: 'openSUSE.org:openSUSE:Tools'
       fill_in 'linked_package', with: 'build'
       click_button('Accept')
