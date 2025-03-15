@@ -709,7 +709,10 @@ sub createrepo_rpmmd {
     if (-e "$extrep/repodata/appdata.xml") {
       print "    adding appdata.xml to repodata\n";
       qsystem($modifyrepo_bin, "$extrep/repodata/appdata.xml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
-      unlink("$extrep/repodata/appdata.xml");
+      rename("$extrep/repodata/appdata.xml", "$extrep/repodata/appstream.xml");
+      print "    adding appstream.xml to repodata\n";
+      qsystem($modifyrepo_bin, "$extrep/repodata/appstream.xml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
+      unlink("$extrep/repodata/appstream.xml");
     }
     if (-e "$extrep/repodata/app-icons.tar") {
       print "    adding app-icons.tar to repodata\n";
@@ -717,7 +720,10 @@ sub createrepo_rpmmd {
       rename("$extrep/repodata/app-icons.tar", "$extrep/repodata/appdata-icons.tar");
       print "    adding appdata-icons.tar to repodata\n";
       qsystem($modifyrepo_bin, "$extrep/repodata/appdata-icons.tar", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
-      unlink("$extrep/repodata/appdata-icons.tar");
+      rename("$extrep/repodata/appdata-icons.tar", "$extrep/repodata/appstream-icons.tar");
+      print "    adding appstream-icons.tar to repodata\n";
+      qsystem($modifyrepo_bin, "$extrep/repodata/appstream-icons.tar", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
+      unlink("$extrep/repodata/appstream-icons.tar");
     }
   }
 
