@@ -364,6 +364,24 @@ sub setup_authenticator {
   }
 }
 
+sub run_ajax_server {
+  my ($aconf, $conf) = @_;
+  $isajax = 1;
+  BSServer::serverclose() if $conf;
+  unlink("$aconf->{'socketpath'}.lock") if $conf;		# we use the main socket to check if we are already running
+  BSServer::serveropen_unix($aconf->{'socketpath'}, $BSConfig::bsuser, $BSConfig::bsgroup);
+  my $sev = BSServerEvents::addserver(BSServer::getserversocket(), $aconf);
+  $aconf->{'server_ev'} = $sev;	# for periodic_ajax
+  my $name = $aconf->{'name'};
+  BSServer::msg("AJAX: $name started");
+  eval { $aconf->{'run'}->($aconf) };
+  if ($@) {
+    writestr("$aconf->{'rundir'}/$aconf->{'runname'}.AJAX.died", undef, $@);
+    BSUtil::diecritical("AJAX died: $@");
+  }
+  BSServer::msg("AJAX: $name goodbye.");
+}
+
 sub server {
   my ($name, $args, $conf, $aconf) = @_;
   my $logfile;
@@ -516,23 +534,11 @@ sub server {
   if ($conf && $aconf) {
     $conf->{'ajaxsocketpath'} = $aconf->{'socketpath'};
     $conf->{'handoffpath'} = $aconf->{'socketpath'};
-    unlink("$aconf->{'socketpath'}.lock");
   }
   BSUtil::setcritlogger(sub { critlogger($conf, $_[0]) });
   if ($aconf) {
     if (!$conf || xfork() == 0) {
-      $isajax = 1;
-      BSServer::serverclose() if $conf;
-      BSServer::serveropen_unix($aconf->{'socketpath'}, $BSConfig::bsuser, $BSConfig::bsgroup);
-      my $sev = BSServerEvents::addserver(BSServer::getserversocket(), $aconf);
-      $aconf->{'server_ev'} = $sev;	# for periodic_ajax
-      BSServer::msg("AJAX: $name started");
-      eval { $aconf->{'run'}->($aconf) };
-      if ($@) {
-        writestr("$aconf->{'rundir'}/$aconf->{'runname'}.AJAX.died", undef, $@);
-        BSUtil::diecritical("AJAX died: $@");
-      }
-      BSServer::msg("AJAX: $name goodbye.");
+      run_ajax_server($aconf, $conf);
       exit(0);
     }
   }
