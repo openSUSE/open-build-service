@@ -87,16 +87,15 @@ function handlingCommentEvents() {
     });
   });
 
+  // Toggle visibility of reply form of the same comment
   $(document).on('click', '[id*="edit_button_of_"]', function (e) {
-    var closest = $(e.target).parent().parent().find('[id*="reply_button_of_"]');
-    if (!closest.hasClass('collapsed'))
-      closest.trigger('click');
+    const idNumber = $(e.target).attr('id').split('edit_button_of_')[1];
+    $('#reply_form_of_' + idNumber + ' .cancel-comment').click();
   });
-
+  // Toggle visibility of edit form of the same comment]
   $(document).on('click', '[id*="reply_button_of_"]', function (e) {
-    var closest = $(e.target).parent().parent().find('[id*="edit_button_of_"]');
-    if (!closest.hasClass('collapsed'))
-      closest.trigger('click');
+    const idNumber = $(e.target).attr('id').split('reply_button_of_')[1];
+    $('#edit_form_of_' + idNumber + ' .cancel-comment').click();
   });
 
   $(document).on('click', '.cancel-comment', function (e) {
