@@ -16,6 +16,7 @@ Capybara.register_driver :selenium_chrome_headless do |app|
 end
 
 Capybara.default_driver = :selenium_chrome_headless
+Capybara.default_max_wait_time = 20 # We increase this value because we depend on the load of the system and resource constraints
 Capybara.javascript_driver = :selenium_chrome_headless
 Capybara.save_path = '/tmp/rspec_screens'
 
