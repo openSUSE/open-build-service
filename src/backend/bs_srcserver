@@ -233,7 +233,7 @@ sub lastnotifications {
     if (!$BSStdServer::isajax) {
       my @args;
       push @args, "view=$view" if $view;
-      BSHandoff::handoff('/lastnotifications', undef, "start=$cgi->{'start'}", 'block=1', @args);
+      BSHandoff::handoff_part('lastnotifications', '/lastnotifications', undef, "start=$cgi->{'start'}", 'block=1', @args);
     }
     # wait untill we have a winner
     BSWatcher::addfilewatcher("$eventdir/lastnotifications");
@@ -2698,7 +2698,7 @@ sub worker_getbuildconfig {
   } else {
     return getbuildconfig($cgi, $projid, $repoid);
   }
-  BSHandoff::handoff('/getconfig', undef, BSRPC::args($cgi, 'project', 'repository', 'path', 'workerid'));
+  BSHandoff::handoff_part('interconnect_out', '/getconfig', undef, BSRPC::args($cgi, 'project', 'repository', 'path', 'workerid'));
 }
 
 
@@ -2996,7 +2996,7 @@ sub getfilelist {
       # hack: we identify remote source downloads by looking at the user agent
       my $useragent = $BSServer::request->{'headers'}->{'user-agent'} || '';
       if ($useragent =~ /BSRPC/) {
-	BSHandoff::handoff("/source/$projid/$rev->{'package'}", undef, "rev=$rev->{'srcmd5'}", 'view=cpio');
+	BSHandoff::handoff_part('interconnect_in', "/source/$projid/$rev->{'package'}", undef, "rev=$rev->{'srcmd5'}", 'view=cpio');
       }
     }
     my @files = map {BSRevision::revcpiofile($rev, $_, $files->{$_})} sort keys %$files;
@@ -3117,7 +3117,7 @@ sub getfile {
     # hack: we identify remote source downloads by looking at the user agent
     my $useragent = $BSServer::request->{'headers'}->{'user-agent'} || '';
     if ($useragent =~ /BSRPC/) {
-      BSHandoff::handoff("/source/$projid/$packid/$filename", undef, "rev=$rev->{'srcmd5'}");
+      BSHandoff::handoff_part('interconnect_in', "/source/$projid/$packid/$filename", undef, "rev=$rev->{'srcmd5'}");
     }
   }
   my $fd = gensym;
@@ -4619,7 +4619,7 @@ sub getpackagelist_build {
     };
     if ($proj->{'remoteurl'}) {
       if (!$BSStdServer::isajax) {
-	BSHandoff::handoff("/build/$projid/$repoid/$arch", undef, @args);
+	BSHandoff::handoff_part('interconnect_out', "/build/$projid/$repoid/$arch" , undef, @args);
       }
       if (@{$cgi->{'package'} || []} && ($view eq 'binaryversions' || $view eq 'binaryversionscode')) {
 	my $pbvl = BSSrcServer::Remote::getpackagebinaryversionlist($proj, $projid, $repoid, $arch, $cgi->{'package'}, $view);
@@ -4664,9 +4664,14 @@ sub getbinarylist {
 	push @args, "arch=$arch";
 	push @args, "binaries=".join(',', @{$cgi->{'binary'} || []});
 	push @args, map {"module=$_"} @{$cgi->{'module'} || []};
-	BSHandoff::handoff('/getbinaries', undef, @args);
+	BSHandoff::handoff_part('interconnect_out', '/getbinaries', undef, @args);
       }
-      BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid", undef, @args);
+      if ($proj->{'remoteurl'}) {
+        BSHandoff::handoff_part('interconnect_out', "/build/$projid/$repoid/$arch/$packid", undef, @args);
+      } else {
+	# hmm, should we really do a handoff here?
+        BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid", undef, @args);
+      }
     }
     my $param = {
       'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid",
@@ -4699,7 +4704,7 @@ sub getbinarylist {
       push @args, "arch=$arch";
       push @args, BSRPC::args($cgi, 'nometa', 'module', 'withevr');
       push @args, "binaries=".join(',', @{$cgi->{'binary'} || []});
-      BSHandoff::handoff('/getbinaryversions', undef, @args);
+      BSHandoff::handoff_part('interconnect_out', '/getbinaryversions', undef, @args);
     }
     if (!$BSStdServer::isajax && $packid eq '_repository') {
       # this can take a while if we have dod configured, in that case handoff
@@ -4749,7 +4754,7 @@ sub getbinary {
     push @args, "binaries=$filename";
     push @args, "raw=1";
     push @args, map {"module=$_"} @{$cgi->{'module'} || []};
-    BSHandoff::handoff('/getbinaries', undef, @args);
+    BSHandoff::handoff_part('interconnect_out', '/getbinaries', undef, @args);
   }
   if ($view eq 'publishedpath') {
     die("publishedpath does not work for _repository\n") if $packid eq '_repository';
@@ -5217,8 +5222,27 @@ sub getworkerstatus {
 
 sub getajaxstatus {
   my ($cgi) = @_;
-  BSHandoff::handoff('/ajaxstatus') if !$BSStdServer::isajax;
+  my $conf = $BSServer::request->{'conf'};
+  if (!$BSStdServer::isajax) {
+    my $param = { 'uri' => '/ajaxstatus' };
+    my $aidx = $cgi->{'aidx'};
+    if ($aidx && $aidx eq 'all') {
+      my @ajaxstatuslist;
+      for (0 .. scalar(@{$conf->{'ajaxpartitions'} || []})) {
+        $param->{'handoffpath'} = "$conf->{'handoffpath'}$_" if $_;
+        push @ajaxstatuslist, BSHandoff::rpc($param, $BSXML::ajaxstatus);
+      }
+      return ({ 'ajaxstatus' => \@ajaxstatuslist }, $BSXML::ajaxstatuslist);
+    }
+    if ($aidx) {
+      die("Illegal aidx '$aidx'\n") if $aidx !~ /^[0-9]+$/;
+      die("Unknown ajax partition '$aidx'\n") if $aidx > @{$conf->{'ajaxpartitions'} || []};
+      $param->{'handoffpath'} = "$conf->{'handoffpath'}$aidx" if $conf->{'handoffpath'};
+    }
+    BSHandoff::handoff($param);
+  }
   my $r = BSWatcher::getstatus();
+  $r->{'aidx'} = $conf->{'aidx'} if $conf->{'aidx'};
   return ($r, $BSXML::ajaxstatus);
 }
 
@@ -6250,7 +6274,7 @@ sub worker_getbinaries {
     push @args, "binaries=$cgi->{'binaries'}";
     push @args, map {"module=$_"} @{$cgi->{'module'} || []};
     push @args, "now=$cgi->{'now'}" if $cgi->{'now'};
-    BSHandoff::handoff('/getbinaries', undef, @args);
+    BSHandoff::handoff_part('interconnect_out', '/getbinaries', undef, @args);
   }
   my @binaries = split(',', $cgi->{'binaries'});
   my $proj = findremote($projid);
@@ -6280,7 +6304,7 @@ sub worker_getbinaryversions {
     push @args, "arch=$arch";
     push @args, "binaries=$cgi->{'binaries'}";
     push @args, BSRPC::args($cgi, 'nometa', 'module', 'now', 'withevr');
-    BSHandoff::handoff('/getbinaryversions', undef, @args);
+    BSHandoff::handoff_part('interconnect_out', '/getbinaryversions', undef, @args);
   }
   my @binaries = split(',', $cgi->{'binaries'});
   my $proj = findremote($projid);
@@ -6372,7 +6396,11 @@ sub lastevents {
     push @args, "obsname=$cgi->{'obsname'}" if $cgi->{'obsname'};
     push @args, map {"filter=$_"} @{$filter || []};
     push @args, "start=$cgi->{'start'}";
-    BSHandoff::handoff('/lastevents', undef, @args);
+    if ($cgi->{'partition'}) {
+      BSHandoff::handoff_part('lastevents', '/lastevents', undef, @args);
+    } else {
+      BSHandoff::handoff_part('interconnect_in_lastevents', '/lastevents', undef, @args);
+    }
   }
   BSWatcher::addfilewatcher("$eventdir/lastevents", 120) if $BSStdServer::isajax;
 
@@ -6545,7 +6573,7 @@ sub lasteventsproxy {
   my ($cgi, $filter) = @_;
   if (!$BSStdServer::isajax) {
     my @args = BSRPC::args($cgi, 'client', 'start', 'remoteurl', 'filter');
-    BSHandoff::handoff('/lasteventsproxy', undef, @args);
+    BSHandoff::handoff_part('interconnect_out_lastevents', '/lasteventsproxy', undef, @args);
   }
   my $remoteurl = $cgi->{'remoteurl'};
   my $start = $cgi->{'start'};
@@ -8044,7 +8072,7 @@ my $dispatches = [
   'POST:/slsa cmd=addrefs $prpa' => \&slsa_addrefs,
   '/slsa/$project/$repository/$arch/$filename/$digest: view:?' => \&slsa_getfile,
 
-  '/ajaxstatus' => \&getajaxstatus,
+  '/ajaxstatus aidx:?' => \&getajaxstatus,
   '/serverstatus' => \&BSStdServer::serverstatus,
 ];
 
@@ -8060,7 +8088,7 @@ my $dispatches_ajax = [
   '/getbinaries $project $repository $arch binaries: nometa:bool? raw:bool? now:num? module*' => \&worker_getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool? now:num? module* withevr:bool?' => \&worker_getbinaryversions,
   '/getconfig $project $repository path:prp* workerid?' => \&getbuildconfig_ajax,
-  '/lastevents $filter:* start:num? obsname:?' => \&lastevents,
+  '/lastevents $filter:* start:num? obsname:? partition:?' => \&lastevents,
   '/lasteventsproxy $filter:* start:num? remoteurl: client:?' => \&lasteventsproxy,
   '/lastnotifications start:num? view:? block:bool?' => \&lastnotifications,
   '/source/$project/$package cmd=waitservice servicemark:' => \&waitservicerun,
@@ -8092,6 +8120,7 @@ my $aconf = {
 };
 
 $conf->{'maxchild'} = $BSConfig::srcserver_maxchild if $BSConfig::srcserver_maxchild;
+$aconf->{'partitions'} = $BSConfig::srcserver_ajaxpartitions if $BSConfig::srcserver_ajaxpartitions;
 
 if ($BSConfig::workersrcserver) {
   my $wport = $port;

@@ -79,6 +79,7 @@ sub new {
   } else {
     $param->{'proxy'} = $conf{'remoteproxy'};
     my $obsname = $conf{'obsname'};
+    push @args, "partition=$BSConfig::partition" if $remoteurl eq $BSConfig::srcserver && $BSConfig::partition;
     push @args, "obsname=$obsname/$myarch" if $obsname;
   }
   push @args, map {"filter=$_"} @filter;
