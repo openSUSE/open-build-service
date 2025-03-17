@@ -929,19 +929,20 @@ sub setcritlogger {
 }
 
 sub logcritical {
-  my ($msg) = @_;
+  my ($msg, $id) = @_;
   chomp $msg;
-  printf "%s: %-7s CRITICAL %s\n", isotime(time), "[$$]", $msg;
+  $id ||= $$;
+  printf "%s: %-7s CRITICAL %s\n", isotime(time), "[$id]", $msg;
   eval {
-    $critlogger->($msg) if $critlogger;
+    $critlogger->($msg, $id) if $critlogger;
   };
   warn($@) if $@;
 }
 
 sub diecritical {
-  my ($msg) = @_;
+  my ($msg, $id) = @_;
   chomp $msg;
-  logcritical($msg);
+  logcritical($msg, $id);
   die("$msg\n");
 }
 

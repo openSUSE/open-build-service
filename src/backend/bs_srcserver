@@ -4669,8 +4669,7 @@ sub getbinarylist {
       if ($proj->{'remoteurl'}) {
         BSHandoff::handoff_part('interconnect_out', "/build/$projid/$repoid/$arch/$packid", undef, @args);
       } else {
-	# hmm, should we really do a handoff here?
-        BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid", undef, @args);
+        BSHandoff::handoff_part('interconnect_in', "/build/$projid/$repoid/$arch/$packid", undef, @args);
       }
     }
     my $param = {
@@ -5220,20 +5219,26 @@ sub getworkerstatus {
   return ($cws, $BSXML::workerstatus);
 }
 
+sub getajaxstatuslist {
+  my ($cgi) = @_;
+  my $conf = $BSServer::request->{'conf'};
+  die("internal error\n") if $BSStdServer::isajax;
+  my $param = { 'uri' => '/ajaxstatus' };
+  my @ajaxstatuslist;
+  for (0 .. scalar(@{$conf->{'ajaxpartitions'} || []})) {
+    $param->{'handoffpath'} = "$conf->{'handoffpath'}$_" if $_ && $conf->{'handoffpath'};
+    push @ajaxstatuslist, BSHandoff::rpc($param, $BSXML::ajaxstatus);
+  }
+  return ({ 'ajaxstatus' => \@ajaxstatuslist }, $BSXML::ajaxstatuslist);
+}
+
 sub getajaxstatus {
   my ($cgi) = @_;
+  return getajaxstatuslist($cgi) if ($cgi->{'aidx'} || '') eq 'all';
   my $conf = $BSServer::request->{'conf'};
   if (!$BSStdServer::isajax) {
     my $param = { 'uri' => '/ajaxstatus' };
     my $aidx = $cgi->{'aidx'};
-    if ($aidx && $aidx eq 'all') {
-      my @ajaxstatuslist;
-      for (0 .. scalar(@{$conf->{'ajaxpartitions'} || []})) {
-        $param->{'handoffpath'} = "$conf->{'handoffpath'}$_" if $_;
-        push @ajaxstatuslist, BSHandoff::rpc($param, $BSXML::ajaxstatus);
-      }
-      return ({ 'ajaxstatus' => \@ajaxstatuslist }, $BSXML::ajaxstatuslist);
-    }
     if ($aidx) {
       die("Illegal aidx '$aidx'\n") if $aidx !~ /^[0-9]+$/;
       die("Unknown ajax partition '$aidx'\n") if $aidx > @{$conf->{'ajaxpartitions'} || []};
