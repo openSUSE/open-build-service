@@ -21,14 +21,18 @@ function validateForm(e) {
 
 function handlingCommentEvents() {
   // Disable submit button if textarea is empty and enable otherwise
-  $('.comments-list,.comment_new,.timeline,.diff-accordion').on('input', '.comment-field', function(e) {
+  const commentFieldSelector = `.comments-list .comment-field, .comment_new .comment-field,
+                                .timeline .comment-field, .diff .comment-field,
+                                .diff-accordion .comment-field`;
+  $(document).on('input', commentFieldSelector, function(e) {
     validateForm(e);
     resizeTextarea(this);
   });
 
   // This is being used by the legacy request view comment form to capture the rendered template
   // from the controller and replace the whole .comments-list with it
-  $('.comments-list').on('ajax:complete', '.post-comment-form, .put-comment-form, .moderate-form', function(_, data) {
+  const commentListSelector = '.comments-list .post-comment-form, .comments-list .put-comment-form, .comments-list .moderate-form';
+  $(document).on('ajax:complete', commentListSelector, function(_, data) {
     var $commentsList = $(this).closest('.comments-list');
 
     $commentsList.html(data.responseText);
@@ -36,12 +40,16 @@ function handlingCommentEvents() {
   });
 
   // This is being used to render only the comment thread for a reply by the beta request show view
-  $('.timeline, .diff-accordion, .diff').on('ajax:complete', '.post-comment-form, .put-comment-form, .moderate-form', function(_, data) {
+  const timelineDiffSelector = `.timeline .post-comment-form, .timeline .put-comment-form, .timeline .moderate-form,
+                                .diff .post-comment-form, .diff .put-comment-form, .diff .moderate-form,
+                                .diff-accordion .post-comment-form, .diff-accordion .put-comment-form,
+                                .diff-accordion .moderate-form`;
+  $(document).on('ajax:complete', timelineDiffSelector, function(_, data) {
     $(this).closest('.comments-thread').html(data.responseText);
   });
 
   // This is being used to render a new root comment by the beta request show view
-  $('.comment_new').on('ajax:complete', '.post-comment-form', function(_, data) {
+  $(document).on('ajax:complete', '.comment_new .post-comment-form', function(_, data) {
     $(this).closest('.comment_new').prev().append(
       '<div class="timeline-item">' +
         '<div class="comments-thread">' +
@@ -53,7 +61,7 @@ function handlingCommentEvents() {
   });
 
   // This is used to delete a comment from the legacy request view
-  $('.comments-list').on('ajax:complete', '.delete-comment-form', function(_, data) {
+  $(document).on('ajax:complete', '.comments-list .delete-comment-form', function(_, data) {
     var $this = $(this),
         $commentsList = $this.closest('.comments-list'),
         $form = $('#delete-comment-modal-' + $this.data('commentId'));
@@ -67,7 +75,7 @@ function handlingCommentEvents() {
   });
 
   // This is used to delete comments from the beta request show view, we are not gonna get an updated comment thread like
-  $('body').on('ajax:complete', '#delete-comment-modal form', function(_, data) {
+  $(document).on('ajax:complete', '#delete-comment-modal form', function(_, data) {
     var $commentId = $(this).attr('action').split('/').slice(-1),
         $commentsList = $('[name=comment-' + $commentId + ']').closest('.comments-thread'),
         $form = $('#delete-comment-modal');
@@ -79,19 +87,19 @@ function handlingCommentEvents() {
     });
   });
 
-  $('body').on('click', '[id*="edit_button_of_"]', function (e) {
+  $(document).on('click', '[id*="edit_button_of_"]', function (e) {
     var closest = $(e.target).parent().parent().find('[id*="reply_button_of_"]');
     if (!closest.hasClass('collapsed'))
       closest.trigger('click');
   });
 
-  $('body').on('click', '[id*="reply_button_of_"]', function (e) {
+  $(document).on('click', '[id*="reply_button_of_"]', function (e) {
     var closest = $(e.target).parent().parent().find('[id*="edit_button_of_"]');
     if (!closest.hasClass('collapsed'))
       closest.trigger('click');
   });
 
-  $('body').on('click', '.cancel-comment', function (e) {
+  $(document).on('click', '.cancel-comment', function (e) {
     $(e.target).closest('.collapse').collapse('hide');
   });
 }
