@@ -18,7 +18,7 @@ my $cols;
 
 sub users {
   my $users = join(" ", map {$_->{'ev'}} @{$_[0] || []});
-  $users = substr($users, 0, $cols - 13)." ..." if length($users) > $cols - 9;
+  $users = substr($users, 0, $cols - 13)." ..." if $cols && length($users) > $cols - 9;
   return "        $users";
 }
 
@@ -29,7 +29,15 @@ if (-t STDOUT) {
     $SIG{'WINCH'} = sub { ($cols) = Term::ReadKey::GetTerminalSize(\*STDOUT) } if $cols;
   };
 }
+if (!$cols && -t STDERR) {
+  eval {
+    require Term::ReadKey;
+    ($cols) = Term::ReadKey::GetTerminalSize(\*STDERR);
+    $SIG{'WINCH'} = sub { ($cols) = Term::ReadKey::GetTerminalSize(\*STDERR) } if $cols;
+  };
+}
 $cols ||= 80;
+$cols = 20 if $cols && $cols < 20;
 
 my $top;
 my $nolastevents;
@@ -39,6 +47,9 @@ while (@ARGV) {
     shift @ARGV;
   } elsif ($ARGV[0] eq '--nolastevents') {
     $nolastevents = 1;
+    shift @ARGV;
+  } if ($ARGV[0] eq '-w') {
+    $cols = undef;
     shift @ARGV;
   } else {
     last;
@@ -102,7 +113,8 @@ if (-S $ARGV[0]) {
         $req = substr($req, 0, 1014 - length($requestid)).$requestid;
       }
       my $str = sprintf("%5d %5d %3d %s", $d, $id, $job->{'fd'}, $req);
-      $slots[$slot] = substr($str, 0, $cols - 1);
+      $str = substr($str, 0, $cols - 1) if $cols;
+      $slots[$slot] = $str;
     }
     if ($nolastevents) {
       unshift @slots, "suppressed lasteventsproxy: $lasteventsproxycount";
@@ -120,7 +132,8 @@ if (-S $ARGV[0]) {
       for my $rpc (@{$ajaxstatus->{'rpc'}}) {
 	my $d = $now - $rpc->{'starttime'};
 	my $str = sprintf("%5d %5d %3d %s", $d, $rpc->{'ev'}, $rpc->{'fd'}, $rpc->{'uri'});
-	push @slots, substr($str, 0, $cols - 1);
+        $str = substr($str, 0, $cols - 1) if $cols;
+	push @slots, $str;
 	push @slots, users($rpc->{'job'}) if $rpc->{'job'};
       }
     }
