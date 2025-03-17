@@ -56,7 +56,7 @@ class BuildController < ApplicationController
 
       if !allowed && !params[:package].nil?
         [params[:package]].flatten.each do |pack_name|
-          pkg = Package.find_by_project_and_name(prj.name, pack_name)
+          pkg = Package.find_by_project_and_name(prj.name, Package.multibuild_flavor(pack_name))
           if pkg.nil?
             allowed = permissions.project_change?(prj)
             unless allowed
