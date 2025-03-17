@@ -1064,6 +1064,7 @@ our $ajaxjob = [
 
 our $ajaxstatus = [
     'ajaxstatus' =>
+	'aidx',
 	'starttime',
 	'pid',
 	'ev',
@@ -1087,6 +1088,11 @@ our $ajaxstatus = [
       [ 'joblist' =>
 	  [ $ajaxjob ],
       ],
+];
+
+our $ajaxstatuslist = [
+    'ajaxstatuslist' =>
+	[ $ajaxstatus ],
 ];
 
 our $serverstatus = [

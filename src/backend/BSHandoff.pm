@@ -64,6 +64,8 @@ sub handoff {
   $path = { 'uri' => $path } unless ref $path;
   my $sockpath = $path->{'handoffpath'} || $conf->{'handoffpath'};
   die("no handoff path set\n") unless $sockpath;
+  my $ajaxpartition = $path->{'ajaxpartition'};
+  $sockpath = ($conf->{'ajaxpartitionmap'}->{$ajaxpartition} || $sockpath) if $ajaxpartition && $conf->{'ajaxpartitionmap'} && !$path->{'handoffpath'};
   my $sock;
   socket($sock, PF_UNIX, SOCK_STREAM, 0) || die("socket: $!\n");
   connect($sock, sockaddr_un($sockpath)) || die("connect: $!\n");
@@ -94,6 +96,13 @@ sub handoff {
     exit(0);
   }
   return $r;
+}
+
+sub handoff_part {
+  my ($ajaxpartition, $path, @args) = @_;
+  return handoff({ 'uri' => $path, 'ajaxpartition' => $ajaxpartition }, @args) unless ref $path;
+  local $path->{'ajaxpartition'} = $ajaxpartition;
+  return handoff($path, @args);
 }
 
 sub rpc {
