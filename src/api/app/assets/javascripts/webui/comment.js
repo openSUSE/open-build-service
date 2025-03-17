@@ -7,9 +7,11 @@ function resizeTextarea(textarea) { // jshint ignore:line
 }
 
 function updateCommentCounter(selector, count) {
-  var oldValue = $(selector).text();
+  if (selector !== undefined && selector !== null && selector !== '') {
+    var oldValue = $(selector).text();
 
-  $(selector).text(parseInt(oldValue) + count);
+    $(selector).text(parseInt(oldValue) + count);
+  }
 }
 
 function validateForm(e) {
@@ -26,7 +28,7 @@ function handlingCommentEvents() {
 
   // This is being used by the legacy request view comment form to capture the rendered template
   // from the controller and replace the whole .comments-list with it
-  $('.comments-list').on('ajax:complete', '.post-comment-form', function(_, data) {
+  $('.comments-list').on('ajax:complete', '.post-comment-form, .put-comment-form, .moderate-form', function(_, data) {
     var $commentsList = $(this).closest('.comments-list');
 
     $commentsList.html(data.responseText);
@@ -34,7 +36,7 @@ function handlingCommentEvents() {
   });
 
   // This is being used to render only the comment thread for a reply by the beta request show view
-  $('.timeline,.diff-accordion').on('ajax:complete', '.post-comment-form', function(_, data) {
+  $('.timeline, .diff-accordion, .diff').on('ajax:complete', '.post-comment-form, .put-comment-form, .moderate-form', function(_, data) {
     $(this).closest('.comments-thread').html(data.responseText);
   });
 
@@ -48,30 +50,6 @@ function handlingCommentEvents() {
       '</div>'
     );
     $(this).trigger("reset");
-  });
-
-  // This is being used to update the comment with the updated content after an edit from the legacy request view
-  $('.comments-list').on('ajax:complete', '.put-comment-form', function(_, data) {
-    var $commentsList = $(this).closest('.comments-list');
-
-    $commentsList.html(data.responseText);
-  });
-
-  // This is being used to update the comment with the updated content after an edit from the beta request show view
-  $('.timeline,.diff-accordion').on('ajax:complete', '.put-comment-form', function(_, data) {
-    $(this).closest('.comments-thread').html(data.responseText);
-  });
-
-  // This is being used to update the comment with the updated content after a moderation from the legacy request view
-  $('.comments-list').on('ajax:complete', '.moderate-form', function(_, data) {
-    var $commentsList = $(this).closest('.comments-list');
-
-    $commentsList.html(data.responseText);
-  });
-
-  // This is being used to update the comment with the updated content after a moderation from the beta request show view
-  $('.timeline,.diff-accordion').on('ajax:complete', '.moderate-form', function(_, data) {
-    $(this).closest('.comments-thread').html(data.responseText);
   });
 
   // This is used to delete a comment from the legacy request view
