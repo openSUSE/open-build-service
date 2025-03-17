@@ -11,9 +11,9 @@ class PackageIssue < ApplicationRecord
         package.issue_ids = issues.values.flatten.pluck(:id)
 
         # set change value for all
-        issues.each do |pair|
+        issues.each_pair do |key, value|
           # rubocop:disable Rails/SkipsModelValidations
-          PackageIssue.where(package: package, issue: pair.last).lock(true).update_all(change: pair.first)
+          PackageIssue.where(package: package, issue: value).lock(true).update_all(change: key)
           # rubocop:enable Rails/SkipsModelValidations
         end
       end
