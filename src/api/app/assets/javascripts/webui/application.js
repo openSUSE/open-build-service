@@ -50,7 +50,6 @@
 //= require webui/kiwi_editor.js
 //= require webui/monitor.js
 //= require webui/in_place_editing.js
-//= require webui/notification.js
 //= require webui/navigation.js
 //= require webui/user_profile.js
 //= require webui/long_text.js

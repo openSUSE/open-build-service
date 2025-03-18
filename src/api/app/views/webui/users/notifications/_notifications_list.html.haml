@@ -23,6 +23,8 @@
   = paginate notifications, views_prefix: 'webui', window: 2, params: { action: 'index', id: nil }
   = render partial: 'page_size_navigation', locals: { paginated_objects: notifications }
 
+- content_for(:content_for_head, javascript_include_tag('webui/notification'))
+
 - content_for :ready_function do
   handleNotificationCheckboxSelection();
   applySmartOverflow();
