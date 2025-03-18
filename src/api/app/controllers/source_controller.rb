@@ -122,7 +122,7 @@ class SourceController < ApplicationController
 
     if params[:oproject]
       origin_project_name = params[:oproject]
-      valid_project_name!(origin_project_name)
+      raise InvalidProjectNameError, "invalid project name '#{origin_project_name}'" unless Project.valid_name?(origin_project_name)
     end
     if params[:opackage]
       origin_package_name = params[:opackage]
@@ -131,7 +131,8 @@ class SourceController < ApplicationController
 
     required_parameters :oproject if origin_package_name
 
-    valid_project_name!(params[:target_project]) if params[:target_project]
+    raise InvalidProjectNameError, "invalid project name '#{params[:target_project]}'" if params[:target_project] && !Project.valid_name?(params[:target_project])
+
     valid_package_name!(params[:target_package]) if params[:target_package]
 
     # Check for existence/access of origin package when specified
@@ -139,7 +140,7 @@ class SourceController < ApplicationController
     Project.get_by_name(origin_project_name) if origin_project_name
     @spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name) if origin_package_name && !origin_package_name.in?(%w[_project _pattern]) && !(params[:missingok] && @command.in?(%w[branch release]))
     unless PACKAGE_CREATING_COMMANDS.include?(@command) && !Project.exists_by_name(@target_project_name)
-      valid_project_name!(params[:project])
+      raise InvalidProjectNameError, "invalid project name '#{params[:project]}'" unless Project.valid_name?(params[:project])
 
       raise InvalidPackageNameError, "invalid package name '#{params[:package]}'" unless Package.valid_name?(params[:package], allow_multibuild: @command == 'release')
 

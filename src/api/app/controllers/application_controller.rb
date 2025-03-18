@@ -99,7 +99,7 @@ class ApplicationController < ActionController::Base
 
   def require_valid_project_name
     required_parameters :project
-    valid_project_name!(params[:project])
+    raise InvalidProjectNameError, "invalid project name '#{params[:project]}'" unless Project.valid_name?(params[:project])
   end
 
   def require_scmsync_host_check

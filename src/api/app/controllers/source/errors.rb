@@ -3,6 +3,9 @@ module Source::Errors
     setup 404, 'Illegal request'
   end
 
+  class InvalidProjectNameError < APIError
+  end
+
   class NoPermissionForDeleted < APIError
     setup 403, 'only admins can see deleted projects'
   end
