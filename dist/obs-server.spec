@@ -141,7 +141,6 @@ Version:        2.10~pre
 Release:        0
 Url:            http://www.openbuildservice.org
 Source0:        open-build-service-%version.tar.xz
-BuildRequires:  python-devel
 
 # None of our perl modules are for consumption
 %define __provides_exclude ^perl\\(

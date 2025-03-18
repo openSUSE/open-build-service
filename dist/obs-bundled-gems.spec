@@ -46,7 +46,6 @@ BuildRequires:  libxslt-devel
 BuildRequires:  make
 BuildRequires:  mysql-devel
 BuildRequires:  nodejs
-BuildRequires:  python-devel
 %if 0%{?suse_version}
 BuildRequires:  ruby3.1-devel
 BuildRequires:  openldap2-devel
