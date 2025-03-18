@@ -41,19 +41,12 @@ module Source::Errors
     setup 404
   end
 
-  class ProjectNameMismatch < APIError
-  end
-
   class RepositoryAccessFailure < APIError
     setup 404
   end
 
   class ProjectReadAccessFailure < APIError
     setup 404
-  end
-
-  class PutProjectConfigNoPermission < APIError
-    setup 403
   end
 
   class DeleteProjectPubkeyNoPermission < APIError
@@ -68,10 +61,6 @@ module Source::Errors
 
   class WrongRouteForStagingWorkflow < APIError
     setup 403, 'Staging workflows can not be changed through the API'
-  end
-
-  class AttributeNotFound < APIError
-    setup 'not_found', 404
   end
 
   class ModifyProjectNoPermission < APIError
