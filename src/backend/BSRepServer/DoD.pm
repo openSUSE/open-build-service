@@ -106,7 +106,7 @@ sub fetchdodcontainer {
     return "$dir/$pkgname.tar" if is_wanted_dodcontainer($pool, $p, "$dir/$pkgname");
   }
   # we really need to download, handoff to ajax if not already done
-  BSHandoff::handoff(@$handoff) if $handoff && !$BSStdServer::isajax;
+  BSHandoff::handoff_part('dod', @$handoff) if $handoff && !$BSStdServer::isajax;
 
   # download all missing blobs
   my $path = $pool->pkg2path($p);
@@ -142,7 +142,7 @@ sub fetchdodbinary {
     return $localname if is_wanted_dodbinary($pool, $p, $localname);
   }
   # we really need to download, handoff to ajax if not already done
-  BSHandoff::handoff(@$handoff) if $handoff && !$BSStdServer::isajax;
+  BSHandoff::handoff_part('dod', @$handoff) if $handoff && !$BSStdServer::isajax;
   my $url = $repo->dodurl();
   $url .= '/' unless $url =~ /\/$/;
   $url .= $pool->pkg2path($p);
