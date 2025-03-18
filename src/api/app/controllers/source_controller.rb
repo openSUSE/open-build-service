@@ -140,11 +140,9 @@ class SourceController < ApplicationController
     @spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name) if origin_package_name && !origin_package_name.in?(%w[_project _pattern]) && !(params[:missingok] && @command.in?(%w[branch release]))
     unless PACKAGE_CREATING_COMMANDS.include?(@command) && !Project.exists_by_name(@target_project_name)
       valid_project_name!(params[:project])
-      if @command == 'release' # wipe and rebuild should become supported as well
-        raise InvalidPackageNameError, "invalid package name '#{params[:package]}'" unless Package.valid_name?(params[:package], allow_multibuild: true)
-      else
-        valid_package_name!(params[:package])
-      end
+
+      raise InvalidPackageNameError, "invalid package name '#{params[:package]}'" unless Package.valid_name?(params[:package], allow_multibuild: @command == 'release')
+
       # even when we can create the package, an existing instance must be checked if permissions are right
       @project = Project.get_by_name(@target_project_name)
       if (PACKAGE_CREATING_COMMANDS.exclude?(@command) || Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(@command))) &&
