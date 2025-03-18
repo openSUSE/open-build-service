@@ -141,7 +141,7 @@ class SourceController < ApplicationController
     unless PACKAGE_CREATING_COMMANDS.include?(@command) && !Project.exists_by_name(@target_project_name)
       valid_project_name!(params[:project])
       if @command == 'release' # wipe and rebuild should become supported as well
-        valid_multibuild_package_name!(params[:package])
+        raise InvalidPackageNameError, "invalid package name '#{params[:package]}'" unless Package.valid_name?(params[:package], allow_multibuild: true)
       else
         valid_package_name!(params[:package])
       end
