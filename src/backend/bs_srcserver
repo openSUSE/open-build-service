@@ -5222,11 +5222,10 @@ sub getworkerstatus {
 sub getajaxstatuslist {
   my ($cgi) = @_;
   my $conf = $BSServer::request->{'conf'};
-  die("internal error\n") if $BSStdServer::isajax;
   my $param = { 'uri' => '/ajaxstatus' };
   my @ajaxstatuslist;
   for (0 .. scalar(@{$conf->{'ajaxpartitions'} || []})) {
-    $param->{'handoffpath'} = "$conf->{'handoffpath'}$_" if $_ && $conf->{'handoffpath'};
+    $param->{'handoffpath'} = BSStdServer::get_handoffpath_aidx($conf, $_ || '');
     push @ajaxstatuslist, BSHandoff::rpc($param, $BSXML::ajaxstatus);
   }
   return ({ 'ajaxstatus' => \@ajaxstatuslist }, $BSXML::ajaxstatuslist);
@@ -5234,16 +5233,10 @@ sub getajaxstatuslist {
 
 sub getajaxstatus {
   my ($cgi) = @_;
-  return getajaxstatuslist($cgi) if ($cgi->{'aidx'} || '') eq 'all';
   my $conf = $BSServer::request->{'conf'};
   if (!$BSStdServer::isajax) {
     my $param = { 'uri' => '/ajaxstatus' };
-    my $aidx = $cgi->{'aidx'};
-    if ($aidx) {
-      die("Illegal aidx '$aidx'\n") if $aidx !~ /^[0-9]+$/;
-      die("Unknown ajax partition '$aidx'\n") if $aidx > @{$conf->{'ajaxpartitions'} || []};
-      $param->{'handoffpath'} = "$conf->{'handoffpath'}$aidx" if $conf->{'handoffpath'};
-    }
+    $param->{'handoffpath'} = BSStdServer::get_handoffpath_aidx($conf, $cgi->{'aidx'});
     BSHandoff::handoff($param);
   }
   my $r = BSWatcher::getstatus();
@@ -8077,7 +8070,8 @@ my $dispatches = [
   'POST:/slsa cmd=addrefs $prpa' => \&slsa_addrefs,
   '/slsa/$project/$repository/$arch/$filename/$digest: view:?' => \&slsa_getfile,
 
-  '/ajaxstatus aidx:?' => \&getajaxstatus,
+  '/ajaxstatus aidx=all' => \&getajaxstatuslist,
+  '/ajaxstatus aidx:num?' => \&getajaxstatus,
   '/serverstatus' => \&BSStdServer::serverstatus,
 ];
 
