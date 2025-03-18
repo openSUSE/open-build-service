@@ -46,5 +46,5 @@ end
 #
 # Foreign Keys
 #
-#  attrib_values_ibfk_1  (attrib_id => attribs.id)
+#  fk_rails_...  (attrib_id => attribs.id) ON DELETE => cascade
 #
