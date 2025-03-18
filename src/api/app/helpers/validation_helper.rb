@@ -16,7 +16,7 @@ module ValidationHelper
   end
 
   def valid_multibuild_package_name!(package_name)
-    raise InvalidPackageNameError, "invalid package name '#{package_name}'" unless Package.valid_multibuild_name?(package_name)
+    raise InvalidPackageNameError, "invalid package name '#{package_name}'" unless Package.valid_name?(package_name, allow_multibuild: true)
   end
 
   # load last package meta file and just check if sourceaccess flag was used at all, no per user checking atm
