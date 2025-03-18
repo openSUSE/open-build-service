@@ -387,6 +387,18 @@ sub run_ajax_server {
   BSServer::msg("AJAX$aidx: $name goodbye.");
 }
 
+sub get_handoffpath_aidx {
+  my ($conf, $aidx) = @_;
+  my $sockpath = $conf->{'handoffpath'};
+  die("no handoff path set\n") unless $sockpath;
+  if ($aidx) {
+    die("bad ajax partition '$aidx'\n") if $aidx !~ /^\d+$/s;
+    die("unknown ajax partition '$aidx'\n") if $aidx > @{$conf->{'ajaxpartitions'} || []};
+    $sockpath .= $aidx;
+  }
+  return $sockpath;
+}
+
 sub server {
   my ($name, $args, $conf, $aconf) = @_;
   my $logfile;

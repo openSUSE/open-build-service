@@ -637,7 +637,7 @@ sub getbinarylist_repository {
 
   if (($view eq 'cache' || $view eq 'cpio' || $view eq 'solvstate') && !$BSStdServer::isajax && !$cgi->{'noajax'}) {
     my @args = BSRPC::args($cgi, 'view', 'binary', 'module');
-    BSHandoff::handoff("/build/$projid/$repoid/$arch/_repository", undef, @args);
+    BSHandoff::handoff_part('interconnect_in', "/build/$projid/$repoid/$arch/_repository", undef, @args);
   }
 
   if ($view eq 'solv') {
@@ -978,7 +978,7 @@ sub getbinarylist {
   my $view = $cgi->{'view'} || '';
   if ($view eq 'cpio' && !$BSStdServer::isajax && !$cgi->{'noajax'}) {
     my @args = BSRPC::args($cgi, 'view', 'binary', 'nosource');
-    BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid", undef, @args);
+    BSHandoff::handoff_part('interconnect_in', "/build/$projid/$repoid/$arch/$packid", undef, @args);
   }
   my %binaries = map {$_ => 1} @{$cgi->{'binary'} || []};
   if ($view eq 'cpio') {
@@ -4132,10 +4132,28 @@ sub getconfiguration {
   return ($configuration, $BSXML::configuration);
 }
 
+sub getajaxstatuslist {
+  my ($cgi) = @_;
+  my $conf = $BSServer::request->{'conf'};
+  my $param = { 'uri' => '/ajaxstatus' };
+  my @ajaxstatuslist;
+  for (0 .. scalar(@{$conf->{'ajaxpartitions'} || []})) {
+    $param->{'handoffpath'} = BSStdServer::get_handoffpath_aidx($conf, $_ || '');
+    push @ajaxstatuslist, BSHandoff::rpc($param, $BSXML::ajaxstatus);
+  }
+  return ({ 'ajaxstatus' => \@ajaxstatuslist }, $BSXML::ajaxstatuslist);
+}
+
 sub getajaxstatus {
   my ($cgi) = @_;
-  BSHandoff::handoff('/ajaxstatus') if !$BSStdServer::isajax;
+  my $conf = $BSServer::request->{'conf'};
+  if (!$BSStdServer::isajax) {
+    my $param = { 'uri' => '/ajaxstatus' };
+    $param->{'handoffpath'} = BSStdServer::get_handoffpath_aidx($conf, $cgi->{'aidx'});
+    BSHandoff::handoff($param);
+  }
   my $r = BSWatcher::getstatus();
+  $r->{'aidx'} = $conf->{'aidx'} if $conf->{'aidx'};
   return ($r, $BSXML::ajaxstatus);
 }
 
@@ -4605,7 +4623,8 @@ my $dispatches = [
   'POST:/_command $cmd: $prpa+ package* code:* lastbuild:bool? sysrq:? allarch:bool?' => \&docommand,
 
   '/serverstatus' => \&BSStdServer::serverstatus,
-  '/ajaxstatus' => \&getajaxstatus,
+  '/ajaxstatus aidx=all' => \&getajaxstatuslist,
+  '/ajaxstatus aidx:num?' => \&getajaxstatus,
 ];
 
 my $dispatches_ajax = [
@@ -4637,6 +4656,8 @@ my $aconf = {
   'dispatches' => $dispatches_ajax,
   'slowrequestthr' => 300,
 };
+
+$aconf->{'partitions'} = $BSConfig::reposerver_ajaxpartitions if $BSConfig::reposerver_ajaxpartitions;
 
 if ($BSConfig::workerreposerver) {
   my $wport = $port;
