@@ -42,7 +42,7 @@ class ResolveSwaggerYAML
   end
 
   def resolve_swagger_yaml
-    yaml = YAML.load_file(@input_file)
+    yaml = Psych.unsafe_load(File.read(@input_file, encoding: Encoding::UTF_8))
     resolved_in_json_format = nil
 
     Dir.chdir(File.dirname(@input_file)) do
