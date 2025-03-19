@@ -545,7 +545,7 @@ function prepare_apache2 {
 function prepare_passenger {
 
   perl -p -i -e \
-    's#^(\s*)PassengerRuby "/usr/bin/ruby"#$1\PassengerRuby "/usr/bin/ruby.ruby3.1"#' \
+    's#^(\s*)PassengerRuby "/usr/bin/ruby"#$1\PassengerRuby "/usr/bin/ruby.ruby3.4"#' \
       $MOD_PASSENGER_CONF
 
 }
