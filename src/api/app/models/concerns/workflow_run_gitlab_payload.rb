@@ -111,4 +111,9 @@ module WorkflowRunGitlabPayload
   def gitlab_unlabeled_merge_request?
     false
   end
+
+  def gitlab_event_source_name
+    payload.dig('object_attributes', 'iid') if gitlab_merge_request?
+    payload.dig('commits', 0, 'id') if gitlab_push_event?
+  end
 end

@@ -108,4 +108,9 @@ module WorkflowRunGithubPayload
   def github_unlabeled_pull_request?
     github_pull_request? && hook_action == 'unlabeled'
   end
+
+  def github_event_source_name
+    payload.dig('pull_request', 'number') if github_pull_request?
+    payload.dig('head_commit', 'id') if github_push_event?
+  end
 end
