@@ -4,7 +4,7 @@ all:
 	@echo "Targets: install test dbclean installclean"
 
 install:
-	zypper -vv -n --gpg-auto-import-keys in --force-resolution --no-recommends chromedriver xorg-x11-fonts libxml2-devel libxslt-devel ruby3.1-devel git-core make gcc
+	zypper -vv -n --gpg-auto-import-keys in --force-resolution --no-recommends chromedriver xorg-x11-fonts libxml2-devel libxslt-devel ruby3.4-devel git-core make gcc
 	git clone --single-branch --branch master --depth 1 https://github.com/openSUSE/open-build-service.git /tmp/open-build-service
 	cd /tmp/open-build-service/dist/t
 	bundle install
