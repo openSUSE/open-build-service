@@ -4650,8 +4650,8 @@ sub getbinarylist {
     my $proj = checkprojrepoarch($projid, $repoid, undef, 1);
     if ($view eq 'cpio' && $packid eq '_repository' && !@{$cgi->{'binary'} || []}) {
       if (!$proj->{'remoteurl'} || $proj->{'partition'}) {
-        my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
-        my $doddata = (grep {($_->{'arch'} || '') eq $arch} @{($repo || {})->{'download'} || []})[0];
+        my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0] || {};
+        my $doddata = (grep {($_->{'arch'} || '') eq $arch} @{$repo->{'download'} || []})[0];
 	die("will not get all dod packages\n") if $doddata;
       }
     }
@@ -4706,28 +4706,25 @@ sub getbinarylist {
       BSHandoff::handoff_part('interconnect_out', '/getbinaryversions', undef, @args);
     }
     if (!$BSStdServer::isajax && $packid eq '_repository') {
-      # this can take a while if we have dod configured, in that case handoff
-      my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
-      if ($repo) {
-	my $doddata = (grep {($_->{'arch'} || '') eq $arch} @{$repo->{'download'} || []})[0];
-	if ($doddata) {
-	  die("will not get all dod packages\n") unless @{$cgi->{'binary'} || []};
-	  BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid", undef, @args);
-	}
+      my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0] || {};
+      my $doddata = (grep {($_->{'arch'} || '') eq $arch} @{$repo->{'download'} || []})[0];
+      die("will not get all dod packages\n") if $doddata && !@{$cgi->{'binary'} || []};
+      my $useragent = $BSServer::request->{'headers'}->{'user-agent'} || '';
+      if ($cgi->{'nometa'} && $useragent =~ /BSRPC/) {
+	# probably comming from an interconnect, do a handoff
+	BSHandoff::handoff_part('interconnect_in', "/build/$projid/$repoid/$arch/$packid", undef, @args);
       }
+      # this can take a while if we have dod configured, in that case handoff
+      BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid", undef, @args) if $doddata;
     }
     my $bvl = BSWatcher::rpc($param, $BSXML::binaryversionlist, @args);
     return ($bvl, $BSXML::binaryversionlist);
   }
   if ($view && $view eq 'names' && $cgi->{'binary'} && !$BSStdServer::isajax && $packid eq '_repository') {
+    my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0] || {};
+    my $doddata = (grep {($_->{'arch'} || '') eq $arch} @{$repo->{'download'} || []})[0];
     # this can take a while if we have dod configured, in that case handoff
-    my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
-    if ($repo) {
-      my $doddata = (grep {($_->{'arch'} || '') eq $arch} @{$repo->{'download'} || []})[0];
-      if ($doddata) {
-        BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid", undef, @args);
-      }
-    }
+    BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid", undef, @args) if $doddata;
   }
   if ($view && ($view eq 'cpioheaders' || $view eq 'cpioheaderchksums')) {
      $param->{'ignorestatus'} = 1;
