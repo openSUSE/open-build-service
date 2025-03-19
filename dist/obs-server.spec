@@ -67,10 +67,10 @@ Requires:       rubygem-passenger-apache2\
 Requires:       ruby(abi) = %{__obs_ruby_abi_version}\
 %{nil}
 
-%define __obs_ruby_abi_version 3.1.0
-%define __obs_ruby_bin /usr/bin/ruby.ruby3.1
-%define __obs_bundle_bin /usr/bin/bundle.ruby3.1
-%define __obs_rake_bin /usr/bin/rake.ruby3.1
+%define __obs_ruby_abi_version 3.4.0
+%define __obs_ruby_bin /usr/bin/ruby.ruby3.4
+%define __obs_bundle_bin /usr/bin/bundle.ruby3.4
+%define __obs_rake_bin /usr/bin/rake.ruby3.4
 %define __obs_document_root %{apache_datadir}/obs
 %define __obs_api_prefix %{__obs_document_root}/api
 %define __obs_build_package_name build
