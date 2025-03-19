@@ -1,4 +1,4 @@
-#!/usr/bin/ruby.ruby3.1
+#!/usr/bin/ruby.ruby3.4
 ENV['RAILS_ENV'] ||= 'test'
 ENV['origin_RAILS_ENV'] ||= ENV.fetch('RAILS_ENV', nil)
 ENV['LC_ALL'] = 'C'
