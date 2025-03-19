@@ -2,6 +2,7 @@ post:
   summary: Create a fork of a package taking the source from the scmsync parameter
   description: |
     Create a fork of a package taking the source from the scmsync parameter.
+    For forking entire scmsync project the package name needs to be '_project'.
     The target project is by default below home:<user>:branches namespace.
     The target project will be setup to include the source project repository setup.
     The source project must exists, the source package may not exist.

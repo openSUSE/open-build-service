@@ -2764,6 +2764,21 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     put '/source/home:adrian:IMAGES/appliance/_meta', params: "<package project='home:adrian:IMAGES' name='appliance'> <title/> <description/> <scmsync>http://localhost</scmsync> </package>"
     assert_response :success
 
+    # ensure we send a proper error message to osc
+    raw_post '/source/home:adrian:IMAGES/appliance?cmd=commitfilelist', ' <directory></directory> '
+    assert_response :bad_request
+    assert_xml_tag tag: 'status', attributes: { origin: 'backend' }
+    assert_select 'status[code] > summary', /Package appliance is controlled by obs-scm/
+    raw_put '/source/home:adrian:IMAGES/appliance/filename?rev=repository', '123'
+    assert_response :forbidden
+    assert_xml_tag tag: 'status', attributes: { code: 'scmsync_read_only' }
+    raw_post '/source/home:adrian:IMAGES/appliance?cmd=commitfilelist', ' <directory> <entry name="filename" md5="ba1f2511fc30423bdbb183fe33f3dd0f" /> </directory> '
+    assert_response :success
+    assert_xml_tag tag: 'directory', attributes: { error: 'missing' }
+    post '/source/home:adrian:IMAGES/appliance', params: { cmd: 'commit' }
+    assert_response :bad_request
+    assert_select 'status[code] > summary', /Package appliance is controlled by obs-scm/
+
     login_tom
     post '/source/home:adrian:IMAGES/appliance', params: { cmd: 'fork' }
     assert_response :bad_request
@@ -2792,6 +2807,64 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/search/package', params: { match: '[scmsync="http://127.0.0.1"]' }
     assert_response :success
     assert_xml_tag child: { tag: 'package', attributes: { name: 'appliance', project: 'home:tom:branches:home:adrian:IMAGES' } }
+
+    # cleanup
+    delete '/source/home:tom:branches:home:adrian:IMAGES'
+    assert_response :success
+    login_adrian
+    delete '/source/home:adrian:IMAGES'
+    assert_response :success
+  end
+
+  def test_fork_project
+    login_adrian
+    put '/source/home:adrian:IMAGES/_meta', params: "<project name='home:adrian:IMAGES'> <title/> <description/>
+          <scmsync>http://localhost</scmsync>
+          <repository name='images'>
+            <arch>i586</arch>
+            <arch>x86_64</arch>
+          </repository>
+        </project>"
+    assert_response :success
+
+    # ensure we send a proper error message to osc
+    raw_post '/source/home:adrian:IMAGES/appliance?cmd=commitfilelist', ' <directory></directory> '
+    assert_response :not_found
+    assert_xml_tag tag: 'status', attributes: { code: 'not_found' }
+    raw_put '/source/home:adrian:IMAGES/appliance/filename?rev=repository', '123'
+    assert_response :forbidden
+    assert_xml_tag tag: 'status', attributes: { code: 'scmsync_read_only' }
+    raw_post '/source/home:adrian:IMAGES/appliance?cmd=commitfilelist', ' <directory> <entry name="filename" md5="ba1f2511fc30423bdbb183fe33f3dd0f" /> </directory> '
+    assert_response :success
+    assert_xml_tag tag: 'directory', attributes: { error: 'missing' }
+    post '/source/home:adrian:IMAGES/appliance', params: { cmd: 'commit' }
+    assert_response :not_found
+
+    login_tom
+    post '/source/home:adrian:IMAGES/_project', params: { cmd: 'fork' }
+    assert_response :bad_request
+    assert_xml_tag(tag: 'status', attributes: { code: 'missing_parameter' })
+
+    # forking the project
+    post '/source/home:adrian:IMAGES/_project', params: { cmd: 'fork', scmsync: 'http://127.0.0.1' }
+    assert_response :success
+
+    post '/source/home:adrian:IMAGES/_project', params: { cmd: 'fork', scmsync: 'http://127.0.0.1',
+                                                          target_project: 'home:adrian:SOMEWHERE' }
+    assert_response :forbidden
+
+    get '/source/home:tom:branches:home:adrian:IMAGES/_project/_history'
+    assert_response :success
+
+    get '/source/home:tom:branches:home:adrian:IMAGES/_meta'
+    assert_response :success
+    assert_xml_tag(tag: 'repository', attributes: { name: 'images' })
+    assert_xml_tag(tag: 'scmsync', content: 'http://127.0.0.1')
+    assert_no_xml_tag(tag: 'path')
+
+    get '/source/home:tom:branches:home:adrian:IMAGES/_project/_meta'
+    assert_response :success
+    assert_xml_tag(tag: 'scmsync', content: 'http://127.0.0.1')
 
     # cleanup
     delete '/source/home:tom:branches:home:adrian:IMAGES'
