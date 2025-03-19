@@ -2,13 +2,6 @@
 module WorkflowRunPayload
   extend ActiveSupport::Concern
 
-  SOURCE_NAME_PAYLOAD_MAPPING = {
-    'pull_request' => %w[pull_request number],
-    'Merge Request Hook' => %w[object_attributes iid],
-    'push' => %w[head_commit id],
-    'Push Hook' => ['commits', 0, 'id']
-  }.freeze
-
   def new_pull_request?
     github_new_pull_request? || gitlab_new_pull_request? || gitea_new_pull_request?
   end
@@ -119,8 +112,7 @@ module WorkflowRunPayload
   end
 
   def payload_event_source_name
-    path = SOURCE_NAME_PAYLOAD_MAPPING[hook_event]
-    payload.dig(*path) if path
+    github_event_source_name || gitlab_event_source_name
   end
 
   def payload_repository_name
