@@ -211,7 +211,7 @@ class Authenticator
     if @http_user.state == 'confirmed'
       Rails.logger.debug { "USER found: #{@http_user.login}" }
       @user_permissions = Suse::Permission.new(@http_user)
-      return true
+      return
     end
 
     raise InactiveUserError, 'User is registered but not in confirmed state. Your account ' \
