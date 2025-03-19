@@ -106,6 +106,8 @@ gem 'paper_trail'
 gem 'ansible'
 # Generating inline diff highlights
 gem 'dimapa'
+# mutex_m is not included neither Ruby 3.4 nor Rails 7.0
+gem 'mutex_m'
 
 gem 'logger'
 
