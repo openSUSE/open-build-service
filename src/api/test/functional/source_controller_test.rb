@@ -2764,6 +2764,21 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     put '/source/home:adrian:IMAGES/appliance/_meta', params: "<package project='home:adrian:IMAGES' name='appliance'> <title/> <description/> <scmsync>http://localhost</scmsync> </package>"
     assert_response :success
 
+    # ensure we send a proper error message to osc
+    raw_post '/source/home:adrian:IMAGES/appliance?cmd=commitfilelist', ' <directory></directory> '
+    assert_response :bad_request
+    assert_xml_tag tag: 'status', attributes: { origin: 'backend' }
+    assert_select 'status[code] > summary', /Package appliance is controlled by obs-scm/
+    raw_put '/source/home:adrian:IMAGES/appliance/filename?rev=repository', '123'
+    assert_response :forbidden
+    assert_xml_tag tag: 'status', attributes: { code: 'scmsync_read_only' }
+    raw_post '/source/home:adrian:IMAGES/appliance?cmd=commitfilelist', ' <directory> <entry name="filename" md5="ba1f2511fc30423bdbb183fe33f3dd0f" /> </directory> '
+    assert_response :success
+    assert_xml_tag tag: 'directory', attributes: { error: 'missing' }
+    post '/source/home:adrian:IMAGES/appliance', params: { cmd: 'commit' }
+    assert_response :bad_request
+    assert_select 'status[code] > summary', /Package appliance is controlled by obs-scm/
+
     login_tom
     post '/source/home:adrian:IMAGES/appliance', params: { cmd: 'fork' }
     assert_response :bad_request
@@ -2812,11 +2827,25 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
         </project>"
     assert_response :success
 
+    # ensure we send a proper error message to osc
+    raw_post '/source/home:adrian:IMAGES/appliance?cmd=commitfilelist', ' <directory></directory> '
+    assert_response :not_found
+    assert_xml_tag tag: 'status', attributes: { code: 'not_found' }
+    raw_put '/source/home:adrian:IMAGES/appliance/filename?rev=repository', '123'
+    assert_response :forbidden
+    assert_xml_tag tag: 'status', attributes: { code: 'scmsync_read_only' }
+    raw_post '/source/home:adrian:IMAGES/appliance?cmd=commitfilelist', ' <directory> <entry name="filename" md5="ba1f2511fc30423bdbb183fe33f3dd0f" /> </directory> '
+    assert_response :success
+    assert_xml_tag tag: 'directory', attributes: { error: 'missing' }
+    post '/source/home:adrian:IMAGES/appliance', params: { cmd: 'commit' }
+    assert_response :not_found
+
     login_tom
     post '/source/home:adrian:IMAGES/_project', params: { cmd: 'fork' }
     assert_response :bad_request
     assert_xml_tag(tag: 'status', attributes: { code: 'missing_parameter' })
 
+    # forking the project
     post '/source/home:adrian:IMAGES/_project', params: { cmd: 'fork', scmsync: 'http://127.0.0.1' }
     assert_response :success
 
