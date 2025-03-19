@@ -78,14 +78,6 @@ module WorkflowRunPayload
     github_api_endpoint || gitlab_api_endpoint || gitea_api_endpoint
   end
 
-  def project_id
-    gitlab_project_id
-  end
-
-  def path_with_namespace
-    gitlab_path_with_namespace
-  end
-
   def label
     github_pull_request_label || gitea_pull_request_label || gitlab_merge_request_label
   end
@@ -102,11 +94,11 @@ module WorkflowRunPayload
 
   def payload_generic_event_type
     # We only have filters for push, tag_push, and pull_request
-    if hook_event == 'Push Hook' || payload.fetch('ref', '').match('refs/heads')
+    if push_event?
       'push'
-    elsif hook_event == 'Tag Push Hook' || payload.fetch('ref', '').match('refs/tag')
+    elsif tag_push_event?
       'tag_push'
-    elsif hook_event.in?(['pull_request', 'Merge Request Hook'])
+    elsif pull_request_event?
       'pull_request'
     end
   end
