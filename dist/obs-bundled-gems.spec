@@ -57,6 +57,7 @@ BuildRequires:  rubygem-bundler
 BuildRequires:  openldap-devel
 %endif
 BuildRequires:  chrpath
+PreReq: permissions
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
@@ -162,6 +163,7 @@ rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/selenium-webdriver-*/lib/seleniu
 
 # remove all gitignore files to fix rpmlint version-control-internal-file
 find %{buildroot}%_libdir/obs-api -name .gitignore | xargs rm -rf
+find %{buildroot}%_libdir/obs-api -name .cvsignore | xargs rm -rf
 
 # use the ruby interpreter set by this spec file in all installed ruby scripts
 for bin in %{buildroot}%_libdir/obs-api/ruby/*/bin/*; do
