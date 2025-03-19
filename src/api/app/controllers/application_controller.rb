@@ -95,14 +95,11 @@ class ApplicationController < ActionController::Base
       next if key == 'xmlhash' # perfectly fine
       raise InvalidParameterError, "Parameter #{key} has non String class #{value.class}" unless value.is_a?(String)
     end
-    true
   end
 
   def require_valid_project_name
     required_parameters :project
     valid_project_name!(params[:project])
-    # important because otherwise the filter chain is stopped
-    true
   end
 
   def require_scmsync_host_check
