@@ -45,6 +45,11 @@ class Project
       project.update_relationships_from_xml(xmlhash)
 
       update_repositories(xmlhash, force)
+
+      return if project.scmsync.blank?
+
+      project.revoke_requests
+      project.cleanup_packages
     end
 
     private
