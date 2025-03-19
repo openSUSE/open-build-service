@@ -36,9 +36,9 @@ module Webui::ProjectHelper
     true
   end
 
-  def project_labels(project, &block)
+  def project_labels(project, &)
     project.label_templates.includes([:labels]).find_each do |label_template|
-      label_template.labels.each(&block)
+      label_template.labels.each(&)
     end
   end
 end

@@ -1,5 +1,3 @@
-require 'set'
-
 class Comment < ApplicationRecord
   belongs_to :commentable, polymorphic: true # belongs to a Project, Package, BsRequest or BsRequestActionSubmit
   belongs_to :user, inverse_of: :comments
