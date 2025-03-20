@@ -33,6 +33,10 @@ class RequestDecisionComponent < ApplicationComponent
     end
   end
 
+  def confirmation_for_accept_and_make_maintainer
+    { confirm: "Do you really want to approve and make #{@creator} a maintainer?" }
+  end
+
   def other_decision_confirmation(decision_text)
     { confirm: "Do you really want to #{decision_text} this request?\n\n#{@package_maintainers_hint}" }
   end
