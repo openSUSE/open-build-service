@@ -108,6 +108,8 @@ gem 'ansible'
 gem 'dimapa'
 # mutex_m is not included neither Ruby 3.4 nor Rails 7.0
 gem 'mutex_m'
+# Network Kanji Filter, for Kanji conversions (former kconv)
+gem 'nkf'
 
 gem 'logger'
 
