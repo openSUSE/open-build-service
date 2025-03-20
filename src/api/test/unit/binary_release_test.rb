@@ -34,7 +34,8 @@ class BinaryReleaseTest < ActiveSupport::TestCase
                                           binary_release: '2.3',
                                           binary_arch: 'noarch',
                                           binary_supportstatus: 'unsupported',
-                                          binary_maintainer: 'tom')
+                                          binary_maintainer: 'tom',
+                                          binary_releasetime: Time.zone.now)
     binary_releases_of_package = BinaryRelease.where(repository: repository, binary_name: 'package')
     assert_equal binary_releases_of_package.first, binary_release
     assert_equal binary_releases_of_package.first.binary_name, 'package'
