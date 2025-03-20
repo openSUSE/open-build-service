@@ -285,7 +285,7 @@ Backend Configuration
      GNUPGHOME=/tmp/pgp gpg --export --armour > key.pgp.pub
      GNUPGHOME=/tmp/pgp gpg --export-secret-keys > key.pgp.sec
      gpg --encrypt -q --no-verbose --batch --trust-model always -r obsrun at localhost key.pgp.sec
-     cat key.pgp.sec.gpg | od -A n -v -t x1 | tr -d ' \n' > _signkey
+     cat key.pgp.sec.gpg | od -A n -v -t x1 | tr -d ' \\n' > _signkey
      bs_admin --update-project-signing-key project ./key.pgp.pub ./_signkey ./existing_x509.pem
      rm -f key.pgp*
      rm -rf /tmp/pgp
