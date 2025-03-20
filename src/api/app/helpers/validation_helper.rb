@@ -1,14 +1,7 @@
 require 'api_error'
 
 module ValidationHelper
-  class InvalidProjectNameError < APIError
-  end
-
   class InvalidPackageNameError < APIError
-  end
-
-  def valid_project_name!(project_name)
-    raise InvalidProjectNameError, "invalid project name '#{project_name}'" unless Project.valid_name?(project_name)
   end
 
   def valid_package_name!(package_name)
