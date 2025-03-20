@@ -109,6 +109,10 @@ gem 'dimapa'
 
 gem 'logger'
 
+# For Hotwire javascript libraries
+gem 'importmap-rails'
+gem 'turbo-rails'
+
 # FIXME: Required by the mail gem
 # See https://github.com/rails/rails/pull/44083
 gem 'net-smtp', require: false
