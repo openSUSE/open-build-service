@@ -1,5 +1,5 @@
 .request-decision.mt-n1
-  = form_tag({ action: 'changerequest' }, id: 'request_handle_form', class: 'write-and-preview',
+  = form_tag({ controller: 'webui/request', action: 'changerequest' }, id: 'request_handle_form', class: 'write-and-preview',
     data: { preview_message_url: preview_comments_path, message_body_param: 'comment[body]' }) do
     = hidden_field_tag(:number, @bs_request.number)
     .pb-2{ 'data-canned-controller': '' }
@@ -50,20 +50,23 @@
               = check_box_tag('add_submitter_as_maintainer_0', "#{@action.target_project}_#_#{@action.target_package}",
                               false, class: 'form-check-input')
           -# Accept buttons
-          %span.dropdown.me-2
-            = button_tag('Accept', type: 'button', role: 'button', id: 'decision-buttons-group', class: 'btn btn-secondary dropdown-toggle',
-                          data: { 'bs-toggle': 'dropdown'}, aria: { 'haspopup': 'true', 'expanded': 'false' })
-            .dropdown-menu{ aria: { labelledby: 'decision-buttons-group' } }
-              -# Simple Accept request submit
-              = submit_tag('Accept request', name: 'accepted', class: 'btn-link dropdown-item', data: confirmation,
-                            title: 'Accept the request, this will apply the changes on the target.')
-              -# Accept and make maintainer submit
-              - if accept_with_options_allowed? && show_add_submitter_as_maintainer_option?
+          - if accept_with_options_allowed? && show_add_submitter_as_maintainer_option?
+            %span.dropdown.me-2
+              = button_tag('Accept', type: 'button', role: 'button', id: 'decision-buttons-group', class: 'btn btn-secondary dropdown-toggle',
+                            data: { 'bs-toggle': 'dropdown'}, aria: { 'haspopup': 'true', 'expanded': 'false' })
+              .dropdown-menu{ aria: { labelledby: 'decision-buttons-group' } }
+                -# Simple Accept request submit
+                = submit_tag('Accept request', name: 'accepted', class: 'btn-link dropdown-item', data: confirmation,
+                              title: 'Accept the request, this will apply the changes on the target.')
+                -# Accept and make maintainer submit
                 = submit_tag("Accept and make #{@creator} maintainer of #{make_maintainer_of}",
                             name: 'accepted',
-                            class: 'btn-link dropdown-item', data: confirmation,
+                            class: 'btn-link dropdown-item', data: confirmation_for_accept_and_make_maintainer,
                             title: 'Accept the request. this will apply the changes on the target.',
                             id: 'accept-and-make-maintainer')
+          - else
+            = submit_tag('Accept request', name: 'accepted', class: 'btn btn-secondary me-2',
+                          title: 'Accept the request, this will apply the changes on the target.')
 
         - if policy(@bs_request).reopen_request?
           = submit_tag 'Reopen request', name: 'new', class: 'btn btn-warning me-2', data: other_decision_confirmation('reopen')
