@@ -54,7 +54,6 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
         fill_in('reason', with: 'really? ok')
 
         click_button('Accept')
-        click_button('Accept request')
       end
 
       it 'creates maintenance incident project' do
@@ -95,7 +94,6 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
         fill_in('reason', with: 'really? ok')
 
         click_button('Accept')
-        click_button('Accept request')
       end
 
       it 'creates maintenance incident project' do
