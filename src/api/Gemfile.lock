@@ -157,6 +157,7 @@ GEM
     docile (1.4.1)
     down (5.4.2)
       addressable (~> 2.8)
+    drb (2.2.1)
     erubi (1.13.1)
     execjs (2.10.0)
     factory_bot (6.5.1)
@@ -593,6 +594,7 @@ DEPENDENCIES
   delayed_job_active_record
   dimapa
   down
+  drb
   factory_bot_rails
   faker
   faraday

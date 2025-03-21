@@ -189,6 +189,8 @@ group :development, :test do
   # as testing framework
   gem 'rspec'
   gem 'rspec-rails'
+  # FIXME: fix/update whatever requires drb, it's not in standard lib anymore in Ruby 3.4
+  gem 'drb'
   # as rspec formatter
   gem 'fuubar'
   # for fixtures
