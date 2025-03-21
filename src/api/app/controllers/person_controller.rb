@@ -60,7 +60,7 @@ class PersonController < ApplicationController
       return
     end
     if params[:cmd] == 'lock'
-      return unless require_admin
+      raise AdminUserRequiredError, 'Requires admin privileges' unless @http_user.admin?
 
       user = User.find_by_login!(params[:login])
       user.lock!
@@ -69,7 +69,7 @@ class PersonController < ApplicationController
     end
     if params[:cmd] == 'delete'
       # maybe we should allow the users to delete themself?
-      return unless require_admin
+      raise AdminUserRequiredError, 'Requires admin privileges' unless @http_user.admin?
 
       user = User.find_by_login!(params[:login])
       user.delete!
