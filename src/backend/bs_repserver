@@ -2438,6 +2438,22 @@ sub putjob {
     }
   }
 
+  # create obsbinlnk file for helm chart results
+  if (grep {$_->{'name'} =~ /\.helminfo$/} @$uploaded) {
+    for my $file (@$uploaded) {
+      my $prefix = $file->{'name'};
+      next unless $prefix =~ s/\.helminfo$//;
+      my $obsbinlink = BSRepServer::Helminfo::helminfo2obsbinlnk($dir, "$prefix.helminfo", $info->{'package'});
+      next unless $obsbinlink;
+      BSUtil::store("$dir/$prefix.obsbinlnk", undef, $obsbinlink);
+      my @s = stat("$dir/$prefix.obsbinlnk");
+      next unless @s;
+      my $data = { %$obsbinlink, 'filename' => "$prefix.obsbinlnk", 'id' => "$s[9]/$s[7]/$s[1]" };
+      delete $data->{'path'};
+      $bininfo->{$data->{'filename'}} = $data;
+    }
+  }
+
   # calculate binary info to speed up scheduler
   for my $file (@$uploaded) {
     my $filename = $file->{'name'};
