@@ -3,7 +3,7 @@
 # contained rails app generating files in the git checkout with
 # some strange user...
 
-FROM registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-features:latest
+FROM registry.opensuse.org/obs/server/unstable/ruby32/containers/containers/openbuildservice/frontend-features:latest
 ARG CONTAINER_USERID
 
 # for lint task
@@ -13,6 +13,9 @@ RUN gem install --no-format-executable brakeman --version 5.4.0
 
 # Configure our user
 RUN usermod -u $CONTAINER_USERID frontend
+
+# Making the directory our bundle is installed writable
+RUN chown frontend:users /usr/lib64/obs-api
 
 # We copy the Gemfiles into this intermediate build stage so it's checksum
 # changes and all the subsequent stages (a.k.a. the bundle install call below)
@@ -28,8 +31,7 @@ USER frontend
 WORKDIR /obs/src/api
 
 # Configure our bundle
-RUN bundle config set --local path 'vendor/bundle'; \
-    bundle config build.ffi --enable-system-libffi; \
+RUN bundle config build.ffi --enable-system-libffi; \
     bundle config build.nokogiri --use-system-libraries; \
     bundle config build.sassc --disable-march-tune-native; \
     bundle config build.nio4r --with-cflags='-Wno-return-type'
