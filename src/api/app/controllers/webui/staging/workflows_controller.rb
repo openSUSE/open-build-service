@@ -107,9 +107,8 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     @staging_workflow = @project.staging
     return if @staging_workflow
 
-    redirect_back_or_to root_path
     flash[:error] = "Project #{elide(@project.name)} doesn't have a Staging Workflow associated"
-    nil
+    redirect_back_or_to root_path
   end
 
   def project_weight(project)

@@ -66,7 +66,6 @@ class Webui::WebuiController < ActionController::Base
     @spider_bot = true
     logger.debug "Spider blocked on #{request.fullpath}"
     head :ok
-    true
   end
 
   def kerberos_auth
