@@ -72,15 +72,14 @@ sub new {
     'formurlencode' => 1,
   };
   my @args;
+  push @args, $BSConfig::partition ? "client=$BSConfig::partition/$myarch" : "client=$myarch" if $remoteurl eq $BSConfig::srcserver;
   if ($uselasteventsproxy && $remoteurl ne $BSConfig::srcserver) {
     $param->{'uri'} = "$BSConfig::srcserver/lasteventsproxy";
-    push @args, $BSConfig::partition ? "client=$BSConfig::partition/$myarch" : "client=$myarch";
     push @args, "remoteurl=$remoteurl";
   } else {
     $param->{'proxy'} = $conf{'remoteproxy'};
     my $obsname = $conf{'obsname'};
-    push @args, "partition=$BSConfig::partition" if $remoteurl eq $BSConfig::srcserver && $BSConfig::partition;
-    push @args, "obsname=$obsname/$myarch" if $obsname;
+    push @args, "obsname=$obsname/$myarch" if $obsname && $remoteurl ne $BSConfig::srcserver;
   }
   push @args, map {"filter=$_"} @filter;
   push @args, "start=$start" if $start;
