@@ -11,15 +11,15 @@ class Webui::RequestController < Webui::WebuiController
   before_action :lockout_spiders
   before_action :require_request,
                 only: %i[changerequest show beta_show request_action request_action_changes inline_comment build_results rpm_lint
-                         changes mentioned_issues chart_build_results complete_build_results]
-  before_action :set_actions, only: %i[inline_comment beta_show build_results rpm_lint changes mentioned_issues chart_build_results complete_build_results request_action_changes],
+                         changes changes_file mentioned_issues chart_build_results complete_build_results]
+  before_action :set_actions, only: %i[inline_comment beta_show build_results rpm_lint changes changes_file mentioned_issues chart_build_results complete_build_results request_action_changes],
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_actions_deprecated, only: [:show]
-  before_action :set_action, only: %i[inline_comment beta_show build_results rpm_lint changes mentioned_issues],
+  before_action :set_action, only: %i[inline_comment beta_show build_results rpm_lint changes changes_file mentioned_issues],
                              if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_influxdb_data_request_actions, only: %i[beta_show build_results rpm_lint changes mentioned_issues],
+  before_action :set_influxdb_data_request_actions, only: %i[beta_show build_results rpm_lint changes changes_file mentioned_issues],
                                                     if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_superseded_request, only: %i[show beta_show request_action request_action_changes build_results rpm_lint changes mentioned_issues]
+  before_action :set_superseded_request, only: %i[show beta_show request_action request_action_changes build_results rpm_lint changes changes_file mentioned_issues]
   before_action :check_ajax, only: :sourcediff
   before_action :prepare_request_data, only: %i[beta_show build_results rpm_lint changes mentioned_issues],
                                        if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
@@ -306,6 +306,14 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action.tab_visibility.changes
 
     @active_tab = 'changes'
+  end
+
+  def changes_file
+    render partial: 'webui/request/file_diff',
+           locals: { action: @action, filename: params[:filename],
+                     file_index: params[:file_index],
+                     commented_lines: (params[:commented_lines] || []).map(&:to_i),
+                     diff_to_superseded: @diff_to_superseded }
   end
 
   def mentioned_issues
