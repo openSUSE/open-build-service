@@ -10,6 +10,8 @@ class SourcediffComponent < ApplicationComponent
     @bs_request = bs_request
     @action = action
     @diff_to_superseded = diff_to_superseded
+    commented_lines_indexes = commentable ? commentable.comments.where.not(diff_file_index: nil).select(:diff_file_index, :diff_line_number).distinct.pluck(:diff_file_index, :diff_line_number) : []
+    @commented_lines = @commented_lines_indexes.group_by(&:first).to_h { |key, values| [key, values.collect { |v| v[1] }] }
   end
 
   def commentable
