@@ -28,6 +28,8 @@
                 .input-group
                   %span.input-group-text
                     %i.fas.fa-search
+                  -# TODO: refactor to use the _search_box partial
+                     WARNING: the .kiwi-repository-search class is used by the kiwi-editor script
                   = text_field_tag 'target_project', f.object.project_for_type_obs,
                                    required: true,
                                    placeholder: 'Type to autocomplete...',
@@ -35,6 +37,8 @@
                                    data: { source: autocomplete_projects_path, default: f.object.project_for_type_obs }
               .mb-3
                 = label_tag :repositories
+                -# TODO: refactor to use the _search_box partial
+                   WARNING: the .repository-dropdown class is used by the autocomplete script
                 = select_tag 'target_repo', options_for_select(['']), required: true,
                                                                       disabled: true,
                                                                       class: 'repository-dropdown form-select',
