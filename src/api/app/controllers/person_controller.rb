@@ -9,6 +9,8 @@ class PersonController < ApplicationController
   skip_before_action :require_login, only: %i[command register]
 
   before_action :set_user, only: %i[post_userinfo change_my_password watchlist put_watchlist]
+  before_action :user_permission_check, only: [:post_userinfo]
+  before_action :require_admin, only: [:post_userinfo], if: -> { %w[delete lock].include?(params[:cmd]) }
 
   def show
     @list = if params[:prefix]
@@ -41,12 +43,6 @@ class PersonController < ApplicationController
   end
 
   def post_userinfo
-    authorize @user, :update?
-
-    login = params[:login]
-    # just for permission checking
-    User.find_by_login!(login)
-
     if params[:cmd] == 'change_password'
       login ||= User.session.login
       password = request.raw_post.to_s.chomp
@@ -60,8 +56,6 @@ class PersonController < ApplicationController
       return
     end
     if params[:cmd] == 'lock'
-      return unless require_admin
-
       user = User.find_by_login!(params[:login])
       user.lock!
       render_ok
@@ -69,8 +63,6 @@ class PersonController < ApplicationController
     end
     if params[:cmd] == 'delete'
       # maybe we should allow the users to delete themself?
-      return unless require_admin
-
       user = User.find_by_login!(params[:login])
       user.delete!
       render_ok
@@ -219,6 +211,14 @@ class PersonController < ApplicationController
 
   def set_user
     @user = User.find_by(login: params[:login])
+  end
+
+  def user_permission_check
+    authorize @user, :update?
+
+    login = params[:login]
+    # just for permission checking
+    User.find_by_login!(login)
   end
 
   def update_watchlist(user, xml)
