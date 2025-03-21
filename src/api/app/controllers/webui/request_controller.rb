@@ -379,8 +379,7 @@ class Webui::RequestController < Webui::WebuiController
     @diff_to_superseded = @bs_request.superseding.find_by(number: @diff_to_superseded_id)
     return if @diff_to_superseded
 
-    flash[:error] = "Request #{@diff_to_superseded_id} does not exist or is not superseded by request #{@bs_request.number}."
-    nil
+    flash.now[:error] = "Request #{@diff_to_superseded_id} does not exist or is not superseded by request #{@bs_request.number}."
   end
 
   def require_request
