@@ -19,7 +19,7 @@ function validateForm(e) {
 
 function handlingCommentEvents() {
   // Disable submit button if textarea is empty and enable otherwise
-  $('.comments-list,.comment_new,.timeline,.diff').on('input', '.comment-field', function(e) {
+  $('.comments-list,.comment_new,.timeline,.diff-accordion').on('input', '.comment-field', function(e) {
     validateForm(e);
     resizeTextarea(this);
   });
@@ -34,7 +34,7 @@ function handlingCommentEvents() {
   });
 
   // This is being used to render only the comment thread for a reply by the beta request show view
-  $('.timeline,.diff').on('ajax:complete', '.post-comment-form', function(_, data) {
+  $('.timeline,.diff-accordion').on('ajax:complete', '.post-comment-form', function(_, data) {
     $(this).closest('.comments-thread').html(data.responseText);
   });
 
@@ -58,7 +58,7 @@ function handlingCommentEvents() {
   });
 
   // This is being used to update the comment with the updated content after an edit from the beta request show view
-  $('.timeline,.diff').on('ajax:complete', '.put-comment-form', function(_, data) {
+  $('.timeline,.diff-accordion').on('ajax:complete', '.put-comment-form', function(_, data) {
     $(this).closest('.comments-thread').html(data.responseText);
   });
 
@@ -70,7 +70,7 @@ function handlingCommentEvents() {
   });
 
   // This is being used to update the comment with the updated content after a moderation from the beta request show view
-  $('.timeline,.diff').on('ajax:complete', '.moderate-form', function(_, data) {
+  $('.timeline,.diff-accordion').on('ajax:complete', '.moderate-form', function(_, data) {
     $(this).closest('.comments-thread').html(data.responseText);
   });
 
