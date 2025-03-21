@@ -71,16 +71,18 @@ RSpec.describe RequestDecisionComponent, :vcr, type: :component do
 
   context 'when we can forward the request to the developed project' do
     let(:maintainer) { create(:confirmed_user) }
-    let(:developed_project) { create(:project, name: 'developed_project') }
-    let(:developed_package) { create(:package, name: 'developed_package', project: developed_project) }
-    let(:devel_project) { create(:project, name: 'devel_project', maintainer: maintainer) }
+    let(:target_project) { create(:project, name: 'target_project') }
+    let(:target_package) { create(:package, name: 'target_package', project: target_project) }
+    let(:another_target_project) { create(:project, name: 'another_target_project') }
+    let(:another_target_package) { create(:package, name: 'another_target_package', project: another_target_project) }
     let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }
-    let(:devel_package) { create(:package, name: 'devel_package', project: devel_project) }
     let(:source_package) { create(:package, name: 'source_package', project: source_project) }
+    let(:devel_project1) { create(:project, name: 'devel_project1', maintainer: maintainer) }
+    let(:devel_package1) { create(:package, name: 'devel_package1', project: devel_project1) }
     let(:submit_request) do
       create(:bs_request_with_submit_action,
              creator: maintainer,
-             target_package: devel_package,
+             target_package: devel_package1,
              source_package: source_package)
     end
     let(:actions) { submit_request.bs_request_actions }
@@ -93,7 +95,12 @@ RSpec.describe RequestDecisionComponent, :vcr, type: :component do
     end
 
     before do
-      developed_package.update(develpackage: devel_package)
+      another_action = submit_request.bs_request_actions.last
+      another_action.target_project_object = another_target_project
+      another_action.target_package_object = another_target_package
+      another_action.save!
+      target_package.update(develpackage: devel_package1)
+      another_target_package.update(develpackage: devel_package1)
       User.session = maintainer
       render_inline(described_class.new(bs_request: submit_request, action: action, is_target_maintainer: true, package_maintainers: package_maintainers, show_project_maintainer_hint: true))
     end
@@ -107,14 +114,57 @@ RSpec.describe RequestDecisionComponent, :vcr, type: :component do
     end
 
     it 'shows an option to accept and forward the request' do
-      expect(rendered_content).to have_css("input[value='Accept and forward submit request to #{developed_project}/#{developed_package}']")
+      expect(rendered_content).to have_css("input[value='Accept and forward submit request to #{another_target_project}/#{another_target_package} and #{target_project}/#{target_package}']")
     end
   end
 
   context 'when we can forward the request and make the creator a maintainer' do
-    it 'shows the Accept button as a dropdown'
-    it 'shows an option to accept the request only'
-    it 'shows an option to accept and forward the request'
-    it 'shows an option to accept, make the creator a maintainer and forward the request'
+    let(:maintainer) { create(:confirmed_user) }
+    let(:target_project) { create(:project, name: 'target_project') }
+    let(:target_package) { create(:package, name: 'target_package', project: target_project) }
+    let(:another_target_project) { create(:project, name: 'another_target_project') }
+    let(:another_target_package) { create(:package, name: 'another_target_package', project: another_target_project) }
+    let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }
+    let(:source_package) { create(:package, name: 'source_package', project: source_project) }
+    let(:devel_project) { create(:project, name: 'devel_project', maintainer: maintainer) }
+    let(:devel_package) { create(:package, name: 'devel_package', project: devel_project) }
+    let(:submit_request) do
+      create(:bs_request_with_submit_action,
+             target_package: devel_package,
+             source_package: source_package)
+    end
+    let(:actions) { submit_request.bs_request_actions }
+    let(:action) { actions.first }
+    let(:package_maintainers) do
+      distinct_bs_request_actions = actions.select(:target_project, :target_package).distinct
+      distinct_bs_request_actions.flat_map do |action|
+        Package.find_by_project_and_name(action.target_project, action.target_package).try(:maintainers)
+      end.compact.uniq
+    end
+
+    before do
+      target_package.update(develpackage: devel_package)
+      another_target_package.update(develpackage: devel_package)
+      User.session = maintainer
+      render_inline(described_class.new(bs_request: submit_request, action: action, is_target_maintainer: true, package_maintainers: package_maintainers, show_project_maintainer_hint: true))
+    end
+
+    it 'shows the Accept button as a dropdown' do
+      expect(rendered_content).to have_button(id: 'decision-buttons-group')
+    end
+
+    it 'shows an option to accept the request only' do
+      expect(rendered_content).to have_css('input[value="Accept request"]')
+    end
+
+    it 'shows an option to accept and forward the request' do
+      expect(rendered_content).to have_css("input[value='Accept and forward submit request to #{target_project}/#{target_package} and #{another_target_project}/#{another_target_package}']")
+    end
+
+    it 'shows an option to accept, make the creator a maintainer and forward the request' do
+      expect(rendered_content).to have_css("input[value='Accept making #{submit_request.creator} maintainer of " \
+                                           "#{devel_project}/#{devel_package} and forwarding submit request to " \
+                                           "#{target_project}/#{target_package} and #{another_target_project}/#{another_target_package}']")
+    end
   end
 end
