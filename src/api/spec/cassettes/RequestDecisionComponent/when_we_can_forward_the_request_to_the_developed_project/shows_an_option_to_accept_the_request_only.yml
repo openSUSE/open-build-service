@@ -1,0 +1,207 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://backend:5352/source/developed_project/developed_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'developed_project' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '162'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'developed_project' does not exist</summary>
+          <details>404 project 'developed_project' does not exist</details>
+        </status>
+  recorded_at: Wed, 26 Mar 2025 07:27:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/devel_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'devel_project' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '154'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'devel_project' does not exist</summary>
+          <details>404 project 'devel_project' does not exist</details>
+        </status>
+  recorded_at: Wed, 26 Mar 2025 07:27:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/developed_project/developed_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'developed_project' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '162'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'developed_project' does not exist</summary>
+          <details>404 project 'developed_project' does not exist</details>
+        </status>
+  recorded_at: Wed, 26 Mar 2025 07:27:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/devel_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'devel_project' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '154'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'devel_project' does not exist</summary>
+          <details>404 project 'devel_project' does not exist</details>
+        </status>
+  recorded_at: Wed, 26 Mar 2025 07:27:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/developed_project/developed_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'developed_project' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '162'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'developed_project' does not exist</summary>
+          <details>404 project 'developed_project' does not exist</details>
+        </status>
+  recorded_at: Wed, 26 Mar 2025 07:27:23 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/devel_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'devel_project' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '154'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'devel_project' does not exist</summary>
+          <details>404 project 'devel_project' does not exist</details>
+        </status>
+  recorded_at: Wed, 26 Mar 2025 07:27:23 GMT
+recorded_with: VCR 6.3.1

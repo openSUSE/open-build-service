@@ -70,9 +70,45 @@ RSpec.describe RequestDecisionComponent, :vcr, type: :component do
   end
 
   context 'when we can forward the request to the developed project' do
-    it 'shows the Accept button as a dropdown'
-    it 'shows an option to accept the request only'
-    it 'shows an option to accept and forward the request'
+    let(:maintainer) { create(:confirmed_user) }
+    let(:developed_project) { create(:project, name: 'developed_project') }
+    let(:developed_package) { create(:package, name: 'developed_package', project: developed_project) }
+    let(:devel_project) { create(:project, name: 'devel_project', maintainer: maintainer) }
+    let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }
+    let(:devel_package) { create(:package, name: 'devel_package', project: devel_project) }
+    let(:source_package) { create(:package, name: 'source_package', project: source_project) }
+    let(:submit_request) do
+      create(:bs_request_with_submit_action,
+             creator: maintainer,
+             target_package: devel_package,
+             source_package: source_package)
+    end
+    let(:actions) { submit_request.bs_request_actions }
+    let(:action) { actions.first }
+    let(:package_maintainers) do
+      distinct_bs_request_actions = actions.select(:target_project, :target_package).distinct
+      distinct_bs_request_actions.flat_map do |action|
+        Package.find_by_project_and_name(action.target_project, action.target_package).try(:maintainers)
+      end.compact.uniq
+    end
+
+    before do
+      developed_package.update(develpackage: devel_package)
+      User.session = maintainer
+      render_inline(described_class.new(bs_request: submit_request, action: action, is_target_maintainer: true, package_maintainers: package_maintainers, show_project_maintainer_hint: true))
+    end
+
+    it 'shows the Accept button as a dropdown' do
+      expect(rendered_content).to have_button(id: 'decision-buttons-group')
+    end
+
+    it 'shows an option to accept the request only' do
+      expect(rendered_content).to have_css('input[value="Accept request"]')
+    end
+
+    it 'shows an option to accept and forward the request' do
+      expect(rendered_content).to have_css("input[value='Accept and forward submit request to #{developed_project}/#{developed_package}']")
+    end
   end
 
   context 'when we can forward the request and make the creator a maintainer' do
