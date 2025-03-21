@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://backend:5352/source/developed_project/developed_package
+    uri: http://backend:5352/source/another_target_project/another_target_package
     body:
       encoding: US-ASCII
       string: ''
@@ -16,7 +16,7 @@ http_interactions:
   response:
     status:
       code: 404
-      message: project 'developed_project' does not exist
+      message: project 'another_target_project' does not exist
     headers:
       Content-Type:
       - text/xml
@@ -25,18 +25,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '162'
+      - '172'
     body:
       encoding: UTF-8
       string: |
         <status code="404">
-          <summary>project 'developed_project' does not exist</summary>
-          <details>404 project 'developed_project' does not exist</details>
+          <summary>project 'another_target_project' does not exist</summary>
+          <details>404 project 'another_target_project' does not exist</details>
         </status>
-  recorded_at: Wed, 26 Mar 2025 07:27:22 GMT
+  recorded_at: Wed, 26 Mar 2025 07:55:11 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/devel_project/devel_package
+    uri: http://backend:5352/source/target_project/target_package
     body:
       encoding: US-ASCII
       string: ''
@@ -49,8 +49,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'devel_project' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -59,18 +59,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '89'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'devel_project' does not exist</summary>
-          <details>404 project 'devel_project' does not exist</details>
-        </status>
-  recorded_at: Wed, 26 Mar 2025 07:27:22 GMT
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 26 Mar 2025 07:55:11 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/developed_project/developed_package
+    uri: http://backend:5352/source/devel_project1/devel_package1
     body:
       encoding: US-ASCII
       string: ''
@@ -84,7 +82,7 @@ http_interactions:
   response:
     status:
       code: 404
-      message: project 'developed_project' does not exist
+      message: project 'devel_project1' does not exist
     headers:
       Content-Type:
       - text/xml
@@ -93,18 +91,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '162'
+      - '156'
     body:
       encoding: UTF-8
       string: |
         <status code="404">
-          <summary>project 'developed_project' does not exist</summary>
-          <details>404 project 'developed_project' does not exist</details>
+          <summary>project 'devel_project1' does not exist</summary>
+          <details>404 project 'devel_project1' does not exist</details>
         </status>
-  recorded_at: Wed, 26 Mar 2025 07:27:22 GMT
+  recorded_at: Wed, 26 Mar 2025 07:55:11 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/devel_project/devel_package
+    uri: http://backend:5352/source/another_target_project/another_target_package
     body:
       encoding: US-ASCII
       string: ''
@@ -118,7 +116,7 @@ http_interactions:
   response:
     status:
       code: 404
-      message: project 'devel_project' does not exist
+      message: project 'another_target_project' does not exist
     headers:
       Content-Type:
       - text/xml
@@ -127,18 +125,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '172'
     body:
       encoding: UTF-8
       string: |
         <status code="404">
-          <summary>project 'devel_project' does not exist</summary>
-          <details>404 project 'devel_project' does not exist</details>
+          <summary>project 'another_target_project' does not exist</summary>
+          <details>404 project 'another_target_project' does not exist</details>
         </status>
-  recorded_at: Wed, 26 Mar 2025 07:27:22 GMT
+  recorded_at: Wed, 26 Mar 2025 07:55:11 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/developed_project/developed_package
+    uri: http://backend:5352/source/target_project/target_package
     body:
       encoding: US-ASCII
       string: ''
@@ -151,8 +149,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'developed_project' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -161,18 +159,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '162'
+      - '89'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'developed_project' does not exist</summary>
-          <details>404 project 'developed_project' does not exist</details>
-        </status>
-  recorded_at: Wed, 26 Mar 2025 07:27:22 GMT
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 26 Mar 2025 07:55:11 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/devel_project/devel_package
+    uri: http://backend:5352/source/devel_project1/devel_package1
     body:
       encoding: US-ASCII
       string: ''
@@ -186,7 +182,7 @@ http_interactions:
   response:
     status:
       code: 404
-      message: project 'devel_project' does not exist
+      message: project 'devel_project1' does not exist
     headers:
       Content-Type:
       - text/xml
@@ -195,13 +191,113 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '156'
     body:
       encoding: UTF-8
       string: |
         <status code="404">
-          <summary>project 'devel_project' does not exist</summary>
-          <details>404 project 'devel_project' does not exist</details>
+          <summary>project 'devel_project1' does not exist</summary>
+          <details>404 project 'devel_project1' does not exist</details>
         </status>
-  recorded_at: Wed, 26 Mar 2025 07:27:22 GMT
+  recorded_at: Wed, 26 Mar 2025 07:55:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/another_target_project/another_target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'another_target_project' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '172'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'another_target_project' does not exist</summary>
+          <details>404 project 'another_target_project' does not exist</details>
+        </status>
+  recorded_at: Wed, 26 Mar 2025 07:55:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 26 Mar 2025 07:55:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project1/devel_package1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'devel_project1' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'devel_project1' does not exist</summary>
+          <details>404 project 'devel_project1' does not exist</details>
+        </status>
+  recorded_at: Wed, 26 Mar 2025 07:55:11 GMT
 recorded_with: VCR 6.3.1
