@@ -27,7 +27,7 @@
               #{diff_label(sourcediff['new'])} – #{diff_label(sourcediff['old'])}
           - if sourcediff['filenames'].present?
             - diff_list = sourcediff['files'].sort_by { |k, _v| sourcediff['filenames'].find_index(k) }.to_h
-            = render(DiffListComponent.new(diff_list:, view_id: @action.source_package, commentable:, source_package:,
+            = render(DiffListComponent.new(diff_list:, view_id: @action.source_package, commentable:, commented_lines:, source_package:,
                                            target_package:, source_rev:, target_rev:))
           - else
             .mb-2
