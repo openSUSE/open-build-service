@@ -10,6 +10,7 @@ class PersonController < ApplicationController
 
   before_action :set_user, only: %i[post_userinfo change_my_password watchlist put_watchlist]
   before_action :user_permission_check, only: [:post_userinfo]
+  before_action :require_admin, only: [:post_userinfo], if: -> { %w[delete lock].include?(params[:cmd]) }
 
   def show
     @list = if params[:prefix]
@@ -55,8 +56,6 @@ class PersonController < ApplicationController
       return
     end
     if params[:cmd] == 'lock'
-      raise AdminUserRequiredError, 'Requires admin privileges' unless @http_user.admin?
-
       user = User.find_by_login!(params[:login])
       user.lock!
       render_ok
@@ -64,8 +63,6 @@ class PersonController < ApplicationController
     end
     if params[:cmd] == 'delete'
       # maybe we should allow the users to delete themself?
-      raise AdminUserRequiredError, 'Requires admin privileges' unless @http_user.admin?
-
       user = User.find_by_login!(params[:login])
       user.delete!
       render_ok
