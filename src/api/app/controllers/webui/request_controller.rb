@@ -361,7 +361,7 @@ class Webui::RequestController < Webui::WebuiController
     projects = Project.where(name: @actions.select(:target_project)).distinct
     user = User.possibly_nobody
 
-    Relationship.maintainers.where(project: projects, user: user).or(Relationship.where(group: [user.groups.unscope(:order)])).any?
+    Relationship.maintainers.where(project: projects, user: user).or(Relationship.maintainers.where(group: [user.groups.unscope(:order)])).any?
   end
 
   def new_state
