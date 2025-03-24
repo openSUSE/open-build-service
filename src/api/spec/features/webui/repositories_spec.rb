@@ -79,6 +79,7 @@ RSpec.describe 'Repositories', :js do
         click_button('Accept')
       end
 
+      expect(page).to have_text 'Successfully updated Download on Demand'
       download_repository_source.reload
 
       expect(download_repository_source.arch).to eq('i586')

@@ -17,10 +17,12 @@ RSpec.describe 'Requests', :vcr do
     end
 
     it 'can be submitted' do
-      expect { click_button('Request') }.to change(BsRequest, :count).by(1)
+      click_button('Request')
+
       expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants to get the role bugowner for project #{target_project}")
       expect(page).to have_css('#description-text', text: 'I can fix bugs too.')
       expect(page).to have_css('.badge', text: 'new')
+      expect(BsRequest.where(creator: submitter.login, description: 'I can fix bugs too.')).to exist
     end
   end
 end

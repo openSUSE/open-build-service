@@ -250,12 +250,13 @@ RSpec.describe 'Packages', :js, :vcr do
 
     expect(page).to have_text('Do you really want to request the deletion of package ')
     fill_in('bs_request_description', with: 'Hey, why not?')
-    expect { click_button('Request') }.to change(BsRequest, :count).by(1)
+    click_button('Request')
 
     # The project name can be ellipsed when it's too long, so this explains why it's hardcoded in the spec
     expect(page).to have_text("Delete package home:othe...test_user / #{other_users_package}")
     expect(page).to have_css('#description-text', text: 'Hey, why not?')
     expect(page).to have_text('In state new')
+    expect(BsRequest.where(description: 'Hey, why not?', state: 'new').count).to be(1)
   end
 
   it "changing the package's devel project" do
@@ -268,12 +269,12 @@ RSpec.describe 'Packages', :js, :vcr do
     fill_in('Description:', with: 'Hey, why not?')
     click_button('Request')
 
-    request = BsRequest.where(description: 'Hey, why not?', creator: user.login, state: 'review')
-    expect(request).to exist
-    expect(page).to have_current_path("/request/show/#{request.first.number}")
     expect(page).to have_text(/Created by\s+#{user.login}/)
     expect(page).to have_text('In state review')
     expect(page).to have_text("Set the devel project to package #{third_project.name} / develpackage for package #{user.home_project} / develpackage")
+    request = BsRequest.where(description: 'Hey, why not?', creator: user.login, state: 'review')
+    expect(request).to exist
+    expect(page).to have_current_path("/request/show/#{request.first.number}")
   end
 
   describe "editing a package's details" do

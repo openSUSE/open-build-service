@@ -49,9 +49,11 @@ RSpec.describe 'Groups', :js do
     # Typing a comma after a user login selects it (just like clicking on the autocomplete menu popping up). It's a built-in feature of the tokenfield
     fill_in('group-members_tag', with: "#{admin},#{user1},")
 
-    expect { click_button('Create') }.to change(Group, :count).by(1)
+    click_button('Create')
+
     expect(page).to have_content("Group '#{new_group_title}' successfully created.")
     group_in_datatable(page, Group.find_by(title: new_group_title))
+    expect(Group.where(title: new_group_title)).to exist
   end
 
   it 'remove a member from a group' do
@@ -60,10 +62,10 @@ RSpec.describe 'Groups', :js do
     within('#group-users > .card', text: admin.login) do
       click_link('Remove member from group')
     end
+    click_button('Remove')
 
-    expect { click_button('Remove') }.to change { group1.users.count }.by(-1)
     expect(page).to have_content("Removed user '#{admin}' from group '#{group1}'")
-    expect(group1.reload.users.map(&:login)).to eq([user1.login])
+    expect(group1.reload.users.pluck(:login)).to contain_exactly(user1.login)
   end
 
   it 'give maintainer rights to a group member' do
@@ -80,17 +82,13 @@ RSpec.describe 'Groups', :js do
     visit group_path(group2)
 
     click_link('Add Member')
-
     within('#add-group-user-modal') do
       fill_in('user_login', with: admin.login)
-
-      expect do
-        click_button('Accept')
-        group2.reload
-      end.to change { group2.users.count }.by(1)
     end
+    click_button('Accept')
 
     expect(page).to have_content("Added user '#{admin}' to group '#{group2}'")
+    expect(group2.users.pluck(:login)).to contain_exactly(admin.login)
 
     visit groups_path
     group_in_datatable(page, group2)
