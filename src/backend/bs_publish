@@ -1963,6 +1963,7 @@ sub deleterepo {
   # delete repoinfo
   unlink("$reporoot/$prp/:repoinfo") unless $dbgsplit;
   rmdir("$reporoot/$prp");
+  rmdir("$reporoot/$projid");
 }
 
 sub mapsleimage {
