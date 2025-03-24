@@ -191,7 +191,7 @@ class Webui::WebuiController < ActionController::Base
     return if User.admin_session?
 
     flash[:error] = 'Requires admin privileges'
-    redirect_back_or_to({ controller: 'main', action: 'index' })
+    redirect_to({ controller: 'main', action: 'index' })
   end
 
   # before filter to only show the frontpage to anonymous users

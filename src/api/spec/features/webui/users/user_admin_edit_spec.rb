@@ -1,12 +1,14 @@
 require 'browser_helper'
 
-RSpec.describe "User's admin edit page", :js do
+RSpec.describe "User's admin edit page", :js, :vcr do
   let(:user) { create(:confirmed_user, realname: 'John Doe', email: 'john@suse.de') }
   let(:admin) { create(:admin_user) }
-  let(:admin_role_html_id) { "user_role_ids_#{Role.find_by(title: 'Admin').id}" }
+
+  before do
+    login(admin)
+  end
 
   it 'view user' do
-    login(admin)
     visit edit_user_path(login: user.login)
 
     expect(page).to have_field('Name:', with: 'John Doe')
@@ -20,19 +22,20 @@ RSpec.describe "User's admin edit page", :js do
   end
 
   it 'make user admin' do
-    login(admin)
     visit edit_user_path(login: user.login)
-
     check('Admin')
     click_button('Update')
-    expect(user.admin?).to be(true)
+
+    expect(page).to have_content('successfully updated')
+    expect(user).to be_admin
   end
 
   it 'remove admin rights from user' do
-    login(admin)
     visit edit_user_path(login: admin.login)
     uncheck('Admin')
     click_button('Update')
-    expect(admin.admin?).to be(false)
+
+    expect(page).to have_content('Requires admin privileges')
+    expect(admin).not_to be_admin
   end
 end
