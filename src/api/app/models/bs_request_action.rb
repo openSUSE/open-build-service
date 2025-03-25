@@ -828,11 +828,9 @@ class BsRequestAction < ApplicationRecord
   end
 
   def commit_details
-    package = Package.find_by_project_and_name(source_project, source_package)
+    return nil if source_rev.nil? || source_package_object.nil?
 
-    return nil if package.nil? || source_rev.nil?
-
-    package.commit(source_rev) || package.commit
+    source_package_obj.commit(source_rev) || source_package_obj.commit
   end
 
   def toggle_seen_by(user)
