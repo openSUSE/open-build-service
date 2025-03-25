@@ -47,59 +47,26 @@
               = check_box_tag('add_submitter_as_maintainer_0', "#{@action.target_project}_#_#{@action.target_package}",
                               false, class: 'form-check-input')
           - if accept_with_options_allowed? && show_add_submitter_as_maintainer_option? && @forward_allowed
-            %span.dropdown.me-2
-              = button_tag('Accept', type: 'button', role: 'button', id: 'decision-buttons-group', class: 'btn btn-secondary dropdown-toggle',
-                            data: { 'bs-toggle': 'dropdown'}, aria: { 'haspopup': 'true', 'expanded': 'false' })
-              .dropdown-menu{ aria: { labelledby: 'decision-buttons-group' } }
-                -# Simple Accept request submit
-                = submit_tag('Accept request', name: 'accepted', class: 'btn-link dropdown-item', data: confirmation,
-                              title: 'Accept the request, this will apply the changes on the target.')
-                -# Accept and make maintainer submit
-                = submit_tag("Accept and make #{@creator} maintainer of #{make_maintainer_of}",
-                            name: 'accepted',
-                            class: 'btn-link dropdown-item', data: confirmation_for_accept_and_make_maintainer,
-                            title: 'Accept the request. this will apply the changes on the target.',
-                            id: 'accept-and-make-maintainer')
-                -# Accept and forward request
-                = submit_tag("Accept and forward submit request to #{combine_forwarding_targets}",
-                            name: 'accepted',
-                            class: 'btn-link dropdown-item', data: confirmation_for_accept_and_forward_request,
-                            title: 'Accept the request. this will apply the changes on the target.',
-                            id: 'accept-and-forward-requests')
-                -# Accept, make maintainer and forward request
-                = submit_tag("Accept making #{@creator} maintainer of #{make_maintainer_of} and forwarding submit request to #{combine_forwarding_targets}",
-                            name: 'accepted',
-                            class: 'btn-link dropdown-item', data: confirmation_for_accept_forward_request_and_make_maintainer,
-                            title: 'Accept the request. this will apply the changes on the target.',
-                            id: 'accept-make-maintainer-and-forward-requests')
+            = render 'webui/request/accept_dropdown',
+              make_maintainer_option: true,
+              forward_request_option: true,
+              confirmation: confirmation,
+              creator: @creator,
+              target: make_maintainer_of,
+              action: @action
           - elsif accept_with_options_allowed? && show_add_submitter_as_maintainer_option?
-            %span.dropdown.me-2
-              = button_tag('Accept', type: 'button', role: 'button', id: 'decision-buttons-group', class: 'btn btn-secondary dropdown-toggle',
-                            data: { 'bs-toggle': 'dropdown'}, aria: { 'haspopup': 'true', 'expanded': 'false' })
-              .dropdown-menu{ aria: { labelledby: 'decision-buttons-group' } }
-                -# Simple Accept request submit
-                = submit_tag('Accept request', name: 'accepted', class: 'btn-link dropdown-item', data: confirmation,
-                              title: 'Accept the request, this will apply the changes on the target.')
-                -# Accept and make maintainer submit
-                = submit_tag("Accept and make #{@creator} maintainer of #{make_maintainer_of}",
-                            name: 'accepted',
-                            class: 'btn-link dropdown-item', data: confirmation_for_accept_and_make_maintainer,
-                            title: 'Accept the request. this will apply the changes on the target.',
-                            id: 'accept-and-make-maintainer')
+            = render 'webui/request/accept_dropdown',
+              make_maintainer_option: true,
+              confirmation: confirmation,
+              creator: @creator,
+              target: make_maintainer_of,
+              action: @action
           - elsif accept_with_options_allowed? && @forward_allowed
-            %span.dropdown.me-2
-              = button_tag('Accept', type: 'button', role: 'button', id: 'decision-buttons-group', class: 'btn btn-secondary dropdown-toggle',
-                            data: { 'bs-toggle': 'dropdown'}, aria: { 'haspopup': 'true', 'expanded': 'false' })
-              .dropdown-menu{ aria: { labelledby: 'decision-buttons-group' } }
-                -# Simple Accept request submit
-                = submit_tag('Accept request', name: 'accepted', class: 'btn-link dropdown-item', data: confirmation,
-                              title: 'Accept the request, this will apply the changes on the target.')
-                -# Accept and forward request
-                = submit_tag("Accept and forward submit request to #{combine_forwarding_targets}",
-                            name: 'accepted',
-                            class: 'btn-link dropdown-item', data: confirmation_for_accept_and_forward_request,
-                            title: 'Accept the request. this will apply the changes on the target.',
-                            id: 'accept-and-forward-requests')
+            = render 'webui/request/accept_dropdown',
+              forward_request_option: true,
+              confirmation: confirmation,
+              creator: @creator,
+              action: @action
           - else
             = submit_tag('Accept request', name: 'accepted', class: 'btn btn-secondary me-2',
                           title: 'Accept the request, this will apply the changes on the target.')

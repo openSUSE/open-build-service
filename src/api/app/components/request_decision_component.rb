@@ -33,18 +33,6 @@ class RequestDecisionComponent < ApplicationComponent
     end
   end
 
-  def confirmation_for_accept_and_make_maintainer
-    { confirm: "Do you really want to approve and make #{@creator} a maintainer?" }
-  end
-
-  def confirmation_for_accept_and_forward_request
-    { confirm: 'Do you really want to accept and forward this request?' }
-  end
-
-  def confirmation_for_accept_forward_request_and_make_maintainer
-    { confirm: "Do you really want to accept, forward this request and make #{@creator} a maintainer?" }
-  end
-
   def other_decision_confirmation(decision_text)
     { confirm: "Do you really want to #{decision_text} this request?\n\n#{@package_maintainers_hint}" }
   end
@@ -63,15 +51,5 @@ class RequestDecisionComponent < ApplicationComponent
 
   def make_maintainer_of
     @action.target_project + ("/#{@action.target_package}" if @action.target_package)
-  end
-
-  def combine_forwarding_targets
-    targets = @action.forward.map { |forward| "#{forward[:project]}/#{forward[:package]}" }
-    if targets.size > 2
-      last = targets.pop
-      "#{targets.join(', ')} and #{last}"
-    else
-      targets.join(' and ')
-    end
   end
 end

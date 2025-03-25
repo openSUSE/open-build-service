@@ -1,0 +1,30 @@
+- combined = combine_forwarding_targets(action)
+%span.dropdown.me-2
+  = button_tag('Accept', type: 'button', role: 'button', id: 'decision-buttons-group', class: 'btn btn-secondary dropdown-toggle',
+                data: { 'bs-toggle': 'dropdown'}, aria: { 'haspopup': 'true', 'expanded': 'false' })
+  .dropdown-menu{ aria: { labelledby: 'decision-buttons-group' } }
+    -# Simple Accept request submit
+    = submit_tag('Accept request', name: 'accepted', class: 'btn-link dropdown-item', data: confirmation,
+                  title: 'Accept the request, this will apply the changes on the target.')
+    - if defined?(make_maintainer_option) && make_maintainer_option
+      -# Accept and make maintainer submit
+      = submit_tag("Accept and make #{creator} maintainer of #{target}",
+                  name: 'accepted',
+                  class: 'btn-link dropdown-item', data: { confirm: "Do you really want to approve and make #{creator} a maintainer?" },
+                  title: 'Accept the request. this will apply the changes on the target.',
+                  id: 'accept-and-make-maintainer')
+    - if defined?(forward_request_option) && forward_request_option
+      -# Accept and forward request
+      = submit_tag("Accept and forward submit request to #{combined}",
+                  name: 'accepted',
+                  class: 'btn-link dropdown-item', data: { confirm: 'Do you really want to accept and forward this request?' },
+                  title: 'Accept the request. this will apply the changes on the target.',
+                  id: 'accept-and-forward-requests')
+    - if defined?(make_maintainer_option) && make_maintainer_option && defined?(forward_request_option) && forward_request_option
+      -# Accept, make maintainer and forward request
+      = submit_tag("Accept making #{creator} maintainer of #{target} and forwarding submit request to #{combined}",
+                  name: 'accepted',
+                  class: 'btn-link dropdown-item',
+                  data: { confirm: "Do you really want to accept, forward this request and make #{creator} a maintainer?" },
+                  title: 'Accept the request. this will apply the changes on the target.',
+                  id: 'accept-make-maintainer-and-forward-requests')
