@@ -7,7 +7,8 @@
           %i.fas.fa-sync-alt{ id: "cache#0-reload" }
         = render partial: 'webui/shared/loading', locals: { text: 'Loading changes...', wrapper_css: ['loading', 'invisible'] }
     - else
-      - (@action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded, nodiff: 1 })).each do |sourcediff|
+      - webui_sourcediff = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded, nodiff: 1, cacheonly: 1 })
+      - webui_sourcediff.each do |sourcediff|
         - source_rev = sourcediff.dig('new', 'srcmd5') || @action.source_rev
         - target_rev = sourcediff.dig('old', 'srcmd5')
         .clearfix.mb-2
@@ -22,7 +23,7 @@
             %i.error
               = sourcediff[:error]
         - else
-          - if @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded, nodiff: 1 }).length > 1
+          - if webui_sourcediff.length > 1
             %h4
               #{diff_label(sourcediff['new'])} – #{diff_label(sourcediff['old'])}
           - if sourcediff['filenames'].present?
