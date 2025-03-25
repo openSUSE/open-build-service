@@ -122,6 +122,8 @@ RSpec.describe 'Packages', :js, :vcr do
     it 'via live build log' do
       visit package_live_build_log_path(project: user.home_project, package: package, repository: repository.name, arch: 'x86_64')
       click_link('Trigger Rebuild', match: :first)
+
+      expect(page).to have_text('no repository defined')
       expect(a_request(:post, rebuild_url)).to have_been_made.once
     end
 
@@ -132,6 +134,8 @@ RSpec.describe 'Packages', :js, :vcr do
 
       visit project_package_repository_binaries_path(project_name: user.home_project, package_name: package, repository_name: repository.name)
       click_link('Trigger')
+
+      expect(page).to have_text('no repository defined')
       expect(a_request(:post, rebuild_url)).to have_been_made.once
     end
   end
