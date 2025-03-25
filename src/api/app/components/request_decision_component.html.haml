@@ -52,21 +52,18 @@
               forward_request_option: true,
               confirmation: confirmation,
               creator: @creator,
-              target: make_maintainer_of,
-              action: @action
+              target: make_maintainer_of
           - elsif accept_with_options_allowed? && show_add_submitter_as_maintainer_option?
             = render 'webui/request/accept_dropdown',
               make_maintainer_option: true,
               confirmation: confirmation,
               creator: @creator,
-              target: make_maintainer_of,
-              action: @action
+              target: make_maintainer_of
           - elsif accept_with_options_allowed? && @forward_allowed
             = render 'webui/request/accept_dropdown',
               forward_request_option: true,
               confirmation: confirmation,
-              creator: @creator,
-              action: @action
+              creator: @creator
           - else
             = submit_tag('Accept request', name: 'accepted', class: 'btn btn-secondary me-2',
                           title: 'Accept the request, this will apply the changes on the target.')

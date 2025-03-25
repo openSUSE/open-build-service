@@ -114,7 +114,7 @@ RSpec.describe RequestDecisionComponent, :vcr, type: :component do
     end
 
     it 'shows an option to accept and forward the request' do
-      expect(rendered_content).to have_css("input[value='Accept and forward submit request to #{another_target_project}/#{another_target_package} and #{target_project}/#{target_package}']")
+      expect(rendered_content).to have_css("input[value='Accept and forward submit request']")
     end
   end
 
@@ -158,13 +158,12 @@ RSpec.describe RequestDecisionComponent, :vcr, type: :component do
     end
 
     it 'shows an option to accept and forward the request' do
-      expect(rendered_content).to have_css("input[value='Accept and forward submit request to #{target_project}/#{target_package} and #{another_target_project}/#{another_target_package}']")
+      expect(rendered_content).to have_css("input[value='Accept and forward submit request']")
     end
 
     it 'shows an option to accept, make the creator a maintainer and forward the request' do
       expect(rendered_content).to have_css("input[value='Accept making #{submit_request.creator} maintainer of " \
-                                           "#{devel_project}/#{devel_package} and forwarding submit request to " \
-                                           "#{target_project}/#{target_package} and #{another_target_project}/#{another_target_package}']")
+                                           "#{devel_project}/#{devel_package} and forwarding submit request']")
     end
   end
 end
