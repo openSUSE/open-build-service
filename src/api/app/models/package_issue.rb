@@ -8,12 +8,22 @@ class PackageIssue < ApplicationRecord
     retries = 10
     begin
       PackageIssue.transaction do
-        package.issue_ids = issues.values.flatten.pluck(:id)
+        allissues = []
+        issues.map { |h| allissues += h.last }
+
+        # drop not anymore existing relations
+        PackageIssue.where('package_id = ? AND NOT issue_id IN (?)', package, allissues).lock(true).delete_all
+
+        # create missing in an efficient way
+        sql = ApplicationRecord.connection
+        (allissues - package.issues.to_ary).each do |i|
+          sql.execute("INSERT INTO `package_issues` (`package_id`, `issue_id`) VALUES (#{package.id},#{i.id})")
+        end
 
         # set change value for all
-        issues.each_pair do |key, value|
+        issues.each do |pair|
           # rubocop:disable Rails/SkipsModelValidations
-          PackageIssue.where(package: package, issue: value).lock(true).update_all(change: key)
+          PackageIssue.where(package: package, issue: pair.last).lock(true).update_all(change: pair.first)
           # rubocop:enable Rails/SkipsModelValidations
         end
       end
