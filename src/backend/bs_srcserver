@@ -2558,6 +2558,7 @@ sub concatconfigs {
   }
   $vprojid = $projid if $vprojid eq '';
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
+  $config .= "%define vendor obs://$obsname/$vprojid\n";
   $macros .= "%vendor obs://$obsname/$vprojid\n";
   $macros .= "%_download_url $BSConfig::repodownload\n" if $BSConfig::repodownload;
 
