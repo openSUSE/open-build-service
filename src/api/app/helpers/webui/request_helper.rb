@@ -195,6 +195,16 @@ module Webui::RequestHelper
     end
   end
 
+  def combine_forwarding_targets(action)
+    targets = action.forward.map { |forward| "#{forward[:project]}/#{forward[:package]}" }
+    if targets.size > 2
+      last = targets.pop
+      "#{targets.join(', ')} and #{last}"
+    else
+      targets.join(' and ')
+    end
+  end
+
   private
 
   def action_type_icon(type)
