@@ -347,6 +347,7 @@ constraints(RoutesHelper::WebuiMatcher) do
     get 'requests/:number/(actions/:request_action_id)/build_results' => :build_results, as: 'request_build_results', constraints: cons
     get 'requests/:number/(actions/:request_action_id)/rpm_lint' => :rpm_lint, as: 'request_rpm_lint', constraints: cons
     get 'requests/:number/(actions/:request_action_id)/changes' => :changes, as: 'request_changes', constraints: cons
+    get 'requests/:number/actions/:request_action_id/changes/:filename' => :changes_diff, as: 'request_changes_diff', constraints: cons
     get 'requests/:number/(actions/:request_action_id)/mentioned_issues' => :mentioned_issues, as: 'request_mentioned_issues', constraints: cons
     post 'request/sourcediff' => :sourcediff
     post 'request/changerequest' => :changerequest
