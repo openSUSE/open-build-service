@@ -237,6 +237,7 @@ sub wipeobsoleterepo {
       # unlink("$reporoot/$prp/:repoinfo");
       unlink("$reporoot/$prp/.finishedlock");
       rmdir("$reporoot/$prp");
+      rmdir("$reporoot/$projid");
     }
   }
 }
