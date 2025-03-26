@@ -12,7 +12,10 @@ APACHE_CONFDIR_VHOST=$(APACHE_CONFDIR)/vhosts.d
 APACHE_VHOST_CONF=obs-apache24.conf
 APACHE_LOGDIR=/var/log/apache2
 
-OBS_RUBY_BIN=/usr/bin/ruby.ruby3.1
-OBS_BUNDLE_BIN=/usr/bin/bundle.ruby3.1
-OBS_RAKE_BIN=/usr/bin/rake.ruby3.1
 OBS_RUBY_ABI_VERSION=3.1.0
+OBS_RUBY_SUFFIX="ruby3.1"
+
+OBS_RUBY_BIN=/usr/bin/ruby.$(OBS_RUBY_SUFFIX)
+OBS_GEM_BIN=/usr/bin/gem.$(OBS_RUBY_SUFFIX)
+OBS_BUNDLE_BIN=/usr/bin/bundle.$(OBS_RUBY_SUFFIX)
+OBS_RAKE_BIN=/usr/bin/rake.$(OBS_RUBY_SUFFIX)

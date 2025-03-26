@@ -71,13 +71,13 @@ test_unit:
 	# rspec runs independently
 
 test_rake:
-	$(eval SYSTEM_RAKE_VERSION:=$(shell basename `gem.ruby3.1 which -g rake | sed 's,/lib/rake.rb$$,,'`))
-	$(eval BUNDLE_RAKE_VERSION:=$(shell basename `bundle show rake`))
+	$(eval SYSTEM_RAKE_VERSION:=$(shell basename `$(OBS_GEM_BIN) which -g rake | sed 's,/lib/rake.rb$$,,'`))
+	$(eval BUNDLE_RAKE_VERSION:=$(shell basename `$(OBS_BUNDLE_BIN) show rake`))
 	@if [ "$(SYSTEM_RAKE_VERSION)" != "$(BUNDLE_RAKE_VERSION)" ]; then echo "rake version mismatch! System: $(SYSTEM_RAKE_VERSION) / Bundle: $(BUNDLE_RAKE_VERSION)"; exit 1; fi
 
 test_rack:
-	$(eval SYSTEM_RACK_VERSION:=$(shell basename `gem.ruby3.1 which -g rack | sed 's,/lib/rack.rb$$,,'`))
-	$(eval BUNDLE_RACK_VERSION:=$(shell basename `bundle show rack`))
+	$(eval SYSTEM_RACK_VERSION:=$(shell basename `$(OBS_GEM_BIN) which -g rack | sed 's,/lib/rack.rb$$,,'`))
+	$(eval BUNDLE_RACK_VERSION:=$(shell basename `$(OBS_BUNDLE_BIN) show rack`))
 	@if [ "$(SYSTEM_RACK_VERSION)" != "$(BUNDLE_RACK_VERSION)" ]; then echo "rack version mismatch! System: $(SYSTEM_RACK_VERSION) / Bundle: $(BUNDLE_RACK_VERSION)"; exit 1; fi
 
 test_base64_gem:
