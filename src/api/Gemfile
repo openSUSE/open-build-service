@@ -229,7 +229,7 @@ group :development, :test do
   gem 'puma', require: false
   # to drive headless chrome
   gem 'selenium-webdriver', require: false
-  gem 'base64', '0.1.1', require: false
+  gem 'base64', '0.2.0', require: false
 end
 
 group :development do
