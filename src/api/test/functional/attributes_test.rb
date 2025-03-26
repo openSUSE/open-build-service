@@ -32,7 +32,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
 
     get '/attribute/OBS'
     assert_response :success
-    count = 24
+    count = 25
     assert_xml_tag tag: 'directory', attributes: { count: count }
     assert_xml_tag children: { count: count }
     assert_xml_tag child: { tag: 'entry', attributes: { name: 'Maintained' } }
@@ -276,7 +276,7 @@ ription</description>
 
     get '/attribute/OBS'
     assert_response :success
-    count = 24
+    count = 25
     assert_xml_tag tag: 'directory', attributes: { count: count }
     assert_xml_tag children: { count: count }
     assert_xml_tag child: { tag: 'entry', attributes: { name: 'Maintained' } }
