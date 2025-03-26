@@ -19,7 +19,11 @@ RSpec.describe 'Comments with diff', :js, :vcr do
 
   context 'reply comment' do
     describe 'when under the beta program' do
-      let!(:comment) { create(:comment, commentable: bs_request.bs_request_actions.first, diff_file_index: 0, diff_line_number: 1, user: admin) }
+      let!(:comment) do
+        admin.run_as do
+          create(:comment, commentable: bs_request.bs_request_actions.first, diff_file_index: 0, diff_line_number: 1, user: admin)
+        end
+      end
 
       before do
         Flipper.enable(:request_show_redesign, admin)
@@ -69,10 +73,9 @@ RSpec.describe 'Comments with diff', :js, :vcr do
   end
 
   describe 'diff comment in legacy view' do
-    let!(:comment) { create(:comment, commentable: bs_request.bs_request_actions.first, diff_file_index: 0, diff_line_number: 1, user: admin) }
-
     before do
       login admin
+      create(:comment, commentable: bs_request.bs_request_actions.first, diff_file_index: 0, diff_line_number: 1, user: admin)
       visit request_show_path(bs_request)
     end
 
@@ -83,8 +86,10 @@ RSpec.describe 'Comments with diff', :js, :vcr do
 
   describe 'source package file gets altered after inline diff comment was created' do
     let!(:comment) do
-      create(:comment, commentable: bs_request.bs_request_actions.first, diff_file_index: 0, diff_line_number: 1, user: admin, source_rev: bs_request.bs_request_actions.first.source_rev,
-                       target_rev: target_package.dir_hash['srcmd5'])
+      admin.run_as do
+        create(:comment, commentable: bs_request.bs_request_actions.first, diff_file_index: 0, diff_line_number: 1, user: admin, source_rev: bs_request.bs_request_actions.first.source_rev,
+               target_rev: target_package.dir_hash['srcmd5'])
+      end
     end
 
     before do
@@ -122,10 +127,12 @@ RSpec.describe 'Comments with diff', :js, :vcr do
 
   describe 'target package gets altered after inline diff comment was created' do
     let!(:comment) do
-      create(:comment, commentable: bs_request.bs_request_actions.first, diff_file_index: 0, diff_line_number: 2, user: admin, source_rev: bs_request.bs_request_actions.first.source_rev,
-                       target_rev: target_package.dir_hash['srcmd5'])
+      admin.run_as do
+        create(:comment, commentable: bs_request.bs_request_actions.first, diff_file_index: 0, diff_line_number: 2, user: admin, source_rev: bs_request.bs_request_actions.first.source_rev,
+                target_rev: target_package.dir_hash['srcmd5'])
+      end
     end
-
+    
     before do
       Flipper.enable(:request_show_redesign, admin)
       login admin
