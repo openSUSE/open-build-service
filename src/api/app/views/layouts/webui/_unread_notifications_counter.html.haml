@@ -1,5 +1,5 @@
 .notifications-counter
   %i.fas.fa-bell
-  - if defined?(unread_notifications_count) && unread_notifications_count.positive?
+  - if defined?(unread_notifications_count) && unread_notifications_count&.positive?
     %span.badge.text-bg-primary.align-text-top= unread_notifications_count
   %span.d-block Notifications
