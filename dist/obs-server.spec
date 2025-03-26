@@ -1055,6 +1055,7 @@ usermod -a -G docker obsservicerun
 %{__obs_api_prefix}/bin
 %{__obs_api_prefix}/test
 %{__obs_api_prefix}/vendor/assets
+%{__obs_api_prefix}/vendor/javascript
 %{__obs_document_root}/docs
 
 %{__obs_api_prefix}/config/locales
@@ -1068,6 +1069,7 @@ usermod -a -G docker obsservicerun
 
 %{__obs_api_prefix}/config/boot.rb
 %{__obs_api_prefix}/config/routes.rb
+%{__obs_api_prefix}/config/importmap.rb
 %{__obs_api_prefix}/config/routes
 %{__obs_api_prefix}/config/environments/development.rb
 %attr(0640,root,%apache_group) %config(noreplace) %verify(md5) %{__obs_api_prefix}/config/database.yml
