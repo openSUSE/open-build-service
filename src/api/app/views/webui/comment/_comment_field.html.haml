@@ -28,7 +28,7 @@ data: { preview_message_url: preview_comments_path, message_body_param: 'comment
         placeholder: 'Write your comment here... (Markdown markup is supported)', required: true,
         class: 'w-100 form-control comment-field message-field'
       .tab-pane.fade{ id: "preview_#{element_suffix}", role: 'tabpanel', 'aria-labelledby': 'preview-message-tab' }
-        .comment-preview.message-preview.border-bottom.border-gray-300.my-3
+        .comment-preview.message-preview.my-3
       .comment-controls.mb-3
         - case form_method
         - when :post

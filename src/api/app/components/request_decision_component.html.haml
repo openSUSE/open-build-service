@@ -26,7 +26,7 @@
                             placeholder: 'Write your comment or decision...(markdown is only supported for comments, not for decisions)',
                             rows: 4, class: 'w-100 form-control mb-2 message-field')
           .tab-pane.fade{ id: 'preview_new_comment', role: 'tabpanel', 'aria-labelledby': 'preview-message-tab' }
-            .comment-preview.message-preview.border-bottom.border-gray-300.my-3
+            .comment-preview.message-preview.my-3
       .mt-2
         - if @forward_allowed
           - @action.forward.each_with_index do |forward, index|
