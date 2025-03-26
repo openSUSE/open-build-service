@@ -359,6 +359,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def set_file_details
     @forced_unexpand ||= ''
+    @is_branchable = @package.find_attribute('OBS', 'RejectBranch').nil?
 
     # check source access
     @files = []

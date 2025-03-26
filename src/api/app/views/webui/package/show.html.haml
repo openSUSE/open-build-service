@@ -11,7 +11,8 @@
                                             services: @services,
                                             project: @project,
                                             package: @package,
-                                            is_working: @forced_unexpand.blank? }
+                                            is_working: @forced_unexpand.blank?,
+                                            is_branchable: @is_branchable }
 
 .card.mb-3
   = render partial: 'tabs', locals: { project: @project, package: @package }
