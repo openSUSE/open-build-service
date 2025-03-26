@@ -1,5 +1,8 @@
 -# TODO: refactor this code once we support all the action types.
 .d-flex.align-items-center
+  %p.mt-0.mb-0.fw-normal
+    %span.me-2 ##{action_index + 1}
+
   - if (user = User.session)
     .ms-1.me-3{ id: "action-seen-by-user-wrapper-in-select-#{action.id}" }
       = render ActionSeenByUserComponent.new(action: action, user: user, seen_by_user: seen_by_user, render_only: true)
@@ -11,19 +14,16 @@
     - if details
       - if details.key?('comment') && details['comment'].instance_of?(String)
         %p.mt-0.mb-0.fw-normal
-          %span.me-2 ##{action_index + 1}
           = details['comment'].truncate(50)
         %p.mb-0.mt-0.small
           = action.name
       - else
         %p.mt-0.mb-0.fw-normal
-          %span.me-2 ##{action_index + 1}
           = action.name
       %span.float-end.ms-5
         = details['rev']
     - else
       %p.mt-0.mb-0.fw-normal
-        %span.me-2 ##{action_index + 1}
         - case action.type
         - when 'add_role', 'set_bugowner'
           #{action.type.titleize}
