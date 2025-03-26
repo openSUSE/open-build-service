@@ -9,7 +9,8 @@ source 'https://rubygems.org'
 
 # Start the Rails application using src/api/Gemfile.next with `next rails s`
 if next?
-  gem 'rails', '~> 8.0'
+  gem 'rails', '~> 7.1'
+  gem 'e2mmap'
 else
   gem 'rails', '~> 7.0'
 end
