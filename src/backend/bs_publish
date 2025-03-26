@@ -1297,7 +1297,7 @@ sub createrepo_staticlinks {
         # mkosi appliance
         $link = "$1.$3";
         $link = "${1}_$2.$3" if $versioned;
-      } elsif (/^(.*)-Build(?:\d\d\d\d+|\d+(?:\.\d+)+)(|-Source|-Debug)\.iso$/s) {
+      } elsif (/^(.*)-Build(?:\d\d\d\d+|\d+(?:\.\d+)+)(|-Source|-Debug|.install)\.iso$/s) {
         # product-composer builds
         $link = "$1$2.iso"; # no support for versioned links
       }
