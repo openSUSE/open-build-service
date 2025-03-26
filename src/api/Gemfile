@@ -129,9 +129,6 @@ gem 'rexml'
 # see https://github.com/prawnpdf/prawn/commit/3658d5125c3b20eb11484c3b039ca6b89dc7d1b7
 gem 'matrix', '~> 0.4'
 
-# until we have a fix for https://github.com/rubygems/rubygems/pull/5529
-gem 'strscan', '3.0.1'
-
 group :development, :production do
   # to have the delayed job daemon
   gem 'daemons'

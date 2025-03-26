@@ -502,7 +502,6 @@ GEM
       sprockets (>= 3.0.0)
     strong_migrations (2.2.1)
       activerecord (>= 7)
-    strscan (3.0.1)
     sysexits (1.2.0)
     temple (0.10.3)
     terminal-table (4.0.0)
@@ -663,7 +662,6 @@ DEPENDENCIES
   single_test
   sprockets-rails
   strong_migrations
-  strscan (= 3.0.1)
   terser
   test-unit
   thinking-sphinx
