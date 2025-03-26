@@ -661,7 +661,7 @@ RSpec.describe Project, :vcr do
     end
 
     it 'erases all enable flags shadowed' do
-      expect(new_xml['build']['enable'].to_s).to eq('{"arch"=>"i586"}')
+      expect(new_xml['build']['enable']).to eq({ 'arch' => 'i586' })
     end
 
     it 'updates basics' do

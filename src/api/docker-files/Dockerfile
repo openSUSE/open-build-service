@@ -14,6 +14,9 @@ RUN gem install --no-format-executable brakeman --version 5.4.0
 # Configure our user
 RUN usermod -u $CONTAINER_USERID frontend
 
+# Making the directory our bundle is installed writable
+RUN chown frontend:users /usr/lib64/obs-api
+
 # We copy the Gemfiles into this intermediate build stage so it's checksum
 # changes and all the subsequent stages (a.k.a. the bundle install call below)
 # have to be rebuild. Otherwise, after the first build of this image,

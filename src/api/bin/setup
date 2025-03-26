@@ -1,4 +1,4 @@
-#!/usr/bin/ruby.ruby3.1
+#!/usr/bin/ruby.ruby3.4
 require "fileutils"
 
 # path to your application root.

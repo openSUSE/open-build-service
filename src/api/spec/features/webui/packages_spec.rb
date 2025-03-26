@@ -122,6 +122,8 @@ RSpec.describe 'Packages', :js, :vcr do
     it 'via live build log' do
       visit package_live_build_log_path(project: user.home_project, package: package, repository: repository.name, arch: 'x86_64')
       click_link('Trigger Rebuild', match: :first)
+
+      expect(page).to have_text('no repository defined')
       expect(a_request(:post, rebuild_url)).to have_been_made.once
     end
 
@@ -132,6 +134,8 @@ RSpec.describe 'Packages', :js, :vcr do
 
       visit project_package_repository_binaries_path(project_name: user.home_project, package_name: package, repository_name: repository.name)
       click_link('Trigger')
+
+      expect(page).to have_text('no repository defined')
       expect(a_request(:post, rebuild_url)).to have_been_made.once
     end
   end
@@ -250,12 +254,13 @@ RSpec.describe 'Packages', :js, :vcr do
 
     expect(page).to have_text('Do you really want to request the deletion of package ')
     fill_in('bs_request_description', with: 'Hey, why not?')
-    expect { click_button('Request') }.to change(BsRequest, :count).by(1)
+    click_button('Request')
 
     # The project name can be ellipsed when it's too long, so this explains why it's hardcoded in the spec
     expect(page).to have_text("Delete package home:othe...test_user / #{other_users_package}")
     expect(page).to have_css('#description-text', text: 'Hey, why not?')
     expect(page).to have_text('In state new')
+    expect(BsRequest.where(description: 'Hey, why not?', state: 'new').count).to be(1)
   end
 
   it "changing the package's devel project" do
@@ -268,12 +273,12 @@ RSpec.describe 'Packages', :js, :vcr do
     fill_in('Description:', with: 'Hey, why not?')
     click_button('Request')
 
-    request = BsRequest.where(description: 'Hey, why not?', creator: user.login, state: 'review')
-    expect(request).to exist
-    expect(page).to have_current_path("/request/show/#{request.first.number}")
     expect(page).to have_text(/Created by\s+#{user.login}/)
     expect(page).to have_text('In state review')
     expect(page).to have_text("Set the devel project to package #{third_project.name} / develpackage for package #{user.home_project} / develpackage")
+    request = BsRequest.where(description: 'Hey, why not?', creator: user.login, state: 'review')
+    expect(request).to exist
+    expect(page).to have_current_path("/request/show/#{request.first.number}")
   end
 
   describe "editing a package's details" do
