@@ -193,6 +193,7 @@ chrpath -d %{buildroot}%_libdir/obs-api/ruby/*/extensions/*/*/mysql2-*/mysql2/my
 chrpath -d %{buildroot}%_libdir/obs-api/ruby/*/gems/mysql2-*/lib/mysql2/mysql2.so || true
 
 %files
+%defattr(-,root,root,755)
 %_libdir/obs-api
 
 %changelog
