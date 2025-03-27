@@ -18,6 +18,13 @@
         #{element.user_action} and dismissed pending reviews
       - else
         = element.user_action
+      - if element.is_a?(HistoryElement::Review) && element.review && !element.review.for_user?
+        for
+        - if element.review.for_group?
+          group
+          = link_to(element.review.by_group, group_path(Group.find_by(title: element.review.by_group)))
+        - else
+          = project_or_package_link({project: element.review.by_project, package: element.review.by_package}.compact)
       = link_to("#status-history-#{element.id}", title: l(element.created_at.utc), name: "status-history-#{element.id}") do
         = render TimeComponent.new(time: element.created_at)
       - if element.comment.present?
