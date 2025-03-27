@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Moon by Night</title>
+          <title>Gone with the Wind</title>
           <description/>
         </project>
     headers:
@@ -29,15 +29,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '108'
+      - '109'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Moon by Night</title>
+          <title>Gone with the Wind</title>
           <description></description>
         </project>
-  recorded_at: Tue, 25 Mar 2025 11:48:27 GMT
+  recorded_at: Thu, 27 Mar 2025 11:41:25 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/target_package/_meta?user=user_2
@@ -45,8 +45,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Those Barren Leaves, Thrones, Dominations</title>
-          <description>Et sapiente sunt dolorem.</description>
+          <title>Consider Phlebas</title>
+          <description>Cum facilis voluptas beatae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -67,21 +67,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '182'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Those Barren Leaves, Thrones, Dominations</title>
-          <description>Et sapiente sunt dolorem.</description>
+          <title>Consider Phlebas</title>
+          <description>Cum facilis voluptas beatae.</description>
         </package>
-  recorded_at: Tue, 25 Mar 2025 11:48:27 GMT
+  recorded_at: Thu, 27 Mar 2025 11:41:25 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/target_package/_config
     body:
       encoding: UTF-8
-      string: Laboriosam qui ullam. Sunt magni nisi. Quae est quas.
+      string: Quam qui modi. Distinctio ratione qui. Blanditiis tenetur iusto.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -106,14 +106,14 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="1" vrev="1">
-          <srcmd5>150f1e16aff209e0fa7da752320cf569</srcmd5>
+          <srcmd5>b169b5f6ff5e12863a684a46a59402a1</srcmd5>
           <version>unknown</version>
-          <time>1742903307</time>
+          <time>1743075685</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 25 Mar 2025 11:48:27 GMT
+  recorded_at: Thu, 27 Mar 2025 11:41:25 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/target_package/somefile.spec
@@ -144,14 +144,14 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="2" vrev="2">
-          <srcmd5>d4bfa057a014fe6d79372adc2631a9e0</srcmd5>
+          <srcmd5>4ba07b641ec59dd71dcd1e53901d3d9c</srcmd5>
           <version>unknown</version>
-          <time>1742903307</time>
+          <time>1743075685</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 25 Mar 2025 11:48:27 GMT
+  recorded_at: Thu, 27 Mar 2025 11:41:25 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=user_3
@@ -159,7 +159,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Antic Hay</title>
+          <title>The Lathe of Heaven</title>
           <description/>
         </project>
     headers:
@@ -181,15 +181,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '100'
+      - '110'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Antic Hay</title>
+          <title>The Lathe of Heaven</title>
           <description></description>
         </project>
-  recorded_at: Tue, 25 Mar 2025 11:48:27 GMT
+  recorded_at: Thu, 27 Mar 2025 11:41:25 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_3
@@ -223,13 +223,13 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="2">
-          <srcmd5>0975d67d2e8a4d5eae10011fb8899b1d</srcmd5>
-          <time>1742903307</time>
+          <srcmd5>459cf156bdf710047d40bd6cda0dcf9f</srcmd5>
+          <time>1743075686</time>
           <user>user_3</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 25 Mar 2025 11:48:27 GMT
+  recorded_at: Thu, 27 Mar 2025 11:41:26 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=user_4
@@ -237,8 +237,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>An Acceptable Time</title>
-          <description>Quo voluptate dignissimos officia.</description>
+          <title>Behold the Man</title>
+          <description>Amet fugiat eos dolorem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -259,21 +259,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>An Acceptable Time</title>
-          <description>Quo voluptate dignissimos officia.</description>
+          <title>Behold the Man</title>
+          <description>Amet fugiat eos dolorem.</description>
         </package>
-  recorded_at: Tue, 25 Mar 2025 11:48:27 GMT
+  recorded_at: Thu, 27 Mar 2025 11:41:26 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_config
     body:
       encoding: UTF-8
-      string: Vel id harum. Laudantium quasi laborum. Et neque qui.
+      string: Non beatae fugiat. Et qui perferendis. Quia voluptatem laudantium.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -298,14 +298,14 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="1" vrev="1">
-          <srcmd5>c972b9c1ac34fbe0ca76ec7c90f68533</srcmd5>
+          <srcmd5>cd716f8f2e065892e6babe343b3855e5</srcmd5>
           <version>unknown</version>
-          <time>1742903307</time>
+          <time>1743075686</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 25 Mar 2025 11:48:27 GMT
+  recorded_at: Thu, 27 Mar 2025 11:41:26 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/somefile.spec
@@ -336,14 +336,14 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="2" vrev="2">
-          <srcmd5>8a05cb48893ac50f7edcbaf1f3106039</srcmd5>
+          <srcmd5>9efcb4d4c0ed55a12f6d732bb2740cdc</srcmd5>
           <version>unknown</version>
-          <time>1742903307</time>
+          <time>1743075686</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 25 Mar 2025 11:48:27 GMT
+  recorded_at: Thu, 27 Mar 2025 11:41:26 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -373,11 +373,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="source_package" rev="2" vrev="2" srcmd5="8a05cb48893ac50f7edcbaf1f3106039">
-          <entry name="_config" md5="74852629c5277d805902d774d71f9c40" size="53" mtime="1742903307"/>
-          <entry name="somefile.spec" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1742903307"/>
+        <directory name="source_package" rev="2" vrev="2" srcmd5="9efcb4d4c0ed55a12f6d732bb2740cdc">
+          <entry name="_config" md5="a76cec6802ff638471315a71816a939e" size="66" mtime="1743075686"/>
+          <entry name="somefile.spec" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1743075686"/>
         </directory>
-  recorded_at: Tue, 25 Mar 2025 11:48:28 GMT
+  recorded_at: Thu, 27 Mar 2025 11:41:26 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
@@ -405,21 +405,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '1089'
+      - '1113'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="041132c1d3ce2509948b99a9855c7188">
-          <old project="target_project" package="target_package" rev="2" srcmd5="d4bfa057a014fe6d79372adc2631a9e0"/>
-          <new project="source_project" package="source_package" rev="2" srcmd5="8a05cb48893ac50f7edcbaf1f3106039"/>
+        <sourcediff key="a490dbb977ab066e5e4c1cadda04b1ef">
+          <old project="target_project" package="target_package" rev="2" srcmd5="4ba07b641ec59dd71dcd1e53901d3d9c"/>
+          <new project="source_project" package="source_package" rev="2" srcmd5="9efcb4d4c0ed55a12f6d732bb2740cdc"/>
           <files>
             <file state="changed">
-              <old name="_config" md5="e4d51329cd18d77c3c881031b3e63f1f" size="53"/>
-              <new name="_config" md5="74852629c5277d805902d774d71f9c40" size="53"/>
+              <old name="_config" md5="60f8f29697e4e9af698ac17768453035" size="64"/>
+              <new name="_config" md5="a76cec6802ff638471315a71816a939e" size="66"/>
               <diff lines="5">@@ -1,1 +1,1 @@
-        -Laboriosam qui ullam. Sunt magni nisi. Quae est quas.
+        -Quam qui modi. Distinctio ratione qui. Blanditiis tenetur iusto.
         \ No newline at end of file
-        +Vel id harum. Laudantium quasi laborum. Et neque qui.
+        +Non beatae fugiat. Et qui perferendis. Quia voluptatem laudantium.
         \ No newline at end of file
         </diff>
             </file>
@@ -437,7 +437,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Tue, 25 Mar 2025 11:48:28 GMT
+  recorded_at: Thu, 27 Mar 2025 11:41:26 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -467,11 +467,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="source_package" rev="2" vrev="2" srcmd5="8a05cb48893ac50f7edcbaf1f3106039">
-          <entry name="_config" md5="74852629c5277d805902d774d71f9c40" size="53" mtime="1742903307"/>
-          <entry name="somefile.spec" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1742903307"/>
+        <directory name="source_package" rev="2" vrev="2" srcmd5="9efcb4d4c0ed55a12f6d732bb2740cdc">
+          <entry name="_config" md5="a76cec6802ff638471315a71816a939e" size="66" mtime="1743075686"/>
+          <entry name="somefile.spec" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1743075686"/>
         </directory>
-  recorded_at: Tue, 25 Mar 2025 11:48:28 GMT
+  recorded_at: Thu, 27 Mar 2025 11:41:26 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/source_package?cacheonly=1&cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
@@ -495,7 +495,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '1089'
+      - '1113'
       Cache-Control:
       - no-cache
       Connection:
@@ -503,17 +503,17 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="041132c1d3ce2509948b99a9855c7188">
-          <old project="target_project" package="target_package" rev="2" srcmd5="d4bfa057a014fe6d79372adc2631a9e0"/>
-          <new project="source_project" package="source_package" rev="2" srcmd5="8a05cb48893ac50f7edcbaf1f3106039"/>
+        <sourcediff key="a490dbb977ab066e5e4c1cadda04b1ef">
+          <old project="target_project" package="target_package" rev="2" srcmd5="4ba07b641ec59dd71dcd1e53901d3d9c"/>
+          <new project="source_project" package="source_package" rev="2" srcmd5="9efcb4d4c0ed55a12f6d732bb2740cdc"/>
           <files>
             <file state="changed">
-              <old name="_config" md5="e4d51329cd18d77c3c881031b3e63f1f" size="53"/>
-              <new name="_config" md5="74852629c5277d805902d774d71f9c40" size="53"/>
+              <old name="_config" md5="60f8f29697e4e9af698ac17768453035" size="64"/>
+              <new name="_config" md5="a76cec6802ff638471315a71816a939e" size="66"/>
               <diff lines="5">@@ -1,1 +1,1 @@
-        -Laboriosam qui ullam. Sunt magni nisi. Quae est quas.
+        -Quam qui modi. Distinctio ratione qui. Blanditiis tenetur iusto.
         \ No newline at end of file
-        +Vel id harum. Laudantium quasi laborum. Et neque qui.
+        +Non beatae fugiat. Et qui perferendis. Quia voluptatem laudantium.
         \ No newline at end of file
         </diff>
             </file>
@@ -531,7 +531,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Tue, 25 Mar 2025 11:48:28 GMT
+  recorded_at: Thu, 27 Mar 2025 11:41:26 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -561,14 +561,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="source_package" rev="2" vrev="2" srcmd5="8a05cb48893ac50f7edcbaf1f3106039">
-          <entry name="_config" md5="74852629c5277d805902d774d71f9c40" size="53" mtime="1742903307"/>
-          <entry name="somefile.spec" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1742903307"/>
+        <directory name="source_package" rev="2" vrev="2" srcmd5="9efcb4d4c0ed55a12f6d732bb2740cdc">
+          <entry name="_config" md5="a76cec6802ff638471315a71816a939e" size="66" mtime="1743075686"/>
+          <entry name="somefile.spec" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1743075686"/>
         </directory>
-  recorded_at: Tue, 25 Mar 2025 11:48:28 GMT
+  recorded_at: Thu, 27 Mar 2025 11:41:26 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/source_project/source_package?cacheonly=1&cmd=diff&expand=1&nodiff=1&opackage=target_package&oproject=target_project&view=xml&withissues=1
+    uri: http://backend:5352/source/source_project/source_package?cacheonly=1&cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -588,30 +588,42 @@ http_interactions:
     headers:
       Content-Type:
       - text/xml
+      Content-Length:
+      - '1113'
       Cache-Control:
       - no-cache
       Connection:
       - close
-      Content-Length:
-      - '726'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="bc437ab5abb0e45c727f9825cab4292e">
-          <old project="target_project" package="target_package" rev="2" srcmd5="d4bfa057a014fe6d79372adc2631a9e0"/>
-          <new project="source_project" package="source_package" rev="2" srcmd5="8a05cb48893ac50f7edcbaf1f3106039"/>
+        <sourcediff key="a490dbb977ab066e5e4c1cadda04b1ef">
+          <old project="target_project" package="target_package" rev="2" srcmd5="4ba07b641ec59dd71dcd1e53901d3d9c"/>
+          <new project="source_project" package="source_package" rev="2" srcmd5="9efcb4d4c0ed55a12f6d732bb2740cdc"/>
           <files>
             <file state="changed">
-              <old name="_config" md5="e4d51329cd18d77c3c881031b3e63f1f" size="53"/>
-              <new name="_config" md5="74852629c5277d805902d774d71f9c40" size="53"/>
+              <old name="_config" md5="60f8f29697e4e9af698ac17768453035" size="64"/>
+              <new name="_config" md5="a76cec6802ff638471315a71816a939e" size="66"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Quam qui modi. Distinctio ratione qui. Blanditiis tenetur iusto.
+        \ No newline at end of file
+        +Non beatae fugiat. Et qui perferendis. Quia voluptatem laudantium.
+        \ No newline at end of file
+        </diff>
             </file>
             <file state="changed">
               <old name="somefile.spec" md5="11a31b90d280a13710401556a3256e44" size="23"/>
               <new name="somefile.spec" md5="8bc8b279be5b9899070591b779e593e4" size="22"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -# This will be replaced
+        \ No newline at end of file
+        +# This is the new text
+        \ No newline at end of file
+        </diff>
             </file>
           </files>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Tue, 25 Mar 2025 11:48:28 GMT
+  recorded_at: Thu, 27 Mar 2025 11:41:26 GMT
 recorded_with: VCR 6.3.1
