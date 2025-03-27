@@ -30,17 +30,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '143'
+      - '142'
     body:
       encoding: UTF-8
       string: |
         <project name="home:kugelblitz">
           <title></title>
           <description></description>
-          <person userid="kugelblitz" role="maintainer" />
+          <person userid="kugelblitz" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Wed, 14 Jun 2017 09:01:04 GMT
+  recorded_at: Mon, 31 Mar 2025 10:15:42 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:titan/_meta?user=titan
@@ -71,26 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '133'
+      - '132'
     body:
       encoding: UTF-8
       string: |
         <project name="home:titan">
           <title></title>
           <description></description>
-          <person userid="titan" role="maintainer" />
+          <person userid="titan" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Wed, 14 Jun 2017 09:01:05 GMT
+  recorded_at: Mon, 31 Mar 2025 10:15:42 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:titan/goal/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:titan/goal/_meta?user=kugelblitz
     body:
       encoding: UTF-8
       string: |
         <package name="goal" project="home:titan">
-          <title>To a God Unknown</title>
-          <description>Ducimus nulla minima praesentium provident velit ab eum.</description>
+          <title>The Line of Beauty</title>
+          <description>Suscipit quis nobis doloribus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -111,25 +109,101 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <package name="goal" project="home:titan">
-          <title>To a God Unknown</title>
-          <description>Ducimus nulla minima praesentium provident velit ab eum.</description>
+          <title>The Line of Beauty</title>
+          <description>Suscipit quis nobis doloribus.</description>
         </package>
-    http_version: 
-  recorded_at: Wed, 14 Jun 2017 09:01:05 GMT
+  recorded_at: Mon, 31 Mar 2025 10:15:42 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:titan/goal/_meta
+    uri: http://backend:5352/source/home:titan/goal/_config
+    body:
+      encoding: UTF-8
+      string: Quis molestias qui. Sunt odit ab. Quia sint id.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <package name="goal" project="home:titan">
-          <title>To a God Unknown</title>
-          <description>Ducimus nulla minima praesentium provident velit ab eum.</description>
+        <revision rev="79" vrev="79">
+          <srcmd5>ac505c386a25c1654e8c98fdb5da1cd3</srcmd5>
+          <version>unknown</version>
+          <time>1743416142</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 31 Mar 2025 10:15:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/goal/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Perspiciatis repudiandae consequatur. Ea adipisci deserunt. Inventore
+        illo accusantium.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="80" vrev="80">
+          <srcmd5>4ad5df5fd18e8e1d04655fcfbb4a63a5</srcmd5>
+          <version>unknown</version>
+          <time>1743416143</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 31 Mar 2025 10:15:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:kugelblitz/ball/_meta?user=kugelblitz
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ball" project="home:kugelblitz">
+          <title>Consider the Lilies</title>
+          <description>Voluptatem recusandae dolorum inventore.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -150,26 +224,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="goal" project="home:titan">
-          <title>To a God Unknown</title>
-          <description>Ducimus nulla minima praesentium provident velit ab eum.</description>
-        </package>
-    http_version: 
-  recorded_at: Wed, 14 Jun 2017 09:01:05 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:kugelblitz/ball/_meta?user=_nobody_
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="ball" project="home:kugelblitz">
-          <title>A Confederacy of Dunces</title>
-          <description>Magnam omnis officia nobis.</description>
+          <title>Consider the Lilies</title>
+          <description>Voluptatem recusandae dolorum inventore.</description>
         </package>
+  recorded_at: Mon, 31 Mar 2025 10:15:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:kugelblitz/_project/_attribute?meta=1&user=kugelblitz
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="ApprovedRequestSource" namespace="OBS"/>
+        </attributes>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -189,26 +261,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '173'
     body:
       encoding: UTF-8
       string: |
-        <package name="ball" project="home:kugelblitz">
-          <title>A Confederacy of Dunces</title>
-          <description>Magnam omnis officia nobis.</description>
-        </package>
-    http_version: 
-  recorded_at: Wed, 14 Jun 2017 09:01:05 GMT
+        <revision rev="64">
+          <srcmd5>ba07d19211c6e0e3642204f301d98ba2</srcmd5>
+          <time>1743416143</time>
+          <user>kugelblitz</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 31 Mar 2025 10:15:43 GMT
 - request:
-    method: put
-    uri: http://backend:5352/source/home:kugelblitz/ball/_meta
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/ball
     body:
-      encoding: UTF-8
-      string: |
-        <package name="ball" project="home:kugelblitz">
-          <title>A Confederacy of Dunces</title>
-          <description>Magnam omnis officia nobis.</description>
-        </package>
+      encoding: US-ASCII
+      string: ''
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -228,14 +298,65 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '79'
     body:
       encoding: UTF-8
       string: |
-        <package name="ball" project="home:kugelblitz">
-          <title>A Confederacy of Dunces</title>
-          <description>Magnam omnis officia nobis.</description>
-        </package>
-    http_version: 
-  recorded_at: Wed, 14 Jun 2017 09:01:05 GMT
-recorded_with: VCR 3.0.3
+        <directory name="ball" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 10:15:43 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=home:titan&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '829'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="41e30be4377ef32dc12ef34725e95ab2">
+          <old project="home:titan" package="goal" rev="80" srcmd5="4ad5df5fd18e8e1d04655fcfbb4a63a5"/>
+          <new project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files>
+            <file state="deleted">
+              <old name="_config" md5="7ed592c3bc8b765b66df713144e5f76e" size="47"/>
+              <diff lines="3">@@ -1,1 +0,0 @@
+        -Quis molestias qui. Sunt odit ab. Quia sint id.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="deleted">
+              <old name="somefile.txt" md5="00e20e158b13cddb55b2c86a0f27ef22" size="87"/>
+              <diff lines="3">@@ -1,1 +0,0 @@
+        -Perspiciatis repudiandae consequatur. Ea adipisci deserunt. Inventore illo accusantium.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 31 Mar 2025 10:15:44 GMT
+recorded_with: VCR 6.3.1

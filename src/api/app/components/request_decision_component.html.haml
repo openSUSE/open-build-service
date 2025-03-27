@@ -28,48 +28,58 @@
           .tab-pane.fade{ id: 'preview_new_comment', role: 'tabpanel', 'aria-labelledby': 'preview-message-tab' }
             .comment-preview.message-preview.my-3
       .mt-2
-        - if @forward_allowed
-          - @action.forward.each_with_index do |forward, index|
-            .form-check.m-2.d-none
-              = check_box_tag("forward-#{index}", "#{forward[:project]}_#_#{forward[:package]}", true,
-                              class: 'form-check-input forward-check-inputs')
         - if policy(Comment.new(commentable:@bs_request)).create?
           = submit_tag 'Add comment', class: 'btn btn-primary me-2', data: { disable_with: 'Creating comment...' }, name: 'commented'
         - if policy(@bs_request).revoke_request?
-          = submit_tag 'Revoke request', name: 'revoked', class: 'btn btn-danger me-2', data: other_decision_confirmation('revoke')
+          = submit_tag('Revoke request', name: 'revoked',
+                                         class: 'btn btn-danger me-2',
+                                         title: 'Cancel the request',
+                                         data: { confirm: "Revoke this request?" })
         - if policy(@bs_request).decline_request?
-          = submit_tag('Decline request', name: 'declined', class: 'btn btn-danger me-2', data: other_decision_confirmation('decline'),
-                        title: 'Decline the request, as the author of the request you can reopen it again.')
+          = submit_tag('Decline request', name: 'declined',
+                                          class: 'btn btn-danger me-2',
+                                          title: 'Reject the changes.',
+                                          data: { confirm: "Decline this request?\n\n#{@package_maintainers_hint}" })
         - if policy(@bs_request).accept_request?
-          -# Hidden checkbox input to flag make_maintainer option
-          - if accept_with_options_allowed? && show_add_submitter_as_maintainer_option?
-            .form-check.mb-2.mt-2.d-none
-              = check_box_tag('add_submitter_as_maintainer_0', "#{@action.target_project}_#_#{@action.target_package}",
-                              false, class: 'form-check-input')
-          - if accept_with_options_allowed? && show_add_submitter_as_maintainer_option? && @forward_allowed
-            = render 'webui/request/accept_dropdown',
-              make_maintainer_option: true,
-              forward_request_option: true,
-              confirmation: confirmation,
-              creator: @creator,
-              target: target
-          - elsif accept_with_options_allowed? && show_add_submitter_as_maintainer_option?
-            = render 'webui/request/accept_dropdown',
-              make_maintainer_option: true,
-              confirmation: confirmation,
-              creator: @creator,
-              target: target
-          - elsif accept_with_options_allowed? && @forward_allowed
-            = render 'webui/request/accept_dropdown',
-              forward_request_option: true,
-              confirmation: confirmation,
-              creator: @creator
-          - else
-            = submit_tag('Accept request', name: 'accepted', class: 'btn btn-secondary me-2',
-                          title: 'Accept the request, this will apply the changes on the target.')
-
+          %span.dropdown.me-2
+            - unless show_forward? || show_add_creator_as_maintainer?
+              = submit_tag('Accept request', name: 'accepted',
+                                             class: 'btn btn-primary me-2',
+                                             data: confirmation,
+                                             title: 'Commit changes to the target.')
+            - else
+              = button_tag('Accept', type: 'button', role: 'button', id: 'decision-buttons-group', class: 'btn btn-secondary dropdown-toggle',
+                            data: { 'bs-toggle': 'dropdown'}, aria: { 'haspopup': 'true', 'expanded': 'false' })
+              .dropdown-menu{ aria: { labelledby: 'decision-buttons-group' } }
+                = submit_tag('Accept request', name: 'accepted',
+                                               class: 'btn-link dropdown-item',
+                                               title: 'Commit changes to the target',
+                                               data: confirmation)
+                - if show_add_creator_as_maintainer?
+                  = submit_tag('Accept and make the creator a maintainer of the target',
+                               name: 'accepted',
+                               id: 'accept-and-make-maintainer',
+                               class: 'btn-link dropdown-item',
+                               title: "Commit changes and make #{@bs_request.creator} maintainer of #{target_names}",
+                               data: { confirm: "Accept and make the request creator a maintainer?" })
+                - if show_forward?
+                  = submit_tag("Accept and forward submit request",
+                               name: 'accepted',
+                               id: 'accept-and-forward-requests',
+                               class: 'btn-link dropdown-item',
+                               title: "Commit changes and create a request forwarding the changes to #{forwards_names}",
+                               data: { confirm: 'Accept and forward this request?' })
+                - if show_add_creator_as_maintainer? && show_forward?
+                  -# haml-lint:disable LineLength
+                  = submit_tag("Accept, make the creator a maintainer of the target and forward the request",
+                               name: 'accepted',
+                               id: 'accept-make-maintainer-and-forward-requests',
+                               class: 'btn-link dropdown-item',
+                               title: "Commit changes, make #{@bs_request.creator} maintainer of #{target_names} and create a request forwarding the changes to #{forwards_names}",
+                               data: { confirm: "Do you really want to accept, forward this request and make the request creator maintainer of the target?" })
+                  -# haml-lint:enable LineLength
         - if policy(@bs_request).reopen_request?
-          = submit_tag 'Reopen request', name: 'new', class: 'btn btn-warning me-2', data: other_decision_confirmation('reopen')
+          = submit_tag 'Reopen request', name: 'new', class: 'btn btn-warning me-2', data: { confirm: "Reopen this request?" }
 
 :javascript
   attachPreviewMessageOnCommentBoxes();

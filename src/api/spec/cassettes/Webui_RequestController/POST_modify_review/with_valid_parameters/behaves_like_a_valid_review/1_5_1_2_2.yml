@@ -30,26 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '133'
+      - '132'
     body:
       encoding: UTF-8
       string: |
         <project name="home:titan">
           <title></title>
           <description></description>
-          <person userid="titan" role="maintainer" />
+          <person userid="titan" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:07 GMT
+  recorded_at: Mon, 31 Mar 2025 10:16:27 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:titan/test-package-ascii/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:titan/goal/_meta?user=klasnic
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package-ascii" project="home:titan">
-          <title>The Moving Toyshop</title>
-          <description>Atque ipsam numquam voluptatem excepturi esse natus sunt.</description>
+        <package name="goal" project="home:titan">
+          <title>After Many a Summer Dies the Swan</title>
+          <description>Ratione corporis eveniet eius.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,63 +69,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '191'
+      - '165'
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package-ascii" project="home:titan">
-          <title>The Moving Toyshop</title>
-          <description>Atque ipsam numquam voluptatem excepturi esse natus sunt.</description>
+        <package name="goal" project="home:titan">
+          <title>After Many a Summer Dies the Swan</title>
+          <description>Ratione corporis eveniet eius.</description>
         </package>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:07 GMT
+  recorded_at: Mon, 31 Mar 2025 10:16:28 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:titan/test-package-ascii/_meta
+    uri: http://backend:5352/source/home:titan/goal/_config
     body:
       encoding: UTF-8
-      string: |
-        <package name="test-package-ascii" project="home:titan">
-          <title>The Moving Toyshop</title>
-          <description>Atque ipsam numquam voluptatem excepturi esse natus sunt.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '191'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="test-package-ascii" project="home:titan">
-          <title>The Moving Toyshop</title>
-          <description>Atque ipsam numquam voluptatem excepturi esse natus sunt.</description>
-        </package>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:07 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:titan/test-package-ascii/_config
-    body:
-      encoding: UTF-8
-      string: Id nihil est nihil. Blanditiis voluptatem qui atque itaque a. Saepe
-        itaque hic consequatur accusantium. Ea illo eius dolore qui ab. Suscipit sunt
-        odit.
+      string: Fugiat eos omnis. Perspiciatis ut aliquam. Nihil magnam fuga.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -150,27 +107,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="155" vrev="155">
-          <srcmd5>28e2a20ed0b2cc7d937adf5ac4c8e92c</srcmd5>
+        <revision rev="119" vrev="119">
+          <srcmd5>6db1988a9f2ee6539bf013512ba77d9e</srcmd5>
           <version>unknown</version>
-          <time>1522741207</time>
+          <time>1743416188</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:07 GMT
+  recorded_at: Mon, 31 Mar 2025 10:16:28 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:titan/test-package-ascii/somefile.txt
+    uri: http://backend:5352/source/home:titan/goal/somefile.txt
     body:
       encoding: UTF-8
-      string: |
-        a
-        a
-        a
-        a
-        a
+      string: Quis temporibus ex. Hic quasi architecto. In dolor dolores.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -194,16 +145,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="156" vrev="156">
-          <srcmd5>28e2a20ed0b2cc7d937adf5ac4c8e92c</srcmd5>
+        <revision rev="120" vrev="120">
+          <srcmd5>077a1c6d4db02c1ad8003fcb65ce8899</srcmd5>
           <version>unknown</version>
-          <time>1522741207</time>
+          <time>1743416188</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:07 GMT
+  recorded_at: Mon, 31 Mar 2025 10:16:29 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:kugelblitz/_meta?user=kugelblitz
@@ -234,26 +184,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '143'
+      - '142'
     body:
       encoding: UTF-8
       string: |
         <project name="home:kugelblitz">
           <title></title>
           <description></description>
-          <person userid="kugelblitz" role="maintainer" />
+          <person userid="kugelblitz" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:07 GMT
+  recorded_at: Mon, 31 Mar 2025 10:16:29 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:kugelblitz/ball/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:kugelblitz/ball/_meta?user=klasnic
     body:
       encoding: UTF-8
       string: |
         <package name="ball" project="home:kugelblitz">
-          <title>Cabbages and Kings</title>
-          <description>Itaque dolores quia deleniti.</description>
+          <title>Some Buried Caesar</title>
+          <description>Alias dolore ad harum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -274,26 +223,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '147'
     body:
       encoding: UTF-8
       string: |
         <package name="ball" project="home:kugelblitz">
-          <title>Cabbages and Kings</title>
-          <description>Itaque dolores quia deleniti.</description>
+          <title>Some Buried Caesar</title>
+          <description>Alias dolore ad harum.</description>
         </package>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:07 GMT
+  recorded_at: Mon, 31 Mar 2025 10:16:29 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:kugelblitz/ball/_meta
+    uri: http://backend:5352/source/home:kugelblitz/_project/_attribute?meta=1&user=klasnic
     body:
       encoding: UTF-8
       string: |
-        <package name="ball" project="home:kugelblitz">
-          <title>Cabbages and Kings</title>
-          <description>Itaque dolores quia deleniti.</description>
-        </package>
+        <attributes>
+          <attribute name="ApprovedRequestSource" namespace="OBS"/>
+        </attributes>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -313,16 +260,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '170'
     body:
       encoding: UTF-8
       string: |
-        <package name="ball" project="home:kugelblitz">
-          <title>Cabbages and Kings</title>
-          <description>Itaque dolores quia deleniti.</description>
-        </package>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:07 GMT
+        <revision rev="98">
+          <srcmd5>ba07d19211c6e0e3642204f301d98ba2</srcmd5>
+          <time>1743416189</time>
+          <user>klasnic</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 31 Mar 2025 10:16:29 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:kugelblitz/ball
@@ -354,11 +303,10 @@ http_interactions:
       string: |
         <directory name="ball" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:08 GMT
+  recorded_at: Mon, 31 Mar 2025 10:16:29 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=5&opackage=test-package-ascii&oproject=home:titan&tarlimit=5&view=xml&withissues=1
+    uri: http://backend:5352/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=home:titan&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -383,69 +331,31 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '858'
+      - '816'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="8eebf9969979e1a1e38181ede962f344">
-          <old project="home:titan" package="test-package-ascii" rev="156" srcmd5="28e2a20ed0b2cc7d937adf5ac4c8e92c" />
-          <new project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+        <sourcediff key="4e6d1331972d13bd5c572b48b5320db7">
+          <old project="home:titan" package="goal" rev="120" srcmd5="077a1c6d4db02c1ad8003fcb65ce8899"/>
+          <new project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files>
             <file state="deleted">
-              <old name="_config" md5="2703ca95791620e21de0a9dc3135cd67" size="151" />
+              <old name="_config" md5="6174bfb9c7e621d0e1a41027b311c153" size="61"/>
               <diff lines="3">@@ -1,1 +0,0 @@
-        -Id nihil est nihil. Blanditiis voluptatem qui atque itaque a. Saepe itaque hic consequatur accusantium. Ea illo eius dolore qui ab. Suscipit sunt odit.
+        -Fugiat eos omnis. Perspiciatis ut aliquam. Nihil magnam fuga.
         \ No newline at end of file
         </diff>
             </file>
             <file state="deleted">
-              <old name="somefile.txt" md5="3f65cbdca1b64c2f8f574fccae24f3a4" size="10" />
-              <diff lines="6" shown="5">@@ -1,5 +0,0 @@
-        -a
-        -a
-        -a
-        -a
+              <old name="somefile.txt" md5="fb8c03a5856f71776385d77c829b3c82" size="59"/>
+              <diff lines="3">@@ -1,1 +0,0 @@
+        -Quis temporibus ex. Hic quasi architecto. In dolor dolores.
+        \ No newline at end of file
         </diff>
             </file>
           </files>
           <issues>
           </issues>
         </sourcediff>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:08 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:titan/test-package-ascii
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '310'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="test-package-ascii" rev="156" vrev="156" srcmd5="28e2a20ed0b2cc7d937adf5ac4c8e92c">
-          <entry name="_config" md5="2703ca95791620e21de0a9dc3135cd67" size="151" mtime="1522741207" />
-          <entry name="somefile.txt" md5="3f65cbdca1b64c2f8f574fccae24f3a4" size="10" mtime="1522388634" />
-        </directory>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:08 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Mon, 31 Mar 2025 10:16:29 GMT
+recorded_with: VCR 6.3.1
