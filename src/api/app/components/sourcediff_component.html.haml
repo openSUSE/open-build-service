@@ -7,7 +7,7 @@
           %i.fas.fa-sync-alt{ id: "cache#0-reload" }
         = render partial: 'webui/shared/loading', locals: { text: 'Loading changes...', wrapper_css: ['loading', 'invisible'] }
     - else
-      - webui_sourcediff = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded, nodiff: 1, cacheonly: 1 })
+      - webui_sourcediff = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded, cacheonly: 1 })
       - webui_sourcediff.each do |sourcediff|
         - source_rev = sourcediff.dig('new', 'srcmd5') || @action.source_rev
         - target_rev = sourcediff.dig('old', 'srcmd5')
