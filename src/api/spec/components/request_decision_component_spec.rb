@@ -33,10 +33,10 @@ RSpec.describe RequestDecisionComponent, :vcr, type: :component do
 
   context 'when we can make request creator a maintainer of the target project' do
     let(:maintainer) { create(:confirmed_user) }
-    let(:target_project) { create(:project, name: 'target_project', maintainer: maintainer) }
     let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }
-    let(:target_package) { create(:package, name: 'target_package', project: target_project) }
     let(:source_package) { create(:package, name: 'source_package', project: source_project) }
+    let(:target_project) { create(:project, name: 'target_project', maintainer: maintainer) }
+    let(:target_package) { create(:package, name: 'target_package', project: target_project) }
     let(:submit_request) do
       create(:bs_request_with_submit_action,
              target_package: target_package,
@@ -65,7 +65,7 @@ RSpec.describe RequestDecisionComponent, :vcr, type: :component do
     end
 
     it 'shows an option to accept and make the creator a maintainer' do
-      expect(rendered_content).to have_css("input[value='Accept and make #{submit_request.creator} maintainer of target_project/target_package']")
+      expect(rendered_content).to have_css("input[value='Accept and make #{submit_request.creator} maintainer of all the target projects of all the request actions']")
     end
   end
 
@@ -162,8 +162,7 @@ RSpec.describe RequestDecisionComponent, :vcr, type: :component do
     end
 
     it 'shows an option to accept, make the creator a maintainer and forward the request' do
-      expect(rendered_content).to have_css("input[value='Accept making #{submit_request.creator} maintainer of " \
-                                           "#{devel_project}/#{devel_package} and forwarding submit request']")
+      expect(rendered_content).to have_css("input[value='Accept making #{submit_request.creator} maintainer of all the target projects of all the request actions and forwarding this submit request']")
     end
   end
 end

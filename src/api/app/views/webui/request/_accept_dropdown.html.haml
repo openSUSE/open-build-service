@@ -7,7 +7,7 @@
                   title: 'Accept the request, this will apply the changes on the target.')
     - if defined?(make_maintainer_option) && make_maintainer_option
       -# Accept and make maintainer submit
-      = submit_tag("Accept and make #{creator} maintainer of #{target}",
+      = submit_tag("Accept and make #{creator} maintainer of all the target projects of all the request actions",
                   name: 'accepted',
                   class: 'btn-link dropdown-item', data: { confirm: "Do you really want to approve and make #{creator} a maintainer?" },
                   title: 'Accept the request. this will apply the changes on the target.',
@@ -21,7 +21,7 @@
                   id: 'accept-and-forward-requests')
     - if defined?(make_maintainer_option) && make_maintainer_option && defined?(forward_request_option) && forward_request_option
       -# Accept, make maintainer and forward request
-      = submit_tag("Accept making #{creator} maintainer of #{target} and forwarding submit request",
+      = submit_tag("Accept making #{creator} maintainer of all the target projects of all the request actions and forwarding this submit request",
                   name: 'accepted',
                   class: 'btn-link dropdown-item',
                   data: { confirm: "Do you really want to accept, forward this request and make #{creator} a maintainer?" },
