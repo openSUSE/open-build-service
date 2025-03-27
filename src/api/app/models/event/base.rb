@@ -23,7 +23,7 @@ module Event
          Event::RelationshipCreate, Event::RelationshipDelete,
          Event::ReportForComment, Event::ReportForPackage, Event::ReportForProject, Event::ReportForUser, Event::ReportForRequest,
          Event::WorkflowRunFail, Event::AppealCreated, Event::ClearedDecision, Event::FavoredDecision,
-         Event::AddedUserToGroup, Event::RemovedUserFromGroup]
+         Event::AddedUserToGroup, Event::RemovedUserFromGroup, Event::AddedGlobalRole]
       end
 
       def classnames
