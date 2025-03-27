@@ -30,26 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '133'
+      - '132'
     body:
       encoding: UTF-8
       string: |
         <project name="home:titan">
           <title></title>
           <description></description>
-          <person userid="titan" role="maintainer" />
+          <person userid="titan" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:04 GMT
+  recorded_at: Mon, 31 Mar 2025 10:16:09 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:titan/test-package-ascii/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:titan/goal/_meta?user=klasnic
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package-ascii" project="home:titan">
-          <title>A Time of Gifts</title>
-          <description>Occaecati commodi totam quaerat.</description>
+        <package name="goal" project="home:titan">
+          <title>Gone with the Wind</title>
+          <description>Et autem corporis nobis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,62 +69,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '144'
     body:
       encoding: UTF-8
       string: |
-        <package name="test-package-ascii" project="home:titan">
-          <title>A Time of Gifts</title>
-          <description>Occaecati commodi totam quaerat.</description>
+        <package name="goal" project="home:titan">
+          <title>Gone with the Wind</title>
+          <description>Et autem corporis nobis.</description>
         </package>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:04 GMT
+  recorded_at: Mon, 31 Mar 2025 10:16:09 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:titan/test-package-ascii/_meta
+    uri: http://backend:5352/source/home:titan/goal/_config
     body:
       encoding: UTF-8
-      string: |
-        <package name="test-package-ascii" project="home:titan">
-          <title>A Time of Gifts</title>
-          <description>Occaecati commodi totam quaerat.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '163'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="test-package-ascii" project="home:titan">
-          <title>A Time of Gifts</title>
-          <description>Occaecati commodi totam quaerat.</description>
-        </package>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:04 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:titan/test-package-ascii/_config
-    body:
-      encoding: UTF-8
-      string: Tenetur libero similique vero laudantium eius. Labore eaque eum consequatur
-        quasi earum. Sit ex aut aut fugiat velit.
+      string: Sed possimus ea. Voluptatum aspernatur quae. Qui rerum ullam.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -149,27 +107,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="149" vrev="149">
-          <srcmd5>166afc466ff7a17ca862b03cd55a7176</srcmd5>
+        <revision rev="101" vrev="101">
+          <srcmd5>83ef12b8bbcf3d9c5401ae54adfb6483</srcmd5>
           <version>unknown</version>
-          <time>1522741204</time>
+          <time>1743416170</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:04 GMT
+  recorded_at: Mon, 31 Mar 2025 10:16:10 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:titan/test-package-ascii/somefile.txt
+    uri: http://backend:5352/source/home:titan/goal/somefile.txt
     body:
       encoding: UTF-8
-      string: |
-        a
-        a
-        a
-        a
-        a
+      string: Illum autem ipsa. Nihil tenetur quaerat. Atque voluptates magni.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -193,16 +145,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="150" vrev="150">
-          <srcmd5>166afc466ff7a17ca862b03cd55a7176</srcmd5>
+        <revision rev="102" vrev="102">
+          <srcmd5>70ddd0b14ace30fc2c957a16d452845d</srcmd5>
           <version>unknown</version>
-          <time>1522741204</time>
+          <time>1743416170</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:04 GMT
+  recorded_at: Mon, 31 Mar 2025 10:16:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:kugelblitz/_meta?user=kugelblitz
@@ -233,26 +184,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '143'
+      - '142'
     body:
       encoding: UTF-8
       string: |
         <project name="home:kugelblitz">
           <title></title>
           <description></description>
-          <person userid="kugelblitz" role="maintainer" />
+          <person userid="kugelblitz" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:04 GMT
+  recorded_at: Mon, 31 Mar 2025 10:16:11 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:kugelblitz/ball/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:kugelblitz/ball/_meta?user=klasnic
     body:
       encoding: UTF-8
       string: |
         <package name="ball" project="home:kugelblitz">
-          <title>The Wives of Bath</title>
-          <description>Unde ea eos consequuntur similique in velit voluptatem.</description>
+          <title>Endless Night</title>
+          <description>Natus officiis fugiat aut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -273,26 +223,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '179'
+      - '146'
     body:
       encoding: UTF-8
       string: |
         <package name="ball" project="home:kugelblitz">
-          <title>The Wives of Bath</title>
-          <description>Unde ea eos consequuntur similique in velit voluptatem.</description>
+          <title>Endless Night</title>
+          <description>Natus officiis fugiat aut.</description>
         </package>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:04 GMT
+  recorded_at: Mon, 31 Mar 2025 10:16:11 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:kugelblitz/ball/_meta
+    uri: http://backend:5352/source/home:kugelblitz/_project/_attribute?meta=1&user=klasnic
     body:
       encoding: UTF-8
       string: |
-        <package name="ball" project="home:kugelblitz">
-          <title>The Wives of Bath</title>
-          <description>Unde ea eos consequuntur similique in velit voluptatem.</description>
-        </package>
+        <attributes>
+          <attribute name="ApprovedRequestSource" namespace="OBS"/>
+        </attributes>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -312,16 +260,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '179'
+      - '170'
     body:
       encoding: UTF-8
       string: |
-        <package name="ball" project="home:kugelblitz">
-          <title>The Wives of Bath</title>
-          <description>Unde ea eos consequuntur similique in velit voluptatem.</description>
-        </package>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:04 GMT
+        <revision rev="80">
+          <srcmd5>ba07d19211c6e0e3642204f301d98ba2</srcmd5>
+          <time>1743416171</time>
+          <user>klasnic</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 31 Mar 2025 10:16:11 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:kugelblitz/ball
@@ -353,11 +303,10 @@ http_interactions:
       string: |
         <directory name="ball" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:05 GMT
+  recorded_at: Mon, 31 Mar 2025 10:16:11 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=0&opackage=test-package-ascii&oproject=home:titan&tarlimit=0&view=xml&withissues=1
+    uri: http://backend:5352/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=home:titan&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -382,70 +331,31 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '817'
+      - '821'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="f512ec5014727f0d72504b00d39dc868">
-          <old project="home:titan" package="test-package-ascii" rev="150" srcmd5="166afc466ff7a17ca862b03cd55a7176" />
-          <new project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+        <sourcediff key="161b548fa600d6b4f619cb6a24844183">
+          <old project="home:titan" package="goal" rev="102" srcmd5="70ddd0b14ace30fc2c957a16d452845d"/>
+          <new project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files>
             <file state="deleted">
-              <old name="_config" md5="973e22df46bbe42bd5fad5217ad8fcd0" size="117" />
+              <old name="_config" md5="0aaf456c934c49a7d83c9fd6c2d43c78" size="61"/>
               <diff lines="3">@@ -1,1 +0,0 @@
-        -Tenetur libero similique vero laudantium eius. Labore eaque eum consequatur quasi earum. Sit ex aut aut fugiat velit.
+        -Sed possimus ea. Voluptatum aspernatur quae. Qui rerum ullam.
         \ No newline at end of file
         </diff>
             </file>
             <file state="deleted">
-              <old name="somefile.txt" md5="3f65cbdca1b64c2f8f574fccae24f3a4" size="10" />
-              <diff lines="6">@@ -1,5 +0,0 @@
-        -a
-        -a
-        -a
-        -a
-        -a
+              <old name="somefile.txt" md5="9a2b720f2e529ac4b5b3a1b2f62fbe61" size="64"/>
+              <diff lines="3">@@ -1,1 +0,0 @@
+        -Illum autem ipsa. Nihil tenetur quaerat. Atque voluptates magni.
+        \ No newline at end of file
         </diff>
             </file>
           </files>
           <issues>
           </issues>
         </sourcediff>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:05 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:titan/test-package-ascii
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '310'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="test-package-ascii" rev="150" vrev="150" srcmd5="166afc466ff7a17ca862b03cd55a7176">
-          <entry name="_config" md5="973e22df46bbe42bd5fad5217ad8fcd0" size="117" mtime="1522741204" />
-          <entry name="somefile.txt" md5="3f65cbdca1b64c2f8f574fccae24f3a4" size="10" mtime="1522388634" />
-        </directory>
-    http_version: 
-  recorded_at: Tue, 03 Apr 2018 07:40:05 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Mon, 31 Mar 2025 10:16:12 GMT
+recorded_with: VCR 6.3.1

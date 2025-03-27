@@ -39,7 +39,121 @@ http_interactions:
           <description></description>
           <person userid="titan" role="maintainer"/>
         </project>
-  recorded_at: Mon, 31 Mar 2025 10:15:44 GMT
+  recorded_at: Mon, 31 Mar 2025 10:16:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/goal/_meta?user=klasnic
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title>O Jerusalem!</title>
+          <description>Ab atque excepturi tempora.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '141'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title>O Jerusalem!</title>
+          <description>Ab atque excepturi tempora.</description>
+        </package>
+  recorded_at: Mon, 31 Mar 2025 10:16:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/goal/_config
+    body:
+      encoding: UTF-8
+      string: Accusamus rerum corporis. Est repellendus totam. Iusto unde ut.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="117" vrev="117">
+          <srcmd5>d2e7b8640b7f3899d45ddd86ad135ee1</srcmd5>
+          <version>unknown</version>
+          <time>1743416185</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 31 Mar 2025 10:16:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/goal/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Deleniti culpa non. Aliquam laborum sit. At quo aliquid.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="118" vrev="118">
+          <srcmd5>828c51289d8393f87264ab48124cafeb</srcmd5>
+          <version>unknown</version>
+          <time>1743416186</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 31 Mar 2025 10:16:27 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:kugelblitz/_meta?user=kugelblitz
@@ -79,130 +193,16 @@ http_interactions:
           <description></description>
           <person userid="kugelblitz" role="maintainer"/>
         </project>
-  recorded_at: Mon, 31 Mar 2025 10:15:44 GMT
+  recorded_at: Mon, 31 Mar 2025 10:16:27 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:titan/goal/_meta?user=titan
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="goal" project="home:titan">
-          <title>Carrion Comfort</title>
-          <description>Occaecati aperiam dolores iusto.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '149'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="goal" project="home:titan">
-          <title>Carrion Comfort</title>
-          <description>Occaecati aperiam dolores iusto.</description>
-        </package>
-  recorded_at: Mon, 31 Mar 2025 10:15:44 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:titan/goal/_config
-    body:
-      encoding: UTF-8
-      string: Aperiam accusamus in. Voluptas est inventore. Enim enim suscipit.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '209'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="81" vrev="81">
-          <srcmd5>ecc42ba95f5670776f979d4631bacda9</srcmd5>
-          <version>unknown</version>
-          <time>1743416144</time>
-          <user>unknown</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Mon, 31 Mar 2025 10:15:44 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:titan/goal/somefile.txt
-    body:
-      encoding: UTF-8
-      string: Dolorum doloremque voluptas. Omnis dolor eius. Et sint quia.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '209'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="82" vrev="82">
-          <srcmd5>9ab63c4b216ca387d422ced0f7a85947</srcmd5>
-          <version>unknown</version>
-          <time>1743416144</time>
-          <user>unknown</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Mon, 31 Mar 2025 10:15:45 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:kugelblitz/ball/_meta?user=titan
+    uri: http://backend:5352/source/home:kugelblitz/ball/_meta?user=klasnic
     body:
       encoding: UTF-8
       string: |
         <package name="ball" project="home:kugelblitz">
-          <title>The Skull Beneath the Skin</title>
-          <description>Culpa et amet quis.</description>
+          <title>The Other Side of Silence</title>
+          <description>Tempore enim quis sit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -223,18 +223,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="ball" project="home:kugelblitz">
-          <title>The Skull Beneath the Skin</title>
-          <description>Culpa et amet quis.</description>
+          <title>The Other Side of Silence</title>
+          <description>Tempore enim quis sit.</description>
         </package>
-  recorded_at: Mon, 31 Mar 2025 10:15:45 GMT
+  recorded_at: Mon, 31 Mar 2025 10:16:27 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:kugelblitz/_project/_attribute?meta=1&user=titan
+    uri: http://backend:5352/source/home:kugelblitz/_project/_attribute?meta=1&user=klasnic
     body:
       encoding: UTF-8
       string: |
@@ -260,18 +260,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '170'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="66">
+        <revision rev="96">
           <srcmd5>ba07d19211c6e0e3642204f301d98ba2</srcmd5>
-          <time>1743416145</time>
-          <user>titan</user>
+          <time>1743416187</time>
+          <user>klasnic</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Mar 2025 10:15:45 GMT
+  recorded_at: Mon, 31 Mar 2025 10:16:27 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:kugelblitz/ball
@@ -303,7 +303,7 @@ http_interactions:
       string: |
         <directory name="ball" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 31 Mar 2025 10:15:45 GMT
+  recorded_at: Mon, 31 Mar 2025 10:16:27 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=home:titan&tarlimit=10000&view=xml&withissues=1
@@ -331,25 +331,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '820'
+      - '815'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="def86c911eccdd942a85a8617f40dc12">
-          <old project="home:titan" package="goal" rev="82" srcmd5="9ab63c4b216ca387d422ced0f7a85947"/>
+        <sourcediff key="611ad8595a22cd8b3ded891b7e575036">
+          <old project="home:titan" package="goal" rev="118" srcmd5="828c51289d8393f87264ab48124cafeb"/>
           <new project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files>
             <file state="deleted">
-              <old name="_config" md5="f7cbac4885bed6328fd96a126921a0f1" size="65"/>
+              <old name="_config" md5="4b9ca380a5ad58f596ce4f1dc3ae2032" size="63"/>
               <diff lines="3">@@ -1,1 +0,0 @@
-        -Aperiam accusamus in. Voluptas est inventore. Enim enim suscipit.
+        -Accusamus rerum corporis. Est repellendus totam. Iusto unde ut.
         \ No newline at end of file
         </diff>
             </file>
             <file state="deleted">
-              <old name="somefile.txt" md5="930405c469b4d14b994dfc0ad9c18114" size="60"/>
+              <old name="somefile.txt" md5="4334557e4a8b38621dcf4e75455b4481" size="56"/>
               <diff lines="3">@@ -1,1 +0,0 @@
-        -Dolorum doloremque voluptas. Omnis dolor eius. Et sint quia.
+        -Deleniti culpa non. Aliquam laborum sit. At quo aliquid.
         \ No newline at end of file
         </diff>
             </file>
@@ -357,5 +357,5 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 31 Mar 2025 10:15:45 GMT
+  recorded_at: Mon, 31 Mar 2025 10:16:27 GMT
 recorded_with: VCR 6.3.1

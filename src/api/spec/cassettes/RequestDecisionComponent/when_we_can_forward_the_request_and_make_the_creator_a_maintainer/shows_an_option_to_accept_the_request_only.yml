@@ -1,6 +1,506 @@
 ---
 http_interactions:
 - request:
+    method: put
+    uri: http://backend:5352/source/target_project/_meta?user=maintainer
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>Sleep the Brave</title>
+          <description/>
+          <person userid="maintainer" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>Sleep the Brave</title>
+          <description></description>
+          <person userid="maintainer" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 31 Mar 2025 15:24:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=maintainer
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>Clouds of Witness</title>
+          <description>Recusandae quia cumque est.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>Clouds of Witness</title>
+          <description>Recusandae quia cumque est.</description>
+        </package>
+  recorded_at: Mon, 31 Mar 2025 15:24:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel_project/_meta?user=maintainer
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="devel_project">
+          <title>A Time to Kill</title>
+          <description/>
+          <person userid="maintainer" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '154'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="devel_project">
+          <title>A Time to Kill</title>
+          <description></description>
+          <person userid="maintainer" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 31 Mar 2025 15:24:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel_project/devel_package/_meta?user=maintainer
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="devel_package" project="devel_project">
+          <title>Great Work of Time</title>
+          <description>Ullam similique aut reprehenderit.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="devel_package" project="devel_project">
+          <title>Great Work of Time</title>
+          <description>Ullam similique aut reprehenderit.</description>
+        </package>
+  recorded_at: Mon, 31 Mar 2025 15:24:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=maintainer
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>Clouds of Witness</title>
+          <description>Recusandae quia cumque est.</description>
+          <devel project="devel_project" package="devel_package"/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '219'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>Clouds of Witness</title>
+          <description>Recusandae quia cumque est.</description>
+          <devel project="devel_project" package="devel_package"/>
+        </package>
+  recorded_at: Mon, 31 Mar 2025 15:24:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/another_target_project/_meta?user=maintainer
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="another_target_project">
+          <title>For a Breath I Tarry</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '119'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="another_target_project">
+          <title>For a Breath I Tarry</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 31 Mar 2025 15:24:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/another_target_project/another_target_package/_meta?user=maintainer
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="another_target_package" project="another_target_project">
+          <title>Quo Vadis</title>
+          <description>Iste consectetur rerum aut.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="another_target_package" project="another_target_project">
+          <title>Quo Vadis</title>
+          <description>Iste consectetur rerum aut.</description>
+        </package>
+  recorded_at: Mon, 31 Mar 2025 15:24:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/another_target_project/another_target_package/_meta?user=maintainer
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="another_target_package" project="another_target_project">
+          <title>Quo Vadis</title>
+          <description>Iste consectetur rerum aut.</description>
+          <devel project="devel_project" package="devel_package"/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '227'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="another_target_package" project="another_target_project">
+          <title>Quo Vadis</title>
+          <description>Iste consectetur rerum aut.</description>
+          <devel project="devel_project" package="devel_package"/>
+        </package>
+  recorded_at: Mon, 31 Mar 2025 15:24:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_meta?user=maintainer
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>I Sing the Body Electric</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '115'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>I Sing the Body Electric</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 31 Mar 2025 15:24:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=maintainer
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="ApprovedRequestSource" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '174'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="116">
+          <srcmd5>461fd6ce3f55b4a715a72660c353c29c</srcmd5>
+          <time>1743434686</time>
+          <user>maintainer</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 31 Mar 2025 15:24:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=maintainer
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>Look Homeward, Angel</title>
+          <description>Autem molestias et cupiditate.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>Look Homeward, Angel</title>
+          <description>Autem molestias et cupiditate.</description>
+        </package>
+  recorded_at: Mon, 31 Mar 2025 15:24:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=devel_package&oproject=devel_project&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '326'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="72235aa6cc07287543736259c93edd52">
+          <old project="devel_project" package="devel_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="source_project" package="source_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
+- request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
     body:
@@ -31,7 +531,7 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 26 Mar 2025 07:27:56 GMT
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/another_target_project/another_target_package
@@ -47,8 +547,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'another_target_project' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -57,15 +557,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '97'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'another_target_project' does not exist</summary>
-          <details>404 project 'another_target_project' does not exist</details>
-        </status>
-  recorded_at: Wed, 26 Mar 2025 07:27:56 GMT
+        <directory name="another_target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/devel_package
@@ -81,8 +579,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'devel_project' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -91,15 +589,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '88'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'devel_project' does not exist</summary>
-          <details>404 project 'devel_project' does not exist</details>
-        </status>
-  recorded_at: Wed, 26 Mar 2025 07:27:56 GMT
+        <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -131,7 +627,7 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 26 Mar 2025 07:27:56 GMT
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/another_target_project/another_target_package
@@ -147,8 +643,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'another_target_project' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -157,15 +653,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '97'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'another_target_project' does not exist</summary>
-          <details>404 project 'another_target_project' does not exist</details>
-        </status>
-  recorded_at: Wed, 26 Mar 2025 07:27:56 GMT
+        <directory name="another_target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/devel_package
@@ -181,8 +675,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'devel_project' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -191,15 +685,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '88'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'devel_project' does not exist</summary>
-          <details>404 project 'devel_project' does not exist</details>
-        </status>
-  recorded_at: Wed, 26 Mar 2025 07:27:56 GMT
+        <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -231,7 +723,7 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 26 Mar 2025 07:27:56 GMT
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/another_target_project/another_target_package
@@ -247,8 +739,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'another_target_project' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -257,15 +749,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '97'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'another_target_project' does not exist</summary>
-          <details>404 project 'another_target_project' does not exist</details>
-        </status>
-  recorded_at: Wed, 26 Mar 2025 07:27:56 GMT
+        <directory name="another_target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/devel_package
@@ -281,8 +771,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'devel_project' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -291,15 +781,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '88'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'devel_project' does not exist</summary>
-          <details>404 project 'devel_project' does not exist</details>
-        </status>
-  recorded_at: Wed, 26 Mar 2025 07:27:56 GMT
+        <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -331,7 +819,7 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Wed, 26 Mar 2025 07:27:56 GMT
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/another_target_project/another_target_package
@@ -347,8 +835,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'another_target_project' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -357,15 +845,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '97'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'another_target_project' does not exist</summary>
-          <details>404 project 'another_target_project' does not exist</details>
-        </status>
-  recorded_at: Wed, 26 Mar 2025 07:27:56 GMT
+        <directory name="another_target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
 - request:
     method: get
     uri: http://backend:5352/source/devel_project/devel_package
@@ -381,8 +867,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'devel_project' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -391,13 +877,491 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '88'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'devel_project' does not exist</summary>
-          <details>404 project 'devel_project' does not exist</details>
-        </status>
-  recorded_at: Wed, 26 Mar 2025 07:27:56 GMT
+        <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/another_target_project/another_target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '97'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="another_target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/devel_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '88'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/another_target_project/another_target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '97'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="another_target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/devel_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '88'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/another_target_project/another_target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '97'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="another_target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/devel_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '88'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/another_target_project/another_target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '97'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="another_target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/devel_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '88'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/another_target_project/another_target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '97'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="another_target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel_project/devel_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '88'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 31 Mar 2025 15:24:47 GMT
 recorded_with: VCR 6.3.1
