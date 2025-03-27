@@ -143,4 +143,9 @@ OBS_EnforceRevisionsInRequests:
   value_count: 0
   attrib_namespace_id: 9
   issue_list: 0
-
+OBS_RejectBranch:
+  id: 85
+  name: RejectBranch
+  attrib_namespace_id: 9
+  value_count: 1
+  issue_list: 0

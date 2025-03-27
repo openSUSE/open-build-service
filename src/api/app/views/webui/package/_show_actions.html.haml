@@ -2,9 +2,10 @@
   %li.nav-item.action-report-bug
     = render partial: 'webui/package/show_actions/bugzilla_owner', locals: { url: package.report_bug_or_bugzilla_url }
   - if User.session
-    - if current_rev && is_working
+    - if current_rev && is_working && is_branchable
       = render partial: 'webui/package/show_actions/branch_package', locals: { package: package, project: project,
                                                                                              revision: revision }
+    - if current_rev && is_working
       = render partial: 'webui/package/show_actions/submit_package', locals: { package: package, project: project,
                                                                                              revision: revision }
     - if User.possibly_nobody.can_modify?(package)

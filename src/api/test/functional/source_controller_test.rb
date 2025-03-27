@@ -3361,6 +3361,25 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_block_branching
+    login_king
+    post '/source/kde4/kdelibs/_attribute', params: "
+        <attributes><attribute namespace='OBS' name='RejectBranch'>
+          <value>Please work instead elsewhere</value>
+        </attribute></attributes>"
+    assert_response :success
+
+    login_Iggy
+    post '/source/kde4/kdelibs?cmd=branch&ignoredevel=1'
+    assert_response :forbidden
+    assert_match 'Please work instead elsewhere', @response.body
+
+    # cleanup
+    login_king
+    delete '/source/kde4/kdelibs/_attribute/OBS:RejectBranch'
+    assert_response :success
+  end
+
   def test_list_of_linking_instances
     login_tom
 

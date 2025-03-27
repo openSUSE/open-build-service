@@ -174,6 +174,10 @@ class BranchPackage
       raise CanNotBranchPackage, "package is developed at #{p[:package].scmsync}. Fork it instead" if p[:package].try(:scmsync).present?
 
       pac = p[:package]
+      if pac.instance_of?(Package)
+        a = pac.find_attribute('OBS', 'RejectBranch')
+        raise BranchRejected, "Branching is not allowed because: #{a.values.first.value}" if a && a.values.first
+      end
 
       # find origin package to be branched
       pack_name = branch_target_package(p)
