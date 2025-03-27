@@ -42,7 +42,7 @@ class RequestDecisionComponent < ApplicationComponent
   end
 
   def accept_with_options_allowed?
-    single_action_request && @is_target_maintainer && @bs_request.state.in?(%i[new review])
+    @is_target_maintainer && @bs_request.state.in?(%i[new review])
   end
 
   def forward_allowed?
