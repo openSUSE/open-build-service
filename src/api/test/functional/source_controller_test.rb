@@ -1283,6 +1283,60 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_undelete_project_with_inner_repository_dependencies
+    login_tom
+    # create a project meta with most elements to verify that they get restored (maintenance is missing for simplicity here)
+    put '/source/home:tom:projectA/_meta?comment=create', params: "<project name='home:tom:projectA' kind='maintenance_incident'>
+                                                     <title>title</title> <description>descr</description> <url>http</url>
+                                                      <person role='maintainer' userid='tom'/>
+                                                      <group role='reviewer' groupid='test_group'/>
+                                                      <link project='BaseDistro' />
+                                                      <build><enable/></build>
+                                                      <repository name='repoA'>
+                                                        <releasetarget project='BaseDistro' repository='BaseDistro_repo' />
+                                                        <path project='home:tom:projectA' repository='repoB' />
+                                                        <arch>i586</arch>
+                                                      </repository>
+                                                      <repository name='repoB'>
+                                                        <arch>i586</arch>
+                                                      </repository>
+                                                    </project>"
+    assert_response :success
+    get '/source/home:tom:projectA/_project/_history?meta=1'
+    assert_response :success
+    assert_xml_tag tag: 'revisionlist', children: { count: 1 } # created in one step
+    get '/source/home:tom:projectA/_meta'
+    assert_response :success
+    original_meta = @response.body
+    # delete the project including the repository
+    delete '/source/home:tom:projectA'
+    assert_response 400
+    assert_xml_tag(tag: 'status', attributes: { code: 'repo_dependency' })
+    delete '/source/home:tom:projectA?force=1'
+    assert_response :success
+    get '/source/home:tom:projectA/_project/_history?meta=1&deleted=1'
+    assert_response :success
+    assert_xml_tag tag: 'revisionlist', children: { count: 2 } # deleted in one step
+    get '/source/home:tom:projectA/_meta'
+    assert_response 404
+    # it finds differences, actual not only cosmetic ones...
+    #    get '/source/home:tom:projectA/_project/_meta?deleted=1'
+    #    assert_response :success
+    #    assert_equal original_meta, @response.body
+    post '/source/home:tom:projectA?cmd=undelete'
+    assert_response :success
+    get '/source/home:tom:projectA/_meta'
+    assert_response :success
+    assert_equal original_meta, @response.body
+    get '/source/home:tom:projectA/_project/_history?meta=1'
+    assert_response :success
+    assert_xml_tag tag: 'revisionlist', children: { count: 3 } # undeleted in one step
+
+    # cleanup
+    delete '/source/home:tom:projectA?force=1'
+    assert_response :success
+  end
+
   def test_delete_project_with_local_devel_packages
     login_tom
     put '/source/home:tom:project/_meta', params: "<project name='home:tom:project'> <title/> <description/> <repository name='repoA'> <arch>i586</arch> </repository> </project>"
