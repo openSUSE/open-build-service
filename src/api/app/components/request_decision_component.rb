@@ -1,9 +1,9 @@
 class RequestDecisionComponent < ApplicationComponent
-  def initialize(bs_request:, action:, is_target_maintainer:, package_maintainers:, show_project_maintainer_hint:)
+  def initialize(bs_request:, action:, current_user:, package_maintainers:, show_project_maintainer_hint:)
     super
 
     @bs_request = bs_request
-    @is_target_maintainer = is_target_maintainer
+    @current_user = current_user
     @action = action
     @package_maintainers = package_maintainers
     @creator = bs_request.creator
@@ -42,7 +42,7 @@ class RequestDecisionComponent < ApplicationComponent
   end
 
   def accept_with_options_allowed?
-    @is_target_maintainer && @bs_request.state.in?(%i[new review])
+    BsRequestPolicy.new(@current_user, @bs_request).accept_request?
   end
 
   def forward_allowed?

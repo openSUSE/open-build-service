@@ -21,7 +21,7 @@ RSpec.describe RequestDecisionComponent, :vcr, type: :component do
 
     before do
       User.session = maintainer
-      render_inline(described_class.new(bs_request: submit_request, action: action, is_target_maintainer: true, package_maintainers: package_maintainers, show_project_maintainer_hint: true))
+      render_inline(described_class.new(bs_request: submit_request, action: action, current_user: maintainer, package_maintainers: package_maintainers, show_project_maintainer_hint: true))
     end
 
     it { expect(package_maintainers).to be_empty }
@@ -53,7 +53,7 @@ RSpec.describe RequestDecisionComponent, :vcr, type: :component do
 
     before do
       User.session = maintainer
-      render_inline(described_class.new(bs_request: submit_request, action: action, is_target_maintainer: true, package_maintainers: package_maintainers, show_project_maintainer_hint: true))
+      render_inline(described_class.new(bs_request: submit_request, action: action, current_user: maintainer, package_maintainers: package_maintainers, show_project_maintainer_hint: true))
     end
 
     it 'shows the Accept button as a dropdown' do
@@ -102,7 +102,7 @@ RSpec.describe RequestDecisionComponent, :vcr, type: :component do
       target_package.update(develpackage: devel_package1)
       another_target_package.update(develpackage: devel_package1)
       User.session = maintainer
-      render_inline(described_class.new(bs_request: submit_request, action: action, is_target_maintainer: true, package_maintainers: package_maintainers, show_project_maintainer_hint: true))
+      render_inline(described_class.new(bs_request: submit_request, action: action, current_user: maintainer, package_maintainers: package_maintainers, show_project_maintainer_hint: true))
     end
 
     it 'shows the Accept button as a dropdown' do
@@ -146,7 +146,7 @@ RSpec.describe RequestDecisionComponent, :vcr, type: :component do
       target_package.update(develpackage: devel_package)
       another_target_package.update(develpackage: devel_package)
       User.session = maintainer
-      render_inline(described_class.new(bs_request: submit_request, action: action, is_target_maintainer: true, package_maintainers: package_maintainers, show_project_maintainer_hint: true))
+      render_inline(described_class.new(bs_request: submit_request, action: action, current_user: maintainer, package_maintainers: package_maintainers, show_project_maintainer_hint: true))
     end
 
     it 'shows the Accept button as a dropdown' do
