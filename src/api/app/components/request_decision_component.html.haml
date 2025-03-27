@@ -52,13 +52,13 @@
               forward_request_option: true,
               confirmation: confirmation,
               creator: @creator,
-              target: make_maintainer_of
+              target: target
           - elsif accept_with_options_allowed? && show_add_submitter_as_maintainer_option?
             = render 'webui/request/accept_dropdown',
               make_maintainer_option: true,
               confirmation: confirmation,
               creator: @creator,
-              target: make_maintainer_of
+              target: target
           - elsif accept_with_options_allowed? && @forward_allowed
             = render 'webui/request/accept_dropdown',
               forward_request_option: true,
