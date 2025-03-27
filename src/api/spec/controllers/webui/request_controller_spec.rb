@@ -250,6 +250,7 @@ RSpec.describe Webui::RequestController, :vcr do
 
   describe 'POST #changerequest' do
     context 'with valid parameters' do
+      # TODO: Check no maintainer has been made and no forwarding happens
       it 'accepts' do
         login(receiver)
         post :changerequest, params: {
@@ -274,25 +275,61 @@ RSpec.describe Webui::RequestController, :vcr do
         expect(bs_request.reload.state).to eq(:revoked)
       end
 
-      it 'adds submitter as maintainer' do
-        login(receiver)
-        post :changerequest, params: {
-          number: bs_request.number, accepted: 'accepted',
-          add_submitter_as_maintainer_0: "#{target_project}_#_#{target_package}" # rubocop:disable Naming/VariableNumber
-        }
-        expect(bs_request.reload.state).to eq(:accepted)
-        expect(target_package.relationships.map(&:user_id)).to include(submitter.id)
+      context 'when using the legacy request show page' do
+        it 'adds submitter as maintainer' do
+          login(receiver)
+          post :changerequest, params: {
+            number: bs_request.number, accepted: 'accepted',
+            add_submitter_as_maintainer_0: "#{target_project}_#_#{target_package}" # rubocop:disable Naming/VariableNumber
+          }
+          expect(bs_request.reload.state).to eq(:accepted)
+          expect(target_package.relationships.map(&:user_id)).to include(submitter.id)
+        end
+
+        it 'forwards' do
+          login(receiver)
+          bs_request
+          expect do
+            post :changerequest, params: { number: bs_request.number, accepted: 'accepted',
+                                           forward_devel_0: "#{devel_package.project}_#_#{devel_package}", # rubocop:disable Naming/VariableNumber
+                                           description: 'blah blah blah' }
+          end.to change(BsRequest, :count).by(1)
+          expect(BsRequest.last.bs_request_actions).to eq(devel_package.project.target_of_bs_request_actions)
+        end
       end
 
-      it 'forwards' do
-        login(receiver)
-        bs_request
-        expect do
-          post :changerequest, params: { number: bs_request.number, accepted: 'accepted',
-                                         forward_devel_0: "#{devel_package.project}_#_#{devel_package}", # rubocop:disable Naming/VariableNumber
-                                         description: 'blah blah blah' }
-        end.to change(BsRequest, :count).by(1)
-        expect(BsRequest.last.bs_request_actions).to eq(devel_package.project.target_of_bs_request_actions)
+      context 'when using the beta request show page', vcr: false do
+        it 'accepts the request and adds the submitter a maintainer when clicking the right dropdown button' do
+          login(receiver)
+          post :changerequest, params: {
+            number: bs_request.number, accepted: "Accept and make #{bs_request.creator} maintainer of all the target projects of all the request actions"
+          }
+          expect(bs_request.reload.state).to eq(:accepted)
+          expect(target_package.relationships.map(&:user_id)).to include(submitter.id)
+        end
+
+        it 'accepts the request and forwards it when clicking the right dropdown button' do
+          login(receiver)
+          bs_request.bs_request_actions.each do |action| 
+            action.target_package_object.update!(develpackage: devel_package)
+            action.target_project_object.update!(develproject: devel_package.project)
+          end
+          expect do
+            post :changerequest, params: { number: bs_request.number, accepted: 'Accept and forward submit request',
+                                           description: 'blah blah blah' }
+          end.to change(BsRequest, :count).by(1)
+          expect(BsRequest.last.bs_request_actions).to eq(devel_package.project.target_of_bs_request_actions)
+        end
+
+        it 'accepts the request, forwards it and make the submitter a maintainer' do
+          login(receiver)
+          post :changerequest, params: {
+            number: bs_request.number, accepted: "Accept making #{bs_request.creator} maintainer of all the target projects of all the request actions and forwarding this submit request"
+          }
+          expect(bs_request.reload.state).to eq(:accepted)
+          expect(target_package.relationships.map(&:user_id)).to include(submitter.id)
+          expect(BsRequest.last.bs_request_actions).to eq(devel_package.project.target_of_bs_request_actions)
+        end
       end
     end
 
