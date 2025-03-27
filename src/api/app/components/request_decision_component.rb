@@ -49,7 +49,7 @@ class RequestDecisionComponent < ApplicationComponent
     @action.type == 'submit' && policy(@bs_request).accept_request? && @action.forward.any?
   end
 
-  def make_maintainer_of
+  def target
     @action.target_project + ("/#{@action.target_package}" if @action.target_package)
   end
 end
