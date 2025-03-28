@@ -1,13 +1,9 @@
 class RequestDecisionComponent < ApplicationComponent
-  def initialize(bs_request:, action:, current_user:, package_maintainers:, show_project_maintainer_hint:)
+  def initialize(bs_request:, package_maintainers:, show_project_maintainer_hint:)
     super
 
     @bs_request = bs_request
-    @current_user = current_user
-    @action = action
     @package_maintainers = package_maintainers
-    @creator = bs_request.creator
-    @forward_allowed = forward_allowed?
 
     return unless render? && show_project_maintainer_hint
 
@@ -27,29 +23,44 @@ class RequestDecisionComponent < ApplicationComponent
 
   def confirmation
     if @bs_request.state == :review
-      { confirm: "Do you really want to approve this request, despite of open review requests?\n\n#{@package_maintainers_hint}" }
+      { confirm: "Accept this request, despite the open reviews?\n\n#{@package_maintainers_hint}" }
     else
-      {}
+      { confirm: 'Accept this request? This will commit the changes to the target!' }
     end
   end
 
-  def other_decision_confirmation(decision_text)
-    { confirm: "Do you really want to #{decision_text} this request?\n\n#{@package_maintainers_hint}" }
+  def show_add_creator_as_maintainer?
+    return false unless submit_actions.any?
+
+    submit_actions.none?(&:creator_is_target_maintainer)
   end
 
-  def show_add_submitter_as_maintainer_option?
-    @action.type == 'submit' && !@action.creator_is_target_maintainer
+  def show_forward?
+    forwards.any?
   end
 
-  def accept_with_options_allowed?
-    BsRequestPolicy.new(@current_user, @bs_request).accept_request?
+  def forwards_names
+    names = forwards.first(2).map { |submit_action| submit_action.forward.first.values.take(2).join('/') }
+    names.push("#{forwards.length} more") if forwards.length > 4
+    names.to_sentence
   end
 
-  def forward_allowed?
-    @action.type == 'submit' && policy(@bs_request).accept_request? && @action.forward.any?
+  def target_names
+    names = submit_actions.first(2).map(&:uniq_key)
+    names.push("#{forwards.length} more") if submit_actions.length > 4
+    names.to_sentence
   end
 
-  def target
-    @action.target_project + ("/#{@action.target_package}" if @action.target_package)
+  private
+
+  def submit_actions
+    @bs_request.bs_request_actions.where(type: :submit)
+  end
+
+  def forwards
+    return [] unless submit_actions.any?
+    return [] unless submit_actions.any? { |submit_action| submit_action.forward.any? }
+
+    submit_actions
   end
 end

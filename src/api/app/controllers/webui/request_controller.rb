@@ -225,23 +225,15 @@ class Webui::RequestController < Webui::WebuiController
       end
 
       # This is how we try to make the submitter a maintainer while using the beta request show page
-      if changestate == 'accepted' 
+      if changestate == 'accepted'
         if params[:accepted] == "Accept and make #{@bs_request.creator} maintainer of all the target projects of all the request actions"
           @bs_request.bs_request_actions.each do |action|
-            target = if action.target_package_object
-                       action.target_package_object
-                     else
-                       action.target_project_object
-                     end
+            target = action.target_package_object || action.target_project_object
             target.add_maintainer(@bs_request.creator) if target.can_be_modified_by?(User.possibly_nobody)
           end
         elsif params[:accepted] == "Accept making #{@bs_request.creator} maintainer of all the target projects of all the request actions and forwarding this submit request"
           @bs_request.bs_request_actions.each do |action|
-            target = if action.target_package_object
-                       action.target_package_object
-                     else
-                       action.target_project_object
-                     end
+            target = action.target_package_object || action.target_project_object
             target.add_maintainer(@bs_request.creator) if target.can_be_modified_by?(User.possibly_nobody)
           end
 
@@ -474,14 +466,14 @@ class Webui::RequestController < Webui::WebuiController
     flash[:success] = "Request #{params[:number]} accepted"
 
     # Forward the requests when using the beta request show page
-    if params[:accepted] == "Accept and forward submit request"
+    if params[:accepted] == 'Accept and forward submit request'
       @bs_request.bs_request_actions.each do |action|
         action.forward.each do |fwd|
           forward_request_to(fwd)
         end
       end
     end
-    
+
     # Check if we have to forward this request to other projects / packages when using the legacy request show page
     params.keys.grep(/^forward.*/).each do |fwd|
       # split off 'forward_' and split into project and package
