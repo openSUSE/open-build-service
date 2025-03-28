@@ -113,7 +113,7 @@ class BuildController < ApplicationController
     # implementation since python 3. this would break all local builds otherwise with unfixed
     # osc python 3 versions
     # Fixed for osc: https://github.com/openSUSE/osc/pull/958
-    if request.user_agent.present? && (request.user_agent[0..5] == 'osc/0.' && request.user_agent[6..].to_i < 175)
+    if request.user_agent.present? && request.user_agent[0..5] == 'osc/0.' && request.user_agent[6..].to_i < 175
       path += request.query_string.empty? ? '?' : '&'
       path += 'striphdrmd5'
     end
