@@ -41,7 +41,7 @@ class BuildResultsMonitorComponent < ApplicationComponent
   end
 
   def status_names
-    raw_data.pluck(:status).uniq
+    Buildresult.avail_status_values
   end
 
   def results_per_package(package_name)
