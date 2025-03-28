@@ -850,17 +850,6 @@ Style/OpenStructUse:
     - 'spec/services/trigger_controller_service/token_extractor_spec.rb'
     - 'spec/services/webui_controller_service/user_checker_spec.rb'
 
-# Offense count: 9
-# This cop supports safe autocorrection (--autocorrect).
-Style/RedundantParentheses:
-  Exclude:
-    - 'app/controllers/build_controller.rb'
-    - 'app/controllers/source_project_package_meta_controller.rb'
-    - 'app/controllers/webui/package_controller.rb'
-    - 'app/helpers/maintenance_helper.rb'
-    - 'app/models/bs_request_action.rb'
-    - 'app/models/project/update_from_xml_command.rb'
-
 # Offense count: 1
 # Configuration parameters: Max.
 Style/SafeNavigationChainLength:

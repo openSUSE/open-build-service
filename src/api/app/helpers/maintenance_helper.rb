@@ -162,8 +162,8 @@ module MaintenanceHelper
     }
     cp_params[:requestid] = action.bs_request.number if action
     # no permission check here on purpose
-    if target_project.maintenance_release? && source_package.link? && (source_package.linkinfo['project'] == target_project.name &&
-             source_package.linkinfo['package'] == target_package_name.gsub(/\.[^.]*$/, ''))
+    if target_project.maintenance_release? && source_package.link? && source_package.linkinfo['project'] == target_project.name &&
+             source_package.linkinfo['package'] == target_package_name.gsub(/\.[^.]*$/, '')
       # link target is equal to release target. So we freeze our link.
       cp_params[:freezelink] = 1
     end

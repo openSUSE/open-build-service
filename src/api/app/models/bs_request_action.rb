@@ -325,8 +325,8 @@ class BsRequestAction < ApplicationRecord
         # projects may skip this by setting OBS:ApprovedRequestSource attributes
         if source_package
           spkg = Package.find_by_project_and_name(source_project, source_package)
-          if spkg && !User.session!.can_modify?(spkg) && (!spkg.project.find_attribute('OBS', 'ApprovedRequestSource') &&
-                !spkg.find_attribute('OBS', 'ApprovedRequestSource'))
+          if spkg && !User.session!.can_modify?(spkg) && !spkg.project.find_attribute('OBS', 'ApprovedRequestSource') &&
+                !spkg.find_attribute('OBS', 'ApprovedRequestSource')
             reviews.push(spkg)
           end
         else
@@ -688,8 +688,8 @@ class BsRequestAction < ApplicationRecord
     expand_target_project if action_type == :submit && ignore_delegate.blank? && target_project.present?
 
     # empty submission protection
-    if action_type.in?(%i[submit maintenance_incident]) && (target_package &&
-         Package.exists_by_project_and_name(target_project, target_package, follow_project_links: false))
+    if action_type.in?(%i[submit maintenance_incident]) && target_package &&
+         Package.exists_by_project_and_name(target_project, target_package, follow_project_links: false)
       raise MissingAction unless contains_change?
 
       return

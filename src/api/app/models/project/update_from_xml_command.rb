@@ -11,12 +11,12 @@ class Project
       project.check_write_access!
 
       # check for raising read access permissions, which can't get ensured atm
-      raise ForbiddenError if !(project.new_record? || project.disabled_for?('access', nil, nil)) && (FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.admin_session?)
-      raise ForbiddenError if !(project.new_record? || project.disabled_for?('sourceaccess', nil, nil)) && (FlagHelper.xml_disabled_for?(xmlhash, 'sourceaccess') && !User.admin_session?)
+      raise ForbiddenError if !(project.new_record? || project.disabled_for?('access', nil, nil)) && FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.admin_session?
+      raise ForbiddenError if !(project.new_record? || project.disabled_for?('sourceaccess', nil, nil)) && FlagHelper.xml_disabled_for?(xmlhash, 'sourceaccess') && !User.admin_session?
 
       new_record = project.new_record?
-      if ::Configuration.default_access_disabled == true && !new_record && (project.disabled_for?('access', nil,
-                                                                                                  nil) && !FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.admin_session?)
+      if ::Configuration.default_access_disabled == true && !new_record && project.disabled_for?('access', nil,
+                                                                                                  nil) && !FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.admin_session?
         raise ForbiddenError
       end
 
