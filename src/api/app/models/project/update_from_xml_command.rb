@@ -16,7 +16,7 @@ class Project
 
       new_record = project.new_record?
       if ::Configuration.default_access_disabled == true && !new_record && project.disabled_for?('access', nil,
-                                                                                                  nil) && !FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.admin_session?
+                                                                                                 nil) && !FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.admin_session?
         raise ForbiddenError
       end
 
