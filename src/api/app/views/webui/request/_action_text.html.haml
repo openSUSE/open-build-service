@@ -10,6 +10,7 @@
   .d-block.w-100
     %turbo-frame{ id: "action-#{action.id}-details", src: request_action_details_path(action.bs_request.number, action.id), loading: 'lazy' }
       %p.mt-0.mb-0.fw-normal
+        %i.fas.fa-spinner.fa-spin
         - case action.type
         - when 'add_role', 'set_bugowner'
           #{action.type.titleize}
