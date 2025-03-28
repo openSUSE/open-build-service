@@ -2,4 +2,7 @@
     .dropdown-menu {
         z-index: $zindex-modal;
     }
+    .dropdown-menu.limit-height {
+      max-height: 50vh;
+    }
 }

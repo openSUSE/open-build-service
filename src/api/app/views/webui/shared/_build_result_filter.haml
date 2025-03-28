@@ -2,7 +2,10 @@
   %button.btn.btn-outline-secondary.dropdown-toggle{ data: { 'bs-toggle': :dropdown }, type: :button }
     %span.caret
     = text
-  .dropdown-menu.keep-open
+  .dropdown-menu.keep-open.limit-height
+    - if values.size > 5
+      .dropdown-item-text
+        = render partial: 'webui/shared/search_box', locals: { input_class: 'monitor-search', html_id: "search-#{id}", required: false }
     .text-center
       %button.btn.btn-link.monitor-filter-link{ type: :button } All
       %button.btn.btn-link.monitor-no-filter-link{ type: :button } None
