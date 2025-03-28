@@ -1,0 +1,16 @@
+%p.mt-0.mb-0.fw-normal
+  - if local_assigns.fetch(:spinner, false)
+    %i.fas.fa-spinner.fa-spin
+  - case action.type
+  - when 'add_role', 'set_bugowner'
+    #{action.type.titleize}
+  - when 'delete'
+    Delete #{project_or_package_text(action.target_project, action.target_package)}
+  - when 'change_devel'
+    Set #{project_or_package_text(action.source_project, action.source_package)}
+  - when 'maintenance_incident'
+    Incident #{action.source_package}
+  - when 'maintenance_release'
+    Release #{action.source_package}
+  - else
+    = action.name
