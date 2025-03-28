@@ -31,4 +31,13 @@ function setupProjectMonitorPage() {
   $('.dropdown-menu.keep-open').on('click', function (e) {
     e.stopPropagation();
   });
+  $('.monitor-search').on('input', function (e) {
+    var labels = $(this).closest('.dropdown-menu').find('.form-check-label');
+    Array.from(labels).forEach((label) => {
+      var element = label.closest('.dropdown-item');
+      element.classList.remove('d-none');
+      if (!label.innerText.includes(e.target.value))
+        element.classList.add('d-none');
+    });
+  });
 }
