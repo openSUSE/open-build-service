@@ -1,0 +1,16 @@
+-# delete is an action on the target repo, so it doesn't need to mention where they are coming from
+- unless action.type == 'delete'
+  %p.mb-0.mt-0.small
+    - case action.type
+    - when 'add_role'
+      Add #{action.person_name} as #{action.role} of #{project_or_package_text(action.target_project, action.target_package)}
+    - when 'change_devel'
+      as development package of #{action.target_project}/#{action.target_package}
+    - when 'maintenance_incident'
+      from #{action.source_project} to #{action.target_project}
+    - when 'maintenance_release'
+      from #{action.source_project} to #{action.target_project} / #{action.target_package}
+    - when 'set_bugowner'
+      Set #{action.person_name || action.group_name} as bugowner of #{project_or_package_text(action.target_project, action.target_package)}
+    - else
+      from #{project_or_package_text(action.source_project, action.source_package)}
