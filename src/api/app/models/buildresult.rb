@@ -86,6 +86,10 @@ class Buildresult
     AVAIL_STATUS_VALUES.keys.map(&:to_s)
   end
 
+  def self.default_status_filter_values
+    avail_status_values - %w[disabled excluded unknown]
+  end
+
   def self.final_status?(status)
     status.in?(%w[succeeded failed unresolvable broken disabled excluded])
   end
