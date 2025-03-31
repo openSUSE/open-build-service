@@ -38,6 +38,39 @@ FactoryBot.define do
       end
     end
 
+    factory :history_element_request_review_accepted_with_review_by_group, class: 'HistoryElement::ReviewAccepted' do
+      type { 'HistoryElement::ReviewAccepted' }
+
+      before(:create) do |history_element|
+        bs_request = create(:bs_request_with_submit_action, review_by_group: create(:group))
+        review = bs_request.reviews.first
+        review.update(state: :accepted)
+        history_element.update(op_object_id: review.id)
+      end
+    end
+
+    factory :history_element_request_review_accepted_with_review_by_project, class: 'HistoryElement::ReviewAccepted' do
+      type { 'HistoryElement::ReviewAccepted' }
+
+      before(:create) do |history_element|
+        bs_request = create(:bs_request_with_submit_action, review_by_project: create(:project))
+        review = bs_request.reviews.first
+        review.update(state: :accepted)
+        history_element.update(op_object_id: review.id)
+      end
+    end
+
+    factory :history_element_request_review_accepted_with_review_by_package, class: 'HistoryElement::ReviewAccepted' do
+      type { 'HistoryElement::ReviewAccepted' }
+
+      before(:create) do |history_element|
+        bs_request = create(:bs_request_with_submit_action, review_by_package: create(:package))
+        review = bs_request.reviews.first
+        review.update(state: :accepted)
+        history_element.update(op_object_id: review.id)
+      end
+    end
+
     factory :history_element_request_review_added_without_review, class: 'HistoryElement::RequestReviewAdded' do
       type { 'HistoryElement::RequestReviewAdded' }
       description_extension { nil }
