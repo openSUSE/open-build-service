@@ -1,3 +1,5 @@
+require 'ostruct' # for OpenStruct
+
 module Webui
   module Cloud
     module Azure

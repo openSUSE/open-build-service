@@ -1,3 +1,5 @@
+require 'ostruct' # for OpenStruct
+
 RSpec.describe Cloud::UploadJob do
   let(:user) { create(:confirmed_user, login: 'tom', ec2_configuration: create(:ec2_configuration)) }
   let(:params) do
