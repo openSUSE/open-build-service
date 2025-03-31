@@ -11,7 +11,7 @@ source 'https://rubygems.org'
 if next?
   gem 'rails', '~> 8.0'
 else
-  gem 'rails', ' 7.0.8.2'
+  gem 'rails', '~> 7.0'
 end
 
 # as our database
