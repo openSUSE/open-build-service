@@ -255,5 +255,6 @@
 .build-results-content {
   .dropdown-menu.limit-height {
     max-height: 50vh;
+    overflow-y: auto;
   }
 }
