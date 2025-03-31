@@ -514,7 +514,7 @@ sub check {
 	for my $fn (@bi) {
 	  if ($fn eq 'updateinfo.xml' || $fn eq '_modulemd.yaml') {
 	    my $b = $bininfo->{$fn};
-	    next if $dobuildinfo || !$b || !$b->{'md5sum'};
+	    next if !$b || !$b->{'md5sum'};
 	    my $rpm = "$aprp/$arch/$apackid/$fn";
 	    push @rpms, $rpm;
 	    $rpms_hdrmd5{$rpm} = $b->{'md5sum'};
