@@ -63,6 +63,45 @@ RSpec.describe BsRequestHistoryElementComponent, type: :component do
       end
     end
 
+    context 'with review for group' do
+      let(:element) { create(:history_element_request_review_accepted_with_review_by_group, user: user) }
+
+      it 'displays the right icon' do
+        expect(rendered_content).to have_css('i.fa-check')
+      end
+
+      it 'describes the element action' do
+        expect(rendered_content).to have_text('accepted review')
+        expect(rendered_content).to have_text("for\ngroup")
+      end
+    end
+
+    context 'with review for project' do
+      let(:element) { create(:history_element_request_review_accepted_with_review_by_project, user: user) }
+
+      it 'displays the right icon' do
+        expect(rendered_content).to have_css('i.fa-check')
+      end
+
+      it 'describes the element action' do
+        expect(rendered_content).to have_text('accepted review')
+        expect(rendered_content).to have_text("for\nproject")
+      end
+    end
+
+    context 'with review for package' do
+      let(:element) { create(:history_element_request_review_accepted_with_review_by_package, user: user) }
+
+      it 'displays the right icon' do
+        expect(rendered_content).to have_css('i.fa-check')
+      end
+
+      it 'describes the element action' do
+        expect(rendered_content).to have_text('accepted review')
+        expect(rendered_content).to have_text("for\npackage")
+      end
+    end
+
     context 'without review' do
       let(:element) { create(:history_element_request_review_added_without_review, user: user, description_extension: nil) }
 
