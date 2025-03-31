@@ -1,3 +1,5 @@
+require 'ostruct' # for OpenStruct
+
 module Cloud
   module Backend
     class UploadJob
