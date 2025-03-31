@@ -2,9 +2,8 @@ module Webui::UserOrGroupsRolesHelper
   def display_name(object)
     if object.is_a?(User) && object.realname.present?
       tag.span do
-        concat("#{object.name} (")
-        concat(tag.i(object.login))
-        concat(')')
+        concat("#{object.name} ")
+        concat(tag.i("(#{object.login})"))
       end
     else
       tag.span(object.name)
