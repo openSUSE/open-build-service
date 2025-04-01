@@ -422,7 +422,7 @@ sub update_dst_full {
     delete $jobbininfo->{'.bininfo'};   # delete new version marker
     my $cache = { map {$_->{'id'} => $_} grep {$_->{'id'}} values %$jobbininfo };
     $jobrepo = repofromfiles($jobdir, \@jobfiles, $cache);
-    $useforbuildenabled = 0 if -e "$jobdir/.channelinfo" || -e "$jobdir/updateinfo.xml" || -e "$jobdir/.updateinfodata";        # just in case
+    $useforbuildenabled = 0 if -e "$jobdir/.channelinfo" || -e "$jobdir/updateinfo.xml" || -e "$jobdir/.updateinfodata" || -e "$jobdir/.nouseforbuild";        # just in case
   } else {
     $jobrepo = {};
   }
@@ -438,7 +438,7 @@ sub update_dst_full {
     $oldrepo = $jobrepo;
     $bininfo = $jobbininfo;
     $bininfo->{'.nosourceaccess'} = {} if -e "$dst/.nosourceaccess";
-    $bininfo->{'.nouseforbuild'} = {} if -e "$dst/.channelinfo" || -e "$dst/updateinfo.xml" || -e "$dst/.updateinfodata";
+    $bininfo->{'.nouseforbuild'} = {} if -e "$dst/.channelinfo" || -e "$dst/updateinfo.xml" || -e "$dst/.updateinfodata" || -e "$dst/.nouseforbuild";
   } elsif ($new_full_handling || !$importarch) {
     # get old state: oldfiles, oldbininfo, oldrepo
     my @oldfiles = sort(ls($dst));
@@ -465,7 +465,7 @@ sub update_dst_full {
         $bininfo->{$df} = $jobbininfo->{$f};
         $bininfo->{$df}->{'filename'} = $df if $importarch;
       }
-      $bininfo->{'.nouseforbuild'} = {} if $f eq '.channelinfo' || $f eq 'updateinfo.xml' || $f eq '.updateinfodata';
+      $bininfo->{'.nouseforbuild'} = {} if $f eq '.channelinfo' || $f eq 'updateinfo.xml' || $f eq '.updateinfodata' || $f eq '.nouseforbuild';
       $jobrepo->{"$jobdir/$df"} = delete $jobrepo->{"$jobdir/$f"} if $df ne $f;
     }
     for my $f (grep {!$new{$_}} @oldfiles) {
@@ -621,7 +621,7 @@ sub read_bininfo {
   for my $file (ls($dir)) {
     $bininfo->{'.nosourceaccess'} = {} if $file eq '.nosourceaccess';
     if ($file !~ /\.(?:$binsufsre)$/) {
-      $bininfo->{'.nouseforbuild'} = {} if $file eq '.channelinfo' || $file eq 'updateinfo.xml' || $file eq '.updateinfodata';
+      $bininfo->{'.nouseforbuild'} = {} if $file eq '.channelinfo' || $file eq 'updateinfo.xml' || $file eq '.updateinfodata' || $file eq '.nouseforbuild';
       if ($file =~ /\.obsbinlnk$/) {
 	my @s = stat("$dir/$file");
 	my $d = BSUtil::retrieve("$dir/$file", 1);
@@ -883,7 +883,8 @@ sub wipeobsolete {
   my $myarch = $gctx->{'arch'};
   my $reporoot = $gctx->{'reporoot'};
   my $gdst = "$reporoot/$prp/$myarch";
-  my @files = ls("$gdst/$packid");
+  my $dst = "$gdst/$packid";
+  my @files = ls($dst);
   return 0 unless @files;
   my @ifiles = grep {/^::import::/ || /^\.meta\.success\.import\./} @files;
   if (@ifiles) {
@@ -897,7 +898,7 @@ sub wipeobsolete {
   # delete full entries
   my $useforbuildenabled = 1;
   $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
-  $useforbuildenabled = 0 if -s "$gdst/$packid/.updateinfodata";	# hmm, need to exclude patchinfos here. cheating.
+  $useforbuildenabled = 0 if -e "$dst/.channelinfo" || -e "$dst/updateinfo.xml" || -e "$dst/.updateinfodata" || -e "$dst/.nouseforbuild";
   # don't wipe imports if we're obsoleting just one arch
   my $importarch = !$allarch && @ifiles ? '' : undef;
   update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $prpsearchpath, $dstcache, $importarch);
@@ -911,17 +912,17 @@ sub wipeobsolete {
     for my $f (@files) {
       next if $f eq '.bininfo';
       next if $f =~ /^::import::/ || $f =~ /^\.meta\.success\.import\./;
-      if (-d "$gdst/$packid/$f") {
-        BSUtil::cleandir("$gdst/$packid/$f");
-        rmdir("$gdst/$packid/$f");
+      if (-d "$dst/$f") {
+        BSUtil::cleandir("$dst/$f");
+        rmdir("$dst/$f");
       } else {
-        unlink("$gdst/$packid/$f");
+        unlink("$dst/$f");
       }
     }
   } else {
-    BSUtil::cleandir("$gdst/$packid");
+    BSUtil::cleandir($dst);
   }
-  rmdir("$gdst/$packid");
+  rmdir($dst);
   return 1;
 }
 
