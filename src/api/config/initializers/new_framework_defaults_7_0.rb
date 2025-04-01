@@ -34,23 +34,11 @@
 # implementation.
 # Rails.application.config.active_support.remove_deprecated_time_with_zone_name = true
 
-# Change the format of the cache entry.
-# Changing this default means that all new cache entries added to the cache
-# will have a different format that is not supported by Rails 6.1 applications.
-# Only change this value after your application is fully deployed to Rails 7.0
-# and you have no plans to rollback.
-# Rails.application.config.active_support.cache_format_version = 7.0
-
 # Calls `Rails.application.executor.wrap` around test cases.
 # This makes test cases behave closer to an actual request or job.
 # Several features that are normally disabled in test, such as Active Record query cache
 # and asynchronous queries will then be enabled.
 # Rails.application.config.active_support.executor_around_test_case = true
-
-# Define the isolation level of most of Rails internal state.
-# If you use a fiber based server or job processor, you should set it to `:fiber`.
-# Otherwise the default of `:thread` if preferable.
-# Rails.application.config.active_support.isolation_level = :thread
 
 # Set both the `:open_timeout` and `:read_timeout` values for `:smtp` delivery method.
 # Rails.application.config.action_mailer.smtp_timeout = 5
@@ -71,7 +59,7 @@
 # This default means that all columns will be referenced in INSERT queries
 # regardless of whether they have a default or not.
 # Rails.application.config.active_record.partial_inserts = false
-#
+
 # Protect from open redirect attacks in `redirect_back_or_to` and `redirect_to`.
 # Rails.application.config.action_controller.raise_on_open_redirects = true
 
@@ -81,18 +69,6 @@
 # operations. See the upgrading guide for detail on the changes required.
 # The `:mini_magick` option is not deprecated; it's fine to keep using it.
 # Rails.application.config.active_storage.variant_processor = :vips
-
-# If you're upgrading and haven't set `cookies_serializer` previously, your cookie serializer
-# was `:marshal`. Convert all cookies to JSON, using the `:hybrid` formatter.
-#
-# If you're confident all your cookies are JSON formatted, you can switch to the `:json` formatter.
-#
-# Continue to use `:marshal` for backward-compatibility with old cookies.
-#
-# If you have configured the serializer elsewhere, you can remove this.
-#
-# See https://guides.rubyonrails.org/action_controller_overview.html#cookies for more information.
-# Rails.application.config.action_dispatch.cookies_serializer = :hybrid
 
 # Enable parameter wrapping for JSON.
 # Previously this was set in an initializer. It's fine to keep using that initializer if you've customized it.
@@ -115,3 +91,53 @@
 #   "X-Permitted-Cross-Domain-Policies" => "none",
 #   "Referrer-Policy" => "strict-origin-when-cross-origin"
 # }
+
+
+# ** Please read carefully, this must be configured in config/application.rb **
+# Change the format of the cache entry.
+# Changing this default means that all new cache entries added to the cache
+# will have a different format that is not supported by Rails 6.1 applications.
+# Only change this value after your application is fully deployed to Rails 7.0
+# and you have no plans to rollback.
+# When you're ready to change format, add this to `config/application.rb` (NOT this file):
+#  config.active_support.cache_format_version = 7.0
+
+
+# Cookie serializer: 2 options
+#
+# If you're upgrading and haven't set `cookies_serializer` previously, your cookie serializer
+# is `:marshal`. The default for new apps is `:json`.
+#
+# Rails.application.config.action_dispatch.cookies_serializer = :json
+#
+#
+# To migrate an existing application to the `:json` serializer, use the `:hybrid` option.
+#
+# Rails transparently deserializes existing (Marshal-serialized) cookies on read and
+# re-writes them in the JSON format.
+#
+# It is fine to use `:hybrid` long term; you should do that until you're confident *all* your cookies
+# have been converted to JSON. To keep using `:hybrid` long term, move this config to its own
+# initializer or to `config/application.rb`.
+#
+# Rails.application.config.action_dispatch.cookies_serializer = :hybrid
+#
+#
+# If your cookies can't yet be serialized to JSON, keep using `:marshal` for backward-compatibility.
+#
+# If you have configured the serializer elsewhere, you can remove this section of the file.
+#
+# See https://guides.rubyonrails.org/action_controller_overview.html#cookies for more information.
+
+# Change the return value of `ActionDispatch::Request#content_type` to the Content-Type header without modification.
+# Rails.application.config.action_dispatch.return_only_request_media_type_on_content_type = false
+
+# Active Storage `has_many_attached` relationships will default to replacing the current collection instead of appending to it.
+# Thus, to support submitting an empty collection, the `file_field` helper will render an hidden field `include_hidden` by default when `multiple_file_field_include_hidden` is set to `true`.
+# See https://guides.rubyonrails.org/configuring.html#config-active-storage-multiple-file-field-include-hidden for more information.
+# Rails.application.config.active_storage.multiple_file_field_include_hidden = true
+
+# ** Please read carefully, this must be configured in config/application.rb (NOT this file) **
+# Disables the deprecated #to_s override in some Ruby core classes
+# See https://guides.rubyonrails.org/configuring.html#config-active-support-disable-to-s-conversion for more information.
+# config.active_support.disable_to_s_conversion = true
