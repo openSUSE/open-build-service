@@ -231,18 +231,14 @@ class Webui::RequestController < Webui::WebuiController
       # This is how we try to make the submitter a maintainer while using the beta request show page
       if changestate == 'accepted'
         if params[:accepted] == 'Accept and make the creator a maintainer of the target'
-          @bs_request.bs_request_actions.each do |action|
-            next unless action.target_package_object
-
+          @bs_request.bs_request_actions.where(type: :submit).find_each do |action|
             target = action.target_package_object
             target.add_maintainer(@bs_request.creator) if target.can_be_modified_by?(User.possibly_nobody)
           end
         elsif params[:accepted] == 'Accept, make the creator a maintainer of the target and forward the request'
-          @bs_request.bs_request_actions.each do |action|
-            target = action.target_package_object || action.target_project_object
+          @bs_request.bs_request_actions.where(type: :submit).find_each do |action|
+            target = action.target_package_object
             target.add_maintainer(@bs_request.creator) if target.can_be_modified_by?(User.possibly_nobody)
-            next unless action.is_a?(BsRequestActionSubmit)
-
             action.forward.each do |fwd|
               forward_request_to(fwd[:project], fwd[:package])
             end
@@ -472,9 +468,7 @@ class Webui::RequestController < Webui::WebuiController
 
     # Forward the requests when using the beta request show page
     if params[:accepted] == 'Accept and forward submit request'
-      @bs_request.bs_request_actions.each do |action|
-        next unless action.is_a?(BsRequestActionSubmit)
-
+      @bs_request.bs_request_actions.where(type: :submit).find_each do |action|
         action.forward.each do |fwd|
           forward_request_to(fwd[:project], fwd[:package])
         end
