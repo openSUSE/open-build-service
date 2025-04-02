@@ -11,6 +11,9 @@
           = canned_response.title
     %hr.dropdown-divider/
     = link_to('Create and modify' , canned_responses_path, class: 'dropdown-item')
+
+- content_for(:content_for_head, javascript_include_tag('webui/canned_responses'))
+
 :javascript
   $(document).ready(function(){
     setupCannedResponses();
