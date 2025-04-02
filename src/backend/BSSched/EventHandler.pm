@@ -397,9 +397,8 @@ sub event_wipe {
   my $reporoot = $gctx->{'reporoot'};
   my $gdst = "$reporoot/$prp/$myarch";
   print "wiping $prp $packid\n";
-  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   my $allarch = $ev->{'type'} eq 'wipeallarch' ? 1 : undef;
-  BSSched::BuildResult::wipe($gctx, $prp, $packid, $prpsearchpath, $ectx->{'dstcache'}, $allarch) if -d "$gdst/$packid";
+  BSSched::BuildResult::wipe($gctx, $prp, $packid, $ectx->{'dstcache'}, $allarch) if -d "$gdst/$packid";
   BSSched::BuildJob::set_genbuildreqs($gctx, $prp, $packid, undef);
   for $prp (@{$gctx->{'prps'}}) {
     if ((split('/', $prp, 2))[0] eq $projid) {
@@ -446,15 +445,9 @@ sub event_useforbuild {
   for my $packid (@packs) {
     my $gdst = "$reporoot/$prp/$myarch";
     next unless -d "$gdst/$packid";
-    my $useforbuildenabled = 1;
-    my $pdata = $packs->{$packid} || {};
-    $useforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled, $myarch);
-    $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
-    next unless $useforbuildenabled;
     my $meta = "$gdst/:meta/$packid";
     undef $meta unless -s $meta;
-    my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
-    BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, "$gdst/$packid", $meta, $useforbuildenabled, $prpsearchpath);
+    BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, "$gdst/$packid", $meta);
   }
   for $prp (@{$gctx->{'prps'}}) {
     if ((split('/', $prp, 2))[0] eq $projid) {

@@ -751,17 +751,13 @@ sub jobfinished {
   my $dst = "$gdst/$packid";
   mkdir_p($dst);
   print "  - $prp: $packid aggregate built\n";
-  my $useforbuildenabled = 1;
-  $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
-  $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
-  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   my $dstcache = $ectx->{'dstcache'};
-  BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath, $dstcache);
-  $changed->{$prp} = 2 if $useforbuildenabled;
-  my $repounchanged = $gctx->{'repounchanged'};
-  delete $repounchanged->{$prp} if $useforbuildenabled;
-  $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
+  my $changed_full = BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, undef, $dstcache);
   $changed->{$prp} ||= 1;
+  $changed->{$prp} = 2 if $changed_full;
+  my $repounchanged = $gctx->{'repounchanged'};
+  delete $repounchanged->{$prp} if $changed_full;
+  $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
   unlink("$gdst/:repodone");
   unlink("$gdst/:logfiles.fail/$packid");
   if (-e "$jobdatadir/logfile") {

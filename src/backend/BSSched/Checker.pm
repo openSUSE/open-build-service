@@ -548,7 +548,7 @@ sub wipeobsolete {
       next;
     }
     my $allarch = $pdata ? 0 : 1;		# wiping all archs?
-    next unless BSSched::BuildResult::wipeobsolete($gctx, $prp, $packid, $ctx->{'prpsearchpath'}, $dstcache, $reason, $allarch);
+    next unless BSSched::BuildResult::wipeobsolete($gctx, $prp, $packid, $dstcache, $reason, $allarch);
     $hadobsolete = 1;
     delete $ctx->{'lastcheck'}->{$packid};
     BSSched::BuildJob::killbuilding($gctx, $prp, $packid);

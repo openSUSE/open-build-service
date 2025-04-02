@@ -832,7 +832,7 @@ sub writesolv {
 =cut
 
 sub checkuseforbuild {
-  my ($gctx, $prp, $prpsearchpath, $dstcache, $forcerebuild) = @_;
+  my ($gctx, $prp, $dstcache, $forcerebuild) = @_;
   return unless $BSSched::BuildResult::new_full_handling;
   my $myarch = $gctx->{'arch'};
   my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
@@ -886,7 +886,8 @@ sub checkuseforbuild {
     }
   }
   BSSched::BuildResult::set_dstcache_prp($gctx, $dstcache, $prp) if $dstcache; 
-  my $filter = BSSched::BuildResult::calculate_exportfilter($gctx, $prp, $prpsearchpath, $dstcache);
+  my $bconf = BSSched::BuildResult::getconfig($gctx, $prp, $dstcache);
+  my $filter = BSSched::BuildResult::calculate_exportfilter($gctx, $bconf);
   my $fctx = {
     'gctx' => $gctx,
     'gdst' => $gdst,
@@ -898,6 +899,7 @@ sub checkuseforbuild {
     $fctx->{'olduseforbuild'} = \%olduseforbuild;
     $fctx->{'newuseforbuild'} = \%newuseforbuild;
   }
+
   # setup metacache
   if (((-s "$gdst/:full.metacache") || 0) < 16384 && ! -e "$gdst/:full.metacache.merge") {
     $fctx->{'metacache'} = BSUtil::retrieve("$gdst/:full.metacache", 1) || {};
@@ -905,9 +907,11 @@ sub checkuseforbuild {
     $fctx->{'metacache'} = BSUtil::retrieve("$gdst/:full.metacache.merge", 1) || {};
     $fctx->{'metacache_ismerge'} = 1;
   }
+
   # this will also remove no longer existing packages from the :full tree
   move_into_full($fctx, undef, undef);
   BSUtil::store("$gdst/.:full.useforbuild", "$gdst/:full.useforbuild", $newuseforbuild);
+
   # flush updated metacache
   if ($fctx->{'metacache_ismerge'}) {
     BSUtil::store("$gdst/.:full.metacache.merge", "$gdst/:full.metacache.merge", $fctx->{'metacache'});
@@ -924,7 +928,7 @@ sub checkuseforbuild {
 
 sub forcefullrebuild {
   my ($gctx, $prp) = @_;
-  checkuseforbuild($gctx, $prp, $gctx->{'prpsearchpath'}->{$prp}, undef, 1); 
+  checkuseforbuild($gctx, $prp, undef, 1); 
 }
 
 =head2 addrepo_scan - add :full repo to pool, make sure repo is up-to-data by scanning the directory
