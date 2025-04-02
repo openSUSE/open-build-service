@@ -377,7 +377,7 @@ accordingly. Returns true if the :full tree was changed.
 =cut
 
 sub update_dst_full {
-  my ($gctx, $prp, $packid, $jobdir, $meta, $useforbuildenabled, $prpsearchpath, $dstcache, $importarch) = @_;
+  my ($gctx, $prp, $packid, $jobdir, $meta, $prpsearchpath, $dstcache, $importarch, $obsolete_pkg) = @_;
 
   my $myarch = $gctx->{'arch'};
   my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
@@ -392,17 +392,22 @@ sub update_dst_full {
 
   # check for lock and patchinfo
   my $projpacks = $gctx->{'projpacks'};
-  if ($projpacks->{$projid} && $projpacks->{$projid}->{'package'} && $projpacks->{$projid}->{'package'}->{$packid}) {
-    my $pdata = $projpacks->{$projid}->{'package'}->{$packid};
-    my $locked = 0;
-    $locked = BSUtil::enabled($repoid, $projpacks->{$projid}->{'lock'}, $locked, $myarch) if $projpacks->{$projid}->{'lock'};
-    $locked = BSUtil::enabled($repoid, $pdata->{'lock'}, $locked, $myarch) if $pdata->{'lock'};
-    if ($locked) {
-      print "    package is locked\n";
-      return 0;
-    }
-    $useforbuildenabled = 0 if $pdata->{'patchinfo'};
+  my $proj = $projpacks->{$projid} || {};
+  my $pdata = ($proj->{'package'} || {})->{$packid} || {};
+  my $locked = 0;
+  $locked = BSUtil::enabled($repoid, $proj->{'lock'}, $locked, $myarch) if $proj->{'lock'};
+  $locked = BSUtil::enabled($repoid, $pdata->{'lock'}, $locked, $myarch) if $pdata->{'lock'};
+  if ($locked) {
+    print "    package is locked\n";
+    return 0;
   }
+
+  # calculate useforbuild status
+  my $useforbuildenabled = 1;
+  $useforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled, $myarch) if $proj->{'useforbuild'};
+  $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch) if $pdata->{'useforbuild'};
+  $useforbuildenabled = 1 if !defined($jobdir) && $obsolete_pkg;	# called from wipeobsolete
+  $useforbuildenabled = 0 if $pdata->{'patchinfo'};
 
   # further down we assume that the useforbuild setting of the full tree
   # matches the current setting, so make sure they are in sync.
@@ -440,7 +445,7 @@ sub update_dst_full {
   my $bininfo;
 
   if (!$importarch && $jobdir && $dst eq $jobdir) {
-    # a "refresh" operation, nothing to do here
+    # a "refresh" operation triggered by a useforbuild event, nothing to do here
     $oldrepo = $jobrepo;
     $bininfo = $jobbininfo;
     $bininfo->{'.nosourceaccess'} = {} if -e "$dst/.nosourceaccess";
@@ -819,26 +824,23 @@ sub wipe {
   my $reporoot = $gctx->{'reporoot'};
   my $gdst = "$reporoot/$prp/$myarch";
   my $projpacks = $gctx->{'projpacks'};
-  my $proj = $projpacks->{$projid};
-  my $pdata = (($proj || {})->{'package'} || {})->{$packid} || {};
+  my $proj = $projpacks->{$projid} || {};
+  my $pdata = ($proj->{'package'} || {})->{$packid} || {};
 
   my $locked = 0;
-  $locked = BSUtil::enabled($repoid, $projpacks->{$projid}->{'lock'}, $locked, $myarch) if $projpacks->{$projid}->{'lock'};
+  $locked = BSUtil::enabled($repoid, $proj->{'lock'}, $locked, $myarch) if $proj->{'lock'};
   $locked = BSUtil::enabled($repoid, $pdata->{'lock'}, $locked, $myarch) if $pdata->{'lock'};
   if ($locked) {
     print "ignoring wipe, package $projid/$packid is locked!\n";
     return;
   }
-  undef $allarch if $allarch && $projpacks->{$projid}->{'lock'} || $pdata->{'lock'};	# too dangerous
+  undef $allarch if $allarch && $proj->{'lock'} || $pdata->{'lock'};	# too dangerous
 
   # delete repository done flag
   unlink("$gdst/:repodone");
   # delete full entries
-  my $useforbuildenabled = 1;
-  $useforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled, $myarch) if $proj;
-  $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
   my $importarch = !$allarch ? '' : undef;					# keep those imports
-  update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $prpsearchpath, $dstcache, $importarch);
+  update_dst_full($gctx, $prp, $packid, undef, undef, $prpsearchpath, $dstcache, $importarch);
   delete $gctx->{'repounchanged'}->{$prp};
   # delete other files
   unlink("$gdst/:logfiles.success/$packid");
@@ -884,7 +886,8 @@ sub set_dstcache_prp {
 
 =head2 wipeobsolete - remove an obsolete package from the repo
 
-This is similar to wipe(), but also removes the .history file
+This is similar to wipe(), but also removes the .history file and ignores the
+useforbuild flag.
 
 =cut
 
@@ -909,13 +912,10 @@ sub wipeobsolete {
   my ($projid, $repoid) = split('/', $prp, 2);
   # delete repository done flag
   unlink("$gdst/:repodone");
-  # delete full entries
-  my $useforbuildenabled = 1;
-  $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
-  $useforbuildenabled = 0 if -e "$dst/.channelinfo" || -e "$dst/updateinfo.xml" || -e "$dst/.updateinfodata" || -e "$dst/.nouseforbuild";
   # don't wipe imports if we're obsoleting just one arch
   my $importarch = !$allarch && @ifiles ? '' : undef;
-  update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $prpsearchpath, $dstcache, $importarch);
+  # delete full entries
+  update_dst_full($gctx, $prp, $packid, undef, undef, $prpsearchpath, $dstcache, $importarch, 1);
   delete $gctx->{'repounchanged'}->{$prp};
   # delete other files
   unlink("$gdst/:logfiles.success/$packid");

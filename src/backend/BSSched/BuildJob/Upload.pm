@@ -70,11 +70,8 @@ sub jobfinished {
   $meta = "$jobdatadir/meta" if !$meta && -e "$jobdatadir/meta";
   print "  - $prp: $packid uploaded\n";
 
-  my $useforbuildenabled = 1;
-  $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
-  $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
-  my $changed_full = BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath);
+  my $changed_full = BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $prpsearchpath);
   $changed->{$prp} ||= 1;
   $changed->{$prp} = 2 if $changed_full;
   my $repounchanged = $gctx->{'repounchanged'};
