@@ -70,8 +70,7 @@ sub jobfinished {
   $meta = "$jobdatadir/meta" if !$meta && -e "$jobdatadir/meta";
   print "  - $prp: $packid uploaded\n";
 
-  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
-  my $changed_full = BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $prpsearchpath);
+  my $changed_full = BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta);
   $changed->{$prp} ||= 1;
   $changed->{$prp} = 2 if $changed_full;
   my $repounchanged = $gctx->{'repounchanged'};

@@ -600,9 +600,8 @@ sub jobfinished {
   addbuildstats($jobdatadir, $dst, $jobhist) if ($all{'_statistics'});
 
   # update build result directory and full tree
-  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   my $dstcache = $ectx->{'dstcache'};
-  my $changed_full = BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $prpsearchpath, $dstcache);
+  my $changed_full = BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $dstcache);
   $changed->{$prp} ||= 1;
   $changed->{$prp} = 2 if $changed_full;
   my $repounchanged = $gctx->{'repounchanged'};

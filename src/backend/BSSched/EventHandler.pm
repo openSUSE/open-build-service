@@ -448,8 +448,7 @@ sub event_useforbuild {
     next unless -d "$gdst/$packid";
     my $meta = "$gdst/:meta/$packid";
     undef $meta unless -s $meta;
-    my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
-    BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, "$gdst/$packid", $meta, $prpsearchpath);
+    BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, "$gdst/$packid", $meta);
   }
   for $prp (@{$gctx->{'prps'}}) {
     if ((split('/', $prp, 2))[0] eq $projid) {

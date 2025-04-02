@@ -751,9 +751,8 @@ sub jobfinished {
   my $dst = "$gdst/$packid";
   mkdir_p($dst);
   print "  - $prp: $packid aggregate built\n";
-  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   my $dstcache = $ectx->{'dstcache'};
-  my $changed_full = BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, undef, $prpsearchpath, $dstcache);
+  my $changed_full = BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, undef, $dstcache);
   $changed->{$prp} ||= 1;
   $changed->{$prp} = 2 if $changed_full;
   my $repounchanged = $gctx->{'repounchanged'};

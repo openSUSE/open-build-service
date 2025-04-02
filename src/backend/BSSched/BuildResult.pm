@@ -378,7 +378,7 @@ accordingly. Returns true if the :full tree was changed.
 =cut
 
 sub update_dst_full {
-  my ($gctx, $prp, $packid, $jobdir, $meta, $prpsearchpath, $dstcache, $importarch, $obsolete_pkg) = @_;
+  my ($gctx, $prp, $packid, $jobdir, $meta, $dstcache, $importarch, $obsolete_pkg) = @_;
 
   my $myarch = $gctx->{'arch'};
   my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
@@ -841,7 +841,7 @@ sub wipe {
   unlink("$gdst/:repodone");
   # delete full entries
   my $importarch = !$allarch ? '' : undef;					# keep those imports
-  update_dst_full($gctx, $prp, $packid, undef, undef, $prpsearchpath, $dstcache, $importarch);
+  update_dst_full($gctx, $prp, $packid, undef, undef, $dstcache, $importarch);
   delete $gctx->{'repounchanged'}->{$prp};
   # delete other files
   unlink("$gdst/:logfiles.success/$packid");
@@ -916,7 +916,7 @@ sub wipeobsolete {
   # don't wipe imports if we're obsoleting just one arch
   my $importarch = !$allarch && @ifiles ? '' : undef;
   # delete full entries
-  update_dst_full($gctx, $prp, $packid, undef, undef, $prpsearchpath, $dstcache, $importarch, 1);
+  update_dst_full($gctx, $prp, $packid, undef, undef, $dstcache, $importarch, 1);
   delete $gctx->{'repounchanged'}->{$prp};
   # delete other files
   unlink("$gdst/:logfiles.success/$packid");
