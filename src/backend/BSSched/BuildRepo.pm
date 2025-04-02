@@ -832,7 +832,7 @@ sub writesolv {
 =cut
 
 sub checkuseforbuild {
-  my ($gctx, $prp, $prpsearchpath, $dstcache, $forcerebuild) = @_;
+  my ($gctx, $prp, $dstcache, $forcerebuild) = @_;
   return unless $BSSched::BuildResult::new_full_handling;
   my $myarch = $gctx->{'arch'};
   my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
@@ -928,7 +928,7 @@ sub checkuseforbuild {
 
 sub forcefullrebuild {
   my ($gctx, $prp) = @_;
-  checkuseforbuild($gctx, $prp, $gctx->{'prpsearchpath'}->{$prp}, undef, 1); 
+  checkuseforbuild($gctx, $prp, undef, 1); 
 }
 
 =head2 addrepo_scan - add :full repo to pool, make sure repo is up-to-data by scanning the directory

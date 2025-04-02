@@ -414,7 +414,7 @@ sub update_dst_full {
   # matches the current setting, so make sure they are in sync.
   my $prpcheckuseforbuild = $gctx->{'prpcheckuseforbuild'};
   if ($prpcheckuseforbuild->{$prp}) {
-    BSSched::BuildRepo::checkuseforbuild($gctx, $prp, $prpsearchpath, $dstcache);
+    BSSched::BuildRepo::checkuseforbuild($gctx, $prp, $dstcache);
     delete $prpcheckuseforbuild->{$prp};
   }
 
