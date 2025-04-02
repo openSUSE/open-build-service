@@ -18,6 +18,7 @@ package BSSched::BuildResult;
 
 # gctx functions
 #   calculate_exportfilter
+#   getconfig
 #   set_suf_and_filter_exports
 #   update_dst_full
 #   set_dstcache_prp
@@ -147,6 +148,20 @@ sub compile_exportfilter {
   return \@res;
 }
 
+=head2 getconfig - return the build config for a prp
+
+TODO
+
+=cut
+
+sub getconfig {
+  my ($gctx, $prp, $prpsearchpath, $fullcache) = @_;
+  return $fullcache->{'config'} if $fullcache && $fullcache->{'config'};
+  my ($projid, $repoid) = split('/', $prp, 2);
+  my $bconf = BSSched::ProjPacks::getconfig($gctx, $projid, $repoid, $gctx->{'arch'}, $prpsearchpath);
+  $fullcache->{'config'} = $bconf if $fullcache;
+  return $bconf
+}
 
 =head2 calculate_exportfilter - return exportfilter for a prp
 
@@ -159,16 +174,9 @@ sub calculate_exportfilter {
 
   my $fullcache = $dstcache ? $dstcache->{'fullcache'} : undef;
   my $myarch = $gctx->{'arch'};
-  my $filter;
   # argh, need a bconf, this slows us down a bit
-  my $bconf;
-  if ($prpsearchpath) {
-    my ($projid, $repoid) = split('/', $prp, 2);
-    $bconf = $fullcache->{'config'} if $fullcache && $fullcache->{'config'};
-    $bconf ||= BSSched::ProjPacks::getconfig($gctx, $projid, $repoid, $myarch, $prpsearchpath);
-    $fullcache->{'config'} = $bconf if $fullcache;
-  }
-  $filter = $bconf->{'exportfilter'} if $bconf;
+  my $bconf = $prpsearchpath ? getconfig($gctx, $prp, $prpsearchpath, $fullcache) : undef;
+  my $filter = $bconf ? $bconf->{'exportfilter'} : undef;
   undef $filter if $filter && !%$filter;
   $filter ||= $default_exportfilters{$myarch};
   $filter = [ map {[$_, $filter->{$_}]} reverse sort keys %$filter ] if $filter;
