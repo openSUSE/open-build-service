@@ -237,20 +237,20 @@ namespace :dev do
         home_admin_branched_data = branch_package(
           source_project_name: 'home:Admin',
           source_package_name: 'hello_world',
-          target_project: 'home:Admin:branches:home:Admin'
+          target_project: 'Devel:home:Admin'
         )
 
         home_admin_branched = Package.find_by_project_and_name(home_admin_branched_data[:data][:targetproject], home_admin_branched_data[:data][:targetpackage])
 
         devel_package = Package.find_by_project_and_name('home:Admin', 'hello_world')
         Package
-          .find_by_project_and_name('home:Admin:branches:home:Admin', 'hello_world')
+          .find_by_project_and_name('Devel:home:Admin', 'hello_world')
           .update(develpackage: devel_package)
 
         branched_package_data = branch_package(
-          source_project_name: 'home:Admin:branches:home:Admin',
+          source_project_name: 'Devel:home:Admin',
           source_package_name: 'hello_world',
-          target_project: 'home:Admin:branches:home:Admin:branches:home:Admin'
+          target_project: 'Devel:home:Admin:branches:home:Admin'
         )
         branched_package = Package.find_by_project_and_name(branched_package_data[:data][:targetproject], branched_package_data[:data][:targetpackage])
 
