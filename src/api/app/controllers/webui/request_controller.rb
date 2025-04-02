@@ -239,6 +239,8 @@ class Webui::RequestController < Webui::WebuiController
           @bs_request.bs_request_actions.each do |action|
             target = action.target_package_object || action.target_project_object
             target.add_maintainer(@bs_request.creator) if target.can_be_modified_by?(User.possibly_nobody)
+            next unless action.is_a?(BsRequestActionSubmit)
+
             action.forward.each do |fwd|
               forward_request_to(fwd[:project], fwd[:package])
             end
@@ -469,6 +471,8 @@ class Webui::RequestController < Webui::WebuiController
     # Forward the requests when using the beta request show page
     if params[:accepted] == 'Accept and forward submit request'
       @bs_request.bs_request_actions.each do |action|
+        next unless action.is_a?(BsRequestActionSubmit)
+
         action.forward.each do |fwd|
           forward_request_to(fwd[:project], fwd[:package])
         end
