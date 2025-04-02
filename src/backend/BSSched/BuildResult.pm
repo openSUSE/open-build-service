@@ -155,7 +155,9 @@ TODO
 =cut
 
 sub getconfig {
-  my ($gctx, $prp, $prpsearchpath, $fullcache) = @_;
+  my ($gctx, $prp, $prpsearchpath, $dstcache) = @_;
+  return undef unless $prpsearchpath;
+  my $fullcache = $dstcache ? $dstcache->{'fullcache'} : undef;
   return $fullcache->{'config'} if $fullcache && $fullcache->{'config'};
   my ($projid, $repoid) = split('/', $prp, 2);
   my $bconf = BSSched::ProjPacks::getconfig($gctx, $projid, $repoid, $gctx->{'arch'}, $prpsearchpath);
@@ -170,15 +172,10 @@ TODO
 =cut
 
 sub calculate_exportfilter {
-  my ($gctx, $prp, $prpsearchpath, $dstcache) = @_;
-
-  my $fullcache = $dstcache ? $dstcache->{'fullcache'} : undef;
-  my $myarch = $gctx->{'arch'};
-  # argh, need a bconf, this slows us down a bit
-  my $bconf = $prpsearchpath ? getconfig($gctx, $prp, $prpsearchpath, $fullcache) : undef;
+  my ($gctx, $bconf) = @_;
   my $filter = $bconf ? $bconf->{'exportfilter'} : undef;
   undef $filter if $filter && !%$filter;
-  $filter ||= $default_exportfilters{$myarch};
+  $filter ||= $default_exportfilters{$gctx->{'arch'}};
   $filter = [ map {[$_, $filter->{$_}]} reverse sort keys %$filter ] if $filter;
   return compile_exportfilter($filter);
 }
@@ -554,7 +551,9 @@ sub update_dst_full {
   # part 2: link needed binaries into :full tree
 
   set_dstcache_prp($gctx, $dstcache, $prp) if $dstcache;
-  my $filter = calculate_exportfilter($gctx, $prp, $prpsearchpath, $dstcache);
+  # argh, need a bconf, this slows us down a bit
+  my $bconf = getconfig($gctx, $prp, $prpsearchpath, $dstcache);
+  my $filter = calculate_exportfilter($gctx, $bconf);
   my %oldexports;
   my %newexports;
   my %old = set_suf_and_filter_exports($gctx, $oldrepo, $filter, \%oldexports);
