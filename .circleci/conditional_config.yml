@@ -438,6 +438,59 @@ jobs:
           path: ./src/api/tmp/capybara
           destination: capybara
 
+  next_rails-linters:
+    docker:
+      - <<: *frontend_base
+      - <<: *mariadb
+    environment:
+      BUNDLE_GEMFILE: Gemfile.next
+      BUNDLE_CACHE_PATH: vendor/cache.next
+    steps:
+      - attach_workspace:
+         at: .
+      - run: *install_dependencies
+      - run: *init_git_submodule
+      - when:
+          condition: << pipeline.parameters.run-javascripts-linter >>
+          steps:
+            - run:
+                name: Install jshint
+                command: sudo npm install -g jshint
+            - run:
+                name: Run jshint
+                working_directory: src/api
+                command: jshint app/assets/javascripts
+      - when:
+          condition: << pipeline.parameters.run-dist-linter >>
+          steps:
+            - run:
+                name: Run dist linters
+                command: make -C dist scripts_linters
+      - when:
+          condition: << pipeline.parameters.run-haml-linter >>
+          steps:
+            - run:
+                name: Run HAML linter
+                working_directory: src/api
+                command: bundle exec rake dev:lint:haml
+      - when:
+          condition: << pipeline.parameters.run-apidocs-linter >>
+          steps:
+            - run:
+                name: Run Documentation linter
+                working_directory: src/api
+                command: bundle exec rake dev:lint:apidocs
+      - run:
+          name: Run database consistency linter
+          working_directory: src/api
+          command: |
+            bundle exec rake db:setup
+            bundle exec database_consistency -c .database_consistency.todo.yml
+      - run:
+          name: Run rubocop
+          working_directory: src/api
+          command: bundle exec rake dev:lint:rubocop:all
+
   next_rails-rspec:
     docker:
       - <<: *frontend_features
@@ -523,13 +576,16 @@ workflows:
         value: << pipeline.git.branch >>
     jobs:
       - checkout_code
+      - next_rails-linters:
+          requires:
+            - checkout_code
       # next_rails jobs are split between RSpec and Minitest because they need a different setup
       - next_rails-rspec:
           requires:
-            - checkout_code
+            - next_rails-linters
       - next_rails-minitest:
           requires:
-            - checkout_code
+            - next_rails-linters
 
   test_all:
     jobs:
