@@ -155,7 +155,8 @@ TODO
 =cut
 
 sub getconfig {
-  my ($gctx, $prp, $prpsearchpath, $dstcache) = @_;
+  my ($gctx, $prp, $dstcache) = @_;
+  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   return undef unless $prpsearchpath;
   my $fullcache = $dstcache ? $dstcache->{'fullcache'} : undef;
   return $fullcache->{'config'} if $fullcache && $fullcache->{'config'};
@@ -557,7 +558,7 @@ sub update_dst_full {
 
   set_dstcache_prp($gctx, $dstcache, $prp) if $dstcache;
   # argh, need a bconf, this slows us down a bit
-  my $bconf = getconfig($gctx, $prp, $prpsearchpath, $dstcache);
+  my $bconf = getconfig($gctx, $prp, $dstcache);
   my $filter = calculate_exportfilter($gctx, $bconf);
   my %oldexports;
   my %newexports;

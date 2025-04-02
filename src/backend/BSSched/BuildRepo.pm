@@ -886,7 +886,7 @@ sub checkuseforbuild {
     }
   }
   BSSched::BuildResult::set_dstcache_prp($gctx, $dstcache, $prp) if $dstcache; 
-  my $bconf = BSSched::BuildResult::getconfig($gctx, $prp, $prpsearchpath, $dstcache);
+  my $bconf = BSSched::BuildResult::getconfig($gctx, $prp, $dstcache);
   my $filter = BSSched::BuildResult::calculate_exportfilter($gctx, $bconf);
   my $fctx = {
     'gctx' => $gctx,
