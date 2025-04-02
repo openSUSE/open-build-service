@@ -818,7 +818,7 @@ sub remove_from_volatile {
 =cut
 
 sub wipe {
-  my ($gctx, $prp, $packid, $prpsearchpath, $dstcache, $allarch) = @_;
+  my ($gctx, $prp, $packid, $dstcache, $allarch) = @_;
 
   my ($projid, $repoid) = split('/', $prp, 2);
   my $myarch = $gctx->{'arch'};
@@ -893,7 +893,7 @@ useforbuild flag.
 =cut
 
 sub wipeobsolete {
-  my ($gctx, $prp, $packid, $prpsearchpath, $dstcache, $reason, $allarch) = @_;
+  my ($gctx, $prp, $packid, $dstcache, $reason, $allarch) = @_;
 
   my $projpacks = $gctx->{'projpacks'};
   my $myarch = $gctx->{'arch'};

@@ -397,9 +397,8 @@ sub event_wipe {
   my $reporoot = $gctx->{'reporoot'};
   my $gdst = "$reporoot/$prp/$myarch";
   print "wiping $prp $packid\n";
-  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   my $allarch = $ev->{'type'} eq 'wipeallarch' ? 1 : undef;
-  BSSched::BuildResult::wipe($gctx, $prp, $packid, $prpsearchpath, $ectx->{'dstcache'}, $allarch) if -d "$gdst/$packid";
+  BSSched::BuildResult::wipe($gctx, $prp, $packid, $ectx->{'dstcache'}, $allarch) if -d "$gdst/$packid";
   BSSched::BuildJob::set_genbuildreqs($gctx, $prp, $packid, undef);
   for $prp (@{$gctx->{'prps'}}) {
     if ((split('/', $prp, 2))[0] eq $projid) {
