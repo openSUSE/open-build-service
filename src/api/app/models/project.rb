@@ -30,7 +30,12 @@ class Project < ApplicationRecord
   after_rollback :reset_cache
   after_rollback :discard_cache
 
-  serialize :required_checks, Array
+  if RailsVersion.is_7_1?
+    serialize :required_checks, type: Array
+  else
+    serialize :required_checks, Array
+  end
+
   attr_accessor :commit_opts, :commit_user
 
   has_many :relationships, dependent: :destroy, inverse_of: :project
