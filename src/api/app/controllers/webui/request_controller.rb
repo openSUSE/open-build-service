@@ -232,7 +232,9 @@ class Webui::RequestController < Webui::WebuiController
       if changestate == 'accepted'
         if params[:accepted] == 'Accept and make the creator a maintainer of the target'
           @bs_request.bs_request_actions.each do |action|
-            target = action.target_package_object || action.target_project_object
+            next unless action.target_package_object
+
+            target = action.target_package_object
             target.add_maintainer(@bs_request.creator) if target.can_be_modified_by?(User.possibly_nobody)
           end
         elsif params[:accepted] == 'Accept, make the creator a maintainer of the target and forward the request'
