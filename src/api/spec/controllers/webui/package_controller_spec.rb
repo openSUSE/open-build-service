@@ -59,7 +59,7 @@ RSpec.describe Webui::PackageController, :vcr do
         post :remove, params: { project: target_project, package: target_package }
 
         expect(flash[:success]).to eq('Package was successfully removed.')
-        expect(target_project.packages).to be_empty
+        expect(target_project.packages.reload).to be_empty
       end
     end
 
@@ -72,7 +72,7 @@ RSpec.describe Webui::PackageController, :vcr do
       it { expect(flash[:success]).to eq('Package was successfully removed.') }
 
       it 'deletes the package' do
-        expect(user.home_project.packages).to be_empty
+        expect(user.home_project.packages.reload).to be_empty
       end
     end
 
@@ -97,7 +97,7 @@ RSpec.describe Webui::PackageController, :vcr do
 
         it 'deletes the package' do
           expect(flash[:success]).to eq('Package was successfully removed.')
-          expect(user.home_project.packages).to be_empty
+          expect(user.home_project.packages.reload).to be_empty
         end
       end
     end

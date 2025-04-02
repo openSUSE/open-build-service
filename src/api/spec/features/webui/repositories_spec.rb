@@ -59,7 +59,7 @@ RSpec.describe 'Repositories', :js do
       end
 
       expect(page).to have_text 'Successfully removed repository'
-      expect(project_with_dod_repo.repositories).to be_empty
+      expect(project_with_dod_repo.repositories.reload).to be_empty
     end
 
     it 'edit download repositories' do
