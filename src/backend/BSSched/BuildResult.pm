@@ -366,7 +366,8 @@ sub repofromfiles {
 
 =head2 update_dst_full - move binary packages from jobrepo to dst and update the full repository
 
- TODO: add description
+Move the job result into the package's artifact directory and update the :full tree
+accordingly. Returns true if the :full tree was changed.
 
 =cut
 
@@ -393,7 +394,7 @@ sub update_dst_full {
     $locked = BSUtil::enabled($repoid, $pdata->{'lock'}, $locked, $myarch) if $pdata->{'lock'};
     if ($locked) {
       print "    package is locked\n";
-      return;
+      return 0;
     }
     $useforbuildenabled = 0 if $pdata->{'patchinfo'};
   }
@@ -470,6 +471,9 @@ sub update_dst_full {
     }
     for my $f (grep {!$new{$_}} @oldfiles) {
       if (!$importarch) {
+	if ($f =~ /^\.meta\.success\.import\./) {
+	  next if defined($jobdir) || defined($importarch);
+	}
         if (defined($importarch) && !defined($jobdir) && $f =~ /^::import::/) {
           # a wipe, keep the imports
           $bininfo->{$f} = $oldbininfo->{$f} if $oldbininfo->{$f};
@@ -573,7 +577,7 @@ sub update_dst_full {
 
   if (!$useforbuildenabled) {
     print "    move to :full is disabled\n";
-    return;
+    return 0;
   }
 
   my $fctx = {
@@ -593,6 +597,7 @@ sub update_dst_full {
     # note that we use oldrepo here instead of \%old
     BSSched::BuildRepo::move_into_full($fctx, $oldrepo, \%new);
   }
+  return 1;
 }
 
 =head2 read_bininfo - TODO: add summary
@@ -832,18 +837,18 @@ sub wipe {
   unlink("$gdst/:logfiles.success/$packid");
   unlink("$gdst/:logfiles.fail/$packid");
   unlink("$gdst/:meta/$packid");
-  for my $f (ls("$gdst/$packid")) {
+  my $dst = "$gdst/$packid";
+  for my $f (ls($dst)) {
     next if $f eq 'history' || $f eq '.bininfo' || $f eq '.stats';
-    next if $f =~ /^::import::/;			# keep those imports
-    next if $f =~ /^\.meta\.success\.import\./;		# keep those imports
-    if (-d "$gdst/$packid/$f") {
-      BSUtil::cleandir("$gdst/$packid/$f");
-      rmdir("$gdst/$packid/$f");
+    next if !$allarch && ($f =~ /^::import::/ || $f =~ /^\.meta\.success\.import\./);	# keep those imports
+    if (-d "$dst/$f") {
+      BSUtil::cleandir("$dst/$f");
+      rmdir("$dst/$f");
     } else {
-      unlink("$gdst/$packid/$f");
+      unlink("$dst/$f");
     }
   }
-  rmdir("$gdst/$packid");       # in case there is no history
+  rmdir($dst);       # in case there is no history
 }
 
 sub set_dstcache_prp {
@@ -886,7 +891,9 @@ sub wipeobsolete {
   my $dst = "$gdst/$packid";
   my @files = ls($dst);
   return 0 unless @files;
+  # find imported files we have to keep
   my @ifiles = grep {/^::import::/ || /^\.meta\.success\.import\./} @files;
+  @ifiles = () if $allarch;
   if (@ifiles) {
     # only imported stuff?
     return 0 unless grep {$_ ne '.bininfo' && !(/^::import::/ || /^\.meta\.success\.import\./)} @files;
@@ -911,7 +918,7 @@ sub wipeobsolete {
     # keep those imports
     for my $f (@files) {
       next if $f eq '.bininfo';
-      next if $f =~ /^::import::/ || $f =~ /^\.meta\.success\.import\./;
+      next if $f =~ /^::import::/ || $f =~ /^\.meta\.success\.import\./;	# keep those imports
       if (-d "$dst/$f") {
         BSUtil::cleandir("$dst/$f");
         rmdir("$dst/$f");
