@@ -388,7 +388,7 @@ RSpec.describe Staging::StagedRequestsController do
         end
 
         it { expect(response).to have_http_status(:success) }
-        it { expect(staging_project.packages).to be_empty }
+        it { expect(staging_project.packages.reload).to be_empty }
         it { expect(staging_project.staged_requests).to be_empty }
       end
 
@@ -400,7 +400,7 @@ RSpec.describe Staging::StagedRequestsController do
         end
 
         it { expect(response).to have_http_status(:bad_request) }
-        it { expect(staging_project.packages).to be_empty }
+        it { expect(staging_project.packages.reload).to be_empty }
         it { expect(staging_project.staged_requests).to be_empty }
       end
 
@@ -414,7 +414,7 @@ RSpec.describe Staging::StagedRequestsController do
         end
 
         it { expect(response).to have_http_status(:success) }
-        it { expect(staging_project.packages).to be_empty }
+        it { expect(staging_project.packages.reload).to be_empty }
         it { expect(staging_project.staged_requests).to be_empty }
       end
 
@@ -431,7 +431,7 @@ RSpec.describe Staging::StagedRequestsController do
           end
 
           it { expect(response).to have_http_status(:success) }
-          it { expect(staging_project.packages).to be_empty }
+          it { expect(staging_project.packages.reload).to be_empty }
           it { expect(staging_project.staged_requests).to be_empty }
           it { expect(bs_request.reviews.where(by_group: group.title, state: 'new')).to be_present }
           it { expect(bs_request.reviews.where(by_project: staging_project.name, state: 'new')).to be_empty }
@@ -459,7 +459,7 @@ RSpec.describe Staging::StagedRequestsController do
           end
 
           it { expect(response).to have_http_status(:success) }
-          it { expect(staging_project.packages).to be_empty }
+          it { expect(staging_project.packages.reload).to be_empty }
           it { expect(staging_project.staged_requests).to be_empty }
           it { expect(bs_request.reviews.where(by_group: group.title, state: 'new')).to be_present }
           it { expect(bs_request.reviews.where(by_project: staging_project.name, state: 'new')).to be_empty }
