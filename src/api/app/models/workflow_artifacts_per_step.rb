@@ -4,7 +4,7 @@
 class WorkflowArtifactsPerStep < ApplicationRecord
   belongs_to :workflow_run, optional: false
 
-  serialize :artifacts, JSON
+  serialize :artifacts, coder: JSON
 
   validates :step, :artifacts, presence: true
 end

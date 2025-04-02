@@ -11,7 +11,7 @@ class Notification < ApplicationRecord
   has_many :projects, through: :notified_projects
   has_and_belongs_to_many :groups
 
-  serialize :event_payload, JSON
+  serialize :event_payload, coder: JSON
 
   validates :type, length: { maximum: 255 }
 

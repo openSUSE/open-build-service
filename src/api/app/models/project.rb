@@ -30,7 +30,7 @@ class Project < ApplicationRecord
   after_rollback :reset_cache
   after_rollback :discard_cache
 
-  serialize :required_checks, Array
+  serialize :required_checks, type: Array
   attr_accessor :commit_opts, :commit_user
 
   has_many :relationships, dependent: :destroy, inverse_of: :project
