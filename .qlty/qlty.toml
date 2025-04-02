@@ -77,28 +77,3 @@ threshold = 20
 [[source]]
 name = "default"
 default = true
-
-[[plugin]]
-name = "actionlint"
-
-[[plugin]]
-name = "hadolint"
-
-[[plugin]]
-name = "markdownlint"
-version = "0.41.0"
-
-[[plugin]]
-name = "rubocop"
-version = "1.74.0"
-package_file = "src/api/Gemfile"
-package_filters = ["rubocop"]
-
-[[plugin]]
-name = "shellcheck"
-
-[[plugin]]
-name = "trufflehog"
-
-[[plugin]]
-name = "yamllint"
