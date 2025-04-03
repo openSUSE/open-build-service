@@ -27,7 +27,8 @@ class TriggerController < ApplicationController
   def create
     authorize @token, :trigger?
 
-    opts = { project: @project, package: @package, repository: params[:repository], arch: params[:arch],
+    # hand over package parameter if package is from remote or scm project
+    opts = { project: @project, package: @package || params[:package], repository: params[:repository], arch: params[:arch],
              targetproject: params[:targetproject], targetrepository: params[:targetrepository],
              filter_source_repository: params[:filter_source_repository] }
     opts[:multibuild_flavor] = @multibuild_container if @multibuild_container.present?
@@ -89,6 +90,12 @@ class TriggerController < ApplicationController
   end
 
   def set_package_name
+    # validate matching package
+    if @token.package.present?
+      raise InvalidPackage unless params[:project].nil? || @token.package.project.name == params[:project]
+      raise InvalidPackage unless params[:package].nil? || @token.package.name == params[:package]
+    end
+
     @package_name = params[:package]
   end
 end
