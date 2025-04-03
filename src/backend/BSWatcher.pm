@@ -1213,6 +1213,29 @@ sub rpc {
   return undef;
 }
 
+sub rpc_with_retry {
+  my ($uri, $xmlargs, @args) = @_;
+  my $retry = 5;
+  while ($retry) {
+    eval {
+      rpc($uri, $xmlargs, @args);
+    };
+    if ($@ && $@ =~ /Connection refused/) {
+      print "warning: $reposerver: refused connection, retrying in 30 seconds\n";
+      $retry--;
+      my $now = time();
+      my $retry_time = $now + 30;
+      if ($now < $retry) {
+        sleep(1);
+        next;
+      }
+    } else {
+      print "warning: $reposerver: $@" if $@;
+      $retry = 0;
+    }
+  }
+}
+
 sub rpc_deljob {
   my ($jev) = @_;
   for my $uri (keys %rpcs) {

@@ -321,10 +321,7 @@ sub notify_repservers {
     'request'   => 'POST',
     'background' => 1,
   };
-  eval {
-    BSWatcher::rpc($param, undef, @args);
-  };
-  print "warning: $reposerver: $@" if $@;
+  BSWatcher::rpc_with_retry($param, undef, @args);
 }
 
 # this is only used from getfilelist_ajax.
@@ -343,10 +340,7 @@ sub notify_all_repservers {
       'request'   => 'POST',
       'background' => 1,
     };
-    eval {
-      BSWatcher::rpc($param, undef, @args);
-    };
-    print "warning: $reposerver: $@" if $@;
+    BSWatcher::rpc_with_retry($param, undef, @args);
   }
 }
 
