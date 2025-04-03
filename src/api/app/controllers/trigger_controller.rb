@@ -27,9 +27,14 @@ class TriggerController < ApplicationController
   def create
     authorize @token, :trigger?
 
-    opts = { project: @project, package: @package, repository: params[:repository], arch: params[:arch],
+    # hand over package parameter if package is from remote  or scm project
+    opts = { project: @project, package: @package || params[:package], arch: params[:arch],
              targetproject: params[:targetproject], targetrepository: params[:targetrepository],
-             filter_source_repository: params[:filter_source_repository] }
+             repository: params[:repository] || params[:filter_source_repository] }
+    if opts[:package].is_a?(String) && opts[:package].include?(':')
+      opts[:multibuild_flavor] = opts[:package].split(':',2)[1]
+      opts[:package] = Package.striping_multibuild_suffix(opts[:package])
+    end
     opts[:multibuild_flavor] = @multibuild_container if @multibuild_container.present?
     @token.executor.run_as { @token.call(opts) }
 
@@ -85,10 +90,15 @@ class TriggerController < ApplicationController
   end
 
   def set_project_name
+    # don't take random content when people just use a random webhook to our route,
+    # eg from gitlab sending it's own data with a unrealted project hash
+    return unless params[:project].kind_of? String
     @project_name = params[:project]
   end
 
   def set_package_name
+    return if params[:package].blank? || @project_name.blank?
+
     @package_name = params[:package]
   end
 end
