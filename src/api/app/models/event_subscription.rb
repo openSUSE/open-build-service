@@ -16,11 +16,11 @@ class EventSubscription < ApplicationRecord
     source_package_watcher: 'Watching the source package',
     target_package_watcher: 'Watching the target package',
     request_watcher: 'Watching the request',
-    moderator: 'Your are moderator',
+    moderator: 'As a moderator',
     token_executor: 'User who runs the workflow',
     token_member: 'User the token is shared with',
-    reporter: 'You are reporter of the content',
-    offender: 'Your are the creator of the content',
+    reporter: 'As a reporter of the content',
+    offender: 'As the creator of the content',
     member: 'Member'
   }.freeze
 
