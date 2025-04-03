@@ -403,12 +403,22 @@ sub update_dst_full {
     return 0;
   }
 
+  # calculate the config (this slows us down a bit)
+  set_dstcache_prp($gctx, $dstcache, $prp) if $dstcache;
+  my $bconf = getconfig($gctx, $prp, $dstcache);
+
   # calculate useforbuild status
   my $useforbuildenabled = 1;
   $useforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled, $myarch) if $proj->{'useforbuild'};
   $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch) if $pdata->{'useforbuild'};
   $useforbuildenabled = 1 if !defined($jobdir) && $obsolete_pkg;	# called from wipeobsolete
-  $useforbuildenabled = 0 if $pdata->{'patchinfo'};
+  if (exists $bconf->{'buildflags:nouseforbuild'}) {
+    if (!$dstcache || ($dstcache->{'nouseforbuild_checked'} || '') ne $prp) {
+      $gctx->{'prpcheckuseforbuild'}->{$prp} = 1;	# always force a recheck for now
+      $dstcache->{'nouseforbuild_checked'} = $prp if $dstcache;
+    }
+    $useforbuildenabled = 0 if grep {$_ eq "nouseforbuild:$packid"} @{$bconf->{'buildflags'} || []};
+  }
 
   # further down we assume that the useforbuild setting of the full tree
   # matches the current setting, so make sure they are in sync.
@@ -556,9 +566,6 @@ sub update_dst_full {
   ##################################################################
   # part 2: link needed binaries into :full tree
 
-  set_dstcache_prp($gctx, $dstcache, $prp) if $dstcache;
-  # argh, need a bconf, this slows us down a bit
-  my $bconf = getconfig($gctx, $prp, $dstcache);
   my $filter = calculate_exportfilter($gctx, $bconf);
   my %oldexports;
   my %newexports;

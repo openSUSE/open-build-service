@@ -839,25 +839,31 @@ sub checkuseforbuild {
   my $projpacks = $gctx->{'projpacks'};
   my ($projid, $repoid) = split('/', $prp, 2);
   my $proj = $projpacks->{$projid};
+  return unless $proj;
   my $pdatas = $proj->{'package'} || {};
-  if (BSUtil::enabled($repoid, $proj->{'locked'}, 0, $myarch)) {
-    my $unlocked;
-    for my $packid (sort keys %$pdatas) {
-      my $lockedflags = $pdatas->{$packid}->{'locked'};
-      if ($lockedflags && !BSUtil::enabled($repoid, $lockedflags, 1, $myarch)) {
-        $unlocked = 1;
-        last;
-      }
+
+  # do not mess with completely locked projects
+  if (BSUtil::enabled($repoid, $proj->{'lock'}, 0, $myarch)) {
+    my $alllocked = 1;
+    for my $pack (grep {$_->{'lock'}} values %$pdatas) {
+      $alllocked = 0 unless BSUtil::enabled($repoid, $pack->{'lock'}, 1, $myarch);
     }
-    return unless $unlocked;
+    return if $alllocked;
   }
+
+  BSSched::BuildResult::set_dstcache_prp($gctx, $dstcache, $prp) if $dstcache; 
+  my $bconf = BSSched::BuildResult::getconfig($gctx, $prp, $dstcache);	# hopefully taken from the cache
+
   my $newuseforbuild = [];
   my $prjuseforbuildenabled = 1;
   $prjuseforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $prjuseforbuildenabled, $myarch);
+  my $buildflags;
+  $buildflags = { map {$_ => 1} @{$bconf->{'buildflags'} || []} } if $bconf && exists $bconf->{"buildflags:nouseforbuild"};
   for my $packid (sort keys %$pdatas) {
     my $useforbuildflags = ($pdatas->{$packid} || {})->{'useforbuild'};
     my $useforbuildenabled = $prjuseforbuildenabled;
     $useforbuildenabled = BSUtil::enabled($repoid, $useforbuildflags, $useforbuildenabled, $myarch) if $useforbuildflags;
+    $useforbuildenabled = 0 if $buildflags && $buildflags->{"nouseforbuild:$packid"};
     push @$newuseforbuild, $packid if $useforbuildenabled;
   }
   my %olduseforbuild;
@@ -885,8 +891,6 @@ sub checkuseforbuild {
       $olduseforbuild{$_} = 1 if ! -d "$gdst/$_";       # did not exist before
     }
   }
-  BSSched::BuildResult::set_dstcache_prp($gctx, $dstcache, $prp) if $dstcache; 
-  my $bconf = BSSched::BuildResult::getconfig($gctx, $prp, $dstcache);
   my $filter = BSSched::BuildResult::calculate_exportfilter($gctx, $bconf);
   my $fctx = {
     'gctx' => $gctx,
