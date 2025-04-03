@@ -321,10 +321,57 @@ sub notify_repservers {
     'request'   => 'POST',
     'background' => 1,
   };
-  eval {
-    BSWatcher::rpc($param, undef, @args);
-  };
-  print "warning: $reposerver: $@" if $@;
+  eval { BSWatcher::rpc($param, undef, @args) };
+  if ($@) {
+    print "warning: $reposerver: $@";
+    if ($type eq 'project' || $type eq 'package' || $type eq 'lowprioproject') {
+      # write event to file system so that it is not lost
+      notify_repservers_add_queued_event("$eventdir/undelivered", $type, $projid, $packid);
+    }
+  }
+}
+
+sub notify_repservers_add_queued_event {
+  my ($evdir, $type, $projid, $packid) = @_;
+  my $ev = {'type' => $type, 'project' => $projid};
+  $ev->{'package'} = $packid if defined $packid;
+  my $evname = "$type:$projid";
+  $evname .= "::$packid" if defined $packid;
+  $evname = "${type}:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
+  mkdir_p($evdir);
+  eval { writexml("$evdir/.$evname.$$", "$evdir/$evname", $ev, $BSXML::event) };
+  return unless $@;
+  # could be a race with the rmdir in notify_repservers_send_queued_events, so retry
+  mkdir_p($evdir);
+  eval { writexml("$evdir/.$evname.$$", "$evdir/$evname", $ev, $BSXML::event) };
+  warn("notify_repservers_add_queued_event: $@") if $@;
+}
+
+sub notify_repservers_send_queued_events {
+  my ($evdir) = @_;
+  for my $evname (grep {s/^\.inprogress//} sort(ls($evdir))) {
+    rename("$evdir/.inprogress.$evname", "$evdir/$evname");
+  }
+  for my $evname (sort(ls($evdir))) {
+    next if $evname =~ /^\./;
+    my $ev = readxml("$evdir/$evname", $BSXML::event, 1);
+    next unless $ev;
+    rename("$evdir/$evname", "$evdir/.inprogress.$evname");
+    my @args = ("type=$ev->{'type'}", "project=$ev->{'project'}");
+    push @args, "package=$ev->{'package'}" if defined $ev->{'package'};
+    my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($ev->{'project'}) : $BSConfig::reposerver;
+    my $param = {
+      'uri' => "$reposerver/event",
+      'request'   => 'POST',
+    };
+    eval { BSRPC::rpc($param, undef, @args) };
+    if ($@) {
+      warn("notify_repservers_queued_events: $reposerver: $@");
+      rename("$evdir/.inprogress.$evname", "$evdir/$evname");
+    } else {
+      unlink("$evdir/.inprogress.$evname");
+    }
+  }
 }
 
 # this is only used from getfilelist_ajax.
@@ -7854,6 +7901,26 @@ sub run {
   BSServer::server($conf);
 }
 
+
+sub periodic {
+  my ($conf) = @_;
+  BSStdServer::periodic($conf);
+  my $evdir = "$eventdir/undelivered";
+  if (-d $evdir && BSUtil::lockcheck('>>', "$evdir/.lock")) {
+    print "delivering queued events...\n";
+    if (xfork() == 0) {
+      my $lfd;
+      BSUtil::lockopen($lfd, '>>', "$evdir/.lock");
+      notify_repservers_send_queued_events($evdir);
+      sleep(10);
+      unlink("$evdir/.lock");
+      close $lfd;
+      rmdir($evdir);
+      exit(0);
+    }
+  }
+}
+
 my $dispatches = [
   '/' => \&hello,
 
@@ -8108,6 +8175,7 @@ my $conf = {
   'slowrequestthr' => 10,
   'errorreply' => \&BSRegistryServer::errreply,
   'run' => \&run,
+  'periodic' => \&periodic,
 };
 
 my $aconf = {
