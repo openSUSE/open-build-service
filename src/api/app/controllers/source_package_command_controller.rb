@@ -375,6 +375,10 @@ class SourcePackageCommandController < SourceController
   def linktobranch
     authorize @package, :update?
 
+    if @target_package_name.in?(%w[_project _pattern])
+      render_error status: 400, message: "cannot turn a #{@target_package_name} package into a branch"
+      return
+    end
     pkg_rev = params[:rev]
     pkg_linkrev = params[:linkrev]
 
