@@ -840,10 +840,10 @@ sub checkuseforbuild {
   my ($projid, $repoid) = split('/', $prp, 2);
   my $proj = $projpacks->{$projid};
   my $pdatas = $proj->{'package'} || {};
-  if (BSUtil::enabled($repoid, $proj->{'locked'}, 0, $myarch)) {
+  if (BSUtil::enabled($repoid, $proj->{'lock'}, 0, $myarch)) {
     my $unlocked;
     for my $packid (sort keys %$pdatas) {
-      my $lockedflags = $pdatas->{$packid}->{'locked'};
+      my $lockedflags = $pdatas->{$packid}->{'lock'};
       if ($lockedflags && !BSUtil::enabled($repoid, $lockedflags, 1, $myarch)) {
         $unlocked = 1;
         last;
