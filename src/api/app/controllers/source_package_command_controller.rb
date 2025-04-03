@@ -337,6 +337,8 @@ class SourcePackageCommandController < SourceController
 
   # POST /source/<project>/<package>?cmd=mergeservice
   def mergeservice
+    verify_can_modify_target!
+
     path = request.path_info
     path += build_query_from_hash(params, %i[cmd comment user])
     pass_to_backend(path)
@@ -346,6 +348,8 @@ class SourcePackageCommandController < SourceController
 
   # POST /source/<project>/<package>?cmd=runservice
   def runservice
+    verify_can_modify_target!
+
     path = request.path_info
     path += build_query_from_hash(params, %i[cmd comment user])
     pass_to_backend(path)
@@ -362,6 +366,8 @@ class SourcePackageCommandController < SourceController
 
   # POST /source/<project>/<package>?cmd=linktobranch
   def linktobranch
+    verify_can_modify_target!
+
     if @target_package_name.in?(%w[_project _pattern])
       render_error status: 400, message: "cannot turn a #{@target_package_name} package into a branch"
       return
