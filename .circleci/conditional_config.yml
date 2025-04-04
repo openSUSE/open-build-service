@@ -47,7 +47,7 @@ images:
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-minitest:latest
     <<: *common_frontend_config
     environment:
-      EAGER_LOAD: 1
+      CI: 1
 
   - &frontend_base
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-base:latest
