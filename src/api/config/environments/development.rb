@@ -38,11 +38,10 @@ OBSApi::Application.configure do
   # Use memcache for cache/session storage
   if CONFIG['memcached_host']
     config.cache_store = :mem_cache_store, CONFIG['memcached_host']
-    config.session_store = :mem_cache_store, CONFIG['memcached_host']
   else
     config.cache_store = :mem_cache_store
-    config.session_store = :mem_cache_store
   end
+  config.session_store :mem_cache_store
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
