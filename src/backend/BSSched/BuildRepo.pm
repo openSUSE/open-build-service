@@ -828,18 +828,19 @@ sub writesolv {
 =head2 checkuseforbuild - TODO: add summary
 
  check if the useforbuild settings have changed. If yes, update the :full tree
+ Returns true if the :full tree was updated
 
 =cut
 
 sub checkuseforbuild {
   my ($gctx, $prp, $dstcache, $forcerebuild) = @_;
-  return unless $BSSched::BuildResult::new_full_handling;
+  return 0 unless $BSSched::BuildResult::new_full_handling;
   my $myarch = $gctx->{'arch'};
   my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   my $projpacks = $gctx->{'projpacks'};
   my ($projid, $repoid) = split('/', $prp, 2);
   my $proj = $projpacks->{$projid};
-  return unless $proj;
+  return 0 unless $proj;
   my $pdatas = $proj->{'package'} || {};
 
   # do not mess with completely locked projects
@@ -848,7 +849,7 @@ sub checkuseforbuild {
     for my $pack (grep {$_->{'lock'}} values %$pdatas) {
       $alllocked = 0 unless BSUtil::enabled($repoid, $pack->{'lock'}, 1, $myarch);
     }
-    return if $alllocked;
+    return 0 if $alllocked;
   }
 
   BSSched::BuildResult::set_dstcache_prp($gctx, $dstcache, $prp) if $dstcache; 
@@ -881,7 +882,7 @@ sub checkuseforbuild {
   }
   $olduseforbuild = undef if $forcerebuild;
   if ($olduseforbuild) {
-    return if join('/', @$olduseforbuild) eq join('/', @$newuseforbuild);
+    return 0 if join('/', @$olduseforbuild) eq join('/', @$newuseforbuild);
     # diff it. only care about current packages.
     %olduseforbuild = map {$_ => 1} @$olduseforbuild;
     %newuseforbuild = map {$_ => 1} @$newuseforbuild;
@@ -922,6 +923,8 @@ sub checkuseforbuild {
   } else {
     BSUtil::store("$gdst/.:full.metacache", "$gdst/:full.metacache", $fctx->{'metacache'});
   }
+
+  return 1;
 }
 
 =head2 forcefullrebuild - force the rebuild of the full repo

@@ -420,11 +420,12 @@ sub update_dst_full {
     $useforbuildenabled = 0 if grep {$_ eq "nouseforbuild:$packid"} @{$bconf->{'buildflags'} || []};
   }
 
+  my $changed_full = 0;
   # further down we assume that the useforbuild setting of the full tree
   # matches the current setting, so make sure they are in sync.
   my $prpcheckuseforbuild = $gctx->{'prpcheckuseforbuild'};
   if ($prpcheckuseforbuild->{$prp}) {
-    BSSched::BuildRepo::checkuseforbuild($gctx, $prp, $dstcache);
+    $changed_full = BSSched::BuildRepo::checkuseforbuild($gctx, $prp, $dstcache);
     delete $prpcheckuseforbuild->{$prp};
   }
 
@@ -597,7 +598,7 @@ sub update_dst_full {
 
   if (!$useforbuildenabled) {
     print "    move to :full is disabled\n";
-    return 0;
+    return $changed_full;
   }
 
   my $fctx = {
