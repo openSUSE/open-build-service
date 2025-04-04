@@ -87,48 +87,16 @@ FactoryBot.define do
       group { nil }
     end
 
-    factory :event_subscription_report_for_project do
-      eventtype { 'Event::ReportForProject' }
+    factory :event_subscription_report do
+      eventtype { 'Event::Report' }
       receiver_role { 'moderator' }
       channel { :instant_email }
       user
       group { nil }
     end
 
-    factory :event_subscription_report_for_package do
-      eventtype { 'Event::ReportForPackage' }
-      receiver_role { 'moderator' }
-      channel { :instant_email }
-      user
-      group { nil }
-    end
-
-    factory :event_subscription_report_for_comment do
-      eventtype { 'Event::ReportForComment' }
-      receiver_role { 'moderator' }
-      channel { :instant_email }
-      user
-      group { nil }
-    end
-
-    factory :event_subscription_report_for_user do
-      eventtype { 'Event::ReportForUser' }
-      receiver_role { 'moderator' }
-      channel { :instant_email }
-      user
-      group { nil }
-    end
-
-    factory :event_subscription_cleared_decision do
-      eventtype { 'Event::ClearedDecision' }
-      receiver_role { 'reporter' }
-      channel { :instant_email }
-      user
-      group { nil }
-    end
-
-    factory :event_subscription_favored_decision do
-      eventtype { 'Event::FavoredDecision' }
+    factory :event_subscription_decision do
+      eventtype { 'Event::Decision' }
       receiver_role { 'reporter' } # or 'offender'
       channel { :instant_email }
       user

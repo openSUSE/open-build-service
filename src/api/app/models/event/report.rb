@@ -2,6 +2,7 @@ module Event
   class Report < Base
     receiver_roles :moderator
     self.description = 'Report for inappropriate content created'
+    self.notification_explanation = 'Receive notifications for reports.'
 
     payload_keys :id, :reporter, :reportable_id, :reportable_type, :reason, :category
 

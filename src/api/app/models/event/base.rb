@@ -21,8 +21,8 @@ module Event
          Event::RequestStatechange, Event::CommentForProject, Event::CommentForPackage,
          Event::CommentForRequest,
          Event::RelationshipCreate, Event::RelationshipDelete,
-         Event::ReportForComment, Event::ReportForPackage, Event::ReportForProject, Event::ReportForUser, Event::ReportForRequest,
-         Event::WorkflowRunFail, Event::AppealCreated, Event::ClearedDecision, Event::FavoredDecision,
+         Event::Report, Event::Decision, Event::AppealCreated,
+         Event::WorkflowRunFail,
          Event::AddedUserToGroup, Event::RemovedUserFromGroup]
       end
 
