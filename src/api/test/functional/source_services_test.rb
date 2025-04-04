@@ -579,6 +579,12 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :not_found
     assert_match(/no source service defined/, @response.body)
 
+    # with right token, but wrong package
+    post '/trigger/runservice?project=home:tom&package=invalid', headers: { 'Authorization' => "Token #{token}" }
+    # token package is not matching the parameters
+    assert_response :bad_request
+    assert_match(/Token is registered for other package only/, @response.body)
+
     # with right token in gitlab style
     post '/trigger/runservice',
          headers: { 'X-Gitlab-Event' => 'Push Hook',
