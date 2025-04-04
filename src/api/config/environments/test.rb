@@ -34,7 +34,7 @@ OBSApi::Application.configure do
   }
 
   # Raise exceptions instead of rendering exception templates.
-  # config.action_dispatch.show_exceptions = false
+  # config.action_dispatch.show_exceptions = :none
 
   # Store uploaded files on the local file system in a temporary directory.
   config.active_storage.service = :test
