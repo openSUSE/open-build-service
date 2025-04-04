@@ -59,7 +59,7 @@ RSpec.describe 'Repositories', :js do
       end
 
       expect(page).to have_text 'Successfully removed repository'
-      expect(project_with_dod_repo.repositories).to be_empty
+      expect(project_with_dod_repo.repositories.reload).to be_empty
     end
 
     it 'edit download repositories' do
@@ -166,10 +166,12 @@ RSpec.describe 'Repositories', :js do
       # Create interconnect
       visit(new_interconnect_path(project: admin_user.home_project))
       click_button('Connect', match: :first)
+      expect(page).to have_text('Connected')
 
       visit(new_project_distribution_path(project_name: admin_user.home_project))
       distribution = Distribution.find_by(reponame: 'openSUSE_Tumbleweed')
       find("label[for='distribution-#{distribution.id}-checkbox']").click
+      wait_for_ajax
 
       visit(project_repositories_path(project: admin_user.home_project))
 
@@ -181,6 +183,7 @@ RSpec.describe 'Repositories', :js do
 
       visit(new_project_distribution_path(project_name: admin_user.home_project))
       find("label[for='distribution-#{distribution.id}-checkbox']").click
+      wait_for_ajax
 
       visit(project_repositories_path(project: admin_user.home_project))
 

@@ -11,7 +11,7 @@ class BsRequestStateBadgeComponent < ApplicationComponent
   def call
     content_tag(
       :span,
-      icon_state_tag.concat(state),
+      icon_state_tag.concat(state.to_s),
       class: ['badge', "text-bg-#{decode_state_color}", css_class]
     )
   end
