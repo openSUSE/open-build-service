@@ -593,6 +593,7 @@ our $buildinfo = [
 	'logidlelimit',	# internal
 	'logsizelimit',	# internal
 	'genbuildreqs',	# internal
+	'nouseforbuild',	# internal
       [ 'obsgendiff' =>
 	    'project',
 	    'repository',

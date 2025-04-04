@@ -564,6 +564,22 @@ sub jobfinished {
     $status->{'status'} = 'succeeded';
     writexml("$dst/.status", "$dst/status", $status, $BSXML::buildstatus);
     $changed->{$prp} ||= 1;     # package is no longer blocking
+    # update the .nouseforbuild status if it changed
+    my $oldnouseforbuild = -e "$dst/.nouseforbuild" ? 1 : 0;
+    if ($oldnouseforbuild != ($info->{'nouseforbuild'} ? 1 : 0)) {
+      print "updateing nouseforbuild flag\n";
+      unlink("$dst/.nouseforbuild");
+      BSUtil::touch("$dst/.nouseforbuild") if $info->{'nouseforbuild'};
+      my $dstcache = $ectx->{'dstcache'};
+      # recreate bininfo to pick up the change
+      unlink("$dst/.bininfo");
+      my $bininfo = read_bininfo($dst, 1);
+      BSSched::BuildResult::update_bininfo_merge($gdst, $packid, $bininfo, $dstcache);
+      # integrate into :full
+      BSSched::BuildRepo::checkuseforbuild($gctx, $prp, $dstcache);
+      $changed->{$prp} = 2;
+      delete $gctx->{'repounchanged'}->{$prp};
+    }
     return;
   }
   if ($code eq 'failed') {
@@ -594,6 +610,8 @@ sub jobfinished {
   mkdir_p("$gdst/:logfiles.success");
   mkdir_p("$gdst/:logfiles.fail");
 
+  unlink("$jobdatadir/.nouseforbuild");
+  BSUtil::touch("$jobdatadir/.nouseforbuild") if $info->{'nouseforbuild'};
   unlink("$jobdatadir/.preinstallimage");
   BSUtil::touch("$jobdatadir/.preinstallimage") if $info->{'file'} eq '_preinstallimage';
   my $jobhist = makejobhist($info, $status, $js, 'succeeded');
@@ -1238,6 +1256,7 @@ sub create {
     my $signflavor = $BSConfig::sign_flavor ? $bconf->{'buildflags:signflavor'} : undef;
     return ('broken', "illegal sign flavor '$signflavor'") if $signflavor && !grep {$_ eq $signflavor} @$BSConfig::sign_flavor;
     $binfo->{'signflavor'} = $signflavor if $signflavor;
+    $binfo->{'nouseforbuild'} = 1 if $info->{'nouseforbuild'};
   }
   $ctx->writejob($job, $binfo, $reason);
 
