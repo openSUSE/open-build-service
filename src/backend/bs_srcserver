@@ -1963,6 +1963,7 @@ sub getprojpack {
 	    $rinfo->{'onlynative'} = $d->{'onlynative'} if @{$d->{'onlynative'} || []};
 	    $rinfo->{'alsonative'} = $d->{'alsonative'} if @{$d->{'alsonative'} || []};
 	    $rinfo->{'nativebuild'} = 1 if $d->{'nativebuild'};
+	    $rinfo->{'nouseforbuild'} = 1 if $d->{'nouseforbuild'};
 	    $rinfo->{'constraint'} = $d->{'buildconstraint'} if @{$d->{'buildconstraint'} || []};
 	    $rinfo->{'bcntsynctag'} = $d->{'bcntsynctag'} if $d->{'bcntsynctag'};
             # add all source services to be used at build time

@@ -197,6 +197,7 @@ our $packinfo = [
 	    'nodbgpkgs',	# kiwi
 	    'nosrcpkgs',	# kiwi
 	    'nativebuild',	# cross build: native
+	    'nouseforbuild',
 	    'hasbuildenv',
 	    'bcntsynctag',
 	 [[ 'path' =>
