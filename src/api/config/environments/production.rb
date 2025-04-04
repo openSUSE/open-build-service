@@ -12,7 +12,7 @@ OBSApi::Application.configure do
   else
     config.cache_store = :mem_cache_store
   end
-  config.session_store :mem_cache_store
+  config.session_store :cache_store
 
   # Include generic and useful information about system operation, but avoid logging too much
   # information to avoid inadvertent exposure of personally identifiable information (PII).
