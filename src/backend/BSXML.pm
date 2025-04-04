@@ -197,6 +197,7 @@ our $packinfo = [
 	    'nodbgpkgs',	# kiwi
 	    'nosrcpkgs',	# kiwi
 	    'nativebuild',	# cross build: native
+	    'nouseforbuild',
 	    'hasbuildenv',
 	    'bcntsynctag',
 	 [[ 'path' =>
@@ -592,6 +593,7 @@ our $buildinfo = [
 	'logidlelimit',	# internal
 	'logsizelimit',	# internal
 	'genbuildreqs',	# internal
+	'nouseforbuild',	# internal
       [ 'obsgendiff' =>
 	    'project',
 	    'repository',
