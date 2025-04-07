@@ -2,8 +2,7 @@
 class NotificationReport < Notification
   def description
     case event_type
-    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    when 'Event::CreateReport', 'Event::ReportForProject', 'Event::ReportForPackage'
+    when 'Event::ReportForProject', 'Event::ReportForPackage'
       "'#{notifiable.user.login}' created a report for a #{event_payload['reportable_type'].downcase}. This is the reason:"
     when 'Event::ReportForRequest'
       "'#{notifiable.user.login}' created a report for a request. This is the reason:"
@@ -43,7 +42,7 @@ class NotificationReport < Notification
       event_type.constantize.notification_link_text(event_payload)
     when 'Event::ReportForRequest'
       "Report for Request ##{notifiable.reportable.number}"
-    when 'Event::CreateReport', 'Event::ReportForUser'
+    when 'Event::ReportForUser'
       "Report for a #{event_payload['reportable_type']}"
     when 'Event::FavoredDecision'
       "Favored #{notifiable.reports.first.reportable&.class&.name} Report".squish
@@ -60,10 +59,6 @@ class NotificationReport < Notification
   # This reportable won't be nil once we fix this: https://trello.com/c/vPDiLjIQ/66-prevent-the-creation-of-reports-without-reportable
   def link_path
     case event_type
-    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    when 'Event::CreateReport'
-      reportable = notifiable.reportable
-      link_for_reportables(reportable)
     when 'Event::ReportForComment'
       # Do not have a link for deleted comments
       Comment.exists?(event_payload['reportable_id']) && path_to_commentables_on_reports(event_payload: event_payload, notification_id: id)
@@ -83,7 +78,6 @@ class NotificationReport < Notification
   end
 
   #
-  # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes.
   # This method is also used by 'Event::ClearedDecision' and 'Event::FavoredDecision', this need to
   # be adapted
   def link_for_reportables(reportable)

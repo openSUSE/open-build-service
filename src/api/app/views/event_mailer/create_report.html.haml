@@ -1,8 +1,0 @@
-//TODO: Remove this view after all `Event::CreateReport` records are migrated to the STI report classes
-%p
-  = User.find(event['user_id']).login
-  reported a #{event['reportable_type'].downcase} for the following reason:
-%p
-  = event['reason']
-%p
-  = link_to_reportables(report_id: event['id'], reportable_type: event['reportable_type'], host: @host)

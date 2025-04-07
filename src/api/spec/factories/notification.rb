@@ -97,8 +97,8 @@ FactoryBot.define do
     end
 
     factory :notification_for_report, class: 'NotificationReport' do
-      trait :create_report do
-        event_type { 'Event::CreateReport' }
+      trait :report_for_user do
+        event_type { 'Event::ReportForUser' }
         notifiable factory: [:report]
 
         transient do

@@ -78,15 +78,6 @@ FactoryBot.define do
       group { nil }
     end
 
-    # TODO: Remove `Event::CreateReport` after all existing records are migrated to the new STI classes
-    factory :event_subscription_create_report do
-      eventtype { 'Event::CreateReport' }
-      receiver_role { 'moderator' }
-      channel { :instant_email }
-      user
-      group { nil }
-    end
-
     factory :event_subscription_report do
       eventtype { 'Event::Report' }
       receiver_role { 'moderator' }
