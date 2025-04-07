@@ -1,15 +1,20 @@
 require_relative 'boot'
 
 require 'rails'
+# Pick the frameworks you want:
 require 'active_model/railtie'
 require 'active_job/railtie'
 require 'active_record/railtie'
-require 'action_mailer/railtie'
-require 'action_controller/railtie'
-require 'action_view/railtie'
 require 'active_storage/engine'
-require 'sprockets/railtie'
+require 'action_controller/railtie'
+require 'action_mailer/railtie'
+# require 'action_mailbox/engine'
+# require 'action_text/engine'
+require 'action_view/railtie'
+# require 'action_cable/engine'
 require 'rails/test_unit/railtie'
+require 'sprockets/railtie'
+require_relative '../app/lib/rails_version'
 
 # The bundler_ext rubygem disables enforcement of gem versions in
 # `Gemfile.lock` in favour of the basic constraints defined in the file
@@ -34,32 +39,27 @@ require_relative '../lib/rabbitmq_bus'
 
 module OBSApi
   class Application < Rails::Application
-    # Settings in config/environments/* take precedence over those specified here.
-    # Application configuration should go into files in config/initializers
-    # -- all .rb files in that directory are automatically loaded.
-
-    # Enable rails version 6.1 defaults
-    config.load_defaults(6.1)
+    # Initialize configuration defaults for originally generated Rails version.
+    config.load_defaults 6.1
     # FIXME: This is a known isue in RAILS 6.1 https://github.com/rails/rails/issues/40867
     config.active_record.has_many_inversing = false
 
-    # Custom directories with classes and modules you want to be autoloadable.
-    # config.autoload_paths += %W(#{config.root}/extras)
+    # Please, add to the `ignore` list any other `lib` subdirectories that do
+    # not contain `.rb` files, or that should not be reloaded or eager loaded.
+    # Common ones are `templates`, `generators`, or `middleware`, for example.
+    if ::RailsVersion.is_7_1?
+      config.autoload_lib(ignore: %w[assets tasks])
+    end
 
-    # Only load the plugins named here, in the order given (default is alphabetical).
-    # :all can be used as a placeholder for all plugins not explicitly named.
-    # config.plugins = [ :exception_notification, :ssl_requirement, :all ]
+    # Configuration for the application, engines, and railties goes here.
+    #
 
-    # Activate observers that should always be running.
-    # config.active_record.observers = :cacher, :garbage_collector, :forum_observer
+    # These settings can be overridden in specific environments using the files
+    # in config/environments, which are processed later.
 
-    # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
-    # Run "rails -D time" for a list of tasks for finding time zone names. Default is UTC.
+    #
     # config.time_zone = 'Central Time (US & Canada)'
-
-    # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
-    # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
-    # config.i18n.default_locale = :de
+    # config.eager_load_paths << Rails.root.join("extras")
 
     # Configure the default encoding used in templates for Ruby 1.9.
     config.encoding = 'utf-8'
@@ -72,38 +72,10 @@ module OBSApi
     # like if you have constraints or database-specific column types
     config.active_record.schema_format = :ruby
 
-    # Skip frameworks you're not going to use
-    # config.frameworks -= [ :action_web_service, :active_resource ]
-
-    # Add additional load paths for your own custom dirs
-    # config.load_paths += %W( #{Rails.root}/extras )
-
-    # Rails.root is not working directory when running under lighttpd, so it has
-    # to be added to load path
-    # config.load_paths << Rails.root unless config.load_paths.include? Rails.root
-
-    # Force all environments to use the same logger level
-    # (by default production uses :info, the others :debug)
-    # config.log_level = :debug
-
     config.log_tags = [:uuid]
-
-    # Use the database for sessions instead of the file system
-    # (create the session table with 'rails create_sessions_table')
-    # config.action_controller.session_store = :active_record_store
-
-    # put the rubygem requirements here for a clean handling
-    # rails gems:install (installs the needed gems)
-    # rails gems:unpack (this unpacks the gems to vendor/gems)
 
     # required since rails 4.2
     config.active_job.queue_adapter = :delayed_job
-
-    # Activate observers that should always be running
-    # config.active_record.observers = :cacher, :garbage_collector
-
-    # Make Active Record use UTC-base instead of local time
-    # config.active_record.default_timezone = :utc
 
     config.action_controller.perform_caching = true
 
