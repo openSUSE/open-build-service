@@ -1,10 +1,7 @@
 class EventSubscription
   class Form
-    EVENTS_FOR_CONTENT_MODERATORS = ['Event::ReportForProject', 'Event::ReportForPackage',
-                                     'Event::ReportForComment', 'Event::ReportForUser',
-                                     'Event::ReportForRequest',
-                                     'Event::AppealCreated'].freeze
-    EVENTS_IN_CONTENT_MODERATION_BETA = ['Event::FavoredDecision', 'Event::ClearedDecision'].freeze
+    EVENTS_FOR_CONTENT_MODERATORS = ['Event::Report', 'Event::AppealCreated'].freeze
+    EVENTS_IN_CONTENT_MODERATION_BETA = ['Event::Decision'].freeze
 
     attr_reader :subscriber
 

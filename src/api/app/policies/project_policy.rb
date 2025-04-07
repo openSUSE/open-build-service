@@ -69,6 +69,8 @@ class ProjectPolicy < ApplicationPolicy
   end
 
   def local_project_and_allowed_to_create_package_in?
-    local? && Pundit.policy(user, Package.new(project: record)).create?
+    local? &&
+      !record.locked? &&
+      (user.global_permission?('create_package') || user.local_permission?('create_package', record))
   end
 end
