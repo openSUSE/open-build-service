@@ -503,7 +503,7 @@ GEM
       actionpack (>= 6.1)
       activesupport (>= 6.1)
       sprockets (>= 3.0.0)
-    strong_migrations (2.2.1)
+    strong_migrations (2.3.0)
       activerecord (>= 7)
     sysexits (1.2.0)
     temple (0.10.3)
