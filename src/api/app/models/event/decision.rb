@@ -3,6 +3,11 @@ module Event
     self.abstract_class = true
     payload_keys :id, :reason, :moderator_id, :report_last_id, :reportable_type
 
+    self.description = 'Reported content decided'
+    self.notification_explanation = 'Receive notifications for report decisions.'
+
+    receiver_roles :offender, :reporter
+
     def parameters_for_notification
       super.merge(notifiable_type: 'Decision', type: 'NotificationReport')
     end
