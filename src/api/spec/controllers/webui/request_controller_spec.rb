@@ -336,22 +336,22 @@ RSpec.describe Webui::RequestController, :vcr do
         end
 
         context 'and sending a submit request from a new package' do
-          let(:bs_request) do
-            create(:bs_request_with_submit_action,
-                    description: 'Please take this',
-                    creator: submitter,
-                    target_project: target_project,
-                    target_package: source_package.name,
-                    source_package: source_package)
-          end
-          let(:target_package) { Package.find_by_project_and_name(target_project.name, source_package.name) }
-
           subject! do
             login(receiver)
             post :changerequest, params: {
               number: bs_request.number, accepted: button_label
             }
           end
+
+          let(:bs_request) do
+            create(:bs_request_with_submit_action,
+                   description: 'Please take this',
+                   creator: submitter,
+                   target_project: target_project,
+                   target_package: source_package.name,
+                   source_package: source_package)
+          end
+          let(:target_package) { Package.find_by_project_and_name(target_project.name, source_package.name) }
 
           context 'and clicking on the accept and make maintainer button' do
             let(:button_label) { 'Accept and make the creator a maintainer of the target' }
@@ -378,6 +378,74 @@ RSpec.describe Webui::RequestController, :vcr do
           end
         end
 
+        context 'and sending a request with mixed actions' do
+          before do
+            login(submitter)
+            create(:bs_request_action_set_bugowner,
+                   bs_request: bs_request,
+                   source_project: source_project,
+                   source_package: source_package,
+                   target_project: target_project,
+                   target_package: target_package)
+          end
+
+          context 'and clicking on the accept and make maintainer button' do
+            subject! do
+              login(receiver)
+              post :changerequest, params: {
+                number: bs_request.number, accepted: button_label
+              }
+            end
+
+            let(:button_label) { 'Accept and make the creator a maintainer of the target' }
+
+            it 'accepts the request' do
+              expect(bs_request.reload.state).to eq(:accepted)
+            end
+
+            it 'makes the creator a maintainer on the target package' do
+              expect(target_package.maintainers.map(&:login)).to include(bs_request.creator)
+            end
+          end
+
+          context 'and clicking on the accept only button' do
+            subject! do
+              login(receiver)
+              post :changerequest, params: {
+                number: bs_request.number, accepted: button_label
+              }
+            end
+
+            let(:button_label) { 'Accept' }
+
+            it 'accepts the request' do
+              expect(bs_request.reload.state).to eq(:accepted)
+            end
+
+            it 'makes no more maintainers' do
+              expect(target_package.maintainers.map(&:login)).not_to include(bs_request.creator)
+            end
+          end
+        end
+
+        context 'and sending a request with a submit action that can be forwarded and another that cannot' do
+          context 'and clicking on the accept and make maintainer button' do
+            it 'accepts the request'
+            it 'makes the creator a maintainer on the target package'
+          end
+
+          context 'and clicking on the accept and forward button' do
+            it 'accepts the request'
+            it 'makes the creator a maintainer on the target package'
+            it 'forwards the action that can be forwarded'
+            it 'does not forward the action that could not be forwarded'
+          end
+
+          context 'and clicking on the accept only button' do
+            it 'accepts the request'
+            it 'makes no more maintainers'
+          end
+        end
       end
     end
 
