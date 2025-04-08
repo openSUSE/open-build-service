@@ -11,11 +11,7 @@ class Notification < ApplicationRecord
   has_many :projects, through: :notified_projects
   has_and_belongs_to_many :groups
 
-  if RailsVersion.is_7_1?
-    serialize :event_payload, coder: JSON
-  else
-    serialize :event_payload, JSON
-  end
+  serialize :event_payload, coder: JSON
 
   validates :type, length: { maximum: 255 }
 
