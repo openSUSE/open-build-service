@@ -32,6 +32,7 @@ package BSSched::BuildRepo;
 #   sync_fullcache
 #   checkuseforbuild
 #   forcefullrebuild
+#   calculate_useforbuild
 #
 # ctx functions
 #   addrepo
@@ -253,6 +254,43 @@ sub volatile_cmp {
   return 0;
 }
 
+
+=head2 calculate_useforbuild - calculate the packages that may go into the :full tree
+
+=cut
+
+sub calculate_useforbuild {
+  my ($gctx, $prp, $bconf, $dstcache) = @_;
+  my $projpacks = $gctx->{'projpacks'};
+  my $myarch = $gctx->{'arch'};
+
+  $bconf ||= BSSched::BuildResult::getconfig($gctx, $prp, $dstcache);  # hopefully taken from the cache
+
+  my ($projid, $repoid) = split('/', $prp, 2);
+  my $proj = $projpacks->{$projid} || {};
+  my $pdatas = $proj->{'package'} || {};
+  my $prjuseforbuildenabled = 1;
+  $prjuseforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $prjuseforbuildenabled, $myarch);
+  my $buildflags;
+  $buildflags = { map {$_ => 1} @{$bconf->{'buildflags'} || []} } if $bconf && exists $bconf->{"buildflags:nouseforbuild"};
+  my %useforbuild;
+  for my $packid (sort keys %$pdatas) {
+    my $useforbuildflags = ($pdatas->{$packid} || {})->{'useforbuild'};
+    my $useforbuildenabled = $prjuseforbuildenabled;
+    $useforbuildenabled = BSUtil::enabled($repoid, $useforbuildflags, $useforbuildenabled, $myarch) if $useforbuildflags;
+    $useforbuildenabled = 0 if $buildflags && $buildflags->{"nouseforbuild:$packid"};
+    $useforbuild{$packid} = 1 if $useforbuildenabled;
+  }
+  if ($proj->{'missingpackages'}) {
+    # packages missing from pdatas, use old data for them
+    my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
+    for my $packid (@{BSUtil::retrieve("$gdst/:full.useforbuild", 1) || []}) {
+      $useforbuild{$packid} = 1 unless $pdatas->{$packid};
+    }
+  }
+  return \%useforbuild;
+}
+
 =head2 fctx_gbininfo2full - create full tree hash from gbininfo
 
 maps name -> binobj
@@ -276,26 +314,7 @@ sub fctx_gbininfo2full {
   my @packids = BSSched::ProjPacks::orderpackids($proj, keys %$gbininfo);
 
   # generate useforbuild from package data if not specified
-  if (!$useforbuild) {
-    $useforbuild = {};
-    my $prjuseforbuildenabled = 1;
-    $prjuseforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $prjuseforbuildenabled, $myarch);
-    my $pdatas = $proj->{'package'} || {};
-    for my $packid (@packids) {
-      next if $packid eq '_volatile';
-      my $useforbuildflags = ($pdatas->{$packid} || {})->{'useforbuild'};
-      my $useforbuildenabled = $prjuseforbuildenabled;
-      $useforbuildenabled = BSUtil::enabled($repoid, $useforbuildflags, $useforbuildenabled, $myarch) if $useforbuildflags;
-      $useforbuild->{$packid} = 1 if $useforbuildenabled;
-    }
-
-    if ($proj->{'missingpackages'}) {
-      # packages missing from pdatas, use old data
-      for my $packid (@{BSUtil::retrieve("$fctx->{'gdst'}/:full.useforbuild", 1) || []}) {
-        $useforbuild->{$packid} = 1 unless $pdatas->{$packid};
-      }
-    }
-  }
+  $useforbuild ||= calculate_useforbuild($gctx, $fctx->{'prp'}, $fctx->{'bconf'}, $fctx->{'dstcache'});
 
   # construct new full
   my %full;
@@ -841,57 +860,26 @@ sub checkuseforbuild {
   my ($projid, $repoid) = split('/', $prp, 2);
   my $proj = $projpacks->{$projid};
   return 0 unless $proj;
-  my $pdatas = $proj->{'package'} || {};
 
   # do not mess with completely locked projects
   if (BSUtil::enabled($repoid, $proj->{'lock'}, 0, $myarch)) {
     my $alllocked = 1;
-    for my $pack (grep {$_->{'lock'}} values %$pdatas) {
+    for my $pack (grep {$_->{'lock'}} values %{$proj->{'package'} || {}}) {
       $alllocked = 0 unless BSUtil::enabled($repoid, $pack->{'lock'}, 1, $myarch);
     }
     return 0 if $alllocked;
   }
 
-  BSSched::BuildResult::set_dstcache_prp($gctx, $dstcache, $prp) if $dstcache; 
-  my $bconf = BSSched::BuildResult::getconfig($gctx, $prp, $dstcache);	# hopefully taken from the cache
+  my $bconf = BSSched::BuildResult::getconfig($gctx, $prp, $dstcache);  # hopefully taken from the cache
 
-  my $newuseforbuild = [];
-  my $prjuseforbuildenabled = 1;
-  $prjuseforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $prjuseforbuildenabled, $myarch);
-  my $buildflags;
-  $buildflags = { map {$_ => 1} @{$bconf->{'buildflags'} || []} } if $bconf && exists $bconf->{"buildflags:nouseforbuild"};
-  for my $packid (sort keys %$pdatas) {
-    my $useforbuildflags = ($pdatas->{$packid} || {})->{'useforbuild'};
-    my $useforbuildenabled = $prjuseforbuildenabled;
-    $useforbuildenabled = BSUtil::enabled($repoid, $useforbuildflags, $useforbuildenabled, $myarch) if $useforbuildflags;
-    $useforbuildenabled = 0 if $buildflags && $buildflags->{"nouseforbuild:$packid"};
-    push @$newuseforbuild, $packid if $useforbuildenabled;
-  }
-  my %olduseforbuild;
-  my %newuseforbuild;
   my $olduseforbuild = BSUtil::retrieve("$gdst/:full.useforbuild", 1);
-  if (!$olduseforbuild) {
-    $olduseforbuild = [] unless -d "$gdst/:full";
-  }
-  if ($olduseforbuild && $proj->{'missingpackages'}) {
-    # our pdatas are incomplete. Add missing entries from old data.
-    for my $packid (@$olduseforbuild) {
-      push @$newuseforbuild, $packid unless $pdatas->{$packid};
-    }
-    @$newuseforbuild = sort(@$newuseforbuild);
-  }
+  $olduseforbuild = [] if !$olduseforbuild && ! -d "$gdst/:full";
   $olduseforbuild = undef if $forcerebuild;
-  if ($olduseforbuild) {
-    return 0 if join('/', @$olduseforbuild) eq join('/', @$newuseforbuild);
-    # diff it. only care about current packages.
-    %olduseforbuild = map {$_ => 1} @$olduseforbuild;
-    %newuseforbuild = map {$_ => 1} @$newuseforbuild;
-    # work around added/removed packages
-    for (keys %newuseforbuild) {
-      next if $olduseforbuild{$_};
-      $olduseforbuild{$_} = 1 if ! -d "$gdst/$_";       # did not exist before
-    }
-  }
+  my $newuseforbuild = [ sort keys %{ calculate_useforbuild($gctx, $prp, $bconf, $dstcache) } ];
+
+  # return if there was no change
+  return 0 if $olduseforbuild && join('/', @$olduseforbuild) eq join('/', @$newuseforbuild);
+
   my $filter = BSSched::BuildResult::calculate_exportfilter($gctx, $bconf);
   my $fctx = {
     'gctx' => $gctx,
@@ -899,8 +887,17 @@ sub checkuseforbuild {
     'prp' => $prp,
     'filter' => $filter,
     'dstcache' => $dstcache,
+    'bconf' => $bconf,
   };
+
   if ($olduseforbuild) {
+    # diff it. only care about current packages.
+    my %olduseforbuild = map {$_ => 1} @$olduseforbuild;
+    my %newuseforbuild = map {$_ => 1} @$newuseforbuild;
+    # work around added/removed packages
+    for (grep {!$olduseforbuild{$_}} keys %newuseforbuild) {
+      $olduseforbuild{$_} = 1 unless -d "$gdst/$_";       # did not exist before
+    }
     $fctx->{'olduseforbuild'} = \%olduseforbuild;
     $fctx->{'newuseforbuild'} = \%newuseforbuild;
   }
