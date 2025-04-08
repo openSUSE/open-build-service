@@ -2,7 +2,6 @@ coverage:
   status:
     project:
       default:
-        if_not_found: success
         target: auto
         threshold: 1
 ignore:
