@@ -428,6 +428,56 @@ RSpec.describe Webui::RequestController, :vcr do
           end
         end
 
+        context 'and sending a request without submit actions' do
+          subject! do
+            create(:bs_request_action_set_bugowner,
+                   bs_request: bs_request,
+                   source_project: source_project,
+                   source_package: source_package,
+                   target_project: target_project,
+                   target_package: target_package)
+            login(receiver)
+            post :changerequest, params: {
+              number: bs_request.number, accepted: button_label
+            }
+          end
+
+          let(:bs_request) do
+            login(submitter)
+            create(:add_role_request,
+                   creator: submitter,
+                   role: 'bugowner',
+                   source_project: source_project,
+                   source_package: source_package,
+                   target_project: target_project,
+                   target_package: target_package)
+          end
+
+          context 'and clicking on the accept and make maintainer button' do
+            let(:button_label) { 'Accept and make the creator a maintainer of the target' }
+
+            it 'accepts the request' do
+              expect(bs_request.reload.state).to eq(:accepted)
+            end
+
+            it 'makes no more maintainers' do
+              expect(target_package.maintainers.map(&:login)).not_to include(bs_request.creator)
+            end
+          end
+
+          context 'and clicking on the accept only button' do
+            let(:button_label) { 'Accept' }
+
+            it 'accepts the request' do
+              expect(bs_request.reload.state).to eq(:accepted)
+            end
+
+            it 'makes no more maintainers' do
+              expect(target_package.maintainers.map(&:login)).not_to include(bs_request.creator)
+            end
+          end
+        end
+
         context 'and sending a request with a submit action that can be forwarded and another that cannot' do
           context 'and clicking on the accept and make maintainer button' do
             it 'accepts the request'
