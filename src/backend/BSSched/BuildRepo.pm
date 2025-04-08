@@ -321,8 +321,8 @@ sub fctx_gbininfo2full {
   for my $packid (@packids) {
     next unless $packid eq '_volatile' || $useforbuild->{$packid};
     my $bininfo = $gbininfo->{$packid};
-    next if $bininfo->{'.nouseforbuild'};               # channels/patchinfos don't go into the full tree
     $bininfo = $old if defined($oldpackid) && $oldpackid eq $packid;
+    next if $bininfo->{'.nouseforbuild'};               # channels/patchinfos don't go into the full tree
     my %f = BSSched::BuildResult::set_suf_and_filter_exports($gctx, $bininfo, $fctx->{'filter'});
     for my $fn (sort { ($f{$a}->{'imported'} || 0) <=> ($f{$b}->{'imported'} || 0) || $a cmp $b} keys %f) {
       my $r = $f{$fn};
