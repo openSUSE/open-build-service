@@ -10,6 +10,7 @@ useDefault = true
 description = "global OBS allow list"
 paths = [
   '''src/api/config/environments/development.rb''',
+  '''src/api/config/environments/test.rb''',
   '''src/api/spec/''',
   '''src/api/test/''',
   '''src/api/public/apidocs/''',

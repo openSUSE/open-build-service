@@ -35,7 +35,11 @@ class EventSubscription < ApplicationRecord
   # Channels used by the event system, but not meant to be enabled by hand
   INTERNAL_ONLY_CHANNELS = ['scm'].freeze
 
-  serialize :payload, JSON
+  if RailsVersion.is_7_1?
+    serialize :payload, coder: JSON
+  else
+    serialize :payload, JSON
+  end
 
   belongs_to :user, inverse_of: :event_subscriptions, optional: true
   belongs_to :group, inverse_of: :event_subscriptions, optional: true

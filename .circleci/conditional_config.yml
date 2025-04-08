@@ -47,7 +47,7 @@ images:
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-minitest:latest
     <<: *common_frontend_config
     environment:
-      EAGER_LOAD: 1
+      CI: 1
 
   - &frontend_base
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/frontend-base:latest
@@ -340,7 +340,7 @@ jobs:
               0)
                 bundle exec rails test test/functional/webui/spider_test.rb -n test_spider_anonymously
                 echo "Test loading the application in production"
-                bundle exec rake secret > config/secret.key
+                bundle exec rails secret > config/secret.key
                 DISABLE_DATABASE_ENVIRONMENT_CHECK=1 RAILS_ENV=production bundle exec rake db:setup zeitwerk:check
                 rm config/secret.key
                 ;;

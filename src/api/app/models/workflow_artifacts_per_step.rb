@@ -4,7 +4,11 @@
 class WorkflowArtifactsPerStep < ApplicationRecord
   belongs_to :workflow_run, optional: false
 
-  serialize :artifacts, JSON
+  if RailsVersion.is_7_1?
+    serialize :artifacts, coder: JSON
+  else
+    serialize :artifacts, JSON
+  end
 
   validates :step, :artifacts, presence: true
 end
