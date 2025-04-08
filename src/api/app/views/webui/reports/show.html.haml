@@ -11,6 +11,9 @@
       - if @report.reportable.present?
         on
         = link_to_reportables(report_id: @report.id, reportable_type: @report.reportable_type)
+      - else
+        %div
+          %i.mt2= reportable_not_found(reportable_type: @report.reportable_type)
     %h5 Description
     %p
       = @report.reason

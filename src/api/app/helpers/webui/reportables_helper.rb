@@ -2,9 +2,13 @@
 module Webui::ReportablesHelper
   include Webui::WebuiHelper
 
+  def reportable_not_found(reportable_type:)
+    "The reported #{reportable_type.blank? ? 'object' : reportable_type.downcase} does not exist anymore."
+  end
+
   def link_to_reportables(report_id:, reportable_type:, host: nil)
     reportable = Report.find(report_id).reportable
-    return "The reported #{reportable_type.downcase} does not exist anymore." if reportable.blank?
+    return reportable_not_found(reportable_type: reportable_type) if reportable.blank?
 
     only_path = host.blank?
 
