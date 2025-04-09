@@ -435,12 +435,7 @@ sub event_useforbuild {
   if ($ev->{'package'}) {
     @packs = ($ev->{'package'});
   } else {
-    if ($BSSched::BuildResult::new_full_handling) {
-      BSSched::BuildRepo::forcefullrebuild($gctx, $prp);
-    } else {
-      @packs = sort keys %$packs;
-      @packs = reverse(BSSched::ProjPacks::orderpackids($proj, @packs));
-    }
+    BSSched::BuildRepo::forcefullrebuild($gctx, $prp);
   }
   for my $packid (@packs) {
     my $gdst = "$reporoot/$prp/$myarch";
