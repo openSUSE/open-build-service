@@ -228,33 +228,6 @@ RSpec.describe EventMailer, :vcr do
       end
     end
 
-    # TODO: Remove this test after all `Event::CreateReport` records are migrated to the STI report classes
-    context 'for an event of type Event::CreateReport' do
-      let(:admin) { create(:admin_user) }
-      let!(:subscription) { create(:event_subscription_create_report, user: admin) }
-      let(:report) { create(:report, reason: 'Because reasons') }
-      let(:package) { report.reportable.commentable }
-      let(:mail) { EventMailer.with(subscribers: Event::CreateReport.last.subscribers, event: Event::CreateReport.last).notification_email.deliver_now }
-
-      before do
-        Event::CreateReport.create({ id: report.id, user_id: report.user_id, reportable_id: report.reportable_id,
-                                     reportable_type: report.reportable_type, reason: report.reason })
-      end
-
-      it 'gets delivered' do
-        expect(ActionMailer::Base.deliveries).to include(mail)
-      end
-
-      it 'contains the correct text' do
-        expect(mail.body.encoded).to include('reported a comment for the following reason:')
-        expect(mail.body.encoded).to include('Because reasons')
-      end
-
-      it 'renders link to the page of the comment' do
-        expect(mail.body.encoded).to include("<a href=\"https://build.example.com/package/show/#{package.project}/#{package}#comments-list\">#{package}</a>")
-      end
-    end
-
     context 'for an event of type Event::ReportForProject' do
       let(:admin) { create(:admin_user) }
       let!(:subscription) { create(:event_subscription_report, user: admin) }

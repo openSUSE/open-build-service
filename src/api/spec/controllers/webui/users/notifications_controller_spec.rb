@@ -11,7 +11,7 @@ RSpec.describe Webui::Users::NotificationsController do
   let(:read_notification) { create(:notification_for_request, :web_notification, :request_state_change, subscriber: user, delivered: true) }
   let(:notifications_for_other_users) { create(:notification_for_request, :web_notification, :request_state_change, subscriber: other_user) }
   let(:build_failure) { create(:notification_for_package, :web_notification, :build_failure, subscriber: user) }
-  let(:report_notification) { create(:notification_for_report, :web_notification, :create_report, subscriber: user) }
+  let(:report_notification) { create(:notification_for_report, :web_notification, :report_for_user, subscriber: user) }
 
   shared_examples 'returning success' do
     it 'returns ok status' do
