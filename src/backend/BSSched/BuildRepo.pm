@@ -26,7 +26,7 @@ package BSSched::BuildRepo;
 #   fctx_migrate_full
 #   fctx_integrate_package_into_full
 #   fctx_integrate_package_into_full_old
-#   move_into_full
+#   fctx_move_into_full
 #
 # gctx functions
 #   sync_fullcache
@@ -40,6 +40,7 @@ package BSSched::BuildRepo;
 #
 # static functions
 #   writesolv
+#   volatile_cmp
 #
 # fctx usage
 #   metaid
@@ -674,11 +675,11 @@ sub fctx_integrate_package_into_full_old {
   }
 }
 
-=head2 move_into_full - TODO
+=head2 fctx_move_into_full - TODO
 
 =cut
 
-sub move_into_full {
+sub fctx_move_into_full {
   my ($fctx, $old, $new) = @_;
 
   my $prp = $fctx->{'prp'};
@@ -899,7 +900,9 @@ sub checkuseforbuild {
   }
 
   # this will also remove no longer existing packages from the :full tree
-  move_into_full($fctx, undef, undef);
+  fctx_move_into_full($fctx, undef, undef);
+
+  # update the full.useforbuild file
   BSUtil::store("$gdst/.:full.useforbuild", "$gdst/:full.useforbuild", $newuseforbuild_arr);
 
   # flush updated metacache

@@ -392,7 +392,7 @@ sub update_dst_full {
     BSSched::BuildJob::PreInstallImage::update_preinstallimage($gctx, $prp, $packid, $dst, $jobdir);
   }
 
-  # check for lock and patchinfo
+  # check for lock
   my $projpacks = $gctx->{'projpacks'};
   my $proj = $projpacks->{$projid} || {};
   my $pdata = ($proj->{'package'} || {})->{$packid} || {};
@@ -618,11 +618,11 @@ sub update_dst_full {
     'bconf' => $bconf,
   };
   if ($new_full_handling) {
-    BSSched::BuildRepo::move_into_full($fctx, \%old, \%new);
+    BSSched::BuildRepo::fctx_move_into_full($fctx, \%old, \%new);
   } else {
     $fctx->{'dst'} = $jobdir if $importarch;    # override source dir for imports
     # note that we use oldrepo here instead of \%old
-    BSSched::BuildRepo::move_into_full($fctx, $oldrepo, \%new);
+    BSSched::BuildRepo::fctx_move_into_full($fctx, $oldrepo, \%new);
   }
   return 1;
 }
