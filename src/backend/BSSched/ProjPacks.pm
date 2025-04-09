@@ -1601,22 +1601,16 @@ sub do_fetchprojpacks {
 
 =head2 getconfig - concatenate and fixup the build config
 
- this is basically getconfig from the source server
-
- we do not need any macros, just the config
+ this is basically getconfig from the source server, but
+ with all the macro code stripped as we do not need any
+ macros in the scheduler.
 
 =cut
 
 sub getconfig {
   my ($gctx, $projid, $repoid, $arch, $path) = @_;
-  my $extraconfig = '';
   my $config = "%define _project $projid\n";
   $config .= "%define _obs_feature_exclude_cpu_constraints 1\n";
-  if ($BSConfig::extraconfig) {
-    for (sort keys %{$BSConfig::extraconfig}) {
-      $extraconfig .= $BSConfig::extraconfig->{$_} if $projid =~ /$_/;
-    }
-  }
   my $projpacks = $gctx->{'projpacks'};
   my $remoteprojs = $gctx->{'remoteprojs'};
   for my $prp (reverse @$path) {
@@ -1639,10 +1633,14 @@ sub getconfig {
     $c =~ s/$s2//gmsi;
     $config .= $c;
   }
-  # it's an error if we have no config at all
-  return undef unless $config ne '';
   # now we got the combined config, parse it
-  $config .= "\n$extraconfig" if $extraconfig;
+  if ($BSConfig::extraconfig) {
+    my $extraconfig = '';
+    for (sort keys %{$BSConfig::extraconfig}) {
+      $extraconfig .= $BSConfig::extraconfig->{$_} if $projid =~ /$_/;
+    }
+    $config .= "\n$extraconfig" if $extraconfig;
+  }
   my @c = split("\n", $config);
   my $c = Build::read_config($arch, \@c);
   $c->{'repotype'} = [ 'rpm-md' ] unless @{$c->{'repotype'}};

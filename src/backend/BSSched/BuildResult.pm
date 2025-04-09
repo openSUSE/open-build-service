@@ -158,6 +158,7 @@ sub getconfig {
   my ($gctx, $prp, $dstcache) = @_;
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   return undef unless $prpsearchpath;
+  set_dstcache_prp($gctx, $dstcache, $prp) if $dstcache;
   my $fullcache = $dstcache ? $dstcache->{'fullcache'} : undef;
   return $fullcache->{'config'} if $fullcache && $fullcache->{'config'};
   my ($projid, $repoid) = split('/', $prp, 2);
@@ -391,7 +392,7 @@ sub update_dst_full {
     BSSched::BuildJob::PreInstallImage::update_preinstallimage($gctx, $prp, $packid, $dst, $jobdir);
   }
 
-  # check for lock and patchinfo
+  # check for lock
   my $projpacks = $gctx->{'projpacks'};
   my $proj = $projpacks->{$projid} || {};
   my $pdata = ($proj->{'package'} || {})->{$packid} || {};
@@ -404,14 +405,12 @@ sub update_dst_full {
   }
 
   # calculate the config (this slows us down a bit)
-  set_dstcache_prp($gctx, $dstcache, $prp) if $dstcache;
   my $bconf = getconfig($gctx, $prp, $dstcache);
 
   # calculate useforbuild status
   my $useforbuildenabled = 1;
   $useforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled, $myarch) if $proj->{'useforbuild'};
   $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch) if $pdata->{'useforbuild'};
-  $useforbuildenabled = 1 if !defined($jobdir) && $obsolete_pkg;	# called from wipeobsolete
   if (exists $bconf->{'buildflags:nouseforbuild'}) {
     if (!$dstcache || ($dstcache->{'nouseforbuild_checked'} || '') ne $prp) {
       $gctx->{'prpcheckuseforbuild'}->{$prp} = 1;	# always force a recheck for now
@@ -419,6 +418,7 @@ sub update_dst_full {
     }
     $useforbuildenabled = 0 if grep {$_ eq "nouseforbuild:$packid"} @{$bconf->{'buildflags'} || []};
   }
+  $useforbuildenabled = 1 if !defined($jobdir) && $obsolete_pkg;	# called from wipeobsolete
 
   my $changed_full = 0;
   # further down we assume that the useforbuild setting of the full tree
@@ -445,7 +445,6 @@ sub update_dst_full {
     delete $jobbininfo->{'.bininfo'};   # delete new version marker
     my $cache = { map {$_->{'id'} => $_} grep {$_->{'id'}} values %$jobbininfo };
     $jobrepo = repofromfiles($jobdir, \@jobfiles, $cache);
-    $useforbuildenabled = 0 if -e "$jobdir/.channelinfo" || -e "$jobdir/updateinfo.xml" || -e "$jobdir/.updateinfodata" || -e "$jobdir/.nouseforbuild";        # just in case
   } else {
     $jobrepo = {};
   }
@@ -454,6 +453,7 @@ sub update_dst_full {
   # part 1: move files into package directory ($dst)
 
   my $oldrepo;
+  my $old_nouseforbuild;
   my $bininfo;
 
   if (!$importarch && $jobdir && $dst eq $jobdir) {
@@ -462,6 +462,7 @@ sub update_dst_full {
     $bininfo = $jobbininfo;
     $bininfo->{'.nosourceaccess'} = {} if -e "$dst/.nosourceaccess";
     $bininfo->{'.nouseforbuild'} = {} if -e "$dst/.channelinfo" || -e "$dst/updateinfo.xml" || -e "$dst/.updateinfodata" || -e "$dst/.nouseforbuild";
+    $old_nouseforbuild = 1 if $bininfo->{'.nouseforbuild'};
   } elsif ($new_full_handling || !$importarch) {
     # get old state: oldfiles, oldbininfo, oldrepo
     my @oldfiles = sort(ls($dst));
@@ -469,6 +470,7 @@ sub update_dst_full {
     mkdir_p($dst);
     my $oldbininfo = read_bininfo($dst);
     delete $oldbininfo->{'.bininfo'};   # delete new version marker
+    $old_nouseforbuild = 1 if $oldbininfo->{'.nouseforbuild'};
     my $oldcache = { map {$_->{'id'} => $_} grep {$_->{'id'}} values %$oldbininfo };
     $oldrepo = repofromfiles($dst, \@oldfiles, $oldcache);
 
@@ -573,14 +575,17 @@ sub update_dst_full {
   my %old = set_suf_and_filter_exports($gctx, $oldrepo, $filter, \%oldexports);
   my %new = set_suf_and_filter_exports($gctx, $jobrepo, $filter, \%newexports);
 
-  # do not export channels or patchinfos
-  if ($bininfo && $bininfo->{'.nouseforbuild'}) {
-    %oldexports = ();
-    %newexports = ();
-  }
-
   # make sure the old export archs are known
   $newexports{$_} ||= [] for keys %oldexports;
+
+  if ($old_nouseforbuild) {
+    %old = ();
+  }
+
+  if ($bininfo && $bininfo->{'.nouseforbuild'}) {
+    %new = ();			# do not put channels or patchinfos in the :full tree
+    %newexports = (); 		# do not export channels or patchinfos
+  }
 
   if ($filter && !$importarch && %newexports) {
     # we always export, the other schedulers are free to reject the job
@@ -610,13 +615,14 @@ sub update_dst_full {
     'filter' => $filter,
     'importarch' => $importarch,
     'dstcache' => $dstcache,
+    'bconf' => $bconf,
   };
   if ($new_full_handling) {
-    BSSched::BuildRepo::move_into_full($fctx, \%old, \%new);
+    BSSched::BuildRepo::fctx_move_into_full($fctx, \%old, \%new);
   } else {
     $fctx->{'dst'} = $jobdir if $importarch;    # override source dir for imports
     # note that we use oldrepo here instead of \%old
-    BSSched::BuildRepo::move_into_full($fctx, $oldrepo, \%new);
+    BSSched::BuildRepo::fctx_move_into_full($fctx, $oldrepo, \%new);
   }
   return 1;
 }
