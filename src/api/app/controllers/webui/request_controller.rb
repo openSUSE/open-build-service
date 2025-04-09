@@ -245,7 +245,8 @@ class Webui::RequestController < Webui::WebuiController
           end
         end
 
-        accept_request
+        forward_requests
+        flash[:success] = "Request #{params[:number]} accepted"
       end
     end
     redirect_to(request_show_path(params[:number]))
@@ -463,9 +464,7 @@ class Webui::RequestController < Webui::WebuiController
     false
   end
 
-  def accept_request
-    flash[:success] = "Request #{params[:number]} accepted"
-
+  def forward_requests
     # Forward the requests when using the beta request show page
     if params[:accepted] == 'Accept and forward submit request'
       @bs_request.bs_request_actions.where(type: :submit).find_each do |action|
