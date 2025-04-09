@@ -234,6 +234,11 @@ namespace :dev do
 
       admin = User.default_admin
       admin.run_as do
+        home_admin_project = RakeSupport.find_or_create_project(admin.home_project_name, admin)
+        unless Package.find_by_project_and_name('home:Admin', 'hello_world')
+          create(:package, project: home_admin_project, name: 'hello_world')
+        end
+
         home_admin_branched_data = branch_package(
           source_project_name: 'home:Admin',
           source_package_name: 'hello_world',
