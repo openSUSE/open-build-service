@@ -9,9 +9,9 @@ source 'https://rubygems.org'
 
 # Start the Rails application using src/api/Gemfile.next with `next rails s`
 if next?
-  gem 'rails', '~> 7.1.0'
+  gem 'rails', '~> 7.2.0'
 else
-  gem 'rails', '~> 7.0'
+  gem 'rails', '~> 7.1.0'
 end
 
 # as our database
@@ -106,28 +106,19 @@ gem 'paper_trail'
 gem 'ansible'
 # Generating inline diff highlights
 gem 'dimapa'
-# mutex_m is not included neither Ruby 3.4 nor Rails 7.0
-gem 'mutex_m'
 # Network Kanji Filter, for Kanji conversions (former kconv)
 gem 'nkf'
-
-gem 'logger'
 
 # For Hotwire javascript libraries
 gem 'importmap-rails'
 gem 'turbo-rails'
 
-# FIXME: Required by the mail gem
-# See https://github.com/rails/rails/pull/44083
-gem 'net-smtp', require: false
-gem 'net-pop', require: false
-gem 'net-imap', require: false
-
 # Used in Package and XpathEngine
 gem 'rexml'
-# FIXME: for prawn, matrix isn't in the default set of Ruby 3.1 anymore
-# see https://github.com/prawnpdf/prawn/commit/3658d5125c3b20eb11484c3b039ca6b89dc7d1b7
-gem 'matrix', '~> 0.4'
+
+gem 'base64', '0.2.0', require: false
+
+gem 'irb', '1.14.3'
 
 group :development, :production do
   # to have the delayed job daemon
@@ -140,13 +131,6 @@ group :development, :production do
   gem 'lograge'
   # for asking user input e.g. in rake tasks...
   gem 'highline'
-end
-
-group :production do
-  # if you have an account, it can be configured by
-  # placing a config/newrelic.yml
-  # be aware about the non-OSS license
-  #  gem 'newrelic_rpm'
 end
 
 # Gems used only for testing the application and not required in production environments by default.
@@ -186,8 +170,6 @@ group :development, :test do
   # as testing framework
   gem 'rspec'
   gem 'rspec-rails'
-  # FIXME: fix/update whatever requires drb, it's not in standard lib anymore in Ruby 3.4
-  gem 'drb'
   # as rspec formatter
   gem 'fuubar'
   # for fixtures
@@ -226,7 +208,6 @@ group :development, :test do
   gem 'puma', require: false
   # to drive headless chrome
   gem 'selenium-webdriver', require: false
-  gem 'base64', '0.2.0', require: false
 end
 
 group :development do
