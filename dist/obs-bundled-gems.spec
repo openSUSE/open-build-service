@@ -43,6 +43,7 @@ BuildRequires:  libtool
 BuildRequires:  libffi-devel
 BuildRequires:  libxml2-devel
 BuildRequires:  libxslt-devel
+BuildRequires:  libyaml-devel
 BuildRequires:  make
 BuildRequires:  mysql-devel
 BuildRequires:  nodejs
