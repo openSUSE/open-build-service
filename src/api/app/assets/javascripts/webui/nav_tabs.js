@@ -7,6 +7,8 @@ $(document).ready(function () {
 
   $('.nav-tabs:not(.disable-link-generation) .nav-link[href="' + tabPaneId + '"]').tab('show');
 
+  changeActionHashOfButtonTo();
+
   // Change url hash for page-reload
   $('.nav-tabs:not(.disable-link-generation) .nav-item .nav-link').on('shown.bs.tab', function (event) {
     if ($(event.target).parent('.nav-item').is(':first-child')) {
@@ -15,6 +17,7 @@ $(document).ready(function () {
     else {
       document.location.hash = event.target.hash.replace('#', '#' + HASH_PREFIX);
     }
+    changeActionHashOfButtonTo();
 
     /*
      * jshint false positive fires an error saying the `setCollapsible` function is not defined
@@ -22,4 +25,9 @@ $(document).ready(function () {
      */
     setCollapsible(); // jshint ignore:line
   });
+
+  function changeActionHashOfButtonTo() {
+    var buttonToAction = $('.button_to').attr('action');
+    $('.button_to').attr('action', buttonToAction.replace(/#.+/, '') + document.location.hash);
+  }
 });
