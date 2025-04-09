@@ -1,4 +1,6 @@
 class DecisionFavoredWithDeleteRequest < Decision
+  attr_reader :bs_request
+
   after_create :create_event
   after_create :create_delete_request
 
@@ -20,17 +22,17 @@ class DecisionFavoredWithDeleteRequest < Decision
     reportable = reports.first.reportable
     return unless reportable.is_a?(Project) || reportable.is_a?(Package)
 
-    bs_request = BsRequest.new
-    bs_request.description = "After evaluation, the moderators decided to remove the #{reportable.class.name.downcase} with the following reason: #{reason}"
+    @bs_request = BsRequest.new
+    @bs_request.description = "After evaluation, the moderators decided to remove the #{reportable.class.name.downcase} with the following reason: #{reason}"
     opts = if reportable.is_a?(Project)
              { target_project: reportable.name }
            else
              { target_package: reportable.name, target_project: reportable.project.name }
            end
     action = BsRequestActionDelete.new(opts)
-    bs_request.bs_request_actions << action
+    @bs_request.bs_request_actions << action
 
-    bs_request.save!
+    @bs_request.save!
   end
 
   private
