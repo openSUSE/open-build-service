@@ -16,6 +16,8 @@
           = form.email_field(:email, class: 'form-control')
         .mb-3
           = label_tag(:members)
+          -# TODO: refactor to use the _search_box partial
+             WARNING: the .tag-input class is used by the tokenfield plugin and it interact with the HTML/CSS element
           = text_field_tag('group[members]', @members, id: 'group-members', class: 'form-control tag-input',
                                                        data: { source: autocomplete_users_path })
         = form.submit('Create', class: 'btn btn-primary', data: { disable_with: 'Creating...' })

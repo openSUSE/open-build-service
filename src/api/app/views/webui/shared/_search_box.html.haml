@@ -30,3 +30,7 @@
     - else
       - component.with_icon do
         %i.fa{ class: icon }
+
+- unless data.empty?
+  :javascript
+    setupAutocomplete("##{html_id}");
