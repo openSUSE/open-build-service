@@ -116,6 +116,7 @@ gem 'turbo-rails'
 # Used in Package and XpathEngine
 gem 'rexml'
 
+# Pin version of base64 to avoid conflicts: it is also a default gem provided by Ruby 3.4 so we use that one
 gem 'base64', '0.2.0', require: false
 
 # Pin version of irb to avoid conflicts: it is also a default gem provided by Ruby 3.4 so we use that one
