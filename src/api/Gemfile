@@ -118,6 +118,8 @@ gem 'rexml'
 
 gem 'base64', '0.2.0', require: false
 
+# Pin version of irb to avoid conflicts: it is also a default gem provided by Ruby 3.4 so we use that one
+# See https://github.com/openSUSE/open-build-service/pull/17662#pullrequestreview-2750123700
 gem 'irb', '1.14.3'
 
 group :development, :production do
