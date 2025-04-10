@@ -94,16 +94,19 @@ end
 #  updated_at      :datetime         not null
 #  decision_id     :bigint           indexed
 #  reportable_id   :integer          indexed => [reportable_type]
+#  reporter_id     :integer          indexed
 #  user_id         :integer          not null, indexed
 #
 # Indexes
 #
 #  index_reports_on_decision_id  (decision_id)
 #  index_reports_on_reportable   (reportable_type,reportable_id)
+#  index_reports_on_reporter_id  (reporter_id)
 #  index_reports_on_user_id      (user_id)
 #
 # Foreign Keys
 #
 #  fk_rails_...  (decision_id => decisions.id) ON DELETE => nullify
+#  fk_rails_...  (reporter_id => users.id)
 #  fk_rails_...  (user_id => users.id)
 #
