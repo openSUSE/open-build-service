@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/devel_project1/_meta?user=maintainer
+    uri: http://backend:5352/source/devel_project/_meta?user=maintainer
     body:
       encoding: UTF-8
       string: |
-        <project name="devel_project1">
-          <title>Endless Night</title>
+        <project name="devel_project">
+          <title>The Line of Beauty</title>
           <description/>
           <person userid="maintainer" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '158'
     body:
       encoding: UTF-8
       string: |
-        <project name="devel_project1">
-          <title>Endless Night</title>
+        <project name="devel_project">
+          <title>The Line of Beauty</title>
           <description></description>
           <person userid="maintainer" role="maintainer"/>
         </project>
-  recorded_at: Mon, 31 Mar 2025 15:24:26 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:34 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/devel_project1/devel_package1/_meta?user=maintainer
+    uri: http://backend:5352/source/devel_project/devel_package/_meta?user=maintainer
     body:
       encoding: UTF-8
       string: |
-        <package name="devel_package1" project="devel_project1">
-          <title>Endless Night</title>
-          <description>Fugit et vero dolorem.</description>
+        <package name="devel_package" project="devel_project">
+          <title>The World, the Flesh and the Devil</title>
+          <description>Molestiae et itaque est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '151'
+      - '172'
     body:
       encoding: UTF-8
       string: |
-        <package name="devel_package1" project="devel_project1">
-          <title>Endless Night</title>
-          <description>Fugit et vero dolorem.</description>
+        <package name="devel_package" project="devel_project">
+          <title>The World, the Flesh and the Devil</title>
+          <description>Molestiae et itaque est.</description>
         </package>
-  recorded_at: Mon, 31 Mar 2025 15:24:26 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=maintainer
@@ -85,7 +85,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Tiger! Tiger!</title>
+          <title>Vanity Fair</title>
           <description/>
         </project>
     headers:
@@ -107,15 +107,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '102'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Tiger! Tiger!</title>
+          <title>Vanity Fair</title>
           <description></description>
         </project>
-  recorded_at: Mon, 31 Mar 2025 15:24:26 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=maintainer
@@ -148,14 +148,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="96">
-          <srcmd5>821ee7c7798ffc65e112f0da6f50701a</srcmd5>
-          <time>1743434666</time>
+        <revision rev="56">
+          <srcmd5>18c42d91a92574248ba20b6b580ac8dc</srcmd5>
+          <time>1744271494</time>
           <user>maintainer</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 31 Mar 2025 15:24:26 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=maintainer
@@ -163,8 +163,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Dance Dance Dance</title>
-          <description>Inventore incidunt molestiae sed.</description>
+          <title>Alone on a Wide, Wide Sea</title>
+          <description>Eum facilis qui porro.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -185,15 +185,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '163'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Dance Dance Dance</title>
-          <description>Inventore incidunt molestiae sed.</description>
+          <title>Alone on a Wide, Wide Sea</title>
+          <description>Eum facilis qui porro.</description>
         </package>
-  recorded_at: Mon, 31 Mar 2025 15:24:26 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -225,10 +225,10 @@ http_interactions:
       string: |
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 31 Mar 2025 15:24:26 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:34 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=devel_package1&oproject=devel_project1&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=devel_package&oproject=devel_project&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -249,7 +249,7 @@ http_interactions:
       Content-Type:
       - text/xml
       Content-Length:
-      - '328'
+      - '326'
       Cache-Control:
       - no-cache
       Connection:
@@ -257,15 +257,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="5eaf30fbb5da0037826b28601f8d4635">
-          <old project="devel_project1" package="devel_package1" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+        <sourcediff key="bb925f21e1d39daed00eeb0b44a5a56f">
+          <old project="devel_project" package="devel_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <new project="source_project" package="source_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files>
           </files>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 31 Mar 2025 15:24:26 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/another_target_project/_meta?user=maintainer
@@ -273,7 +273,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="another_target_project">
-          <title>O Pioneers!</title>
+          <title>East of Eden</title>
           <description/>
         </project>
     headers:
@@ -295,15 +295,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '110'
+      - '111'
     body:
       encoding: UTF-8
       string: |
         <project name="another_target_project">
-          <title>O Pioneers!</title>
+          <title>East of Eden</title>
           <description></description>
         </project>
-  recorded_at: Mon, 31 Mar 2025 15:24:26 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/another_target_project/another_target_package/_meta?user=maintainer
@@ -311,8 +311,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="another_target_package" project="another_target_project">
-          <title>What's Become of Waring</title>
-          <description>Est voluptatem repellendus qui.</description>
+          <title>I Will Fear No Evil</title>
+          <description>Et adipisci consequuntur est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -333,15 +333,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '186'
+      - '180'
     body:
       encoding: UTF-8
       string: |
         <package name="another_target_package" project="another_target_project">
-          <title>What's Become of Waring</title>
-          <description>Est voluptatem repellendus qui.</description>
+          <title>I Will Fear No Evil</title>
+          <description>Et adipisci consequuntur est.</description>
         </package>
-  recorded_at: Mon, 31 Mar 2025 15:24:26 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/_meta?user=maintainer
@@ -349,8 +349,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Glory and the Dream</title>
+          <title>The Road Less Traveled</title>
           <description/>
+          <person userid="maintainer" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -371,15 +372,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '114'
+      - '163'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Glory and the Dream</title>
+          <title>The Road Less Traveled</title>
           <description></description>
+          <person userid="maintainer" role="maintainer"/>
         </project>
-  recorded_at: Mon, 31 Mar 2025 15:24:27 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:35 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/target_package/_meta?user=maintainer
@@ -387,8 +389,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>If Not Now, When?</title>
-          <description>Sit iusto sed ratione.</description>
+          <title>The Violent Bear It Away</title>
+          <description>Commodi asperiores in amet.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -409,15 +411,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '155'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>If Not Now, When?</title>
-          <description>Sit iusto sed ratione.</description>
+          <title>The Violent Bear It Away</title>
+          <description>Commodi asperiores in amet.</description>
         </package>
-  recorded_at: Mon, 31 Mar 2025 15:24:27 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:35 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/target_package/_meta?user=maintainer
@@ -425,9 +427,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>If Not Now, When?</title>
-          <description>Sit iusto sed ratione.</description>
-          <devel project="devel_project1" package="devel_package1"/>
+          <title>The Violent Bear It Away</title>
+          <description>Commodi asperiores in amet.</description>
+          <devel project="devel_project" package="devel_package"/>
         </package>
     headers:
       Accept-Encoding:
@@ -448,16 +450,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '216'
+      - '226'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>If Not Now, When?</title>
-          <description>Sit iusto sed ratione.</description>
-          <devel project="devel_project1" package="devel_package1"/>
+          <title>The Violent Bear It Away</title>
+          <description>Commodi asperiores in amet.</description>
+          <devel project="devel_project" package="devel_package"/>
         </package>
-  recorded_at: Mon, 31 Mar 2025 15:24:27 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:35 GMT
 - request:
     method: put
     uri: http://backend:5352/source/another_target_project/another_target_package/_meta?user=maintainer
@@ -465,9 +467,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="another_target_package" project="another_target_project">
-          <title>What's Become of Waring</title>
-          <description>Est voluptatem repellendus qui.</description>
-          <devel project="devel_project1" package="devel_package1"/>
+          <title>I Will Fear No Evil</title>
+          <description>Et adipisci consequuntur est.</description>
+          <devel project="devel_project" package="devel_package"/>
         </package>
     headers:
       Accept-Encoding:
@@ -488,16 +490,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '247'
+      - '239'
     body:
       encoding: UTF-8
       string: |
         <package name="another_target_package" project="another_target_project">
-          <title>What's Become of Waring</title>
-          <description>Est voluptatem repellendus qui.</description>
-          <devel project="devel_project1" package="devel_package1"/>
+          <title>I Will Fear No Evil</title>
+          <description>Et adipisci consequuntur est.</description>
+          <devel project="devel_project" package="devel_package"/>
         </package>
-  recorded_at: Mon, 31 Mar 2025 15:24:27 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/another_target_project/another_target_package
@@ -529,7 +531,7 @@ http_interactions:
       string: |
         <directory name="another_target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 31 Mar 2025 15:24:27 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -561,10 +563,10 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 31 Mar 2025 15:24:27 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:35 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/devel_project1/devel_package1
+    uri: http://backend:5352/source/devel_project/devel_package
     body:
       encoding: US-ASCII
       string: ''
@@ -587,13 +589,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '89'
+      - '88'
     body:
       encoding: UTF-8
       string: |
-        <directory name="devel_package1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 31 Mar 2025 15:24:27 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/another_target_project/another_target_package
@@ -625,7 +627,7 @@ http_interactions:
       string: |
         <directory name="another_target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 31 Mar 2025 15:24:27 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -657,10 +659,10 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 31 Mar 2025 15:24:27 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:35 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/devel_project1/devel_package1
+    uri: http://backend:5352/source/devel_project/devel_package
     body:
       encoding: US-ASCII
       string: ''
@@ -683,13 +685,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '89'
+      - '88'
     body:
       encoding: UTF-8
       string: |
-        <directory name="devel_package1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 31 Mar 2025 15:24:27 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/another_target_project/another_target_package
@@ -721,7 +723,7 @@ http_interactions:
       string: |
         <directory name="another_target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 31 Mar 2025 15:24:27 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -753,10 +755,10 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 31 Mar 2025 15:24:27 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:35 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/devel_project1/devel_package1
+    uri: http://backend:5352/source/devel_project/devel_package
     body:
       encoding: US-ASCII
       string: ''
@@ -779,13 +781,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '89'
+      - '88'
     body:
       encoding: UTF-8
       string: |
-        <directory name="devel_package1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 31 Mar 2025 15:24:27 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/another_target_project/another_target_package
@@ -817,7 +819,7 @@ http_interactions:
       string: |
         <directory name="another_target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 31 Mar 2025 15:24:27 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -849,10 +851,10 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 31 Mar 2025 15:24:27 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:35 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/devel_project1/devel_package1
+    uri: http://backend:5352/source/devel_project/devel_package
     body:
       encoding: US-ASCII
       string: ''
@@ -875,13 +877,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '89'
+      - '88'
     body:
       encoding: UTF-8
       string: |
-        <directory name="devel_package1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 31 Mar 2025 15:24:27 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/another_target_project/another_target_package
@@ -913,7 +915,7 @@ http_interactions:
       string: |
         <directory name="another_target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 31 Mar 2025 15:24:27 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -945,10 +947,10 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 31 Mar 2025 15:24:27 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:35 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/devel_project1/devel_package1
+    uri: http://backend:5352/source/devel_project/devel_package
     body:
       encoding: US-ASCII
       string: ''
@@ -971,11 +973,11 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '89'
+      - '88'
     body:
       encoding: UTF-8
       string: |
-        <directory name="devel_package1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="devel_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 31 Mar 2025 15:24:27 GMT
+  recorded_at: Thu, 10 Apr 2025 07:51:35 GMT
 recorded_with: VCR 6.3.1
