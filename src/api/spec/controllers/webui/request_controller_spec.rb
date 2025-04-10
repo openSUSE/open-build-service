@@ -379,6 +379,13 @@ RSpec.describe Webui::RequestController, :vcr do
         end
 
         context 'and sending a request with mixed actions' do
+          subject! do
+            login(receiver)
+            post :changerequest, params: {
+              number: bs_request.number, accepted: button_label
+            }
+          end
+
           before do
             login(submitter)
             create(:bs_request_action_set_bugowner,
@@ -390,13 +397,6 @@ RSpec.describe Webui::RequestController, :vcr do
           end
 
           context 'and clicking on the accept and make maintainer button' do
-            subject! do
-              login(receiver)
-              post :changerequest, params: {
-                number: bs_request.number, accepted: button_label
-              }
-            end
-
             let(:button_label) { 'Accept and make the creator a maintainer of the target' }
 
             it 'accepts the request' do
@@ -409,13 +409,6 @@ RSpec.describe Webui::RequestController, :vcr do
           end
 
           context 'and clicking on the accept only button' do
-            subject! do
-              login(receiver)
-              post :changerequest, params: {
-                number: bs_request.number, accepted: button_label
-              }
-            end
-
             let(:button_label) { 'Accept' }
 
             it 'accepts the request' do
