@@ -176,6 +176,9 @@ module Event
     end
 
     def subscriptions(channel = :instant_email)
+      # Don't claim to have subscriptions unless this is a notification_event
+      return [] if self.class.notification_events.none? { |e| is_a?(e) }
+
       EventSubscription::FindForEvent.new(self).subscriptions(channel)
     end
 
