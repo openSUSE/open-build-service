@@ -13,7 +13,9 @@ class Report < ApplicationRecord
   validates :reportable_type, length: { maximum: 255 }
   validates :reportable, presence: true, on: :create
 
+  # TODO: Remove user association as soon as `reporter` is fully established
   belongs_to :user, optional: false
+  belongs_to :reporter, class_name: 'User', optional: false
   belongs_to :reportable, polymorphic: true, optional: true
   has_many :comments, as: :commentable, dependent: :destroy
 
@@ -53,7 +55,8 @@ class Report < ApplicationRecord
   end
 
   def event_parameters
-    { id: id, reporter: user.login, reportable_id: reportable_id, reportable_type: reportable_type, reason: reason, category: category }
+    # TODO: Remove user association as soon as `reporter` is fully established
+    { id: id, reporter: reporter.present? ? reporter.login : user.login, reportable_id: reportable_id, reportable_type: reportable_type, reason: reason, category: category }
   end
 
   def event_parameters_for_comment(commentable:)
