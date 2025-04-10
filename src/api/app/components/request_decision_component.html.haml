@@ -19,7 +19,7 @@
         .tab-content.px-3
           .tab-pane.fade.show.active.my-3{ id: 'write_new_comment', role: 'tabpanel',
                                           'aria-labelledby': 'write-comment-tab', 'data-canned-controller': '' }
-            - if Flipper.enabled?(:content_moderation, User.session)
+            - if Flipper.enabled?(:canned_responses, User.session)
               .d-flex.justify-content-end
                 = render CannedResponsesDropdownComponent.new(User.session.canned_responses.where(decision_type: nil).order(:title))
             = text_area_tag(:reason, nil,

@@ -7,7 +7,8 @@ ENABLED_FEATURE_TOGGLES = [
   { name: :color_themes, description: 'Color themes' },
   { name: :foster_collaboration, description: 'Features improving the collaboration opportunities between users of the build service.' },
   { name: :labels, description: 'Allow to apply labels to packages, submit requests and projects to improve collaboration between build service users.' },
-  { name: :request_index, description: 'Redesign of listing requests' }
+  { name: :request_index, description: 'Redesign of listing requests' },
+  { name: :canned_responses, description: 'Create messages using templates' }
 ].freeze
 
 Flipper.configure do
