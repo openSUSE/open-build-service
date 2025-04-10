@@ -25,7 +25,6 @@ package BSSched::BuildRepo;
 #   fctx_rebuild_full
 #   fctx_migrate_full
 #   fctx_integrate_package_into_full
-#   fctx_integrate_package_into_full_old
 #   fctx_move_into_full
 #
 # gctx functions
@@ -646,35 +645,6 @@ sub fctx_integrate_package_into_full {
   fctx_rebuild_full($fctx, \%newfull, $gbininfo);
 }
 
-=head2 fctx_integrate_package_into_full_old - the old way to put files from a package into the full tree.
-
-$old is actually $oldrepo.
-
-just overwrite the entries in the full tree with the new packages,
-but be careful when removing entries.
-
-=cut
-
-sub fctx_integrate_package_into_full_old {
-  my ($fctx, $old, $new) = @_;
-  my $gdst = $fctx->{'gdst'};
-  my %fnew;
-  for my $rp (sort keys %$new) {
-    my $r = $new->{$rp};
-    next unless $r->{'suf'} && $r->{'id'};
-    fctx_add_binary_to_full($fctx, $rp, $r);
-    $fnew{$r->{'name'}} = 1;
-  }
-  for my $rp (sort keys %$old) {
-    my $r = $old->{$rp};
-    next unless $r->{'suf'} && $r->{'id'};
-    next if $fnew{$r->{'name'}};        # already overwritten with new version
-    my @s = stat("$gdst/:full/$r->{'name'}.$r->{'suf'}");
-    next unless @s && $r->{'id'} eq "$s[9]/$s[7]/$s[1]";        # don't delete package if not ours
-    fctx_del_binary_from_full($fctx, $r);
-  }
-}
-
 =head2 fctx_move_into_full - TODO
 
 =cut
@@ -694,7 +664,7 @@ sub fctx_move_into_full {
   my $metacache;
   my $metacache_ismerge;
 
-  if ($fullcache && $fullcache->{'old'} && $BSSched::BuildResult::new_full_handling) {
+  if ($fullcache && $fullcache->{'old'}) {
     my $move_into_full_cnt = $fullcache->{'move_into_full_cnt'} || 0;
     if ($move_into_full_cnt > 20) {
       # a lot of integration work, go into "rebuild full tree later" mode
@@ -737,12 +707,7 @@ sub fctx_move_into_full {
   $fctx->{'metacache_ismerge'} = $metacache_ismerge;
   $fctx->{'dep2meta'} = $repodatas->{$prpa}->{'meta'} if $repodatas->{$prpa} && $repodatas->{$prpa}->{'meta'};
   mkdir_p("$gdst/:full") if $new && %$new && ! -d "$gdst/:full";
-
-  if ($BSSched::BuildResult::new_full_handling) {
-    fctx_integrate_package_into_full($fctx, $old, $new);
-  } else {
-    fctx_integrate_package_into_full_old($fctx, $old, $new);
-  }
+  fctx_integrate_package_into_full($fctx, $old, $new);
 
   mkdir_p($gdst) unless -d $gdst;
   if ($fullcache) {
@@ -803,7 +768,6 @@ sub sync_fullcache {
     }
   }
   if ($fullcache->{'rebuild_full_tree'}) {
-    die unless $BSSched::BuildResult::new_full_handling;
     unlink($fullcache->{'rebuild_full_tree'});	# delete dummy event
     %$fullcache = (); 
     forcefullrebuild($gctx, $prp);
@@ -842,7 +806,6 @@ sub writesolv {
 
 sub checkuseforbuild {
   my ($gctx, $prp, $dstcache, $forcerebuild) = @_;
-  return 0 unless $BSSched::BuildResult::new_full_handling;
   my $myarch = $gctx->{'arch'};
   my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   my $projpacks = $gctx->{'projpacks'};

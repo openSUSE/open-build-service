@@ -1015,8 +1015,7 @@ eval {
       my $packs = $projpacks->{$projid}->{'package'} || {};
       # the if statement below is to ease transition to the new full handling
       # for manually created "base" repos
-      if (!$BSSched::BuildResult::new_full_handling || %$packs || ! -d "$gdst/:full" ||
-          -e "$gdst/:full.useforbuild") {
+      if (%$packs || ! -d "$gdst/:full" || -e "$gdst/:full.useforbuild") {
         BSSched::BuildRepo::checkuseforbuild($gctx, $prp, undef);
         delete $gctx->{'prpcheckuseforbuild'}->{$prp};
       }

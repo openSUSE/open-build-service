@@ -70,9 +70,6 @@ my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 my $binsufsre_binlnk = join('|', map {"\Q$_\E"} (@binsufs, 'obsbinlnk'));
 
-our $new_full_handling = 1;
-$new_full_handling = $BSConfig::new_full_handling if defined $BSConfig::new_full_handling;
-
 my %default_exportfilters = (
   'i586' => {
     '\.x86_64\.rpm$'   => [ 'x86_64' ],
@@ -463,7 +460,7 @@ sub update_dst_full {
     $bininfo->{'.nosourceaccess'} = {} if -e "$dst/.nosourceaccess";
     $bininfo->{'.nouseforbuild'} = {} if -e "$dst/.channelinfo" || -e "$dst/updateinfo.xml" || -e "$dst/.updateinfodata" || -e "$dst/.nouseforbuild";
     $old_nouseforbuild = 1 if $bininfo->{'.nouseforbuild'};
-  } elsif ($new_full_handling || !$importarch) {
+  } else {
     # get old state: oldfiles, oldbininfo, oldrepo
     my @oldfiles = sort(ls($dst));
     @oldfiles = grep {$_ ne '.stats' && $_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && $_ ne '.bininfo' && $_ ne '.meta.success'} @oldfiles;
@@ -538,33 +535,19 @@ sub update_dst_full {
       $bininfo->{'.nosourceaccess'} = {};
     }
     # now jobrepo + bininfo contain all the files of dst
-  } else {
-    # old stype import handling
-    my $replaced = (readxml("$jobdir/replaced.xml", $BSXML::dir, 1) || {})->{'entry'};
-    $oldrepo = {};
-    for (@{$replaced || []}) {
-      # changed from name to id/name to so that we can have multiple
-      # packages with the same name
-      my $rp = "$_->{'id'}/$_->{'name'}";
-      $_->{'name'} =~ s/\.[^\.]*$//;
-      $_->{'source'} = 1;
-      $oldrepo->{$rp} = $_;
-    }
   }
 
   # write .bininfo file and update :bininfo.merge (jobdir is undef for package deletion)
-  if ($new_full_handling || !$importarch) {
-    my @bininfo_s;
-    if (defined($jobdir) && defined($bininfo)) {
-      BSUtil::store("$dst/.bininfo.new", "$dst/.bininfo", $bininfo);
-      @bininfo_s = stat("$dst/.bininfo");
-      $bininfo->{'.bininfo'} = {'id' => "$bininfo_s[9]/$bininfo_s[7]/$bininfo_s[1]"} if @bininfo_s;
-    } else {
-      unlink("$dst/.bininfo");
-    }
-    update_bininfo_merge($gdst, $packid, defined($jobdir) ? $bininfo : undef, $dstcache);
-    delete $bininfo->{'.bininfo'} if $bininfo;
+  my @bininfo_s;
+  if (defined($jobdir) && defined($bininfo)) {
+    BSUtil::store("$dst/.bininfo.new", "$dst/.bininfo", $bininfo);
+    @bininfo_s = stat("$dst/.bininfo");
+    $bininfo->{'.bininfo'} = {'id' => "$bininfo_s[9]/$bininfo_s[7]/$bininfo_s[1]"} if @bininfo_s;
+  } else {
+    unlink("$dst/.bininfo");
   }
+  update_bininfo_merge($gdst, $packid, defined($jobdir) ? $bininfo : undef, $dstcache);
+  delete $bininfo->{'.bininfo'} if $bininfo;
 
   ##################################################################
   # part 2: link needed binaries into :full tree
@@ -617,13 +600,7 @@ sub update_dst_full {
     'dstcache' => $dstcache,
     'bconf' => $bconf,
   };
-  if ($new_full_handling) {
-    BSSched::BuildRepo::fctx_move_into_full($fctx, \%old, \%new);
-  } else {
-    $fctx->{'dst'} = $jobdir if $importarch;    # override source dir for imports
-    # note that we use oldrepo here instead of \%old
-    BSSched::BuildRepo::fctx_move_into_full($fctx, $oldrepo, \%new);
-  }
+  BSSched::BuildRepo::fctx_move_into_full($fctx, \%old, \%new);
   return 1;
 }
 
