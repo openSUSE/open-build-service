@@ -138,7 +138,7 @@ class Comment < ApplicationRecord
 
   def blocked?
     return false unless (session = User.session)
-    return true if session.blocked_users.exists?(blocked: user)
+    return true if session.blocked_users.exists?(user_id)
 
     false
   end

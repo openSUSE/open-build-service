@@ -42,6 +42,11 @@ class EventSubscription
             next
           end
 
+          if receiver.is_a?(User) && receiver.blocked_users.include?(event.originator)
+            puts "Skipped the notification for receiver #{receiver}, since the originator is blocked by them..." if @debug
+            next
+          end
+
           # Try to find the subscription for this receiver
           receiver_subscription = EventSubscription.for_subscriber(receiver).find_by(options)
           if receiver_subscription.present?
