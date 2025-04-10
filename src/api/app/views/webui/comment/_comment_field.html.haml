@@ -21,7 +21,7 @@ data: { preview_message_url: preview_comments_path, message_body_param: 'comment
     .tab-content.px-3
       .tab-pane.fade.show.active.my-3{ id: "write_#{element_suffix}", role: 'tabpanel', 'aria-labelledby': 'write-comment-tab',
                                        'data-canned-controller': '' }
-        - if Flipper.enabled?(:content_moderation, User.session)
+        - if Flipper.enabled?(:canned_responses, User.session)
           .d-flex.justify-content-end
             = render CannedResponsesDropdownComponent.new(User.session.canned_responses.where(decision_type: nil).order(:title))
         ~ f.text_area :body, id: "#{element_suffix}_body", rows: '4',

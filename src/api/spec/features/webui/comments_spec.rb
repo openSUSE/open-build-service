@@ -15,7 +15,7 @@ RSpec.describe 'Comments', :js, :vcr do
   end
 
   it 'can be created using canned responses' do
-    Flipper.enable(:content_moderation)
+    Flipper.enable(:canned_responses)
     login user
     create(:canned_response, user: user, title: 'test reply', content: 'This is a canned response')
     visit project_show_path(user.home_project)

@@ -4,7 +4,7 @@ RSpec.describe 'Canned responses', :js do
   let(:user) { create(:confirmed_user, login: 'burdenski') }
 
   before do
-    Flipper.enable(:content_moderation)
+    Flipper.enable(:canned_responses)
   end
 
   context 'can be created' do
@@ -54,6 +54,7 @@ RSpec.describe 'Canned responses', :js do
     let(:moderator) { create(:moderator) }
 
     before do
+      Flipper.enable(:content_moderation)
       login moderator
       visit canned_responses_path
       fill_in(name: 'canned_response[title]', with: 'wow')

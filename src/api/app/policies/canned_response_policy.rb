@@ -4,7 +4,7 @@ class CannedResponsePolicy < ApplicationPolicy
   end
 
   def update?
-    return false unless Flipper.enabled?(:content_moderation, user)
+    return false unless Flipper.enabled?(:canned_responses, user)
 
     record.user == user
   end
