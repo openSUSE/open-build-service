@@ -94,6 +94,7 @@ end
 #  updated_at      :datetime         not null
 #  decision_id     :bigint           indexed
 #  reportable_id   :integer          indexed => [reportable_type]
+#  reporter_id     :integer          not null, indexed
 #  user_id         :integer          not null, indexed
 #
 # Indexes
