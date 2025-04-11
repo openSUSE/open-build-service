@@ -110,4 +110,39 @@ RSpec.describe Event::Base do
       it { expect(subject).to be_empty }
     end
   end
+
+  describe '#subscriptions' do
+    subject { event.subscriptions(:instant_email) }
+
+    context 'for events that do not send notifications' do
+      let(:bs_request) { create(:bs_request_with_submit_action) }
+      let(:source_package) { create(:package, name: 'ruby') }
+      let(:target_package) { create(:package) }
+      let(:event) do
+        Event::RequestReviewsDone.create(number: bs_request.number,
+                                         actions: [{ action_id: 1,
+                                                     type: 'submit',
+                                                     sourceproject: source_package.project.name,
+                                                     sourcepackage: source_package.name,
+                                                     targetproject: target_package.project.name,
+                                                     targetpackage: target_package.name }])
+      end
+
+      it 'returns no subscriptions' do
+        expect(subject).to be_empty
+      end
+    end
+
+    context 'for events that do send notifications' do
+      let(:maintainer) { create(:confirmed_user) }
+      let!(:project) { create(:project, maintainer: [maintainer]) }
+      let!(:comment) { create(:comment_project, commentable: project) }
+      let!(:subscription) { create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer', subscriber: maintainer) }
+      let(:event) { Event::CommentForProject.first }
+
+      it 'returns the subscription for that user/group' do
+        expect(subject).not_to(be_empty)
+      end
+    end
+  end
 end
