@@ -530,7 +530,6 @@ class SourceController < ApplicationController
   def validate_target_for_package_command_exists!
     @project = nil
     @package = nil
-
     follow_project_links = SOURCE_UNTOUCHED_COMMANDS.include?(@command)
 
     unless @target_package_name.in?(%w[_project _pattern])
@@ -1042,6 +1041,8 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=mergeservice
   def package_command_mergeservice
+    verify_can_modify_target!
+
     path = request.path_info
     path += build_query_from_hash(params, %i[cmd comment user])
     pass_to_backend(path)
@@ -1051,6 +1052,8 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=runservice
   def package_command_runservice
+    verify_can_modify_target!
+
     path = request.path_info
     path += build_query_from_hash(params, %i[cmd comment user])
     pass_to_backend(path)
@@ -1067,6 +1070,8 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=linktobranch
   def package_command_linktobranch
+    verify_can_modify_target!
+
     if @target_package_name.in?(%w[_project _pattern])
       render_error status: 400, message: "cannot turn a #{@target_package_name} package into a branch"
       return
