@@ -2,6 +2,8 @@ module Triggerable
   def set_project
     # By default we operate on the package association
     @project = @token.package.try(:project)
+    validate_token_project
+
     # If the token has no package, let's find one from the parameters or the step intructions
     @project ||= Project.get_by_name(@project_name)
     # Remote projects are read-only, can't trigger something for them.
@@ -13,6 +15,8 @@ module Triggerable
     package_find_options = @token.package_find_options if package_find_options.blank?
     # By default we operate on the package association
     @package = @token.package
+    validate_token_package
+
     # If the token has no package, let's find one from the parameters
     if @package_name.present?
       @package ||= Package.get_by_project_and_name(@project.name,
@@ -48,5 +52,13 @@ module Triggerable
 
   def project_links_to_remote?
     @project.scmsync.present? || @project.links_to_remote?
+  end
+
+  def validate_token_project
+    raise Trigger::Errors::InvalidProject if @project && @project_name && (@project_name != @project.name)
+  end
+
+  def validate_token_package
+    raise Trigger::Errors::InvalidPackage if @package && @package_name && (@package_name != @package.name)
   end
 end
