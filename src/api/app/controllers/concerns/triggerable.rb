@@ -19,7 +19,7 @@ module Triggerable
                                                    @package_name,
                                                    package_find_options)
     end
-    return unless @project.links_to_remote?
+    return unless project_links_to_remote?
 
     # The token has no package, we did not find a package in the database but the project has a link to remote.
     # See https://github.com/openSUSE/open-build-service/wiki/Links#project-links
@@ -39,8 +39,14 @@ module Triggerable
     @multibuild_container = @package_name.gsub(/.*:/, '') if @package_name.present? && @package_name.include?(':')
   end
 
+  private
+
   def package_from_project_link?
     # a remote package is always included via project link
     !(@package.is_a?(Package) && @package.project == @project)
+  end
+
+  def project_links_to_remote?
+    @project.scmsync.present? || @project.links_to_remote?
   end
 end

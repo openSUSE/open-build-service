@@ -83,6 +83,21 @@ RSpec.describe Triggerable do
         expect(fake_controller_instance.instance_variable_get(:@package)).to eq('remote_package_trigger')
       end
     end
+
+    context 'project with scmsync link' do
+      let(:token) { Token::Rebuild.create(executor: user) }
+      let(:project_name) { 'project_with_scmsync' }
+      let(:package_name) { 'some-scm-package' }
+
+      let(:project_with_scmsync) { create(:project, name: project_name, maintainer: user, scmsync: 'https://github.com/hennevogel/scmsync-project.git') }
+
+      it 'assigns remote package string' do
+        stub_params(project_name: project_with_scmsync.name, package_name: package_name)
+        fake_controller_instance.set_project
+        fake_controller_instance.set_package
+        expect(fake_controller_instance.instance_variable_get(:@package)).to eq('some-scm-package')
+      end
+    end
   end
 
   describe '#set_object_to_authorize' do
