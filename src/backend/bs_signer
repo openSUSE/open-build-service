@@ -65,6 +65,7 @@ $maxchild_flavor = $BSConfig::signer_maxchild_flavor if defined $BSConfig::signe
 
 my $sign_supports_S;
 my $sign_supports_bulk_cpio;
+my $sign_supports_delsign;
 
 sub check_sign_S {
   my $pid = BSUtil::xfork();
@@ -92,6 +93,20 @@ sub check_sign_bulk_cpio {
     die("$BSConfig::sign: $!\n");
   }
   $sign_supports_bulk_cpio = 1 if waitpid($pid, 0) == $pid && !$?;
+}
+
+sub check_sign_delsign {
+  my $pid = BSUtil::xfork();
+  return unless defined $pid;
+  if (!$pid) {
+    open(STDOUT, ">/dev/null");
+    open(STDERR, ">&STDOUT");
+    my @signargs;
+    push @signargs, '--project', 'dummy' if $BSConfig::sign_project;
+    exec($BSConfig::sign, @signargs, '--delsign', '--hashfile', '/dev/null');
+    die("$BSConfig::sign: $!\n");
+  }
+  $sign_supports_delsign = 1 if waitpid($pid, 0) == $pid && !$?;
 }
 
 sub readblk {
@@ -942,18 +957,24 @@ sub signjob {
 	my $signfilefinal;
 	my ($signtime, $signissuer);
 	if ($info->{'file'} eq '_aggregate' && ($signfile =~ /\.d?rpm$/)) {
-	  # newer rpm versions sometimes do in-place signature replacement,
-	  # so create a copy first
-	  # (we should add a delsign option to our sign utility...)
-	  BSUtil::cp("$jobdir/$signfile", "$jobdir/.$signfile");
-	  $signfilefinal = $signfile;
-	  $signfile = ".$signfile";
 	  # special aggregate handling: remove old sigs
 	  # but get old sig time first
 	  my $sigdata = getsigdata("$jobdir/$signfile");
 	  $signtime = $sigdata->{'signtime'};
 	  $signissuer = $sigdata->{'issuer'};
-	  rpmdelsign("$jobdir/$signfile");
+	  if ($sign_supports_delsign) {
+	    if (system($BSConfig::sign, @signargs, '--delsign', '-r', "$jobdir/$signfile")) {
+	      die("sign --delsign $jobdir/$signfile failed\n");
+	    }
+	  } else {
+	    # newer rpm versions sometimes do in-place signature replacement,
+	    # so create a copy first
+	    # (we should add a delsign option to our sign utility...)
+	    BSUtil::cp("$jobdir/$signfile", "$jobdir/.$signfile");
+	    $signfilefinal = $signfile;
+	    $signfile = ".$signfile";
+	    rpmdelsign("$jobdir/$signfile");
+	  }
 	  if ($signtime && $pubkey) {
 	    if (!defined($pubkey_create_time)) {
 	      eval {
@@ -1196,6 +1217,8 @@ check_sign_S();
 print "warning: sign does not seem to support checksum files, please update\n" unless $sign_supports_S;
 check_sign_bulk_cpio();
 print "warning: sign does not seem to support bulk-cpio mode, please update\n" unless $sign_supports_bulk_cpio;
+check_sign_delsign();
+print "warning: sign does not seem to support delsign mode, please update\n" unless $sign_supports_delsign;
 
 BSStdRunner::run('signer', \@ARGV, $conf);
 
