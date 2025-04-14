@@ -9,7 +9,7 @@
 # Matching on major and minor versions should be enough for most migrations.
 module RailsVersion
   # Normally using `#zero?` would be better, but not here so we disable this RuboCop cop.
-  def self.is_7_1?
-    Rails::VERSION::MAJOR == 7 && Rails::VERSION::MINOR == 1
+  def self.is_7_2?
+    Rails::VERSION::MAJOR == 7 && Rails::VERSION::MINOR == 2
   end
 end
