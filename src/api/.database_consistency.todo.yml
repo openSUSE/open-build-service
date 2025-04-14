@@ -1709,7 +1709,7 @@ ReleaseTarget:
     PrimaryKeyTypeChecker:
       enabled: false
 Report:
-  reporter:
+  user:
     ColumnPresenceChecker:
       enabled: false
 Repository:
