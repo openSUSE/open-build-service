@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_04_10_141906) do
+ActiveRecord::Schema[7.1].define(version: 2025_04_14_133357) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -982,7 +982,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_10_141906) do
   end
 
   create_table "reports", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
-    t.integer "user_id", null: false
+    t.integer "user_id"
     t.string "reportable_type"
     t.integer "reportable_id"
     t.text "reason"
@@ -990,7 +990,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_10_141906) do
     t.datetime "updated_at", null: false
     t.bigint "decision_id"
     t.integer "category", default: 99
-    t.integer "reporter_id"
+    t.integer "reporter_id", null: false
     t.index ["decision_id"], name: "index_reports_on_decision_id"
     t.index ["reportable_type", "reportable_id"], name: "index_reports_on_reportable"
     t.index ["reporter_id"], name: "index_reports_on_reporter_id"
