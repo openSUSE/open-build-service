@@ -14,7 +14,7 @@ class Report < ApplicationRecord
   validates :reportable, presence: true, on: :create
 
   # TODO: Remove user association as soon as `reporter` is fully established
-  belongs_to :user, optional: false
+  belongs_to :user, optional: true
   belongs_to :reporter, class_name: 'User', optional: false
   belongs_to :reportable, polymorphic: true, optional: true
   has_many :comments, as: :commentable, dependent: :destroy
@@ -97,8 +97,8 @@ end
 #  updated_at      :datetime         not null
 #  decision_id     :bigint           indexed
 #  reportable_id   :integer          indexed => [reportable_type]
-#  reporter_id     :integer          indexed
-#  user_id         :integer          not null, indexed
+#  reporter_id     :integer          not null, indexed
+#  user_id         :integer          indexed
 #
 # Indexes
 #
