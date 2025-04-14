@@ -146,7 +146,7 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
-    csv (3.3.3)
+    csv (3.3.4)
     daemons (1.4.1)
     dalli (3.2.8)
     data_migrate (11.3.0)
