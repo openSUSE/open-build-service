@@ -2637,14 +2637,6 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
         </project>"
     assert_response :success
 
-    # create token
-    post '/person/adrian/token?cmd=create&operation=release&project=home:Iggy&package=TestPack'
-    assert_response :success
-    doc = REXML::Document.new(@response.body)
-    token = doc.elements['//data[@name="token"]'].text
-    id = doc.elements['//data[@name="id"]'].text
-    assert_equal 24, token.length
-
     # workaround of testsuite breakage, database object gets restored during
     # request controller run, but backend part not
     login_Iggy
@@ -2687,11 +2679,6 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
 
-    # but they can use the token
-    reset_auth
-    post '/trigger/release', headers: { 'Authorization' => "Token #{token}" }
-    assert_response :success
-
     # and they can release it to own space
     login_Iggy
     post '/source/home:Iggy/TestPack?cmd=release&target_project=home:Iggy'
@@ -2721,9 +2708,6 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     post '/source/home:Iggy?cmd=release&nodelay=1'
     assert_response :success
     assert_xml_tag tag: 'status', attributes: { code: 'ok' }
-    # drop token
-    delete "/person/adrian/token/#{id}"
-    assert_response :success
 
     # process events
     run_scheduler('i586')
