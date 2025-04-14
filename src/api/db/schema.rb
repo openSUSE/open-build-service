@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_04_14_133357) do
+ActiveRecord::Schema[7.1].define(version: 2025_04_14_154434) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -982,7 +982,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_14_133357) do
   end
 
   create_table "reports", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
-    t.integer "user_id"
     t.string "reportable_type"
     t.integer "reportable_id"
     t.text "reason"
@@ -994,7 +993,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_14_133357) do
     t.index ["decision_id"], name: "index_reports_on_decision_id"
     t.index ["reportable_type", "reportable_id"], name: "index_reports_on_reportable"
     t.index ["reporter_id"], name: "index_reports_on_reporter_id"
-    t.index ["user_id"], name: "index_reports_on_user_id"
   end
 
   create_table "repositories", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -1383,7 +1381,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_14_133357) do
   add_foreign_key "release_targets", "repositories", column: "target_repository_id", name: "release_targets_ibfk_2"
   add_foreign_key "release_targets", "repositories", name: "release_targets_ibfk_1"
   add_foreign_key "reports", "decisions", on_delete: :nullify
-  add_foreign_key "reports", "users"
   add_foreign_key "reports", "users", column: "reporter_id"
   add_foreign_key "repositories", "projects", column: "db_project_id", name: "repositories_ibfk_1"
   add_foreign_key "repositories", "repositories", column: "hostsystem_id", name: "repositories_ibfk_2"
