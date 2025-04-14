@@ -1708,6 +1708,10 @@ ReleaseTarget:
   id:
     PrimaryKeyTypeChecker:
       enabled: false
+Report:
+  reporter:
+    ColumnPresenceChecker:
+      enabled: false
 Repository:
   channel_targets:
     ForeignKeyCascadeChecker:
