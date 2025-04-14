@@ -4353,6 +4353,13 @@
     "addition_date": "2022/10/17",
     "url": "https://uptime.kuma.pet/",
     "instances": [
+      "Uptime-Kuma/1.23.16",
+      "Uptime-Kuma/1.23.15",
+      "Uptime-Kuma/1.23.14",
+      "Uptime-Kuma/1.23.13",
+      "Uptime-Kuma/1.23.12",
+      "Uptime-Kuma/1.23.11",
+      "Uptime-Kuma/1.23.10",
       "Uptime-Kuma/1.18.0"
     ]
   },
@@ -4794,9 +4801,10 @@
     "url": "https://github.com/bitinn/node-fetch"
   },
   {
-    "pattern": "lkxscan",
+    "pattern": "l9explore",
     "addition_date": "2023/09/08",
     "instances": [
+      "l9explore/1.2.2",
       "lkxscan/v0.1.0 (+https://leakix.net) l9explore/v1.0.0 (+https://github.com/LeakIX/l9explore)"
     ],
     "url": "https://github.com/LeakIX/l9explore"
@@ -5030,11 +5038,75 @@
     ]
   },
   {
+    "pattern": "Lemmy",
+    "addition_date": "2025/02/11",
+    "instances": [
+      "Lemmy/0.19.8; +https://leminal.space"
+    ],
+    "url": "https://leminal.space"
+  },
+  {
     "pattern": "CookieHubScan",
     "addition_date": "2024/11/29",
     "url": "https://www.cookiehub.com/",
     "instances": [
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 CookieHubScan/3.0"
+    ]
+  },
+  {
+    "pattern": "Hydrozen\\.io",
+    "addition_date": "2025/02/02",
+    "instances": [
+      "Hydrozen.io/1.0"
+    ],
+    "url": "https://docs.hydrozen.io/overview/misc/user-agent-and-ip-list"
+  },
+  {
+    "pattern": "HTTP Banner Detection",
+    "addition_date": "2025/02/10",
+    "instances": [
+      "HTTP Banner Detection (https://security.ipip.net)"
+    ],
+    "url": "https://security.ipip.net"
+  },
+  {
+    "pattern": "SummalyBot",
+    "addition_date": "2025/02/10",
+    "instances": [
+      "SummalyBot/5.1.0"
+    ],
+    "url": "https://github.com/misskey-dev/summaly"
+  },
+  {
+    "pattern": "MicrosoftPreview\\/",
+    "addition_date": "2025/02/11",
+    "url": "https://www.bing.com/webmasters/help/which-crawlers-does-bing-use-8c184ec0",
+    "instances": [
+      "MicrosoftPreview/2.0; +https://aka.ms/MicrosoftPreview"
+    ]
+  },
+  {
+    "pattern": "GeedoProductSearch",
+    "addition_date": "2025/03/15",
+    "url": "http://www.geedo.com/product-search.html",
+    "instances": [
+      "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; GeedoProductSearch; +http://www.geedo.com/product-search.html) Chrome/79.0.3945.88 Safari/537.36"
+    ]
+  },
+  {
+    "pattern": "TikTokSpider",
+    "addition_date": "2025/03/16",
+    "instances": [
+      "Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; TikTokSpider; ttspider-feedback@tiktok.com)"
+    ]
+  },
+  {
+    "pattern": "OnCrawl\\/",
+    "addition_date": "2025/03/27",
+    "url": "http://www.oncrawl.com",
+    "instances": [
+      "Mozilla/5.0 (compatible; OnCrawl/1.0; +http://www.oncrawl.com)",
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12F70 Safari/600.1.4 (compatible; OnCrawl/1.0; +http://www.oncrawl.com)"
     ]
   }
 ]
