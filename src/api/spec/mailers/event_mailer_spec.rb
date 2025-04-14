@@ -419,7 +419,7 @@ RSpec.describe EventMailer, :vcr do
     context 'for an event of type Event::ClearedDecision' do
       let(:admin) { create(:admin_user) }
       let(:reporter) { create(:confirmed_user) }
-      let(:report) { create(:report, user: reporter) }
+      let(:report) { create(:report, reporter: reporter) }
       let(:package) { report.reportable.commentable }
       let!(:subscription) { create(:event_subscription_decision, user: reporter) }
       let(:decision) { create(:decision_cleared, moderator: admin, reason: 'This is NOT spam.', reports: [report]) }
@@ -460,7 +460,7 @@ RSpec.describe EventMailer, :vcr do
 
       let(:comment) { create(:comment_project, user: offender) }
       let(:project) { comment.commentable }
-      let(:report) { create(:report, user: reporter, reportable: comment) }
+      let(:report) { create(:report, reporter: reporter, reportable: comment) }
 
       let!(:reporter_subscription) { create(:event_subscription_decision, user: reporter) }
       let!(:offender_subscription) { create(:event_subscription_decision, user: offender, receiver_role: 'offender') }
@@ -504,7 +504,7 @@ RSpec.describe EventMailer, :vcr do
 
       let(:comment) { create(:comment_project, user: offender) }
       let(:project) { comment.commentable }
-      let(:report) { create(:report, user: reporter, reportable: comment) }
+      let(:report) { create(:report, reporter: reporter, reportable: comment) }
 
       let!(:moderator_subscription) { create(:event_subscription_appeal_created, user: moderator) }
 
@@ -548,7 +548,7 @@ RSpec.describe EventMailer, :vcr do
 
       let(:comment) { create(:comment_project, user: offender) }
       let(:project) { comment.commentable }
-      let(:report) { create(:report, user: reporter, reportable: comment) }
+      let(:report) { create(:report, reporter: reporter, reportable: comment) }
 
       let!(:moderator_subscription) { create(:event_subscription_appeal_created, user: moderator) }
 

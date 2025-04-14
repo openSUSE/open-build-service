@@ -54,8 +54,7 @@ class Report < ApplicationRecord
   end
 
   def event_parameters
-    # TODO: Remove user association as soon as `reporter` is fully established
-    { id: id, reporter: reporter.present? ? reporter.login : user.login, reportable_id: reportable_id, reportable_type: reportable_type, reason: reason, category: category }
+    { id: id, reporter: reporter.login, reportable_id: reportable_id, reportable_type: reportable_type, reason: reason, category: category }
   end
 
   def event_parameters_for_comment(commentable:)

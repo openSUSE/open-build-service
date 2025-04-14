@@ -92,7 +92,7 @@ module Webui::NotificationHelper
   end
 
   def description_for_user_report(notification)
-    reporter = notification.notifiable.user
+    reporter = notification.notifiable.reporter
     accused = notification.notifiable.reportable
     reports_on_comments = count_reports_on_comments(accused) if accused
     reports_on_user = count_reports_on_user(accused) if accused
@@ -101,7 +101,7 @@ module Webui::NotificationHelper
   end
 
   def description_for_comment_report(notification)
-    reporter = notification.notifiable.user
+    reporter = notification.notifiable.reporter
     accused = notification.notifiable.reportable&.user
     reports_on_user = count_reports_on_user(accused) if accused
     reports_on_comments = count_reports_on_comments(accused) if accused

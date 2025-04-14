@@ -63,7 +63,7 @@ class User < ApplicationRecord
 
   has_many :disabled_beta_features, dependent: :destroy
   has_many :reports, as: :reportable, dependent: :nullify
-  has_many :submitted_reports, class_name: 'Report'
+  has_many :submitted_reports, class_name: 'Report', foreign_key: 'reporter_id'
 
   has_many :moderated_comments, class_name: 'Comment', foreign_key: 'moderator_id'
   has_many :decisions, foreign_key: 'moderator_id'

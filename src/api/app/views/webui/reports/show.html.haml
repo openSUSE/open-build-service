@@ -7,7 +7,7 @@
       .badge.text-bg-primary= @report.category.humanize
     %p
       Created by
-      = render UserAvatarComponent.new(@report.user)
+      = render UserAvatarComponent.new(@report.reporter)
       - if @report.reportable.present?
         on
         = link_to_reportables(report_id: @report.id, reportable_type: @report.reportable_type)

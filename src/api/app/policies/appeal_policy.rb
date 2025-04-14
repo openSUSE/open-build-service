@@ -31,7 +31,7 @@ class AppealPolicy < ApplicationPolicy
   def decision_cleared_report_from_user?
     return false unless record.appellant == user
 
-    record.decision.type == 'DecisionCleared' && record.decision.reports.pluck(:user_id).include?(user.id)
+    record.decision.type == 'DecisionCleared' && record.decision.reports.pluck(:reporter_id).include?(user.id)
   end
 
   def decision_favored_report_of_action_from_user?

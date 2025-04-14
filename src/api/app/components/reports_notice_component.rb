@@ -15,7 +15,7 @@ class ReportsNoticeComponent < ApplicationComponent
   end
 
   def by_user?
-    Report.exists?(user:, reportable:)
+    Report.exists?(reporter: user, reportable:)
   end
 
   def report_amount
