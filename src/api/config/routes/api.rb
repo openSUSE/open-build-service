@@ -261,12 +261,16 @@ controller :source_package_command do
   post 'source/:project/:package' => :package_command, constraints: cons
 end
 
-controller :source do
-  get 'source' => :index
+controller :source_command do
   post 'source' => :global_command_createmaintenanceincident, constraints: ->(req) { req.params[:cmd] == 'createmaintenanceincident' }
   post 'source' => :global_command_branch,                    constraints: ->(req) { req.params[:cmd] == 'branch' }
   post 'source' => :global_command_orderkiwirepos,            constraints: ->(req) { req.params[:cmd] == 'orderkiwirepos' }
   post 'public/source' => :global_command_triggerscmsync,     constraints: ->(req) { req.params[:cmd] == 'triggerscmsync' }
+end
+
+controller :source do
+  get 'source' => :index
+
   get 'source/:project/_pubkey' => :show_project_pubkey, constraints: cons
   delete 'source/:project/_pubkey' => :delete_project_pubkey, constraints: cons
 

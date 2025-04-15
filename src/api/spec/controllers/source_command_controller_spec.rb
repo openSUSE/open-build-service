@@ -1,8 +1,8 @@
-RSpec.describe SourceController, :vcr do
+RSpec.describe SourceCommandController do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:project) { user.home_project }
 
-  describe 'POST #global_command_orderkiwirepos' do
+  describe 'POST #global_command_orderkiwirepos', :vcr do
     it 'is accessible anonymously and forwards backend errors' do
       post :global_command_orderkiwirepos, params: { cmd: 'orderkiwirepos' }
       expect(response).to have_http_status(:bad_request)
