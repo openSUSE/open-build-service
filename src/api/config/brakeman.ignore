@@ -26,6 +26,29 @@
     {
       "warning_type": "SQL Injection",
       "warning_code": 0,
+      "fingerprint": "0f18c4c3f2f9e3ab19a869d1f793dda8d225eab52fc54bb2943da5c092b6c181",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/controllers/source_project_command_controller.rb",
+      "line": 44,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "@project.lock(params[:comment])",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "SourceProjectCommandController",
+        "method": "project_command_lock"
+      },
+      "user_input": "params[:comment]",
+      "confidence": "Medium",
+      "cwe_id": [
+        89
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
       "fingerprint": "23288c7e9dea90dd0d6a14268bf929de5b7651f16e9c2233776751400dda5d11",
       "check_name": "SQL",
       "message": "Possible SQL injection",
@@ -66,25 +89,6 @@
       "confidence": "Weak",
       "cwe_id": [
         352
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "Unmaintained Dependency",
-      "warning_code": 123,
-      "fingerprint": "40be17ee84017c91503dab23873e24bdd71665ab665bf6f351cfc09ff83e6582",
-      "check_name": "EOLRuby",
-      "message": "Support for Ruby 3.1.6 ends on 2025-03-31",
-      "file": ".ruby-version",
-      "line": 1,
-      "link": "https://brakemanscanner.org/docs/warning_types/unmaintained_dependency/",
-      "code": null,
-      "render_path": null,
-      "location": null,
-      "user_input": null,
-      "confidence": "Medium",
-      "cwe_id": [
-        1104
       ],
       "note": ""
     },
@@ -221,48 +225,6 @@
       "confidence": "High",
       "cwe_id": [
         89
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "SQL Injection",
-      "warning_code": 0,
-      "fingerprint": "94746cf90cb4bf2270637c214b44324775f12e71b6d07fabb1939f3a3641cd65",
-      "check_name": "SQL",
-      "message": "Possible SQL injection",
-      "file": "app/controllers/source_controller.rb",
-      "line": 418,
-      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "@project.lock(params[:comment])",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "SourceController",
-        "method": "project_command_lock"
-      },
-      "user_input": "params[:comment]",
-      "confidence": "Medium",
-      "cwe_id": [
-        89
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "Unmaintained Dependency",
-      "warning_code": 122,
-      "fingerprint": "98b26f60d776fd41ee6f088c833725145be9aac2d7c5b33780241c273622db42",
-      "check_name": "EOLRails",
-      "message": "Support for Rails 7.0.8.1 ends on 2025-04-01",
-      "file": "Gemfile.lock",
-      "line": 347,
-      "link": "https://brakemanscanner.org/docs/warning_types/unmaintained_dependency/",
-      "code": null,
-      "render_path": null,
-      "location": null,
-      "user_input": null,
-      "confidence": "Medium",
-      "cwe_id": [
-        1104
       ],
       "note": ""
     },

@@ -232,6 +232,9 @@ end
 controller :source_project do
   get 'source/:project' => :show, constraints: cons
   delete 'source/:project' => :delete, constraints: cons
+end
+
+controller :source_project_command do
   post 'source/:project' => :project_command, constraints: cons
 end
 

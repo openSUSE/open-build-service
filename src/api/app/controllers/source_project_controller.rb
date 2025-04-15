@@ -85,33 +85,4 @@ class SourceProjectController < SourceController
 
     render_ok
   end
-
-  # POST /source/:project?cmd
-  #-----------------
-  def project_command
-    # init and validation
-    #--------------------
-    required_parameters(:cmd)
-
-    valid_commands = %w[undelete showlinked remove_flag set_flag createpatchinfo
-                        createkey extendkey copy createmaintenanceincident lock
-                        unlock release addchannels modifychannels move freezelink]
-
-    raise IllegalRequest, 'invalid_command' unless valid_commands.include?(params[:cmd])
-
-    command = params[:cmd]
-    project_name = params[:project]
-    params[:user] = User.session.login
-
-    return dispatch_command(:project_command, command) if command.in?(%w[undelete release copy move])
-
-    @project = Project.get_by_name(project_name)
-
-    raise CmdExecutionNoPermission, "no permission to execute command '#{command}'" unless
-      (command == 'unlock' && User.session.can_modify?(@project, true)) ||
-      command == 'showlinked' ||
-      User.session.can_modify?(@project)
-
-    dispatch_command(:project_command, command)
-  end
 end
