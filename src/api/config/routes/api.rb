@@ -230,8 +230,15 @@ controller :source_project_meta do
 end
 
 controller :source_project do
+  get 'source' => :index
+  # FIXME: Why is this not in PublishedController#index?
+  get 'published' => :index
+  # FIXME: Why is this not in BuildController#index?
+  get 'build' => :index
   get 'source/:project' => :show, constraints: cons
   delete 'source/:project' => :delete, constraints: cons
+  get 'source/:project/_pubkey' => :show_pubkey, constraints: cons
+  delete 'source/:project/_pubkey' => :delete_pubkey, constraints: cons
 end
 
 controller :source_project_command do
@@ -270,9 +277,6 @@ end
 
 controller :source do
   get 'source' => :index
-
-  get 'source/:project/_pubkey' => :show_project_pubkey, constraints: cons
-  delete 'source/:project/_pubkey' => :delete_project_pubkey, constraints: cons
 
   get 'source/:project/:package/:filename' => :show_file, constraints: cons, defaults: { format: 'xml' }
   delete 'source/:project/:package/:filename' => :delete_file, constraints: cons
@@ -383,10 +387,8 @@ get 'build/_result' => 'build#scmresult', constraints: cons
 get 'build/:project/_result' => 'build#result', constraints: cons
 get 'build/:project/:repository' => 'build#index', constraints: cons
 match 'build/:project' => 'build#project_index', constraints: cons, via: %i[get post put]
-get 'build' => 'source#index'
 
 ### /published
 
 # :arch can be also a ymp for a pattern :/
 get 'published/:project(/:repository(/:arch(/:binary)))' => 'published#index', constraints: cons
-get 'published/' => 'source#index', via: :get

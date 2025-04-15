@@ -1,6 +1,29 @@
 class SourceProjectController < SourceController
   include CheckAndRemoveRepositories
 
+  validate_action index: { method: :get, response: :directory }
+  skip_before_action :require_valid_project_name, only: :index
+
+  # GET /source
+  #########
+  def index
+    # init and validation
+    #--------------------
+    admin_user = User.admin_session?
+
+    # access checks
+    #--------------
+
+    if params.key?(:deleted)
+      raise NoPermissionForDeleted unless admin_user
+
+      pass_to_backend
+    else
+      @project_names = Project.order(:name).pluck(:name)
+      render formats: [:xml]
+    end
+  end
+
   # GET /source/:project
   def show
     project_name = params[:project]
@@ -84,5 +107,39 @@ class SourceProjectController < SourceController
     end
 
     render_ok
+  end
+
+  # GET /source/:project/_pubkey and /_sslcert
+  def show_pubkey
+    # assemble path for backend
+    path = pubkey_path
+
+    # GET /source/:project/_pubkey
+    pass_to_backend(path)
+  end
+
+  # DELETE /source/:project/_pubkey
+  def delete_pubkey
+    params[:user] = User.session.login
+    path = pubkey_path
+
+    # check for permissions
+    upper_project = @prj.name.gsub(/:[^:]*$/, '')
+    while upper_project != @prj.name && upper_project.present?
+      if Project.exists_by_name(upper_project) && User.session.can_modify?(Project.get_by_name(upper_project))
+        pass_to_backend(path)
+        return
+      end
+      break unless upper_project.include?(':')
+
+      upper_project = upper_project.gsub(/:[^:]*$/, '')
+    end
+
+    if User.admin_session?
+      pass_to_backend(path)
+    else
+      raise DeleteProjectPubkeyNoPermission, "No permission to delete public key for project '#{params[:project]}'. " \
+                                             'Either maintainer permissions by upper project or admin permissions is needed.'
+    end
   end
 end
