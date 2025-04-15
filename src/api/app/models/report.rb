@@ -13,7 +13,6 @@ class Report < ApplicationRecord
   validates :reportable_type, length: { maximum: 255 }
   validates :reportable, presence: true, on: :create
 
-  self.ignored_columns += [:user_id] # TODO: Remove once user_id column is dropped
   belongs_to :reporter, class_name: 'User', optional: false
   belongs_to :reportable, polymorphic: true, optional: true
   has_many :comments, as: :commentable, dependent: :destroy
