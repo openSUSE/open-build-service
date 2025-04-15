@@ -3,9 +3,9 @@ class NotificationReport < Notification
   def description
     case event_type
     when 'Event::ReportForProject', 'Event::ReportForPackage'
-      "'#{notifiable.user.login}' created a report for a #{event_payload['reportable_type'].downcase}. This is the reason:"
+      "'#{notifiable.reporter.login}' created a report for a #{event_payload['reportable_type'].downcase}. This is the reason:"
     when 'Event::ReportForRequest'
-      "'#{notifiable.user.login}' created a report for a request. This is the reason:"
+      "'#{notifiable.reporter.login}' created a report for a request. This is the reason:"
     when 'Event::FavoredDecision'
       "'#{notifiable.moderator.login}' decided to favor the report. This is the reason:"
     when 'Event::ClearedDecision'
