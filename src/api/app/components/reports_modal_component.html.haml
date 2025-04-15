@@ -7,8 +7,7 @@
       .modal-body
         - reports.each do |report|
           .info
-            // TODO: Remove user association as soon as `reporter` is fully established
-            = render UserAvatarComponent.new(report.reporter.present? ? report.reporter : report.user)
+            = render UserAvatarComponent.new(report.reporter)
             reported
             = render TimeComponent.new(time: report.created_at)
             as

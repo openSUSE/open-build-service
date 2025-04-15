@@ -258,7 +258,7 @@ module Event
 
     def reporters
       decision = ::Decision.find(payload['id'])
-      decision.reports.map(&:user)
+      decision.reports.map(&:reporter)
     end
 
     def offenders

@@ -39,7 +39,7 @@ RSpec.describe AppealPolicy do
 
     context 'when the decision cleared a report created by the reporter' do
       let(:report) { create(:report) }
-      let(:reporter) { report.user }
+      let(:reporter) { report.reporter }
       let(:decision) { create(:decision_cleared, reports: [report]) }
       let(:appeal) { create(:appeal, decision: decision, appellant: reporter) }
 
@@ -55,7 +55,7 @@ RSpec.describe AppealPolicy do
 
     context 'when the decision is on reports for a now-deleted reportable' do
       let(:report) { create(:report) }
-      let(:reporter) { report.user }
+      let(:reporter) { report.reporter }
       let(:decision) { create(:decision_favored, reports: [report]) }
       let(:appeal) { create(:appeal, decision: decision, appellant: reporter) }
 
@@ -75,7 +75,7 @@ RSpec.describe AppealPolicy do
 
     context 'when the decision favored a report created by the reporter' do
       let(:report) { create(:report) }
-      let(:reporter) { report.user }
+      let(:reporter) { report.reporter }
       let(:decision) { create(:decision_favored, reports: [report]) }
       let(:appeal) { create(:appeal, decision: decision, appellant: reporter) }
 

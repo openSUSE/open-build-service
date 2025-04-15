@@ -1,8 +1,7 @@
 class ReportPolicy < ApplicationPolicy
   def show?
     return true if user.admin? || user.moderator? || user.staff?
-    # TODO: Remove user association as soon as `reporter` is fully established
-    return true if record.reporter.present? ? record.reporter == user : record.user == user
+    return true if record.reporter == user
 
     CommentPolicy.new(user, record.reportable).maintainer? if record.reportable_type == 'Comment'
   end

@@ -9,7 +9,7 @@ RSpec.describe ReportPolicy, type: :policy do
 
   permissions :show? do
     context 'when the current user is the owner of the report' do
-      let(:report) { create(:report, user: user) }
+      let(:report) { create(:report, reporter: user) }
 
       it { is_expected.to permit(user, report) }
     end
@@ -31,10 +31,10 @@ RSpec.describe ReportPolicy, type: :policy do
   permissions :create? do
     context 'when the current user has already reported it' do
       let(:reported_comment) { create(:comment_package) }
-      let(:report) { build(:report, user: user, reportable: reported_comment) }
+      let(:report) { build(:report, reporter: user, reportable: reported_comment) }
 
       before do
-        create(:report, user: user, reportable: reported_comment)
+        create(:report, reporter: user, reportable: reported_comment)
       end
 
       it { is_expected.not_to(permit(user, report)) }
@@ -43,36 +43,36 @@ RSpec.describe ReportPolicy, type: :policy do
     context 'when the current user can change the reportable' do
       context 'when reporting a comment' do
         let(:reported_comment) { create(:comment_package, user: user) }
-        let(:report) { build(:report, user: user, reportable: reported_comment) }
+        let(:report) { build(:report, reporter: user, reportable: reported_comment) }
 
         it { is_expected.not_to(permit(user, report)) }
       end
 
       context 'when reporting a package' do
         let(:reported_package) { create(:package_with_maintainer, maintainer: user) }
-        let(:report) { build(:report, user: user, reportable: reported_package) }
+        let(:report) { build(:report, reporter: user, reportable: reported_package) }
 
         it { is_expected.not_to(permit(user, report)) }
       end
 
       context 'when reporting a project' do
         let(:reported_project) { create(:project, maintainer: user) }
-        let(:report) { build(:report, user: user, reportable: reported_project) }
+        let(:report) { build(:report, reporter: user, reportable: reported_project) }
 
         it { is_expected.not_to(permit(user, report)) }
       end
 
       context 'when reporting a user' do
-        let(:report) { build(:report, user: user, reportable: user) }
+        let(:report) { build(:report, reporter: user, reportable: user) }
 
         it { is_expected.not_to(permit(user, report)) }
       end
 
       context "when trying to report a report's comment" do
-        let(:report_on_package_comment) { create(:report, user: user) }
+        let(:report_on_package_comment) { create(:report, reporter: user) }
         let(:report_comment) { create(:comment_report, commentable: report_on_package_comment) }
         let(:moderator) { create(:moderator) }
-        let(:report) { build(:report, user: moderator, reportable: report_comment) }
+        let(:report) { build(:report, reporter: moderator, reportable: report_comment) }
 
         it { is_expected.not_to(permit(moderator, report)) }
       end
@@ -81,28 +81,28 @@ RSpec.describe ReportPolicy, type: :policy do
     context 'when the current user can not change the reportable' do
       context 'when reporting a comment' do
         let(:comment) { create(:comment_package) }
-        let(:report) { build(:report, user: user, reportable: comment) }
+        let(:report) { build(:report, reporter: user, reportable: comment) }
 
         it { is_expected.to permit(user, report) }
       end
 
       context 'when reporting a package' do
         let(:reported_package) { create(:package) }
-        let(:report) { build(:report, user: user, reportable: reported_package) }
+        let(:report) { build(:report, reporter: user, reportable: reported_package) }
 
         it { is_expected.to permit(user, report) }
       end
 
       context 'when reporting a project' do
         let(:reported_project) { create(:project) }
-        let(:report) { build(:report, user: user, reportable: reported_project) }
+        let(:report) { build(:report, reporter: user, reportable: reported_project) }
 
         it { is_expected.to permit(user, report) }
       end
 
       context 'when reporting a user' do
         let(:reported_user) { create(:confirmed_user) }
-        let(:report) { build(:report, user: user, reportable: reported_user) }
+        let(:report) { build(:report, reporter: user, reportable: reported_user) }
 
         it { is_expected.to permit(user, report) }
       end
