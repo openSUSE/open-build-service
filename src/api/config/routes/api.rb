@@ -254,6 +254,10 @@ controller :source_project_package_meta do
   put 'source/:project/:package/_meta' => :update, constraints: cons
 end
 
+controller :source_package_command do
+  post 'source/:project/:package' => :package_command, constraints: cons
+end
+
 controller :source do
   get 'source' => :index
   post 'source' => :global_command_createmaintenanceincident, constraints: ->(req) { req.params[:cmd] == 'createmaintenanceincident' }
@@ -268,7 +272,6 @@ controller :source do
   put 'source/:project/:package/:filename' => :update_file, constraints: cons
 
   get 'source/:project/:package' => :show_package, constraints: cons
-  post 'source/:project/:package' => :package_command, constraints: cons
   delete 'source/:project/:package' => :delete_package, constraints: cons
 end
 
