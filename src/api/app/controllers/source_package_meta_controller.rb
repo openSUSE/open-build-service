@@ -1,4 +1,4 @@
-class SourceProjectPackageMetaController < SourceController
+class SourcePackageMetaController < SourceController
   # override the ApplicationController version
   # to have meaningful error messages
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
