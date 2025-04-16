@@ -254,8 +254,8 @@ controller :source_project_keyinfo do
   get 'source/:project/_keyinfo' => :show, constraints: cons
 end
 
-controller :source do
-  # package level
+# FIXME: This route only exists because SourcePackageMetaController can't deal with `_project` as package name
+controller :source_package do
   get '/source/:project/_project/:filename' => :show_file, constraints: cons, defaults: { format: 'xml' }
 end
 
@@ -275,15 +275,13 @@ controller :source_command do
   post 'public/source' => :global_command_triggerscmsync,     constraints: ->(req) { req.params[:cmd] == 'triggerscmsync' }
 end
 
-controller :source do
-  get 'source' => :index
-
+controller :source_package do
   get 'source/:project/:package/:filename' => :show_file, constraints: cons, defaults: { format: 'xml' }
   delete 'source/:project/:package/:filename' => :delete_file, constraints: cons
   put 'source/:project/:package/:filename' => :update_file, constraints: cons
 
-  get 'source/:project/:package' => :show_package, constraints: cons
-  delete 'source/:project/:package' => :delete_package, constraints: cons
+  get 'source/:project/:package' => :show, constraints: cons
+  delete 'source/:project/:package' => :delete, constraints: cons
 end
 
 scope module: :status, path: :status_reports do
