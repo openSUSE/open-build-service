@@ -97,11 +97,6 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def require_valid_project_name
-    required_parameters :project
-    raise InvalidProjectNameError, "invalid project name '#{params[:project]}'" unless Project.valid_name?(params[:project])
-  end
-
   def require_scmsync_host_check
     scm_cookie = request.env['HTTP_X_SCM_BRIDGE_COOKIE']
     raise MissingParameterError, 'X-SCM_BRIDGE_COOKIE is not set' if scm_cookie.blank?

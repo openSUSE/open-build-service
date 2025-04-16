@@ -9,8 +9,6 @@ class SourceController < ApplicationController
   skip_before_action :extract_user, only: :lastevents_public
   skip_before_action :require_login, only: :lastevents_public
 
-  before_action :require_valid_project_name, except: %i[lastevents lastevents_public]
-
   # POST, GET /public/lastevents
   # GET /lastevents
   def lastevents_public
@@ -26,6 +24,11 @@ class SourceController < ApplicationController
   end
 
   private
+
+  def require_valid_project_name
+    required_parameters :project
+    raise InvalidProjectNameError, "invalid project name '#{params[:project]}'" unless Project.valid_name?(params[:project])
+  end
 
   def set_issues_defaults
     @filter_changes = @states = nil
