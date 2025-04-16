@@ -259,7 +259,7 @@ controller :source do
   get '/source/:project/_project/:filename' => :show_file, constraints: cons, defaults: { format: 'xml' }
 end
 
-controller :source_project_package_meta do
+controller :source_package_meta do
   get 'source/:project/:package/_meta' => :show, constraints: cons
   put 'source/:project/:package/_meta' => :update, constraints: cons
 end
