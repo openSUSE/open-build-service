@@ -7,6 +7,11 @@ class PublicController < ApplicationController
   skip_before_action :extract_user
   skip_before_action :require_login
 
+  # POST, GET /public/lastevents
+  def lastevents
+    pass_to_backend
+  end
+
   # GET /public/build/:project/:repository/:arch/:package
   def build
     required_parameters :project
