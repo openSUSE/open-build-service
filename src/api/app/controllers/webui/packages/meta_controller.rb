@@ -12,7 +12,13 @@ module Webui
       after_action :verify_authorized, only: :update
 
       def show
-        @meta = @package.render_xml
+        if @project.scmsync.present?
+          flash.now[:error] = "Package sources for project #{@project.name} are received through scmsync." \
+                              'This is not supported by the OBS frontend'
+          render :show, status: :not_found
+        else
+          @meta = @package.render_xml
+        end
       end
 
       def update
