@@ -4,7 +4,15 @@ module Webui
       before_action :lockout_spiders, only: [:show]
       before_action :set_project
       before_action :set_range
-      before_action :set_pulse
+
+      def show
+        respond_to do |format|
+          format.js do
+            set_pulse
+          end
+          format.html
+        end
+      end
 
       private
 
