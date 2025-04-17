@@ -12,6 +12,8 @@ module Webui
       after_action :verify_authorized, only: :update
 
       def show
+        return if @project.scmsync.present?
+
         @meta = @package.render_xml
       end
 
