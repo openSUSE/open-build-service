@@ -2,7 +2,7 @@ class SourceProjectController < SourceController
   include CheckAndRemoveRepositories
 
   validate_action index: { method: :get, response: :directory }
-  skip_before_action :require_valid_project_name, only: :index
+  before_action :require_valid_project_name, except: :index
 
   # GET /source
   #########

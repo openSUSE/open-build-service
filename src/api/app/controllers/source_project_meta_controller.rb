@@ -4,6 +4,7 @@ class SourceProjectMetaController < SourceController
   validate_action update: { request: :project, response: :status }
   validate_action show: { response: :project }
 
+  before_action :require_valid_project_name
   before_action :set_request_data, only: [:update]
   before_action :require_project_name, only: [:update]
 

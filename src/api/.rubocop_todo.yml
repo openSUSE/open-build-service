@@ -85,6 +85,7 @@ Metrics/ClassLength:
     - 'app/controllers/request_controller.rb'
     - 'app/controllers/search_controller.rb'
     - 'app/controllers/source_controller.rb'
+    - 'app/controllers/source_package_controller.rb'
     - 'app/controllers/source_package_command_controller.rb'
     - 'app/controllers/source_project_command_controller.rb'
     - 'app/controllers/source_project_controller.rb'

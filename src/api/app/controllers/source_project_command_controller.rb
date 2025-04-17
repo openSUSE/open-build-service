@@ -1,4 +1,6 @@
 class SourceProjectCommandController < SourceController
+  before_action :require_valid_project_name
+
   # POST /source/:project?cmd
   #-----------------
   def project_command

@@ -1,7 +1,8 @@
 class SourceProjectConfigController < SourceController
-  # GET /source/:project/_config
+  before_action :require_valid_project_name
   before_action :ensure_project_exist, only: %i[show update]
 
+  # GET /source/:project/_config
   def show
     config = get_config(@project)
 

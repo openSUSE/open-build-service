@@ -14,7 +14,8 @@ class SourcePackageCommandController < SourceController
   # we use an array for the "file" parameter for: package_command_diff, package_command_linkdiff and package_command_servicediff
   skip_before_action :validate_params, only: [:package_command]
 
-  before_action :require_package, only: %i[package_command]
+  before_action :require_valid_project_name
+  before_action :require_package
 
   # POST /source/:project/:package
   def package_command
