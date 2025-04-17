@@ -46,10 +46,32 @@ namespace :dev do
   task :bootstrap, [:old_test_suite] => %i[prepare environment] do |_t, args|
     args.with_defaults(old_test_suite: false)
 
-    begin
-      Rake::Task['db:version'].invoke
-    rescue StandardError
-      puts 'Creating and seeding the database...'
+    database_exists = false
+
+    # since Rails 7.2 `Rake::Task['db:version'].invoke` does not raise exception anymore if the database does not exist.
+    # So we need to check if the database exists before running the task.
+    if RailsVersion.is_7_2?
+      if ActiveRecord::Base.connection.database_exists?
+        puts 'Checking database...'
+        Rake::Task['db:version'].invoke
+        puts 'Database version is ok'
+        database_exists = true
+      else
+        database_exists = false
+      end
+    else
+      begin
+        puts 'Checking database...'
+        Rake::Task['db:version'].invoke
+        puts 'Database version is ok'
+        database_exists = true
+      rescue StandardError
+        database_exists = false
+      end
+    end
+
+    unless database_exists
+      puts 'Database does not exist. Creating and seeding the database...'
       Rake::Task['db:setup'].invoke
       if args.old_test_suite
         puts 'Old test suite. Loading fixtures...'
