@@ -1,4 +1,14 @@
-= log_entry.event_type.camelcase.prepend('Event::').constantize.description
+- if log_entry.event_type.camelcase === 'BuildSuccess'
+  %span.text-success
+    %i.fas.fa-check-circle
+    %span= log_entry.event_type.camelcase.prepend('Event::').constantize.description
+- elsif log_entry.event_type.camelcase === 'BuildFail'
+  %span.text-danger
+    %i.fas.fa-exclamation-circle
+    %span= log_entry.event_type.camelcase.prepend('Event::').constantize.description
+- else
+  = log_entry.event_type.camelcase.prepend('Event::').constantize.description
+
 - if log_entry.package_name
   (#{link_to(log_entry.package_name, package_show_path(project.name, log_entry.package_name))})
 - if log_entry.user_name
