@@ -6,10 +6,6 @@ module Webui
       before_action :set_range
       before_action :set_pulse
 
-      def show
-        @pulse = @project.project_log_entries.page(params[:page])
-      end
-
       private
 
       def set_range
