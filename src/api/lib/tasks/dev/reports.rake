@@ -16,7 +16,7 @@ namespace :dev do
         create(:project, name: 'some_crappy_project_name', commit_user: admin),
         create(:confirmed_user, login: 'crapboy')
       ].each do |reportable|
-        Report.create!(reportable: reportable, user: iggy, reason: 'Watch your language, please')
+        Report.create!(reportable: reportable, reporter: iggy, reason: 'Watch your language, please')
       end
 
       source_project = create(:project, :as_submission_source, name: 'source_project')
