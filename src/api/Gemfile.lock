@@ -530,7 +530,7 @@ GEM
       actionpack (>= 6.1)
       activesupport (>= 6.1)
       sprockets (>= 3.0.0)
-    stringio (3.1.2)
+    stringio (3.1.7)
     strong_migrations (2.3.0)
       activerecord (>= 7)
     sysexits (1.2.0)
@@ -686,7 +686,7 @@ DEPENDENCIES
   simplecov-cobertura
   single_test
   sprockets-rails
-  stringio (= 3.1.2)
+  stringio (= 3.1.7)
   strong_migrations
   terser
   test-unit

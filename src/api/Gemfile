@@ -120,7 +120,7 @@ gem 'rexml'
 # Also, they are used by bundler so version mismatches cause problems when booting the app in passenger
 gem 'base64', '0.2.0', require: false
 gem 'irb', '1.14.3'
-gem 'stringio', '3.1.2'
+gem 'stringio', '3.1.7'
 
 group :development, :production do
   # to have the delayed job daemon
