@@ -435,7 +435,7 @@ class XpathEngine
       when :attribute
         expr.shift # :qname token
         expr.shift # namespace
-        a << ("@#{expr.shift}")
+        a << "@#{expr.shift}"
       when :literal
         value = (escape ? escape_for_like(expr.shift) : expr.shift)
         return '' if @last_key && @attribs[table][@last_key][:empty]

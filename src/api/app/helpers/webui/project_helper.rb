@@ -11,7 +11,7 @@ module Webui::ProjectHelper
   def format_seconds(secs)
     secs = Integer(secs)
     if secs < 3600
-      format('0:%02d', (secs / 60))
+      format('0:%02d', secs / 60)
     else
       hours = secs / 3600
       secs -= hours * 3600

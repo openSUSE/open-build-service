@@ -43,7 +43,7 @@ class RpmlintLogParser
       errors[package] += 1
 
       # We only parse Badness when we find an error
-      badness[package] += ::Regexp.last_match[:badness].to_i if line_m[:rest] =~ (/\(Badness: (?<badness>\d+)\)/)
+      badness[package] += ::Regexp.last_match[:badness].to_i if line_m[:rest] =~ /\(Badness: (?<badness>\d+)\)/
     when 'W'
       warnings[package] += 1
     when 'I'

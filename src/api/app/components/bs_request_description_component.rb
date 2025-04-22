@@ -84,7 +84,7 @@ class BsRequestDescriptionComponent < ApplicationComponent
   def shorten_list(array, limit = 3)
     if array.count > limit
       total = array.count - (limit - 1)
-      array = array.take((limit - 1))
+      array = array.take(limit - 1)
       array << "#{total} #{'other'.pluralize(total)}"
     end
     array

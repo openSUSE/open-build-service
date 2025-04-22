@@ -195,7 +195,7 @@ class BranchPackage
         else
           tpkg = tprj.packages.new(name: pack_name)
         end
-        tpkg.bcntsynctag << (".#{p[:link_target_project].name.tr(':', '_')}") if tpkg.bcntsynctag && @extend_names
+        tpkg.bcntsynctag << ".#{p[:link_target_project].name.tr(':', '_')}" if tpkg.bcntsynctag && @extend_names
         tpkg.releasename = p[:release_name]
       end
       tpkg.store

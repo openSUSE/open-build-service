@@ -857,19 +857,6 @@ Style/OpenStructUse:
     - 'spec/services/trigger_controller_service/token_extractor_spec.rb'
     - 'spec/services/webui_controller_service/user_checker_spec.rb'
 
-# Offense count: 9
-# This cop supports safe autocorrection (--autocorrect).
-Style/RedundantParentheses:
-  Exclude:
-    - 'app/components/bs_request_description_component.rb'
-    - 'app/helpers/webui/project_helper.rb'
-    - 'app/models/branch_package.rb'
-    - 'app/services/rpmlint_log_parser.rb'
-    - 'lib/xpath_engine.rb'
-    - 'spec/models/kiwi/repository_spec.rb'
-    - 'spec/models/project_spec.rb'
-    - 'test/functional/request_controller_test.rb'
-
 # Offense count: 1
 # Configuration parameters: Max.
 Style/SafeNavigationChainLength:
