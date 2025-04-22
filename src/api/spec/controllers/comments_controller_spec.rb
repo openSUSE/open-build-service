@@ -22,7 +22,7 @@ RSpec.describe CommentsController do
         get :index, format: :xml, params: { project: object }
       end
 
-      include_examples 'request comment index'
+      it_behaves_like 'request comment index'
       it { expect(response.body).to include("<comments project=\"#{object.name}\">") }
     end
 
@@ -35,7 +35,7 @@ RSpec.describe CommentsController do
         get :index, format: :xml, params: { package: object, project: object.project.name }
       end
 
-      include_examples 'request comment index'
+      it_behaves_like 'request comment index'
       it { expect(response.body).to include("<comments project=\"#{object.project.name}\" package=\"#{object.name}\">") }
     end
 
@@ -48,7 +48,7 @@ RSpec.describe CommentsController do
         get :index, format: :xml, params: { request_number: object.number }
       end
 
-      include_examples 'request comment index'
+      it_behaves_like 'request comment index'
       it { expect(response.body).to include("<comments request=\"#{object.number}\">") }
     end
 

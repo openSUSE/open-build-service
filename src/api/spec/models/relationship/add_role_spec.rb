@@ -33,15 +33,15 @@ RSpec.describe Relationship::AddRole do
     context 'with package' do
       let(:package_or_project) { create(:package) }
 
-      include_examples 'user'
-      include_examples 'group'
+      it_behaves_like 'user'
+      it_behaves_like 'group'
     end
 
     context 'with project' do
       let(:package_or_project) { create(:project) }
 
-      include_examples 'user'
-      include_examples 'group'
+      it_behaves_like 'user'
+      it_behaves_like 'group'
     end
   end
 end

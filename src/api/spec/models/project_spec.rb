@@ -256,7 +256,7 @@ RSpec.describe Project, :vcr do
       it 'has ::' do
         property_of do
           string = sized(1) { string(/[a-zA-Z0-9\-+]/) } + sized(range(1, 199)) { string(/[-+\w.:]/) }
-          index = range(0, (string.length - 2))
+          index = range(0, string.length - 2)
           string[index] = string[index + 1] = ':'
           string
         end.check do |string|

@@ -54,8 +54,8 @@ RSpec.describe 'RoutesHelper::APIMatcher' do
     }
   end
 
-  include_examples '/public routes to PublicController independent of format', 'html'
-  include_examples '/public routes to PublicController independent of format', 'xml'
+  it_behaves_like '/public routes to PublicController independent of format', 'html'
+  it_behaves_like '/public routes to PublicController independent of format', 'xml'
 
   it 'routes requests to global_command_* correctly' do
     expect(post('/source?cmd=orderkiwirepos')).to route_to(

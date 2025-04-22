@@ -75,7 +75,7 @@ RSpec.describe Kiwi::Repository do
       it 'not valid when protocol is not valid' do
         property_of do
           string = sized(range(3, 199)) { string(/\w/) }
-          index = range(0, (string.length - 3))
+          index = range(0, string.length - 3)
           string[index] = ':'
           string[index + 1] = string[index + 2] = '/'
           guard(%w[ftp http https plain dir iso smb this obs].exclude?(string[0..index - 1]))
@@ -89,7 +89,7 @@ RSpec.describe Kiwi::Repository do
         it 'not valid when has `{`' do
           property_of do
             string = sized(range(1, 199)) { string(/\w/) }
-            index = range(0, (string.length - 1))
+            index = range(0, string.length - 1)
             uri_character = sized(1) { string(/[{]/) }
             string[index] = uri_character
             "#{protocol}://#{string}"

@@ -8,7 +8,7 @@ RSpec.describe Token::WorkflowPolicy do
 
   describe '#trigger' do
     context 'user inactive' do
-      include_examples 'non-active users cannot trigger a token'
+      it_behaves_like 'non-active users cannot trigger a token'
     end
 
     # As a workflow token is not tied to a package, any user can create one as long as their account is active.
