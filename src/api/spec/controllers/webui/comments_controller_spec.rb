@@ -38,19 +38,19 @@ RSpec.describe Webui::CommentsController do
       context 'of a project' do
         let(:commentable) { project }
 
-        include_examples 'saving a comment'
+        it_behaves_like 'saving a comment'
       end
 
       context 'of a package' do
         let(:commentable) { package }
 
-        include_examples 'saving a comment'
+        it_behaves_like 'saving a comment'
       end
 
       context 'of a bs_request' do
         let(:commentable) { bs_request }
 
-        include_examples 'saving a comment'
+        it_behaves_like 'saving a comment'
       end
     end
 
@@ -348,19 +348,19 @@ RSpec.describe Webui::CommentsController do
       context 'of a project' do
         let(:commentable) { project }
 
-        include_examples 'updating a comment'
+        it_behaves_like 'updating a comment'
       end
 
       context 'of a package' do
         let(:commentable) { package }
 
-        include_examples 'updating a comment'
+        it_behaves_like 'updating a comment'
       end
 
       context 'of a bs_request' do
         let(:commentable) { bs_request }
 
-        include_examples 'updating a comment'
+        it_behaves_like 'updating a comment'
       end
     end
 

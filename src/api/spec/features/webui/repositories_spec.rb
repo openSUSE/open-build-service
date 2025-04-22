@@ -149,7 +149,7 @@ RSpec.describe 'Repositories', :js do
     let!(:user) { create(:confirmed_user, :with_home, login: 'Jane') }
     let(:project) { user.home_project }
 
-    include_examples 'bootstrap tests for sections with flag tables'
+    it_behaves_like 'bootstrap tests for sections with flag tables'
   end
 
   describe 'Repositories' do

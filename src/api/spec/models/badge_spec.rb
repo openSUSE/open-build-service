@@ -98,7 +98,7 @@ RSpec.describe Badge do
       let(:expected_failure) { 'failed' }
       let(:type) { '' }
 
-      include_examples 'tests for badge xml'
+      it_behaves_like 'tests for badge xml'
     end
 
     context 'with percent type specified' do
@@ -106,7 +106,7 @@ RSpec.describe Badge do
       let(:expected_failure) { '50%' }
       let(:type) { 'percent' }
 
-      include_examples 'tests for badge xml'
+      it_behaves_like 'tests for badge xml'
     end
   end
 end
