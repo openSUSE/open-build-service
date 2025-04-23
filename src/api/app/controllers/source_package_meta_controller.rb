@@ -4,6 +4,7 @@ class SourcePackageMetaController < SourceController
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
   validate_action update: { request: :package, response: :status }
+  before_action :require_valid_project_name
   before_action :require_package_name, only: %i[show update]
   before_action :set_request_data, only: [:update]
 

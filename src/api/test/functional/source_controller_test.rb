@@ -1706,16 +1706,16 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                         assertresp3, asserteq3, assertresp4)
     # write without permission:
     login_tom
-    get url_for(controller: :source, action: :show_file, project: 'kde4', package: 'kdelibs', filename: 'my_patch.diff')
+    get url_for(controller: :source_package, action: :show_file, project: 'kde4', package: 'kdelibs', filename: 'my_patch.diff')
     assert_response :success
     origstring = @response.body.to_s
     teststring = '&;'
-    put url_for(controller: :source, action: :show_file, project: 'kde4', package: 'kdelibs', filename: 'my_patch.diff'), params: teststring
+    put url_for(controller: :source_package, action: :show_file, project: 'kde4', package: 'kdelibs', filename: 'my_patch.diff'), params: teststring
     assert_response(:forbidden, 'Was able to write a package file without permission')
     assert_xml_tag(tag: 'status')
 
     # check that content is unchanged:
-    get url_for(controller: :source, action: :show_file, project: 'kde4', package: 'kdelibs', filename: 'my_patch.diff')
+    get url_for(controller: :source_package, action: :show_file, project: 'kde4', package: 'kdelibs', filename: 'my_patch.diff')
     assert_response :success
     assert_equal(@response.body.to_s, origstring, 'Package file was changed without permissions')
 

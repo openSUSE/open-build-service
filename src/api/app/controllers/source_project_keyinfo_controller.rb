@@ -1,4 +1,5 @@
 class SourceProjectKeyinfoController < SourceController
+  before_action :require_valid_project_name
   before_action :ensure_project_exist, only: [:show]
 
   # GET /source/:project/_keyinfo
