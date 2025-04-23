@@ -18,14 +18,12 @@ class SourcePackageCommandController < SourceController
   before_action :require_package # FIXME: This is actually setting @deleted_package, @target_project_name and @target_package_name
   before_action :set_command
   before_action :set_origin_package
+  before_action :validate_target_project_name
+  before_action :validate_target_package_name
 
   # POST /source/:project/:package
   def package_command
     params[:user] = User.session.login
-
-    raise InvalidProjectNameError, "invalid project name '#{params[:target_project]}'" if params[:target_project] && !Project.valid_name?(params[:target_project])
-
-    valid_package_name!(params[:target_package]) if params[:target_package]
 
     unless PACKAGE_CREATING_COMMANDS.include?(@command) && !Project.exists_by_name(@target_project_name)
       raise InvalidProjectNameError, "invalid project name '#{params[:project]}'" unless Project.valid_name?(params[:project])
@@ -444,6 +442,16 @@ class SourcePackageCommandController < SourceController
   ##
   ## HELPER METHODS ##
   ##
+
+  def validate_target_project_name
+    return unless params[:target_project]
+    raise InvalidProjectNameError, "invalid project name '#{params[:target_project]}'" unless Project.valid_name?(params[:target_project])
+  end
+
+  def validate_target_package_name
+    return unless params[:target_package]
+    raise InvalidPackageNameError, "invalid package name '#{params[:target_package]}'" unless Package.valid_name?(params[:target_package])
+  end
 
   def set_command
     raise MissingParameterError, 'POST request without given cmd parameter' unless params[:cmd]
