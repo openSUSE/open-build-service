@@ -14,21 +14,18 @@ class SourcePackageCommandController < SourceController
   # we use an array for the "file" parameter for: package_command_diff, package_command_linkdiff and package_command_servicediff
   skip_before_action :validate_params, only: [:package_command]
 
-  before_action :require_valid_project_name
   before_action :require_package # FIXME: This is actually setting @deleted_package, @target_project_name and @target_package_name
   before_action :set_command
   before_action :set_user_param
   before_action :set_origin_package
   before_action :validate_target_project_name
   before_action :validate_target_package_name
+  before_action :validate_project_name
+  before_action :validate_package_name
 
   # POST /source/:project/:package
   def package_command
     unless PACKAGE_CREATING_COMMANDS.include?(@command) && !Project.exists_by_name(@target_project_name)
-      raise InvalidProjectNameError, "invalid project name '#{params[:project]}'" unless Project.valid_name?(params[:project])
-
-      raise InvalidPackageNameError, "invalid package name '#{params[:package]}'" unless Package.valid_name?(params[:package], allow_multibuild: @command == 'release')
-
       # even when we can create the package, an existing instance must be checked if permissions are right
       @project = Project.get_by_name(@target_project_name)
       if (PACKAGE_CREATING_COMMANDS.exclude?(@command) || Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(@command))) &&
@@ -441,6 +438,18 @@ class SourcePackageCommandController < SourceController
   ##
   ## HELPER METHODS ##
   ##
+
+  def validate_project_name
+    return if Project.valid_name?(params[:project])
+
+    raise InvalidProjectNameError, "invalid project name '#{params[:project]}'"
+  end
+
+  def validate_package_name
+    return if Package.valid_name?(params[:package], allow_multibuild: @command == 'release')
+
+    raise InvalidPackageNameError, "invalid package name '#{params[:package]}'"
+  end
 
   def validate_target_project_name
     return unless params[:target_project]
