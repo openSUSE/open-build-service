@@ -15,32 +15,18 @@ class SourcePackageCommandController < SourceController
   skip_before_action :validate_params, only: [:package_command]
 
   before_action :require_valid_project_name
-  before_action :require_package
+  before_action :require_package # FIXME: This is actually setting @deleted_package, @target_project_name and @target_package_name
   before_action :set_command
+  before_action :set_origin_package
 
   # POST /source/:project/:package
   def package_command
     params[:user] = User.session.login
 
-    if params[:oproject]
-      origin_project_name = params[:oproject]
-      raise InvalidProjectNameError, "invalid project name '#{origin_project_name}'" unless Project.valid_name?(origin_project_name)
-    end
-    if params[:opackage]
-      origin_package_name = params[:opackage]
-      valid_package_name!(origin_package_name)
-    end
-
-    required_parameters :oproject if origin_package_name
-
     raise InvalidProjectNameError, "invalid project name '#{params[:target_project]}'" if params[:target_project] && !Project.valid_name?(params[:target_project])
 
     valid_package_name!(params[:target_package]) if params[:target_package]
 
-    # Check for existence/access of origin package when specified
-    @spkg = nil
-    Project.get_by_name(origin_project_name) if origin_project_name
-    @spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name) if origin_package_name && !origin_package_name.in?(%w[_project _pattern]) && !(params[:missingok] && @command.in?(%w[branch release]))
     unless PACKAGE_CREATING_COMMANDS.include?(@command) && !Project.exists_by_name(@target_project_name)
       raise InvalidProjectNameError, "invalid project name '#{params[:project]}'" unless Project.valid_name?(params[:project])
 
@@ -294,10 +280,10 @@ class SourcePackageCommandController < SourceController
   def package_command_copy
     verify_can_modify_target!
 
-    if @spkg
+    if @origin_package
       # use real source in case we followed project link
-      sproject = params[:oproject] = @spkg.project.name
-      spackage = params[:opackage] = @spkg.name
+      sproject = params[:oproject] = @origin_package.project.name
+      spackage = params[:opackage] = @origin_package.name
     else
       sproject = params[:oproject] || params[:project]
       spackage = params[:opackage] || params[:package]
@@ -472,6 +458,19 @@ class SourcePackageCommandController < SourceController
 
     @command = params[:cmd]
     raise IllegalRequest, 'invalid_command' unless valid_commands.include?(@command)
+  end
+
+  def set_origin_package
+    return nil unless params[:opackage]
+
+    required_parameters(:oproject)
+    raise InvalidPackageNameError, "invalid package name '#{params[:opackage]}'" unless Package.valid_name?(params[:opackage])
+    raise InvalidProjectNameError, "invalid project name '#{params[:oproject]}'" unless Project.valid_name?(params[:oproject])
+
+    return if %w[_project _pattern].include?(params[:opackage])
+    return if %w[branch release].include?(@command) && params[:missingok]
+
+    @origin_package = Package.get_by_project_and_name(params[:oproject], params[:opackage])
   end
 
   def verify_can_modify_target!
