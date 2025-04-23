@@ -27,12 +27,9 @@ class PackageIssue < ApplicationRecord
           # rubocop:enable Rails/SkipsModelValidations
         end
       end
-    rescue ActiveRecord::StatementInvalid, Mysql2::Error => e
+    rescue ActiveRecord::StatementInvalid, Mysql2::Error
       retries -= 1
-      if retries.positive?
-        Airbrake.notify("Failed to update PackageIssue : retries left: #{retries}, #{e}, package: #{package.inspect}")
-        retry
-      end
+      retry if retries.positive?
     end
   end
 
