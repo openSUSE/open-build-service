@@ -16,23 +16,11 @@ class SourcePackageCommandController < SourceController
 
   before_action :require_valid_project_name
   before_action :require_package
+  before_action :set_command
 
   # POST /source/:project/:package
   def package_command
     params[:user] = User.session.login
-
-    raise MissingParameterError, 'POST request without given cmd parameter' unless params[:cmd]
-
-    # valid post commands
-    valid_commands = %w[diff branch servicediff linkdiff showlinked copy
-                        remove_flag set_flag undelete runservice waitservice
-                        mergeservice commit commitfilelist createSpecFileTemplate
-                        deleteuploadrev linktobranch updatepatchinfo getprojectservices
-                        unlock release importchannel rebuild collectbuildenv
-                        instantiate addcontainers addchannels enablechannel fork]
-
-    @command = params[:cmd]
-    raise IllegalRequest, 'invalid_command' unless valid_commands.include?(@command)
 
     if params[:oproject]
       origin_project_name = params[:oproject]
@@ -470,6 +458,21 @@ class SourcePackageCommandController < SourceController
   ##
   ## HELPER METHODS ##
   ##
+
+  def set_command
+    raise MissingParameterError, 'POST request without given cmd parameter' unless params[:cmd]
+
+    # valid post commands
+    valid_commands = %w[diff branch servicediff linkdiff showlinked copy
+                        remove_flag set_flag undelete runservice waitservice
+                        mergeservice commit commitfilelist createSpecFileTemplate
+                        deleteuploadrev linktobranch updatepatchinfo getprojectservices
+                        unlock release importchannel rebuild collectbuildenv
+                        instantiate addcontainers addchannels enablechannel fork]
+
+    @command = params[:cmd]
+    raise IllegalRequest, 'invalid_command' unless valid_commands.include?(@command)
+  end
 
   def verify_can_modify_target!
     # we require a target, but are we allowed to modify the existing target ?
