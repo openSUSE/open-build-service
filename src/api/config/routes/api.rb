@@ -346,12 +346,26 @@ defaults format: 'xml' do
   end
 end
 
+# ### /labels
+scope :labels do
+  resources :projects, only: [], param: :name do
+    resources :labels, only: %i[index create destroy], path: '', controller: 'labels/projects', constraints: cons
+    resources :packages, only: [], param: :name do
+      resources :labels, only: %i[index create destroy], path: '', constraints: cons
+    end
+  end
+  resources :requests, only: [], param: :number do
+    resources :labels, only: %i[index create destroy], path: '', constraints: cons
+  end
+end
+
 ### /label_templates
 resources :label_templates, only: %i[index create update destroy], constraints: cons
 
-scope :labels do
-  resources :projects, only: [], param: :name, constraints: cons do
-    resources :labels, only: %i[index create destroy], path: '', controller: 'labels/projects', constraints: cons
+### /label_templates/projects/:project_name(/:id)
+scope :label_templates do
+  resources :projects, only: [], param: :name do
+    resources :label_templates, only: %i[index create update destroy], path: '', controller: 'label_templates/projects', constraints: cons
   end
 end
 
@@ -399,15 +413,3 @@ match 'build/:project' => 'build#project_index', constraints: cons, via: %i[get 
 
 # :arch can be also a ymp for a pattern :/
 get 'published/:project(/:repository(/:arch(/:binary)))' => 'published#index', constraints: cons
-
-# ### /labels
-scope :labels do
-  resources :projects, only: [], param: :name do
-    resources :packages, only: [], param: :name do
-      resources :labels, only: %i[index create destroy], path: '', constraints: cons
-    end
-  end
-  resources :requests, only: [], param: :number do
-    resources :labels, only: %i[index create destroy], path: '', constraints: cons
-  end
-end
