@@ -1,17 +1,18 @@
 module WebuiControllerService
   class UserChecker
-    attr_reader :user_login, :http_request
+    attr_reader :user_login, :user_email, :http_request
 
     def initialize(http_request:)
       @http_request = http_request
-      @user_login = extract_user_login_from_http_request
+      @user_login = http_request.env['HTTP_X_USERNAME']
+      @user_email = http_request.env['HTTP_X_EMAIL']
     end
 
     # Returns false if a user with a disabled account is trying to authenticate through the proxy
     def call
       return true unless ::Configuration.proxy_auth_mode_enabled?
 
-      if user_login.blank?
+      if user_login.blank? || user_email.blank?
         User.session = User.find_nobody!
         return true
       end
@@ -37,7 +38,7 @@ module WebuiControllerService
       else
         # This will end up in a before_validation(on: :create) that updates last_logged_in_at.
         User.create_user_with_fake_pw!(login: user_login,
-                                       email: http_request.env['HTTP_X_EMAIL'],
+                                       email: user_email,
                                        state: User.default_user_state,
                                        realname: realname)
       end
@@ -45,10 +46,6 @@ module WebuiControllerService
 
     def realname
       "#{http_request.env['HTTP_X_FIRSTNAME']} #{http_request.env['HTTP_X_LASTNAME']}".strip
-    end
-
-    def extract_user_login_from_http_request
-      http_request.env['HTTP_X_USERNAME']
     end
   end
 end
