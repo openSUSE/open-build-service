@@ -564,16 +564,15 @@ class SourcePackageCommandController < SourceController
     @project = nil
     @package = nil
 
-    follow_project_links = SOURCE_UNTOUCHED_COMMANDS.include?(@command)
-
     unless @target_package_name.in?(%w[_project _pattern])
-      use_source = true
-      use_source = false if @command == 'showlinked'
+      follow_project_links = SOURCE_UNTOUCHED_COMMANDS.include?(@command)
+      use_source = @command != 'showlinked'
+      ignore_lock = @command == 'unlock'
+
       @package = Package.get_by_project_and_name(@target_project_name, @target_package_name,
                                                  use_source: use_source, follow_project_links: follow_project_links)
       if @package # for remote package case it's nil
         @project = @package.project
-        ignore_lock = @command == 'unlock'
         raise CmdExecutionNoPermission, "no permission to modify package #{@package.name} in project #{@project.name}" unless READ_COMMANDS.include?(@command) || User.session.can_modify?(@package, ignore_lock)
       end
     end
