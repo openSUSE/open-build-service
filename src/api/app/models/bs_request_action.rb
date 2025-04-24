@@ -739,6 +739,7 @@ class BsRequestAction < ApplicationRecord
 
   def modify_sources(force_branching)
     # only used in incidents so far
+    raise AbstractMethodCalled
   end
 
   def source_access_check!

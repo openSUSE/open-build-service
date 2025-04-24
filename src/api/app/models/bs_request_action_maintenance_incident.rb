@@ -116,10 +116,14 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     "Incident #{source_package}"
   end
 
-  def modify_sources(force_branching)
+  def enforce_branching
+    @enforce_branching = true
+  end
+
+  def modify_sources
     # is branch enforcement a policy?
     maintenance_project = Project.find_by_name(target_project)
-    return if force_branching.nil? && Attrib.find_by_container_and_fullname(maintenance_project, 'OBS:EnforceIncidentRequestStaging').nil?
+    return if @enforce_branching.nil? && Attrib.find_by_container_and_fullname(maintenance_project, 'OBS:EnforceIncidentRequestStaging').nil?
 
     title = 'Enforce branch project for maintenance incident request'
     description = ''
@@ -136,8 +140,8 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
         stage_project.flags.create(status: 'disable', flag: 'build')
         stage_project.flags.create(status: 'disable', flag: 'publish')
         # copy maintainer
-        maintainer_role = Role.find_by_title!("maintainer")
-        maintenance_project.relationships.where(role: maintainer_role).each do |r|
+        maintainer_role = Role.find_by_title!('maintainer')
+        maintenance_project.relationships.where(role: maintainer_role).find_each do |r|
           stage_project.relationships.new(role: maintainer_role, user_id: r.user_id, group_id: r.group_id)
         end
         stage_project.relationships.new(role: maintainer_role, user_id: User.session.id)
@@ -145,10 +149,10 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
         # autocleanup attribute in case request gets not accepted?
         at = AttribType.find_by_namespace_and_name!('OBS', 'AutoCleanup')
         a = Attrib.new(project: stage_project, attrib_type: at)
-        a.values << AttribValue.new(value: (Time.now + ::Configuration.cleanup_after_days.days), position: 1)
+        a.values << AttribValue.new(value: (Time.now.to_i + ::Configuration.cleanup_after_days.days), position: 1)
         a.save
         # but remove project on accept in any case
-        delete_action = BsRequestActionDelete.new({ target_project: stage_project_name})
+        delete_action = BsRequestActionDelete.new({ target_project: stage_project_name })
         bs_request.bs_request_actions << delete_action
       end
     end
@@ -156,6 +160,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     # create package
     pkg = _merge_pkg_into_maintenance_incident(stage_project)
     return unless pkg
+
     # adapt request action
     self.source_project = stage_project.name
     self.source_package = pkg.name
@@ -163,9 +168,9 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     # create channels
     pkg.add_channels(:enable_all)
     # create patchinfo unless we have one
-    unless PackageKind.where(package: stage_project.packages, kind: "patchinfo").exists?
-      Patchinfo.new.create_patchinfo_from_request(stage_project, bs_request)
-    end
+    return if PackageKind.where(package: stage_project.packages, kind: 'patchinfo').exists?
+
+    Patchinfo.new.create_patchinfo_from_request(stage_project, bs_request)
   end
 
   private
@@ -263,7 +268,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     cp_params[:orev] = source_rev if source_rev
     response = Backend::Api::Sources::Package.copy(incident_project.name, new_pkg.name, source_project, source_package, User.session!.login, cp_params)
     result = Xmlhash.parse(response)
-    fill_acceptinfo(result['acceptinfo']) if bs_request.number && new_pkg.project.is_maintenance_incident?
+    fill_acceptinfo(result['acceptinfo']) if bs_request.number && new_pkg.project.maintenance_incident?
 
     new_pkg.sources_changed
     new_pkg
