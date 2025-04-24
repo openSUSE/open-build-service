@@ -17,6 +17,8 @@ module OwnerSearch
         @lookup_limit = limit.to_i
         @devel_disabled = devel_disabled?(project)
         find_assignees_by_binary(binary_name)
+        webui_mode = params[:webui_mode].present?
+        return @instances_without_definition if webui_mode && @package_owners.empty?
       end
       @package_owners
     end
@@ -36,6 +38,8 @@ module OwnerSearch
         @lookup_limit = limit.to_i
         @devel_disabled = devel_disabled?(project)
         find_assignees_by_package(package_name)
+        webui_mode = params[:webui_mode].present?
+        return @instances_without_definition if webui_mode && @package_owners.empty?
       end
       @package_owners
     end
