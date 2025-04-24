@@ -519,7 +519,7 @@ sub update_project_meta {
 
 sub has_critical_config_change {
   my ($projid, $repoid, $arch, $oldconfig, $newconfig) = @_;
-  my @mprefix = ("%define _project $projid", "%define _repository $repoid");
+  my @mprefix = ("%define _project $projid", "%define _repository $repoid", "%define _is_this_project 1", "%define _is_in_project 1");
   my $cold = Build::read_config($arch, [ @mprefix, split("\n", $oldconfig || '') ]);
   my $cnew = Build::read_config($arch, [ @mprefix, split("\n", $newconfig || '') ]);
   return 1 if ($cold->{'expandflags:macroserial'} || '') ne ($cnew->{'expandflags:macroserial'} || '');
@@ -1613,6 +1613,7 @@ sub getconfig {
   $config .= "%define _obs_feature_exclude_cpu_constraints 1\n";
   my $projpacks = $gctx->{'projpacks'};
   my $remoteprojs = $gctx->{'remoteprojs'};
+  my ($old_is_this_project, $old_is_in_project) = (-1, -1);
   for my $prp (reverse @$path) {
     my ($p, $r) = split('/', $prp, 2);
     my $c;
@@ -1626,6 +1627,12 @@ sub getconfig {
     next unless defined $c;
     $config .= "\n### from $p\n";
     $config .= "%define _repository $r\n";
+    my $new_is_this_project = $p eq $projid ? 1 : 0; 
+    my $new_is_in_project = $new_is_this_project || substr($p, 0, length($projid) + 1) eq "$projid:" ? 1 : 0; 
+    $config .= "%define _is_this_project $new_is_this_project\n" if $new_is_this_project ne $old_is_this_project;
+    $config .= "%define _is_in_project $new_is_in_project\n" if $new_is_in_project ne $old_is_in_project;
+    ($old_is_this_project, $old_is_in_project) = ($new_is_this_project, $new_is_in_project);
+
     # get rid of the Macros sections
     my $s1 = '^\s*macros:\s*$.*?^\s*:macros\s*$';
     my $s2 = '^\s*macros:\s*$.*\Z';
