@@ -1,0 +1,44 @@
+put:
+  summary: Update a global label template.
+  description: |
+    **(Unstable)** Update a global label template.
+
+    This is only for admins.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/label_template_id.yaml'
+  requestBody:
+    description: Label template definition
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/label_template.yaml'
+        example:
+          color: '#AABBCC'
+          name: hey
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Label Templates
+
+delete:
+  summary: Delete a global label template.
+  description: |
+    **(Unstable)** Delete a global label template.
+
+    This is only for admins.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/label_template_id.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Label Templates
