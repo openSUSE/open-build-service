@@ -270,10 +270,6 @@ class BsRequest < ApplicationRecord
     @ignore_delegate = true
   end
 
-  def enforce_branching
-    @enforce_branching = true
-  end
-
   def sanitize?
     !@skip_sanitize
   end
@@ -936,7 +932,7 @@ class BsRequest < ApplicationRecord
 
   def modify_sources
     bs_request_actions.each do |action|
-      action.modify_sources(@enforce_branching)
+      action.modify_sources()
     end
   end
 
