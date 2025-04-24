@@ -142,7 +142,7 @@ class BsRequestPermissionCheck
                     User.session!
                   end
     req.bs_request_actions.each do |action|
-      set_permissions_for_action(action, (opts[:newstate] == 'declined'), target_user)
+      set_permissions_for_action(action, opts[:newstate] == 'declined', target_user)
 
       check_newstate_action!(action)
 
@@ -359,7 +359,7 @@ class BsRequestPermissionCheck
     # general write permission check on the target on accept
     @write_permission_in_this_action = false
     # meta data change shall also be allowed after freezing a project using force:
-    ignore_lock = (opts[:force] && action.action_type == :set_bugowner) unless ignore_lock
+    ignore_lock ||= opts[:force] && action.action_type == :set_bugowner
     if @target_package
       if target_user.can_modify?(@target_package, ignore_lock)
         @write_permission_in_target = true
