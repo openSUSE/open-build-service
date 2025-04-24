@@ -21,7 +21,7 @@ class BsRequestPermissionCheck
     raise ReviewChangeStateNoPermission, 'The request is not in state new or review' unless relaxed_state_check || req.state.in?(%i[review new])
 
     req.bs_request_actions.each do |action|
-      set_permissions_for_action(action)
+      set_permissions_for_action(action, true)
     end
     require_permissions_in_target_or_source unless permissions_granted
   end
@@ -32,7 +32,7 @@ class BsRequestPermissionCheck
     return if req.creator == User.session!.login
 
     req.bs_request_actions.each do |action|
-      set_permissions_for_action(action)
+      set_permissions_for_action(action. true)
     end
     return if @write_permission_in_target
 
@@ -43,7 +43,7 @@ class BsRequestPermissionCheck
     raise ReviewChangeStateNoPermission, 'The request is not in state new or review' unless req.state.in?(%i[review new])
 
     req.bs_request_actions.each do |action|
-      set_permissions_for_action(action)
+      set_permissions_for_action(action, true)
 
       raise TargetNotMaintenance, 'The target project is already an incident, changing is not possible via set_incident' if @target_project.maintenance_incident?
       raise TargetNotMaintenance, "The target project is not of type maintenance but #{@target_project.kind}" unless @target_project.kind == 'maintenance'
@@ -322,7 +322,7 @@ class BsRequestPermissionCheck
     true
   end
 
-  def set_permissions_for_action(action, new_state = nil)
+  def set_permissions_for_action(action, ignore_lock = nil, target_user = User.session!)
     # general write permission check on the target on accept
     @write_permission_in_this_action = false
 
@@ -354,8 +354,7 @@ class BsRequestPermissionCheck
     # general write permission check on the target on accept
     @write_permission_in_this_action = false
     # meta data change shall also be allowed after freezing a project using force:
-    ignore_lock = (new_state == 'declined') ||
-                  (opts[:force] && action.action_type == :set_bugowner)
+    ignore_lock = (opts[:force] && action.action_type == :set_bugowner) unless ignore_lock
     target_user = if new_state == 'accepted'
                     accept_user
                   else
