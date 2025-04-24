@@ -136,8 +136,13 @@ class BsRequestPermissionCheck
       (req.state == :declined && opts[:newstate].in?(%w[new review]) && (req.commenter == User.session!.login || user_is_staging_manager))
 
     # permission and validation check for each action inside
+    target_user = if new_state == 'accepted'
+                    accept_user
+                  else
+                    User.session!
+                  end
     req.bs_request_actions.each do |action|
-      set_permissions_for_action(action, accept_check ? 'accepted' : opts[:newstate])
+      set_permissions_for_action(action, (opts[:newstate] == 'declined'), target_user)
 
       check_newstate_action!(action)
 
@@ -355,11 +360,6 @@ class BsRequestPermissionCheck
     @write_permission_in_this_action = false
     # meta data change shall also be allowed after freezing a project using force:
     ignore_lock = (opts[:force] && action.action_type == :set_bugowner) unless ignore_lock
-    target_user = if new_state == 'accepted'
-                    accept_user
-                  else
-                    User.session!
-                  end
     if @target_package
       if target_user.can_modify?(@target_package, ignore_lock)
         @write_permission_in_target = true
