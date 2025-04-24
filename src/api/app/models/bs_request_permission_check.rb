@@ -32,7 +32,7 @@ class BsRequestPermissionCheck
     return if req.creator == User.session!.login
 
     req.bs_request_actions.each do |action|
-      set_permissions_for_action(action. true)
+      set_permissions_for_action(action, true)
     end
     return if @write_permission_in_target
 
