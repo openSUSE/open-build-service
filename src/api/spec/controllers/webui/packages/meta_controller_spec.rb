@@ -6,12 +6,29 @@ RSpec.describe Webui::Packages::MetaController, :vcr do
   let(:source_package) { create(:package, name: 'my_package', project: source_project) }
 
   describe 'GET #show' do
-    before do
-      get :show, params: { project_name: source_project, package_name: source_package }
+    context 'when its a project not managed via scmsync' do
+      before do
+        get :show, params: { project_name: source_project, package_name: source_package }
+      end
+
+      it { expect(response).to have_http_status(:ok) }
+
+      it 'sets the xml representation of a package' do
+        expect(assigns(:meta)).to eq(source_package.render_xml)
+      end
     end
 
-    it 'sends the xml representation of a package' do
-      expect(assigns(:meta)).to eq(source_package.render_xml)
+    context 'when its a project managed via scmsync' do
+      before do
+        source_project.update(scmsync: 'https://src.opensuse.org/lua/_ObsPrj.git#master')
+        get :show, params: { project_name: source_project, package_name: 'some_package' }
+      end
+
+      it { expect(response).to have_http_status(:not_found) }
+
+      it 'does not set the xml representation of a package' do
+        expect(assigns(:meta)).to be_nil
+      end
     end
   end
 
