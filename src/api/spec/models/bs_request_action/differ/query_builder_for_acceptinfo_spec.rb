@@ -1,4 +1,4 @@
-RSpec.describe BsRequestAction::Differ::QueryBuilderForAccepted do
+RSpec.describe BsRequestAction::Differ::QueryBuilderForAcceptInfo do
   describe '#build' do
     context 'with xsrcmd5 and oxsrcmd5' do
       let(:accept_info) do
