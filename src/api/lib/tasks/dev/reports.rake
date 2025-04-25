@@ -34,7 +34,7 @@ namespace :dev do
                source_package: source_package,
                description: 'Hey! Visit my new site $$$!')
       ].each do |reportable|
-        Report.create!(reportable: reportable, user: user1, reason: 'This is a scam')
+        Report.create!(reportable: reportable, reporter: user1, reason: 'This is a scam')
       end
     end
 
@@ -58,7 +58,7 @@ namespace :dev do
       # The same decision applies to more than one report about the same object/reportable.
       reportable = Decision.first.reports.first.reportable
       another_user = User.find_by(login: 'Requestor') || create(:confirmed_user, login: 'Requestor')
-      another_report = Report.create!(reportable: reportable, user: another_user, reason: 'Behave properly, please!')
+      another_report = Report.create!(reportable: reportable, reporter: another_user, reason: 'Behave properly, please!')
       Decision.first.reports << another_report
 
       # Create an appeal against a favored decision and subscribe moderators to it
