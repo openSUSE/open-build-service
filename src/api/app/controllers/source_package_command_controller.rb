@@ -14,50 +14,18 @@ class SourcePackageCommandController < SourceController
   # we use an array for the "file" parameter for: package_command_diff, package_command_linkdiff and package_command_servicediff
   skip_before_action :validate_params, only: [:package_command]
 
-  before_action :require_valid_project_name
-  before_action :require_package
+  before_action :require_package # FIXME: This is actually setting @deleted_package, @target_project_name and @target_package_name
+  before_action :set_command
+  before_action :set_user_param
+  before_action :set_origin_package
+  before_action :validate_target_project_name
+  before_action :validate_target_package_name
+  before_action :validate_project_name
+  before_action :validate_package_name
 
   # POST /source/:project/:package
   def package_command
-    params[:user] = User.session.login
-
-    raise MissingParameterError, 'POST request without given cmd parameter' unless params[:cmd]
-
-    # valid post commands
-    valid_commands = %w[diff branch servicediff linkdiff showlinked copy
-                        remove_flag set_flag undelete runservice waitservice
-                        mergeservice commit commitfilelist createSpecFileTemplate
-                        deleteuploadrev linktobranch updatepatchinfo getprojectservices
-                        unlock release importchannel rebuild collectbuildenv
-                        instantiate addcontainers addchannels enablechannel fork]
-
-    @command = params[:cmd]
-    raise IllegalRequest, 'invalid_command' unless valid_commands.include?(@command)
-
-    if params[:oproject]
-      origin_project_name = params[:oproject]
-      raise InvalidProjectNameError, "invalid project name '#{origin_project_name}'" unless Project.valid_name?(origin_project_name)
-    end
-    if params[:opackage]
-      origin_package_name = params[:opackage]
-      valid_package_name!(origin_package_name)
-    end
-
-    required_parameters :oproject if origin_package_name
-
-    raise InvalidProjectNameError, "invalid project name '#{params[:target_project]}'" if params[:target_project] && !Project.valid_name?(params[:target_project])
-
-    valid_package_name!(params[:target_package]) if params[:target_package]
-
-    # Check for existence/access of origin package when specified
-    @spkg = nil
-    Project.get_by_name(origin_project_name) if origin_project_name
-    @spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name) if origin_package_name && !origin_package_name.in?(%w[_project _pattern]) && !(params[:missingok] && @command.in?(%w[branch release]))
     unless PACKAGE_CREATING_COMMANDS.include?(@command) && !Project.exists_by_name(@target_project_name)
-      raise InvalidProjectNameError, "invalid project name '#{params[:project]}'" unless Project.valid_name?(params[:project])
-
-      raise InvalidPackageNameError, "invalid package name '#{params[:package]}'" unless Package.valid_name?(params[:package], allow_multibuild: @command == 'release')
-
       # even when we can create the package, an existing instance must be checked if permissions are right
       @project = Project.get_by_name(@target_project_name)
       if (PACKAGE_CREATING_COMMANDS.exclude?(@command) || Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(@command))) &&
@@ -306,10 +274,10 @@ class SourcePackageCommandController < SourceController
   def package_command_copy
     verify_can_modify_target!
 
-    if @spkg
+    if @origin_package
       # use real source in case we followed project link
-      sproject = params[:oproject] = @spkg.project.name
-      spackage = params[:opackage] = @spkg.name
+      sproject = params[:oproject] = @origin_package.project.name
+      spackage = params[:opackage] = @origin_package.name
     else
       sproject = params[:oproject] || params[:project]
       spackage = params[:opackage] || params[:package]
@@ -471,6 +439,60 @@ class SourcePackageCommandController < SourceController
   ## HELPER METHODS ##
   ##
 
+  def validate_project_name
+    return if Project.valid_name?(params[:project])
+
+    raise InvalidProjectNameError, "invalid project name '#{params[:project]}'"
+  end
+
+  def validate_package_name
+    return if Package.valid_name?(params[:package], allow_multibuild: @command == 'release')
+
+    raise InvalidPackageNameError, "invalid package name '#{params[:package]}'"
+  end
+
+  def validate_target_project_name
+    return unless params[:target_project]
+    raise InvalidProjectNameError, "invalid project name '#{params[:target_project]}'" unless Project.valid_name?(params[:target_project])
+  end
+
+  def validate_target_package_name
+    return unless params[:target_package]
+    raise InvalidPackageNameError, "invalid package name '#{params[:target_package]}'" unless Package.valid_name?(params[:target_package])
+  end
+
+  def set_user_param
+    params[:user] = User.session.login
+  end
+
+  def set_command
+    raise MissingParameterError, 'POST request without given cmd parameter' unless params[:cmd]
+
+    # valid post commands
+    valid_commands = %w[diff branch servicediff linkdiff showlinked copy
+                        remove_flag set_flag undelete runservice waitservice
+                        mergeservice commit commitfilelist createSpecFileTemplate
+                        deleteuploadrev linktobranch updatepatchinfo getprojectservices
+                        unlock release importchannel rebuild collectbuildenv
+                        instantiate addcontainers addchannels enablechannel fork]
+
+    @command = params[:cmd]
+    raise IllegalRequest, 'invalid_command' unless valid_commands.include?(@command)
+  end
+
+  def set_origin_package
+    return nil unless params[:opackage]
+
+    required_parameters(:oproject)
+    raise InvalidPackageNameError, "invalid package name '#{params[:opackage]}'" unless Package.valid_name?(params[:opackage])
+    raise InvalidProjectNameError, "invalid project name '#{params[:oproject]}'" unless Project.valid_name?(params[:oproject])
+
+    return if %w[_project _pattern].include?(params[:opackage])
+    return if %w[branch release].include?(@command) && params[:missingok]
+
+    @origin_package = Package.get_by_project_and_name(params[:oproject], params[:opackage])
+  end
+
   def verify_can_modify_target!
     # we require a target, but are we allowed to modify the existing target ?
     if Project.exists_by_name(@target_project_name)
@@ -542,16 +564,15 @@ class SourcePackageCommandController < SourceController
     @project = nil
     @package = nil
 
-    follow_project_links = SOURCE_UNTOUCHED_COMMANDS.include?(@command)
-
     unless @target_package_name.in?(%w[_project _pattern])
-      use_source = true
-      use_source = false if @command == 'showlinked'
+      follow_project_links = SOURCE_UNTOUCHED_COMMANDS.include?(@command)
+      use_source = @command != 'showlinked'
+      ignore_lock = @command == 'unlock'
+
       @package = Package.get_by_project_and_name(@target_project_name, @target_package_name,
                                                  use_source: use_source, follow_project_links: follow_project_links)
       if @package # for remote package case it's nil
         @project = @package.project
-        ignore_lock = @command == 'unlock'
         raise CmdExecutionNoPermission, "no permission to modify package #{@package.name} in project #{@project.name}" unless READ_COMMANDS.include?(@command) || User.session.can_modify?(@package, ignore_lock)
       end
     end
