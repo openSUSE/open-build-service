@@ -28,6 +28,8 @@ $(document).ready(function () {
 
   function changeActionHashOfButtonTo() {
     var buttonToAction = $('.button_to').attr('action');
-    $('.button_to').attr('action', buttonToAction.replace(/#.+/, '') + document.location.hash);
+    if (typeof buttonToAction !== 'undefined') {
+      $('.button_to').attr('action', buttonToAction.replace(/#.+/, '') + document.location.hash);
+    }
   }
 });
