@@ -211,6 +211,10 @@ paths:
     $ref: 'paths/label_templates.yaml'
   /label_templates/{label_template_id}:
     $ref: 'paths/label_templates_label_template_id.yaml'
+  /label_templates/projects/{project_name}:
+    $ref: 'paths/label_templates_projects_project_name.yaml'
+  /label_templates/projects/{project_name}/{label_template_id}:
+    $ref: 'paths/label_templates_projects_project_name_label_template_id.yaml'
 
   /my/notifications:
     $ref: 'paths/my_notifications.yaml'
