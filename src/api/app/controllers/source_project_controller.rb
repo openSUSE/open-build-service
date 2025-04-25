@@ -142,4 +142,12 @@ class SourceProjectController < SourceController
                                              'Either maintainer permissions by upper project or admin permissions is needed.'
     end
   end
+
+  private
+
+  def pubkey_path
+    # check for project
+    @prj = Project.get_by_name(params[:project])
+    request.path_info + build_query_from_hash(params, %i[user comment meta rev])
+  end
 end

@@ -54,12 +54,6 @@ class SourceController < ApplicationController
     end
   end
 
-  def pubkey_path
-    # check for project
-    @prj = Project.get_by_name(params[:project])
-    request.path_info + build_query_from_hash(params, %i[user comment meta rev])
-  end
-
   def actually_create_incident(project)
     raise ModifyProjectNoPermission, "no permission to modify project '#{project.name}'" unless User.session.can_modify?(project)
 
