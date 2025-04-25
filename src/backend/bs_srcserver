@@ -412,7 +412,7 @@ sub triggerscmsyncrun {
   my ($cgi, $scmrepo, $scmbranch) = @_;
   for my $ref (BSSrcServer::ScmsyncDB::getscmsyncpackages($scmrepo, $scmbranch)) {
     my ($projid, $packid) = @$ref;
-    my $proj = BSRevision::readproj_local($projid);
+    my $proj = BSRevision::readproj_local($projid, 1);
     next unless $proj;
     if ($packid eq '_project') {
       die("$projid is a remote project\n") if $proj->{'remoteurl'};
