@@ -69,7 +69,11 @@ sub deletescmsync {
   my $h = $db->{'sqlite'} || BSSrcServer::SQLite::connectdb($db);
 
   BSSQLite::begin_work($h);
-  BSSQLite::dbdo_bind($h, 'DELETE FROM scmsync WHERE project = ? AND package = ?', [$projid], [$packid]);
+  if ($packid eq '_project') {
+    BSSQLite::dbdo_bind($h, 'DELETE FROM scmsync WHERE project = ?', [$projid]);
+  } else {
+    BSSQLite::dbdo_bind($h, 'DELETE FROM scmsync WHERE project = ? AND package = ?', [$projid], [$packid]);
+  }
   BSSQLite::commit($h);
 }
 
