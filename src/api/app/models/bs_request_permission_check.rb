@@ -136,7 +136,7 @@ class BsRequestPermissionCheck
       (req.state == :declined && opts[:newstate].in?(%w[new review]) && (req.commenter == User.session!.login || user_is_staging_manager))
 
     # permission and validation check for each action inside
-    target_user = if new_state == 'accepted'
+    target_user = if opts[:newstate] == 'accepted'
                     accept_user
                   else
                     User.session!
