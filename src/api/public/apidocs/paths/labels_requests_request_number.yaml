@@ -1,0 +1,77 @@
+get:
+  summary: List the labels of a request.
+  description: |
+    **(Unstable)** List the labels of a request.
+  security:
+  - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/request.yaml#/RequestNumber'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/labels.yaml'
+          example:
+            count: 2
+            label:
+              - id: 3
+                label_template_id: 13
+                label_template_color: '#0881ca'
+                label_template_name: Rerum
+              - id: 4
+                label_template_id: 4
+                label_template_color: '#0881cb'
+                label_template_name: Test
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: |
+        Not Found.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: Unable to find request '420'
+  tags:
+    - Labels
+
+post:
+  summary: Create a label in a request.
+  description: |
+    **(Unstable)** Create a label in a request.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/request.yaml#/RequestNumber'
+  requestBody:
+    description: Label definition
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/label.yaml'
+        example:
+          label_template_id: 3
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: |
+        Not Found.
+
+        XML Schema used for body validation: [status.rng](../schema/status.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: Unable to find request '420'
+  tags:
+    - Labels

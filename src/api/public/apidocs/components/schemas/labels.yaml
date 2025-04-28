@@ -1,0 +1,12 @@
+type: object
+properties:
+  label:
+    type: array
+    items:
+      $ref: 'label.yaml'
+  count:
+    type: string
+    xml:
+      attribute: true
+xml:
+  name: labels
