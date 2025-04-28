@@ -1091,43 +1091,45 @@ class Project < ApplicationRecord
     User.find_by!(login: params[:user]).run_as do
       comment = "Project release by #{User.session.login}"
 
-      # get current package list from backend
-      if scmsync.present? || links_to_remote?
-        directory = Backend::Api::Sources::Project.packages(name)
-        xml=Xmlhash.parse(directory)
-        xml.elements('entry').each do |e|
-          next if e['name'].include? ':'
-          meta = Xmlhash.parse(Backend::Api::Sources::Package.meta(name, e['name']))
-          pkg = packages.new(name: e['name'])
-          pkg.read_from_xml(meta)
-          pkg.readonly!
-        end
-      end
-
       # uniq timestring for all targets
       time_now = Time.now.utc
 
       # ensure to process all of them at once
       suspend_scheduler(comment)
 
-      packages.each do |pkg|
-        next if pkg.name == '_product' # will be handled via _product:*
-
-        repositories.each do |repo|
-          repo.release_targets.each do |releasetarget|
-            # release source and binaries
-            # permission checking happens inside this function
-            release_package(pkg,
-                            releasetarget.target_repository,
-                            pkg.release_target_name(releasetarget.target_repository, time_now),
-                            { filter_source_repository: repo,
-                              setrelease: params[:setrelease],
-                              manual: true,
-                              comment: comment })
-          end
+      if scmsync.present?
+        directory = Backend::Api::Sources::Project.packages(name)
+        xml=Xmlhash.parse(directory)
+        xml.elements('entry').each do |e|
+          next if e.key?('originpackage')
+          meta = Xmlhash.parse(Backend::Api::Sources::Package.meta(name, e['name']))
+          pkg = packages.new(name: e['name'])
+          pkg.read_from_xml(meta)
+          do_package_release(pkg, params, comment, time_now)
+        end
+      else
+        packages.each do |pkg|
+          next if pkg.name == '_product' # will be handled via _product:*
+          do_package_release(pkg, params, comment, time_now)
         end
       end
       resume_scheduler(comment)
+    end
+  end
+
+  def do_package_release(pkg, params, comment, time_now)
+    repositories.each do |repo|
+      repo.release_targets.each do |releasetarget|
+        # release source and binaries
+        # permission checking happens inside this function
+        release_package(pkg,
+                        releasetarget.target_repository,
+                        pkg.release_target_name(releasetarget.target_repository, time_now),
+                        { filter_source_repository: repo,
+                          setrelease: params[:setrelease],
+                          manual: true,
+                          comment: comment })
+      end
     end
   end
 
