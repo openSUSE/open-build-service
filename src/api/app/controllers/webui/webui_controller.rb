@@ -25,7 +25,6 @@ class Webui::WebuiController < ActionController::Base
   before_action :fetch_watchlist_items
   before_action :set_paper_trail_whodunnit
   before_action :set_unread_notifications_count, unless: -> { request.xhr? }
-  after_action :clean_cache
 
   # :notice and :alert are default, we add :success and :error
   add_flash_types :success, :error
@@ -211,9 +210,6 @@ class Webui::WebuiController < ActionController::Base
     flash[:error] = 'No anonymous access. Please log in!' unless ::Configuration.proxy_auth_mode_enabled?
     redirect_to login_page
   end
-
-  # After filter to clean up caches
-  def clean_cache; end
 
   def setup_view_path
     return unless CONFIG['theme']
