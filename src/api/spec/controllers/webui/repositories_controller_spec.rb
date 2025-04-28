@@ -76,7 +76,8 @@ RSpec.describe Webui::RepositoriesController, :vcr do
 
     context 'with a non valid target repository' do
       before do
-        post :create, params: { project: user.home_project, repository: 'valid_name', target_project: another_project, target_repo: 'non_valid_repo' }
+        post :create, params: { project: user.home_project, repository: 'valid_name',
+                                add_repo_from_project_target_project: another_project, target_repo: 'non_valid_repo' }
       end
 
       it { expect(flash[:error]).to eq('Can not add repository: Path elements is invalid and Path Element: Link must exist') }
@@ -98,7 +99,7 @@ RSpec.describe Webui::RepositoriesController, :vcr do
         target_repo = create(:repository, project: another_project)
         post :create, params: {
           project: user.home_project, repository: 'valid_name',
-          target_project: another_project, target_repo: target_repo.name, architectures: ['i586']
+          add_repo_from_project_target_project: another_project, target_repo: target_repo.name, architectures: ['i586']
         }
       end
 

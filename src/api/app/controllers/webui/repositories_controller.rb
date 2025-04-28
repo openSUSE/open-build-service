@@ -31,7 +31,8 @@ class Webui::RepositoriesController < Webui::WebuiController
     authorize @project, :update?
     repository = @project.repositories.find_or_initialize_by(name: params[:repository])
     if params[:target_repo]
-      target_repository = Repository.find_by_project_and_name(params[:target_project], params[:target_repo])
+      target_project = params[:add_repo_path_target_project] || params[:add_repo_from_project_target_project] || params[:add_repo_kiwi_target_project]
+      target_repository = Repository.find_by_project_and_name(target_project, params[:target_repo])
       repository.path_elements.find_or_initialize_by(link: target_repository)
     end
 

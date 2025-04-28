@@ -194,7 +194,7 @@ RSpec.describe 'Repositories', :js do
       visit(project_repositories_path(project: admin_user.home_project))
 
       click_link('Add from a Project')
-      fill_in('target_project', with: repository.project)
+      fill_in('add_repo_from_project_target_project', with: repository.project)
       # Select the first autocomplete result
       first('.ui-menu-item-wrapper').click
       # Remove focus from autocomplete. Needed to trigger update of the other input fields.
