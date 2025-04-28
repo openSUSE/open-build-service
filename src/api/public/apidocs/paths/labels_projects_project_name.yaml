@@ -1,0 +1,58 @@
+get:
+  summary: List the labels of a project.
+  description: |
+    **(Unstable)** List the labels of a project.
+  security:
+  - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/labels.yaml'
+          example:
+            count: 2
+            label:
+              - id: 3
+                label_template_id: 13
+                label_template_color: '#0881ca'
+                label_template_name: Rerum
+              - id: 4
+                label_template_id: 4
+                label_template_color: '#0881cb'
+                label_template_name: Test
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Labels
+
+post:
+  summary: Create a label in a project.
+  description: |
+    **(Unstable)** Create a label in a project.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  requestBody:
+    description: Label definition
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/label.yaml'
+        example:
+          label_template_id: 3
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Labels
