@@ -9,6 +9,7 @@ class LabelTemplateGlobal < ApplicationRecord
   #### Attributes
 
   #### Associations macros (Belongs to, Has one, Has many)
+  has_many :label_globals, dependent: :destroy
 
   #### Callbacks macros: before_save, after_save, etc.
 
@@ -31,6 +32,7 @@ class LabelTemplateGlobal < ApplicationRecord
   end
 
   #### Alias of methods
+  alias_attribute :labels, :label_globals
 end
 
 # == Schema Information
