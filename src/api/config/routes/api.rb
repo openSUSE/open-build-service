@@ -390,3 +390,15 @@ match 'build/:project' => 'build#project_index', constraints: cons, via: %i[get 
 
 # :arch can be also a ymp for a pattern :/
 get 'published/:project(/:repository(/:arch(/:binary)))' => 'published#index', constraints: cons
+
+# ### /labels
+scope :labels do
+  resources :projects, only: [], param: :name do
+    resources :packages, only: [], param: :name do
+      resources :labels, only: %i[index create destroy], path: '', constraints: cons
+    end
+  end
+  resources :requests, only: [], param: :number do
+    resources :labels, only: %i[index create destroy], path: '', constraints: cons
+  end
+end
