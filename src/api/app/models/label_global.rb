@@ -11,6 +11,7 @@ class LabelGlobal < ApplicationRecord
   #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :project, optional: false
   belongs_to :label_template_global, optional: false
+  alias_attribute :label_template, :label_template_global
   delegate :color, to: :label_template_global
   delegate :name, to: :label_template_global
 

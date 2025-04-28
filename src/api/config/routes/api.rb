@@ -346,6 +346,12 @@ defaults format: 'xml' do
   end
 end
 
+scope :labels do
+  resources :projects, only: [], param: :name, constraints: cons do
+    resources :labels, only: %i[index create destroy], path: '', controller: 'labels/projects', constraints: cons
+  end
+end
+
 # spiders request this, not browsers
 controller 'webui/sitemaps' do
   get 'sitemaps' => :index
