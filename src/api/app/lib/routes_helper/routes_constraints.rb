@@ -23,6 +23,7 @@ module RoutesHelper
       staging_project_name: %r{[^/]*},
       staging_project_copy_name: %r{[^/]*},
       request_action_id: /\d*/,
+      request_number: /\d*/,
       line: /diff_\d+_n\d+/,
       source_rev: /[0-9a-f]{32}/,
       target_rev: /[0-9a-f]{32}/
