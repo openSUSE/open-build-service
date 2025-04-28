@@ -21,6 +21,19 @@ class LabelsController < ApplicationController
     end
   end
 
+  # DELETE /labels/projects/:project_name/packages/:package_name/:id
+  # DELETE /labels/requests/:request_number/:id
+  def destroy
+    authorize @labelable, :update_labels?
+    label = @labelable.labels.find(params[:id])
+
+    if label.destroy
+      render_ok
+    else
+      render_error(status: 400, message: "Unable to delete label `#{params[:id]}`")
+    end
+  end
+
   private
 
   def find_labelable
