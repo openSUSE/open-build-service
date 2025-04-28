@@ -14,6 +14,7 @@ tags:
   - name: General Information
   - name: Groups
   - name: Issue Trackers
+  - name: Labels
   - name: Notifications
   - name: Person
   - name: Published Binaries
@@ -191,6 +192,15 @@ paths:
     $ref: 'paths/issue_trackers_issue_tracker_name.yaml'
   /issue_trackers/{issue_tracker_name}/issues/{issue_name}:
     $ref: 'paths/issue_trackers_issue_tracker_name_issues_issue_name.yaml'
+
+  /labels/projects/{project_name}/packages/{package_name}:
+    $ref: 'paths/labels_projects_project_name_packages_package_name.yaml'
+  /labels/projects/{project_name}/packages/{package_name}/{label_id}:
+    $ref: 'paths/labels_projects_project_name_packages_package_name_label_id.yaml'
+  /labels/requests/{request_number}:
+    $ref: 'paths/labels_requests_request_number.yaml'
+  /labels/requests/{request_number}/{label_id}:
+    $ref: 'paths/labels_requests_request_number_label_id.yaml'
 
   /my/notifications:
     $ref: 'paths/my_notifications.yaml'
