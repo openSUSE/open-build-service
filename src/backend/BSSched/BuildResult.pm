@@ -604,6 +604,30 @@ sub update_dst_full {
   return 1;
 }
 
+sub helminfo2bininfo {
+  my ($dir, $helminfo) = @_;
+  return undef unless -e "$dir/$helminfo";
+  return undef unless (-s _) < 100000;
+  my $m = readstr("$dir/$helminfo");
+  my $d; 
+  eval { $d = JSON::XS::decode_json($m); };
+  return undef unless $d && ref($d) eq 'HASH';
+  return undef unless $d->{'name'} && ref($d->{'name'}) eq ''; 
+  return undef unless $d->{'version'} && ref($d->{'version'}) eq ''; 
+  return undef unless !$d->{'tags'} || ref($d->{'tags'}) eq 'ARRAY';
+  return undef unless $d->{'chart'} && ref($d->{'chart'}) eq ''; 
+  my $info = { 'name' => "helm:$d->{'name'}",
+               'version' => (defined($d->{'version'}) ? $d->{'version'} : '0'),
+               'release' => (defined($d->{'release'}) ? $d->{'release'} : '0'),
+               'arch' => (defined($d->{'arch'}) ? $d->{'arch'} : 'noarch') };
+  eval { BSVerify::verify_nevraquery($info) };
+  if ($@) {
+    warn($@);
+    return undef;
+  }
+  return $info;
+}
+
 =head2 read_bininfo - TODO: add summary
 
  TODO: add description
@@ -647,6 +671,13 @@ sub read_bininfo {
         $ctx->addfile(*F);
         close F;
         $bininfo->{$file} = {'md5sum' => $ctx->hexdigest(), 'filename' => $file, 'id' => "$s[9]/$s[7]/$s[1]"};
+      } elsif ($file =~ /\.helminfo$/) {
+	my @s = stat("$dir/$file");
+	my $r = helminfo2bininfo($dir, $file);
+	next unless $r;
+	$r->{'filename'} = $file;
+	$r->{'id'} = "$s[9]/$s[7]/$s[1]";
+	$bininfo->{$file} = $r;
       }
       next;
     }
