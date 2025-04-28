@@ -17,9 +17,7 @@ class Webui::LabelsController < Webui::WebuiController
   private
 
   def labels_params
-    params[:labels] = {labels_attributes: {}} unless params.has_key? :labels
-
-    params.require(:labels).permit(labels_attributes: [%i[id label_template_id _destroy]])
+    params.with_defaults(labels: {labels_attributes: []}).require(:labels).permit(labels_attributes: [%i[id label_template_id _destroy]])
   end
 
   def set_labelable
