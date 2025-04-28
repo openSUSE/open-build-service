@@ -716,6 +716,7 @@ sub build {
   $update->{'severity'} = $patchinfo->{'rating'} if defined $patchinfo->{'rating'};
   $update->{'description'} = $patchinfo->{'description'};
   $update->{'message'} = $patchinfo->{'message'} if defined $patchinfo->{'message'};
+  $update->{'blocked_in_product'} = $patchinfo->{'blocked_in_product'} if $patchinfo->{'blocked_in_product'};
   # FIXME: do not guess the release element!
   $update->{'release'} = $repoid eq 'standard' ? $projid : $repoid;
   $update->{'release'} =~ s/_standard$//;
