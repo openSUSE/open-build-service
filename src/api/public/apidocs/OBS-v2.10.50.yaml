@@ -194,6 +194,10 @@ paths:
   /issue_trackers/{issue_tracker_name}/issues/{issue_name}:
     $ref: 'paths/issue_trackers_issue_tracker_name_issues_issue_name.yaml'
 
+  /labels/projects/{project_name}:
+    $ref: 'paths/labels_projects_project_name.yaml'
+  /labels/projects/{project_name}/{id}:
+    $ref: 'paths/labels_projects_project_name_label_id.yaml'
   /labels/projects/{project_name}/packages/{package_name}:
     $ref: 'paths/labels_projects_project_name_packages_package_name.yaml'
   /labels/projects/{project_name}/packages/{package_name}/{label_id}:
