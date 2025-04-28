@@ -15,6 +15,7 @@ tags:
   - name: Groups
   - name: Issue Trackers
   - name: Labels
+  - name: Label Templates
   - name: Notifications
   - name: Person
   - name: Published Binaries
@@ -201,6 +202,11 @@ paths:
     $ref: 'paths/labels_requests_request_number.yaml'
   /labels/requests/{request_number}/{label_id}:
     $ref: 'paths/labels_requests_request_number_label_id.yaml'
+
+  /label_templates:
+    $ref: 'paths/label_templates.yaml'
+  /label_templates/{label_template_id}:
+    $ref: 'paths/label_templates_label_template_id.yaml'
 
   /my/notifications:
     $ref: 'paths/my_notifications.yaml'

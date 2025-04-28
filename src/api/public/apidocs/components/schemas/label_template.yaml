@@ -1,0 +1,12 @@
+type: object
+properties:
+  id:
+    type: string
+    xml:
+      attribute: true
+  color:
+    type: string
+  name:
+    type: string
+xml:
+  name: label_template
