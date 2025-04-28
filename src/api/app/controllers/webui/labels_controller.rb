@@ -17,6 +17,8 @@ class Webui::LabelsController < Webui::WebuiController
   private
 
   def labels_params
+    params[:labels] = {labels_attributes: {}} unless params.has_key? :labels
+
     params.require(:labels).permit(labels_attributes: [%i[id label_template_id _destroy]])
   end
 

@@ -26,5 +26,13 @@ RSpec.describe Webui::LabelsController do
         expect(toms_package.labels.pluck(:label_template_id)).to eq([label_one.id, label_three.id])
       end
     end
+    context 'when creating a template with no labels' do
+      it 'creates no labels' do
+        put :update,
+            params: { project: home_tom.name, labelable_id: toms_package.id, labelable_type: 'Package' }
+
+        expect(toms_package.labels.pluck(:label_template_id)).to eq([])
+      end
+    end
   end
 end
