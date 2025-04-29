@@ -1,0 +1,42 @@
+put:
+  summary: Update a label template defined in a project.
+  description: |
+    **(Unstable)** Update a label template defined in a given project.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/label_template_id.yaml'
+  requestBody:
+    description: Label template definition
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/label_template.yaml'
+        example:
+          color: '#AABBCC'
+          name: hey
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Label Templates
+
+delete:
+  summary: Delete a label template defined in a project.
+  description: |
+    **(Unstable)** Delete a label template defined in a given project.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/label_template_id.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Label Templates
