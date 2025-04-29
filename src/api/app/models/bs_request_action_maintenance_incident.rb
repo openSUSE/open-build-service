@@ -139,6 +139,8 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
                                        title: title, description: description)
         stage_project.flags.create(status: 'disable', flag: 'build')
         stage_project.flags.create(status: 'disable', flag: 'publish')
+        sprj = Project.get_by_name(self.source_project)
+        stage_project.flags.create(status: 'disable', flag: 'access') if sprj.is_a?(Project) && sprj.disabled_for?('access', nil, nil)
         # copy maintainer
         maintainer_role = Role.find_by_title!('maintainer')
         maintenance_project.relationships.where(role: maintainer_role).find_each do |r|
