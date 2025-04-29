@@ -75,6 +75,7 @@ use BSRepServer;
 use BSRepServer::BuildInfo;
 use BSRepServer::Containerinfo;
 use BSRepServer::Containertar;
+use BSRepServer::Helminfo;
 use BSRepServer::Remote;
 use BSRepServer::Registry;
 use BSRepServer::YMP;
@@ -2316,6 +2317,7 @@ sub putjob {
     for my $file (@$uploaded) {
       my $name = $file->{'name'};
       die("job contains an illegal file\n") if $name =~ /\.obsbinlnk$/s;
+      die("job contains an illegal file\n") if $name =~ /\.obsbininfo$/s;
       die("job contains an illegal file\n") if $name =~ /^_blob\./s;
     }
   };
@@ -2457,7 +2459,12 @@ sub putjob {
 	$ctx->addfile(*F);
 	close F;
 	$data = {'md5sum' => $ctx->hexdigest(), 'filename' => $filename, 'id' => $id };
-	$bininfo->{$file->{'name'}} = $data;
+	$bininfo->{$filename} = $data;
+      } elsif ($filename =~ /\.helminfo$/) {
+	my $obsbininfo = BSRepServer::Helminfo::helminfo2obsbininfo($dir, $filename);
+	next unless $obsbininfo;
+	my $data = { %$obsbininfo, 'filename' => $filename, 'id' => $id };
+	$bininfo->{$filename} = $data;
       }
       next;
     }
