@@ -7,13 +7,12 @@ setup: true
 # the path-filtering orb is required to continue a pipeline based on
 # the path of an updated fileset
 orbs:
-  path-filtering: circleci/path-filtering@0
+  path-filtering: circleci/path-filtering@1.3.0
 
 workflows:
   setup:
     jobs:
       - path-filtering/filter:
-          tag: "3.9"
           name: Define dynamic CI pipeline
           mapping: |
             dist/.* run-dist-linter true
