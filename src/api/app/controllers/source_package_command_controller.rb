@@ -15,7 +15,6 @@ class SourcePackageCommandController < SourceController
   skip_before_action :validate_params, only: %i[diff linkdiff servicediff]
 
   before_action :require_package # FIXME: This is actually setting @deleted_package, @target_project_name and @target_package_name
-  before_action :set_command
   before_action :set_user_param
   before_action :set_origin_package
   before_action :validate_target_project_name
@@ -427,7 +426,7 @@ class SourcePackageCommandController < SourceController
   end
 
   def validate_package_name
-    return if Package.valid_name?(params[:package], allow_multibuild: @command == 'release')
+    return if Package.valid_name?(params[:package], allow_multibuild: params[:cmd] == 'release')
 
     raise InvalidPackageNameError, "invalid package name '#{params[:package]}'"
   end
@@ -446,21 +445,6 @@ class SourcePackageCommandController < SourceController
     params[:user] = User.session.login
   end
 
-  def set_command
-    raise MissingParameterError, 'POST request without given cmd parameter' unless params[:cmd]
-
-    # valid post commands
-    valid_commands = %w[diff branch servicediff linkdiff showlinked copy
-                        remove_flag set_flag undelete runservice waitservice
-                        mergeservice commit commitfilelist createSpecFileTemplate
-                        deleteuploadrev linktobranch updatepatchinfo getprojectservices
-                        unlock release importchannel rebuild collectbuildenv
-                        instantiate addcontainers addchannels enablechannel fork]
-
-    @command = params[:cmd]
-    raise IllegalRequest, 'invalid_command' unless valid_commands.include?(@command)
-  end
-
   def set_origin_package
     return nil unless params[:opackage]
 
@@ -469,18 +453,18 @@ class SourcePackageCommandController < SourceController
     raise InvalidProjectNameError, "invalid project name '#{params[:oproject]}'" unless Project.valid_name?(params[:oproject])
 
     return if %w[_project _pattern].include?(params[:opackage])
-    return if %w[branch release].include?(@command) && params[:missingok]
+    return if %w[branch release].include?(params[:cmd]) && params[:missingok]
 
     @origin_package = Package.get_by_project_and_name(params[:oproject], params[:opackage])
   end
 
   def authorize
-    return if PACKAGE_CREATING_COMMANDS.include?(@command) && !Project.exists_by_name(@target_project_name)
+    return if PACKAGE_CREATING_COMMANDS.include?(params[:cmd]) && !Project.exists_by_name(@target_project_name)
 
     # even when we can create the package, an existing instance must be checked if permissions are right
     @project = Project.get_by_name(@target_project_name)
-    if (PACKAGE_CREATING_COMMANDS.exclude?(@command) || Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(@command))) &&
-       (@project.is_a?(String) || @project.scmsync.blank? || SCM_SYNC_PROJECT_COMMANDS.exclude?(@command))
+    if (PACKAGE_CREATING_COMMANDS.exclude?(params[:cmd]) || Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(params[:cmd]))) &&
+       (@project.is_a?(String) || @project.scmsync.blank? || SCM_SYNC_PROJECT_COMMANDS.exclude?(params[:cmd]))
       # is a local project, which is not scm managed. Or using a command not supported for scm projects.
       validate_target_for_package_command_exists!
     end
@@ -558,15 +542,15 @@ class SourcePackageCommandController < SourceController
     @package = nil
 
     unless @target_package_name.in?(%w[_project _pattern])
-      follow_project_links = SOURCE_UNTOUCHED_COMMANDS.include?(@command)
-      use_source = @command != 'showlinked'
-      ignore_lock = @command == 'unlock'
+      follow_project_links = SOURCE_UNTOUCHED_COMMANDS.include?(params[:cmd])
+      use_source = params[:cmd] != 'showlinked'
+      ignore_lock = params[:cmd] == 'unlock'
 
       @package = Package.get_by_project_and_name(@target_project_name, @target_package_name,
                                                  use_source: use_source, follow_project_links: follow_project_links)
       if @package # for remote package case it's nil
         @project = @package.project
-        raise CmdExecutionNoPermission, "no permission to modify package #{@package.name} in project #{@project.name}" unless READ_COMMANDS.include?(@command) || User.session.can_modify?(@package, ignore_lock)
+        raise CmdExecutionNoPermission, "no permission to modify package #{@package.name} in project #{@project.name}" unless READ_COMMANDS.include?(params[:cmd]) || User.session.can_modify?(@package, ignore_lock)
       end
     end
 
