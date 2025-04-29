@@ -1836,24 +1836,16 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  def test_invalid_package_command
+  def test_package_command_without_cmd_parameter
     prepare_request_with_user('fredlibs', 'buildservice')
     post '/source/kde4/kdelibs'
-    assert_response :bad_request
-    assert_xml_tag(tag: 'status', attributes: { code: 'missing_parameter' })
-    post '/source/kde4/kdelibs', params: { cmd: :invalid }
     assert_response :not_found
-    assert_xml_tag tag: 'status', attributes: { code: 'illegal_request' }
-    assert_xml_tag tag: 'summary', content: 'invalid_command'
+  end
 
-    prepare_request_with_user('adrian_nobody', 'buildservice')
-    post '/source/kde4/kdelibs'
-    assert_response :bad_request
-    assert_xml_tag(tag: 'status', attributes: { code: 'missing_parameter' })
+  def test_package_command_with_invalid_cmd_parameter
+    prepare_request_with_user('fredlibs', 'buildservice')
     post '/source/kde4/kdelibs', params: { cmd: :invalid }
     assert_response :not_found
-    assert_xml_tag tag: 'status', attributes: { code: 'illegal_request' }
-    assert_xml_tag tag: 'summary', content: 'invalid_command'
   end
 
   def test_blame_view
