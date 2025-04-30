@@ -260,7 +260,7 @@ sub volatile_cmp {
 =cut
 
 sub calculate_useforbuild {
-  my ($gctx, $prp, $bconf, $dstcache) = @_;
+  my ($gctx, $prp, $bconf, $dstcache, $packids) = @_;
   my $projpacks = $gctx->{'projpacks'};
   my $myarch = $gctx->{'arch'};
 
@@ -274,7 +274,8 @@ sub calculate_useforbuild {
   my $buildflags;
   $buildflags = { map {$_ => 1} @{$bconf->{'buildflags'} || []} } if $bconf && exists $bconf->{"buildflags:nouseforbuild"};
   my %useforbuild;
-  for my $packid (sort keys %$pdatas) {
+  $packids ||= [ sort keys %$pdatas ];
+  for my $packid (@$packids) {
     my $useforbuildflags = ($pdatas->{$packid} || {})->{'useforbuild'};
     my $useforbuildenabled = $prjuseforbuildenabled;
     $useforbuildenabled = BSUtil::enabled($repoid, $useforbuildflags, $useforbuildenabled, $myarch) if $useforbuildflags;
@@ -314,7 +315,7 @@ sub fctx_gbininfo2full {
   my @packids = BSSched::ProjPacks::orderpackids($proj, keys %$gbininfo);
 
   # generate useforbuild from package data if not specified
-  $useforbuild ||= calculate_useforbuild($gctx, $fctx->{'prp'}, $fctx->{'bconf'}, $fctx->{'dstcache'});
+  $useforbuild ||= calculate_useforbuild($gctx, $fctx->{'prp'}, $fctx->{'bconf'}, $fctx->{'dstcache'}, \@packids);
 
   # construct new full
   my %full;
