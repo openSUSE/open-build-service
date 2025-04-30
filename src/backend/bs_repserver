@@ -909,6 +909,11 @@ sub getbinarylist_repository {
     }
     my $path = $pool->pkg2path($p);
     my $n = $bin;
+    if ($bin =~ /^container:/ && $pool->pkg2bsid($p) eq 'dod') {
+      my $r = {'filename' => $view eq 'names' ? $n : (substr($n, 10).'.tar') };
+      push @res, $r;
+      next;
+    }
     if ($bin =~ /^container:/ && $path =~ /(\.tar(?:\..+)?)$/) {
       $n .= $1;
       my $r = {'filename' => $view eq 'names' ? $n : $path };
@@ -1432,6 +1437,12 @@ sub getbinary_repository {
     my $cfg = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
     return ($cfg, 'Content-Type: text/plain');
   }
+
+  # switch to access-by-name when accessing a DoD container directly
+  if ($bin !~ /^container:/ && $bin =~ /(.+)\.tar$/ && -f "$reporoot/$projid/$repoid/$arch/:full/$1.containerinfo") {
+    $bin = "container:$1";
+  }
+
   my $serial;
   $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
   return if $BSStdServer::isajax && !defined $serial;
@@ -1446,11 +1457,16 @@ sub getbinary_repository {
     my $dodurl = $repo->dodurl();
     my %rnames = $repo ? $repo->pkgnames() : ();
     my $p = $rnames{$bin};
-    if (!$p && $dodurl && $bin =~ /^(.*)\.($binsufsre)$/ && $rnames{$1}) {
+    if (!$p && $dodurl) {
       # check for future dod package path
-      $p = $rnames{$1};
-      my $suf = $2;
-      undef $p unless $pool->pkg2pkgid($p) eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0' && $pool->pkg2path($p) =~ /\.\Q$suf\E$/;
+      if ($bin =~ /^(.*)\.($binsufsre)$/ && $rnames{$1}) {
+        $p = $rnames{$1};
+        my $suf = $2;
+        undef $p unless $pool->pkg2pkgid($p) eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0' && $pool->pkg2path($p) =~ /\.\Q$suf\E$/;
+      } elsif ($bin =~ /^(.*)\.tar$/ && $rnames{"container:$1"}) {
+        $p = $rnames{"container:$1"};
+        undef $p unless $pool->pkg2pkgid($p) eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0';
+      }
     }
     die("404 no such binary '$bin'\n") unless $p;
     $path = "$reporoot/".$pool->pkg2fullpath($p, $arch);
@@ -1463,7 +1479,7 @@ sub getbinary_repository {
     undef $repo;
     undef $pool;
     if (! -f $path) {
-      die("404 $bin: $!\n") unless $bin =~ /^container:/ && $path =~ /\.tar$/;;
+      die("404 $bin: $!\n") unless $bin =~ /^container:/ && $path =~ /\.tar$/;
       if ($view ne 'fileinfo' && $view ne 'fileinfo_ext') {
 	if (!$BSStdServer::isajax) {
 	  # use reply_container to directly send the blobs instead of constructing the complete tar
