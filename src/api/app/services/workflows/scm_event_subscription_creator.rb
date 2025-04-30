@@ -10,11 +10,8 @@ module Workflows
       # SCMs don't support commit status for tags, so we don't need to report back in this case
       return if @workflow_run.tag_push_event?
 
-      if @package_or_request.is_a?(Package)
-        create_or_update_subscriptions_for_package(package: @package_or_request)
-      else
-        create_or_update_subscriptions_for_request(bs_request: @package_or_request)
-      end
+      create_or_update_subscriptions_for_package(package: @package_or_request) if @package_or_request.is_a?(Package)
+      create_or_update_subscriptions_for_request(bs_request: @package_or_request) if @package_or_request.is_a?(BsRequest)
     end
 
     private
