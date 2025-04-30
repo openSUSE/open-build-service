@@ -270,6 +270,7 @@ our $patchinfo = [
             'retracted',
             'stopped',
             'seperate_build_arch', # for builds on each scheduler arch
+	    'blocked_in_product',
 	    'embargo_date',
             'zypp_restart_needed',
             'reboot_needed',
@@ -1658,9 +1659,10 @@ our $updateinfoitem = [
 		    'release',
 		    'arch',
 		    'src',
-		    'supportstatus',	# extension
-		    'superseded_by',    # extension
-		    'embargo_date',     # extension
+		    # extensions for OBS internal only
+		    'embargo_date',
+		    'supportstatus',
+		    'superseded_by',
 		    [],
 		    'filename',
 		  [ 'sum' =>	# obsolete?
@@ -1673,7 +1675,9 @@ our $updateinfoitem = [
 	     ]],
 	 ]],
       ],
-	'patchinforef',			# extension, "project/package"
+        # extensions
+	'patchinforef',		# "project/package"
+	'blocked_in_product',   # filter in product builds
 ];
 
 our $updateinfo = [

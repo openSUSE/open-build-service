@@ -689,6 +689,7 @@ sub createrepo_rpmmd {
     my $updateinfos = BSUtil::clone($data->{'updateinfos'});
     for my $up (@$updateinfos) {
       delete $up->{'patchinforef'};
+      delete $up->{'blocked_in_product'};
       for my $cl (@{($up->{'pkglist'} || {})->{'collection'} || []}) {
 	for my $pkg (@{$cl->{'package'} || []}) {
           delete $pkg->{'embargo_date'};
