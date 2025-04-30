@@ -90,4 +90,9 @@ module Clockwork
   every(1.week, 'consistency check', at: 'Sunday 03:00') do
     Old::ConsistencyCheckJob.perform_later
   end
+
+  # Expire assignments after 24h
+  every(1.day, 'expire assignments') do
+    ExpireAssignments.perform_later
+  end
 end
