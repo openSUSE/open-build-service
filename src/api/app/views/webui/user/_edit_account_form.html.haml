@@ -19,9 +19,6 @@
   .mb-3
     = f.text_field(:email, required: true, email: true, placeholder: 'Email', readonly: behind_proxy, class: 'form-control')
   .mb-3
-    = f.label :color_theme, "Theme"
-    = f.select(:color_theme, options_for_select(User.color_themes.keys), {}, class: 'form-select')
-  .mb-3
   - if behind_proxy
     %p
       You are behind a proxy. You can modify other data related to your profile by

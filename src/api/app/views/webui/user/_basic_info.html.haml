@@ -4,43 +4,55 @@
              locals: { displayed_user: user, role_titles: role_titles, account_edit_link: account_edit_link }
 
 .basic-info
-  .d-flex.flex-row-reverse.align-items-center.mb-3
-    = render ReportsNoticeComponent.new(reportable: user, user: User.session)
-    - if policy(Report.new(reportable: user)).create?
-      = link_to('#', id: "js-user-#{user.id}", class: 'ps-2',
-            data: { 'bs-toggle': 'modal',
-                    'bs-target': '#report-modal',
-                    'modal-title': "Report #{user.login}",
-                    'reportable-type': user.class.name,
-                    'reportable-id': user.id }) do
-        %i.fas.fa-regular.fa-flag
-        %span.nav-item-name Report
-    - if User.session
-      - if (blocked_user = BlockedUser.find_by(blocker: User.session, blocked: user))
-        - if policy(blocked_user).destroy?
-          = button_to(user_block_path(user), method: :delete, class: 'btn btn-link p-0 text-decoration-none ms-2') do
-            %i.fas.fa-user-lock
-            Unblock
-      - else
-        - if policy(BlockedUser.new(blocker: User.session, blocked: user)).create?
-          = button_to(user_block_path(user), method: :post, class: 'btn btn-link p-0 text-decoration-none ms-2') do
-            %i.fas.fa-user-lock
-            Block
-    - if User.possibly_nobody.admin? && user.state != 'deleted'
-      = link_to('#', title: 'Delete user', class: 'ms-2', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-user-modal' }) do
-        %i.fas.fa-times-circle.text-danger
-        %span.nav-item-name.text-danger Delete
-      = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-user-modal', method: :delete,
-                                                     options: { modal_title: 'Delete user?', remote: false,
-                                                                confirmation_text: "Please confirm deletion of '#{user.login}'",
-                                                                action: user_path(user) }) do |component|
-        - component.with_text_area do
-          = label_tag('Adminnote', 'Admin note:', for: 'adminnote')
-          = text_area_tag(:adminnote, '', placeholder: 'Please explain the reason for the deletion...', class: 'form-control')
-    - if Configuration.accounts_editable? && policy(user).update?
-      = link_to('#', id: 'toggle-in-place-editing', title: 'Edit Your Account') do
-        %i.fas.fa-user-edit
-        %span.nav-item-name Edit
+  .d-flex.justify-content-between.flex-row-reverse
+    .d-flex.flex-row-reverse.align-items-center.mb-3
+      = render ReportsNoticeComponent.new(reportable: user, user: User.session)
+      - if policy(Report.new(reportable: user)).create?
+        = link_to('#', id: "js-user-#{user.id}", class: 'ps-2',
+              data: { 'bs-toggle': 'modal',
+                      'bs-target': '#report-modal',
+                      'modal-title': "Report #{user.login}",
+                      'reportable-type': user.class.name,
+                      'reportable-id': user.id }) do
+          %i.fas.fa-regular.fa-flag
+          %span.nav-item-name Report
+      - if User.session
+        - if (blocked_user = BlockedUser.find_by(blocker: User.session, blocked: user))
+          - if policy(blocked_user).destroy?
+            = button_to(user_block_path(user), method: :delete, class: 'btn btn-link p-0 text-decoration-none ms-2') do
+              %i.fas.fa-user-lock
+              Unblock
+        - else
+          - if policy(BlockedUser.new(blocker: User.session, blocked: user)).create?
+            = button_to(user_block_path(user), method: :post, class: 'btn btn-link p-0 text-decoration-none ms-2') do
+              %i.fas.fa-user-lock
+              Block
+      - if User.possibly_nobody.admin? && user.state != 'deleted'
+        = link_to('#', title: 'Delete user', class: 'ms-2', data: { 'bs-toggle': 'modal', 'bs-target': '#delete-user-modal' }) do
+          %i.fas.fa-times-circle.text-danger
+          %span.nav-item-name.text-danger Delete
+        = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-user-modal', method: :delete,
+                                                      options: { modal_title: 'Delete user?', remote: false,
+                                                                  confirmation_text: "Please confirm deletion of '#{user.login}'",
+                                                                  action: user_path(user) }) do |component|
+          - component.with_text_area do
+            = label_tag('Adminnote', 'Admin note:', for: 'adminnote')
+            = text_area_tag(:adminnote, '', placeholder: 'Please explain the reason for the deletion...', class: 'form-control')
+      - if Configuration.accounts_editable? && policy(user).update?
+        = link_to('#', id: 'toggle-in-place-editing', title: 'Edit Your Account') do
+          %i.fas.fa-user-edit
+          %span.nav-item-name Edit
+    - if user == User.possibly_nobody
+      .dropdown
+        = link_to('#', class: 'dropdown-toggle', id: 'top-navigation-color-theme-dropdown', role: 'button',
+                  'data-bs-toggle': 'dropdown', aria: { haspopup: true, expanded: false }) do
+          %i.fas.fa-palette{ title: 'Color Theme' }
+        = form_for(User.session, url: update_color_theme_user_path(User.session), method: :post, id: 'color-theme-form') do |f|
+          = f.hidden_field(:login, id: 'user')
+          %ul.dropdown-menu.dropdown-menu-start{ 'aria-labelledby': 'top-navigation-color-theme-dropdown' }
+            - User.color_themes.keys.each do |color_theme|
+              %li.dropdown-item{ class: "#{'active' if User.session.color_theme == color_theme}" }
+                %input.nav-link.p-0.text-start{ name: 'color_theme', value: color_theme, type: 'submit', text: color_theme.titleize }
   .row.mb-3
     .col-4.col-sm-2.col-md-12.text-center
       = render(AvatarComponent.new(name: user.name, email: user.email, size: 200))
