@@ -71,6 +71,9 @@ class User < ApplicationRecord
   has_many :user_blocks, class_name: 'BlockedUser', foreign_key: 'blocker_id', dependent: :destroy
   has_many :blocked_users, through: :user_blocks, source: :blocked
 
+  has_many :assignments, foreign_key: 'assignee_id', dependent: :destroy
+  has_many :assigned_packages, through: :assignments, source: :package
+
   scope :confirmed, -> { where(state: 'confirmed') }
   scope :all_without_nobody, -> { where.not(login: NOBODY_LOGIN) }
   scope :not_deleted, -> { where.not(state: 'deleted') }

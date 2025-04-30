@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_04_14_154434) do
+ActiveRecord::Schema[7.1].define(version: 2025_04_30_113947) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -58,6 +58,17 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_14_154434) do
   create_table "architectures_distributions", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "distribution_id"
     t.integer "architecture_id"
+  end
+
+  create_table "assignments", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.integer "assignee_id", null: false
+    t.integer "assigner_id", null: false
+    t.integer "package_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assignee_id"], name: "index_assignments_on_assignee_id"
+    t.index ["assigner_id"], name: "index_assignments_on_assigner_id"
+    t.index ["package_id"], name: "index_assignments_on_package_id", unique: true
   end
 
   create_table "attrib_allowed_values", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -1295,6 +1306,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_14_154434) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "appeals", "decisions"
   add_foreign_key "appeals", "users", column: "appellant_id"
+  add_foreign_key "assignments", "packages"
+  add_foreign_key "assignments", "users", column: "assignee_id"
+  add_foreign_key "assignments", "users", column: "assigner_id"
   add_foreign_key "attrib_allowed_values", "attrib_types", name: "attrib_allowed_values_ibfk_1"
   add_foreign_key "attrib_default_values", "attrib_types", name: "attrib_default_values_ibfk_1"
   add_foreign_key "attrib_issues", "attribs", name: "attrib_issues_ibfk_1"
