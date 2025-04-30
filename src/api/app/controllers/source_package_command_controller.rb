@@ -11,43 +11,26 @@ class SourcePackageCommandController < SourceController
   SCM_SYNC_PROJECT_COMMANDS = %w[diff linkdiff showlinked copy remove_flag set_flag runservice fork
                                  waitservice getprojectservices unlock wipe rebuild collectbuildenv].freeze
 
-  # we use an array for the "file" parameter for: package_command_diff, package_command_linkdiff and package_command_servicediff
-  skip_before_action :validate_params, only: [:package_command]
+  # we use an array for the "file" parameter
+  skip_before_action :validate_params, only: %i[diff linkdiff servicediff]
 
   before_action :require_package # FIXME: This is actually setting @deleted_package, @target_project_name and @target_package_name
-  before_action :set_command
   before_action :set_user_param
   before_action :set_origin_package
   before_action :validate_target_project_name
   before_action :validate_target_package_name
   before_action :validate_project_name
   before_action :validate_package_name
-
-  # POST /source/:project/:package
-  def package_command
-    unless PACKAGE_CREATING_COMMANDS.include?(@command) && !Project.exists_by_name(@target_project_name)
-      # even when we can create the package, an existing instance must be checked if permissions are right
-      @project = Project.get_by_name(@target_project_name)
-      if (PACKAGE_CREATING_COMMANDS.exclude?(@command) || Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(@command))) &&
-         (@project.is_a?(String) || @project.scmsync.blank? || SCM_SYNC_PROJECT_COMMANDS.exclude?(@command))
-        # is a local project, which is not scm managed. Or using a command not supported for scm projects.
-        validate_target_for_package_command_exists!
-      end
-    end
-
-    dispatch_command(:package_command, @command)
-  end
-
-  private
+  before_action :authorize
 
   # POST /source/<project>/<package>?cmd=updatepatchinfo
-  def package_command_updatepatchinfo
+  def updatepatchinfo
     Patchinfo.new.cmd_update_patchinfo(params[:project], params[:package])
     render_ok
   end
 
   # POST /source/<project>/<package>?cmd=importchannel
-  def package_command_importchannel
+  def importchannel
     repo = nil
     repo = Repository.find_by_project_and_name(params[:target_project], params[:target_repository]) if params[:target_project]
 
@@ -56,9 +39,8 @@ class SourcePackageCommandController < SourceController
     render_ok
   end
 
-  # unlock a package
   # POST /source/<project>/<package>?cmd=unlock
-  def package_command_unlock
+  def unlock
     required_parameters :comment
 
     p = { comment: params[:comment] }
@@ -74,7 +56,7 @@ class SourcePackageCommandController < SourceController
 
   # add channel packages and extend repository list
   # POST /source/<project>/<package>?cmd=addchannels
-  def package_command_addchannels
+  def addchannels
     mode = :add_disabled
     mode = :skip_disabled if params[:mode] == 'skip_disabled'
     mode = :enable_all    if params[:mode] == 'enable_all'
@@ -86,7 +68,7 @@ class SourcePackageCommandController < SourceController
 
   # add containers using the origin of this package (docker in first place, but not limited to it)
   # POST /source/<project>/<package>?cmd=addcontainers
-  def package_command_addcontainers
+  def addcontainers
     @package.add_containers(extend_package_names: params[:extend_package_names].present?)
 
     render_ok
@@ -94,7 +76,7 @@ class SourcePackageCommandController < SourceController
 
   # add repositories and/or enable them for a specified channel
   # POST /source/<project>/<package>?cmd=enablechannel
-  def package_command_enablechannel
+  def enablechannel
     @package.modify_channel(:enable_all)
     @package.project.store(user: User.session.login)
 
@@ -103,7 +85,7 @@ class SourcePackageCommandController < SourceController
 
   # Collect all project source services for a package
   # POST /source/<project>/<package>?cmd=getprojectservices
-  def package_command_getprojectservices
+  def getprojectservices
     path = request.path_info
     path += build_query_from_hash(params, [:cmd])
     pass_to_backend(path)
@@ -111,7 +93,7 @@ class SourcePackageCommandController < SourceController
 
   # create a id collection of all packages doing a package source link to this one
   # POST /source/<project>/<package>?cmd=showlinked
-  def package_command_showlinked
+  def showlinked
     if @package
       render 'source/package_command_showlinked', formats: [:xml]
     else
@@ -128,7 +110,7 @@ class SourcePackageCommandController < SourceController
   end
 
   # POST /source/<project>/<package>?cmd=collectbuildenv
-  def package_command_collectbuildenv
+  def collectbuildenv
     required_parameters :oproject, :opackage
 
     Package.get_by_project_and_name(@target_project_name, @target_package_name)
@@ -139,7 +121,7 @@ class SourcePackageCommandController < SourceController
   end
 
   # POST /source/<project>/<package>?cmd=instantiate
-  def package_command_instantiate
+  def instantiate
     project = Project.get_by_name(params[:project])
     opackage = Package.get_by_project_and_name(project.name, params[:package], check_update_project: true)
     raise RemoteProjectError, 'Instantiation from remote project is not supported' unless opackage
@@ -156,7 +138,7 @@ class SourcePackageCommandController < SourceController
   end
 
   # POST /source/<project>/<package>?cmd=undelete
-  def package_command_undelete
+  def undelete
     raise PackageExists, "the package exists already #{@target_project_name} #{@target_package_name}" if Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: false)
 
     tprj = Project.get_by_name(@target_project_name)
@@ -178,7 +160,7 @@ class SourcePackageCommandController < SourceController
 
   # FIXME: obsolete this for 3.0
   # POST /source/<project>/<package>?cmd=createSpecFileTemplate
-  def package_command_createSpecFileTemplate # rubocop:disable Naming/MethodName
+  def createSpecFileTemplate # rubocop:disable Naming/MethodName
     begin
       # TODO: No need to read the whole file for knowing if it exists already
       Backend::Api::Sources::Package.file(params[:project], params[:package], "#{params[:package]}.spec")
@@ -194,7 +176,7 @@ class SourcePackageCommandController < SourceController
 
   # OBS 3.0: this should be obsoleted, we have /build/ controller for this
   # POST /source/<project>/<package>?cmd=rebuild
-  def package_command_rebuild
+  def rebuild
     repo_name = params[:repo]
     arch_name = params[:arch]
 
@@ -226,7 +208,7 @@ class SourcePackageCommandController < SourceController
   end
 
   # POST /source/<project>/<package>?cmd=commit
-  def package_command_commit
+  def commit
     path = request.path_info
     path += build_query_from_hash(params, %i[cmd user comment rev linkrev keeplink repairlink])
     pass_to_backend(path)
@@ -235,7 +217,7 @@ class SourcePackageCommandController < SourceController
   end
 
   # POST /source/<project>/<package>?cmd=commitfilelist
-  def package_command_commitfilelist
+  def commitfilelist
     path = request.path_info
     path += build_query_from_hash(params, %i[cmd user comment rev linkrev keeplink repairlink withvalidate])
     answer = pass_to_backend(path)
@@ -244,7 +226,7 @@ class SourcePackageCommandController < SourceController
   end
 
   # POST /source/<project>/<package>?cmd=diff
-  def package_command_diff
+  def diff
     # oproject_name = params[:oproject]
     # opackage_name = params[:opackage]
 
@@ -256,7 +238,7 @@ class SourcePackageCommandController < SourceController
   end
 
   # POST /source/<project>/<package>?cmd=linkdiff
-  def package_command_linkdiff
+  def linkdiff
     path = request.path_info
     path += build_query_from_hash(params, %i[cmd rev unified linkrev file filelimit tarlimit
                                              view withissues onlyissues])
@@ -264,14 +246,14 @@ class SourcePackageCommandController < SourceController
   end
 
   # POST /source/<project>/<package>?cmd=servicediff
-  def package_command_servicediff
+  def servicediff
     path = request.path_info
     path += build_query_from_hash(params, %i[cmd rev unified file filelimit tarlimit view withissues onlyissues])
     pass_to_backend(path)
   end
 
   # POST /source/<project>/<package>?cmd=copy
-  def package_command_copy
+  def copy
     verify_can_modify_target!
 
     if @origin_package
@@ -298,7 +280,7 @@ class SourcePackageCommandController < SourceController
   end
 
   # POST /source/<project>/<package>?cmd=release
-  def package_command_release
+  def release
     pkg = Package.get_by_project_and_name(params[:project], params[:package],
                                           follow_project_links: false,
                                           follow_multibuild: true,
@@ -347,14 +329,14 @@ class SourcePackageCommandController < SourceController
   end
 
   # POST /source/<project>/<package>?cmd=waitservice
-  def package_command_waitservice
+  def waitservice
     path = request.path_info
     path += build_query_from_hash(params, [:cmd])
     pass_to_backend(path)
   end
 
   # POST /source/<project>/<package>?cmd=mergeservice
-  def package_command_mergeservice
+  def mergeservice
     path = request.path_info
     path += build_query_from_hash(params, %i[cmd comment user])
     pass_to_backend(path)
@@ -363,7 +345,7 @@ class SourcePackageCommandController < SourceController
   end
 
   # POST /source/<project>/<package>?cmd=runservice
-  def package_command_runservice
+  def runservice
     path = request.path_info
     path += build_query_from_hash(params, %i[cmd comment user])
     pass_to_backend(path)
@@ -372,14 +354,14 @@ class SourcePackageCommandController < SourceController
   end
 
   # POST /source/<project>/<package>?cmd=deleteuploadrev
-  def package_command_deleteuploadrev
+  def deleteuploadrev
     path = request.path_info
     path += build_query_from_hash(params, [:cmd])
     pass_to_backend(path)
   end
 
   # POST /source/<project>/<package>?cmd=linktobranch
-  def package_command_linktobranch
+  def linktobranch
     if @target_package_name.in?(%w[_project _pattern])
       render_error status: 400, message: "cannot turn a #{@target_package_name} package into a branch"
       return
@@ -399,7 +381,7 @@ class SourcePackageCommandController < SourceController
   end
 
   # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"&update_project_attribute="alternative_attribute"&comment="message"
-  def package_command_branch
+  def branch
     # find out about source and target dependening on command   - FIXME: ugly! sync calls
     # The branch command may be used just for simulation
     verify_can_modify_target! if !params[:dryrun] && @target_project_name
@@ -408,7 +390,7 @@ class SourcePackageCommandController < SourceController
   end
 
   # POST /source/<project>/<package>?cmd=fork&scmsync="url"&target_project="optional_project"
-  def package_command_fork
+  def fork
     # The branch command may be used just for simulation
     verify_can_modify_target! if @target_project_name
 
@@ -423,21 +405,19 @@ class SourcePackageCommandController < SourceController
   end
 
   # POST /source/<project>/<package>?cmd=set_flag&repository=:opt&arch=:opt&flag=flag&status=status
-  def package_command_set_flag
+  def set_flag
     required_parameters :flag, :status
 
     obj_set_flag(@package)
   end
 
   # POST /source/<project>/<package>?cmd=remove_flag&repository=:opt&arch=:opt&flag=flag
-  def package_command_remove_flag
+  def remove_flag
     required_parameters :flag
     obj_remove_flag(@package)
   end
 
-  ##
-  ## HELPER METHODS ##
-  ##
+  private
 
   def validate_project_name
     return if Project.valid_name?(params[:project])
@@ -446,7 +426,7 @@ class SourcePackageCommandController < SourceController
   end
 
   def validate_package_name
-    return if Package.valid_name?(params[:package], allow_multibuild: @command == 'release')
+    return if Package.valid_name?(params[:package], allow_multibuild: params[:cmd] == 'release')
 
     raise InvalidPackageNameError, "invalid package name '#{params[:package]}'"
   end
@@ -465,21 +445,6 @@ class SourcePackageCommandController < SourceController
     params[:user] = User.session.login
   end
 
-  def set_command
-    raise MissingParameterError, 'POST request without given cmd parameter' unless params[:cmd]
-
-    # valid post commands
-    valid_commands = %w[diff branch servicediff linkdiff showlinked copy
-                        remove_flag set_flag undelete runservice waitservice
-                        mergeservice commit commitfilelist createSpecFileTemplate
-                        deleteuploadrev linktobranch updatepatchinfo getprojectservices
-                        unlock release importchannel rebuild collectbuildenv
-                        instantiate addcontainers addchannels enablechannel fork]
-
-    @command = params[:cmd]
-    raise IllegalRequest, 'invalid_command' unless valid_commands.include?(@command)
-  end
-
   def set_origin_package
     return nil unless params[:opackage]
 
@@ -488,9 +453,21 @@ class SourcePackageCommandController < SourceController
     raise InvalidProjectNameError, "invalid project name '#{params[:oproject]}'" unless Project.valid_name?(params[:oproject])
 
     return if %w[_project _pattern].include?(params[:opackage])
-    return if %w[branch release].include?(@command) && params[:missingok]
+    return if %w[branch release].include?(params[:cmd]) && params[:missingok]
 
     @origin_package = Package.get_by_project_and_name(params[:oproject], params[:opackage])
+  end
+
+  def authorize
+    return if PACKAGE_CREATING_COMMANDS.include?(params[:cmd]) && !Project.exists_by_name(@target_project_name)
+
+    # even when we can create the package, an existing instance must be checked if permissions are right
+    @project = Project.get_by_name(@target_project_name)
+    if (PACKAGE_CREATING_COMMANDS.exclude?(params[:cmd]) || Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(params[:cmd]))) &&
+       (@project.is_a?(String) || @project.scmsync.blank? || SCM_SYNC_PROJECT_COMMANDS.exclude?(params[:cmd]))
+      # is a local project, which is not scm managed. Or using a command not supported for scm projects.
+      validate_target_for_package_command_exists!
+    end
   end
 
   def verify_can_modify_target!
@@ -565,15 +542,15 @@ class SourcePackageCommandController < SourceController
     @package = nil
 
     unless @target_package_name.in?(%w[_project _pattern])
-      follow_project_links = SOURCE_UNTOUCHED_COMMANDS.include?(@command)
-      use_source = @command != 'showlinked'
-      ignore_lock = @command == 'unlock'
+      follow_project_links = SOURCE_UNTOUCHED_COMMANDS.include?(params[:cmd])
+      use_source = params[:cmd] != 'showlinked'
+      ignore_lock = params[:cmd] == 'unlock'
 
       @package = Package.get_by_project_and_name(@target_project_name, @target_package_name,
                                                  use_source: use_source, follow_project_links: follow_project_links)
       if @package # for remote package case it's nil
         @project = @package.project
-        raise CmdExecutionNoPermission, "no permission to modify package #{@package.name} in project #{@project.name}" unless READ_COMMANDS.include?(@command) || User.session.can_modify?(@package, ignore_lock)
+        raise CmdExecutionNoPermission, "no permission to modify package #{@package.name} in project #{@project.name}" unless READ_COMMANDS.include?(params[:cmd]) || User.session.can_modify?(@package, ignore_lock)
       end
     end
 

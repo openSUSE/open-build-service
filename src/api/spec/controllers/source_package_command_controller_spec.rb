@@ -2,8 +2,8 @@ RSpec.describe SourcePackageCommandController, :vcr do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:project) { user.home_project }
 
-  describe 'POST #package_command_release' do
-    subject { post :package_command, params: { cmd: 'release', project: project, package: package }, format: :xml }
+  describe 'POST #release' do
+    subject { post :release, params: { cmd: 'release', project: project, package: package }, format: :xml }
 
     let(:user) { create(:confirmed_user, login: 'peter') }
     let(:target_project) do
@@ -52,7 +52,7 @@ RSpec.describe SourcePackageCommandController, :vcr do
 
     context 'with target parameters' do
       subject do
-        post :package_command,
+        post :release,
              params: { cmd: 'release',
                        package: package,
                        project: project,
@@ -94,7 +94,7 @@ RSpec.describe SourcePackageCommandController, :vcr do
     end
   end
 
-  describe 'POST #package_command' do
+  describe 'POST #diff' do
     let(:multibuild_package) { create(:package, name: 'multibuild') }
     let(:multibuild_project) { multibuild_package.project }
     let(:repository) { create(:repository) }
@@ -108,7 +108,7 @@ RSpec.describe SourcePackageCommandController, :vcr do
 
     context "with 'diff' command for a multibuild package" do
       before do
-        post :package_command, params: {
+        post :diff, params: {
           cmd: 'diff', package: "#{multibuild_package.name}:one", project: multibuild_project, target_project: project
         }
       end
@@ -118,7 +118,7 @@ RSpec.describe SourcePackageCommandController, :vcr do
     end
   end
 
-  describe 'POST #package_command_undelete' do
+  describe 'POST #undelete' do
     context 'when not having permissions on the deleted package' do
       let(:package) { create(:package) }
 
@@ -126,7 +126,7 @@ RSpec.describe SourcePackageCommandController, :vcr do
         package.destroy
         login user
 
-        post :package_command, params: {
+        post :undelete, params: {
           cmd: 'undelete', project: package.project, package: package
         }
       end
@@ -142,7 +142,7 @@ RSpec.describe SourcePackageCommandController, :vcr do
         package.destroy
         login user
 
-        post :package_command, params: {
+        post :undelete, params: {
           cmd: 'undelete', project: package.project, package: package
         }
       end
@@ -157,7 +157,7 @@ RSpec.describe SourcePackageCommandController, :vcr do
         package.destroy
         login user
 
-        post :package_command, params: {
+        post :undelete, params: {
           cmd: 'undelete', project: package.project, package: package, time: 1.month.ago
         }
       end
@@ -175,7 +175,7 @@ RSpec.describe SourcePackageCommandController, :vcr do
         package.destroy
         login admin
 
-        post :package_command, params: {
+        post :undelete, params: {
           cmd: 'undelete', project: package.project, package: package, time: future
         }
       end

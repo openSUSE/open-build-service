@@ -265,7 +265,37 @@ controller :source_package_meta do
 end
 
 controller :source_package_command do
-  post 'source/:project/:package' => :package_command, constraints: cons
+  constraints(cons) do
+    post 'source/:project/:package' => :updatepatchinfo, constraints: ->(req) { req.params[:cmd] == 'updatepatchinfo' }
+    post 'source/:project/:package' => :importchannel, constraints: ->(req) { req.params[:cmd] == 'importchannel' }
+    post 'source/:project/:package' => :unlock, constraints: ->(req) { req.params[:cmd] == 'unlock' }
+    post 'source/:project/:package' => :addchannels, constraints: ->(req) { req.params[:cmd] == 'addchannels' }
+    post 'source/:project/:package' => :addcontainers, constraints: ->(req) { req.params[:cmd] == 'addcontainers' }
+    post 'source/:project/:package' => :enablechannel, constraints: ->(req) { req.params[:cmd] == 'enablechannel' }
+    post 'source/:project/:package' => :getprojectservices, constraints: ->(req) { req.params[:cmd] == 'getprojectservices' }
+    post 'source/:project/:package' => :showlinked, constraints: ->(req) { req.params[:cmd] == 'showlinked' }
+    post 'source/:project/:package' => :collectbuildenv, constraints: ->(req) { req.params[:cmd] == 'collectbuildenv' }
+    post 'source/:project/:package' => :instantiate, constraints: ->(req) { req.params[:cmd] == 'instantiate' }
+    post 'source/:project/:package' => :undelete, constraints: ->(req) { req.params[:cmd] == 'undelete' }
+    post 'source/:project/:package' => :createSpecFileTemplate, constraints: ->(req) { req.params[:cmd] == 'createSpecFileTemplate' }
+    post 'source/:project/:package' => :rebuild, constraints: ->(req) { req.params[:cmd] == 'rebuild' }
+    post 'source/:project/:package' => :commit, constraints: ->(req) { req.params[:cmd] == 'commit' }
+    post 'source/:project/:package' => :commitfilelist, constraints: ->(req) { req.params[:cmd] == 'commitfilelist' }
+    post 'source/:project/:package' => :diff, constraints: ->(req) { req.params[:cmd] == 'diff' }
+    post 'source/:project/:package' => :linkdiff, constraints: ->(req) { req.params[:cmd] == 'linkdiff' }
+    post 'source/:project/:package' => :servicediff, constraints: ->(req) { req.params[:cmd] == 'servicediff' }
+    post 'source/:project/:package' => :copy, constraints: ->(req) { req.params[:cmd] == 'copy' }
+    post 'source/:project/:package' => :release, constraints: ->(req) { req.params[:cmd] == 'release' }
+    post 'source/:project/:package' => :waitservice, constraints: ->(req) { req.params[:cmd] == 'waitservice' }
+    post 'source/:project/:package' => :mergeservice, constraints: ->(req) { req.params[:cmd] == 'mergeservice' }
+    post 'source/:project/:package' => :runservice, constraints: ->(req) { req.params[:cmd] == 'runservice' }
+    post 'source/:project/:package' => :deleteuploadrev, constraints: ->(req) { req.params[:cmd] == 'deleteuploadrev' }
+    post 'source/:project/:package' => :linktobranch, constraints: ->(req) { req.params[:cmd] == 'linktobranch' }
+    post 'source/:project/:package' => :branch, constraints: ->(req) { req.params[:cmd] == 'branch' }
+    post 'source/:project/:package' => :fork, constraints: ->(req) { req.params[:cmd] == 'fork' }
+    post 'source/:project/:package' => :set_flag, constraints: ->(req) { req.params[:cmd] == 'set_flag' }
+    post 'source/:project/:package' => :remove_flag, constraints: ->(req) { req.params[:cmd] == 'remove_flag' }
+  end
 end
 
 controller :source_command do
