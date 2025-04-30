@@ -4,26 +4,30 @@ module Webui
       before_action :lockout_spiders, only: [:show]
       before_action :set_project
       before_action :set_range
-      before_action :set_pulse
 
       def show
-        @pulse = @project.project_log_entries.page(params[:page])
+        respond_to do |format|
+          format.js do
+            set_pulse
+          end
+          format.html
+        end
       end
 
       private
 
       def set_range
         @range = params[:range] == 'month' ? 'month' : 'week'
-      end
 
-      def set_pulse
         @date_range = case @range
                       when 'month'
                         1.month.ago..Date.tomorrow
                       else
                         1.week.ago..Date.tomorrow
                       end
+      end
 
+      def set_pulse
         pulse = @project.project_log_entries.where(datetime: @date_range).order(datetime: :asc)
         @builds = pulse.where(event_type: %i[build_fail build_success]).where(datetime: 24.hours.ago..Time.zone.now)
         @new_packages = pulse.where(event_type: :create_package)
