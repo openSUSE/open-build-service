@@ -22,6 +22,10 @@ delete:
           schema:
             $ref: '../components/schemas/api_response.yaml'
           examples:
+            Label Not Found:
+              value:
+                code: not_found
+                summary: Unable to find label '42'
             Request Not Found:
               value:
                 code: not_found
