@@ -376,6 +376,16 @@ defaults format: 'xml' do
   end
 end
 
+### /assignments
+scope :assignments do
+  resources :projects, only: [], param: :name do
+    resources :assignments, only: [:index], path: '', constraints: cons
+    resources :packages, only: [], param: :name do
+      resource :assignment, only: %i[create destroy], path: '', constraints: cons
+    end
+  end
+end
+
 # ### /labels
 scope :labels do
   resources :projects, only: [], param: :name do
