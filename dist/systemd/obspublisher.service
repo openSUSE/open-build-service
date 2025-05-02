@@ -1,6 +1,6 @@
 [Unit]
 Description=OBS repository publisher
-After=network-online.target
+After=network-online.target obssrcserver.service obsrepserver.service
 
 [Service]
 OOMPolicy=continue
