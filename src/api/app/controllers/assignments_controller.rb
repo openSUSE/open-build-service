@@ -46,7 +46,11 @@ class AssignmentsController < ApplicationController
   end
 
   def set_assignee
-    assignee_xml = Nokogiri::XML(request.raw_post, &:strict).xpath('//assignment/assignee').text if request.raw_post.present?
+    request_body = request.body.read
+    assignee_xml = if request_body.present?
+                     Suse::Validator.validate(:assignment, request_body)
+                     Nokogiri::XML(request_body, &:strict).xpath('//assignment/assignee').text
+                   end
     @assignee = if assignee_xml.present?
                   User.find_by(login: assignee_xml)
                 else
