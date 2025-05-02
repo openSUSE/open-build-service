@@ -449,6 +449,10 @@ sub update_projpacks {
       delete $proj->{'package'};
     }
   }
+  # the src server does not send the project if the packages were deleted
+  if (defined($projid) && !@{$projpacksin->{'project'} || []} && $projpacks->{$projid}) {
+    update_prpcheckuseforbuild($gctx, $projid, $projpacks->{$projid});
+  }
   if (defined($projid) && $isgone) {
     update_prpcheckuseforbuild($gctx, $projid);
     BSSched::DoD::update_doddata($gctx, $projid) if $BSConfig::enable_download_on_demand;
