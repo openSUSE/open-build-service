@@ -1,3 +1,6 @@
+x-podman:
+  in_pod: false
+
 services:
   db:
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/mariadb
@@ -26,6 +29,7 @@ services:
       - backend
     command: /obs/contrib/start_development_worker
   frontend:
+    userns_mode: keep-id
     image: openbuildservice/frontend
     command: foreman start -p 3000
     build:
