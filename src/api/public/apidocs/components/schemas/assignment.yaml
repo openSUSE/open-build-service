@@ -1,0 +1,16 @@
+type: object
+properties:
+  package:
+    type: string
+    xml:
+      attribute: true
+  assignee:
+    type: string
+  assigner:
+    type: string
+  created_at:
+    type: string
+  updated_at:
+    type: string
+xml:
+  name: assignment

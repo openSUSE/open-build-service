@@ -5,6 +5,7 @@ servers:
 
 tags:
   - name: Announcements
+  - name: Assignments
   - name: Attribute Namespaces
   - name: Attributes
   - name: Build
@@ -95,6 +96,11 @@ paths:
     $ref: 'paths/announcements.yaml'
   /announcements/{announcement_id}:
     $ref: 'paths/announcements_announcement_id.yaml'
+
+  /assignments/projects/{project_name}:
+    $ref: 'paths/assignments_projects_project_name.yaml'
+  /assignments/projects/{project_name}/packages/{package_name}:
+    $ref: 'paths/assignments_projects_project_name_packages_package_name.yaml'
 
   /architectures:
     $ref: 'paths/architectures.yaml'
