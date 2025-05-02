@@ -8,7 +8,6 @@ Rails.autoloaders.each do |autoloader|
     'obs_quality_categories_finder' => 'OBSQualityCategoriesFinder',
     'opensuse_upstream_tarball_url_finder' => 'OpenSUSEUpstreamTarballURLFinder',
     'opensuse_upstream_version_finder' => 'OpenSUSEUpstreamVersionFinder',
-    'remote_url' => 'RemoteURL',
     'report_to_scm_job' => 'ReportToSCMJob',
     'rss_channel' => 'RSSChannel',
     'scm_status_report' => 'SCMStatusReport',

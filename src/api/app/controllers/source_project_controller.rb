@@ -66,6 +66,12 @@ class SourceProjectController < SourceController
       return
     end
 
+    if params.key?(:expand)
+      # Exanded project listings need to be processed by backend
+      pass_to_backend
+      return
+    end
+
     render_project_packages
   end
 

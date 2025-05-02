@@ -1,7 +1,7 @@
 class FetchRemoteDistributionsJob < ApplicationJob
   def perform
     Project.remote.each do |project|
-      distributions_xml = Project::RemoteURL.load(project, '/distributions.xml')
+      distributions_xml = Backend::Api::Sources::Project.remotedistributions(project)
 
       # don't let broken remote instances break us
       if Xmlhash.parse(distributions_xml.to_s).blank?
