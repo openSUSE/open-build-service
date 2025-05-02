@@ -72,6 +72,7 @@ my $bindaddress;
 my $statedir;
 my $hostarch;
 my $vm = '';
+my $vm_args = '';
 my $vm_tmpfs_mode;
 my $vm_root = '';
 my $vm_swap = '';
@@ -682,6 +683,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--vm-type') {
     shift @ARGV;
     $vm = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--vm-args') {
+    shift @ARGV;
+    $vm_args = shift @ARGV;
     next;
   }
   print "OPTION UNKNOWN: $ARGV[0]\n" unless $justbuild;
@@ -4048,6 +4054,7 @@ sub dobuild {
     mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
     push @args, '--root', "$buildroot/.mount";
     push @args, '--vm-type', $vm;
+    push @args, '--vm-args', $vm_args if $vm_args ne '';
     push @args, '--vm-disk', $vm_root;
     push @args, '--vm-swap', $vm_swap;
     push @args, '--emulator-script', $emulator_script if $vm eq 'emulator' && $emulator_script;
@@ -4075,6 +4082,7 @@ sub dobuild {
     mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
     push @args, '--root',      "$buildroot/.mount";
     push @args, "--vm-type",   $vm;
+    push @args, '--vm-args', $vm_args if $vm_args ne '';
     push @args, "--vm-disk",   $vm_root;
     push @args, "--vm-swap",   $vm_swap;
     push @args, "--vm-server", $vm_server;
@@ -4089,6 +4097,7 @@ sub dobuild {
     print "VM-TYPE $vm not detected" if $vm;
     push @args, '--root', $buildroot;
     push @args, '--vm-type', $vm if $vm;
+    push @args, '--vm-args', $vm_args if $vm && $vm_args ne '';
   }
   push @args, '--clean';
   push @args, '--changelog';
