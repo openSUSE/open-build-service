@@ -247,6 +247,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     data = REXML::Document.new(@response.body)
     incident_project = data.elements['/request/action/target'].attributes.get_attribute('project').to_s
 
+    # re-do diffing to see acceptinfo is handled well
+    post "/request/#{id1}?cmd=diff&view=xml"
+    assert_response :success
+    assert_xml_tag(tag: 'acceptinfo')
+    # diff contains the critical lines
+    assert_match(/^-NOOP/, @response.body)
+    assert_match(/^\+argl/, @response.body)
+
     get "/source/#{incident_project}/kdelibs.BaseDistro2.0_LinkedUpdateProject"
     assert_response :success
     assert_xml_tag(tag: 'linkinfo', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'kdelibs' })
