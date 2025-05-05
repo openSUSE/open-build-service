@@ -19,6 +19,9 @@ class Assignment < ApplicationRecord
   #### Scopes (first the default_scope macro if is used)
 
   #### Validations macros
+  validate :assignee do
+    errors.add(:assignee, 'must be in confirmed state') unless assignee.state == 'confirmed'
+  end
   validates :package, uniqueness: true
 
   #### Class methods using self. (public and then private)
