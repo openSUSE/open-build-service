@@ -18,15 +18,15 @@ module Webui::UserActivityHelper
 
   def activity_classname(activity, percentiles)
     if activity.zero?
-      'activity-percentil0'
+      ''
     elsif activity <= percentiles[0]
-      'activity-percentil1'
+      'table-activity-percentil1'
     elsif activity <= percentiles[1]
-      'activity-percentil2'
+      'table-activity-percentil2'
     elsif activity <= percentiles[2]
-      'activity-percentil3'
+      'table-activity-percentil3'
     else
-      'activity-percentil4'
+      'table-activity-percentil4'
     end
   end
 
