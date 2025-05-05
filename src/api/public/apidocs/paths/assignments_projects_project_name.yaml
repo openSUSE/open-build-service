@@ -1,0 +1,35 @@
+get:
+  summary: List the packages with assignments of a project.
+  description: |
+    **(Unstable)** Given a project, list its packages with assignments.
+  security:
+  - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/assignments.yaml'
+          example:
+            count: 2
+            project: home:Admin
+            assignment:
+              - package: ctris
+                assignee: Iggy
+                assigner: Admin
+                created_at: '2025-01-18 19:17:51 UTC'
+                updated_at: '2025-01-18 19:17:51 UTC'
+              - package: fzf
+                assignee: Admin
+                assigner: Admin
+                created_at: '2025-01-28 19:18:51 UTC'
+                updated_at: '2025-01-28 19:18:51 UTC'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Assignments
