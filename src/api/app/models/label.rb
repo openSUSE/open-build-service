@@ -21,11 +21,25 @@ class Label < ApplicationRecord
   #### Validations macros
   validates :labelable_type, length: { maximum: 255 }
   validates :labelable_id, uniqueness: { scope: %i[labelable_type label_template_id] }
-
+  validate :bs_request_has_one_target_project
   #### Class methods using self. (public and then private)
+
+  def project_for_labels
+    return labelable.project unless labelable.is_a?(BsRequest)
+
+    target_project_ids = labelable.bs_request_actions.pluck(:target_project_id).uniq
+    return if target_project_ids.count > 1
+
+    Project.find_by(id: target_project_ids.last)
+  end
 
   #### To define class methods as private use private_class_method
   #### private
+  private
+
+  def bs_request_has_one_target_project
+    errors.add(:labelable, 'Labeling requests with more than one target project is not allowed') if project_for_labels.nil?
+  end
 
   #### Instance methods (public and then protected/private)
 
