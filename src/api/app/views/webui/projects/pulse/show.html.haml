@@ -33,11 +33,7 @@
 
 :javascript
   $(document).ready(function() {
-    $.ajax({
-      url: "#{project_pulse_path(@project, range: @range)}",
-      type: "get",
-      dataType: 'script'
-    });
+    $.ajax({ url: "#{project_pulse_path(@project, range: @range)}" });
 
     $(".dropdown-item").click(function() {
       $('#pulse, .col.spinner').toggleClass('d-none');
