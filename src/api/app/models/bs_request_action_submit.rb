@@ -31,45 +31,47 @@ class BsRequestActionSubmit < BsRequestAction
     # create package unless it exists already
     target_project = Project.get_by_name(self.target_project)
 
-    # FIXME: when this code is moved to conditional assigment, it causes ambiguity between target_package and self.target_package.
-    # Problems detected in webui/session_controller_spec.rb jobs/staging_project_accept_job_spec.rb webui/request_controller_spec.rb
-    if target_package
-      target_package = target_project.packages.find_by_name(self.target_package)
-    else
-      target_package = target_project.packages.find_by_name(source_package)
-    end
-
     relink_source = false
-    unless target_package
-      # check for target project attributes
-      initialize_devel_package = target_project.find_attribute('OBS', 'InitializeDevelPackage')
-      # create package in database
-      linked_package = target_project.find_package(self.target_package)
-      if linked_package
-        # exists via project links
-        opts = { request: bs_request }
-        opts[:makeoriginolder] = true if makeoriginolder
-        instantiate_container(target_project, linked_package.update_instance, opts)
-        target_package = target_project.packages.find_by_name(linked_package.name)
+    unless target_package == '_project'
+      # FIXME: when this code is moved to conditional assigment, it causes ambiguity between target_package and self.target_package.
+      # Problems detected in webui/session_controller_spec.rb jobs/staging_project_accept_job_spec.rb webui/request_controller_spec.rb
+      if target_package
+        target_package = target_project.packages.find_by_name(self.target_package)
       else
-        # check the permissions again, because the target_package could
-        # have been deleted after the previous check_action_permission! call
-        check_action_permission!(skip_source: true) if initialize_devel_package
-        # new package, base container on source container
-        newxml = Xmlhash.parse(Backend::Api::Sources::Package.meta(source_project, source_package))
-        newxml['name'] = self.target_package
-        newxml['devel'] = nil
-        target_package = target_project.packages.new(name: newxml['name'])
-        target_package.update_from_xml(newxml)
-        target_package.flags.destroy_all
-        target_package.remove_all_persons
-        target_package.remove_all_groups
-        target_package.scmsync = nil
-        if initialize_devel_package
-          target_package.develpackage = Package.find_by_project_and_name(source_project, source_package)
-          relink_source = true
+        target_package = target_project.packages.find_by_name(source_package)
+      end
+
+      unless target_package
+        # check for target project attributes
+        initialize_devel_package = target_project.find_attribute('OBS', 'InitializeDevelPackage')
+        # create package in database
+        linked_package = target_project.find_package(self.target_package)
+        if linked_package
+          # exists via project links
+          opts = { request: bs_request }
+          opts[:makeoriginolder] = true if makeoriginolder
+          instantiate_container(target_project, linked_package.update_instance, opts)
+          target_package = target_project.packages.find_by_name(linked_package.name)
+        else
+          # check the permissions again, because the target_package could
+          # have been deleted after the previous check_action_permission! call
+          check_action_permission!(skip_source: true) if initialize_devel_package
+          # new package, base container on source container
+          newxml = Xmlhash.parse(Backend::Api::Sources::Package.meta(source_project, source_package))
+          newxml['name'] = self.target_package
+          newxml['devel'] = nil
+          target_package = target_project.packages.new(name: newxml['name'])
+          target_package.update_from_xml(newxml)
+          target_package.flags.destroy_all
+          target_package.remove_all_persons
+          target_package.remove_all_groups
+          target_package.scmsync = nil
+          if initialize_devel_package
+            target_package.develpackage = Package.find_by_project_and_name(source_project, source_package)
+            relink_source = true
+          end
+          target_package.store(comment: "submit request #{bs_request.number}", request: bs_request)
         end
-        target_package.store(comment: "submit request #{bs_request.number}", request: bs_request)
       end
     end
 
@@ -91,10 +93,12 @@ class BsRequestActionSubmit < BsRequestAction
 
     fill_acceptinfo(result['acceptinfo'])
 
+    return if self.target_package == '_project'
+
     target_package.sources_changed
 
     # cleanup source project
-    if relink_source && sourceupdate != 'noupdate'
+    if relink_source && sourceupdate != 'noupdate' && source_package != '_project'
       if Package.find_by_project_and_name(source_project, source_package).scmsync.blank?
         # source package got used as devel package, link it to the target
         # re-create it via branch , but keep current content...
@@ -127,6 +131,11 @@ class BsRequestActionSubmit < BsRequestAction
     target_package = target_project.packages.find_by_name(self.target_package)
     initialize_devel_package = target_project.find_attribute('OBS', 'InitializeDevelPackage')
     return if target_package || !initialize_devel_package
+
+    if source_package == '_project'
+      project = Project.get_by_name(source_project)
+      return if User.session!.can_modify?(project)
+    end
 
     source_package = Package.get_by_project_and_name(source_project, self.source_package, follow_project_links: false)
     return if User.session!.can_modify?(source_package)
