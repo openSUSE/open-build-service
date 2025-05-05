@@ -32,3 +32,5 @@
   = render partial: 'webui/package/side_links/create_badge', locals: { project: project, package: package }
 
   = render partial: 'webui/package/side_links/reports', locals: { package: package }
+  - if Flipper.enabled?(:foster_collaboration, User.session)
+    = render partial: 'webui/package/side_links/assignments', locals: { package: package }
