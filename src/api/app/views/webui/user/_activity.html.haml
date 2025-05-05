@@ -1,32 +1,31 @@
 - percentiles = contributions_percentiles(activities_per_year.values)
 
-.card.mb-3
-  .card-body
-    .h5
-      - number_of_contributions = activities_per_year.values.sum
-      = pluralize(number_of_contributions, 'contribution')
-      in the last year
-    %table.table#contributors-table
-      - 7.times do |week_day|
-        %tr
-          %td.week-day= Date::ABBR_DAYNAMES[(week_day + 1) % 7]
-          - 53.times do |week_number|
-            - current_day = first_day + (week_number * 7) + week_day
+.card-body
+  .h5
+    - number_of_contributions = activities_per_year.values.sum
+    = pluralize(number_of_contributions, 'contribution')
+    in the last year
+  %table.table#contributors-table
+    - 7.times do |week_day|
+      %tr
+        %td.week-day= Date::ABBR_DAYNAMES[(week_day + 1) % 7]
+        - 53.times do |week_number|
+          - current_day = first_day + (week_number * 7) + week_day
 
-            - if current_day > last_day
-              %td
-            - else
-              :ruby
-                activity = activities_per_year.fetch(current_day, 0)
-                classname = activity_classname(activity, percentiles)
+          - if current_day > last_day
+            %td
+          - else
+            :ruby
+              activity = activities_per_year.fetch(current_day, 0)
+              classname = activity_classname(activity, percentiles)
 
-              %td{ title: "#{current_day} - #{activity} contributions", class: classname }
-                - if activity.positive?
-                  = link_to(user_path(login: user, params: { date: current_day }), class: 'activity-link') do
-                    &nbsp;
-                - else
+            %td{ title: "#{current_day} - #{activity} contributions", class: classname }
+              - if activity.positive?
+                = link_to(user_path(login: user, params: { date: current_day }), class: 'activity-link') do
                   &nbsp;
+              - else
+                &nbsp;
 
-    - if date
-      = render partial: 'activity_date', locals: { date: date,
-                                                   activities_per_day: activities_per_day }
+  - if date
+    = render partial: 'activity_date', locals: { date: date,
+                                                 activities_per_day: activities_per_day }

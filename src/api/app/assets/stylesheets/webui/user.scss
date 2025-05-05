@@ -1,38 +1,30 @@
-.activity-percentil0 {
-  background-color: #dcd5da;
-}
-
-.activity-percentil1 {
-  background-color: #f9b4dd;
-}
-
-.activity-percentil2 {
-  background-color: #ff5cb3;
-}
-
-.activity-percentil3 {
-  background-color: #ec1596;
-}
-
-.activity-percentil4 {
-  background-color: #c60b7b;
-}
-
 #contributors-table {
   td {
     padding: 0;
-    border: 1px solid white;
+    border: 1px solid $gray-400;
   }
   td.week-day {
     width: 1px;
-    padding-right: 1rem
+    padding: 0 .5rem 0 .5rem;
+    @extend .table-activity;
   }
   a.activity-link {
     display: block;
-    text-decoration: none;
   }
 }
 
 #bio-chars-counter {
   min-height: 1.2rem;
+}
+
+$table-activity-variants: (
+  "activity":            shift-color($gray-400, -50%),
+  "activity-percentil1": shift-color($pink-300, -50%),
+  "activity-percentil2": shift-color($pink-500, -50%),
+  "activity-percentil3": shift-color($pink-700, -50%),
+  "activity-percentil4": shift-color($pink-900, -50%),
+);
+
+@each $color, $value in $table-activity-variants {
+  @include table-variant($color, $value);
 }
