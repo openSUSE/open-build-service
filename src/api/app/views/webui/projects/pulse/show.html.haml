@@ -25,11 +25,9 @@
             = link_to(project_pulse_path(@project, range: 'month'), remote: true, type: :json, class: 'dropdown-item') do
               One Month
     .row
-      .col.spinner
-        .row
-          .col.text-center
-            %i.fas.fa-spinner.fa-spin.fa-3x
-      .col.d-none#pulse
+      #pulse
+        // The content of this div is set by JavaScript after the ajax call
+        = render partial: 'webui/shared/loading', locals: { text: 'Loading data...' }
 
 :javascript
   $(document).ready(function() {

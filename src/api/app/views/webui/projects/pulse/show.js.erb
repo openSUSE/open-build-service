@@ -1,4 +1,3 @@
-$('#pulse, .col.spinner').toggleClass('d-none');
 $('#pulse').html("<%= escape_javascript render partial: 'pulse_list', locals: { requests_by_percentage: @requests_by_percentage,
                                                                                 requests_by_state: @requests_by_state,
                                                                                 project: @project,
