@@ -149,3 +149,8 @@ OBS_RejectBranch:
   attrib_namespace_id: 9
   value_count: 1
   issue_list: 0
+OBS_LimitReleaseSourceProject:
+  id: 86
+  name: LimitReleaseSourceProject
+  attrib_namespace_id: 9
+  issue_list: 0
