@@ -32,14 +32,16 @@
       .col.d-none#pulse
 
 :javascript
-  $.ajax({
-    url: "#{project_pulse_path(@project, range: @range)}",
-    type: "get",
-    dataType: 'script'
-  });
+  $(document).ready(function() {
+    $.ajax({
+      url: "#{project_pulse_path(@project, range: @range)}",
+      type: "get",
+      dataType: 'script'
+    });
 
-  $(".dropdown-item").click(function() {
-    $('#pulse, .col.spinner').toggleClass('d-none');
-    // FIXME: No idea why this is needed, maybe remote links are not covered by bootstrap?
-    $('#period-dropdown').dropdown('toggle')
+    $(".dropdown-item").click(function() {
+      $('#pulse, .col.spinner').toggleClass('d-none');
+      // FIXME: No idea why this is needed, maybe remote links are not covered by bootstrap?
+      $('#period-dropdown').dropdown('toggle')
+    });
   });
