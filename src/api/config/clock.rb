@@ -93,6 +93,6 @@ module Clockwork
 
   # Expire assignments after 24h
   every(1.day, 'expire assignments') do
-    ExpireAssignments.perform_later
+    ExpireAssignmentsJob.perform_later
   end
 end
