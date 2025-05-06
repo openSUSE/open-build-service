@@ -46,6 +46,11 @@ class SourceController < ApplicationController
                            end
   end
 
+  def set_project
+    @project = Project.find_by(name: params[:project])
+    raise Project::Errors::UnknownObjectError, "Project not found: #{params[:project]}" unless @project
+  end
+
   def set_target_package_name
     @target_package_name = params[:package]
     return unless params[:cmd].in?(%w[branch fork release])

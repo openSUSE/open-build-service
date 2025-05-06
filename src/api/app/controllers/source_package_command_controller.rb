@@ -14,6 +14,7 @@ class SourcePackageCommandController < SourceController
   # we use an array for the "file" parameter
   skip_before_action :validate_params, only: %i[diff linkdiff servicediff]
 
+  before_action :set_project, only: :undelete
   before_action :set_target_project_name
   before_action :set_target_package_name
   before_action :set_user_param
@@ -22,7 +23,7 @@ class SourcePackageCommandController < SourceController
   before_action :validate_target_package_name
   before_action :validate_project_name
   before_action :validate_package_name
-  before_action :authorize
+  before_action :check_target_access
 
   # POST /source/<project>/<package>?cmd=updatepatchinfo
   def updatepatchinfo
@@ -140,23 +141,17 @@ class SourcePackageCommandController < SourceController
 
   # POST /source/<project>/<package>?cmd=undelete
   def undelete
-    raise PackageExists, "the package exists already #{@target_project_name} #{@target_package_name}" if Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: false)
-
-    tprj = Project.get_by_name(@target_project_name)
-    raise CmdExecutionNoPermission, "no permission to create package in project #{@target_project_name}" unless tprj.is_a?(Project) && Pundit.policy(User.session, Package.new(project: tprj)).create?
-
-    path = request.path_info
+    raise PackageExists, "the package '#{@project.name}/#{params[:package]}' exists" if Package.exists_by_project_and_name(@project.name, params[:package], follow_project_links: false)
     raise CmdExecutionNoPermission, 'Only administrators are allowed to set the time' unless User.admin_session? || params[:time].blank?
 
-    path += build_query_from_hash(params, %i[cmd user comment time])
-    pass_to_backend(path)
+    package = @project.packages.new(name: params[:package])
+    authorize package, :create?
 
-    # read meta data from backend to restore database object
-    prj = Project.find_by_name!(params[:project])
-    pkg = prj.packages.new(name: params[:package])
-    pkg.update_from_xml(Xmlhash.parse(Backend::Api::Sources::Package.meta(params[:project], params[:package])))
-    pkg.store
-    pkg.sources_changed
+    Backend::Api::Sources::Package.undelete(@project.name, package.name, params.slice(:user, :comment, :time).permit!.to_h)
+    package.update_from_xml(Xmlhash.parse(Backend::Api::Sources::Package.meta(@project.name, package.name)))
+    package.sources_changed
+
+    render_ok
   end
 
   # FIXME: obsolete this for 3.0
@@ -459,7 +454,7 @@ class SourcePackageCommandController < SourceController
     @origin_package = Package.get_by_project_and_name(params[:oproject], params[:opackage])
   end
 
-  def authorize
+  def check_target_access
     return if PACKAGE_CREATING_COMMANDS.include?(params[:cmd]) && !Project.exists_by_name(@target_project_name)
 
     # even when we can create the package, an existing instance must be checked if permissions are right
