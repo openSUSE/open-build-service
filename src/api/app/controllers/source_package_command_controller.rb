@@ -14,7 +14,8 @@ class SourcePackageCommandController < SourceController
   # we use an array for the "file" parameter
   skip_before_action :validate_params, only: %i[diff linkdiff servicediff]
 
-  before_action :require_package # FIXME: This is actually setting @target_project_name and @target_package_name
+  before_action :set_target_project_name
+  before_action :set_target_package_name
   before_action :set_user_param
   before_action :set_origin_package
   before_action :validate_target_project_name

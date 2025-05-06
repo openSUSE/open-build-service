@@ -37,16 +37,20 @@ class SourceController < ApplicationController
     @login = params[:login]
   end
 
-  def require_package
-    @target_package_name = params[:package]
-
+  def set_target_project_name
     # FIXME: for OBS 3, api of branch and copy calls have target and source in the opposite place
-    if params[:cmd].in?(%w[branch fork release])
-      @target_project_name = params[:target_project] # might be nil
-      @target_package_name = params[:target_package] if params[:target_package]
-    else
-      @target_project_name = params[:project]
-    end
+    @target_project_name = if params[:cmd].in?(%w[branch fork release])
+                             params[:target_project] # might be nil
+                           else
+                             params[:project]
+                           end
+  end
+
+  def set_target_package_name
+    @target_package_name = params[:package]
+    return unless params[:cmd].in?(%w[branch fork release])
+
+    @target_package_name = params[:target_package] if params[:target_package]
   end
 
   def actually_create_incident(project)
