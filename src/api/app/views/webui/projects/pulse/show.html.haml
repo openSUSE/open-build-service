@@ -31,7 +31,15 @@
 
 :javascript
   $(document).ready(function() {
-    $.ajax({ url: "#{project_pulse_path(@project, range: @range)}" });
+    $.ajax({
+      url: "#{project_pulse_path(@project, range: @range)}",
+      success: function(data) {
+        $('#pulse').html(data);
+      },
+      error: function() {
+        $('#pulse').html('<p>An error occurred while loading pulse data. Please try again.</p>');
+      }
+    });
 
     $(".dropdown-item").click(function() {
       $('#pulse, .col.spinner').toggleClass('d-none');

@@ -9,6 +9,18 @@ module Webui
         respond_to do |format|
           format.js do
             set_pulse
+            render partial: 'pulse_list', locals: { requests_by_percentage: @requests_by_percentage,
+                                                    requests_by_state: @requests_by_state,
+                                                    project: @project,
+                                                    commits: @commits,
+                                                    new_packages: @new_packages,
+                                                    deleted_packages: @deleted_packages,
+                                                    updates: @updates,
+                                                    project_changes: @project_changes,
+                                                    builds: @builds,
+                                                    branches: @branches,
+                                                    comments: @comments,
+                                                    requests: @requests }
           end
           format.html
         end
