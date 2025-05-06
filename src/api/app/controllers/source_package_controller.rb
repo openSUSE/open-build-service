@@ -4,7 +4,7 @@ class SourcePackageController < SourceController
 
   # GET /source/:project/:package
   def show
-    if @deleted_package
+    if params.key?(:deleted)
       tpkg = Package.find_by_project_and_name(@target_project_name, @target_package_name)
       raise PackageExists, 'the package is not deleted' if tpkg
 
