@@ -14,7 +14,7 @@ class SourcePackageCommandController < SourceController
   # we use an array for the "file" parameter
   skip_before_action :validate_params, only: %i[diff linkdiff servicediff]
 
-  before_action :require_package # FIXME: This is actually setting @deleted_package, @target_project_name and @target_package_name
+  before_action :require_package # FIXME: This is actually setting @target_project_name and @target_package_name
   before_action :set_user_param
   before_action :set_origin_package
   before_action :validate_target_project_name
@@ -555,6 +555,6 @@ class SourcePackageCommandController < SourceController
     end
 
     # check read access rights when the package does not exist anymore
-    validate_read_access_of_deleted_package(@target_project_name, @target_package_name) if @package.nil? && @deleted_package
+    validate_read_access_of_deleted_package(@target_project_name, @target_package_name) if @package.nil? && params.key?(:deleted)
   end
 end

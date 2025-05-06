@@ -37,12 +37,7 @@ class SourceController < ApplicationController
     @login = params[:login]
   end
 
-  # before_action for show_package, delete_package and package_command
   def require_package
-    # init and validation
-    #--------------------
-    @deleted_package = params.key?(:deleted)
-
     @target_package_name = params[:package]
 
     # FIXME: for OBS 3, api of branch and copy calls have target and source in the opposite place
