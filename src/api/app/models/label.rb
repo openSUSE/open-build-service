@@ -22,6 +22,7 @@ class Label < ApplicationRecord
   validates :labelable_type, length: { maximum: 255 }
   validates :labelable_id, uniqueness: { scope: %i[labelable_type label_template_id] }
   validate :bs_request_has_one_target_project
+  validate :validate_labelable_label_template_association
   #### Class methods using self. (public and then private)
 
   def project_for_labels
@@ -39,6 +40,13 @@ class Label < ApplicationRecord
 
   def bs_request_has_one_target_project
     errors.add(:labelable, 'Labeling requests with more than one target project is not allowed') if project_for_labels.nil?
+  end
+
+  def validate_labelable_label_template_association
+    project = project_for_labels
+    return if project.nil? || project.label_templates.include?(label_template)
+
+    errors.add(:base, :invalid, message: 'Labelable and LabelTemplate are not associated')
   end
 
   #### Instance methods (public and then protected/private)
