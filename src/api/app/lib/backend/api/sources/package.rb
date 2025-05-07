@@ -163,6 +163,12 @@ module Backend
           http_delete(['/source/:project/:package', project_name, package_name])
         end
 
+        # Undeletes the package
+        def self.undelete(project_name, package_name, options = {})
+          http_post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :undelete },
+                                                                               params: options, accepted: %i[user comment time])
+        end
+
         # Deletes a package source file
         def self.delete_file(project_name, package_name, filename)
           http_delete(['/source/:project/:package/:filename', project_name, package_name, filename])

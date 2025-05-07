@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project_2/_meta?user=user_4
+    uri: http://backend:5352/source/project_1/_meta?user=user_2
     body:
       encoding: UTF-8
       string: |
-        <project name="project_2">
-          <title>The House of Mirth</title>
+        <project name="project_1">
+          <title>Terrible Swift Sword</title>
           <description/>
         </project>
     headers:
@@ -29,24 +29,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '106'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_2">
-          <title>The House of Mirth</title>
+        <project name="project_1">
+          <title>Terrible Swift Sword</title>
           <description></description>
         </project>
-  recorded_at: Tue, 15 Mar 2022 14:59:00 GMT
+  recorded_at: Wed, 07 May 2025 09:36:24 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_2/package_2/_meta?user=user_5
+    uri: http://backend:5352/source/project_1/package_2/_meta?user=user_3
     body:
       encoding: UTF-8
       string: |
-        <package name="package_2" project="project_2">
-          <title>An Evil Cradling</title>
-          <description>Beatae aut adipisci culpa.</description>
+        <package name="package_2" project="project_1">
+          <title>A Many-Splendoured Thing</title>
+          <description>Omnis hic architecto sit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -67,18 +67,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '155'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_2" project="project_2">
-          <title>An Evil Cradling</title>
-          <description>Beatae aut adipisci culpa.</description>
+        <package name="package_2" project="project_1">
+          <title>A Many-Splendoured Thing</title>
+          <description>Omnis hic architecto sit.</description>
         </package>
-  recorded_at: Tue, 15 Mar 2022 14:59:00 GMT
+  recorded_at: Wed, 07 May 2025 09:36:24 GMT
 - request:
     method: delete
-    uri: http://backend:5352/source/project_2/package_2?comment&user=user_5
+    uri: http://backend:5352/source/project_1/package_2?user=user_3
     body:
       encoding: US-ASCII
       string: ''
@@ -107,7 +107,7 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Tue, 15 Mar 2022 14:59:00 GMT
+  recorded_at: Wed, 07 May 2025 09:36:24 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_meta?user=tom
@@ -147,5 +147,5 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Tue, 15 Mar 2022 14:59:00 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Wed, 07 May 2025 09:36:24 GMT
+recorded_with: VCR 6.3.1

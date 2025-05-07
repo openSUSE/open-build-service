@@ -39,16 +39,16 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Tue, 15 Mar 2022 14:59:01 GMT
+  recorded_at: Wed, 07 May 2025 09:36:23 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/package_3/_meta?user=user_6
+    uri: http://backend:5352/source/home:tom/package_1/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
-        <package name="package_3" project="home:tom">
-          <title>The Little Foxes</title>
-          <description>Repellendus illum veniam saepe.</description>
+        <package name="package_1" project="home:tom">
+          <title>Dulce et Decorum Est</title>
+          <description>A cupiditate dicta quisquam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,18 +69,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '153'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_3" project="home:tom">
-          <title>The Little Foxes</title>
-          <description>Repellendus illum veniam saepe.</description>
+        <package name="package_1" project="home:tom">
+          <title>Dulce et Decorum Est</title>
+          <description>A cupiditate dicta quisquam.</description>
         </package>
-  recorded_at: Tue, 15 Mar 2022 14:59:01 GMT
+  recorded_at: Wed, 07 May 2025 09:36:23 GMT
 - request:
     method: delete
-    uri: http://backend:5352/source/home:tom/package_3?comment&user=user_6
+    uri: http://backend:5352/source/home:tom/package_1?user=user_1
     body:
       encoding: US-ASCII
       string: ''
@@ -109,5 +109,5 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Tue, 15 Mar 2022 14:59:01 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Wed, 07 May 2025 09:36:24 GMT
+recorded_with: VCR 6.3.1

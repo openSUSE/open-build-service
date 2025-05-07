@@ -119,7 +119,7 @@ RSpec.describe SourcePackageCommandController, :vcr do
   end
 
   describe 'POST #undelete' do
-    context 'when not having permissions on the deleted package' do
+    context 'without permissions to undelete the package' do
       let(:package) { create(:package) }
 
       before do
@@ -127,15 +127,14 @@ RSpec.describe SourcePackageCommandController, :vcr do
         login user
 
         post :undelete, params: {
-          cmd: 'undelete', project: package.project, package: package
+          cmd: 'undelete', project: package.project, package: package, format: :xml
         }
       end
 
-      it { expect(response).to have_http_status(:found) }
-      it { expect(flash[:error]).to have_text('no permission to create package') }
+      it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('create_package_not_authorized') }
     end
 
-    context 'when having permissions on the deleted package' do
+    context 'with permissions to undelete the package' do
       let(:package) { create(:package, name: 'some_package', project: project) }
 
       before do
@@ -143,14 +142,14 @@ RSpec.describe SourcePackageCommandController, :vcr do
         login user
 
         post :undelete, params: {
-          cmd: 'undelete', project: package.project, package: package
+          cmd: 'undelete', project: package.project, package: package, format: :xml
         }
       end
 
       it { expect(response).to have_http_status(:ok) }
     end
 
-    context 'when not having permissions to set the time' do
+    context 'without permissions to set the time' do
       let(:package) { create(:package, project: project) }
 
       before do
@@ -158,15 +157,14 @@ RSpec.describe SourcePackageCommandController, :vcr do
         login user
 
         post :undelete, params: {
-          cmd: 'undelete', project: package.project, package: package, time: 1.month.ago
+          cmd: 'undelete', project: package.project, package: package, time: 1.month.ago, format: :xml
         }
       end
 
-      it { expect(response).to have_http_status(:found) }
-      it { expect(flash[:error]).to have_text('Only administrators are allowed to set the time') }
+      it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('cmd_execution_no_permission') }
     end
 
-    context 'when having permissions to set the time' do
+    context 'with permissions to set the time' do
       let(:admin) { create(:admin_user, login: 'admin') }
       let(:package) { create(:package, name: 'some_package', project: project) }
       let(:future) { 4_803_029_439 }
@@ -176,7 +174,7 @@ RSpec.describe SourcePackageCommandController, :vcr do
         login admin
 
         post :undelete, params: {
-          cmd: 'undelete', project: package.project, package: package, time: future
+          cmd: 'undelete', project: package.project, package: package, time: future, format: :xml
         }
       end
 
