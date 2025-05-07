@@ -34,7 +34,7 @@
     white-space: normal !important;
     border-left: 5px solid transparent;
     &:hover {
-      border-left-color: $menu-hover-color;
+      border-left-color: tint-color($green, 10%);
       i { filter: none; }
     }
     transition: none;
