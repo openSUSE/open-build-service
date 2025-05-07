@@ -17,8 +17,8 @@ class BsRequestPermissionCheck
     @write_permission_in_target = false
   end
 
-  def cmd_addreview_permissions(permissions_granted)
-    raise ReviewChangeStateNoPermission, 'The request is not in state new or review' unless req.state.in?(%i[review new])
+  def cmd_addreview_permissions(permissions_granted, relaxed_state_check = 0)
+    raise ReviewChangeStateNoPermission, 'The request is not in state new or review' unless relaxed_state_check || req.state.in?(%i[review new])
 
     req.bs_request_actions.each do |action|
       set_permissions_for_action(action)
