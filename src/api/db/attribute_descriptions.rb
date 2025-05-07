@@ -27,6 +27,7 @@ def update_all_attrib_type_descriptions
     'EmbargoDate' => 'A timestamp until outgoing requests can not get accepted.',
     'PlannedReleaseDate' => 'A timestamp for the planned release date of an incident.',
     'MakeOriginOlder' => 'Initialize packages by making the build results newer then updated ones',
+    'EnforceIncidentRequestStaging' => 'Will create new projects to submit maintenance incidents requests',
     'DelegateRequestTarget' => 'Delegate the target project of requests even when target_project is specified',
     'AllowSubmitToMaintenanceRelease' => 'Allow submit requests to maintenance release projects',
     'EnforceRevisionsInRequests' => 'Enforce revisions in request actions',
