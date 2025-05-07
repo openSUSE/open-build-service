@@ -1,0 +1,2 @@
+_service:recompress:tar_scm:python-openqa_review-*.tar.xz
+_service:tar_scm:_servicedata

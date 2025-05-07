@@ -1,0 +1,15 @@
+<services>
+  <service name="tar_scm">
+    <param name="filename">python-openqa_review</param>
+    <param name="versionformat">@PARENT_TAG@+@TAG_OFFSET@.%h</param>
+    <param name="url">https://github.com/okurz/openqa_review.git</param>
+    <param name="scm">git</param>
+    <param name="revision">master</param>
+    <param name="changesgenerate">enable</param>
+  </service>
+  <service name="recompress">
+    <param name="compression">xz</param>
+    <param name="file">*.tar</param>
+  </service>
+  <service name="set_version"/>
+</services>

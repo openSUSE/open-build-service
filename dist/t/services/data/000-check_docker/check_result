@@ -1,0 +1,9 @@
+#!/bin/bash
+BN=`basename $0`
+mkdir t
+touch t/$BN.t
+prove --exec 'cat _service:container_checks:container_check.logs'
+rc=$?
+rm -rf t
+
+exit $rc

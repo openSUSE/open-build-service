@@ -1,0 +1,5 @@
+<services>
+  <service name="format_spec_file" mode="localonly"/>
+  <service name="download_files" mode="localonly"/>
+  <service name="source_validator" mode="trylocal"/>
+</services>

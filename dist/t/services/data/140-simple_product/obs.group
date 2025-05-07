@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<group name="obs" version="11" release="0.1">
+    <pattern ordernumber="2030">
+        <category>OBS Extension</category>
+        <description>Simple OBS list</description>
+        <icon>OBS</icon>
+        <summary>Blah
+Blub</summary>
+        <visible>true</visible>
+        <relationships>
+           <pattern name="OBS" relationship="requires" />
+        </relationships>
+    </pattern>
+    <packagelist>
+	<package name="obs-server" supportstatus="l3" />
+    </packagelist>
+</group>

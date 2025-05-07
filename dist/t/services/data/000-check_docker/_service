@@ -1,0 +1,5 @@
+<services>
+  <service name="container_checks">
+  </service>
+</services>
+

@@ -1,0 +1,3 @@
+_service:snapcraft:libpipeline.obscpio
+_service:snapcraft:libpipeline.obsinfo
+_service:snapcraft:snapcraft:snapcraft.yaml

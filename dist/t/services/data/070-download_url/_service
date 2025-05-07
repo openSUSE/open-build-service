@@ -1,0 +1,12 @@
+<services>
+  <service name="download_url">
+    <param name="protocol">https</param>
+    <param name="host">github.com</param>
+    <param name="path">/M0ses/kanku/archive/master.zip</param>
+    <param name="filename">kanku.zip</param>
+  </service>
+  <service name="rearchive">
+    <param name="file">kanku.zip</param>
+    <param name="format">zip</param>
+  </service>
+</services>

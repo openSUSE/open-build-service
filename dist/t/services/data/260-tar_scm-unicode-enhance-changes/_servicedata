@@ -1,0 +1,4 @@
+<servicedata>
+<service name="tar_scm">
+                <param name="url">https://github.com/openSUSE/obs-testpackage</param>
+              <param name="changesrevision">c8611344ac4102b089c07f94f74dc83f38b97eb0</param></service></servicedata>
