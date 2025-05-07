@@ -1,6 +1,6 @@
 class LabelsController < ApplicationController
   before_action :find_labelable
-  before_action :xml_hash, :find_label_template, only: [:create]
+  before_action :xml_hash, only: [:create]
 
   # GET /labels/projects/:project_name/packages/:package_name
   # GET /labels/requests/:request_number
@@ -12,12 +12,13 @@ class LabelsController < ApplicationController
   # POST /labels/requests/:request_number
   def create
     authorize @labelable, :update_labels?
+    @label = Label.new(labelable: @labelable)
+    @label.label_template = find_label_template
 
-    label = Label.new(label_template: @label_template, labelable: @labelable)
-    if label.save
+    if @label.save
       render_ok
     else
-      render_error(status: 400, message: label.errors.full_messages.to_sentence)
+      render_error(status: 400, errorcode: 'invalid_label', message: @label.errors.full_messages.to_sentence)
     end
   end
 
@@ -67,20 +68,9 @@ class LabelsController < ApplicationController
   end
 
   def find_label_template
-    if @labelable.is_a?(BsRequest) && project_for_labels(@labelable).present?
-      project = project_for_labels(@labelable)
-      @label_template = project.label_templates.find(@parsed_xml[:label_template_id])
-    elsif @labelable.is_a?(Package)
-      @label_template = @labelable.project.label_templates.find(@parsed_xml[:label_template_id])
-    else
-      render_error(status: 400, message: 'Labeling requests with more than one target project are not supported')
-    end
-  end
+    project = @label.project_for_labels
+    return unless project
 
-  def project_for_labels(bs_request)
-    target_project_ids = bs_request.bs_request_actions.pluck(:target_project_id).uniq
-    return if target_project_ids.count > 1
-
-    Project.find_by(id: target_project_ids.last)
+    project.label_templates.find(@parsed_xml[:label_template_id])
   end
 end

@@ -74,6 +74,25 @@ RSpec.describe LabelsController do
         expect(response.headers['X-Opensuse-Errorcode']).to eq('invalid_xml_format')
       end
     end
+
+    context 'when labeling a bs_request with multiple target projects' do
+      let(:bs_request) { create(:bs_request_with_submit_action) }
+      let(:source_package) { create(:package, project: user.home_project) }
+      let(:submit_action) { create(:bs_request_action_submit, target_project: package.project, target_package: package, source_project: user.home_project, source_package: source_package) }
+      let(:submit_action2) { create(:bs_request_action_submit, source_project: package.project, source_package: package, target_project: user.home_project, target_package: source_package) }
+
+      before do
+        login admin_user
+        bs_request.bs_request_actions << submit_action
+        bs_request.bs_request_actions << submit_action2
+
+        post :create, body: create_label_xml, params: { request_number: bs_request.number, format: 'xml' }
+      end
+
+      it 'returns error' do
+        expect(response.headers['X-Opensuse-Errorcode']).to eq('invalid_label')
+      end
+    end
   end
 
   describe 'DELETE #destroy' do
