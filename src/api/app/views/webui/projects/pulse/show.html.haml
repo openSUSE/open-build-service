@@ -25,21 +25,25 @@
             = link_to(project_pulse_path(@project, range: 'month'), remote: true, type: :json, class: 'dropdown-item') do
               One Month
     .row
-      .col.spinner
-        .row
-          .col.text-center
-            %i.fas.fa-spinner.fa-spin.fa-3x
-      .col.d-none#pulse
+      #pulse
+        // The content of this div is set by JavaScript after the ajax call
+        = render partial: 'webui/shared/loading', locals: { text: 'Loading data...' }
 
 :javascript
-  $.ajax({
-    url: "#{project_pulse_path(@project, range: @range)}",
-    type: "get",
-    dataType: 'script'
-  });
+  $(document).ready(function() {
+    $.ajax({
+      url: "#{project_pulse_path(@project, range: @range)}",
+      success: function(data) {
+        $('#pulse').html(data);
+      },
+      error: function() {
+        $('#pulse').html('<p>An error occurred while loading pulse data. Please try again.</p>');
+      }
+    });
 
-  $(".dropdown-item").click(function() {
-    $('#pulse, .col.spinner').toggleClass('d-none');
-    // FIXME: No idea why this is needed, maybe remote links are not covered by bootstrap?
-    $('#period-dropdown').dropdown('toggle')
+    $(".dropdown-item").click(function() {
+      $('#pulse, .col.spinner').toggleClass('d-none');
+      // FIXME: No idea why this is needed, maybe remote links are not covered by bootstrap?
+      $('#period-dropdown').dropdown('toggle')
+    });
   });
