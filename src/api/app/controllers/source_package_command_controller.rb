@@ -250,7 +250,7 @@ class SourcePackageCommandController < SourceController
 
   # POST /source/<project>/<package>?cmd=copy
   def copy
-    verify_can_modify_target!
+    authorize_create_or_modify_target!
 
     if @origin_package
       # use real source in case we followed project link
@@ -380,7 +380,7 @@ class SourcePackageCommandController < SourceController
   def branch
     # find out about source and target dependening on command   - FIXME: ugly! sync calls
     # The branch command may be used just for simulation
-    verify_can_modify_target! if !params[:dryrun] && @target_project_name
+    authorize_create_or_modify_target! if !params[:dryrun] && @target_project_name
 
     private_branch_command
   end
@@ -388,7 +388,7 @@ class SourcePackageCommandController < SourceController
   # POST /source/<project>/<package>?cmd=fork&scmsync="url"&target_project="optional_project"
   def fork
     # The branch command may be used just for simulation
-    verify_can_modify_target! if @target_project_name
+    authorize_create_or_modify_target! if @target_project_name
 
     raise MissingParameterError, 'scmsync url is not specified' if params[:scmsync].blank?
 
@@ -466,32 +466,32 @@ class SourcePackageCommandController < SourceController
     end
   end
 
-  def verify_can_modify_target!
-    # we require a target, but are we allowed to modify the existing target ?
-    if Project.exists_by_name(@target_project_name)
-      @project = Project.get_by_name(@target_project_name)
+  def authorize_create_or_modify_target!
+    authorize_create_or_modify_target_project!
+    authorize_create_or_modify_target_package!
+  end
+
+  def authorize_create_or_modify_target_project!
+    if Project.exists_by_name(@target_project_name) # also checks read access...
+      raise CreateProjectNoPermission, "no permission to modify project #{@target_project_name}" unless User.session.can_modify_project?(Project.find_by(name: @target_project_name))
     else
-      return if User.session.can_create_project?(@target_project_name)
-
-      raise CreateProjectNoPermission, "no permission to create project #{@target_project_name}"
-    end
-
-    if Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: false)
-      verify_can_modify_target_package!
-    elsif !@project.is_a?(Project) || !Pundit.policy(User.session, Package.new(project: @project)).create?
-      raise CmdExecutionNoPermission, "no permission to create package in project #{@target_project_name}"
+      raise CreateProjectNoPermission, "no permission to create project #{@target_project_name}" unless User.session.can_create_project?(@target_project_name)
     end
   end
 
-  def verify_can_modify_target_package!
-    return if User.session.can_modify?(@package)
+  def authorize_create_or_modify_target_package!
+    if Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: false) # also checks read access...
+      return if User.session.can_modify?(@package)
 
-    unless @package.instance_of?(Package)
+      unless @package.instance_of?(Package)
+        raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " \
+                                        'for unspecified package'
+      end
       raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " \
-                                      'for unspecified package'
+                                      "for package #{@package.name} in project #{@package.project.name}"
+    elsif !@project.is_a?(Project) || !Pundit.policy(User.session, Package.new(project: @project)).create?
+      raise CmdExecutionNoPermission, "no permission to create package in project #{@target_project_name}"
     end
-    raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " \
-                                    "for package #{@package.name} in project #{@package.project.name}"
   end
 
   def reparse_backend_package(spackage, sproject)
@@ -512,7 +512,7 @@ class SourcePackageCommandController < SourceController
   end
 
   def _package_command_release_manual_target(pkg, multibuild_container, time_now)
-    verify_can_modify_target!
+    authorize_create_or_modify_target!
 
     targetrepo = Repository.find_by_project_and_name(@target_project_name, params[:target_repository])
     raise UnknownRepository, "Repository does not exist #{params[:target_repository]}" unless targetrepo
