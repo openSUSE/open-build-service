@@ -382,7 +382,15 @@ class SourcePackageCommandController < SourceController
     # The branch command may be used just for simulation
     verify_can_modify_target! if !params[:dryrun] && @target_project_name
 
-    private_branch_command
+    ret = BranchPackage.new(params).branch
+    if ret[:text]
+      render plain: ret[:text]
+    else
+      Event::BranchCommand.create(project: params[:project], package: params[:package],
+                                  targetproject: params[:target_project], targetpackage: params[:target_package],
+                                  user: User.session.login)
+      render_ok ret
+    end
   end
 
   # POST /source/<project>/<package>?cmd=fork&scmsync="url"&target_project="optional_project"

@@ -113,18 +113,6 @@ class SourceController < ApplicationController
     raise NoMatchingReleaseTarget, 'No defined or matching release target' unless repo_matches
   end
 
-  def private_branch_command
-    ret = BranchPackage.new(params).branch
-    if ret[:text]
-      render plain: ret[:text]
-    else
-      Event::BranchCommand.create(project: params[:project], package: params[:package],
-                                  targetproject: params[:target_project], targetpackage: params[:target_package],
-                                  user: User.session.login)
-      render_ok ret
-    end
-  end
-
   def obj_set_flag(obj)
     obj.transaction do
       begin

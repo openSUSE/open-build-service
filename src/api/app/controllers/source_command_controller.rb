@@ -12,7 +12,15 @@ class SourceCommandController < SourceController
 
   # POST /source?cmd=branch (aka osc mbranch)
   def global_command_branch
-    private_branch_command
+    ret = BranchPackage.new(params).branch
+    if ret[:text]
+      render plain: ret[:text]
+    else
+      Event::BranchCommand.create(project: params[:project], package: params[:package],
+                                  targetproject: params[:target_project], targetpackage: params[:target_package],
+                                  user: User.session.login)
+      render_ok ret
+    end
   end
 
   # POST /source?cmd=orderkiwirepos
