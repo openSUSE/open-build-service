@@ -1,0 +1,571 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - a2ed2ac7-af02-429c-9d18-dfff268f8d5a
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom' does not exist</summary>
+          <details>404 project 'home:tom' does not exist</details>
+        </status>
+  recorded_at: Thu, 08 May 2025 13:01:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/test_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom' does not exist</summary>
+          <details>404 project 'home:tom' does not exist</details>
+        </status>
+  recorded_at: Thu, 08 May 2025 13:01:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - a2ed2ac7-af02-429c-9d18-dfff268f8d5a
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom' does not exist</summary>
+          <details>404 project 'home:tom' does not exist</details>
+        </status>
+  recorded_at: Thu, 08 May 2025 13:01:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/test_package?expand=0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom' does not exist</summary>
+          <details>404 project 'home:tom' does not exist</details>
+        </status>
+  recorded_at: Thu, 08 May 2025 13:01:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - a2ed2ac7-af02-429c-9d18-dfff268f8d5a
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom' does not exist</summary>
+          <details>404 project 'home:tom' does not exist</details>
+        </status>
+  recorded_at: Thu, 08 May 2025 13:01:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - a2ed2ac7-af02-429c-9d18-dfff268f8d5a
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom' does not exist</summary>
+          <details>404 project 'home:tom' does not exist</details>
+        </status>
+  recorded_at: Thu, 08 May 2025 13:01:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom/_result?lastbuild=1&locallink=1&multibuild=1&package=test_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 5527f9ef-6e07-4174-ae23-6deaac4e5cb4
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom' does not exist</summary>
+          <details>404 project 'home:tom' does not exist</details>
+        </status>
+  recorded_at: Thu, 08 May 2025 13:01:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom/_result?package=test_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - af2f8bf8-027d-4f7e-9b3f-3a6c5b855c2b
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom' does not exist</summary>
+          <details>404 project 'home:tom' does not exist</details>
+        </status>
+  recorded_at: Thu, 08 May 2025 13:01:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - b461b785-23a2-447f-958f-72613001ad9a
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom' does not exist</summary>
+          <details>404 project 'home:tom' does not exist</details>
+        </status>
+  recorded_at: Thu, 08 May 2025 13:01:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/test_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom' does not exist</summary>
+          <details>404 project 'home:tom' does not exist</details>
+        </status>
+  recorded_at: Thu, 08 May 2025 13:01:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - b461b785-23a2-447f-958f-72613001ad9a
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom' does not exist</summary>
+          <details>404 project 'home:tom' does not exist</details>
+        </status>
+  recorded_at: Thu, 08 May 2025 13:01:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/test_package?expand=0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom' does not exist</summary>
+          <details>404 project 'home:tom' does not exist</details>
+        </status>
+  recorded_at: Thu, 08 May 2025 13:01:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - b461b785-23a2-447f-958f-72613001ad9a
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom' does not exist</summary>
+          <details>404 project 'home:tom' does not exist</details>
+        </status>
+  recorded_at: Thu, 08 May 2025 13:01:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - b461b785-23a2-447f-958f-72613001ad9a
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom' does not exist</summary>
+          <details>404 project 'home:tom' does not exist</details>
+        </status>
+  recorded_at: Thu, 08 May 2025 13:01:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom/_result?lastbuild=1&locallink=1&multibuild=1&package=test_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 46ad9c60-f976-4d4b-948c-cb49c77d8cda
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom' does not exist</summary>
+          <details>404 project 'home:tom' does not exist</details>
+        </status>
+  recorded_at: Thu, 08 May 2025 13:01:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom/_result?package=test_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - 982721e6-8001-4851-af91-afcf3baf5bcb
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home tom' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:tom' does not exist</summary>
+          <details>404 project 'home:tom' does not exist</details>
+        </status>
+  recorded_at: Thu, 08 May 2025 13:01:10 GMT
+recorded_with: VCR 6.3.1

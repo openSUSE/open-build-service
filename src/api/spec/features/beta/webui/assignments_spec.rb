@@ -39,4 +39,18 @@ RSpec.describe 'Assignments', :vcr do
       expect(page).to have_text('Assigned to:')
     end
   end
+
+  describe 'unassigning a package' do
+    before do
+      assignee
+      create(:assignment, assignee: assignee, package: package)
+    end
+
+    it 'removes the assignment' do
+      visit package_show_path(user.home_project, package)
+      accept_alert { click_link('remove-assignment') }
+      expect(page).to have_css('ul.side_links')
+      expect(page).to(have_no_text('Assigned'))
+    end
+  end
 end
