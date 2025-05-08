@@ -46,26 +46,3 @@ ul.scrollable-tabs {
     }
   }
 }
-
-// Non-scrollable tabs
-
-ul.nav.nav-tabs li.nav-item {
-  & a {
-    color: $link-color;
-    text-decoration: none;
-
-    &:hover {
-      color: $link-hover-color;
-    }
-
-    &.dropdown-item.active,
-    &.dropdown-item:active {
-      color: $white;
-
-      span.badge {
-        color: $link-hover-color;
-        background-color: $card-bg;
-      }
-    }
-  }
-}
