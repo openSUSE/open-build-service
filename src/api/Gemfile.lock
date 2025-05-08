@@ -557,7 +557,7 @@ GEM
     unicode-display_width (3.1.4)
       unicode-emoji (~> 4.0, >= 4.0.4)
     unicode-emoji (4.0.4)
-    uniform_notifier (1.16.0)
+    uniform_notifier (1.17.0)
     uri (1.0.3)
     vcr (6.3.1)
       base64
