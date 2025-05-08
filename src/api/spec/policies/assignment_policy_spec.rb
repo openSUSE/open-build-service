@@ -1,7 +1,7 @@
 RSpec.describe AssignmentPolicy do
   subject { described_class }
 
-  permissions :create? do
+  permissions :create?, :destroy? do
     before do
       Flipper.enable(:foster_collaboration)
     end

@@ -2,6 +2,11 @@
 - if assignment
   Assigned to:
   = link_to(assignment.assignee, user_path(assignment.assignee), class: 'mx-2')
+  - if policy(assignment).destroy?
+    = link_to(project_package_assignment_path(project, package, assignment), method: :delete,
+    id: 'remove-assignment', data: { confirm: 'Are you sure you want to remove the assignment?' }) do
+      %p.mb-0.text-light
+        %i.fas.fa-times-circle
 - else
   .dropdown#assignment-search
     %button.btn.btn-sm.dropdown-toggle.ps-0.border-0{ data: { 'bs-toggle': 'dropdown', 'bs-auto-close': 'outside' }, aria: { expanded: 'false' } }

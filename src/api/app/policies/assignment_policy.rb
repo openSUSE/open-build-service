@@ -9,4 +9,8 @@ class AssignmentPolicy < ApplicationPolicy
 
     record.assignee_is_a_collaborator
   end
+
+  def destroy?
+    create?
+  end
 end
