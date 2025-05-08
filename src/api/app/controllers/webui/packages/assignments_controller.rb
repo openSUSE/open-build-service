@@ -13,6 +13,14 @@ module Webui
         redirect_to package_show_path(@package.project, @package)
       end
 
+      def destroy
+        assignment = Assignment.find_by(params['assignment_id'])
+        if assignment
+          assignment.destroy
+        end
+        redirect_to package_show_path(@package.project, @package)
+      end
+
       private
 
       def set_package
