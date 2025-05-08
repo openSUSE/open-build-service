@@ -20,7 +20,7 @@ class Assignment < ApplicationRecord
 
   #### Validations macros
   validate :assignee do
-    errors.add(:assignee, 'must be in confirmed state') unless assignee.state == 'confirmed'
+    errors.add(:assignee, 'must be in confirmed state') unless assignee && assignee.state == 'confirmed'
   end
   validates :package, uniqueness: true
 
