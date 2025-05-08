@@ -82,6 +82,7 @@ class User < ApplicationRecord
   scope :staff, -> { joins(:roles).where('roles.title' => 'Staff') }
   scope :admins, -> { joins(:roles).where('roles.title' => 'Admin') }
   scope :moderators, -> { joins(:roles).where('roles.title' => 'Moderator') }
+  scope :starting_with, ->(prefix) { where(['lower(login) like lower(?)', "#{prefix}%"]) }
 
   scope :in_beta, -> { where(in_beta: true) }
   scope :in_rollout, -> { where(in_rollout: true) }
@@ -169,7 +170,12 @@ class User < ApplicationRecord
   end
 
   def self.autocomplete_login(prefix = '')
-    AutocompleteFinder::User.new(User.not_deleted.not_locked, prefix).call.pluck(:login)
+    User.not_deleted
+        .not_locked
+        .starting_with(prefix)
+        .order(Arel.sql('length(login)'), :login)
+        .limit(50)
+        .pluck(:login)
   end
 
   # the default state of a user based on the api configuration
