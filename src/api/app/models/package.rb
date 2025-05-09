@@ -15,6 +15,7 @@ class Package < ApplicationRecord
   include PackageMediumContainer
   include ReportBugUrl
 
+  SPECIAL_NAMES = %w[_product _pattern _project _patchinfo].freeze
   has_many :relationships, dependent: :destroy, inverse_of: :package
   belongs_to :kiwi_image, class_name: 'Kiwi::Image', inverse_of: :package, optional: true
   accepts_nested_attributes_for :kiwi_image
@@ -176,6 +177,12 @@ class Package < ApplicationRecord
   #   > Package.get_by_project_and_name('home:hennevogel:myfirstproject', 'ctris:hans', follow_multibuild: true).name
   #   => "ctris"
   #
+  # It will ignore "special" Package names (see SPECIAL_NAMES)
+  # https://github.com/openSUSE/open-build-service/wiki/Links#project-scm-bridge-links
+  #
+  # You can instantiate this type of package by setting in the opts hash:
+  #   follow_special_names: true
+  #
   # It will "follow" project links and find the Package from the Project the link points to.
   # https://github.com/openSUSE/open-build-service/wiki/Links#project-links
   #
@@ -210,6 +217,7 @@ class Package < ApplicationRecord
                                          follow_project_scmsync_links: false,
                                          follow_project_remote_links: false,
                                          follow_multibuild: false,
+                                         follow_special_names: false,
                                          check_update_project: false }
     opts = get_by_project_and_name_defaults.merge(opts)
 
@@ -220,6 +228,13 @@ class Package < ApplicationRecord
 
     package = check_cache(project_name, package_name, opts)
     return package if package
+
+    # FIXME: What about _product, _pattern and _patchinfo?
+    # https://trello.com/c/2t3fDQio
+    if package.nil? && opts[:follow_special_names] && package_name == '_project'
+      package = project.packages.new(name: package_name)
+      package.readonly!
+    end
 
     if package.nil? && opts[:follow_project_links]
       package = project.find_package(package_name, opts[:check_update_project])
@@ -1007,7 +1022,7 @@ class Package < ApplicationRecord
     # this length check is duplicated but useful for other uses for this function
     return false if name.length > 200
     return false if name == '0'
-    return true if %w[_product _pattern _project _patchinfo].include?(name)
+    return true if SPECIAL_NAMES.include?(name)
 
     # _patchinfo: is obsolete, just for backward compatibility
     allowed_characters = /[-+\w.#{allow_multibuild ? ':' : ''}]/
