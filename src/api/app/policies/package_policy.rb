@@ -19,15 +19,31 @@ class PackagePolicy < ApplicationPolicy
   end
 
   def update?
-    user.can_modify?(record)
+    user.can_modify_package?(record)
+  end
+
+  def rebuild?
+    if record.readonly?
+      user.can_modify_project?(record.project)
+    else
+      user.can_modify_package?(record)
+    end
+  end
+
+  def runservice?
+    rebuild?
+  end
+
+  def unlock?
+    user.can_modify_package?(record, true)
   end
 
   def update_labels?
-    user.can_modify?(record)
+    user.can_modify_package?(record)
   end
 
   def destroy?
-    user.can_modify?(record)
+    user.can_modify_package?(record)
   end
 
   def save_meta_update?
