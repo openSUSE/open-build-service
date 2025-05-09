@@ -14,7 +14,7 @@ class ProjectPolicy < ApplicationPolicy
     return false unless local_project_and_allowed_to_create_package_in?
     # The ordering is important because of the lock status check
     return true if user.admin?
-    return false unless user.can_modify?(record, true)
+    return false unless user.can_modify_project?(record, true)
 
     # Regular users are not allowed to modify projects with remote references
     no_remote_instance_defined_and_has_not_remote_repositories?
@@ -35,7 +35,7 @@ class ProjectPolicy < ApplicationPolicy
   def unlock?
     return false unless user
 
-    user.can_modify?(record, true)
+    user.can_modify_project?(record, true)
   end
 
   def source_access?
