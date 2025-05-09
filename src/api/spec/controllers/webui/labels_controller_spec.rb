@@ -9,6 +9,7 @@ RSpec.describe Webui::LabelsController do
   let!(:label_three) { create(:label_template, project: home_tom) }
 
   before do
+    Flipper.enable(:labels)
     login(tom)
   end
 
