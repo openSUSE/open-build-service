@@ -27,7 +27,7 @@ span.CodeRay { white-space: pre }
 
 .CodeRay .line, .CodeRay .code { width: 100% }
 
-.CodeRay .debug { color: $card-bg; background: $blue }
+.CodeRay .debug { color: $card-bg; background: $editor-blue }
 
 .CodeRay .done, .CodeRay .comment, .CodeRay .escape,
 .CodeRay .inline-delimiter { color: $text-muted }
@@ -36,7 +36,7 @@ span.CodeRay { white-space: pre }
 
 .CodeRay .binary .char, .CodeRay .binary .delimiter,
 .CodeRay .map .content, .CodeRay .map .delimiter, .CodeRay .octal,
-.CodeRay .regexp .content, .CodeRay .head .head { color: $purple }
+.CodeRay .regexp .content, .CodeRay .head .head { color: $editor-purple }
 
 .CodeRay .comment .char, .CodeRay .comment .delimiter,
 .CodeRay .done, .CodeRay .preprocessor { color: $dark }
@@ -53,40 +53,40 @@ span.CodeRay { white-space: pre }
 .CodeRay .string .modifier { color: $danger }
 
 .CodeRay .annotation, .CodeRay .function, .CodeRay .predefined,
-.CodeRay .predefined-constant, .CodeRay .variable { color: $blue }
+.CodeRay .predefined-constant, .CodeRay .variable { color: $editor-blue }
 
 .CodeRay .attribute-name, .CodeRay .keyword,
-.CodeRay .regexp .delimiter { color: $pink }
+.CodeRay .regexp .delimiter { color: $editor-pink }
 
 .CodeRay .binary, .CodeRay .binary .char,
 .CodeRay .binary .delimiter, .CodeRay .constant,
-.CodeRay .regexp .modifier, .CodeRay .type { color: $indigo }
+.CodeRay .regexp .modifier, .CodeRay .type { color: $editor-indigo }
 
 .CodeRay .class, .CodeRay .class-variable, .CodeRay .color,
 .CodeRay .definition, .CodeRay .directive, .CodeRay .doctype,
 .CodeRay .float, .CodeRay .function .delimiter, .CodeRay .reserved,
-.CodeRay .shell .delimiter, .CodeRay .tag { color: $green }
+.CodeRay .shell .delimiter, .CodeRay .tag { color: $editor-green }
 
 .CodeRay .function .content, .CodeRay .hex, .CodeRay .id,
 .CodeRay .instance-variable, .CodeRay .integer, .CodeRay .key .char,
-.CodeRay .pseudo-class, .CodeRay .shell .content { color: $success }
+.CodeRay .pseudo-class, .CodeRay .shell .content { color: $editor-success }
 
 .CodeRay .decorator, .CodeRay .key, .CodeRay .key .delimiter,
-.CodeRay .namespace, .CodeRay .symbol, .CodeRay .symbol .content { color: $yellow }
+.CodeRay .namespace, .CodeRay .symbol, .CodeRay .symbol .content { color: $editor-yellow }
 
-.CodeRay .string .char, .CodeRay .include, .CodeRay .symbol .delimiter { color: $orange }
+.CodeRay .string .char, .CodeRay .include, .CodeRay .symbol .delimiter { color: $editor-orange }
 
-.CodeRay .predefined-type, .CodeRay .shell, .CodeRay .value { color: $teal }
+.CodeRay .predefined-type, .CodeRay .shell, .CodeRay .value { color: $editor-teal }
 
 .CodeRay .done { text-decoration: line-through }
 
-.CodeRay .insert { background: rgba($success, 0.1); display: inline-block }
+.CodeRay .insert { background: rgba($editor-success, 0.1); display: inline-block }
 .CodeRay .delete { background: rgba($danger, 0.1); display: inline-block }
 .CodeRay .head { color: $light; background: $dark }
 
 .CodeRay .delete .eyecatcher { background-color: rgba($danger, 0.3) }
-.CodeRay .insert .eyecatcher { background-color: rgba($success, 0.3) }
+.CodeRay .insert .eyecatcher { background-color: rgba($editor-success, 0.3) }
 
-.CodeRay .insert .insert { color: $success; background: transparent }
+.CodeRay .insert .insert { color: $editor-success; background: transparent }
 .CodeRay .delete .delete { color: $danger; background: transparent }
 .CodeRay .change .change { color: $body-color }

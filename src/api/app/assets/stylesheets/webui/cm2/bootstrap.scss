@@ -1,17 +1,17 @@
 // Bootstrap theme for CodeMirror
 .cm-s-bootstrap {
   --cm-body: var(--bs-body-color);
-  --cm-blue: #{$blue};
-  --cm-pink: #{$pink};
-  --cm-indigo: #{$indigo};
-  --cm-teal: #{$teal};
-  --cm-orange: #{$orange};
+  --cm-blue: #{$editor-blue};
+  --cm-pink: #{$editor-pink};
+  --cm-indigo: #{$editor-indigo};
+  --cm-teal: #{$editor-teal};
+  --cm-orange: #{$editor-orange};
   --cm-red: #{$red};
   --cm-gray: #{$text-muted};
-  --cm-purple: #{$purple};
-  --cm-yellow: #{$yellow};
-  --cm-green: #{$green};
-  --cm-link: #{$link-color};
+  --cm-purple: #{$editor-purple};
+  --cm-yellow: #{$editor-yellow};
+  --cm-green: #{$editor-green};
+  --cm-link: #{$editor-link-color};
 
   &.CodeMirror {
     font-family: $font-family-monospace, monospace;
@@ -60,11 +60,11 @@
     background: rgba($danger, 0.1);
   }
   .cm-positive {
-    color: $success;
+    color: $editor-success;
   }
 
   .CodeMirror-positive-line {
-    background: rgba($success, 0.1);
+    background: rgba($editor-success, 0.1);
   }
 
   .CodeMirror-gutters {
@@ -75,7 +75,7 @@
   .CodeMirror-guttermarker-subtle { color: var(--cm-gray); }
   .CodeMirror-linenumber { color: var(--cm-gray); }
   div.CodeMirror-selected {
-    background: $primary;
+    background: $editor-primary;
     opacity: 0.2;
   }
 
@@ -85,16 +85,16 @@
 
 @include color-mode(dark) {
   .cm-s-bootstrap {
-    --cm-blue: #{lighten($blue, 20%)};
-    --cm-pink: #{lighten($pink, 20%)};
-    --cm-indigo: #{lighten($indigo, 40%)};
-    --cm-teal: #{lighten($teal, 20%)};
-    --cm-orange: #{lighten($orange, 20%)};
+    --cm-blue: #{lighten($editor-blue, 20%)};
+    --cm-pink: #{lighten($editor-pink, 20%)};
+    --cm-indigo: #{lighten($editor-indigo, 40%)};
+    --cm-teal: #{lighten($editor-teal, 20%)};
+    --cm-orange: #{lighten($editor-orange, 20%)};
     --cm-red: #{lighten($danger, 20%)};
-    --cm-purple: #{lighten($purple, 20%)};
-    --cm-yellow: #{lighten($warning, 20%)};
-    --cm-green: #{lighten($success, 20%)};
-    --cm-link: #{lighten($link-color, 20%)};
+    --cm-purple: #{lighten($editor-purple, 20%)};
+    --cm-yellow: #{lighten($editor-warning, 20%)};
+    --cm-green: #{lighten($editor-success, 20%)};
+    --cm-link: #{lighten($editor-link-color, 20%)};
   }
 }
 
