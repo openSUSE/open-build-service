@@ -275,7 +275,11 @@ module ActionDispatch
     end
 
     def load_fixture(path)
-      File.read(File.join(ActionController::TestCase.fixture_path, path))
+      if RailsVersion.is_7_2?
+        File.read(File.join(ActionController::TestCase.fixture_paths, path))
+      else
+        File.read(File.join(ActionController::TestCase.fixture_path, path))
+      end
     end
 
     def load_backend_file(path)
@@ -356,7 +360,11 @@ class ActiveSupport::TestCase
   end
 
   def load_fixture(path)
-    File.read(File.join(ActionController::TestCase.fixture_path, path))
+    if RailsVersion.is_7_2?
+      File.read(File.join(ActionController::TestCase.fixture_paths, path))
+    else
+      File.read(File.join(ActionController::TestCase.fixture_path, path))
+    end
   end
 
   def load_backend_file(path)
