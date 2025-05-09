@@ -4,7 +4,7 @@ module Webui
       before_action :set_project
 
       def update
-        authorize @project, :update?, policy_class: ProjectPolicy
+        authorize @project, policy_class: LabelGlobalPolicy
 
         if @project.update(labels_params)
           flash[:success] = 'Labels updated successfully!'

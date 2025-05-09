@@ -1,5 +1,6 @@
 class Labels::ProjectsController < ApplicationController
   before_action :set_project
+  before_action :authorize_with_label_global_policy
   before_action :set_label, only: %i[destroy]
   before_action :xml_hash, :set_label_template, only: [:create]
 
@@ -7,7 +8,6 @@ class Labels::ProjectsController < ApplicationController
 
   # GET /labels/projects/:project_name
   def index
-    authorize @project, :show?, policy_class: ProjectPolicy
     @labels = @project.label_globals
 
     render 'labels/index', formats: [:xml]
@@ -15,7 +15,6 @@ class Labels::ProjectsController < ApplicationController
 
   # POST /labels/projects/:project_name
   def create
-    authorize @project, :update?, policy_class: ProjectPolicy
     @label = @project.label_globals.new(label_template_global: @label_template)
 
     if @label.save
@@ -28,7 +27,6 @@ class Labels::ProjectsController < ApplicationController
 
   # DELETE /labels/projects/:project_name/1
   def destroy
-    authorize @project, :update?, policy_class: ProjectPolicy
     @label = @project.label_globals.find(params[:id])
 
     @label.destroy
@@ -40,6 +38,10 @@ class Labels::ProjectsController < ApplicationController
 
   def set_project
     @project = Project.get_by_name(params[:project_name])
+  end
+
+  def authorize_with_label_global_policy
+    authorize @project, policy_class: LabelGlobalPolicy
   end
 
   def set_label
