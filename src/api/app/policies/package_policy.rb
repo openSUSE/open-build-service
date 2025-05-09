@@ -50,8 +50,6 @@ class PackagePolicy < ApplicationPolicy
     update? && source_access?
   end
 
-  private
-
   def source_access?
     return true if user.global_permission?(:source_access)
     return true if user.local_permission?(:source_access, record)

@@ -30,32 +30,17 @@ class SourceController < ApplicationController
     raise InvalidProjectNameError, "invalid project name '#{params[:project]}'" unless Project.valid_name?(params[:project])
   end
 
+  def require_valid_package_name
+    return if Package.valid_name?(params[:package])
+
+    raise InvalidPackageNameError, "invalid package name '#{params[:package]}'"
+  end
+
   def set_issues_defaults
     @filter_changes = @states = nil
     @filter_changes = params[:changes].split(',') if params[:changes]
     @states = params[:states].split(',') if params[:states]
     @login = params[:login]
-  end
-
-  def set_target_project_name
-    # FIXME: for OBS 3, api of branch and copy calls have target and source in the opposite place
-    @target_project_name = if params[:cmd].in?(%w[branch fork release])
-                             params[:target_project] # might be nil
-                           else
-                             params[:project]
-                           end
-  end
-
-  def set_project
-    @project = Project.find_by(name: params[:project])
-    raise Project::Errors::UnknownObjectError, "Project not found: #{params[:project]}" unless @project
-  end
-
-  def set_target_package_name
-    @target_package_name = params[:package]
-    return unless params[:cmd].in?(%w[branch fork release])
-
-    @target_package_name = params[:target_package] if params[:target_package]
   end
 
   def actually_create_incident(project)
