@@ -1446,6 +1446,7 @@ our $request = [
             'by_project',    # any maintainer of this project can review it
             'by_package',    # any maintainer of this package can review it (requires by_project)
             'who',           # this user has reviewed it
+	    'created',
 	    'when',
 	    [],
 	    'comment',
