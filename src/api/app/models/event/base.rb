@@ -23,7 +23,8 @@ module Event
          Event::RelationshipCreate, Event::RelationshipDelete,
          Event::Report, Event::Decision, Event::AppealCreated,
          Event::WorkflowRunFail,
-         Event::AddedUserToGroup, Event::RemovedUserFromGroup]
+         Event::AddedUserToGroup, Event::RemovedUserFromGroup,
+         Event::Assignment]
       end
 
       def classnames
@@ -276,6 +277,10 @@ module Event
           reportable.user
         end
       end
+    end
+
+    def assignees
+      [User.find_by(login: payload['assignee'])]
     end
 
     def _roles(role, project, package = nil)

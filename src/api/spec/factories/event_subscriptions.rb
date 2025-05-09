@@ -133,5 +133,13 @@ FactoryBot.define do
       user
       group { nil }
     end
+
+    factory :event_subscription_assignment do
+      eventtype { 'Event::Assignment' }
+      receiver_role { 'assignee' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
   end
 end

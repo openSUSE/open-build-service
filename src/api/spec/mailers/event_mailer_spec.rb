@@ -644,5 +644,67 @@ RSpec.describe EventMailer, :vcr do
         expect(mail.body.encoded).to include("You got removed from group '#{group}'")
       end
     end
+
+    context 'for an event of type Event::AssignmentCreate' do
+      let(:who) { create(:confirmed_user) }
+      let(:user) { create(:confirmed_user) }
+      let(:project) { create(:project, name: 'foo') }
+      let(:package) { create(:package, name: 'bar', project: project) }
+      let!(:subscription) { create(:event_subscription_assignment, user: user) }
+
+      let(:mail) { EventMailer.with(subscribers: Event::AssignmentCreate.last.subscribers, event: Event::AssignmentCreate.last).notification_email.deliver_now }
+
+      before do
+        login(user)
+        Event::AssignmentCreate.create!(assignee: user.login, who: who.login, project: project.name, package: package.name)
+      end
+
+      it 'gets delivered' do
+        expect(ActionMailer::Base.deliveries).to include(mail)
+      end
+
+      it 'sends an email to the subscribed user' do
+        expect(mail.to).to include(user.email)
+      end
+
+      it 'contains the correct subject' do
+        expect(mail.subject).to include("#{user} assigned to the package #{project}/#{package}")
+      end
+
+      it 'contains the correct text' do
+        expect(mail.body.encoded).to include("#{who} assigned you")
+      end
+    end
+
+    context 'for an event of type Event::AssignmentDelete' do
+      let(:who) { create(:confirmed_user) }
+      let(:user) { create(:confirmed_user) }
+      let(:project) { create(:project, name: 'foo') }
+      let(:package) { create(:package, name: 'bar', project: project) }
+      let!(:subscription) { create(:event_subscription_assignment, user: user) }
+
+      let(:mail) { EventMailer.with(subscribers: Event::AssignmentDelete.last.subscribers, event: Event::AssignmentDelete.last).notification_email.deliver_now }
+
+      before do
+        login(user)
+        Event::AssignmentDelete.create!(assignee: user.login, who: who.login, project: project.name, package: package.name)
+      end
+
+      it 'gets delivered' do
+        expect(ActionMailer::Base.deliveries).to include(mail)
+      end
+
+      it 'sends an email to the subscribed user' do
+        expect(mail.to).to include(user.email)
+      end
+
+      it 'contains the correct subject' do
+        expect(mail.subject).to include("#{user} unassigned from the package #{project}/#{package}")
+      end
+
+      it 'contains the correct text' do
+        expect(mail.body.encoded).to include("#{who} unassigned you")
+      end
+    end
   end
 end
