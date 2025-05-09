@@ -3,7 +3,7 @@ class Webui::LabelsController < Webui::WebuiController
   before_action :set_labelable
 
   def update
-    authorize @labelable, :update_labels?
+    authorize @labelable, policy_class: LabelPolicy
 
     if @labelable.update(labels_params)
       flash[:success] = 'Labels updated successfully!'

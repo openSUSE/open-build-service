@@ -5,14 +5,13 @@ class LabelsController < ApplicationController
   # GET /labels/projects/:project_name/packages/:package_name
   # GET /labels/requests/:request_number
   def index
-    @labels = @labelable.labels
+    @labels = authorize @labelable.labels
   end
 
   # POST /labels/projects/:project_name/packages/:package_name
   # POST /labels/requests/:request_number
   def create
-    authorize @labelable, :update_labels?
-    @label = Label.new(labelable: @labelable)
+    @label = authorize Label.new(labelable: @labelable)
     @label.label_template = find_label_template
 
     if @label.save
@@ -25,8 +24,7 @@ class LabelsController < ApplicationController
   # DELETE /labels/projects/:project_name/packages/:package_name/:id
   # DELETE /labels/requests/:request_number/:id
   def destroy
-    authorize @labelable, :update_labels?
-    label = @labelable.labels.find_by(id: params[:id])
+    label = authorize @labelable.labels.find_by(id: params[:id])
 
     unless label
       render_error(status: 404, message: "Unable to find label `#{params[:id]}`")
