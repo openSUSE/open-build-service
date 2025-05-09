@@ -14,7 +14,8 @@ class Assignment < ApplicationRecord
   belongs_to :package, optional: false
 
   #### Callbacks macros: before_save, after_save, etc.
-  after_create :create_event
+  after_create :trigger_event_on_creation
+  before_destroy :trigger_event_on_deletion
 
   #### Scopes (first the default_scope macro if is used)
 
@@ -34,12 +35,16 @@ class Assignment < ApplicationRecord
   #### Alias of methods
   private
 
-  def create_event
-    Event::Assignment.create(event_parameters)
+  def trigger_event_on_creation
+    Event::AssignmentCreate.create(event_parameters)
+  end
+
+  def trigger_event_on_deletion
+    Event::AssignmentDelete.create(event_parameters)
   end
 
   def event_parameters
-    { id: id, assignee: assignee.login, assigner: assigner.login, project: package.project.name, package: package.name }
+    { id: id, assignee: assignee.login, who: assigner.login, project: package.project.name, package: package.name }
   end
 end
 
