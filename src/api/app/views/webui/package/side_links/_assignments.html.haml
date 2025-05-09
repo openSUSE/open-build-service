@@ -1,0 +1,4 @@
+- assignment = Assignment.where(package: package).first
+- if assignment
+  Assigned to:
+  = link_to(assignment.assignee, user_path(assignment.assignee))
