@@ -41,6 +41,8 @@ class Token < ApplicationRecord
       Token::Rebuild
     when 'release'
       Token::Release
+    when 'wipe'
+      Token::Wipe
     when 'workflow'
       Token::Workflow
     else
