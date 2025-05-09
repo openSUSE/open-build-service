@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta?user=user_21
+    uri: http://backend:5352/source/target_project/_meta?user=user_16
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>Jacob Have I Loved</title>
+          <title>For Whom the Bell Tolls</title>
           <description/>
         </project>
     headers:
@@ -29,24 +29,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '114'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>Jacob Have I Loved</title>
+          <title>For Whom the Bell Tolls</title>
           <description></description>
         </project>
-  recorded_at: Thu, 27 Mar 2025 11:08:18 GMT
+  recorded_at: Thu, 27 Mar 2025 11:08:12 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/package_a/_meta?user=user_22
+    uri: http://backend:5352/source/target_project/package_a/_meta?user=user_17
     body:
       encoding: UTF-8
       string: |
         <package name="package_a" project="target_project">
-          <title>A Glass of Blessings</title>
-          <description>Nostrum consequuntur officia quis.</description>
+          <title>The Doors of Perception</title>
+          <description>Consequatur quas impedit dolorem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -67,15 +67,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '165'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="package_a" project="target_project">
-          <title>A Glass of Blessings</title>
-          <description>Nostrum consequuntur officia quis.</description>
+          <title>The Doors of Perception</title>
+          <description>Consequatur quas impedit dolorem.</description>
         </package>
-  recorded_at: Thu, 27 Mar 2025 11:08:18 GMT
+  recorded_at: Thu, 27 Mar 2025 11:08:12 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/package_a/package_a.changes
@@ -105,23 +105,23 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="27" vrev="27">
+        <revision rev="26" vrev="26">
           <srcmd5>a884751bbd575d6295dc91ee6f64cd02</srcmd5>
           <version>unknown</version>
-          <time>1743073698</time>
+          <time>1743073692</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 27 Mar 2025 11:08:18 GMT
+  recorded_at: Thu, 27 Mar 2025 11:08:12 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_meta?user=user_23
+    uri: http://backend:5352/source/source_project/_meta?user=user_18
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Pale Kings and Princes</title>
+          <title>The Lathe of Heaven</title>
           <description/>
         </project>
     headers:
@@ -143,18 +143,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '113'
+      - '110'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Pale Kings and Princes</title>
+          <title>The Lathe of Heaven</title>
           <description></description>
         </project>
-  recorded_at: Thu, 27 Mar 2025 11:08:19 GMT
+  recorded_at: Thu, 27 Mar 2025 11:08:13 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_23
+    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_18
     body:
       encoding: UTF-8
       string: |
@@ -184,23 +184,23 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="32">
-          <srcmd5>a01db2e2a46621786c1426ba7c000814</srcmd5>
-          <time>1743073699</time>
-          <user>user_23</user>
+        <revision rev="30">
+          <srcmd5>459cf156bdf710047d40bd6cda0dcf9f</srcmd5>
+          <time>1743073693</time>
+          <user>user_18</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 27 Mar 2025 11:08:19 GMT
+  recorded_at: Thu, 27 Mar 2025 11:08:13 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/package_a/_meta?user=user_24
+    uri: http://backend:5352/source/source_project/package_a/_meta?user=user_19
     body:
       encoding: UTF-8
       string: |
         <package name="package_a" project="source_project">
-          <title>An Acceptable Time</title>
-          <description>Suscipit perspiciatis deserunt recusandae.</description>
+          <title>Time To Murder And Create</title>
+          <description>Qui doloribus animi sunt.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -221,15 +221,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <package name="package_a" project="source_project">
-          <title>An Acceptable Time</title>
-          <description>Suscipit perspiciatis deserunt recusandae.</description>
+          <title>Time To Murder And Create</title>
+          <description>Qui doloribus animi sunt.</description>
         </package>
-  recorded_at: Thu, 27 Mar 2025 11:08:19 GMT
+  recorded_at: Thu, 27 Mar 2025 11:08:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/package_a/package_a.changes
@@ -270,15 +270,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="27" vrev="27">
+        <revision rev="26" vrev="26">
           <srcmd5>13d009f1733387e9b8c486d9f96e96b0</srcmd5>
           <version>1</version>
-          <time>1743073699</time>
+          <time>1743073693</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Thu, 27 Mar 2025 11:08:19 GMT
+  recorded_at: Thu, 27 Mar 2025 11:08:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/package_a
@@ -308,12 +308,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="27" vrev="27" srcmd5="13d009f1733387e9b8c486d9f96e96b0">
+        <directory name="package_a" rev="26" vrev="26" srcmd5="13d009f1733387e9b8c486d9f96e96b0">
           <entry name="README.txt" md5="3ffc8d509f76e96d77d9efce770a7403" size="59" mtime="1743069827"/>
           <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1743069869"/>
           <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1743069828"/>
         </directory>
-  recorded_at: Thu, 27 Mar 2025 11:08:19 GMT
+  recorded_at: Thu, 27 Mar 2025 11:08:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/package_a
@@ -343,12 +343,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="27" vrev="27" srcmd5="13d009f1733387e9b8c486d9f96e96b0">
+        <directory name="package_a" rev="26" vrev="26" srcmd5="13d009f1733387e9b8c486d9f96e96b0">
           <entry name="README.txt" md5="3ffc8d509f76e96d77d9efce770a7403" size="59" mtime="1743069827"/>
           <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1743069869"/>
           <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1743069828"/>
         </directory>
-  recorded_at: Thu, 27 Mar 2025 11:08:20 GMT
+  recorded_at: Thu, 27 Mar 2025 11:08:14 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/package_a?cmd=diff&expand=1&filelimit=10000&opackage=package_a&oproject=target_project&rev=13d009f1733387e9b8c486d9f96e96b0&tarlimit=10000&view=xml&withissues=1
@@ -380,8 +380,8 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="e884e9b165f205e7cc2156eb8befed68">
-          <old project="target_project" package="package_a" rev="27" srcmd5="a884751bbd575d6295dc91ee6f64cd02"/>
+        <sourcediff key="0d504a532d9b0d2acb5a5964a3216907">
+          <old project="target_project" package="package_a" rev="26" srcmd5="a884751bbd575d6295dc91ee6f64cd02"/>
           <new project="source_project" package="package_a" rev="13d009f1733387e9b8c486d9f96e96b0" srcmd5="13d009f1733387e9b8c486d9f96e96b0"/>
           <files>
             <file state="changed">
@@ -448,7 +448,7 @@ http_interactions:
             <issue state="added" tracker="bnc" name="1111111" label="boo#1111111" url="https://bugzilla.opensuse.org/show_bug.cgi?id=1111111"/>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 27 Mar 2025 11:08:20 GMT
+  recorded_at: Thu, 27 Mar 2025 11:08:14 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/package_a
@@ -457,7 +457,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 72da0a31-89f4-471c-adc7-0dd885d47474
+      - 7d74b668-1c8d-405a-94a4-26ad086c7e70
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -480,10 +480,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="27" vrev="27" srcmd5="a884751bbd575d6295dc91ee6f64cd02">
+        <directory name="package_a" rev="26" vrev="26" srcmd5="a884751bbd575d6295dc91ee6f64cd02">
           <entry name="package_a.changes" md5="46925b99894da759ec99d5ff638615c9" size="51" mtime="1743071890"/>
         </directory>
-  recorded_at: Thu, 27 Mar 2025 11:08:21 GMT
+  recorded_at: Thu, 27 Mar 2025 11:08:15 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/package_a
@@ -492,7 +492,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - e14a4988-269b-4d11-9f9b-900fc3739630
+      - 7d74b668-1c8d-405a-94a4-26ad086c7e70
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -515,12 +515,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="27" vrev="27" srcmd5="13d009f1733387e9b8c486d9f96e96b0">
+        <directory name="package_a" rev="26" vrev="26" srcmd5="13d009f1733387e9b8c486d9f96e96b0">
           <entry name="README.txt" md5="3ffc8d509f76e96d77d9efce770a7403" size="59" mtime="1743069827"/>
           <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1743069869"/>
           <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1743069828"/>
         </directory>
-  recorded_at: Thu, 27 Mar 2025 11:08:22 GMT
+  recorded_at: Thu, 27 Mar 2025 11:08:15 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/package_a?cacheonly=1&cmd=diff&expand=1&filelimit=10000&opackage=package_a&oproject=target_project&rev=13d009f1733387e9b8c486d9f96e96b0&tarlimit=10000&view=xml&withissues=1
@@ -531,7 +531,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Request-Id:
-      - e14a4988-269b-4d11-9f9b-900fc3739630
+      - 7d74b668-1c8d-405a-94a4-26ad086c7e70
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -554,8 +554,8 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="e884e9b165f205e7cc2156eb8befed68">
-          <old project="target_project" package="package_a" rev="27" srcmd5="a884751bbd575d6295dc91ee6f64cd02"/>
+        <sourcediff key="0d504a532d9b0d2acb5a5964a3216907">
+          <old project="target_project" package="package_a" rev="26" srcmd5="a884751bbd575d6295dc91ee6f64cd02"/>
           <new project="source_project" package="package_a" rev="13d009f1733387e9b8c486d9f96e96b0" srcmd5="13d009f1733387e9b8c486d9f96e96b0"/>
           <files>
             <file state="changed">
@@ -622,285 +622,7 @@ http_interactions:
             <issue state="added" tracker="bnc" name="1111111" label="boo#1111111" url="https://bugzilla.opensuse.org/show_bug.cgi?id=1111111"/>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 27 Mar 2025 11:08:22 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/source_project/package_a
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - e14a4988-269b-4d11-9f9b-900fc3739630
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '407'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="package_a" rev="27" vrev="27" srcmd5="13d009f1733387e9b8c486d9f96e96b0">
-          <entry name="README.txt" md5="3ffc8d509f76e96d77d9efce770a7403" size="59" mtime="1743069827"/>
-          <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1743069869"/>
-          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1743069828"/>
-        </directory>
-  recorded_at: Thu, 27 Mar 2025 11:08:22 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/source_project/package_a?cacheonly=1&cmd=diff&expand=1&filelimit=10000&opackage=package_a&oproject=target_project&rev=13d009f1733387e9b8c486d9f96e96b0&tarlimit=10000&view=xml&withissues=1
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      X-Request-Id:
-      - e14a4988-269b-4d11-9f9b-900fc3739630
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Content-Length:
-      - '2250'
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-    body:
-      encoding: UTF-8
-      string: |
-        <sourcediff key="e884e9b165f205e7cc2156eb8befed68">
-          <old project="target_project" package="package_a" rev="27" srcmd5="a884751bbd575d6295dc91ee6f64cd02"/>
-          <new project="source_project" package="package_a" rev="13d009f1733387e9b8c486d9f96e96b0" srcmd5="13d009f1733387e9b8c486d9f96e96b0"/>
-          <files>
-            <file state="changed">
-              <old name="package_a.changes" md5="46925b99894da759ec99d5ff638615c9" size="51"/>
-              <new name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340"/>
-              <diff lines="14">@@ -1,1 +1,11 @@
-        -Different content then source package changes file!
-        \ No newline at end of file
-        +-------------------------------------------------------------------
-        +Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org
-        +
-        +- Testing the submit diff
-        +- Fixing issues boo#1111111 and CVE-2011-1111 among others.
-        +
-        +-------------------------------------------------------------------
-        +Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
-        +
-        +- Temporary hack
-        +
-        </diff>
-            </file>
-            <file state="added">
-              <new name="README.txt" md5="3ffc8d509f76e96d77d9efce770a7403" size="59"/>
-              <diff lines="3">@@ -0,0 +1,1 @@
-        +Cupiditate neque perspiciatis. Quae cumque ea. Eos nemo id.
-        \ No newline at end of file
-        </diff>
-            </file>
-            <file state="added">
-              <new name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470"/>
-              <diff lines="28">@@ -0,0 +1,27 @@
-        +Name:       package_a
-        +Version:    1
-        +Release:    1
-        +Summary:    Most simple RPM package
-        +License:    CC0-1.0
-        +
-        +%description
-        +This is my first RPM package, which does nothing.
-        +
-        +%prep
-        +# we have no source, so nothing here
-        +
-        +%build
-        +cat &gt; package_a.sh &lt;&lt;EOF
-        +#!/usr/bin/bash
-        +echo Hello world, from package_a.
-        +EOF
-        +
-        +%install
-        +mkdir -p %{buildroot}/usr/bin/
-        +install -m 755 package_a.sh %{buildroot}/usr/bin/package_a.sh
-        +
-        +%files
-        +/usr/bin/package_a.sh
-        +
-        +%changelog
-        +# let skip this for now
-        </diff>
-            </file>
-          </files>
-          <issues>
-            <issue state="added" tracker="cve" name="2011-1111" label="CVE-2011-1111" url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=2011-1111"/>
-            <issue state="added" tracker="bnc" name="1111111" label="boo#1111111" url="https://bugzilla.opensuse.org/show_bug.cgi?id=1111111"/>
-          </issues>
-        </sourcediff>
-  recorded_at: Thu, 27 Mar 2025 11:08:22 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/source_project/package_a
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - e14a4988-269b-4d11-9f9b-900fc3739630
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '407'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="package_a" rev="27" vrev="27" srcmd5="13d009f1733387e9b8c486d9f96e96b0">
-          <entry name="README.txt" md5="3ffc8d509f76e96d77d9efce770a7403" size="59" mtime="1743069827"/>
-          <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1743069869"/>
-          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1743069828"/>
-        </directory>
-  recorded_at: Thu, 27 Mar 2025 11:08:22 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/source_project/package_a?cmd=diff&expand=1&filelimit=10000&opackage=package_a&oproject=target_project&rev=13d009f1733387e9b8c486d9f96e96b0&tarlimit=10000&view=xml&withissues=1
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      X-Request-Id:
-      - e14a4988-269b-4d11-9f9b-900fc3739630
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Content-Length:
-      - '2250'
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-    body:
-      encoding: UTF-8
-      string: |
-        <sourcediff key="e884e9b165f205e7cc2156eb8befed68">
-          <old project="target_project" package="package_a" rev="27" srcmd5="a884751bbd575d6295dc91ee6f64cd02"/>
-          <new project="source_project" package="package_a" rev="13d009f1733387e9b8c486d9f96e96b0" srcmd5="13d009f1733387e9b8c486d9f96e96b0"/>
-          <files>
-            <file state="changed">
-              <old name="package_a.changes" md5="46925b99894da759ec99d5ff638615c9" size="51"/>
-              <new name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340"/>
-              <diff lines="14">@@ -1,1 +1,11 @@
-        -Different content then source package changes file!
-        \ No newline at end of file
-        +-------------------------------------------------------------------
-        +Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org
-        +
-        +- Testing the submit diff
-        +- Fixing issues boo#1111111 and CVE-2011-1111 among others.
-        +
-        +-------------------------------------------------------------------
-        +Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
-        +
-        +- Temporary hack
-        +
-        </diff>
-            </file>
-            <file state="added">
-              <new name="README.txt" md5="3ffc8d509f76e96d77d9efce770a7403" size="59"/>
-              <diff lines="3">@@ -0,0 +1,1 @@
-        +Cupiditate neque perspiciatis. Quae cumque ea. Eos nemo id.
-        \ No newline at end of file
-        </diff>
-            </file>
-            <file state="added">
-              <new name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470"/>
-              <diff lines="28">@@ -0,0 +1,27 @@
-        +Name:       package_a
-        +Version:    1
-        +Release:    1
-        +Summary:    Most simple RPM package
-        +License:    CC0-1.0
-        +
-        +%description
-        +This is my first RPM package, which does nothing.
-        +
-        +%prep
-        +# we have no source, so nothing here
-        +
-        +%build
-        +cat &gt; package_a.sh &lt;&lt;EOF
-        +#!/usr/bin/bash
-        +echo Hello world, from package_a.
-        +EOF
-        +
-        +%install
-        +mkdir -p %{buildroot}/usr/bin/
-        +install -m 755 package_a.sh %{buildroot}/usr/bin/package_a.sh
-        +
-        +%files
-        +/usr/bin/package_a.sh
-        +
-        +%changelog
-        +# let skip this for now
-        </diff>
-            </file>
-          </files>
-          <issues>
-            <issue state="added" tracker="cve" name="2011-1111" label="CVE-2011-1111" url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=2011-1111"/>
-            <issue state="added" tracker="bnc" name="1111111" label="boo#1111111" url="https://bugzilla.opensuse.org/show_bug.cgi?id=1111111"/>
-          </issues>
-        </sourcediff>
-  recorded_at: Thu, 27 Mar 2025 11:08:22 GMT
+  recorded_at: Thu, 27 Mar 2025 11:08:15 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/package_a
@@ -909,7 +631,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - e14a4988-269b-4d11-9f9b-900fc3739630
+      - 7d74b668-1c8d-405a-94a4-26ad086c7e70
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -932,44 +654,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="27" vrev="27" srcmd5="a884751bbd575d6295dc91ee6f64cd02">
+        <directory name="package_a" rev="26" vrev="26" srcmd5="a884751bbd575d6295dc91ee6f64cd02">
           <entry name="package_a.changes" md5="46925b99894da759ec99d5ff638615c9" size="51" mtime="1743071890"/>
         </directory>
-  recorded_at: Thu, 27 Mar 2025 11:08:22 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/source_project/_result?lastbuild=0&locallink=1&multibuild=1&package=package_a&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      X-Request-Id:
-      - 65e0e4a9-5387-4d1a-86da-153007a8bafb
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '55'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-  recorded_at: Thu, 27 Mar 2025 11:08:22 GMT
+  recorded_at: Thu, 27 Mar 2025 11:08:16 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/package_a
@@ -978,7 +666,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - 0d04d5db-055e-46c6-a332-c50c113f6479
+      - c80ec1fe-1487-407d-ba86-54e737e3cf62
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1001,15 +689,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_a" rev="27" vrev="27" srcmd5="13d009f1733387e9b8c486d9f96e96b0">
+        <directory name="package_a" rev="26" vrev="26" srcmd5="13d009f1733387e9b8c486d9f96e96b0">
           <entry name="README.txt" md5="3ffc8d509f76e96d77d9efce770a7403" size="59" mtime="1743069827"/>
           <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1743069869"/>
           <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1743069828"/>
         </directory>
-  recorded_at: Thu, 27 Mar 2025 11:08:22 GMT
+  recorded_at: Thu, 27 Mar 2025 11:08:16 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/source_project/package_a?cmd=diff&expand=1&filelimit=10000&opackage=package_a&oproject=target_project&rev=13d009f1733387e9b8c486d9f96e96b0&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/source_project/package_a?cacheonly=1&cmd=diff&expand=1&filelimit=10000&opackage=package_a&oproject=target_project&rev=13d009f1733387e9b8c486d9f96e96b0&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -1017,7 +705,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       X-Request-Id:
-      - 0d04d5db-055e-46c6-a332-c50c113f6479
+      - c80ec1fe-1487-407d-ba86-54e737e3cf62
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1040,8 +728,8 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="e884e9b165f205e7cc2156eb8befed68">
-          <old project="target_project" package="package_a" rev="27" srcmd5="a884751bbd575d6295dc91ee6f64cd02"/>
+        <sourcediff key="0d504a532d9b0d2acb5a5964a3216907">
+          <old project="target_project" package="package_a" rev="26" srcmd5="a884751bbd575d6295dc91ee6f64cd02"/>
           <new project="source_project" package="package_a" rev="13d009f1733387e9b8c486d9f96e96b0" srcmd5="13d009f1733387e9b8c486d9f96e96b0"/>
           <files>
             <file state="changed">
@@ -1108,5 +796,188 @@ http_interactions:
             <issue state="added" tracker="bnc" name="1111111" label="boo#1111111" url="https://bugzilla.opensuse.org/show_bug.cgi?id=1111111"/>
           </issues>
         </sourcediff>
-  recorded_at: Thu, 27 Mar 2025 11:08:22 GMT
+  recorded_at: Thu, 27 Mar 2025 11:08:16 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/package_a
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - c80ec1fe-1487-407d-ba86-54e737e3cf62
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_a" rev="26" vrev="26" srcmd5="a884751bbd575d6295dc91ee6f64cd02">
+          <entry name="package_a.changes" md5="46925b99894da759ec99d5ff638615c9" size="51" mtime="1743071890"/>
+        </directory>
+  recorded_at: Thu, 27 Mar 2025 11:08:16 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/package_a?rev=13d009f1733387e9b8c486d9f96e96b0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - c80ec1fe-1487-407d-ba86-54e737e3cf62
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '427'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_a" rev="13d009f1733387e9b8c486d9f96e96b0" srcmd5="13d009f1733387e9b8c486d9f96e96b0">
+          <entry name="README.txt" md5="3ffc8d509f76e96d77d9efce770a7403" size="59" mtime="1743069827"/>
+          <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1743069869"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1743069828"/>
+        </directory>
+  recorded_at: Thu, 27 Mar 2025 11:08:16 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/package_a?rev=13d009f1733387e9b8c486d9f96e96b0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - c80ec1fe-1487-407d-ba86-54e737e3cf62
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '427'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_a" rev="13d009f1733387e9b8c486d9f96e96b0" srcmd5="13d009f1733387e9b8c486d9f96e96b0">
+          <entry name="README.txt" md5="3ffc8d509f76e96d77d9efce770a7403" size="59" mtime="1743069827"/>
+          <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1743069869"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1743069828"/>
+        </directory>
+  recorded_at: Thu, 27 Mar 2025 11:08:16 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/package_a?rev=13d009f1733387e9b8c486d9f96e96b0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - c80ec1fe-1487-407d-ba86-54e737e3cf62
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '427'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_a" rev="13d009f1733387e9b8c486d9f96e96b0" srcmd5="13d009f1733387e9b8c486d9f96e96b0">
+          <entry name="README.txt" md5="3ffc8d509f76e96d77d9efce770a7403" size="59" mtime="1743069827"/>
+          <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1743069869"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1743069828"/>
+        </directory>
+  recorded_at: Thu, 27 Mar 2025 11:08:16 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/source_project/package_a?rev=13d009f1733387e9b8c486d9f96e96b0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      X-Request-Id:
+      - c80ec1fe-1487-407d-ba86-54e737e3cf62
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '427'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_a" rev="13d009f1733387e9b8c486d9f96e96b0" srcmd5="13d009f1733387e9b8c486d9f96e96b0">
+          <entry name="README.txt" md5="3ffc8d509f76e96d77d9efce770a7403" size="59" mtime="1743069827"/>
+          <entry name="package_a.changes" md5="19ec220ee6298a72f80458a535c611e6" size="340" mtime="1743069869"/>
+          <entry name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470" mtime="1743069828"/>
+        </directory>
+  recorded_at: Thu, 27 Mar 2025 11:08:16 GMT
 recorded_with: VCR 6.3.1
