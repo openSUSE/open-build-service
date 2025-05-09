@@ -1,4 +1,20 @@
 - assignment = Assignment.where(package: package).first
 - if assignment
   Assigned to:
-  = link_to(assignment.assignee, user_path(assignment.assignee))
+  = link_to(assignment.assignee, user_path(assignment.assignee), class: 'mx-2')
+- else
+  .dropdown#assignment-search
+    %button.btn.btn-sm.dropdown-toggle.ps-0.border-0{ data: { 'bs-toggle': 'dropdown', 'bs-auto-close': 'outside' }, aria: { expanded: 'false' } }
+      %strong
+        Assign someone
+    .dropdown-menu
+      .dropdown-item-text.d-flex.justify-content-end
+        %button.btn-close{ type: 'button', 'data-bs-dismiss': 'dropdown', 'aria-label': 'Close' }
+      .dropdown-item-text.d-flex.min
+        = form_tag(project_package_assignments_path(project, package), method: :post, remote: false, class: 'row row-cols-lg-auto g-3') do
+          = hidden_field_tag(:package_id, package.id)
+          .col-auto
+            = render partial: 'webui/shared/search_box', locals: { html_id: 'assignments_search', html_name: 'assignee', required: false,
+          data: { source: autocomplete_users_path }, button: { type: 'submit' }, placeholder: 'Assign to' }
+          .col-auto
+            = submit_tag 'Assign', class: 'btn btn-sm btn-secondary'

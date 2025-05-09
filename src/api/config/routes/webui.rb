@@ -309,6 +309,7 @@ constraints(RoutesHelper::WebuiMatcher) do
           end
         end
       end
+      resources :assignments, only: [:create], controller: 'webui/packages/assignments'
     end
 
     resources :role_additions, controller: 'webui/requests/role_additions', only: %i[new create], constraints: cons
