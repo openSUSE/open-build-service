@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="kugelblitz" role="maintainer"/>
         </project>
-  recorded_at: Mon, 18 Oct 2021 11:53:14 GMT
+  recorded_at: Tue, 08 Apr 2025 13:47:51 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:titan/_meta?user=titan
@@ -79,7 +79,7 @@ http_interactions:
           <description></description>
           <person userid="titan" role="maintainer"/>
         </project>
-  recorded_at: Mon, 18 Oct 2021 11:53:14 GMT
+  recorded_at: Tue, 08 Apr 2025 13:47:51 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:titan/test-package-ascii/_meta?user=kugelblitz
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test-package-ascii" project="home:titan">
-          <title>Ego Dominus Tuus</title>
-          <description>Consequatur consequatur quod enim.</description>
+          <title>Little Hands Clapping</title>
+          <description>Rerum quo voluptatem ullam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,21 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <package name="test-package-ascii" project="home:titan">
-          <title>Ego Dominus Tuus</title>
-          <description>Consequatur consequatur quod enim.</description>
+          <title>Little Hands Clapping</title>
+          <description>Rerum quo voluptatem ullam.</description>
         </package>
-  recorded_at: Mon, 18 Oct 2021 11:53:14 GMT
+  recorded_at: Tue, 08 Apr 2025 13:47:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:titan/test-package-ascii/_config
     body:
       encoding: UTF-8
-      string: Rerum et illum. Ea est incidunt. Et maiores cumque.
+      string: Perferendis odit quaerat. Nulla non doloremque. Dolor doloribus ipsum.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,19 +143,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="23" vrev="23">
-          <srcmd5>e302a9d7a3a49944c43924b9dd4ab505</srcmd5>
+        <revision rev="5" vrev="5">
+          <srcmd5>5f287be01d84be29d0c367703528b02b</srcmd5>
           <version>unknown</version>
-          <time>1634557994</time>
+          <time>1744120072</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 18 Oct 2021 11:53:14 GMT
+  recorded_at: Tue, 08 Apr 2025 13:47:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:titan/test-package-ascii/somefile.txt
@@ -186,19 +186,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="24" vrev="24">
-          <srcmd5>e302a9d7a3a49944c43924b9dd4ab505</srcmd5>
+        <revision rev="6" vrev="6">
+          <srcmd5>5f287be01d84be29d0c367703528b02b</srcmd5>
           <version>unknown</version>
-          <time>1634557994</time>
+          <time>1744120072</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 18 Oct 2021 11:53:14 GMT
+  recorded_at: Tue, 08 Apr 2025 13:47:53 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:kugelblitz/ball/_meta?user=kugelblitz
@@ -206,8 +206,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="ball" project="home:kugelblitz">
-          <title>The Road Less Traveled</title>
-          <description>Non voluptas natus reiciendis.</description>
+          <title>Down to a Sunless Sea</title>
+          <description>Molestiae ut itaque nulla.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -228,15 +228,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="ball" project="home:kugelblitz">
-          <title>The Road Less Traveled</title>
-          <description>Non voluptas natus reiciendis.</description>
+          <title>Down to a Sunless Sea</title>
+          <description>Molestiae ut itaque nulla.</description>
         </package>
-  recorded_at: Mon, 18 Oct 2021 11:53:14 GMT
+  recorded_at: Tue, 08 Apr 2025 13:47:53 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:kugelblitz/_project/_attribute?meta=1&user=kugelblitz
@@ -269,14 +269,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="109">
+        <revision rev="287">
           <srcmd5>ba07d19211c6e0e3642204f301d98ba2</srcmd5>
-          <time>1634557994</time>
+          <time>1744120073</time>
           <user>kugelblitz</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 18 Oct 2021 11:53:14 GMT
+  recorded_at: Tue, 08 Apr 2025 13:47:53 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:kugelblitz/ball
@@ -308,7 +308,7 @@ http_interactions:
       string: |
         <directory name="ball" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 18 Oct 2021 11:53:14 GMT
+  recorded_at: Tue, 08 Apr 2025 13:47:54 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=5&opackage=test-package-ascii&oproject=home:titan&tarlimit=5&view=xml&withissues=1
@@ -336,18 +336,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '752'
+      - '770'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="a3995baafa8ab97260052527d289f939">
-          <old project="home:titan" package="test-package-ascii" rev="24" srcmd5="e302a9d7a3a49944c43924b9dd4ab505"/>
+        <sourcediff key="ad44ec9c3fbec58ad688068eabda1f00">
+          <old project="home:titan" package="test-package-ascii" rev="6" srcmd5="5f287be01d84be29d0c367703528b02b"/>
           <new project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files>
             <file state="deleted">
-              <old name="_config" md5="a1204ad2ca8ef9bc0b74d8340ba73b9b" size="51"/>
+              <old name="_config" md5="638907cde3b8b0a27b9dc3d50a9c97f5" size="70"/>
               <diff lines="3">@@ -1,1 +0,0 @@
-        -Rerum et illum. Ea est incidunt. Et maiores cumque.
+        -Perferendis odit quaerat. Nulla non doloremque. Dolor doloribus ipsum.
         \ No newline at end of file
         </diff>
             </file>
@@ -364,7 +364,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 18 Oct 2021 11:53:14 GMT
+  recorded_at: Tue, 08 Apr 2025 13:47:54 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:kugelblitz/ball
@@ -396,7 +396,7 @@ http_interactions:
       string: |
         <directory name="ball" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 18 Oct 2021 11:53:14 GMT
+  recorded_at: Tue, 08 Apr 2025 13:47:55 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:kugelblitz/ball?cacheonly=1&cmd=diff&expand=1&filelimit=0&opackage=test-package-ascii&oproject=home:titan&tarlimit=0&view=xml&withissues=1
@@ -432,7 +432,7 @@ http_interactions:
           <summary>diff not yet in cache</summary>
           <details>412 diff not yet in cache</details>
         </status>
-  recorded_at: Mon, 18 Oct 2021 11:53:14 GMT
+  recorded_at: Tue, 08 Apr 2025 13:47:55 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:titan/test-package-ascii
@@ -458,13 +458,101 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '305'
+      - '303'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test-package-ascii" rev="24" vrev="24" srcmd5="e302a9d7a3a49944c43924b9dd4ab505">
-          <entry name="_config" md5="a1204ad2ca8ef9bc0b74d8340ba73b9b" size="51" mtime="1634557994"/>
-          <entry name="somefile.txt" md5="3f65cbdca1b64c2f8f574fccae24f3a4" size="10" mtime="1634553057"/>
+        <directory name="test-package-ascii" rev="6" vrev="6" srcmd5="5f287be01d84be29d0c367703528b02b">
+          <entry name="_config" md5="638907cde3b8b0a27b9dc3d50a9c97f5" size="70" mtime="1744120072"/>
+          <entry name="somefile.txt" md5="3f65cbdca1b64c2f8f574fccae24f3a4" size="10" mtime="1744101709"/>
         </directory>
-  recorded_at: Mon, 18 Oct 2021 11:53:14 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Tue, 08 Apr 2025 13:47:55 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '79'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Tue, 08 Apr 2025 13:47:55 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=5&opackage=test-package-ascii&oproject=home:titan&tarlimit=5&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '770'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="ad44ec9c3fbec58ad688068eabda1f00">
+          <old project="home:titan" package="test-package-ascii" rev="6" srcmd5="5f287be01d84be29d0c367703528b02b"/>
+          <new project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files>
+            <file state="deleted">
+              <old name="_config" md5="638907cde3b8b0a27b9dc3d50a9c97f5" size="70"/>
+              <diff lines="3">@@ -1,1 +0,0 @@
+        -Perferendis odit quaerat. Nulla non doloremque. Dolor doloribus ipsum.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="deleted">
+              <old name="somefile.txt" md5="3f65cbdca1b64c2f8f574fccae24f3a4" size="10"/>
+              <diff lines="6" shown="5">@@ -1,5 +0,0 @@
+        -a
+        -a
+        -a
+        -a
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Tue, 08 Apr 2025 13:47:55 GMT
+recorded_with: VCR 6.3.1
