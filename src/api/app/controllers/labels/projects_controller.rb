@@ -5,7 +5,7 @@ class Labels::ProjectsController < ApplicationController
 
   after_action :verify_authorized # raise an exception if authorize has not yet been called.
 
-  # GET /label/projects/:project_name
+  # GET /labels/projects/:project_name
   def index
     authorize @project, :show?, policy_class: ProjectPolicy
     @labels = @project.label_globals
@@ -13,7 +13,7 @@ class Labels::ProjectsController < ApplicationController
     render 'labels/index', formats: [:xml]
   end
 
-  # POST /label/projects/:project_name
+  # POST /labels/projects/:project_name
   def create
     authorize @project, :update?, policy_class: ProjectPolicy
     @label = @project.label_globals.new(label_template_global: @label_template)
@@ -26,7 +26,7 @@ class Labels::ProjectsController < ApplicationController
     end
   end
 
-  # DELETE /label/projects/:project_name/1
+  # DELETE /labels/projects/:project_name/1
   def destroy
     authorize @project, :update?, policy_class: ProjectPolicy
     @label = @project.label_globals.find(params[:id])
