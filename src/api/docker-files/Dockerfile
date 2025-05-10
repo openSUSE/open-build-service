@@ -10,6 +10,7 @@ ARG CONTAINER_USERID
 RUN npm install -g jshint
 # Same brakeman version is pinned in our CI configuration to have reproducible builds (the license forbids us from shipping the gem in our appliance)
 RUN gem install --no-format-executable brakeman --version 5.4.0
+RUN gem install next_rails
 
 # Configure our user
 RUN usermod -u $CONTAINER_USERID frontend
@@ -38,6 +39,10 @@ RUN bundle config build.ffi --enable-system-libffi; \
 
 # Refresh our bundle
 RUN bundle install --jobs=3 --retry=3
+
+# Prepare next_rails environment
+RUN next_rails.ruby3.4 --init
+RUN next.ruby3.4 bundle install
 
 # Run our command
 CMD ["foreman", "start", "-f", "Procfile"]
