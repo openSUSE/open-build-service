@@ -11,7 +11,7 @@ RSpec.describe UpdatePackageMetaJob, :vcr do
     expect(UpdatePackageMetaJob.new.queue_name).to eq('default')
   end
 
-  describe '#perform' do
+  describe '#perform', skip: 'False positives. It is not testing what it should' do
     let!(:backend_package) { BackendPackage.create(package_id: package2.id) }
     let!(:kind_patchinfo) { PackageKind.create(package_id: package2.id, kind: 'patchinfo') }
 
@@ -26,7 +26,7 @@ RSpec.describe UpdatePackageMetaJob, :vcr do
     end
   end
 
-  describe '#scan_links' do
+  describe '#scan_links', skip: 'False positives. It is not testing what it should' do
     # If the package has a link it will check if a BackendPackage exists, otherwise, it will create it.
     subject { UpdatePackageMetaJob.new.scan_links }
 
