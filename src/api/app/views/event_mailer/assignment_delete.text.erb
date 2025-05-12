@@ -1,0 +1,5 @@
+<% package = "#{event['project']}/#{event['package']}"
+   url = url_for(controller: 'webui/package', action: :show, project: event['project'], package: event['package'], only_path: false, host: @host)
+-%>
+<%= "#{event['who']} unassigned #{event_relationship_recipient(event)} from #{package}" %>
+Visit <%= url %>.

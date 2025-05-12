@@ -21,7 +21,8 @@ class EventSubscription < ApplicationRecord
     token_member: 'User the token is shared with',
     reporter: 'As a reporter of the content',
     offender: 'As the creator of the content',
-    member: 'Member'
+    member: 'Member',
+    assignee: 'Assignee'
   }.freeze
 
   enum :channel, {
@@ -49,7 +50,7 @@ class EventSubscription < ApplicationRecord
            reviewer commenter creator
            project_watcher source_project_watcher target_project_watcher
            package_watcher target_package_watcher source_package_watcher request_watcher any_role
-           moderator reporter offender token_executor token_member member]
+           moderator reporter offender token_executor token_member member assignee]
   }
 
   scope :for_eventtype, ->(eventtype) { where(eventtype: eventtype) }

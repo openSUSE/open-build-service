@@ -1,13 +1,15 @@
 module Event
   class Assignment < Base
-    receiver_roles :assigner, :assignee
-    self.description = 'Assigned a user to a package'
+    receiver_roles :assignee, :maintainer
+    self.description = 'Changed of assignment on a package'
     self.notification_explanation = 'Receive notifications for assignments.'
 
-    payload_keys :id, :assigner, :assignee, :project, :package
+    payload_keys :id, :who, :assignee, :project, :package
+
+    self.notification_explanation = 'Receive notifications when someone changes the state of an assignment on a package.'
 
     def subject
-      ''
+      raise AbstractMethodCalled
     end
 
     def parameters_for_notification
@@ -15,7 +17,7 @@ module Event
     end
 
     def event_object
-      ::Assignment.find_by(payload['assignment_id'])
+      ::Package.unscoped.includes(:project).where(name: Package.striping_multibuild_suffix(payload['package']), projects: { name: payload['project'] })
     end
   end
 end
