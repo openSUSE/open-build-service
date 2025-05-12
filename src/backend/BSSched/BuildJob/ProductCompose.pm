@@ -149,6 +149,11 @@ sub check {
     return ('broken', 'require path entries');
   }
 
+  if ($bconf->{'buildflags:productcompose-onlydirectrepos'}) {
+    @bprps = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
+    @bprps = BSUtil::unify($prp, @bprps);
+  }
+
   my @blocked;
   my @rpms;
   my %rpms_meta;
