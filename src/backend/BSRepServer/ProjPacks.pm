@@ -144,7 +144,7 @@ sub getconfig {
     $config .= "\n### from $p\n";
     $config .= "%define _repository $r\n";
     my $new_is_this_project = $p eq $projid ? 1 : 0; 
-    my $new_is_in_project = $new_is_this_project || substr($p, 0, length($projid) + 1) eq "$projid:" ? 1 : 0; 
+    my $new_is_in_project = $new_is_this_project || substr($projid, 0, length($p) + 1) eq "$p:" ? 1 : 0;
     $config .= "%define _is_this_project $new_is_this_project\n" if $new_is_this_project ne $old_is_this_project;
     $config .= "%define _is_in_project $new_is_in_project\n" if $new_is_in_project ne $old_is_in_project;
     ($old_is_this_project, $old_is_in_project) = ($new_is_this_project, $new_is_in_project);
