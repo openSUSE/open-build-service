@@ -21,18 +21,20 @@ class Assignment < ApplicationRecord
   #### Validations macros
   validate :assignee do
     errors.add(:assignee, 'must be in confirmed state') unless assignee && assignee.state == 'confirmed'
-    errors.add(:assignee, 'must be a project or package collaborator') unless assignee && assignee_is_a_collaborator
+    errors.add(:assignee, 'must be a project or package collaborator') unless assignee_is_a_collaborator
   end
   validates :package, uniqueness: true
 
-  #### Class methods using self. (public and then private)
-
-  #### To define class methods as private use private_class_method
-  #### private
-
   #### Instance methods (public and then protected/private)
+  def assignee_is_a_collaborator
+    return false if assignee.nil?
 
-  #### Alias of methods
+    collaborators = (package.relationships + package.project.relationships).map(&:user)
+    return false if collaborators.empty?
+
+    collaborators.include?(assignee)
+  end
+
   private
 
   def create_event
@@ -41,13 +43,6 @@ class Assignment < ApplicationRecord
 
   def event_parameters
     { id: id, assignee: assignee.login, assigner: assigner.login, project: package.project.name, package: package.name }
-  end
-
-  def assignee_is_a_collaborator
-    collaborators = (package.relationships + package.project.relationships).map(&:user)
-    return false if collaborators.empty?
-
-    collaborators.include?(assignee)
   end
 end
 

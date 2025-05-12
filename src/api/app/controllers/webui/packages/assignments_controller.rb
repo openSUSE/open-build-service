@@ -6,7 +6,8 @@ module Webui
       before_action :set_assignee
 
       def create
-        assignment = Assignment.new(assigner: User.session, assignee: @assignee, package: @package)
+        assignment = authorize Assignment.new(assigner: User.session, assignee: @assignee, package: @package)
+
         unless assignment.save
           flash[:error] = "Could not assign the user: #{assignment.errors.full_messages.to_sentence}"
         end
