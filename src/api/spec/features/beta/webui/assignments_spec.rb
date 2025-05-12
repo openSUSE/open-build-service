@@ -2,8 +2,8 @@ require 'browser_helper'
 
 RSpec.describe 'Assignments', :vcr do
   let!(:user) { create(:confirmed_user, :with_home, login: 'tom') }
-  let!(:package) { create(:package_with_file, name: 'test_package', project: user.home_project) }
   let(:assignee) { create(:confirmed_user, login: 'mal') }
+  let!(:package) { create(:package_with_maintainer, name: 'test_package', project: user.home_project, maintainer: assignee) }
 
   before do
     Flipper.enable(:foster_collaboration)

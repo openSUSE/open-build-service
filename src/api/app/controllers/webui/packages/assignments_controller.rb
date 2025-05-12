@@ -1,13 +1,14 @@
 module Webui
   module Packages
     class AssignmentsController < Webui::WebuiController
+      before_action :require_login
       before_action :set_package
       before_action :set_assignee
 
       def create
-        # TODO: Security
-        assignment = Assignment.new(assigner: User.session, assignee: @assignee, package: @package)
-        unless assignment.save # FIXME: if there is a validation errors this can go by the else
+        assignment = authorize Assignment.new(assigner: User.session, assignee: @assignee, package: @package)
+
+        unless assignment.save
           flash[:error] = "Could not assign the user: #{assignment.errors.full_messages.to_sentence}"
         end
         redirect_to package_show_path(@package.project, @package)
