@@ -5,6 +5,8 @@ class User < ApplicationRecord
   include CanRenderModel
   include Flipper::Identifier
 
+  devise :ichain_authenticatable, :ichain_registerable
+
   # Keep in sync with states defined in db/schema.rb
   STATES = %w[unconfirmed confirmed locked deleted subaccount].freeze
   NOBODY_LOGIN = '_nobody_'.freeze
@@ -132,6 +134,9 @@ class User < ApplicationRecord
 
   after_create :create_home_project, :measure_create
   after_update :measure_delete
+
+  def self.for_ichain_username(username, attributes)
+  end
 
   def create_home_project
     # avoid errors during seeding

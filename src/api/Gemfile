@@ -116,6 +116,9 @@ gem 'turbo-rails'
 # Used in Package and XpathEngine
 gem 'rexml'
 
+# Try out Devise Ichain Authenticatable
+gem 'devise_ichain_authenticatable'
+
 # The following gems have a pin: they are default gems in our ruby 3.4 package and we rather use those, then maintaining them in our bundle.
 # Also, they are used by bundler so version mismatches cause problems when booting the app in passenger
 gem 'base64', '0.2.0', require: false
