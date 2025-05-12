@@ -142,7 +142,8 @@ sub check {
   delete $deps{''};
   delete $deps{"-$_"} for grep {!/^-/} keys %deps;
 
-  my @bprps = @{$ctx->{'prpsearchpath'}};
+  my @aprps = @{$ctx->{'prpsearchpath'}};
+  my @bprps = @aprps;
   my $bconf = $ctx->{'conf'};
 
   if (!@{$repo->{'path'} || []}) {
@@ -150,8 +151,8 @@ sub check {
   }
 
   if ($bconf->{'buildflags:productcompose-onlydirectrepos'}) {
-    @bprps = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
-    @bprps = BSUtil::unify($prp, @bprps);
+    @aprps = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
+    @aprps = BSUtil::unify($prp, @aprps);
   }
 
   my @blocked;
@@ -168,7 +169,7 @@ sub check {
   $binarchs{'src'} = 1;
   $binarchs{'nosrc'} = 1;
 
-  #print "prps: @bprps\n";
+  #print "prps: @aprps\n";
   #print "archs: @archs\n";
   #print "deps: @deps\n";
   my $pool;
@@ -208,7 +209,7 @@ sub check {
       $dep2pkg{$pool->pkg2name($p)} = $p;
     }
     # check access
-    for my $aprp (@bprps) {
+    for my $aprp (@aprps) {
       if (!$ctx->checkprpaccess($aprp)) {
 	if ($ctx->{'verbose'}) {
 	  print "      - $packid (productcompose)\n";
@@ -220,7 +221,7 @@ sub check {
     # check if we are blocked
     if ($myarch ne $localbuildarch) {
       my %used;
-      for my $aprp (@bprps) {
+      for my $aprp (@aprps) {
 	my ($aprojid, $arepoid) = split('/', $aprp, 2);
 	next if $remoteprojs->{$aprojid};	# FIXME: should do something here
 	my %pnames = map {$_ => 1} @{$used{$aprp}};
@@ -265,7 +266,7 @@ sub check {
   # check right away if some gbininfo fetch is in progress
   my $delayed_errors = '';
   if (!$ctx->{'isreposerver'}) {
-    for my $aprp (@bprps) {
+    for my $aprp (@aprps) {
       my ($aprojid, $arepoid) = split('/', $aprp, 2);
       next unless $remoteprojs->{$aprojid};
       for my $arch (reverse @archs) {
@@ -304,7 +305,7 @@ sub check {
   my %archs = map {$_ => 1} @archs;
   my $dobuildinfo = $ctx->{'dobuildinfo'};
 
-  for my $aprp (@bprps) {
+  for my $aprp (@aprps) {
     my %seen_fn;	# resolve file conflicts in this prp
     my %known;
     my ($aprojid, $arepoid) = split('/', $aprp, 2);
@@ -619,9 +620,9 @@ sub check {
   }
 
   if (1) {
-    my $nbprps = scalar(@bprps);
+    my $naprps = scalar(@aprps);
     my $narchs = scalar(@archs);
-    print "      - stats for $packid: $pkgs_taken/$pkgs_checked, $nbprps bprps, $narchs archs\n";
+    print "      - stats for $packid: $pkgs_taken/$pkgs_checked, $naprps bprps, $narchs archs\n";
   }
 
   if ($myarch ne $buildarch) {
