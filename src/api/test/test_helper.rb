@@ -230,7 +230,7 @@ module Webui
       Capybara.reset!
       Rails.cache.clear
       WebMock.reset!
-      ActiveRecord::Base.clear_active_connections!
+      ActiveRecord::Base.connection_handler.clear_active_connections!
     end
   end
 end
