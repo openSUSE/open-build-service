@@ -21,6 +21,7 @@ class Assignment < ApplicationRecord
   #### Validations macros
   validate :assignee do
     errors.add(:assignee, 'must be in confirmed state') unless assignee && assignee.state == 'confirmed'
+    errors.add(:assignee, 'must be a project or package collaborator') unless assignee && assignee_is_a_collaborator
   end
   validates :package, uniqueness: true
 
@@ -40,6 +41,13 @@ class Assignment < ApplicationRecord
 
   def event_parameters
     { id: id, assignee: assignee.login, assigner: assigner.login, project: package.project.name, package: package.name }
+  end
+
+  def assignee_is_a_collaborator
+    collaborators = (package.relationships + package.project.relationships).map(&:user)
+    return false if collaborators.empty?
+
+    collaborators.include?(assignee)
   end
 end
 
