@@ -21,7 +21,7 @@ span.CodeRay { white-space: pre }
   padding: 0 0.25rem;
 }
 .CodeRay .line-numbers a:target {
-  background-color: rgba($warning, 0.3);
+  background-color: rgba($editor-warning, 0.3);
   color: $body-color;
 }
 
