@@ -4,15 +4,15 @@ $gray-300: #e9ecef;
 $gray-400: #aeaeae;
 $gray-500: #878c92;
 
-$blue: #069;
-$green: #008000;
-$yellow: #f0ad4e;
-$cyan: #007a7c;
+$custom-blue:   #069;
+$custom-green:  #008000;
+$custom-yellow: #f0ad4e;
+$custom-cyan:   #007a7c;
 
-$primary: $green;
-$secondary: $blue;
-$warning: $yellow;
-$info: $cyan;
-$success: $green;
+$primary:   $custom-green;
+$secondary: $custom-blue;
+$success:   $custom-green;
+$info:      $custom-cyan;
+$warning:   $custom-yellow;
 
-$link-color: $blue;
+$link-color: $custom-blue;
