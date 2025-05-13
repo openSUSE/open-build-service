@@ -75,10 +75,10 @@
       .line-comment .comment-diff { display: none; }
       &:target {
         .number {
-          background-color: rgba($warning, 0.5)!important
+          background-color: rgba($editor-warning, 0.5)!important
         }
         .value {
-          background-color: rgba($warning, 0.1);
+          background-color: rgba($editor-warning, 0.1);
           width: 100%
         }
       }
