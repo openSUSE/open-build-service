@@ -32,7 +32,7 @@ class LabelTemplateGlobal < ApplicationRecord
   end
 
   #### Alias of methods
-  alias_attribute :labels, :label_globals
+  alias labels label_globals
 end
 
 # == Schema Information
