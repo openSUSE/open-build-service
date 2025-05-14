@@ -163,7 +163,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
     @pages_visited = {}
 
     crawl
-    ActiveRecord::Base.clear_active_connections!
+    ActiveRecord::Base.connection_handler.clear_active_connections!
 
     assert_operator(@pages_visited.keys.length, :>, 800)
   end
@@ -174,7 +174,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
     @pages_visited = {}
 
     crawl
-    ActiveRecord::Base.clear_active_connections!
+    ActiveRecord::Base.connection_handler.clear_active_connections!
 
     assert_operator(@pages_visited.keys.length, :>, 1200)
   end
