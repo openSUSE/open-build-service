@@ -1,0 +1,290 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/hans/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="hans">
+          <title>Let Us Now Praise Famous Men</title>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="hans">
+          <title>Let Us Now Praise Famous Men</title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 28 May 2025 13:22:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/hans/franz/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="franz" project="hans">
+          <title>Let Us Now Praise Famous Men</title>
+          <description>Placeat voluptatem et aliquid.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '155'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="franz" project="hans">
+          <title>Let Us Now Praise Famous Men</title>
+          <description>Placeat voluptatem et aliquid.</description>
+        </package>
+  recorded_at: Wed, 28 May 2025 13:22:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/hans/franz/_config
+    body:
+      encoding: UTF-8
+      string: Qui vero reprehenderit. Quos facilis ut. Quo accusamus dolor.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>835b83a8e14dded90f7fe10619e5d15c</srcmd5>
+          <version>unknown</version>
+          <time>1748438552</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 28 May 2025 13:22:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/hans/franz/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Consequatur voluptatibus expedita. Velit qui et. Accusamus nulla impedit.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>594b07932c9a91fa6ae6aaf1eb6e1bcc</srcmd5>
+          <version>unknown</version>
+          <time>1748438552</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 28 May 2025 13:22:32 GMT
+- request:
+    method: delete
+    uri: http://backend:5352/source/hans?comment=&user=tom
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Wed, 28 May 2025 13:22:32 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/hans/_project/_meta?deleted=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="hans">
+          <title>Let Us Now Praise Famous Men</title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 28 May 2025 13:22:32 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/hans/franz/_meta?deleted=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '155'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="franz" project="hans">
+          <title>Let Us Now Praise Famous Men</title>
+          <description>Placeat voluptatem et aliquid.</description>
+        </package>
+  recorded_at: Wed, 28 May 2025 13:22:32 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/hans/franz?deleted=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '290'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="franz" rev="2" vrev="2" srcmd5="594b07932c9a91fa6ae6aaf1eb6e1bcc">
+          <entry name="_config" md5="4377268dec3642f75f9b62528939b209" size="61" mtime="1748438552"/>
+          <entry name="somefile.txt" md5="da0a7ccb3e2ab2cb4a7fa345ae5ea5d1" size="73" mtime="1748438552"/>
+        </directory>
+  recorded_at: Wed, 28 May 2025 13:22:33 GMT
+recorded_with: VCR 6.3.1

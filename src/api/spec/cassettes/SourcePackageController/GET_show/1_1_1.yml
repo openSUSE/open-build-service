@@ -1,0 +1,191 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/hans/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="hans">
+          <title>That Hideous Strength</title>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '145'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="hans">
+          <title>That Hideous Strength</title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 28 May 2025 13:23:57 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/hans/franz/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="franz" project="hans">
+          <title>From Here to Eternity</title>
+          <description>Laudantium magnam fuga cumque.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="franz" project="hans">
+          <title>From Here to Eternity</title>
+          <description>Laudantium magnam fuga cumque.</description>
+        </package>
+  recorded_at: Wed, 28 May 2025 13:23:57 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/hans/franz/_config
+    body:
+      encoding: UTF-8
+      string: Et voluptatem numquam. Sit assumenda voluptatem. Aut accusantium est.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>dcfd3c2655ee8ac5dd94afeaf73af808</srcmd5>
+          <version>unknown</version>
+          <time>1748438637</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 28 May 2025 13:23:57 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/hans/franz/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Eos neque ut. Ut reprehenderit eos. Consequatur nostrum accusamus.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>20df910d3ab2a5846f4b18307c1d2b88</srcmd5>
+          <version>unknown</version>
+          <time>1748438637</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 28 May 2025 13:23:57 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/hans/franz
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '290'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="franz" rev="2" vrev="2" srcmd5="20df910d3ab2a5846f4b18307c1d2b88">
+          <entry name="_config" md5="198dd222b16d706fe78138261474191a" size="69" mtime="1748438637"/>
+          <entry name="somefile.txt" md5="317b3726135f778a112cef77c987971b" size="66" mtime="1748438637"/>
+        </directory>
+  recorded_at: Wed, 28 May 2025 13:23:57 GMT
+recorded_with: VCR 6.3.1

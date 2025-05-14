@@ -93,6 +93,7 @@ FactoryBot.define do
     factory :forbidden_project do
       after(:create) do |project|
         create(:access_flag, status: 'disable', project: project)
+        project.store if CONFIG['global_write_through']
       end
     end
 

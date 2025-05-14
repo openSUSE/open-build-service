@@ -225,5 +225,12 @@ FactoryBot.define do
         create(:project_status_package_fail_comment_attrib, package: package)
       end
     end
+
+    factory :forbidden_package do
+      after(:create) do |package|
+        create(:sourceaccess_flag, status: 'disable', package: package)
+        package.save
+      end
+    end
   end
 end
