@@ -20,9 +20,9 @@
           .dropdown-menu{ 'aria-labelledby': 'dropdownMenuButton' }
             %h6.dropdown-header
               Period to display:
-            = link_to(project_pulse_path(@project), remote: true, type: :json, class: 'dropdown-item') do
+            = link_to(project_pulse_path(@project), type: :json, class: 'dropdown-item') do
               One Week
-            = link_to(project_pulse_path(@project, range: 'month'), remote: true, type: :json, class: 'dropdown-item') do
+            = link_to(project_pulse_path(@project, range: 'month'), type: :json, class: 'dropdown-item') do
               One Month
     .row
       #pulse
