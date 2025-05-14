@@ -1,0 +1,15 @@
+<services>
+  <service name="obs_scm">
+    <param name="versionformat">2.10.51.git%cd.%h</param>
+    <param name="url">https://github.com/openSUSE/open-build-service.git</param>
+    <param name="scm">git</param>
+    <param name="extract">dist/obs-server.spec</param>
+    <param name="revision">master</param>
+  </service>
+  <service name="tar" mode="buildtime"/>
+  <service name="recompress" mode="buildtime">
+    <param name="compression">xz</param>
+    <param name="file">*.tar</param>
+  </service>
+  <service name="set_version" mode="buildtime"/>
+</services>

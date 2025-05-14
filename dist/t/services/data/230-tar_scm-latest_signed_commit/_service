@@ -1,0 +1,12 @@
+<services>
+  <service name="tar_scm">
+    <param name="url">https://github.com/openSUSE/obs-testpackage.git</param>
+    <param name="scm">git</param>
+    <param name="versionformat">@PARENT_TAG@.%ct.%h</param>
+    <param name="latest-signed-commit">true</param>
+    <param name="maintainers-asc">_maintainers.asc</param>
+  </service>
+  <service name="set_version">
+    <param name="basename">obs-testpackage</param>
+  </service>
+</services>

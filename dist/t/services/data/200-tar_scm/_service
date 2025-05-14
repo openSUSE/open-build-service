@@ -1,0 +1,20 @@
+<services>
+  <service name="tar_scm">
+    <param name="url">https://github.com/openSUSE/obs-service-tar_scm.git</param>
+    <param name="scm">git</param>
+    <param name="exclude">.git</param>
+    <param name="version">git-master</param>
+    <param name="versionformat">@PARENT_TAG@.%ct.%h</param>
+    <param name="changesgenerate">enable</param>
+    <param name="extract">dist/obs-service-tar_scm.spec</param>
+    <param name="versionrewrite-pattern">v(.*)</param>
+  </service>
+  <service name="set_version">
+    <param name="basename">obs-service-tar_scm</param>
+  </service>
+  <service name="recompress">
+    <param name="file">*.tar</param>
+    <param name="compression">gz</param>
+  </service>
+</services>
+
