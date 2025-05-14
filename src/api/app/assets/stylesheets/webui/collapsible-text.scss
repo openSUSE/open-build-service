@@ -50,12 +50,12 @@
 }
 
 #involvement-description {
-  @include collapsible($maxHeight: 2.75em, $maxWidth: 'none');
+  @include collapsible($maxHeight: 2.75em, $maxWidth: none);
   .obs-collapsible-textbox {  @extend .pe-0; }
 }
 
 .list-group-item {
-  @include collapsible($maxHeight: 2.75em, $maxWidth: 'none', $moreButtonLabel: 'Expand name ', $lessButtonLabel: 'Shrink name ');
+  @include collapsible($maxHeight: 2.75em, $maxWidth: none, $moreButtonLabel: 'Expand name ', $lessButtonLabel: 'Shrink name ');
 }
 
 #mentioned-issues .list-group-item {
