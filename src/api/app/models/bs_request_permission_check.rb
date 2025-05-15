@@ -96,6 +96,8 @@ class BsRequestPermissionCheck
         opts[:newstate] = 'review' if r.state == :new
       end
     end
+    return if req.state == :review && opts[:newstate] == 'review'
+
     # Do not accept to skip the review, except force argument is given
     if accept_check
       if req.state == :review
