@@ -123,7 +123,7 @@ class Staging::StagedRequests
 
   def add_review_for_unstaged_declined_request(request, staging_project)
     request.addreview(by_group: staging_workflow.managers_group.title, comment: "Being evaluated by group \"#{staging_workflow.managers_group}\"", relaxed_state_check: 1)
-    request.change_review_state('declined', by_project: staging_project.name, comment: "Unstaged from project \"#{staging_project}\"")
+    request.change_review_state('accepted', by_project: staging_project.name, comment: "Unstaged from project \"#{staging_project}\"", relaxed_state_check: 1)
   end
 
   def remove_packages(staging_project_packages)

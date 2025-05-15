@@ -655,7 +655,9 @@ class BsRequest < ApplicationRecord
     with_lock do
       new_review_state = new_review_state.to_sym
 
-      raise InvalidStateError, 'request is not in a changeable state (new, review or declined)' unless state == :review || (state.in?(%i[new declined]) && new_review_state == :new)
+      unless state == :review || (state.in?(%i[new declined]) && new_review_state == :new) || opts[:relaxed_state_check]
+        raise InvalidStateError, 'request is not in a changeable state (new, review or declined)'
+      end
 
       check_if_valid_review!(opts)
       raise InvalidStateError, "review state must be new, accepted, declined or superseded, was #{new_review_state}" unless new_review_state.in?(%i[new accepted declined superseded])
