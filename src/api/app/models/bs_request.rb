@@ -465,10 +465,10 @@ class BsRequest < ApplicationRecord
     checker.cmd_setpriority_permissions
   end
 
-  def permission_check_addreview!(relaxed_state_check = 0)
+  def permission_check_addreview!
     # allow request creator to add further reviewers
     checker = BsRequestPermissionCheck.new(self, {})
-    checker.cmd_addreview_permissions(creator == User.session!.login || reviewer?(User.session!), relaxed_state_check)
+    checker.cmd_addreview_permissions(creator == User.session!.login || reviewer?(User.session!))
   end
 
   def permission_check_change_state!(opts)
@@ -700,7 +700,7 @@ class BsRequest < ApplicationRecord
 
   def addreview(opts)
     with_lock do
-      permission_check_addreview!(opts[:relaxed_state_check])
+      permission_check_addreview!
       check_if_valid_review!(opts)
 
       self.state = 'review'
