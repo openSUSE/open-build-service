@@ -19,6 +19,7 @@
         .rpm-lint-content{ data: @ajax_data }
           .pt-1.bg-card.d-flex.flex-wrap-reverse.align-items-baseline.sticky-top
             .result
+              = render partial: 'webui/shared/loading', locals: { text: 'Loading...' }
             .btn.btn-outline-primary.rpm-lint-refresh.ms-auto.mb-3{ onclick: 'updateRpmLintResultBeta()',
                                                                     accesskey: 'r', title: 'Refresh Rpm Lint Results',
                                                                     data: { rpm_lint_results_url: rpmlint_result_path } }
