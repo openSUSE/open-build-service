@@ -54,6 +54,12 @@ Backend:
  * Switched from OR to AND when checking CPU flags in _constraints file
  * internal .packages files are not published anymore
 
+Api:
+ * Execution of source services via tokens enforced the registered package of the 
+   token independend of the given parameters. The api is now return with
+   an error if the specified package is different to the registered package
+   of the token.
+
 Webui:
   Features enabled by default:
     * Image Template
