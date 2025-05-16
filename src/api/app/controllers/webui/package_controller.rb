@@ -10,21 +10,21 @@ class Webui::PackageController < Webui::WebuiController
   before_action :set_project, only: %i[show edit update index users requests statistics revisions
                                        new branch_diff_info rdiff create remove
                                        save_person save_group remove_role view_file
-                                       buildresult rpmlint_result rpmlint_log files rpm_lint]
+                                       buildresult rpmlint_result rpmlint_log files]
 
   before_action :check_scmsync, only: %i[statistics users]
 
   before_action :require_package, only: %i[edit update show requests statistics revisions
                                            branch_diff_info rdiff remove
                                            save_person save_group remove_role view_file
-                                           buildresult rpmlint_result rpmlint_log files users rpm_lint]
+                                           buildresult rpmlint_result rpmlint_log files users]
   # rubocop:enable Rails/LexicallyScopedActionFilter
 
-  before_action :check_ajax, only: %i[devel_project buildresult rpmlint_result]
+  before_action :check_ajax, only: %i[devel_project buildresult]
   # make sure it's after the require_, it requires both
   before_action :require_login, except: %i[show index branch_diff_info
                                            users requests statistics revisions view_file
-                                           devel_project buildresult rpmlint_result rpmlint_log files rpm_lint]
+                                           devel_project buildresult rpmlint_result rpmlint_log files]
 
   prepend_before_action :lockout_spiders, only: %i[revisions rdiff requests]
 
@@ -277,15 +277,13 @@ class Webui::PackageController < Webui::WebuiController
     end
   end
 
-  def rpm_lint
+  def rpmlint_result
     @ajax_data = {}
     @ajax_data['project'] = @project.name
     @ajax_data['package'] = @package.name
     @ajax_data['repository'] = params[:repository] if params[:repository].present?
     @ajax_data['architecture'] = params[:architecture] if params[:architecture].present?
-  end
 
-  def rpmlint_result
     repository = valid_xml_id(elide(params[:repository], 30)) if params[:repository].present?
     architecture = params[:architecture] if params[:architecture].present?
 
@@ -308,15 +306,17 @@ class Webui::PackageController < Webui::WebuiController
       [repo_name, valid_xml_id(elide(repo_name, 30))]
     end
 
-    if @repo_list.empty?
-      render partial: 'no_repositories', locals: { project: @project }
+    if Flipper.enabled?(:request_show_redesign, User.session)
+      render 'webui/package/beta/rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
+                                                            repository: repository, architecture: architecture,
+                                                            repository_list: @repo_list, repo_arch_hash: @repo_arch_hash }
     else
-      # TODO: this is part of the temporary changes done for 'request_show_redesign'.
-      request_show_redesign_partial = 'webui/package/beta/rpm_lint_result' if params.fetch(:inRequestShowRedesign, false)
-
-      render partial: request_show_redesign_partial || 'rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
-                                                                                   repository: repository, architecture: architecture,
-                                                                                   repository_list: @repo_list, repo_arch_hash: @repo_arch_hash }
+      if @repo_list.empty?
+        render partial: 'no_repositories', locals: { project: @project }
+      else
+        render partial: 'rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
+                                                    repository_list: @repo_list, repo_arch_hash: @repo_arch_hash }
+      end
     end
   end
 
