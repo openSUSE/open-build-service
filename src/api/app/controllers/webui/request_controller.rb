@@ -24,7 +24,7 @@ class Webui::RequestController < Webui::WebuiController
   before_action :check_ajax, only: :sourcediff
   before_action :prepare_request_data, only: %i[beta_show build_results rpm_lint changes mentioned_issues],
                                        if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :cache_diff_data, only: %i[beta_show build_results rpm_lint changes mentioned_issues],
+  before_action :cache_diff_data, only: %i[changes],
                                   if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :check_beta_user_redirect, only: %i[beta_show build_results rpm_lint changes mentioned_issues]
 
@@ -181,8 +181,6 @@ class Webui::RequestController < Webui::WebuiController
     return head :unauthorized unless @actions
 
     @action = @actions.where(id: params['id'].to_i).first
-
-    cache_diff_data
 
     respond_to do |format|
       format.js
@@ -542,10 +540,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def cache_diff_data
-    return unless @action.diff_not_cached({ diff_to_superseded: @diff_to_superseded })
-
-    job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{@action.to_global_id.uri}%").count
-    BsRequestActionWebuiInfosJob.perform_later(@action) if job.zero?
+    RequestDiffCacher.call(@action, diff_to_superseded: @diff_to_superseded)
   end
 
   def prepare_request_data
@@ -565,7 +560,7 @@ class Webui::RequestController < Webui::WebuiController
     @staging_status = staging_status(@bs_request, target_project) if Staging::Workflow.find_by(project: target_project)
 
     # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
-    @issues = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded, cacheonly: 1 }).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
+    @issues = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded, cacheonly: 1, nodiff: 1 }).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
 
     # retrieve a list of all package maintainers that are assigned to at least one target package
     @package_maintainers = target_package_maintainers
