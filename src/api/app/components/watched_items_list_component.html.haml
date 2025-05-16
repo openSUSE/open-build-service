@@ -10,7 +10,7 @@
             - name.split(%r{(/)}).each_slice(2).map(&:join).map(&:strip).each do |slice|
               %span.d-inline
                 = slice
-          = link_to('#', class: 'text-light ms-auto',
+          = link_to('#', class: 'ms-auto',
                     data: { 'bs-toggle': 'modal',
                             'bs-target': '#delete-item-from-watchlist-modal',
                             modal_title: 'Do you really want to remove this package from the watchlist?',
@@ -27,7 +27,7 @@
             - name.split(/(:)/).each_slice(2).map(&:join).map(&:strip).each do |slice|
               %span.d-inline
                 = slice
-          = link_to('#', class: 'text-light ms-auto',
+          = link_to('#', class: 'ms-auto',
                     data: { 'bs-toggle': 'modal',
                             'bs-target': '#delete-item-from-watchlist-modal',
                             modal_title: 'Do you really want to remove this project from the watchlist?',
@@ -40,8 +40,8 @@
           = link_to(request_show_path(item.number), class: 'text-word-break-all') do
             = render BsRequestStateBadgeComponent.new(state: item.state)
             = name
-          %i.fa.fa-question-circle.text-light.px-2.collapsible-tooltip{ title: 'Click to keep it open' }
-          = link_to('#', class: 'text-light ms-auto',
+          %i.fa.fa-question-circle.px-2.collapsible-tooltip{ title: 'Click to keep it open' }
+          = link_to('#', class: 'ms-auto',
                     data: { 'bs-toggle': 'modal',
                             'bs-target': '#delete-item-from-watchlist-modal',
                             modal_title: 'Do you really want to remove this request from the watchlist?',
@@ -53,4 +53,4 @@
           .extended-info-content
             %p.px-2.pt-2= render(BsRequestActionSourceAndTargetComponent.new(item))
 - else
-  %p.text-muted= empty_list_text
+  %p= empty_list_text
