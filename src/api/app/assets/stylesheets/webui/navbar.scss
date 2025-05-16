@@ -54,7 +54,7 @@
 @include media-breakpoint-up(md) {
   .navbar-collapse {
     &.watchlist-collapse, &.places-collapse, &.actions-collapse {
-      width: 23.75rem;
+      width: 40rem;
     }
   }
 }
