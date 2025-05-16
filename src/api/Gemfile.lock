@@ -204,8 +204,6 @@ GEM
       terminal-table (>= 1.5.1)
     globalid (1.2.1)
       activesupport (>= 6.1)
-    gssapi (1.3.1)
-      ffi (>= 1.0.1)
     haml (6.3.0)
       temple (>= 0.8.2)
       thor
@@ -626,7 +624,6 @@ DEPENDENCIES
   font-awesome-sass
   fuubar
   gitlab
-  gssapi
   haml
   haml-rails
   haml_lint

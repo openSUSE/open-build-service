@@ -71,16 +71,6 @@ default: &default
   # This setting is optional, if not set account links are not shown.
   # proxy_auth_account_page: https://my-idp.example.com/myaccount
 
-  ### Kerberos configuration
-
-  # can be true or false
-  kerberos_mode: false
-
-  #kerberos_keytab: "/etc/krb5.keytab"
-  #kerberos_service_principal: "HTTP/hostname.example.com@EXAMPLE.COM"
-  #kerberos_realm: "EXAMPLE.COM"
-
-
   #schema_location
 
   #version
