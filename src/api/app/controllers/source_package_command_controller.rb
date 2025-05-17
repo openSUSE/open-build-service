@@ -262,17 +262,21 @@ class SourcePackageCommandController < SourceController
     end
 
     # create target package, if it does not exist
-    reparse_backend_package(spackage, sproject) unless @package
+    reparse_backend_package(spackage, sproject) if @package.nil? && params[:package] != '_project'
 
     # We need to use the project name of package object, since it might come via a project linked project
-    path = @package.source_path
+    path = if params[:package] == '_project'
+             @project.source_path + '/_project'
+           else
+             @package.source_path
+           end
     path << build_query_from_hash(params, %i[cmd rev user comment oproject opackage orev expand
                                              keeplink repairlink linkrev olinkrev requestid
                                              withvrev noservice dontupdatesource])
 
     pass_to_backend(path)
 
-    @package.sources_changed
+    @package.sources_changed unless spackage == '_project'
   end
 
   # POST /source/<project>/<package>?cmd=release
@@ -483,6 +487,8 @@ class SourcePackageCommandController < SourceController
 
       raise CreateProjectNoPermission, "no permission to create project #{@target_project_name}"
     end
+
+    return if @target_package_name == '_project' && @project.is_a?(Project) && User.session!.can_modify?(@project)
 
     if Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: false)
       verify_can_modify_target_package!
