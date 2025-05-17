@@ -348,6 +348,68 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_maintenance_request_enforce_branching
+    login_king
+    # special kdelibs
+    put '/source/BaseDistro2.0:LinkedUpdateProject/kdelibs/_meta', params: "<package name='kdelibs'><title/><description/></package>"
+    assert_response :success
+    put '/source/BaseDistro2.0:LinkedUpdateProject/kdelibs/empty', params: 'NOOP'
+    assert_response :success
+
+    login_tom
+    # create maintenance request for one package from a unrelated project
+    post '/request?cmd=create&addrevision=1&enforce_branching=1', params: '<request>
+                                   <action type="maintenance_incident">
+                                     <source project="kde4" package="kdelibs" />
+                                     <target project="My:Maintenance" releaseproject="BaseDistro2.0:LinkedUpdateProject" />
+                                   </action>
+                                   <description>To fix my bug</description>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    reqid = node['id']
+    branch_project = "My:Maintenance:REQUEST:#{reqid}"
+    assert_xml_tag(tag: 'target', attributes: { project: 'My:Maintenance', releaseproject: 'BaseDistro2.0:LinkedUpdateProject' })
+    assert_xml_tag(tag: 'source', attributes: { project: branch_project, package: 'kdelibs.BaseDistro2.0_LinkedUpdateProject' })
+    assert_no_xml_tag(tag: 'acceptinfo')
+    assert_xml_tag(parent: { tag: 'action', attributes: { type: 'delete' } },
+                   tag: 'target', attributes: { project: "My:Maintenance:REQUEST:#{reqid}" })
+
+    # validate that request is diffable (not broken)
+    post "/request/#{reqid}?cmd=diff&view=xml"
+    assert_response :success
+    # the diffed packages
+    assert_xml_tag(tag: 'old', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'kdelibs' })
+    assert_xml_tag(tag: 'new', attributes: { project: branch_project, package: 'kdelibs.BaseDistro2.0_LinkedUpdateProject' })
+
+    get "/source/#{branch_project}/_meta"
+    assert_response :success
+    assert_xml_tag(tag: 'disable', parent: { tag: 'build' })
+    assert_xml_tag(tag: 'disable', parent: { tag: 'publish' })
+
+    get "/source/#{branch_project}/patchinfo/_meta"
+    assert_response :success
+    assert_xml_tag(tag: 'enable', parent: { tag: 'build' })
+    assert_xml_tag(tag: 'enable', parent: { tag: 'publish' })
+
+    get "/source/#{branch_project}/kdelibs.BaseDistro2.0_LinkedUpdateProject/_meta"
+    assert_response :success
+    assert_xml_tag(tag: 'enable', parent: { tag: 'build' }, attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject' })
+
+    get "/source/#{branch_project}"
+    assert_response :success
+    assert_xml_tag(tag: 'directory', attributes: { count: '2' })
+    get "/source/#{branch_project}/kdelibs.BaseDistro2.0_LinkedUpdateProject/_link"
+    assert_response :success
+    assert_xml_tag(tag: 'link', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'kdelibs' })
+
+    # cleanup
+    delete "/source/#{branch_project}"
+    assert_response :success
+  end
+
   def test_OBS_BranchTarget
     login_king
     put '/source/ServicePack/_meta', params: "<project name='ServicePack'><title/><description/><link project='kde4'/></project>"

@@ -154,6 +154,8 @@ at = ans.attrib_types.where(name: 'IncidentPriority').first_or_create(value_coun
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
 at = ans.attrib_types.where(name: 'EmbargoDate').first_or_create(value_count: 1)
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
+at = ans.attrib_types.where(name: 'EnforceIncidentRequestStaging').first_or_create(value_count: 0)
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 at = ans.attrib_types.where(name: 'DelegateRequestTarget').first_or_create
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 at = ans.attrib_types.where(name: 'AllowSubmitToMaintenanceRelease').first_or_create
