@@ -5,7 +5,7 @@
 
     .dropdown-item:hover {
       background-color: $gray-800;
-      color: $gray-300;
+      color: $custom-gray-300;
     }
   }
 
@@ -26,7 +26,7 @@
       transition: transform .3s ease-in-out, visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
 
       & a {
-        color: $gray-300;
+        color: $custom-gray-300;
         &:hover { color: white; }
       }
 
@@ -37,7 +37,7 @@
       }
 
       button.navbar-toggler {
-        color: $gray-300;
+        color: $custom-gray-300;
 
         .fas.fa-times {
           line-height: 1.875rem;

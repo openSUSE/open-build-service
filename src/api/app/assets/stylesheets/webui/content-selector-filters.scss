@@ -45,7 +45,7 @@
 
 @include media-breakpoint-between(xs, md) {
   #filter-desktop {
-    &.show { border-top: 1px solid $gray-300; }
+    &.show { border-top: 1px solid $custom-gray-300; }
     &.sticky-top { top: $top-navigation-height; }
     height: $notifications-filter-box-height;
     // To not overlap with the notification action bar
