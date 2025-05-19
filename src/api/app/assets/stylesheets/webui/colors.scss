@@ -13,6 +13,6 @@ $themed-dark-nav-bg: #121212;
 
 @include color-mode(dark) {
   --navbar-themed-bg: #{$themed-dark-nav-bg};
-  --breadcrumbs-item-text-color: #{$gray-400};
+  --breadcrumbs-item-text-color: #{$custom-gray-400};
   --placeholder-text: #{$gray-500};
 }

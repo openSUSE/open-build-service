@@ -160,7 +160,7 @@
 }
 
 .repository-state-outdated {
-  @extend .text-gray-400;
+  @extend .text-custom-gray-400;
 }
 
 .repository-state-broken {
@@ -181,7 +181,7 @@
   }
 
   .accordion-button:hover {
-    box-shadow: 0px 0px 5px $gray-400;
+    box-shadow: 0px 0px 5px $custom-gray-400;
   }
 }
 
