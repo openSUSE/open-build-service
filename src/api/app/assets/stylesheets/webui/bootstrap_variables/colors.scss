@@ -1,15 +1,15 @@
-// Override Bootstrap's default colors
-$gray-500: #878c92;
-
+// Define our own custom colors
 $custom-gray-100: #f8f9fa;
 $custom-gray-300: #e9ecef;
 $custom-gray-400: #aeaeae;
+$custom-gray-500: #878c92;
 
 $custom-blue:   #069;
 $custom-green:  #008000;
 $custom-yellow: #f0ad4e;
 $custom-cyan:   #007a7c;
 
+// Override Bootstrap's default theme colors
 $primary:   $custom-green;
 $secondary: $custom-blue;
 $success:   $custom-green;
