@@ -73,7 +73,8 @@
                   .collapse.mb-4#collapse-superseding
                     = render BsRequestActivityTimelineComponent.new(bs_request: superseding_request,
                                                                     history_elements: @history_elements,
-                                                                    request_reviews_for_non_staging_projects: @request_reviews)
+                                                                    request_reviews_for_non_staging_projects: @request_reviews,
+                                                                    timeline_for_superseeded: true)
                 = render BsRequestActivityTimelineComponent.new(bs_request: @bs_request,
                                                                 history_elements: @history_elements,
                                                                 request_reviews_for_non_staging_projects: @request_reviews)
