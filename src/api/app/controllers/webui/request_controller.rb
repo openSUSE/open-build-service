@@ -16,7 +16,7 @@ class Webui::RequestController < Webui::WebuiController
   before_action :set_actions, only: %i[inline_comment beta_show build_results rpm_lint changes changes_diff mentioned_issues chart_build_results complete_build_results request_action_changes request_action_details],
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_actions_deprecated, only: [:show]
-  before_action :set_action, only: %i[inline_comment beta_show build_results rpm_lint changes changes_diff mentioned_issues request_action_details],
+  before_action :set_action, only: %i[inline_comment beta_show build_results rpm_lint changes changes_diff mentioned_issues request_action_details request_action_changes],
                              if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_influxdb_data_request_actions, only: %i[beta_show build_results rpm_lint changes changes_diff mentioned_issues],
                                                     if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
@@ -26,7 +26,7 @@ class Webui::RequestController < Webui::WebuiController
                                        if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :prepare_request_header_data, only: %i[beta_show build_results rpm_lint changes mentioned_issues],
                                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :cache_diff_data, only: %i[changes],
+  before_action :cache_diff_data, only: %i[changes request_action_changes],
                                   if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :check_beta_user_redirect, only: %i[beta_show build_results rpm_lint changes mentioned_issues]
 
@@ -192,8 +192,6 @@ class Webui::RequestController < Webui::WebuiController
 
   def request_action_changes
     return head :unauthorized unless @actions
-
-    @action = @actions.where(id: params['id'].to_i).first
 
     respond_to do |format|
       format.js
@@ -553,7 +551,8 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def cache_diff_data
-    return unless @action.diff_not_cached({ diff_to_superseded: @diff_to_superseded })
+    @diff_not_cached = @action.diff_not_cached({ diff_to_superseded: @diff_to_superseded })
+    return unless @diff_not_cached
 
     job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{@action.to_global_id.uri}%").count
     BsRequestActionWebuiInfosJob.perform_later(@action) if job.zero?

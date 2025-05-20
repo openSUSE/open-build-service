@@ -1,6 +1,6 @@
 .row
   .col
-    - if @action.diff_not_cached({ diff_to_superseded: @diff_to_superseded })
+    - if diff_not_cached
       .clearfix.mb-2.text-center
         .btn.btn-outline-primary.cache-refresh{ title: 'Refresh results', onclick: "loadChanges()" }
           Crunching the latest data. Refresh again in a few seconds
