@@ -1,19 +1,18 @@
 .card.mb-3
   %h5.card-header Legend
-  .card-body.legend
-    .row
-      .col-xs-12.col-sm-4.col-xl-12
-        %p.mb-1 Requests
-        %ul.list-unstyled.small
-          %li
-            %span.request-ready
+  .card-body.legend.requests
+    .col-4.col-xs-3.col-md-2.col-xl-12.col-xxl-9
+      %p.mb-1 Requests
+      .d-flex.flex-column.gap-1
+        %span.badge.state-ready
+          = link_to '#', class: 'request' do
             Ready
-          %li
-            %span.request-review
+        %span.badge.state-review
+          = link_to '#', class: 'request' do
             In review
-          %li
-            %span.request-obsolete
+        %span.badge.state-obsolete
+          = link_to '#', class: 'request' do
             Obsolete
-          %li
-            %span
-            %del Delete
+        %span.badge.delete
+          = link_to '#', class: 'request' do
+            Delete
