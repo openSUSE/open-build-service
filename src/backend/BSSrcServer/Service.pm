@@ -160,12 +160,19 @@ sub commitobsscm {
     $cgi->{'comment'} .= "[info=$rev->{'_service_info'}]";
   }
   my $newrev;
-  if ($packid eq '_project') {
-    $newrev = $addrev_obsscmproject->($cgi, $projid, $rev->{'cpiofd'});
+  eval {
+    if ($packid eq '_project') {
+      $newrev = $addrev_obsscmproject->($cgi, $projid, $rev->{'cpiofd'});
+    } else {
+      $newrev = $addrev->($cgi, $projid, $packid, $files);
+    }
+  };
+  if ($@) {
+    BSSrcrep::addmeta_serviceerror($projid, $packid, $servicemark, $@);	# also frees lock
+    die($@);
   } else {
-    $newrev = $addrev->($cgi, $projid, $packid, $files);
+    BSSrcrep::writeobsscmdata($projid, $packid, $servicemark, undef);	# frees lock
   }
-  BSSrcrep::writeobsscmdata($projid, $packid, $servicemark, undef);	# frees lock
   if ($packid eq '_project') {
     $notify_repservers->('project', $projid);
   } else {
