@@ -113,7 +113,7 @@ ul .table-list-group-item {
       }
 
       &.state-obsolete {
-        @extend .text-bg-dark;
+        @extend .text-bg-custom-gray;
       }
 
       &.delete {
