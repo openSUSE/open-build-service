@@ -12,12 +12,12 @@
                           modal_title: "Do you really want to remove this #{watchable_type_text} from the watchlist?",
                           confirmation_text: "Please confirm you want to remove this #{watchable_type_text} from the watchlist.",
                           action: toggle_watchable_path }) do
-          %p.mb-0.text-light
+          %p.mb-0
             %i.fas.fa-times-circle
             %span Remove this #{watchable_type_text} from Watchlist
       - else
         = link_to(toggle_watchable_path, method: :put, class: 'nav-link', remote: true) do
-          %p.mb-0.text-light
+          %p.mb-0
             %i.fas.fa-plus-circle
             %span Watch this #{watchable_type_text}
 

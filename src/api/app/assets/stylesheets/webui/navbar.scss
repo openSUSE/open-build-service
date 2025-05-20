@@ -1,4 +1,4 @@
-.navbar-dark {
+.navbar-themed-colors {
   // Dropdown: Your profile & Logout
   .dropdown-menu {
     background-color: $gray-800;
@@ -9,40 +9,38 @@
     }
   }
 
-  &.navbar-collapse {
-    &.watchlist-collapse, &.places-collapse, &.actions-collapse {
-      position: fixed;
-      top: $top-navigation-height;
-      left: 100%;
-      bottom: $bottom-navigation-height;
-      width: 100%;
-      padding-right: 1rem;
-      padding-left: 1rem;
-      overflow-y: auto;
-      visibility: hidden;
-      color: $custom-gray-400;
-      transition: visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
-      transition: transform .3s ease-in-out, visibility .3s ease-in-out;
-      transition: transform .3s ease-in-out, visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
+  &.watchlist-collapse, &.places-collapse, &.actions-collapse {
+    position: fixed;
+    top: $top-navigation-height;
+    left: 100%;
+    bottom: $bottom-navigation-height;
+    width: 100%;
+    padding-right: 1rem;
+    padding-left: 1rem;
+    overflow-y: auto;
+    visibility: hidden;
+    color: $custom-gray-400;
+    transition: visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
+    transition: transform .3s ease-in-out, visibility .3s ease-in-out;
+    transition: transform .3s ease-in-out, visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
 
-      & a {
-        color: $custom-gray-300;
-        &:hover { color: white; }
-      }
+    & a {
+      color: $custom-gray-300;
+      &:hover { color: white; }
+    }
 
-      &.open {
-        visibility: visible;
-        -webkit-transform: translateX(-100%);
-        transform: translateX(-100%);
-      }
+    &.open {
+      visibility: visible;
+      -webkit-transform: translateX(-100%);
+      transform: translateX(-100%);
+    }
 
-      button.navbar-toggler {
-        color: $custom-gray-300;
+    button.navbar-toggler {
+      color: $custom-gray-300;
 
-        .fas.fa-times {
-          line-height: 1.875rem;
-          width: 20px;
-        }
+      .fas.fa-times {
+        line-height: 1.875rem;
+        width: 20px;
       }
     }
   }
@@ -54,15 +52,15 @@
 }
 
 @include media-breakpoint-up(md) {
-  .navbar-dark.navbar-collapse {
+  .navbar-collapse {
     &.watchlist-collapse, &.places-collapse, &.actions-collapse {
-      width: 23.75rem;
+      width: 40rem;
     }
   }
 }
 
 @include media-breakpoint-up(xl) {
-  .navbar-dark.navbar-collapse {
+  .navbar-collapse {
     &.watchlist-collapse, &.places-collapse, &.actions-collapse {
       bottom: 0;
 
