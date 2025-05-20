@@ -32,7 +32,7 @@ class TriggerController < ApplicationController
              targetproject: params[:targetproject], targetrepository: params[:targetrepository],
              repository: params[:repository] || params[:filter_source_repository] }
     if opts[:package].is_a?(String) && opts[:package].include?(':')
-      opts[:multibuild_flavor] = opts[:package].split(':',2)[1]
+      opts[:multibuild_flavor] = opts[:package].split(':', 2)[1]
       opts[:package] = Package.striping_multibuild_suffix(opts[:package])
     end
     opts[:multibuild_flavor] = @multibuild_container if @multibuild_container.present?
@@ -92,7 +92,8 @@ class TriggerController < ApplicationController
   def set_project_name
     # don't take random content when people just use a random webhook to our route,
     # eg from gitlab sending it's own data with a unrealted project hash
-    return unless params[:project].kind_of? String
+    return unless params[:project].is_a?(String)
+
     @project_name = params[:project]
   end
 
