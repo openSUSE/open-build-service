@@ -327,7 +327,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # some user
     login_tom
-    resp = 403       # not allowed to create project, which looks to be not existing
+    resp = 404       # not allowed to create project, which looks to be not existing
     delresp = 404    # project does not exist, it seems ...
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # maintainer

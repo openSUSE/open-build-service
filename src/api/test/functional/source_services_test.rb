@@ -609,6 +609,49 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     # FIXME: check that additional files to git files materialized in backend once we
     #        have a full scmsync fixture setup
 
+    # test permission checks for commands by a person without permissions
+    login_adrian
+    post '/source/ScmSync/package?cmd=rebuild'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=addcontainers'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=addchannels'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=enablechannel'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=instantiate'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=undelete'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=commit'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=commitfilelist'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=copy'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=deleteuploadrev'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=linktobranch'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=createSpecFileTemplate'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=lock'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=unlock&comment=revert'
+    assert_response :forbidden
+
+    login_tom
+    post '/source/ScmSync/package?cmd=lock'
+    assert_response :success
+    get '/source/ScmSync/package/_meta'
+    assert_response :success
+    assert_xml_tag tag: 'enable', parent: { tag: 'lock' }
+    post '/source/ScmSync/package?cmd=unlock&comment=revert'
+    assert_response :success
+    get '/source/ScmSync/package/_meta'
+    assert_response :success
+    assert_no_xml_tag tag: 'lock'
+
     # no token, run directly as invalid user
     login_adrian
     post '/source/ScmSync/package?cmd=runservice'
