@@ -10,21 +10,21 @@ class Webui::PackageController < Webui::WebuiController
   before_action :set_project, only: %i[show edit update index users requests statistics revisions
                                        new branch_diff_info rdiff create remove
                                        save_person save_group remove_role view_file
-                                       buildresult rpmlint_result rpmlint_log files]
+                                       buildresult rpmlint_result rpmlint_log files rpm_lint]
 
   before_action :check_scmsync, only: %i[statistics users]
 
   before_action :require_package, only: %i[edit update show requests statistics revisions
                                            branch_diff_info rdiff remove
                                            save_person save_group remove_role view_file
-                                           buildresult rpmlint_result rpmlint_log files users]
+                                           buildresult rpmlint_result rpmlint_log files users rpm_lint]
   # rubocop:enable Rails/LexicallyScopedActionFilter
 
   before_action :check_ajax, only: %i[devel_project buildresult rpmlint_result]
   # make sure it's after the require_, it requires both
   before_action :require_login, except: %i[show index branch_diff_info
                                            users requests statistics revisions view_file
-                                           devel_project buildresult rpmlint_result rpmlint_log files]
+                                           devel_project buildresult rpmlint_result rpmlint_log files rpm_lint]
 
   prepend_before_action :lockout_spiders, only: %i[revisions rdiff requests]
 
@@ -277,6 +277,12 @@ class Webui::PackageController < Webui::WebuiController
     end
   end
 
+  def rpm_lint
+    @ajax_data = {}
+    @ajax_data['project'] = @project.name
+    @ajax_data['package'] = @package.name
+  end
+
   def rpmlint_result
     @repo_arch_hash = {}
     @buildresult = Buildresult.find_hashed(project: @project.to_param, package: @package.to_param, view: 'status')
@@ -304,8 +310,7 @@ class Webui::PackageController < Webui::WebuiController
       request_show_redesign_partial = 'webui/request/beta_show_tabs/rpm_lint_result' if params.fetch(:inRequestShowRedesign, false)
 
       render partial: request_show_redesign_partial || 'rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
-                                                                                   repository_list: @repo_list, repo_arch_hash: @repo_arch_hash,
-                                                                                   is_staged_request: params[:is_staged_request] }
+                                                                                   repository_list: @repo_list, repo_arch_hash: @repo_arch_hash }
     end
   end
 

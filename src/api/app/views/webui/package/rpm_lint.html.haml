@@ -1,0 +1,25 @@
+- @pagetitle = "RPM Lint of #{@package}"
+
+.card
+  = render(partial: 'webui/package/tabs', locals: { project: @project, package: @package })
+
+  .card-body
+    %h3= @pagetitle
+    .rpm-lint-content{ data: @ajax_data }
+      .pt-1.bg-card.d-flex.flex-wrap-reverse.align-items-baseline.sticky-top
+        .result
+          = render partial: 'webui/shared/loading', locals: { text: 'Loading...' }
+        .btn.btn-outline-primary.rpm-lint-refresh.ms-auto.mb-3{ onclick: 'updateRpmLintResultBeta()',
+                                                                accesskey: 'r', title: 'Refresh Rpm Lint Results',
+                                                                data: { rpm_lint_results_url: rpmlint_result_path(@project, @package) } }
+          Refresh
+          %i.fas.fa-sync-alt{ id: 'rpm-lint-reload' }
+      -# For a request staged in a staging project, we display the Build Results / RPM Lint from the staging project instead
+      - if @staging_project.present?
+        %p.fst-italic
+          From staging project
+          = link_to(@action.source_project, project_show_path(@action.source_project))
+      %pre.rpmlint-result.text-pre-wrap
+
+    :javascript
+      updateRpmLintResultBeta();
