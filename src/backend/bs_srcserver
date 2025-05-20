@@ -2480,6 +2480,37 @@ sub undeletepackage {
   return $BSStdServer::return_ok;
 }
 
+sub lockpackage {
+  my ($cgi, $projid, $packid) = @_;
+  die("403 cannot lock _product package\n") if $packid eq '_product';
+  $cgi->{'comment'} ||= 'package was locked';
+  my $proj = BSRevision::readproj_local($projid);
+  my $pack = BSRevision::readpack_local($projid, $packid);
+  die("403 package '$packid' is already locked\n") if $pack->{'lock'};
+  $pack->{'lock'} = { 'enable' => [ {} ] };
+  mkdir_p($uploaddir);
+  writexml("$uploaddir/$$", undef, $pack, $BSXML::pack);
+  BSRevision::addrev_meta_replace($cgi, $projid, $packid, [ "$uploaddir/$$", "$projectsdir/$projid.pkg/$packid.xml", '_meta' ]);
+  notify_repservers('package', $projid, $packid);
+  return $BSStdServer::return_ok;
+}
+
+sub unlockpackage {
+  my ($cgi, $projid, $packid) = @_;
+  die("403 cannot unlock _product package\n") if $packid eq '_product';
+  $cgi->{'comment'} ||= 'package was unlocked';
+  my $proj = BSRevision::readproj_local($projid);
+  my $pack = BSRevision::readpack_local($projid, $packid);
+  die("403 package '$packid' is not locked\n") unless $pack->{'lock'} && $pack->{'lock'}->{'enable'};
+  die("403 package '$packid' is locked in a weird way\n") if $pack->{'lock'}->{'disable'} || @{$pack->{'lock'}->{'enable'}} != 1 || %{$pack->{'lock'}->{'enable'}->[0]};
+  delete $pack->{'lock'};
+  mkdir_p($uploaddir);
+  writexml("$uploaddir/$$", undef, $pack, $BSXML::pack);
+  BSRevision::addrev_meta_replace($cgi, $projid, $packid, [ "$uploaddir/$$", "$projectsdir/$projid.pkg/$packid.xml", '_meta' ]);
+  notify_repservers('package', $projid, $packid);
+  return $BSStdServer::return_ok;
+}
+
 sub getpackagehistory {
   my ($cgi, $projid, $packid) = @_;
   my @res;
@@ -7984,6 +8015,8 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=mergeservice user:? comment:?' => \&mergeservicerun,
   'POST:/source/$project/$package cmd=getprojectservices' => \&getprojectservices,
   'POST:/source/$project/$package cmd=notifypackagechange' => \&notifypackagechange,
+  'POST:/source/$project/$package cmd=lock user:? comment:?' => \&lockpackage,
+  'POST:/source/$project/$package cmd=unlock user:? comment:?' => \&unlockpackage,
   'POST:/source/$project/$package cmd: *:*' => \&unknowncmd,
 
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,	# obsolete
