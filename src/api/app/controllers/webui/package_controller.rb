@@ -281,9 +281,14 @@ class Webui::PackageController < Webui::WebuiController
     @ajax_data = {}
     @ajax_data['project'] = @project.name
     @ajax_data['package'] = @package.name
+    @ajax_data['repository'] = params[:repository] if params[:repository].present?
+    @ajax_data['architecture'] = params[:architecture] if params[:architecture].present?
   end
 
   def rpmlint_result
+    repository = valid_xml_id(elide(params[:repository], 30)) if params[:repository].present?
+    architecture = params[:architecture] if params[:architecture].present?
+
     @repo_arch_hash = {}
     @buildresult = Buildresult.find_hashed(project: @project.to_param, package: @package.to_param, view: 'status')
     repos = [] # Temp var
@@ -310,6 +315,7 @@ class Webui::PackageController < Webui::WebuiController
       request_show_redesign_partial = 'webui/package/beta/rpm_lint_result' if params.fetch(:inRequestShowRedesign, false)
 
       render partial: request_show_redesign_partial || 'rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
+                                                                                   repository: repository, architecture: architecture,
                                                                                    repository_list: @repo_list, repo_arch_hash: @repo_arch_hash }
     end
   end

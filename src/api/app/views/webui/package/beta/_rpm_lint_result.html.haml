@@ -2,11 +2,11 @@
   - unless repository_list.empty?
     .row
       .col-auto
-        = select_tag('rpmlint_repo_select', options_for_select(repository_list.sort),
-                     class: 'form-select mb-3', onchange: 'updateRpmLintArchitectures()')
+        = select_tag('rpmlint_repo_select', options_for_select(repository_list.sort, repository),
+                     class: 'form-select mb-3', onchange: 'updateRpmLintArchitectures()' )
       .col-auto
         - repo_arch_hash.each do |repository, architectures|
-          = select_tag("rpmlint_arch_select_#{repository}", options_for_select(architectures.reverse),
+          = select_tag("rpmlint_arch_select_#{repository}", options_for_select(architectures.reverse, architecture),
                        class: 'rpmlint_arch_select form-select mb-3', onchange: 'updateRpmLintLog()')
 
 :javascript
