@@ -25,7 +25,6 @@ BEGIN {
   my ($wd) = $0 =~ m-(.*)/- ;
   $wd ||= '.';
   chdir($wd);
-  unshift @INC,  "$wd/build";
   unshift @INC,  "$wd";
 }
 
@@ -35,20 +34,16 @@ use Data::Dumper;
 use File::Basename;
 
 use XML::Structured ':bytes';
+
 use BSUtil;
 use BSXML;
 use BSProductXML;
 use BSKiwiXML;
-use BSXML;
 
-my $bsdir;
-my $localarch;
 my $obsname;
 my $project;
 eval{
   require BSConfig;
-  $bsdir = "$BSConfig::bsdir" if defined($BSConfig::bsdir);
-  $localarch = "$BSConfig::localarch" if defined($BSConfig::localarch);
   $obsname = "$BSConfig::obsname" if defined($BSConfig::obsname);
 };
 
@@ -1574,7 +1569,6 @@ foreach my $medium ( @$media ){
       my %supportstates;
       my @archSets = @{$medium->{archsets}};
       foreach my $arch ( @archSets ) {
-          my @archs;
           my $supportstates;
       
           my $kiwi = BSUtil::clone(\%generalImage);
@@ -1609,19 +1603,7 @@ foreach my $medium ( @$media ){
           	  my $architecture = "$archSets{$ar->{'ref'}}->{'productarch'}";
           	  $archStr .= "_" if $archStr;
           	  $archStr .= "$architecture";
-                  # enable this architecture in scheduler
-                  # FIXME: the scheduler arch may have a different name than the rpm archs !
-                  push @archs, { 'arch' => $architecture };
                   push @productarch, $architecture;
-                  if ( defined($localarch) ) {
-                     # this is only important on a server which supports a "local" scheduler
-                     push @archs, { 'arch' => 'local' };
-                  }
-                  push @archs, { 'arch' => 'i586' } if ( $architecture eq "x86_64" );
-                  push @archs, { 'arch' => 'i586' } if ( $architecture eq "ia64" );
-                  push @archs, { 'arch' => 'ppc' } if ( $architecture eq "ppc64" );
-                  push @archs, { 'arch' => 'ppc64' } if ( $architecture eq "ppc" ); # ppc is using ppc64 stuff in openSUSE
-                  push @archs, { 'arch' => 's390' } if ( $architecture eq "s390x" );
               }
           }
 
