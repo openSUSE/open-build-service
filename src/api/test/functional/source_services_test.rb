@@ -539,42 +539,9 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
   end
 
   def test_run_service_in_scmsync_project
-    login_tom
-    post '/person/tom/token?operation=runservice'
-    assert_response :success
-    doc = REXML::Document.new(@response.body)
-    alltoken = doc.elements['//data'].text
-    assert_equal 24, alltoken.length
-    post '/person/tom/token?operation=runservice'
-    assert_response :success
-    doc = REXML::Document.new(@response.body)
-    token = doc.elements['//data'].text
-    assert_equal 24, token.length
-
-    # ANONYMOUS
-    reset_auth
-
-    # with wrong token
-    post '/trigger/runservice?project=ScmSync&package=package', headers: { 'Authorization' => 'Token wrong' }
-    assert_response :not_found
-    assert_xml_tag tag: 'status', attributes: { code: 'not_found' }
-
-    # with right token
-    post '/trigger/runservice?project=ScmSync&package=package', headers: { 'Authorization' => "Token #{token}" }
-    # success, but no source service configured :)
-    assert_response :not_found
-    assert_match(/no source service defined/, @response.body)
-
-    # cleanup
-    login_tom
-    delete "/person/tom/token/#{id}"
-    assert_response :success
-  end
-
-  def test_run_service_in_scmsync_project
     # just temporary needed until we have a full git example in fixtures
-    prj = Project.find_by_name("ScmSync")
-    prj.scmsync = "https://localhost"
+    prj = Project.find_by_name('ScmSync')
+    prj.scmsync = 'https://localhost'
     prj.save # without writing to backend yet, since we need to fake a package in start_test_backend script
 
     login_adrian
@@ -609,6 +576,49 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     # FIXME: check that additional files to git files materialized in backend once we
     #        have a full scmsync fixture setup
 
+    # test permission checks for commands by a person without permissions
+    login_adrian
+    post '/source/ScmSync/package?cmd=rebuild'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=addcontainers'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=addchannels'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=enablechannel'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=instantiate'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=undelete'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=commit'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=commitfilelist'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=copy'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=deleteuploadrev'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=linktobranch'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=createSpecFileTemplate'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=lock'
+    assert_response :forbidden
+    post '/source/ScmSync/package?cmd=unlock&comment=revert'
+    assert_response :forbidden
+
+    login_tom
+    post '/source/ScmSync/package?cmd=lock'
+    assert_response :success
+    get '/source/ScmSync/package/_meta'
+    assert_response :success
+    assert_xml_tag tag: 'enable', parent: { tag: 'lock' }
+    post '/source/ScmSync/package?cmd=unlock&comment=revert'
+    assert_response :success
+    get '/source/ScmSync/package/_meta'
+    assert_response :success
+    assert_no_xml_tag tag: 'lock'
+
     # no token, run directly as invalid user
     login_adrian
     post '/source/ScmSync/package?cmd=runservice'
@@ -619,17 +629,16 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-#  from test_run_service_via_token
-#    # with right token, but wrong package
-#    post '/trigger/runservice?project=home:tom&package=invalid', headers: { 'Authorization' => "Token #{token}" }
-#    # token package is not matching the parameters
-#    assert_response :bad_request
-#    assert_match(/Token is registered for other package only/, @response.body)
-#
-#    # with right token, but wrong package
-#    post '/trigger/runservice?project=home:tom&package=invalid', headers: { 'Authorization' => "Token #{token}" }
-#    # token package is not matching the parameters
-#    assert_response :bad_request
-#    assert_match(/Token is registered for other package only/, @response.body)
-
+  #  from test_run_service_via_token
+  #    # with right token, but wrong package
+  #    post '/trigger/runservice?project=home:tom&package=invalid', headers: { 'Authorization' => "Token #{token}" }
+  #    # token package is not matching the parameters
+  #    assert_response :bad_request
+  #    assert_match(/Token is registered for other package only/, @response.body)
+  #
+  #    # with right token, but wrong package
+  #    post '/trigger/runservice?project=home:tom&package=invalid', headers: { 'Authorization' => "Token #{token}" }
+  #    # token package is not matching the parameters
+  #    assert_response :bad_request
+  #    assert_match(/Token is registered for other package only/, @response.body)
 end
