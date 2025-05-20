@@ -740,9 +740,10 @@ sub addrev {
   die("bad files (slash)\n") if grep {/\// && $_ ne '/SERVICE'} keys %$files;
   die("bad files (glyph)\n") if grep {!/^[0-9a-f]{32}$/} values %$files;
 
-  if ($packid ne '_project' && !$cgi->{'commitobsscm'}) {
+  if ($packid ne '_project') {
     my $pack = BSRevision::readpack_local($projid, $packid);
-    die("Package $packid is controlled by obs-scm\n") if $pack->{'scmsync'};
+    die("Package $packid is locked\n") if $pack->{'lock'} && $pack->{'lock'}->{'enabled'};
+    die("Package $packid is controlled by obs-scm\n") if $pack->{'scmsync'} && !$cgi->{'commitobsscm'};
   }
 
   if ($files->{'_patchinfo'}) {
