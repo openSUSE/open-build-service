@@ -53,7 +53,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
       SendEventEmailsJob.new.perform
     end
 
-    email = ActionMailer::Base.deliveries.last
+    email = ActionMailer::Base.deliveries.first
 
     assert_match(%r{^Request #{myid} requires review \(submit home:tom/package_0, }, email.subject)
     assert_equal ['fred@feuerstein.de', 'fred@feuerstein.de'], email.to

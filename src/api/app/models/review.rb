@@ -73,10 +73,15 @@ class Review < ApplicationRecord
   end
 
   before_validation :set_reviewable_association
+  after_save :create_state_change_history, if: :saved_change_to_state?
+  after_save :create_reason_change_history, if: :saved_change_to_reason?
+  after_save :send_state_changed_event, if: :saved_change_to_state?
+  after_save :send_reason_changed_event, if: :saved_change_to_reason?
   after_commit :update_cache
   after_commit { PopulateToSphinxJob.perform_later(id: bs_request.id, model_name: :bs_request) }
 
   delegate :number, to: :bs_request
+  attr_accessor :is_reassigned
 
   def review_assignment
     errors.add(:unknown, 'no reviewer defined') unless by_user || by_group || by_project
@@ -226,49 +231,12 @@ class Review < ApplicationRecord
     end
   end
 
-  def change_state(new_state, comment)
-    return false if state == new_state && reviewer == User.session!.login && reason == comment
-
-    self.reason = comment
-    self.state = new_state
-    self.reviewer = User.session!.login
-    self.changed_state_at = Time.now.utc
-    save!
-    Event::ReviewChanged.create(bs_request.event_parameters)
-
-    arguments = { review: self, comment: comment, user: User.session! }
-    case new_state
-    when :accepted
-      HistoryElement::ReviewAccepted.create(arguments)
-    when :declined
-      HistoryElement::ReviewDeclined.create(arguments)
-    else
-      HistoryElement::ReviewReopened.create(arguments)
-    end
-    true
-  end
-
   def matches_user?(user)
     return false unless user
     return user.login == by_user if by_user
     return user.in_group?(by_group) if by_group
 
     matches_maintainers?(user)
-  end
-
-  def event_parameters(params = {})
-    params = params.merge(_get_attributes)
-    params[:id] = bs_request.id
-    params[:comment] = reason
-    params[:reviewers] = map_objects_to_ids(users_and_groups_for_review)
-    params[:when] = changed_state_at&.strftime('%Y-%m-%dT%H:%M:%S')
-    params
-  end
-
-  def create_event(params = {})
-    params = event_parameters(params)
-
-    Event::ReviewWanted.create(params)
   end
 
   def reviewed_by
@@ -304,12 +272,66 @@ class Review < ApplicationRecord
     for_project? && !project&.staging_workflow_id.nil?
   end
 
-  def check_reviewer!
-    selected_errors = errors.select { |error| error.attribute.in?(%i[user group project package]) }
-    raise ::NotFoundError, selected_errors.map { |error| "#{error.attribute.capitalize} not found" }.to_sentence if selected_errors.any?
+  private
+
+  def event_parameters
+    request_params = bs_request.send(:event_parameters)
+    review_params = slice(:state, :by_user, :by_group, :by_project, :by_package).compact
+    review_params[:comment] = reason
+    review_params[:who] = reviewer
+    review_params[:when] = changed_state_at&.strftime('%Y-%m-%dT%H:%M:%S')
+    review_params[:reviewers] = map_objects_to_ids(users_and_groups_for_review)
+
+    request_params.merge(review_params).with_indifferent_access.compact
   end
 
-  private
+  def send_state_changed_event
+    if state_before_last_save
+      Event::ReviewChanged.create(event_parameters)
+    else
+      Event::ReviewWanted.create(event_parameters)
+    end
+  end
+
+  def send_reason_changed_event
+    # if the state also changed, let send_state_changed_event take care
+    return if saved_change_to_state?
+
+    Event::ReviewChanged.create(event_parameters)
+  end
+
+  def create_state_change_history
+    arguments = { op_object_id: id, comment: reason, user: User.session, description_extension: id.to_s }
+    case state
+    when :accepted
+      HistoryElement::ReviewAccepted.create(arguments)
+    when :declined
+      HistoryElement::ReviewDeclined.create(arguments)
+    when :obsoleted
+      HistoryElement::ReviewObsoleted.create(arguments)
+    when :new
+      if state_before_last_save
+        HistoryElement::ReviewReopened.create(arguments)
+      elsif is_reassigned
+        HistoryElement::ReviewAssigned.create(arguments)
+      else
+        history_params = { op_object_id: bs_request.id, user: User.session, description_extension: id.to_s, comment: reason }.compact
+        HistoryElement::RequestReviewAdded.create(history_params)
+      end
+    end
+  end
+
+  # FIXME: "ReviewReopened makes no sense here, the state did not change! But this is how updating
+  # the reason field was implemented and it is actively used in production to pass messages around.
+  # Only is done in BsRequest.change_review_state
+  # Should be ReviewChanged but a new type of HistoryElement would be a major API change...
+  def create_reason_change_history
+    # if the state also changed, let send_state_changed_event take care
+    return if saved_change_to_state?
+
+    arguments = { op_object_id: id, comment: reason, user: User.session, description_extension: id.to_s }
+    HistoryElement::ReviewReopened.create(arguments)
+  end
 
   def matches_maintainers?(user)
     return false unless by_project

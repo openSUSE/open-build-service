@@ -51,10 +51,12 @@ class RegenerateNotifications < ActiveRecord::Migration[5.2]
     end
   end
 
+  # rubocop:disable Metrics/CyclomaticComplexity
   def request_old_state(request)
     # Check history elements to guess the previous state
     # assuming the last one is always HistoryElement::RequestDeclined
     previous_history_element, last_history_element = request.history_elements.last(2)
+    return 'new' unless last_history_element
 
     case previous_history_element.try(:type)
     when nil, 'HistoryElement::RequestAllReviewsApproved'
@@ -75,6 +77,7 @@ class RegenerateNotifications < ActiveRecord::Migration[5.2]
       'review'
     end
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   # ReviewWanted Notifications
 
@@ -82,7 +85,7 @@ class RegenerateNotifications < ActiveRecord::Migration[5.2]
     new_reviews = Review.where(state: 'new').joins(:bs_request).where('bs_requests.state' => 'review')
 
     new_reviews.each do |review|
-      params = review.event_parameters(review.bs_request.event_parameters)
+      params = review.send(:event_parameters)
       event = Event::ReviewWanted.new(params)
       NotificationService::Notifier.new(event).call
     end
