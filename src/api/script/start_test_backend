@@ -299,11 +299,11 @@ Backend::Connection.put('/source/BrokenPublishing/pack_broken_publish/package.sp
                         File.read(Rails.root.join('test/fixtures/backend/binary/package.spec').to_s))
 
 # temporary hack until we have a full git server setup for fixtures:
-Backend::Connection.put('/source/ScmSync/package/_meta?user=king', 
+Backend::Connection.put('/source/ScmSync/package/_meta?user=king',
                         '<package><scmsync>https://somewhere?subdir=package</scmsync></package>')
-Backend::Connection.put('/source/ScmSync/_meta?user=king', 
-                        Project.find_by_name('ScmSync').to_axml)
-
+prj = Project.find_by_name('ScmSync')
+prj.scmsync = "http://somwhere"
+prj.save
 
 # manual placing of files
 FileUtils.cp(Rails.root.join('test/fixtures/backend/source/_pubkey').to_s, "#{backend_data}/projects/BaseDistro.pkg/_pubkey")

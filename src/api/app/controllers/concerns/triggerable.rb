@@ -11,7 +11,7 @@ module Triggerable
     raise Project::Errors::UnknownObjectError, "Sorry, triggering tokens for remote project \"#{@project_name}\" is not possible." unless @project.is_a?(Project)
   end
 
-  def set_package(package_find_options: {})
+  def set_package(package_find_options: {}) # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     package_find_options = @token.package_find_options if package_find_options.blank?
     # By default we operate on the package association
     @package = @token.package
