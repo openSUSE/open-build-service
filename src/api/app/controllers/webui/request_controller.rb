@@ -6,29 +6,29 @@ class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
 
   before_action :require_login,
-                except: %i[show beta_show sourcediff diff request_action request_action_changes request_action_details inline_comment build_results rpm_lint
+                except: %i[show beta_show sourcediff diff request_action request_action_changes request_action_details inline_comment build_results
                            changes changes_diff mentioned_issues]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
   before_action :require_request,
-                only: %i[changerequest show beta_show request_action request_action_changes request_action_details inline_comment build_results rpm_lint
+                only: %i[changerequest show beta_show request_action request_action_changes request_action_details inline_comment build_results
                          changes changes_diff mentioned_issues chart_build_results complete_build_results]
-  before_action :set_actions, only: %i[inline_comment beta_show build_results rpm_lint changes changes_diff mentioned_issues chart_build_results complete_build_results request_action_changes request_action_details],
+  before_action :set_actions, only: %i[inline_comment beta_show build_results changes changes_diff mentioned_issues chart_build_results complete_build_results request_action_changes request_action_details],
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_actions_deprecated, only: [:show]
-  before_action :set_action, only: %i[inline_comment beta_show build_results rpm_lint changes changes_diff mentioned_issues request_action_details request_action_changes],
+  before_action :set_action, only: %i[inline_comment beta_show build_results changes changes_diff mentioned_issues request_action_details request_action_changes],
                              if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_influxdb_data_request_actions, only: %i[beta_show build_results rpm_lint changes changes_diff mentioned_issues],
+  before_action :set_influxdb_data_request_actions, only: %i[beta_show build_results changes changes_diff mentioned_issues],
                                                     if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :set_superseded_request, only: %i[show beta_show request_action request_action_changes build_results rpm_lint changes changes_diff mentioned_issues]
+  before_action :set_superseded_request, only: %i[show beta_show request_action request_action_changes build_results changes changes_diff mentioned_issues]
   before_action :check_ajax, only: :sourcediff
-  before_action :prepare_request_data, only: %i[beta_show build_results rpm_lint changes mentioned_issues],
+  before_action :prepare_request_data, only: %i[beta_show build_results changes mentioned_issues],
                                        if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :prepare_request_header_data, only: %i[beta_show build_results rpm_lint changes mentioned_issues],
+  before_action :prepare_request_header_data, only: %i[beta_show build_results changes mentioned_issues],
                                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :cache_diff_data, only: %i[changes request_action_changes],
                                   if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :check_beta_user_redirect, only: %i[beta_show build_results rpm_lint changes mentioned_issues]
+  before_action :check_beta_user_redirect, only: %i[beta_show build_results changes mentioned_issues]
 
   after_action :verify_authorized, only: [:create]
 
@@ -304,16 +304,6 @@ class Webui::RequestController < Webui::WebuiController
     @active_tab = 'build_results'
     @project = @staging_project || @action.source_project
     @buildable = @action.source_package || @project
-  end
-
-  def rpm_lint
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action.tab_visibility.rpm_lint
-
-    @active_tab = 'rpm_lint'
-    @ajax_data = {}
-    @ajax_data['project'] = @action.source_project if @action.source_project
-    @ajax_data['package'] = @action.source_package if @action.source_package
-    @ajax_data['is_staged_request'] = true if @staging_project.present?
   end
 
   def changes

@@ -333,8 +333,6 @@ constraints(RoutesHelper::WebuiMatcher) do
 
   get 'request/show/:number/build_results', to: redirect('/requests/%{number}/build_results'), constraints: cons
   get 'request/show/:number/(request_action/:request_action_id)/build_results', to: redirect('/requests/%{number}/actions/%{request_action_id}/build_results'), constraints: cons
-  get 'request/show/:number/rpm_lint', to: redirect('/requests/%{number}/rpm_lint'), constraints: cons
-  get 'request/show/:number/(request_action/:request_action_id)/rpm_lint', to: redirect('/requests/%{number}/actions/%{request_action_id}/rpm_lint'), constraints: cons
   get 'request/show/:number/changes', to: redirect('/requests/%{number}/changes'), constraints: cons
   get 'request/show/:number/(request_action/:request_action_id)/changes', to: redirect('/requests/%{number}/actions/%{request_action_id}/changes'), constraints: cons
   get 'request/show/:number/mentioned_issues', to: redirect('/requests/%{number}/mentioned_issues'), constraints: cons
@@ -347,7 +345,6 @@ constraints(RoutesHelper::WebuiMatcher) do
     # TODO: Simplify this with `resources` instead after rolling out `:request_show_redesign` feature
     get 'requests/:number/(actions/:request_action_id)' => :beta_show, as: 'request_beta_show', constraints: cons
     get 'requests/:number/(actions/:request_action_id)/build_results' => :build_results, as: 'request_build_results', constraints: cons
-    get 'requests/:number/(actions/:request_action_id)/rpm_lint' => :rpm_lint, as: 'request_rpm_lint', constraints: cons
     get 'requests/:number/(actions/:request_action_id)/changes' => :changes, as: 'request_changes', constraints: cons
     get 'requests/:number/actions/:request_action_id/changes/:filename' => :changes_diff, as: 'request_changes_diff', constraints: cons
     get 'requests/:number/(actions/:request_action_id)/mentioned_issues' => :mentioned_issues, as: 'request_mentioned_issues', constraints: cons
