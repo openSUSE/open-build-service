@@ -16,6 +16,9 @@ function updateRpmLintLog() {
     data: ajaxDataShow,
     success: function (data) {
       $('.rpmlint-result').html(data);
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      $('.rpmlint-result').html('<p class="error">Error loading rpmlint log (' + errorThrown + ')</p>');
     }
   });
 }
