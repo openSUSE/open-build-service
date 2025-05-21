@@ -5,7 +5,7 @@
 
   .card-body
     %h3= @pagetitle
-    .rpm-lint-content{ data: @ajax_data }
+    .rpm-lint-content
       .pt-1.bg-card.d-flex.flex-wrap-reverse.align-items-baseline.sticky-top
         .result
           #rpmlint-log{ data: { project: project.name, package: package.name } }

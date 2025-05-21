@@ -278,12 +278,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def rpmlint_result
-    @ajax_data = {}
-    @ajax_data['project'] = @project.name
-    @ajax_data['package'] = @package.name
-    @ajax_data['repository'] = params[:repository] if params[:repository].present?
-    @ajax_data['architecture'] = params[:architecture] if params[:architecture].present?
-
     repository = valid_xml_id(elide(params[:repository], 30)) if params[:repository].present?
     architecture = params[:architecture] if params[:architecture].present?
 
