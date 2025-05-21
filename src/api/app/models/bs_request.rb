@@ -595,20 +595,23 @@ class BsRequest < ApplicationRecord
       # check if user is a reviewer already
       user_review = reviews.where(by_user: reviewer.login).last
       if opts[:revert]
-        _assignreview_update_reviews(reviewer, opts)
         raise Review::NotFoundError unless user_review
         raise InvalidStateError, 'review is not in new state' unless user_review.state == :new
         raise Review::NotFoundError, 'Not an assigned review' unless HistoryElement::ReviewAssigned.where(op_object_id: user_review.id).last
 
+        _assignreview_update_reviews(reviewer, opts)
+
         user_review.destroy
       elsif user_review
-        review_comment = _assignreview_update_reviews(reviewer, opts)
+        _assignreview_update_reviews(reviewer, opts)
         user_review.state = :new
         user_review.save!
+        review_comment = _assignreview_review_comment(opts)
         HistoryElement::ReviewReopened.create(review: user_review, comment: review_comment, user: User.session!)
       else
         review = reviews.create(by_user: reviewer.login, creator: User.session!.login, state: :new)
-        review_comment = _assignreview_update_reviews(reviewer, opts, review)
+        _assignreview_update_reviews(reviewer, opts, review)
+        review_comment = _assignreview_review_comment(opts)
         HistoryElement::ReviewAssigned.create(review: review, comment: review_comment, user: User.session!)
       end
       save!
@@ -1180,33 +1183,37 @@ class BsRequest < ApplicationRecord
   end
 
   def _assignreview_update_reviews(reviewer, opts, new_review = nil)
-    review_comment = nil
-    reviews.reverse_each do |review|
-      next if review.by_user
-      next if review.by_group && review.by_group != opts[:by_group]
-      next if review.by_project && review.by_project != opts[:by_project]
-      next if review.by_package && review.by_package != opts[:by_package]
+    raise Review::NotFoundError unless opts[:by_group] || opts[:by_project] || opts[:by_package]
 
+    reviews_to_update = reviews.where(by_group: opts[:by_group]) if opts[:by_group]
+    reviews_to_update = reviews.where(by_project: opts[:by_project], by_package: opts[:by_package]) if opts[:by_project] && opts[:by_package]
+    reviews_to_update = reviews.where(by_project: opts[:by_project]) if opts[:by_project] && !opts[:by_package]
+
+    raise Review::NotFoundError unless reviews_to_update.any?
+
+    reviews_to_update.reverse_each do |review|
       # approve for this review
       if opts[:revert]
         review.state = :new
-        review_comment = 'revert the '
         history_class = HistoryElement::ReviewReopened
       else
         review.state = :accepted
         review.review_assigned_to = new_review if new_review
-        review_comment = ''
         history_class = HistoryElement::ReviewAccepted
       end
       review.reviewer = User.session!.login
       review.save!
 
-      review_comment += "review for group #{opts[:by_group]}" if opts[:by_group]
-      review_comment += "review for project #{opts[:by_project]}" if opts[:by_project]
-      review_comment += "review for package #{opts[:by_project]} / #{opts[:by_package]}" if opts[:by_package]
       history_class.create(review: review, comment: "review assigned to user #{reviewer.login}", user_id: User.session!.id)
     end
-    raise Review::NotFoundError unless review_comment
+  end
+
+  def _assignreview_review_comment(opts)
+    review_comment = ''
+    review_comment = 'revert the ' if opts[:revert]
+    review_comment += "review for group #{opts[:by_group]}" if opts[:by_group]
+    review_comment += "review for project #{opts[:by_project]}" if opts[:by_project]
+    review_comment += "review for package #{opts[:by_project]} / #{opts[:by_package]}" if opts[:by_package]
 
     review_comment
   end
