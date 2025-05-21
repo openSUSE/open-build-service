@@ -6,13 +6,13 @@ function updateRpmLintArchitectures() { // jshint ignore:line
 
 
 function updateRpmLintLog() {
-  var ajaxDataShow = $('#rpmlint-log').data();
   var repoKey = $('#rpmlint_repo_select option:selected').attr('value');
+  var ajaxDataShow = {};
   ajaxDataShow.repository = $('#rpmlint_repo_select option:selected').html();
   ajaxDataShow.architecture = $('#rpmlint_arch_select_' + repoKey + ' option:selected').attr('value');
   ajaxDataShow.renderChart = true;
   $.ajax({
-    url: '/package/rpmlint_log',
+    url: '/package/rpmlint_log/' + $('#rpmlint-log').data('project') + '/' + $('#rpmlint-log').data('package'),
     data: ajaxDataShow,
     success: function (data) {
       $('.rpmlint-result').html(data);
