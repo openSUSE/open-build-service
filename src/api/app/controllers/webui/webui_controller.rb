@@ -54,6 +54,8 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def require_login
+    return kerberos_auth if CONFIG['kerberos_mode']
+
     raise Pundit::NotAuthorizedError, reason: ApplicationPolicy::ANONYMOUS_USER unless User.session
   end
 
@@ -63,6 +65,33 @@ class Webui::WebuiController < ActionController::Base
     @spider_bot = true
     logger.debug "Spider blocked on #{request.fullpath}"
     head :ok
+  end
+
+  def kerberos_auth
+    return true unless CONFIG['kerberos_mode'] && !User.session
+
+    authorization = authenticator.authorization_infos || []
+    if authorization[0].to_s == 'Negotiate'
+      begin
+        authenticator.extract_user
+      rescue Authenticator::AuthenticationRequiredError => e
+        logger.info "Authentication via kerberos failed '#{e.message}'"
+        flash[:error] = "Authentication failed: '#{e.message}'"
+        redirect_back_or_to root_path
+        return
+      end
+      if User.session
+        logger.info "User '#{User.session}' has logged in via kerberos"
+        session[:login] = User.session.login
+        redirect_back_or_to root_path
+        true
+      end
+    else
+      # Demand kerberos negotiation
+      response.headers['WWW-Authenticate'] = 'Negotiate'
+      render :new, status: :unauthorized
+      nil
+    end
   end
 
   def check_user

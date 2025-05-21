@@ -1,3 +1,4 @@
+require 'gssapi' if CONFIG['kerberos_service_principal']
 require 'api_error'
 
 class Authenticator
@@ -85,9 +86,59 @@ class Authenticator
 
   private
 
+  def initialize_krb_session
+    principal = CONFIG['kerberos_service_principal']
+
+    raise AuthenticationRequiredError, 'Kerberos configuration is broken. Principal is empty.' if principal.blank?
+
+    CONFIG['kerberos_realm'] = principal.rpartition('@')[2] unless CONFIG['kerberos_realm']
+
+    krb = GSSAPI::Simple.new(
+      principal.partition('/')[2].rpartition('@')[0],
+      principal.partition('/')[0],
+      CONFIG['kerberos_keytab'] || '/etc/krb5.keytab'
+    )
+    krb.acquire_credentials
+
+    krb
+  end
+
   def raise_and_invalidate(authorization, message = '')
     @response.headers['WWW-Authenticate'] = authorization.join(' ')
     raise AuthenticationRequiredError, message
+  end
+
+  def extract_krb_user(authorization)
+    unless authorization[1]
+      Rails.logger.debug "Didn't receive any negotiation data."
+      raise_and_invalidate(authorization, 'GSSAPI negotiation failed.')
+    end
+
+    begin
+      krb = initialize_krb_session
+
+      begin
+        tok = krb.accept_context(Base64.strict_decode64(authorization[1]))
+      rescue GSSAPI::GssApiError, ArgumentError
+        raise_and_invalidate(authorization, 'Received invalid GSSAPI context.')
+      end
+
+      raise_and_invalidate(authorization, 'User authenticated in wrong Kerberos realm.') unless krb.display_name.match?("@#{CONFIG['kerberos_realm']}$")
+
+      unless tok == true
+        tok = Base64.strict_encode64(tok)
+        @response.headers['WWW-Authenticate'] = "Negotiate #{tok}"
+      end
+
+      @login = krb.display_name.partition('@')[0]
+      @http_user = User.find_by_login(@login)
+      unless @http_user
+        Rails.logger.debug { "Creating account for user '#{@login}'" }
+        @http_user = User.create_user_with_fake_pw!(login: @login, state: User.default_user_state)
+      end
+    rescue GSSAPI::GssApiError => e
+      raise AuthenticationRequiredError, "Received a GSSAPI exception; #{e.message}."
+    end
   end
 
   def extract_basic_user(authorization)
@@ -129,6 +180,8 @@ class Authenticator
       # logger.debug( "AUTH2: #{authorization}" )
       if authorization[0] == 'Basic'
         extract_basic_user(authorization)
+      elsif authorization[0] == 'Negotiate' && CONFIG['kerberos_mode']
+        extract_krb_user(authorization)
       else
         Rails.logger.debug { "Unsupported authentication string '#{authorization[0]}' received." }
       end

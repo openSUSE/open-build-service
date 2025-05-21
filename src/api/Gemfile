@@ -59,6 +59,8 @@ gem 'xmlrpc'
 gem 'flipper'
 gem 'flipper-active_record'
 gem 'flipper-ui'
+# for kerberos authentication
+gem 'gssapi', require: false
 # for sending events to rabbitmq
 gem 'bunny'
 # for making changes to existing data

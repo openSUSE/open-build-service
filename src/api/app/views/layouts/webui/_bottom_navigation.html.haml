@@ -14,7 +14,7 @@
             %i.fas.fa-ellipsis-v
             %span.d-block Actions
     - else
-      - unless !can_sign_up?
+      - unless kerberos_mode? || !can_sign_up?
         %li.nav-item.border-end.border-gray-500
           = sign_up_link(css_class: 'nav-link px-1 py-2 text-light')
       %li.nav-item

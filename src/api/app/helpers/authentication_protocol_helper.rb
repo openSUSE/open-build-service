@@ -1,4 +1,8 @@
 module AuthenticationProtocolHelper
+  def kerberos_mode?
+    CONFIG['kerberos_mode']
+  end
+
   def can_sign_up?
     return CONFIG['proxy_auth_register_page'].present? if ::Configuration.proxy_auth_mode_enabled?
 
@@ -6,6 +10,7 @@ module AuthenticationProtocolHelper
   end
 
   def can_register?
+    return false if kerberos_mode?
     return true if User.admin_session?
 
     begin
