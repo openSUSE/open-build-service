@@ -10,6 +10,7 @@ namespace :dev do
     project = RakeSupport.find_or_create_project('home:Admin', admin)
     package = Package.where(name: 'hello_world', project: project).first ||
               create(:package_with_files, name: 'hello_world', project: project)
-    Assignment.create!(assigner: admin, assignee: iggy, package: package)
+    Relationship.find_or_create_by(user: iggy, package: package, role: Role.hashed['maintainer'])
+    Assignment.find_or_create_by(assigner: admin, assignee: iggy, package: package)
   end
 end
