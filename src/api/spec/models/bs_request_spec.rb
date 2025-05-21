@@ -118,8 +118,8 @@ RSpec.describe BsRequest, :vcr do
 
     it 'fails with not found' do
       expect { request.addreview(by_user: 'NOEXIST') }.to raise_error do |exception|
-        expect(exception).to be_a(NotFoundError)
-        expect(exception.message).to eq('User not found')
+        expect(exception).to be_a(BsRequest::Errors::InvalidReview)
+        expect(exception.message).to eq("Review invalid: User can't be blank")
       end
     end
   end
