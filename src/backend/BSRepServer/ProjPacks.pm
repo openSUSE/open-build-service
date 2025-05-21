@@ -148,11 +148,12 @@ sub getconfig {
     $config .= "%define _is_this_project $new_is_this_project\n" if $new_is_this_project ne $old_is_this_project;
     $config .= "%define _is_in_project $new_is_in_project\n" if $new_is_in_project ne $old_is_in_project;
     ($old_is_this_project, $old_is_in_project) = ($new_is_this_project, $new_is_in_project);
+    $config .= "#!!line $p:0\n";
 
     # get rid of the Macros sections
-    my $s1 = '^\s*macros:\s*$.*?^\s*:macros\s*$';
+    my $s1 = '^[ \t]*macros:[ \t]*$(.*?)^[ \t]*:macros[ \t]*$';
     my $s2 = '^\s*macros:\s*$.*\Z';
-    $c =~ s/$s1//gmsi;
+    $c =~ s/$s1/$1 =~ tr!\n!!cdr/gmsie;		# keep newlines
     $c =~ s/$s2//gmsi;
     $config .= $c;
   }

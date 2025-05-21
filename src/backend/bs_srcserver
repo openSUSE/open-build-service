@@ -2675,6 +2675,7 @@ sub concatconfigs {
     $config .= "%define _is_this_project $new_is_this_project\n" if $new_is_this_project ne $old_is_this_project;
     $config .= "%define _is_in_project $new_is_in_project\n" if $new_is_in_project ne $old_is_in_project;
     ($old_is_this_project, $old_is_in_project) = ($new_is_this_project, $new_is_in_project);
+    $config .= "#!!line $p:0\n";
 
     if ($c =~ /^\s*:macros\s*$/im) {
       # probably some multiple macro sections with %if statements
