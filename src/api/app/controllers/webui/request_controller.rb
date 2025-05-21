@@ -16,7 +16,7 @@ class Webui::RequestController < Webui::WebuiController
   before_action :set_actions, only: %i[inline_comment beta_show build_results rpm_lint changes changes_diff mentioned_issues chart_build_results complete_build_results request_action_changes request_action_details],
                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_actions_deprecated, only: [:show]
-  before_action :set_action, only: %i[inline_comment beta_show build_results rpm_lint changes changes_diff mentioned_issues request_action_details],
+  before_action :set_action, only: %i[inline_comment beta_show build_results rpm_lint changes changes_diff mentioned_issues request_action_details request_action_changes],
                              if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :set_influxdb_data_request_actions, only: %i[beta_show build_results rpm_lint changes changes_diff mentioned_issues],
                                                     if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
@@ -24,15 +24,28 @@ class Webui::RequestController < Webui::WebuiController
   before_action :check_ajax, only: :sourcediff
   before_action :prepare_request_data, only: %i[beta_show build_results rpm_lint changes mentioned_issues],
                                        if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :cache_diff_data, only: %i[beta_show build_results rpm_lint changes mentioned_issues],
+  before_action :prepare_request_header_data, only: %i[beta_show build_results rpm_lint changes mentioned_issues],
+                                              if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+  before_action :cache_diff_data, only: %i[changes request_action_changes],
                                   if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :check_beta_user_redirect, only: %i[beta_show build_results rpm_lint changes mentioned_issues]
 
   after_action :verify_authorized, only: [:create]
 
   def beta_show
-    @current_notification = handle_notification
+    @is_target_maintainer = @bs_request.target_maintainer?(User.session)
+    @my_open_reviews = ReviewsFinder.new(@bs_request.reviews).open_reviews_for_user(User.session).reject(&:staging_project?)
     @history_elements = @bs_request.history_elements.includes(:user)
+    @request_reviews = @bs_request.reviews.includes(%i[user group]).for_non_staging_projects(@target_project)
+
+    # retrieve a list of all package maintainers that are assigned to at least one target package
+    @package_maintainers = target_package_maintainers
+    # retrieve a list of all project maintainers
+    @project_maintainers = @target_project&.maintainers || []
+    # search for a project, where the user is not a package maintainer but a project maintainer and show
+    # a hint if that package has some package maintainers (issue#1970)
+    @show_project_maintainer_hint = !@package_maintainers.empty? && @package_maintainers.exclude?(User.session) && any_project_maintained_by_current_user?
+
     @active_tab = 'conversation'
   end
 
@@ -179,10 +192,6 @@ class Webui::RequestController < Webui::WebuiController
 
   def request_action_changes
     return head :unauthorized unless @actions
-
-    @action = @actions.where(id: params['id'].to_i).first
-
-    cache_diff_data
 
     respond_to do |format|
       format.js
@@ -542,45 +551,32 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def cache_diff_data
-    return unless @action.diff_not_cached({ diff_to_superseded: @diff_to_superseded })
+    @diff_not_cached = @action.diff_not_cached({ diff_to_superseded: @diff_to_superseded })
+    return unless @diff_not_cached
 
     job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{@action.to_global_id.uri}%").count
     BsRequestActionWebuiInfosJob.perform_later(@action) if job.zero?
   end
 
+  # Shared data used in multiple views (request conversation, request build results, etc)
   def prepare_request_data
-    @is_target_maintainer = @bs_request.target_maintainer?(User.session)
-    @my_open_reviews = ReviewsFinder.new(@bs_request.reviews).open_reviews_for_user(User.session).reject(&:staging_project?)
-
-    # Handling request actions
     @action ||= @actions.first
+    @target_project = Project.find_by_name(@bs_request.target_project_name)
+
+    # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
+    @issues = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded, cacheonly: 1, nodiff: 1 }).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
+    # Handling build results
+    @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
+  end
+
+  def prepare_request_header_data
+    @current_notification = handle_notification
     action_index = @actions.index(@action)
     if action_index
       @prev_action = @actions[action_index - 1] unless action_index.zero?
       @next_action = @actions[action_index + 1] if action_index + 1 < @actions.length
     end
-
-    target_project = Project.find_by_name(@bs_request.target_project_name)
-    @request_reviews = @bs_request.reviews.includes(%i[user group]).for_non_staging_projects(target_project)
-    @staging_status = staging_status(@bs_request, target_project) if Staging::Workflow.find_by(project: target_project)
-
-    # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
-    @issues = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded, cacheonly: 1 }).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
-
-    # retrieve a list of all package maintainers that are assigned to at least one target package
-    @package_maintainers = target_package_maintainers
-
-    # retrieve a list of all project maintainers
-    @project_maintainers = target_project&.maintainers || []
-
-    # search for a project, where the user is not a package maintainer but a project maintainer and show
-    # a hint if that package has some package maintainers (issue#1970)
-    @show_project_maintainer_hint = !@package_maintainers.empty? && @package_maintainers.exclude?(User.session) && any_project_maintained_by_current_user?
-
-    # Handling build results
-    @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
-
-    @current_notification = handle_notification
+    @staging_status = staging_status(@bs_request, @target_project) if Staging::Workflow.find_by(project: @target_project)
   end
 
   def set_influxdb_data_request_actions

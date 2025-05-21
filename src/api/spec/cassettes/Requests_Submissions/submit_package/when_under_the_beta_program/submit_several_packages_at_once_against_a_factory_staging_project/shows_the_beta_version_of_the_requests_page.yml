@@ -1429,4 +1429,520 @@ http_interactions:
 
 '
   recorded_at: Mon, 14 Oct 2024 13:33:50 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:madam_submitter/package_a?cacheonly=1&cmd=diff&expand=1&nodiff=1&orev=0&rev=3&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Request-Id:
+      - 8b167e59-9f0c-4aed-b7fc-d5937d53d2d7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home madam_submitter' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:madam_submitter' does not exist</summary>
+          <details>404 project 'home:madam_submitter' does not exist</details>
+        </status>
+  recorded_at: Mon, 19 May 2025 10:01:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>An Acceptable Time</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '111'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>An Acceptable Time</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 19 May 2025 10:09:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_project/_staging_workflow?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="openSUSE:Factory" managers="group_1">
+          <staging_project name="openSUSE:Factory:Staging:A"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3">
+          <srcmd5>855ca4c8a51f444848eca1a4a8164fe6</srcmd5>
+          <time>1747649393</time>
+          <user>user_3</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 19 May 2025 10:09:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/_meta?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title/>
+          <description/>
+          <group groupid="group_1" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '150'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title></title>
+          <description></description>
+          <group groupid="group_1" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 19 May 2025 10:09:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_project/_staging_workflow?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="openSUSE:Factory" managers="group_1">
+          <staging_project name="openSUSE:Factory:Staging:A"/>
+          <staging_project name="openSUSE:Factory:Staging:B"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4">
+          <srcmd5>761abadd20bf5e8eb79df3df4aad59fc</srcmd5>
+          <time>1747649393</time>
+          <user>user_3</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 19 May 2025 10:09:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:B/_meta?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title/>
+          <description/>
+          <group groupid="group_1" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '150'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title></title>
+          <description></description>
+          <group groupid="group_1" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 19 May 2025 10:09:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>An Acceptable Time</title>
+          <description/>
+          <group groupid="group_1" role="reviewer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>An Acceptable Time</title>
+          <description></description>
+          <group groupid="group_1" role="reviewer"/>
+        </project>
+  recorded_at: Mon, 19 May 2025 10:09:53 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>Butter In a Lordly Dish</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '116'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>Butter In a Lordly Dish</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 19 May 2025 10:11:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_project/_staging_workflow?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="openSUSE:Factory" managers="group_1">
+          <staging_project name="openSUSE:Factory:Staging:A"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="5">
+          <srcmd5>855ca4c8a51f444848eca1a4a8164fe6</srcmd5>
+          <time>1747649486</time>
+          <user>user_4</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 19 May 2025 10:11:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/_meta?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title/>
+          <description/>
+          <group groupid="group_1" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '150'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title></title>
+          <description></description>
+          <group groupid="group_1" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 19 May 2025 10:11:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_project/_staging_workflow?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="openSUSE:Factory" managers="group_1">
+          <staging_project name="openSUSE:Factory:Staging:A"/>
+          <staging_project name="openSUSE:Factory:Staging:B"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="6">
+          <srcmd5>761abadd20bf5e8eb79df3df4aad59fc</srcmd5>
+          <time>1747649486</time>
+          <user>user_4</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 19 May 2025 10:11:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:B/_meta?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title/>
+          <description/>
+          <group groupid="group_1" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '150'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title></title>
+          <description></description>
+          <group groupid="group_1" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 19 May 2025 10:11:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>Butter In a Lordly Dish</title>
+          <description/>
+          <group groupid="group_1" role="reviewer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '161'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>Butter In a Lordly Dish</title>
+          <description></description>
+          <group groupid="group_1" role="reviewer"/>
+        </project>
+  recorded_at: Mon, 19 May 2025 10:11:26 GMT
 recorded_with: VCR 6.3.1

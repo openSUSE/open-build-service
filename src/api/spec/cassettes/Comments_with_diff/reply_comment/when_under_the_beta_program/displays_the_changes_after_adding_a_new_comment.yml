@@ -1090,4 +1090,55 @@ http_interactions:
           </issues>
         </sourcediff>
   recorded_at: Mon, 21 Oct 2024 07:55:34 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/source_project/package_a?cacheonly=1&cmd=diff&expand=1&nodiff=1&opackage=target_package&oproject=target_project&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      X-Request-Id:
+      - 86106f90-b1ac-4b56-b63c-7a8b5f80e0dd
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '686'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="ad57057dd5553ff7ca51441e292130d5">
+          <old project="target_project" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="source_project" package="package_a" rev="3" srcmd5="f08f245055966774ee632b482a2551c1"/>
+          <files>
+            <file state="added">
+              <new name="README.txt" md5="36398508669da719c8affa363e394181" size="60"/>
+            </file>
+            <file state="added">
+              <new name="package_a.changes" md5="3bf7f645ebf1daed37ac2524846a9e7c" size="14"/>
+            </file>
+            <file state="added">
+              <new name="package_a.spec" md5="674078c9d96283bf095d60ffe47009a0" size="470"/>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Mon, 19 May 2025 10:20:33 GMT
 recorded_with: VCR 6.3.1

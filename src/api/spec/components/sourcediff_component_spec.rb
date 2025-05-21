@@ -13,7 +13,7 @@ RSpec.describe SourcediffComponent, :vcr, type: :component do
 
   context 'with a request with a submit action' do
     before do
-      render_inline(described_class.new(bs_request: bs_request, action: bs_request.bs_request_actions.last))
+      render_inline(described_class.new(bs_request: bs_request, action: bs_request.bs_request_actions.last, diff_not_cached: false))
     end
 
     it 'renders the turbo frame' do
