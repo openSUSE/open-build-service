@@ -2,6 +2,7 @@
 //
 //= link webui/application.css
 //= link webui/application.js
+//= link webui/canned_responses.js
 //= link webui/cm2/codemirror-file.js
 //= link webui/cm2/codemirror-prjconf.js
 //= link webui/cm2/codemirror-xml.js
