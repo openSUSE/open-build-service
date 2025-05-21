@@ -830,7 +830,7 @@ class BsRequestAction < ApplicationRecord
   def commit_details
     return nil if source_rev.nil? || source_package_object.nil?
 
-    source_package_obj.commit(source_rev) || source_package_obj.commit
+    source_package_object.commit(source_rev) || source_package_object.commit
   end
 
   def toggle_seen_by(user)
