@@ -3743,6 +3743,8 @@ sub generate_slsa_provenance_statement_v1 {
   my $external_params = $stmt->{'predicate'}->{'buildDefinition'}->{'externalParameters'};
   $external_params->{'release'} = $buildinfo->{'release'} if defined $buildinfo->{'release'};
   $external_params->{'buildflavor'} = $buildinfo->{'buildflavor'} if defined $buildinfo->{'buildflavor'};
+  $external_params->{'disturl'} = $buildinfo->{'provenance_disturl'} if defined $buildinfo->{'provenance_disturl'};
+  $external_params->{'vcs'} = $buildinfo->{'provenance_vcs'} if defined $buildinfo->{'provenance_vcs'};
   return provenance_tojson($stmt);
 }
 
@@ -3992,6 +3994,11 @@ sub dobuild {
   my $release = $buildinfo->{'release'};
   my $disturl;
   $disturl = $buildinfo->{'disturl'} if $buildinfo->{'disturl'} && !$bconf->{'buildflags:nodisturl'};
+  my $vcs;
+  $vcs = $buildinfo->{'vcs'} if $buildinfo->{'vcs'} && $bconf->{'buildflags:setvcs'};
+
+  $buildinfo->{'provenance_disturl'} = $disturl if $disturl;
+  $buildinfo->{'provenance_vcs'} = $vcs if $vcs;
 
   my @args;
   push @args, $helper if $helper;
@@ -4110,7 +4117,7 @@ sub dobuild {
   push @args, '--disturl', $disturl if $disturl;
   push @args, '--linksources' if $localkiwi;
   push @args, '--signdummy' if $imagemode && ($imagemode eq 'kiwiproduct' || $imagemode eq 'productcompose') && -e "$statedir/build/signdummy";
-  push @args, '--vcs', $buildinfo->{'vcs'} if $buildinfo->{'vcs'} && $bconf->{'buildflags:setvcs'};
+  push @args, '--vcs', $vcs if $vcs;
   if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
     $packid =~ /^(.*):(.*?)$/;
     push @args, "--obspackage=$1" if $needsobspackage;
