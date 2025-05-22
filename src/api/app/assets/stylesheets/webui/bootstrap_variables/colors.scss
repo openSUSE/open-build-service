@@ -17,3 +17,19 @@ $info:      $custom-cyan;
 $warning:   $custom-yellow;
 
 $link-color: $custom-blue;
+
+
+// Add custom-gray theme color
+//
+// Reference: https://getbootstrap.com/docs/5.3/customize/color-modes/#adding-theme-colors
+
+@import "bootstrap/functions";
+@import "bootstrap/variables";
+@import "bootstrap/variables-dark";
+
+// Add a custom color to $theme-colors
+$custom-colors: (
+  "custom-gray": $gray-700
+);
+
+$theme-colors: map-merge($theme-colors, $custom-colors);
