@@ -128,7 +128,7 @@ class User < ApplicationRecord
   validates :password, confirmation: true, allow_blank: true
   validates :biography, length: { maximum: MAX_BIOGRAPHY_LENGTH_ALLOWED }
   validates :rss_secret, uniqueness: true, length: { maximum: 200 }, allow_blank: true
-  validates :color_theme, inclusion: { in: color_themes.keys }, if: -> { Flipper.enabled?('color_themes') }
+  validates :color_theme, inclusion: { in: color_themes.keys }
 
   after_create :create_home_project, :measure_create
   after_update :measure_delete
