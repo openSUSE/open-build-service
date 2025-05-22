@@ -41,8 +41,8 @@ module Backend
 
         # Returns the meta file from a package
         # @return [String]
-        def self.meta(project_name, package_name)
-          http_get(['/source/:project/:package/_meta', project_name, package_name])
+        def self.meta(project_name, package_name, options = {})
+          http_get(['/source/:project/:package/_meta', project_name, package_name], params: options.compact, accepted: :deleted)
         end
 
         # Returns the content of the _service file (if present)
