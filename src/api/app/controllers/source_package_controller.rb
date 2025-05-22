@@ -1,7 +1,6 @@
 class SourcePackageController < SourceController
   before_action :require_valid_project_name
-  before_action :set_target_project_name, only: %i[show delete]
-  before_action :set_target_package_name, only: %i[show delete]
+  before_action :require_valid_package_name
 
   # GET /source/:project/:package
   def show
