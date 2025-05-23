@@ -742,7 +742,7 @@ class BsRequestAction < ApplicationRecord
     sp = Package.find_by_project_and_name(source_project, source_package)
     if sp.nil?
       # either not there or read permission problem
-      if Package.exists_on_backend?(source_package, source_project)
+      if Package.exists_on_backend?(source_project, source_package)
         # user is not allowed to read the source, but when they can write
         # the target, the request creator (who must have permissions to read source)
         # wanted the target owner to review it
