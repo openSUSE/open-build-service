@@ -206,7 +206,7 @@ class SourcePackageCommandController < SourceController
     # check for sources in this or linked project
     unless @package
       # check if this is a package on a remote OBS instance
-      answer = Package.exists_on_backend?(@target_package_name, @target_project_name)
+      answer = Package.exists_on_backend?(@target_project_name, @target_package_name)
       unless answer
         render_error status: 400, errorcode: 'unknown_package',
                      message: "Unknown package '#{params[:package]}'"
