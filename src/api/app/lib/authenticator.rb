@@ -99,7 +99,7 @@ class Authenticator
 
   def extract_proxy_user
     # disable legacy proxy mode
-    Rails.logger.debug '>>>>>>>>>>> Legacy proxy user mode disabled'
+    Rails.logger.warn '>>>>>>>>>>> Legacy proxy user mode disabled'
     return
 
     proxy_user = request.env['HTTP_X_USERNAME']
