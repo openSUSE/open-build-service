@@ -281,7 +281,7 @@ class Webui::PackageController < Webui::WebuiController
     repository = valid_xml_id(elide(params[:repository], 30)) if params[:repository].present?
     architecture = params[:architecture] if params[:architecture].present?
 
-    @repo_arch_hash = {}
+    repo_arch_hash = {}
     @buildresult = Buildresult.find_hashed(project: @project.to_param, package: @package.to_param, view: 'status')
     repos = [] # Temp var
     if @buildresult
@@ -289,26 +289,26 @@ class Webui::PackageController < Webui::WebuiController
         if result.value('repository') != 'images' &&
            result.value('status') && result.value('status').value('code') != 'excluded'
           hash_key = valid_xml_id(elide(result.value('repository'), 30))
-          @repo_arch_hash[hash_key] ||= []
-          @repo_arch_hash[hash_key] << result['arch']
+          repo_arch_hash[hash_key] ||= []
+          repo_arch_hash[hash_key] << result['arch']
           repos << result.value('repository')
         end
       end
     end
 
-    @repo_list = repos.uniq.collect do |repo_name|
+    repo_list = repos.uniq.collect do |repo_name|
       [repo_name, valid_xml_id(elide(repo_name, 30))]
     end
 
     if Flipper.enabled?(:request_show_redesign, User.session)
       render 'webui/package/beta/rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
                                                             repository: repository, architecture: architecture,
-                                                            repository_list: @repo_list, repo_arch_hash: @repo_arch_hash }
+                                                            repository_list: repo_list, repo_arch_hash: repo_arch_hash }
     else
-      render partial: 'no_repositories', locals: { project: @project } if @repo_list.empty?
+      render partial: 'no_repositories', locals: { project: @project } if repo_list.empty?
 
       render partial: 'rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
-                                                  repository_list: @repo_list, repo_arch_hash: @repo_arch_hash }
+                                                  repository_list: repo_list, repo_arch_hash: repo_arch_hash }
     end
   end
 
