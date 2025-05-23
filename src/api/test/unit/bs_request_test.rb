@@ -85,9 +85,9 @@ class BsRequestTest < ActiveSupport::TestCase
         <state name="review" who="Iggy" when="2012-11-07T21:13:12">
           <comment>No comment</comment>
         </state>
-        <review state="new" when="2017-09-01T09:11:11" by_user="adrian"/>
-        <review state="new" when="2017-09-01T09:11:11" by_group="test_group"/>
-        <review state="accepted" when="2012-11-07T21:13:12" who="tom" by_user="tom">
+        <review state="new" created="2012-11-07T00:00:00" when="2017-09-01T09:11:11" by_user="adrian"/>
+        <review state="new" created="2012-11-07T00:00:00" when="2017-09-01T09:11:11" by_group="test_group"/>
+        <review state="accepted" created="2012-11-07T00:00:00" when="2012-11-07T21:13:12" who="tom" by_user="tom">
           <comment>review1</comment>
         </review>
         <review state="new" when="2012-11-07T21:13:13" who="tom" by_user="tom">
@@ -119,12 +119,12 @@ class BsRequestTest < ActiveSupport::TestCase
         <state name="review" who="Iggy" when="2012-11-07T21:13:12" created="2012-11-07T00:00:00">
           <comment>No comment</comment>
         </state>
-        <review state="new" when="2017-09-01T09:11:11" by_user="adrian"/>
-        <review state="new" when="2017-09-01T09:11:11" by_group="test_group"/>
-        <review state="new" when="2012-11-07T21:13:12" who="tom" by_user="tom">
+        <review state="new" created="2012-11-07T00:00:00" when="2017-09-01T09:11:11" by_user="adrian"/>
+        <review state="new" created="2012-11-07T00:00:00" when="2017-09-01T09:11:11" by_group="test_group"/>
+        <review state="new" created="2012-11-07T00:00:00" when="2012-11-07T21:13:12" who="tom" by_user="tom">
           <comment>review1</comment>
         </review>
-        <review state="new" when="2012-11-07T21:13:13" who="tom" by_user="tom">
+        <review state="new" created="2012-11-07T00:00:00" when="2012-11-07T21:13:13" who="tom" by_user="tom">
           <comment>please accept</comment>
         </review>
         <description>Left blank</description>
