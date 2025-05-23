@@ -1,3 +1,4 @@
+-# haml-lint:disable LineLength
 .row.mb-4.mt-2
   .col-md-12
     = render partial: 'webui/request/build_results_filters', locals: { package_names:package_names,
@@ -48,4 +49,8 @@
                                                                                                              project_name,
                                                                                                              package_name,
                                                                                                              repository_name,
-                                                                                                             result[:architecture]) }
+                                                                                                             result[:architecture]),
+                                                                                     rpm_lint_url: rpmlint_result_path(project_name, package_name,
+                                                                                                                       params: { repository: repository_name,
+                                                                                                                                 architecture: result[:architecture] } ) }
+-# haml-lint:enable LineLength

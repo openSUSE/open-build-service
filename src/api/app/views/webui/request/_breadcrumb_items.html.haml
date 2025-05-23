@@ -9,7 +9,6 @@
   :ruby
     current_page = current_page?(request_show_path(@bs_request.number, params[:request_action_id])) ||
                   current_page?(request_build_results_path(@bs_request.number, params[:request_action_id])) ||
-                  current_page?(request_rpm_lint_path(@bs_request.number, params[:request_action_id])) ||
                   current_page?(request_changes_path(@bs_request.number, params[:request_action_id])) ||
                   current_page?(request_mentioned_issues_path(@bs_request.number, params[:request_action_id]))
   - if current_page

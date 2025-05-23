@@ -1,3 +1,4 @@
+-# haml-lint:disable LineLength
 - if raw_data.size.positive?
   .m-4
     .mb-4
@@ -37,4 +38,9 @@
                                                                                                          result[:project_name],
                                                                                                          result[:package_name],
                                                                                                          result[:repository],
-                                                                                                         result[:architecture]) }
+                                                                                                         result[:architecture]),
+                                                                                 rpm_lint_url: rpmlint_result_path(result[:project_name],
+                                                                                                                   result[:package_name],
+                                                                                                                   params: { repository: result[:repository],
+                                                                                                                             architecture: result[:architecture] } ) }
+-# haml-lint:enable LineLength

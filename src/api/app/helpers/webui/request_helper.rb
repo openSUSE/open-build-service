@@ -184,8 +184,6 @@ module Webui::RequestHelper
     case opts[:page_name]
     when 'request_build_results'
       request_build_results_path(parameters)
-    when 'request_rpm_lint'
-      request_rpm_lint_path(parameters)
     when 'request_changes'
       request_changes_path(parameters)
     when 'request_mentioned_issues'

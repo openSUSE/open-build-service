@@ -96,8 +96,8 @@ constraints(RoutesHelper::WebuiMatcher) do
       get 'package/view_file/:project/:package/:filename', to: redirect('/projects/%{project}/packages/%{package}/files/%{filename}'), constraints: cons
       get 'package/devel_project/:project/:package' => :devel_project, constraints: cons, as: 'package_devel_project'
       get 'package/buildresult' => :buildresult, constraints: cons, as: 'package_buildresult'
-      get 'package/rpmlint_result' => :rpmlint_result, constraints: cons, as: 'rpmlint_result'
-      get 'package/rpmlint_log' => :rpmlint_log, constraints: cons
+      get 'package/rpmlint_result(/:project)(/:package)' => :rpmlint_result, constraints: cons, as: 'rpmlint_result'
+      get 'package/rpmlint_log(/:project)(/:package)' => :rpmlint_log, constraints: cons
       # For backward compatibility
       get 'package/meta/:project/:package', to: redirect('/projects/%{project}/packages/%{package}/meta'), constraints: cons
       # For backward compatibility
@@ -332,8 +332,6 @@ constraints(RoutesHelper::WebuiMatcher) do
 
   get 'request/show/:number/build_results', to: redirect('/requests/%{number}/build_results'), constraints: cons
   get 'request/show/:number/(request_action/:request_action_id)/build_results', to: redirect('/requests/%{number}/actions/%{request_action_id}/build_results'), constraints: cons
-  get 'request/show/:number/rpm_lint', to: redirect('/requests/%{number}/rpm_lint'), constraints: cons
-  get 'request/show/:number/(request_action/:request_action_id)/rpm_lint', to: redirect('/requests/%{number}/actions/%{request_action_id}/rpm_lint'), constraints: cons
   get 'request/show/:number/changes', to: redirect('/requests/%{number}/changes'), constraints: cons
   get 'request/show/:number/(request_action/:request_action_id)/changes', to: redirect('/requests/%{number}/actions/%{request_action_id}/changes'), constraints: cons
   get 'request/show/:number/mentioned_issues', to: redirect('/requests/%{number}/mentioned_issues'), constraints: cons
@@ -346,7 +344,6 @@ constraints(RoutesHelper::WebuiMatcher) do
     # TODO: Simplify this with `resources` instead after rolling out `:request_show_redesign` feature
     get 'requests/:number/(actions/:request_action_id)' => :beta_show, as: 'request_beta_show', constraints: cons
     get 'requests/:number/(actions/:request_action_id)/build_results' => :build_results, as: 'request_build_results', constraints: cons
-    get 'requests/:number/(actions/:request_action_id)/rpm_lint' => :rpm_lint, as: 'request_rpm_lint', constraints: cons
     get 'requests/:number/(actions/:request_action_id)/changes' => :changes, as: 'request_changes', constraints: cons
     get 'requests/:number/actions/:request_action_id/changes/:filename' => :changes_diff, as: 'request_changes_diff', constraints: cons
     get 'requests/:number/(actions/:request_action_id)/mentioned_issues' => :mentioned_issues, as: 'request_mentioned_issues', constraints: cons

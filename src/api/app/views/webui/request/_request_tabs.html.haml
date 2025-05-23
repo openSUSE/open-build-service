@@ -7,10 +7,6 @@
       %li.nav-item.scrollable-tab-link.active
         = link_to('Build Results', request_build_results_path(bs_request.number, actions_count > 1 ? action : nil),
                   class: "nav-link text-nowrap #{active_tab == 'build_results' ? 'active' : ''}")
-    - if action.tab_visibility.rpm_lint
-      %li.nav-item.scrollable-tab-link
-        = link_to('RPM Lint', request_rpm_lint_path(bs_request.number, actions_count > 1 ? action : nil),
-                  class: "nav-link text-nowrap #{active_tab == 'rpm_lint' ? 'active' : ''}")
     - if action.tab_visibility.changes
       %li.nav-item.scrollable-tab-link
         = link_to('Changes', request_changes_path(bs_request.number, actions_count > 1 ? action : nil),

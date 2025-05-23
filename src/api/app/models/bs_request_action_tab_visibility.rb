@@ -9,10 +9,6 @@ class BsRequestActionTabVisibility
     source_package && !patchinfo_package
   end
 
-  def rpm_lint
-    build
-  end
-
   def changes
     (@action.type == :delete && @action.source_package) || @action.type.in?(CHANGES_TABS)
   end

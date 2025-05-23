@@ -20,7 +20,7 @@ class Webui::PackageController < Webui::WebuiController
                                            buildresult rpmlint_result rpmlint_log files users]
   # rubocop:enable Rails/LexicallyScopedActionFilter
 
-  before_action :check_ajax, only: %i[devel_project buildresult rpmlint_result]
+  before_action :check_ajax, only: %i[devel_project buildresult]
   # make sure it's after the require_, it requires both
   before_action :require_login, except: %i[show index branch_diff_info
                                            users requests statistics revisions view_file
@@ -278,7 +278,10 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def rpmlint_result
-    @repo_arch_hash = {}
+    repository = valid_xml_id(elide(params[:repository], 30)) if params[:repository].present?
+    architecture = params[:architecture] if params[:architecture].present?
+
+    repo_arch_hash = {}
     @buildresult = Buildresult.find_hashed(project: @project.to_param, package: @package.to_param, view: 'status')
     repos = [] # Temp var
     if @buildresult
@@ -286,26 +289,26 @@ class Webui::PackageController < Webui::WebuiController
         if result.value('repository') != 'images' &&
            result.value('status') && result.value('status').value('code') != 'excluded'
           hash_key = valid_xml_id(elide(result.value('repository'), 30))
-          @repo_arch_hash[hash_key] ||= []
-          @repo_arch_hash[hash_key] << result['arch']
+          repo_arch_hash[hash_key] ||= []
+          repo_arch_hash[hash_key] << result['arch']
           repos << result.value('repository')
         end
       end
     end
 
-    @repo_list = repos.uniq.collect do |repo_name|
+    repo_list = repos.uniq.collect do |repo_name|
       [repo_name, valid_xml_id(elide(repo_name, 30))]
     end
 
-    if @repo_list.empty?
-      render partial: 'no_repositories', locals: { project: @project }
+    if Flipper.enabled?(:request_show_redesign, User.session)
+      render 'webui/package/beta/rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
+                                                            repository: repository, architecture: architecture,
+                                                            repository_list: repo_list, repo_arch_hash: repo_arch_hash }
     else
-      # TODO: this is part of the temporary changes done for 'request_show_redesign'.
-      request_show_redesign_partial = 'webui/request/beta_show_tabs/rpm_lint_result' if params.fetch(:inRequestShowRedesign, false)
+      render partial: 'no_repositories', locals: { project: @project } if repo_list.empty?
 
-      render partial: request_show_redesign_partial || 'rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
-                                                                                   repository_list: @repo_list, repo_arch_hash: @repo_arch_hash,
-                                                                                   is_staged_request: params[:is_staged_request] }
+      render partial: 'rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
+                                                  repository_list: repo_list, repo_arch_hash: repo_arch_hash }
     end
   end
 
