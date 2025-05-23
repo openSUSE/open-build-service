@@ -1,15 +1,14 @@
 require 'builder/xchar'
 
 class SourcePackageCommandController < SourceController
-  SOURCE_UNTOUCHED_COMMANDS = %w[branch diff linkdiff servicediff showlinked rebuild wipe
-                                 waitservice remove_flag set_flag getprojectservices fork].freeze
-  # list of cammands which create the target package
+  # source and meta data of target is not modified
+  SOURCE_UNTOUCHED_COMMANDS = %w[diff linkdiff servicediff showlinked rebuild wipe
+                                 waitservice getprojectservices].freeze
+  # list of cammands which can create the target package (some of them also the project)
   PACKAGE_CREATING_COMMANDS = %w[branch release copy undelete instantiate fork].freeze
-  # list of commands which are allowed even when the project has the package only via a project link
-  READ_COMMANDS = %w[branch diff linkdiff servicediff showlinked getprojectservices release fork].freeze
-  # commands which are fine to operate on external scm managed projects
-  SCM_SYNC_PROJECT_COMMANDS = %w[diff linkdiff showlinked copy remove_flag set_flag runservice fork
-                                 waitservice getprojectservices unlock wipe rebuild collectbuildenv].freeze
+  PROJECT_CREATING_COMMANDS = %w[branch fork].freeze
+  # We need to have maintainership in the project, when the pakage comes from another project
+  BINARY_COMMANDS = %w[rebuild wipe].freeze
 
   # we use an array for the "file" parameter
   skip_before_action :validate_params, only: %i[diff linkdiff servicediff]
@@ -23,7 +22,7 @@ class SourcePackageCommandController < SourceController
   before_action :validate_target_package_name
   before_action :validate_project_name
   before_action :validate_package_name
-  before_action :check_target_access
+  before_action :check_target_permissions
 
   # POST /source/<project>/<package>?cmd=updatepatchinfo
   def updatepatchinfo
@@ -41,9 +40,38 @@ class SourcePackageCommandController < SourceController
     render_ok
   end
 
-  # POST /source/<project>/<package>?cmd=unlock
+  # lock a package
+  # POST /source/<project>/<package>?cmd=lock
+  def lock
+    if @project.scmsync.present? && !@package
+      # a package within a backend managed project
+      path = request.path_info
+      path += build_query_from_hash(params, [:cmd])
+      pass_to_backend(path)
+      return
+    end
+
+    f = @package.flags.find_by_flag_and_status('lock', 'enable')
+    raise Locked, "package '#{@package.project.name}/#{@package.name}' is already locked" if f
+
+    # we should never have a lock-disable, but to be sure drop it in that case
+    @package.flags.of_type('lock').delete_all
+
+    @package.flags.create(flag: 'lock', status: 'enable')
+    @package.store({ comment: params[:comment] })
+
+    render_ok
+  end
+
+  # unlock a package
+  # POST /source/<project>/<package>?cmd=unlock&comment=COMMENT
   def unlock
     required_parameters :comment
+
+    if @project.scmsync.present? && !@package
+      # a package within a backend managed project
+      return Backend::Api::Sources::Package.unlock(@project.name, params[:package])
+    end
 
     p = { comment: params[:comment] }
 
@@ -124,18 +152,17 @@ class SourcePackageCommandController < SourceController
 
   # POST /source/<project>/<package>?cmd=instantiate
   def instantiate
-    project = Project.get_by_name(params[:project])
-    opackage = Package.get_by_project_and_name(project.name, params[:package], check_update_project: true)
+    opackage = Package.get_by_project_and_name(@project.name, params[:package], check_update_project: true)
     raise RemoteProjectError, 'Instantiation from remote project is not supported' unless opackage
-    raise CmdExecutionNoPermission, 'package is already intialized here' if project == opackage.project
-    raise CmdExecutionNoPermission, "no permission to execute command 'copy'" unless User.session.can_modify?(project)
+    raise CmdExecutionNoPermission, 'package is already intialized here' if @project == opackage.project
+    raise CmdExecutionNoPermission, "no permission to execute command 'copy'" unless User.session.can_modify?(@project)
     raise CmdExecutionNoPermission, 'no permission to modify source package' unless User.session.can_modify?(opackage, true) # ignore_lock option
 
     opts = {}
     at = AttribType.find_by_namespace_and_name!('OBS', 'MakeOriginOlder')
-    opts[:makeoriginolder] = true if project.attribs.find_by(attrib_type: at) # object or nil
+    opts[:makeoriginolder] = true if @project.attribs.find_by(attrib_type: at) # object or nil
     opts[:makeoriginolder] = true if params[:makeoriginolder]
-    instantiate_container(project, opackage.update_instance, opts)
+    instantiate_container(@project, opackage.update_instance, opts)
     render_ok
   end
 
@@ -179,7 +206,7 @@ class SourcePackageCommandController < SourceController
     # check for sources in this or linked project
     unless @package
       # check if this is a package on a remote OBS instance
-      answer = Package.exists_on_backend?(params[:package], params[:project])
+      answer = Package.exists_on_backend?(@target_project_name, @target_package_name)
       unless answer
         render_error status: 400, errorcode: 'unknown_package',
                      message: "Unknown package '#{params[:package]}'"
@@ -189,7 +216,7 @@ class SourcePackageCommandController < SourceController
 
     options = {}
     if repo_name
-      if @package && @project.repositories.find_by_name(repo_name).nil?
+      if @project.repositories.find_by_name(repo_name).nil?
         render_error status: 400, errorcode: 'unknown_repository',
                      message: "Unknown repository '#{repo_name}'"
         return
@@ -198,7 +225,7 @@ class SourcePackageCommandController < SourceController
     end
     options[:arch] = arch_name if arch_name
 
-    Backend::Api::Sources::Package.rebuild(@project.name, @package.name, options)
+    Backend::Api::Sources::Package.rebuild(@project.name, @target_package_name, options)
 
     render_ok
   end
@@ -250,8 +277,6 @@ class SourcePackageCommandController < SourceController
 
   # POST /source/<project>/<package>?cmd=copy
   def copy
-    verify_can_modify_target!
-
     if @origin_package
       # use real source in case we followed project link
       sproject = params[:oproject] = @origin_package.project.name
@@ -378,10 +403,6 @@ class SourcePackageCommandController < SourceController
 
   # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"&update_project_attribute="alternative_attribute"&comment="message"
   def branch
-    # find out about source and target dependening on command   - FIXME: ugly! sync calls
-    # The branch command may be used just for simulation
-    verify_can_modify_target! if !params[:dryrun] && @target_project_name
-
     ret = BranchPackage.new(params).branch
     if ret[:text]
       render plain: ret[:text]
@@ -395,9 +416,6 @@ class SourcePackageCommandController < SourceController
 
   # POST /source/<project>/<package>?cmd=fork&scmsync="url"&target_project="optional_project"
   def fork
-    # The branch command may be used just for simulation
-    verify_can_modify_target! if @target_project_name
-
     raise MissingParameterError, 'scmsync url is not specified' if params[:scmsync].blank?
 
     ret = BranchPackage.new(params).branch
@@ -462,45 +480,6 @@ class SourcePackageCommandController < SourceController
     @origin_package = Package.get_by_project_and_name(params[:oproject], params[:opackage])
   end
 
-  def check_target_access
-    return if PACKAGE_CREATING_COMMANDS.include?(params[:cmd]) && !Project.exists_by_name(@target_project_name)
-
-    # even when we can create the package, an existing instance must be checked if permissions are right
-    @project = Project.get_by_name(@target_project_name)
-    if (PACKAGE_CREATING_COMMANDS.exclude?(params[:cmd]) || Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(params[:cmd]))) &&
-       (@project.is_a?(String) || @project.scmsync.blank? || SCM_SYNC_PROJECT_COMMANDS.exclude?(params[:cmd]))
-      # is a local project, which is not scm managed. Or using a command not supported for scm projects.
-      validate_target_for_package_command_exists!
-    end
-  end
-
-  def verify_can_modify_target!
-    # we require a target, but are we allowed to modify the existing target ?
-    if Project.exists_by_name(@target_project_name)
-      @project = Project.get_by_name(@target_project_name)
-    else
-      return if User.session.can_create_project?(@target_project_name)
-
-      raise CreateProjectNoPermission, "no permission to create project #{@target_project_name}"
-    end
-
-    if Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: false)
-      verify_can_modify_target_package!
-    elsif !@project.is_a?(Project) || !Pundit.policy(User.session, Package.new(project: @project)).create?
-      raise CmdExecutionNoPermission, "no permission to create package in project #{@target_project_name}"
-    end
-  end
-
-  def verify_can_modify_target_package!
-    return if User.session.can_modify?(@package)
-
-    unless @package.instance_of?(Package)
-      raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " \
-                                      'for unspecified package'
-    end
-    raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " \
-                                    "for package #{@package.name} in project #{@package.project.name}"
-  end
 
   def reparse_backend_package(spackage, sproject)
     answer = Backend::Api::Sources::Package.meta(sproject, spackage)
@@ -520,8 +499,6 @@ class SourcePackageCommandController < SourceController
   end
 
   def _package_command_release_manual_target(pkg, multibuild_container, time_now)
-    verify_can_modify_target!
-
     targetrepo = Repository.find_by_project_and_name(@target_project_name, params[:target_repository])
     raise UnknownRepository, "Repository does not exist #{params[:target_repository]}" unless targetrepo
 
@@ -541,21 +518,58 @@ class SourcePackageCommandController < SourceController
                       comment: "Releasing package #{pkg.name}" })
   end
 
-  def validate_target_for_package_command_exists!
+  # The target is the object we operate on depending on the context of the operation.
+  # if it is a changing operation, we need modification or creation rights, otherwise read access
+  # also figure out the right object to check, esp. with project links, remote links and scmsync in mind
+  def check_target_permissions
     @project = nil
     @package = nil
+    follow_project_links = (SOURCE_UNTOUCHED_COMMANDS.include?(params[:cmd]) || BINARY_COMMANDS.include?(params[:cmd]))
+    use_source = params[:cmd] != 'showlinked'
+    ignore_lock = params[:cmd] == 'unlock'
+    no_modification = SOURCE_UNTOUCHED_COMMANDS.include?(params[:cmd]) && !BINARY_COMMANDS.include?(params[:cmd])
+    no_modification = true if params[:cmd] == "branch" && params[:dryrun]
 
+    object_to_check = nil
+    # check access for package object if it exists for the operation and we would not create it in absence
     unless @target_package_name.in?(%w[_project _pattern])
-      follow_project_links = SOURCE_UNTOUCHED_COMMANDS.include?(params[:cmd])
-      use_source = params[:cmd] != 'showlinked'
-      ignore_lock = params[:cmd] == 'unlock'
+      if Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: follow_project_links) ||
+         !PACKAGE_CREATING_COMMANDS.include?(params[:cmd])
 
-      @package = Package.get_by_project_and_name(@target_project_name, @target_package_name,
-                                                 use_source: use_source, follow_project_links: follow_project_links)
-      if @package # for remote package case it's nil
-        @project = @package.project
-        raise CmdExecutionNoPermission, "no permission to modify package #{@package.name} in project #{@project.name}" unless READ_COMMANDS.include?(params[:cmd]) || User.session.can_modify?(@package, ignore_lock)
+        @package = Package.get_by_project_and_name(@target_project_name,
+                                                   @target_package_name,
+                                                   use_source: use_source,
+                                                   follow_project_links: follow_project_links)
       end
+
+      if @package
+        object_to_check = @package
+        @project = @package.project
+      end
+    end
+
+    # our operation may happen in a different project as the the package lifes
+    if Project.exists_by_name(@target_project_name) || !PROJECT_CREATING_COMMANDS.include?(params[:cmd])
+      @project = Project.get_by_name(@target_project_name) if @target_project_name.present?
+      object_to_check ||= @project
+    end
+
+    # not nice, but commands like release handle permissions themself as
+    # they need to read it from their meta data (eg. releasetarget)
+    return if PACKAGE_CREATING_COMMANDS.include?(params[:cmd]) && !Project.exists_by_name(@target_project_name)
+
+    # we run in project context no matter where the source come from if
+    if (@project.is_a?(Project) && @project.scmsync.present?) ||  # the project is managed via an scm
+       BINARY_COMMANDS.include?(params[:cmd]) ||                  # or it is a binary operation
+       (!@package.is_a?(Package) && PACKAGE_CREATING_COMMANDS.include?(params[:cmd]))# or package instance will get created
+      object_to_check = @project
+    end
+
+    # Do we need to check for modification permissions?
+    raise CmdExecutionNoPermission, "not a modifiable object" if !no_modification && (object_to_check.nil? || object_to_check.is_a?(String))
+    unless no_modification || (!object_to_check.is_a?(String) && User.session.can_modify?(object_to_check, ignore_lock))
+      raise CmdExecutionNoPermission, "no permission to modify package #{object_to_check.name} in project #{object_to_check.project.name}" if object_to_check.is_a?(Package)
+      raise CmdExecutionNoPermission, "no permission to modify project #{object_to_check.name}"
     end
 
     # check read access rights when the package does not exist anymore
