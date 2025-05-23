@@ -708,3 +708,9 @@ function set_gpg_expiry_date {
   [ -z "$EXPIRE" ] && exit 1
 }
 ###############################################################################
+function prepare_gitea {
+
+  [ "$WITH_GITEA" -gt 0 ] &&  obs_setup --gitea
+
+
+}
