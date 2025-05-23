@@ -45,7 +45,7 @@
                         title: 'Decline the request, as the author of the request you can reopen it again.')
         - if policy(@bs_request).accept_request?
           -# Hidden checkbox input to flag make_maintainer option
-          - if accept_with_options_allowed? && show_add_submitter_as_maintainer_option?
+          - if accept_with_options_allowed? && policy(@bs_request).add_creator_as_maintainer?
             .form-check.mb-2.mt-2.d-none
               = check_box_tag('add_submitter_as_maintainer_0', "#{@action.target_project}_#_#{@action.target_package}",
                               false, class: 'form-check-input')
@@ -58,7 +58,7 @@
               = submit_tag('Accept request', name: 'accepted', class: 'btn-link dropdown-item', data: confirmation,
                             title: 'Accept the request, this will apply the changes on the target.')
               -# Accept and make maintainer submit
-              - if accept_with_options_allowed? && show_add_submitter_as_maintainer_option?
+              - if accept_with_options_allowed? && policy(@bs_request).add_creator_as_maintainer?
                 = submit_tag("Accept and make #{@creator} maintainer of #{make_maintainer_of}",
                             name: 'accepted',
                             class: 'btn-link dropdown-item', data: confirmation,
