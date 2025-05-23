@@ -387,6 +387,7 @@ constraints(RoutesHelper::WebuiMatcher) do
       post 'change_password'
       post 'rss_secret'
       get 'edit_account'
+      post 'update_color_theme'
     end
     resource :block, only: %i[create destroy], controller: 'webui/users/block', constraints: cons
   end

@@ -12,6 +12,18 @@
         .toggler.text-center.justify-content-center.nav-item
           = link_to(my_notifications_path, id: 'top-notifications-counter', class: 'nav-link p-0 w-100', alt: 'Notifications') do
             = render partial: 'layouts/webui/unread_notifications_counter', locals: { unread_notifications_count: unread_notifications_count }
+        - if feature_enabled?("color_themes")
+          .toggler.text-center.justify-content-center.nav-item.dropdown
+            = link_to('#', class: 'nav-link dropdown-toggle text-light', id: 'top-navigation-color-theme-dropdown', role: 'button',
+                      'data-bs-toggle': 'dropdown', aria: { haspopup: true, expanded: false }) do
+              %i.fas.fa-lg.fa-palette.fa-fw.me-2{ title: 'Color Theme' }
+            = form_for(User.session, url: update_color_theme_user_path(User.session), method: :post, id: 'color-theme-form') do |f|
+              = f.hidden_field(:login, id: 'user')
+              %ul.dropdown-menu.dropdown-menu-start{ 'aria-labelledby': 'top-navigation-color-theme-dropdown' }
+                - User.color_themes.keys.each do |color_theme|
+                  %li.dropdown-item
+                    %input.nav-link.text-light.p-0.w-100.text-start{ name: 'color_theme', value: color_theme,
+                                                                     type: 'submit', text: color_theme.titleize }
         .toggler.text-center.justify-content-center.nav-item.dropdown
           = link_to('#', class: 'nav-link dropdown-toggle', id: 'top-navigation-profile-dropdown', role: 'button',
                     'data-bs-toggle': 'dropdown', aria: { haspopup: true, expanded: false }) do
