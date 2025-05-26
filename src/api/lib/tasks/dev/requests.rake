@@ -227,6 +227,48 @@ namespace :dev do
       end
     end
 
+    desc 'Creates a request that can be forwarded upon acceptance'
+    task forwardable_request: :development_environment do
+      require 'factory_bot'
+      include FactoryBot::Syntax::Methods
+
+      admin = User.default_admin
+      admin.run_as do
+        home_admin_project = RakeSupport.find_or_create_project(admin.home_project_name, admin)
+        unless Package.find_by_project_and_name('home:Admin', 'hello_world')
+          create(:package, project: home_admin_project, name: 'hello_world')
+        end
+
+        home_admin_branched_data = branch_package(
+          source_project_name: 'home:Admin',
+          source_package_name: 'hello_world',
+          target_project: 'Devel:home:Admin'
+        )
+
+        home_admin_branched = Package.find_by_project_and_name(home_admin_branched_data[:data][:targetproject], home_admin_branched_data[:data][:targetpackage])
+
+        devel_package = Package.find_by_project_and_name('home:Admin', 'hello_world')
+        Package
+          .find_by_project_and_name('Devel:home:Admin', 'hello_world')
+          .update(develpackage: devel_package)
+
+        branched_package_data = branch_package(
+          source_project_name: 'Devel:home:Admin',
+          source_package_name: 'hello_world',
+          target_project: 'Devel:home:Admin:branches:home:Admin'
+        )
+        branched_package = Package.find_by_project_and_name(branched_package_data[:data][:targetproject], branched_package_data[:data][:targetpackage])
+
+        iggy = User.find_by(login: 'Iggy') || create(:staff_user, login: 'Iggy')
+        create(:bs_request_with_submit_action,
+               creator: iggy,
+               source_project: branched_package.project,
+               source_package: branched_package,
+               target_project: home_admin_branched.project,
+               target_package: home_admin_branched)
+      end
+    end
+
     desc 'Copy 10 submit requests from openSUSE:Factory'
     task copy_requests_from_opensuse_factory: :development_environment do
       require 'factory_bot'
