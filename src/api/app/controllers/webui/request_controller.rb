@@ -234,7 +234,10 @@ class Webui::RequestController < Webui::WebuiController
           flash[:error] = 'Will not add maintainer for not accepted requests'
         end
       end
-      accept_request if changestate == 'accepted'
+      if changestate == 'accepted'
+        flash[:success] = "Request #{params[:number]} accepted"
+        forward_request
+      end
     end
     redirect_to(request_show_path(params[:number]))
   end
@@ -441,9 +444,7 @@ class Webui::RequestController < Webui::WebuiController
     false
   end
 
-  def accept_request
-    flash[:success] = "Request #{params[:number]} accepted"
-
+  def forward_request
     # Check if we have to forward this request to other projects / packages
     params.keys.grep(/^forward.*/).each do |fwd|
       forward_request_to(fwd)
