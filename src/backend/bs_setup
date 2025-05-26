@@ -12,17 +12,17 @@ BEGIN {
 }
 
 
+use BSUtil;
 use BSConfig;
-no warnings 'once';
-my $hostname=Net::Domain::hostfqdn || '';
-use warnings 'all';
+
+my $hostname =  Net::Domain::hostfqdn || '';
 
 $::LOGLEVEL=0;
 
 my $distro = get_distro();
 my $distro_obj;
 if ($distro =~ /suse/) {
-  print "Using distro family SUSE" if $::LOGLEVEL;
+  echo("Using distro family SUSE");
   require BSSetup::SUSE;
   BSSetup::SUSE->import;
   $distro_obj = BSSetup::SUSE->new(hostname=>$hostname);
@@ -38,7 +38,8 @@ my %global_options = (
 
 my %commands = (
   'service-containers' => \&setup_service_containers,
-  'sc' => \&setup_service_containers,
+  'sc'                 => \&setup_service_containers,
+  'gitea'              => \&setup_gitea,
 );
 
 for my $opt (@args) {
@@ -47,7 +48,7 @@ for my $opt (@args) {
     $global_options{$opt}->();
   } else {
     die "Unknown option: $opt\n" unless $commands{$opt};
-    print "End of global options\n" if $::LOGLEVEL;
+    echo("End of global options");
   }
 }
 
@@ -69,13 +70,24 @@ die "No command executed!\n" unless $cmd_count;
 exit 0;
 
 ###############################################################################
+sub echo {
+  print "@_\n" if $::LOGLEVEL;
+}
+
 sub get_distro {
   return `. /etc/os-release;echo \$ID`;
 }
 
+sub run_cmd {
+  my @cmd = @_;
+  echo("  Executing CMD:  @cmd");
+  my @result = BSUtil::xsystem(undef, @cmd);
+  return @result;
+} 
+
 sub setup_service_containers {
   my @opts = @_;
-  print "Starting setup of service containers\n" if $::LOGLEVEL;
+  echo("Starting setup of service containers");
 
   my @remove_from_mounts;
 
@@ -84,7 +96,7 @@ sub setup_service_containers {
   # `additionalimagestores` in /etc/containers/storage.conf
   $distro_obj->install_pkg('podman');
 
-  
+
   # Prepare data required for modifing /etc/containers/mounts.conf if file exists
   # e.g. on SLE
   $distro_obj->prepare_mounts_conf();
@@ -96,4 +108,132 @@ sub setup_service_containers {
   $distro_obj->restart_bs_service();
 }
 
-__END__
+sub setup_gitea {
+  my @opts = @_;
+  echo("Starting setup of gitea");
+  my $GITEA_DB_NAME        = 'gitea';
+  my $GITEA_PAM_USER_NAME  = 'gitea';
+  my $GITEA_WEB_USER_NAME  = 'obsadmin';
+  my $GITEA_WEB_PASSWD     = 'opensuse';
+  my $GITEA_SERVICE_NAME   = 'gitea.service';
+  my $GITEA_WEB_USER_EMAIL = 'root@localhost';
+  my $MYSQL_USER           = 'root';
+  my $MYSQL_PASS	   = 'opensuse';
+
+  my ($DB_EXISTS, undef) = run_cmd("mysql -u $MYSQL_USER -p$MYSQL_PASS  -e 'SHOW DATABASES'");
+
+  if ($DB_EXISTS !~ m/\s$GITEA_DB_NAME\s/smx) {
+    echo("    Creating database $GITEA_DB_NAME");
+    run_cmd("mysql -u $MYSQL_USER -p$MYSQL_PASS -e 'CREATE DATABASE $GITEA_DB_NAME'");
+  } else {
+    echo("    Found database $GITEA_DB_NAME");
+  }
+
+  my $conf_template = <<EOF;
+APP_NAME = Gitea: Git with a cup of tea
+RUN_USER = gitea
+WORK_PATH = /var/lib/gitea
+RUN_MODE = prod
+
+[server]
+ROOT_URL = https://$hostname/gitea/
+CERT_FILE = /etc/gitea/https/cert.pem
+KEY_FILE = /etc/gitea/https/key.pem
+STATIC_ROOT_PATH = /usr/share/gitea
+APP_DATA_PATH = /var/lib/gitea/data
+PPROF_DATA_PATH = /var/lib/gitea/data/tmp/pprof
+SSH_DOMAIN = $hostname
+DOMAIN = $hostname
+HTTP_PORT = 3000
+DISABLE_SSH = false
+SSH_PORT = 22
+LFS_START_SERVER = true
+LFS_JWT_SECRET_URI = file:///etc/gitea/LFS_JWT_SECRET
+OFFLINE_MODE = true
+
+[database]
+DB_TYPE = mysql
+HOST = 127.0.0.1:3306
+NAME = gitea
+USER = root
+PASSWD = opensuse
+
+[security]
+INSTALL_LOCK = true
+SECRET_KEY_URI = file:///etc/gitea/SECRET_KEY
+INTERNAL_TOKEN_URI = file:///etc/gitea/INTERNAL_TOKEN
+PASSWORD_HASH_ALGO = pbkdf2
+
+
+[camo]
+
+[oauth2]
+ENABLED = true
+JWT_SECRET_URI = file:///etc/gitea/JWT_SECRET
+
+
+[log]
+ROOT_PATH = /var/log/gitea
+MODE = console, file
+LEVEL = Info
+
+[git]
+
+[service]
+ROOT = /var/lib/gitea/repositories
+TEMP_PATH = /var/lib/gitea/data/tmp/uploads
+DATADIR = /var/lib/gitea/queues/
+AVATAR_UPLOAD_PATH = /var/lib/gitea/data/avatars
+REPOSITORY_AVATAR_UPLOAD_PATH = /var/lib/gitea/data/repo-avatars
+PATH = /var/lib/gitea/data/attachments
+
+
+[mailer]
+ENABLED = false
+
+[openid]
+ENABLE_OPENID_SIGNIN = false
+ENABLE_OPENID_SIGNUP = false
+
+[cron.update_checker]
+ENABLED = false
+
+[session]
+PROVIDER = file
+
+[repository.pull-request]
+DEFAULT_MERGE_STYLE = merge
+
+[repository.signing]
+DEFAULT_TRUST_MODEL = committer
+
+EOF
+
+  my $inifile = "/etc/gitea/conf/app.ini";
+  open(my $fh, ">", $inifile) || die "Could not open '$inifile': $!";
+  print $fh $conf_template  || die "Could not write to '$inifile': $!";
+  close $fh || die "Could not close '$inifile': $!";
+
+  for my $sec (qw/INTERNAL_TOKEN JWT_SECRET LFS_JWT_SECRET SECRET_KEY/){
+    my $F="/etc/gitea/$sec";
+    run_cmd("su -c 'gitea generate secret $sec' - $GITEA_PAM_USER_NAME > $F");
+    run_cmd("chgrp gitea $F");
+    run_cmd("chmod 440 $F");
+  }
+
+  run_cmd("systemctl enable --now $GITEA_SERVICE_NAME");
+
+  eval {
+    run_cmd("su -c 'gitea migrate' - $GITEA_PAM_USER_NAME");
+  };
+
+  $@ && warn "WARNING: 'gitea migrate' failed: $@\n";
+
+  my ($userlist, undef) = run_cmd("su -c 'gitea admin user list' - $GITEA_PAM_USER_NAME");
+  if ($userlist !~ / $GITEA_WEB_USER_NAME /) {
+    run_cmd("su -c 'gitea admin user create --username $GITEA_WEB_USER_NAME --password $GITEA_WEB_PASSWD --admin --email $GITEA_WEB_USER_EMAIL' - $GITEA_PAM_USER_NAME");
+  } else {
+    echo("    Found user $GITEA_WEB_USER_NAME in gitea users list");
+  }
+  return 1;
+}
