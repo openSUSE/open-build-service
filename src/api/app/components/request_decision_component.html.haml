@@ -1,5 +1,5 @@
 .request-decision.mt-n1
-  = form_tag({ action: 'changerequest' }, id: 'request_handle_form', class: 'write-and-preview',
+  = form_tag(request_changerequest_path, id: 'request_handle_form', class: 'write-and-preview',
     data: { preview_message_url: preview_comments_path, message_body_param: 'comment[body]' }) do
     = hidden_field_tag(:number, @bs_request.number)
     .pb-2{ 'data-canned-controller': '' }
