@@ -28,7 +28,7 @@
           .tab-pane.fade{ id: 'preview_new_comment', role: 'tabpanel', 'aria-labelledby': 'preview-message-tab' }
             .comment-preview.message-preview.my-3
       .mt-2
-        - if @forward_allowed
+        - if policy(@bs_request).forward_request?
           - @action.forward.each_with_index do |forward, index|
             .form-check.m-2
               = check_box_tag("forward-#{index}", "#{forward[:project]}_#_#{forward[:package]}", true,
