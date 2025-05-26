@@ -36,10 +36,6 @@ class RequestDecisionComponent < ApplicationComponent
     { confirm: "Do you really want to #{decision_text} this request?\n\n#{@package_maintainers_hint}" }
   end
 
-  def show_add_submitter_as_maintainer_option?
-    @action.type == 'submit' && !@action.creator_is_target_maintainer
-  end
-
   def accept_with_options_allowed?
     single_action_request && @is_target_maintainer && @bs_request.state.in?(%i[new review])
   end
