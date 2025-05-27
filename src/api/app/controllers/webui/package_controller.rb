@@ -305,8 +305,6 @@ class Webui::PackageController < Webui::WebuiController
                                                             repository: repository, architecture: architecture,
                                                             repository_list: repo_list, repo_arch_hash: repo_arch_hash }
     else
-      render partial: 'no_repositories', locals: { project: @project } if repo_list.empty?
-
       render partial: 'rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
                                                   repository_list: repo_list, repo_arch_hash: repo_arch_hash }
     end
