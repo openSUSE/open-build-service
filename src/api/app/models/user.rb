@@ -2,6 +2,8 @@ require 'kconv'
 require 'api_error'
 
 class User < ApplicationRecord
+  devise :database_authenticatable
+
   include CanRenderModel
   include Flipper::Identifier
 
@@ -15,7 +17,8 @@ class User < ApplicationRecord
 
   # disable validations because there can be users which don't have a bcrypt
   # password yet. this is for backwards compatibility
-  has_secure_password validations: false
+  # DISABLED this because it overrides database_authenticatable's implementation
+  # has_secure_password validations: false
 
   has_many :watched_items, dependent: :destroy
   has_many :groups_users, inverse_of: :user
@@ -125,7 +128,7 @@ class User < ApplicationRecord
                       allow_blank: true }
 
   # we disabled has_secure_password's validations. therefore we need to do manual validations
-  validate :password_validation
+  # validate :password_validation
   validates :password, length: { minimum: 6, maximum: ActiveModel::SecurePassword::MAX_PASSWORD_LENGTH_ALLOWED }, allow_nil: true
   validates :password, confirmation: true, allow_blank: true
   validates :biography, length: { maximum: MAX_BIOGRAPHY_LENGTH_ALLOWED }
@@ -192,7 +195,8 @@ class User < ApplicationRecord
   # This static method tries to find a user with the given login and password
   # in the database. Returns the user or nil if they could not be found
   def self.find_with_credentials(login, password)
-    find_by(login: login)&.authenticate_via_password(password)
+    user = User.find_for_authentication(login: login)
+    user&.authenticate_via_password(password) ? user : nil
   end
 
   # Currently logged in user or nobody user if there is no user logged in.
@@ -255,8 +259,21 @@ class User < ApplicationRecord
     last_logged_in_at < 3.months.ago
   end
 
+  def authenticate(unencrypted_password)
+    if deprecated_password
+      if deprecated_password_equals?(unencrypted_password)
+        update(password: unencrypted_password, deprecated_password: nil, deprecated_password_salt: nil, deprecated_password_hash_type: nil)
+        return self
+      end
+
+      false
+    else
+      authenticate_via_password(unencrypted_password) || false
+    end
+  end
+
   def authenticate_via_password(password)
-    if authenticate(password)
+    if valid_password?(password)
       mark_login!
       self
     else
@@ -274,23 +291,6 @@ class User < ApplicationRecord
   # hashed with this user's password hash type. Returns a boolean.
   def deprecated_password_equals?(value)
     hash_string(value) == deprecated_password
-  end
-
-  def authenticate(unencrypted_password)
-    # for users without a bcrypt password we need an extra check and convert
-    # the password to a bcrypt one
-    if deprecated_password
-      if deprecated_password_equals?(unencrypted_password)
-        update(password: unencrypted_password, deprecated_password: nil, deprecated_password_salt: nil, deprecated_password_hash_type: nil)
-        return self
-      end
-
-      return false
-    end
-
-    # it seems that the user is not using a deprecated password so we use bcrypt's
-    # #authenticate method
-    super
   end
 
   # Returns true if the the state transition from "from" state to "to" state
@@ -786,7 +786,7 @@ class User < ApplicationRecord
   end
 
   def count_login_failure
-    update(login_failure_count: login_failure_count + 1)
+    update_without_password(login_failure_count: login_failure_count + 1)
   end
 
   def proxy_realname(env)
@@ -867,7 +867,7 @@ class User < ApplicationRecord
   private_class_method :nobody
 
   def password_validation
-    return if password_digest || deprecated_password
+    return if password || deprecated_password
 
     errors.add(:password, 'can\'t be blank')
   end
@@ -914,6 +914,7 @@ end
 #  deprecated_password_hash_type :string(255)
 #  deprecated_password_salt      :string(255)
 #  email                         :string(200)      default(""), not null
+#  encrypted_password            :string(255)
 #  ignore_auth_services          :boolean          default(FALSE)
 #  in_beta                       :boolean          default(FALSE), indexed
 #  in_rollout                    :boolean          default(TRUE), indexed
