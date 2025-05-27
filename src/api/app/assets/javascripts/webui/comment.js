@@ -14,6 +14,15 @@ function updateCommentCounter(selector, count) {
   }
 }
 
+function commentErrorFlash(text) {
+  const flash = document.getElementById('flash');
+  const container = flash.querySelector('.col-12');
+  const alert = document.createElement('div');
+  alert.classList.add('alert', 'alert-danger');
+  alert.innerText = text;
+  container.appendChild(alert);
+}
+
 function validateForm(e) {
   var submitButton = $(e.target).closest('[class*="-comment-form"]').find('input[type="submit"]');
   submitButton.prop('disabled', !$(e.target).val());
@@ -33,6 +42,10 @@ function handlingCommentEvents() {
   // from the controller and replace the whole .comments-list with it
   const commentListSelector = '.comments-list .post-comment-form, .comments-list .put-comment-form, .comments-list .moderate-form';
   $(document).on('ajax:complete', commentListSelector, function(_, data) {
+    if (data.status !== 200) {
+      commentErrorFlash('Failed to submit the comment.');
+      return;
+    }
     var $commentsList = $(this).closest('.comments-list');
 
     $commentsList.html(data.responseText);
@@ -45,11 +58,19 @@ function handlingCommentEvents() {
                                 .diff-accordion .post-comment-form, .diff-accordion .put-comment-form,
                                 .diff-accordion .moderate-form`;
   $(document).on('ajax:complete', timelineDiffSelector, function(_, data) {
+    if (data.status !== 200) {
+      commentErrorFlash('Failed to submit the comment.');
+      return;
+    }
     $(this).closest('.comments-thread').html(data.responseText);
   });
 
   // This is being used to render a new root comment by the beta request show view
   $(document).on('ajax:complete', '.comment_new .post-comment-form', function(_, data) {
+    if (data.status !== 200) {
+      commentErrorFlash('Failed to create a comment.');
+      return;
+    }
     $(this).closest('.comment_new').prev().append(
       '<div class="timeline-item">' +
         '<div class="comments-thread">' +
@@ -62,6 +83,10 @@ function handlingCommentEvents() {
 
   // This is used to delete a comment from the legacy request view
   $(document).on('ajax:complete', '.comments-list .delete-comment-form', function(_, data) {
+    if (data.status !== 200) {
+      commentErrorFlash('Failed to delete the comment.');
+      return;
+    }
     var $this = $(this),
         $commentsList = $this.closest('.comments-list'),
         $form = $('#delete-comment-modal-' + $this.data('commentId'));
@@ -76,6 +101,10 @@ function handlingCommentEvents() {
 
   // This is used to delete comments from the beta request show view, we are not gonna get an updated comment thread like
   $(document).on('ajax:complete', '#delete-comment-modal form', function(_, data) {
+    if (data.status !== 200) {
+      commentErrorFlash('Failed to delete the comment.');
+      return;
+    }
     var $commentId = $(this).attr('action').split('/').slice(-1),
         $commentsList = $('[name=comment-' + $commentId + ']').closest('.comments-thread'),
         $form = $('#delete-comment-modal');
