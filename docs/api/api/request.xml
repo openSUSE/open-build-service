@@ -46,7 +46,7 @@
  <state name="superseded" who="adrian" when="2007-12-30T09:00:00" superseded_by="111">
    <comment>Forgetit!</comment>
  </state>
- <review state="accepted" by_user="adrian" who="adrian" when="2008-12-30T09:00:00">
+ <review state="accepted" by_user="adrian" who="adrian" created="1999-12-30T09:00:00" when="2008-12-30T09:00:00">
    <comment>Looks great!</comment>
    <history who="mls" when="2007-12-22T23:00:00">
      <description>Review got accepted</description>
