@@ -435,10 +435,7 @@ class BsRequest < ApplicationRecord
       next unless review.reviewable_by?(opts)
 
       logger.debug "Obsoleting review #{review.id}"
-      review.state = :obsoleted
-      review.save
-      history = HistoryElement::ReviewObsoleted
-      history.create(review: review, comment: 'reviewer got removed', user_id: User.session!.id)
+      review.update!(state: :obsoleted, reason: 'reviewer got removed')
 
       # Maybe this will turn the request into an approved state?
       next unless state == :review && reviews.where(state: 'new').none?
@@ -556,9 +553,7 @@ class BsRequest < ApplicationRecord
         reviews.each do |review|
           next unless review.state != :accepted
 
-          # FIXME3.0 review history?
-          review.state = :new
-          review.save!
+          review.update!(state: :new)
           self.state = :review
         end
       end
@@ -592,27 +587,29 @@ class BsRequest < ApplicationRecord
     reviewer = User.find_by_login!(opts[:reviewer])
 
     Review.transaction do
-      # check if user is a reviewer already
       user_review = reviews.where(by_user: reviewer.login).last
+      # Set the by_group/project/package reviews to :new and destroy the user review
       if opts[:revert]
         raise Review::NotFoundError unless user_review
         raise InvalidStateError, 'review is not in new state' unless user_review.state == :new
         raise Review::NotFoundError, 'Not an assigned review' unless HistoryElement::ReviewAssigned.where(op_object_id: user_review.id).last
 
-        _assignreview_update_reviews(reviewer, opts)
+        reassign_reviews(reviewer, opts)
 
         user_review.destroy
+      # Set the by_group/project/package reviews to :accepted and the user review to :new
       elsif user_review
-        _assignreview_update_reviews(reviewer, opts)
-        user_review.state = :new
-        user_review.save!
-        review_comment = _assignreview_review_comment(opts)
-        HistoryElement::ReviewReopened.create(review: user_review, comment: review_comment, user: User.session!)
+        reassign_reviews(reviewer, opts)
+        user_review.update!(state: :new, reason: reassign_review_comment(opts))
+      # Set the by_group/project/package reviews to :accepted and create a user review
       else
-        review = reviews.create(by_user: reviewer.login, creator: User.session!.login, state: :new)
-        _assignreview_update_reviews(reviewer, opts, review)
-        review_comment = _assignreview_review_comment(opts)
-        HistoryElement::ReviewAssigned.create(review: review, comment: review_comment, user: User.session!)
+        user_review = reviews.new(by_user: reviewer.login,
+                                  creator: User.session!.login,
+                                  state: :new,
+                                  reason: reassign_review_comment(opts))
+        user_review.is_reassigned = true
+        user_review.save!
+        reassign_reviews(reviewer, opts, user_review)
       end
       save!
     end
@@ -654,6 +651,7 @@ class BsRequest < ApplicationRecord
     HistoryElement::RequestSuperseded.create(history_arguments)
   end
 
+  # FIXME: This is called change_review_state but it actually *also* changes `reason` if opts[:comment] differs...
   def change_review_state(new_review_state, opts = {})
     with_lock do
       new_review_state = new_review_state.to_sym
@@ -667,7 +665,10 @@ class BsRequest < ApplicationRecord
       review = find_review_for_opts(opts)
       raise Review::NotFoundError unless review
 
-      next unless review.change_state(new_review_state, opts[:comment] || '')
+      # Neither the state nor the reason is changing...
+      return if review.state == new_review_state && review.reviewer == User.session!.login && review.reason == opts[:comment].to_s
+
+      review.update!(reason: opts[:comment], state: new_review_state, changed_state_at: Time.now.utc, reviewer: User.session!.login)
 
       history_parameters = { request: self, comment: opts[:comment], user_id: User.session!.id }
       next supersede_request(history_parameters, opts[:superseded_by]) if new_review_state == :superseded
@@ -695,6 +696,7 @@ class BsRequest < ApplicationRecord
     end
   end
 
+  # FIXME: This is already validated in Review...
   def check_if_valid_review!(opts)
     return if opts[:by_user] || opts[:by_group] || opts[:by_project]
 
@@ -710,17 +712,17 @@ class BsRequest < ApplicationRecord
       self.commenter = User.session!.login
       self.comment = opts[:comment] if opts[:comment]
 
-      newreview = create_new_review(opts)
-      save!
+      newreview = reviews.new(
+        reason: opts[:comment],
+        by_user: opts[:by_user],
+        by_group: opts[:by_group],
+        by_project: opts[:by_project],
+        by_package: opts[:by_package],
+        creator: User.session!.login,
+        reviewer: User.session!.login
+      )
 
-      history_params = {
-        request: self,
-        user_id: User.session!.id,
-        description_extension: newreview.id.to_s
-      }
-      history_params[:comment] = opts[:comment] if opts[:comment]
-      HistoryElement::RequestReviewAdded.create(history_params)
-      newreview.create_event(event_parameters)
+      raise InvalidReview, "Review invalid: #{newreview.errors.full_messages.to_sentence}" unless save
     end
   end
 
@@ -908,12 +910,7 @@ class BsRequest < ApplicationRecord
   end
 
   def notify
-    notify = event_parameters
-    Event::RequestCreate.create(notify)
-
-    reviews.each do |review|
-      review.create_event(notify)
-    end
+    Event::RequestCreate.create(event_parameters)
   end
 
   # [DEPRECATED] TODO: drop this after request_workflow_redesign beta is rolled_out
@@ -1182,38 +1179,34 @@ class BsRequest < ApplicationRecord
     )
   end
 
-  def _assignreview_update_reviews(reviewer, opts, new_review = nil)
+  def reassign_reviews(reviewer, opts, new_review = nil)
     raise Review::NotFoundError unless opts[:by_group] || opts[:by_project] || opts[:by_package]
 
-    reviews_to_update = reviews.where(by_group: opts[:by_group]) if opts[:by_group]
-    reviews_to_update = reviews.where(by_project: opts[:by_project], by_package: opts[:by_package]) if opts[:by_project] && opts[:by_package]
-    reviews_to_update = reviews.where(by_project: opts[:by_project]) if opts[:by_project] && !opts[:by_package]
+    reviews_to_reassign = reviews.where(by_group: opts[:by_group]) if opts[:by_group]
+    reviews_to_reassign = reviews.where(by_project: opts[:by_project], by_package: opts[:by_package]) if opts[:by_project] && opts[:by_package]
+    reviews_to_reassign = reviews.where(by_project: opts[:by_project]) if opts[:by_project] && !opts[:by_package]
 
-    raise Review::NotFoundError unless reviews_to_update.any?
+    raise Review::NotFoundError unless reviews_to_reassign.any?
 
-    reviews_to_update.reverse_each do |review|
-      # approve for this review
+    reviews_to_reassign.reverse_each do |review|
       if opts[:revert]
         review.state = :new
-        history_class = HistoryElement::ReviewReopened
       else
         review.state = :accepted
         review.review_assigned_to = new_review if new_review
-        history_class = HistoryElement::ReviewAccepted
       end
       review.reviewer = User.session!.login
+      review.reason = "review reassigned to user #{reviewer.login}"
       review.save!
-
-      history_class.create(review: review, comment: "review assigned to user #{reviewer.login}", user_id: User.session!.id)
     end
   end
 
-  def _assignreview_review_comment(opts)
+  def reassign_review_comment(opts)
     review_comment = ''
     review_comment = 'revert the ' if opts[:revert]
-    review_comment += "review for group #{opts[:by_group]}" if opts[:by_group]
-    review_comment += "review for project #{opts[:by_project]}" if opts[:by_project]
-    review_comment += "review for package #{opts[:by_project]} / #{opts[:by_package]}" if opts[:by_package]
+    review_comment += "reassigned review for group #{opts[:by_group]} to user #{opts[:reviewer]}" if opts[:by_group]
+    review_comment += "reassigned review for project #{opts[:by_project]} to user #{opts[:reviewer]}" if opts[:by_project]
+    review_comment += "reassigned review for package #{opts[:by_project]} / #{opts[:by_package]} to user #{opts[:reviewer]}" if opts[:by_package]
 
     review_comment
   end
@@ -1235,23 +1228,6 @@ class BsRequest < ApplicationRecord
 
     self.approver = new_approver
     save!
-  end
-
-  def create_new_review(opts)
-    newreview = reviews.create(
-      reason: opts[:comment],
-      by_user: opts[:by_user],
-      by_group: opts[:by_group],
-      by_project: opts[:by_project],
-      by_package: opts[:by_package],
-      creator: User.session!.login,
-      reviewer: User.session!.login
-    )
-    return newreview if newreview.valid?
-
-    newreview.check_reviewer!
-
-    raise InvalidReview, "Review invalid: #{newreview.errors.full_messages.join("\n")}"
   end
 end
 
