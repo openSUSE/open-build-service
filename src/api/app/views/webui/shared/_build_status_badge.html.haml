@@ -1,7 +1,7 @@
 - if url
   - popover_content = render partial: 'webui/shared/build_status_badge_links', locals: { url: url, rpm_lint_url: rpm_lint_url }
 
-  %button{ class: "btn btn-link badge #{build_status_category_color(status)} build_status",
+  %button{ class: "btn badge #{build_status_category_color(status)} build_status",
          data: { 'bs-toggle': 'popover', 'bs-html': true, 'bs-content': popover_content } }
     %i.fa.me-2{ class: build_status_icon(status), title: status.humanize }
     %span.architecture #{architecture} :
