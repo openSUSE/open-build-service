@@ -47,6 +47,7 @@
         = link_to('#', class: 'dropdown-toggle', id: 'top-navigation-color-theme-dropdown', role: 'button',
                   'data-bs-toggle': 'dropdown', aria: { haspopup: true, expanded: false }) do
           %i.fas.fa-palette{ title: 'Color Theme' }
+          %span.nav-item-name Theme
         = form_for(User.session, url: update_color_theme_user_path(User.session), method: :post, id: 'color-theme-form') do |f|
           = f.hidden_field(:login, id: 'user')
           %ul.dropdown-menu.dropdown-menu-start{ 'aria-labelledby': 'top-navigation-color-theme-dropdown' }
