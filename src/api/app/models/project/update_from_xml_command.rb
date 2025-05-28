@@ -48,7 +48,14 @@ class Project
 
       return if project.scmsync.blank?
 
-      project.revoke_requests
+      # decline all requests targeting this project (using it as source is fine)
+      project.open_requests_with_project_as_target.each do |request|
+        request.bs_request_actions.each do |action|
+          next unless action.target_project == project.name
+
+          request.change_state(newstate: 'declined', comment: "The target project '#{project.name}' has been switched to scmsync")
+        end
+      end
       project.cleanup_packages
     end
 
