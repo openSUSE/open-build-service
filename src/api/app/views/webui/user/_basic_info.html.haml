@@ -92,11 +92,7 @@
           = label_tag("user[censored]", 'Comment Block', class: 'form-check-label')
 
 :javascript
-  $('#toggle-in-place-editing').on('click', function () {
-    $('.in-place-editing .basic-info').toggleClass('d-none');
-    $('.in-place-editing .editing-form').toggleClass('d-none');
-  });
-  $('#cancel-in-place-editing').on('click', function () {
+  $('#toggle-in-place-editing, #cancel-in-place-editing').on('click', function () {
     $('.in-place-editing .basic-info').toggleClass('d-none');
     $('.in-place-editing .editing-form').toggleClass('d-none');
     return false;
