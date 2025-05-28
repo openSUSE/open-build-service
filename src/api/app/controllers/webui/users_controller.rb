@@ -3,7 +3,7 @@ class Webui::UsersController < Webui::WebuiController
 
   before_action :require_login, except: %i[show new create tokens autocomplete]
   before_action :require_admin, only: %i[index edit destroy]
-  before_action :check_displayed_user, only: %i[show edit censor update destroy edit_account]
+  before_action :check_displayed_user, only: %i[show edit censor update destroy edit_account update_color_theme]
   before_action :role_titles, only: %i[show edit_account update]
   before_action :account_edit_link, only: %i[show edit_account update]
 
@@ -102,6 +102,16 @@ class Webui::UsersController < Webui::WebuiController
     end
   end
 
+  def update_color_theme
+    authorize @displayed_user, :update?
+    @displayed_user.color_theme = params[:color_theme]
+
+    unless @displayed_user.save
+      flash[:error] = "Couldn't update user: #{@displayed_user.errors.full_messages.to_sentence}."
+    end
+    redirect_back_or_to root_path
+  end
+
   def destroy
     authorize @displayed_user, :destroy?
 
@@ -191,7 +201,7 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def assign_common_user_attributes
-    @displayed_user.assign_attributes(params[:user].slice(:biography, :color_theme, :in_beta).permit!)
+    @displayed_user.assign_attributes(params[:user].slice(:biography, :in_beta).permit!)
     @displayed_user.assign_attributes(params[:user].slice(:realname, :email).permit!) unless @account_edit_link
   end
 
