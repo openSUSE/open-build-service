@@ -42,7 +42,7 @@
         = link_to('#', id: 'toggle-in-place-editing', title: 'Edit Your Account') do
           %i.fas.fa-user-edit
           %span.nav-item-name Edit
-    - if user == User.possibly_nobody
+    - if policy(user).update?
       .dropdown
         = link_to('#', class: 'dropdown-toggle', id: 'top-navigation-color-theme-dropdown', role: 'button',
                   'data-bs-toggle': 'dropdown', aria: { haspopup: true, expanded: false }) do
