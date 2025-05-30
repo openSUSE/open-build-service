@@ -8,8 +8,18 @@ class BsRequestAction
         # the target is by default the _link target
         # maintenance_release creates new packages instance, but are changing the source only according to the link
         provided_in_other_action = check_for_local_linked_packages(source_package)
-        # fallback name as last resort
-        self.target_package ||= action.source_package
+        # fallback name as last resort, esp important for open maintenance_incident actions
+        if target_package.blank?
+          begin
+            spkg = Package.get_by_project_and_name(action.source_project, action.source_package)
+            self.target_package = spkg.try(:releasename)
+          rescue Project::UnknownObjectError, Package::UnknownObjectError
+            # project might be hidden for the user, but in this special case we want to
+            # show the diff nevertheless as the maintainer created it on purpose.
+            # could be changed, but needs discussion with security team
+          end
+          self.target_package ||= action.source_package
+        end
 
         # maintenance incidents shall show the final result after release
         self.target_project = action.target_releaseproject if action.target_releaseproject
