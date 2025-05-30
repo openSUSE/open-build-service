@@ -1,16 +1,16 @@
 - index ||= ''
 
-.mt-3.mb-3{ id: "rpmlin-log-#{index}", data: { project: project.name, package: package.name } }
-  - if repository_list.empty?
-    = render partial: 'no_build_results', locals: { project: project }
-  - else
+- if repository_list.empty?
+  = render partial: 'no_build_results', locals: { project: project }
+- else
+  .mt-3.mb-3{ id: "rpmlin-log-#{index}", data: { project: project.name, package: package.name } }
     .row.row-cols-auto
       = select_tag("rpmlint_repo_select_#{index}", options_for_select(repository_list.sort),
-                   class: 'form-select', onchange: "updateArchDisplay('#{index}')")
+                  class: 'form-select', onchange: "updateArchDisplay('#{index}')")
       - repo_arch_hash.each do |repository, architectures|
         = select_tag("rpmlint_arch_select_#{index}_#{repository}", options_for_select(architectures.reverse),
-                     class: "rpmlint_arch_select_#{index} form-select", onchange: "updateRpmlintDisplay('#{index}')")
-%pre.rpmlint-result.text-pre-wrap{ id: "rpmlint_display_#{index}" }
+                    class: "rpmlint_arch_select_#{index} form-select", onchange: "updateRpmlintDisplay('#{index}')")
+  %pre.rpmlint-result.text-pre-wrap{ id: "rpmlint_display_#{index}" }
 
-:javascript
-  updateArchDisplay('#{index}');
+  :javascript
+    updateArchDisplay('#{index}');
