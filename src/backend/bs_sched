@@ -667,7 +667,10 @@ if (!$testprojid && -s "$_rundir/$_runname.state") {
 
     # update projsuspended hash
     my $oldprojsuspended = $schedstate->{'projsuspended'} || {};
-    $_ = ref($_) ? $_ : [ $_ ] for values %$oldprojsuspended;	# convert to array refs
+    for my $suspend (values %$oldprojsuspended) {
+      $suspend = [ $suspend ] unless ref($suspend);
+      $_ = ref($_) ? $_ : { 'job' => $_, 'time' => time() } for @$suspend;
+    }
     %{$gctx->{'projsuspended'}} = %$oldprojsuspended;
 
     # use old start values
@@ -722,6 +725,9 @@ if (!$gctx->{'projpacks'}) {
   @{$gctx->{'lookat_low'}} = sort keys %{$gctx->{'projpacks'}};
   push @{$gctx->{'lookat_low'}}, @{$gctx->{'prps'}};
 }
+
+# look at suspended projects to check the timeout
+push @{$gctx->{'lookat_med'}}, @{$gctx->{'project_prps'}->{$_} || []} for sort keys %{$gctx->{'projsuspended'}};
 
 # reset booting flag
 writeschedulerinfo($gctx);

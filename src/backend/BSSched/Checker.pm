@@ -304,6 +304,35 @@ sub check_for_running_src_updates {
   return undef;
 }
 
+sub timeout_suspends {
+  my ($ctx) = @_;
+  my $prp = $ctx->{'prp'};
+  my $gctx = $ctx->{'gctx'};
+  my $projid = $ctx->{'project'};
+  my $suspend = $gctx->{'projsuspended'}->{$projid} || [];
+  my $cutoff = time() - 8 * 3600;
+  my $timedout = 0;
+  for (splice @$suspend) {
+    if ($_->{'time'} > $cutoff) {
+      $timedout++;
+      print "project suspension timed out: $_->{'job'}\n";
+    } else {
+      push @$suspend, $_;
+    }
+  }
+  if (@$suspend) {
+    if ($timedout) {
+      my @suspendjob = map {$_->{'job'}} @$suspend;
+      print "not yet resuming project $projid: @suspendjob\n";
+    }
+    return $suspend;
+  }
+  print "resuming project $projid\n";
+  delete $gctx->{'projsuspended'}->{$projid};
+  push @{$gctx->{'lookat_med'}}, grep {$_ ne $prp} @{$gctx->{'project_prps'}->{$projid} || []};
+  return undef;
+}
+
 sub setup {
   my ($ctx) = @_;
   my $prp = $ctx->{'prp'};
@@ -330,6 +359,7 @@ sub setup {
     return ('disabled', undef);
   }
   my $suspend = $gctx->{'projsuspended'}->{$projid};
+  $suspend = timeout_suspends($ctx) if $suspend;
   return ('blocked', join(', ', @$suspend)) if $suspend;
   $ctx->{'repo'} = $repo;
 

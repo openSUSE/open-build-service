@@ -539,10 +539,12 @@ sub event_suspendproject {
   my $gctx = $ectx->{'gctx'};
   my $evjob = $ev->{'job'};
   return unless $evjob;
-  print "suspending project $projid: @{$gctx->{'projsuspended'}->{$projid} || []} + $evjob\n";
-  push @{$gctx->{'projsuspended'}->{$projid}}, $evjob;
+  $ev->{'time'} = time();
+  my @suspendjob = map {$_->{'job'}} @{$gctx->{'projsuspended'}->{$projid} || []};
+  print "suspending project $projid: @suspendjob + $evjob\n";
+  push @{$gctx->{'projsuspended'}->{$projid}}, $ev;
+  push @suspendjob, $evjob;
 
-  my $suspend = $gctx->{'projsuspended'}->{$projid};
   # try to set the repo state right away
   my $projpacks = $gctx->{'projpacks'};
   my $proj = $projpacks->{$projid};
@@ -550,7 +552,7 @@ sub event_suspendproject {
   for my $repo (@{$proj->{'repository'} || []}) {
     next unless grep {$_ eq $gctx->{'arch'}} @{$repo->{'arch'} || []};
     my $ctx = BSSched::Checker->new($gctx, "$projid/$repo->{'name'}");
-    $ctx->set_repo_state('blocked', join(', ', @$suspend));
+    $ctx->set_repo_state('blocked', join(', ', @suspendjob));
   }
 }
 
@@ -564,15 +566,16 @@ sub event_resumeproject {
     print "ignoring resumeproject for project $projid ($evjob)\n";
     return;
   }
+  my @suspendjob = map {$_->{'job'}} @$suspend;
   if (@$suspend > 1) {
-    print "not yet resuming project $projid: @$suspend - $evjob\n";
+    print "not yet resuming project $projid: @suspendjob - $evjob\n";
     my $first = 0;
     # remove first matching element; if not found pop last element
-    @$suspend = grep {$_ ne $evjob || $first++} @$suspend;
+    @$suspend = grep {$_->{'job'} ne $evjob || $first++} @$suspend;
     pop @$suspend unless $first;
     return;
   }
-  print "resuming project $projid: @$suspend - $evjob\n";
+  print "resuming project $projid: @suspendjob - $evjob\n";
   delete $gctx->{'projsuspended'}->{$projid};
   my $changed_high = $gctx->{'changed_high'};
   my $changed_dirty = $gctx->{'changed_dirty'};
