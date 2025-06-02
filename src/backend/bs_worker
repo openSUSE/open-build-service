@@ -2667,6 +2667,7 @@ sub getimagemode {
 sub getbinaries_containers {
   my ($buildinfo, $dir, $srcdir, $origins) = @_;
 
+  my $basecontainerannotationxml;
   my @meta;
   for my $bdep (grep {$_->{'name'} =~ /^container:/} @{$buildinfo->{'bdep'} || []}) {
     my $repo;
@@ -2679,14 +2680,15 @@ sub getbinaries_containers {
     }
     my $ddir = "$srcdir/containers/$repo->{'project'}/$repo->{'repository'}";
     mkdir_p($ddir);
+    my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
     my $callers_time = time();
     my @args;
     push @args, "workerid=$workerid" if defined $workerid;
     push @args, "project=$repo->{'project'}";
     push @args, "repository=$repo->{'repository'}";
     push @args, "arch=$buildinfo->{'arch'}";
+    push @args, "withannotation=1" if $server ne $buildinfo->{'srcserver'};
     push @args, "now=$callers_time";
-    my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
     my $res = BSRPC::rpc({
       'uri' => "$server/getbinaries",
       'directory' => $ddir,
@@ -2695,9 +2697,12 @@ sub getbinaries_containers {
       'receiver' => \&BSHTTP::cpio_receiver,
     }, undef, @args, "binaries=$bdep->{'name'}");
     die("Error\n") unless ref($res);
-    $res = [ grep {$_->{'name'} ne '.errors'} @$res ];
+    
+    my $annotationfile = (map {$_->{'name'}} grep {$_->{'name'} =~ /\.annotation$/} @$res)[0];
+    $res = [ grep {$_->{'name'} ne '.errors' && $_->{'name'} !~ /\.annotation$/} @$res ];
     die("404 getbinaries: missing packages: $bdep->{'name'}\n") unless @$res == 1;
     my $tarname = $res->[0]->{'name'};
+    my $tarmd5 = $res->[0]->{'md5'};
     add_slsa_materials_binary($buildinfo, "$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}", $tarname, "$ddir/$tarname", 'containers') if $buildinfo->{'slsaprovenance'};
     my $imagemode = getimagemode($buildinfo);
     if ($imagemode eq 'kiwiimage' && $tarname =~ /\.tar$/) {
@@ -2706,16 +2711,20 @@ sub getbinaries_containers {
       die("kiwi container compression did not work\n") unless -f "$ddir/$tarname";
     }
     push @{$buildinfo->{'containerurl'}}, "dir://./containers/$repo->{'project'}/$repo->{'repository'}/$tarname";
-    push @meta, "$res->[0]->{'md5'}  $repo->{'project'}/$repo->{'repository'}/$bdep->{'name'}";
+    push @meta, "$tarmd5  $repo->{'project'}/$repo->{'repository'}/$bdep->{'name'}";
     my $bin = {
       'name' => $bdep->{'name'},
       'project' => $repo->{'project'},
       'repository' => $repo->{'repository'},
       'arch' => $buildinfo->{'arch'},
     };
-    if ($bdep->{'annotation'} || $buildinfo->{'containerannotation'}) {
-      my $annotation = BSUtil::fromxml($bdep->{'annotation'} || $buildinfo->{'containerannotation'}, $BSXML::binannotation, 1);
+    undef $basecontainerannotationxml;
+    if ($annotationfile) {
+      my $annotationxml = BSUtil::readstr("$ddir/$annotationfile", 1);
+      my $annotation = $annotationxml ? BSUtil::fromxml($annotationxml, $BSXML::binannotation, 1) : undef;
       if ($annotation) {
+	$basecontainerannotationxml = $annotationxml;	# this relies on the base container coming last
+	die("annotation does not match container\n") if $annotation->{'hdrmd5'} && $annotation->{'hdrmd5'} ne $tarmd5;
 	for (qw{package version release binaryarch disturl buildhost buildtime binaryid}) {
 	  $bin->{$_} = $annotation->{$_} if defined($annotation->{$_}) && $annotation->{$_} ne '';
 	}
@@ -2725,9 +2734,10 @@ sub getbinaries_containers {
     push @{$origins->{':basecontainers'}}, $bin;
   }
 
-  if ($buildinfo->{'containerannotation'}) {
+  $basecontainerannotationxml ||= $buildinfo->{'containerannotation'};
+  if ($basecontainerannotationxml) {
     mkdir_p("$srcdir/containers");
-    writestr("$srcdir/containers/annotation", undef, $buildinfo->{'containerannotation'});
+    writestr("$srcdir/containers/annotation", undef, $basecontainerannotationxml);
   }
 
   return @meta;

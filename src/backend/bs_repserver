@@ -416,6 +416,27 @@ sub badpackagebinaryversionlist {
   return $BSStdServer::return_ok;
 }
 
+sub extend_containerannotation {
+  my ($annotationxml, $data) = @_;
+  my $annotation = BSUtil::fromxml($annotationxml, $BSXML::binannotation, 1);
+  # set obsrepositories:/ repo for DoD containers
+  if (!$annotation || (!$annotation->{'repo'} && $annotation->{'registry_digest'})) {
+    $annotation ||= {};
+    $annotation->{'repo'} = [ { 'url' => 'obsrepositories:/' } ];
+  }
+  # extend annotation with package data
+  if ($data) {
+    $annotation->{'hdrmd5'} = $data->{'hdrmd5'} if $data->{'hdrmd5'};
+    $annotation->{'package'} = $1 if $data->{'path'} && $data->{'path'} =~ /^\.\.\/([^\/]+)\//;
+    $annotation->{'epoch'} = $data->{'epoch'} if $data->{'epoch'};
+    $annotation->{'version'} = $data->{'version'};
+    $annotation->{'release'} = $data->{'release'} if defined $data->{'release'};
+    $annotation->{'binaryarch'} = $data->{'arch'} if $data->{'arch'};
+  }
+  return undef unless %$annotation;
+  return BSUtil::toxml($annotation, $BSXML::binannotation);
+}
+
 sub getbinaries {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my $prp = "$projid/$repoid";
@@ -440,13 +461,19 @@ sub getbinaries {
     }
     my $path = "$reporoot/".$pool->pkg2fullpath($p, $arch);
     if ($dodurl && $pool->pkg2pkgid($p) eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0') {
-      my @handoff = ('/getbinaries', undef, "project=$projid", "repository=$repoid", "arch=$arch", BSRPC::args($cgi, 'nometa', 'metaonly', 'binaries', 'module'));
+      my @handoff = ('/getbinaries', undef, "project=$projid", "repository=$repoid", "arch=$arch", BSRPC::args($cgi, 'nometa', 'metaonly', 'binaries', 'module', 'withannotation'));
       $path = BSRepServer::DoD::fetchdodbinary("$reporoot/$prp/$arch", $pool, $repo, $p, \@handoff);
       return unless defined $path;
       $needscan = 1;
     }
     if ($bin =~ /^container:/ && $path =~ /(\.tar(?:\..+)?)$/) {
       next if $cgi->{'metaonly'};
+      if ($cgi->{'withannotation'}) {
+	my $annotation;
+	$annotation = $pool->pkg2annotation($p) if defined &BSSolv::pool::pkg2annotation;
+	$annotation = extend_containerannotation($annotation, $pool->pkg2data($p));
+	push @send, {'name' => "$bin.annotation", 'data' => $annotation} if $annotation;
+      }
       my $n = "$bin$1";
       if ($1 eq '.tar' && ! -e $path) {
 	my $fd = BSRepServer::Containertar::open_container($path);
@@ -4591,7 +4618,7 @@ my $dispatches = [
   '!worker /getworkercode' => \&getworkercode,
   '!worker POST:/putjob $arch $job $jobid $code:? now:num? kiwitree:bool? workerid?' => \&putjob,
   '!worker POST:/workerdispatched $arch $job $jobid hostarch:arch port proto:? workerid?' => \&workerdispatched,
-  '!worker /getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? workerid? now:num? module*' => \&getbinaries,
+  '!worker /getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? workerid? now:num? module* withannotation:bool?' => \&getbinaries,
   '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool? workerid? now:num? module* withevr:bool?' => \&getbinaryversions,
   '!worker /getjobdata $arch $job $jobid workerid?' => \&getjobdata,
   '!worker /getpackagebinaryversionlist $project $repository $arch $package* withcode:bool? workerid?' => \&getpackagebinaryversionlist,
@@ -4657,7 +4684,7 @@ my $dispatches_ajax = [
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? nosource:bool? module* withccache:bool?' => \&getbinarylist,
   '/build/$project/$repository/$arch/$package:package_repository/$filename view:? withfilelist:bool? module*' => \&getbinary,
   '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? withstats:bool? summary:bool? withversrel:bool?' => \&getresult,
-  '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? now:num? module*' => \&getbinaries,
+  '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? now:num? module* withannotation:bool?' => \&getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool? now:num? module* withevr:bool?' => \&getbinaryversions,
 ];
 

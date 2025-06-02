@@ -19,7 +19,8 @@ package BSSrcServer::Remote;
 use strict;
 use warnings;
 
-use Digest::MD5;
+use Digest::MD5 ();
+use Digest::SHA ();
 
 use BSConfiguration;
 use BSOBS;
@@ -826,14 +827,14 @@ sub getremotebinaries_cache {
       push @reply, {'name' => $bin, 'error' => 'not available'};
       next;
     }
-    my $cachemd5 = Digest::MD5::md5_hex("$cacheprefix/$bin");
-    substr($cachemd5, 2, 0, '/');
-    my @s = stat("$remotecache/$cachemd5");
+    my $cacheid = Digest::SHA::sha256_hex("$cacheprefix/$bin");
+    substr($cacheid, 2, 0, '/');
+    my @s = stat("$remotecache/$cacheid");
     if (!@s || $s[9] != $b->{'mtime'} || $s[7] != $b->{'size'}) {
       push @fetch, $bin;
     } else {
-      utime time(), $s[9], "$remotecache/$cachemd5";
-      push @reply, {'name' => $b->{'filename'}, 'filename' => "$remotecache/$cachemd5"};
+      utime time(), $s[9], "$remotecache/$cacheid";
+      push @reply, {'name' => $b->{'filename'}, 'filename' => "$remotecache/$cacheid"};
     }
   }
   clean_random_cache_slot();
@@ -843,11 +844,11 @@ sub getremotebinaries_cache {
 
 sub getremotebinaries_putincache {
   my ($cacheprefix, $bin, $tmpname) = @_;
-  my $cachemd5 = Digest::MD5::md5_hex("$cacheprefix/$bin");
-  substr($cachemd5, 2, 0, '/');
-  mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
-  rename($tmpname, "$remotecache/$cachemd5");
-  return "$remotecache/$cachemd5";
+  my $cacheid = Digest::SHA::sha256_hex("$cacheprefix/$bin");
+  substr($cacheid, 2, 0, '/');
+  mkdir_p("$remotecache/".substr($cacheid, 0, 2));
+  rename($tmpname, "$remotecache/$cacheid");
+  return "$remotecache/$cacheid";
 }
 
 sub getremotebinaries {
