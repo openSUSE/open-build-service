@@ -1,8 +1,8 @@
 module Webui
   module Users
     class BsRequestsController < WebuiController
-      before_action :redirect_legacy
       before_action :require_login
+      before_action :redirect_legacy
       before_action :set_bs_requests
 
       include Webui::RequestsFilter

@@ -6,6 +6,10 @@ class Webui::PackageController < Webui::WebuiController
   include Webui::NotificationsHandler
 
   # rubocop:disable Rails/LexicallyScopedActionFilter
+  before_action :require_login, except: %i[show index branch_diff_info
+                                           users requests statistics revisions view_file
+                                           devel_project buildresult rpmlint_result rpmlint_log files]
+
   # The methods save_person, save_group and remove_role are defined in Webui::ManageRelationships
   before_action :set_project, only: %i[show edit update index users requests statistics revisions
                                        new branch_diff_info rdiff create remove
@@ -22,10 +26,6 @@ class Webui::PackageController < Webui::WebuiController
 
   before_action :check_ajax, only: %i[devel_project buildresult]
   # make sure it's after the require_, it requires both
-  before_action :require_login, except: %i[show index branch_diff_info
-                                           users requests statistics revisions view_file
-                                           devel_project buildresult rpmlint_result rpmlint_log files]
-
   prepend_before_action :lockout_spiders, only: %i[revisions rdiff requests]
 
   after_action :verify_authorized, only: %i[new create remove]
