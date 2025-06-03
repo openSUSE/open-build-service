@@ -10,6 +10,7 @@ module Webui
                                  Regexp.new('\.pkg\.tar(?:\.gz|\.xz|\.zst)?$'),
                                  Regexp.new('\.arch$')].freeze
 
+      before_action :require_login, except: [:index]
       before_action :set_project
       before_action :set_package
       before_action :set_multibuild_flavor
@@ -21,7 +22,6 @@ module Webui
 
       prepend_before_action :lockout_spiders
 
-      before_action :require_login, except: [:index]
       after_action :verify_authorized, only: [:destroy]
 
       def index
