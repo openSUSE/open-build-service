@@ -10,7 +10,7 @@
         %li.dropdown-item{ data: { 'canned-response': canned_response.content, 'decision_type': decision_type }, role: 'button' }
           = canned_response.title
     %hr.dropdown-divider/
-    = link_to('Create and modify' , canned_responses_path, class: 'dropdown-item')
+    = link_to('Create and modify' , canned_responses_path, class: 'dropdown-item', target: '_top')
 :javascript
   $(document).ready(function(){
     setupCannedResponses();

@@ -7,14 +7,14 @@
           - case line.state
           - when 'range'
             - if target_file
-              = link_to(target_file, title: 'See original file') do
+              = link_to(target_file, title: 'See original file', target: '_top') do
                 .number.p-0.text-center.link-danger<
                   %i.fas.fa-file-arrow-down
             - else
               %a
                 .number
             - if source_file
-              = link_to(source_file, title: 'See submitted file') do
+              = link_to(source_file, title: 'See submitted file', target: '_top') do
                 .number.p-0.text-center.link-success<
                   %i.fas.fa-file-arrow-up
             - else
@@ -28,7 +28,7 @@
               .text-muted.text
                 = sanitize line.content
           - else
-            = link_to("##{id}", class: 'd-flex') do
+            = link_to("##{id}", class: 'd-flex', target: '_top') do
               .number<
                 = line.original_index
               .number<
