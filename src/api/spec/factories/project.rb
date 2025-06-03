@@ -3,6 +3,7 @@ FactoryBot.define do
     transient do
       link_to { nil }
       maintainer { nil }
+      reviewer { nil }
       project_config { nil }
     end
 
@@ -21,6 +22,19 @@ FactoryBot.define do
             project.relationships.build(user: maintainer, role: role)
           when Group
             project.relationships.build(group: maintainer, role: role)
+          end
+        end
+      end
+
+      if evaluator.reviewer
+        role = Role.find_by_title('reviewer')
+        reviewers = Array(evaluator.reviewer)
+        reviewers.each do |reviewer|
+          case reviewer
+          when User
+            project.relationships.build(user: reviewer, role: role)
+          when Group
+            project.relationships.build(group: reviewer, role: role)
           end
         end
       end
