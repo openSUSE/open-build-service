@@ -22,7 +22,7 @@ span.CodeRay { white-space: pre }
 }
 .CodeRay .line-numbers a:target {
   background-color: rgba($editor-warning, 0.3);
-  color: $body-color;
+  color: var(--bs-body-color);
 }
 
 .CodeRay .line, .CodeRay .code { width: 100% }
@@ -32,7 +32,7 @@ span.CodeRay { white-space: pre }
 .CodeRay .done, .CodeRay .comment, .CodeRay .escape,
 .CodeRay .inline-delimiter { color: $text-muted }
 
-.CodeRay .delimiter, .CodeRay .inline { color: $body-color }
+.CodeRay .delimiter, .CodeRay .inline { color: var(--bs-body-color) }
 
 .CodeRay .binary .char, .CodeRay .binary .delimiter,
 .CodeRay .map .content, .CodeRay .map .delimiter, .CodeRay .octal,
@@ -89,4 +89,4 @@ span.CodeRay { white-space: pre }
 
 .CodeRay .insert .insert { color: $editor-success; background: transparent }
 .CodeRay .delete .delete { color: $danger; background: transparent }
-.CodeRay .change .change { color: $body-color }
+.CodeRay .change .change { color: var(--bs-body-color) }
