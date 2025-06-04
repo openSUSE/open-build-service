@@ -7,8 +7,8 @@ module Backend
       # Performs a search of the binary in a project list
       # @return [String]
       def self.binary(project_names, binary_name)
-        project_list = project_names.map { |project_name| "@project='#{CGI.escape(project_name)}'" }.join('+or+')
-        http_post("/search/published/binary/id?match=(@name='#{CGI.escape(binary_name)}'+and+(#{project_list}))")
+        project_list = project_names.map { |project_name| "project=#{CGI.escape(project_name)}" }.join('&')
+        http_get("/published?view=collection&name=#{CGI.escape(binary_name)}&#{project_list}")
       end
 
       def self.published_binaries_for_package(project_name, package_name)

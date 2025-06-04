@@ -122,7 +122,7 @@ class SearchController < ApplicationController
 
   def owner
     if params[:binary].present?
-      owners = OwnerSearch::Assignee.new(params).for(params[:binary])
+      owners = OwnerSearch::Assignee.new(params).for_binary(params[:binary])
     elsif (obj = owner_group_or_user)
       owners = OwnerSearch::Owned.new(params).for(obj)
     end
