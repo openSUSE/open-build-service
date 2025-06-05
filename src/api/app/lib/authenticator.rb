@@ -36,6 +36,7 @@ class Authenticator
   end
 
   def extract_user
+    Rails.logger.info ">>>>>>>> extract_user, proxy_mode_enabled: #{::Configuration.proxy_auth_mode_enabled?}"
     if ::Configuration.proxy_auth_mode_enabled?
       extract_proxy_user
     else
