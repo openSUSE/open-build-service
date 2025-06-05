@@ -11,22 +11,18 @@ class Webui::CommentsController < Webui::WebuiController
     build_new_comment(@commented, permitted_params)
     @commentable = @comment.commentable
 
-    status = if @comment.save
-               flash.now[:success] = 'Comment created successfully.'
-               :ok
-             else
-               flash.now[:error] = "Failed to create comment: #{@comment.errors.full_messages.to_sentence}."
-               :unprocessable_entity
-             end
+    if @comment.save
+      flash.now[:success] = 'Comment created successfully.'
+    else
+      flash.now[:error] = "Failed to create comment: #{@comment.errors.full_messages.to_sentence}."
+    end
 
     if Flipper.enabled?(:request_show_redesign, User.session) && %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
       render(partial: 'webui/comment/beta/comments_thread',
-             locals: { comment: @comment.root, commentable: @commentable, level: 1, diff: diff },
-             status: status)
+             locals: { comment: @comment.root, commentable: @commentable, level: 1, diff: diff })
     else
       render(partial: 'webui/comment/comment_list',
-             locals: { commentable: @commentable },
-             status: status)
+             locals: { commentable: @commentable })
     end
   end
 
@@ -35,24 +31,20 @@ class Webui::CommentsController < Webui::WebuiController
     authorize @comment, :update?
     @comment.assign_attributes(permitted_params)
 
-    status = if @comment.save
-               flash.now[:success] = 'Comment updated successfully.'
-               :ok
-             else
-               flash.now[:error] = "Failed to update comment: #{@comment.errors.full_messages.to_sentence}."
-               :unprocessable_entity
-             end
+    if @comment.save
+      flash.now[:success] = 'Comment updated successfully.'
+    else
+      flash.now[:error] = "Failed to update comment: #{@comment.errors.full_messages.to_sentence}."
+    end
 
     respond_to do |format|
       format.html do
         if Flipper.enabled?(:request_show_redesign, User.session) && %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
           render(partial: 'webui/comment/beta/comments_thread',
-                 locals: { comment: @comment.root, commentable: @comment.commentable, level: 1, diff: diff },
-                 status: status)
+                 locals: { comment: @comment.root, commentable: @comment.commentable, level: 1, diff: diff })
         else
           render(partial: 'webui/comment/comment_list',
-                 locals: { commentable: @comment.commentable },
-                 status: status)
+                 locals: { commentable: @comment.commentable })
         end
       end
     end
@@ -67,20 +59,17 @@ class Webui::CommentsController < Webui::WebuiController
     authorize @comment, :destroy?
     @commentable = @comment.commentable
 
-    status = if @comment.blank_or_destroy
-               flash.now[:success] = 'Comment deleted successfully.'
-               :ok
-             else
-               flash.now[:error] = "Failed to delete comment: #{@comment.errors.full_messages.to_sentence}."
-               :unprocessable_entity
-             end
+    if @comment.blank_or_destroy
+      flash.now[:success] = 'Comment deleted successfully.'
+    else
+      flash.now[:error] = "Failed to delete comment: #{@comment.errors.full_messages.to_sentence}."
+    end
 
     if Flipper.enabled?(:request_show_redesign, User.session) && %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
       if @comment.commentable_type == 'BsRequestAction' &&
          Comment.where(commentable: @comment.commentable, diff_file_index: @comment.root.diff_file_index, diff_line_number: @comment.root.diff_line_number).count.zero?
         return render(partial: 'webui/request/add_inline_comment',
-                      locals: { commentable: @comment.root.commentable, diff_file_index: @comment.root.diff_file_index, diff_line_number: @comment.root.diff_line_number },
-                      status: status)
+                      locals: { commentable: @comment.root.commentable, diff_file_index: @comment.root.diff_file_index, diff_line_number: @comment.root.diff_line_number })
       end
       # if we're a root comment with no replies there is no need to re-render anything
       return head(:ok) if @comment.root? && @comment.leaf?
@@ -92,9 +81,9 @@ class Webui::CommentsController < Webui::WebuiController
       return head(:ok) if !@comment.root? && @comment.ancestors.all?(&:destroyed?)
 
       # if we're a reply or a comment with replies we should re-render the updated thread
-      render(partial: 'webui/comment/beta/comments_thread', locals: { comment: @comment.root, commentable: @commentable, level: 1, diff: diff }, status: status)
+      render(partial: 'webui/comment/beta/comments_thread', locals: { comment: @comment.root, commentable: @commentable, level: 1, diff: diff })
     else
-      render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable }, status: status)
+      render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable })
     end
   end
   # rubocop: enable Metrics/CyclomaticComplexity
@@ -112,22 +101,18 @@ class Webui::CommentsController < Webui::WebuiController
 
     state = ActiveModel::Type::Boolean.new.cast(params[:moderation_state])
 
-    status = if @comment.moderate(state)
-               flash.now[:success] = 'Comment moderated successfully.'
-               :ok
-             else
-               flash.now[:error] = "Failed to moderate comment: #{@comment.errors.full_messages.to_sentence}."
-               :unprocessable_entity
-             end
+    if @comment.moderate(state)
+      flash.now[:success] = 'Comment moderated successfully.'
+    else
+      flash.now[:error] = "Failed to moderate comment: #{@comment.errors.full_messages.to_sentence}."
+    end
 
     if Flipper.enabled?(:request_show_redesign, User.session) && %w[BsRequest BsRequestAction].include?(@comment.commentable_type)
       render(partial: 'webui/comment/beta/comments_thread',
-             locals: { comment: @comment.root, commentable: @comment.commentable, level: 1, diff: diff },
-             status: status)
+             locals: { comment: @comment.root, commentable: @comment.commentable, level: 1, diff: diff })
     else
       render(partial: 'webui/comment/comment_list',
-             locals: { commentable: @comment.commentable },
-             status: status)
+             locals: { commentable: @comment.commentable })
     end
   end
 
