@@ -21,7 +21,7 @@ $::LOGLEVEL=0;
 
 my $distro = get_distro();
 my $distro_obj;
-if ($distro =~ /suse/) {
+if ($distro =~ m/suse|sles/) {
   echo("Using distro family SUSE");
   require BSSetup::SUSE;
   BSSetup::SUSE->import;
