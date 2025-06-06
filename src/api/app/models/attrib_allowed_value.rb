@@ -1,5 +1,7 @@
 class AttribAllowedValue < ApplicationRecord
   belongs_to :attrib_type
+
+  validates :value, length: { maximum: 65_535 }
 end
 
 # == Schema Information
