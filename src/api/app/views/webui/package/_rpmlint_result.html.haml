@@ -2,7 +2,7 @@
 
 .mt-3.mb-3{ id: "rpmlin-log-#{index}", data: { project: project.name, package: package.name } }
   - if repository_list.empty?
-    = render partial: 'no_repositories', locals: { project: project }
+    = render partial: 'no_build_results', locals: { project: project }
   - else
     .row.row-cols-auto
       = select_tag("rpmlint_repo_select_#{index}", options_for_select(repository_list.sort),

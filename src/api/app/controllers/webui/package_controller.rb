@@ -273,7 +273,7 @@ class Webui::PackageController < Webui::WebuiController
                                                                                 collapsed_packages: params.fetch(:collapsedPackages, []),
                                                                                 collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
     else
-      render partial: 'no_repositories', locals: { project: @project }
+      render partial: 'no_build_results', locals: { project: @project }
     end
   end
 
