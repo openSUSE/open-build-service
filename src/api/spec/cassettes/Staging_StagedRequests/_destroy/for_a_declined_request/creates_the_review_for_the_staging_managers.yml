@@ -1,0 +1,787 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_78
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>Many Waters</title>
+          <description/>
+          <person userid="dimstar" role="maintainer"/>
+          <group groupid="factory-staging" role="reviewer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '204'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>Many Waters</title>
+          <description></description>
+          <person userid="dimstar" role="maintainer"/>
+          <group groupid="factory-staging" role="reviewer"/>
+        </project>
+  recorded_at: Tue, 03 Jun 2025 14:53:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/_meta?user=user_79
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title>What's Become of Waring</title>
+          <description/>
+          <group groupid="factory-staging" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '181'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title>What's Become of Waring</title>
+          <description></description>
+          <group groupid="factory-staging" role="maintainer"/>
+        </project>
+  recorded_at: Tue, 03 Jun 2025 14:53:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_project/_staging_workflow?user=user_80
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="openSUSE:Factory" managers="factory-staging">
+          <staging_project name="openSUSE:Factory:Staging:A"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '170'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="23">
+          <srcmd5>f52d2fa228da5a7a62608afca232acfe</srcmd5>
+          <time>1748962406</time>
+          <user>user_80</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 03 Jun 2025 14:53:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_project/_staging_workflow?user=user_80
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="openSUSE:Factory" managers="factory-staging">
+          <staging_project name="openSUSE:Factory:Staging:A"/>
+          <staging_project name="openSUSE:Factory:Staging:B"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '170'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="24">
+          <srcmd5>709bb8e6a36709d62f4b7877d2ee542a</srcmd5>
+          <time>1748962406</time>
+          <user>user_80</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 03 Jun 2025 14:53:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:B/_meta?user=user_80
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title/>
+          <description/>
+          <group groupid="factory-staging" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:B">
+          <title></title>
+          <description></description>
+          <group groupid="factory-staging" role="maintainer"/>
+        </project>
+  recorded_at: Tue, 03 Jun 2025 14:53:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_80
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>Many Waters</title>
+          <description/>
+          <person userid="dimstar" role="maintainer"/>
+          <group groupid="factory-staging" role="reviewer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '204'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>Many Waters</title>
+          <description></description>
+          <person userid="dimstar" role="maintainer"/>
+          <group groupid="factory-staging" role="reviewer"/>
+        </project>
+  recorded_at: Tue, 03 Jun 2025 14:53:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel:something/_meta?user=user_82
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="devel:something">
+          <title>Butter In a Lordly Dish</title>
+          <description/>
+          <person userid="user_81" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '162'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="devel:something">
+          <title>Butter In a Lordly Dish</title>
+          <description></description>
+          <person userid="user_81" role="maintainer"/>
+        </project>
+  recorded_at: Tue, 03 Jun 2025 14:53:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel:something/source_package/_meta?user=user_83
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="devel:something">
+          <title>East of Eden</title>
+          <description>Eum porro facere veritatis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="devel:something">
+          <title>East of Eden</title>
+          <description>Eum porro facere veritatis.</description>
+        </package>
+  recorded_at: Tue, 03 Jun 2025 14:53:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel:something/source_package/_config
+    body:
+      encoding: UTF-8
+      string: Occaecati at voluptate. Doloribus optio quo. Soluta est consectetur.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="23" vrev="23">
+          <srcmd5>b269bca3c68b885e9ffa69915ce30f1c</srcmd5>
+          <version>unknown</version>
+          <time>1748962407</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 03 Jun 2025 14:53:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel:something/source_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: b
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="24" vrev="24">
+          <srcmd5>b269bca3c68b885e9ffa69915ce30f1c</srcmd5>
+          <version>unknown</version>
+          <time>1748962407</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 03 Jun 2025 14:53:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/target_package/_meta?user=user_84
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>The Moving Toyshop</title>
+          <description>Quibusdam doloremque voluptatem voluptas.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '177'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>The Moving Toyshop</title>
+          <description>Quibusdam doloremque voluptatem voluptas.</description>
+        </package>
+  recorded_at: Tue, 03 Jun 2025 14:53:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/target_package/_config
+    body:
+      encoding: UTF-8
+      string: Ab quaerat dicta. Numquam optio earum. Non possimus odio.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="23" vrev="23">
+          <srcmd5>24f5dbe91b6cb4d0ea0d2e8792f6d5ab</srcmd5>
+          <version>unknown</version>
+          <time>1748962407</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 03 Jun 2025 14:53:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/target_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: a
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="24" vrev="24">
+          <srcmd5>24f5dbe91b6cb4d0ea0d2e8792f6d5ab</srcmd5>
+          <version>unknown</version>
+          <time>1748962407</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 03 Jun 2025 14:53:27 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel:something/source_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '300'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="24" vrev="24" srcmd5="b269bca3c68b885e9ffa69915ce30f1c">
+          <entry name="_config" md5="6967280564ac69568785fe55ff2fd783" size="68" mtime="1748962407"/>
+          <entry name="somefile.txt" md5="92eb5ffee6ae2fec3ad71c777531578f" size="1" mtime="1748962379"/>
+        </directory>
+  recorded_at: Tue, 03 Jun 2025 14:53:27 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/devel:something/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=openSUSE:Factory&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1066'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="fc7aed6eb84dd9098f32e5147101d256">
+          <old project="openSUSE:Factory" package="target_package" rev="24" srcmd5="24f5dbe91b6cb4d0ea0d2e8792f6d5ab"/>
+          <new project="devel:something" package="source_package" rev="24" srcmd5="b269bca3c68b885e9ffa69915ce30f1c"/>
+          <files>
+            <file state="changed">
+              <old name="_config" md5="5544be0df7069015c0f5ef27f9b89087" size="57"/>
+              <new name="_config" md5="6967280564ac69568785fe55ff2fd783" size="68"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Ab quaerat dicta. Numquam optio earum. Non possimus odio.
+        \ No newline at end of file
+        +Occaecati at voluptate. Doloribus optio quo. Soluta est consectetur.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="changed">
+              <old name="somefile.txt" md5="0cc175b9c0f1b6a831c399e269772661" size="1"/>
+              <new name="somefile.txt" md5="92eb5ffee6ae2fec3ad71c777531578f" size="1"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -a
+        \ No newline at end of file
+        +b
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Tue, 03 Jun 2025 14:53:27 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel:something/source_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '300'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="source_package" rev="24" vrev="24" srcmd5="b269bca3c68b885e9ffa69915ce30f1c">
+          <entry name="_config" md5="6967280564ac69568785fe55ff2fd783" size="68" mtime="1748962407"/>
+          <entry name="somefile.txt" md5="92eb5ffee6ae2fec3ad71c777531578f" size="1" mtime="1748962379"/>
+        </directory>
+  recorded_at: Tue, 03 Jun 2025 14:53:28 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/target_package/_meta?user=ana
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory:Staging:A">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory:Staging:A">
+          <title></title>
+          <description></description>
+        </package>
+  recorded_at: Tue, 03 Jun 2025 14:53:28 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/target_package/_link?user=ana
+    body:
+      encoding: UTF-8
+      string: <link project="devel:something" package="source_package" rev="b269bca3c68b885e9ffa69915ce30f1c"
+        vrev="24"/>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>c6e93049f7a4210adf725dacd7a3d857</srcmd5>
+          <version>unknown</version>
+          <time>1748962408</time>
+          <user>ana</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 03 Jun 2025 14:53:28 GMT
+- request:
+    method: post
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22target_package%22%20and%20linkinfo/@project=%22openSUSE:Factory:Staging:A%22%20and%20@project=%22openSUSE:Factory:Staging:A%22)
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '27'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+        </collection>
+  recorded_at: Tue, 03 Jun 2025 14:53:28 GMT
+- request:
+    method: delete
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/target_package?user=ana
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Tue, 03 Jun 2025 14:53:28 GMT
+recorded_with: VCR 6.3.1
