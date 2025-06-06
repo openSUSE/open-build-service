@@ -45,6 +45,7 @@ class AttribTest < ActiveSupport::TestCase
 
   test 'sets values from default_values' do
     attrib_type = AttribType.new(attrib_namespace: @namespace, name: 'AttribDefaultValues')
+    attrib_type.save
     attrib = Attrib.new(attrib_type: attrib_type, package: Package.first)
     # default value position 1
     attrib_type.default_values << AttribDefaultValue.new(value: 'xxx', position: 1)
@@ -80,6 +81,7 @@ class AttribTest < ActiveSupport::TestCase
     attrib_type = AttribType.new(attrib_namespace: @namespace, name: 'AttribValueCombi')
     attrib_type.allowed_values << AttribAllowedValue.new(value: 'One')
     attrib_type.allowed_values << AttribAllowedValue.new(value: 'Two')
+    attrib_type.save
     attrib_type.default_values << AttribDefaultValue.new(value: 'One', position: 1)
     attrib_type.value_count = 1
     attrib_type.save
