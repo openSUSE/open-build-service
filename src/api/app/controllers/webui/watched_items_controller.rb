@@ -17,7 +17,7 @@ class Webui::WatchedItemsController < Webui::WebuiController
       watched_item.destroy
       flash[:success] = "Removed #{FLASH_PER_WATCHABLE_TYPE[@watchable.class]} from the watchlist"
     else
-      User.session.watched_items.create(watchable: @watchable)
+      User.session.watched_items.find_or_create_by(watchable: @watchable)
       flash[:success] = "Added #{FLASH_PER_WATCHABLE_TYPE[@watchable.class]} to the watchlist"
     end
 
