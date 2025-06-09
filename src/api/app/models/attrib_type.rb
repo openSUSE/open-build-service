@@ -85,9 +85,6 @@ class AttribType < ApplicationRecord
       self.issue_list = !xmlhash['issue_list'].nil?
       logger.debug "IL #{issue_list}"
 
-      # default values of a attribute stored
-      update_default_values(xmlhash.elements('default'))
-
       # list of allowed values
       allowed_values.delete_all
       xmlhash.elements('allowed') do |allowed_element|
@@ -97,6 +94,10 @@ class AttribType < ApplicationRecord
       end
 
       save
+
+      # store the default values of an attribute
+      # they require the attrib_type_id, so the attrib_type is saved beforehand
+      update_default_values(xmlhash.elements('default'))
     end
   end
 
