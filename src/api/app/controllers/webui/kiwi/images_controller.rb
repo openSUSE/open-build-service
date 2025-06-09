@@ -91,7 +91,7 @@ module Webui
           render partial: 'build_status'
         else
           @project = @image.package.project
-          render partial: '/webui/package/no_repositories'
+          render partial: '/webui/package/no_build_results'
         end
       end
 
