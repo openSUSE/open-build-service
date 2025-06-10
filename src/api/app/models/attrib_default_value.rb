@@ -2,7 +2,7 @@ class AttribDefaultValue < ApplicationRecord
   belongs_to :attrib_type, optional: true
   acts_as_list scope: :attrib_type
 
-  validates :attrib_type_id, presence: true
+  validates :attrib_type, presence: true
 end
 
 # == Schema Information
