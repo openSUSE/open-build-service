@@ -471,6 +471,8 @@ class Package < ApplicationRecord
   end
 
   def sources_changed(opts = {})
+    return if readonly?
+
     dir_xml = opts[:dir_xml]
 
     # to call update_activity before filter

@@ -12,6 +12,10 @@ module Project::Errors
     setup 'unknown_project', 404, 'Unknown project'
   end
 
+  class RemoteObjectError < APIError
+    setup 'remote_project', 400, 'Remote project'
+  end
+
   class ReadAccessError < UnknownObjectError; end
 
   class SaveError < APIError
