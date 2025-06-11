@@ -391,8 +391,8 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'delete_package_no_permission' }
     post '/source/RemoteInstance:BaseDistro2.0/package', params: { cmd: :copy, oproject: 'BaseDistro2.0', opackage: 'pack2' }
-    assert_response :forbidden
-    assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
+    assert_response :not_found
+    assert_xml_tag tag: 'status', attributes: { code: 'unknown_project' }
     put '/source/RemoteInstance:BaseDistro2.0/pack/_meta', params: '<package name="pack" project="RemoteInstance:BaseDistro2.0">
            <title/><description/></package>'
     assert_response :forbidden

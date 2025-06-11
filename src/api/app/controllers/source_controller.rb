@@ -37,11 +37,6 @@ class SourceController < ApplicationController
     @login = params[:login]
   end
 
-  def set_project
-    @project = Project.find_by(name: params[:project])
-    raise Project::Errors::UnknownObjectError, "Project not found: #{params[:project]}" unless @project
-  end
-
   def actually_create_incident(project)
     raise ModifyProjectNoPermission, "no permission to modify project '#{project.name}'" unless User.session.can_modify?(project)
 
