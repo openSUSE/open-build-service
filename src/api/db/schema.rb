@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_04_30_113947) do
+ActiveRecord::Schema[7.2].define(version: 2025_06_04_081823) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -1226,6 +1226,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_30_113947) do
     t.string "rss_secret", limit: 200
     t.integer "color_theme", default: 0, null: false
     t.boolean "censored", default: false, null: false
+    t.string "encrypted_password"
     t.index ["censored"], name: "index_users_on_censored"
     t.index ["deprecated_password"], name: "users_password_index"
     t.index ["in_beta"], name: "index_users_on_in_beta"
