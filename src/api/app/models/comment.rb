@@ -106,6 +106,8 @@ class Comment < ApplicationRecord
       Event::CommentForRequest.create(event_parameters)
     when 'BsRequestAction'
       Event::CommentForRequest.create(event_parameters.merge({ id: id, diff_file_index: diff_file_index, diff_line_number: diff_line_number }))
+    when 'Report'
+      Event::CommentForReport.create(event_parameters.merge({ report_id: commentable.id }))
     end
   end
 
