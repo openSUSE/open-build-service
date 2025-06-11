@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/franz/_meta?user=peter
+    uri: http://backend:5352/source/franz/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
         <project name="franz">
-          <title>Tender Is the Night</title>
+          <title>That Hideous Strength</title>
           <description/>
           <person userid="peter" role="maintainer"/>
         </project>
@@ -30,24 +30,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '148'
     body:
       encoding: UTF-8
       string: |
         <project name="franz">
-          <title>Tender Is the Night</title>
+          <title>That Hideous Strength</title>
           <description></description>
           <person userid="peter" role="maintainer"/>
         </project>
-  recorded_at: Tue, 16 Jul 2024 17:08:49 GMT
+  recorded_at: Wed, 11 Jun 2025 08:22:00 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/franz_released/_meta?user=peter
+    uri: http://backend:5352/source/franz_released/_meta?user=user_2
     body:
       encoding: UTF-8
       string: |
         <project name="franz_released">
-          <title>The Mirror Crack'd from Side to Side</title>
+          <title>Dulce et Decorum Est</title>
           <description/>
           <person userid="peter" role="maintainer"/>
         </project>
@@ -70,119 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '156'
     body:
       encoding: UTF-8
       string: |
         <project name="franz_released">
-          <title>The Mirror Crack'd from Side to Side</title>
+          <title>Dulce et Decorum Est</title>
           <description></description>
           <person userid="peter" role="maintainer"/>
         </project>
-  recorded_at: Tue, 16 Jul 2024 17:08:49 GMT
+  recorded_at: Wed, 11 Jun 2025 08:22:00 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/franz_released/_meta?user=peter
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="franz_released">
-          <title>The Mirror Crack'd from Side to Side</title>
-          <description/>
-          <person userid="peter" role="maintainer"/>
-          <repository name="standard">
-            <arch>x86_64</arch>
-          </repository>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '243'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="franz_released">
-          <title>The Mirror Crack'd from Side to Side</title>
-          <description></description>
-          <person userid="peter" role="maintainer"/>
-          <repository name="standard">
-            <arch>x86_64</arch>
-          </repository>
-        </project>
-  recorded_at: Tue, 16 Jul 2024 17:08:49 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/franz/_meta?user=peter
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="franz">
-          <title>Tender Is the Night</title>
-          <description/>
-          <person userid="peter" role="maintainer"/>
-          <repository name="standard">
-            <releasetarget project="franz_released" repository="standard" trigger="manual"/>
-            <arch>x86_64</arch>
-          </repository>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '302'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="franz">
-          <title>Tender Is the Night</title>
-          <description></description>
-          <person userid="peter" role="maintainer"/>
-          <repository name="standard">
-            <releasetarget project="franz_released" repository="standard" trigger="manual"/>
-            <arch>x86_64</arch>
-          </repository>
-        </project>
-  recorded_at: Tue, 16 Jul 2024 17:08:49 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/franz/hans/_meta?user=peter
+    uri: http://backend:5352/source/franz/hans/_meta?user=user_3
     body:
       encoding: UTF-8
       string: |
         <package name="hans" project="franz">
-          <title>Wildfire at Midnight</title>
-          <description>Est omnis qui rerum.</description>
+          <title>Nine Coaches Waiting</title>
+          <description>Laudantium et distinctio magnam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -203,15 +109,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '137'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <package name="hans" project="franz">
-          <title>Wildfire at Midnight</title>
-          <description>Est omnis qui rerum.</description>
+          <title>Nine Coaches Waiting</title>
+          <description>Laudantium et distinctio magnam.</description>
         </package>
-  recorded_at: Tue, 16 Jul 2024 17:08:49 GMT
+  recorded_at: Wed, 11 Jun 2025 08:22:00 GMT
 - request:
     method: post
     uri: http://backend:5352/build/franz_released?cmd=suspendproject&comment=Releasing%20package%20hans
@@ -245,7 +151,7 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Tue, 16 Jul 2024 17:08:49 GMT
+  recorded_at: Wed, 11 Jun 2025 08:22:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/franz_released/hans/_meta?user=peter
@@ -253,8 +159,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="hans" project="franz_released">
-          <title>Wildfire at Midnight</title>
-          <description>Est omnis qui rerum.</description>
+          <title>Nine Coaches Waiting</title>
+          <description>Laudantium et distinctio magnam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -275,15 +181,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="hans" project="franz_released">
-          <title>Wildfire at Midnight</title>
-          <description>Est omnis qui rerum.</description>
+          <title>Nine Coaches Waiting</title>
+          <description>Laudantium et distinctio magnam.</description>
         </package>
-  recorded_at: Tue, 16 Jul 2024 17:08:49 GMT
+  recorded_at: Wed, 11 Jun 2025 08:22:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/franz_released/hans/_meta?user=peter
@@ -291,8 +197,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="hans" project="franz_released">
-          <title>Wildfire at Midnight</title>
-          <description>Est omnis qui rerum.</description>
+          <title>Nine Coaches Waiting</title>
+          <description>Laudantium et distinctio magnam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -313,15 +219,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="hans" project="franz_released">
-          <title>Wildfire at Midnight</title>
-          <description>Est omnis qui rerum.</description>
+          <title>Nine Coaches Waiting</title>
+          <description>Laudantium et distinctio magnam.</description>
         </package>
-  recorded_at: Tue, 16 Jul 2024 17:08:49 GMT
+  recorded_at: Wed, 11 Jun 2025 08:22:01 GMT
 - request:
     method: post
     uri: http://backend:5352/source/franz_released/hans?cmd=copy&comment=Release%20from%20franz%20/%20hans&expand=1&noservice=1&opackage=hans&oproject=franz&user=peter&withacceptinfo=1&withvrev=1
@@ -353,15 +259,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
+        <revision rev="3" vrev="3">
           <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
           <version>unknown</version>
-          <time>1721149730</time>
+          <time>1749630121</time>
           <user>peter</user>
           <comment>Release from franz / hans</comment>
           <requestid/>
         </revision>
-  recorded_at: Tue, 16 Jul 2024 17:08:50 GMT
+  recorded_at: Wed, 11 Jun 2025 08:22:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/franz_released/hans/_meta?user=peter
@@ -369,8 +275,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="hans" project="franz_released">
-          <title>Wildfire at Midnight</title>
-          <description>Est omnis qui rerum.</description>
+          <title>Nine Coaches Waiting</title>
+          <description>Laudantium et distinctio magnam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -391,15 +297,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="hans" project="franz_released">
-          <title>Wildfire at Midnight</title>
-          <description>Est omnis qui rerum.</description>
+          <title>Nine Coaches Waiting</title>
+          <description>Laudantium et distinctio magnam.</description>
         </package>
-  recorded_at: Tue, 16 Jul 2024 17:08:50 GMT
+  recorded_at: Wed, 11 Jun 2025 08:22:01 GMT
 - request:
     method: get
     uri: http://backend:5352/source/franz_released/hans
@@ -429,9 +335,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="hans" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="hans" rev="3" vrev="3" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Tue, 16 Jul 2024 17:08:50 GMT
+  recorded_at: Wed, 11 Jun 2025 08:22:01 GMT
 - request:
     method: get
     uri: http://backend:5352/source/franz_released/hans?view=info
@@ -461,10 +367,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="hans" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <sourceinfo package="hans" rev="3" vrev="3" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>no source uploaded</error>
         </sourceinfo>
-  recorded_at: Tue, 16 Jul 2024 17:08:50 GMT
+  recorded_at: Wed, 11 Jun 2025 08:22:01 GMT
 - request:
     method: get
     uri: http://backend:5352/source/franz_released/hans
@@ -494,9 +400,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="hans" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="hans" rev="3" vrev="3" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Tue, 16 Jul 2024 17:08:50 GMT
+  recorded_at: Wed, 11 Jun 2025 08:22:01 GMT
 - request:
     method: post
     uri: http://backend:5352/source/franz_released/hans?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -528,12 +434,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="833473698d97a7347dd5826a9893267a">
+        <sourcediff key="5831639fd759b8bcfe18baddee048a38">
           <old project="franz_released" package="hans" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="franz_released" package="hans" rev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="franz_released" package="hans" rev="3" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files/>
         </sourcediff>
-  recorded_at: Tue, 16 Jul 2024 17:08:50 GMT
+  recorded_at: Wed, 11 Jun 2025 08:22:01 GMT
 - request:
     method: post
     uri: http://backend:5352/build/franz_released/standard/x86_64/hans?cmd=copy&multibuild=1&opackage=hans&oproject=franz&orepository=standard&resign=1
@@ -551,8 +457,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 200
-      message: OK
+      code: 404
+      message: project 'franz_released' has no repository 'standard'
     headers:
       Content-Type:
       - text/xml
@@ -561,45 +467,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '21'
+      - '184'
     body:
       encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-  recorded_at: Tue, 16 Jul 2024 17:08:50 GMT
-- request:
-    method: post
-    uri: http://backend:5352/build/franz_released?cmd=resumeproject&comment=Releasing%20package%20hans
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-  recorded_at: Tue, 16 Jul 2024 17:08:50 GMT
-recorded_with: VCR 6.2.0
+      string: |
+        <status code="404">
+          <summary>project 'franz_released' has no repository 'standard'</summary>
+          <details>404 project 'franz_released' has no repository 'standard'</details>
+        </status>
+  recorded_at: Wed, 11 Jun 2025 08:22:01 GMT
+recorded_with: VCR 6.3.1

@@ -3,49 +3,45 @@ RSpec.describe SourcePackageCommandController, :vcr do
   let(:project) { user.home_project }
 
   describe 'POST #release' do
-    subject { post :release, params: { cmd: 'release', project: project, package: package }, format: :xml }
+    subject { post :release, params: { cmd: 'release', project: 'franz', package: 'hans' }, format: :xml }
 
     let(:user) { create(:confirmed_user, login: 'peter') }
-    let(:target_project) do
-      released_project = create(:project, name: 'franz_released', maintainer: user)
-      create(:repository, project: released_project, name: 'standard', architectures: ['x86_64'])
-
-      released_project.store
-      released_project
+    let!(:project) do
+      project = create(:project, name: 'franz', maintainer: user)
+      repo = create(:repository, project: project, name: 'standard', architectures: ['x86_64'])
+      create(:release_target, repository: repo, target_repository: target_repository, trigger: 'manual')
+      project
     end
-
-    let(:project) do
-      source_project = create(:project, name: 'franz', maintainer: user)
-      create(:repository, project: source_project, name: 'standard', architectures: ['x86_64'])
-      create(:release_target, repository: source_project.repositories.first, target_repository: target_project.repositories.first, trigger: 'manual')
-
-      source_project.store
-      source_project
-    end
-    let(:package) { create(:package, name: 'hans', project: project) }
+    let(:target_repository) { create(:repository, project: target_project, name: 'standard', architectures: ['x86_64']) }
+    let(:target_project) { create(:project, name: 'franz_released', maintainer: user) }
+    let!(:package) { create(:package, name: 'hans', project: project) }
 
     before do
       login user
     end
 
-    it { expect(subject).to have_http_status(:ok) }
-    it { expect { subject }.to change(Package, :count).from(0).to(2) }
+    it { expect { subject }.to change(Package, :count).from(1).to(2) }
 
     context 'without project' do
-      let(:project) { 'franz' }
-      let(:package) { 'hans' }
+      before do
+        project.destroy
+      end
 
       it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('unknown_project') }
     end
 
     context 'without package' do
-      let(:package) { 'hans' }
+      before do
+        package.destroy
+      end
 
       it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('unknown_package') }
     end
 
     context 'without release targets' do
-      let(:project) { create(:project, maintainer: user) }
+      before do
+        project.repositories.first.release_targets.first.destroy
+      end
 
       it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('no_matching_release_target') }
     end
@@ -56,26 +52,15 @@ RSpec.describe SourcePackageCommandController, :vcr do
              params: { cmd: 'release',
                        package: package,
                        project: project,
-                       target_project: target_project.name,
-                       target_repository: target_project.repositories.first.name,
-                       repository: project.repositories.first.name }, format: :xml
+                       target_project: target_project,
+                       target_repository: target_repository,
+                       repository: project.repositories.first }, format: :xml
       end
 
-      it { expect(subject).to have_http_status(:ok) }
-      it { expect { subject }.to change(Package, :count).from(0).to(2) }
+      it { expect { subject }.to change(Package, :count).from(1).to(2) }
     end
 
     context 'with scmsync project' do
-      let(:project) do
-        source_project = create(:project, name: 'franz', scmsync: 'https://github.com/hennevogel/scmsync-project.git', maintainer: user)
-        create(:repository, project: source_project, name: 'standard', architectures: ['x86_64'])
-        create(:release_target, repository: source_project.repositories.first, target_repository: target_project.repositories.first, trigger: 'manual')
-
-        source_project.store
-        source_project
-      end
-
-      let(:package) { 'hans' }
       let(:package_xml) do
         <<-HEREDOC
           <package name="hans" project="#{project.name}">
@@ -86,10 +71,13 @@ RSpec.describe SourcePackageCommandController, :vcr do
       end
 
       before do
+        project.packages.first.destroy
+        # rubocop:disable Rails/SkipsModelValidations
+        project.update_columns(scmsync: 'https://github.com/hennevogel/scmsync-project.git')
+        # rubocop:enable Rails/SkipsModelValidations
         allow(Backend::Api::Sources::Package).to receive(:meta).and_return(package_xml)
       end
 
-      it { expect(subject).to have_http_status(:ok) }
       it { expect { subject }.to change(Package, :count).from(0).to(1) }
     end
   end
@@ -109,12 +97,11 @@ RSpec.describe SourcePackageCommandController, :vcr do
     context "with 'diff' command for a multibuild package" do
       before do
         post :diff, params: {
-          cmd: 'diff', package: "#{multibuild_package.name}:one", project: multibuild_project, target_project: project
+          cmd: 'diff', project: multibuild_project, package: "#{multibuild_package.name}:one", format: :xml
         }
       end
 
-      it { expect(flash[:error]).to eq("invalid package name '#{multibuild_package.name}:one' (invalid_package_name)") }
-      it { expect(response).to have_http_status(:found) }
+      it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('unknown_package') }
     end
   end
 

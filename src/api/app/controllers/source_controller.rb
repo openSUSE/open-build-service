@@ -36,11 +36,6 @@ class SourceController < ApplicationController
     @login = params[:login]
   end
 
-  def set_project
-    @project = Project.find_by(name: params[:project])
-    raise Project::Errors::UnknownObjectError, "Project not found: #{params[:project]}" unless @project
-  end
-
   def actually_create_incident(project)
     raise ModifyProjectNoPermission, "no permission to modify project '#{project.name}'" unless User.session.can_modify?(project)
 
@@ -64,6 +59,10 @@ class SourceController < ApplicationController
   end
 
   def verify_release_targets!(pro, filter_architecture = nil)
+    # unfortunately parameter names are different between project and package release commands.
+    params[:targetproject] ||= params[:target_project]
+    params[:targetrepository] ||= params[:target_repository]
+
     repo_matches = nil
     repo_bad_type = nil
 

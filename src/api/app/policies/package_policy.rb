@@ -19,6 +19,8 @@ class PackagePolicy < ApplicationPolicy
   end
 
   def update?
+    return user.can_modify_project?(record.project) if record.name == '_project'
+
     user.can_modify_package?(record)
   end
 
@@ -49,8 +51,6 @@ class PackagePolicy < ApplicationPolicy
   def save_meta_update?
     update? && source_access?
   end
-
-  private
 
   def source_access?
     return true if user.global_permission?(:source_access)
