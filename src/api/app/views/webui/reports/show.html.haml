@@ -16,7 +16,10 @@
           %i.mt2= reportable_not_found(reportable_type: @report.reportable_type)
     %h5 Reason
     %p
-      = @report.reason
+      - if @report.reason
+        = @report.reason
+      - else
+        %i No reason provided
 
 .comments.mt-3
   .card#comments-list
