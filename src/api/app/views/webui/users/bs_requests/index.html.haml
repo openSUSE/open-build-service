@@ -1,5 +1,9 @@
 - @pagetitle = "My Requests"
 
-= render(partial: 'webui/shared/bs_requests/form',
-         locals: { selected_filter: @selected_filter, bs_requests_creators: @bs_requests_creators,
-                   url: @url, bs_requests: @bs_requests, viewed_object: 'You' })
+.row
+  .px-0.px-md-3.mb-3
+    .card
+      .card-body
+        = render(partial: 'webui/shared/bs_requests/form',
+                locals: { selected_filter: @selected_filter, bs_requests_creators: @bs_requests_creators,
+                          url: @url, bs_requests: @bs_requests, viewed_object: 'You' })

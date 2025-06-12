@@ -1,7 +1,7 @@
 = form_for(:request, url: url, method: :get, id: 'content-selector-filters-form') do |form|
   .row
     .col-md-4.col-lg-3.px-0.px-md-3.sticky-top.mb-3#filter-desktop
-      .card
+      .card.border-start-0.border-top-0.border-bottom-0.rounded-0
         %strong.d-block.d-md-none.p-3{ data: { 'bs-toggle': 'collapse', 'bs-target': '#content-selector-filters' },
                                     aria: { expanded: true, controls: 'filters' } }
           Filtered by: #{params[:status]&.humanize}
@@ -13,7 +13,7 @@
     .col-md-8.col-lg-9.px-0.px-md-3.d-none.content-list-loading
       = render partial: 'webui/shared/loading', locals: { text: 'Loading...', wrapper_css: ['loading'] }
     .col-md-8.col-lg-9.px-0.px-md-3.content-list#requests-list
-      .card
+      .card.border-0
         .card-body.list-group.list-group-flush.p-3.pt-0#requests
           .card.border-0.border-bottom.rounded-0.sticky-top.mb-3#requests-filter-search-text
             .card-body.row
