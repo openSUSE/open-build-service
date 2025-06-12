@@ -1,4 +1,5 @@
 - @pagetitle = "Report ##{@report.id}"
+- other_reports = @report.other_reports_from_reportable
 
 .card
   .card-body
@@ -21,6 +22,12 @@
       - else
         %i No reason provided
 
+    - if other_reports.any?
+      %h5 Other reports
+      %ul
+        - other_reports.each do |report|
+          %li
+            = link_to("Report ##{report.id}", report_path(report), class: 'mb-2')
 .comments.mt-3
   .card#comments-list
     %h5.card-header.text-word-break-all
