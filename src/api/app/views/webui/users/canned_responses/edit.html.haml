@@ -9,7 +9,7 @@
         = f.text_field :title, class: 'form-control'
       .mb-3
         = f.label :content, 'Content:'
-        = f.text_area :content, class: 'form-control'
+        = f.text_area :content, class: 'form-control', rows: 10
       - if policy(Decision.new).create?
         .mb-3
           = f.label :decision_type, "Choose 'cleared' or 'favored' if this is a decision's reason"
