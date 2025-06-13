@@ -47,7 +47,7 @@ class AttribTest < ActiveSupport::TestCase
     attrib_type = AttribType.new(attrib_namespace: @namespace, name: 'AttribDefaultValues')
     attrib = Attrib.new(attrib_type: attrib_type, package: Package.first)
     # default value position 1
-    attrib_type.default_values << AttribDefaultValue.new(value: 'xxx', position: 1)
+    attrib_type.default_values.build(value: 'xxx', position: 1)
     attrib_type.save
     attrib.values.build(attrib: attrib, position: 1)
     assert_equal 'xxx', attrib.values[0].value
