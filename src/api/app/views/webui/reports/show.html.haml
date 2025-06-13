@@ -36,3 +36,8 @@
         = @report.comments.length
     .card-body#comments
       = render partial: 'webui/comment/show', locals: { commentable: @report, comment_counter_id: "#comment-counter-report-#{@report.id}" }
+.card.mt-3
+  %h5.card-header.text-word-break-all
+    Decision
+  .card-body
+    = render 'webui/shared/decision_form', canned_responses: User.session.canned_responses, reportable: @report.reportable, reports: @report.reportable&.reports&.without_decision
