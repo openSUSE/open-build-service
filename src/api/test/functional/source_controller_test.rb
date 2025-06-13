@@ -326,7 +326,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
       post '/source/kde4/kdebase', params: { cmd: 'branch', target_package: n }
       assert_response :bad_request
-      assert_xml_tag tag: 'status', attributes: { code: 'invalid_package_name' }
+      assert_xml_tag tag: 'status', attributes: { code: 'invalid_record' }
 
       post '/source/kde4/kdebase', params: { cmd: 'branch', target_project: n }
       assert_response :bad_request
@@ -2138,7 +2138,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_tom
     post '/source/SourceprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff'
     assert_response :forbidden
-    assert_xml_tag tag: 'status', attributes: { code: 'source_access_no_permission' }
+    assert_xml_tag tag: 'status', attributes: { code: 'source_access_package_not_authorized' }
     # reverse
     post '/source/kde4/kdelibs?oproject=SourceprotectedProject&opackage=pack&cmd=diff'
     assert_response :forbidden
@@ -2806,15 +2806,13 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # ensure we send a proper error message to osc
     raw_post '/source/home:adrian:IMAGES/appliance?cmd=commitfilelist', ' <directory></directory> '
     assert_response :not_found
+    assert_xml_tag tag: 'status', attributes: { code: 'unknown_package' }
+    post '/source/home:adrian:IMAGES/appliance', params: { cmd: 'commit' }
+    assert_response :not_found
     assert_xml_tag tag: 'status', attributes: { code: 'not_found' }
     raw_put '/source/home:adrian:IMAGES/appliance/filename?rev=repository', '123'
     assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'scmsync_read_only' }
-    raw_post '/source/home:adrian:IMAGES/appliance?cmd=commitfilelist', ' <directory> <entry name="filename" md5="ba1f2511fc30423bdbb183fe33f3dd0f" /> </directory> '
-    assert_response :success
-    assert_xml_tag tag: 'directory', attributes: { error: 'missing' }
-    post '/source/home:adrian:IMAGES/appliance', params: { cmd: 'commit' }
-    assert_response :not_found
 
     login_tom
     post '/source/home:adrian:IMAGES/_project', params: { cmd: 'fork' }
@@ -3974,7 +3972,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     post '/source/kde4/kdelibs?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable'
     assert_response :forbidden
-    assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
+    assert_xml_tag tag: 'status', attributes: { code: 'update_package_not_authorized' }
 
     post '/source/home:Iggy/TestPack?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable'
     assert_response :success # actually I consider forbidding repositories not existent
@@ -4065,7 +4063,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     post '/source/kde4/kdelibs?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo'
     assert_response :forbidden
-    assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
+    assert_xml_tag tag: 'status', attributes: { code: 'update_package_not_authorized' }
 
     post '/source/home:Iggy/TestPack?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo'
     assert_response :success
@@ -4109,7 +4107,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     post '/source/kde4/kdelibs?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo'
     assert_response :forbidden
-    assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
+    assert_xml_tag tag: 'status', attributes: { code: 'update_package_not_authorized' }
 
     post '/source/home:Iggy?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo'
     assert_response :success
