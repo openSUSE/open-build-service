@@ -57,13 +57,8 @@ class BsRequestActionSubmit < BsRequestAction
         check_action_permission!(skip_source: true) if initialize_devel_package
         # new package, base container on source container
         newxml = Xmlhash.parse(Backend::Api::Sources::Package.meta(source_project, source_package))
-        newxml['name'] = self.target_package
-        newxml['devel'] = nil
-        target_package = target_project.packages.new(name: newxml['name'])
-        target_package.update_from_xml(newxml)
-        target_package.flags.destroy_all
-        target_package.remove_all_persons
-        target_package.remove_all_groups
+        target_package = target_project.packages.new(name: self.target_package)
+        target_package.assign_attributes_from_from_xml(newxml)
         target_package.scmsync = nil
         if initialize_devel_package
           target_package.develpackage = Package.find_by_project_and_name(source_project, source_package)
@@ -91,6 +86,7 @@ class BsRequestActionSubmit < BsRequestAction
 
     fill_acceptinfo(result['acceptinfo'])
 
+    target_package.commit_opts = { no_backend_write: 1 }
     target_package.sources_changed
 
     # cleanup source project
