@@ -68,3 +68,8 @@
   @include collapsible($maxHeight: 1.5em);
   .obs-collapsible-textbox {  @extend .pe-0; }
 }
+
+.canned-response-card-text {
+  p { @extend .mb-4; }
+  @include collapsible($maxHeight: 4.5em, $maxWidth: 70ch);
+}

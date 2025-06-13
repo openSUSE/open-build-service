@@ -13,7 +13,8 @@
                 %span.mb-2= canned_response.decision_type.humanize
             %p.card-text
               %b Content:
-              %span.mb-2= render partial: 'webui/shared/collapsible_text', locals: { text: canned_response.content, render_markdown: true }
+              .canned-response-card-text.mb-2
+                = render partial: 'webui/shared/collapsible_text', locals: { text: canned_response.content, render_markdown: true }
 
             - component.with_header do
               = canned_response.title
