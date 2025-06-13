@@ -5,11 +5,16 @@ module Event
     self.message_bus_routing_key = 'report.comment'
     self.description = 'New comment for report created'
     payload_keys :report_id, :reporter, :reportable_id, :reportable_type, :reason, :category
+    receiver_roles :moderator, :reporter
 
     self.notification_explanation = 'Receive notifications for comments created on a report for which you are...'
 
     def subject
       "New comment in report ##{payload['report_id']}"
+    end
+
+    def reporters
+      User.where(login: payload['reporter'])
     end
   end
 end
