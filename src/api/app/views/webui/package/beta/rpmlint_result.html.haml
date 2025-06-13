@@ -6,24 +6,27 @@
   .card-body
     %h3= @pagetitle
     .rpm-lint-content
-      .pt-1.bg-card.d-flex.flex-wrap-reverse.align-items-baseline.sticky-top
-        .result
-          #rpmlint-log{ data: { project: project.name, package: package.name } }
-            - unless repository_list.empty?
-              .row
-                .col-auto
-                  = select_tag('rpmlint_repo_select', options_for_select(repository_list.sort, repository),
-                              class: 'form-select mb-3', onchange: 'updateRpmLintArchitectures()' )
-                .col-auto
-                  - repo_arch_hash.each do |repository, architectures|
-                    = select_tag("rpmlint_arch_select_#{repository}", options_for_select(architectures.reverse, architecture),
-                                class: 'rpmlint_arch_select form-select mb-3', onchange: 'updateRpmLintLog()')
+      - if repository_list.empty?
+        = render partial: 'no_build_results', locals: { project: project }
+      - else
+        .pt-1.bg-card.d-flex.flex-wrap-reverse.align-items-baseline.sticky-top
+          .result
+            #rpmlint-log{ data: { project: project.name, package: package.name } }
+              - unless repository_list.empty?
+                .row
+                  .col-auto
+                    = select_tag('rpmlint_repo_select', options_for_select(repository_list.sort, repository),
+                                class: 'form-select mb-3', onchange: 'updateRpmLintArchitectures()' )
+                  .col-auto
+                    - repo_arch_hash.each do |repository, architectures|
+                      = select_tag("rpmlint_arch_select_#{repository}", options_for_select(architectures.reverse, architecture),
+                                  class: 'rpmlint_arch_select form-select mb-3', onchange: 'updateRpmLintLog()')
 
-        .btn.btn-outline-primary.rpm-lint-refresh.ms-auto.mb-3{ onclick: 'updateRpmLintLog()', accesskey: 'r', title: 'Refresh Rpm Lint Results' }
-          Refresh
-          %i.fas.fa-sync-alt{ id: 'rpm-lint-reload' }
+          .btn.btn-outline-primary.rpm-lint-refresh.ms-auto.mb-3{ onclick: 'updateRpmLintLog()', accesskey: 'r', title: 'Refresh Rpm Lint Results' }
+            Refresh
+            %i.fas.fa-sync-alt{ id: 'rpm-lint-reload' }
 
-      %pre.rpmlint-result.text-pre-wrap
+        %pre.rpmlint-result.text-pre-wrap
 
-    :javascript
-      updateRpmLintArchitectures();
+        :javascript
+          updateRpmLintArchitectures();
