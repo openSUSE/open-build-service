@@ -34,6 +34,10 @@ class Report < ApplicationRecord
 
   scope :without_decision, -> { where(decision: nil) }
 
+  def other_reports_from_reportable
+    reportable.reports - [self]
+  end
+
   private
 
   def create_event
