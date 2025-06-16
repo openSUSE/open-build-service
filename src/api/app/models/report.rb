@@ -34,6 +34,10 @@ class Report < ApplicationRecord
 
   scope :without_decision, -> { where(decision: nil) }
 
+  def event_parameters
+    { id: id, reporter: reporter.login, reportable_id: reportable_id, reportable_type: reportable_type, reason: reason, category: category }
+  end
+
   private
 
   def create_event
@@ -50,10 +54,6 @@ class Report < ApplicationRecord
     when 'BsRequest'
       Event::ReportForRequest.create(event_parameters.merge(bs_request_number: reportable.number))
     end
-  end
-
-  def event_parameters
-    { id: id, reporter: reporter.login, reportable_id: reportable_id, reportable_type: reportable_type, reason: reason, category: category }
   end
 
   def event_parameters_for_comment(commentable:)

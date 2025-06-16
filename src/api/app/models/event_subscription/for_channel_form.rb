@@ -3,7 +3,7 @@ class EventSubscription
     DISABLE_FOR_EVENTS = ['Event::ServiceFail'].freeze
     DISABLE_RSS_FOR_EVENTS = ['Event::ReportForProject', 'Event::ReportForPackage',
                               'Event::ReportForComment', 'Event::ReportForUser',
-                              'Event::ReportForRequest',
+                              'Event::ReportForRequest', 'Event::CommentForReport',
                               'Event::WorkflowRunFail', 'Event::AppealCreated',
                               'Event::FavoredDecision', 'Event::ClearedDecision',
                               'Event::AddedUserToGroup', 'Event::RemovedUserFromGroup',

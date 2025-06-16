@@ -19,7 +19,7 @@ module Event
       def notification_events
         [Event::BuildFail, Event::ServiceFail, Event::ReviewWanted, Event::RequestCreate,
          Event::RequestStatechange, Event::CommentForProject, Event::CommentForPackage,
-         Event::CommentForRequest,
+         Event::CommentForRequest, Event::CommentForReport,
          Event::RelationshipCreate, Event::RelationshipDelete,
          Event::Report, Event::Decision, Event::AppealCreated,
          Event::WorkflowRunFail,
