@@ -80,7 +80,7 @@ module NotificationService
     end
 
     def skip_report_notification?(event:, subscriber:)
-      return false unless event.is_a?(Event::Report)
+      return false unless [Event::Report, Event::CommentForReport].any? { |klass| event.is_a?(klass) }
 
       !ReportPolicy.new(subscriber, Report).notify?
     end
