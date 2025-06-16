@@ -3837,7 +3837,7 @@ sub dobuild {
       'verifymd5' => $buildinfo->{'verifymd5'} || $buildinfo->{'srcmd5'},
       'bdep' => [],
     };
-    for ('versrel', 'bcnt', 'release', 'module', 'crossarch') {
+    for ('versrel', 'bcnt', 'release', 'module', 'crossarch', 'signflavor') {
       $buildinfo->{'outbuildinfo'}->{$_} = $buildinfo->{$_} if defined $buildinfo->{$_};
     }
   }

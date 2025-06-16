@@ -157,7 +157,13 @@ sub build {
     $_->{'vminstall'}  = 1 if $vmdeps{$_->{'name'}};
     $_->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
   }
+  
+  # clone the ctx so we can change it
+  $ctx = bless { %$ctx, 'realctx' => $ctx}, ref($ctx);
+
   $ctx->{'extrabdeps'} = \@bdeps;
+  $ctx->{'override_signflavor'} = $buildenv->{'signflavor'} if $buildenv->{'signflavor'};
+
   $info->{'buildtype'} = 'buildenv';
   my $reason = $data->[0];
   return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, $ctx->{'subpacks'}->{$info->{'name'}} || [], [], $reason, 0);
