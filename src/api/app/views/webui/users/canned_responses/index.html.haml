@@ -1,10 +1,10 @@
 - @pagetitle = 'Your Canned Responses'
 
 .card.mb-2
-  .card-body
+  .card-body#canned-responses
     %h4 Your canned responses
     - if @canned_responses.present?
-      .d-flex.flex-wrap.gap-4.align-self-stretch.pt-4#canned-responses
+      .d-flex.flex-wrap.gap-4.align-self-stretch.pt-4
         - @canned_responses.each do |canned_response|
           = render(CardComponent.new) do |component|
             - if canned_response.decision_type
