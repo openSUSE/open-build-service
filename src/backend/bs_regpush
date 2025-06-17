@@ -224,7 +224,7 @@ sub manifest_exists {
   $tag = $maniid unless defined $tag;
   my $replyheaders;
   my $param = {
-    'headers' => [ "Accept: $content_type" ],
+    'headers' => [ "Accept: $content_type, application/json" ],
     'uri' => "$registryserver/v2/$repository/manifests/$tag",
     'authenticator' => $registry_authenticator,
     'replyheaders' => \$replyheaders,
@@ -234,6 +234,7 @@ sub manifest_exists {
   my $maniret;
   eval { $maniret = BSRPC::rpc($param) };
   if ($maniret) {
+    return 0 if ($replyheaders->{'content-type'} || '') ne $content_type;
     my $maniretid = $replyheaders->{'docker-content-digest'};
     $maniretid ||= BSContar::blobid($maniret);
     return 1 if $maniretid eq $maniid;
