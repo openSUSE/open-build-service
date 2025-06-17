@@ -80,6 +80,11 @@ test_rack:
 	$(eval BUNDLE_RACK_VERSION:=$(shell basename `bundle show rack`))
 	@if [ "$(SYSTEM_RACK_VERSION)" != "$(BUNDLE_RACK_VERSION)" ]; then echo "rack version mismatch! System: $(SYSTEM_RACK_VERSION) / Bundle: $(BUNDLE_RACK_VERSION)"; exit 1; fi
 
+test_rackup:
+	$(eval SYSTEM_RACKUP_VERSION:=$(shell basename `gem.ruby3.4 which -g rackup | sed 's,/lib/rackup.rb$$,,'`))
+	$(eval BUNDLE_RACKUP_VERSION:=$(shell basename `bundle show rackup`))
+	@if [ "$(SYSTEM_RACKUP_VERSION)" != "$(BUNDLE_RACKUP_VERSION)" ]; then echo "rackup version mismatch! System: $(SYSTEM_RACKUP_VERSION) / Bundle: $(BUNDLE_RACKUP_VERSION)"; exit 1; fi
+
 test_base64_gem:
 	$(eval RUBY_DEFAULT_BASE64_VERSION:=$(shell basename `gem.ruby3.4 which -g base64 | sed 's,/lib/base64.rb$$,,'`))
 	$(eval BUNDLE_BASE64_VERSION:=$(shell basename `bundle show base64`))

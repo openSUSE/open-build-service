@@ -320,6 +320,7 @@ jobs:
           command: |
             make -C src/api test_rake
             make -C src/api test_rack
+            make -C src/api test_rackup
             make -C src/api test_base64_gem
 
   spider:
