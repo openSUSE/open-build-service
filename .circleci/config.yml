@@ -20,7 +20,7 @@ workflows:
             src/api/app/(views|components)/.* run-haml-linter true
             src/api/vendor/cache/haml.* run-haml-linter true
             src/api/db/.* run-migrations-tests true
-            src/api/Gemfile.lock run-passenger-and-ruby-default-gem-tests true
+            src/api/(Gemfile.lock|Makefile) run-passenger-and-ruby-default-gem-tests true
             src/api/app/assets/javascripts/.* run-javascripts-linter true
             src/api/public/apidocs/.* run-apidocs-linter true
           base-revision: master
