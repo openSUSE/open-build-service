@@ -104,18 +104,22 @@ RSpec.describe AppealPolicy do
       end
     end
 
-    context 'when the decision favored a report for something the appellant did' do
-      let(:report) { create(:report, reportable: create(:comment_package, user: appellant)) }
-      let(:decision) { create(:decision_favored, reports: [report]) }
-      let(:appeal) { create(:appeal, decision: decision, appellant: appellant) }
+    %i[decision_favored decision_favored_with_comment_moderation
+       decision_favored_with_delete_request_for_package decision_favored_with_user_deletion
+       decision_favored_with_user_commenting_restriction].each do |decision_type|
+      context "when the #{decision_type.to_s.tr('_', ' ')} for something the appellant did" do
+        let(:report) { create(:report, reportable: create(:comment_package, user: appellant)) }
+        let(:decision) { create(decision_type, reports: [report]) }
+        let(:appeal) { create(:appeal, decision: decision, appellant: appellant) }
 
-      permissions :create? do
-        it { is_expected.not_to permit(anonymous_user, appeal) }
-        it { is_expected.not_to permit(user, appeal) }
-        it { is_expected.to permit(appellant, appeal) }
-        it { is_expected.not_to permit(moderator, appeal) }
-        it { is_expected.to permit(staff_user, appeal) }
-        it { is_expected.to permit(admin_user, appeal) }
+        permissions :create? do
+          it { is_expected.not_to permit(anonymous_user, appeal) }
+          it { is_expected.not_to permit(user, appeal) }
+          it { is_expected.to permit(appellant, appeal) }
+          it { is_expected.not_to permit(moderator, appeal) }
+          it { is_expected.to permit(staff_user, appeal) }
+          it { is_expected.to permit(admin_user, appeal) }
+        end
       end
     end
   end
