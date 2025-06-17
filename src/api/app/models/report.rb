@@ -38,6 +38,10 @@ class Report < ApplicationRecord
     { id: id, reporter: reporter.login, reportable_id: reportable_id, reportable_type: reportable_type, reason: reason, category: category }
   end
 
+  def other_reports_from_reportable
+    reportable.reports - [self]
+  end
+
   private
 
   def create_event
