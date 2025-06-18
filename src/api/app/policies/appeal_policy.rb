@@ -36,7 +36,9 @@ class AppealPolicy < ApplicationPolicy
 
   def decision_favored_report_of_action_from_user?
     return false unless record.appellant == user
+    return false unless record.decision.type.in?(%w[DecisionFavored DecisionFavoredWithCommentModeration DecisionFavoredWithDeleteRequest
+                                                    DecisionFavoredWithUserCommentingRestriction DecisionFavoredWithUserDeletion])
 
-    record.decision.type == 'DecisionFavored' && "#{@report.reportable_type}Policy".constantize.new(user, @report.reportable).update?
+    "#{@report.reportable_type}Policy".constantize.new(user, @report.reportable).update?
   end
 end
