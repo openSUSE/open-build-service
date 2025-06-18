@@ -34,9 +34,9 @@
             All Requests
             %span.badge.text-bg-primary
               = @group.all_requests_count
-        %li.nav-item.dropdown
-          %a.nav-link.dropdown-toggle{ href: '#', 'data-bs-toggle': 'dropdown', role: 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
-          .dropdown-menu.dropdown-menu-end
+      %li.nav-item.dropdown
+        %a.nav-link.dropdown-toggle{ href: '#', 'data-bs-toggle': 'dropdown', role: 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
+        .dropdown-menu.dropdown-menu-end
 
   .card-body
     .tab-content
@@ -45,14 +45,15 @@
           Group Members
         = render(partial: 'group_members', locals: { group: @group })
 
-      .tab-pane#reviews-in{ aria: { controls: 'reviews-in' }, role: 'tabpanel' }
-        %h3 Incoming Reviews
-        = render(partial: 'webui/shared/requests_table', locals: { id: 'reviews_in_table', source_url: group_requests_path(@group) })
+      - unless Flipper.enabled?(:request_index, User.session)
+        .tab-pane#reviews-in{ aria: { controls: 'reviews-in' }, role: 'tabpanel' }
+          %h3 Incoming Reviews
+          = render(partial: 'webui/shared/requests_table', locals: { id: 'reviews_in_table', source_url: group_requests_path(@group) })
 
-      .tab-pane#requests-in{ aria: { controls: 'requests-in' }, role: 'tabpanel' }
-        %h3 Incoming Requests
-        = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_in_table', source_url: group_requests_path(@group) })
+        .tab-pane#requests-in{ aria: { controls: 'requests-in' }, role: 'tabpanel' }
+          %h3 Incoming Requests
+          = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_in_table', source_url: group_requests_path(@group) })
 
-      .tab-pane#all-requests{ aria: { controls: 'all-requests' }, role: 'tabpanel' }
-        %h3 All Requests
-        = render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: group_requests_path(@group) })
+        .tab-pane#all-requests{ aria: { controls: 'all-requests' }, role: 'tabpanel' }
+          %h3 All Requests
+          = render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: group_requests_path(@group) })
