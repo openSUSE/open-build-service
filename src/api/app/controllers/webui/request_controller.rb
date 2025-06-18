@@ -386,8 +386,9 @@ class Webui::RequestController < Webui::WebuiController
   def any_project_maintained_by_current_user?
     projects = Project.where(name: @actions.select(:target_project)).distinct
     user = User.possibly_nobody
+    maintainers_relationship = Relationship.maintainers.where(project: projects)
 
-    Relationship.maintainers.where(project: projects, user: user).or(Relationship.maintainers.where(group: [user.groups.unscope(:order)])).any?
+    maintainers_relationship.where(user: user).or(maintainers_relationship.where(group: [user.groups.unscope(:order)])).any?
   end
 
   def new_state
