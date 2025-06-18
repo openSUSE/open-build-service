@@ -621,7 +621,7 @@ sub upload_to_registry {
   $gun .= "/$repository";
 
   # check if the registry is up-to-date
-  if ($repostate) {
+  if ($repostate && !($cosign && $cosign->{'force_rekor_upload'})) {
     my $taginfo = $data->{'regdata_cb'} ? {} : undef;
     my $containerdigests = compare_to_repostate($registry, $repostate, $repository, $containerinfos, $tags, $multiarch, $oci, $cosign, $taginfo);
     if (defined $containerdigests) {
@@ -725,6 +725,7 @@ sub upload_to_registry {
     push @opts, '--cosign', '--cosigncookie', $cosign->{'cookie'};
     push @opts, '-p', $pubkeyfile, '-G', $gun, @signargs;
     push @opts, '--rekor', $registry->{'rekorserver'} if $registry->{'rekorserver'};
+    push @opts, '--force-rekor-upload' if $registry->{'rekorserver'} && $cosign->{'force_rekor_upload'};
     push @opts, '--slsaprovenance' if $do_slsaprovenance;
     push @opts, '--sbom' if $do_sbom;
   }
@@ -1051,6 +1052,15 @@ sub do_remote_uploads {
     container_tag_deletion_safeguard($registry, $repository, $safeguard, \%uptags, $repostate, $subdigests);
   }
 
+  # create "in progress" marker so that we can force rekor uploads if we get interrupted
+  my $registrystate = $registry->{'registrystate'};
+  if ($registrystate) {
+    mkdir_p("$registrystate/$repository");
+    $cosign->{'force_rekor_upload'} = 1 if $registry->{'rekorserver'} && $cosign && -e "$registrystate/$repository/:inprogress";
+    BSUtil::touch("$registrystate/$repository/:inprogress");
+  }
+  print "forcing upload to the rekor\n" if $cosign && $cosign->{'force_rekor_upload'};
+
   # find common containerinfos so that we can push multiple tags in one go
   my %todo;
   my %todo_p;
@@ -1076,6 +1086,8 @@ sub do_remote_uploads {
     my $digests = upload_to_registry($registry, $projid, $repoid, $repository, [ $containerinfo ], [ 'artifacthub.io' ], $data, $repostate);
     $containerdigests .= $digests;
   }
+
+  unlink("$registrystate/$repository/:inprogress") if $registrystate;
 
   # all is pushed, now clean the rest
   add_notary_upload($notary_uploads, $registry, $repository, $containerdigests);
