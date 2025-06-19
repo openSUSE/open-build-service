@@ -5,6 +5,8 @@ class Appeal < ApplicationRecord
   validates :reason, presence: true
   validates :reason, length: { maximum: 65_535 }
 
+  validates :decision, uniqueness: { scope: :appellant }
+
   after_create :create_event
 
   private
@@ -27,13 +29,13 @@ end
 #  reason       :text(65535)      not null
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
-#  appellant_id :integer          not null, indexed
-#  decision_id  :bigint           not null, indexed
+#  appellant_id :integer          not null, indexed, indexed => [decision_id]
+#  decision_id  :bigint           not null, indexed => [appellant_id]
 #
 # Indexes
 #
-#  fk_rails_5fe229ec9a  (decision_id)
-#  fk_rails_bd2c76ec6f  (appellant_id)
+#  fk_rails_bd2c76ec6f           (appellant_id)
+#  index_appeals_on_decision_id  (decision_id,appellant_id) UNIQUE
 #
 # Foreign Keys
 #
