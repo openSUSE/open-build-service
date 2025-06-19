@@ -404,7 +404,7 @@ GEM
     rantly (3.0.0)
     rbtree (0.4.6)
     rbtree3 (0.7.1)
-    rdoc (6.14.0)
+    rdoc (6.14.1)
       erb
       psych (>= 4.0.0)
     redcarpet (3.6.1)
