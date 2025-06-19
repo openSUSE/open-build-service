@@ -20,4 +20,12 @@ RSpec.describe Report do
       it { expect(new_report.valid?).to be(true) }
     end
   end
+
+  describe '#other_reports_from_reportable' do
+    let(:comment) { report.reportable }
+    let(:report) { create(:report) }
+    let!(:another_report) { create(:report, reportable: comment) }
+
+    it { expect(report.other_reports_from_reportable).to contain_exactly(another_report) }
+  end
 end

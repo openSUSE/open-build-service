@@ -1,4 +1,7 @@
-- @pagetitle = "Report ##{@report.id}"
+:ruby
+  @pagetitle = "Report ##{@report.id}"
+  other_reports = @report.other_reports_from_reportable
+  decision = @report.decision
 
 .card
   .card-body
@@ -14,10 +17,19 @@
       - else
         %div
           %i.mt2= reportable_not_found(reportable_type: @report.reportable_type)
-    %h5 Description
+    %h5 Reason
     %p
-      = @report.reason
+      - if @report.reason
+        = @report.reason
+      - else
+        %i No reason provided
 
+    - if other_reports.any?
+      %h5 Other reports
+      %ul
+        - other_reports.each do |report|
+          %li
+            = link_to("Report ##{report.id}", report_path(report), class: 'mb-2')
 .comments.mt-3
   .card#comments-list
     %h5.card-header.text-word-break-all
@@ -26,3 +38,24 @@
         = @report.comments.length
     .card-body#comments
       = render partial: 'webui/comment/show', locals: { commentable: @report, comment_counter_id: "#comment-counter-report-#{@report.id}" }
+.card.mt-3
+  %h5.card-header.text-word-break-all
+    Decision
+  .card-body
+    - if decision.nil?
+      = render 'webui/shared/decision_form',
+        canned_responses: User.session.canned_responses,
+        reportable: @report.reportable,
+        reports: @report.reportable&.reports&.without_decision
+    - else
+      %h5
+        - if decision.is_a?(DecisionCleared)
+          Cleared
+        - else
+          Favored
+      %p
+        by
+        = link_to(decision.moderator, user_path(decision.moderator))
+      %h5 Reason
+      %p
+        = decision.reason

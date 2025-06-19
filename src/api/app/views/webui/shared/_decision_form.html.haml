@@ -1,0 +1,13 @@
+= form_for(:decision, url: decisions_path, method: :post) do |form|
+  .modal-body{ 'data-canned-controller': '' }
+    .d-flex.align-items-center.justify-content-between.mb-1
+      = form.label(:reason)
+      -# Decision-related canned responses exclusively:
+      - if Flipper.enabled?(:canned_responses, User.session)
+        = render CannedResponsesDropdownComponent.new(canned_responses)
+    = form.text_area(:reason, class: 'form-control mb-3', required: true, placeholder: 'Reason for the decision')
+    = form.select(:type, Decision.types(reportable), {}, class: 'form-select')
+  .modal-footer
+    - reports.each do |report|
+      = form.hidden_field(:report_ids, multiple: true, value: report.id)
+    = submit_tag('Submit', class: 'btn btn-primary')
