@@ -5,7 +5,7 @@ class Webui::Users::CannedResponsesController < Webui::WebuiController
   after_action :verify_authorized, except: :index
 
   def index
-    @canned_responses = User.session.canned_responses.page(params[:page])
+    @canned_responses = User.session.canned_responses.order(:decision_type).page(params[:page])
 
     @canned_response = User.session.canned_responses.new
   end
