@@ -1,0 +1,6 @@
+<%= event['reporter'] %> reported a <%= event['reportable_type'].downcase %> as <%= event['category'].humanize %> for the following reason:
+<%= event['reason'] %>
+
+<%= link_to("#{event['project_name']}", project_show_url(event['project_name'],
+                                                         anchor: 'comments-list',
+                                                         only_path: false, host: @host)) %>
