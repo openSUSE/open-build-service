@@ -9,7 +9,7 @@ module Event
     end
 
     def members
-      [User.find_by(login: payload['member'])]
+      User.where(login: payload['member'])
     end
 
     def originator

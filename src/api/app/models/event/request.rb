@@ -79,7 +79,7 @@ module Event
     end
 
     def creators
-      [User.find_by_login(payload['author'])]
+      User.where(login: payload['author'])
     end
 
     def target_maintainers
