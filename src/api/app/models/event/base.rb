@@ -280,7 +280,7 @@ module Event
     end
 
     def assignees
-      [User.find_by(login: payload['assignee'])]
+      User.where(login: payload['assignee'])
     end
 
     def _roles(role, project, package = nil)

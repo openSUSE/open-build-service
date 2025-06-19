@@ -17,7 +17,7 @@ class NotificationProject < Notification
   end
 
   def avatar_objects
-    [User.find_by(login: event_payload['who'])].compact
+    User.where(login: event_payload['who'])
   end
 
   def link_text

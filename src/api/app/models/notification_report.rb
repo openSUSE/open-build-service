@@ -22,11 +22,11 @@ class NotificationReport < Notification
   def avatar_objects
     case event_type
     when 'Event::ReportForComment', 'Event::ReportForPackage', 'Event::ReportForProject', 'Event::ReportForUser', 'Event::ReportForRequest'
-      [User.find_by(login: event_payload['reporter'])].compact
+      User.where(login: event_payload['reporter'])
     when 'Event::FavoredDecision', 'Event::ClearedDecision'
-      [User.find(event_payload['moderator_id'])].compact
+      User.where(id: event_payload['moderator_id'])
     when 'Event::AppealCreated'
-      [User.find(event_payload['appellant_id'])].compact
+      User.where(id: event_payload['appellant_id'])
     end
   end
 
