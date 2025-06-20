@@ -15,7 +15,7 @@ module Webui
         if @project.scmsync.present?
           flash.now[:error] = "Package sources for project #{@project.name} are received through scmsync." \
                               'This is not supported by the OBS frontend'
-          render :show, status: :not_found
+          head :not_found
         else
           @meta = @package.render_xml
         end
