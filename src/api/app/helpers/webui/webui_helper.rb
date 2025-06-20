@@ -73,7 +73,7 @@ module Webui::WebuiHelper
   def repository_status_icon(status:, details: nil, html_class: '')
     outdated = status.start_with?('outdated_')
     status = status.sub('outdated_', '')
-    description = outdated ? 'State needs recalculations, former state was: ' : ''
+    description = outdated ? +'State needs recalculations, former state was: ' : +''
     description << repo_status_description(status)
     description << " (#{details})" if details
 
@@ -84,7 +84,7 @@ module Webui::WebuiHelper
 
   def repository_info(status)
     outdated = status.sub!(/^outdated_/, '')
-    description = outdated ? 'State needs recalculations, former state was: ' : ''
+    description = outdated ? +'State needs recalculations, former state was: ' : +''
     description << repo_status_description(status)
   end
 
@@ -209,7 +209,7 @@ module Webui::WebuiHelper
   def tab_link(label, paths, html_class = 'nav-link text-nowrap', active: false)
     paths = [paths] unless paths.respond_to?(:select)
     paths_match = paths.any? { |path| request.path.eql?(path) }
-    html_class << ' active' if active || paths_match
+    html_class = "#{html_class} active" if active || paths_match
 
     link_to(label, paths.first, class: html_class)
   end
