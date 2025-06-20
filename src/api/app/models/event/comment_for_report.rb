@@ -10,7 +10,7 @@ module Event
     self.notification_explanation = 'Receive notifications for comments created on a report for which you are...'
 
     def subject
-      "New comment in report ##{payload['report_id']}"
+      "New comment in report ##{payload['report_id']} by #{payload['commenter']}"
     end
 
     def reporters

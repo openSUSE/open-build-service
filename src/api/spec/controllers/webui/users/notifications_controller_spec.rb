@@ -8,6 +8,7 @@ RSpec.describe Webui::Users::NotificationsController do
   let(:comment_for_project_notification) { create(:notification_for_comment, :web_notification, :comment_for_project, subscriber: user) }
   let(:comment_for_package_notification) { create(:notification_for_comment, :web_notification, :comment_for_package, subscriber: user) }
   let(:comment_for_request_notification) { create(:notification_for_comment, :web_notification, :comment_for_request, subscriber: user) }
+  let(:comment_for_report_notification) { create(:notification_for_comment, :web_notification, :comment_for_report, subscriber: user) }
   let(:read_notification) { create(:notification_for_request, :web_notification, :request_state_change, subscriber: user, delivered: true) }
   let(:notifications_for_other_users) { create(:notification_for_request, :web_notification, :request_state_change, subscriber: other_user) }
   let(:build_failure) { create(:notification_for_package, :web_notification, :build_failure, subscriber: user) }
@@ -43,7 +44,8 @@ RSpec.describe Webui::Users::NotificationsController do
                                                    review_notification,
                                                    comment_for_project_notification,
                                                    comment_for_package_notification,
-                                                   comment_for_request_notification)
+                                                   comment_for_request_notification,
+                                                   comment_for_report_notification)
       end
 
       it 'does not return the notifications for the other user' do
@@ -109,7 +111,8 @@ RSpec.describe Webui::Users::NotificationsController do
       it "sets @notifications to all undelivered notifications of 'comments' type" do
         expect(assigns[:notifications]).to include(comment_for_project_notification,
                                                    comment_for_package_notification,
-                                                   comment_for_request_notification)
+                                                   comment_for_request_notification,
+                                                   comment_for_report_notification)
       end
     end
 

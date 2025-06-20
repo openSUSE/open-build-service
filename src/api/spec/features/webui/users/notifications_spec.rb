@@ -139,6 +139,28 @@ RSpec.describe 'User notifications', :js do
     end
   end
 
+  context 'when the notification is about a comment for report' do
+    let!(:notification) { create(:notification_for_comment, :web_notification, :comment_for_report, subscriber: user) }
+
+    before do
+      login user
+      visit my_notifications_path
+    end
+
+    it 'contains a link pointing to the report' do
+      expect(page).to have_link('Comment on Report', href: "/reports/#{notification.notifiable.commentable_id}")
+    end
+
+    it 'mentions which user commented on the report' do
+      expect(page).to have_text("'#{notification.notifiable.user}' commented on Report ##{notification.notifiable.commentable_id}")
+    end
+
+    it 'contains the body of the comment' do
+      skip_on_mobile
+      expect(page).to have_text(notification.notifiable.body)
+    end
+  end
+
   context 'reports' do
     let(:accused) { create(:confirmed_user, login: 'accused') }
     let!(:notification) { create(:notification_for_report, :web_notification, event_payload: event_payload, event_type: event_type, notifiable: notifiable, subscriber: accused) }

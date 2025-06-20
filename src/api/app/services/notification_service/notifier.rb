@@ -7,6 +7,7 @@ module NotificationService
                         'Event::CommentForProject',
                         'Event::CommentForPackage',
                         'Event::CommentForRequest',
+                        'Event::CommentForReport',
                         'Event::RelationshipCreate',
                         'Event::RelationshipDelete',
                         'Event::ReportForProject',
@@ -43,6 +44,7 @@ module NotificationService
                         'Event::ReportForComment',
                         'Event::ReportForUser',
                         'Event::ReportForRequest',
+                        'Event::CommentForReport',
                         'Event::ClearedDecision',
                         'Event::FavoredDecision',
                         'Event::WorkflowRunFail',
@@ -78,7 +80,7 @@ module NotificationService
     end
 
     def skip_report_notification?(event:, subscriber:)
-      return false unless event.is_a?(Event::Report)
+      return false unless [Event::Report, Event::CommentForReport].any? { |klass| event.is_a?(klass) }
 
       !ReportPolicy.new(subscriber, Report).notify?
     end

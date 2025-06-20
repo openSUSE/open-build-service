@@ -108,6 +108,50 @@ RSpec.describe EventMailer, :vcr do
       end
     end
 
+    context 'for an event of type Event::CommentForReport' do
+      let!(:subscription) { create(:event_subscription_comment_for_report, user: receiver) }
+      let!(:comment) { create(:comment_report, body: "Hey @#{receiver.login} are you sure this is spam?") }
+      let(:originator) { comment.user }
+      let(:mail) { EventMailer.with(subscribers: Event::CommentForReport.last.subscribers, event: Event::CommentForReport.last).notification_email.deliver_now }
+
+      it 'gets delivered' do
+        expect(ActionMailer::Base.deliveries).to include(mail)
+      end
+
+      it 'has subscribers' do
+        expect(mail.to).to eq(Event::CommentForReport.last.subscribers.map(&:email))
+      end
+
+      it 'has a subject' do
+        expect(mail.subject).to eq("New comment in report ##{comment.commentable.id} by #{originator.login}")
+      end
+
+      it 'renders links absolute' do
+        expected_html = "<p>Hey <a href=\"https://build.example.com/users/#{receiver.login}\" rel=\"nofollow\">@#{receiver.login}</a> "
+        expected_html += 'are you sure this is spam?'
+        expect(mail.html_part.to_s).to include(expected_html)
+      end
+
+      it 'contains the link to the report' do
+        expected_html = "<a href=\"https://build.example.com/reports/#{comment.commentable_id}#comment-#{comment.id}\">View Comment</a>"
+        expect(mail.html_part.to_s).to include(expected_html)
+      end
+
+      it 'contains the relevan information in plain text email' do
+        expect(mail.text_part.to_s).to include("#{comment.user.realname} wrote in report ##{comment.commentable.id}:")
+        expect(mail.text_part.to_s).to include("https://build.example.com/reports/#{comment.commentable_id}#comment-#{comment.id}")
+      end
+
+      context 'when originator is subscribed' do
+        let!(:originator_subscription) { create(:event_subscription_comment_for_report, user: originator) }
+        let(:mail) { EventMailer.with(subscribers: Event::CommentForReport.last.subscribers, event: Event::CommentForReport.last).notification_email.deliver_now }
+
+        it 'does not send to the originator' do
+          expect(mail.to).not_to include(originator.email)
+        end
+      end
+    end
+
     context 'for an event of type Event::RelationshipCreate' do
       let(:who) { create(:confirmed_user) }
       let(:project) { create(:project) }

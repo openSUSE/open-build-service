@@ -65,6 +65,11 @@ FactoryBot.define do
         event_type { 'Event::CommentForRequest' }
         notifiable factory: [:comment_request]
       end
+
+      trait :comment_for_report do
+        event_type { 'Event::CommentForReport' }
+        notifiable factory: [:comment_report]
+      end
     end
 
     factory :notification_for_project, class: 'NotificationProject' do

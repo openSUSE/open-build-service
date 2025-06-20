@@ -13,6 +13,8 @@ class NotificationComment < Notification
       notifiable.commentable.name
     when 'Package'
       "#{notifiable.commentable.project.name} / #{notifiable.commentable.name}"
+    when 'Report'
+      "'#{notifiable.user}' commented on Report ##{notifiable.commentable.id}"
     end
   end
 
@@ -33,6 +35,8 @@ class NotificationComment < Notification
       'Comment on Project'
     when 'Event::CommentForPackage'
       'Comment on Package'
+    when 'Event::CommentForReport'
+      'Comment on Report'
     end
   end
 
@@ -55,6 +59,8 @@ class NotificationComment < Notification
                                                              project: package.project,
                                                              notification_id: id,
                                                              anchor: 'comments-list')
+    when 'Event::CommentForReport'
+      Rails.application.routes.url_helpers.report_path(notifiable.commentable)
     end
   end
 

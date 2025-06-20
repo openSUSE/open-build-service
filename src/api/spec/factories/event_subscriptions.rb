@@ -32,6 +32,14 @@ FactoryBot.define do
       group { nil }
     end
 
+    factory :event_subscription_comment_for_report do
+      eventtype { 'Event::CommentForReport' }
+      receiver_role { 'commenter' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
+
     factory :event_subscription_comment_for_request_without_subscriber do
       eventtype { 'Event::CommentForRequest' }
       receiver_role { 'commenter' }
