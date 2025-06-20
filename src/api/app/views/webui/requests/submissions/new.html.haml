@@ -35,6 +35,9 @@
                 = bs_request_action.text_field(:target_package, class: 'form-control',
                                                placeholder: "Leave empty to keep the package's name")
               .mb-3
+                = f.label(:target_package, 'Title:')
+                = f.text_field(:title, class: 'form-control', placeholder: "Request title", maxlength: 100)
+              .mb-3
                 = f.label(:description, 'Please describe your reasons to submit this package:')
                 = render partial: 'webui/shared/required_label_mark'
                 %br

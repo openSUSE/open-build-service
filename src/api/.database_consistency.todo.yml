@@ -225,6 +225,9 @@ BsRequest:
   state:
     LengthConstraintChecker:
       enabled: false
+  title:
+    LengthConstraintChecker:
+      enabled: false
 BsRequestAction:
   bs_request_action_accept_info:
     ForeignKeyCascadeChecker:
