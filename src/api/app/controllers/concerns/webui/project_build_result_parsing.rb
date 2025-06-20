@@ -129,7 +129,7 @@ module Webui::ProjectBuildResultParsing
 
   def filter_matches?(input, filter_string)
     result = false
-    filter_string.gsub!(/\s*/, '')
+    filter_string = filter_string.gsub(/\s*/, '')
     filter_string.split(',').each do |filter|
       no_invert = filter.match(/(^!?)(.+)/)
       result = if no_invert[1] == '!'
