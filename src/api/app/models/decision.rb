@@ -7,6 +7,7 @@ class Decision < ApplicationRecord
   belongs_to :moderator, class_name: 'User', optional: false
 
   has_many :reports, dependent: :nullify
+  has_many :appeals, dependent: :destroy
 
   after_create :track_decision
 
