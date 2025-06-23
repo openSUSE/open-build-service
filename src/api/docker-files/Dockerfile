@@ -16,6 +16,8 @@ RUN usermod -u $CONTAINER_USERID frontend
 
 # Making the directory our bundle is installed writable
 RUN chown frontend:users /usr/lib64/obs-api
+RUN mkdir /usr/lib64/obs-api/ruby
+RUN chown frontend:users /usr/lib64/obs-api/ruby
 
 # We copy the Gemfiles into this intermediate build stage so it's checksum
 # changes and all the subsequent stages (a.k.a. the bundle install call below)
