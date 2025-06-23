@@ -109,6 +109,8 @@ class User < ApplicationRecord
                       too_short: 'must have more than two characters' }
 
   validates :state, inclusion: { in: STATES }
+  validates :encrypted_password, length: { maximum: 255 }
+  validates :old_password_digest, length: { maximum: 255 }
 
   validate :validate_state
 
@@ -913,7 +915,7 @@ end
 #  last_logged_in_at             :datetime
 #  login                         :text(65535)      indexed
 #  login_failure_count           :integer          default(0), not null
-#  password_digest               :string(255)
+#  old_password_digest           :string(255)
 #  realname                      :string(200)      default(""), not null
 #  rss_secret                    :string(200)      indexed
 #  state                         :string           default("unconfirmed"), indexed
