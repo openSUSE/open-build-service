@@ -2647,11 +2647,9 @@ sub concatconfigs {
   my $distinfo = $repoid eq 'standard' ? $projid : "$projid / $repoid";
 
   my ($old_is_this_project, $old_is_in_project) = (-1, -1);
+  my ($config_init, $macros_init) = ($config, $macros);
   for my $prp (reverse @path) {
-    if ($prp eq "$projid/$repoid") {
-      $macros .= "\n%distribution $distinfo\n";
-      $macros .= "%_project $projid\n";
-    }
+    $macros .= "\n%distribution $distinfo\n%_project $projid\n" if $prp eq "$projid/$repoid";
     my ($p, $r) = split('/', $prp, 2);
     my $c;
     if (-s "$projectsdir/$p.conf") {
@@ -2668,6 +2666,13 @@ sub concatconfigs {
       $remotemap->{$p}->{'config'} = defined($c) ? $c : '' if ($remotemap->{$p} || {})->{'partition'};
     }
     next unless defined $c;
+
+    if ("\n$c" =~ /^(.*?)\nFromScratch:/si && $1 !~ /\n[ \t]*[^\s#]/) {
+      ($config, $macros) = ($config_init, $macros_init);
+      ($old_is_this_project, $old_is_in_project) = (-1, -1);
+      $macros .= "\n%distribution $distinfo\n%_project $projid\n" if $prp eq "$projid/$repoid";
+    }
+
     $config .= "\n### from $p\n";
     $config .= "%define _repository $r\n";
     my $new_is_this_project = $p eq $projid ? 1 : 0;

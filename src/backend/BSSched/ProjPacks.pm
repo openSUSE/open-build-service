@@ -1618,6 +1618,7 @@ sub getconfig {
   my $projpacks = $gctx->{'projpacks'};
   my $remoteprojs = $gctx->{'remoteprojs'};
   my ($old_is_this_project, $old_is_in_project) = (-1, -1);
+  my $config_init = $config;
   for my $prp (reverse @$path) {
     my ($p, $r) = split('/', $prp, 2);
     my $c;
@@ -1629,6 +1630,9 @@ sub getconfig {
     }
     $c = $proj->{'config'};
     next unless defined $c;
+    if ("\n$c" =~ /^(.*?)\nFromScratch:/si && $1 !~ /\n[ \t]*[^\s#]/) {
+      ($old_is_this_project, $old_is_in_project, $config) = (-1, -1, $config_init);
+    }
     $config .= "\n### from $p\n";
     $config .= "%define _repository $r\n";
     my $new_is_this_project = $p eq $projid ? 1 : 0; 
