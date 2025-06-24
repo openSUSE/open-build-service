@@ -2000,6 +2000,29 @@ sub mapsleimage {
   return $p;
 }
 
+sub mapslerpm {
+  my ($data, $rdir, $rbin, $p) = @_;
+  my $origp = $p;
+
+  my $milestone_file = "$rdir/$rbin";
+  $milestone_file =~ s/\.rpm$/.milestone/;
+  return $p unless -e $milestone_file;
+  my $milestone = readstr($milestone_file, 1);
+  return $p unless defined $milestone;
+
+  my $q = Build::query("$rdir/$rbin", 'evra' => 1);
+  return $p unless $q;
+
+  chomp($milestone);
+  $milestone ||= 'GM';
+  $milestone = Build::Rpm::expandmacros($data->{'config'}, $milestone) if $milestone =~ /%/;
+  $milestone =~ s/[\/\n]/_/sg;
+  $p = "$q->{'arch'}/$q->{'name'}-$milestone.$q->{'arch'}.rpm" if $milestone;
+
+  $data->{'mapped'}->{$origp} = $p if $p ne $origp;
+  return $p;
+}
+
 # HACK: do fancy sle repo renaming
 sub mapslepool {
   my ($name, $rdir, $rbin, $bin) = @_;
@@ -2473,6 +2496,7 @@ sub publish {
       if ($bin =~ /^.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.d?rpm$/) {
 	$p = "$1/$bin";
 	$p = $1 eq 'src' || $1 eq 'nosrc' ? "SRPMS/$bin" : "RPMS/$bin" if $repotype{'resarchhack'};
+        $p = mapslerpm($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
       } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.[ud]?deb$/) {
 	$p = "$1/$bin";
       } elsif ($bin =~ /\.(?:AppImage|AppImage.zsync|snap)$/) {
