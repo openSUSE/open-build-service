@@ -115,9 +115,9 @@ sub pk2times {
     $rct = $ct if defined($ct) && (!defined($rct) || $rct > $ct);
   }
   my $d = {};
-  $d->{'key_create'} = $kct if defined $kct;
+  $d->{'key_create'} = $kct;
+  $d->{'key_expire'} = $kct + $kex if defined $kex;
   $d->{'selfsig_create'} = $rct if defined $rct;
-  $d->{'key_expire'} = $rct + $kex if defined($rct) && defined($kex);
   return $d;
 }
 
