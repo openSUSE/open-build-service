@@ -230,18 +230,13 @@ class Project < ApplicationRecord
     #   - an instance of Project
     #   - a string for a Project from an interconnect
     #   - UnknownObjectError or ReadAccessError exceptions
-    def get_by_name(name, include_all_packages: false)
+    def get_by_name(name)
       dbp = find_by_name(name, skip_check_access: true)
       if dbp.nil?
         dbp, remote_name = find_remote_project(name)
         return "#{dbp.name}:#{remote_name}" if dbp
 
         raise Project::Errors::UnknownObjectError, "Project not found: #{name}"
-      end
-      if include_all_packages
-        Package.joins(:flags).where(project_id: dbp.id).where("flags.flag='sourceaccess'").find_each do |pkg|
-          raise ReadAccessError, name unless pkg.project.check_access?
-        end
       end
 
       raise ReadAccessError, name unless dbp.check_access?
