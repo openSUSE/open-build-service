@@ -68,8 +68,6 @@ class SourcePackageMetaController < SourceController
   end
 
   def require_package_name
-    required_parameters :project, :package
-
     @project_name = params[:project]
     @package_name = params[:package]
 
