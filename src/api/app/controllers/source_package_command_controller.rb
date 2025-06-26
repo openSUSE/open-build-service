@@ -17,10 +17,9 @@ class SourcePackageCommandController < SourceController
   before_action :set_project, only: :undelete
   before_action :set_target_project_name
   before_action :set_target_package_name
-  before_action :set_user_param
-  before_action :set_origin_package
-  before_action :validate_target_project_name
-  before_action :validate_target_package_name
+  before_action :set_origin_package, only: :copy
+  before_action :validate_target_project_name, only: %i[importchannel release branch]
+  before_action :validate_target_package_name, only: :branch
   before_action :validate_project_name
   before_action :validate_package_name
   before_action :check_target_access
@@ -370,7 +369,7 @@ class SourcePackageCommandController < SourceController
     rev = "&orev=#{pkg_rev}" if pkg_rev.present?
     linkrev = ''
     linkrev = "&linkrev=#{pkg_linkrev}" if pkg_linkrev.present?
-    Backend::Connection.post "/source/#{@package.project.name}/#{@package.name}?cmd=linktobranch&user=#{CGI.escape(params[:user])}#{rev}#{linkrev}"
+    Backend::Connection.post "/source/#{@package.project.name}/#{@package.name}?cmd=linktobranch&user=#{CGI.escape(User.session.login)}#{rev}#{linkrev}"
 
     @package.sources_changed
     render_ok
@@ -443,10 +442,6 @@ class SourcePackageCommandController < SourceController
   def validate_target_package_name
     return unless params[:target_package]
     raise InvalidPackageNameError, "invalid package name '#{params[:target_package]}'" unless Package.valid_name?(params[:target_package])
-  end
-
-  def set_user_param
-    params[:user] = User.session.login
   end
 
   def set_origin_package
