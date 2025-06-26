@@ -26,5 +26,17 @@ namespace :dev do
         Package.where.not(name: '_product:fixed-release').map(&:store)
       end
     end
+
+    desc 'Installs all packages/configuration needed for running minitest'
+    task :install_backend do
+      sh 'sudo zypper --gpg-auto-import-keys refresh'
+      sh 'sudo zypper --non-interactive install --replacefiles --no-recommends minitest-backend-config'
+    end
+
+    desc 'Removes all minitest packages/configuration'
+    task :remove_backend do
+      sh 'sudo zypper --gpg-auto-import-keys refresh'
+      sh 'sudo zypper --non-interactive rm -u minitest-backend-config'
+    end
   end
 end
