@@ -4,6 +4,7 @@ class AttribDefaultValue < ApplicationRecord
 
   validates :attrib_type, presence: true
   validates :position, presence: true
+  validate :value, length: { maximum: 65535 }
 end
 
 # == Schema Information
