@@ -2,9 +2,6 @@ class PublicController < ApplicationController
   include PublicHelper
   include ValidationHelper
 
-  # we need to fall back to _nobody_ (_public_)
-  before_action :extract_user_public, :set_response_format_to_xml, :set_influxdb_data_interconnect
-  skip_before_action :extract_user
   skip_before_action :require_login
 
   # GET /public/build/:project/:repository/:arch/:package

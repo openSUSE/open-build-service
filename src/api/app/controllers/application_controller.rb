@@ -26,7 +26,6 @@ class ApplicationController < ActionController::Base
   before_action :add_api_version
 
   # skip the filter for the user stuff
-  before_action :extract_user
   before_action :set_influxdb_data
   before_action :shutup_rails
   before_action :validate_params
@@ -35,8 +34,7 @@ class ApplicationController < ActionController::Base
   before_action :validate_xml_request
   after_action :validate_xml_response if CONFIG['response_schema_validation'] == true
 
-  delegate :extract_user,
-           :extract_user_public,
+  delegate :extract_user_public,
            :require_login,
            :require_admin,
            to: :authenticator

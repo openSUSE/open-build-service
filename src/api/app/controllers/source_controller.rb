@@ -6,7 +6,6 @@ class SourceController < ApplicationController
 
   include Source::Errors
 
-  skip_before_action :extract_user, only: :lastevents_public
   skip_before_action :require_login, only: :lastevents_public
 
   # POST, GET /public/lastevents
