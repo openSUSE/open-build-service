@@ -3,6 +3,7 @@ class AttribDefaultValue < ApplicationRecord
   acts_as_list scope: :attrib_type
 
   validates :attrib_type, presence: true
+  validates :position, presence: true
 end
 
 # == Schema Information
