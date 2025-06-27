@@ -102,8 +102,6 @@ class StatisticsController < ApplicationController
   end
 
   def active_request_creators
-    required_parameters :project
-
     # get the devel projects
     @project = Project.find_by_name!(params[:project])
 

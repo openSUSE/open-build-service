@@ -26,7 +26,6 @@ class SourceController < ApplicationController
   private
 
   def require_valid_project_name
-    required_parameters :project
     raise InvalidProjectNameError, "invalid project name '#{params[:project]}'" unless Project.valid_name?(params[:project])
   end
 

@@ -28,7 +28,6 @@ class ArchitecturesController < ApplicationController
   # GET /architecture/i386
   # GET /architecture/i386.xml
   def show
-    required_parameters :id
     @architecture = Architecture.find_by_name(params[:id])
     render_error(status: 400, errorcode: 'unknown_architecture', message: "Architecture does not exist: #{params[:id]}") && return unless @architecture
 

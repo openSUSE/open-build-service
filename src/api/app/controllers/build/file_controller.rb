@@ -1,7 +1,6 @@
 module Build
   class FileController < ApplicationController
     before_action :check_user_has_permission
-    before_action :require_parameters
 
     # GET /build/:project/:repository/:arch/:package/:filename
     def show
@@ -43,10 +42,6 @@ module Build
     end
 
     private
-
-    def require_parameters
-      required_parameters :project, :repository, :arch, :package, :filename
-    end
 
     def project
       @project ||=

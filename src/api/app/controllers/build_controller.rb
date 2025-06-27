@@ -97,7 +97,6 @@ class BuildController < ApplicationController
   end
 
   def buildinfo
-    required_parameters :project, :repository, :arch, :package
     # just for permission checking
     if request.post? && Package.striping_multibuild_suffix(params[:package]) == '_repository'
       # for osc local package build in this repository
@@ -123,8 +122,6 @@ class BuildController < ApplicationController
 
   # /build/:project/:repository/:arch/_builddepinfo
   def builddepinfo
-    required_parameters :project, :repository, :arch
-
     # just for permission checking
     Project.get_by_name(params[:project])
 
@@ -149,8 +146,6 @@ class BuildController < ApplicationController
   end
 
   def result
-    required_parameters :project
-
     # this route is mainly for checking submissions to a target project
     return result_lastsuccess if params.key?(:lastsuccess)
 

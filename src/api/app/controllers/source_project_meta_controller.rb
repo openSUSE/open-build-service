@@ -114,7 +114,6 @@ class SourceProjectMetaController < SourceController
   private
 
   def require_project_name
-    required_parameters :project
     @project_name = params[:project]
   end
 end
