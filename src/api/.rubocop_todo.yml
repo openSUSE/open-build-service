@@ -731,6 +731,7 @@ Rails/RakeEnvironment:
     - 'lib/tasks/coverage.rake'
     - 'lib/tasks/dev.rake'
     - 'lib/tasks/dev/lint.rake'
+    - 'lib/tasks/dev/minitest.rake'
     - 'lib/tasks/dev/sre.rake'
     - 'lib/tasks/migrate_options_yml.rake'
 

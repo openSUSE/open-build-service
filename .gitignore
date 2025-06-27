@@ -41,7 +41,6 @@
 /docker-files/home/.irb_history
 /docker-files/home/.pry_history
 docker-compose.override.yml
-docker-compose.minitest-user.yml
 
 # All the other crap that fits nowhere specifically
 *~
