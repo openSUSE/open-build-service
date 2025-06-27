@@ -756,6 +756,7 @@ class Package < ApplicationRecord
   def assign_devel_package_from_xml(xmlhash)
     #--- devel project/package ---#
     devel = xmlhash['devel']
+    self.develpackage = nil
     return unless devel
 
     devel_project_name = devel['project'] || xmlhash['project']
