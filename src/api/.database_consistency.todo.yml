@@ -21,11 +21,6 @@ AttribDefaultValue:
   id:
     PrimaryKeyTypeChecker:
       enabled: false
-  value:
-    LengthConstraintChecker:
-      enabled: false
-    NullConstraintChecker:
-      enabled: false
 AttribIssue:
   id:
     PrimaryKeyTypeChecker:
