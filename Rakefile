@@ -28,19 +28,4 @@ EOF"
   ensure
     sh 'docker compose stop'
   end
-
-  namespace :sre do
-    desc 'Prepare the application health monitoring containers'
-    task :build do
-      sh 'docker compose -f docker-compose.sre.yml -f docker-compose.yml up -d rabbit'
-      sh 'wget http://localhost:15672/cli/rabbitmqadmin -O contrib/rabbitmqadmin'
-      sh 'chmod +x contrib/rabbitmqadmin'
-      sh './contrib/rabbitmqadmin declare exchange name=pubsub type=topic durable=true auto_delete=false internal=false'
-      # configure the app
-      sh 'docker compose -f docker-compose.sre.yml -f docker-compose.yml up -d db'
-      sh 'docker compose -f docker-compose.sre.yml -f docker-compose.yml run --no-deps --rm frontend bundle exec rake dev:sre:configure'
-    ensure
-      sh 'docker compose -f docker-compose.sre.yml -f docker-compose.yml stop'
-    end
-  end
 end
