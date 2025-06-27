@@ -733,10 +733,31 @@ RSpec.describe Package, :vcr do
         </package>
       XML_DATA2
     end
+    let(:valid_meta_with_devel) do
+      <<~XML_DATA3
+        <package name="test_package" project="home:tom">
+          <title/>
+          <description/>
+          <devel project="#{devel_package.project.name}" package="#{devel_package.name}" />
+        </package>
+      XML_DATA3
+    end
+    let(:devel_package) { create(:package, name: 'test_package') }
 
     it "doesn't crash on duplicated flags" do
       package.update_from_xml(Xmlhash.parse(invalid_meta_xml))
       expect(package.render_xml).to eq(corrected_meta_xml)
+    end
+
+    it 'sets the develpackage' do
+      package.update_from_xml(Xmlhash.parse(valid_meta_with_devel))
+      expect(package.develpackage).to eql(devel_package)
+    end
+
+    it 'removes the develpackage' do
+      package.update(develpackage: devel_package)
+      package.update_from_xml(Xmlhash.parse(corrected_meta_xml))
+      expect(package.develpackage).to be_nil
     end
   end
 
