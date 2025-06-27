@@ -3,7 +3,10 @@
 
 .card-title.d-flex.justify-content-between.mb-2.pt-4.px-4
   %h3
-    Request #{bs_request.number}
+    #{bs_request.title}
+    %span.text-custom-gray-400
+      %i #
+      #{bs_request.number}
     -# state badge
     %small
       = render BsRequestPriorityBadgeComponent.new(priority: bs_request.priority, css_class: 'ms-2', overview: true)

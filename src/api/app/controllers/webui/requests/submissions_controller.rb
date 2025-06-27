@@ -35,7 +35,7 @@ module Webui
         # This is for target_package which might be empty since it's not required
         params[:bs_request][:bs_request_actions_attributes]['0'].compact_blank!
 
-        params.require(:bs_request).permit(:description,
+        params.require(:bs_request).permit(:title, :description,
                                            bs_request_actions_attributes: %i[target_package target_project
                                                                              source_project source_package
                                                                              source_rev sourceupdate

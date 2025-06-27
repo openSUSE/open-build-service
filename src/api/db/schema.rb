@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_06_12_085047) do
+ActiveRecord::Schema[7.2].define(version: 2025_06_20_101542) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -277,6 +277,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_12_085047) do
     t.datetime "updated_when", precision: nil
     t.string "approver"
     t.integer "staging_project_id"
+    t.string "title", limit: 100
     t.index ["creator"], name: "index_bs_requests_on_creator"
     t.index ["number"], name: "index_bs_requests_on_number", unique: true
     t.index ["staging_project_id"], name: "index_bs_requests_on_staging_project_id"
