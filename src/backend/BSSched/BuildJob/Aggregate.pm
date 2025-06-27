@@ -249,6 +249,7 @@ sub check {
       }
     }
     # patch in calculated package list
+    $aggregate->{'do_product'} = 1 if @{$aggregate->{'package'} || []};
     $aggregate->{'package'} ||= \@apackids;
   }
   if (@broken) {
@@ -296,7 +297,7 @@ sub check {
 	  my $d = "$reporoot/$aprojid/$arepoid/$myarch/$apackid";
 	  $d = "$reporoot/$aprojid/$arepoid/$myarch/:full" if $apackid eq '_repository';
 	  for my $filename (sort(ls($d))) {
-	    next unless $filename eq 'updateinfo.xml' || $filename =~ /\.(?:$binsufsre)$/ || $filename =~ /\.(?:obsbinlnk|helminfo)$/;
+	    next unless $filename eq 'updateinfo.xml' || $filename =~ /\.(?:$binsufsre)$/ || $filename =~ /\.(?:obsbinlnk|helminfo|report)$/;
 	    $havecontainer = 1 if $filename =~ /\.(?:obsbinlnk|helminfo)$/;
 	    my @s = stat("$d/$filename");
 	    $m .= "$filename\0$s[9]/$s[7]/$s[1]\0" if @s;
@@ -339,7 +340,7 @@ sub check {
 =cut
 
 sub copy_provenance {
-  my ($jobdatadir, $dirprefix, $d, $filename, $jobbins, $aprpap_idx) = @_;
+  my ($jobdatadir, $ddir, $d, $filename, $jobbins, $aprpap_idx) = @_;
   die unless $d =~ s/\.(?:$binsufsre|containerinfo|helminfo)$/.slsa_provenance.json/;
   my $provenance = $filename;
   die unless $provenance =~ s/\.(?:$binsufsre|containerinfo|helminfo)$/.slsa_provenance.json/;
@@ -347,8 +348,8 @@ sub copy_provenance {
     BSUtil::cp($d, "$jobdatadir/$provenance");
     $jobbins->{$provenance} = $aprpap_idx;
     return $provenance;
-  } elsif (-e "${dirprefix}_slsa_provenance.json") {
-    BSUtil::cp("${dirprefix}_slsa_provenance.json", "$jobdatadir/$provenance");
+  } elsif (defined($ddir) && -e "${ddir}_slsa_provenance.json") {
+    BSUtil::cp("${ddir}_slsa_provenance.json", "$jobdatadir/$provenance");
     $jobbins->{$provenance} = $aprpap_idx;
     return $provenance;
   }
@@ -594,6 +595,32 @@ sub build {
 	    $logfile .= "      - $provenance\n" if $provenance;
 	    next;
 	  }
+          if ($aggregate->{'do_product'} && $filename =~ /(.+)\.report$/ && -d "$dirprefix$1") {
+	    my $projectdir = $1;
+	    my $report = readxml("$dirprefix$filename", $BSXML::report, 1);
+	    next unless $report;
+	    for my $rbin (@{$report->{'binary'} || []}) {
+	      next if $nosource && $rbin->{'name'} =~ /-debug(:?info|source)?$/;
+	      # construct canonical path
+	      my $subpath = "$rbin->{'binaryarch'}/$rbin->{'name'}-$rbin->{'version'}-$rbin->{'release'}.$rbin->{'binaryarch'}.rpm";
+	      next if $subpath =~ /^\// || "/$subpath" =~ /\/\./;	# hey!
+	      next unless $subpath =~ /\.(?:$binsufsre)$/;
+	      next if $subpath =~ /\.(?:nosrc|src)\.rpm$/;
+	      next unless -e "$dirprefix$projectdir$subpath";
+	      my $dst = $subpath;
+	      $dst =~ s/.*\///;
+	      if ($jobbins{$dst}) {
+	        push @{$conflicts{$dst}}, $aprpap_idx;
+	        next;  # first one wins
+	      }
+	      $jobbins{$dst} = $aprpap_idx;
+	      BSUtil::cp("$dirprefix$projectdir$subpath", "$jobdatadir/$dst");
+	      $logfile .= "  - $dst [$s[9]/$s[7]/$s[1]] (from $filename)\n";
+	      my $provenance = copy_provenance($jobdatadir, undef, "$dirprefix$projectdir$subpath", $dst, \%jobbins, $aprpap_idx);
+	      $logfile .= "      - $provenance\n" if $provenance;
+	    }
+	    next;
+	  }
 	  next unless $filename =~ /\.(?:$binsufsre)$/;
 	  my $origfilename = $filename;
 	  $filename =~ s/^::import::.*?:://;
@@ -821,7 +848,5 @@ sub writehelminfo {
   my $helminfo_json = JSON::XS->new->utf8->canonical->pretty->encode($helminfo);
   writestr($fn, $fnf, $helminfo_json);
 }
-
-1;
 
 1;
