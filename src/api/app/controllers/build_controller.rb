@@ -161,7 +161,11 @@ class BuildController < ApplicationController
   end
 
   def result_lastsuccess
-    required_parameters :package, :pathproject
+    begin
+      params.require(%i[package pathproject])
+    rescue ActionController::ParameterMissing => e
+      raise MissingParameterError, e.message
+    end
 
     pkg = Package.get_by_project_and_name(params[:project], params[:package],
                                           use_source: false, follow_multibuild: true)
