@@ -53,7 +53,6 @@ class RequestController < ApplicationController
 
   # GET /request/:id
   def show
-    required_parameters :id
     req = BsRequest.find_by(number: params[:id])
     raise ActiveRecord::RecordNotFound, "Couldn't find Request with number '#{params[:id]}'" if req.nil?
 

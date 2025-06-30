@@ -9,8 +9,6 @@ class PublicController < ApplicationController
 
   # GET /public/build/:project/:repository/:arch/:package
   def build
-    required_parameters :project
-
     if params[:project] == '_result'
       pass_to_backend("/build/_result#{build_query_from_hash(params, %i[scmrepository scmbranch locallink multibuild lastbuild code])}")
       return
@@ -138,7 +136,6 @@ class PublicController < ApplicationController
 
   # GET /public/request/:number
   def show_request
-    required_parameters :number
     req = BsRequest.find_by_number!(params[:number])
     render xml: req.render_xml
   end
