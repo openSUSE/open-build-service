@@ -1,5 +1,5 @@
 .card.write-and-preview{ data: { preview_message_url: preview_message_url, message_body_param: message_body_param } }
-  %ul.nav.nav-tabs.px-3.pt-2.disable-link-generation{ role: 'tablist' }
+  %ul.card-header.nav.nav-tabs.px-3.pt-2.pb-0.disable-link-generation{ role: 'tablist' }
     %li.nav-item
       = link_to('Write', "#write_#{text_area_attributes[:id_suffix]}", class: 'nav-link active', data: { 'bs-toggle': 'tab' }, role: 'tab',
       aria: { controls: 'write-message-tab', selected: 'true' })
