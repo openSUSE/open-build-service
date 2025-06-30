@@ -28,7 +28,7 @@ RSpec.describe 'Projects', :js, :vcr do
         expect(page).to have_text("Edit Project #{project}")
 
         fill_in 'project_title', with: 'My Title "hopefully" got changed'
-        fill_in 'project_description', with: 'New description. No kidding.. Brand new!'
+        fill_in 'project[description]', with: 'New description. No kidding.. Brand new!'
         fill_in 'project_url', with: 'https://test.url'
         fill_in('project_report_bug_url', with: 'https://test-report-bug.url')
         click_button 'Update'
@@ -55,7 +55,7 @@ RSpec.describe 'Projects', :js, :vcr do
         expect(page).to have_text("Edit Project #{project}")
 
         fill_in 'project_title', with: 'My Title "hopefully" got changed'
-        fill_in 'project_description', with: 'New description. No kidding.. Brand new!'
+        fill_in 'project[description]', with: 'New description. No kidding.. Brand new!'
         click_link 'Cancel'
         wait_for_ajax
 

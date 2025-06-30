@@ -54,7 +54,7 @@ RSpec.describe 'CommentLocks', :vcr do
 
         it 'can comment' do
           expect(page).to have_no_text('Commenting on this is locked.')
-          fill_in 'new_comment_body', with: 'Comment Body'
+          fill_in 'comment[body]', with: 'Comment Body'
           find_button('Add comment')
         end
       end
