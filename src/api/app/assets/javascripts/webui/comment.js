@@ -32,7 +32,7 @@ function handlingCommentEvents() {
   // Disable submit button if textarea is empty and enable otherwise
   const commentFieldSelector = `.comments-list .comment-field, .comment_new .comment-field,
                                 .timeline .comment-field, .diff .comment-field,
-                                .diff-accordion .comment-field`;
+                                .diff-accordion .comment-field, .write-and-preview textarea`;
   $(document).on('input', commentFieldSelector, function(e) {
     validateForm(e);
     resizeTextarea(this);
