@@ -1,6 +1,5 @@
 .request-decision.mt-n1
-  = form_tag(request_changerequest_path, id: 'request_handle_form', class: 'write-and-preview',
-    data: { preview_message_url: preview_comments_path, message_body_param: 'comment[body]' }) do
+  = form_with(url: request_changerequest_path, html: { id: 'request_handle_form' }, local: true) do |form|
     = hidden_field_tag(:number, @bs_request.number)
     .pb-2{ 'data-canned-controller': '' }
       - if policy(Comment.new(commentable: @bs_request)).locked?
@@ -8,25 +7,11 @@
           Commenting on this is locked.
           - if CommentLockPolicy.new(User.session, @bs_request).create?
             = helpers.comment_lock_alert(@bs_request)
-      .card
-        %ul.card-header.nav.nav-tabs.px-3.pt-2.pb-0.disable-link-generation{ role: 'tablist' }
-          %li.nav-item
-            = link_to('Write', "#write_new_comment", class: 'nav-link active', data: { 'bs-toggle': 'tab' },
-            role: 'tab', aria: { controls: 'write-comment-tab', selected: 'true'})
-          %li.nav-item
-            = link_to('Preview', '#preview_new_comment', class: 'nav-link preview-message-tab', data: { 'bs-toggle': 'tab' },
-            role: 'tab', aria: { controls: 'preview-message-tab', selected: 'false' })
-        .tab-content.px-3
-          .tab-pane.fade.show.active.my-3{ id: 'write_new_comment', role: 'tabpanel',
-                                          'aria-labelledby': 'write-comment-tab', 'data-canned-controller': '' }
-            - if Flipper.enabled?(:canned_responses, User.session)
-              .d-flex.justify-content-end
-                = render CannedResponsesDropdownComponent.new(User.session.canned_responses.where(decision_type: nil).order(:title))
-            = text_area_tag(:reason, nil,
-                            placeholder: 'Write your comment or decision...(markdown is only supported for comments, not for decisions)',
-                            rows: 4, class: 'w-100 form-control mb-2 message-field')
-          .tab-pane.fade{ id: 'preview_new_comment', role: 'tabpanel', 'aria-labelledby': 'preview-message-tab' }
-            .comment-preview.message-preview.my-3
+      - decision_placeholder = "Write your comment or decision...(markdown is only supported for comments, not for decisions)"
+      = render WriteAndPreviewComponent.new(form: form, preview_message_url: preview_comments_path, canned_responses_enabled: true,
+                                            message_body_param: 'comment[body]',
+                                            text_area_attributes: { object_name: 'reason', id_suffix: 'new_comment',
+                                            placeholder: decision_placeholder})
       .mt-2
         - if policy(@bs_request).forward_request?
           - @action.forward.each_with_index do |forward, index|
