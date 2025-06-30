@@ -58,9 +58,9 @@ cve_numbers:
   name: cve
   kind: cve
   description: CVE numbers
-  url: http://cve.mitre.org
-  show_url: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-@@@
-  regex: (?:cve|CVE)-(\d\d\d\d-\d+)
+  url: https://www.cve.org/
+  show_url: https://www.cve.org/CVERecord?id=CVE-@@@
+  regex: (?:cve-|CVE-)(\d\d\d\d-\d+)
   label: 'CVE-@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
