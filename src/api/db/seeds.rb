@@ -201,7 +201,7 @@ IssueTracker.where(name: 'cve').first_or_create(description: 'CVE Numbers',
                                                 regex: 'CVE-(\d\d\d\d-\d+)',
                                                 url: 'http://cve.mitre.org/',
                                                 label: 'CVE-@@@',
-                                                show_url: 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=@@@')
+                                                show_url: 'https://www.cve.org/CVERecord?id=CVE-@@@')
 IssueTracker.where(name: 'deb').first_or_create(description: 'Debian Bugzilla',
                                                 kind: 'bugzilla',
                                                 regex: 'deb#(\d+)',
