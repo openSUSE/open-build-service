@@ -1,21 +1,22 @@
 .card.write-and-preview{ data: { preview_message_url: preview_message_url, message_body_param: message_body_param } }
   %ul.nav.nav-tabs.px-3.pt-2.disable-link-generation{ role: 'tablist' }
     %li.nav-item
-      = link_to('Write', '#write_message', class: 'nav-link active', data: { 'bs-toggle': 'tab' }, role: 'tab',
+      = link_to('Write', "#write_#{text_area_attributes[:id_suffix]}", class: 'nav-link active', data: { 'bs-toggle': 'tab' }, role: 'tab',
       aria: { controls: 'write-message-tab', selected: 'true' })
     %li.nav-item
-      = link_to('Preview', '#preview_message', class: 'nav-link preview-message-tab',
+      = link_to('Preview', "#preview_#{text_area_attributes[:id_suffix]}", class: 'nav-link preview-message-tab',
       data: { 'bs-toggle': 'tab', preview_message_url: preview_message_url },
       role: 'tab', aria: { controls: 'preview-message-tab', selected: 'false' })
   .tab-content.px-3
-    .tab-pane.fade.show.active.my-3{ id: 'write_message', role: 'tabpanel', 'aria-labelledby': 'write-message-tab', 'data-canned-controller': '' }
+    .tab-pane.fade.show.active.my-3{ id: "write_#{text_area_attributes[:id_suffix]}",
+                                     role: 'tabpanel', 'aria-labelledby': 'write-message-tab', 'data-canned-controller': '' }
       - if Flipper.enabled?(:canned_responses, User.session) && canned_responses_enabled
         .d-flex.justify-content-end
           = render CannedResponsesDropdownComponent.new(User.session.canned_responses.where(decision_type: nil).order(:title))
-      ~ form.text_area(text_area_attributes[:object_name], rows: text_area_attributes[:rows], required: text_area_attributes[:required],
-        placeholder: text_area_attributes[:placeholder],
-        class: 'w-100 form-control message-field')
-    .tab-pane.fade{ id: 'preview_message', role: 'tabpanel', 'aria-labelledby': 'preview-message-tab' }
+      ~ form.text_area(text_area_attributes[:object_name], id: "#{text_area_attributes[:id_suffix]}_body",
+        rows: text_area_attributes[:rows], required: text_area_attributes[:required],
+        placeholder: text_area_attributes[:placeholder], class: 'w-100 form-control message-field')
+    .tab-pane.fade{ id: "preview_#{text_area_attributes[:id_suffix]}", role: 'tabpanel', 'aria-labelledby': 'preview-message-tab' }
       .message-preview.my-3
 
 :javascript

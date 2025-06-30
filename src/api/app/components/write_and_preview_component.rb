@@ -15,6 +15,6 @@ class WriteAndPreviewComponent < ApplicationComponent
 
   def text_area_attributes_defaults
     { rows: 4, placeholder: 'Write your message here... (Markdown markup is supported)', required: true,
-      object_name: :message }
+      object_name: :message, id_suffix: 'message' }
   end
 end
