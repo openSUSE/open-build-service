@@ -75,7 +75,7 @@ use BSRepServer;
 use BSRepServer::BuildInfo;
 use BSRepServer::Containerinfo;
 use BSRepServer::Containertar;
-use BSRepServer::Helminfo;
+use BSRepServer::Bininfo;
 use BSRepServer::Remote;
 use BSRepServer::Registry;
 use BSRepServer::YMP;
@@ -2465,8 +2465,6 @@ sub putjob {
 
   notify_jobresult($job, $info, $jobstatus, "$projid/$repoid/$arch");
 
-  my $bininfo = {};
-
   # create obsbinlnk file for kiwi docker results
   if (grep {$_->{'name'} =~ /\.containerinfo$/} @$uploaded) {
     for my $file (@$uploaded) {
@@ -2474,64 +2472,20 @@ sub putjob {
       next unless $prefix =~ s/\.containerinfo$//;
       my $obsbinlink = BSRepServer::Containerinfo::containerinfo2obsbinlnk($dir, "$prefix.containerinfo", $info->{'package'});
       next unless $obsbinlink;
+      my $filename = "$prefix.obsbinlnk";
       BSUtil::store("$dir/$prefix.obsbinlnk", undef, $obsbinlink);
-      my @s = stat("$dir/$prefix.obsbinlnk");
-      next unless @s;
-      my $data = { %$obsbinlink, 'filename' => "$prefix.obsbinlnk", 'id' => "$s[9]/$s[7]/$s[1]" };
-      delete $data->{'path'};
-      $bininfo->{$data->{'filename'}} = $data;
     }
   }
 
-  # calculate binary info to speed up scheduler
-  for my $file (@$uploaded) {
-    my $filename = $file->{'name'};
-    my @s = stat("$dir/$filename");
-    next unless @s;
-    my $id = "$s[9]/$s[7]/$s[1]";
-    my $data;
-    if ($filename !~ /\.(?:$binsufsre)$/) {
-      if ($filename =~ /^.*[-.]appdata.xml$/ || $filename eq '_modulemd.yaml' || $filename =~ /slsa_provenance\.json$/) {
-	# used in product building, store md5sum
-	local *F;
-	open(F, '<', "$dir/$filename");
-	@s = stat(F);
-	next unless @s;
-	$id = "$s[9]/$s[7]/$s[1]";
-	my $ctx = Digest::MD5->new;
-	$ctx->addfile(*F);
-	close F;
-	$data = {'md5sum' => $ctx->hexdigest(), 'filename' => $filename, 'id' => $id };
-	$bininfo->{$filename} = $data;
-      } elsif ($filename =~ /\.helminfo$/) {
-	my $obsbininfo = BSRepServer::Helminfo::helminfo2obsbininfo($dir, $filename);
-	next unless $obsbininfo;
-	my $data = { %$obsbininfo, 'filename' => $filename, 'id' => $id };
-	$bininfo->{$filename} = $data;
-      }
-      next;
+  # create binary info to speed up the scheduler
+  eval { BSRepserver::Bininfo::create_bininfo_file($dir) };
+  if ($@) {
+    BSUtil::appendstr("$dir/logfile", "\n$@");
+    $jobstatus->{'result'} = 'failed';
+    for my $filename (sort(ls($dir))) {
+      unlink("$dir/$filename") unless $filename eq 'meta' || $filename eq 'logfile';
     }
-    eval {
-      my $leadsigmd5;
-      die("has no hdrmd5\n") unless Build::queryhdrmd5("$dir/$filename", \$leadsigmd5);
-      $data = Build::query("$dir/$filename", 'evra' => 1);
-      die("query failed\n") unless $data;
-      BSVerify::verify_nevraquery($data);
-      $data->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
-    };
-    $data->{'filename'} = $filename;
-    $data->{'id'} = $id;
-    if ($@) {
-      BSUtil::appendstr("$dir/logfile", "$filename: $@");
-      unlink("$dir/$filename");
-      $uploaded = [ grep {$_->{'name'} ne $filename} @$uploaded ];
-      $jobstatus->{'result'} = 'failed';
-      next;
-    }
-    $bininfo->{$filename} = $data;
   }
-  $bininfo->{'.bininfo'} = {};
-  BSUtil::store("$dir/.bininfo", undef, $bininfo);
 
   # write build stats for dispatcher
   my @l = ($projid, $repoid, $arch, $info->{'package'}, $jobstatus->{'starttime'},  $jobstatus->{'endtime'}, $jobstatus->{'result'}, $jobstatus->{'workerid'}, $jobstatus->{'hostarch'});

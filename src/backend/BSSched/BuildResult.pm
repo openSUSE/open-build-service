@@ -56,6 +56,7 @@ use BSXML;
 use BSVerify;
 use BSConfiguration;
 use BSRedisnotify;
+use BSSched::Bininfo;
 use BSSched::BuildRepo;
 use BSSched::Blobstore;
 use BSSched::BuildJob::Import;		# for createexportjob
@@ -649,58 +650,7 @@ sub read_bininfo {
     }
   }
   # old style bininfo or no bininfo, create it
-  $bininfo = {};
-  @bininfo_s = ();
-  for my $file (ls($dir)) {
-    $bininfo->{'.nosourceaccess'} = {} if $file eq '.nosourceaccess';
-    if ($file !~ /\.(?:$binsufsre)$/) {
-      $bininfo->{'.nouseforbuild'} = {} if $file eq '.channelinfo' || $file eq 'updateinfo.xml' || $file eq '.updateinfodata' || $file eq '.nouseforbuild';
-      if ($file =~ /\.obsbinlnk$/) {
-	my @s = stat("$dir/$file");
-	my $d = BSUtil::retrieve("$dir/$file", 1);
-	next unless @s && $d;
-	my $r = {%$d, 'filename' => $file, 'id' => "$s[9]/$s[7]/$s[1]"};
-	delete $r->{'path'};
-	$bininfo->{$file} = $r;
-      } elsif ($file =~ /[-.]appdata\.xml$/ || $file eq '_modulemd.yaml' || $file =~ /slsa_provenance\.json$/ || $file eq 'updateinfo.xml') {
-        local *F;
-        open(F, '<', "$dir/$file") || next;
-        my @s = stat(F);
-        next unless @s;
-        my $ctx = Digest::MD5->new;
-        $ctx->addfile(*F);
-        close F;
-        $bininfo->{$file} = {'md5sum' => $ctx->hexdigest(), 'filename' => $file, 'id' => "$s[9]/$s[7]/$s[1]"};
-      } elsif ($file =~ /\.helminfo$/) {
-	my @s = stat("$dir/$file");
-	my $r = helminfo2bininfo($dir, $file);
-	next unless $r;
-	$r->{'filename'} = $file;
-	$r->{'id'} = "$s[9]/$s[7]/$s[1]";
-	$bininfo->{$file} = $r;
-      }
-      next;
-    }
-    my @s = stat("$dir/$file");
-    next unless @s;
-    my $id = "$s[9]/$s[7]/$s[1]";
-    my $data;
-    eval {
-      my $leadsigmd5;
-      die("$dir/$file: no hdrmd5\n") unless Build::queryhdrmd5("$dir/$file", \$leadsigmd5);
-      $data = Build::query("$dir/$file", 'evra' => 1);
-      die("$dir/$file: queury failed\n") unless $data;
-      BSVerify::verify_nevraquery($data);
-      $data->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
-    };
-    if ($@) {
-      warn($@);
-      next;
-    }
-    $data->{'filename'} = $file;
-    $data->{'id'} = $id;
-    $bininfo->{$file} = $data;
-  }
+  $bininfo = BSSched::Bininfo::create_bininfo($dir, 1);
   eval {
     BSUtil::store("$dir/.bininfo.new", "$dir/.bininfo", $bininfo);
     @bininfo_s = stat("$dir/.bininfo");
