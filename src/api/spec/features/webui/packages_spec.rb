@@ -360,7 +360,7 @@ RSpec.describe 'Packages', :js, :vcr do
         visit new_package_path(project: user.home_project)
         fill_in 'package_name', with: 'coolstuff'
         fill_in 'package_title', with: 'cool stuff everyone needs'
-        fill_in 'package_description', with: very_long_description
+        fill_in 'package[description]', with: very_long_description
         click_button 'Create'
 
         expect(page).to have_text("Package 'coolstuff' was created successfully")
