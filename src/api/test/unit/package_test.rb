@@ -146,7 +146,7 @@ class PackageTest < ActiveSupport::TestCase
                                ))
     end
 
-    assert_raise(NotFoundError) do
+    assert_raise(ActiveRecord::RecordNotFound) do
       @package.update_from_xml(Xmlhash.parse(
                                  "<package name='TestBack' project='home:Iggy'>
                                    <title>My Test package</title>

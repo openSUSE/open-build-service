@@ -96,7 +96,7 @@ class Group < ApplicationRecord
       User.not_deleted.find_by!(login: m)
     end
     users.replace(new_members)
-  rescue ActiveRecord::RecordInvalid, NotFoundError => e
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
     errors.add(:base, e.message)
     false
   end

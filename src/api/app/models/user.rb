@@ -237,13 +237,6 @@ class User < ApplicationRecord
                      password: '123456').find_or_create_by(login: NOBODY_LOGIN)
   end
 
-  def self.find_by_login!(login)
-    user = not_deleted.find_by(login: login)
-    return user if user
-
-    raise NotFoundError, "Couldn't find User with login = #{login}"
-  end
-
   # some users have last_logged_in_at empty
   def last_logged_in_at
     self[:last_logged_in_at] || created_at
