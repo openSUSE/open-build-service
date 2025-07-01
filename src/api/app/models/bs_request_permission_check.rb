@@ -57,7 +57,7 @@ class BsRequestPermissionCheck
 
   def cmd_changereviewstate_permissions
     # Basic validations of given parameters
-    by_user = User.find_by_login!(opts[:by_user]) if opts[:by_user]
+    by_user = User.not_deleted.find_by!(login: opts[:by_user]) if opts[:by_user]
     by_group = Group.find_by_title!(opts[:by_group]) if opts[:by_group]
     if opts[:by_project] && opts[:by_package]
       by_package = Package.get_by_project_and_name(opts[:by_project], opts[:by_package])

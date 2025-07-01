@@ -124,7 +124,7 @@ class AttribType < ApplicationRecord
     raise "attribute type '#{node.name}' modifiable_by element has no valid rules set" if node['user'].blank? && node['group'].blank? && node['role'].blank?
 
     new_rule = {}
-    new_rule[:user] = User.find_by_login!(node['user']) if node['user']
+    new_rule[:user] = User.not_deleted.find_by!(login: node['user']) if node['user']
     new_rule[:group] = Group.find_by_title!(node['group']) if node['group']
     new_rule[:role] = Role.find_by_title!(node['role']) if node['role']
     attrib_type_modifiable_bies << AttribTypeModifiableBy.new(new_rule)

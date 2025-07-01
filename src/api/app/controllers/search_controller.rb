@@ -83,7 +83,7 @@ class SearchController < ApplicationController
 
   def owner_group_or_user
     if params[:user].present?
-      User.find_by_login!(params[:user])
+      User.not_deleted.find_by!(login: params[:user])
     elsif params[:group].present?
       Group.find_by_title!(params[:group])
     end

@@ -202,7 +202,7 @@ class Review < ApplicationRecord
   end
 
   def users_and_groups_for_review
-    return [User.find_by_login!(by_user)] if by_user
+    return [User.not_deleted.find_by!(login: by_user)] if by_user
     return [Group.find_by_title!(by_group)] if by_group
 
     if by_package

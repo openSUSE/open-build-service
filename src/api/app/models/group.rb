@@ -50,7 +50,7 @@ class Group < ApplicationRecord
     xmlhash.elements('maintainer') do |maintainer|
       next unless maintainer['userid']
 
-      user = User.find_by_login!(maintainer['userid'])
+      user = User.not_deleted.find_by!(login: maintainer['userid'])
       if cache.key?(user.id)
         # user has already a role in this package
         cache.delete(user.id)
@@ -71,7 +71,7 @@ class Group < ApplicationRecord
       persons.elements('person') do |person|
         next unless person['userid']
 
-        user = User.find_by_login!(person['userid'])
+        user = User.not_deleted.find_by!(login: person['userid'])
         if cache.key?(user.id)
           # user has already a role in this package
           cache.delete(user.id)
@@ -93,7 +93,7 @@ class Group < ApplicationRecord
 
   def replace_members(members)
     new_members = members.split(',').map do |m|
-      User.find_by_login!(m)
+      User.not_deleted.find_by!(login: m)
     end
     users.replace(new_members)
   rescue ActiveRecord::RecordInvalid, NotFoundError => e

@@ -38,7 +38,7 @@ module Webui::ManageRelationships
     title = params[:groupid]
     raise MissingParameterError, 'Neither user nor group given' unless login.present? || title.present?
 
-    return User.find_by_login!(login) if login
+    return User.not_deleted.find_by!(login: login) if login
 
     ::Group.find_by_title!(title)
   end

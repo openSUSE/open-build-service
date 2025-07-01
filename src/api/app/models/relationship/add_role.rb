@@ -33,7 +33,7 @@ class Relationship::AddRole
     raise ArgumentError, 'need either user or group' unless opts[:user].present? ^ opts[:group].present?
 
     self.user = opts[:user]
-    self.user = User.find_by_login!(user) if user.is_a?(String)
+    self.user = User.not_deleted.find_by!(login: user) if user.is_a?(String)
 
     self.group = opts[:group]
     self.group = Group.find_by_title!(group) if group.is_a?(String)

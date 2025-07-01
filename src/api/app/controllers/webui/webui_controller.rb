@@ -82,7 +82,7 @@ class Webui::WebuiController < ActionController::Base
     param_login = params[:login] || params[:user_login]
     if param_login.present?
       begin
-        @displayed_user = User.find_by_login!(param_login)
+        @displayed_user = User.not_deleted.find_by!(login: param_login)
       rescue NotFoundError
         # admins can see deleted users
         @displayed_user = User.find_by_login(param_login) if User.admin_session?

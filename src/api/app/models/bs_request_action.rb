@@ -635,7 +635,7 @@ class BsRequestAction < ApplicationRecord
     sprj = nil
     if person_name
       # validate user object
-      User.find_by_login!(person_name)
+      User.not_deleted.find_by!(login: person_name)
     end
     if group_name
       # validate group object

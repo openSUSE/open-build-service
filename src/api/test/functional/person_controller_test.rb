@@ -322,7 +322,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'owner', attributes: { userid: 'adrian' }
 
-    lost_guy = User.find_by_login!('lost_guy')
+    lost_guy = User.not_deleted.find_by!(login: 'lost_guy')
     assert_equal 'subaccount', lost_guy[:state]
     assert_equal 'confirmed', lost_guy.state
 

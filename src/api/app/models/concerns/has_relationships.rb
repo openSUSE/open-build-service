@@ -130,7 +130,7 @@ module HasRelationships
     end
 
     def find!(id)
-      User.find_by_login!(id)
+      User.not_deleted.find_by!(login: id)
     end
   end
 
