@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<aggregatelist>
+<aggregatelist resign="false">
   <aggregate project="projectname" >
     <package>glibc</package>
     <package>libz</package>

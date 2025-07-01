@@ -10,6 +10,14 @@
 
   <define ns="" name="aggregate-element">
     <element name="aggregatelist">
+      <optional>
+        <attribute name="resign">
+          <choice>
+            <value>true</value> <!-- default -->
+            <value>false</value>
+          </choice>
+        </attribute>
+      </optional>
       <zeroOrMore>
         <element ns="" name="aggregate">
           <attribute name="project">
