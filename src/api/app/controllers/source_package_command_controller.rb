@@ -43,7 +43,7 @@ class SourcePackageCommandController < SourceController
 
   # POST /source/<project>/<package>?cmd=unlock
   def unlock
-    required_parameters :comment
+    params.require(:comment)
 
     p = { comment: params[:comment] }
 
@@ -113,7 +113,7 @@ class SourcePackageCommandController < SourceController
 
   # POST /source/<project>/<package>?cmd=collectbuildenv
   def collectbuildenv
-    required_parameters :oproject, :opackage
+    params.require(%i[oproject opackage])
 
     Package.get_by_project_and_name(@target_project_name, @target_package_name)
 
@@ -410,14 +410,15 @@ class SourcePackageCommandController < SourceController
 
   # POST /source/<project>/<package>?cmd=set_flag&repository=:opt&arch=:opt&flag=flag&status=status
   def set_flag
-    required_parameters :flag, :status
+    params.require(%i[flag status])
 
     obj_set_flag(@package)
   end
 
   # POST /source/<project>/<package>?cmd=remove_flag&repository=:opt&arch=:opt&flag=flag
   def remove_flag
-    required_parameters :flag
+    params.require(:flag)
+
     obj_remove_flag(@package)
   end
 
@@ -452,7 +453,8 @@ class SourcePackageCommandController < SourceController
   def set_origin_package
     return nil unless params[:opackage]
 
-    required_parameters(:oproject)
+    params.require(:oproject)
+
     raise InvalidPackageNameError, "invalid package name '#{params[:opackage]}'" unless Package.valid_name?(params[:opackage])
     raise InvalidProjectNameError, "invalid project name '#{params[:oproject]}'" unless Project.valid_name?(params[:oproject])
 
