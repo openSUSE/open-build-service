@@ -14,7 +14,11 @@
   </aggregate>
   <aggregate project="lastproject" >
     <package>glibc</package>
-    <repository target="my_sle_11_repo" source="SLE_11" />
+    <repository source="SLE_11" />
+  </aggregate>
+  <aggregate project="pick_one" >
+    <package>glibc</package>
+    <repository target="my_sle_11_repo" />
   </aggregate>
 </aggregatelist>
 
