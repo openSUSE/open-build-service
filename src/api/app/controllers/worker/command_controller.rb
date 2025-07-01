@@ -1,10 +1,6 @@
 class Worker::CommandController < ApplicationController
   def run
-    begin
-      params.require(%i[cmd project package repository arch])
-    rescue ActionController::ParameterMissing => e
-      raise MissingParameterError, e.message
-    end
+    params.require(%i[cmd project package repository arch])
 
     raise UnknownCommandError, "Unknown command '#{params[:cmd]}' for path #{request.path}" unless params[:cmd] == 'checkconstraints'
 

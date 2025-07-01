@@ -6,7 +6,7 @@ class SourceProjectCommandController < SourceController
   def project_command
     # init and validation
     #--------------------
-    required_parameters(:cmd)
+    params.require(:cmd)
 
     valid_commands = %w[undelete showlinked remove_flag set_flag createpatchinfo
                         createkey extendkey copy createmaintenanceincident lock
@@ -51,7 +51,7 @@ class SourceProjectCommandController < SourceController
   # unlock a project
   # POST /source/<project>?cmd=unlock
   def project_command_unlock
-    required_parameters :comment
+    params.require(:comment)
 
     @project.unlock!(params[:comment])
 
@@ -268,7 +268,7 @@ class SourceProjectCommandController < SourceController
 
   # POST /source/<project>?cmd=set_flag&repository=:opt&arch=:opt&flag=flag&status=status
   def project_command_set_flag
-    required_parameters :flag, :status
+    params.require(%i[flag status])
 
     # Raising permissions afterwards is not secure. Do not allow this by default.
     unless User.admin_session?
@@ -284,7 +284,8 @@ class SourceProjectCommandController < SourceController
 
   # POST /source/<project>?cmd=remove_flag&repository=:opt&arch=:opt&flag=flag
   def project_command_remove_flag
-    required_parameters :flag
+    params.require(:flag)
+
     obj_remove_flag(@project)
   end
 

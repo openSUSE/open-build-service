@@ -3995,7 +3995,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     post '/source/home:Iggy?cmd=set_flag&repository=10.2&arch=i586&flag=build'
     assert_response :bad_request
-    assert_match(/Required Parameter status missing/, @response.body)
+    assert_xml_tag tag: 'status', attributes: { code: 'missing_parameter' }
 
     post '/source/home:Iggy?cmd=set_flag&repository=10.2&arch=i586&flag=build&status=anything'
     assert_response :bad_request

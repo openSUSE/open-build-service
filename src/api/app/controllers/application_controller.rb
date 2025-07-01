@@ -107,14 +107,6 @@ class ApplicationController < ActionController::Base
     response.headers['X-Opensuse-APIVersion'] = CONFIG['version'].to_s
   end
 
-  def require_parameter!(parameter)
-    raise MissingParameterError, "Required Parameter #{parameter} missing" unless params.include?(parameter.to_s)
-  end
-
-  def required_parameters(*parameters)
-    parameters.each { |parameter| require_parameter!(parameter) }
-  end
-
   def gather_exception_defaults(opt)
     if opt[:message]
       @summary = opt[:message].to_s
