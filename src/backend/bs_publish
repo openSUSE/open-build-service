@@ -354,7 +354,7 @@ sub getsigndata {
       my @signargs;
       push @signargs, '--project', $projid;
       push @signargs, '--signflavor', $signflavor if $signflavor;
-      open(S, '-|', $BSConfig::sign, @signargs, '-p') || die("$BSConfig::sign: $!\n");;
+      open(S, '-|', $BSConfig::sign, @signargs, '-p') || die("$BSConfig::sign: $!\n");
       $pubkey = '';
       1 while sysread(S, $pubkey, 4096, length($pubkey));
       if (!close(S)) {
@@ -386,12 +386,59 @@ sub getsigndata {
 
 ##########################################################################
 
+sub get_cert {
+  my ($projid, $signargs, $signtype, $signflavor) = @_;
+  my @signargs;
+  push @signargs, '--project', $projid if $BSConfig::sign_project;
+  push @signargs, '--signtype', $signtype if $BSConfig::sign_type || $BSConfig::sign_type;
+  push @signargs, '--signflavor', $signflavor if $signflavor;
+  push @signargs, @{$signargs || []};
+  my $fd;
+  open($fd, '-|', $BSConfig::sign, @signargs, '-C') || die("$BSConfig::sign: $!\n");
+  my $cert = '';
+  1 while sysread($fd, $cert, 4096, length($cert));
+  if (!close($fd)) {
+    warn("sign -C failed: $?\n");
+    $cert = undef;
+  }
+  return $cert;
+}
+
+##########################################################################
+
 sub pickup_detached_signature {
   my ($data, $file) = @_;
   return unless $data->{'sigs'} && $data->{'pubkey'};
   my $d = readstr($file);
   my $sig = readstr("$file.asc");
   push @{$data->{'sigs'}}, { 'data' => $d, 'signature' => $sig, 'pubkey' => $data->{'pubkey'}, 'format' => 'pgp' };
+}
+
+##########################################################################
+
+sub create_detached_cms_signature {
+  my ($data, $file) = @_;
+  $data->{'cms_cert'} = get_cert($data->{'projid'}, $data->{'signargs'}, 'cms', $data->{'signflavor'}) unless exists $data->{'cms_cert'};
+  if (!$data->{'cms_cert'}) {
+    warn("no cert, skipping cms signature generation\n");
+    return;
+  }
+  my @signargs;
+  push @signargs, '--project', $data->{'projid'} if $BSConfig::sign_project;
+  push @signargs, '--signtype', 'cms' if $BSConfig::sign_type;
+  push @signargs, '--signflavor', $data->{'signflavor'} if $data->{'signflavor'};
+  push @signargs, @{$data->{'signargs'} || []};
+  mkdir_p($uploaddir);
+  writestr("$uploaddir/publisher.$$.cert", undef, $data->{'cms_cert'});
+
+  if (qsystem($BSConfig::sign, @signargs, '--cmssign', '--cert', "$uploaddir/publisher.$$.cert", '-h', 'sha512', $file)) {
+    unlink("$uploaddir/publisher.$$.cert");
+    die("    cms sign failed: $?\n");
+  }
+  unlink("$uploaddir/publisher.$$.cert");
+  my $sig = readstr("$file.p7s");
+  writestr("$file.p7m.$$", "$file.p7m", BSASN1::der2pem($sig, 'CMS'));
+  unlink("$file.p7s");
 }
 
 ##########################################################################
@@ -810,6 +857,7 @@ sub createrepo_rpmmd {
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
     writestr("$extrep/repodata/repomd.xml.key", undef, $data->{'pubkey'}) if $data->{'pubkey'};
     pickup_detached_signature($data, "$extrep/repodata/repomd.xml");
+    create_detached_cms_signature($data, "$extrep/repodata/repomd.xml") if $options{'cmssign'};
   }
   if ($downloadurl) {
     local *FILE;
@@ -1544,6 +1592,7 @@ sub createpatterns_rpmmd {
     push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
     pickup_detached_signature($data, "$extrep/repodata/repomd.xml");
+    create_detached_cms_signature($data, "$extrep/repodata/repomd.xml") if $options{'cmssign'};
   }
 }
 
@@ -1614,6 +1663,7 @@ sub createpatterns_comps {
     push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
     pickup_detached_signature($data, "$extrep/repodata/repomd.xml");
+    create_detached_cms_signature($data, "$extrep/repodata/repomd.xml") if $options{'cmssign'};
   }
 }
 
@@ -1717,7 +1767,7 @@ sub createpatterns_ymp {
     # write database entry
     my $ympidx = {'type' => 'ymp'};
     $ympidx->{'name'} = $pat->{'name'} if defined $pat->{'name'};
-    $ympidx->{'summary'} = $pat->{'summary'}->[0]->{'_content'} if $pat->{'summary'};;
+    $ympidx->{'summary'} = $pat->{'summary'}->[0]->{'_content'} if $pat->{'summary'};
     $ympidx->{'description'} = $pat->{'description'}->[0]->{'_content'} if $pat->{'description'};
     $ympidx->{'path'} = $repoinfo->{'prpsearchpath'} if $repoinfo->{'prpsearchpath'};
     $data->{'patterninfo'}->{$ympname} = $ympidx;
