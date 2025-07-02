@@ -28,7 +28,7 @@ post:
             missing_parameter:
               value:
                 code: missing_parameter
-                summary: Required Parameter comment missing.
+                summary: 'param is missing or the value is empty: comment'
               summary: Missing Parameter
             not_locked:
               value:

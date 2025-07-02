@@ -42,7 +42,7 @@ post:
             missing_parameter:
               value:
                 code: missing_parameter
-                summary: Required Parameter flag missing.
+                summary: 'param is missing or the value is empty: flag'
               summary: Missing Parameter
     '401':
       $ref: '../components/responses/unauthorized.yaml'

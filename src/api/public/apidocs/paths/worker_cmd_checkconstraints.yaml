@@ -94,7 +94,7 @@ post:
             $ref: '../components/schemas/api_response.yaml'
           example:
             code: 'missing_parameter'
-            summary: Required Parameter arch missing
+            summary: 'param is missing or the value is empty: arch'
     '401':
       $ref: '../components/responses/unauthorized.yaml'
     '404':
