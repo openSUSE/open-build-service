@@ -80,7 +80,7 @@ post:
             user_not_found:
               value:
                 code: not_found
-                summary: Couldn't find User with login = user_test
+                summary: Couldn't find User
               summary: User Not Found
             group_not_found:
               value:

@@ -52,7 +52,7 @@ RSpec.describe Group do
         it 'errors and does not change users' do
           expect(subject).to be_falsey
           expect(group.users).to eq([user])
-          expect(group.errors.full_messages).to eq(["Couldn't find User with login = Foobar"])
+          expect(group.errors.full_messages).to eq(["Couldn't find User"])
         end
       end
 
@@ -62,7 +62,7 @@ RSpec.describe Group do
         it 'errors and does not change users' do
           expect(subject).to be_falsey
           expect(group.users).to eq([user])
-          expect(group.errors.full_messages).to eq(["Couldn't find User with login = Foobar"])
+          expect(group.errors.full_messages).to eq(["Couldn't find User"])
         end
       end
     end

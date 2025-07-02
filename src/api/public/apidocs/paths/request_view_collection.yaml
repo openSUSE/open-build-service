@@ -52,6 +52,6 @@ get:
             Not Found:
               value:
                 code: not_found
-                summary: Couldn't find User with login = foo
+                summary: Couldn't find User
   tags:
     - Requests
