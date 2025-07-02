@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar 
+    ns="http://buildservice.org/api"
+    xmlns="http://relaxng.org/ns/structure/1.0" 
+    datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <start>
+    <ref name="aggregate-element"/>
+  </start>
+
+  <define ns="" name="aggregate-element">
+    <element name="aggregatelist">
+      <optional>
+        <attribute name="resign">
+          <choice>
+            <value>true</value> <!-- default -->
+            <value>false</value>
+          </choice>
+        </attribute>
+      </optional>
+      <zeroOrMore>
+        <element ns="" name="aggregate">
+          <attribute name="project">
+            <text/>
+          </attribute>
+          <interleave> 
+            <zeroOrMore>
+              <element ns="" name="binary">
+                <text/>
+              </element>
+            </zeroOrMore>
+            <optional>
+              <element ns="" name="nosources">
+                <text/>
+              </element>
+            </optional>
+            <zeroOrMore>
+              <element ns="" name="package">
+                <text/>
+              </element>
+            </zeroOrMore>
+            <zeroOrMore>
+              <element ns="" name="repository">
+                <optional>
+                  <attribute name="source">
+                    <text/>
+                  </attribute>
+                </optional>
+                <optional>
+                  <attribute name="target">
+                    <text/>
+                  </attribute>
+                </optional>
+                <empty/>
+              </element>
+            </zeroOrMore>
+          </interleave> 
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+</grammar>

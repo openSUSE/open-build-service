@@ -226,6 +226,7 @@ our $linked = [
 
 our $aggregatelist = [
     'aggregatelist' =>
+      'resign',
      [[ 'aggregate' =>
 	    'project',
 	    [],
