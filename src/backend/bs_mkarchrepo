@@ -39,6 +39,8 @@ my %todo = (
     'CONFLICTS' => 'conflict',
     'PROVIDES' => 'provides',
     'OPTDEPENDS' => 'optdepend',
+    'MAKEDEPENDS' => 'makedepend',
+    'CHECKDEPENDS' => 'checkdepend',
   ],
   'files' => [
     'FILES' => 'files',
