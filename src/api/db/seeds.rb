@@ -199,7 +199,7 @@ IssueTracker.where(name: 'RT').first_or_create(description: 'CPAN Bugs',
 IssueTracker.where(name: 'cve').first_or_create(description: 'CVE Numbers',
                                                 kind: 'cve',
                                                 regex: 'CVE-(\d\d\d\d-\d+)',
-                                                url: 'http://cve.mitre.org/',
+                                                url: 'https://www.cve.org/',
                                                 label: 'CVE-@@@',
                                                 show_url: 'https://www.cve.org/CVERecord?id=CVE-@@@')
 IssueTracker.where(name: 'deb').first_or_create(description: 'Debian Bugzilla',
