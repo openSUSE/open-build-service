@@ -149,6 +149,7 @@ sub check {
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $reporoot = $gctx->{'reporoot'};
+  return ('broken', 'need aggregatelist data') unless $pdata->{'aggregatelist'};
   # clone it as we may patch the 'packages' array below
   my $aggregates = BSUtil::clone($pdata->{'aggregatelist'}->{'aggregate'} || []);
   my @broken;
@@ -735,6 +736,8 @@ sub build {
   writestr("$jobdatadir/logfile", undef, $logfile);
   my $needsign;
   $needsign = 1 if $BSConfig::sign && grep {/\.(?:$binsufsre_sign)$/} keys %jobbins;
+  my $aggregatelist = $pdata->{'aggregatelist'};
+  $needsign = 0 if defined($aggregatelist->{'resign'}) && ($aggregatelist->{'resign'} eq 'false' || $aggregatelist->{'resign'} eq '0');
   BSSched::BuildJob::fakejobfinished($ctx, $packid, $job, 'succeeded', { 'file' => '_aggregate' }, $needsign);
   print "        scheduled\n";
   return ('scheduled', $job);

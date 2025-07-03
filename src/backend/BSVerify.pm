@@ -356,6 +356,10 @@ sub verify_link {
 
 sub verify_aggregatelist {
   my ($al) = @_;
+  if (defined($al->{'resign'})) {
+    my $resign = $al->{'resign'};
+    die("'resign' attribute must be boolean\n") unless $resign eq 'true' || $resign eq 'false' || $resign eq '0' || $resign eq '1';
+  }
   for my $a (@{$al->{'aggregate'} || []}) {
     verify_projid($a->{'project'});
     if (defined($a->{'nosources'})) {

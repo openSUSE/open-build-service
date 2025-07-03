@@ -410,6 +410,22 @@ sub get_manifest_for_tag {
   return ($mani, $maniid, $mani_json);
 }
 
+sub get_referrers {
+  my ($digest) = @_;
+  my $replyheaders;
+  my $param = {
+    'uri' => "$registryserver/v2/$repository/referrers/$digest",
+    'authenticator' => $registry_authenticator,
+    'replyheaders' => \$replyheaders,
+    'timeout' => $registry_timeout,
+  };
+  my $mani_json;
+  $mani_json = BSRPC::rpc($param);
+  my $mani = JSON::XS::decode_json($mani_json);
+  my $maniid = $replyheaders->{'docker-content-digest'};
+  return ($mani, $maniid, $mani_json);
+}
+
 sub delete_manifest {
   my ($maniid) = @_;
   die("not a manifest digest: $maniid\n") unless $maniid =~ /^sha256:[0-9a-f]{64}$/;
@@ -876,6 +892,10 @@ if ($list_mode) {
       die("no such layer\n") unless $mani->{'layers'}->[$1];
       my $data = blob_fetch($mani->{'layers'}->[$1]->{'digest'});
       print $data;
+    } elsif ($ARGV[3] eq 'referrers') {
+      die("need digest for referrers\n") unless $ARGV[2] =~ /^sha256:[0-9a-f]{64}$/;
+      my ($mani, $maniid, $mani_json) = get_referrers($ARGV[2]);
+      print "$mani_json\n" if $mani_json;
     } else {
       blob_download($ARGV[2], $ARGV[3]);
     }

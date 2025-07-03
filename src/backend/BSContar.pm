@@ -43,6 +43,7 @@ our $mt_oci_index           = 'application/vnd.oci.image.index.v1+json';
 our $mt_docker_config       = 'application/vnd.docker.container.image.v1+json';
 our $mt_docker_layer        = 'application/vnd.docker.image.rootfs.diff.tar';
 our $mt_docker_layer_gzip   = 'application/vnd.docker.image.rootfs.diff.tar.gzip';
+our $mt_oci_empty           = 'application/vnd.oci.empty.v1+json';
 our $mt_oci_config          = 'application/vnd.oci.image.config.v1+json';
 our $mt_oci_layer           = 'application/vnd.oci.image.layer.v1.tar';
 our $mt_oci_layer_gzip      = 'application/vnd.oci.image.layer.v1.tar+gzip';
