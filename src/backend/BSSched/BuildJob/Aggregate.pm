@@ -406,6 +406,9 @@ sub build {
   my %conflicts;
   my @aprpap_idx = ( undef );
 
+  my $aggregatelist = $pdata->{'aggregatelist'};
+  my $resign = defined($aggregatelist->{'resign'}) && ($aggregatelist->{'resign'} eq 'false' || $aggregatelist->{'resign'} eq '0') ? 0 : 1;
+
   for my $aggregate (@$aggregates) {
     my $aprojid = $aggregate->{'project'};
     my @arepoids = grep {!exists($_->{'target'}) || $_->{'target'} eq $repoid} @{$aggregate->{'repository'} || []};
@@ -615,7 +618,12 @@ sub build {
 	        next;  # first one wins
 	      }
 	      $jobbins{$dst} = $aprpap_idx;
-	      BSUtil::cp("$dirprefix$projectdir$subpath", "$jobdatadir/$dst");
+	      unlink("$jobdatadir/$dst");
+	      if ($resign) {
+	        BSUtil::cp("$dirprefix$projectdir$subpath", "$jobdatadir/$dst");
+	      } else {
+		link("$dirprefix$projectdir$subpath", "$jobdatadir/$dst") || die("link $dirprefix$projectdir$subpath $jobdatadir/$dst: $!\n");
+	      }
 	      $logfile .= "  - $dst [$s[9]/$s[7]/$s[1]] (from $filename)\n";
 	      my $provenance = copy_provenance($jobdatadir, undef, "$dirprefix$projectdir$subpath", $dst, \%jobbins, $aprpap_idx);
 	      $logfile .= "      - $provenance\n" if $provenance;
@@ -735,9 +743,7 @@ sub build {
   writestr("$jobdatadir/meta", undef, $new_meta);
   writestr("$jobdatadir/logfile", undef, $logfile);
   my $needsign;
-  $needsign = 1 if $BSConfig::sign && grep {/\.(?:$binsufsre_sign)$/} keys %jobbins;
-  my $aggregatelist = $pdata->{'aggregatelist'};
-  $needsign = 0 if defined($aggregatelist->{'resign'}) && ($aggregatelist->{'resign'} eq 'false' || $aggregatelist->{'resign'} eq '0');
+  $needsign = 1 if $resign && $BSConfig::sign && grep {/\.(?:$binsufsre_sign)$/} keys %jobbins;
   BSSched::BuildJob::fakejobfinished($ctx, $packid, $job, 'succeeded', { 'file' => '_aggregate' }, $needsign);
   print "        scheduled\n";
   return ('scheduled', $job);
