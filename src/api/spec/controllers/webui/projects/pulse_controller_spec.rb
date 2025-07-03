@@ -7,18 +7,38 @@ RSpec.describe Webui::Projects::PulseController do
   describe '#show' do
     render_views
 
+    subject { get :show, format: :html, params: { project_name: project.name } }
+
+    let(:default_from) { 1.week.ago.beginning_of_day }
+    let(:default_to) { 0.days.ago.end_of_day }
+
     before do
-      get :show, format: :html, params: { project_name: project.name }
+      subject
     end
 
-    it 'load the whole page' do
-      expect(response.body).to have_css('#range-header')
-      expect(response.body).to have_css('#pulse')
+    it 'assigns the correct default date range' do
+      expect(controller.instance_variable_get(:@date_range_from)).to eq(default_from)
+      expect(controller.instance_variable_get(:@date_range_to)).to eq(default_to)
     end
 
-    it 'assigns the correct instance variables' do
-      expect(controller.instance_variable_get(:@range)).to eq('week')
-      expect(controller.instance_variable_get(:@builds)).to be_nil
+    context 'with date range parameters' do
+      subject { get :show, format: :html, params: { project_name: project.name, from: '1899-02-04', to: '2004-05-08' } }
+
+      it 'assigns the correct date range' do
+        expect(controller.instance_variable_get(:@date_range_from)).to eq(DateTime.parse('1899-02-04').beginning_of_day)
+        expect(controller.instance_variable_get(:@date_range_to)).to eq(DateTime.parse('2004-05-08').end_of_day)
+      end
+    end
+
+    context 'with non-sensical date range parameters' do
+      subject { get :show, format: :html, params: { project_name: project.name, from: '2025-07-08', to: '1899-02-04' } }
+
+      it { expect(flash[:error]).to eq('From newer than To, using default time range') }
+
+      it 'assigns the default date range' do
+        expect(controller.instance_variable_get(:@date_range_from)).to eq(default_from)
+        expect(controller.instance_variable_get(:@date_range_to)).to eq(default_to)
+      end
     end
   end
 end

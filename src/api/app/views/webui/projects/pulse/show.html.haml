@@ -10,20 +10,23 @@
           = pulse_period(@date_range)
       .col
         .dropdown.float-end
-          %button.btn.btn-secondary.dropdown-toggle#period-dropdown{ 'aria-expanded': 'false',
-                                                                     'aria-haspopup': 'true',
-                                                                     'data-bs-toggle': 'dropdown',
-                                                                     type: 'button' }
-            Period: One
-            %span#range-text
-              = @range.capitalize
-          .dropdown-menu{ 'aria-labelledby': 'dropdownMenuButton' }
-            %h6.dropdown-header
-              Period to display:
-            = link_to(project_pulse_path(@project), type: :json, class: 'dropdown-item') do
-              One Week
-            = link_to(project_pulse_path(@project, range: 'month'), type: :json, class: 'dropdown-item') do
-              One Month
+          %button.btn.btn-secondary.dropdown-toggle{ 'aria-expanded': 'false',
+                                                     'data-bs-auto-close': 'outside',
+                                                     'data-bs-toggle': 'dropdown',
+                                                     type: 'button' }
+            Change Time Range
+          %form.dropdown-menu.dropdown-menu-end.p-4
+            = link_to("Yesterday", project_pulse_path(@project, from: 1.day.ago.strftime('%Y-%m-%d')), class: 'dropdown-item')
+            = link_to("1 Week", project_pulse_path(@project, from: 1.week.ago.strftime('%Y-%m-%d')), class: 'dropdown-item')
+            = link_to("1 Month", project_pulse_path(@project, from: 1.month.ago.strftime('%Y-%m-%d')), class: 'dropdown-item')
+            .dropdown-divider
+            .mb-3
+              %label.form-label{ for: 'from' } From
+              %input.form-control#from{ type: 'date', name: 'from', value: "#{@date_range_from.strftime('%Y-%m-%d')}" }
+            .mb-3
+              %label.form-label{ for: 'to' } To
+              %input.form-control#to{ type: 'date', name: 'to', value: "#{@date_range_to.strftime('%Y-%m-%d')}" }
+            %button.btn.btn-primary{ type: 'submit' } Apply Time Range
     .row
       #pulse
         // The content of this div is set by JavaScript after the ajax call
