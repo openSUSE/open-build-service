@@ -13,4 +13,6 @@
   (#{link_to(log_entry.package_name, package_show_path(project.name, log_entry.package_name))})
 - if log_entry.user_name
   by #{link_to(log_entry.user_name, user_path(log_entry.user_name))}
+- if log_entry.bs_request
+  via #{link_to("##{log_entry.bs_request.number}", request_show_path(log_entry.bs_request.number))}
 = render TimeComponent.new(time: log_entry.datetime)
