@@ -7801,7 +7801,7 @@ sub registry_forward {
     'receiver' => \&BSServer::reply_receiver,
     'reply_receiver_forward_hdrs' => 1,
   };
-  my @args = BSRPC::args($cgi, 'n', 'last');
+  my @args = BSRPC::args($cgi, 'n', 'last', 'artifactType');
   BSWatcher::rpc($param, undef, @args);
   return undef;
 }
@@ -8168,6 +8168,7 @@ my $dispatches = [
   'GET|HEAD:/registry/$...:regrepo/manifestinfos/$manifest: ns:?' => \&registry_manifestinfo,
   'GET|HEAD:/registry/$...:regrepo/blobs/$blob: ns:?' => \&registry_forward,
   'GET|HEAD:/registry/$...:regrepo/signatures/$sig: ns:?' => \&registry_forward,
+  'GET|HEAD:/registry/$...:regrepo/referrers/$subject: ns:? artifactType:?' => \&registry_forward,
   'GET|HEAD:/registry/$...:regrepo/tags/list n:intnum? last:? ns:?' => \&registry_forward,
   'GET|HEAD:/registry/$...:regrepo/info.json ns:?' => \&registry_forward,
   'GET|HEAD:/registry/_catalog n:intnum? last:? ns:?' => \&registry_catalog,
