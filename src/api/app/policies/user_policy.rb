@@ -1,6 +1,7 @@
 class UserPolicy < ApplicationPolicy
   def update?
     return false unless ::Configuration.accounts_editable?
+    return false if user.nobody?
 
     user.admin? || user == record
   end
