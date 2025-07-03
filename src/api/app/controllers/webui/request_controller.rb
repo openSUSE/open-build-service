@@ -28,7 +28,7 @@ class Webui::RequestController < Webui::WebuiController
                                               if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
   before_action :cache_diff_data, only: %i[changes request_action_changes],
                                   if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
-  before_action :check_beta_user_redirect, only: %i[beta_show build_results changes mentioned_issues]
+  before_action :check_beta_user_redirect, only: %i[beta_show build_results changes mentioned_issues changes_diff]
 
   after_action :verify_authorized, only: [:create]
 
