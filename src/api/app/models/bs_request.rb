@@ -584,7 +584,7 @@ class BsRequest < ApplicationRecord
   def assignreview(opts = {})
     raise InvalidStateError, 'request is not in review state' unless %i[review new].include?(state)
 
-    reviewer = User.find_by_login!(opts[:reviewer])
+    reviewer = User.not_deleted.find_by!(login: opts[:reviewer])
 
     Review.transaction do
       user_review = reviews.where(by_user: reviewer.login).last

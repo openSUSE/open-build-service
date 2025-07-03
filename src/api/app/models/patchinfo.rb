@@ -86,7 +86,7 @@ class Patchinfo
     @project = project
     data = Xmlhash.parse(raw_post)
     # check the packager field
-    User.find_by_login!(data['packager']) if data['packager']
+    User.not_deleted.find_by!(login: data['packager']) if data['packager']
     # valid tracker?
     data.elements('issue').each do |i|
       tracker = IssueTracker.find_by_name(i['tracker'])

@@ -15,7 +15,7 @@ class BsRequest
       private
 
       def user
-        @user = ::User.find_by_login!(user_login)
+        @user = ::User.not_deleted.find_by!(login: user_login)
       end
 
       def union_query

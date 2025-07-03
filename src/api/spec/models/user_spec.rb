@@ -90,16 +90,6 @@ RSpec.describe User do
     end
   end
 
-  describe '#find_by_login!' do
-    it 'returns a user if it exists' do
-      expect(User.find_by_login!(user.login)).to eq(user)
-    end
-
-    it 'raises an exception if user does not exist' do
-      expect { User.find_by_login!('foo') }.to raise_error(NotFoundError, "Couldn't find User with login = foo")
-    end
-  end
-
   describe '#delete!' do
     subject { user.delete! }
 

@@ -150,7 +150,7 @@ module Webui
       end
 
       def status_filter_packages
-        filter_for_user = User.find_by_login!(@filter_for_user) if @filter_for_user.present?
+        filter_for_user = User.not_deleted.find_by!(login: @filter_for_user) if @filter_for_user.present?
         current_develproject = @filter || @all_projects
         @develprojects = {}
         packages_to_filter_for = nil

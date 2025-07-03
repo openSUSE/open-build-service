@@ -52,7 +52,7 @@ RSpec.shared_examples 'bootstrap user tab' do
         click_button('Accept')
       end
 
-      expect(page).to have_text("Couldn't find User with login = Jimmy")
+      expect(page).to have_text("Couldn't find User")
     end
 
     it 'Add an existing user' do

@@ -83,7 +83,7 @@ RSpec.describe Webui::GroupsController do
         let(:users_to_add) { 'non_existent_user' }
 
         it "shows a flash message with the validation error and doesn't create the group" do
-          expect(flash[:error]).to eq("Group can't be saved: Couldn't find User with login = #{users_to_add}")
+          expect(flash[:error]).to eq("Group can't be saved: Couldn't find User")
           expect(Group.where(title: title)).not_to exist
         end
       end

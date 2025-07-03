@@ -15,7 +15,7 @@ class BsRequestCleanTasksCacheJob < ApplicationJob
       Relationship.where(project_id: target_project_ids)
     ).users.pluck(:user_id)
 
-    user_ids << User.find_by_login!(request.creator).id
+    user_ids << User.not_deleted.find_by!(login: request.creator).id
 
     # rubocop:disable Rails/SkipsModelValidations
     # Skipping Model validations in this case is fine as we only want to touch

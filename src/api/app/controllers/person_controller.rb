@@ -31,7 +31,7 @@ class PersonController < ApplicationController
   end
 
   def userinfo
-    user = User.find_by_login!(params[:login])
+    user = User.not_deleted.find_by!(login: params[:login])
 
     if user == User.session
       logger.debug "Generating user info for logged in user #{User.session.login}"
@@ -56,14 +56,14 @@ class PersonController < ApplicationController
       return
     end
     if params[:cmd] == 'lock'
-      user = User.find_by_login!(params[:login])
+      user = User.not_deleted.find_by!(login: params[:login])
       user.lock!
       render_ok
       return
     end
     if params[:cmd] == 'delete'
       # maybe we should allow the users to delete themself?
-      user = User.find_by_login!(params[:login])
+      user = User.not_deleted.find_by!(login: params[:login])
       user.delete!
       render_ok
       return
@@ -109,7 +109,7 @@ class PersonController < ApplicationController
 
       if xml['owner']
         user.state = :subaccount
-        user.owner = User.find_by_login!(xml['owner']['userid'])
+        user.owner = User.not_deleted.find_by!(login: xml['owner']['userid'])
         if user.owner.owner
           render_error(status: 400, errorcode: 'subaccount_chaining',
                        message: "A subaccount can not be assigned to subaccount #{user.owner.login}") && return
@@ -150,7 +150,7 @@ class PersonController < ApplicationController
   end
 
   def grouplist
-    user = User.find_by_login!(params[:login])
+    user = User.not_deleted.find_by!(login: params[:login])
     @list = user.list_groups
   end
 
@@ -218,7 +218,7 @@ class PersonController < ApplicationController
 
     login = params[:login]
     # just for permission checking
-    User.find_by_login!(login)
+    User.not_deleted.find_by!(login: login)
   end
 
   def update_watchlist(user, xml)

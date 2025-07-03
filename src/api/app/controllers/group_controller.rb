@@ -26,7 +26,7 @@ class GroupController < ApplicationController
 
   def index
     if params[:login]
-      user = User.find_by_login!(params[:login])
+      user = User.not_deleted.find_by!(login: params[:login])
       @list = user.groups
     else
       @list = Group.all
@@ -71,7 +71,7 @@ class GroupController < ApplicationController
     group = Group.find_by_title!(CGI.unescape(params[:title]))
     authorize group, :update?
 
-    user = User.find_by_login!(params[:userid]) if params[:userid]
+    user = User.not_deleted.find_by!(login: params[:userid]) if params[:userid]
 
     case params[:cmd]
     when 'add_user'

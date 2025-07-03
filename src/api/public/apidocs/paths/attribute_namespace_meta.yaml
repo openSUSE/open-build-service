@@ -89,7 +89,7 @@ post:
             user:
               value:
                 code: not_found
-                summary: Couldn't find User with login = user_login_name
+                summary: Couldn't find User
               summary: Not Found (User)
   tags:
     - Attribute Namespaces
@@ -154,7 +154,7 @@ put:
             user:
               value:
                 code: not_found
-                summary: Couldn't find User with login = user_login_name
+                summary: Couldn't find User
               summary: Not Found (User)
   tags:
     - Attribute Namespaces

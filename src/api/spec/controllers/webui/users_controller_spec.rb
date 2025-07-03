@@ -63,7 +63,7 @@ RSpec.describe Webui::UsersController do
         expect(response).to render_template('webui/users/show')
       end
 
-      describe 'showing a non valid users' do
+      describe 'showing a non valid user' do
         subject(:user) { 'INVALID_USER' }
 
         it_behaves_like 'a non existent account'
