@@ -326,7 +326,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
       post '/source/kde4/kdebase', params: { cmd: 'branch', target_package: n }
       assert_response :bad_request
-      assert_xml_tag tag: 'status', attributes: { code: 'invalid_package_name' }
+      assert_xml_tag tag: 'status', attributes: { code: 'invalid_record' }
 
       post '/source/kde4/kdebase', params: { cmd: 'branch', target_project: n }
       assert_response :bad_request
@@ -2138,7 +2138,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_tom
     post '/source/SourceprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff'
     assert_response :forbidden
-    assert_xml_tag tag: 'status', attributes: { code: 'source_access_no_permission' }
+    assert_xml_tag tag: 'status', attributes: { code: 'source_access_package_not_authorized' }
     # reverse
     post '/source/kde4/kdelibs?oproject=SourceprotectedProject&opackage=pack&cmd=diff'
     assert_response :forbidden
@@ -2673,14 +2673,17 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     # and they can release it to own space
     login_Iggy
+    # test that giving target_project requires giving repository and target_repository
     post '/source/home:Iggy/TestPack?cmd=release&target_project=home:Iggy'
     assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'missing_parameter' }
 
+    # test that target_project has to exist
     post '/source/home:Iggy/TestPack?cmd=release&target_project=home:Iggy:TEST&repository=10.2&target_repository=10.2'
     assert_response :not_found
     assert_xml_tag tag: 'status', attributes: { code: 'unknown_project' }
-    # create project
+
+    # create target_project
     doc.root.attributes['name'] = 'home:Iggy:TEST'
     put '/source/home:Iggy:TEST/_meta', params: doc.to_s
     assert_response :success
@@ -2806,15 +2809,13 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # ensure we send a proper error message to osc
     raw_post '/source/home:adrian:IMAGES/appliance?cmd=commitfilelist', ' <directory></directory> '
     assert_response :not_found
-    assert_xml_tag tag: 'status', attributes: { code: 'not_found' }
+    assert_xml_tag tag: 'status', attributes: { code: 'unknown_package' }
+    post '/source/home:adrian:IMAGES/appliance', params: { cmd: 'commit' }
+    assert_response :not_found
+    assert_xml_tag tag: 'status', attributes: { code: 'unknown_package' }
     raw_put '/source/home:adrian:IMAGES/appliance/filename?rev=repository', '123'
     assert_response :forbidden
     assert_xml_tag tag: 'status', attributes: { code: 'scmsync_read_only' }
-    raw_post '/source/home:adrian:IMAGES/appliance?cmd=commitfilelist', ' <directory> <entry name="filename" md5="ba1f2511fc30423bdbb183fe33f3dd0f" /> </directory> '
-    assert_response :success
-    assert_xml_tag tag: 'directory', attributes: { error: 'missing' }
-    post '/source/home:adrian:IMAGES/appliance', params: { cmd: 'commit' }
-    assert_response :not_found
 
     login_tom
     post '/source/home:adrian:IMAGES/_project', params: { cmd: 'fork' }
@@ -3255,11 +3256,18 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:Iggy/TestPack/anotherfilename'
     assert_response :not_found
 
-    #
-    # Test commits to special packages
-    #
+    # restore
+    raw_put '/source/home:Iggy/TestPack/TestPack.spec', load_backend_file('source/home:Iggy/TestPack/TestPack.spec')
+    assert_response :success
+    put('/source/home:Iggy/TestPack/myfile', params: 'DummyContent')
+    assert_response :success
+    delete '/source/home:Iggy/TestPack/filename'
+    assert_response :success
+  end
+
+  # _product must be created
+  def test_commits_to_product
     login_Iggy
-    # _product must be created
     put '/source/home:Iggy/_product/_meta', params: "<package project='home:Iggy' name='_product'> <title/> <description/> </package>"
     assert_response :success
     put '/source/home:Iggy/_product/filename?rev=repository', params: 'CONTENT'
@@ -3273,7 +3281,14 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:Iggy/_product/filename2'
     assert_response :success
 
-    # _pattern exists always
+    # restore
+    delete '/source/home:Iggy/_product'
+    assert_response :success
+  end
+
+  # _pattern exists always
+  def test_commits_to_pattern
+    login_Iggy
     put '/source/home:Iggy/_pattern/filename', params: 'CONTENT'
     assert_response :bad_request # illegal content
     put '/source/home:Iggy/_pattern/filename?rev=repository', params: load_backend_file('pattern/digiKam.xml')
@@ -3287,7 +3302,14 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:Iggy/_pattern/filename2'
     assert_response :success
 
-    # _project exists always
+    # restore
+    delete '/source/home:Iggy/_pattern'
+    assert_response :success
+  end
+
+  # _project exists always
+  def test_commits_to_project
+    login_Iggy
     put '/source/home:Iggy/_project/filename?rev=repository', params: 'CONTENT'
     assert_response :success
     raw_post '/source/home:Iggy/_project?cmd=commitfilelist', ' <directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> </directory> '
@@ -3297,18 +3319,6 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     put '/source/home:Iggy/_project/filename2', params: 'CONTENT'
     assert_response :success
     get '/source/home:Iggy/_project/filename2'
-    assert_response :success
-
-    # restore
-    delete '/source/home:Iggy/_product'
-    assert_response :success
-    delete '/source/home:Iggy/_pattern'
-    assert_response :success
-    raw_put '/source/home:Iggy/TestPack/TestPack.spec', load_backend_file('source/home:Iggy/TestPack/TestPack.spec')
-    assert_response :success
-    put('/source/home:Iggy/TestPack/myfile', params: 'DummyContent')
-    assert_response :success
-    delete '/source/home:Iggy/TestPack/filename'
     assert_response :success
   end
 
@@ -3974,7 +3984,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     post '/source/kde4/kdelibs?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable'
     assert_response :forbidden
-    assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
+    assert_xml_tag tag: 'status', attributes: { code: 'update_package_not_authorized' }
 
     post '/source/home:Iggy/TestPack?cmd=set_flag&repository=10.7&arch=i586&flag=build&status=enable'
     assert_response :success # actually I consider forbidding repositories not existent
@@ -4065,7 +4075,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     post '/source/kde4/kdelibs?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo'
     assert_response :forbidden
-    assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
+    assert_xml_tag tag: 'status', attributes: { code: 'update_package_not_authorized' }
 
     post '/source/home:Iggy/TestPack?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo'
     assert_response :success
@@ -4109,7 +4119,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     post '/source/kde4/kdelibs?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo'
     assert_response :forbidden
-    assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
+    assert_xml_tag tag: 'status', attributes: { code: 'update_package_not_authorized' }
 
     post '/source/home:Iggy?cmd=remove_flag&repository=10.2&arch=x86_64&flag=debuginfo'
     assert_response :success

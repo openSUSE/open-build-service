@@ -425,10 +425,11 @@ class User < ApplicationRecord
   end
 
   # FIXME: This should be a policy
-  # package is instance of Package
+  # rubocop:disable Metrics/PerceivedComplexity
   def can_modify_package?(package, ignore_lock = nil)
-    return false if package.nil? # happens with remote packages easily
+    return false if package.nil? # happens with remote packages
     raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}" unless package.is_a?(Package)
+    return false if package.readonly?
     return false if !ignore_lock && package.locked?
     return true if admin?
     return true if global_permission?('change_package')
@@ -436,6 +437,7 @@ class User < ApplicationRecord
 
     false
   end
+  # rubocop:enable Metrics/PerceivedComplexity
 
   # FIXME: This should be a policy
   # project_name is name of the project
