@@ -16,7 +16,7 @@ RSpec.describe 'Package', type: :feature do
     click_link('Create Package')
     fill_in 'package_name', with: 'hello_world'
     fill_in 'package_title', with: 'hello_world'
-    fill_in 'package_description', with: 'hello_world'
+    fill_in 'message_body', with: 'hello_world'
     click_button('Create')
     expect(page).to have_content("Package 'hello_world' was created successfully")
   end
