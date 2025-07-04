@@ -6,23 +6,6 @@ class SourceController < ApplicationController
 
   include Source::Errors
 
-  skip_before_action :extract_user, only: :lastevents_public
-  skip_before_action :require_login, only: :lastevents_public
-
-  # POST, GET /public/lastevents
-  # GET /lastevents
-  def lastevents_public
-    lastevents
-  end
-
-  # POST /lastevents
-  def lastevents
-    path = http_request_path
-
-    # map to a GET, so we can X-forward it
-    volley_backend_path(path) unless forward_from_backend(path)
-  end
-
   private
 
   def require_valid_project_name
