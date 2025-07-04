@@ -23,11 +23,6 @@ class IssueTracker < ApplicationRecord
     self.issues_updated ||= Time.now
   end
 
-  # Checks if the given issue belongs to this issue tracker
-  #  def matches?(issue)
-  #    return Regexp.new(regex).match(issue)
-  #  end
-
   # Generates a URL to display a given issue in the upstream issue tracker
   def show_url_for(issue, html = nil)
     return unless issue
