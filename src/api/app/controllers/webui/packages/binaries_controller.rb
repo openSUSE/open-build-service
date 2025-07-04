@@ -2,6 +2,7 @@ module Webui
   module Packages
     class BinariesController < Webui::WebuiController
       include Webui::Packages::BinariesHelper
+      include ScmsyncChecker
 
       # TODO: Keep in sync with Build::query in backend/build/Build.pm.
       #       Regexp.new('\.iso$') would be Build::Kiwi::queryiso which isn't implemented yet...
@@ -12,6 +13,7 @@ module Webui
 
       before_action :require_login, except: [:index]
       before_action :set_project
+      before_action :check_scmsync
       before_action :set_package
       before_action :set_multibuild_flavor
       before_action :set_repository
