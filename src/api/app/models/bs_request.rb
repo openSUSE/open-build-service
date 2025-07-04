@@ -86,6 +86,7 @@ class BsRequest < ApplicationRecord
   before_validation :sanitize!, if: :sanitize?, on: :create
   before_save :accept_staged_request
   before_save :assign_number
+  before_save :assign_title
   after_create :notify
   before_update :send_state_change
   after_save :update_cache
@@ -304,6 +305,12 @@ class BsRequest < ApplicationRecord
       request_counter.increment(:counter)
       request_counter.save!
     end
+  end
+
+  def assign_title
+    return if title.present?
+
+    self.title = 'Request'
   end
 
   def check_supersede_state
@@ -1248,6 +1255,7 @@ end
 #  priority           :string           default("moderate")
 #  state              :string(255)      indexed
 #  superseded_by      :integer          indexed
+#  title              :string(255)
 #  updated_when       :datetime
 #  created_at         :datetime         not null
 #  updated_at         :datetime         not null
