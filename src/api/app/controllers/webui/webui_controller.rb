@@ -120,7 +120,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def set_architecture
-    architecture_name = params[:architecture] || params[:arch]
+    architecture_name = params[:architecture] || params[:architecture_name] || params[:arch]
     @architecture = @repository.architectures.find_by(name: architecture_name)
     return if @architecture
 
