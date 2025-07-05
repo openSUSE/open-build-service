@@ -193,6 +193,9 @@ done
 chrpath -d %{buildroot}%_libdir/obs-api/ruby/*/extensions/*/*/mysql2-*/mysql2/mysql2.so || true
 chrpath -d %{buildroot}%_libdir/obs-api/ruby/*/gems/mysql2-*/lib/mysql2/mysql2.so || true
 
+# fix E: permissions-world-writable for gemspec files
+chmod 0644 %{buildroot}%_libdir/obs-api/ruby/*/specifications/*.gemspec || true
+
 %files
 %defattr(-,root,root,755)
 %_libdir/obs-api
