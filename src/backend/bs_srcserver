@@ -3273,6 +3273,7 @@ sub getsourcediffcache {
   if (open($fd, '<', $cn)) {
     unlink("$cn.run");
     utime(time, time, $cn);
+    return do_diff_file_filter_reply($cgi, $fd) if $view eq 'xml' && $cgi->{'file'};
     BSWatcher::reply_file($fd, $view eq 'xml' ? 'Content-Type: text/xml' : 'Content-Type: text/plain');
     return undef;
   }
@@ -3294,6 +3295,29 @@ sub cleandiffcache {
      $cnt++;
   }
   print "cleandiffcache: removed $cnt entries in slot $slot\n";
+}
+
+# this modifies xmlret in-place!
+sub do_diff_file_filter {
+  my ($xmlret, $filefilter) = @_;
+  return $xmlret unless $filefilter && $xmlret->{'files'} && $xmlret->{'files'}->{'file'};
+  my %file = map {$_ => 1} @$filefilter;
+  for my $f (splice @{$xmlret->{'files'}->{'file'}}) {
+    next unless ($f->{'old'} && $file{$f->{'old'}->{'name'}}) || ($f->{'new'} && $file{$f->{'new'}->{'name'}});
+    push @{$xmlret->{'files'}->{'file'}}, $f;
+  }
+  return $xmlret;
+}
+
+sub do_diff_file_filter_reply {
+  my ($cgi, $fd) = @_;
+  my $xmlret = '';
+  1 while sysread($fd, $xmlret, 8192, length($xmlret));
+  close $fd;
+  $xmlret = BSUtil::fromxml($xmlret, $BSXML::sourcediff);
+  my $d = BSUtil::toxml(do_diff_file_filter($xmlret, $cgi->{'file'}), $BSXML::sourcediff);
+  BSWatcher::reply($d, 'Content-Type: text/xml');
+  return undef;
 }
 
 sub sourcediff {
@@ -3398,8 +3422,18 @@ sub sourcediff {
     $cacheid .= "/orev:$orev->{'rev'}" if defined $orev->{'rev'};
     $cacheid .= "/rev:$rev->{'rev'}" if defined $rev->{'rev'};
   }
+  my $need_file_filter_postprocess;
   if ($cgi->{'file'}) {
-    my %file = map {$_ => 1} @{$cgi->{'file'}};
+    my %file;
+    for (@{$cgi->{'file'}}) {
+      if (/^([^\/]+)\//) {
+	$file{$1} = 1;
+	$need_file_filter_postprocess = 1;
+      } else {
+	$file{$_} = 1;
+      }
+    }
+    die("in-archive file diff filtering only works for xml output\n") if $need_file_filter_postprocess && $view ne 'xml';
     $cacheid .= "/file:$_" for sort keys %file;
     for (keys %$ofiles) {
       delete $ofiles->{$_} unless $file{$_};
@@ -3436,14 +3470,17 @@ sub sourcediff {
     $cn = "$diffcache/".substr($cacheid, 0, 2)."/$cacheid";
     if (open(F, '<', $cn)) {
       utime(time, time, $cn);
+      return do_diff_file_filter_reply($cgi, \*F) if $need_file_filter_postprocess;
       BSServer::reply_file(\*F, $view eq 'xml' ? 'Content-Type: text/xml' : 'Content-Type: text/plain');
       return undef;
     }
     die("412 diff not yet in cache\n") if $cgi->{'cacheonly'};
     mkdir_p("$diffcache/".substr($cacheid, 0, 2));
     if (!BSUtil::lockcheck('>>', "$cn.run")) {
+      # somebody is in the process of creating this, hand over to ajax and wait for the result
       my @args;
       push @args, "view=$view" if $view;
+      push @args, map {"file=$_"} @{$cgi->{'file'} || []} if $need_file_filter_postprocess;
       BSHandoff::handoff("/sourcediffcache/$cacheid", undef, @args);
     }
     BSUtil::lockopen(\*LF, '>>', "$cn.run");
@@ -3452,6 +3489,7 @@ sub sourcediff {
       unlink("$cn.run");
       close LF;
       utime(time, time, $cn);
+      return do_diff_file_filter_reply($cgi, \*F) if $need_file_filter_postprocess;
       BSServer::reply_file(\*F, $view eq 'xml' ? 'Content-Type: text/xml' : 'Content-Type: text/plain');
       return undef;
     }
@@ -3485,7 +3523,7 @@ sub sourcediff {
       $xmlret->{'issues'} = { 'issue' => BSSrcServer::Srcdiff::issuediff($ofn, $ofiles, $fn, $files, %opts) };
     }
     BSUtil::data2utf8xml($xmlret);
-    $d = XMLout($BSXML::sourcediff, $xmlret);
+    $d = BSUtil::toxml($xmlret, $BSXML::sourcediff);
   } elsif ($view eq 'unified') {
     delete $opts{'doarchive'};
     delete $opts{'similar'};
@@ -3503,6 +3541,7 @@ sub sourcediff {
     unlink("$cn.run");
     close LF;
   }
+  $d = BSUtil::toxml(do_diff_file_filter($xmlret, $cgi->{'file'}), $BSXML::sourcediff) if $need_file_filter_postprocess;
   BSServer::reply($d, $view eq 'xml' ? 'Content-Type: text/xml' : 'Content-Type: text/plain');
   undef $d;
   BSServer::done(1);
@@ -8005,9 +8044,9 @@ my $dispatches = [
 
   'POST:/source/$project/$package view=info parse:bool? repository? arch? filename?' => \&getpackagesourceinfo_post,
 
-  'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:? unified:bool? missingok:bool? meta:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool? nocache:bool? cacheonly:bool? nodiff:bool?' => \&sourcediff,
-  'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool? nocache:bool? cacheonly:bool? nodiff:bool?' => \&linkdiff,
-  'POST:/source/$project/$package cmd=servicediff rev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool? nocache:bool? cacheonly:bool? nodiff:bool?' => \&servicediff,
+  'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:? unified:bool? missingok:bool? meta:bool? file:* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool? nocache:bool? cacheonly:bool? nodiff:bool?' => \&sourcediff,
+  'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool? nocache:bool? cacheonly:bool? nodiff:bool?' => \&linkdiff,
+  'POST:/source/$project/$package cmd=servicediff rev? unified:bool? file:* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool? nocache:bool? cacheonly:bool? nodiff:bool?' => \&servicediff,
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? noservice:bool?' => \&sourcecommit,
   'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? time:num? version:? vrev:? noservice:bool? servicemark:? withvalidate:?' => \&sourcecommitfilelist,
   'POST:/source/$project/$package cmd=commitobsscm srcmd5? servicemark: run:md5 user:? comment:? info:?' => \&sourcecommitobsscm,
@@ -8204,7 +8243,7 @@ my $dispatches_ajax = [
   '/source/$project/$package rev view:' => \&getfilelist_ajax,
   '/source/$project/$package:package/$filename rev?' => \&getfile,
   '/request/$id:num withkey:bool? oldkey:md5?' => \&getrequest,
-  '/sourcediffcache/$cacheid:md5 view:?' => \&getsourcediffcache,
+  '/sourcediffcache/$cacheid:md5 view:? file:*' => \&getsourcediffcache,
   '/cloudupload/$job/_log nostream:bool? start:intnum? end:num? view:?' => \&cloudupload_log,
 ];
 
