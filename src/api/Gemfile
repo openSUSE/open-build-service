@@ -43,8 +43,6 @@ gem 'acts_as_list'
 gem 'xmlhash'
 # as authorization system
 gem 'pundit'
-# for password hashing
-gem 'bcrypt'
 # for threaded comments
 gem 'acts_as_tree'
 # js plotting (OBS monitor)
@@ -238,3 +236,5 @@ group :assets do
   # assets for font-awesome vector icons
   gem 'font-awesome-sass'
 end
+
+gem 'devise', '~> 4.9'
