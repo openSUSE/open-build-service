@@ -1,23 +1,14 @@
 - if url
-  - popover_content = render partial: 'webui/shared/build_status_badge_links', locals: { url: url, rpm_lint_url: rpm_lint_url }
-
-  %button{ class: "btn badge #{build_status_category_color(status)} build_status",
-         data: { 'bs-toggle': 'popover', 'bs-html': true, 'bs-content': popover_content } }
-    %i.fa.me-2{ class: build_status_icon(status), title: status.humanize }
-    %span.architecture #{architecture} :
-    = text
+  .d-flex.flex-column
+    = link_to(url, class: "badge rounded-bottom-0 border-bottom #{build_status_category_color(status)}") do
+      %i.fa.me-2{ class: build_status_icon(status), title: status.humanize }
+      %span.architecture #{architecture} :
+      = text
+    = link_to(rpm_lint_url, class: "badge text-bg-secondary rounded-top-0") do
+      %i.fas.fa-gauge-high
+      RPM Lint
 - else
   %span.badge{ class: build_status_category_color(status), title: details }
     %i.fa.me-2{ class: build_status_icon(status) }
     %span.architecture #{architecture} :
     = text
-
-:javascript
-  $(function () {
-    $('button.badge.build_status[data-bs-toggle="popover"]').popover({
-      html: true,
-      trigger: 'focus',
-      container: 'body',
-      placement: 'top'
-    });
-  });
