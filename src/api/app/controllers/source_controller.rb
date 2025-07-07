@@ -36,27 +36,6 @@ class SourceController < ApplicationController
     @login = params[:login]
   end
 
-  def set_target_project_name
-    # FIXME: for OBS 3, api of branch and copy calls have target and source in the opposite place
-    @target_project_name = if params[:cmd].in?(%w[branch fork release])
-                             params[:target_project] # might be nil
-                           else
-                             params[:project]
-                           end
-  end
-
-  def set_project
-    @project = Project.find_by(name: params[:project])
-    raise Project::Errors::UnknownObjectError, "Project not found: #{params[:project]}" unless @project
-  end
-
-  def set_target_package_name
-    @target_package_name = params[:package]
-    return unless params[:cmd].in?(%w[branch fork release])
-
-    @target_package_name = params[:target_package] if params[:target_package]
-  end
-
   def actually_create_incident(project)
     raise ModifyProjectNoPermission, "no permission to modify project '#{project.name}'" unless User.session.can_modify?(project)
 
@@ -80,6 +59,10 @@ class SourceController < ApplicationController
   end
 
   def verify_release_targets!(pro, filter_architecture = nil)
+    # unfortunately parameter names are different between project and package release commands.
+    params[:targetproject] ||= params[:target_project]
+    params[:targetrepository] ||= params[:target_repository]
+
     repo_matches = nil
     repo_bad_type = nil
 

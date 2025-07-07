@@ -26,29 +26,6 @@
     {
       "warning_type": "SQL Injection",
       "warning_code": 0,
-      "fingerprint": "0f18c4c3f2f9e3ab19a869d1f793dda8d225eab52fc54bb2943da5c092b6c181",
-      "check_name": "SQL",
-      "message": "Possible SQL injection",
-      "file": "app/controllers/source_project_command_controller.rb",
-      "line": 44,
-      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "@project.lock(params[:comment])",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "SourceProjectCommandController",
-        "method": "project_command_lock"
-      },
-      "user_input": "params[:comment]",
-      "confidence": "Medium",
-      "cwe_id": [
-        89
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "SQL Injection",
-      "warning_code": 0,
       "fingerprint": "23288c7e9dea90dd0d6a14268bf929de5b7651f16e9c2233776751400dda5d11",
       "check_name": "SQL",
       "message": "Possible SQL injection",
@@ -254,6 +231,29 @@
     {
       "warning_type": "SQL Injection",
       "warning_code": 0,
+      "fingerprint": "afd4dc0b2b4083a14e5ba67ae832b6197e30102105b020ff976e0cd54ecd25d8",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/controllers/source_project_command_controller.rb",
+      "line": 46,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Project.get_by_name(params[:project]).lock(params[:comment])",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "SourceProjectCommandController",
+        "method": "project_command_lock"
+      },
+      "user_input": "params[:comment]",
+      "confidence": "High",
+      "cwe_id": [
+        89
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
       "fingerprint": "b1d6007ada268c2f7129e8f9cd72bfcb3b3f69614a2671320c6f3411b86cd284",
       "check_name": "SQL",
       "message": "Possible SQL injection",
@@ -388,5 +388,5 @@
       "note": "We track this with a comment in the code"
     }
   ],
-  "brakeman_version": "7.0.0"
+  "brakeman_version": "7.0.2"
 }

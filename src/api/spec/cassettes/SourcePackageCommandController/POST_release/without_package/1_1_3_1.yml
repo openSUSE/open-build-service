@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/franz/_meta?user=peter
+    uri: http://backend:5352/source/franz/_meta?user=user_13
     body:
       encoding: UTF-8
       string: |
         <project name="franz">
-          <title>When the Green Woods Laugh</title>
+          <title>A Monstrous Regiment of Women</title>
           <description/>
           <person userid="peter" role="maintainer"/>
         </project>
@@ -30,24 +30,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '156'
     body:
       encoding: UTF-8
       string: |
         <project name="franz">
-          <title>When the Green Woods Laugh</title>
+          <title>A Monstrous Regiment of Women</title>
           <description></description>
           <person userid="peter" role="maintainer"/>
         </project>
-  recorded_at: Tue, 16 Jul 2024 17:08:53 GMT
+  recorded_at: Wed, 11 Jun 2025 08:22:02 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/franz_released/_meta?user=peter
+    uri: http://backend:5352/source/franz_released/_meta?user=user_14
     body:
       encoding: UTF-8
       string: |
         <project name="franz_released">
-          <title>The World, the Flesh and the Devil</title>
+          <title>Tender Is the Night</title>
           <description/>
           <person userid="peter" role="maintainer"/>
         </project>
@@ -70,30 +70,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <project name="franz_released">
-          <title>The World, the Flesh and the Devil</title>
+          <title>Tender Is the Night</title>
           <description></description>
           <person userid="peter" role="maintainer"/>
         </project>
-  recorded_at: Tue, 16 Jul 2024 17:08:53 GMT
+  recorded_at: Wed, 11 Jun 2025 08:22:02 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/franz_released/_meta?user=peter
+    uri: http://backend:5352/source/franz/hans/_meta?user=user_15
     body:
       encoding: UTF-8
       string: |
-        <project name="franz_released">
-          <title>The World, the Flesh and the Devil</title>
-          <description/>
-          <person userid="peter" role="maintainer"/>
-          <repository name="standard">
-            <arch>x86_64</arch>
-          </repository>
-        </project>
+        <package name="hans" project="franz">
+          <title>Precious Bane</title>
+          <description>Vero iure odit aliquid.</description>
+        </package>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -113,34 +109,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '241'
+      - '133'
     body:
       encoding: UTF-8
       string: |
-        <project name="franz_released">
-          <title>The World, the Flesh and the Devil</title>
-          <description></description>
-          <person userid="peter" role="maintainer"/>
-          <repository name="standard">
-            <arch>x86_64</arch>
-          </repository>
-        </project>
-  recorded_at: Tue, 16 Jul 2024 17:08:53 GMT
+        <package name="hans" project="franz">
+          <title>Precious Bane</title>
+          <description>Vero iure odit aliquid.</description>
+        </package>
+  recorded_at: Wed, 11 Jun 2025 08:22:02 GMT
 - request:
-    method: put
-    uri: http://backend:5352/source/franz/_meta?user=peter
+    method: delete
+    uri: http://backend:5352/source/franz/hans?user=user_15
     body:
-      encoding: UTF-8
-      string: |
-        <project name="franz">
-          <title>When the Green Woods Laugh</title>
-          <description/>
-          <person userid="peter" role="maintainer"/>
-          <repository name="standard">
-            <releasetarget project="franz_released" repository="standard" trigger="manual"/>
-            <arch>x86_64</arch>
-          </repository>
-        </project>
+      encoding: US-ASCII
+      string: ''
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -160,18 +143,11 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '309'
+      - '21'
     body:
       encoding: UTF-8
-      string: |
-        <project name="franz">
-          <title>When the Green Woods Laugh</title>
-          <description></description>
-          <person userid="peter" role="maintainer"/>
-          <repository name="standard">
-            <releasetarget project="franz_released" repository="standard" trigger="manual"/>
-            <arch>x86_64</arch>
-          </repository>
-        </project>
-  recorded_at: Tue, 16 Jul 2024 17:08:53 GMT
-recorded_with: VCR 6.2.0
+      string: '<status code="ok" />
+
+'
+  recorded_at: Wed, 11 Jun 2025 08:22:02 GMT
+recorded_with: VCR 6.3.1
