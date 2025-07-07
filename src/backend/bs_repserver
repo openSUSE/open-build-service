@@ -67,6 +67,7 @@ use BSNotify;
 use BSUrlmapper;
 use BSRegistryServer;
 use BSRedisnotify;
+use BSContar;
 use BSConSign;
 
 use BSSolv;
@@ -4240,22 +4241,32 @@ sub registry_manifest {
   my ($cgi, $regrepo, $manifest) = @_;
   my $repodir = "$registrydir/$regrepo";
   die("404 NAME_UNKNOWN\n") unless -d $repodir;
-  my $mani_json;
-  my $is_manifest;
-  if ($manifest =~ /^sha256-([0-9a-f]{64}).sig$/) {
+  if ($manifest =~ /^sha256-([0-9a-f]{64})\.sig$/) {
     my $digest = "sha256:$1";
     my $sigs = BSUtil::retrieve("$repodir/:cosign", 1);
     $manifest = $sigs->{'digests'}->{$digest} if $sigs && $sigs->{'digests'}->{$digest};
-  } elsif ($manifest =~ /^sha256-([0-9a-f]{64}).att$/) {
+  } elsif ($manifest =~ /^sha256-([0-9a-f]{64})\.att$/) {
     my $digest = "sha256:$1";
     my $sigs = BSUtil::retrieve("$repodir/:cosign", 1);
     $manifest = $sigs->{'attestations'}->{$digest} if $sigs && $sigs->{'attestations'}->{$digest};
   }
+  my $mani_json;
+  my $is_manifest;
   if ($manifest !~ /^sha256:[0-9a-f]{64}$/s) {
     $mani_json = readstr("$repodir/:tags/$manifest", 1);
   } else {
     $mani_json = readstr("$repodir/:manifests/$manifest", 1);
     $is_manifest = 1;
+  }
+  if (!$mani_json && $is_manifest) {
+    # check if this is a referrer manifest
+    my $referrerinfo = -s "$repodir/:referrerinfo" ? BSUtil::retrieve("$repodir/:referrerinfo", 1) : undef;
+    my $subject = ($referrerinfo || {})->{$manifest};
+    if ($subject) {
+      my $referrers = -s "$repodir/:referrers/$subject" ? BSUtil::retrieve("$repodir/:referrers/$subject", 1) : undef;
+      my $r = (grep {$_->[0] eq $manifest} @{$referrers || []})[0];
+      $mani_json = $r->[1] if $r;
+    }
   }
   # sigh, need the type
   die("404 MANIFEST_UNKNOWN\n") unless $mani_json;
@@ -4385,6 +4396,28 @@ sub registry_sigstore {
     BSRegistryServer::reply({ 'signatures' => \@sigs });
   }
   return undef;
+}
+
+sub registry_referrers {
+  my ($cgi, $regrepo, $subject) = @_;
+  die("400 DIGEST_INVALID\n") unless $subject =~ /^sha256:[0-9a-f]{64}$/s;
+  my $repodir = "$registrydir/$regrepo";
+  die("404 NAME_UNKNOWN\n") unless -f "$repodir/:info";
+  die("404 MANIFEST_UNKNOWN\n") unless -s "$repodir/:manifests/$subject";
+  my $referrers = -s "$repodir/:referrers/$subject" ? BSUtil::retrieve("$repodir/:referrers/$subject", 1) : undef;
+  my @manifest_data;
+  for my $r (@{$referrers || []}) {
+    next if $cgi->{'artifactType'} && ($r->[2] || '') ne $cgi->{'artifactType'};
+    my $m = eval { JSON::XS::decode_json($r->[1]) };
+    next unless $m && $m->{'mediaType'};
+    my $md = { 'mediaType' => $m->{'mediaType'}, 'size' => length($r->[1]), 'digest' => $r->[0]};
+    $md->{'artifactType'} = $r->[2] if $r->[2];
+    $md->{'annotations'} = $m->{'annotations'} if $m->{'annotations'};
+    push @manifest_data, $md;
+  }
+  my $manilist = BSContar::create_dist_manifest_list_data(\@manifest_data, 1);
+  my $manilist_json = BSContar::create_dist_manifest_list($manilist);
+  BSServer::reply($manilist_json, 'Content-Type: application/json');
 }
 
 sub registry_taglist {
@@ -4608,6 +4641,7 @@ my $dispatches = [
   'GET|HEAD:/registry/$...:regrepo/manifests/$manifest:' => \&registry_manifest,
   'GET|HEAD:/registry/$...:regrepo/blobs/$blob:' => \&registry_blob,
   'GET|HEAD:/registry/$...:regrepo/signatures/$sig:' => \&registry_sigstore,
+  'GET|HEAD:/registry/$...:regrepo/referrers/$subject: artifactType:?' => \&registry_referrers,
   'GET|HEAD:/registry/$...:regrepo/manifestinfos/$manifest:' => \&registry_manifestinfo,
   'GET|HEAD:/registry/$...:regrepo/tags/list n:intnum? last:?' => \&registry_taglist,
   'GET|HEAD:/registry/$...:regrepo/info.json' => \&registry_info,
