@@ -8,13 +8,13 @@ class Webui::PackageController < Webui::WebuiController
   before_action :require_login, except: %i[show index branch_diff_info
                                            users requests statistics revisions view_file
                                            devel_project buildresult rpmlint_result rpmlint_log
-                                           rpmlint_summary files template_data]
+                                           rpmlint_summary rpmlint_summary_accordion files template_data]
 
   # The methods save_person, save_group and remove_role are defined in Webui::ManageRelationships
   before_action :set_project, only: %i[show edit update index users requests statistics revisions
                                        new branch_diff_info rdiff create remove
                                        save_person save_group remove_role view_file
-                                       buildresult rpmlint_result rpmlint_log rpmlint_summary files template_data
+                                       buildresult rpmlint_result rpmlint_log rpmlint_summary rpmlint_summary_accordion files template_data
                                        autocomplete_users]
 
   before_action :check_scmsync, only: %i[requests revisions statistics users]
@@ -22,10 +22,10 @@ class Webui::PackageController < Webui::WebuiController
   before_action :set_package, only: %i[edit update show requests statistics revisions
                                        branch_diff_info rdiff remove
                                        save_person save_group remove_role view_file
-                                       buildresult rpmlint_result rpmlint_log rpmlint_summary files
+                                       buildresult rpmlint_result rpmlint_log rpmlint_summary rpmlint_summary_accordion files
                                        users template_data autocomplete_users]
   # rubocop:enable Rails/LexicallyScopedActionFilter
-  before_action :lints_list, only: %i[rpmlint_summary]
+  before_action :lints_list, only: %i[rpmlint_summary rpmlint_summary_accordion]
 
   before_action :check_ajax, only: %i[devel_project buildresult]
   # make sure it's after the require_, it requires both
@@ -345,6 +345,12 @@ class Webui::PackageController < Webui::WebuiController
   def rpmlint_summary
     render partial: 'webui/package/rpmlint_summary',
            locals: { lints_list: @results, badness: @badness, errors: @errors, warnings: @warnings, info: @info, project: @project, package_name: @package_name }
+  end
+
+  def rpmlint_summary_accordion
+    render partial: 'webui/package/rpmlint_summary_accordion',
+           locals: { lints_list: @results, badness: @badness, errors: @errors, warnings: @warnings, info: @info, project: @project, package_name: @package_name, repository: @repository,
+                     architecture: @architecture }
   end
 
   def preview_description
