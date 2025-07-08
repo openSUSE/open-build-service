@@ -541,7 +541,7 @@ GEM
       middleware (>= 0.1.0)
       riddle (~> 2.3)
     thor (1.3.2)
-    tilt (2.6.0)
+    tilt (2.6.1)
     timeout (0.4.3)
     turbo-rails (2.0.16)
       actionpack (>= 7.1.0)
