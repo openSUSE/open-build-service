@@ -286,7 +286,7 @@ RSpec.describe Webui::PatchinfoController, :vcr do
 
         it do
           expect(response.parsed_body).to eq('error' => '',
-                                             'issues' => [['cve', 'CVE-2010-31337', 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-31337', '']])
+                                             'issues' => [['cve', 'CVE-2010-31337', 'https://www.cve.org/CVERecord?id=CVE-2010-31337', '']])
         end
 
         it { expect(response).to have_http_status(:success) }

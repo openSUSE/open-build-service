@@ -765,7 +765,7 @@ http_interactions:
             </file>
           </files>
           <issues>
-            <issue state="added" tracker="cve" name="2011-1101" label="CVE-2011-1101" url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=2011-1101"/>
+            <issue state="added" tracker="cve" name="2011-1101" label="CVE-2011-1101" url="https://www.cve.org/CVERecord?id=CVE-2011-1101"/>
             <issue state="added" tracker="bnc" name="1111101" label="boo#1111101" url="https://bugzilla.opensuse.org/show_bug.cgi?id=1111101"/>
           </issues>
         </sourcediff>
@@ -926,7 +926,7 @@ http_interactions:
             </file>
           </files>
           <issues>
-            <issue state="added" tracker="cve" name="2011-1101" label="CVE-2011-1101" url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=2011-1101"/>
+            <issue state="added" tracker="cve" name="2011-1101" label="CVE-2011-1101" url="https://www.cve.org/CVERecord?id=CVE-2011-1101"/>
             <issue state="added" tracker="bnc" name="1111101" label="boo#1111101" url="https://bugzilla.opensuse.org/show_bug.cgi?id=1111101"/>
           </issues>
         </sourcediff>
@@ -1192,7 +1192,7 @@ http_interactions:
             </file>
           </files>
           <issues>
-            <issue state="added" tracker="cve" name="2011-1101" label="CVE-2011-1101" url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=2011-1101"/>
+            <issue state="added" tracker="cve" name="2011-1101" label="CVE-2011-1101" url="https://www.cve.org/CVERecord?id=CVE-2011-1101"/>
             <issue state="added" tracker="bnc" name="1111101" label="boo#1111101" url="https://bugzilla.opensuse.org/show_bug.cgi?id=1111101"/>
           </issues>
         </sourcediff>
@@ -1356,7 +1356,7 @@ http_interactions:
             </file>
           </files>
           <issues>
-            <issue state="added" tracker="cve" name="2011-1101" label="CVE-2011-1101" url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=2011-1101"/>
+            <issue state="added" tracker="cve" name="2011-1101" label="CVE-2011-1101" url="https://www.cve.org/CVERecord?id=CVE-2011-1101"/>
             <issue state="added" tracker="bnc" name="1111101" label="boo#1111101" url="https://bugzilla.opensuse.org/show_bug.cgi?id=1111101"/>
           </issues>
         </sourcediff>
