@@ -37,14 +37,22 @@ module Webui
       private
 
       def set_range
-        @range = params[:range] == 'month' ? 'month' : 'week'
+        default_from = 1.week.ago.beginning_of_day
+        default_to = 0.days.ago.end_of_day
 
-        @date_range = case @range
-                      when 'month'
-                        1.month.ago..Date.tomorrow
-                      else
-                        1.week.ago..Date.tomorrow
-                      end
+        params[:from] ||= default_from.strftime('%Y-%m-%d')
+        params[:to] ||= default_to.strftime('%Y-%m-%d')
+
+        @date_range_from = DateTime.parse(params[:from]).beginning_of_day
+        @date_range_to = DateTime.parse(params[:to]).end_of_day
+
+        if @date_range_to.to_i < @date_range_from.to_i
+          flash.now[:error] = 'From newer than To, using default time range'
+          @date_range_from = default_from
+          @date_range_to = default_to
+        end
+
+        @date_range = @date_range_from..@date_range_to
       end
     end
   end
