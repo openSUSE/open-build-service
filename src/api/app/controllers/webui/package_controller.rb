@@ -8,21 +8,22 @@ class Webui::PackageController < Webui::WebuiController
   # rubocop:disable Rails/LexicallyScopedActionFilter
   before_action :require_login, except: %i[show index branch_diff_info
                                            users requests statistics revisions view_file
-                                           devel_project buildresult rpmlint_result rpmlint_log files]
+                                           devel_project buildresult rpmlint_result rpmlint_log rpmlint_summary files]
 
   # The methods save_person, save_group and remove_role are defined in Webui::ManageRelationships
   before_action :set_project, only: %i[show edit update index users requests statistics revisions
                                        new branch_diff_info rdiff create remove
                                        save_person save_group remove_role view_file
-                                       buildresult rpmlint_result rpmlint_log files]
+                                       buildresult rpmlint_result rpmlint_log rpmlint_summary files]
 
   before_action :check_scmsync, only: %i[statistics users]
 
   before_action :require_package, only: %i[edit update show requests statistics revisions
                                            branch_diff_info rdiff remove
                                            save_person save_group remove_role view_file
-                                           buildresult rpmlint_result rpmlint_log files users]
+                                           buildresult rpmlint_result rpmlint_log rpmlint_summary files users]
   # rubocop:enable Rails/LexicallyScopedActionFilter
+  before_action :lints_list, only: %i[rpmlint_summary]
 
   before_action :check_ajax, only: %i[devel_project buildresult]
   # make sure it's after the require_, it requires both
@@ -324,6 +325,12 @@ class Webui::PackageController < Webui::WebuiController
     render partial: 'rpmlint_log', locals: { rpmlint_log_file: rpmlint_log_file, render_chart: render_chart, parsed_messages: parsed_messages }
   end
 
+  def rpmlint_summary
+    render partial: 'webui/package/beta/rpmlint_summary',
+           locals: { lints_list: @results, badness: @badness, errors: @errors, warnings: @warnings, info: @info, project: @project, package_name: @package_name, repository: @repository,
+                     architecture: @architecture }
+  end
+
   def preview_description
     markdown = helpers.render_as_markdown(params[:package][:description])
     respond_to do |format|
@@ -339,6 +346,40 @@ class Webui::PackageController < Webui::WebuiController
   def view_file; end
 
   private
+
+  def lints_list
+    @results = []
+    @badness = 0
+    @errors = 0
+    @warnings = 0
+    @info = 0
+    return unless (@buildresult = Buildresult.find_hashed(project: @project.to_param, package: @package.to_param, view: 'status'))
+
+    @buildresult.elements('result') do |result|
+      if result.value('repository') != 'images' &&
+         result.value('status') && result.value('status').value('code') != 'excluded'
+        begin
+          rpmlint_log_file = RpmlintLogExtractor.new(project: @project.to_param, package: @package.to_param, repository: result['repository'], architecture: result['arch']).call
+        rescue StandardError
+          logger.debug("Skipping parsing rpmlint.log for #{@project.to_param}/#{@package.to_param} for repository #{result['repository']}.#{result['arch']}")
+        else
+          if rpmlint_log_file.present?
+            parsed = RpmlintLogParser.new(content: rpmlint_log_file, repo: result['repository'], arch: result['arch']).call
+            @results << parsed.results
+            max_badness = parsed.badness.values.max
+            if parsed.badness.present? && (max_badness > @badness)
+              @badness = max_badness
+            end
+            # rubocop:disable Rails/DeprecatedActiveModelErrorsMethods
+            @errors += parsed.errors.values.sum
+            # rubocop:enable Rails/DeprecatedActiveModelErrorsMethods
+            @warnings += parsed.warnings.values.sum
+            @info += parsed.info.values.sum
+          end
+        end
+      end
+    end
+  end
 
   def package_params
     params.require(:package).permit(:name, :title, :description)
