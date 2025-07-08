@@ -99,6 +99,7 @@ constraints(RoutesHelper::WebuiMatcher) do
       get 'package/rpmlint_result(/:project)(/:package)' => :rpmlint_result, constraints: cons, as: 'rpmlint_result'
       get 'package/rpmlint_log(/:project)(/:package)' => :rpmlint_log, constraints: cons
       get 'package/rpmlint_summary(/:project)(/:package)' => :rpmlint_summary, constraints: cons, as: 'rpmlint_summary'
+      get 'package/rpmlint_summary_accordion(/:project)(/:package)' => :rpmlint_summary_accordion, constraints: cons, as: 'rpmlint_summary_accordion'
       # For backward compatibility
       get 'package/meta/:project/:package', to: redirect('/projects/%{project}/packages/%{package}/meta'), constraints: cons
       # For backward compatibility
@@ -347,6 +348,7 @@ constraints(RoutesHelper::WebuiMatcher) do
     get 'request/show/:number/(request_action/:request_action_id)' => :show, as: 'request_show', constraints: cons
     # TODO: Simplify this with `resources` instead after rolling out `:request_show_redesign` feature
     get 'requests/:number/(actions/:request_action_id)' => :beta_show, as: 'request_beta_show', constraints: cons
+    get 'requests/:number/(actions/:request_action_id)/rpmlint' => :rpmlint, as: 'request_rpmlint', constraints: cons
     get 'requests/:number/(actions/:request_action_id)/build_results' => :build_results, as: 'request_build_results', constraints: cons
     get 'requests/:number/(actions/:request_action_id)/changes' => :changes, as: 'request_changes', constraints: cons
     get 'requests/:number/actions/:request_action_id/changes/:filename' => :changes_diff, as: 'request_changes_diff', constraints: cons

@@ -1,0 +1,29 @@
+:ruby
+  @pagetitle = "Request #{@bs_request.number}: #{@action.name}"
+
+= render partial: 'beta_alert', locals: { bs_request: @bs_request, action: @action }
+
+.card
+  .card-body.p-0
+    = render partial: 'request_header',
+        locals: { bs_request: @bs_request, staging_status: @staging_status, action: @action,
+                  prev_action: @prev_action, next_action: @next_action, actions: @actions,
+                  diff_to_superseded_id: @diff_to_superseded_id, page_name: 'request_build_results',
+                  bs_requests: @watched_requests, packages: @watched_packages, projects: @watched_projects,
+                  current_notification: @current_notification }
+    = render partial: 'request_tabs',
+        locals: { bs_request: @bs_request, action: @action, issues: @issues,
+                  actions_count: @actions.count, active_tab: @active_tab }
+    .container.p-4
+      - packages = @actions.map(&:source_package_object).uniq
+      - if packages.count > 1
+        .accordion#rpmlint-accordion
+          -# it would be nicer to use build results here to also catch multibuild stuff
+             it also allows you to filter out things that wouldn't have rpmlint
+          - packages.each do |package|
+            = turbo_frame_tag "#{package.project.name}_#{package.name}_rpmlint_accordion", loading: 'lazy',
+                              src: rpmlint_summary_accordion_path(project_name: package.project.name, package_name: package.name)
+      - else
+        - package = packages.first
+        = turbo_frame_tag "#{package.project.name}_#{package.name}_rpmlint", loading: 'lazy',
+                          src: rpmlint_summary_path(project_name: package.project.name, package_name: package.name)

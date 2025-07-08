@@ -40,7 +40,7 @@ class RpmlintLogParser
     # blueman.x86_64
     # virtualbox.src:564
     # ruby2.5-rubygem-bigdecimal.x86_64
-    package_arch_m = line_m[:packagearch].match(/(?<package>.+)(?:\.(?<architecture>[^:]+))(?::(?<linenumber>\d+))?/)
+    package_arch_m = line_m[:packagearch].match(/(?<package>.+)(?:\.(?<architecture>[^:]+))?(?::(?<linenumber>\d+))?/)
     package = package_arch_m[:package]
 
     case line_m[:level]

@@ -1,0 +1,25 @@
+= turbo_frame_tag "#{project.name}_#{package_name}_rpmlint_accordion" do
+  .accordion-item
+    .accordion-header
+      %button.accordion-button{ type: 'button', data: { 'bs-toggle': 'collapse',
+                                                        'bs-target': "#lint-#{package_name}" },
+                                'aria-controls': "lint-#{package_name}" }
+        .w-100.d-flex.justify-content-between.align-items-center.me-2
+          = package_name
+          .badges
+            %span.badge.text-bg-secondary
+              Max badness: #{badness}
+            - if errors > 0
+              %span.badge.text-bg-danger{ title: 'Total Errors' }
+                %i.fas.fa-circle-exclamation
+                = errors
+            - if warnings > 0
+              %span.badge.text-bg-warning{ title: 'Total Warnings' }
+                %i.fas.fa-triangle-exclamation
+                = warnings
+            - if info > 0
+              %span.badge.text-bg-info{ title: 'Total Infos' }
+                %i.fas.fa-circle-info
+                = info
+    .accordion-collapse.collapse{ id: "lint-#{package_name}", data: { 'bs-parent': '#rpmlint-accordion' } }
+      = render partial: 'webui/package/beta/rpmlint_summary', locals: { project: project, package_name: package_name, lints_list: lints_list }
