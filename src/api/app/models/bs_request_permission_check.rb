@@ -179,7 +179,8 @@ class BsRequestPermissionCheck
       begin
         Backend::Api::Sources::Package.files(action.source_project, action.source_package, query)
       rescue Backend::Error
-        raise ExpandError, "The source of package #{action.source_project}/#{action.source_package}#{action.source_rev ? " for revision #{action.source_rev}" : ''} is broken"
+        for_revision = " for revision #{action.source_rev}" if action.source_rev
+        raise ExpandError, "The source of package #{action.source_project}/#{action.source_package}#{for_revision} is broken"
       end
     end
 
