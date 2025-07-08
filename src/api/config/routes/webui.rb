@@ -290,6 +290,9 @@ constraints(RoutesHelper::WebuiMatcher) do
       put 'toggle_watched_item', controller: 'webui/watched_items', constraints: cons
       resource :badge, controller: 'webui/packages/badge', only: [:show], constraints: cons.merge(format: :svg)
       resources :repositories, only: [], param: :name do
+        resources :architectures, only: [], param: :name do
+          resource :rpmlint, controller: 'webui/packages/rpmlint', only: [:show], constraints: cons
+        end
         resources :binaries, controller: 'webui/packages/binaries', only: [:index], constraints: cons
         # Binaries with the exact same name can exist in multiple architectures, so we have to use arch param here additionally
         resources :binaries, controller: 'webui/packages/binaries', only: [:show], constraints: cons, param: :filename, path: 'binaries/:arch/' do

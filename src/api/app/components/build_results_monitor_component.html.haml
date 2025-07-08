@@ -50,7 +50,7 @@
                                                                                                              package_name,
                                                                                                              repository_name,
                                                                                                              result[:architecture]),
-                                                                                     rpm_lint_url: rpmlint_result_path(project_name, package_name,
-                                                                                                                       params: { repository: repository_name,
-                                                                                                                                 architecture: result[:architecture] } ) }
+                                                                                     rpm_lint_url: project_package_repository_architecture_rpmlint_path(project_name, package_name,
+                                                                                                                                                        repository_name,
+                                                                                                                                                        result[:architecture] ) }
 -# haml-lint:enable LineLength
