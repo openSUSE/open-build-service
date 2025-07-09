@@ -1,0 +1,19 @@
+#
+# Open Build Service 2.10.29
+#
+
+Please read the README.md file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+The dist/README.UPDATERS file has information for people updating
+from a previous OBS release.
+
+Bugfixes
+========
+
+Frontend:
+ * Update passenger RubyGem to version 6.0.27
+   - [Fixed in 6.0.26] [CVE-2025-26803] The http parser (from Passenger 6.0.21-6.0.25) was susceptible to a denial of service attack when parsing a request with an invalid HTTP method.
+   - See the gem's upstream release changelog for more details: https://github.com/phusion/passenger/releases/tag/release-6.0.27
