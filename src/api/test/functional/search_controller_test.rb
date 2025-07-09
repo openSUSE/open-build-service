@@ -1,6 +1,8 @@
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'xmlhash'
 
+# rubocop:disable Metrics/MethodLength
+
 class SearchControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
 
@@ -416,6 +418,10 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   def test_find_owner
     login_king
 
+    # got introduced in the fixtures meanwhile
+    delete '/source/Apache/_attribute/OBS:OwnerRootProject'
+    assert_response :success
+
     get '/search/owner'
     assert_response :bad_request
     assert_xml_tag tag: 'status', attributes: { code: 'no_binary' }
@@ -425,7 +431,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     get "/search/owner?binary='package'"
     assert_response :bad_request
-    assert_xml_tag tag: 'status', attributes: { code: '400', origin: 'backend' }
+    assert_xml_tag tag: 'status', attributes: { code: 'attribute_not_set' }
 
     get "/search/owner?binary='package'&attribute='OBS:does_not_exist'"
     assert_response :not_found
@@ -434,6 +440,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     post '/source/home:Iggy/_attribute', params: "<attributes><attribute namespace='OBS' name='OwnerRootProject' /></attributes>"
     assert_response :success
 
+    # search via binaries
     get '/search/owner?binary=DOES_NOT_EXIST'
     assert_response :success
     assert_xml_tag tag: 'collection', children: { count: 0 }
@@ -450,6 +457,18 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'owner', attributes: { rootproject: 'home:Iggy', project: 'home:Iggy', package: 'TestPack' }
     assert_no_xml_tag tag: 'person', attributes: { name: 'fred', role: 'maintainer' }
     assert_no_xml_tag tag: 'person', attributes: { name: 'Iggy', role: 'maintainer' }
+    assert_xml_tag tag: 'person', attributes: { name: 'Iggy', role: 'bugowner' }
+
+    # search via package container name
+    get '/search/owner?package=DOES_NOT_EXIST'
+    assert_response :success
+    assert_xml_tag tag: 'collection', children: { count: 0 }
+
+    get '/search/owner?package=TestPack'
+    assert_response :success
+    assert_xml_tag tag: 'owner', attributes: { rootproject: 'home:Iggy', project: 'home:Iggy', package: 'TestPack' }
+    assert_xml_tag tag: 'person', attributes: { name: 'fred', role: 'maintainer' }
+    assert_xml_tag tag: 'person', attributes: { name: 'Iggy', role: 'maintainer' }
     assert_xml_tag tag: 'person', attributes: { name: 'Iggy', role: 'bugowner' }
 
     # disable filter
@@ -700,6 +719,9 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     delete '/source/home:Iggy/_attribute/OBS:OwnerRootProject'
     assert_response :success
+    # restore fixture
+    post '/source/Apache/_attribute', params: "<attributes><attribute namespace='OBS' name='OwnerRootProject' /></attributes>"
+    assert_response :success
   end
 
   def test_search_for_binary_without_definition_yet
@@ -846,3 +868,5 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag child: { tag: 'project', attributes: { name: 'RemoteInstance' } }
   end
 end
+
+# rubocop:enable Metrics/MethodLength
