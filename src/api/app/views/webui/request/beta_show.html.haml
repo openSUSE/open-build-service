@@ -116,8 +116,6 @@
                                                                  pending_reviews: @request_reviews.opened,
                                                                  declined_reviews: @request_reviews.declined }
               = render RequestDecisionComponent.new(bs_request: @bs_request,
-                                                    action: @action,
-                                                    is_target_maintainer: @is_target_maintainer,
                                                     package_maintainers: @package_maintainers,
                                                     show_project_maintainer_hint: @show_project_maintainer_hint)
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',
