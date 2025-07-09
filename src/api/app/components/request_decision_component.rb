@@ -40,7 +40,7 @@ class RequestDecisionComponent < ApplicationComponent
   end
 
   def forwards_names
-    names = forwards.first(2).map { |submit_action| submit_action.forward.first.values.take(2).join('/') }
+    names = forwards.first(2).map { |f| f.first.values.take(2).join('/') }
     names.push("#{forwards.length} more") if forwards.length > 4
     names.to_sentence
   end
@@ -61,6 +61,6 @@ class RequestDecisionComponent < ApplicationComponent
     return [] unless submit_actions.any?
     return [] unless submit_actions.any? { |submit_action| submit_action.forward.any? }
 
-    submit_actions
+    submit_actions.filter_map { |submit_action| submit_action.forward if submit_action.forward.any? }
   end
 end
