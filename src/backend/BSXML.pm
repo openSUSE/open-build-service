@@ -229,6 +229,8 @@ our $aggregatelist = [
       'resign',
      [[ 'aggregate' =>
 	    'project',
+	    'arch',
+	    'sourcearch',
 	    [],
             'nosources',
 	  [ 'package' ],

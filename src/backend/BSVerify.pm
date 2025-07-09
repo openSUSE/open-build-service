@@ -362,6 +362,8 @@ sub verify_aggregatelist {
   }
   for my $a (@{$al->{'aggregate'} || []}) {
     verify_projid($a->{'project'});
+    verify_arch($a->{'arch'}) if exists $a->{'arch'};
+    verify_arch($a->{'sourcearch'}) if exists $a->{'sourcearch'};
     if (defined($a->{'nosources'})) {
       die("'nosources' element must be empty\n") if $a->{'nosources'} ne '';
     }
