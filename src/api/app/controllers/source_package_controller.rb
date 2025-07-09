@@ -1,4 +1,6 @@
 class SourcePackageController < SourceController
+  include ReadAccessOfDeleted
+
   before_action :require_valid_project_name
   before_action :set_target_project_name, only: %i[show delete]
   before_action :set_target_package_name, only: %i[show delete]
@@ -63,7 +65,7 @@ class SourcePackageController < SourceController
 
     if params.key?(:deleted)
       if package_name == '_project'
-        validate_visibility_of_deleted_project(project_name)
+        validate_read_access_of_deleted_project(project_name)
         pass_to_backend
         return
       end
