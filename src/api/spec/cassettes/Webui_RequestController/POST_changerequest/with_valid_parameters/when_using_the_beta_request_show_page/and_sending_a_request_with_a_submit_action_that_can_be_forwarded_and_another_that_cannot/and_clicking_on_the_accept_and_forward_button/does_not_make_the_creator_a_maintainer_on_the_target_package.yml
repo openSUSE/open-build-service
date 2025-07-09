@@ -1,0 +1,1312 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:kugelblitz/_meta?user=kugelblitz
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:kugelblitz">
+          <title/>
+          <description/>
+          <person userid="kugelblitz" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '142'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:kugelblitz">
+          <title></title>
+          <description></description>
+          <person userid="kugelblitz" role="maintainer"/>
+        </project>
+  recorded_at: Tue, 05 Aug 2025 14:10:17 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel:project/_meta?user=user_35
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="devel:project">
+          <title>I Know Why the Caged Bird Sings</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '121'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="devel:project">
+          <title>I Know Why the Caged Bird Sings</title>
+          <description></description>
+        </project>
+  recorded_at: Tue, 05 Aug 2025 14:10:17 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel:project/goal/_meta?user=user_36
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="devel:project">
+          <title>Tirra Lirra by the River</title>
+          <description>Error reiciendis sit eos.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '154'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="devel:project">
+          <title>Tirra Lirra by the River</title>
+          <description>Error reiciendis sit eos.</description>
+        </package>
+  recorded_at: Tue, 05 Aug 2025 14:10:17 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel:project/goal/_config
+    body:
+      encoding: UTF-8
+      string: Dolorem illo nesciunt. Non vel repellat. Aut dolorem praesentium.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="567" vrev="567">
+          <srcmd5>679ea8def3b1003e2247b6660d45e30a</srcmd5>
+          <version>unknown</version>
+          <time>1754403017</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 05 Aug 2025 14:10:17 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel:project/goal/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Voluptates qui et. Quas facere exercitationem. Porro nisi aut.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="568" vrev="568">
+          <srcmd5>3e7674e3b2054856e74d576506a42a67</srcmd5>
+          <version>unknown</version>
+          <time>1754403017</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 05 Aug 2025 14:10:17 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/_meta?user=titan
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:titan">
+          <title/>
+          <description/>
+          <person userid="titan" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '132'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:titan">
+          <title></title>
+          <description></description>
+          <person userid="titan" role="maintainer"/>
+        </project>
+  recorded_at: Tue, 05 Aug 2025 14:10:17 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/goal/_meta?user=user_37
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title>The Wives of Bath</title>
+          <description>Illo amet eligendi et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '141'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title>The Wives of Bath</title>
+          <description>Illo amet eligendi et.</description>
+        </package>
+  recorded_at: Tue, 05 Aug 2025 14:10:17 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/goal/_config
+    body:
+      encoding: UTF-8
+      string: Voluptatem deserunt non. Aut quam blanditiis. Ad eum laudantium.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '213'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1512" vrev="1512">
+          <srcmd5>e8c9db23e57fb1443defc5348ca154af</srcmd5>
+          <version>unknown</version>
+          <time>1754403017</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 05 Aug 2025 14:10:17 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/goal/somefile.txt
+    body:
+      encoding: UTF-8
+      string: In libero officia. Dolorem non ut. Debitis et quis.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '213'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1513" vrev="1513">
+          <srcmd5>b4c5644c6406221a56d4838dad8d8ee7</srcmd5>
+          <version>unknown</version>
+          <time>1754403017</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 05 Aug 2025 14:10:17 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:kugelblitz/ball/_meta?user=user_38
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ball" project="home:kugelblitz">
+          <title>Fame Is the Spur</title>
+          <description>Voluptates et est nemo.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '146'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ball" project="home:kugelblitz">
+          <title>Fame Is the Spur</title>
+          <description>Voluptates et est nemo.</description>
+        </package>
+  recorded_at: Tue, 05 Aug 2025 14:10:17 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:kugelblitz/_project/_attribute?meta=1
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="ApprovedRequestSource" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '172'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1060">
+          <srcmd5>ba07d19211c6e0e3642204f301d98ba2</srcmd5>
+          <time>1754403017</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Tue, 05 Aug 2025 14:10:17 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '293'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" rev="112" vrev="112" srcmd5="6fa23a1628f3343501ccf22a2a3212c3">
+          <entry name="_config" md5="3489942d9f4a2f48c27a544cae8b67fa" size="70" mtime="1753891009"/>
+          <entry name="somefile.txt" md5="b2a9d6769d6eb515c94aa6dd6c6f64bf" size="57" mtime="1753891009"/>
+        </directory>
+  recorded_at: Tue, 05 Aug 2025 14:10:17 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=home:titan&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1160'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="a4d4389bd11026f2d4f8690811e56c83">
+          <old project="home:titan" package="goal" rev="1513" srcmd5="b4c5644c6406221a56d4838dad8d8ee7"/>
+          <new project="home:kugelblitz" package="ball" rev="112" srcmd5="6fa23a1628f3343501ccf22a2a3212c3"/>
+          <files>
+            <file state="changed">
+              <old name="_config" md5="86b0b59e8fb18b3192546db17fc625e6" size="64"/>
+              <new name="_config" md5="3489942d9f4a2f48c27a544cae8b67fa" size="70"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Voluptatem deserunt non. Aut quam blanditiis. Ad eum laudantium.
+        \ No newline at end of file
+        +Saepe quia delectus. Asperiores magnam nesciunt. Possimus ullam rerum.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="changed">
+              <old name="somefile.txt" md5="8b543d50815e7ce438f6417c329afd61" size="51"/>
+              <new name="somefile.txt" md5="b2a9d6769d6eb515c94aa6dd6c6f64bf" size="57"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -In libero officia. Dolorem non ut. Debitis et quis.
+        \ No newline at end of file
+        +Aliquid et sed. Amet veritatis esse. Sit voluptatem fuga.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/devel:project/goal/_meta?user=user_36
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="devel:project">
+          <title>Tirra Lirra by the River</title>
+          <description>Error reiciendis sit eos.</description>
+          <devel project="home:titan" package="goal"/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '201'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="devel:project">
+          <title>Tirra Lirra by the River</title>
+          <description>Error reiciendis sit eos.</description>
+          <devel project="home:titan" package="goal"/>
+        </package>
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/ball?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '293'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" rev="112" vrev="112" srcmd5="6fa23a1628f3343501ccf22a2a3212c3">
+          <entry name="_config" md5="3489942d9f4a2f48c27a544cae8b67fa" size="70" mtime="1753891009"/>
+          <entry name="somefile.txt" md5="b2a9d6769d6eb515c94aa6dd6c6f64bf" size="57" mtime="1753891009"/>
+        </directory>
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/ball?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '293'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" rev="112" vrev="112" srcmd5="6fa23a1628f3343501ccf22a2a3212c3">
+          <entry name="_config" md5="3489942d9f4a2f48c27a544cae8b67fa" size="70" mtime="1753891009"/>
+          <entry name="somefile.txt" md5="b2a9d6769d6eb515c94aa6dd6c6f64bf" size="57" mtime="1753891009"/>
+        </directory>
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:titan/goal?cmd=copy&comment=Please%20take%20this&expand=1&keeplink=1&noservice=1&opackage=ball&oproject=home:kugelblitz&requestid=1&user=titan&withacceptinfo=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '351'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1514" vrev="1514">
+          <srcmd5>6fa23a1628f3343501ccf22a2a3212c3</srcmd5>
+          <version>unknown</version>
+          <time>1754403018</time>
+          <user>titan</user>
+          <comment>Please take this</comment>
+          <requestid>1</requestid>
+          <acceptinfo rev="1514" srcmd5="6fa23a1628f3343501ccf22a2a3212c3" osrcmd5="b4c5644c6406221a56d4838dad8d8ee7"/>
+        </revision>
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:titan/goal
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '295'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="goal" rev="1514" vrev="1514" srcmd5="6fa23a1628f3343501ccf22a2a3212c3">
+          <entry name="_config" md5="3489942d9f4a2f48c27a544cae8b67fa" size="70" mtime="1753891009"/>
+          <entry name="somefile.txt" md5="b2a9d6769d6eb515c94aa6dd6c6f64bf" size="57" mtime="1753891009"/>
+        </directory>
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:titan/goal?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '228'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="goal" rev="1514" vrev="1514" srcmd5="6fa23a1628f3343501ccf22a2a3212c3" verifymd5="6fa23a1628f3343501ccf22a2a3212c3">
+          <error>bad build configuration, no build type defined or detected</error>
+        </sourceinfo>
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:titan/goal
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '295'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="goal" rev="1514" vrev="1514" srcmd5="6fa23a1628f3343501ccf22a2a3212c3">
+          <entry name="_config" md5="3489942d9f4a2f48c27a544cae8b67fa" size="70" mtime="1753891009"/>
+          <entry name="somefile.txt" md5="b2a9d6769d6eb515c94aa6dd6c6f64bf" size="57" mtime="1753891009"/>
+        </directory>
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:titan/goal?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '293'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="7e04569e4c8c753f66ead73159362b8b">
+          <old project="home:titan" package="goal" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:titan" package="goal" rev="1514" srcmd5="6fa23a1628f3343501ccf22a2a3212c3"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/devel:project/goal
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '293'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="goal" rev="568" vrev="568" srcmd5="3e7674e3b2054856e74d576506a42a67">
+          <entry name="_config" md5="5f6ab953508eeecfca3a37d513e1b561" size="65" mtime="1754403017"/>
+          <entry name="somefile.txt" md5="abc94a3fcca4728a779744b4ea42186c" size="62" mtime="1754403017"/>
+        </directory>
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:titan/goal
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '295'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="goal" rev="1514" vrev="1514" srcmd5="6fa23a1628f3343501ccf22a2a3212c3">
+          <entry name="_config" md5="3489942d9f4a2f48c27a544cae8b67fa" size="70" mtime="1753891009"/>
+          <entry name="somefile.txt" md5="b2a9d6769d6eb515c94aa6dd6c6f64bf" size="57" mtime="1753891009"/>
+        </directory>
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:titan/goal
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '295'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="goal" rev="1514" vrev="1514" srcmd5="6fa23a1628f3343501ccf22a2a3212c3">
+          <entry name="_config" md5="3489942d9f4a2f48c27a544cae8b67fa" size="70" mtime="1753891009"/>
+          <entry name="somefile.txt" md5="b2a9d6769d6eb515c94aa6dd6c6f64bf" size="57" mtime="1753891009"/>
+        </directory>
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:titan/goal
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '295'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="goal" rev="1514" vrev="1514" srcmd5="6fa23a1628f3343501ccf22a2a3212c3">
+          <entry name="_config" md5="3489942d9f4a2f48c27a544cae8b67fa" size="70" mtime="1753891009"/>
+          <entry name="somefile.txt" md5="b2a9d6769d6eb515c94aa6dd6c6f64bf" size="57" mtime="1753891009"/>
+        </directory>
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:titan/goal?cmd=diff&expand=1&nodiff=1&opackage=goal&oproject=devel:project&rev=1514
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '95'
+    body:
+      encoding: UTF-8
+      string: |2
+
+        ++++++ _config
+        --- _config
+        +++ _config
+
+        ++++++ somefile.txt
+        --- somefile.txt
+        +++ somefile.txt
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:titan/goal?expand=1&rev=1514
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '295'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="goal" rev="1514" vrev="1514" srcmd5="6fa23a1628f3343501ccf22a2a3212c3">
+          <entry name="_config" md5="3489942d9f4a2f48c27a544cae8b67fa" size="70" mtime="1753891009"/>
+          <entry name="somefile.txt" md5="b2a9d6769d6eb515c94aa6dd6c6f64bf" size="57" mtime="1753891009"/>
+        </directory>
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:titan/goal
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '295'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="goal" rev="1514" vrev="1514" srcmd5="6fa23a1628f3343501ccf22a2a3212c3">
+          <entry name="_config" md5="3489942d9f4a2f48c27a544cae8b67fa" size="70" mtime="1753891009"/>
+          <entry name="somefile.txt" md5="b2a9d6769d6eb515c94aa6dd6c6f64bf" size="57" mtime="1753891009"/>
+        </directory>
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:titan/goal?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=devel:project&rev=1514&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1170'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="1108933e96fbd8a2c4ad3715a058c472">
+          <old project="devel:project" package="goal" rev="568" srcmd5="3e7674e3b2054856e74d576506a42a67"/>
+          <new project="home:titan" package="goal" rev="1514" srcmd5="6fa23a1628f3343501ccf22a2a3212c3"/>
+          <files>
+            <file state="changed">
+              <old name="_config" md5="5f6ab953508eeecfca3a37d513e1b561" size="65"/>
+              <new name="_config" md5="3489942d9f4a2f48c27a544cae8b67fa" size="70"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Dolorem illo nesciunt. Non vel repellat. Aut dolorem praesentium.
+        \ No newline at end of file
+        +Saepe quia delectus. Asperiores magnam nesciunt. Possimus ullam rerum.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="changed">
+              <old name="somefile.txt" md5="abc94a3fcca4728a779744b4ea42186c" size="62"/>
+              <new name="somefile.txt" md5="b2a9d6769d6eb515c94aa6dd6c6f64bf" size="57"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Voluptates qui et. Quas facere exercitationem. Porro nisi aut.
+        \ No newline at end of file
+        +Aliquid et sed. Amet veritatis esse. Sit voluptatem fuga.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_11/_meta?user=titan
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_11">
+          <title>In Death Ground</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '102'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_11">
+          <title>In Death Ground</title>
+          <description></description>
+        </project>
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_11/another_target_package/_meta?user=titan
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="another_target_package" project="project_11">
+          <title>Clouds of Witness</title>
+          <description>Qui enim quidem et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="another_target_package" project="project_11">
+          <title>Clouds of Witness</title>
+          <description>Qui enim quidem et.</description>
+        </package>
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '293'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" rev="112" vrev="112" srcmd5="6fa23a1628f3343501ccf22a2a3212c3">
+          <entry name="_config" md5="3489942d9f4a2f48c27a544cae8b67fa" size="70" mtime="1753891009"/>
+          <entry name="somefile.txt" md5="b2a9d6769d6eb515c94aa6dd6c6f64bf" size="57" mtime="1753891009"/>
+        </directory>
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:kugelblitz/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '293'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" rev="112" vrev="112" srcmd5="6fa23a1628f3343501ccf22a2a3212c3">
+          <entry name="_config" md5="3489942d9f4a2f48c27a544cae8b67fa" size="70" mtime="1753891009"/>
+          <entry name="somefile.txt" md5="b2a9d6769d6eb515c94aa6dd6c6f64bf" size="57" mtime="1753891009"/>
+        </directory>
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=10000&orev=0&rev=112&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '824'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="6da9d8f19f037f87682d3775c6d76f20">
+          <old project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:kugelblitz" package="ball" rev="112" srcmd5="6fa23a1628f3343501ccf22a2a3212c3"/>
+          <files>
+            <file state="added">
+              <new name="_config" md5="3489942d9f4a2f48c27a544cae8b67fa" size="70"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +Saepe quia delectus. Asperiores magnam nesciunt. Possimus ullam rerum.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="added">
+              <new name="somefile.txt" md5="b2a9d6769d6eb515c94aa6dd6c6f64bf" size="57"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +Aliquid et sed. Amet veritatis esse. Sit voluptatem fuga.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+  recorded_at: Tue, 05 Aug 2025 14:10:18 GMT
+recorded_with: VCR 6.3.1
