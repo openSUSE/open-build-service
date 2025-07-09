@@ -352,4 +352,39 @@ RSpec.describe Webui::RequestController, :vcr do
       it { expect { call_sourcediff }.to raise_error(ActionController::RoutingError, 'Expected AJAX call') }
     end
   end
+
+  describe 'POST #add_reviewer' do
+    context 'when request does not exist' do
+      before do
+        login(receiver)
+        post :add_reviewer, params: { number: 0, review_type: 'review-user', review_user: reviewer.login }
+      end
+
+      it { expect(flash[:error]).to eq("Unable to add review to request with id '0': the request was not found.") }
+    end
+
+    context 'when the user does not have permission to add reviewers' do
+      let(:uninvolved_user) { create(:confirmed_user, login: 'foo') }
+
+      before do
+        login(uninvolved_user)
+        post :add_reviewer, params: { number: bs_request.number, review_type: 'review-user', review_user: reviewer.login }
+      end
+
+      it { expect(flash[:error]).to eq("Not permitted to add a review to '#{bs_request.number}'") }
+      it { expect(bs_request.reload.state).to eq(:new) }
+      it { expect(response).to redirect_to(request_show_path(number: bs_request)) }
+    end
+
+    context 'when the review is not valid' do
+      before do
+        login(receiver)
+        post :add_reviewer, params: { number: bs_request.number, review_type: 'review-user', review_user: 'DOES_NOT_EXIST' }
+      end
+
+      it { expect(flash[:error]).to eq("Unable to add review to request with id '#{bs_request.number}': Review invalid: User can't be blank") }
+      it { expect(bs_request.reload.state).to eq(:new) }
+      it { expect(response).to redirect_to(request_show_path(number: bs_request)) }
+    end
+  end
 end
