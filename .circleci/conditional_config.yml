@@ -388,7 +388,7 @@ jobs:
             QLTY_COVERAGE_TOKEN: qltcp_wbImki2Nq6aYQokf
           command: |
             curl -L https://qlty-releases.s3.amazonaws.com/qlty/latest/qlty-x86_64-unknown-linux-gnu.tar.xz > qlty.tar.xz
-            tar -xf qlty.tar.xz qlty-x86_64-unknown-linux-gnu/qlty --strip-components 1
+            tar -xf qlty.tar.xz ./qlty --strip-components 1
             ./qlty coverage transform --add-prefix src/api/ --report-format cobertura coverage/coverage.xml
             ./qlty coverage publish coverage.jsonl
       - run:
