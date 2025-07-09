@@ -1,6 +1,4 @@
 class AttributeController < ApplicationController
-  include ValidationHelper
-
   validate_action show: { method: :get, response: :attrib_type }
   validate_action delete: { method: :delete, response: :status }
   validate_action update: { method: :put, request: :attrib_type, response: :status }

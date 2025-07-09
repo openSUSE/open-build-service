@@ -1,5 +1,4 @@
 class SourceAttributeController < SourceController
-  include ValidationHelper
   before_action :set_request_data, only: [:update]
   before_action :find_attribute_container
 

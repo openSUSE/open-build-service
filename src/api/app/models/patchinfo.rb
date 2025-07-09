@@ -3,7 +3,6 @@
 
 # if you wonder it's not a module, read http://blog.codeclimate.com/blog/2012/11/14/why-ruby-class-methods-resist-refactoring
 class Patchinfo
-  include ValidationHelper
   include ActiveModel::Model
 
   class PatchinfoFileExists < APIError; end
