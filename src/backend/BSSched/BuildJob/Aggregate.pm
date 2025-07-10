@@ -168,11 +168,15 @@ sub check {
       if ($myarch eq 'local' && $arch eq $myarch) {
 	# always send those for now, should probably be more clever in the future
 	my $oarch = $aggregate->{'arch'};
-	$ctx->{'sendunblockedevents'}->{"$projid/$repoid/$oarch"} = 2 if grep {$_ eq $oarch} @{$ctx->{'repo'}->{'arch'} || []};
+        my $level = ($ctx->{'changetype'} || 'med') eq 'low' ? 1 : 2;
+	$ctx->{'sendunblockedevents'}->{"$projid/$repoid/$oarch"} = $level if grep {$_ eq $oarch} @{$ctx->{'repo'}->{'arch'} || []};
       }
       next;
     }
-    return ('broken', "can only use 'local' as an aggregate sourcearch") if $arch ne $myarch && $arch ne 'local';		# for now
+    if ($arch ne $myarch) {
+      return ('broken', "can only use 'local' as an aggregate sourcearch") if $arch ne 'local';		# for now
+      return ('broken', "need sourcearch '$arch' in repository") unless grep {$_ eq $arch} @{$ctx->{'repo'}->{'arch'} || []};
+    }
     my $aprojid = $aggregate->{'project'};
     my $proj = $remoteprojs->{$aprojid} || $projpacks->{$aprojid};
     if (!$proj || $proj->{'error'}) {
