@@ -1,37 +1,52 @@
 class BsRequestActionDescriptionComponentPreview < ViewComponent::Preview
-  # Preview at http://HOST:PORT/rails/view_components/bs_request_action_description_component/submit_preview
-  def submit_preview
-    action = BsRequestAction.where(type: :submit).last
+  # Previews at http://HOST:PORT/rails/view_components/bs_request_action_description_component/
+  def add_role
+    action = BsRequestAction.where(type: :add_role).last
     render(BsRequestActionDescriptionComponent.new(action: action))
   end
 
-  def submit_preview_text_only
-    action = BsRequestAction.where(type: :submit).last
+  def change_devel
+    action = BsRequestAction.where(type: :change_devel).last
+    render(BsRequestActionDescriptionComponent.new(action: action))
+  end
+
+  def change_devel_text_only
+    action = BsRequestAction.where(type: :change_devel).last
     render(BsRequestActionDescriptionComponent.new(action: action, text_only: true))
   end
 
-  def delete_preview
+  def delete
     action = BsRequestAction.where(type: :delete).last
     render(BsRequestActionDescriptionComponent.new(action: action))
   end
 
-  def delete_preview_text_only
+  def delete_text_only
     action = BsRequestAction.where(type: :delete).last
     render(BsRequestActionDescriptionComponent.new(action: action, text_only: true))
   end
 
-  def add_role_preview
-    action = BsRequestAction.where(type: :add_role).first
+  def maintenance_incident_text_only
+    action = BsRequestAction.where(type: :maintenance_incident).last
+    render(BsRequestActionDescriptionComponent.new(action: action, text_only: true))
+  end
+
+  def maintenance_release_text_only
+    action = BsRequestAction.where(type: :maintenance_release).last
+    render(BsRequestActionDescriptionComponent.new(action: action, text_only: true))
+  end
+
+  def set_bugowner_text_only
+    action = BsRequestAction.where(type: :set_bugowner).last
+    render(BsRequestActionDescriptionComponent.new(action: action, text_only: true))
+  end
+
+  def submit
+    action = BsRequestAction.where(type: :submit).last
     render(BsRequestActionDescriptionComponent.new(action: action))
   end
 
-  def change_devel_preview
-    action = BsRequestAction.where(type: :change_devel).first
-    render(BsRequestActionDescriptionComponent.new(action: action))
-  end
-
-  def change_devel_preview_text_only
-    action = BsRequestAction.where(type: :change_devel).first
+  def submit_text_only
+    action = BsRequestAction.where(type: :submit).last
     render(BsRequestActionDescriptionComponent.new(action: action, text_only: true))
   end
 end
