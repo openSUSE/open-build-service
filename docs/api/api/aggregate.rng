@@ -23,6 +23,16 @@
           <attribute name="project">
             <text/>
           </attribute>
+          <optional>
+            <attribute name="arch">
+              <text/>
+            </attribute>
+          </optional>
+          <optional>
+            <attribute name="sourcearch"> <!-- is only working for local atm -->
+              <text/>
+            </attribute>
+          </optional>
           <interleave> 
             <zeroOrMore>
               <element ns="" name="binary">
