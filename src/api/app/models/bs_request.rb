@@ -28,6 +28,8 @@ class BsRequest < ApplicationRecord
 
   ACTION_NOTIFY_LIMIT = 50
 
+  enum :status, VALID_REQUEST_STATES, instance_methods: false, scopes: false, validate: true
+
   scope :to_accept_by_time, -> { where(state: %w[new review]).where(accept_at: ...Time.now) }
   # Scopes for collections
   scope :with_actions, -> { joins(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
@@ -162,6 +164,7 @@ class BsRequest < ApplicationRecord
       request.state = :declined if request.state.to_s == 'rejected'
       request.state = :accepted if request.state.to_s == 'accept'
       request.state = request.state.to_sym
+      request.status = request.state
 
       request.comment = state.value('comment')
       state.delete('comment')
@@ -544,6 +547,7 @@ class BsRequest < ApplicationRecord
         a.request_changes_state(state)
       end
       self.state = state
+      self.status = state
       self.commenter = User.session!.login
       self.comment = opts[:comment]
       self.superseded_by = opts[:superseded_by]
@@ -555,6 +559,7 @@ class BsRequest < ApplicationRecord
 
           review.update!(state: :new)
           self.state = :review
+          self.status = :review
         end
       end
       save!
@@ -645,6 +650,7 @@ class BsRequest < ApplicationRecord
 
   def supersede_request(history_arguments, superseded_opt)
     self.state = :superseded
+    self.status = :superseded
     self.superseded_by = superseded_opt
     history_arguments[:description_extension] = superseded_by.to_s
     save!
@@ -678,6 +684,7 @@ class BsRequest < ApplicationRecord
 
       self.comment = review.reason
       self.state = new_request_state
+      self.status = new_request_state
       self.commenter = User.session!.login
       case new_request_state
       when :new
@@ -709,6 +716,7 @@ class BsRequest < ApplicationRecord
       check_if_valid_review!(opts)
 
       self.state = 'review'
+      self.status = :review
       self.commenter = User.session!.login
       self.comment = opts[:comment] if opts[:comment]
 
@@ -888,6 +896,7 @@ class BsRequest < ApplicationRecord
 
     # ensure correct initial values, no matter what has been sent to us
     self.state = :new
+    self.status = :new
 
     # expand release and submit request targets if not specified
     expand_targets
@@ -1128,7 +1137,11 @@ class BsRequest < ApplicationRecord
         raise 'Unknown review type'
       end
     end
-    self.state = :review if reviews.any? { |a| a.state.to_sym == :new }
+
+    return unless reviews.any? { |a| a.state.to_sym == :new }
+
+    self.state = :review
+    self.status = :review
   end
 
   #
