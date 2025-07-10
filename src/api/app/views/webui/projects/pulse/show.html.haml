@@ -35,7 +35,7 @@
 :javascript
   $(document).ready(function() {
     $.ajax({
-      url: "#{project_pulse_path(@project, range: @range)}",
+      url: "#{project_pulse_path(@project, from: @date_range_from.strftime('%Y-%m-%d'), to: @date_range_to.strftime('%Y-%m-%d'))}",
       success: function(data) {
         $('#pulse').html(data);
       },
