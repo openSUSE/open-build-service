@@ -1247,6 +1247,7 @@ end
 #  number             :integer          indexed
 #  priority           :string           default("moderate")
 #  state              :string(255)      indexed
+#  status             :integer          indexed
 #  superseded_by      :integer          indexed
 #  updated_when       :datetime
 #  created_at         :datetime         not null
@@ -1259,5 +1260,6 @@ end
 #  index_bs_requests_on_number              (number) UNIQUE
 #  index_bs_requests_on_staging_project_id  (staging_project_id)
 #  index_bs_requests_on_state               (state)
+#  index_bs_requests_on_status              (status)
 #  index_bs_requests_on_superseded_by       (superseded_by)
 #
