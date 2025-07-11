@@ -37,7 +37,7 @@ module RakeSupport
       staging_project: staging_project
     )
 
-    request.reviews.each { |review| review.change_state(:accepted, 'Accepted') }
+    request.reviews.each { |review| review.update(state: 'accepted', reason: 'Accepted!') }
   end
 
   def self.subscribe_to_all_notifications(user)
