@@ -27,6 +27,7 @@ class IssueTracker::IssueSummary
   end
 
   def find_or_create_by_name_and_tracker
-    Issue.find_or_create_by_name_and_tracker(@issue_id, @issue_tracker.name)
+    # Only if the issue_id is prefixed with 'CVE-' (cve kind of issue), that prefix is removed
+    Issue.find_or_create_by_name_and_tracker(@issue_id.gsub(/^CVE-/, ''), @issue_tracker.name)
   end
 end
