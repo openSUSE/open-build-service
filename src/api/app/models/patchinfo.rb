@@ -3,12 +3,13 @@
 
 # if you wonder it's not a module, read http://blog.codeclimate.com/blog/2012/11/14/why-ruby-class-methods-resist-refactoring
 class Patchinfo
-  include ValidationHelper
   include ActiveModel::Model
 
   class PatchinfoFileExists < APIError; end
 
   class IncompletePatchinfo < APIError; end
+
+  class InvalidPackageNameError < APIError; end
 
   class ReleasetargetNotFound < APIError
     setup 404
@@ -183,7 +184,7 @@ class Patchinfo
 
   def require_package_for_patchinfo(project, pkg_name, force)
     pkg_name ||= 'patchinfo'
-    valid_package_name!(pkg_name)
+    raise InvalidPackageNameError, "invalid package name '#{pkg_name}'" unless Package.valid_name?(pkg_name)
 
     # create patchinfo package
     unless Package.exists_by_project_and_name(project, pkg_name)

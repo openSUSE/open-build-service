@@ -2,8 +2,6 @@ require 'builder/xchar'
 
 class SourceController < ApplicationController
   include MaintenanceHelper
-  include ValidationHelper
-
   include Source::Errors
 
   skip_before_action :extract_user, only: :lastevents_public

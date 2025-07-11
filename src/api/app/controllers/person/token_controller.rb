@@ -1,8 +1,6 @@
 require 'xmlhash'
 module Person
   class TokenController < ApplicationController
-    include ValidationHelper
-
     rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
     before_action :set_user

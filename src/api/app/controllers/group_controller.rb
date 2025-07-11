@@ -1,6 +1,4 @@
 class GroupController < ApplicationController
-  include ValidationHelper
-
   validate_action groupinfo: { method: :get, response: :group }
   validate_action groupinfo: { method: :put, request: :group, response: :status }
   validate_action groupinfo: { method: :delete, response: :status }

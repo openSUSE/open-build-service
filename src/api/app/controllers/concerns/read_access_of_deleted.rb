@@ -1,12 +1,5 @@
-require 'api_error'
-
-module ValidationHelper
-  class InvalidPackageNameError < APIError
-  end
-
-  def valid_package_name!(package_name)
-    raise InvalidPackageNameError, "invalid package name '#{package_name}'" unless Package.valid_name?(package_name)
-  end
+module ReadAccessOfDeleted
+  extend ActiveSupport::Concern
 
   # load last package meta file and just check if sourceaccess flag was used at all, no per user checking atm
   def validate_read_access_of_deleted_package(project, name)
@@ -14,7 +7,7 @@ module ValidationHelper
     if project_object
       raise Package::ReadSourceAccessError, "#{project}/#{name}" if project_object.disabled_for?('sourceaccess', nil, nil)
     else
-      validate_visibility_of_deleted_project(project)
+      validate_read_access_of_deleted_project(project)
     end
 
     begin
@@ -25,11 +18,9 @@ module ValidationHelper
 
     return true if User.admin_session?
     raise Package::ReadSourceAccessError, "#{project}/#{name}" if FlagHelper.xml_disabled_for?(meta, 'sourceaccess')
-
-    true
   end
 
-  def validate_visibility_of_deleted_project(project)
+  def validate_read_access_of_deleted_project(project)
     begin
       meta = Xmlhash.parse(Backend::Api::Sources::Project.meta(project, deleted: 1))
     rescue Backend::NotFoundError

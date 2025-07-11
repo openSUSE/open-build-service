@@ -1,4 +1,5 @@
 class SourcePackageMetaController < SourceController
+  include ReadAccessOfDeleted
   # override the ApplicationController version
   # to have meaningful error messages
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
@@ -71,7 +72,7 @@ class SourcePackageMetaController < SourceController
     @project_name = params[:project]
     @package_name = params[:package]
 
-    valid_package_name!(@package_name)
+    raise InvalidPackageNameError, "invalid package name '#{@package_name}'" unless Package.valid_name?(@package_name)
   end
 
   def user_not_authorized(exception)

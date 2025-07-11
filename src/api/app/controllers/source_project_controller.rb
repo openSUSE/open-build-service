@@ -1,5 +1,6 @@
 class SourceProjectController < SourceController
   include CheckAndRemoveRepositories
+  include ReadAccessOfDeleted
 
   validate_action index: { method: :get, response: :directory }
   before_action :require_valid_project_name, except: :index
@@ -30,7 +31,7 @@ class SourceProjectController < SourceController
     if params.key?(:deleted)
       unless Project.find_by_name(project_name) || Project.remote_project?(project_name)
         # project is deleted or not accessible
-        validate_visibility_of_deleted_project(project_name)
+        validate_read_access_of_deleted_project(project_name)
       end
       pass_to_backend
       return
