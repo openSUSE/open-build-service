@@ -39,7 +39,7 @@ class Webui::RequestController < Webui::WebuiController
     @request_reviews = @bs_request.reviews.includes(%i[user group]).for_non_staging_projects(@target_project)
 
     # retrieve a list of all package maintainers that are assigned to at least one target package
-    @package_maintainers = target_package_maintainers
+    @package_maintainers = @bs_request.target_package_maintainers
     # retrieve a list of all project maintainers
     @project_maintainers = @target_project&.maintainers || []
     # search for a project, where the user is not a package maintainer but a project maintainer and show
@@ -61,7 +61,7 @@ class Webui::RequestController < Webui::WebuiController
     @history = @bs_request.history_elements.includes(:user)
 
     # retrieve a list of all package maintainers that are assigned to at least one target package
-    @package_maintainers = target_package_maintainers
+    @package_maintainers = @bs_request.target_package_maintainers
 
     # search for a project, where the user is not a package maintainer but a project maintainer and show
     # a hint if that package has some package maintainers (issue#1970)
@@ -430,13 +430,6 @@ class Webui::RequestController < Webui::WebuiController
 
   def require_request
     @bs_request = BsRequest.find_by!(number: params[:number])
-  end
-
-  def target_package_maintainers
-    distinct_bs_request_actions = @actions.select(:target_project, :target_package).distinct
-    distinct_bs_request_actions.flat_map do |action|
-      Package.find_by_project_and_name(action.target_project, action.target_package).try(:maintainers)
-    end.compact.uniq
   end
 
   def change_state(newstate, params)

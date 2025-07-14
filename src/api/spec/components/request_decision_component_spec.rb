@@ -4,12 +4,6 @@ RSpec.describe RequestDecisionComponent, type: :component do
   let(:target_package) { create(:package, name: 'target_package', project: target_project) }
   let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }
   let(:source_package) { create(:package, name: 'source_package', project: source_project) }
-  let(:package_maintainers) do
-    distinct_bs_request_actions = submit_request.bs_request_actions.select(:target_project, :target_package).distinct
-    distinct_bs_request_actions.flat_map do |action|
-      Package.find_by_project_and_name(action.target_project, action.target_package).try(:maintainers)
-    end.compact.uniq
-  end
   let(:devel_project) { create(:project, name: 'devel_project', maintainer: maintainer) }
   let(:devel_package) { create(:package, name: 'devel_package', project: devel_project) }
   let(:package_with_devel) { create(:package, name: 'package_with_devel', project: devel_project, develpackage: devel_package) }
@@ -24,10 +18,12 @@ RSpec.describe RequestDecisionComponent, type: :component do
 
     before do
       login maintainer
-      render_inline(described_class.new(bs_request: submit_request, package_maintainers: package_maintainers, show_project_maintainer_hint: true))
+      render_inline(described_class.new(bs_request: submit_request,
+                                        package_maintainers: submit_request.target_package_maintainers,
+                                        show_project_maintainer_hint: true))
     end
 
-    it { expect(package_maintainers).to be_empty }
+    it { expect(submit_request.target_package_maintainers).to be_empty }
 
     it 'shows the Accept button as a regular button only' do
       expect(rendered_content).to have_button('Accept request')
@@ -51,7 +47,9 @@ RSpec.describe RequestDecisionComponent, type: :component do
 
     before do
       login maintainer
-      render_inline(described_class.new(bs_request: submit_request, package_maintainers: package_maintainers, show_project_maintainer_hint: true))
+      render_inline(described_class.new(bs_request: submit_request,
+                                        package_maintainers: submit_request.target_package_maintainers,
+                                        show_project_maintainer_hint: true))
     end
 
     it 'shows the Accept button as a dropdown' do
@@ -88,7 +86,9 @@ RSpec.describe RequestDecisionComponent, type: :component do
 
     before do
       login maintainer
-      render_inline(described_class.new(bs_request: submit_request, package_maintainers: package_maintainers, show_project_maintainer_hint: true))
+      render_inline(described_class.new(bs_request: submit_request,
+                                        package_maintainers: submit_request.target_package_maintainers,
+                                        show_project_maintainer_hint: true))
     end
 
     it 'shows the Accept button as a dropdown' do
@@ -124,7 +124,9 @@ RSpec.describe RequestDecisionComponent, type: :component do
 
     before do
       login maintainer
-      render_inline(described_class.new(bs_request: submit_request, package_maintainers: package_maintainers, show_project_maintainer_hint: true))
+      render_inline(described_class.new(bs_request: submit_request,
+                                        package_maintainers: submit_request.target_package_maintainers,
+                                        show_project_maintainer_hint: true))
     end
 
     it 'shows the Accept button as a dropdown' do
