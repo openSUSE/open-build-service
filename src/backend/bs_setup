@@ -221,7 +221,6 @@ EOF
     run_cmd("chmod 440 $F");
   }
 
-  run_cmd("systemctl enable --now $GITEA_SERVICE_NAME");
 
   eval {
     run_cmd("su -c 'gitea migrate' - $GITEA_PAM_USER_NAME");
@@ -235,5 +234,8 @@ EOF
   } else {
     echo("    Found user $GITEA_WEB_USER_NAME in gitea users list");
   }
+
+  run_cmd("systemctl enable --now $GITEA_SERVICE_NAME");
+
   return 1;
 }
