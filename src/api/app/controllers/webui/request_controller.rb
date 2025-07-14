@@ -39,7 +39,7 @@ class Webui::RequestController < Webui::WebuiController
     @request_reviews = @bs_request.reviews.includes(%i[user group]).for_non_staging_projects(@target_project)
 
     # retrieve a list of all package maintainers that are assigned to at least one target package
-    @package_maintainers = target_package_maintainers
+    @package_maintainers = @bs_request.target_package_maintainers
     # retrieve a list of all project maintainers
     @project_maintainers = @target_project&.maintainers || []
     # search for a project, where the user is not a package maintainer but a project maintainer and show
@@ -61,7 +61,7 @@ class Webui::RequestController < Webui::WebuiController
     @history = @bs_request.history_elements.includes(:user)
 
     # retrieve a list of all package maintainers that are assigned to at least one target package
-    @package_maintainers = target_package_maintainers
+    @package_maintainers = @bs_request.target_package_maintainers
 
     # search for a project, where the user is not a package maintainer but a project maintainer and show
     # a hint if that package has some package maintainers (issue#1970)
@@ -218,6 +218,8 @@ class Webui::RequestController < Webui::WebuiController
 
     elsif change_state(changestate, params)
       # TODO: Make this work for each submit action individually
+
+      # This is how we try to make the submitter a maintainer while using the legacy request show page
       if params[:add_submitter_as_maintainer_0] # rubocop:disable Naming/VariableNumber
         if changestate == 'accepted'
           # split into project and package
@@ -234,9 +236,26 @@ class Webui::RequestController < Webui::WebuiController
           flash[:error] = 'Will not add maintainer for not accepted requests'
         end
       end
+
+      # This is how we try to make the submitter a maintainer while using the beta request show page
       if changestate == 'accepted'
+        if params[:accepted] == 'Accept and make maintainer'
+          @bs_request.bs_request_actions.where(type: :submit).find_each do |action|
+            target = action.target_package_object
+            target.add_maintainer(@bs_request.creator) if target.can_be_modified_by?(User.possibly_nobody)
+          end
+        elsif params[:accepted] == 'Accept, make maintainer and forward'
+          @bs_request.bs_request_actions.where(type: :submit).find_each do |action|
+            target = action.target_package_object
+            target.add_maintainer(@bs_request.creator) if target.can_be_modified_by?(User.possibly_nobody)
+            action.forward.each do |fwd|
+              forward_request_to(fwd[:project], fwd[:package])
+            end
+          end
+        end
+
+        forward_requests
         flash[:success] = "Request #{params[:number]} accepted"
-        forward_request
       end
     end
     redirect_to(request_show_path(params[:number]))
@@ -413,13 +432,6 @@ class Webui::RequestController < Webui::WebuiController
     @bs_request = BsRequest.find_by!(number: params[:number])
   end
 
-  def target_package_maintainers
-    distinct_bs_request_actions = @actions.select(:target_project, :target_package).distinct
-    distinct_bs_request_actions.flat_map do |action|
-      Package.find_by_project_and_name(action.target_project, action.target_package).try(:maintainers)
-    end.compact.uniq
-  end
-
   def change_state(newstate, params)
     request = BsRequest.find_by_number(params[:number])
     if request.nil?
@@ -445,16 +457,25 @@ class Webui::RequestController < Webui::WebuiController
     false
   end
 
-  def forward_request
-    # Check if we have to forward this request to other projects / packages
+  def forward_requests
+    # Forward the requests when using the beta request show page
+    if params[:accepted] == 'Accept and forward'
+      @bs_request.bs_request_actions.where(type: :submit).find_each do |action|
+        action.forward.each do |fwd|
+          forward_request_to(fwd[:project], fwd[:package])
+        end
+      end
+    end
+
+    # Check if we have to forward this request to other projects / packages when using the legacy request show page
     params.keys.grep(/^forward.*/).each do |fwd|
-      forward_request_to(fwd)
+      # split off 'forward_' and split into project and package
+      target_project, target_package = params[fwd].split('_#_')
+      forward_request_to(target_project, target_package)
     end
   end
 
-  def forward_request_to(fwd)
-    # split off 'forward_' and split into project and package
-    tgt_prj, tgt_pkg = params[fwd].split('_#_')
+  def forward_request_to(tgt_prj, tgt_pkg)
     begin
       forwarded_request = @bs_request.forward_to(project: tgt_prj, package: tgt_pkg, options: params.slice(:description))
     rescue APIError, ActiveRecord::RecordInvalid => e

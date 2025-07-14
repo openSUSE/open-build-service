@@ -329,6 +329,13 @@ class BsRequest < ApplicationRecord
     bs_request_actions.first.target_package
   end
 
+  def target_package_maintainers
+    distinct_bs_request_actions = bs_request_actions.select(:target_project, :target_package).distinct
+    distinct_bs_request_actions.flat_map do |action|
+      Package.find_by_project_and_name(action.target_project, action.target_package).try(:maintainers)
+    end.compact.uniq
+  end
+
   def state
     self[:state].to_sym
   end
