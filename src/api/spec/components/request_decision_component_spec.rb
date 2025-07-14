@@ -1,4 +1,4 @@
-RSpec.describe RequestDecisionComponent, type: :component do
+RSpec.describe RequestDecisionComponent, :vcr, type: :component do
   let(:maintainer) { create(:confirmed_user, login: 'maintainer') }
   let(:target_project) { create(:project, name: 'target_project', maintainer: maintainer) }
   let(:target_package) { create(:package, name: 'target_package', project: target_project) }
