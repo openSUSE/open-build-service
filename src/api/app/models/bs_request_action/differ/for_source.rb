@@ -26,7 +26,7 @@ class BsRequestAction
             source_package_name: source_package_name
           )
           source_diff(query_builder.project_name, query_builder.package_name, query.merge(query_builder.build))
-        elsif accepted?
+        elsif bs_request_action.bs_request_action_accept_info.present?
           query_builder = QueryBuilderForAccepted.new(
             bs_request_action_accept_info: bs_request_action.bs_request_action_accept_info
           )
@@ -66,13 +66,6 @@ class BsRequestAction
 
       def superseded_bs_request_action
         options[:superseded_bs_request_action]
-      end
-
-      def accepted?
-        # We need to check for the BsRequestActionAcceptInfo
-        # Checking only for the state is not enough
-        # as there was no BsRequestActionAcceptInfo in OBS version < 2.1
-        bs_request_action.bs_request_action_accept_info.present?
       end
 
       def target_package_name
