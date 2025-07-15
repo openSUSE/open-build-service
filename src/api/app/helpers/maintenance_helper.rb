@@ -57,6 +57,13 @@ module MaintenanceHelper
                        target
                      end
     target_project.check_write_access!
+
+    # validate possible source limitations
+    attrib = target_project.attribs.find_by(attrib_type: AttribType.find_by_namespace_and_name('OBS', 'LimitReleaseSourceProject'))
+    if attrib.present? && attrib.values.pluck(:value).exclude?(source_package.project.name)
+      raise OutsideLimitReleaseSourceProject, 'Source project is not listed in OBS:LimitReleaseSourceProject attribute'
+    end
+
     # lock the scheduler
     target_project.suspend_scheduler(comment)
 

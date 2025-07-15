@@ -9,6 +9,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
   #### Associations macros (Belongs to, Has one, Has many)
   before_create :sanity_check!
+  before_create :check_limit_release_source_project
 
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
@@ -71,6 +72,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
   def check_permissions!
     sanity_check!
+    check_limit_release_source_project
 
     # check for open release requests with same target, the binaries can't get merged automatically
     # either exact target package match or with same prefix (when using the incident extension)
@@ -162,6 +164,14 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
         repo.check_valid_release_target!(rt.target_repository)
       end
     end
+  end
+
+  def check_limit_release_source_project
+    attrib = target_project_object&.attribs&.find_by(attrib_type: AttribType.find_by_namespace_and_name('OBS', 'LimitReleaseSourceProject'))
+    return if attrib.blank?
+    return if attrib.values.pluck(:value).include?(source_project)
+
+    raise OutsideLimitReleaseSourceProject, 'Source project is not listed in OBS:LimitReleaseSourceProject attribute'
   end
 
   # Delaying removal of published repositories for accepted maintenance release requests,
