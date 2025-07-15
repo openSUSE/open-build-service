@@ -691,7 +691,12 @@ sub build {
 	    $have_modulemd_artifacts = 1 if $art > 0;
 	  }
 	  $jobbins{$filename} = $aprpap_idx;
-	  BSUtil::cp($d, "$jobdatadir/$filename");
+	  unlink("$jobdatadir/$filename");
+	  if ($resign) {
+	    BSUtil::cp($d, "$jobdatadir/$filename");
+	  } else {
+	    link($d, "$jobdatadir/$filename") || die("link $d $jobdatadir/$filename: $!\n");
+	  }
 	  if ($filename ne $origfilename) {
 	    $logfile .= "  - $filename [$s[9]/$s[7]/$s[1]] (from $origfilename)\n";
 	  } else {
