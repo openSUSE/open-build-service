@@ -10,6 +10,16 @@ class BuildResultsMonitorComponent < ApplicationComponent
     @filtered_data = filtered_data(raw_data)
   end
 
+  # TODO: remove this condition if we finally display RPM Lint for multibuild packages
+  def rpm_lint_url(project_name, package_name, repository_name, architecture_name)
+    return nil if Package.find_by_project_and_name(project_name, package_name).try(:multibuild?)
+
+    project_package_repository_architecture_rpmlint_path(project_name,
+                                                         package_name,
+                                                         repository_name,
+                                                         architecture_name)
+  end
+
   private
 
   def default_filters(filters)
