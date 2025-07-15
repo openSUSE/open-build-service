@@ -3434,6 +3434,12 @@ sub sourcediff {
       }
     }
     die("in-archive file diff filtering only works for xml output\n") if $need_file_filter_postprocess && $view ne 'xml';
+    # extend file filter with renamed files
+    my $similar = $cgi->{'nodiff'} || $cgi->{'unified'} ? 0 : 1;
+    my $sim = $similar ? BSSrcServer::Srcdiff::findsim($ofiles, $files) : {};
+    for (grep {defined $sim->{$_}} keys %$files) {
+      $file{$_} = $file{$sim->{$_}} = 1 if $file{$_} || $file{$sim->{$_}};
+    }
     $cacheid .= "/file:$_" for sort keys %file;
     for (keys %$ofiles) {
       delete $ofiles->{$_} unless $file{$_};

@@ -70,6 +70,7 @@ our $oid_code_signing		= BSASN1::pack_obj_id(1, 3, 6, 1, 5, 5, 7, 3, 3);
 our $oid_ed25519		= BSASN1::pack_obj_id(1, 3, 101, 112);
 our $oid_ed448			= BSASN1::pack_obj_id(1, 3, 101, 113);
 our $oid_mldsa65		= BSASN1::pack_obj_id(2, 16, 840, 1, 101, 3, 4, 3, 18);
+our $oid_mldsa87		= BSASN1::pack_obj_id(2, 16, 840, 1, 101, 3, 4, 3, 19);
 our $oid_pkcs9_extension_request	= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 9, 14);
 
 # certificate keyusage bits
@@ -240,6 +241,7 @@ sub pack_sigalgo {
     $oid = $oid_ed25519 if $algo eq 'ed25519';
     $oid = $oid_ed448 if $algo eq 'ed448';
     $oid = $oid_mldsa65 if $algo eq 'mldsa65';
+    $oid = $oid_mldsa87 if $algo eq 'mldsa87';
     $oid = BSASN1::pack_obj_id(split(/\./, $algo)) if !$oid && $algo =~ /^\d+\.\d+(?:\.\d+)+$/;
     die("unknown algo: $algo\n") unless $oid;
   }
@@ -264,6 +266,7 @@ sub unpack_sigalgo {
   return 'ecdsa', 'sha256', $params if $oid eq $oid_id_ecdsa_with_sha256;
   return 'ecdsa', 'sha512', $params if $oid eq $oid_id_ecdsa_with_sha512;
   return 'mldsa65', undef, $params if $oid eq $oid_mldsa65;
+  return 'mldsa87', undef, $params if $oid eq $oid_mldsa87;
   return oid2str($oid), undef, $params;
 }
 
@@ -360,7 +363,7 @@ sub pubkey2keydata {
   } elsif ($algo eq 'ed25519' || $algo eq 'ed448') {
     $res->{'keysize'} = length($bits) * 8;
     $res->{'point'} = $bits;
-  } elsif ($algo eq 'mldsa65') {
+  } elsif ($algo eq 'mldsa65' || $algo eq 'mldsa87') {
     $res->{'keysize'} = length($bits) * 8;
     $res->{'keydata'} = $bits;
   }
@@ -387,7 +390,7 @@ sub keydata2pubkey {
     die("unsupported curve $keydata->{'curve'}\n") unless $algoparams;
   } elsif ($algo eq 'ed25519' || $algo eq 'ed448') {
     $bits = $keydata->{'point'};
-  } elsif ($algo eq 'mldsa65') {
+  } elsif ($algo eq 'mldsa65' || $algo eq 'mldsa87') {
     $bits = $keydata->{'keydata'};
   } else {
     die("unsupported pubkey algo $algo\n");
