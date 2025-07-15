@@ -75,7 +75,7 @@ RSpec.describe 'Requests', :js, :vcr do
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants the group #{roleaddition_group} to get the role bugowner for project #{target_project}")
         expect(page).to have_css('#description-text', text: 'I can fix bugs too.')
         expect(page).to have_text('In state new')
-        expect(BsRequest.where(description: 'I can fix bugs too.', state: 'new').count).to be(1)
+        expect(BsRequest.where(description: 'I can fix bugs too.', status: 'new').count).to be(1)
       end
 
       it 'can be accepted' do
@@ -116,7 +116,7 @@ RSpec.describe 'Requests', :js, :vcr do
                                   "for package #{target_project} / #{target_package}")
         expect(page).to have_css('#description-text', text: 'I can produce bugs too.')
         expect(page).to have_text('In state new')
-        expect(BsRequest.where(description: 'I can produce bugs too.', state: 'new').count).to be(1)
+        expect(BsRequest.where(description: 'I can produce bugs too.', status: 'new').count).to be(1)
       end
 
       it 'can be accepted' do
@@ -145,7 +145,7 @@ RSpec.describe 'Requests', :js, :vcr do
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants to get the role bugowner for project #{target_project}")
         expect(page).to have_css('#description-text', text: 'I can fix bugs too.')
         expect(page).to have_text('In state new')
-        expect(BsRequest.where(description: 'I can fix bugs too.', state: 'new').count).to be(1)
+        expect(BsRequest.where(description: 'I can fix bugs too.', status: 'new').count).to be(1)
       end
 
       it 'can be accepted' do
@@ -184,7 +184,7 @@ RSpec.describe 'Requests', :js, :vcr do
                                   "for package #{target_project} / #{target_package}")
         expect(page).to have_css('#description-text', text: 'I can produce bugs too.')
         expect(page).to have_text('In state new')
-        expect(BsRequest.where(description: 'I can produce bugs too.', state: 'new').count).to be(1)
+        expect(BsRequest.where(description: 'I can produce bugs too.', status: 'new').count).to be(1)
       end
 
       it 'can be accepted' do
@@ -227,7 +227,7 @@ RSpec.describe 'Requests', :js, :vcr do
         end
         expect(page).to have_text('Ok for the project')
         expect(Review.first.state).to eq(:accepted)
-        expect(BsRequest.first.state).to eq(:new)
+        expect(BsRequest.first.status).to eq('new')
       end
     end
 
