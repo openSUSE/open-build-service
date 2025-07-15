@@ -38,7 +38,7 @@ class Staging::StagedRequests
         package_name: request.first_target_package
       )
 
-      add_review_for_unstaged_request(request, staging_project) if request.state.in?(%i[new review declined])
+      add_review_for_unstaged_request(request, staging_project) if request.status.in?(%w[new review declined])
       staging_project.staged_requests.delete(request)
     end
 
@@ -117,7 +117,7 @@ class Staging::StagedRequests
 
   def add_review_for_unstaged_request(request, staging_project)
     # request.addreview / request.change_review_state would also change the state of a declined request, avoid this.
-    if request.state == :declined
+    if request.status == 'declined'
       request.reviews.create!(by_group: staging_workflow.managers_group.title, reason: "Being evaluated by group \"#{staging_workflow.managers_group}\"")
       staging_project_review = request.reviews.find_by!(by_project: staging_project.name)
       staging_project_review.update!(state: :accepted, reason: "Unstaged from project \"#{staging_project.name}\"")
