@@ -6203,6 +6203,46 @@ sub published_path {
   $ret->{'url'} = $url if defined $url;
   return ($ret, $BSXML::publishedpath);
 }
+
+sub published_collection {
+  my ($cgi) = @_;
+  my $projids = $cgi->{'project'};
+  my $names = $cgi->{'name'};
+  my $binarydb;
+  if ($BSConfig::published_db_sqlite) {
+    $binarydb = BSSrcServer::SQLite::opendb($extrepodb, 'binary');
+  } else {
+    $binarydb = BSDB::opendb($extrepodb, 'binary');
+  }
+  $binarydb->{'indexfunc'} = {'project' => \&published_binary_projectindexfunc };
+  my @k;
+  if ($names) {
+    for my $name (@$names) {
+      push @k, $binarydb->keys('name', $name);
+    }
+    @k = BSUtil::unify(sort @k);
+    return ({'matches' => 0}, $BSXML::collection) unless @k;
+  }
+  if ($projids) {
+    if (@k) {
+      my %projids = map {$_ => 1} @$projids;
+      @k = grep {$projids{binary_key_to_project($binarydb, $_)}} @k;
+    } else {
+      for my $projid (@$projids) {
+	push @k, $binarydb->keys('project', $projid);
+      }
+      @k = BSUtil::unify(sort @k);
+    }
+    return ({'matches' => 0}, $BSXML::collection) unless @k;
+  }
+  die("need at least one filter\n") unless @k;
+  for (@k) {
+    $_ = binary_key_to_data($binarydb, $_);
+    delete $_->{'path'};
+    delete $_->{'versrel'};
+  }
+  return ({'binary' => \@k, 'matches' => scalar(@k)}, $BSXML::collection);
+}
   
 ####################################################################
 
@@ -8085,6 +8125,7 @@ my $dispatches = [
   'DELETE:/source/$project/$package/$filename rev? user:? comment:? keeplink:bool? force:bool? meta:bool?' => \&delfile,
 
   # /published name spec: access published binaries
+  '/published view=collection name:* project*' => \&published_collection,
   '/published' => \&published,
   '/published/$project' => \&published,
   '/published/$project/$repository view=publishedpath medium:?' => \&published_path,
