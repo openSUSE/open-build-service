@@ -38,7 +38,7 @@
         - name = "##{item.number} #{helpers.request_type_of_action(item)}"
         .d-flex.flex-row.flex-wrap.align-items-baseline.collapsible-tooltip-parent
           = link_to(request_show_path(item.number), class: 'text-word-break-all') do
-            = render BsRequestStateBadgeComponent.new(state: item.state)
+            = render BsRequestStateBadgeComponent.new(state: item.status)
             = name
           %i.fa.fa-question-circle.px-2.collapsible-tooltip{ title: 'Click to keep it open' }
           = link_to('#', class: 'ms-auto',
