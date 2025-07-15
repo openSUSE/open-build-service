@@ -911,6 +911,8 @@ class BsRequest < ApplicationRecord
     check_bs_request_actions!
     check_uniq_actions!
 
+    modify_sources
+
     # Autoapproval? Is the creator allowed to accept it?
     permission_check_change_state!(newstate: 'accepted') if accept_at
 
@@ -942,6 +944,12 @@ class BsRequest < ApplicationRecord
       end
     end
     actions
+  end
+
+  def modify_sources
+    bs_request_actions.each do |action|
+      action.modify_sources()
+    end
   end
 
   def expand_targets
