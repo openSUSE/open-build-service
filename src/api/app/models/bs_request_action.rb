@@ -872,6 +872,16 @@ class BsRequestAction < ApplicationRecord
     Project.unscoped.find_by(name: source_project)&.embargo_date
   end
 
+  def target_package_name
+    target_package || source_package
+  end
+
+  def target_project_name
+    return target_project if target_project
+
+    source_package_object.origin_container({ local: false }).project.name if source_package_object
+  end
+
   private
 
   def cache_diffs
