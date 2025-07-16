@@ -280,7 +280,7 @@ sub check_for_running_src_updates {
   my ($ctx) = @_;
   my $gctx = $ctx->{'gctx'};
   my $projid = $ctx->{'project'};
-  my $proj = $ctx->{'proj'};
+  my $proj = $gctx->{'projpacks'}->{$projid} || {};
   my $pdatas = $proj->{'package'} || {};
   my @delayed;
   if ($proj->{'missingpackages'}) {
