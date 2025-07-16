@@ -233,6 +233,7 @@ our $aggregatelist = [
 	    'sourcearch',
 	    [],
             'nosources',
+            'noupdateinfo',
 	  [ 'package' ],
 	  [ 'binary' ],
 	 [[ 'repository' =>

@@ -450,6 +450,7 @@ sub build {
 	my @d;
 	my $cpio;
 	my $nosource = exists($aggregate->{'nosources'}) ? 1 : 0;
+	my $noupdateinfo = exists($aggregate->{'noupdateinfo'}) ? 1 : 0;
 	my $updateinfo;
 	if ($remoteprojs->{$aprojid}) {
 	  my $remoteproj = $remoteprojs->{$aprojid};
@@ -508,6 +509,7 @@ sub build {
 	  $filename =~ s/.*\///;
 	  $filename =~ s/^upload:// if $cpio;
 	  if ($filename eq 'updateinfo.xml') {
+	    next if $noupdateinfo;
 	    next if $abinfilter && !$abinfilter->{$filename};
 	    if ($jobbins{$filename}) {
 	      push @{$conflicts{$filename}}, $aprpap_idx;

@@ -44,6 +44,11 @@
                 <text/>
               </element>
             </optional>
+            <optional>
+              <element ns="" name="noupdateinfo">
+                <text/>
+              </element>
+            </optional>
             <zeroOrMore>
               <element ns="" name="package">
                 <text/>

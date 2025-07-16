@@ -367,6 +367,9 @@ sub verify_aggregatelist {
     if (defined($a->{'nosources'})) {
       die("'nosources' element must be empty\n") if $a->{'nosources'} ne '';
     }
+    if (defined($a->{'noupdateinfo'})) {
+      die("'noupdateinfo' element must be empty\n") if $a->{'noupdateinfo'} ne '';
+    }
     for my $p (@{$a->{'package'} || []}) {
       next if ($p || '') eq '_repository';
       verify_packid($p);
