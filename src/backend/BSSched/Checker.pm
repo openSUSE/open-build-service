@@ -313,7 +313,7 @@ sub timeout_suspends {
   my $cutoff = time() - 8 * 3600;
   my $timedout = 0;
   for (splice @$suspend) {
-    if ($_->{'time'} > $cutoff) {
+    if ($_->{'time'} < $cutoff) {
       $timedout++;
       print "project suspension timed out: $_->{'job'}\n";
     } else {
