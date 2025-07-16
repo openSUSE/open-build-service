@@ -365,6 +365,12 @@ class User < ApplicationRecord
     self.state == 'confirmed'
   end
 
+  def confirmed?
+    return owner.confirmed? if owner
+
+    self.state == 'confirmed'
+  end
+
   def deleted?
     state == 'deleted'
   end

@@ -4,10 +4,9 @@ class Webui::Users::TokensController < Webui::WebuiController
   before_action :set_parameters, :set_package, only: [:create]
 
   after_action :verify_authorized, only: %i[create update destroy]
-  after_action :verify_policy_scoped, only: %i[index show edit]
 
   def index
-    @tokens = policy_scope(Token).page(params[:page])
+    @tokens = Token.where(id: [Token.owned_tokens(User.session) + Token.shared_tokens(User.session) + Token.group_shared_tokens(User.session)]).page(params[:page])
   end
 
   def show; end
@@ -76,7 +75,7 @@ class Webui::Users::TokensController < Webui::WebuiController
   private
 
   def set_token
-    @token = policy_scope(Token).find(params[:id])
+    @token = User.session.tokens.find(params[:id])
   rescue ActiveRecord::RecordNotFound => e
     flash[:error] = e.message
     redirect_to tokens_url
