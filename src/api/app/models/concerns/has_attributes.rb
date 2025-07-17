@@ -44,11 +44,8 @@ module HasAttributes
       a.project = self if is_a?(Project)
       a.package = self if is_a?(Package)
     end
-    # write values
     a.update_with_associations(values, issues)
-    return unless a.saved_changes?
-
-    write_attributes
+    a
   end
 
   def find_attribute(namespace, name, binary = nil)
