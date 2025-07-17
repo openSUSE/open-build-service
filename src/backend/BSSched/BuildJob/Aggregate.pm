@@ -338,8 +338,9 @@ sub check {
       }
     }
   }
+  my $gdst = $ctx->{'gdst'};
   my @meta;
-  if (open(F, '<', "$reporoot/$projid/$repoid/$myarch/:meta/$packid")) {
+  if (open(F, '<', "$gdst/:meta/$packid")) {
     @meta = <F>;
     close F;
     chomp @meta;

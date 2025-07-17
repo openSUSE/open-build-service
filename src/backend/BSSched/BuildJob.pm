@@ -720,7 +720,7 @@ sub fakejobfinished_nouseforbuild {
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $prp = "$projid/$repoid";
-  my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
+  my $gdst = $ctx->{'gdst'};
   my $dst = "$gdst/$packid";
   my $myjobsdir = $gctx->{'myjobsdir'};
   my $jobdatadir = "$myjobsdir/$job:dir";
@@ -934,11 +934,10 @@ sub create_jobdata {
     }
     $binfo->{'release'} = "$release.$bcnt" if $ctx->{'dobuildinfo'} && !defined($binfo->{'release'});
   }
-  my $projpacks = $gctx->{'projpacks'};
-  my $proj = $projpacks->{$projid};
+  my $proj = $ctx->{'proj'};
   my $debuginfo = $bconf->{'debuginfo'};
-  $debuginfo = BSUtil::enabled($repoid, $proj->{'debuginfo'}, $debuginfo, $myarch);
-  $debuginfo = BSUtil::enabled($repoid, $pdata->{'debuginfo'}, $debuginfo, $myarch);
+  $debuginfo = BSUtil::enabled($repoid, $proj->{'debuginfo'}, $debuginfo, $myarch) if $proj->{'debuginfo'};
+  $debuginfo = BSUtil::enabled($repoid, $pdata->{'debuginfo'}, $debuginfo, $myarch) if $pdata->{'debuginfo'};
   $binfo->{'debuginfo'} = 1 if $debuginfo;
   if ($ctx->{'modularity_label'}) {
     my $distindex = $ctx->{'modularity_distindex'} || $binfo->{'bcnt'} || 1;
@@ -1009,8 +1008,7 @@ sub create {
   my $repoid = $ctx->{'repository'};
   my $bconf = $ctx->{'conf'};
   my $gdst = $ctx->{'gdst'};
-  my $projpacks = $gctx->{'projpacks'};
-  my $proj = $projpacks->{$projid};
+  my $proj = $ctx->{'proj'};
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
   my $verifymd5 = $pdata->{'verifymd5'} || $srcmd5;
@@ -1373,7 +1371,7 @@ sub metacheck {
     return ('done');
   }
   my $repo = $ctx->{'repo'};
-  if ($buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product' || $buildtype eq 'docker') {
+  if ($buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product' || $buildtype eq 'docker' || $buildtype eq 'productcompose') {
     my $rebuildmethod = $repo->{'rebuild'} || 'transitive';
     if ($rebuildmethod eq 'local') {
       #print "      - $packid ($buildtype)\n";

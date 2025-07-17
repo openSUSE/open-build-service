@@ -142,8 +142,7 @@ sub check {
   my $buildarch = $archs[0];
   my $reporoot = $gctx->{'reporoot'};
   my $markerdir = "$reporoot/$prp/$buildarch/$packid";
-  my $projpacks = $gctx->{'projpacks'};
-  my $proj = $projpacks->{$projid} || {};
+  my $proj = $ctx->{'proj'};
 
   if (@{$patchinfo->{'releasetarget'} || []}) {
     my $ok;

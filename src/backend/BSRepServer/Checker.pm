@@ -106,8 +106,11 @@ sub setup {
   my $projid = $ctx->{'project'};
   my $myarch = $gctx->{'arch'};
   my $repoid = $ctx->{'repository'};
-  my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
+  my $proj = $projpacks->{$projid};
+  die("no project $projid?\n") unless $proj;
+  my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
   die("no repo $repoid in project $projid?\n") unless $repo;
+  $ctx->{'proj'} = $proj;
   $ctx->{'repo'} = $repo;
   my $bconf = $ctx->getconfig($projid, $repoid, $myarch, $ctx->{'prpsearchpath'});
   die("project config: $bconf->{'parse_error'}\n") if $bconf->{'parse_error'} && !$BSConfig::ignore_project_config_errors;
@@ -122,7 +125,7 @@ sub setup {
     die("cross project config: $bconf_host->{'parse_error'}\n") if $bconf_host->{'parse_error'} && !$BSConfig::ignore_project_config_errors;
     $ctx->{'conf_host'} = $bconf_host;
   }
-  my $pdatas = $projpacks->{$projid}->{'package'};
+  my $pdatas = $proj->{'package'} || {};
   setup_modulemd($ctx, 'modulemd', $pdatas->{'modulemd'}) if $pdatas->{'modulemd'} && $pdatas->{'modulemd'}->{'modulemd'};
 }
 

@@ -79,14 +79,13 @@ sub check {
   my $repo = $ctx->{'repo'};
   my %repoarchs = map {$_ => 1} @{$repo->{'arch'} || []};
   my $channel = $pdata->{'channel'};
-  my $projpacks = $gctx->{'projpacks'};
-  my $proj = $projpacks->{$projid} || {};
+  my $proj = $ctx->{'proj'};
   my $reporoot = $gctx->{'reporoot'};
   # do the channel filtering, same project but different repositories
 
   # first build a releasetarget -> repo map
   my %proj2repo;
-  for my $arepo (@{$projpacks->{$projid}->{'repository'} || []}) {
+  for my $arepo (@{$proj->{'repository'} || []}) {
     next unless grep {$_ eq $myarch} @{$arepo->{'arch'} || []};
     $proj2repo{"$projid/$arepo->{'name'}"}->{$arepo->{'name'}} = 1;
     for my $rt (@{$arepo->{'releasetarget'} || []}) {
@@ -270,8 +269,9 @@ sub check {
     print "        blocked (@blocked)\n";
     return ('blocked', join(', ', @blocked));
   }
+  my $gdst = $ctx->{'gdst'};
   my @meta;
-  if (open(F, '<', "$reporoot/$projid/$repoid/$myarch/:meta/$packid")) {
+  if (open(F, '<', "$gdst/:meta/$packid")) {
     @meta = <F>;
     close F;
     chomp @meta;
@@ -364,8 +364,8 @@ sub build {
     if (!$checksums_seen{"$arepoid/$apackid"}) {
       $checksums_seen{"$arepoid/$apackid"} = 1;
       # just append the checksums, it does not matter if we pick up too many
-      if (-s "$reporoot/$projid/$arepoid/$myarch/$apackid/.checksums") {
-        $checksums .= readstr("$reporoot/$projid/$arepoid/$myarch/$apackid/.checksums", 1) || '';
+      if (-s "$dir/.checksums") {
+        $checksums .= readstr("$dir/.checksums", 1) || '';
       }
     }
     $bininfo->{$tfilename} = $bi;
