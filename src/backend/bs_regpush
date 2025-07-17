@@ -217,10 +217,49 @@ sub blob_fetch {
   return BSRPC::rpc($param);
 }
 
+sub manifest_exists_head {
+  my ($manifest, $tag, $content_type) = @_;
+
+  $content_type ||= $BSContar::mt_docker_manifest;
+  my $maniid = BSContar::blobid($manifest);
+  $tag = $maniid unless defined $tag;
+  my $replyheaders;
+  my $param = {
+    'headers' => [ "Accept: $content_type, application/json" ],
+    'uri' => "$registryserver/v2/$repository/manifests/$tag",
+    'request' => 'HEAD',
+    'authenticator' => $registry_authenticator,
+    'replyheaders' => \$replyheaders,
+    'timeout' => $registry_timeout,
+    'keepalive' => $keepalive,
+  };
+  eval { BSRPC::rpc($param) };
+  return 0 if $@ =~ /^404/;
+  return undef if $@;	# maybe HEAD not supported?
+  if ($replyheaders) {
+    my $size = length($manifest);
+    if ($tag eq $maniid) {
+      die("size mismatch?\n") if $replyheaders->{'content-length'} && $size != $replyheaders->{'content-length'};
+      return 0 if $replyheaders->{'docker-content-digest'} && $maniid ne $replyheaders->{'docker-content-digest'};
+      return 1;
+    }
+    return 0 if $replyheaders->{'content-length'} && $size != $replyheaders->{'content-length'};
+    return 1 if $replyheaders->{'docker-content-digest'} && $maniid eq $replyheaders->{'docker-content-digest'};
+  }
+  return undef;	# undecided
+}
+
 sub manifest_exists {
   my ($manifest, $tag, $content_type) = @_;
 
   $content_type ||= $BSContar::mt_docker_manifest;
+
+  if (1) {
+    # first try a HEAD request
+    my $head_ret = manifest_exists_head($manifest, $tag, $content_type);
+    return $head_ret if defined $head_ret;
+  }
+
   my $maniid = BSContar::blobid($manifest);
   $tag = $maniid unless defined $tag;
   my $replyheaders;
