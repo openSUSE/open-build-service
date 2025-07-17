@@ -39,7 +39,7 @@
         .col-auto.pe-0
           = avatars(notification)
         .col-auto.ps-xs-2
-          .smart-overflow= description(notification)
+          = description(notification)
       .row.d-none.d-md-block.ps-4
         .col
           %p.mt-3.mb-0= render_without_markdown(truncate_to_first_new_line(notification.excerpt))
