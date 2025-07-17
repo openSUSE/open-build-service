@@ -225,6 +225,7 @@ sub wipeobsoleterepo {
   BSSched::BuildJob::killbuilding($ctx->{'gctx'}, $prp);
 
   # now that our arch is gone we can try to remove the prp directory
+  # note that $ctx->setup() was not called
   my $proj = $gctx->{'projpacks'}->{$projid} || {};
   my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
   if (!$repo) {
@@ -262,10 +263,8 @@ sub check_remote_repo_error {
 sub neededdodresources {
   my ($ctx, $repotype) = @_;
   return () unless ($repotype || '') eq 'registry';
-  my $projpacks = $ctx->{'gctx'}->{'projpacks'};
-  my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
-  my $proj = $projpacks->{$projid} || {};
+  my $proj = $ctx->{'proj'};
   my $pdatas = $proj->{'package'} || {};
   my %needed;
   for my $pdata (values %$pdatas) {
@@ -280,7 +279,7 @@ sub check_for_running_src_updates {
   my ($ctx) = @_;
   my $gctx = $ctx->{'gctx'};
   my $projid = $ctx->{'project'};
-  my $proj = $gctx->{'projpacks'}->{$projid} || {};
+  my $proj = $ctx->{'proj'};
   my $pdatas = $proj->{'package'} || {};
   my @delayed;
   if ($proj->{'missingpackages'}) {
@@ -345,6 +344,7 @@ sub setup {
   my $repoid = $ctx->{'repository'};
   my $proj = $projpacks->{$projid};
   return (0, 'project does not exist') unless $proj;
+  $ctx->{'proj'} = $proj;
   my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
   return (0, 'repo does not exist') unless $repo;
   if ($proj->{'error'}) {
@@ -527,8 +527,7 @@ sub wipeobsolete {
   my $prp = $ctx->{'prp'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
-  my $projpacks = $gctx->{'projpacks'};
-  my $proj = $projpacks->{$projid};
+  my $proj = $ctx->{'proj'};
   my $myarch = $gctx->{'arch'};
   return if $ctx->{'alllocked'};		# must not wipe anything
   my $linkedbuild = $ctx->{'repo'}->{'linkedbuild'};
@@ -777,8 +776,7 @@ sub expandandsort {
       return ('broken', "unresolvable $err") if $err;
     }
   }
-  my $projpacks = $gctx->{'projpacks'};
-  my $proj = $projpacks->{$projid};
+  my $proj = $ctx->{'proj'};
   my $pdatas = $proj->{'package'} || {};
 
   my %experrors;
@@ -979,8 +977,8 @@ sub calcrelsynctrigger {
   my $relsyncmax;
   my %relsynctrigger;
 
-  my $projpacks = $gctx->{'projpacks'};
-  my $pdatas = $projpacks->{$projid}->{'package'} || {};
+  my $proj = $ctx->{'proj'};
+  my $pdatas = $proj->{'package'} || {};
 
   if (-s "$gdst/:relsync.max") {
     $relsyncmax = BSUtil::retrieve("$gdst/:relsync.max", 2);
@@ -1090,8 +1088,7 @@ sub checkpkgs {
   my $repoid = $ctx->{'repository'};
 
   my $myarch = $gctx->{'arch'};
-  my $projpacks = $gctx->{'projpacks'};
-  my $proj = $projpacks->{$projid};
+  my $proj = $ctx->{'proj'};
   my $pdatas = $proj->{'package'} || {};
 
   # Step 2d: check status of all packages
@@ -1488,8 +1485,7 @@ sub publish {
   }
 
   my $myarch = $gctx->{'arch'};
-  my $projpacks = $gctx->{'projpacks'};
-  my $proj = $projpacks->{$projid};
+  my $proj = $ctx->{'proj'};
   my $pdatas = $proj->{'package'} || {};
   my $packs;
   if ($force) {
