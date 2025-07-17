@@ -115,6 +115,17 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     "Incident #{source_package}"
   end
 
+  # FIXME: local link handling is needed? usually there should be no maintenance_incident projects for them ...
+  def target_package_name
+    return source_package_object.linkinfo['package'] if source_package_object&.linkinfo
+
+    target_package || source_package
+  end
+
+  def target_project_name
+    target_releaseproject || target_project
+  end
+
   private
 
   def _merge_pkg_into_maintenance_incident(incident_project)
