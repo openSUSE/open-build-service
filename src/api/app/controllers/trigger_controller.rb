@@ -30,6 +30,7 @@ class TriggerController < ApplicationController
              arch: params[:arch] || params[:architecture],
              targetproject: params[:targetproject], targetrepository: params[:targetrepository],
              setrelease: params[:setrelease] }.compact
+    opts[:arch] = params[:architecture] if params[:architecture].present?
     opts[:multibuild_flavor] = @multibuild_container if @multibuild_container.present?
     @token.executor.run_as { @token.call(opts) }
 
