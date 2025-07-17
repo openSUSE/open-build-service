@@ -14,9 +14,10 @@ post:
         type: string
       example: openSUSE_Factory
     - in: query
-      name: arch
+      name: architecture
       description: |
-        Restrict the rebuild to this scheduler architecture.
+        Restrict the rebuild to this scheduler architecture. A former name query name was just "arch"
+        which is still supported for backward compability.
       schema:
         type: string
       example: x86_64
