@@ -479,8 +479,6 @@ sub update_cosign {
     }
     print "creating cosign signature for $gun $digest\n";
     my ($cosign_ent, $sig) = BSConSign::create_cosign_signature_ent($signfunc, $digest, $gun, $creator);
-    my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, $cosign_ent);
-    $sigs->{'digests'}->{$digest} = $mani_id;
     if ($rekorserver) {
       print "uploading cosign signature to $rekorserver\n";
       my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata($gpgpubkey));
@@ -488,6 +486,8 @@ sub update_cosign {
       my $hash = 'sha256:'.Digest::SHA::sha256_hex($cosign_ent->{'data'});	# must match signfunc
       BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
     }
+    my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, $cosign_ent);
+    $sigs->{'digests'}->{$digest} = $mani_id;
   }
 
   # update attestations
@@ -512,8 +512,6 @@ sub update_cosign {
     push @attestations, BSConSign::fixup_intoto_attestation(readstr($containerinfo->{'cyclonedx_file'}), $signfunc, $digest, $gun, \%predicatetypes) if $containerinfo->{'cyclonedx_file'};
     push @attestations, BSConSign::fixup_intoto_attestation(readstr($_), $signfunc, $digest, $gun, \%predicatetypes) for @{$containerinfo->{'intoto_files'} || []};
     my @attestation_ents = BSConSign::create_cosign_attestation_ents(\@attestations, undef, \%predicatetypes);
-    my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, @attestation_ents);
-    $sigs->{'attestations'}->{$digest} = $mani_id;
     if ($rekorserver) {
       print "uploading cosign attestations to $rekorserver\n";
       my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata($gpgpubkey));
@@ -522,6 +520,8 @@ sub update_cosign {
         BSRekor::upload_intoto($rekorserver, $attestation, $sslpubkey);
       }
     }
+    my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, @attestation_ents);
+    $sigs->{'attestations'}->{$digest} = $mani_id;
   }
 
   if (BSUtil::identical($oldsigs, $sigs)) {
