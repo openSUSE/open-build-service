@@ -1052,15 +1052,6 @@ sub do_remote_uploads {
     container_tag_deletion_safeguard($registry, $repository, $safeguard, \%uptags, $repostate, $subdigests);
   }
 
-  # create "in progress" marker so that we can force rekor uploads if we get interrupted
-  my $registrystate = $registry->{'registrystate'};
-  if ($registrystate) {
-    mkdir_p("$registrystate/$repository");
-    $cosign->{'force_rekor_upload'} = 1 if $registry->{'rekorserver'} && $cosign && -e "$registrystate/$repository/:inprogress";
-    BSUtil::touch("$registrystate/$repository/:inprogress");
-  }
-  print "forcing upload to the rekor\n" if $cosign && $cosign->{'force_rekor_upload'};
-
   # find common containerinfos so that we can push multiple tags in one go
   my %todo;
   my %todo_p;
@@ -1086,8 +1077,6 @@ sub do_remote_uploads {
     my $digests = upload_to_registry($registry, $projid, $repoid, $repository, [ $containerinfo ], [ 'artifacthub.io' ], $data, $repostate);
     $containerdigests .= $digests;
   }
-
-  unlink("$registrystate/$repository/:inprogress") if $registrystate;
 
   # all is pushed, now clean the rest
   add_notary_upload($notary_uploads, $registry, $repository, $containerdigests);
