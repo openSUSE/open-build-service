@@ -30,4 +30,29 @@ RSpec.describe BuildResultsMonitorComponent, type: :component do
     expect(page).to have_text('Failed')
     expect(page).to have_no_link('openSUSE_Tumbleweed')
   end
+
+  it 'includes a RMP Lint badge on package pkg1' do
+    render_inline(described_class.new(raw_data: raw_data, filter_url: filter_url, filters: []))
+
+    expect(page).to have_css('#collapse-pkg1 .btn', text: 'RPM Lint')
+  end
+
+  context 'for multibuild package' do
+    let(:project) { create(:project, name: 'prj') }
+    let!(:multibuild_package) { create(:multibuild_package, name: 'multibuild_pkg', project: project, flavors: %w[foo bar]) }
+
+    before do
+      raw_data << { architecture: 'x86_64', repository: 'openSUSE_Tumbleweed', status: 'signing', package_name: 'multibuild_pkg', project_name: 'prj', repository_status: 'building' }
+      # allow_any_instance_of(Package).to receive(:multibuild?).and_return(true)
+    end
+
+    it 'does not include a RMP Lint badge on multibuild packages' do
+      pending 'Fix BuildResultsMonitorComponent#project_name and set up multibuild package correctly'
+
+      render_inline(described_class.new(raw_data: raw_data, filter_url: filter_url, filters: []))
+
+      expect(page).to have_css('#collapse-pkg2_foo')
+      expect(page).not_to have_css('#collapse-pkg2_foo .btn', text: 'RPM Lint')
+    end
+  end
 end
