@@ -30,7 +30,7 @@ class Authenticator
     if ::Configuration.proxy_auth_mode_enabled?
       extract_proxy_user
     elsif session[:login]
-      @http_user = User.find_by_login(session[:login])
+      @http_user = User.find_by!(login: session[:login])
     else
       extract_basic_auth_user
     end

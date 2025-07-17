@@ -14,9 +14,10 @@ class Webui::WebuiController < ActionController::Base
   include Webui::ElisionsHelper
   include ActiveStorage::SetCurrent
   protect_from_forgery
+  delegate :extract_user, to: :authenticator
 
   before_action :setup_view_path
-  before_action :check_user
+  before_action :extract_user
   before_action :check_spider
   before_action :set_influxdb_data
   before_action :require_configuration
@@ -64,19 +65,6 @@ class Webui::WebuiController < ActionController::Base
     @spider_bot = true
     logger.debug "Spider blocked on #{request.fullpath}"
     head :ok
-  end
-
-  def check_user
-    User.session = nil # reset old users hanging around
-
-    unless WebuiControllerService::UserChecker.new(http_request: request).call
-      redirect_to(CONFIG['proxy_auth_logout_page'], error: 'Your account is disabled. Please contact the administrator for details.')
-      return
-    end
-
-    User.session = User.find_by_login(session[:login]) if session[:login]
-
-    User.session ||= User.possibly_nobody
   end
 
   def check_displayed_user
