@@ -1183,7 +1183,6 @@ if ($cosign && %digests_to_sign) {
     my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
     my $annotations = { $cosign_cookie_name => $cosigncookie };
     my ($cosign_ent, $sig) = BSConSign::create_cosign_signature_ent($signfunc, $digest, $gun, $creator, undef, $annotations);
-    cosign_upload($sig_tag, $cosign_ent);
     if ($rekorserver) {
       print "uploading cosign signature to $rekorserver\n";
       my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata(BSPGP::unarmor($gpgpubkey)));
@@ -1191,6 +1190,7 @@ if ($cosign && %digests_to_sign) {
       my $hash = 'sha256:'.Digest::SHA::sha256_hex($cosign_ent->{'data'});	# must match signfunc
       BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
     }
+    cosign_upload($sig_tag, $cosign_ent);
   }
   # upload attestations
   for my $digest (sort keys %digests_to_sign) {
@@ -1217,7 +1217,6 @@ if ($cosign && %digests_to_sign) {
     push @attestations, BSConSign::fixup_intoto_attestation($cyclonedx_json, $signfunc, $digest, $gun, \%predicatetypes) if $cyclonedx_json;
     push @attestations, BSConSign::fixup_intoto_attestation($_, $signfunc, $digest, $gun, \%predicatetypes) for @intoto_json;
     my @attestation_ents = BSConSign::create_cosign_attestation_ents(\@attestations, $annotations, \%predicatetypes);
-    cosign_upload($att_tag, @attestation_ents);
     if ($rekorserver) {
       print "uploading cosign attestations to $rekorserver\n";
       my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata(BSPGP::unarmor($gpgpubkey)));
@@ -1226,6 +1225,7 @@ if ($cosign && %digests_to_sign) {
         BSRekor::upload_intoto($rekorserver, $attestation, $sslpubkey);
       }
     }
+    cosign_upload($att_tag, @attestation_ents);
   }
 }
 
