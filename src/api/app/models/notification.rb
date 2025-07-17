@@ -1,6 +1,7 @@
 class Notification < ApplicationRecord
   MAX_RSS_ITEMS_PER_USER = 10
   MAX_RSS_ITEMS_PER_GROUP = 10
+  THRESHOLD_TO_RECOMMEND_NOTIFICATION_MANAGEMENT = 300
 
   belongs_to :subscriber, polymorphic: true, optional: true
   belongs_to :notifiable, polymorphic: true, optional: true

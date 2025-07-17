@@ -17,6 +17,17 @@
                                                 counted_notifications: counted_notifications))
         .text-center
           %span.ms-3= page_entries_info notifications, entry_name: ''
+          - if notifications.total_count > Notification::THRESHOLD_TO_RECOMMEND_NOTIFICATION_MANAGEMENT
+            - unless cookies[:hide_notifications_banner]
+              .alert.alert-warning.d-flex.align-items-center.mt-2.justify-content-between
+                .flex-grow-1.d-flex
+                  .me-4
+                    %i.fa.fa-exclamation-triangle.me-2
+                    Too many notifications?
+                    = link_to 'Manage your subscriptions', my_subscriptions_path, class: 'alert-link'
+                .p-2.d-flex
+                  %button.btn-close{ type: "button", data: { bs_dismiss: "alert" }, aria: { label: "Close" }, id: "dismiss-banner-btn" }
+
         .list-group.list-group-flush.mt-3
           = render partial: 'notification', collection: notifications, locals: { selected_filter: selected_filter, page: params[:page] }
 
@@ -27,3 +38,4 @@
 
 - content_for :ready_function do
   handleNotificationCheckboxSelection();
+  dismissBanner("dismiss-banner-btn", "hide_notifications_banner");
