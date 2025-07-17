@@ -59,7 +59,6 @@ class Webui::UsersController < Webui::WebuiController
       redirect_to users_path
     else
       session[:login] = create_params[:login]
-      User.session = User.find_by!(login: session[:login])
       if User.session.home_project
         redirect_to project_show_path(User.session.home_project)
       else

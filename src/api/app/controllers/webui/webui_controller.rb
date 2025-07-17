@@ -19,7 +19,6 @@ class Webui::WebuiController < ActionController::Base
   before_action :check_user
   before_action :check_spider
   before_action :set_influxdb_data
-  before_action :check_anonymous
   before_action :require_configuration
   before_action :current_announcement, unless: -> { request.xhr? }
   before_action :fetch_watchlist_items
@@ -28,6 +27,8 @@ class Webui::WebuiController < ActionController::Base
 
   # :notice and :alert are default, we add :success and :error
   add_flash_types :success, :error
+
+  rescue_from Authenticator::AuthenticationRequiredError, with: :redirect_to_login
 
   def home
     if params[:login].present?
@@ -164,11 +165,7 @@ class Webui::WebuiController < ActionController::Base
     redirect_to({ controller: 'main', action: 'index' })
   end
 
-  # before filter to only show the frontpage to anonymous users
-  def check_anonymous
-    return if User.session.present?
-    return if ::Configuration.anonymous
-
+  def redirect_to_login
     login_page = case CONFIG['proxy_auth_mode']
                  when :mellon
                    add_return_to_parameter_to_query(url: CONFIG['proxy_auth_login_page'], parameter_name: 'ReturnTo')

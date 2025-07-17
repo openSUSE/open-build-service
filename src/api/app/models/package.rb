@@ -323,7 +323,7 @@ class Package < ApplicationRecord
   def check_source_access!
     return if check_source_access?
     # TODO: Use pundit for authorization instead
-    raise Authenticator::AnonymousUser, 'Anonymous user is not allowed here - please login' unless User.session
+    raise AnonymousUser, 'Anonymous user is not allowed here - please login' unless User.session
 
     raise ReadSourceAccessError, "#{project.name}/#{name}"
   end
