@@ -13,107 +13,101 @@ class Authenticator
     setup 403, 'User is registered but not yet approved. Your account is a registered account, but it is not yet approved for the OBS by admin.'
   end
 
-  attr_reader :request, :session, :user_permissions, :http_user
+  attr_reader :request
 
-  def initialize(request, session, response)
-    @response = response
+  def initialize(request)
     @request = request
-    @session = session
-    @http_user = nil
-    @user_permissions = nil
   end
 
   def extract_user
-    # Each request starts out with the nobody user set.
-    @http_user = User.find_nobody!
+    user = if ::Configuration.proxy_auth_mode_enabled?
+             extract_proxy_user
+           elsif request.session[:login] # Webui Session Auth
+             User.find_by!(login: request.session[:login])
+           elsif authorization_headers.present? # API Basic Auth
+             User.find_with_credentials(basic_auth[:login], basic_auth[:password])
+           end
 
-    if ::Configuration.proxy_auth_mode_enabled?
-      extract_proxy_user
-    elsif session[:login]
-      @http_user = User.find_by!(login: session[:login])
-    else
-      extract_basic_auth_user
+    user ||= User.find_nobody!
+
+    check_extracted_user(user) # allowed to log in?
+    unless user.nobody?
+      user.update!(last_logged_in_at: Time.zone.today, login_failure_count: 0)
+      Rails.logger.debug { "User.session set to #{user.login}" }
     end
-
-    check_extracted_user
-    @user_permissions = Suse::Permission.new(@http_user)
-    User.session = @http_user
-    Rails.logger.debug { "User.session set to #{User.possibly_nobody.login}" }
+    User.session = user
   end
 
   private
 
-  # sets @http_user if possible
+  # If we are using proxy_auth_mode there is no need to authenticate the user from the credentials, the proxy did that.
+  # We just find_or_create the User.
   def extract_proxy_user
-    proxy_user = request.env['HTTP_X_USERNAME']
+    return unless request.env['HTTP_X_USERNAME']
 
-    # we're using a login proxy, there is no need to authenticate the user from the credentials
-    # However we have to care for the status of the user that must not be unconfirmed or proxy requested
-    if proxy_user
-      @http_user = User.find_by_login(proxy_user)
+    user = User.find_by(login: request.env['HTTP_X_USERNAME'])
 
-      # If we do not find a User here, we need to create a user and wait for
-      # the confirmation by the user and the BS Admin Team.
-      unless @http_user
-        if ::Configuration.registration == 'deny'
-          Rails.logger.debug('No user found in database, creation disabled')
-          raise AuthenticationRequiredError, "User '#{proxy_user}' does not exist"
-        end
+    unless user
+      raise AuthenticationRequiredError if ::Configuration.registration != 'allow'
 
-        @http_user = User.create_user_with_fake_pw!(login: proxy_user, state: User.default_user_state)
-      end
-
-      @http_user.update_login_values(request.env)
-    else
-      Rails.logger.error 'No X-username header was sent by login proxy!'
+      user = User.create_user_with_fake_pw!(login: request.env['HTTP_X_USERNAME'], state: User.default_user_state)
     end
-  end
 
-  # sets @http_user if possible
-  def extract_basic_auth_user
-    authorization = authorization_infos
-    # privacy! logger.debug( "AUTH: #{authorization.inspect}" )
-    if authorization
-      # logger.debug( "AUTH2: #{authorization}" )
-      if authorization[0] == 'Basic'
-        login, password = Base64.decode64(authorization[1]).split(':', 2)[0..1]
-
-        # set password to the empty string in case no password is transmitted in the auth string
-        password ||= ''
-
-        @http_user = User.find_with_credentials(login, password) if login && password
-      else
-        Rails.logger.debug { "Unsupported authentication string '#{authorization[0]}' received." }
-      end
-    else
-      Rails.logger.debug 'No authentication string was received.'
-    end
+    user.update!(user_proxy_information)
+    user
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity
   # rubocop:disable Metrics/PerceivedComplexity
-  def check_extracted_user
+  def check_extracted_user(user)
     if ::Configuration.anonymous
-      return if @http_user.nobody?
-      raise UnconfirmedUserError if @http_user.state == 'unconfirmed'
-      raise InactiveUserError if @http_user.state != 'confirmed'
+      return if user.nobody?
+      raise UnconfirmedUserError if user.state == 'unconfirmed'
+      raise InactiveUserError if user.state != 'confirmed'
     else
       # we allow people to view the main page and to login...
       return if request.controller_class == Webui::MainController
       return if request.controller_class == Webui::SessionController
-      raise AuthenticationRequiredError if @http_user.nobody?
+      raise AuthenticationRequiredError if user.nobody?
     end
   end
   # rubocop:enable Metrics/CyclomaticComplexity
   # rubocop:enable Metrics/PerceivedComplexity
 
-  def authorization_infos
+  def basic_auth
+    return {} if authorization_headers.blank?
+
+    login = nil
+    password = nil
+
+    if authorization_headers[0] == 'Basic'
+      login, password = Base64.decode64(authorization_headers[1]).split(':', 2)[0..1]
+    else
+      Rails.logger.debug { "Unsupported authentication string '#{authorization_headers[0]}' received." }
+    end
+    { login: login, password: password }.compact
+  end
+
+  def authorization_headers
     # 1. try to get it where mod_rewrite might have put it
     # 2. for Apache/mod_fastcgi with -pass-header Authorization
     # 3. regular location
     %w[X-HTTP_AUTHORIZATION Authorization HTTP_AUTHORIZATION].each do |header|
       return request.env[header].to_s.split if request.env.key?(header)
     end
-    nil
+    Rails.logger.debug 'No authentication header was received.'
+
+    []
+  end
+
+  def user_proxy_information
+    { email: request.env['HTTP_X_EMAIL'],
+      realname: proxy_realname }.compact
+  end
+
+  def proxy_realname
+    return if request.env['HTTP_X_FIRSTNAME'].blank? && request.env['HTTP_X_LASTNAME'].blank?
+
+    "#{request.env['HTTP_X_FIRSTNAME'].force_encoding('UTF-8')} #{request.env['HTTP_X_LASTNAME'].force_encoding('UTF-8')}"
   end
 end

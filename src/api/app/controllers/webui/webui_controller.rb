@@ -138,7 +138,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def authenticator
-    @authenticator ||= Authenticator.new(request, session, response)
+    @authenticator ||= Authenticator.new(request)
   end
 
   def require_configuration

@@ -33,7 +33,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  def test_userinfo_for_valid_http_user
+  def test_userinfo_for_valid_user
     login_adrian
     get '/person/tom'
     assert_response :success

@@ -1,6 +1,8 @@
 module RoutesHelper
   class RoleMatcher
-    def self.matches?(_request)
+    def self.matches?(request)
+      Authenticator.new(request).extract_user
+
       return false unless User.session
       return false if User.session.state != 'confirmed'
 

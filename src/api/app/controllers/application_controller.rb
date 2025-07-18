@@ -34,21 +34,16 @@ class ApplicationController < ActionController::Base
   delegate :extract_user, to: :authenticator
 
   def authenticator
-    @authenticator ||= Authenticator.new(request, session, response)
+    @authenticator ||= Authenticator.new(request)
   end
 
   def pundit_user
     User.session
   end
 
+  # FIXME: Remove usage in BuildController and SourcePackageController, uses User.session instead...
   def permissions
-    authenticator.user_permissions
-  end
-
-  # TODO: There are currently two ways of accessing the logged in user: User.curent and user
-  #       We should pick only one of them to use.
-  def user
-    authenticator.http_user
+    @user_permissions ||= Suse::Permission.new(User.possibly_nobody)
   end
 
   # Method for mapping actions in a controller to (XML) schemas based on request
