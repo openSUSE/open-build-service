@@ -3,12 +3,9 @@ class Webui::SessionController < Webui::WebuiController
   before_action :authenticate, only: [:create]
   before_action :check_user_active, only: [:create]
 
-  skip_before_action :check_anonymous, only: [:create]
-
   def new; end
 
   def create
-    User.session = @session_creator.user
     session[:login] = @session_creator.user.login
     send_login_information_rabbitmq(:success)
     redirect_on_login
@@ -17,7 +14,6 @@ class Webui::SessionController < Webui::WebuiController
   def destroy
     reset_session
     send_login_information_rabbitmq(:logout)
-    User.session = nil
     redirect_on_logout
   end
 

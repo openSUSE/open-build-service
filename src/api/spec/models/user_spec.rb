@@ -441,21 +441,6 @@ RSpec.describe User do
     end
   end
 
-  describe '.mark_login!' do
-    before do
-      user.update!(login_failure_count: 7, last_logged_in_at: Time.zone.yesterday)
-      user.mark_login!
-    end
-
-    it "updates the 'last_logged_in_at'" do
-      expect(user.last_logged_in_at).to eq(Time.zone.today)
-    end
-
-    it "resets the 'login_failure_count'" do
-      expect(user.reload.login_failure_count).to eq(0)
-    end
-  end
-
   describe '#find_with_credentials' do
     let(:user) { create(:user, login: 'login_test', login_failure_count: 7, last_logged_in_at: Time.zone.yesterday) }
 

@@ -14,12 +14,12 @@ class Webui::WebuiController < ActionController::Base
   include Webui::ElisionsHelper
   include ActiveStorage::SetCurrent
   protect_from_forgery
+  delegate :extract_user, to: :authenticator
 
   before_action :setup_view_path
-  before_action :check_user
+  before_action :extract_user
   before_action :check_spider
   before_action :set_influxdb_data
-  before_action :check_anonymous
   before_action :require_configuration
   before_action :current_announcement, unless: -> { request.xhr? }
   before_action :fetch_watchlist_items
@@ -28,6 +28,8 @@ class Webui::WebuiController < ActionController::Base
 
   # :notice and :alert are default, we add :success and :error
   add_flash_types :success, :error
+
+  rescue_from Authenticator::AuthenticationRequiredError, with: :redirect_to_login
 
   def home
     if params[:login].present?
@@ -63,19 +65,6 @@ class Webui::WebuiController < ActionController::Base
     @spider_bot = true
     logger.debug "Spider blocked on #{request.fullpath}"
     head :ok
-  end
-
-  def check_user
-    User.session = nil # reset old users hanging around
-
-    unless WebuiControllerService::UserChecker.new(http_request: request).call
-      redirect_to(CONFIG['proxy_auth_logout_page'], error: 'Your account is disabled. Please contact the administrator for details.')
-      return
-    end
-
-    User.session = User.find_by_login(session[:login]) if session[:login]
-
-    User.session ||= User.possibly_nobody
   end
 
   def check_displayed_user
@@ -149,7 +138,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def authenticator
-    @authenticator ||= Authenticator.new(request, session, response)
+    @authenticator ||= Authenticator.new(request)
   end
 
   def require_configuration
@@ -164,11 +153,7 @@ class Webui::WebuiController < ActionController::Base
     redirect_to({ controller: 'main', action: 'index' })
   end
 
-  # before filter to only show the frontpage to anonymous users
-  def check_anonymous
-    return if User.session.present?
-    return if ::Configuration.anonymous
-
+  def redirect_to_login
     login_page = case CONFIG['proxy_auth_mode']
                  when :mellon
                    add_return_to_parameter_to_query(url: CONFIG['proxy_auth_login_page'], parameter_name: 'ReturnTo')
