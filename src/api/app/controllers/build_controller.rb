@@ -58,12 +58,9 @@ class BuildController < ApplicationController
         [params[:package]].flatten.each do |pack_name|
           pkg = Package.find_by_project_and_name(prj.name, Package.multibuild_flavor(pack_name))
           if pkg.nil?
-            allowed = permissions.project_change?(prj)
-            unless allowed
-              render_error status: 403, errorcode: 'execute_cmd_no_permission',
-                           message: "No permission to execute command on package #{pack_name} in project #{prj.name}"
-              return
-            end
+            render_error status: 403, errorcode: 'execute_cmd_no_permission',
+                         message: "No permission to execute command on package #{pack_name} in project #{prj.name}"
+            return
           else
             allowed = permissions.package_change?(pkg)
             unless allowed
