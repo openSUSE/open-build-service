@@ -6,11 +6,15 @@
   .accordion.mb-2.diff-accordion{ id: "diff-list-#{name.parameterize}" }
     .accordion-item
       %h2.accordion-header
-        %button.accordion-button{ type: 'button', data: { 'bs-toggle': 'collapse',
-                                                          'bs-target': "#diff-item-#{name.parameterize}" },
-                                  aria: { expanded: 'true', controls: "diff-item-#{name.parameterize}" },
-                                  class: expanded ? '' : 'collapsed' }
-          = render(DiffSubjectComponent.new(state:, old_filename:, new_filename: name))
+        - if file_info['disabled']
+          %button.accordion-button.disabled-accordion{ disabled: true }
+            = render(DiffSubjectComponent.new(state:, old_filename:, new_filename: name))
+        - else
+          %button.accordion-button{ type: 'button', data: { 'bs-toggle': 'collapse',
+                                                            'bs-target': "#diff-item-#{name.parameterize}" },
+                                    aria: { expanded: 'true', controls: "diff-item-#{name.parameterize}" },
+                                    class: expanded ? '' : 'collapsed' }
+            = render(DiffSubjectComponent.new(state:, old_filename:, new_filename: name))
       .accordion-collapse.collapse{ class: expanded ? 'show' : '', id: "diff-item-#{name.parameterize}", 'data-object': view_id }
         - if file_info.key?('diff_url')
           %turbo-frame{ id: "file-#{file_index}", src: file_info['diff_url'], loading: 'lazy' }
