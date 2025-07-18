@@ -240,11 +240,11 @@ sub manifest_exists_head {
     my $size = length($manifest);
     if ($tag eq $maniid) {
       die("size mismatch?\n") if $replyheaders->{'content-length'} && $size != $replyheaders->{'content-length'};
-      return 0 if $replyheaders->{'docker-content-digest'} && $maniid ne $replyheaders->{'docker-content-digest'};
+      return $replyheaders->{'docker-content-digest'} eq $maniid ? 1 : 0 if $replyheaders->{'docker-content-digest'};
       return 1;
     }
     return 0 if $replyheaders->{'content-length'} && $size != $replyheaders->{'content-length'};
-    return 1 if $replyheaders->{'docker-content-digest'} && $maniid eq $replyheaders->{'docker-content-digest'};
+    return $replyheaders->{'docker-content-digest'} eq $maniid ? 1 : 0 if $replyheaders->{'docker-content-digest'};
   }
   return undef;	# undecided
 }
