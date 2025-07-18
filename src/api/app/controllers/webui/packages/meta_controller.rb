@@ -1,7 +1,10 @@
 module Webui
   module Packages
     class MetaController < Webui::WebuiController
+      include ScmsyncChecker
+
       before_action :set_project
+      before_action :check_scmsync
       before_action :set_package
 
       before_action :validate_xml, only: :update
@@ -12,13 +15,7 @@ module Webui
       after_action :verify_authorized, only: :update
 
       def show
-        if @project.scmsync.present?
-          flash.now[:error] = "Package sources for project #{@project.name} are received through scmsync." \
-                              'This is not supported by the OBS frontend'
-          head :not_found
-        else
-          @meta = @package.render_xml
-        end
+        @meta = @package.render_xml
       end
 
       def update
