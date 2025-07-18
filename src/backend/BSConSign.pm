@@ -103,30 +103,29 @@ sub create_cosign_config_ent {
   return create_entry(canonical_json($config));
 }
 
-sub create_cosign_layer_ent {
-  my ($payloadtype, $payload, $sig, $annotations) = @_;
-  my %annotations = %{$annotations || {}};
-  $annotations{'dev.cosignproject.cosign/signature'} = MIME::Base64::encode_base64($sig, '') if defined $sig;
-  return create_entry($payload, 'mimetype' => $payloadtype, 'annotations' => \%annotations);
-}
-
 sub create_cosign_signature_ent {
   my ($signfunc, $digest, $reference, $creator, $timestamp, $annotations) = @_;
   my $payload = create_signature_payload('cosign container image signature', $digest, $reference, $creator, $timestamp);
   # signfunc must return the openssl rsa signature
   my $sig = $signfunc->($payload);
-  return (create_cosign_layer_ent($mt_cosign, $payload, $sig, $annotations), $sig);
+  die("create_cosign_signature_ent: signature creation failed\n") unless $sig;
+  my %annotations = %{$annotations || {}};
+  $annotations{'dev.cosignproject.cosign/signature'} = MIME::Base64::encode_base64($sig, '');
+  return (create_entry($payload, 'mimetype' => $mt_cosign, 'annotations' => \%annotations), $sig);
+}
+
+sub create_cosign_attestation_ent {
+  my ($attestation, $annotations, $predicatetype) = @_;
+  my %annotations = %{$annotations || {}};
+  $annotations{'dev.cosignproject.cosign/signature'} = '';	# why?
+  $annotations{'org.open-build-service.intoto.predicatetype'} = $predicatetype if $predicatetype;
+  return create_entry($attestation, 'mimetype' => $mt_dsse, 'annotations' => \%annotations);
 }
 
 sub create_cosign_attestation_ents {
   my ($attestations, $annotations, $predicatetypes) = @_;
   $attestations = [ $attestations ] if ref($attestations) ne 'ARRAY';
-  my @res;
-  for my $att (@$attestations) {
-    push @res, create_cosign_layer_ent($mt_dsse, $att, '', $annotations);
-    $res[-1]->{'annotations'}->{'org.open-build-service.intoto.predicatetype'} = $predicatetypes->{$att} if $predicatetypes->{$att};
-  }
-  return @res;
+  return map { create_cosign_attestation_ent($_, $annotations, $predicatetypes->{$_}) } @$$attestations;
 }
 
 sub dsse_pae {
