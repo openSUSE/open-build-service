@@ -150,7 +150,7 @@ sub dsse_sign {
 
 # change the subject so that it matches the reference/digest and re-sign
 sub fixup_intoto_attestation {
-  my ($attestation, $signfunc, $digest, $reference, $predicatetypes) = @_;
+  my ($attestation, $signfunc, $digest, $reference) = @_;
   $attestation = JSON::XS::decode_json($attestation);
   die("bad attestation\n") unless $attestation && ref($attestation) eq 'HASH';
   if ($attestation->{'payload'}) {
@@ -174,8 +174,7 @@ sub fixup_intoto_attestation {
   $attestation->{'subject'} = [ { 'name' => $reference, 'digest' => { 'sha256' => $sha256digest } } ];
   $attestation = canonical_json($attestation);
   my $att = dsse_sign($attestation, $mt_intoto, $signfunc);
-  $predicatetypes->{$att} = $predicate_type if $predicatetypes && $predicate_type && !ref($predicate_type);
-  return $att;
+  return ($att, !ref($predicate_type) ? $predicate_type : undef);
 }
 
 sub create_cosign_cookie {

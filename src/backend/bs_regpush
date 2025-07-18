@@ -390,6 +390,12 @@ sub cosign_upload_rekor {
   }
 }
 
+sub fixup_intoto_attestation {
+  my ($attestation, $signfunc, $digest, $reference, $predicatetypes) = @_;
+  my ($att, $predicatetype) = BSConSign::fixup_intoto_attestation($attestation, $signfunc, $digest, $reference);
+  $predicatetypes->{$att} = $predicatetype;
+}
+
 sub get_all_tags {
   my ($missing_ok) = @_;
   my @regtags;
@@ -1223,10 +1229,10 @@ if ($cosign && %digests_to_sign) {
     my $annotations = { $cosign_cookie_name => $cosigncookie };
     my %predicatetypes;
     my @attestations;
-    push @attestations, BSConSign::fixup_intoto_attestation($provenance, $signfunc, $digest, $gun, \%predicatetypes) if $provenance;
-    push @attestations, BSConSign::fixup_intoto_attestation($spdx_json, $signfunc, $digest, $gun, \%predicatetypes) if $spdx_json;
-    push @attestations, BSConSign::fixup_intoto_attestation($cyclonedx_json, $signfunc, $digest, $gun, \%predicatetypes) if $cyclonedx_json;
-    push @attestations, BSConSign::fixup_intoto_attestation($_, $signfunc, $digest, $gun, \%predicatetypes) for @intoto_json;
+    push @attestations, fixup_intoto_attestation($provenance, $signfunc, $digest, $gun, \%predicatetypes) if $provenance;
+    push @attestations, fixup_intoto_attestation($spdx_json, $signfunc, $digest, $gun, \%predicatetypes) if $spdx_json;
+    push @attestations, fixup_intoto_attestation($cyclonedx_json, $signfunc, $digest, $gun, \%predicatetypes) if $cyclonedx_json;
+    push @attestations, fixup_intoto_attestation($_, $signfunc, $digest, $gun, \%predicatetypes) for @intoto_json;
     my @attestation_ents = BSConSign::create_cosign_attestation_ents(\@attestations, $annotations, \%predicatetypes);
     cosign_upload_rekor($gpgpubkey, undef, @attestation_ents) if $rekorserver && @attestation_ents;
     cosign_upload($att_tag, @attestation_ents);
