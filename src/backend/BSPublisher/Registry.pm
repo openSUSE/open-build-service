@@ -466,10 +466,10 @@ sub cosign_upload_rekor {
   }
 }
 
-sub fixup_intoto_attestation {
-  my ($attestation, $signfunc, $digest, $reference, $predicatetypes) = @_;
+sub create_cosign_attestation_ent {
+  my ($attestation, $signfunc, $digest, $reference, $annotations) = @_;
   my ($att, $predicatetype) = BSConSign::fixup_intoto_attestation($attestation, $signfunc, $digest, $reference);
-  $predicatetypes->{$att} = $predicatetype;
+  return BSConSign::create_cosign_attestation_ent($att, $annotations, $predicatetype);
 }
 
 sub update_cosign {
@@ -522,13 +522,12 @@ sub update_cosign {
       next;
     }
     print "creating $numlayers cosign attestations for $gun $digest\n";
-    my %predicatetypes;
-    my @attestations;
-    push @attestations, fixup_intoto_attestation(readstr($containerinfo->{'slsa_provenance_file'}), $signfunc, $digest, $gun, \%predicatetypes) if $containerinfo->{'slsa_provenance_file'};
-    push @attestations, fixup_intoto_attestation(readstr($containerinfo->{'spdx_file'}), $signfunc, $digest, $gun, \%predicatetypes) if $containerinfo->{'spdx_file'};
-    push @attestations, fixup_intoto_attestation(readstr($containerinfo->{'cyclonedx_file'}), $signfunc, $digest, $gun, \%predicatetypes) if $containerinfo->{'cyclonedx_file'};
-    push @attestations, fixup_intoto_attestation(readstr($_), $signfunc, $digest, $gun, \%predicatetypes) for @{$containerinfo->{'intoto_files'} || []};
-    my @attestation_ents = BSConSign::create_cosign_attestation_ents(\@attestations, undef, \%predicatetypes);
+    my $annotations;
+    my @attestation_ents;
+    push @attestation_ents, create_cosign_attestation_ent(readstr($containerinfo->{'slsa_provenance_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'slsa_provenance_file'};
+    push @attestation_ents, create_cosign_attestation_ent(readstr($containerinfo->{'spdx_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'spdx_file'};
+    push @attestation_ents, create_cosign_attestation_ent(readstr($containerinfo->{'cyclonedx_file'}), $signfunc, $digest, $gun, $annotations) if $containerinfo->{'cyclonedx_file'};
+    push @attestation_ents, create_cosign_attestation_ent(readstr($_), $signfunc, $digest, $gun, $annotations) for @{$containerinfo->{'intoto_files'} || []};
     cosign_upload_rekor($rekorserver, $gpgpubkey, undef, @attestation_ents) if $rekorserver && @attestation_ents;
     my $mani_id = create_cosign_manifest($repodir, $oci, $knownmanifests, $knownblobs, @attestation_ents);
     $sigs->{'attestations'}->{$digest} = $mani_id;

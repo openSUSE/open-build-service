@@ -122,12 +122,6 @@ sub create_cosign_attestation_ent {
   return create_entry($attestation, 'mimetype' => $mt_dsse, 'annotations' => \%annotations);
 }
 
-sub create_cosign_attestation_ents {
-  my ($attestations, $annotations, $predicatetypes) = @_;
-  $attestations = [ $attestations ] if ref($attestations) ne 'ARRAY';
-  return map { create_cosign_attestation_ent($_, $annotations, $predicatetypes->{$_}) } @$$attestations;
-}
-
 sub dsse_pae {
   my ($type, $payload) = @_;
   return sprintf("DSSEv1 %d %s %d ", length($type), $type, length($payload)).$payload;

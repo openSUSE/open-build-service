@@ -114,7 +114,7 @@ sub contenttype2manitype {
   return 'ocilist' if $ct eq $BSContar::mt_oci_index;
   return 'unknown';
 }
-  
+
 sub blob_exists {
   my ($blobid, $size) = @_;
   my $replyheaders;
@@ -390,10 +390,10 @@ sub cosign_upload_rekor {
   }
 }
 
-sub fixup_intoto_attestation {
-  my ($attestation, $signfunc, $digest, $reference, $predicatetypes) = @_;
+sub create_cosign_attestation_ent {
+  my ($attestation, $signfunc, $digest, $reference, $annotations) = @_;
   my ($att, $predicatetype) = BSConSign::fixup_intoto_attestation($attestation, $signfunc, $digest, $reference);
-  $predicatetypes->{$att} = $predicatetype;
+  return BSConSign::create_cosign_attestation_ent($att, $annotations, $predicatetype);
 }
 
 sub get_all_tags {
@@ -1227,13 +1227,11 @@ if ($cosign && %digests_to_sign) {
     print "creating $numlayers cosign attestations for $gun $digest\n";
     my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
     my $annotations = { $cosign_cookie_name => $cosigncookie };
-    my %predicatetypes;
-    my @attestations;
-    push @attestations, fixup_intoto_attestation($provenance, $signfunc, $digest, $gun, \%predicatetypes) if $provenance;
-    push @attestations, fixup_intoto_attestation($spdx_json, $signfunc, $digest, $gun, \%predicatetypes) if $spdx_json;
-    push @attestations, fixup_intoto_attestation($cyclonedx_json, $signfunc, $digest, $gun, \%predicatetypes) if $cyclonedx_json;
-    push @attestations, fixup_intoto_attestation($_, $signfunc, $digest, $gun, \%predicatetypes) for @intoto_json;
-    my @attestation_ents = BSConSign::create_cosign_attestation_ents(\@attestations, $annotations, \%predicatetypes);
+    my @attestation_ents;
+    push @attestation_ents, create_cosign_attestation_ent($provenance, $signfunc, $digest, $gun, $annotations) if $provenance;
+    push @attestation_ents, create_cosign_attestation_ent($spdx_json, $signfunc, $digest, $gun, $annotations) if $spdx_json;
+    push @attestation_ents, create_cosign_attestation_ent($cyclonedx_json, $signfunc, $digest, $gun, $annotations) if $cyclonedx_json;
+    push @attestation_ents, create_cosign_attestation_ent($_, $signfunc, $digest, $gun, $annotations) for @intoto_json;
     cosign_upload_rekor($gpgpubkey, undef, @attestation_ents) if $rekorserver && @attestation_ents;
     cosign_upload($att_tag, @attestation_ents);
   }
