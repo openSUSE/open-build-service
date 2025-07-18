@@ -15,6 +15,8 @@ class Notification < ApplicationRecord
 
   validates :type, length: { maximum: 255 }
 
+  before_destroy { groups.clear }
+
   after_create :track_notification_creation
 
   after_save :track_notification_delivered, if: :saved_change_to_delivered?
