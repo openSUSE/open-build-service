@@ -3,9 +3,12 @@ class PublicController < ApplicationController
   include PublicHelper
 
   # we need to fall back to _nobody_ (_public_)
-  before_action :extract_user_public, :set_response_format_to_xml, :set_influxdb_data_interconnect
   skip_before_action :extract_user
   skip_before_action :require_login
+  before_action :set_response_format_to_xml
+  before_action :set_influxdb_data_interconnect
+  before_action :check_anonymous_access
+  before_action :set_anonymous_user
 
   # GET /public/build/:project/:repository/:arch/:package
   def build
@@ -207,6 +210,14 @@ class PublicController < ApplicationController
     InfluxDB::Rails.current.tags = {
       interconnect: true
     }
+  end
+
+  def check_anonymous_access
+    raise Authenticator::AuthenticationRequiredError unless ::Configuration.anonymous
+  end
+
+  def set_anonymous_user
+    User.session = User.find_nobody!
   end
 
   # removes /private prefix from path
