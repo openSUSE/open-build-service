@@ -65,6 +65,11 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     end
   end
 
+  def autocomplete_projects
+    relation = Project.where(name: @projects_for_filter)
+    render json: AutocompleteFinder::Project.new(relation, params[:term]).call.pluck(:name)
+  end
+
   private
 
   def set_filter_kind
@@ -88,7 +93,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def set_filter_project
-    @filter_project = params[:project] || []
+    @filter_project = params[:project] ? params[:project].compact_blank.uniq : []
     @projects_for_filter = ProjectsForFilterFinder.new.call
   end
 
