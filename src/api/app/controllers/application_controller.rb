@@ -12,6 +12,7 @@ class ApplicationController < ActionController::Base
   include ActionController::MimeResponds
   include FlipperFeature
 
+  include Authenticator
   include RescueHandler
   include RescueAuthorizationHandler
   include SetCurrentRequestDetails
@@ -21,13 +22,8 @@ class ApplicationController < ActionController::Base
 
   @skip_validation = false
 
-  # Each request starts out with the nobody user set.
-  before_action :set_nobody
-
   before_action :add_api_version
 
-  # skip the filter for the user stuff
-  before_action :extract_user
   before_action :set_influxdb_data
   before_action :shutup_rails
   before_action :validate_params
@@ -35,15 +31,6 @@ class ApplicationController < ActionController::Base
 
   before_action :validate_xml_request
   after_action :validate_xml_response if CONFIG['response_schema_validation'] == true
-
-  delegate :extract_user,
-           :require_login,
-           :require_admin,
-           to: :authenticator
-
-  def authenticator
-    @authenticator ||= Authenticator.new(request, session, response)
-  end
 
   def pundit_user
     User.session
@@ -234,12 +221,22 @@ class ApplicationController < ActionController::Base
 
   private
 
-  def shutup_rails
-    Rails.cache.silence! unless Rails.env.development?
+  # A before_action to demand authentication
+  def require_login
+    return if User.session
+
+    render_error status: 401, errorcode: 'authentication_required', message: 'Authentication Required'
   end
 
-  def set_nobody
-    User.session = User.find_nobody!
+  # A before_action to demand the Admin role
+  def require_admin
+    return if User.possibly_nobody.admin?
+
+    render_error status: 403, errorcode: 'admin_required', message: 'Admin Privileges Required'
+  end
+
+  def shutup_rails
+    Rails.cache.silence! unless Rails.env.development?
   end
 
   def check_spider
