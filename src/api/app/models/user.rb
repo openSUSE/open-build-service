@@ -263,6 +263,8 @@ class User < ApplicationRecord
   # This method checks whether the given value equals the password when
   # hashed with this user's password hash type. Returns a boolean.
   def deprecated_password_equals?(value)
+    return false unless value
+
     hash_string(value) == deprecated_password
   end
 
@@ -775,30 +777,6 @@ class User < ApplicationRecord
 
   def count_login_failure
     update(login_failure_count: login_failure_count + 1)
-  end
-
-  def proxy_realname(env)
-    return unless env['HTTP_X_FIRSTNAME'].present? && env['HTTP_X_LASTNAME'].present?
-
-    "#{String.new(env['HTTP_X_FIRSTNAME'], encoding: 'UTF-8')} #{String.new(env['HTTP_X_LASTNAME'], encoding: 'UTF-8')}"
-  end
-
-  def update_login_values(env)
-    # updates user's email and real name using data transmitted by authentication proxy
-    self.email = env['HTTP_X_EMAIL'] if env['HTTP_X_EMAIL'].present?
-    self.realname = proxy_realname(env) if proxy_realname(env)
-
-    self.last_logged_in_at = Time.zone.today
-    self.login_failure_count = 0
-
-    if changes.any?
-      logger.info "updating email for user #{login} from proxy header: old:#{email}|new:#{env['HTTP_X_EMAIL']}" if changes.key?('email')
-
-      # At this point some login value changed, so a successful log in is tracked
-      RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui value=1')
-    end
-
-    save
   end
 
   def run_as
