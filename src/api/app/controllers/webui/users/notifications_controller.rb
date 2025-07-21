@@ -6,6 +6,21 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   ALLOWED_STATES = %w[all unread read].freeze
   ALLOWED_REPORT_FILTERS = %w[with_decision without_decision reportable_type].freeze
 
+  EVENT_TYPES_KEY_MAP = {
+    'relationships_created' => 'Event::RelationshipCreate',
+    'relationships_deleted' => 'Event::RelationshipDelete',
+    'build_failures' => 'Event::BuildFail'
+  }.freeze
+
+  NOTIFICATION_TYPES_KEY_MAP = {
+    'reports' => 'Report',
+    'workflow_runs' => 'WorkflowRun',
+    'appealed_decisions' => 'Decision',
+    'comments' => 'Comment',
+    'requests' => 'BsRequest',
+    'member_on_groups' => 'Group'
+  }.freeze
+
   before_action :require_login
   before_action :set_filter_kind, :set_filter_state, :set_filter_report_decision, :set_filter_reportable_type,
                 :set_filter_project, :set_filter_group, :set_filter_request_state
@@ -95,17 +110,20 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @counted_notifications = {}
     @counted_notifications['all'] = @notifications.count
     @counted_notifications['unread'] = @unread_notifications_count # Variable set in the Webui controller
-    @counted_notifications['comments'] = @notifications.unread.for_comments.count
-    @counted_notifications['requests'] = @notifications.unread.for_requests.count
     @counted_notifications['incoming_requests'] = @notifications.unread.for_incoming_requests(User.session).count
     @counted_notifications['outgoing_requests'] = @notifications.unread.for_outgoing_requests(User.session).count
-    @counted_notifications['relationships_created'] = @notifications.unread.for_relationships_created.count
-    @counted_notifications['relationships_deleted'] = @notifications.unread.for_relationships_deleted.count
-    @counted_notifications['build_failures'] = @notifications.unread.for_build_failures.count
-    @counted_notifications['reports'] = @notifications.unread.for_reports.count
-    @counted_notifications['workflow_runs'] = @notifications.unread.for_workflow_runs.count
-    @counted_notifications['appealed_decisions'] = @notifications.unread.for_appealed_decisions.count
-    @counted_notifications['member_on_groups'] = @notifications.unread.for_member_on_groups.count
+
+    # event_type: 'Event::RelationshipCreate', 'Event::RelationshipDelete', 'Event::BuildFail',
+    counted_event_types = @notifications.unread.group(:event_type).count
+    EVENT_TYPES_KEY_MAP.each do |notifications_key, event_types_key|
+      @counted_notifications[notifications_key] = counted_event_types[event_types_key] || 0
+    end
+
+    # notifiable_type: 'Report', 'WorkflowRun', 'Decision', 'Comment', 'BsRequest', 'Group'
+    counted_notifiable_types = @notifications.unread.group(:notifiable_type).count
+    NOTIFICATION_TYPES_KEY_MAP.each do |notifications_key, notification_types_key|
+      @counted_notifications[notifications_key] = counted_notifiable_types[notification_types_key] || 0
+    end
   end
 
   def filter_notifications
