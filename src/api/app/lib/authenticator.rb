@@ -25,14 +25,13 @@ class Authenticator
     setup('put_request_no_permission', 403)
   end
 
-  attr_reader :request, :session, :user_permissions, :http_user
+  attr_reader :request, :session, :http_user
 
   def initialize(request, session, response)
     @response = response
     @request = request
     @session = session
     @http_user = nil
-    @user_permissions = nil
   end
 
   def extract_user
@@ -156,7 +155,6 @@ class Authenticator
 
     if @http_user.state == 'confirmed'
       Rails.logger.debug { "USER found: #{@http_user.login}" }
-      @user_permissions = Suse::Permission.new(@http_user)
       return
     end
 
@@ -176,6 +174,5 @@ class Authenticator
   def load_nobody
     @http_user = User.find_nobody!
     User.session = @http_user
-    @user_permissions = Suse::Permission.new(@http_user)
   end
 end
