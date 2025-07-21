@@ -54,11 +54,11 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     post '/attribute/TEST/_meta', params: data
     assert_response :forbidden
-    assert_match(/Requires admin privileges/, @response.body)
+    assert_xml_tag tag: 'status', attributes: { code: 'admin_required' }
 
     delete '/attribute/OBS/_meta'
     assert_response :forbidden
-    assert_match(/Requires admin privileges/, @response.body)
+    assert_xml_tag tag: 'status', attributes: { code: 'admin_required' }
 
     login_king
     # FIXME3.0: POST is deprecated, use PUT

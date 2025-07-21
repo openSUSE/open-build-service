@@ -1779,7 +1779,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     post '/request?cmd=create', params: req
     assert_response :unauthorized
-    assert_select 'status[code] > summary', /Authentication required/
+    assert_select 'status[code] > summary', /Authentication Required/
 
     # create request by non-maintainer => validate created review item
     login_tom
@@ -3054,7 +3054,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     req = load_backend_file(backend_file)
     post '/request?cmd=create', params: req
     assert_response :unauthorized
-    assert_select 'status[code] > summary', /Authentication required/
+    assert_select 'status[code] > summary', /Authentication Required/
     prepare_request_with_user(user, pass)
     post '/request?cmd=create', params: req
   end
@@ -3449,7 +3449,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # old admins can do that
     delete "/request/#{id}"
     assert_response :forbidden
-    assert_xml_tag tag: 'summary', content: 'Requires admin privileges'
+    assert_xml_tag tag: 'status', attributes: { code: 'admin_required' }
 
     login_king
     delete "/request/#{id}"
