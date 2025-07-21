@@ -1,7 +1,7 @@
 require 'statistics_calculations'
 
 class Webui::MainController < Webui::WebuiController
-  skip_before_action :check_anonymous, only: [:index]
+  skip_before_action :check_anonymous_access, only: :index
 
   def index
     @status_messages = StatusMessage.newest.for_current_user.includes(:user).limit(4)

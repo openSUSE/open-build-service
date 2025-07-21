@@ -30,7 +30,7 @@ RSpec.describe Webui::Cloud::UploadJobsController, :vcr do
 
   describe '#index' do
     context 'without an EC2 configuration' do
-      let(:user) { create(:user) }
+      let(:user) { create(:confirmed_user) }
 
       before do
         login(user)

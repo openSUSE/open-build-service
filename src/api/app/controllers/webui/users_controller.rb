@@ -1,6 +1,7 @@
 class Webui::UsersController < Webui::WebuiController
   include Webui::NotificationsHandler
 
+  skip_before_action :check_anonymous_access, only: :create
   before_action :require_login, except: %i[show new create tokens autocomplete]
   before_action :require_admin, only: %i[index edit destroy]
   before_action :check_displayed_user, only: %i[show edit censor update destroy edit_account update_color_theme]
@@ -59,9 +60,8 @@ class Webui::UsersController < Webui::WebuiController
       redirect_to users_path
     else
       session[:login] = create_params[:login]
-      User.session = User.find_by!(login: session[:login])
-      if User.session.home_project
-        redirect_to project_show_path(User.session.home_project)
+      if Project.find_by(name: "home:#{session[:login]}")
+        redirect_to project_show_path("home:#{session[:login]}")
       else
         redirect_to root_path
       end
