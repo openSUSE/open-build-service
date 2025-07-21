@@ -1,5 +1,5 @@
 class CleanupNotificationsJob < ApplicationJob
   def perform
-    Notification.stale.delete_all
+    Notification.stale.in_batches.destroy_all
   end
 end
