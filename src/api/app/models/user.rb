@@ -54,7 +54,7 @@ class User < ApplicationRecord
   has_one :azure_configuration, class_name: 'Cloud::Azure::Configuration', dependent: :destroy
   has_many :upload_jobs, class_name: 'Cloud::User::UploadJob', dependent: :destroy
 
-  has_many :notifications, -> { order(created_at: :desc) }, as: :subscriber, dependent: :destroy
+  has_many :notifications, as: :subscriber, dependent: :destroy
 
   has_many :commit_activities
 

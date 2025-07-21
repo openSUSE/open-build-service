@@ -15,7 +15,7 @@ module Person
     # GET /my/notifications
     def index
       @notifications_count = @notifications.count
-      @paged_notifications = @notifications.page(params[:page])
+      @paged_notifications = @notifications.order(created_at: :desc).page(params[:page])
 
       params[:page] = @paged_notifications.total_pages if @paged_notifications.out_of_range?
       params[:show_maximum] ? show_maximum(@notifications) : @paged_notifications

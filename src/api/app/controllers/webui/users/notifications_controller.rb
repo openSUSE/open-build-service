@@ -14,6 +14,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   before_action :set_counted_notifications, only: :index
   before_action :filter_notifications, only: :index
   before_action :set_selected_filter
+  before_action :set_ordered_notifications, only: :index
   before_action :paginate_notifications, only: :index
 
   skip_before_action :set_unread_notifications_count, only: :update
@@ -31,6 +32,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     set_unread_notifications_count # before_action filter method defined in the Webui controller
     set_counted_notifications
     filter_notifications
+    set_ordered_notifications
     paginate_notifications
 
     respond_to do |format|
@@ -140,6 +142,10 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   def send_notifications_information_rabbitmq(delivered, count)
     action = delivered ? 'read' : 'unread'
     RabbitmqBus.send_to_bus('metrics', "notification,action=#{action} value=#{count}") if count.positive?
+  end
+
+  def set_ordered_notifications
+    @notifications = @notifications.order(created_at: :desc)
   end
 
   def paginate_notifications
