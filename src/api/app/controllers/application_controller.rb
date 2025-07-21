@@ -53,12 +53,6 @@ class ApplicationController < ActionController::Base
     authenticator.user_permissions
   end
 
-  # TODO: There are currently two ways of accessing the logged in user: User.curent and user
-  #       We should pick only one of them to use.
-  def user
-    authenticator.http_user
-  end
-
   # Method for mapping actions in a controller to (XML) schemas based on request
   # method (GET, PUT, POST, etc.). Example:
   #

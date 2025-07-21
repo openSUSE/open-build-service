@@ -48,7 +48,7 @@ class SourceProjectMetaController < SourceController
           logger.debug "no permission to modify LOCKED project #{project.name}"
           raise ChangeProjectNoPermission, "The project #{project.name} is locked"
         end
-        logger.debug "user #{user.login} has no permission to modify project #{project.name}"
+        logger.debug "user #{User.session.login} has no permission to modify project #{project.name}"
         raise ChangeProjectNoPermission, 'no permission to change project'
       end
     else
