@@ -1,86 +1,82 @@
-require 'xmlhash'
 module Person
   class TokenController < ApplicationController
     rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
-    before_action :set_user
-    before_action :validate_operation, only: [:create]
-    after_action :verify_authorized
-
+    before_action :set_person
+    before_action :set_package, :set_operation_default, only: :create
+    before_action :set_token, only: %i[update destroy]
+    after_action :verify_authorized, except: :index
     validate_action update: { method: :put, request: :token, response: :status }
 
     # GET /person/<login>/token
     def index
-      authorize @user, :update?
+      if @person != User.session && !User.session.admin?
+        render_error status: 403, message: 'Can not list tokens of another person: Requires admin permission.'
+      end
 
-      @list = policy_scope(Token)
+      @tokens = Token.where(id: [Token.owned_tokens(@person) + Token.shared_tokens(@person) + Token.group_shared_tokens(@person)])
     end
 
     # POST /person/<login>/token
     def create
-      authorize @user, :update?
+      @token = Token.token_type(params[:operation]).new(description: params[:description],
+                                                        executor: @person,
+                                                        package: @package,
+                                                        scm_token: params[:scm_token])
+      authorize @token
 
-      set_package
-
-      @token = Token.token_type(params[:operation]).create(description: params[:description], executor: @user, package: @package, scm_token: params[:scm_token])
-      return if @token.valid?
-
-      render_error status: 400,
-                   errorcode: 'invalid_token',
-                   message: "Failed to create token: #{@token.errors.full_messages.to_sentence}."
+      if @token.save
+        render_ok
+      else
+        render_error(status: 400, errorcode: 'invalid_token', message: "Failed to create token: #{@token.errors.full_messages.to_sentence}.")
+      end
     end
 
-    # DELETE /person/<login>/token/<id>
-    def delete
-      authorize @user, :update?
-
-      @user.tokens.find(params[:id]).destroy
-      render_ok
-    end
-
-    # PUT /person/<login>/token/<id>
+    # PUT /person/<login>/token/<id>params[:operation]
     def update
-      authorize @user, :update?
+      authorize @token
 
-      xml = Nokogiri::XML(request.raw_post, &:strict)
-      xml_attributes = xml.xpath('/token').first.to_h.slice('enabled', 'description', 'scm_token', 'workflow_configuration_path', 'workflow_configuration_url')
+      token_attributes = Xmlhash.parse(request.raw_post)
+      token_attributes = token_attributes.slice('enabled', 'description', 'scm_token', 'workflow_configuration_path', 'workflow_configuration_url')
 
-      token = @user.tokens.find(params[:id])
-      if token.update(xml_attributes)
+      if @token.update(token_attributes)
         render_ok
       else
         render_error status: 400, errorcode: 'invalid_token_attribute_value', message: token.errors.full_messages.to_sentence
       end
     end
 
-    private
+    # DELETE /person/<login>/token/<id>
+    def destroy
+      authorize @token
 
-    def record_not_found(exception)
-      render_error status: 404, message: "Couldn't find Token with 'id'=#{exception.id}"
+      @token.destroy
+
+      render_ok
     end
 
-    def set_user
-      @user = User.find_by(login: params[:login]) || User.find_nobody!
+    private
+
+    def set_person
+      @person = User.find_by!(login: params[:login])
+    end
+
+    def set_token
+      @token = @person.tokens.find(params[:id])
     end
 
     def set_package
-      @package = nil
       return unless params[:project] && params[:package]
 
-      @package = Package.get_by_project_and_name(params[:project], params[:package])
+      @package = Package.get_by_project_and_name(params[:project], params[:package], follow_multibuild: true)
     end
 
-    def validate_operation
-      operation_param = params[:operation]
-      # TODO: align operation parameter allowed values
-      # - webUI: https://github.com/openSUSE/open-build-service/blob/master/src/api/app/models/token.rb#L27
-      # - API: https://github.com/openSUSE/open-build-service/blob/master/src/api/public/apidocs/paths/person_login_token.yaml#L89
-      return if operation_param.nil? ||
-                %w[runservice rebuild release workflow].include?(operation_param) # possible API parameter values
+    def set_operation_default
+      params[:operation] ||= 'service'
+    end
 
-      render_error status: 400,
-                   errorcode: 'invalid_token_type',
-                   message: "'#{operation_param}' is not a valid operation type for a token."
+    def record_not_found
+      render_error status: 404, message: "Couldn't find User '#{params[:login]}'"
     end
   end
 end

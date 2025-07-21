@@ -10,7 +10,7 @@ RSpec.describe Token do
   describe '.token_type' do
     it { expect(described_class.token_type('release')).to eq(Token::Release) }
     it { expect(described_class.token_type('rebuild')).to eq(Token::Rebuild) }
-    it { expect(described_class.token_type('everythingelse')).to eq(Token::Service) }
+    it { expect { described_class.token_type('everythingelse') }.to raise_error(Token::Errors::UnknownOperation, "unknown token operation 'everythingelse'") }
   end
 
   describe '#call' do

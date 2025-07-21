@@ -47,6 +47,40 @@
       "note": ""
     },
     {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 4,
+      "fingerprint": "2391d163be9cdd802b04e61cf27587ce5eaea9129f5d1454523a584b38f89fba",
+      "check_name": "LinkToHref",
+      "message": "Potentially unsafe model attribute in `link_to` href",
+      "file": "app/views/webui/users/tokens/show.html.haml",
+      "line": 76,
+      "link": "https://brakemanscanner.org/docs/warning_types/link_to_href",
+      "code": "link_to(User.session.tokens.find(params[:id]).workflow_configuration_url, User.session.tokens.find(params[:id]).workflow_configuration_url)",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Webui::Users::TokensController",
+          "method": "show",
+          "line": 13,
+          "file": "app/controllers/webui/users/tokens_controller.rb",
+          "rendered": {
+            "name": "webui/users/tokens/show",
+            "file": "app/views/webui/users/tokens/show.html.haml"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "webui/users/tokens/show"
+      },
+      "user_input": "User.session.tokens.find(params[:id]).workflow_configuration_url",
+      "confidence": "Weak",
+      "cwe_id": [
+        79
+      ],
+      "note": ""
+    },
+    {
       "warning_type": "HTTP Verb Confusion",
       "warning_code": 118,
       "fingerprint": "2c16c8157cc5cf3ad60108affab7855b813e308bffa7de8b2f67f7b1dfc63fe7",
@@ -271,6 +305,40 @@
       "confidence": "Medium",
       "cwe_id": [
         89
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 4,
+      "fingerprint": "bd54551c74015a29015537c296fe443763b3d42008d05bdfb98207b20c385e10",
+      "check_name": "LinkToHref",
+      "message": "Potentially unsafe model attribute in `link_to` href",
+      "file": "app/views/webui/users/tokens/show.html.haml",
+      "line": 59,
+      "link": "https://brakemanscanner.org/docs/warning_types/link_to_href",
+      "code": "link_to(User.session.tokens.find(params[:id]).workflow_runs.where.not(:response_url => nil).first.repository_full_name, User.session.tokens.find(params[:id]).workflow_runs.where.not(:response_url => nil).first.repository_url)",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Webui::Users::TokensController",
+          "method": "show",
+          "line": 13,
+          "file": "app/controllers/webui/users/tokens_controller.rb",
+          "rendered": {
+            "name": "webui/users/tokens/show",
+            "file": "app/views/webui/users/tokens/show.html.haml"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "webui/users/tokens/show"
+      },
+      "user_input": "User.session.tokens.find(params[:id]).workflow_runs.where.not(:response_url => nil).first.repository_url",
+      "confidence": "Weak",
+      "cwe_id": [
+        79
       ],
       "note": ""
     },
