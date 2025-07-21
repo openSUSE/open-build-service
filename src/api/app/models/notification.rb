@@ -41,7 +41,6 @@ class Notification < ApplicationRecord
   scope :for_appealed_decisions, -> { where(notifiable_type: 'Decision') }
   scope :for_comments, -> { where(notifiable_type: 'Comment') }
   scope :for_requests, -> { where(notifiable_type: 'BsRequest') }
-  scope :for_reviews, -> { where(event_type: 'Event::ReviewWanted') }
   scope :for_member_on_groups, -> { where(notifiable_type: 'Group') }
 
   scope :for_project_name, ->(project_name) { joins(:projects).where(projects: { name: project_name }) }
