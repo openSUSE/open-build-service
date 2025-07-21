@@ -1,10 +1,10 @@
 RSpec.describe Authenticator do
   describe '#extract_user' do
-    let(:session_mock) { double(:session) }
-    let(:response_mock) { double(:response, headers: {}) }
+    subject { Authenticator.new(request_mock).extract_user }
+
+    let(:user) { create(:confirmed_user, last_logged_in_at: Time.zone.yesterday) }
 
     before do
-      allow(session_mock).to receive(:[]).with(:login)
       freeze_time
     end
 
@@ -13,12 +13,21 @@ RSpec.describe Authenticator do
     end
 
     context 'in proxy mode' do
+      let(:request_mock) { double(:request_user, env: { 'HTTP_X_USERNAME' => user.login }) }
+
       before do
         allow(Configuration).to receive(:proxy_auth_mode_enabled?).and_return(true)
       end
 
-      it_behaves_like 'a confirmed user logs in' do
-        let(:request_mock) { double(:request, env: { 'HTTP_X_USERNAME' => user.login }) }
+      it { expect(subject).to eq(user) }
+      it { expect(subject.last_logged_in_at).to eq(Time.zone.today) }
+
+      context 'and user does not exist' do
+        let(:request_mock) { double(:request_user, env: { 'HTTP_X_USERNAME' => 'hans', 'HTTP_X_EMAIL' => 'hans@example.com' }) }
+
+        it { expect { subject }.to change(User, :count).by(1) }
+        it { expect(subject.login).to eq('hans') }
+        it { expect(subject.email).to eq('hans@example.com') }
       end
 
       context 'and registration is disabled' do
@@ -26,26 +35,80 @@ RSpec.describe Authenticator do
           allow(Configuration).to receive(:registration).and_return('deny')
         end
 
-        context 'and the user already registered to OBS' do
-          it_behaves_like 'a confirmed user logs in' do
-            let(:request_mock) { double(:request, env: { 'HTTP_X_USERNAME' => user.login }) }
-          end
+        context 'and the user does not exist' do
+          let(:request_mock) { double(:request_new_user, env: { 'HTTP_X_USERNAME' => 'new_user' }) }
+
+          it { expect { subject }.to raise_error(AuthenticationRequiredError) }
         end
+      end
 
-        context 'and the user is not registered to OBS' do
-          subject { Authenticator.new(request_mock, session_mock, response_mock) }
+      context 'and no header set' do
+        let(:request_mock) { double(:request_user, env: {}) }
 
-          let(:request_mock) { double(:request, env: { 'HTTP_X_USERNAME' => 'new_user' }) }
-
-          it { expect { subject.extract_user }.to raise_error(Authenticator::AuthenticationRequiredError, "User 'new_user' does not exist") }
-        end
+        it { expect(subject).to eql(User.find_nobody!) }
       end
     end
 
-    context 'in basic authentication mode' do
-      it_behaves_like 'a confirmed user logs in' do
-        let(:request_mock) { double(:request, env: { 'Authorization' => "Basic #{Base64.encode64("#{user.login}:buildservice")}" }) }
-      end
+    context 'in basic auth mode' do
+      let(:request_mock) { double(:request_basic_auth, session: { login: nil }, env: { Authorization: "Basic #{Base64.encode64("#{user.login}:buildservice")}" }.with_indifferent_access) }
+
+      it { expect(subject).to eq(user) }
+    end
+
+    context 'in session authentication mode' do
+      let(:request_mock) { double(:request_session, session: { login: user.login }) }
+
+      it { expect(subject).to eq(user) }
+    end
+  end
+
+  describe '#check_anonymous_access' do
+    subject { Authenticator.new(request_mock).send(:check_anonymous_access, user) }
+
+    let(:request_mock) { double(:request_somewhere, session: { login: nil }, controller_class: ApplicationController) }
+    let(:user) { User.find_nobody! }
+
+    before do
+      allow(Configuration).to receive(:anonymous).and_return(false)
+    end
+
+    it { expect { subject }.to raise_error(AuthenticationRequiredError) }
+
+    context 'if user is signed in' do
+      let(:user) { create(:confirmed_user) }
+      let(:request_mock) { double(:request_session, session: { login: user.login }, controller_class: Webui::SessionController) }
+
+      it { expect { subject }.not_to raise_error }
+    end
+
+    context 'if user is trying to sign in' do
+      let(:request_mock) { double(:request_session, session: { login: nil }, controller_class: Webui::SessionController) }
+
+      it { expect { subject }.not_to raise_error }
+    end
+
+    context 'if user is on the frontpage' do
+      let(:request_mock) { double(:request_main, session: { login: nil }, controller_class: Webui::MainController) }
+
+      it { expect { subject }.not_to raise_error }
+    end
+  end
+
+  describe '#check_user_state' do
+    subject { Authenticator.new(request_mock).send(:check_user_state, user) }
+
+    let(:request_mock) { double(:request, session: { login: user.login }) }
+
+    context 'if user is in state unconfirmed' do
+      let(:user) { create(:user) }
+
+      it { expect { subject }.to raise_error(UnconfirmedUserError) }
+    end
+
+    context 'if user is inactive' do
+      let(:user) { create(:locked_user) }
+
+      it { expect { subject }.to raise_error(InactiveUserError) }
     end
   end
 end
