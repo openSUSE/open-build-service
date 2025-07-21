@@ -213,7 +213,7 @@ class PublicController < ApplicationController
   end
 
   def check_anonymous_access
-    raise Authenticator::AuthenticationRequiredError unless ::Configuration.anonymous
+    raise AuthenticationRequiredError unless ::Configuration.anonymous
   end
 
   def set_anonymous_user
