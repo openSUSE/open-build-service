@@ -1,14 +1,12 @@
 module RoutesHelper
   class RoleMatcher
     def self.matches?(request)
-      return false if request.bot?
+      Authenticator.new(request).extract_user
 
-      return false unless WebuiControllerService::UserChecker.new(http_request: request).call
+      return false unless User.session
+      return false if User.session.state != 'confirmed'
 
-      current_user_login = request.session[:login]
-      current_user = current_user_login.present? ? User.find_by_login(current_user_login) : User.possibly_nobody
-
-      current_user.admin? || current_user.staff?
+      User.session.admin? || User.session.staff?
     end
   end
 end
