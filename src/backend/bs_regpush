@@ -114,7 +114,7 @@ sub contenttype2manitype {
   return 'ocilist' if $ct eq $BSContar::mt_oci_index;
   return 'unknown';
 }
-  
+
 sub blob_exists {
   my ($blobid, $size) = @_;
   my $replyheaders;
@@ -240,11 +240,11 @@ sub manifest_exists_head {
     my $size = length($manifest);
     if ($tag eq $maniid) {
       die("size mismatch?\n") if $replyheaders->{'content-length'} && $size != $replyheaders->{'content-length'};
-      return 0 if $replyheaders->{'docker-content-digest'} && $maniid ne $replyheaders->{'docker-content-digest'};
+      return $replyheaders->{'docker-content-digest'} eq $maniid ? 1 : 0 if $replyheaders->{'docker-content-digest'};
       return 1;
     }
     return 0 if $replyheaders->{'content-length'} && $size != $replyheaders->{'content-length'};
-    return 1 if $replyheaders->{'docker-content-digest'} && $maniid eq $replyheaders->{'docker-content-digest'};
+    return $replyheaders->{'docker-content-digest'} eq $maniid ? 1 : 0 if $replyheaders->{'docker-content-digest'};
   }
   return undef;	# undecided
 }
@@ -371,6 +371,29 @@ sub cosign_upload {
   my $extra = '';
   $extra = manifest2extrainfo($mani, $tag) if $tag =~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/;
   manifest_append_listfile($mani_json, $tag, $mani->{'mediaType'}, $extra) if defined $listfile;
+}
+
+sub cosign_upload_rekor {
+  my ($gpgpubkey, $sig, @layer_ents) = @_;
+  my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata(BSPGP::unarmor($gpgpubkey)));
+  $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
+  if ($sig) {
+    print "uploading cosign signature to $rekorserver\n";
+    die unless @layer_ents == 1;
+    my $hash = 'sha256:'.Digest::SHA::sha256_hex($layer_ents[0]->{'data'});	# must match signfunc
+    BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
+  } else {
+    print "uploading cosign attestations to $rekorserver\n";
+    for my $attestation_ent (@layer_ents) {
+      BSRekor::upload_intoto($rekorserver, $attestation_ent->{'data'}, $sslpubkey);
+    }
+  }
+}
+
+sub create_cosign_attestation_ent {
+  my ($attestation, $signfunc, $digest, $reference, $annotations) = @_;
+  my ($att, $predicatetype) = BSConSign::fixup_intoto_attestation($attestation, $signfunc, $digest, $reference);
+  return BSConSign::create_cosign_attestation_ent($att, $annotations, $predicatetype);
 }
 
 sub get_all_tags {
@@ -1183,13 +1206,7 @@ if ($cosign && %digests_to_sign) {
     my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
     my $annotations = { $cosign_cookie_name => $cosigncookie };
     my ($cosign_ent, $sig) = BSConSign::create_cosign_signature_ent($signfunc, $digest, $gun, $creator, undef, $annotations);
-    if ($rekorserver) {
-      print "uploading cosign signature to $rekorserver\n";
-      my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata(BSPGP::unarmor($gpgpubkey)));
-      $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
-      my $hash = 'sha256:'.Digest::SHA::sha256_hex($cosign_ent->{'data'});	# must match signfunc
-      BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
-    }
+    cosign_upload_rekor($gpgpubkey, $sig, $cosign_ent) if $rekorserver && $sig;
     cosign_upload($sig_tag, $cosign_ent);
   }
   # upload attestations
@@ -1210,21 +1227,12 @@ if ($cosign && %digests_to_sign) {
     print "creating $numlayers cosign attestations for $gun $digest\n";
     my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
     my $annotations = { $cosign_cookie_name => $cosigncookie };
-    my %predicatetypes;
-    my @attestations;
-    push @attestations, BSConSign::fixup_intoto_attestation($provenance, $signfunc, $digest, $gun, \%predicatetypes) if $provenance;
-    push @attestations, BSConSign::fixup_intoto_attestation($spdx_json, $signfunc, $digest, $gun, \%predicatetypes) if $spdx_json;
-    push @attestations, BSConSign::fixup_intoto_attestation($cyclonedx_json, $signfunc, $digest, $gun, \%predicatetypes) if $cyclonedx_json;
-    push @attestations, BSConSign::fixup_intoto_attestation($_, $signfunc, $digest, $gun, \%predicatetypes) for @intoto_json;
-    my @attestation_ents = BSConSign::create_cosign_attestation_ents(\@attestations, $annotations, \%predicatetypes);
-    if ($rekorserver) {
-      print "uploading cosign attestations to $rekorserver\n";
-      my $sslpubkey = BSX509::keydata2pubkey(BSPGP::pk2keydata(BSPGP::unarmor($gpgpubkey)));
-      $sslpubkey = BSASN1::der2pem($sslpubkey, 'PUBLIC KEY');
-      for my $attestation (@attestations) {
-        BSRekor::upload_intoto($rekorserver, $attestation, $sslpubkey);
-      }
-    }
+    my @attestation_ents;
+    push @attestation_ents, create_cosign_attestation_ent($provenance, $signfunc, $digest, $gun, $annotations) if $provenance;
+    push @attestation_ents, create_cosign_attestation_ent($spdx_json, $signfunc, $digest, $gun, $annotations) if $spdx_json;
+    push @attestation_ents, create_cosign_attestation_ent($cyclonedx_json, $signfunc, $digest, $gun, $annotations) if $cyclonedx_json;
+    push @attestation_ents, create_cosign_attestation_ent($_, $signfunc, $digest, $gun, $annotations) for @intoto_json;
+    cosign_upload_rekor($gpgpubkey, undef, @attestation_ents) if $rekorserver && @attestation_ents;
     cosign_upload($att_tag, @attestation_ents);
   }
 }
