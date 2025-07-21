@@ -55,7 +55,7 @@ RSpec.describe 'Login', :js do
       click_button('Log In')
     end
 
-    expect(page).to have_content('Authentication failed')
+    expect(page).to have_content('Authentication Failed')
   end
 
   it 'logout' do

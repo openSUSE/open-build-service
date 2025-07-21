@@ -7,11 +7,6 @@ RSpec.describe Webui::WebuiController do
     before_action :require_login, only: :show
     before_action :set_project, only: %i[edit create]
     before_action :set_package, only: :create
-    before_action :check_anonymous, only: :index
-
-    def index
-      render plain: 'anonymous controller  - check_anonymous'
-    end
 
     # RSpec anonymous controller only support RESTful routes
     # http://stackoverflow.com/questions/7027518/no-route-matches-rspecs-anonymous-controller
@@ -106,31 +101,6 @@ RSpec.describe Webui::WebuiController do
         get :create, params: { project: project, package: package }
         expect(assigns(:package)).to eq(package)
       end
-    end
-  end
-
-  describe 'check_anonymous before filter' do
-    subject { get :index }
-
-    before do
-      allow(Configuration).to receive(:anonymous).and_return(false)
-    end
-
-    context 'with proxy_auth_mode enabled' do
-      before do
-        allow(Configuration).to receive(:proxy_auth_mode_enabled?).and_return(true)
-        stub_const('CONFIG', { proxy_auth_login_page: '/', proxy_auth_logout_page: '/', proxy_auth_mode: :mellon }.with_indifferent_access)
-      end
-
-      it { is_expected.to redirect_to('/?ReturnTo=%2Fwebui%2Fwebui') }
-    end
-
-    context 'with proxy_auth_mode disabled' do
-      before do
-        allow(Configuration).to receive(:proxy_auth_mode_enabled?).and_return(false)
-      end
-
-      it { is_expected.to redirect_to(root_path) }
     end
   end
 end
