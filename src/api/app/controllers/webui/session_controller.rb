@@ -2,8 +2,6 @@ class Webui::SessionController < Webui::WebuiController
   before_action :authenticate_user, only: [:create]
   before_action :check_user_active, only: [:create]
 
-  skip_before_action :check_anonymous, only: [:create]
-
   def new; end
 
   def create
