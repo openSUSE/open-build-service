@@ -56,6 +56,7 @@ sub dsse_pae {
 sub upload_entry {
   my ($server, $entry) = @_;
   my $replyheaders;
+  my $withrecord = wantarray ? 1 : 0;
   my $param = {
     'uri'     => "$server/api/v1/log/entries",
     'request' => 'POST',
@@ -66,8 +67,9 @@ sub upload_entry {
     'ignorestatus' => 1,
   };
   my $r = BSRPC::rpc($param);
+  # new:    {"84f4192f5c38c9eb0973dae7bdd24e0ad6781d9e228b4ee60f411ea0e1050482":{"body":"...","integratedTime":1638195094,"logID":"c0d23d6ad406973f9559f3ba2d1ca01f84147d8ffc5b8445c224f98b9591801d","logIndex":897532,"verification":{"signedEntryTimestamp":"MEQCIDd8LwH1lbeUfCjwRoX5J7fzZ5qIK4PwMsf+sHJHgCCTAiB1h1nD0OjeleiBph8UtlZMTwlpNLq3cSaZ0Oxc8Gom0A=="}}}
   my $st = $replyheaders->{'status'};
-  if ($st !~ /^201|409/) {
+  if ($st !~ /^(?:201|409)/) {
     my $msg = eval { (JSON::XS::decode_json($r) || {})->{'message'} };
     die("rekor server: $st ($msg)\n") if $msg;
     die("rekor server: $st\n");
@@ -76,8 +78,19 @@ sub upload_entry {
   my $l = $replyheaders->{'location'};
   die("rekor server did not return a location\n") unless $l;
   $l =~ s/.*\///;
-  return $l;
-  # new:    {"84f4192f5c38c9eb0973dae7bdd24e0ad6781d9e228b4ee60f411ea0e1050482":{"body":"...","integratedTime":1638195094,"logID":"c0d23d6ad406973f9559f3ba2d1ca01f84147d8ffc5b8445c224f98b9591801d","logIndex":897532,"verification":{"signedEntryTimestamp":"MEQCIDd8LwH1lbeUfCjwRoX5J7fzZ5qIK4PwMsf+sHJHgCCTAiB1h1nD0OjeleiBph8UtlZMTwlpNLq3cSaZ0Oxc8Gom0A=="}}}
+  return $l unless $withrecord;
+  # caller wants the record
+  if ($st =~ /^409/) {
+    # entry already exists. fetch record
+    $param = {
+      'uri'     => "$server/api/v1/log/entries/$l",
+      'timeout' => 300,
+    };
+    $r = BSRPC::rpc($param);
+  }
+  $r = JSON::XS::decode_json($r);
+  die("returned entry for $l does not match\n") unless ref($r) eq 'HASH' && $r->{$l};
+  return ($l, $r->{$l}, $st =~ /^409/ ? 0 : 1);
 }
 
 sub upload_rekord {
