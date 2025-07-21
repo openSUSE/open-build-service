@@ -228,7 +228,7 @@ class ApplicationController < ActionController::Base
 
   # A before_action to demand authentication
   def require_login
-    raise AnonymousUser unless User.session
+    raise Authenticator::AuthenticationRequiredError unless User.session
   end
 
   # A before_action to demand the Admin role

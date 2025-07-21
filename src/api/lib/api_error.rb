@@ -43,10 +43,6 @@ class NoPublicAccessError < APIError
   setup 401, 'No public access is configured'
 end
 
-class AnonymousUser < APIError
-  setup 401, 'Anonymous user is not allowed here - please login'
-end
-
 # 403 errors
 class AdminUserRequiredError < APIError
   setup('put_request_no_permission', 403)

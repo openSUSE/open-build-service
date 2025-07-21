@@ -230,7 +230,7 @@ class PublicController < ApplicationController
     if use_source
       begin
         Package.get_by_project_and_name(project_name, package_name)
-      rescue AnonymousUser
+      rescue Authenticator::AuthenticationRequiredError
         # TODO: Use pundit for authorization instead
         raise Package::ReadSourceAccessError, "#{project_name} / #{package_name} "
       end
