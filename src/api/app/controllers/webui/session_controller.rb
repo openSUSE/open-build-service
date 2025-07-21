@@ -6,7 +6,6 @@ class Webui::SessionController < Webui::WebuiController
 
   def create
     session[:login] = @user.login
-    User.session = @user
 
     RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui value=1')
 
@@ -15,7 +14,6 @@ class Webui::SessionController < Webui::WebuiController
 
   def reset
     reset_session
-    User.session = nil
 
     RabbitmqBus.send_to_bus('metrics', 'logout,access_point=webui value=1')
 
@@ -42,7 +40,7 @@ class Webui::SessionController < Webui::WebuiController
 
   def redirect_on_login
     if referer_was_login?
-      redirect_to user_path(User.session)
+      redirect_to user_path(session[:login])
     else
       redirect_back_or_to root_path
     end
