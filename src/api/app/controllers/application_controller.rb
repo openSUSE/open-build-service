@@ -49,8 +49,9 @@ class ApplicationController < ActionController::Base
     User.session
   end
 
+  # FIXME: This is only a helper class for User authorization. This should happen in User.
   def permissions
-    authenticator.user_permissions
+    @user_permissions ||= Suse::Permission.new(User.possibly_nobody)
   end
 
   # Method for mapping actions in a controller to (XML) schemas based on request
