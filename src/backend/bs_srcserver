@@ -1321,7 +1321,7 @@ sub getprojpack {
     if ($proj->{'scmsync'} && !$cgi->{'buildinfo'} && !$proj->{'remoteurl'} && !$jinfo->{'error'}) {
       my $servicemark = BSSrcServer::Service::genservicemark_obsscm($projid, '_project');
       my $serviceerror = BSSrcrep::getserviceerror($projid, '_project', $servicemark);
-      if ($serviceerror && $serviceerror !~ /service in progress/) {
+      if ($serviceerror && (($serviceerror !~ /service in progress/) || ! -e "$projectsdir/$projid.pkg/_project.rev")) {
 	$jinfo->{'error'} = $serviceerror;
       }
     }

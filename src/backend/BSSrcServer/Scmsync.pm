@@ -320,7 +320,7 @@ sub sync_project {
     }
   }
   sync_config($cgi, $projid, $config, $info) if defined $config;
-  sync_projectinfo($cgi, $projid, $info) if $info;
+  sync_projectinfo($cgi, $projid, $info) if $info || ! -e "$projectsdir/$projid.pkg/_project.rev";
 
   $notify_repservers->('resumeproject', $projid, undef, 'suspend for scmsync');
 
