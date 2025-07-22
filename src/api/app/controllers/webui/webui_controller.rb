@@ -140,14 +140,6 @@ class Webui::WebuiController < ActionController::Base
 
   private
 
-  def send_login_information_rabbitmq(msg)
-    message_mapping = { success: 'login,access_point=webui value=1',
-                        disabled: 'login,access_point=webui,failure=disabled value=1',
-                        logout: 'logout,access_point=webui value=1',
-                        unauthenticated: 'login,access_point=webui,failure=unauthenticated value=1' }
-    RabbitmqBus.send_to_bus('metrics', message_mapping[msg])
-  end
-
   def authenticator
     @authenticator ||= Authenticator.new(request, session, response)
   end

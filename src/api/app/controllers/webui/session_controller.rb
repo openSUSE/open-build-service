@@ -10,13 +10,13 @@ class Webui::SessionController < Webui::WebuiController
   def create
     User.session = @session_creator.user
     session[:login] = @session_creator.user.login
-    send_login_information_rabbitmq(:success)
+    RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui value=1')
     redirect_on_login
   end
 
   def destroy
     reset_session
-    send_login_information_rabbitmq(:logout)
+    RabbitmqBus.send_to_bus('metrics', 'logout,access_point=webui value=1')
     User.session = nil
     redirect_on_logout
   end
@@ -30,14 +30,14 @@ class Webui::SessionController < Webui::WebuiController
   def check_user_active
     return if @session_creator.user.active?
 
-    send_login_information_rabbitmq(:disabled)
+    RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=disabled value=1')
     redirect_to(root_path, error: 'Your account is disabled. Please contact the administrator for details.')
   end
 
   def authenticate
     return if @session_creator.valid? && @session_creator.exist?
 
-    send_login_information_rabbitmq(:unauthenticated)
+    RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=unauthenticated value=1')
     redirect_to(new_session_path, error: 'Authentication failed')
   end
 
