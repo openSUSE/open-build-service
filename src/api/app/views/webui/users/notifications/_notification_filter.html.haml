@@ -1,5 +1,7 @@
 -# haml-lint:disable ViewLength
 = form_for(:notification, url: my_notifications_path, method: :get, id: 'content-selector-filters-form') do |form|
+  - if params[:page_size]
+    = hidden_field_tag 'page_size', params[:page_size]
   .accordion.accordion-flush
     .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
       .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-state' },

@@ -10,5 +10,5 @@
         - page_size = params[:page_size]&.to_i || paginated_objects.default_per_page
         - [paginated_objects.default_per_page, 100, 300].each do |size|
           - active = 'active' if page_size == size
-          = link_to(url_for( page_size: size ), class: "dropdown-item #{active}") do
+          = link_to(url_for(request.query_parameters.merge(page_size: size)), class: "dropdown-item #{active}") do
             = size
