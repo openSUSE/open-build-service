@@ -2,7 +2,7 @@ module Event
   class Group < Base
     self.abstract_class = true
     payload_keys :group, :member, :who
-    receiver_roles :member
+    receiver_roles :member, :group_maintainer
 
     def subject
       raise AbstractMethodCalled
@@ -10,6 +10,10 @@ module Event
 
     def members
       User.where(login: payload['member'])
+    end
+
+    def group_maintainers
+      ::Group.find_by(title: payload['group']).maintainers
     end
 
     def originator
