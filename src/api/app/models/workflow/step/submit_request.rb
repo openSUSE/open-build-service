@@ -42,7 +42,7 @@ class Workflow::Step::SubmitRequest < Workflow::Step
     @bs_request.save!
 
     Workflows::ScmEventSubscriptionCreator.new(token, workflow_run, @bs_request).call
-    SCMStatusReporter.new(event_payload: { number: @bs_request.number, state: @bs_request.state },
+    SCMStatusReporter.new(event_payload: { number: @bs_request.number, state: @bs_request.status },
                           event_subscription_payload: workflow_run.payload,
                           scm_token: @token.scm_token,
                           workflow_run: workflow_run,
@@ -62,7 +62,7 @@ class Workflow::Step::SubmitRequest < Workflow::Step
       request.change_state(newstate: 'superseded',
                            reason: "Superseded by request #{new_submit_request.number}",
                            superseded_by: new_submit_request.number)
-      (@request_numbers_and_state_for_artifacts[request.state.to_s] ||= []) << request.number
+      (@request_numbers_and_state_for_artifacts[request.status.to_s] ||= []) << request.number
     end
   end
 
