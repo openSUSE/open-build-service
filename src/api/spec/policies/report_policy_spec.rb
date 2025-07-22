@@ -112,31 +112,22 @@ RSpec.describe ReportPolicy, type: :policy do
   permissions :notify? do
     let(:staff_user) { create(:staff_user) }
     let(:admin_user) { create(:admin_user) }
+    let!(:moderator_user) { create(:moderator) }
 
-    context 'when there is no user with moderator role' do
-      it 'notifies admin users' do
-        expect(subject).to permit(admin_user, Report)
-      end
-
-      it 'notifies staff users' do
-        expect(subject).to permit(staff_user, Report)
-      end
+    it 'notifies the moderator' do
+      expect(subject).to permit(moderator_user, Report)
     end
 
-    context 'when there is a user with moderator role' do
-      let!(:moderator_user) { create(:moderator) }
+    it 'notifies admin users' do
+      expect(subject).to permit(admin_user, Report)
+    end
 
-      it 'does not notify admin users' do
-        expect(subject).not_to(permit(admin_user, Report))
-      end
+    it 'notifies staff users' do
+      expect(subject).to permit(staff_user, Report)
+    end
 
-      it 'does not notify staff users' do
-        expect(subject).not_to(permit(staff_user, Report))
-      end
-
-      it 'notifies the moderator' do
-        expect(subject).to permit(moderator_user, Report)
-      end
+    it 'does not notify common users' do
+      expect(subject).not_to(permit(user, Report))
     end
   end
 end
