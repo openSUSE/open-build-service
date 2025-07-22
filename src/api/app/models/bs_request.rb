@@ -31,8 +31,6 @@ class BsRequest < ApplicationRecord
   enum :status, VALID_REQUEST_STATES, instance_methods: false, scopes: false, validate: true
 
   scope :to_accept_by_time, -> { where(state: %w[new review]).where(accept_at: ...Time.now) }
-  # Scopes for collections
-  scope :with_actions, -> { joins(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
 
   scope :with_action_types, lambda { |types|
     includes(:bs_request_actions).where(bs_request_actions: { type: types }).distinct.order(priority: :asc, id: :desc)
