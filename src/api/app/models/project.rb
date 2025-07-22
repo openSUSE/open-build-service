@@ -1152,7 +1152,7 @@ class Project < ApplicationRecord
       BsRequest.where(id: BsRequestAction.bs_request_ids_by_source_projects(name)).or(
         BsRequest.where(id: Review.bs_request_ids_of_involved_projects(id))
       )
-    ).where(state: :review).distinct.order(priority: :asc, id: :desc).pluck(:number)
+    ).where(state: :review).distinct.pluck(:number)
 
     targets = BsRequest.to_project(name)
                        .or(BsRequest.from_project(name))

@@ -994,7 +994,9 @@ class ProjectTest < ActiveSupport::TestCase
 
   def test_open_requests
     expected = { reviews: [1000, 10, 4], targets: [5], incidents: [], maintenance_release: [] }
-    assert_equal expected, projects(:Apache).open_requests
+    # We don't care about the order of items inside the arrays returned as hash values in `open_requests`.
+    # This sorting is handled outside of `open_requests`.
+    assert_equal expected.transform_values(&:sort), projects(:Apache).open_requests.transform_values(&:sort)
 
     expected = { reviews: [], targets: [6], incidents: [6], maintenance_release: [7] }
     assert_equal expected, projects(:My_Maintenance).open_requests
