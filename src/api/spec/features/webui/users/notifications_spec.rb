@@ -66,10 +66,10 @@ RSpec.describe 'User notifications', :js do
       # rubocop:disable RSpec/ExampleLength
       it 'shows all unread project notifications' do
         find_by_id('notifications-dropdown-trigger').click if mobile? # open the filter dropdown
-        within('#content-selector-filters') do
-          within('#notification-filter-projects') do
-            check(project.name)
-          end
+
+        within('#notification-project-name-dropdown') do
+          fill_in 'project[]', with: project.name
+          find('button:has(i.fa-search)').click
         end
 
         expect(page).to have_text(notification_for_projects_comment.notifiable.commentable_type)
