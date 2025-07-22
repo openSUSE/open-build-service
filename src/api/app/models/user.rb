@@ -645,7 +645,7 @@ class User < ApplicationRecord
           BsRequest.where(reviews: { group: groups })
         )
       )
-    ).with_actions_and_reviews.where(state: :review, reviews: { state: :new }).where.not(creator: login)
+    ).joins(:bs_request_actions).left_outer_joins(:reviews).where(state: :review, reviews: { state: :new }).where.not(creator: login).distinct
     search.present? ? result.do_search(search) : result
   end
 
