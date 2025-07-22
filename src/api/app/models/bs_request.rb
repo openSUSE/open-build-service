@@ -35,7 +35,7 @@ class BsRequest < ApplicationRecord
   scope :with_actions, -> { joins(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
 
   scope :with_action_types, lambda { |types|
-    includes(:bs_request_actions).where(bs_request_actions: { type: types }).distinct.order(priority: :asc, id: :desc)
+    includes(:bs_request_actions).where(bs_request_actions: { type: types }).distinct
   }
   scope :from_project, ->(project_name) { where('bs_request_actions.source_project like ?', project_name) }
   scope :to_project, ->(project_name) { where('bs_request_actions.target_project like ?', project_name) }
