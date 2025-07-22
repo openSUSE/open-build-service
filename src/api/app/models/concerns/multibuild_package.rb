@@ -3,6 +3,9 @@ module MultibuildPackage
 
   class_methods do
     def striping_multibuild_suffix(name)
+      # webui is not checking if object exists
+      return nil if name.nil?
+
       # exception for package names used to have a collon
       return name if name.start_with?('_patchinfo:', '_product:')
 
