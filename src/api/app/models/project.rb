@@ -1154,9 +1154,10 @@ class Project < ApplicationRecord
       )
     ).where(state: :review).distinct.order(priority: :asc, id: :desc).pluck(:number)
 
-    targets = BsRequest.to_project(name)
+    targets = BsRequest.joins(:bs_request_actions)
+                       .to_project(name)
                        .or(BsRequest.from_project(name))
-                       .where(state: :new).with_actions
+                       .where(state: :new)
                        .pluck(:number)
 
     incidents = BsRequest.to_project(name)

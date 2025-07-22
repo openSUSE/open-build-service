@@ -353,7 +353,7 @@ RSpec.describe Project, :vcr do
       end
 
       it 'does include targets' do
-        expect(subject[:targets]).to eq([incident, other_target, target].pluck(:number))
+        expect(subject[:targets]).to match_array([incident, other_target, target].pluck(:number))
       end
 
       it 'does include incidents' do
