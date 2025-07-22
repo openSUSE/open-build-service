@@ -52,8 +52,6 @@ class BsRequest < ApplicationRecord
       )
   }
 
-  scope :with_actions_and_reviews, -> { joins(:bs_request_actions).left_outer_joins(:reviews).distinct.order(priority: :asc, id: :desc) }
-
   scope :obsolete, -> { where(state: OBSOLETE_STATES) }
 
   has_many :bs_request_actions, dependent: :destroy
