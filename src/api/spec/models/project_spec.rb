@@ -380,7 +380,7 @@ RSpec.describe Project, :vcr do
         let(:package) { create(:package, project: subproject) }
 
         it 'does include maintenance_release' do
-          expect(subject[:maintenance_release]).to eq([other_release.number, release.number])
+          expect(subject[:maintenance_release]).to contain_exactly(other_release.number, release.number)
         end
       end
     end
