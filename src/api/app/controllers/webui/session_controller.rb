@@ -1,6 +1,5 @@
 class Webui::SessionController < Webui::WebuiController
-  before_action :session_creator, only: [:create]
-  before_action :authenticate, only: [:create]
+  before_action :authenticate_user, only: [:create]
   before_action :check_user_active, only: [:create]
 
   skip_before_action :check_anonymous, only: [:create]
@@ -8,36 +7,38 @@ class Webui::SessionController < Webui::WebuiController
   def new; end
 
   def create
-    User.session = @session_creator.user
-    session[:login] = @session_creator.user.login
-    send_login_information_rabbitmq(:success)
+    session[:login] = @user.login
+    User.session = @user
+
+    RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui value=1')
+
     redirect_on_login
   end
 
   def destroy
     reset_session
-    send_login_information_rabbitmq(:logout)
     User.session = nil
+
+    RabbitmqBus.send_to_bus('metrics', 'logout,access_point=webui value=1')
+
     redirect_on_logout
   end
 
   private
 
-  def session_creator
-    @session_creator = SessionControllerService::SessionCreator.new(params.slice(:username, :password))
-  end
-
   def check_user_active
-    return if @session_creator.user.active?
+    return if @user.active?
 
-    send_login_information_rabbitmq(:disabled)
+    RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=disabled value=1')
     redirect_to(root_path, error: 'Your account is disabled. Please contact the administrator for details.')
   end
 
-  def authenticate
-    return if @session_creator.valid? && @session_creator.exist?
+  def authenticate_user
+    @user = User.find_with_credentials(params.fetch(:username, ''), params.fetch(:password, ''))
 
-    send_login_information_rabbitmq(:unauthenticated)
+    return if @user
+
+    RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=unauthenticated value=1')
     redirect_to(new_session_path, error: 'Authentication failed')
   end
 
