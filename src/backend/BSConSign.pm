@@ -178,4 +178,20 @@ sub create_cosign_cookie {
   return Digest::SHA::sha256_hex("$creator/$pubkeyid/$reference");
 }
 
+sub add_cosign_bundle_annotation {
+  my ($sig_ent, $rekorentry) = @_;
+  # see cosign's EntryToBundle function
+  return unless $rekorentry->{'verification'};
+  die("addbundleannotation: rekor entry is incomplete\n") unless $rekorentry->{'body'} && $rekorentry->{'integratedTime'} && $rekorentry->{'logIndex'} && $rekorentry->{'logID'} && $rekorentry->{'verification'}->{'signedEntryTimestamp'};
+  my $bundle = {};
+  $bundle->{'Payload'} = {
+    'body' => $rekorentry->{'body'},
+    'integratedTime' => $rekorentry->{'integratedTime'},
+    'logIndex' => $rekorentry->{'logIndex'},
+    'logID' => $rekorentry->{'logID'},
+  };
+  $bundle->{'SignedEntryTimestamp'} = $rekorentry->{'verification'}->{'signedEntryTimestamp'};
+  $sig_ent->{'annotations'}->{'dev.sigstore.cosign/bundle'} = canonical_json($bundle);
+}
+
 1;

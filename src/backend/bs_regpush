@@ -381,11 +381,13 @@ sub cosign_upload_rekor {
     print "uploading cosign signature to $rekorserver\n";
     die unless @layer_ents == 1;
     my $hash = 'sha256:'.Digest::SHA::sha256_hex($layer_ents[0]->{'data'});	# must match signfunc
-    BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
+    my ($rekorkey, $rekorentry) = BSRekor::upload_hashedrekord($rekorserver, $hash, $sslpubkey, $sig);
+    BSConSign::add_cosign_bundle_annotation($layer_ents[0], $rekorentry);
   } else {
     print "uploading cosign attestations to $rekorserver\n";
     for my $attestation_ent (@layer_ents) {
-      BSRekor::upload_intoto($rekorserver, $attestation_ent->{'data'}, $sslpubkey);
+      my ($rekorkey, $rekorentry) = BSRekor::upload_intoto($rekorserver, $attestation_ent->{'data'}, $sslpubkey);
+      BSConSign::add_cosign_bundle_annotation($attestation_ent, $rekorentry);
     }
   }
 }
