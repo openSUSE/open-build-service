@@ -32,9 +32,7 @@ class ReportPolicy < ApplicationPolicy
 
   def notify?
     return false unless Flipper.enabled?(:content_moderation, user)
-    return true if User.moderators.blank? && (user.admin? || user.staff?)
-    return true if user.moderator?
 
-    false
+    user.moderator? || user.admin? || user.staff?
   end
 end
