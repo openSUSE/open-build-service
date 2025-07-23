@@ -18,7 +18,7 @@ class NotificationWorkflowRun < Notification
   def link_path
     return if notifiable.blank?
 
-    Rails.application.routes.url_helpers.token_workflow_run_path(notifiable.token, notifiable, notification_id: id)
+    Rails.application.routes.url_helpers.token_workflow_run_path(notifiable.token_id, notifiable.id, notification_id: id)
   end
 end
 
