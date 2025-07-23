@@ -34,6 +34,7 @@ use IO::Compress::RawDeflate;
 our $mt_cosign = 'application/vnd.dev.cosign.simplesigning.v1+json';
 our $mt_dsse   = 'application/vnd.dsse.envelope.v1+json';
 our $mt_intoto = 'application/vnd.in-toto+json';
+our $mt_cosign_bundle = 'application/vnd.dev.sigstore.bundle.v0.3+json';
 
 our $intoto_predicate_spdx      = 'https://spdx.dev/Document';
 our $intoto_predicate_cyclonedx = 'https://cyclonedx.org/bom';
@@ -178,11 +179,37 @@ sub create_cosign_cookie {
   return Digest::SHA::sha256_hex("$creator/$pubkeyid/$reference");
 }
 
+sub create_cosign_attestation_ent_newbundle {
+  my ($attestation, $annotations, $predicatetype) = @_;
+  my $dsse = JSON::XS::decode_json($attestation);
+  my $bundle = { 'mediaType' => $mt_cosign_bundle };
+  $bundle->{'dsseEnvelope'} = JSON::XS::decode_json($attestation);
+  my $bundle_json = canonical_json($bundle);
+  my %annotations = %{$annotations || {}};
+  $annotations{'dev.sigstore.bundle.content'} = 'dsse-envelope';
+  $annotations{'dev.sigstore.bundle.predicateType'} = $predicatetype if $predicatetype;
+  # $annotations{'org.opencontainers.image.created'} = ...;
+  return create_entry($bundle_json, 'mimetype' => $mt_cosign_bundle, 'annotations' => \%annotations);
+}
+
 sub add_cosign_bundle_annotation {
-  my ($sig_ent, $rekorentry) = @_;
-  # see cosign's EntryToBundle function
+  my ($ent, $rekorentry, $keyid) = @_;
   return unless $rekorentry->{'verification'};
+
+  if ($ent->{'mimetype'} eq $mt_cosign_bundle) {
+    # entry is in new bundle format
+    my $pki = defined($keyid) ? {} : undef;
+    $pki->{'hint'} = $keyid if $keyid;
+    my $bundle = JSON::XS::decode_json($ent->{'data'});
+    $bundle->{'verificationMaterial'} = { 'tlogEntries' => [ rekorentry_to_tle($rekorentry) ] };
+    $bundle->{'verificationMaterial'}->{'publicKeyIdentifier'} = $pki if $pki;
+    my $bundle_json = canonical_json($bundle);
+    %$ent = (%$ent, %{ create_entry($bundle_json) });	# patch in new values
+    return;
+  }
+
   die("addbundleannotation: rekor entry is incomplete\n") unless $rekorentry->{'body'} && $rekorentry->{'integratedTime'} && $rekorentry->{'logIndex'} && $rekorentry->{'logID'} && $rekorentry->{'verification'}->{'signedEntryTimestamp'};
+  # see cosign's EntryToBundle function
   my $bundle = {};
   $bundle->{'Payload'} = {
     'body' => $rekorentry->{'body'},
@@ -191,7 +218,48 @@ sub add_cosign_bundle_annotation {
     'logID' => $rekorentry->{'logID'},
   };
   $bundle->{'SignedEntryTimestamp'} = $rekorentry->{'verification'}->{'signedEntryTimestamp'};
-  $sig_ent->{'annotations'}->{'dev.sigstore.cosign/bundle'} = canonical_json($bundle);
+  $ent->{'annotations'}->{'dev.sigstore.cosign/bundle'} = canonical_json($bundle);
+}
+
+sub rekorentry_to_tle {
+  my ($rekorentry) = @_;
+  # see rekor's GenerateTransparencyLogEntry function
+  die("rekorentry_to_tle: rekor entry is incomplete\n") unless $rekorentry->{'body'} && $rekorentry->{'integratedTime'} && $rekorentry->{'logIndex'} && $rekorentry->{'logID'} && $rekorentry->{'verification'} && $rekorentry->{'verification'}->{'signedEntryTimestamp'} && $rekorentry->{'verification'}->{'inclusionProof'};
+  my $body = JSON::XS::decode_json(MIME::Base64::decode_base64($rekorentry->{'body'}));
+  die("missing kind or apiVersion in rekor entry body\n") unless $body->{'apiVersion'} && $body->{'kind'};
+  my $tle = {};
+  # the stringifys below are needed because protojson encodes 64bit numbers as strings
+  $tle->{'logIndex'} = "$rekorentry->{'logIndex'}";			# stringify
+  $tle->{'logId'} = { 'keyid' => MIME::Base64::encode_base64(pack('H*', $rekorentry->{'logID'}), '') };
+  $tle->{'kindVersion'} = { 'kind' => $body->{'kind'}, 'version' => $body->{'apiVersion'} };
+  $tle->{'integratedTime'} = "$rekorentry->{'integratedTime'}";		# stringify
+  $tle->{'inclusionPromise'} = { 'signedEntryTimestamp' => $rekorentry->{'verification'}->{'signedEntryTimestamp'} };
+  my $ip = $rekorentry->{'verification'}->{'inclusionProof'};
+  $tle->{'inclusionProof'} = {
+    'logIndex' => "$ip->{'logIndex'}",				# stringify
+    'rootHash' => MIME::Base64::encode_base64(pack('H*', $ip->{'rootHash'}), ''),
+    'treeSize' => "$ip->{'treeSize'}",				# stringify
+    'hashes'   => [ map {MIME::Base64::encode_base64(pack('H*', $_), '')} @{$ip->{'hashes'} || []}],
+    'checkpoint' => { 'envelope' => $ip->{'checkpoint'} },
+  };
+  $tle->{'canonicalizedBody'} = $rekorentry->{'body'};
+  return $tle;
+}
+
+sub dsse_envelope_from_ent {
+  my ($ent) = @_;
+  if ($ent->{'mimetype'} eq $mt_cosign_bundle) {
+    my $bundle = JSON::XS::decode_json($ent->{'data'});
+    my $dsse = $bundle->{'dsseEnvelope'};
+    die("dsse_envelope_from_ent: not a dsseEnvelope bundle\n") unless $dsse;
+    my $envelope = { '_payloadType' => $dsse->{'payloadType'}, 'payload' => $dsse->{'payload'}, 'signatures' => $dsse->{'signatures'} };
+    $bundle = $dsse = undef;	# free mem
+    my $envelope_json = canonical_json($envelope);
+    $envelope_json =~ s/_payloadType/payloadType/;
+    return $envelope_json;
+  }
+  die("dsse_envelope_from_ent: not a dsse type\n") if $ent->{'mimetype'} ne $mt_dsse;
+  return $ent->{'data'};
 }
 
 1;
