@@ -49,7 +49,7 @@
             %li
               %hr.dropdown-divider
             %li.dropdown-item
-              = link_to(session_path, method: :delete, id: 'logout-link', class: 'nav-link p-0 w-100') do
+              = link_to(log_out_url, id: 'logout-link', class: 'nav-link p-0 w-100') do
                 %i.fas.fa-sign-out-alt.fa-fw.me-2
                 Logout
       - else

@@ -449,7 +449,13 @@ constraints(RoutesHelper::WebuiMatcher) do
   end
   # Legacy routes end
 
-  resource :session, only: %i[new create destroy], controller: 'webui/session'
+  constraints(RoutesHelper::SessionAuthMatcher) do
+    resource :session, only: %i[new create], controller: 'webui/session' do
+      collection do
+        get :reset
+      end
+    end
+  end
 
   resources :groups, only: %i[index show new create edit update], param: :title, constraints: cons, controller: 'webui/groups' do
     resources :user, only: %i[create destroy update], param: :user_login, constraints: cons, controller: 'webui/groups/users'
