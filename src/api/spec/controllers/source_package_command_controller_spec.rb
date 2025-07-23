@@ -24,7 +24,7 @@ RSpec.describe SourcePackageCommandController, :vcr do
 
     context 'without project' do
       before do
-        project.destroy
+        user.run_as { project.destroy }
       end
 
       it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('unknown_project') }
@@ -32,7 +32,7 @@ RSpec.describe SourcePackageCommandController, :vcr do
 
     context 'without package' do
       before do
-        package.destroy
+        user.run_as { package.destroy }
       end
 
       it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('unknown_package') }
@@ -40,7 +40,7 @@ RSpec.describe SourcePackageCommandController, :vcr do
 
     context 'without release targets' do
       before do
-        project.repositories.first.release_targets.first.destroy
+        user.run_as { project.repositories.first.release_targets.first.destroy }
       end
 
       it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('no_matching_release_target') }
@@ -71,7 +71,7 @@ RSpec.describe SourcePackageCommandController, :vcr do
       end
 
       before do
-        project.packages.first.destroy
+        user.run_as { project.packages.first.destroy }
         # rubocop:disable Rails/SkipsModelValidations
         project.update_columns(scmsync: 'https://github.com/hennevogel/scmsync-project.git')
         # rubocop:enable Rails/SkipsModelValidations
@@ -110,7 +110,7 @@ RSpec.describe SourcePackageCommandController, :vcr do
       let(:package) { create(:package) }
 
       before do
-        package.destroy
+        user.run_as { package.destroy }
         login user
 
         post :undelete, params: {
@@ -125,7 +125,7 @@ RSpec.describe SourcePackageCommandController, :vcr do
       let(:package) { create(:package, name: 'some_package', project: project) }
 
       before do
-        package.destroy
+        user.run_as { package.destroy }
         login user
 
         post :undelete, params: {
@@ -140,7 +140,7 @@ RSpec.describe SourcePackageCommandController, :vcr do
       let(:package) { create(:package, project: project) }
 
       before do
-        package.destroy
+        user.run_as { package.destroy }
         login user
 
         post :undelete, params: {
@@ -157,7 +157,7 @@ RSpec.describe SourcePackageCommandController, :vcr do
       let(:future) { 4_803_029_439 }
 
       before do
-        package.destroy
+        admin.run_as { package.destroy }
         login admin
 
         post :undelete, params: {

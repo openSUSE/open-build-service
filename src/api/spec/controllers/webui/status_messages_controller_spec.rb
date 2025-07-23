@@ -140,9 +140,10 @@ RSpec.describe Webui::StatusMessagesController do
     end
 
     context 'when the news item is already acknowledged' do
+      let(:message) { create(:status_message, user: admin_user, users: [admin_user]) }
+
       before do
         login(admin_user)
-        message.acknowledge!
         post :acknowledge, params: { id: message.id }, xhr: true
       end
 
