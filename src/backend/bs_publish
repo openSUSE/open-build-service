@@ -3686,6 +3686,8 @@ sub check_publish_prg_running {
 }
 
 my %publish_retry;
+my %publish_retry_backoff;
+
 my %publish_lasttime;
 my %publish_duration;
 
@@ -3696,7 +3698,7 @@ sub writepublishtimeevent {
     'project' => $projid,
     'repository' => $repoid,
     'job' => "$now $duration",
-  };   
+  };
   $ev->{'job'} .= " $evn" if defined $evn;
   my $evname = "publishtime::${projid}::$repoid";
   $evname = "publishtime::".Digest::MD5::md5_hex($evname) if length($evname) > 200; 
@@ -3726,12 +3728,19 @@ sub clean_publish_retry {
   }
 }
 
+sub clean_publish_retry_backoff {
+  for (sort keys %publish_retry_backoff) {
+    delete($publish_retry_backoff{$_}) unless $publish_retry{$_};
+  }
+}
+
 sub set_publish_retry {
-  my ($req, $due) = @_;
+  my ($req, $due, $incbackoff) = @_;
   $publish_retry{$req->{'event'}} = $due;
+  $publish_retry_backoff{$req->{'event'}}++ if $incbackoff;
   my $ev = $req->{'ev'};
   if ($req->{'forked'}) {
-    writepublishtimeevent($ev->{'project'}, $ev->{'repository'}, 0, $due, $req->{'event'});
+    writepublishtimeevent($ev->{'project'}, $ev->{'repository'}, $incbackoff ? 1 : 0, $due, $req->{'event'});
   } else {
     BSUtil::ping("$myeventdir/.ping");	# see BSStdRunnder::setdue
   }
@@ -3808,7 +3817,11 @@ sub publishevent {
     my $err = $@;
     $err =~ s/\n.*//s;
     clear_repoinfo_state($prp, $err);
-    set_publish_retry($req, $now + 60);
+    my $backoff = $publish_retry_backoff{$req->{'event'}} || 0;
+    $backoff = 5 if $backoff > 5;
+    $backoff = (1 << $backoff);
+    print "retrying in $backoff minutes\n" if $backoff > 1;
+    set_publish_retry($req, $now + $backoff * 60, 1);
     publishstats($req, $prp, $code, $starttime, $now);
     db_sync();
     BSUtil::printlog("publish failed for $prp") if $req->{'forked'};
@@ -3835,11 +3848,12 @@ sub publishtimeevent {
   my ($req, $projid, $repoid, $job) = @_;
   my $prp = "$projid/$repoid";
   my ($lasttime, $duration, $evn) = split(' ', $job, 3);
-  if ($lasttime) {
+  if ($lasttime && $lasttime != 1) {
     $publish_lasttime{$prp} = $lasttime;
     $publish_duration{$prp} = $duration;
   } elsif (defined($evn)) {
     $publish_retry{$evn} = $duration;
+    $publish_retry_backoff{$evn}++ if $lasttime;
   }
   return 1;
 }
@@ -3853,6 +3867,7 @@ sub configurationevent {
 
 sub lsevents {
   clean_publish_retry() if %publish_retry;
+  clean_publish_retry_backoff() if %publish_retry_backoff;
   my @events = BSStdRunner::lsevents(@_);
   # put publishtime and highprio events to the front
   my @publishtimeevents = grep {/^publishtime/} @events;
@@ -3875,7 +3890,7 @@ sub getevent {
   # publishtime and configuration events are nofork events
   my $evtype = $req->{'ev'}->{'type'} || '';
   if ($evtype eq 'publishtime') {
-    return ($req, 1, 1) if ($req->{'ev'}->{'job'} || '') =~ /^0 /;
+    return ($req, 1, 1) if ($req->{'ev'}->{'job'} || '') =~ /^[01] /;
     return ($req, undef, 1);
   }
   return ($req, undef, 1) if $evtype eq 'configuration';
