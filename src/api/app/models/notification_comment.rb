@@ -24,7 +24,7 @@ class NotificationComment < Notification
 
   def avatar_objects
     comments = notifiable.commentable.comments
-    comments.select { |comment| comment.updated_at >= unread_date }.map(&:user).uniq.compact
+    User.joins(:comments).where(comments: { updated_at: unread_date... }).where(comments: comments).distinct
   end
 
   def link_text
