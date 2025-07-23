@@ -40,5 +40,16 @@ RSpec.describe Webui::Projects::PulseController do
         expect(controller.instance_variable_get(:@date_range_to)).to eq(default_to)
       end
     end
+
+    context 'show an error message if From|To dates are not in a valid format' do
+      subject { get :show, format: :html, params: { project_name: project.name, from: '2025-07-08', to: '5358-30-46' } }
+
+      it { expect(flash[:error]).to eq('From or To dates are not in a valid format, using default time range') }
+
+      it 'assigns the default date range' do
+        expect(controller.instance_variable_get(:@date_range_from)).to eq(default_from)
+        expect(controller.instance_variable_get(:@date_range_to)).to eq(default_to)
+      end
+    end
   end
 end
