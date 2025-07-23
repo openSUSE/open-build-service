@@ -38,8 +38,9 @@
       .row.mt-1.ps-sm-4.flex-nowrap
         .col-auto.pe-0
           %ul.list-inline.d-flex.flex-row-reverse.avatars.m-0
-            = hidden_avatars(notification)
-            - avatars_to_display(notification.avatar_objects).each do |avatar_object|
+            - notification_avatar_objects = notification.avatar_objects
+            = hidden_avatars(notification_avatar_objects)
+            - avatars_to_display(notification_avatar_objects).each do |avatar_object|
               %li.list-inline-item
                 - if avatar_object.class.name == 'Package'
                   %span.fa.fa-archive.text-warning.rounded-circle.bg-body-secondary.border.simulated-avatar{
