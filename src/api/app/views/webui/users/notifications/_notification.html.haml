@@ -18,13 +18,13 @@
             = render TimeComponent.new(time: notification.created_at)
           - if notification.notifiable_type == 'BsRequest'
             = render BsRequestStateBadgeComponent.new(state: notification.notifiable.state)
-          - if notification.notifiable_type == 'WorkflowRun'
+          - elsif notification.notifiable_type == 'WorkflowRun'
             = render WorkflowRunStatusBadgeComponent.new(status: notification.notifiable.status, css_class: 'ms-1')
-          - if notification.notifiable_type == 'Report' && count_of_additional_reports_for_reportable(notification) >= 1
+          - elsif notification.notifiable_type == 'Report' && count_of_additional_reports_for_reportable(notification) >= 1
             %span.badge.text-bg-info.ms-1
               +#{count_of_additional_reports_for_reportable(notification)}
               = 'Report'.pluralize(count_of_additional_reports_for_reportable(notification))
-          - if notification.notifiable_type == 'Report'
+          - elsif notification.notifiable_type == 'Report'
             - if notification.notifiable.decision.present?
               %span.badge.text-bg-success.ms-1
                 %i.fas.fa-gavel.me-1
