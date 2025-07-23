@@ -8,13 +8,11 @@ module FeaturesAuthentication
       click_button 'Log In'
     end
     expect(page).to have_link 'link-to-user-home', visible: :all
-    User.session = user
   end
 
   def logout
     visit reset_session_path
     expect(page).to have_no_link('link-to-user-home')
-    User.session = nil
   end
 end
 
