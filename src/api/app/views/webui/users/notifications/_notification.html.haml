@@ -41,13 +41,13 @@
             = hidden_avatars(notification)
             - avatars_to_display(notification.avatar_objects).each do |avatar_object|
               %li.list-inline-item
-                - if avatar_object.class.name == 'Package'
+                - if avatar_object.is_a?(Package)
                   %span.fa.fa-archive.text-warning.rounded-circle.bg-body-secondary.border.simulated-avatar{
                     title: "Package #{avatar_object.project}/#{avatar_object}" }
-                - elsif avatar_object.class.name == 'Project'
+                - elsif avatar_object.is_a?(Project)
                   %span.fa.fa-cubes.text-secondary.rounded-circle.bg-body-secondary.border.simulated-avatar{
                     title: "Project #{avatar_object}" }
-                - else
+                - elsif avatar_object.is_a?(User) || avatar_object.is_a?(Group)
                   = render(AvatarComponent.new(name: avatar_object.name, email: avatar_object.email, size: 23, shape: :circle))
         .col.ps-xs-2.text-break
           = description(notification)
