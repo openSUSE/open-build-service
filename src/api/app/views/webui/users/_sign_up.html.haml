@@ -4,7 +4,7 @@
   - if CONFIG['proxy_auth_register_page'].blank?
     %p Sorry, signing up is currently disabled
   - else
-    %p= link_to 'Use this link to Sign Up', proxy_auth_register_page
+    %p= link_to 'Use this link to Sign Up', CONFIG['proxy_auth_register_page']
 - else
   = form_tag(users_path, method: :post, class: 'sign-up', autocomplete: 'off') do
     .mb-3

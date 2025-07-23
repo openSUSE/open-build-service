@@ -70,7 +70,7 @@
       %li
         %hr
       %li.nav-item
-        = link_to(session_path, method: :delete, id: 'logout-link', class: 'nav-link') do
+        = link_to(log_out_url, id: 'logout-link', class: 'nav-link') do
           %i.fas.fa-sign-out-alt.fa-fw.me-2
           Logout
   - else

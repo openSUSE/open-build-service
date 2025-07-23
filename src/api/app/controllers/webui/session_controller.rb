@@ -15,7 +15,7 @@ class Webui::SessionController < Webui::WebuiController
     redirect_on_login
   end
 
-  def destroy
+  def reset
     reset_session
     User.session = nil
 
@@ -51,9 +51,7 @@ class Webui::SessionController < Webui::WebuiController
   end
 
   def redirect_on_logout
-    if ::Configuration.proxy_auth_mode_enabled?
-      redirect_to CONFIG['proxy_auth_logout_page']
-    elsif ::Configuration.anonymous
+    if ::Configuration.anonymous
       redirect_back_or_to root_path
     else
       redirect_to root_path

@@ -24,6 +24,14 @@ module AuthenticationProtocolHelper
     end
   end
 
+  def log_out_url
+    if ::Configuration.proxy_auth_mode_enabled?
+      CONFIG['proxy_auth_logout_page']
+    else
+      reset_session_path
+    end
+  end
+
   def sign_up_params
     return { url: CONFIG['proxy_auth_register_page'] } if ::Configuration.proxy_auth_mode_enabled?
 
