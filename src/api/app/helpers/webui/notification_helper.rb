@@ -46,14 +46,14 @@ module Webui::NotificationHelper
     end
   end
 
-  def hidden_avatars(notification)
-    return unless number_of_hidden_avatars(notification.avatar_objects).positive?
+  def hidden_avatars(avatar_objects)
+    return unless number_of_hidden_avatars(avatar_objects).positive?
 
     concat(
       tag.li(class: 'list-inline-item') do
-        tag.span(number_of_hidden_avatars(notification.avatar_objects).to_s,
+        tag.span(number_of_hidden_avatars(avatar_objects).to_s,
                  class: 'rounded-circle bg-body-secondary border avatars-counter',
-                 title: "#{number_of_hidden_avatars(notification.avatar_objects)} more users involved")
+                 title: "#{number_of_hidden_avatars(avatar_objects)} more users involved")
       end
     )
   end
