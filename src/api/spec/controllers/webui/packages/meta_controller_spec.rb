@@ -24,7 +24,7 @@ RSpec.describe Webui::Packages::MetaController, :vcr do
         get :show, params: { project_name: source_project, package_name: 'some_package' }
       end
 
-      it { expect(response).to have_http_status(:not_found) }
+      it { expect(response).to redirect_to(project_show_path(source_project)) }
 
       it 'does not set the xml representation of a package' do
         expect(assigns(:meta)).to be_nil
