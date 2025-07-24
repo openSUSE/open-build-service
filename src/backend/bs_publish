@@ -3816,15 +3816,28 @@ sub publishevent {
     # delete state from repoinfo so that we will always re-publish
     my $err = $@;
     $err =~ s/\n.*//s;
+    my ($noretry, $retry_after);
+    if ($err =~ s/^CRITICAL_NORETRY:\s*//) {
+      BSUtil::logcritical($err);
+      $noretry = 1;
+    } elsif ($err =~ s/^CRITICAL:\s*//) {
+      BSUtil::logcritical($err);
+    } elsif ($err =~ s/^RETRY_AFTER(\d+):\s*//) {
+      $retry_after = $1;
+    }
     clear_repoinfo_state($prp, $err);
-    my $backoff = $publish_retry_backoff{$req->{'event'}} || 0;
-    $backoff = 5 if $backoff > 5;
-    $backoff = (1 << $backoff);
-    print "retrying in $backoff minutes\n" if $backoff > 1;
-    set_publish_retry($req, $now + $backoff * 60, 1);
+    if (!$noretry) {
+      my $backoff = $publish_retry_backoff{$req->{'event'}} || 0;
+      $backoff = 5 if $backoff > 5;
+      $backoff = (1 << $backoff);
+      $backoff = $retry_after if $retry_after && $backoff < $retry_after;
+      print "retrying in $backoff minutes\n" if $backoff > 1;
+      set_publish_retry($req, $now + $backoff * 60, 1);
+    }
     publishstats($req, $prp, $code, $starttime, $now);
     db_sync();
     BSUtil::printlog("publish failed for $prp") if $req->{'forked'};
+    return 1 if $noretry;	# this will delete the publish event
     return 0;
   }
 
