@@ -42,7 +42,13 @@ class RpmlintLogExtractor
   def retrieve_rpmlint_log_from_log
     @parse_internal_log_file = true
 
-    log_content = Backend::Api::BuildResults::Binaries.file(project, repository, architecture, package, '_log')
+    log_content = begin
+      Backend::Api::BuildResults::Binaries.file(project, repository, architecture, package, '_log')
+    rescue Backend::NotFoundError # do not crash if no `_log` file found, just return empty log_content
+      @parse_internal_log_file = false
+      ''
+    end
+
     # Remove invalid byte sequences
     log_content.scrub!
 
