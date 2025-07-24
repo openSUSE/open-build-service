@@ -931,9 +931,6 @@ while (@ARGV) {
     (undef, $gun) = splice(@ARGV, 0, 2);
   } elsif ($ARGV[0] eq '-p') {
     (undef, $pubkeyfile) = splice(@ARGV, 0, 2);
-  } elsif ($ARGV[0] eq '--dest-creds') {
-    $dest_creds = BSBearer::get_credentials($ARGV[1]);
-    splice(@ARGV, 0, 2);
   } elsif ($ARGV[0] eq '-P' || $ARGV[0] eq '--project' || $ARGV[0] eq '-u' || $ARGV[0] eq '--signtype' || $ARGV[0] eq '--signflavor' || $ARGV[0] eq '-h') {
     my @signopts = splice(@ARGV, 0, 2);
     push @signcmd, @signopts unless $signopts[0] eq '-h';
@@ -955,10 +952,21 @@ while (@ARGV) {
   }
 }
 
+if (@ARGV && $ARGV[0] =~ /^config:(.+)/) {
+  my $regname = $1;
+  require BSConfiguration;
+  my $registry;
+  $registry = $BSConfig::container_registries->{$regname} if $BSConfig::container_registries;
+  die("unknown registry $regname\n") unless $registry;
+  $ARGV[0] = $registry->{'pushserver'} || $registry->{'server'};
+  $dest_creds = BSBearer::get_credentials("$registry->{'user'}:$registry->{'password'}") if !$dest_creds && $registry->{'user'};
+}
+
 $registry_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => (-c STDOUT ? 1 : 0));
 $registry_blob_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => (-c STDOUT ? 1 : 0));
 
 if ($list_mode) {
+  die_with_usage() unless @ARGV >= 1;
   ($registryserver, $repository) = @ARGV;
   if (@ARGV == 1) {
     for my $repo (sort(get_all_repositories())) {
@@ -1011,10 +1019,9 @@ if ($list_mode) {
   exit(0);
 }
 
-die_with_usage() unless @ARGV >= 2;
-($registryserver, $repository, @tarfiles) = @ARGV;
-
 if ($delete_mode || $delete_except_mode) {
+  die_with_usage() unless @ARGV == 2;
+  ($registryserver, $repository) = @ARGV;
   die("cannot do both delete and delete-except\n") if $delete_mode && $delete_except_mode;
   my %tags;
   $tags{$_} = 1 for @tags;
@@ -1035,6 +1042,9 @@ if ($delete_mode || $delete_except_mode) {
   }
   exit;
 }
+
+die_with_usage() unless @ARGV >= 2;
+($registryserver, $repository, @tarfiles) = @ARGV;
 
 if ($cosign) {
   require BSConfiguration;
