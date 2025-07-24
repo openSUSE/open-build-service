@@ -563,6 +563,19 @@ sub rpc {
         return rpc(\%myparam, $xmlargs, @args);
       }
     }
+    if ($status =~ /^429[^\d]/ && $param->{'toomanyrequests'}) {
+      my $sleep = 60;
+      $sleep = $1 if $headers{'retry-after'} && $headers{'retry-after'} =~ /^\s*(\d+)\s*$/;
+      $sleep = 10 if $sleep < 10;
+      $sleep = $param->{'toomanyrequests'}->($param, $sleep) if ref($param->{'toomanyrequests'}) eq 'CODE';
+      if ((!$param->{'timeout'} || $sleep < $param->{'timeout'}) && (ref($param->{'toomanyrequests'}) || $sleep < $param->{'toomanyrequests'})) {
+	close $sock;
+	sleep($sleep);
+	my %myparam = %$param;
+	$myparam{'toomanyrequests'} -= $sleep unless ref($myparam{'toomanyrequests'});
+        return rpc(\%myparam, $xmlargs, @args);
+      }
+    }
     if (!$param->{'ignorestatus'}) {
       close $sock;
       die("$1 remote error: $2 ($uri)\n") if $status =~ /^(\d+) +(.*?)$/;
