@@ -5,7 +5,9 @@ class OutdatedNotificationsFinder::Group
   end
 
   def call
-    # Notifications about added members shouldn't replace notifications about removed members and vice versa, so event_type should match.
-    @scope.where(notifiable_type: 'Group', notifiable_id: @parameters[:notifiable_id], event_type: @parameters[:event_type])
+    # Only replace the notification if it's identical: same member added/removed from the same group by the same person.
+    # That's why we need to compare with both event_type and event_payload.
+    @scope.where(notifiable_type: 'Group', notifiable_id: @parameters[:notifiable_id],
+                 event_type: @parameters[:event_type], event_payload: @parameters[:event_payload])
   end
 end
