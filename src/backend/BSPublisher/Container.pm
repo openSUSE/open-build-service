@@ -409,6 +409,21 @@ sub create_container_index_info {
   return $info;
 }
 
+sub process_regpush_error {
+  my ($op, $result) = @_;
+  if (($result & 255) == 0) {
+    my $st = $result >> 8;	# get exit status
+    die("CRITICAL_NORETRY: error wile $op\n") if $st == 2;
+    if ($st >= 10 && $st < 20) {
+      $st -= 10;
+      my $sleep = $st < 5 ? (5, 10, 15, 30, 45)[$st] : ($st - 3) * 30;
+      $sleep *= 60;
+      die("RETRY_AFTER($sleep): error while $op\n");
+    }
+  }
+  die("error while $op: $result\n");
+}
+
 sub query_repostate {
   my ($registry, $repository, $tags, $subdigests, $missingok) = @_;
   my $registryserver = $registry->{pushserver} || $registry->{server};
@@ -477,6 +492,7 @@ sub query_repostate {
   }
   unlink($tagsfile) if $tagsfile;
   unlink($tempfile);
+  process_regpush_error('querying registry', $result) if $result;
   return $repostate;
 }
 
@@ -737,7 +753,7 @@ sub upload_to_registry {
   my $containerdigests = readstr($containerdigestfile, 1) || '';
   unlink($containerdigestfile);
   unlink($_) for @tempfiles;
-  die("error while uploading to registry: $result\n") if $result;
+  process_regpush_error('uploading to registry', $result) if $result;
 
   if ($data->{'notify'}) {
     $data->{'notify'}->("$gun:$_") for @$tags;
@@ -792,7 +808,7 @@ sub delete_obsolete_tags_from_registry {
   print "deleting obsolete tags: @cmd\n";
   my $result = BSPublisher::Util::qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', '', @cmd);
   unlink($containerdigestfile);
-  die("error while deleting tags from registry: $result\n") if $result;
+  process_regpush_error('deleting tags from registry', $result) if $result;
 }
 
 =head2 add_notary_upload - add notary upload information for a repository
@@ -1041,9 +1057,13 @@ sub do_remote_uploads {
   # query the current state of the registry
   my $repostate;
   my $subdigests = $safeguard ? {} : undef;
+
   my $querytags;
   $querytags = [ sort keys %$uptags ] if $registry->{'nodelete'};
-  $repostate = eval { query_repostate($registry, $repository, $querytags, $subdigests) } if 1;
+  my $missingok = $registry->{'need_repostate'} ? 1 : 0;
+  $repostate = eval { query_repostate($registry, $repository, $querytags, $subdigests, $missingok) };
+  die($@) if $@ && $registry->{'need_repostate'};
+  die("could not get registry repository state\n") if !$repostate && $registry->{'need_repostate'};
 
   # check if we are allowed to remove tags
   if ($safeguard) {

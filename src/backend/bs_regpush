@@ -87,6 +87,33 @@ my $keepalive;
 
 my $cosign_cookie_name = 'org.open-build-service.cosign.cookie';
 
+sub warn_and_exit {
+  warn($_[1]);
+  exit($_[0]);
+}
+
+sub rpc_failed {
+  # exit with status 2 for rpc errors that point to a configuration error
+  warn_and_exit(2, $_[0]) if $_[0] =~ /^4\d\d[^\d]/ && $_[0] !~ /^(?:401|404|408|410|417|429)/;
+  die($_[0]);
+}
+
+sub toomanyrequests {
+  my ($param, $sleep) = @_;
+  return $sleep if $sleep <= 60;
+  # convert sleep time into exit status
+  $sleep = int(($sleep + 59) / 60);
+  my $st;
+  if ($sleep <= 60) {
+    $st = (0, 0, 1, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5)[int(($sleep + 4) / 5)];
+  } else {
+    $st = 3 + int(($sleep + 29) / 30);
+  }
+  $st = 0 if $st < 0;
+  $st = 9 if $st > 9;
+  warn_and_exit(10 + $st, "429 Too Many Requests ($sleep)\n");
+}
+
 sub registry_errorcode {
   my ($answer) = @_;
   my $code;
@@ -123,6 +150,7 @@ sub blob_exists {
     'request' => 'HEAD',
     'authenticator' => $registry_authenticator,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
     'replyheaders' => \$replyheaders,
     'maxredirects' => 1,
   };
@@ -154,9 +182,11 @@ sub blob_upload {
     'request' => 'POST',
     'authenticator' => $registry_authenticator,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
     'replyheaders' => \$replyheaders,
   };
-  BSRPC::rpc($param);
+  eval { BSRPC::rpc($param) };
+  rpc_failed($@) if $@;
   my $loc = $replyheaders->{'location'};
   my @locextra;
   if ($loc =~ s/\?(.*)$//) {
@@ -199,6 +229,7 @@ sub blob_download {
     'uri' => "$registryserver/v2/$repository/blobs/$blobid",
     'authenticator' => $registry_authenticator,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
     'receiver' => $filename eq '-' ? $stdout_receiver : \&BSHTTP::file_receiver,
     'filename' => $filename,
     'maxredirects' => 1,
@@ -212,6 +243,7 @@ sub blob_fetch {
     'uri' => "$registryserver/v2/$repository/blobs/$blobid",
     'authenticator' => $registry_authenticator,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
     'maxredirects' => 1,
   };
   return BSRPC::rpc($param);
@@ -231,6 +263,7 @@ sub manifest_exists_head {
     'authenticator' => $registry_authenticator,
     'replyheaders' => \$replyheaders,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
     'keepalive' => $keepalive,
   };
   eval { BSRPC::rpc($param) };
@@ -269,6 +302,7 @@ sub manifest_exists {
     'authenticator' => $registry_authenticator,
     'replyheaders' => \$replyheaders,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
     'keepalive' => $keepalive,
   };
   my $maniret;
@@ -306,7 +340,8 @@ sub manifest_upload {
     'replyheaders' => \$replyheaders,
     'data' => $manifest,
   };
-  BSRPC::rpc($param, undef);
+  eval { BSRPC::rpc($param, undef) };
+  rpc_failed($@) if $@;
   my $id = $replyheaders->{'docker-content-digest'};
   die("server did not return a content id\n") unless $id;
   die("server created a different manifest id: $maniid $id\n") if $maniid ne $id;
@@ -406,6 +441,7 @@ sub get_all_tags {
     'uri' => "$registryserver/v2/$repository/tags/list",
     'authenticator' => $registry_authenticator,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
     'replyheaders' => \$replyheaders,
     'keepalive' => $keepalive,
     'ignorestatus' => ($missing_ok ? 1 : 0),
@@ -436,6 +472,7 @@ sub get_all_repositories {
     'uri' => "$registryserver/v2/_catalog",
     'authenticator' => $registry_authenticator,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
     'replyheaders' => \$replyheaders,
   };
   while (1) {
@@ -459,14 +496,14 @@ sub get_manifest_for_tag {
     'authenticator' => $registry_authenticator,
     'replyheaders' => \$replyheaders,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
     'keepalive' => $keepalive,
   };
   push @{$param->{'headers'}}, "If-None-Match: $ifnonematch" if $ifnonematch;
-  my $mani_json;
-  eval { $mani_json = BSRPC::rpc($param); };
+  my $mani_json = eval { BSRPC::rpc($param) };
   if ($@) {
     return () if $@ =~ /^404/;	# tag does not exist
-    die($@);
+    rpc_failed($@);
   }
   my $mani = JSON::XS::decode_json($mani_json);
   my $maniid = $replyheaders->{'docker-content-digest'};
@@ -482,9 +519,9 @@ sub get_referrers {
     'authenticator' => $registry_authenticator,
     'replyheaders' => \$replyheaders,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
   };
-  my $mani_json;
-  $mani_json = BSRPC::rpc($param);
+  my $mani_json = BSRPC::rpc($param);
   my $mani = JSON::XS::decode_json($mani_json);
   my $maniid = $replyheaders->{'docker-content-digest'};
   return ($mani, $maniid, $mani_json);
@@ -502,8 +539,10 @@ sub delete_manifest {
     'request' => 'DELETE',
     'authenticator' => $registry_authenticator,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
   };
-  BSRPC::rpc($param, undef);
+  eval { BSRPC::rpc($param, undef) };
+  rpc_failed($@) if $@;
 }
 
 my $cannot_directly_delete_tags;
@@ -521,10 +560,11 @@ sub delete_tag {
       'request' => 'DELETE',
       'authenticator' => $registry_authenticator,
       'timeout' => $registry_timeout,
+      'toomanyrequests' => \&toomanyrequests,
     };
     eval { BSRPC::rpc($param, undef); };
     return unless $@;
-    die($@) unless $@ =~ /^40[05]/;
+    rpc_failed($@) unless $@ =~ /^40[05]/;
     $cannot_directly_delete_tags = 1;
   }
 
@@ -538,6 +578,7 @@ sub delete_tag {
     'request' => 'DELETE',
     'authenticator' => $registry_authenticator,
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
   };
   eval { BSRPC::rpc($param, undef); };
   my $err = $@;
@@ -545,7 +586,7 @@ sub delete_tag {
   if ($err) {
     # delete failed, switch tag back to the old image
     eval { manifest_upload($mani_json, $tag, $mani->{'mediaType'}, 1) if $newmaniid ne $maniid; };
-    die($err);
+    rpc_failed($err);
   }
 }
 
@@ -591,6 +632,7 @@ sub list_manifestinfo {
   my $param = {
     'uri' => ($manifestinfoserver || $registryserver)."/v2/$g$repository/manifestinfos/$maniid",
     'timeout' => $registry_timeout,
+    'toomanyrequests' => \&toomanyrequests,
   };
   $param->{'authenticator'} = $registry_authenticator unless $manifestinfoserver;
   my $manifestinfo_json = eval { BSRPC::rpc($param, undef) };
