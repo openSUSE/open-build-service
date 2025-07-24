@@ -705,7 +705,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     # now try as webui if we get a different error
     post '/request?cmd=create', params: load_backend_file('request/add_role'), headers: { 'HTTP_USER_AGENT' => 'obs-webui-something' }
-    assert_xml_tag tag: 'status', attributes: { code: 'anonymous_user' }
+    assert_xml_tag tag: 'status', attributes: { code: 'authentication_required' }
     assert_response :unauthorized
   end
 

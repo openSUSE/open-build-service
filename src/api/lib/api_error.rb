@@ -38,7 +38,16 @@ class APIError < RuntimeError
   end
 end
 
-# 403 errors (how about a subclass?)
+# 401 errors
+class NoPublicAccessError < APIError
+  setup 401, 'No public access is configured'
+end
+
+# 403 errors
+class AdminUserRequiredError < APIError
+  setup('put_request_no_permission', 403)
+end
+
 class NoPermission < APIError
   setup 403
 end

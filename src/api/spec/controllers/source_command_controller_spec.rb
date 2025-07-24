@@ -13,7 +13,7 @@ RSpec.describe SourceCommandController do
   describe 'POST #global_command_branch' do
     it 'is not accessible anonymously' do
       post :global_command_branch, params: { cmd: 'branch' }
-      expect(flash[:error]).to eq('Anonymous user is not allowed here - please login (anonymous_user)')
+      expect(flash[:error]).to eq('Authentication required (authentication_required)')
       expect(response).to redirect_to(root_path)
     end
   end
@@ -21,7 +21,7 @@ RSpec.describe SourceCommandController do
   describe 'POST #global_command_createmaintenanceincident' do
     it 'is not accessible anonymously' do
       post :global_command_createmaintenanceincident, params: { cmd: 'createmaintenanceincident' }
-      expect(flash[:error]).to eq('Anonymous user is not allowed here - please login (anonymous_user)')
+      expect(flash[:error]).to eq('Authentication required (authentication_required)')
       expect(response).to redirect_to(root_path)
     end
   end

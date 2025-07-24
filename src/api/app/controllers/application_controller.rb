@@ -20,12 +20,8 @@ class ApplicationController < ActionController::Base
 
   @skip_validation = false
 
-  # Each request starts out with the nobody user set.
-  before_action :set_nobody
-
   before_action :add_api_version
 
-  # skip the filter for the user stuff
   before_action :extract_user
   before_action :set_influxdb_data
   before_action :shutup_rails
@@ -35,14 +31,10 @@ class ApplicationController < ActionController::Base
   before_action :validate_xml_request
   after_action :validate_xml_response if CONFIG['response_schema_validation'] == true
 
-  delegate :extract_user,
-           :extract_user_public,
-           :require_login,
-           :require_admin,
-           to: :authenticator
+  delegate :extract_user, to: :authenticator
 
   def authenticator
-    @authenticator ||= Authenticator.new(request, session, response)
+    @authenticator ||= Authenticator.new(request)
   end
 
   def pundit_user
@@ -234,12 +226,20 @@ class ApplicationController < ActionController::Base
 
   private
 
-  def shutup_rails
-    Rails.cache.silence! unless Rails.env.development?
+  # A before_action to demand authentication
+  def require_login
+    raise Authenticator::AuthenticationRequiredError unless User.session
   end
 
-  def set_nobody
-    User.session = User.find_nobody!
+  # A before_action to demand the Admin role
+  def require_admin
+    return if User.possibly_nobody.admin?
+
+    raise AdminUserRequiredError, 'Requires admin privileges'
+  end
+
+  def shutup_rails
+    Rails.cache.silence! unless Rails.env.development?
   end
 
   def check_spider

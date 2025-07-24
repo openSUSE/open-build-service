@@ -3,9 +3,12 @@ class PublicController < ApplicationController
   include PublicHelper
 
   # we need to fall back to _nobody_ (_public_)
-  before_action :extract_user_public, :set_response_format_to_xml, :set_influxdb_data_interconnect
   skip_before_action :extract_user
   skip_before_action :require_login
+  before_action :set_response_format_to_xml
+  before_action :set_influxdb_data_interconnect
+  before_action :check_anonymous_access
+  before_action :set_anonymous_user
 
   # GET /public/build/:project/:repository/:arch/:package
   def build
@@ -209,6 +212,14 @@ class PublicController < ApplicationController
     }
   end
 
+  def check_anonymous_access
+    raise AuthenticationRequiredError unless ::Configuration.anonymous
+  end
+
+  def set_anonymous_user
+    User.session = User.find_nobody!
+  end
+
   # removes /private prefix from path
   def unshift_public(path)
     path =~ %r{/public(.*)} ? Regexp.last_match(1) : path
@@ -219,7 +230,7 @@ class PublicController < ApplicationController
     if use_source
       begin
         Package.get_by_project_and_name(project_name, package_name)
-      rescue Authenticator::AnonymousUser
+      rescue Authenticator::AuthenticationRequiredError
         # TODO: Use pundit for authorization instead
         raise Package::ReadSourceAccessError, "#{project_name} / #{package_name} "
       end
