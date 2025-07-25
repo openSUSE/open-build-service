@@ -18,45 +18,6 @@ Capybara/NegationMatcherAfterVisit:
     - 'spec/features/webui/users/user_contributions_spec.rb'
     - 'spec/support/features/features_authentication.rb'
 
-# Offense count: 35
-# This cop supports safe autocorrection (--autocorrect).
-Layout/EmptyLinesAfterModuleInclusion:
-  Exclude:
-    - 'app/controllers/application_controller.rb'
-    - 'app/controllers/source_package_meta_controller.rb'
-    - 'app/controllers/status/checks_controller.rb'
-    - 'app/controllers/status/reports_controller.rb'
-    - 'app/controllers/webui/patchinfo_controller.rb'
-    - 'app/controllers/webui/webui_controller.rb'
-    - 'app/lib/backend/api/cloud.rb'
-    - 'app/models/bs_request_action.rb'
-    - 'app/models/bs_request_action/differ/query_builder.rb'
-    - 'app/models/bs_request_action/differ/query_builder_for_accepted.rb'
-    - 'app/models/bs_request_action/differ/query_builder_for_superseded.rb'
-    - 'app/models/bs_request_action/differ/source_package_finder.rb'
-    - 'app/models/bs_request_action_maintenance_release.rb'
-    - 'app/models/bs_request_action_release.rb'
-    - 'app/models/comment.rb'
-    - 'app/models/event/comment_for_request.rb'
-    - 'app/models/local_build_result.rb'
-    - 'app/models/local_build_result/for_package.rb'
-    - 'app/models/local_build_statistic/for_package.rb'
-    - 'app/models/local_build_statistic/package/disk.rb'
-    - 'app/models/local_build_statistic/package/memory.rb'
-    - 'app/models/local_build_statistic/package/time.rb'
-    - 'app/models/local_job_history.rb'
-    - 'app/models/local_statistic.rb'
-    - 'app/models/owner.rb'
-    - 'app/models/project/update_from_xml_command.rb'
-    - 'app/models/service.rb'
-    - 'app/models/staging/request_excluder.rb'
-    - 'app/models/staging/staged_requests.rb'
-    - 'app/models/statistics/maintenance_statistic.rb'
-    - 'app/services/scm_exception_handler.rb'
-    - 'lib/tasks/dev.rake'
-    - 'lib/tasks/dev/staging.rake'
-    - 'spec/jobs/bs_request_action_webui_infos_job_spec.rb'
-
 # Offense count: 3374
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: AllowHeredoc, AllowURI, AllowQualifiedName, URISchemes, IgnoreCopDirectives, AllowedPatterns, SplitStrings.

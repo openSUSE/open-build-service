@@ -2,6 +2,7 @@
 class Service
   include ActiveModel::Model
   include Package::Errors
+
   class InvalidParameter < APIError; end
 
   attr_accessor :package

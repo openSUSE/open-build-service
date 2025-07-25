@@ -1,5 +1,6 @@
 class Status::ReportsController < ApplicationController
   include Status::Concerns::SetCheckable
+
   before_action :set_status_report
   skip_before_action :require_login, only: [:show]
 

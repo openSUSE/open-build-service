@@ -1,5 +1,6 @@
 class SCMExceptionHandler
   include ActiveSupport::Rescuable
+
   attr_accessor :event_payload, :event_subscription_payload
 
   rescue_from Octokit::AbuseDetected,

@@ -2,6 +2,7 @@ require 'builder'
 
 class Webui::PatchinfoController < Webui::WebuiController
   include Webui::PackageHelper
+
   before_action :require_login, except: [:show]
   before_action :set_project
   before_action :set_binaries, except: %i[show destroy new_tracker]

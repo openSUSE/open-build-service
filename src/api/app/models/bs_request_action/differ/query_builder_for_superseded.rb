@@ -2,6 +2,7 @@ class BsRequestAction
   module Differ
     class QueryBuilderForSuperseded
       include ActiveModel::Model
+
       attr_accessor :superseded_bs_request_action, :bs_request_action, :source_package_name
 
       def build

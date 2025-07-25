@@ -1,5 +1,6 @@
 class SourcePackageMetaController < SourceController
   include ReadAccessOfDeleted
+
   # override the ApplicationController version
   # to have meaningful error messages
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized

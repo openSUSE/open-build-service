@@ -5,6 +5,7 @@ namespace :dev do
     task data: :development_environment do
       require 'factory_bot'
       include FactoryBot::Syntax::Methods
+
       timestamp = Time.now.to_i
       maintainer = create(:confirmed_user, :with_home, login: "maintainer_#{timestamp}")
       User.session = maintainer

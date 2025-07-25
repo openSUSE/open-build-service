@@ -2,6 +2,7 @@ class BsRequestAction < ApplicationRecord
   #### Includes and extends
   include ParsePackageDiff
   include BsRequestAction::Errors
+
   #### Constants
   VALID_SOURCEUPDATE_OPTIONS = %w[update noupdate cleanup].freeze
   TYPES = %w[set_bugowner change_devel delete maintenance_incident maintenance_release release add_role submit].freeze
