@@ -21,6 +21,7 @@ module NotificationService
                         'Event::AppealCreated',
                         'Event::AddedUserToGroup',
                         'Event::RemovedUserFromGroup',
+                        'Event::AddedGlobalRole',
                         'Event::AssignmentCreate',
                         'Event::AssignmentDelete'].freeze
     CHANNELS = %i[web rss].freeze
@@ -49,7 +50,8 @@ module NotificationService
                         'Event::FavoredDecision',
                         'Event::WorkflowRunFail',
                         'Event::AddedUserToGroup',
-                        'Event::RemovedUserFromGroup'].freeze
+                        'Event::RemovedUserFromGroup',
+                        'Event::AddedGlobalRole'].freeze
 
     def initialize(event)
       @event = event

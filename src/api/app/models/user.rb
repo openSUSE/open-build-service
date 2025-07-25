@@ -83,6 +83,7 @@ class User < ApplicationRecord
   scope :admins, -> { joins(:roles).where('roles.title' => 'Admin') }
   scope :moderators, -> { joins(:roles).where('roles.title' => 'Moderator') }
   scope :starting_with, ->(prefix) { where(['lower(login) like lower(?)', "#{prefix}%"]) }
+  scope :with_role, ->(role_title) { joins(:roles).where('roles.title' => role_title) }
 
   scope :in_beta, -> { where(in_beta: true) }
   scope :in_rollout, -> { where(in_rollout: true) }
@@ -751,7 +752,12 @@ class User < ApplicationRecord
   end
 
   def update_globalroles(global_roles)
+    new_roles_to_notify = global_roles - roles.global
     roles.replace(global_roles + roles.where(global: false))
+
+    new_roles_to_notify.each do |new_global_role|
+      Event::AddedGlobalRole.create({ role: new_global_role, user: self, who: User.session })
+    end
   end
 
   def display_name
