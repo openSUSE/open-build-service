@@ -98,8 +98,10 @@ namespace :dev do
     task create: :development_environment do
       require 'factory_bot'
       include FactoryBot::Syntax::Methods
+
       require 'active_support/testing/time_helpers'
       include ActiveSupport::Testing::TimeHelpers
+
       require 'tasks/dev/test_data/maintenance'
       include TestData::Maintenance
 

@@ -1,6 +1,7 @@
 class Project
   class UpdateFromXmlCommand
     include Project::Errors
+
     attr_reader :project
 
     def initialize(project)

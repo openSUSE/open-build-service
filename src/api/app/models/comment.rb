@@ -27,6 +27,7 @@ class Comment < ApplicationRecord
   has_many :reports, as: :reportable, dependent: :nullify
 
   extend ActsAsTree::TreeWalker
+
   acts_as_tree order: 'created_at'
 
   has_paper_trail

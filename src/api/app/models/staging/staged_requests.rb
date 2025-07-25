@@ -1,5 +1,6 @@
 class Staging::StagedRequests
   include ActiveModel::Model
+
   attr_accessor :request_numbers, :staging_project, :staging_workflow, :user_login
 
   def create

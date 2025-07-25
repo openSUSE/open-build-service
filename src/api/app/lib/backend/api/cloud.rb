@@ -2,6 +2,7 @@ module Backend
   module Api
     module Cloud
       extend Backend::ConnectionHelper
+
       # Triggers a cloud upload job
       # @return [String]
       def self.upload(params)

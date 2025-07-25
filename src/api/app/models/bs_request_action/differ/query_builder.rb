@@ -2,6 +2,7 @@ class BsRequestAction
   module Differ
     class QueryBuilder
       include ActiveModel::Model
+
       attr_accessor :target_project, :target_package, :action, :source_package
 
       def build

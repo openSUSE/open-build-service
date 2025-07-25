@@ -13,6 +13,7 @@ class Webui::WebuiController < ActionController::Base
   include SetCurrentRequestDetails
   include Webui::ElisionsHelper
   include ActiveStorage::SetCurrent
+
   protect_from_forgery
 
   before_action :setup_view_path

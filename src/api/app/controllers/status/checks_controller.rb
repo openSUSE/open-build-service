@@ -1,5 +1,6 @@
 class Status::ChecksController < ApplicationController
   include Status::Concerns::SetCheckable
+
   before_action :set_xml_check
   before_action :set_status_report
   before_action :set_check

@@ -6,6 +6,7 @@ class Owner
   end
 
   include ActiveModel::Model
+
   attr_accessor(*attribute_names)
 
   def user_or_group?

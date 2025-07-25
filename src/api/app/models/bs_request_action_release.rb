@@ -1,6 +1,7 @@
 class BsRequestActionRelease < BsRequestAction
   #### Includes and extends
   include BsRequestAction::Differ
+
   #### Constants
 
   #### Self config

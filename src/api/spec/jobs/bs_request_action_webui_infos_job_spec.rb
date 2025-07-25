@@ -2,6 +2,7 @@ require 'webmock/rspec'
 
 RSpec.describe BsRequestActionWebuiInfosJob, :vcr do
   include ActiveJob::TestHelper
+
   let(:source_project) { create(:project, name: 'source_project') }
   let(:source_package) { create(:package_with_file, name: 'source_package', project: source_project, file_content: 'b') }
   let(:target_project) { create(:project, name: 'target_project') }

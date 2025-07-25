@@ -1,6 +1,7 @@
 class LocalBuildResult
   class ForPackage
     include ActiveModel::Model
+
     attr_accessor :package, :project, :show_all, :lastbuild
     attr_reader :excluded_counter, :results
 

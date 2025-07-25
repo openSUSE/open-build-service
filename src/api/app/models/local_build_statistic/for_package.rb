@@ -1,6 +1,7 @@
 module LocalBuildStatistic
   class ForPackage
     include ActiveModel::Model
+
     attr_accessor :package, :project, :repository, :architecture
     attr_reader :results
 
