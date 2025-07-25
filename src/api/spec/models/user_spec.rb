@@ -180,21 +180,6 @@ RSpec.describe User do
     end
   end
 
-  describe '#add_globalrole' do
-    before do
-      user.update_globalroles(Role.where(title: 'Staff'))
-      user.add_globalrole(Role.where(title: 'Admin'))
-    end
-
-    it 'adds a global role' do
-      expect(user.roles).to include(Role.find_by(title: 'Admin'))
-    end
-
-    it 'keeps old global roles' do
-      expect(user.roles).to include(Role.find_by(title: 'Staff'))
-    end
-  end
-
   describe '#involved_packages' do
     subject { confirmed_user.involved_packages }
 
@@ -505,7 +490,7 @@ RSpec.describe User do
     let(:admin_user) { create(:admin_user, login: 'bierhoff') }
     let(:maintainer) do
       jogi = create(:confirmed_user, login: 'jogi')
-      jogi.add_globalrole(Role.where(title: 'maintainer'))
+      jogi.update_globalroles(Role.where(title: 'maintainer'))
       jogi
     end
 

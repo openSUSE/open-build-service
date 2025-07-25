@@ -754,10 +754,6 @@ class User < ApplicationRecord
     roles.replace(global_roles + roles.where(global: false))
   end
 
-  def add_globalrole(global_role)
-    update_globalroles(global_role + roles.global)
-  end
-
   def display_name
     address = Mail::Address.new(email)
     address.display_name = realname
