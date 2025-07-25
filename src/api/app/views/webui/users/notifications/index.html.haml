@@ -15,6 +15,7 @@
       .collapse#content-selector-filters
         = render partial: 'notification_filter', locals: { selected_filter: @selected_filter,
                                                            projects_for_filter: @projects_for_filter,
+                                                           packages_for_filter: @packages_for_filter,
                                                            groups_for_filter: @groups_for_filter }
   .col-md-8.col-lg-9.px-0.px-md-3.d-none.content-list-loading
     = render partial: 'webui/shared/loading', locals: { text: 'Loading...', wrapper_css: ['loading'] }
