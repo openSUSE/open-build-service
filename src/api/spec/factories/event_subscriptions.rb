@@ -142,6 +142,14 @@ FactoryBot.define do
       group { nil }
     end
 
+    factory :event_subscription_added_global_role do
+      eventtype { 'Event::AddedGlobalRole' }
+      receiver_role { 'sibling_role_user' }
+      channel { :instant_email }
+      user
+      group { nil }
+    end
+
     factory :event_subscription_assignment do
       eventtype { 'Event::Assignment' }
       receiver_role { 'assignee' }
