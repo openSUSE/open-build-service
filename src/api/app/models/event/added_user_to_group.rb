@@ -1,12 +1,12 @@
 module Event
   class AddedUserToGroup < Group
     self.description = 'Added member to group'
-    self.notification_explanation = 'Receive notifications when you are added to a group.'
+    self.notification_explanation = 'Receive notifications when you are added as member of a group or when someone is added to a group you maintain.'
 
     def subject
-      return "You were added to the group '#{payload['group']}'" unless payload['who']
+      return "'#{payload['member']}' was added to the group '#{payload['group']}'" unless payload['who']
 
-      "'#{payload['who']}' added you to the group '#{payload['group']}'"
+      "'#{payload['who']}' added '#{payload['member']}' to the group '#{payload['group']}'"
     end
   end
 end

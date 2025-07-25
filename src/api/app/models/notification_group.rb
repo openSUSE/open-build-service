@@ -14,9 +14,9 @@ class NotificationGroup < Notification
   def link_text
     case event_type
     when 'Event::AddedUserToGroup'
-      "#{event_payload['who'] || 'Someone'} added you to the group '#{event_payload['group']}'"
+      "'#{event_payload['who'] || 'Someone'}' added '#{event_payload['member']}' to the group '#{event_payload['group']}'"
     when 'Event::RemovedUserFromGroup'
-      "#{event_payload['who'] || 'Someone'} removed you from the group '#{event_payload['group']}'"
+      "'#{event_payload['who'] || 'Someone'}' removed '#{event_payload['member']}' from the group '#{event_payload['group']}'"
     end
   end
 

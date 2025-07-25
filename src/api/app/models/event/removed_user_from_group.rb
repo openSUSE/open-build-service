@@ -1,12 +1,12 @@
 module Event
   class RemovedUserFromGroup < Group
     self.description = 'Removed member from group'
-    self.notification_explanation = 'Receive notifications when you are removed from a group.'
+    self.notification_explanation = 'Receive notifications when you are removed from a group or someone is removed from a group you maintain.'
 
     def subject
-      return "You were removed from the group '#{payload['group']}'" unless payload['who']
+      return "'#{payload['member']}' was removed from the group '#{payload['group']}'" unless payload['who']
 
-      "'#{payload['who']}' removed you from the group '#{payload['group']}'"
+      "'#{payload['who']}' removed '#{payload['member']}' from the group '#{payload['group']}'"
     end
   end
 end

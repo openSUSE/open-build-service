@@ -651,11 +651,11 @@ RSpec.describe EventMailer, :vcr do
       end
 
       it 'contains the correct subject' do
-        expect(mail.subject).to include("'#{who}' added you to the group '#{group}'")
+        expect(mail.subject).to include("'#{who}' added '#{user}' to the group '#{group}'")
       end
 
       it 'contains the correct text' do
-        expect(mail.body.encoded).to include("You got added to group '#{group}'")
+        expect(mail.body.encoded).to include("'#{user}' got added to group '#{group}'")
       end
     end
 
@@ -681,11 +681,11 @@ RSpec.describe EventMailer, :vcr do
       end
 
       it 'contains the correct subject' do
-        expect(mail.subject).to include("'#{who}' removed you from the group '#{group}'")
+        expect(mail.subject).to include("'#{who}' removed '#{user}' from the group '#{group}'")
       end
 
       it 'contains the correct text' do
-        expect(mail.body.encoded).to include("You got removed from group '#{group}'")
+        expect(mail.body.encoded).to include("'#{user}' got removed from group '#{group}'")
       end
     end
 

@@ -7,6 +7,7 @@ class Group < ApplicationRecord
   has_many :groups_users, inverse_of: :group, dependent: :destroy
   has_many :users, -> { distinct.order(:login) }, through: :groups_users
   has_many :group_maintainers, inverse_of: :group, dependent: :destroy
+  has_many :maintainers, through: :group_maintainers, source: :user
   has_many :relationships, dependent: :destroy, inverse_of: :group
   has_many :event_subscriptions, dependent: :destroy, inverse_of: :group
   has_many :reviews, dependent: :nullify
