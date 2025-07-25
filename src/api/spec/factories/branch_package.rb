@@ -1,3 +1,4 @@
+# FIXME: This factory is a wrapper around BranchPackage.new when you can just call BranchPackae.new wherever you `create(:branch_package)`. It makes no sense...
 FactoryBot.define do
   factory :branch_package_base, class: 'BranchPackage' do
     initialize_with { new(**attributes) }

@@ -14,7 +14,7 @@ RSpec.describe SourcePackageController, :vcr do
 
     context 'when the project does not exist' do
       before do
-        project.destroy
+        user.run_as { project.destroy }
       end
 
       it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('unknown_project') }
@@ -37,7 +37,7 @@ RSpec.describe SourcePackageController, :vcr do
 
       context 'when the project is deleted' do
         before do
-          project.destroy
+          user.run_as { project.destroy }
         end
 
         it { expect(subject).to have_http_status(:success) }
@@ -45,7 +45,7 @@ RSpec.describe SourcePackageController, :vcr do
 
       context 'when the package is deleted' do
         before do
-          package.destroy
+          user.run_as { package.destroy }
         end
 
         it { expect(subject).to have_http_status(:success) }
@@ -53,8 +53,10 @@ RSpec.describe SourcePackageController, :vcr do
 
       context 'when the project and the package are deleted', skip: 'FIXME: https://github.com/openSUSE/open-build-service/issues/17958' do
         before do
-          package.destroy
-          project.destroy
+          user.run_as do
+            package.destroy
+            project.destroy
+          end
         end
 
         it { expect(subject).to have_http_status(:success) }
@@ -64,7 +66,7 @@ RSpec.describe SourcePackageController, :vcr do
         let(:project) { create(:forbidden_project, name: 'hans', maintainer: user) }
 
         before do
-          project.destroy
+          user.run_as { project.destroy }
         end
 
         it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('unknown_project') }
@@ -74,7 +76,7 @@ RSpec.describe SourcePackageController, :vcr do
         let!(:package) { create(:forbidden_package, project: project, name: 'franz') }
 
         before do
-          package.destroy
+          user.run_as { package.destroy }
         end
 
         it { expect(subject.headers['X-Opensuse-Errorcode']).to eql('source_access_no_permission') }

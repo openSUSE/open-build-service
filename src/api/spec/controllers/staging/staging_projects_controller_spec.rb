@@ -70,6 +70,7 @@ RSpec.describe Staging::StagingProjectsController do
 
       let(:request_attributes) do
         {
+          creator: user,
           target_package: target_package,
           source_package: source_package
         }
@@ -94,10 +95,12 @@ RSpec.describe Staging::StagingProjectsController do
       before do
         stub_request(:get, broken_packages_path).and_return(body: broken_packages_backend)
         # staging select
-        bs_request_to_review.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
-        bs_request_missing_review.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
-        untracked_request.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
-        bs_request.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
+        staging_workflow.managers_group.users.first.run_as do
+          bs_request_to_review.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
+          bs_request_missing_review.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
+          untracked_request.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
+          bs_request.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
+        end
       end
 
       context 'without requesting extra information' do

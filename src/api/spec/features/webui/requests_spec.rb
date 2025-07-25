@@ -455,11 +455,13 @@ RSpec.describe 'Requests', :js, :vcr do
                                                                              target_project_name: maintenance_project.name,
                                                                              target_releaseproject_names: [target_project.name])
     end
+    let!(:patchinfo) do
+      submitter.run_as { create(:patchinfo, project_name: source_project.name, package_name: 'patchinfo') }
+    end
 
     before do
       Flipper.enable(:request_show_redesign)
       login submitter
-      create(:patchinfo, project_name: source_project.name, package_name: 'patchinfo')
       visit request_show_path(maintenance_request)
     end
 

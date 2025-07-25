@@ -395,7 +395,7 @@ RSpec.describe 'Packages', :js, :vcr do
   end
 
   describe 'Viewing package with older revision' do
-    let(:revision_package) { create(:package_with_file, name: 'revision_test_package', project: user.home_project) }
+    let(:revision_package) { create(:package_with_file, name: 'revision_test_package', project: user.home_project, file_name: 'revision_file', file_content: 'new content') }
     let(:revision) { revision_package.rev.to_i - 1 }
     let(:hashed_revision) { revision_package.dir_hash(rev: revision) }
     let(:srcmd5) { hashed_revision['srcmd5'] }
@@ -403,7 +403,6 @@ RSpec.describe 'Packages', :js, :vcr do
 
     before do
       login(user)
-      revision_package.save_file(filename: 'revision_file', file: 'new content')
       visit package_show_path(project: user.home_project, package: revision_package, rev: revision)
     end
 

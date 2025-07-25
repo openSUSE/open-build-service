@@ -876,9 +876,6 @@ class BsRequestAction < ApplicationRecord
   private
 
   def cache_diffs
-    # It's to avoid unnecessary backend calls in test suite. If `global_write_through` is enabled, it will affect a major
-    # part of the test suite and requires to update 100's of VCR cassettes.
-    # global_write_through is only disabled in test env. Otherwise, it's always enabled.
     return unless CONFIG['global_write_through']
 
     cleanup_sourceupdate(User.session!)

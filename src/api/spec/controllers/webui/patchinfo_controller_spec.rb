@@ -3,8 +3,10 @@ RSpec.describe Webui::PatchinfoController, :vcr do
   let(:other_user) { create(:confirmed_user, :with_home, login: 'gilberto') }
   let(:other_package) { create(:package_with_file, project: user.home_project, name: 'other_package') }
   let(:patchinfo_package) do
-    create(:patchinfo, project_name: user.home_project_name) unless user.home_project.packages.exists?(name: 'patchinfo')
-    Package.get_by_project_and_name(user.home_project_name, 'patchinfo', use_source: false)
+    user.run_as do
+      create(:patchinfo, project_name: user.home_project_name) unless user.home_project.packages.exists?(name: 'patchinfo')
+      Package.get_by_project_and_name(user.home_project_name, 'patchinfo', use_source: false)
+    end
   end
   let(:fake_build_results) do
     <<-HEREDOC

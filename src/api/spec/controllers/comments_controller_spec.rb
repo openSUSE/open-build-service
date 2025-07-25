@@ -55,11 +55,10 @@ RSpec.describe CommentsController do
     context 'of a bs_request_action (inline comment)', :vcr do
       let(:submit_request) { create(:bs_request_with_submit_action) }
       let(:object) { create(:bs_request_action_submit_with_diff, bs_request: submit_request) }
-      let(:comment) { create(:comment, commentable: object, diff_file_index: 0, diff_line_number: 1) }
+      let!(:comment) { create(:comment, commentable: object, diff_file_index: 0, diff_line_number: 1) }
 
       before do
         login user
-        comment
       end
 
       context 'with an inline comment' do
@@ -72,7 +71,9 @@ RSpec.describe CommentsController do
 
       context 'with an inline comment of a removed target package' do
         before do
-          object.target_package_object.destroy
+          User.find_by!(login: object.bs_request.creator).run_as do
+            Package.find_by_project_and_name(object.target_project, object.target_package)
+          end
 
           get :index, format: :xml, params: { request_number: object.bs_request.number }
         end
