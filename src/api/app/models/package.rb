@@ -113,6 +113,11 @@ class Package < ApplicationRecord
 
   scope :dirty_backend_packages, -> { left_outer_joins(:backend_package).where(backend_package: { package_id: nil }) }
 
+  scope :for_notifications_on_packages, lambda { |user|
+    joins("INNER JOIN notifications ON notifications.notifiable_id = packages.id AND notifications.notifiable_type = 'Package'")
+      .where(notifications: { subscriber_id: user, web: true })
+  }
+
   validates :name, presence: true, length: { maximum: 200 }
   validates :releasename, length: { maximum: 200 }
   validates :title, length: { maximum: 250 }
