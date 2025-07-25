@@ -127,6 +127,26 @@
                                                                         key: "project[#{project_name}]", name: 'project[]',
                                                                         value: project_name,
                                                                         checked: selected_filter[:project]&.include?(project_name) }
+
+    - unless packages_for_filter.empty?
+      .mt-2.mb-2.accordion-item.border-0
+        .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-packages' },
+                                                aria: { expanded: 'true', controls: 'notification-filter-packages' } }
+          %b Packages
+          .selected-content.small.ms-1
+        .px-4.pb-2.accordion-collapse.collapse.show#notification-filter-packages
+          #notification-packages-name-dropdown
+            = render partial: 'webui/shared/search_box', locals: { html_id: 'package_names_search',
+                                                                     html_name: 'package[]', required: false,
+                                                                     data: { source: notification_autocomplete_packages_path },
+                                                                     button: { type: 'submit' } }
+            .scroll-list-wrapper.auto-submit-on-change
+              - selected_filter[:package].each do |package_name|
+                .dropdown-item-text
+                  = render partial: 'webui/shared/check_box', locals: { label: package_name,
+                                                                        key: "package[#{package_name}]", name: 'package[]',
+                                                                        value: package_name,
+                                                                        checked: selected_filter[:package]&.include?(package_name) }
     - unless groups_for_filter.empty?
       .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
         .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-groups' },
