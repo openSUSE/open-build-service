@@ -45,7 +45,7 @@ RSpec.describe Webui::Groups::UsersController do
       end
 
       it 'reports the error' do
-        expect(flash[:error]).to eq("Couldn't add user '#{user}' to group '#{group}': User User already has this group")
+        expect(flash[:error]).to eq("Couldn't add user '#{user}' to group '#{group}': User #{user.login} belongs to this group already")
       end
     end
   end
