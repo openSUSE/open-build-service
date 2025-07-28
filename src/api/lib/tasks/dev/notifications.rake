@@ -84,10 +84,10 @@ namespace :dev do
         token.users << iggy # share token with iggy
         token.groups << another_group
         create(:workflow_run, :failed, token: token)
-
-        # Process notifications immediately to see them in the web UI
-        SendEventEmailsJob.new.perform_now
       end
+
+      # Process notifications immediately to see them in the web UI
+      SendEventEmailsJob.new.perform_now
     end
   end
 end
