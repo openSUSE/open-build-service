@@ -144,7 +144,7 @@ FactoryBot.define do
 
     factory :event_subscription_added_global_role do
       eventtype { 'Event::AddedGlobalRole' }
-      receiver_role { 'sibling_role_user' }
+      receiver_role { 'colleague' }
       channel { :instant_email }
       user
       group { nil }

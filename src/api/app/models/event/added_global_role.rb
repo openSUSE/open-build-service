@@ -3,7 +3,7 @@ module Event
     self.description = 'User received an important role'
     payload_keys :role, :user, :who
 
-    receiver_roles :sibling_role_user
+    receiver_roles :colleague
 
     self.notification_explanation = "Receive notifications when a user received an important role: #{Role.global_roles.to_sentence(last_word_connector: ' or ')}."
 
@@ -13,8 +13,16 @@ module Event
       "'#{payload['who']}' gave the '#{payload['role']}' role to the user '#{payload['user']}'"
     end
 
-    def sibling_role_users
-      User.with_role(payload['role'])
+    # Only users with the same role or admins are notified
+    def colleague
+      case payload['role']
+      when 'Admin'
+        User.admins
+      when 'Moderator'
+        User.moderators.or(User.admins).uniq
+      when 'Staff'
+        User.staff.or(User.admins).uniq
+      end
     end
   end
 end
