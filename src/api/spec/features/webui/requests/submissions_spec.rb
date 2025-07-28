@@ -75,8 +75,18 @@ RSpec.describe 'Requests_Submissions', :js, :vcr do
     end
 
     describe 'submitting a package with a binary diff' do
-      let(:source_package_with_binary) { create(:package_with_file, name: 'Toronto', project: source_project) }
-      let(:target_package_with_binary) { create(:package_with_file, name: 'Toronto', project: target_project) }
+      let(:source_package_with_binary) do
+        create(:package_with_file, name: 'Toronto',
+                                   project: source_project,
+                                   file_name: 'new_file.tar.gz',
+                                   file_content: file_fixture('bigfile_archive.tar.gz').read)
+      end
+      let(:target_package_with_binary) do
+        create(:package_with_file, name: 'Toronto',
+                                   project: target_project,
+                                   file_name: 'new_file.tar.gz',
+                                   file_content: file_fixture('bigfile_archive_2.tar.gz').read)
+      end
       let(:bs_request) do
         create(:bs_request_with_submit_action,
                creator: submitter,
@@ -86,16 +96,8 @@ RSpec.describe 'Requests_Submissions', :js, :vcr do
                source_package: source_package_with_binary)
       end
 
-      before do
-        login submitter
-
-        source_package_with_binary.save_file(filename: 'new_file.tar.gz', file: file_fixture('bigfile_archive.tar.gz').read)
-        login receiver
-        target_package_with_binary.save_file(filename: 'new_file.tar.gz', file: file_fixture('bigfile_archive_2.tar.gz').read)
-        login submitter
-      end
-
       it 'displays a diff' do
+        login submitter
         visit request_show_path(bs_request)
         wait_for_ajax
         expect(page).to have_text('new_file.tar.gz/bigfile.txt')
@@ -106,18 +108,19 @@ RSpec.describe 'Requests_Submissions', :js, :vcr do
       let(:branched_package_name) { "#{target_package}_branch" }
 
       before do
-        login submitter
-
-        # TODO: Create a factory for this (branch a package and save a new file in it - to be able to submit the branched package)
-        create(:branch_package,
-               project: source_project.name,
-               package: source_package.name,
-               target_project: source_project.name,
-               target_package: branched_package_name)
-        Package.find_by(project_id: source_project.id, name: branched_package_name).save_file(filename: 'new_file', file: 'I am a new file')
+        submitter.run_as do
+          # TODO: Create a factory for this (branch a package and save a new file in it - to be able to submit the branched package)
+          create(:branch_package,
+                 project: source_project.name,
+                 package: source_package.name,
+                 target_project: source_project.name,
+                 target_package: branched_package_name)
+          Package.find_by(project_id: source_project.id, name: branched_package_name).save_file(filename: 'new_file', file: 'I am a new file')
+        end
       end
 
       it 'fills in the submission reasons and creates a BsRequest' do
+        login submitter
         visit package_show_path(source_project, branched_package_name)
         desktop? ? click_link('Submit Package') : click_menu_link('Actions', 'Submit Package')
         expect(page).to have_field('To target project:', with: source_project.name)

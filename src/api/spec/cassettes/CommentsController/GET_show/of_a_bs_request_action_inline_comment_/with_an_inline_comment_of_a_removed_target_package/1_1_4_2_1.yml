@@ -1,11 +1,15 @@
 ---
 http_interactions:
 - request:
-    method: get
-    uri: http://backend:5352/source/source_project/source_package
+    method: put
+    uri: http://backend:5352/source/source_project/_meta?user=user_2
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>A Confederacy of Dunces</title>
+          <description/>
+        </project>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -25,15 +29,321 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '301'
+      - '114'
     body:
       encoding: UTF-8
       string: |
-        <directory name="source_package" rev="34" vrev="34" srcmd5="fbe538d1db5286a734396cf98593e76f">
-          <entry name="_config" md5="7cc1c193402c5cb8738e99777b33a485" size="70" mtime="1688462844"/>
-          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1688460416"/>
-        </directory>
-  recorded_at: Tue, 04 Jul 2023 12:21:01 GMT
+        <project name="source_project">
+          <title>A Confederacy of Dunces</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 23 Jul 2025 14:03:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="ApprovedRequestSource" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2">
+          <srcmd5>36df4f82dd80c711fc1dffdb9b2d8b73</srcmd5>
+          <time>1753279387</time>
+          <user>user_2</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 23 Jul 2025 14:03:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>The Monkey's Raincoat</title>
+          <description>Vitae ipsum ut et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '155'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>The Monkey's Raincoat</title>
+          <description>Vitae ipsum ut et.</description>
+        </package>
+  recorded_at: Wed, 23 Jul 2025 14:03:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/_config
+    body:
+      encoding: UTF-8
+      string: Ad sapiente sunt. Et nihil sit. Rerum fugit accusantium.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>3c50746aa40bae3bad738b66a12d9c9f</srcmd5>
+          <version>unknown</version>
+          <time>1753279387</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 23 Jul 2025 14:03:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: "# This is the new text"
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>ca9621f56f78a92b9a572f451029cb62</srcmd5>
+          <version>unknown</version>
+          <time>1753279387</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 23 Jul 2025 14:03:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/_meta?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>Now Sleeps the Crimson Petal</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '119'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>Now Sleeps the Crimson Petal</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 23 Jul 2025 14:03:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_5
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>Wildfire at Midnight</title>
+          <description>Error rerum id assumenda.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '161'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>Wildfire at Midnight</title>
+          <description>Error rerum id assumenda.</description>
+        </package>
+  recorded_at: Wed, 23 Jul 2025 14:03:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package/_config
+    body:
+      encoding: UTF-8
+      string: Provident qui placeat. Repellendus eius dolorum. Est hic illo.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>39077e1d31cce07996ddd876502f531d</srcmd5>
+          <version>unknown</version>
+          <time>1753279387</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 23 Jul 2025 14:03:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: "# This will be replaced"
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>0c3f90fd032b4651b85c727e6cb3e2c8</srcmd5>
+          <version>unknown</version>
+          <time>1753279387</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 23 Jul 2025 14:03:07 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -59,18 +369,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '301'
+      - '299'
     body:
       encoding: UTF-8
       string: |
-        <directory name="source_package" rev="34" vrev="34" srcmd5="fbe538d1db5286a734396cf98593e76f">
-          <entry name="_config" md5="7cc1c193402c5cb8738e99777b33a485" size="70" mtime="1688462844"/>
-          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1688460416"/>
+        <directory name="source_package" rev="2" vrev="2" srcmd5="ca9621f56f78a92b9a572f451029cb62">
+          <entry name="_config" md5="423d972b0177f221cb5e8b0059f8850b" size="56" mtime="1753279387"/>
+          <entry name="somefile.txt" md5="8bc8b279be5b9899070591b779e593e4" size="22" mtime="1753279387"/>
         </directory>
-  recorded_at: Tue, 04 Jul 2023 12:21:01 GMT
+  recorded_at: Wed, 23 Jul 2025 14:03:08 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/source_project/source_package?cacheonly=1&cmd=diff&expand=1&filelimit=10000&orev=0&rev=34&tarlimit=10000&view=xml&withissues=1
+    uri: http://backend:5352/source/source_project/source_package?cacheonly=1&cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -103,5 +413,39 @@ http_interactions:
           <summary>diff not yet in cache</summary>
           <details>412 diff not yet in cache</details>
         </status>
-  recorded_at: Tue, 04 Jul 2023 12:21:01 GMT
-recorded_with: VCR 6.2.0
+  recorded_at: Wed, 23 Jul 2025 14:03:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '299'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" rev="2" vrev="2" srcmd5="0c3f90fd032b4651b85c727e6cb3e2c8">
+          <entry name="_config" md5="cd66ef3a71cc3051ba01bd3a0244324e" size="62" mtime="1753279387"/>
+          <entry name="somefile.txt" md5="11a31b90d280a13710401556a3256e44" size="23" mtime="1753279387"/>
+        </directory>
+  recorded_at: Wed, 23 Jul 2025 14:03:08 GMT
+recorded_with: VCR 6.3.1
