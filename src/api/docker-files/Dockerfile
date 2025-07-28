@@ -9,7 +9,7 @@ ARG CONTAINER_USERID
 # for lint task
 RUN npm install -g jshint
 # Same brakeman version is pinned in our CI configuration to have reproducible builds (the license forbids us from shipping the gem in our appliance)
-RUN gem install --no-format-executable brakeman --version 5.4.0
+RUN gem install --no-format-executable brakeman --version 7.1.0
 
 # Configure our user
 RUN usermod -u $CONTAINER_USERID frontend
