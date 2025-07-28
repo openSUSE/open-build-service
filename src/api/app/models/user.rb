@@ -756,7 +756,7 @@ class User < ApplicationRecord
     roles.replace(global_roles + roles.where(global: false))
 
     new_roles_to_notify.each do |new_global_role|
-      Event::AddedGlobalRole.create({ role: new_global_role, user: self, who: User.session })
+      Event::AddedGlobalRole.create({ role: new_global_role.title, user: login, who: User.session.login })
     end
   end
 

@@ -14,7 +14,7 @@ module Event
     end
 
     # Only users with the same role or admins are notified
-    def colleague
+    def colleagues
       case payload['role']
       when 'Admin'
         User.admins
