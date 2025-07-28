@@ -488,14 +488,13 @@ RSpec.describe User do
   describe '.can_create_project' do
     let(:user) { create(:confirmed_user, login: 'toni') }
     let(:admin_user) { create(:admin_user, login: 'bierhoff') }
-    let(:maintainer) do
-      jogi = create(:confirmed_user, login: 'jogi')
-      jogi.update_globalroles(Role.where(title: 'maintainer'))
-      jogi
-    end
+    let(:maintainer) { create(:confirmed_user, login: 'jogi') }
 
     before do
       allow(Configuration).to receive(:allow_user_to_create_home_project).and_return('true')
+      admin_user.run_as do
+        maintainer.update_globalroles(Role.where(title: 'maintainer'))
+      end
     end
 
     it 'allows creating home projects' do
