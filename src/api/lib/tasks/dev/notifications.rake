@@ -78,16 +78,15 @@ namespace :dev do
         another_group.users << admin
 
         # Admin is already subscribed as token_executor, Iggy and another_group are now subscribed as token_member
-        iggy = User.find_by(login: 'Iggy')
         create(:event_subscription_workflow_run_fail, channel: :web, user: iggy, receiver_role: 'token_member')
         token = Token.find_by(executor: admin)
         token.users << iggy # share token with iggy
         token.groups << another_group
         create(:workflow_run, :failed, token: token)
-
-        # Process notifications immediately to see them in the web UI
-        SendEventEmailsJob.new.perform_now
       end
+
+      # Process notifications immediately to see them in the web UI
+      SendEventEmailsJob.new.perform_now
     end
   end
 end
