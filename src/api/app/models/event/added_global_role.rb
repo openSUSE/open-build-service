@@ -24,5 +24,11 @@ module Event
         User.staff.or(User.admins).uniq
       end
     end
+
+    def parameters_for_notification
+      super.merge({ notifiable_type: 'User',
+                    notifiable_id: ::User.find_by(login: payload['user']).id,
+                    type: 'NotificationUser' })
+    end
   end
 end
