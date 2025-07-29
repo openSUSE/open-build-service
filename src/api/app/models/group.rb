@@ -5,7 +5,7 @@
 class Group < ApplicationRecord
   has_one :staging_workflow, class_name: 'Staging::Workflow', foreign_key: :managers_group_id, dependent: :nullify
   has_many :groups_users, inverse_of: :group, dependent: :destroy
-  has_many :users, -> { distinct.order(:login) }, through: :groups_users
+  has_many :users, -> { distinct }, through: :groups_users
   has_many :group_maintainers, inverse_of: :group, dependent: :destroy
   has_many :maintainers, through: :group_maintainers, source: :user
   has_many :relationships, dependent: :destroy, inverse_of: :group

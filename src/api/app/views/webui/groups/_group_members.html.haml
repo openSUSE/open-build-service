@@ -6,7 +6,7 @@
     This group does not have members.
 - else
   .d-flex.flex-wrap.gap-4.align-self-stretch#group-users
-    - group.users.each do |user|
+    - group.users.order(:login).each do |user|
       = render(CardComponent.new) do |component|
         .row.g-0
           .col-md-3
