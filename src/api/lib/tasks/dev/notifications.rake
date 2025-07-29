@@ -19,7 +19,7 @@ namespace :dev do
       requestor_project = Project.find_by(name: 'requestor_project') || RakeSupport.create_and_assign_project('requestor_project', requestor)
 
       # Create notification for roles revoked
-      iggy = User.find_by(login: 'Iggy') || create(:confirmed_user, :with_home, login: 'Iggy')
+      iggy = User.find_by(login: 'Iggy') || create(:staff_user, :with_home, login: 'Iggy')
       iggy.run_as do
         home_project_iggy = Project.find_by(name: 'home:Iggy')
         role = Role.find_by_title!('maintainer')
