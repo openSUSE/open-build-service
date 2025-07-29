@@ -36,22 +36,27 @@
         .col-auto.actions.ms-auto.align-self-end.align-self-md-start
           = render NotificationMarkButtonComponent.new(notification, selected_filter, page)
       .row.mt-1.ps-sm-4.flex-nowrap
-        .col-auto.pe-0
-          %ul.list-inline.d-flex.flex-row-reverse.avatars.m-0
-            - notification_avatar_objects = notification.avatar_objects
-            = hidden_avatars(notification_avatar_objects)
-            - avatars_to_display(notification_avatar_objects).each do |avatar_object|
-              %li.list-inline-item
-                - if avatar_object.is_a?(Package)
-                  %span.fa.fa-archive.text-warning.rounded-circle.bg-body-secondary.border.simulated-avatar{
-                    title: "Package #{avatar_object.project}/#{avatar_object}" }
-                - elsif avatar_object.is_a?(Project)
-                  %span.fa.fa-cubes.text-secondary.rounded-circle.bg-body-secondary.border.simulated-avatar{
-                    title: "Project #{avatar_object}" }
-                - elsif avatar_object.is_a?(User) || avatar_object.is_a?(Group)
-                  = render(AvatarComponent.new(name: avatar_object.name, email: avatar_object.email, size: 23, shape: :circle))
+        - unless notification.event_type == 'Event::BuildFail'
+          .col-auto.pe-0
+            %ul.list-inline.d-flex.flex-row-reverse.avatars.m-0
+              - notification_avatar_objects = notification.avatar_objects
+              = hidden_avatars(notification_avatar_objects)
+              - avatars_to_display(notification_avatar_objects).each do |avatar_object|
+                %li.list-inline-item
+                  - if avatar_object.is_a?(Package)
+                    %span.fa.fa-archive.text-warning.rounded-circle.bg-body-secondary.border.simulated-avatar{
+                      title: "Package #{avatar_object.project}/#{avatar_object}" }
+                  - elsif avatar_object.is_a?(Project)
+                    %span.fa.fa-cubes.text-secondary.rounded-circle.bg-body-secondary.border.simulated-avatar{
+                      title: "Project #{avatar_object}" }
+                  - elsif avatar_object.is_a?(User) || avatar_object.is_a?(Group)
+                    = render(AvatarComponent.new(name: avatar_object.name, email: avatar_object.email, size: 23, shape: :circle))
         .col.ps-xs-2.text-break
-          = description(notification)
+          - if notification.event_type == 'Event::BuildFail'
+            - desc = "#{description(notification)} \n #{link_to 'Build Logs', notification.link_path }"
+            = simple_format desc
+          - else
+            = description(notification)
       .row.d-none.d-md-block.ps-4
         .col
           %p.mt-3.mb-0= render_without_markdown(truncate_to_first_new_line(notification.excerpt))
