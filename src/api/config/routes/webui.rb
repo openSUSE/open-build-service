@@ -376,6 +376,7 @@ constraints(RoutesHelper::WebuiMatcher) do
   get 'projects/:project/requests' => 'webui/projects/bs_requests#index', constraints: cons, as: 'projects_requests'
   get 'projects/:project/packages/:package/requests' => 'webui/packages/bs_requests#index', constraints: cons, as: 'packages_requests'
   get 'notification/autocomplete_projects' => 'webui/users/notifications#autocomplete_projects', as: 'notification_autocomplete_projects'
+  get 'notification/autocomplete_packages' => 'webui/users/notifications#autocomplete_packages', as: 'notification_autocomplete_packages'
 
   controller 'webui/search' do
     get 'search' => :index
