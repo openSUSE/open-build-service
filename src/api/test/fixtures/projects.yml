@@ -299,3 +299,13 @@ BrokenPublishing:
   updated_at: 2005-01-02 01:00:01.000000000 Z
   kind: standard
   delta: 1
+ScmSync:
+  name: ScmSync
+  title: This is a a project managed via git
+  description: standard scmsync project
+  created_at: 2005-01-02 01:00:01.000000000 Z
+  updated_at: 2005-01-02 01:00:01.000000000 Z
+# currently set in start_backend script
+#  scmsync: 'https://somewhere'
+  kind: standard
+  delta: 1

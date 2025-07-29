@@ -24,16 +24,12 @@ class PackagePolicy < ApplicationPolicy
     user.can_modify_package?(record)
   end
 
-  def rebuild?
+  def runservice?
     if record.readonly?
       user.can_modify_project?(record.project)
     else
       user.can_modify_package?(record)
     end
-  end
-
-  def runservice?
-    rebuild?
   end
 
   def unlock?

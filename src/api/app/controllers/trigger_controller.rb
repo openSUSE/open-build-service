@@ -86,10 +86,16 @@ class TriggerController < ApplicationController
   end
 
   def set_project_name
+    # don't take random content when people just use a random webhook to our route,
+    # eg from gitlab sending it's own data with a unrealted project hash
+    return unless params[:project].is_a?(String)
+
     @project_name = params[:project]
   end
 
   def set_package_name
+    return if params[:package].blank? || @project_name.blank?
+
     @package_name = params[:package]
   end
 end

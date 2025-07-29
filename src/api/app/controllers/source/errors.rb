@@ -84,6 +84,8 @@ module Source::Errors
     setup 403
   end
 
+  class Locked < APIError; end
+
   class NotLocked < APIError; end
 
   class InvalidFlag < APIError; end

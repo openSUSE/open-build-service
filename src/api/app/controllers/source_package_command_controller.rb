@@ -2,6 +2,7 @@ require 'builder/xchar'
 
 class SourcePackageCommandController < SourceController
   CMDS_SUPPORTING_REMOTE = %i[diff branch fork].freeze
+
   # we use an array for the "file" parameter
   skip_before_action :validate_params, only: %i[diff linkdiff servicediff]
 
@@ -16,6 +17,7 @@ class SourcePackageCommandController < SourceController
   before_action :require_valid_package_name, only: %i[copy undelete]
   before_action :set_origin_package, only: %i[collectbuildenv copy diff]
   before_action :set_user_param
+  before_action :require_standard_package_object, except: %i[branch copy diff linkdiff servicediff undelete runservice lock unlock]
   # branch: everything is authorized in BranchPackage.branch
   # diff: is a read only command
   # fork: everything is authorized in BranchPackage.branch
@@ -53,11 +55,55 @@ class SourcePackageCommandController < SourceController
     render_ok
   end
 
-  # POST /source/<project>/<package>?cmd=unlock
+  # lock a package
+  # POST /source/<project>/<package>?cmd=lock
+  def lock
+    if @project.scmsync.present?
+      authorize @project, :update?
+
+      # a package within a backend managed project
+      path = request.path_info
+      path += build_query_from_hash(params, [:cmd])
+      pass_to_backend(path)
+      return
+    end
+
+    require_standard_package_object
+    authorize @package, :update?
+
+    f = @package.flags.find_by_flag_and_status('lock', 'enable')
+    raise Locked, "package '#{@package.project.name}/#{@package.name}' is already locked" if f
+
+    # we should never have a lock-disable, but to be sure drop it in that case
+    @package.flags.of_type('lock').delete_all
+
+    @package.flags.create(flag: 'lock', status: 'enable')
+    @package.store({ comment: params[:comment] })
+
+    render_ok
+  end
+
+  # unlock a package
+  # POST /source/<project>/<package>?cmd=unlock&comment=COMMENT
   def unlock
+    if @project.scmsync.present?
+      authorize @project, :update?
+
+      # a package within a backend managed project
+      path = request.path_info
+      path += build_query_from_hash(params, [:cmd])
+      pass_to_backend(path)
+      return
+    end
+
+    require_standard_package_object
     authorize @package, :unlock?
 
     params.require(:comment)
+    if @project.scmsync.present?
+      # a package within a backend managed project
+      return Backend::Api::Sources::Package.unlock(@project.name, params[:package], params[:comment])
+    end
 
     flag = @package.flags.find_by_flag_and_status('lock', 'enable')
     raise NotLocked, "package '#{@project.name}/#{@package.name}' is not locked" unless flag
@@ -140,6 +186,7 @@ class SourcePackageCommandController < SourceController
     at = AttribType.find_by_namespace_and_name!('OBS', 'MakeOriginOlder')
     opts[:makeoriginolder] = true if params[:makeoriginolder] || @project.attribs.find_by(attrib_type: at)
     instantiate_container(@project, @package.update_instance, opts)
+
     render_ok
   end
 
@@ -179,9 +226,15 @@ class SourcePackageCommandController < SourceController
   # OBS 3.0: this should be obsoleted, we have /build/ controller for this
   # POST /source/<project>/<package>?cmd=rebuild
   def rebuild
-    authorize @package
+    # project is set to local project in remote case, but also set to readonly.
+    # however, this is not true for build results as they are modifiable
+    if @package.try(:project) == @project && !@package.readonly?
+      authorize @package, :update?
+    else
+      authorize @project, :update?
+    end
 
-    if params[:repo] && @project.repositories.find_by(name: params[:repo]).empty?
+    if params[:repo] && @project.repositories.find_by(name: params[:repo]).nil?
       render_error status: 400, errorcode: 'unknown_repository',
                    message: "Unknown repository '#{params[:repo]}'"
       return
@@ -259,7 +312,9 @@ class SourcePackageCommandController < SourceController
       sproject = params[:oproject] = @origin_package.project.name
       spackage = params[:opackage] = @origin_package.name
     else
-      # FIXME: Why would we by default copy from ourselves? Was this for cmd=diff at some point?
+      # Allow to specify only origin project or origin package avoiding
+      # the need for duplication on api call if copying same package from
+      # another project or createing a derivate in same project.
       sproject = params[:oproject] || params[:project]
       spackage = params[:opackage] || params[:package]
     end
@@ -353,7 +408,7 @@ class SourcePackageCommandController < SourceController
 
   # POST /source/<project>/<package>?cmd=runservice
   def runservice
-    authorize @package, :update?
+    authorize @package
 
     path = request.path_info
     path += build_query_from_hash(params, %i[cmd comment user])
@@ -375,6 +430,10 @@ class SourcePackageCommandController < SourceController
   def linktobranch
     authorize @package, :update?
 
+    if @target_package_name.in?(%w[_project _pattern])
+      render_error status: 400, message: "cannot turn a #{@target_package_name} package into a branch"
+      return
+    end
     pkg_rev = params[:rev]
     pkg_linkrev = params[:linkrev]
 
@@ -444,6 +503,7 @@ class SourcePackageCommandController < SourceController
   def set_package
     options = { updatepatchinfo: { follow_project_links: false },
                 importchannel: { follow_project_links: false },
+                lock: { follow_project_links: false },
                 unlock: { follow_project_links: false },
                 addchannels: { follow_project_links: false },
                 addcontainers: { follow_project_links: false },
@@ -478,6 +538,11 @@ class SourcePackageCommandController < SourceController
     raise InvalidPackageNameError, "invalid package name '#{params[:package]}'"
   end
 
+  def require_standard_package_object
+    # must not come from foreign project or scmsync
+    raise CmdExecutionNoPermission, "Unable to operate on '#{params[:package]}'" unless @package.is_a?(Package)
+  end
+
   def set_user_param
     params[:user] = User.session.login
   end
@@ -490,6 +555,46 @@ class SourcePackageCommandController < SourceController
     raise InvalidPackageNameError, "invalid package name '#{params[:opackage]}'" unless Package.valid_name?(params[:opackage])
     raise InvalidProjectNameError, "invalid project name '#{params[:oproject]}'" unless Project.valid_name?(params[:oproject])
 
+    return if %w[_project _pattern].include?(params[:opackage])
+    return if %w[branch release].include?(params[:cmd]) && params[:missingok]
+
     @origin_package = Package.get_by_project_and_name(params[:oproject], params[:opackage], follow_special_names: params[:cmd] == 'diff')
+  end
+
+  def reparse_backend_package(spackage, sproject)
+    answer = Backend::Api::Sources::Package.meta(sproject, spackage)
+    raise UnknownPackage, "Unknown package #{spackage} in project #{sproject}" unless answer
+
+    Package.transaction do
+      adata = Xmlhash.parse(answer)
+      adata['name'] = params[:package]
+      p = @project.packages.new(name: params[:package])
+      p.update_from_xml(adata)
+      p.remove_all_persons
+      p.remove_all_groups
+      p.develpackage = nil
+      p.store
+    end
+    @package = Package.find_by_project_and_name(params[:project], params[:package])
+  end
+
+  def _package_command_release_manual_target(pkg, multibuild_container, time_now)
+    targetrepo = Repository.find_by_project_and_name(@target_project_name, params[:target_repository])
+    raise UnknownRepository, "Repository does not exist #{params[:target_repository]}" unless targetrepo
+
+    repo = pkg.project.repositories.where(name: params[:repository])
+    raise UnknownRepository, "Repository does not exist #{params[:repository]}" unless repo.count.any?
+
+    repo = repo.first
+
+    release_package(pkg,
+                    targetrepo,
+                    pkg.release_target_name(targetrepo, time_now),
+                    { repository: repo,
+                      multibuild_container: multibuild_container,
+                      arch: params[:arch],
+                      setrelease: params[:setrelease],
+                      manual: true,
+                      comment: "Releasing package #{pkg.name}" })
   end
 end
