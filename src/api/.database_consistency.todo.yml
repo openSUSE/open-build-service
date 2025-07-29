@@ -1782,9 +1782,6 @@ RolesUser:
   id:
     PrimaryKeyTypeChecker:
       enabled: false
-  roles_users_all_index:
-    UniqueIndexChecker:
-      enabled: false
 SCMStatusReport:
   id:
     PrimaryKeyTypeChecker:

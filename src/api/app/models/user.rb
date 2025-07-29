@@ -20,6 +20,7 @@ class User < ApplicationRecord
   has_many :watched_items, dependent: :destroy
   has_many :groups_users, inverse_of: :user
   has_many :roles_users, inverse_of: :user
+  has_many :roles, through: :roles_users
   has_many :relationships, inverse_of: :user, dependent: :destroy
 
   has_many :comments, dependent: :destroy, inverse_of: :user
@@ -44,8 +45,6 @@ class User < ApplicationRecord
 
   # users have a n:m relation to group
   has_and_belongs_to_many :groups, -> { distinct }
-  # users have a n:m relation to roles
-  has_and_belongs_to_many :roles, -> { distinct }
 
   has_many :bs_request_actions_seen_by_users, dependent: :nullify
   has_many :bs_request_actions_seen, through: :bs_request_actions_seen_by_users, source: :bs_request_action
