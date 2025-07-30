@@ -5,10 +5,6 @@ class Authenticator
     setup 401, 'Authentication required'
   end
 
-  class AnonymousUser < APIError
-    setup 401
-  end
-
   class NoPublicAccessError < APIError
     setup 401
   end
@@ -61,7 +57,7 @@ class Authenticator
   # For this rare special operations we simply skip the require login before filter!
   # At the moment these operations are the /public, /trigger and /about controller actions.
   def require_login
-    raise AnonymousUser, 'Anonymous user is not allowed here - please login' unless User.session
+    raise AuthenticationRequiredError unless User.session
   end
 
   def require_admin
