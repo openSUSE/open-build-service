@@ -192,6 +192,13 @@ class User < ApplicationRecord
     find_by(login: login)&.authenticate_via_password(password)
   end
 
+  def self.find_with_credentials!(login, password)
+    user = find_by(login: login)&.authenticate_via_password(password)
+    raise AuthenticationFailed unless user
+
+    user
+  end
+
   # Currently logged in user or nobody user if there is no user logged in.
   # Use this to check permissions, but don't treat it as logged in user. Check
   # nobody? on the returned object
