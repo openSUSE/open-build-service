@@ -1,5 +1,4 @@
 class BuildController < ApplicationController
-  skip_before_action :extract_user, only: [:scmresult]
   skip_before_action :require_login, only: [:scmresult]
 
   before_action :require_scmsync_host_check, only: [:scmresult]
