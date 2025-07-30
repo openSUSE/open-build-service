@@ -5,10 +5,6 @@ class Authenticator
     setup 401, 'Authentication required'
   end
 
-  class NoPublicAccessError < APIError
-    setup 401
-  end
-
   class InactiveUserError < APIError
     setup 403
   end
@@ -41,15 +37,6 @@ class Authenticator
     @http_user = User.find_by_login(session[:login]) if !@http_user && session[:login]
 
     check_extracted_user
-  end
-
-  def extract_user_public
-    if ::Configuration.anonymous
-      load_nobody
-    else
-      Rails.logger.error 'No public access is configured'
-      raise NoPublicAccessError, 'No public access is configured'
-    end
   end
 
   # We allow anonymous user only for rare special operations (if configured) but we require
@@ -162,13 +149,8 @@ class Authenticator
   def check_for_anonymous_user
     return false unless ::Configuration.anonymous && request.user_agent
 
-    load_nobody
-    true
-  end
-
-  # to become _public_ special user
-  def load_nobody
     @http_user = User.find_nobody!
     User.session = @http_user
+    true
   end
 end
