@@ -37,7 +37,6 @@ class ApplicationController < ActionController::Base
   after_action :validate_xml_response if CONFIG['response_schema_validation'] == true
 
   delegate :extract_user,
-           :extract_user_public,
            :require_login,
            :require_admin,
            to: :authenticator
