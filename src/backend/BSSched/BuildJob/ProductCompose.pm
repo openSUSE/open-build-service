@@ -99,11 +99,29 @@ sub check {
 
   my %imagearch = map {$_ => 1} @{$info->{'imagearch'} || []};
   my @archs;
-  if (!%imagearch || !grep {$imagearch{$_}} @{$repo->{'arch'} || []}) {
-     @archs = ( $myarch );
+  if (%imagearch) {
+    # recipe defines a list of rpm architectures
+    # we need to map them to scheduler architectures here
+    my %repoarch = map {$_ => 1} @{$repo->{'arch'} || []};
+    for my $arch (sort keys %imagearch) {
+      if (!$repoarch{$arch}) {
+	# unknown image arch, try some mapping
+	$arch =~ s/^armv(\d)hl$/armv$1l/;
+      }
+      push @archs, $arch if $repoarch{$arch};
+    }
+    @archs = BSUtil::unify(@archs);
   } else {
-     @archs = grep {$imagearch{$_}} @{$repo->{'arch'} || []};
-  };
+    @archs = ( $myarch );
+  }
+
+  if (!@archs) {
+    if ($ctx->{'verbose'}) {
+      print "      - $packid (productcompose)\n";
+      print "        no matching architectures\n";
+    }
+    return ('excluded');
+  }
 
   # sort archs like in bs_worker
   @archs = sort(@archs);

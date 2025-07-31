@@ -360,7 +360,7 @@ sub setup {
   }
   my $suspend = $gctx->{'projsuspended'}->{$projid};
   $suspend = timeout_suspends($ctx) if $suspend;
-  return ('blocked', join(', ', map {$_->{'job'}} @$suspend)) if $suspend;
+  return ('blocked', join(', ', BSUtil::unify(map {$_->{'job'}} @$suspend))) if $suspend;
   $ctx->{'repo'} = $repo;
 
   if ($ctx->{'alllocked'}) {
