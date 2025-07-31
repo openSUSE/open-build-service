@@ -7,11 +7,13 @@
 - else
   %li.breadcrumb-item.text-word-break-all
     %i.fa.fa-archive
-    = precede link_to(@package, package_show_path(@project, @package)) do
-      - if @multibuild_flavor.present?
-        %span.active :#{@multibuild_flavor}
+    = link_to(package_show_path(@project, @package)) do
+      - if @package_name.present?
+        = @package_name
       - else
-        = nil
+        = @package
+        - if @multibuild_flavor.present?
+          %span.active :#{@multibuild_flavor}
   - if current_page?(package_view_revisions_path(@project, @package))
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Revisions
