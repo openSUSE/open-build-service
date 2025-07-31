@@ -1,47 +1,50 @@
 = turbo_frame_tag "#{project.name}_#{package_name}_rpmlint" do
-  %table.table
-    %tr
-      %th
-        Linter
-      %th
-        Severity
-      %th
-        Badness
-      %th
-        Affected
-    - lints_list.flatten.sort_by { |l| -l[:badness] }.group_by { |l| l[:linter] }.each do |lint, lint_list|
+  - if lints_list.empty?
+    No lints found.
+  - else
+    %table.table
       %tr
-        %td
-          = lint
-        %td
-          - case lint_list.first[:level]
-          - when 'E'
-            .text-danger
-              Error
-          - when 'W'
-            .text-warning
-              Warning
-          - when 'I'
-            .text-info
-              Info
-        %td
-          = lint_list.first[:badness]
-        %td
-          %ul
-            - lint_list.sort_by { |l| l[:location] }.group_by { |l| l[:location] }.each do |location, location_list|
-              %li
-                .dropdown
-                  = link_to('#', role: 'button', data: { 'bs-toggle': 'dropdown', 'aria-expanded': false }) do
-                    = location
-                    %span.badge.text-bg-primary
-                      = location_list.count
-                  %ul.dropdown-menu
-                    - location_list.each do |repository|
-                      %li.dropdown-item
-                        = link_to(project_package_repository_architecture_rpmlint_path(project,
-                                                                                       package_name,
-                                                                                       repository[:repo],
-                                                                                       repository[:arch],
-                                                                                       anchor: "l#{repository[:line]}"),
-                                  target: '_top') do
-                          #{repository[:repo]}.#{repository[:arch]} line #{repository[:line]}
+        %th
+          Linter
+        %th
+          Severity
+        %th
+          Badness
+        %th
+          Affected
+      - lints_list.flatten.sort_by { |l| -l[:badness] }.group_by { |l| l[:linter] }.each do |lint, lint_list|
+        %tr
+          %td
+            = lint
+          %td
+            - case lint_list.first[:level]
+            - when 'E'
+              .text-danger
+                Error
+            - when 'W'
+              .text-warning
+                Warning
+            - when 'I'
+              .text-info
+                Info
+          %td
+            = lint_list.first[:badness]
+          %td
+            %ul
+              - lint_list.sort_by { |l| l[:location] }.group_by { |l| l[:location] }.each do |location, location_list|
+                %li
+                  .dropdown
+                    = link_to('#', role: 'button', data: { 'bs-toggle': 'dropdown', 'aria-expanded': false }) do
+                      = location
+                      %span.badge.text-bg-primary
+                        = location_list.count
+                    %ul.dropdown-menu
+                      - location_list.each do |repository|
+                        %li.dropdown-item
+                          = link_to(project_package_repository_architecture_rpmlint_path(project,
+                                                                                         package_name,
+                                                                                         repository[:repo],
+                                                                                         repository[:arch],
+                                                                                         anchor: "l#{repository[:line]}"),
+                                    target: '_top') do
+                            #{repository[:repo]}.#{repository[:arch]} line #{repository[:line]}
