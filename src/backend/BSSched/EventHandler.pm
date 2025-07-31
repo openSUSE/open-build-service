@@ -552,7 +552,7 @@ sub event_suspendproject {
   for my $repo (@{$proj->{'repository'} || []}) {
     next unless grep {$_ eq $gctx->{'arch'}} @{$repo->{'arch'} || []};
     my $ctx = BSSched::Checker->new($gctx, "$projid/$repo->{'name'}");
-    $ctx->set_repo_state('blocked', join(', ', @suspendjob));
+    $ctx->set_repo_state('blocked', join(', ', BSUtil::unify(@suspendjob)));
   }
 }
 
