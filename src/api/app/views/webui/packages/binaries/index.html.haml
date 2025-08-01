@@ -40,12 +40,12 @@
               %tr
                 %td.px-2 #{binary[:filename]} (#{number_to_human_size(binary[:size])})
                 %td.text-nowrap.text-end.px-2
-                  - render_partial = render partial: 'binaries_actions', locals: { project: @project,
+                  - render_partial = h(render partial: 'binaries_actions', locals: { project: @project,
                                                                                    package_name: @package_name,
                                                                                    package: @package,
                                                                                    binary: binary,
                                                                                    repository: @repository,
-                                                                                   architecture: result[:arch] }
+                                                                                   architecture: result[:arch] })
                   .d-none.d-sm-block
                     = render_partial
                   .d-sm-none

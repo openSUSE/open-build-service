@@ -590,40 +590,6 @@
       "note": ""
     },
     {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "aaba3117dfdc092707622329ec33e1955f154e216aa85f1db97c441dd55fe6ba",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/webui/packages/binaries/index.html.haml",
-      "line": 52,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "::Haml::AttributeBuilder.build_data(true, \"'\", :\"bs-toggle\" => \"popover\", :\"bs-html\" => \"true\", :\"bs-content\" => (\"#{render(:partial => \"binaries_actions\", :locals => ({ :project => ::Project.find_by(:name => (params[:project_name] or params[:project]).to_s), :package_name => (@package_name), :package => (@package), :binary => binary, :repository => ::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).repositories.find_by(:name => ((params[:repository] or params[:repository_name]))), :architecture => result[:arch] }))}\"))",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "Webui::Packages::BinariesController",
-          "method": "index",
-          "line": 31,
-          "file": "app/controllers/webui/packages/binaries_controller.rb",
-          "rendered": {
-            "name": "webui/packages/binaries/index",
-            "file": "app/views/webui/packages/binaries/index.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "webui/packages/binaries/index"
-      },
-      "user_input": "::Project.find_by(:name => (params[:project_name] or params[:project]).to_s)",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
-      ],
-      "note": ""
-    },
-    {
       "warning_type": "SQL Injection",
       "warning_code": 0,
       "fingerprint": "ad49cd1c1746b547be303b03640568525232c39d97d6e256a9f5d6edfc7350e0",
