@@ -37,14 +37,12 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
   private
 
   def artifacts_for_set_flag(parsed_artifacts)
-    capture do
-      list_of_flags(parsed_artifacts[:flags])
-    end
+    list_of_flags(parsed_artifacts[:flags])
   end
 
   def list_of_flags(flags)
     flags.each do |flag|
-      concat(flag_step_sentence(flag))
+      flag_step_sentence(flag)
     end
   end
 
@@ -64,11 +62,9 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
   end
 
   def artifacts_for_submit_request(parsed_artifacts)
-    capture do
-      parsed_artifacts[:request_numbers_and_state].each do |key, request_number|
-        request_path = helpers.request_show_path(number: request_number)
-        concat(tag.li(link_to("Request #{request_number} -> #{key}", request_path)))
-      end
+    parsed_artifacts[:request_numbers_and_state].each do |key, request_number|
+      request_path = helpers.request_show_path(number: request_number)
+      tag.li(link_to("Request #{request_number} -> #{key}", request_path))
     end
   end
 

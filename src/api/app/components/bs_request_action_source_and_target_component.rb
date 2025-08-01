@@ -25,12 +25,10 @@ class BsRequestActionSourceAndTargetComponent < ApplicationComponent
   end
 
   def combine(source, target)
-    capture do
-      if source.present?
-        concat(tag.span(source))
-        concat(tag.i(nil, class: 'fas fa-long-arrow-alt-right text-info mx-2'))
-      end
-      concat(tag.span(target))
+    if source.present?
+      tag.span(source)
+      tag.i(nil, class: 'fas fa-long-arrow-alt-right text-info mx-2')
     end
+    tag.span(target)
   end
 end
