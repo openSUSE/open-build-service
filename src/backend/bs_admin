@@ -26,6 +26,13 @@ BEGIN {
   $wd ||= '.';
   unshift @INC,  "$wd/build";
   unshift @INC,  "$wd";
+  if (@ARGV == 2 && $ARGV[0] eq '--query-config') {
+    require BSConfiguration;
+    no strict "refs";
+    my $val = ${"BSConfig::$ARGV[1]"};
+    print "$val\n" if defined $val;
+    exit 0;
+  }
 }
 
 use strict;
