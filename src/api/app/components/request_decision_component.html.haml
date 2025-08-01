@@ -62,3 +62,11 @@
   $('#accept-and-make-maintainer-and-forward').on('click', function(){
     $('input[name=add_submitter_as_maintainer_0]').prop('checked', 'checked');
   });
+
+  // Only require the text if submitting a comment, declining or reopening
+  $('#request_handle_form [name=revoked], #request_handle_form [name=accepted]').on('click', function () {
+    $('#request_handle_form #new_comment_body').removeAttr('required');
+  });
+  $('#request_handle_form [name=new], #request_handle_form [name=declined], #request_handle_form [name=commented]').on('click', function () {
+    $('#request_handle_form #new_comment_body').attr('required', 'required');
+  });
