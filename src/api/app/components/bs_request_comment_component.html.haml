@@ -64,6 +64,11 @@
       .comment-bubble-content{ id: "comment-#{comment.id}-body" }
         = render ReportsNoticeComponent.new(reportable: comment, user: User.session)
         = helpers.render_as_markdown(comment)
+      - if policy(comment).reply?
+        .d-flex.justify-content-end.me-3.mb-2
+          = link_to("#reply_form_of_#{comment.id}", id: "reply_button_of_#{comment.id}", 'data-bs-toggle': 'collapse',
+                    class: 'fst-italic small collapsed') do
+            Reply
 
       - if policy(comment).update?
         .collapse.comment-edit.p-3{ id: "edit_form_of_#{comment.id}" }
@@ -72,11 +77,6 @@
 
     -# This should be refactored to avoid relying on global state
     - if policy(comment).reply?
-      .d-flex.justify-content-end.me-2
-        = link_to("#reply_form_of_#{comment.id}", id: "reply_button_of_#{comment.id}", 'data-bs-toggle': 'collapse',
-                  class: 'fst-italic small collapsed') do
-          Reply
-
       .collapse.ms-4.mb-4{ id: "reply_form_of_#{comment.id}" }
         = render(partial: 'webui/comment/comment_field', locals: { form_method: :post,
           comment: comment.children.new, commentable: commentable, element_suffix: "reply_for_#{comment.id}", has_cancel: true })
