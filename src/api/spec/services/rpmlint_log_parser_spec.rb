@@ -8,6 +8,12 @@ RSpec.describe RpmlintLogParser, type: :service do
       it { expect(subject).to have_attributes(errors: {}, badness: {}, warnings: {}, info: {}) }
     end
 
+    context 'when the log file does not exist' do
+      let(:content) { nil }
+
+      it { expect(subject).to have_attributes(errors: {}, badness: {}, warnings: {}, info: {}) }
+    end
+
     context 'file with no messages' do
       let(:content) { 'hey hey hey' }
 
