@@ -160,6 +160,9 @@ echo "export OBS_SERVICE_BUNDLE_GEMS_MIRROR_URL=\"$OBS_SERVICE_BUNDLE_GEMS_MIRRO
 echo "export OBS_SERVICE_DAEMON=\"$OBS_SERVICE_DAEMON\""                                   >> "$MOUNTDIR/$INNERSCRIPT"
 echo "export OBS_SERVICE_USER=\"$OBS_SERVICE_USER\""                                       >> "$MOUNTDIR/$INNERSCRIPT"
 echo "export OBS_SERVICE_PASS=\"$OBS_SERVICE_PASS\""                                       >> "$MOUNTDIR/$INNERSCRIPT"
+echo "export OBS_SERVICE_PROJECT=\"$OBS_SERVICE_PROJECT\""                                 >> "$MOUNTDIR/$INNERSCRIPT"
+echo "export OBS_SERVICE_PACKAGE=\"$OBS_SERVICE_PACKAGE\""                                 >> "$MOUNTDIR/$INNERSCRIPT"
+echo "export OBS_NAME=\"$OBS_NAME\""                                                       >> "$MOUNTDIR/$INNERSCRIPT"
 echo "cd $INNERSRCDIR"                                                                     >> "$MOUNTDIR/$INNERSCRIPT"
 echo -n "${INNERSCRIPT}.command"                                                           >> "$MOUNTDIR/$INNERSCRIPT"
 
