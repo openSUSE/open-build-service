@@ -4,7 +4,6 @@ class DiffListComponent < ApplicationComponent
   attr_reader :diff_list, :view_id, :commentable, :commented_lines, :source_package, :target_package, :source_rev, :target_rev
 
   def initialize(diff_list:, view_id: nil, commentable: nil, commented_lines: {}, source_package: nil, target_package: nil, source_rev: nil, target_rev: nil)
-    super
     @diff_list = diff_list
     @view_id = view_id
     @commentable = commentable

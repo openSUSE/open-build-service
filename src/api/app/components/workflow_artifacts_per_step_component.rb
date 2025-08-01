@@ -5,7 +5,6 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
   attr_reader :artifacts_per_step, :step, :artifacts
 
   def initialize(artifacts_per_step:)
-    super
     @artifacts_per_step = artifacts_per_step
     @step = @artifacts_per_step.step
     @artifacts = @artifacts_per_step.artifacts

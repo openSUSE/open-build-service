@@ -1,7 +1,5 @@
 class WorkflowRunStatusBadgeComponent < ApplicationComponent
   def initialize(status:, css_class: nil)
-    super
-
     @status = status
     @css_class = css_class
   end

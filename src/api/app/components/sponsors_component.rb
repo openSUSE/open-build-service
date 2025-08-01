@@ -2,7 +2,6 @@
 
 class SponsorsComponent < ApplicationComponent
   def initialize(config: CONFIG)
-    super
     @config = config
   end
 

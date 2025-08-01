@@ -2,7 +2,6 @@ class DiffSubjectComponent < ApplicationComponent
   attr_reader :state, :old_filename, :new_filename
 
   def initialize(state:, old_filename:, new_filename:)
-    super
     @state = state
     @old_filename = old_filename
     @new_filename = new_filename

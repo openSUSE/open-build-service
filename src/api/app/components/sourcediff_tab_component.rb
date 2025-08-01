@@ -7,8 +7,6 @@ class SourcediffTabComponent < ApplicationComponent
   delegate :diff_data, to: :helpers
 
   def initialize(bs_request:, action:, active:, index:)
-    super
-
     @bs_request = bs_request
     @action = action
     @active = active

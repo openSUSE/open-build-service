@@ -5,8 +5,6 @@ class SourcediffComponent < ApplicationComponent
   delegate :diff_data, to: :helpers
 
   def initialize(bs_request:, action:, diff_not_cached:, diff_to_superseded: nil)
-    super
-
     @bs_request = bs_request
     @action = action
     @diff_to_superseded = diff_to_superseded
