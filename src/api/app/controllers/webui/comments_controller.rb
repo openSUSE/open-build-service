@@ -69,7 +69,8 @@ class Webui::CommentsController < Webui::WebuiController
       if @comment.commentable_type == 'BsRequestAction' &&
          Comment.where(commentable: @comment.commentable, diff_file_index: @comment.root.diff_file_index, diff_line_number: @comment.root.diff_line_number).count.zero?
         return render(partial: 'webui/request/add_inline_comment',
-                      locals: { commentable: @comment.root.commentable, diff_file_index: @comment.root.diff_file_index, diff_line_number: @comment.root.diff_line_number })
+                      locals: { commentable: @comment.root.commentable, diff_file_index: @comment.root.diff_file_index, diff_line_number: @comment.root.diff_line_number,
+                                source_rev: @comment.root.source_rev, target_rev: @comment.root.target_rev })
       end
       # if we're a root comment with no replies there is no need to re-render anything
       return head(:ok) if @comment.root? && @comment.leaf?
