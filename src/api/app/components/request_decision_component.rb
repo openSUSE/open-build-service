@@ -1,7 +1,5 @@
 class RequestDecisionComponent < ApplicationComponent
   def initialize(bs_request:, package_maintainers:, show_project_maintainer_hint:)
-    super
-
     @bs_request = bs_request
     @package_maintainers = package_maintainers
 

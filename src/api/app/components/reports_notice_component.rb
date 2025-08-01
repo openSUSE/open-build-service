@@ -2,8 +2,6 @@ class ReportsNoticeComponent < ApplicationComponent
   attr_reader :reportable, :reportable_name, :user, :reports
 
   def initialize(reportable:, user:)
-    super
-
     @reportable = reportable
     @reportable_name = if reportable.instance_of?(::BsRequest)
                          'request'

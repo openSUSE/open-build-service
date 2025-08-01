@@ -7,7 +7,6 @@ class BsRequestActivityTimelineComponent < ApplicationComponent
   attr_reader :bs_request, :creator, :timeline, :request_reviews_for_non_staging_projects, :timeline_for_superseeded
 
   def initialize(bs_request:, history_elements:, request_reviews_for_non_staging_projects: [], timeline_for_superseeded: false)
-    super
     @bs_request = bs_request
     @creator = User.find_by_login(bs_request.creator) || User.nobody
     action_comments = Comment.on_actions_for_request(@bs_request).without_parent.includes(:user)

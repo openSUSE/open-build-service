@@ -2,8 +2,6 @@ class TokenCardComponent < ApplicationComponent
   with_collection_parameter :token
 
   def initialize(token:)
-    super
-
     @token = token
   end
 

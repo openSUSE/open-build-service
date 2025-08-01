@@ -1,7 +1,5 @@
 class WorkflowRunFilterComponent < ApplicationComponent
   def initialize(token:, selected_filter:, workflow_runs_relation:)
-    super
-
     @count = {
       'success' => workflow_runs_relation.success.count,
       'running' => workflow_runs_relation.running.count,

@@ -4,7 +4,6 @@ class WorkflowRunDetailComponent < ApplicationComponent
               :scm_vendor, :status_reports
 
   def initialize(workflow_run:)
-    super
     @id = workflow_run.id
     @workflow_run = workflow_run
     @request_headers = workflow_run.request_headers

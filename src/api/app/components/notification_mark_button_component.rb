@@ -1,7 +1,5 @@
 class NotificationMarkButtonComponent < ApplicationComponent
   def initialize(notification, selected_filter, page = nil)
-    super
-
     @notification = notification
     @selected_filter = selected_filter
     @page = page
