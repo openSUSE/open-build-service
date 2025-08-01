@@ -51,7 +51,7 @@ RSpec.describe Webui::GroupsController do
     end
 
     context 'as a normal user' do
-      let(:login_as) { create(:user) }
+      let(:login_as) { create(:confirmed_user) }
 
       it 'does not allow to create a group' do
         expect(flash[:error]).to eq('Sorry, you are not authorized to create this group.')
@@ -99,7 +99,7 @@ RSpec.describe Webui::GroupsController do
     end
 
     context 'as a normal user' do
-      let(:login_as) { create(:user) }
+      let(:login_as) { create(:confirmed_user) }
 
       it 'does not allow to edit the group' do
         expect(flash[:error]).to eq('Sorry, you are not authorized to update this group.')
@@ -130,7 +130,7 @@ RSpec.describe Webui::GroupsController do
     end
 
     context 'as a normal user' do
-      let(:login_as) { create(:user) }
+      let(:login_as) { create(:confirmed_user) }
       let(:email) { 'new_email@example.com' }
 
       it 'does not allow to update the group' do

@@ -34,5 +34,17 @@ module Webui::RescueHandler
     rescue_from AjaxDatatablesRails::Error::InvalidSearchColumn, AjaxDatatablesRails::Error::InvalidSearchCondition do
       render json: { data: [] }
     end
+
+    rescue_from AuthenticationFailed, AuthenticationRequiredError, UnconfirmedUserError, InactiveUserError do |exception|
+      case CONFIG['proxy_auth_mode']
+      when :mellon
+        redirect_to add_return_to_parameter_to_query(url: CONFIG['proxy_auth_login_page'], parameter_name: 'ReturnTo')
+      when :ichain
+        redirect_to add_return_to_parameter_to_query(url: CONFIG['proxy_auth_login_page'], parameter_name: 'url')
+      else
+        reset_session
+        redirect_to(new_session_path, error: exception.default_message)
+      end
+    end
   end
 end
