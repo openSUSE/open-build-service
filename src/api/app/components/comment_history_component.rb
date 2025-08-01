@@ -2,6 +2,8 @@ class CommentHistoryComponent < ApplicationComponent
   include Webui::PaperTrailHelper
 
   def initialize(comment)
+    super
+
     @comment = comment
   end
 

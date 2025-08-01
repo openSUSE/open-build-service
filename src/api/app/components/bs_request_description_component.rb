@@ -9,6 +9,7 @@ class BsRequestDescriptionComponent < ApplicationComponent
   delegate :creator_intentions, to: :helpers
 
   def initialize(bs_request:)
+    super
     @bs_request = bs_request
   end
 

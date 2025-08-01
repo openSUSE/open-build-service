@@ -4,6 +4,7 @@ class TimeComponent < ApplicationComponent
   attr_reader :time
 
   def initialize(time:)
+    super
     @time = time.utc
   end
 
