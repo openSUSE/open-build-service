@@ -35,6 +35,8 @@ class BsRequestPolicy < ApplicationPolicy
   end
 
   def decline_request?
+    return false if BsRequest::FINAL_REQUEST_STATES.include?(record.state)
+
     !(author? || record.source_maintainer?(user))
   end
 
