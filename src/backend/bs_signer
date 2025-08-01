@@ -870,6 +870,12 @@ sub signjob {
   }
   if (@signfiles) {
     my $signflavor;
+    if (($info->{'signflavor'} || '') eq '_buildenv') {
+      # take the signflavor from the generated _buildenv file
+      my $buildenv = readxml("$jobdir/_buildenv", $BSXML::buildinfo);
+      delete $info->{'signflavor'};
+      $info->{'signflavor'} = $buildenv->{'signflavor'} if $buildenv->{'signflavor'};
+    }
     if ($info->{'signflavor'}) {
       $signflavor = $info->{'signflavor'};
       die("Signflavor is not configured\n") unless $BSConfig::sign_flavor;

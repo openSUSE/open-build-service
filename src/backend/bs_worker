@@ -3121,10 +3121,17 @@ sub readbuildenv {
   $buildinfo->{'hasbuildenv'} = 1;
   # work around buildenv generation bug
   $_->{'name'} =~ s/\.rpm$// for @{$bi->{'bdep'} || []};
+  if (($buildinfo->{'signflavor'} || '') eq '_buildenv') {
+    die("Need to have an outbuildinfo\n") unless $buildinfo->{'outbuildinfo'};
+    delete $buildinfo->{'signflavor'};
+    delete $buildinfo->{'outbuildinfo'}->{'signflavor'};
+    $buildinfo->{'signflavor'} = $bi->{'signflavor'} if defined $bi->{'signflavor'};
+    $buildinfo->{'outbuildinfo'}->{'signflavor'} = $bi->{'signflavor'} if defined $bi->{'signflavor'};
+  }
   for (qw{error versrel bcnt release bdep config}) {
     $buildinfo->{$_} = $bi->{$_} if defined $bi->{$_};
   }
-  for ('versrel', 'bcnt', 'release') {
+  for (qw{versrel bcnt release}) {
     $buildinfo->{'outbuildinfo'}->{$_} = $bi->{$_} if $buildinfo->{'outbuildinfo'} && defined $bi->{$_};
   }
   if (!grep {$_->{'preinstall'}} @{$buildinfo->{'bdep'} || []}) {
@@ -3871,8 +3878,8 @@ sub dobuild {
     @meta = split("\n", readstr("$srcdir/meta"));
   } elsif ($followupmode) {
     getfollowupsources($buildinfo, $srcdir);
-    getsslcert($buildinfo, $srcdir);
     readbuildenv($buildinfo, $srcdir);
+    getsslcert($buildinfo, $srcdir);
     unlink("$srcdir/_buildenv.$buildinfo->{'repository'}.$buildinfo->{'arch'}");
     print "packages, ";
     if ($imagemode && ($imagemode eq 'kiwiproduct' || $imagemode eq 'productcompose')) {
@@ -3922,9 +3929,9 @@ sub dobuild {
     }
     $buildinfo->{'forcebinaryidmeta'} = 1 if $buildtype eq 'mkosi' || $buildtype eq 'livebuild' || $buildtype eq 'appimage' || $buildtype eq 'simpleimage' || $buildtype eq 'preinstallimage';
     getobsgendiffdata($buildinfo, $srcdir) if $buildinfo->{'obsgendiff'};
+    readbuildenv($buildinfo, $srcdir);
     getsslcert($buildinfo, $srcdir, $needsappxsslcert ? 'appx' : undef) if $needssslcert || $needsappxsslcert;
     getpubkey($buildinfo, $srcdir) if $needspubkey;
-    readbuildenv($buildinfo, $srcdir);
     print "packages, ";
     if (($imagemode || '') eq 'kiwiproduct') {
       $buildinfo->{'rpmhdrs_only'} = 1 if kiwiproduct_is_rpmhdrsonly("$srcdir/$buildinfo->{'file'}");
