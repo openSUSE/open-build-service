@@ -9,6 +9,7 @@ class BsRequestActionDescriptionComponent < ApplicationComponent
   delegate :creator_intentions, to: :helpers
 
   def initialize(action:, text_only: false)
+    super
     @action = action
     @text_only = text_only
   end

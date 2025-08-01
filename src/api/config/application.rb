@@ -143,7 +143,7 @@ module OBSApi
     # Previews are enabled by default in development and test environments (this is the default value)
     # config.view_component.show_previews = true
     # Preview classes of view components live in:
-    config.view_component.previews.paths << Rails.root.join('spec/components/previews')
+    config.view_component.preview_paths << Rails.root.join('spec/components/previews')
     # Previews are served at http://HOST:PORT/rails/view_components (this is the default value)
     # config.view_component.preview_route = "/rails/view_components"
     # Set the default layout for previews (app/views/layouts/NAME.html.haml)

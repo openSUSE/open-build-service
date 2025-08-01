@@ -1,5 +1,7 @@
 class ActionSeenByUserComponent < ApplicationComponent
   def initialize(action:, user:, seen_by_user: nil, render_only: false)
+    super
+
     @action = action
     @user = user
     @render_only = render_only

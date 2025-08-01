@@ -2,6 +2,8 @@ class UserAvatarComponent < ApplicationComponent
   attr_reader :avatar_object
 
   def initialize(avatar_object)
+    super
+
     @avatar_object = avatar_object
   end
 

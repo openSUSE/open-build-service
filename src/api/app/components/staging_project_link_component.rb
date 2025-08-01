@@ -1,5 +1,7 @@
 class StagingProjectLinkComponent < ApplicationComponent
   def initialize(staging_project:, staging_workflow:, link_options: {})
+    super
+
     @staging_project = staging_project
     @staging_workflow = staging_workflow
     @link_options = link_options

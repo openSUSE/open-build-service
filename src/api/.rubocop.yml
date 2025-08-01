@@ -37,11 +37,6 @@ AllCops:
     # We don't want extra cops for minitest since we want to migrate those tests to RSpec
     rubocop-minitest: false
 
-#################### Lint ############################
-
-Lint/MissingSuper:
-  AllowedParentClasses: [ApplicationComponent]
-
 #################### Style ###########################
 
 Style/ArgumentsForwarding:

@@ -2,6 +2,8 @@ class DownloadRepositoryLinkComponent < ApplicationComponent
   attr_reader :published_repository_exist, :download_area_url
 
   def initialize(project:, repository:, configuration:)
+    super
+
     @published_repository_exist = false
     download_url = configuration['download_url']
     return unless download_url

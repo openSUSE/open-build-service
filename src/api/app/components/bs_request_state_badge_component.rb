@@ -2,6 +2,8 @@ class BsRequestStateBadgeComponent < ApplicationComponent
   attr_reader :state, :css_class
 
   def initialize(state:, css_class: nil)
+    super
+
     @state = state
     @css_class = css_class
   end

@@ -6,6 +6,8 @@ class BsRequestHistoryElementComponent < ApplicationComponent
   attr_reader :element, :request_reviews_for_non_staging_projects
 
   def initialize(element:, request_reviews_for_non_staging_projects: [])
+    super
+
     @element = element
     @request_reviews_for_non_staging_projects = request_reviews_for_non_staging_projects
   end
