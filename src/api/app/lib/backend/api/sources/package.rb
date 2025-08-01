@@ -173,6 +173,16 @@ module Backend
         def self.delete_file(project_name, package_name, filename)
           http_delete(['/source/:project/:package/:filename', project_name, package_name, filename])
         end
+
+        # lock a package in backend only (for scmsync projects only)
+        def self.lock(project_name, package_name)
+          http_post(['/source/:project/:package', project_name, package_name], params: { cmd: :lock })
+        end
+
+        # unlock a package in backend only (for scmsync projects only)
+        def self.unlock(project_name, package_name)
+          http_post(['/source/:project/:package', project_name, package_name], params: { cmd: :unlock })
+        end
       end
     end
   end

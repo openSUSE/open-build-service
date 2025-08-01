@@ -5,5 +5,45 @@ post:
     only allows API tokens the the operation 'release' to be triggered.
   security:
     - GitLab_key_authentication: []
+  parameters:
+    - in: query
+      name: repository
+      description: |
+        Restrict the release to binaries from this repository.
+      schema:
+        type: string
+      example: openSUSE_Factory
+    - in: query
+      name: arch
+      description: |
+        Restrict the rebuild to this scheduler architecture.
+      schema:
+        type: string
+      example: x86_64
+    - in: query
+      name: targetproject
+      description: |
+        Release binaries only to the provided project with this name.
+        Setting this requires the 'targetrepository' parameter to be set also.
+      schema:
+        type: string
+      example: devel:languages:ruby
+    - in: query
+      name: targetrepository
+      description: |
+        Release binaries only to the target repository with this name.
+        Setting this requires the 'targetproject' parameter to be set also.
+      schema:
+        type: string
+      example: openSUSE_Factory
+    - in: query
+      name: setrelease
+      description: |
+        Defines a custom release name. This overwrites milestone definitions
+        or built-in defaults.
+        Renaming can be disabled entirely by using '-'.
+      schema:
+        type: string
+      example: openSUSE_Factory
   tags:
     - Trigger

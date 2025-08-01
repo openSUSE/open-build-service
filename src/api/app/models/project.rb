@@ -788,16 +788,16 @@ class Project < ApplicationRecord
     false
   end
 
-  def exists_package?(name, opts = {})
+  def exists_package?(package, opts = {})
     pkg = if opts[:follow_project_links]
             # Look for any package with name in all our linked projects
-            Package.find_by(project: expand_linking_to, name: name)
+            Package.find_by(project: expand_linking_to, name: package)
           else
-            packages.find_by_name(name)
+            packages.find_by_name(package)
           end
     if pkg.nil?
       # local project, but package may be in a linked remote one
-      opts[:allow_remote_packages] && Package.exists_on_backend?(name, self.name)
+      opts[:allow_remote_packages] && Package.exists_on_backend?(name, package)
     else
       pkg.project.check_access?
     end
@@ -1100,7 +1100,7 @@ class Project < ApplicationRecord
             release_package(pkg,
                             releasetarget.target_repository,
                             pkg.release_target_name(releasetarget.target_repository, time_now),
-                            { filter_source_repository: repo,
+                            { repository: repo,
                               setrelease: params[:setrelease],
                               manual: true,
                               comment: comment })

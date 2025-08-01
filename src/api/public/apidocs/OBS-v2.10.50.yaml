@@ -443,6 +443,8 @@ paths:
     $ref: 'paths/source_project_name_package_name_cmd_showlinked.yaml'
   /source/{project_name}/{package_name}?cmd=undelete:
     $ref: 'paths/source_project_name_package_name_cmd_undelete.yaml'
+  /source/{project_name}/{package_name}?cmd=lock:
+    $ref: 'paths/source_project_name_package_name_cmd_lock.yaml'
   /source/{project_name}/{package_name}?cmd=unlock:
     $ref: 'paths/source_project_name_package_name_cmd_unlock.yaml'
   /source/{project_name}/{package_name}?cmd=updatepatchinfo:
