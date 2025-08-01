@@ -96,7 +96,6 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def require_package
-    params[:rev], params[:package] = params[:pkgrev].split('-', 2) if params[:pkgrev]
     @package_name = params[:package] || params[:package_name]
 
     return if @package_name.blank?
