@@ -2,7 +2,7 @@ class RpmlintLogParser
   attr_reader :errors, :badness, :warnings, :info
 
   def initialize(content: '')
-    @content = content
+    @content = content || ''
 
     @errors = Hash.new(0)
     @badness = Hash.new(0)

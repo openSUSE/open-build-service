@@ -1,5 +1,8 @@
 - if render_chart
   = render(RpmLintComponent.new(rpmlint_log_parser: parsed_messages))
-- rpmlint_log_file.each_line(chomp: true).with_index do |line, index|
-  %span.line{ id: "l#{index + 1}" }<
-    = colorize_line(line)
+- if rpmlint_log_file.nil?
+  %i There are no RPM lint results to display
+- else
+  - rpmlint_log_file.each_line(chomp: true).with_index do |line, index|
+    %span.line{ id: "l#{index + 1}" }<
+      = colorize_line(line)
