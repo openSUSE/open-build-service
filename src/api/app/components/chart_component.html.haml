@@ -8,14 +8,14 @@
       %h4
         Build Results Summary
     - if distinct_repositories.size > ChartComponent::MINIMUM_DISTINCT_BUILD_REPOSITORIES || raw_data.size > ChartComponent::MINIMUM_BUILD_RESULTS
-      = column_chart( chart_data,
-                      id: 'build-summary-chart',
-                      width: '100%',
-                      height: '300px',
-                      stacked: true,
-                      responsive: true,
-                      colors: ['#008000', '#DC3545', '#FFCC00'],
-                    )
+      = helpers.column_chart( chart_data,
+                              id: 'build-summary-chart',
+                              width: '100%',
+                              height: '300px',
+                              stacked: true,
+                              responsive: true,
+                              colors: ['#008000', '#DC3545', '#FFCC00'],
+                            )
       :javascript
         linkBuildSummaryChartToBuildResultsTab();
     - else
