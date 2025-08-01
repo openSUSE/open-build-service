@@ -95,7 +95,7 @@ class Webui::WebuiController < ActionController::Base
     @is_displayed_user = (User.session == @displayed_user)
   end
 
-  def require_package
+  def set_package
     @package_name = params[:package] || params[:package_name]
 
     return if @package_name.blank?
@@ -107,7 +107,6 @@ class Webui::WebuiController < ActionController::Base
       raise Package::UnknownObjectError, "Package not found: #{@project.name}/#{@package_name}"
     end
   end
-  alias set_package require_package
 
   def set_repository
     repository_name = params[:repository] || params[:repository_name]

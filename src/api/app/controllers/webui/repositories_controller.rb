@@ -5,7 +5,7 @@ class Webui::RepositoriesController < Webui::WebuiController
   before_action :check_scmsync, if: -> { params[:package] }
   before_action :set_repository, only: [:state]
   before_action :set_architectures, only: %i[index change_flag]
-  before_action :require_package, only: %i[index change_flag], if: -> { params[:package] }
+  before_action :set_package, only: %i[index change_flag], if: -> { params[:package] }
   before_action :set_main_object, only: %i[index change_flag]
   before_action :check_ajax, only: :change_flag
   after_action :verify_authorized, except: %i[index state]

@@ -18,10 +18,10 @@ class Webui::PackageController < Webui::WebuiController
 
   before_action :check_scmsync, only: %i[statistics users requests]
 
-  before_action :require_package, only: %i[edit update show requests statistics revisions
-                                           branch_diff_info rdiff remove
-                                           save_person save_group remove_role view_file
-                                           buildresult rpmlint_result rpmlint_log files users]
+  before_action :set_package, only: %i[edit update show requests statistics revisions
+                                       branch_diff_info rdiff remove
+                                       save_person save_group remove_role view_file
+                                       buildresult rpmlint_result rpmlint_log files users]
   # rubocop:enable Rails/LexicallyScopedActionFilter
 
   before_action :check_ajax, only: %i[devel_project buildresult]

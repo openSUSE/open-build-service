@@ -87,12 +87,6 @@ class Webui::AttributeController < Webui::WebuiController
 
   private
 
-  def set_package
-    return unless params[:package]
-
-    require_package
-  end
-
   def set_container
     @container = @package || @project
   end

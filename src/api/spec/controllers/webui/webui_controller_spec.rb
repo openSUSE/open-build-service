@@ -6,7 +6,7 @@ RSpec.describe Webui::WebuiController do
     before_action :require_admin, only: :new
     before_action :require_login, only: :show
     before_action :set_project, only: %i[edit create]
-    before_action :require_package, only: :create
+    before_action :set_package, only: :create
     before_action :check_anonymous, only: :index
 
     def index
@@ -28,7 +28,7 @@ RSpec.describe Webui::WebuiController do
     end
 
     def create
-      render plain: 'anonymous controller - require_package'
+      render plain: 'anonymous controller - set_package'
     end
   end
 
@@ -87,7 +87,7 @@ RSpec.describe Webui::WebuiController do
     end
   end
 
-  describe 'require_package before filter' do
+  describe 'set_package before filter' do
     let(:project) { create(:project) }
 
     context 'with invalid package parameter' do

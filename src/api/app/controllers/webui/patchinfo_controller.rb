@@ -6,7 +6,7 @@ class Webui::PatchinfoController < Webui::WebuiController
   before_action :require_login, except: [:show]
   before_action :set_project
   before_action :set_binaries, except: %i[show destroy new_tracker]
-  before_action :require_package, except: %i[create new_tracker]
+  before_action :set_package, except: %i[create new_tracker]
   before_action :require_exists, except: %i[create new_tracker]
   before_action :set_patchinfo, only: %i[show edit]
 
