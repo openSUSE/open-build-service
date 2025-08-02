@@ -29,7 +29,7 @@ RSpec.describe 'Project', type: :feature do
 
         # If we found our record we sleep for 0.25 seconds and try again.
         sleep 10
-        reload_page
+        refresh
       end
     end
     check('openSUSE Leap 15.5')
