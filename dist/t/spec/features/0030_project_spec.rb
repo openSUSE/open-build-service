@@ -23,6 +23,15 @@ RSpec.describe 'Project', type: :feature do
     end
     click_link('Repositories')
     click_link('Add from a Distribution')
+    Timeout.timeout(120) do
+      loop do
+        break unless have_content('There are no distributions configured. Maybe you want to connect to one of the public OBS instances?')
+
+        # If we found our record we sleep for 0.25 seconds and try again.
+        sleep 10
+        reload_page
+      end
+    end
     check('openSUSE Leap 15.5')
     visit current_path
     expect(page).to have_checked_field('openSUSE Leap 15.5')
