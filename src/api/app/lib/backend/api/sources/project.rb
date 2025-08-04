@@ -17,7 +17,7 @@ module Backend
         # Writes the xml for attributes
         # @return [String]
         def self.write_attributes(project_name, user_login, content)
-          params = { meta: 1, user: user_login }
+          params = { meta: 1, user: user_login }.compact
           http_put(['/source/:project/_project/_attribute', project_name], data: content, params: params)
         end
 
