@@ -3,7 +3,7 @@ class Token::Service < Token
     set_triggered_at
     Backend::Api::Sources::Package.trigger_services(options[:project].to_param,
                                                     options[:package].to_param,
-                                                    executor.login)
+                                                    executor&.login)
   end
 
   def package_find_options

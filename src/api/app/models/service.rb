@@ -95,7 +95,7 @@ class Service
       service_package = Package.get_by_project_and_name(project.name, package.name, follow_project_links: false)
       return false unless User.session!.can_modify?(service_package)
 
-      Backend::Api::Sources::Package.trigger_services(service_package.project.name, service_package.name, User.session!.login)
+      Backend::Api::Sources::Package.trigger_services(service_package.project.name, service_package.name, User.session&.login)
       service_package.sources_changed
     end
     true
