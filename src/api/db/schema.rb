@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_08_130643) do
+ActiveRecord::Schema[7.2].define(version: 2025_08_04_125817) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -250,6 +250,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_08_130643) do
     t.index ["target_package_id"], name: "index_bs_request_actions_on_target_package_id"
     t.index ["target_project"], name: "index_bs_request_actions_on_target_project"
     t.index ["target_project_id"], name: "index_bs_request_actions_on_target_project_id"
+    t.index ["type"], name: "index_bs_request_actions_on_type"
   end
 
   create_table "bs_request_actions_seen_by_users", id: false, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
