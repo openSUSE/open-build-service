@@ -106,7 +106,7 @@ module Backend
         # Writes the link information of a package
         # @return [String]
         def self.write_link(project_name, package_name, user_login, content)
-          http_put(['/source/:project/:package/_link', project_name, package_name], data: content, params: { user: user_login })
+          http_put(['/source/:project/:package/_link', project_name, package_name], data: content, params: { user: user_login }.compact)
         end
 
         # Returns the source diff as UTF-8 encoded string

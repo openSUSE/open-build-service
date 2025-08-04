@@ -64,7 +64,7 @@ class Workflow::Step::LinkPackageStep < Workflow::Step
   def create_link
     Backend::Api::Sources::Package.write_link(target_project_name,
                                               target_package_name,
-                                              @token.executor,
+                                              @token.executor&.login,
                                               link_xml(project: step_instructions[:source_project], package: step_instructions[:source_package]))
   end
 

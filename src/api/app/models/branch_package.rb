@@ -211,7 +211,7 @@ class BranchPackage
         linked_package = params[:target_package] if params[:target_package] && params[:package] == ret['package']
         linked_package += ".#{p[:link_target_project].name.tr(':', '_')}" if @extend_names
         ret['package'] = linked_package
-        Backend::Api::Sources::Package.write_link(tpkg.project.name, tpkg.name, User.session!.login, ret.to_xml)
+        Backend::Api::Sources::Package.write_link(tpkg.project.name, tpkg.name, User.session&.login, ret.to_xml)
       else
         opackage = p[:package]
         oproject = p[:link_target_project]
