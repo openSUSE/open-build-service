@@ -68,7 +68,7 @@ module Backend
         # Commits the request for the project
         def self.commit(project_name, user_login, options = {})
           http_post(['/source/:project/_project', project_name],
-                    defaults: { cmd: :commit, user: user_login },
+                    defaults: { cmd: :commit, user: user_login }.compact,
                     params: options, accepted: %i[requestid rev comment])
         end
 
