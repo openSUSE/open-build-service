@@ -1,5 +1,5 @@
 RSpec.describe RpmlintLogParser, type: :service do
-  subject { described_class.new(content: content).call }
+  subject { described_class.new(content).call }
 
   describe '#call' do
     context 'empty file' do

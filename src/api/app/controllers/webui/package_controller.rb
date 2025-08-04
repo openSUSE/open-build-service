@@ -320,7 +320,7 @@ class Webui::PackageController < Webui::WebuiController
     render plain: 'No rpmlint log' and return if rpmlint_log_file.blank?
 
     render_chart = params[:renderChart] == 'true'
-    parsed_messages = RpmlintLogParser.new(content: rpmlint_log_file).call if render_chart
+    parsed_messages = RpmlintLogParser.new(rpmlint_log_file).call if render_chart
     render partial: 'rpmlint_log', locals: { rpmlint_log_file: rpmlint_log_file, render_chart: render_chart, parsed_messages: parsed_messages }
   end
 

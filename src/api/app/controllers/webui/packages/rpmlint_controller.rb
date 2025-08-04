@@ -10,7 +10,7 @@ module Webui
 
       def show
         @rpmlint_log_file = RpmlintLogExtractor.new(project: @project.name, package: @package_name, repository: @repository.name, architecture: @architecture.name).call
-        @parsed_messages = RpmlintLogParser.new(content: @rpmlint_log_file).call
+        @parsed_messages = RpmlintLogParser.new(@rpmlint_log_file).call
       end
     end
   end
