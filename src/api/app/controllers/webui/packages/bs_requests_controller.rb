@@ -4,7 +4,7 @@ module Webui
       include Webui::RequestsFilter
 
       before_action :set_project
-      before_action :require_package
+      before_action :set_package
       before_action :redirect_legacy
       before_action :set_bs_requests
 
