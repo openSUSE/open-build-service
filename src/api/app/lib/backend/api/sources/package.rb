@@ -63,7 +63,7 @@ module Backend
         # Writes the patchinfo
         # @return [String]
         def self.write_patchinfo(project_name, package_name, user_login, content, comment = nil)
-          params = { user: user_login }
+          params = { user: user_login }.compact
           params[:comment] = comment if comment
           http_put(['/source/:project/:package/_patchinfo', project_name, package_name], data: content, params: params)
         end
