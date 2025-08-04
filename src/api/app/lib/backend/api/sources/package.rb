@@ -94,7 +94,7 @@ module Backend
         # Branch a package into another project
         def self.branch(target_project, target_package, source_project, source_package, user, options = {})
           http_post(['/source/:project/:package', source_project, source_package],
-                    defaults: { cmd: :branch, oproject: target_project, opackage: target_package, user: user },
+                    defaults: { cmd: :branch, oproject: target_project, opackage: target_package, user: user }.compact,
                     params: options, accepted: %i[keepcontent comment requestid noservice])
         end
 

@@ -96,7 +96,7 @@ class BsRequestActionSubmit < BsRequestAction
         # re-create it via branch , but keep current content...
         options = { comment: "initialized devel package after accepting #{bs_request.number}",
                     requestid: bs_request.number, keepcontent: 1, noservice: 1 }
-        Backend::Api::Sources::Package.branch(self.target_project, self.target_package, source_project, source_package, User.session!.login, options)
+        Backend::Api::Sources::Package.branch(self.target_project, self.target_package, source_project, source_package, User.session&.login, options)
       end
     elsif sourceupdate == 'cleanup'
       source_cleanup
