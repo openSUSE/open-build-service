@@ -19,20 +19,9 @@ class BsRequestActionDescriptionComponent < ApplicationComponent
   def description
     creator = action.bs_request.creator
 
-    source_project_hash = { project: action.source_project, package: action.source_package, trim_to: nil }
     target_project_hash = { project: action.target_project, package: action.target_package, trim_to: nil }
 
-    source_and_target_component = BsRequestActionSourceAndTargetComponent.new(action.bs_request)
-
-    if text_only
-      source_container = source_and_target_component.source
-      target_container = source_and_target_component.target
-    else
-      source_container = project_or_package_link(source_project_hash)
-      target_container = project_or_package_link(target_project_hash)
-    end
-
-    source_and_target_container = source_and_target_component.combine(source_container, target_container)
+    source_and_target_container = render(BsRequestActionSourceAndTargetComponent.new(action.bs_request, text_only: text_only))
 
     description = case action.type
                   when 'submit'
