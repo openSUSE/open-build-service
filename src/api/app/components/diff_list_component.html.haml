@@ -4,7 +4,7 @@
     old_filename = file_info.dig('old', 'name')
     expanded = expand?(name, state, file_index)
   .accordion.mb-2.diff-accordion{ id: "diff-list-#{name.parameterize}" }
-    - if file_info["diff"]["binary"] == "1"
+    - if file_info.dig("diff", "binary") == "1"
       .card.p-3.mb-2
         %span
           = render(DiffSubjectComponent.new(state:, old_filename:, new_filename: name))
