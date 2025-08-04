@@ -87,7 +87,7 @@ module Backend
         # @return [String]
         def self.copy(target_project_name, target_package_name, source_project_name, source_package_name, user_login, options = {})
           http_post(['/source/:project/:package', target_project_name, target_package_name],
-                    defaults: { cmd: :copy, oproject: source_project_name, opackage: source_package_name, user: user_login },
+                    defaults: { cmd: :copy, oproject: source_project_name, opackage: source_package_name, user: user_login }.compact,
                     params: options, accepted: %i[orev keeplink expand comment requestid withacceptinfo dontupdatesource noservice])
         end
 

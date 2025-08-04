@@ -81,7 +81,7 @@ class BsRequestActionSubmit < BsRequestAction
       cp_params[:keeplink] = 1
     end
     response = Backend::Api::Sources::Package.copy(self.target_project, self.target_package,
-                                                   source_project, source_package, User.session!.login, cp_params)
+                                                   source_project, source_package, User.session&.login, cp_params)
     result = Xmlhash.parse(response)
 
     fill_acceptinfo(result['acceptinfo'])
