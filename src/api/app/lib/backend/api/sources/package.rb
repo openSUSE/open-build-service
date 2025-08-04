@@ -77,7 +77,7 @@ module Backend
         # Runs the command mergeservice for that project/package
         # @return [String]
         def self.merge_service(project_name, package_name, user_login)
-          http_post(['/source/:project/:package', project_name, package_name], params: { cmd: :mergeservice, user: user_login })
+          http_post(['/source/:project/:package', project_name, package_name], params: { cmd: :mergeservice, user: user_login }.compact)
         end
 
         # Copy a package into another project
