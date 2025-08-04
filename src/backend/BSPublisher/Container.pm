@@ -1060,10 +1060,11 @@ sub do_remote_uploads {
 
   my $querytags;
   $querytags = [ sort keys %$uptags ] if $registry->{'nodelete'};
-  my $missingok = $registry->{'need_repostate'} ? 1 : 0;
+  my $need_repostate = $registry->{'repostate_unneeded'} ? 0 : 1;
+  my $missingok = $need_repostate ? 1 : 0;
   $repostate = eval { query_repostate($registry, $repository, $querytags, $subdigests, $missingok) };
-  die($@) if $@ && $registry->{'need_repostate'};
-  die("could not get registry repository state\n") if !$repostate && $registry->{'need_repostate'};
+  die($@) if $@ && $need_repostate;
+  die("could not get registry repository state\n") if !$repostate && $need_repostate;
 
   # check if we are allowed to remove tags
   if ($safeguard) {
