@@ -8,6 +8,8 @@ class WatchlistComponent < ApplicationComponent
   attr_reader :projects, :packages, :bs_requests
 
   def initialize(user:, current_object:, bs_request: nil, package: nil, project: nil, bs_requests: [], packages: [], projects: [])
+    super
+
     @user = user
     @object_to_be_watched = object_to_be_watched(bs_request, package, project)
     @current_object = current_object

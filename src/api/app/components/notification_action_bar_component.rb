@@ -4,6 +4,8 @@ class NotificationActionBarComponent < ApplicationComponent
   attr_accessor :state, :update_path, :counted_notifications
 
   def initialize(state:, update_path:, counted_notifications:)
+    super
+
     @state = state
     @update_path = toggle_update_path_states(update_path)
     @counted_notifications = counted_notifications

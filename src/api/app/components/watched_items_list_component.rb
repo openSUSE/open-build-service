@@ -12,6 +12,8 @@ class WatchedItemsListComponent < ApplicationComponent
   }.freeze
 
   def initialize(items:, class_name:, current_object:)
+    super
+
     @items = items
     @class_name = class_name
     @current_object = current_object
