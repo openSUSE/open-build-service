@@ -88,22 +88,23 @@ sub check_exitrestart {
 }
 
 my $lua_deleteresult = q{
-  redis.call('DEL', KEYS[1], KEYS[2])
-  return 'OK'
-};
-
-my $lua_updateresult_empty = q{
-  redis.call('DEL', KEYS[1], KEYS[2])
+  redis.call('DEL', KEYS[1], KEYS[2], KEYS[3])
   return 'OK'
 };
 
 my $lua_updateresult = q{
   local pkgs = {}
   local details = {}
+  local olddetails = {}
   local i = 1 ; while 1 do
     local pkg = ARGV[i]
     if not pkg then break end
     local detail = ARGV[i + 1]
+    if detail:sub(1,9) == "scheduled" or detail:sub(1,7) == "blocked" then
+      local olddetail = redis.call('HGET', KEYS[1], pkg)
+      if olddetail and olddetail:sub(1,9) ~= "scheduled" and olddetail:sub(1,7) ~= "blocked" then redis.call('HSET', KEYS[3], pkg, olddetail) end
+      olddetails[pkg] = true
+    end
     redis.call('HSET', KEYS[1], pkg, detail)
     pkgs[pkg] = true
     details[detail] = true
@@ -115,14 +116,16 @@ my $lua_updateresult = q{
   for _,k in ipairs(redis.call('HKEYS', KEYS[2])) do
     if not details[k] then redis.call('HDEL', KEYS[2], k) end
   end
+  for _,k in ipairs(redis.call('HKEYS', KEYS[3])) do
+    if not olddetails[k] then redis.call('HDEL', KEYS[3], k) end
+  end
   return 'OK'
 };
 
 my $lua_updateoneresult = q{
   redis.call('HSET', KEYS[1], ARGV[1], ARGV[2])
-  if ARGV[3] then
-    redis.call('HDEL', KEYS[2], ARGV[3])
-  end
+  if ARGV[2]:sub(1,9) ~= "scheduled" and ARGV[2]:sub(1,7) ~= "blocked" then redis.call('HDEL', KEYS[3], ARGV[1]) end
+  if ARGV[3] then redis.call('HDEL', KEYS[2], ARGV[3]) end
   return 'OK'
 };
 
@@ -163,16 +166,16 @@ sub forwarddata {
     my $prpa = shift @line;
     die unless $prpa;
     if ($cmd eq 'deleteresult') {
-      unshift @line, 'EVAL', $lua_deleteresult, 2, "result.$prpa", "jobs.$prpa";
+      unshift @line, 'EVAL', $lua_deleteresult, 3, "result.$prpa", "jobs.$prpa", "oldresult.$prpa";
     } elsif ($cmd eq 'updateresult') {
       die("odd number of arguments in $cmd\n") if scalar(@line) % 2;
       if (@line) {
-        unshift @line, 'EVAL', $lua_updateresult, 2, "result.$prpa", "jobs.$prpa";
+        unshift @line, 'EVAL', $lua_updateresult, 3, "result.$prpa", "jobs.$prpa", "oldresult.$prpa";
       } else {
-        unshift @line, 'EVAL', $lua_updateresult_empty, 2, "result.$prpa", "jobs.$prpa";
+        unshift @line, 'EVAL', $lua_deleteresult, 3, "result.$prpa", "jobs.$prpa", "oldresult.$prpa";
       }
     } elsif ($cmd eq 'updateoneresult') {
-      unshift @line, 'EVAL', $lua_updateoneresult, 2, "result.$prpa", "jobs.$prpa";
+      unshift @line, 'EVAL', $lua_updateoneresult, 3, "result.$prpa", "jobs.$prpa", "oldresult.$prpa";
     } elsif ($cmd eq 'updatejobstatus') {
       if (@line == 1) {
         unshift @line, 'EVAL', $lua_updatejobstatus_del, 1, "jobs.$prpa";
