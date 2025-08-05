@@ -49,7 +49,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       xml = @patchinfo.to_xml(@project, @package)
       begin
         Package.verify_file!(@package, '_patchinfo', xml)
-        Backend::Api::Sources::Package.write_patchinfo(@package.project.name, @package.name, User.session.login, xml)
+        Backend::Api::Sources::Package.write_patchinfo(@package.project.name, @package.name, User.session&.login, xml)
         @package.sources_changed(wait_for_update: true) # wait for indexing for special files
       rescue APIError, Timeout::Error => e
         flash[:error] = "patchinfo is invalid: #{e.message}"

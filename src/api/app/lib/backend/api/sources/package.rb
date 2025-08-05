@@ -63,7 +63,7 @@ module Backend
         # Writes the patchinfo
         # @return [String]
         def self.write_patchinfo(project_name, package_name, user_login, content, comment = nil)
-          params = { user: user_login }
+          params = { user: user_login }.compact
           params[:comment] = comment if comment
           http_put(['/source/:project/:package/_patchinfo', project_name, package_name], data: content, params: params)
         end
@@ -77,7 +77,7 @@ module Backend
         # Runs the command mergeservice for that project/package
         # @return [String]
         def self.merge_service(project_name, package_name, user_login)
-          http_post(['/source/:project/:package', project_name, package_name], params: { cmd: :mergeservice, user: user_login })
+          http_post(['/source/:project/:package', project_name, package_name], params: { cmd: :mergeservice, user: user_login }.compact)
         end
 
         # Copy a package into another project
@@ -87,14 +87,14 @@ module Backend
         # @return [String]
         def self.copy(target_project_name, target_package_name, source_project_name, source_package_name, user_login, options = {})
           http_post(['/source/:project/:package', target_project_name, target_package_name],
-                    defaults: { cmd: :copy, oproject: source_project_name, opackage: source_package_name, user: user_login },
+                    defaults: { cmd: :copy, oproject: source_project_name, opackage: source_package_name, user: user_login }.compact,
                     params: options, accepted: %i[orev keeplink expand comment requestid withacceptinfo dontupdatesource noservice])
         end
 
         # Branch a package into another project
         def self.branch(target_project, target_package, source_project, source_package, user, options = {})
           http_post(['/source/:project/:package', source_project, source_package],
-                    defaults: { cmd: :branch, oproject: target_project, opackage: target_package, user: user },
+                    defaults: { cmd: :branch, oproject: target_project, opackage: target_package, user: user }.compact,
                     params: options, accepted: %i[keepcontent comment requestid noservice])
         end
 
@@ -106,7 +106,7 @@ module Backend
         # Writes the link information of a package
         # @return [String]
         def self.write_link(project_name, package_name, user_login, content)
-          http_put(['/source/:project/:package/_link', project_name, package_name], data: content, params: { user: user_login })
+          http_put(['/source/:project/:package/_link', project_name, package_name], data: content, params: { user: user_login }.compact)
         end
 
         # Returns the source diff as UTF-8 encoded string

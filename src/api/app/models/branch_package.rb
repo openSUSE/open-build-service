@@ -202,7 +202,7 @@ class BranchPackage
 
       if p[:local_link]
         # copy project local linked packages
-        Backend::Api::Sources::Package.copy(tpkg.project.name, tpkg.name, p[:link_target_project].name, p[:package].name, User.session!.login)
+        Backend::Api::Sources::Package.copy(tpkg.project.name, tpkg.name, p[:link_target_project].name, p[:package].name, User.session&.login)
         # and fix the link
         ret = Nokogiri::XML(tpkg.source_file('_link'), &:strict).root
         ret.remove_attribute('project') # its a local link, project name not needed
@@ -211,7 +211,7 @@ class BranchPackage
         linked_package = params[:target_package] if params[:target_package] && params[:package] == ret['package']
         linked_package += ".#{p[:link_target_project].name.tr(':', '_')}" if @extend_names
         ret['package'] = linked_package
-        Backend::Api::Sources::Package.write_link(tpkg.project.name, tpkg.name, User.session!.login, ret.to_xml)
+        Backend::Api::Sources::Package.write_link(tpkg.project.name, tpkg.name, User.session&.login, ret.to_xml)
       else
         opackage = p[:package]
         oproject = p[:link_target_project]
@@ -242,7 +242,7 @@ class BranchPackage
         if p[:copy_from_devel] && p[:copy_from_devel].project != tpkg.project && !p[:rev]
           msg = copy_package_message(p)
           Backend::Api::Sources::Package.copy(tpkg.project.name, tpkg.name, p[:copy_from_devel].project.name, p[:copy_from_devel].name,
-                                              User.session!.login, comment: msg, keeplink: 1, expand: 1)
+                                              User.session&.login, comment: msg, keeplink: 1, expand: 1)
         end
       end
       tpkg.sources_changed

@@ -106,9 +106,8 @@ class Staging::StagedRequests
 
     link_package = Package.create!(project: staging_project, name: bs_request_action.target_package)
 
-    create_link(staging_project.name, link_package.name, User.session!, project: bs_request_action.source_project,
-                                                                        package: bs_request_action.source_package, rev: package_rev,
-                                                                        vrev: source_vrev)
+    create_link(staging_project.name, link_package.name, User.session&.login,
+                project: bs_request_action.source_project, package: bs_request_action.source_package, rev: package_rev, vrev: source_vrev)
   end
 
   def add_review_for_staged_request(request)

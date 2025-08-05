@@ -18,7 +18,7 @@ class Workflow::Step::TriggerServices < Workflow::Step
     Pundit.authorize(@token.executor, @token.object_to_authorize, :update?)
 
     begin
-      Backend::Api::Sources::Package.trigger_services(@project_name, @package_name, @token.executor.login, trigger_service_comment)
+      Backend::Api::Sources::Package.trigger_services(@project_name, @package_name, @token.executor&.login, trigger_service_comment)
     rescue Backend::NotFoundError => e
       raise NoSourceServiceDefined, "Package #{@project_name}/#{@package_name} does not have a source service defined: #{e.summary}"
     end

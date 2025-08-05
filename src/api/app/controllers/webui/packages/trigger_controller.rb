@@ -12,7 +12,7 @@ module Webui
         authorize @object_to_authorize, :update?
 
         begin
-          Backend::Api::Sources::Package.trigger_services(@project.name, @package_name, User.session.to_s)
+          Backend::Api::Sources::Package.trigger_services(@project.name, @package_name, User.session&.to_s)
         rescue Timeout::Error => e
           flash[:error] = "Error while triggering services for #{@project.name}/#{@package_name}: #{e.message}"
         rescue Backend::Error => e
