@@ -1,20 +1,19 @@
 - diff_list.each_with_index do |(name, file_info), file_index|
   :ruby
     state = file_info['state']
-    old_filename = file_info.dig('old', 'name')
     expanded = expand?(name, state, file_index)
   .accordion.mb-2.diff-accordion{ id: "diff-list-#{name.parameterize}" }
     .accordion-item
       %h2.accordion-header
         - if file_info['disabled']
           %button.accordion-button.disabled-accordion{ disabled: true }
-            = render(DiffSubjectComponent.new(state:, old_filename:, new_filename: name))
+            = render(DiffSubjectComponent.new(state:, file_info:))
         - else
           %button.accordion-button{ type: 'button', data: { 'bs-toggle': 'collapse',
                                                             'bs-target': "#diff-item-#{name.parameterize}" },
                                     aria: { expanded: 'true', controls: "diff-item-#{name.parameterize}" },
                                     class: expanded ? '' : 'collapsed' }
-            = render(DiffSubjectComponent.new(state:, old_filename:, new_filename: name))
+            = render(DiffSubjectComponent.new(state:, file_info:))
       .accordion-collapse.collapse{ class: expanded ? 'show' : '', id: "diff-item-#{name.parameterize}", 'data-object': view_id }
         - if file_info.key?('diff_url')
           %turbo-frame{ id: "file-#{file_index}", src: file_info['diff_url'], loading: 'lazy' }
@@ -23,4 +22,6 @@
         - else
           = render(DiffComponent.new(diff: file_info.dig('diff', '_content'), file_index:, commentable:,
                                      commented_lines: commented_lines[file_index] || [],
-                                     source_file: source_file(old_filename), target_file: target_file(name), source_rev:, target_rev:))
+                                     source_file: source_file(file_info.dig('old', 'name')),
+                                     target_file: target_file(name),
+                                     source_rev:, target_rev:))

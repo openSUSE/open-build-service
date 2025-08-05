@@ -1,11 +1,11 @@
 class DiffSubjectComponent < ApplicationComponent
   attr_reader :state, :old_filename, :new_filename
 
-  def initialize(state:, old_filename:, new_filename:)
+  def initialize(state:, file_info:)
     super
     @state = state
-    @old_filename = old_filename
-    @new_filename = new_filename
+    @old_filename = file_info.dig('old', 'name')
+    @new_filename = file_info.dig('new', 'name')
   end
 
   def badge
@@ -16,10 +16,9 @@ class DiffSubjectComponent < ApplicationComponent
   end
 
   def changed_filename
-    return @new_filename unless %w[changed renamed].include?(@state)
-    return @new_filename if @old_filename == @new_filename
-    return @new_filename unless @old_filename
+    return @old_filename if @state == 'deleted'
+    return "#{@old_filename} -> #{@new_filename}" if @state == 'renamed'
 
-    "#{@old_filename} -> #{@new_filename}"
+    @new_filename
   end
 end
