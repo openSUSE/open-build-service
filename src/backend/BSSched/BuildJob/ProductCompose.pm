@@ -530,7 +530,7 @@ sub check {
 	      last;
 	    }
 	    $nafilter->{"$srcbn.src"} = $nafilter->{"$srcbn.nosrc"} = 1 unless $nosrcpkgs;
-	    $nafilter->{"$srcbn-debugsource.$ba"} = $nafilter->{"$bn-debuginfo.$ba"} = 1 unless $nodbgpkgs;
+	    $nafilter->{"$srcbn-debugsource.$ba"} = $nafilter->{"$srcbn-debuginfo.$ba"} = $nafilter->{"$bn-debuginfo.$ba"} = 1 unless $nodbgpkgs;
 	  }
 	}
 
