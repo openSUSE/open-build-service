@@ -389,7 +389,7 @@ jobs:
           command: |
             curl -L https://qlty-releases.s3.amazonaws.com/qlty/latest/qlty-x86_64-unknown-linux-gnu.tar.xz > qlty.tar.xz
             tar -xf qlty.tar.xz qlty-x86_64-unknown-linux-gnu/qlty --strip-components 1
-            ./qlty coverage transform --strip-prefix src/api/ --report-format cobertura coverage/coverage.xml
+            ./qlty coverage transform --strip-prefix src/api/ --format cobertura coverage/coverage.xml
             ./qlty coverage publish coverage.jsonl
       - run:
           name: Compress coverage results
