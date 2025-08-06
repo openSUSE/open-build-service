@@ -428,6 +428,32 @@ RSpec.describe Webui::PackageController, :vcr do
     it { expect(response).to render_template(partial: '_rpmlint_result') }
   end
 
+  describe '#rpmlint_summary' do
+    let(:fake_build_result) do
+      <<-XML
+        <resultlist state="eb0459ee3b000176bb3944a67b7c44fa">
+          <result project="home:tom" repository="openSUSE_Tumbleweed" arch="i586" code="building" state="building">
+            <status package="my_package" code="succeeded" />
+          </result>
+          <result project="home:tom" repository="openSUSE_Tumbleweed" arch="x86_64" code="building" state="building">
+            <status package="my_package" code="excluded" />
+          </result>
+        </resultlist>
+      XML
+    end
+
+    before do
+      allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_build_result)
+      allow(Backend::Api::BuildResults::Binaries).to receive(:rpmlint_log)
+        .with(source_project.name, source_package.name, 'openSUSE_Tumbleweed', 'i586')
+        .and_return("test_package.i586: W: description-shorter-than-summary\ntest_package.src: W: description-shorter-than-summary")
+      get :rpmlint_summary, params: { package: source_package, project: source_project }
+    end
+
+    it { expect(response).to have_http_status(:success) }
+    it { expect(response).to render_template(partial: '_rpmlint_summary') }
+  end
+
   describe 'GET #rpmlint_log' do
     describe 'when no rpmlint log is available' do
       render_views
