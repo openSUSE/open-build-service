@@ -6,7 +6,7 @@ class BsRequestActionTabVisibility
   end
 
   def build
-    source_package && !patchinfo_package
+    @action.type.in?(CHANGES_TABS) && source_package && !patchinfo_package
   end
 
   def changes
