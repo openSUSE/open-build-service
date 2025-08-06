@@ -27,7 +27,8 @@ RSpec.describe 'Project', type: :feature do
       loop do
         break unless have_content('There are no distributions configured. Maybe you want to connect to one of the public OBS instances?')
 
-        # If we found our record we sleep for 0.25 seconds and try again.
+        break if have_content('Add Repositories to home:Admin')
+
         sleep 10
         refresh
       end
