@@ -2,28 +2,14 @@ class BsRequestActionTabVisibility
   CHANGES_TABS = %w[submit maintenance_incident maintenance_release].freeze
 
   def initialize(bs_request_action)
-    @action = bs_request_action
+    @actions = bs_request_action.bs_request.bs_request_actions
   end
 
   def build
-    @action.type.in?(CHANGES_TABS) && source_package && !patchinfo_package
-  end
-
-  def changes
-    (@action.type == :delete && @action.source_package) || @action.type.in?(CHANGES_TABS)
+    @actions.any? { |a| a.type.in?(CHANGES_TABS) && a.source_project && a.source_package }
   end
 
   def issues
-    @action.type.in?(CHANGES_TABS)
-  end
-
-  private
-
-  def patchinfo_package
-    @action.type.in?(%i[maintenance_incident maintenance_release]) && @action.source_package == 'patchinfo'
-  end
-
-  def source_package
-    @action.source_project && @action.source_package
+    @actions.any? { |a| a.type.in?(CHANGES_TABS) }
   end
 end
