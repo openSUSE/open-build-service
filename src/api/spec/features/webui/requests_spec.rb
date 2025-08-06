@@ -361,11 +361,6 @@ RSpec.describe 'Requests', :js, :vcr do
       expect(page).to have_text('Project Maintainers')
     end
 
-    it 'a delete request does not show the Changes Tab' do
-      visit request_show_path(delete_bs_request)
-      expect(page).to have_no_text('Changes')
-    end
-
     it 'a delete request does not show the Issues Tab' do
       visit request_show_path(delete_bs_request)
       expect(page).to have_no_text('Issues')

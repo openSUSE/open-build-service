@@ -84,6 +84,7 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
     end
 
     it 'has patchinfo submission' do
+      visit request_changes_path(bs_request)
       find_by_id('request-actions').click
       expect(page).to have_text('patchinfo')
     end
