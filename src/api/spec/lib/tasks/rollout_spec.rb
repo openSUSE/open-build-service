@@ -8,14 +8,15 @@ RSpec.describe 'rollout' do
   let!(:non_rollout_in_beta_user) { create(:confirmed_user, :in_beta, in_rollout: false) }
   let!(:in_rollout_in_group_user) { create(:user_with_groups) }
   let!(:non_rollout_in_group_user) { create(:user_with_groups, in_rollout: false) }
-  let!(:non_recently_logged_user) do
-    user = create(:confirmed_user, in_rollout: false)
-    user.last_logged_in_at = Time.zone.today.prev_year
-    user.save!
-  end
+  let!(:non_recently_logged_user) { create(:confirmed_user, in_rollout: false) }
   let(:all_in_rollout_users) { User.where(in_rollout: true) }
 
   before do
+    non_rollout_user.update!(last_logged_in_at: Time.zone.today - 2.weeks)
+    non_rollout_in_beta_user.update!(last_logged_in_at: Time.zone.today.prev_month(2))
+    non_rollout_in_group_user.update!(last_logged_in_at: Time.zone.today - 3.days)
+    non_recently_logged_user.update!(last_logged_in_at: Time.zone.today.prev_year)
+
     freeze_time
   end
 
@@ -48,6 +49,22 @@ RSpec.describe 'rollout' do
     end
 
     it { expect { rake_task.invoke }.to change(all_in_rollout_users, :count).from(3).to(4) }
+  end
+
+  describe 'last_week_logged_users' do
+    let(:task) { 'rollout:last_week_logged_users' }
+
+    it 'moves all last_week logged users to Rollout Program' do
+      expect { rake_task.invoke }.to change(User.where(in_rollout: true), :count).from(3).to(4)
+    end
+  end
+
+  describe 'last_month_logged_users' do
+    let(:task) { 'rollout:last_month_logged_users' }
+
+    it 'moves all the users logged last month to Rollout Program' do
+      expect { rake_task.invoke }.to change(User.where(in_rollout: true), :count).from(3).to(5)
+    end
   end
 
   describe 'recently_logged_users' do
