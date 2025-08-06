@@ -35,6 +35,11 @@ class BsRequestActionDescriptionComponentPreview < ViewComponent::Preview
     render(BsRequestActionDescriptionComponent.new(action: action, text_only: true))
   end
 
+  def release_text_only
+    action = BsRequestAction.where(type: :release).last
+    render(BsRequestActionDescriptionComponent.new(action: action, text_only: true))
+  end
+
   def set_bugowner_text_only
     action = BsRequestAction.where(type: :set_bugowner).last
     render(BsRequestActionDescriptionComponent.new(action: action, text_only: true))
