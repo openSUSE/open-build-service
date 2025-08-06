@@ -929,12 +929,6 @@ Style/OpenStructUse:
     - 'spec/services/trigger_controller_service/token_extractor_spec.rb'
     - 'spec/services/webui_controller_service/user_checker_spec.rb'
 
-# Offense count: 1
-# Configuration parameters: Max.
-Style/SafeNavigationChainLength:
-  Exclude:
-    - 'spec/mailers/event_mailer_spec.rb'
-
 # Offense count: 86
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: Mode.
