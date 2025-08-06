@@ -1,6 +1,7 @@
 class BsRequestActionRelease < BsRequestAction
   #### Includes and extends
   include BsRequestAction::Differ
+  include MaintenanceHelper
 
   #### Constants
 

@@ -913,11 +913,6 @@ Style/MissingRespondToMissing:
     - 'app/lib/suse/permission.rb'
     - 'app/models/configuration.rb'
 
-# Offense count: 1
-Style/MixinUsage:
-  Exclude:
-    - 'app/models/bs_request.rb'
-
 # Offense count: 24
 Style/OpenStructUse:
   Exclude:
@@ -928,12 +923,6 @@ Style/OpenStructUse:
     - 'spec/controllers/webui/projects/project_configuration_controller_spec.rb'
     - 'spec/services/trigger_controller_service/token_extractor_spec.rb'
     - 'spec/services/webui_controller_service/user_checker_spec.rb'
-
-# Offense count: 1
-# Configuration parameters: Max.
-Style/SafeNavigationChainLength:
-  Exclude:
-    - 'spec/mailers/event_mailer_spec.rb'
 
 # Offense count: 86
 # This cop supports unsafe autocorrection (--autocorrect-all).

@@ -625,7 +625,7 @@ RSpec.describe EventMailer, :vcr do
       end
 
       it 'renders the text about the missing reported comment' do
-        expect(mail.body.encoded).to include("The reported #{decision.reports.first.reportable&.class&.name&.downcase} does not exist anymore.")
+        expect(mail.body.encoded).to include("The reported #{decision.reports.first.reportable.class.name.downcase} does not exist anymore.")
       end
     end
 

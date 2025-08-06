@@ -1,6 +1,8 @@
 require 'builder/xchar'
 
 class SourcePackageCommandController < SourceController
+  include MaintenanceHelper
+
   CMDS_SUPPORTING_REMOTE = %i[diff branch fork].freeze
   # we use an array for the "file" parameter
   skip_before_action :validate_params, only: %i[diff linkdiff servicediff]
