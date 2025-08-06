@@ -329,8 +329,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def changes
-    redirect_to request_show_path(params[:number], params[:request_action_id]) unless @action.tab_visibility.changes
-
     @active_tab = 'changes'
   end
 

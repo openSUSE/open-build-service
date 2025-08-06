@@ -15,7 +15,7 @@ RSpec.describe 'Request with change devel actions', :beta, :vcr do
 
   context 'there was no previous devel package' do
     before do
-      visit request_show_path(request.number)
+      visit request_changes_path(request.number)
     end
 
     it 'displays the description but does not mentions the previous devel package' do
@@ -29,7 +29,7 @@ RSpec.describe 'Request with change devel actions', :beta, :vcr do
 
     before do
       base_package.update(develpackage: current_devel_package)
-      visit request_show_path(request.number)
+      visit request_changes_path(request.number)
     end
 
     it 'displays the description and mentions the previous devel package' do
