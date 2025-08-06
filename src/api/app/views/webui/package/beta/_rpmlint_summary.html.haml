@@ -2,21 +2,21 @@
   - if lints_list.empty?
     No lints found.
   - else
-    %table.table
-      %tr
-        %th
+    %div
+      .row.mb-3
+        .col-5.col-md-4.fw-bold
           Linter
-        %th
+        .col-4.col-md-1.fw-bold
           Severity
-        %th
+        .col-3.col-md-1.fw-bold
           Badness
-        %th
+        .col-6.d-none.d-md-block.fw-bold
           Affected
       - lints_list.flatten.sort_by { |l| -l[:badness] }.group_by { |l| l[:linter] }.each do |lint, lint_list|
-        %tr
-          %td
+        .row.border-bottom.mb-3
+          .col-5.col-md-4.mb-2
             = lint
-          %td
+          .col-4.col-md-1.mb-2
             - case lint_list.first[:level]
             - when 'E'
               .text-danger
@@ -27,10 +27,10 @@
             - when 'I'
               .text-info
                 Info
-          %td
+          .col-3.col-md-1.mb-2
             = lint_list.first[:badness]
-          %td
-            %ul
+          .col-12.col-md-6.mb-2
+            %ul.list-unstyled
               - lint_list.sort_by { |l| l[:location] }.group_by { |l| l[:location] }.each do |location, location_list|
                 %li
                   .dropdown
