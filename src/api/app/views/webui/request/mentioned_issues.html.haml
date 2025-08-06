@@ -14,6 +14,14 @@
     = render partial: 'request_tabs',
         locals: { bs_request: @bs_request, action: @action, issues: @issues,
                   actions_count: @actions.count, active_tab: @active_tab }
+    - if @actions.count > 1
+      .mt-4
+        -# action description, prev + dropdown select + next
+        = render partial: 'actions_details', locals: { bs_request: @bs_request, action: @action,
+                                                        prev_action: @prev_action, next_action: @next_action,
+                                                        actions: @actions, diff_to_superseded_id: @diff_to_superseded_id,
+                                                        page_name: 'request_mentioned_issues', notification_id: @current_notification,
+                                                        current_notification: @current_notification }
     .container.p-4
       - if @issues.empty?
         %p No issues are mentioned for this request action.

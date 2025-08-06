@@ -24,6 +24,8 @@ class SourcediffComponent < ApplicationComponent
   end
 
   def source_package
+    return nil unless @action.source_package
+
     Package.get_by_project_and_name(@action.source_project, @action.source_package, { follow_multibuild: true })
   rescue Package::UnknownObjectError, Project::Errors::UnknownObjectError
     # Ignore these exceptions on purpose
