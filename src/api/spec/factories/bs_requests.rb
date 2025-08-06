@@ -263,5 +263,9 @@ FactoryBot.define do
     factory :bs_request_with_change_devel_action do
       type { :change_devel }
     end
+
+    factory :bs_request_with_release_action do
+      type { :release }
+    end
   end
 end

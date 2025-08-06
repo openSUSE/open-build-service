@@ -96,5 +96,15 @@ FactoryBot.define do
         package
       end
     end
+
+    factory :bs_request_action_release, class: 'BsRequestActionRelease' do
+      type { 'release' }
+
+      transient do
+        source_project_name { 'source_project' }
+        target_project_name { 'target_project' }
+        target_package_name { 'target_package' }
+      end
+    end
   end
 end
