@@ -45,7 +45,11 @@ RSpec.describe Webui::RequestController, :vcr do
     context 'when there are package maintainers' do
       # The hint will only be shown, when the target package has at least one
       # maintainer. So we'll gonna add a maintainer to the target package.
-      let!(:relationship_package_user) { create(:relationship_package_user, user: submitter, package: target_package) }
+      let!(:relationship_package_user) do
+        receiver.run_as do
+          create(:relationship_package_user, user: submitter, package: target_package)
+        end
+      end
 
       before do
         login receiver
@@ -145,7 +149,7 @@ RSpec.describe Webui::RequestController, :vcr do
           let(:expected_diff_size) { archive_content_diff_size + diff_header_size }
           let(:target_package) { create(:package_with_binary, name: 'test-package-binary', project: target_project) }
           let(:source_package) do
-            create(:package_with_binary, name: 'test-source-package-binary', project: source_project, file_name: 'bigfile_archive_2.tar.gz')
+            create(:package_with_binary, name: 'test-source-package-binary', project: source_project, file_name: 'spec/fixtures/files/bigfile_archive_2.tar.gz')
           end
 
           it_behaves_like 'a full diff requested for'
@@ -250,6 +254,7 @@ RSpec.describe Webui::RequestController, :vcr do
 
   describe 'POST #changerequest' do
     context 'with valid parameters' do
+      # TODO: Check no maintainer has been made and no forwarding happens
       it 'accepts' do
         login(receiver)
         post :changerequest, params: {
@@ -274,33 +279,318 @@ RSpec.describe Webui::RequestController, :vcr do
         expect(bs_request.reload.state).to eq(:revoked)
       end
 
-      it 'adds submitter as maintainer' do
-        login(receiver)
-        post :changerequest, params: {
-          number: bs_request.number, accepted: 'accepted',
-          add_submitter_as_maintainer_0: "#{target_project}_#_#{target_package}" # rubocop:disable Naming/VariableNumber
-        }
-        expect(bs_request.reload.state).to eq(:accepted)
-        expect(target_package.relationships.map(&:user_id)).to include(submitter.id)
-      end
+      context 'when using the beta request show page' do
+        context 'and sending a submit request from a source package to an existing target package' do
+          it 'accepts the request and adds the submitter a maintainer when clicking the right dropdown button' do
+            login(receiver)
+            post :changerequest, params: {
+              number: bs_request.number, accepted: 'Accept and make maintainer'
+            }
+            expect(bs_request.reload.state).to eq(:accepted)
+            expect(target_package.relationships.map(&:user_id)).to include(submitter.id)
+          end
 
-      it 'forwards' do
-        login(receiver)
-        bs_request
-        expect do
-          post :changerequest, params: { number: bs_request.number, accepted: 'accepted',
-                                         forward_devel_0: "#{devel_package.project}_#_#{devel_package}", # rubocop:disable Naming/VariableNumber
-                                         description: 'blah blah blah' }
-        end.to change(BsRequest, :count).by(1)
-        expect(BsRequest.last.bs_request_actions).to eq(devel_package.project.target_of_bs_request_actions)
+          it 'accepts the request and forwards it when clicking the right dropdown button' do
+            login(receiver)
+            devel_package.update!(develpackage: bs_request.bs_request_actions.first.target_package_object)
+            expect do
+              post :changerequest, params: { number: bs_request.number, accepted: 'Accept and forward',
+                                             description: 'blah blah blah' }
+            end.to change(BsRequest, :count).by(1)
+            expect(BsRequest.last.bs_request_actions).to eq(devel_package.project.target_of_bs_request_actions)
+          end
+
+          it 'accepts the request, forwards it and make the submitter a maintainer' do
+            login(receiver)
+            devel_package.update!(develpackage: bs_request.bs_request_actions.first.target_package_object)
+            post :changerequest, params: {
+              number: bs_request.number, accepted: 'Accept, make maintainer and forward'
+            }
+            expect(bs_request.reload.state).to eq(:accepted)
+            expect(target_package.relationships.map(&:user_id)).to include(submitter.id)
+            expect(BsRequest.last.bs_request_actions).to eq(devel_package.project.target_of_bs_request_actions)
+          end
+        end
+
+        context 'and sending a submit request from a new package' do
+          subject! do
+            login(receiver)
+            post :changerequest, params: {
+              number: bs_request.number, accepted: button_label
+            }
+          end
+
+          let(:bs_request) do
+            create(:bs_request_with_submit_action,
+                   description: 'Please take this',
+                   creator: submitter,
+                   target_project: target_project,
+                   target_package: source_package.name,
+                   source_package: source_package)
+          end
+          let(:target_package) { Package.find_by_project_and_name(target_project.name, source_package.name) }
+
+          context 'and clicking on the accept and make maintainer button' do
+            let(:button_label) { 'Accept and make maintainer' }
+
+            it 'accepts the request' do
+              expect(bs_request.reload.state).to eq(:accepted)
+            end
+
+            it 'makes the creator a maintainer on the target package' do
+              expect(target_package.maintainers.map(&:login)).to include(bs_request.creator)
+            end
+          end
+
+          context 'and clicking on the accept only button' do
+            let(:button_label) { 'Accept' }
+
+            it 'accepts the request' do
+              expect(bs_request.reload.state).to eq(:accepted)
+            end
+
+            it 'makes no more maintainers' do
+              expect(target_package.maintainers.map(&:login)).not_to include(bs_request.creator)
+            end
+          end
+        end
+
+        context 'and sending a request with mixed actions' do
+          subject! do
+            login(receiver)
+            post :changerequest, params: {
+              number: bs_request.number, accepted: button_label
+            }
+          end
+
+          before do
+            login(submitter)
+            create(:bs_request_action_set_bugowner,
+                   bs_request: bs_request,
+                   source_project: source_project,
+                   source_package: source_package,
+                   target_project: target_project,
+                   target_package: target_package)
+          end
+
+          context 'and clicking on the accept and make maintainer button' do
+            let(:button_label) { 'Accept and make maintainer' }
+
+            it 'accepts the request' do
+              expect(bs_request.reload.state).to eq(:accepted)
+            end
+
+            it 'makes the creator a maintainer on the target package' do
+              expect(target_package.maintainers.map(&:login)).to include(bs_request.creator)
+            end
+          end
+
+          context 'and clicking on the accept only button' do
+            let(:button_label) { 'Accept' }
+
+            it 'accepts the request' do
+              expect(bs_request.reload.state).to eq(:accepted)
+            end
+
+            it 'makes no more maintainers' do
+              expect(target_package.maintainers.map(&:login)).not_to include(bs_request.creator)
+            end
+          end
+        end
+
+        context 'and sending a request without submit actions' do
+          subject! do
+            create(:bs_request_action_set_bugowner,
+                   bs_request: bs_request,
+                   source_project: source_project,
+                   source_package: source_package,
+                   target_project: target_project,
+                   target_package: target_package)
+            login(receiver)
+            post :changerequest, params: {
+              number: bs_request.number, accepted: button_label
+            }
+          end
+
+          let(:bs_request) do
+            login(submitter)
+            create(:add_role_request,
+                   creator: submitter,
+                   role: 'bugowner',
+                   source_project: source_project,
+                   source_package: source_package,
+                   target_project: target_project,
+                   target_package: target_package)
+          end
+
+          context 'and clicking on the accept and make maintainer button' do
+            let(:button_label) { 'Accept and make maintainer' }
+
+            it 'accepts the request' do
+              expect(bs_request.reload.state).to eq(:accepted)
+            end
+
+            it 'makes no more maintainers' do
+              expect(target_package.maintainers.map(&:login)).not_to include(bs_request.creator)
+            end
+          end
+
+          context 'and clicking on the accept only button' do
+            let(:button_label) { 'Accept' }
+
+            it 'accepts the request' do
+              expect(bs_request.reload.state).to eq(:accepted)
+            end
+
+            it 'makes no more maintainers' do
+              expect(target_package.maintainers.map(&:login)).not_to include(bs_request.creator)
+            end
+          end
+        end
+
+        context 'and sending a request with a submit action that can be forwarded and another that cannot' do
+          context 'and clicking on the accept, make maintainer and forward button' do
+            subject! do
+              login(receiver)
+              devel_package.update!(develpackage: bs_request.bs_request_actions.first.target_package_object)
+              post :changerequest, params: {
+                number: bs_request.number, accepted: 'Accept, make maintainer and forward'
+              }
+            end
+
+            let(:another_target_package) { create(:package, name: 'another_target_package') }
+            let(:another_target_project) { another_target_package.project }
+
+            before do
+              login(submitter)
+              create(:bs_request_action_submit,
+                     bs_request: bs_request,
+                     source_project: source_project,
+                     source_package: source_package,
+                     target_package: another_target_package,
+                     target_project: another_target_project)
+            end
+
+            it 'accepts the request' do
+              expect(bs_request.reload.state).to eq(:accepted)
+            end
+
+            it 'makes the creator a maintainer on the target package' do
+              expect(target_package.relationships.map(&:user_id)).to include(submitter.id)
+            end
+
+            it 'forwards the action that can be forwarded' do
+              expect(BsRequestAction.where(source_project: target_project.name,
+                                           source_package: target_package.name,
+                                           target_project: devel_package.project.name,
+                                           target_package: devel_package.name).count).to be 1
+            end
+
+            it 'does not forward the action that cannot be forwarded' do
+              expect(BsRequestAction.where(source_project: another_target_project.name,
+                                           source_package: another_target_package.name,
+                                           target_project: devel_package.project.name,
+                                           target_package: devel_package.name).count).to be 0
+            end
+          end
+
+          context 'and clicking on the accept and forward button' do
+            subject! do
+              login(submitter)
+              devel_package.update!(develpackage: bs_request.bs_request_actions.first.target_package_object)
+              login(receiver)
+              post :changerequest, params: {
+                number: bs_request.number, accepted: 'Accept and forward'
+              }
+            end
+
+            let(:another_target_package) { create(:package, name: 'another_target_package') }
+            let(:another_target_project) { another_target_package.project }
+            let(:bs_request) do
+              create(:bs_request_with_submit_action,
+                     description: 'Please take this',
+                     creator: submitter,
+                     target_package: target_package,
+                     source_package: source_package)
+            end
+
+            before do
+              create(:bs_request_action_submit,
+                     bs_request: bs_request,
+                     source_project: source_project,
+                     source_package: source_package,
+                     target_package: another_target_package,
+                     target_project: target_project)
+            end
+
+            it 'accepts the request' do
+              expect(bs_request.reload.state).to eq(:accepted)
+            end
+
+            it 'does not make the creator a maintainer on the target package' do
+              expect(target_package.relationships.map(&:user_id)).not_to(include(submitter.id))
+            end
+
+            it 'forwards the action that can be forwarded' do
+              expect(BsRequestAction.where(source_project: target_project.name,
+                                           source_package: target_package.name,
+                                           target_project: devel_package.project.name,
+                                           target_package: devel_package.name).count).to be 1
+            end
+
+            it 'does not forward the action that cannot be forwarded' do
+              expect(BsRequestAction.where(source_project: another_target_project.name,
+                                           source_package: another_target_package.name,
+                                           target_project: devel_package.project.name,
+                                           target_package: devel_package.name).count).to be 0
+            end
+          end
+
+          context 'and clicking on the accept only button' do
+            subject do
+              login(receiver)
+              devel_package.update!(develpackage: bs_request.bs_request_actions.first.target_package_object)
+              post :changerequest, params: {
+                number: bs_request.number, accepted: 'Accept'
+              }
+              bs_request.reload.state
+            end
+
+            let(:another_target_package) { create(:package, name: 'another_target_package') }
+            let(:another_target_project) { another_target_package.project }
+
+            before do
+              submitter.run_as do
+                create(:bs_request_action_submit,
+                       bs_request: bs_request,
+                       source_project: source_project,
+                       source_package: source_package,
+                       target_package: another_target_package,
+                       target_project: target_project)
+              end
+            end
+
+            it 'accepts the request' do
+              expect(subject).to eq(:accepted)
+            end
+
+            it 'makes no more maintainers' do
+              expect { subject }.not_to change(Relationship, :count)
+            end
+
+            it 'does not forward anything' do
+              expect { subject }.not_to change(BsRequest, :count)
+            end
+          end
+        end
       end
     end
 
     context 'when forwarding the request fails' do
       before do
         allow(BsRequestActionSubmit).to receive(:new).and_raise(APIError, 'some error')
-        bs_request
         login(receiver)
+        bs_request
       end
 
       it 'accepts the parent request and reports an error for the forwarded request' do
