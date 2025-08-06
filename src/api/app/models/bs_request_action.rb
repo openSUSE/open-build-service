@@ -691,7 +691,7 @@ class BsRequestAction < ApplicationRecord
     # empty submission protection
     if action_type.in?(%i[submit maintenance_incident]) && target_package &&
        Package.exists_by_project_and_name(target_project, target_package, follow_project_links: false)
-      raise MissingAction unless contains_change?
+      raise MaintenanceHelper::MissingAction unless contains_change?
 
       return
     end

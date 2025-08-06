@@ -1,10 +1,9 @@
 require 'xmlhash'
 
-include MaintenanceHelper
-
 # rubocop:disable Metrics/ClassLength
 class BsRequest < ApplicationRecord
   include BsRequest::Errors
+  include MaintenanceHelper
 
   MAX_DESCRIPTION_LENGTH_ALLOWED = 64_000
 
@@ -952,7 +951,7 @@ class BsRequest < ApplicationRecord
       newactions.concat(new_action)
     end
     # will become an empty request
-    raise MissingAction if newactions.empty? && oldactions.size == bs_request_actions.size
+    raise MaintenanceHelper::MissingAction if newactions.empty? && oldactions.size == bs_request_actions.size
 
     oldactions.each { |a| bs_request_actions.destroy(a) }
     newactions.each { |a| bs_request_actions << a }

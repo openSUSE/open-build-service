@@ -913,11 +913,6 @@ Style/MissingRespondToMissing:
     - 'app/lib/suse/permission.rb'
     - 'app/models/configuration.rb'
 
-# Offense count: 1
-Style/MixinUsage:
-  Exclude:
-    - 'app/models/bs_request.rb'
-
 # Offense count: 24
 Style/OpenStructUse:
   Exclude:
