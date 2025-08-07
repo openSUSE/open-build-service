@@ -345,12 +345,9 @@ class Webui::RequestController < Webui::WebuiController
     if @action.target_package_object&.file_exists?(filename, { rev: target_rev, expand: 1 }.compact)
       target_file = project_package_file_path(@action.target_project_object, @action.target_package_object, filename, rev: target_rev, expand: 1)
     end
-    diff = sourcediff.dig('files', filename, 'diff', '_content')
-    disabled = diff.nil? && sourcediff.dig('files', filename, 'state').in?(%w[deleted added])
-    diff = "#{sourcediff.dig('files', filename, 'diff', 'lines')} lines skipped" if diff.nil? && !disabled
     render partial: 'webui/request/changes_diff',
            locals: { commentable: @action,
-                     diff: diff,
+                     diff: sourcediff.dig('files', filename, 'diff', '_content'),
                      file_index: params[:file_index], source_file: source_file,
                      target_file: target_file, source_rev: source_rev, target_rev: target_rev,
                      commented_lines: (params[:commented_lines] || []).map(&:to_i) }
