@@ -178,7 +178,9 @@ while(1) {
       $state = '?';
     }
     $state .= $group ? $group : ' ';
-    printf "%s%s %3d %5d %s$nl", $empty, $state, $d, $pid, $data;
+    my $str = sprintf "%s %3d %5d %s", $state, $d, $pid, $data;
+    $str = substr($str, 0, $cols - 1) if $cols;
+    print "$empty$str$nl";
     $empty = '';
   }
   close STA;
