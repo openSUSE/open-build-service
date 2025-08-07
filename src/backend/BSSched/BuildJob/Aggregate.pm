@@ -453,11 +453,21 @@ sub build {
 	my $nosource = exists($aggregate->{'nosources'}) ? 1 : 0;
 	my $noupdateinfo = exists($aggregate->{'noupdateinfo'}) ? 1 : 0;
 	my $updateinfo;
+        my $bininfo = {};
 	if ($remoteprojs->{$aprojid}) {
 	  my $remoteproj = $remoteprojs->{$aprojid};
 	  my @args = 'view=cpio';
 	  push @args, 'noajax=1' if $remoteproj->{'partition'};
-	  push @args, map {"binary=$_"} @{$aggregate->{'binary'}} if $apackid eq '_repository' && $aggregate->{'binary'};
+	  if (@{$aggregate->{'binary'} || []}) {
+	    if ($apackid eq '_repository') {
+	      push @args, map {"binary=$_"} @{$aggregate->{'binary'}};
+	    } elsif ($remoteproj->{'partition'}) {
+	      # if this is a partition we can use the new "aggregatemode" switch to
+	      # do the binary filtering on the server
+	      push @args, 'aggregatemode=1';
+	      push @args, map {"binary=$_"} @{$aggregate->{'binary'}};
+	    }
+	  }
 	  my $param = {
 	    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$arepoid/$arch/$apackid",
 	    'receiver' => \&BSHTTP::cpio_receiver,
@@ -468,14 +478,12 @@ sub build {
 	  };
 	  my $done;
 	  if ($nosource) {
-	    eval {
-	      $cpio = BSRPC::rpc($param, undef, @args, 'nosource=1');
-	    };
+	    eval { $cpio = BSRPC::rpc($param, undef, @args, 'nosource=1') };
 	    $done = 1 if !$@ || $@ !~ /nosource/;
 	  }
-	  eval {
-	    $cpio = BSRPC::rpc($param, undef, @args);
-	  } unless $done;
+          if (!$done) {
+	    eval { $cpio = BSRPC::rpc($param, undef, @args) };
+	  }
 	  if ($@) {
 	    warn($@);
 	    $error = $@;
@@ -490,6 +498,7 @@ sub build {
 	  $dir = "$reporoot/$aprojid/$arepoid/$arch/:full" if $apackid eq '_repository';
 	  @d = map {"$dir/$_"} sort(ls($dir));
 	  $nosource = 1 if -e "$dir/.nosourceaccess";
+	  $bininfo = BSUtil::retrieve("$dir/.bininfo", 1) || {} if $apackid ne '_repository';
 	}
 
 	my $aprpap = "$aprojid/$arepoid/$arch/$apackid";
@@ -500,7 +509,7 @@ sub build {
 	
 	$logfile .= "$aprpap\n" if @d;
 
-	my $copysources;
+	my %srcbinaries;
 	my @sources;
 	my $dirprefix = $cpio ? "$jobdatadir/upload:" : "$reporoot/$aprpap/";
 	for my $d (@d) {
@@ -668,22 +677,27 @@ sub build {
 	  next unless $filename =~ /\.(?:$binsufsre)$/;
 	  my $origfilename = $filename;
 	  $filename =~ s/^::import::.*?:://;
-	  my $r;
+	  my $r = $bininfo->{$filename};
+          $r = undef if $r && ($r->{'id'} || '') ne "$s[9]/$s[7]/$s[1]";
 	  eval {
-	    $r = Build::query($d, 'evra' => 1);
+	    $r ||= Build::query($d, 'evra' => 1);
 	    BSVerify::verify_nevraquery($r) if $r;
-	    $r->{'id'} = "$s[9]/$s[7]/$s[1]";
 	  };
-	  next unless $r;
-	  next if $abinfilter && !$abinfilter->{$r->{'name'}};
+	  next if $@ || !$r;
 	  if (!$r->{'source'}) {
-	    # this is a source binary
-	    push @sources, [ $d, $r, $filename, $origfilename ];
+	    # this is a source binary, delay copying until we know what we need
+	    push @sources, [ $d, $r, $filename, $origfilename ] unless $nosource;
 	    next;
 	  }
-	  next unless $r->{'source'};
+
+	  next if $abinfilter && !$abinfilter->{$r->{'name'}};
 	  # FIXME: How is debian handling debug packages ?
-	  next if $nosource && ($r->{'name'} =~ /-debug(:?info|source)?$/);
+	  if ($r->{'name'} =~ /-debug(:?info|source)?$/) {
+	    # this is a debug package. For now, ignore if we do not want sources
+	    # and it's not directly included in the filter
+	    next if $nosource && !$abinfilter;
+	  }
+
 	  if ($jobbins{$filename}) {
 	    push @{$conflicts{$filename}}, $aprpap_idx;
 	    next;  # first one wins
@@ -705,16 +719,17 @@ sub build {
 	  } else {
 	    $logfile .= "  - $filename [$s[9]/$s[7]/$s[1]]\n";
 	  }
-	  $copysources = 1 unless $nosource;
+	  $srcbinaries{$r->{'source'}} = 1 unless $nosource;
 	  my $provenance = copy_provenance($jobdatadir, $dirprefix, $d, $filename, \%jobbins, $aprpap_idx);
 	  $logfile .= "      - $provenance\n" if $provenance;
 	}
-	@sources = () unless $copysources;
+	@sources = () if $abinfilter && !%srcbinaries;
 	for my $d (@sources) {
 	  my $r = $d->[1];
 	  my $filename = $d->[2];
 	  my $origfilename = $d->[3];
 	  $d = $d->[0];
+	  next if $abinfilter && !$srcbinaries{$r->{'name'}};
 	  if ($jobbins{$filename}) {
 	    push @{$conflicts{$filename}}, $aprpap_idx;
 	    next;  # first one wins
