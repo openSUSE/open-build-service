@@ -5,10 +5,12 @@
 .p-2
   .container-fluid
     .d-flex.flex-wrap.align-items-center.justify-content-between.w-100
-      = link_to('Previous', next_prev_path(number: bs_request.number, request_action_id: prev_action&.id,
+      = link_to(next_prev_path(number: bs_request.number, request_action_id: prev_action&.id,
                                            diff_to_superseded: diff_to_superseded_id, page_name: page_name),
-                class: "btn btn-primary #{prev_action ? '' : 'disabled'}",
-                id: 'previous-action-button')
+                class: "btn btn-outline-secondary #{prev_action ? '' : 'disabled'}",
+                id: 'previous-action-button') do
+        %i.fas.fa-angles-left
+        Previous
       .dropdown.dropdown-center#request-actions
         %button.btn.dropdown-toggle{ 'aria-expanded' => 'false', 'data-bs-toggle' => 'dropdown',
                                                                           :type => 'button', 'data-boundary' => 'viewport' }
@@ -32,10 +34,12 @@
                                                                        diff_to_superseded: diff_to_superseded_id, page_name: page_name),
                                                         class: "dropdown-item #{action_item.id == action.id ? 'active' : ''}",
                                                         'aria-current': 'true')
-      = link_to('Next', next_prev_path(number: bs_request.number, request_action_id: next_action&.id,
+      = link_to(next_prev_path(number: bs_request.number, request_action_id: next_action&.id,
                                        diff_to_superseded: diff_to_superseded_id, page_name: page_name),
-                class: "btn btn-primary #{next_action ? '' : 'disabled'}",
-                id: 'next-action-button')
+                class: "btn btn-outline-secondary #{next_action ? '' : 'disabled'}",
+                id: 'next-action-button') do
+        Next
+        %i.fas.fa-angles-right
 .card-body
   %h5.mt-4
     Action details
