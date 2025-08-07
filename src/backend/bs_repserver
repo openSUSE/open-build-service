@@ -1005,6 +1005,49 @@ sub filtersources_bininfo {
   }
 }
 
+sub getbinarylist_aggregatemode {
+  my ($dir, $bins, $binarylist, $nosource) = @_;
+  my %binaries = map {$_ => 1}  @$binarylist;
+  my $bininfo = BSUtil::retrieve("$dir/.bininfo", 1) || {};
+  my @res;
+  my @sources;
+  my %srcbinaries;
+  my %bins = map {$_ => 1} @$bins;
+  for my $bin (sort @$bins) {
+    next if $bin eq 'logile' || $bin eq 'status' || $bin eq 'reason' || $bin eq 'history' || $bin =~ /^\./;
+    if ($bin !~ /^(.*)\.(?:$binsufsre)$/) {
+      next if $bin =~ /\.slsa_provenance.json$/;
+      push @res, $bin;	# take them all for now
+      next;
+    }
+    my $prefix = $1;
+    my @s = stat("$dir/$bin");
+    my $r = $bininfo->{$bin};
+    $r = undef if $r && ($r->{'id'} || '') ne "$s[9]/$s[7]/$s[1]";
+    eval {
+      $r ||= Build::query("$dir/$bin", 'evra' => 1);
+      BSVerify::verify_nevraquery($r) if $r;
+    };
+    next if $@ || !$r;
+    if (!$r->{'source'}) {
+      push @sources, [ $bin, $r, $prefix ] unless $nosource;
+      next;
+    }
+    next unless $binaries{$r->{'name'}};
+    push @res, $bin;
+    push @res, "$prefix.slsa_provenance.json" if $bins{"$prefix.slsa_provenance.json"};
+    $srcbinaries{$r->{'source'}} = 1 unless $nosource;
+  }
+  for my $d (@sources) {
+    my ($bin, $r, $prefix) = @$d;
+    next unless $srcbinaries{$r->{'name'}};
+    push @res, $bin;
+    push @res, "$prefix.slsa_provenance.json" if $bins{"$prefix.slsa_provenance.json"};
+  }
+  push @res, "_aggregatemode_no_match" unless @res;
+  return @res;
+}
+
 sub getbinarylist {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   return getbinarylist_repository($cgi, $projid, $repoid, $arch) if $packid eq '_repository';
@@ -1017,30 +1060,32 @@ sub getbinarylist {
   my %binaries = map {$_ => 1} @{$cgi->{'binary'} || []};
   if ($view eq 'cpio') {
     my @files;
-    my @bins = ls("$reporoot/$prp/$arch/$packid");
+    my $dir = "$reporoot/$prp/$arch/$packid";
+    my @bins = ls($dir);
+    %binaries = map {$_ => 1} getbinarylist_aggregatemode($dir, \@bins, $cgi->{'binary'}, $cgi->{'nosource'}) if $cgi->{'aggregatemode'} && %binaries;
     if (!$cgi->{'copybuild'}) {
       @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} @bins;
       @bins = grep {!/^::import::/} @bins if $cgi->{'noimport'};
       @bins = BSRepServer::Containertar::add_containers(@bins) if grep {/\.containerinfo$/} @bins;
-      @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
+      @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$dir/.nosourceaccess";
       @bins = grep {$_ ne "_ccache.tar"} @bins unless $cgi->{'withccache'};
     }
     for (sort @bins) {
       next if %binaries && !$binaries{$_};
-      next if -d "$reporoot/$prp/$arch/$packid/$_";
-      if (/\.tar$/ && ! -e "$reporoot/$prp/$arch/$packid/$_") {
+      next if -d "$dir/$_";
+      if (/\.tar$/ && ! -e "$dir/$_") {
 	my $n = $_;
-	my $fd = BSRepServer::Containertar::open_container("$reporoot/$prp/$arch/$packid/$n");
+	my $fd = BSRepServer::Containertar::open_container("$dir/$n");
 	push @files, {'name' => $n, 'filename' => $fd} if $fd;
 	next;
       }
       if ($BSStdServer::isajax || @files > 1000) {
 	# do not waste file descriptors
-	push @files, {'name' => $_, 'filename' => "$reporoot/$prp/$arch/$packid/$_"};
+	push @files, {'name' => $_, 'filename' => "$dir/$_"};
 	next;
       }
-      my $fd = gensym;
-      next unless open($fd, '<', "$reporoot/$prp/$arch/$packid/$_");
+      my $fd;
+      next unless open($fd, '<', "$dir/$_");
       push @files, {'name' => $_, 'filename' => $fd};
     }
     if ($cgi->{'copybuild'}) {
@@ -4577,7 +4622,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
   'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:? remoteurl:?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
-  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool? noimport:bool? withmd5:bool? module* withccache:bool? withevr:bool? copybuild:bool?' => \&getbinarylist,
+  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool? noimport:bool? withmd5:bool? module* withccache:bool? withevr:bool? copybuild:bool? aggregatemode:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repositorybuild/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,

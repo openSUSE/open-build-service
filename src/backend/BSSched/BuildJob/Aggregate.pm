@@ -458,7 +458,16 @@ sub build {
 	  my $remoteproj = $remoteprojs->{$aprojid};
 	  my @args = 'view=cpio';
 	  push @args, 'noajax=1' if $remoteproj->{'partition'};
-	  push @args, map {"binary=$_"} @{$aggregate->{'binary'}} if $apackid eq '_repository' && $aggregate->{'binary'};
+	  if (@{$aggregate->{'binary'} || []}) {
+	    if ($apackid eq '_repository') {
+	      push @args, map {"binary=$_"} @{$aggregate->{'binary'}};
+	    } elsif ($remoteproj->{'partition'}) {
+	      # if this is a partition we can use the new "aggregatemode" switch to
+	      # do the binary filtering on the server
+	      push @args, 'aggregatemode=1';
+	      push @args, map {"binary=$_"} @{$aggregate->{'binary'}};
+	    }
+	  }
 	  my $param = {
 	    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$arepoid/$arch/$apackid",
 	    'receiver' => \&BSHTTP::cpio_receiver,
