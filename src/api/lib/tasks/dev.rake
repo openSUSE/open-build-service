@@ -263,6 +263,9 @@ namespace :dev do
       # Create a request with a delete request action
       Rake::Task['dev:requests:request_with_delete_action'].invoke
 
+      # Create a request with a release action
+      Rake::Task['dev:requests:request_with_release_action'].invoke
+
       # Create a request that can be forwarded to a devel package
       Rake::Task['dev:requests:forwardable_request'].invoke
 

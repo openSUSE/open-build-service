@@ -337,6 +337,42 @@ namespace :dev do
       end
     end
 
+    # Run this task with: rails dev:requests:request_with_release_action
+    desc 'Create a request with a release action'
+    task request_with_release_action: :development_environment do
+      require 'factory_bot'
+      include FactoryBot::Syntax::Methods
+
+      admin = User.default_admin
+      admin.run_as do
+        source_project = RakeSupport.find_or_create_project(admin.home_project_name, admin)
+        source_package = Package.find_by_project_and_name('home:Admin', 'hello_world') || create(:package, project: home_admin_project, name: 'hello_world')
+        target_project = Project.find_by(name: 'project_to_be_released') || create(:project, name: 'project_to_be_released')
+
+        # A release target with manual trigger is required for a release request action
+        source_repository = create(:repository, name: 'source_repository', project: source_project, architectures: ['x86_64'])
+        create(:repository, name: 'target_repository', project: target_project, architectures: ['x86_64'])
+        create(:release_target, repository: source_repository, target_repository: target_project.repositories.first, trigger: 'manual')
+
+        request = create(:bs_request_with_release_action,
+                         creator: admin,
+                         source_project: source_project,
+                         source_package: source_package,
+                         target_project: target_project)
+
+        action_attributes = {
+          source_project: source_project,
+          source_package: source_package,
+          target_project: target_project,
+          bs_request: request
+        }
+        bs_req_action = build(:bs_request_action_release, action_attributes)
+        bs_req_action.save!
+
+        puts "* Request with release action #{request.number} has been created."
+      end
+    end
+
     def branch_package(source_project_name:, source_package_name:, target_project:)
       branch_params = {
         project: source_project_name,

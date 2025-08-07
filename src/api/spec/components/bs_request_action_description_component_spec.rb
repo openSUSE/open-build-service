@@ -63,6 +63,18 @@ RSpec.describe BsRequestActionDescriptionComponent, type: :component do
     end
   end
 
+  context 'release' do
+    before do
+      create(:bs_request_with_release_action)
+    end
+
+    it 'renders the "release" preview' do
+      render_preview('release_text_only')
+
+      expect(rendered_content).to have_text('Release')
+    end
+  end
+
   context 'set_bugowner' do
     before do
       create(:set_bugowner_request)
