@@ -509,7 +509,7 @@ sub build {
 	
 	$logfile .= "$aprpap\n" if @d;
 
-	my %copysources;
+	my %srcbinaries;
 	my @sources;
 	my $dirprefix = $cpio ? "$jobdatadir/upload:" : "$reporoot/$aprpap/";
 	for my $d (@d) {
@@ -684,17 +684,17 @@ sub build {
 	    BSVerify::verify_nevraquery($r) if $r;
 	  };
 	  next if $@ || !$r;
-
-	  next if $abinfilter && !$abinfilter->{$r->{'name'}};
 	  if (!$r->{'source'}) {
 	    # this is a source binary, delay copying until we know what we need
-	    push @sources, [ $d, $r, $filename, $origfilename ];
+	    push @sources, [ $d, $r, $filename, $origfilename ] unless $nosource;
 	    next;
 	  }
+
+	  next if $abinfilter && !$abinfilter->{$r->{'name'}};
 	  # FIXME: How is debian handling debug packages ?
 	  if ($r->{'name'} =~ /-debug(:?info|source)?$/) {
 	    # this is a debug package. For now, ignore if we do not want sources
-	    # and it's not directly in the filter
+	    # and it's not directly included in the filter
 	    next if $nosource && !$abinfilter;
 	  }
 
@@ -719,17 +719,17 @@ sub build {
 	  } else {
 	    $logfile .= "  - $filename [$s[9]/$s[7]/$s[1]]\n";
 	  }
-	  $copysources{$r->{'source'}} = 1 unless $nosource;
+	  $srcbinaries{$r->{'source'}} = 1 unless $nosource;
 	  my $provenance = copy_provenance($jobdatadir, $dirprefix, $d, $filename, \%jobbins, $aprpap_idx);
 	  $logfile .= "      - $provenance\n" if $provenance;
 	}
-	@sources = () unless %copysources;
+	@sources = () if $abinfilter && !%srcbinaries;
 	for my $d (@sources) {
 	  my $r = $d->[1];
 	  my $filename = $d->[2];
 	  my $origfilename = $d->[3];
 	  $d = $d->[0];
-	  next if $abinfilter && !$copysources{$r->{'name'}};
+	  next if $abinfilter && !$srcbinaries{$r->{'name'}};
 	  if ($jobbins{$filename}) {
 	    push @{$conflicts{$filename}}, $aprpap_idx;
 	    next;  # first one wins
