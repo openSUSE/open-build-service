@@ -21,6 +21,7 @@ class BsRequestDescriptionComponent < ApplicationComponent
   # rubocop:disable Metrics/PerceivedComplexity
   def source_container(actions)
     source_packages = actions.map { |a| [a.source_project, a.source_package] }.uniq.map { |pr, pk| highlight_package(pr, pk) }
+    packages_count = source_packages.count
     source_packages = shorten_list(source_packages)
     source_projects = actions.map(&:source_project).uniq.map { |a| highlight_project(a) }
     source_projects = shorten_list(source_projects)
@@ -31,6 +32,8 @@ class BsRequestDescriptionComponent < ApplicationComponent
                 else
                   "#{'project'.pluralize(source_projects.count)} #{to_sentence(source_projects)}"
                 end
+    return tag.span(sanitize(container)) if packages_count <= 3
+
     tag.span(sanitize(container), data: { bs_toggle: 'popover', bs_content: to_sentence(actions.map { |a| "#{a.source_project} / #{a.source_package}" }.uniq) })
   end
 
@@ -44,6 +47,8 @@ class BsRequestDescriptionComponent < ApplicationComponent
                 else
                   "#{'project'.pluralize(target_projects.count)} #{to_sentence(target_projects)}"
                 end
+    return tag.span(sanitize(container)) if actions.filter_map { |a| [a.target_project, a.target_package] }.uniq.count <= 1
+
     tag.span(sanitize(container), data: { bs_toggle: 'popover', bs_content: to_sentence(actions.map { |a| "#{a.target_project} / #{a.target_package}" }.uniq) })
   end
   # rubocop:enable Metrics/CyclomaticComplexity
