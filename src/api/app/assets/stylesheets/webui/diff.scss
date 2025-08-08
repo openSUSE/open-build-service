@@ -18,6 +18,10 @@
   --bs-accordion-active-bg: var(--bs-secondary-bg);
 }
 
+.accordion-button.disabled-accordion::after {
+  display: none;
+}
+
 .pre.scroll {
   --line-index-digits: 6ch;
   --additional-padding: 0px;

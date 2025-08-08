@@ -4,24 +4,23 @@
     old_filename = file_info.dig('old', 'name')
     expanded = expand?(name, state, file_index)
   .accordion.mb-2.diff-accordion{ id: "diff-list-#{name.parameterize}" }
-    - if file_info.dig("diff", "binary") == "1"
-      .card.p-3.mb-2
-        %span
-          = render(DiffSubjectComponent.new(state:, old_filename:, new_filename: name))
-    - else
-      .accordion-item
-        %h2.accordion-header
+    .accordion-item
+      %h2.accordion-header
+        - if file_info['disabled']
+          %button.accordion-button.disabled-accordion{ disabled: true }
+            = render(DiffSubjectComponent.new(state:, old_filename:, new_filename: name))
+        - else
           %button.accordion-button{ type: 'button', data: { 'bs-toggle': 'collapse',
                                                             'bs-target': "#diff-item-#{name.parameterize}" },
                                     aria: { expanded: 'true', controls: "diff-item-#{name.parameterize}" },
                                     class: expanded ? '' : 'collapsed' }
             = render(DiffSubjectComponent.new(state:, old_filename:, new_filename: name))
-        .accordion-collapse.collapse{ class: expanded ? 'show' : '', id: "diff-item-#{name.parameterize}", 'data-object': view_id }
-          - if file_info.key?('diff_url')
-            %turbo-frame{ id: "file-#{file_index}", src: file_info['diff_url'], loading: 'lazy' }
-              .d-flex.justify-content-center.p-4
-                %i.fas.fa-2xl.fa-spinner.fa-spin
-          - else
-            = render(DiffComponent.new(diff: file_info.dig('diff', '_content'), file_index:, commentable:,
-                                       commented_lines: commented_lines[file_index] || [],
-                                       source_file: source_file(old_filename), target_file: target_file(name), source_rev:, target_rev:))
+      .accordion-collapse.collapse{ class: expanded ? 'show' : '', id: "diff-item-#{name.parameterize}", 'data-object': view_id }
+        - if file_info.key?('diff_url')
+          %turbo-frame{ id: "file-#{file_index}", src: file_info['diff_url'], loading: 'lazy' }
+            .d-flex.justify-content-center.p-4
+              %i.fas.fa-2xl.fa-spinner.fa-spin
+        - else
+          = render(DiffComponent.new(diff: file_info.dig('diff', '_content'), file_index:, commentable:,
+                                     commented_lines: commented_lines[file_index] || [],
+                                     source_file: source_file(old_filename), target_file: target_file(name), source_rev:, target_rev:))
