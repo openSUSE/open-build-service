@@ -2,7 +2,7 @@ class BuildResultsMonitorComponent < ApplicationComponent
   attr_reader :raw_data, :filter_url, :filters
 
   def initialize(raw_data:, filter_url:, filters:)
-    super
+    super()
 
     @raw_data = raw_data
     @filter_url = filter_url

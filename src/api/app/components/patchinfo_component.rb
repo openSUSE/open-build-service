@@ -15,7 +15,7 @@ class PatchinfoComponent < ApplicationComponent
                    critical: 'text-bg-danger' }.freeze
 
   def initialize(patchinfo, path)
-    super
+    super()
     @patchinfo = Xmlhash.parse(patchinfo)
     @path = path
 
