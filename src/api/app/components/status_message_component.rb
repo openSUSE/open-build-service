@@ -1,6 +1,6 @@
 class StatusMessageComponent < ApplicationComponent
   def initialize(status_message:)
-    super
+    super()
     @status_message = status_message
   end
 end

@@ -1,6 +1,6 @@
 class AddReviewDropdownComponent < ApplicationComponent
   def initialize(bs_request:, user:, my_open_reviews:, history_elements:)
-    super
+    super()
 
     @bs_request = bs_request
     @user = user
