@@ -1005,6 +1005,8 @@ sub filtersources_bininfo {
   }
 }
 
+# expand the binary names to a list of files for aggregate building.
+# see BSSched::BuildJob::Aggregate::build()
 sub getbinarylist_aggregatemode {
   my ($dir, $bins, $binarylist, $nosource) = @_;
   my %binaries = map {$_ => 1}  @$binarylist;
@@ -1018,6 +1020,9 @@ sub getbinarylist_aggregatemode {
     if ($bin !~ /^(.*)\.(?:$binsufsre)$/) {
       next if $bin =~ /\.slsa_provenance.json$/;
       push @res, $bin;	# take them all for now
+      if ($bin =~ /(.*)\.(?:containerinfo|helminfo)$/) {
+        push @res, "$1.slsa_provenance.json" if $bins{"$1.slsa_provenance.json"};
+      }
       next;
     }
     my $prefix = $1;
