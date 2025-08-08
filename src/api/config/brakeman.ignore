@@ -410,6 +410,30 @@
       "note": ""
     },
     {
+      "warning_type": "Dangerous Eval",
+      "warning_code": 13,
+      "fingerprint": "37b84da525b0246afb83a170715adef530eb9ec8f5168c07a359b5ebbd7e9453",
+      "check_name": "Evaluation",
+      "message": "Dynamic code evaluation",
+      "file": "lib/xpath_engine.rb",
+      "line": 453,
+      "link": "https://brakemanscanner.org/docs/warning_types/dangerous_eval/",
+      "code": "eval(@attribs[:BRAKEMAN_SAFE_LITERAL][@last_key][:function].sub(\"$VALUE\", (escape_for_like(:literal) or :literal)))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "XpathEngine",
+        "method": "evaluate_expr"
+      },
+      "user_input": null,
+      "confidence": "Weak",
+      "cwe_id": [
+        913,
+        95
+      ],
+      "note": ""
+    },
+    {
       "warning_type": "SQL Injection",
       "warning_code": 0,
       "fingerprint": "45840f44547aeced1506343b80e3fe0ad1b6262ae3799e5086907ff71bddb03c",
