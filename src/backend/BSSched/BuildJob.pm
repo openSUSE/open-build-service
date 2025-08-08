@@ -689,7 +689,7 @@ sub fakejobfinished {
     'job' => $job,
     %{$buildinfoskel || {}},
   };
-  writejob($ctx, $job, $binfo);
+  $ctx->writejob($job, $binfo);
   close(F);
   my $ev = {'type' => 'built', 'arch' => $myarch, 'job' => $job};
   if ($needsign) {
