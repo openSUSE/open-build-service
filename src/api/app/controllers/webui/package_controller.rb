@@ -478,7 +478,7 @@ class Webui::PackageController < Webui::WebuiController
 
     return if last_req.blank?
 
-    last_req.bs_request if bs_request.state == :declined
+    last_req.bs_request if bs_request.status == :declined
   end
 
   def get_diff(project, package, options = {})

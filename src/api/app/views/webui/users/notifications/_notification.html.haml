@@ -17,7 +17,7 @@
           %small.text-nowrap
             = render TimeComponent.new(time: notification.created_at)
           - if notification.notifiable_type == 'BsRequest'
-            = render BsRequestStateBadgeComponent.new(state: notification.notifiable.state)
+            = render BsRequestStateBadgeComponent.new(state: notification.notifiable.status)
           - elsif notification.notifiable_type == 'WorkflowRun'
             = render WorkflowRunStatusBadgeComponent.new(status: notification.notifiable.status, css_class: 'ms-1')
           - elsif notification.notifiable_type == 'Report' && count_of_additional_reports_for_reportable(notification) >= 1
