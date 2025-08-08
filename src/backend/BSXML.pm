@@ -1935,6 +1935,19 @@ our $buildstatistics = [
 	    'cachehits',
 	    'preinstallimage',
       ],
+      [ 'info' =>
+	    [],
+	    'workerid',
+	    'hostarch',
+	    'srcmd5',
+	    'verifymd5',
+	    'rev',
+	    'file',
+	    'buildtype',
+	    'readytime',
+	    'starttime',
+	    'endtime',
+      ],
 ];
 
 # This array is an outcome of following perl snippet

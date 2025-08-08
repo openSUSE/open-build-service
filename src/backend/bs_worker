@@ -4206,7 +4206,19 @@ sub dobuild {
 
   # write statistics for succeeded/unchanged builds
   if ($ret == 0 || $ret == 2 * 256) {
-    $stats->{'times'}->{'total'}->{'time'} = { 'unit' => 's', '_content' => (time() - $starttime) };
+    my $now = time();
+    $stats->{'times'}->{'total'}->{'time'} = { 'unit' => 's', '_content' => ($now - $starttime) };
+    # add some extra data
+    my $info = {
+      'hostarch' => $hostarch,
+      'starttime' => $starttime,
+      'endtime' => $now,
+    };
+    $info->{'workerid'} = $workerid if defined $workerid;
+    for (qw{readytime srcmd5 verifymd5 rev file buildtype}) {
+      $info->{$_} = $buildinfo->{$_} if $buildinfo->{$_};
+    }
+    $stats->{'info'} = $info;
     mkdir_p("$resultdir/OTHER");
     writexml("$resultdir/OTHER/_statistics.new", "$resultdir/OTHER/_statistics", $stats, $BSXML::buildstatistics);
   }
