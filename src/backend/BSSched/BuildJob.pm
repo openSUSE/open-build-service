@@ -615,7 +615,7 @@ sub jobfinished {
   unlink("$jobdatadir/.preinstallimage");
   BSUtil::touch("$jobdatadir/.preinstallimage") if $info->{'file'} eq '_preinstallimage';
   my $jobhist = makejobhist($info, $status, $js, 'succeeded');
-  addbuildstats($jobdatadir, $dst, $jobhist) if ($all{'_statistics'});
+  addbuildstats($jobdatadir, $dst, $jobhist) if $all{'_statistics'};
 
   # update build result directory and full tree
   my $dstcache = $ectx->{'dstcache'};
@@ -794,10 +794,11 @@ sub patchpackstatus {
   BSRedisnotify::updateoneresult("$prp/$myarch", $packid, "finished:$code", $job) if $BSConfig::redisserver;
 }
 
-
 sub addbuildstats {
   my ($jobdatadir, $dst, $jobhist) = @_;
   my $bstat = readxml("$jobdatadir/_statistics", $BSXML::buildstatistics, 1) || {};
+  delete $bstat->{'info'};	# drop extra info
+  return unless %$bstat;
   my $data = flat_hash({ 'stats' => $jobhist, 'stats_buildstatistics' => $bstat });
   BSFileDB::fdb_add("$dst/.stats", $BSXML::buildstatslay, $data);
 }
