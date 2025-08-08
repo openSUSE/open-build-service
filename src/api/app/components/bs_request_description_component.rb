@@ -27,11 +27,11 @@ class BsRequestDescriptionComponent < ApplicationComponent
     container = if actions.length == 1 && source_packages.length == 1
                   "package #{source_projects.first} / #{source_packages.first}"
                 elsif source_packages
-                  "#{'package'.pluralize(source_packages.count)} #{source_packages.to_sentence} from #{'project'.pluralize(source_projects.count)} #{source_projects.to_sentence}"
+                  "#{'package'.pluralize(source_packages.count)} #{to_sentence(source_packages)} from #{'project'.pluralize(source_projects.count)} #{to_sentence(source_projects)}"
                 else
-                  "#{'project'.pluralize(source_projects.count)} #{source_projects.to_sentence}"
+                  "#{'project'.pluralize(source_projects.count)} #{to_sentence(source_projects)}"
                 end
-    tag.span(sanitize(container), data: { bs_toggle: 'popover', bs_content: actions.map { |a| tag.b("#{a.source_project} / #{a.source_package}") }.uniq.to_sentence })
+    tag.span(sanitize(container), data: { bs_toggle: 'popover', bs_content: to_sentence(actions.map { |a| "#{a.source_project} / #{a.source_package}" }.uniq) })
   end
 
   def target_container(actions)
@@ -40,24 +40,25 @@ class BsRequestDescriptionComponent < ApplicationComponent
     container = if actions.length == 1 && actions.first.target_package
                   "package #{highlight_project(actions.first.target_project)} / #{highlight_package(actions.first.target_project, actions.first.target_package)}"
                 elsif actions.any?(&:target_package)
-                  "#{'package'.pluralize(actions.filter_map(&:target_package).uniq.count)} in #{'project'.pluralize(target_projects.count)} #{target_projects.to_sentence}"
+                  "#{'package'.pluralize(actions.filter_map(&:target_package).uniq.count)} in #{'project'.pluralize(target_projects.count)} #{to_sentence(target_projects)}"
                 else
-                  "#{'project'.pluralize(target_projects.count)} #{target_projects.to_sentence}"
+                  "#{'project'.pluralize(target_projects.count)} #{to_sentence(target_projects)}"
                 end
-    tag.span(sanitize(container), data: { bs_toggle: 'popover', bs_content: actions.map { |a| tag.b("#{a.target_project} / #{a.target_package}") }.uniq.to_sentence })
+    tag.span(sanitize(container), data: { bs_toggle: 'popover', bs_content: to_sentence(actions.map { |a| "#{a.target_project} / #{a.target_package}" }.uniq) })
   end
   # rubocop:enable Metrics/CyclomaticComplexity
   # rubocop:enable Metrics/PerceivedComplexity
 
   def delete_target(actions)
-    actions.map do |a|
+    target = actions.map do |a|
       string = ''
       string += "repository #{tag.b(a.target_repository)} for " if a.target_repository
       string += a.target_package ? 'package ' : 'project '
       string += "#{highlight_project(a.target_project)} "
       string += "/ #{highlight_package(a.target_project, a.target_package)}" if a.target_package
       string
-    end.to_sentence
+    end
+    target.to_sentence
   end
 
   def role_target(actions)
