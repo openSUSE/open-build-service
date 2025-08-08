@@ -198,7 +198,7 @@ class XpathEngine
       'requests' => {
         '@id' => { cpart: 'bs_requests.number' },
         '@creator' => { cpart: 'bs_requests.creator' },
-        'state/@name' => { cpart: 'bs_requests.status' },
+        'state/@name' => { cpart: 'bs_requests.status', function: "BsRequest.statuses['$VALUE']" },
         'state/@who' => { cpart: 'bs_requests.commenter' },
         'state/@when' => { cpart: 'bs_requests.updated_at' },
         'action/@type' => { cpart: 'a.type',
@@ -445,6 +445,12 @@ class XpathEngine
           raise IllegalXpathError, 'attributes must be $NAMESPACE:$NAME' if tvalues.size != 2
 
           @condition_values_needed.times { @condition_values << tvalues }
+        elsif @last_key && @attribs[table][@last_key][:function]
+          raise IllegalXpathError, 'this attribute must follow a word pattern' unless value.match?(/^[a-zA-Z]+$/)
+
+          function = @attribs[table][@last_key][:function].sub('$VALUE'.freeze, value)
+
+          @condition_values_needed.times { @condition_values << eval(function) } # rubocop:disable Security/Eval
         else
           @condition_values_needed.times { @condition_values << value }
         end
