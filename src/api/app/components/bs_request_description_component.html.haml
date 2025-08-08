@@ -2,7 +2,9 @@
   - case type
   - when 'submit'
     Submit
-    = sanitize(source_and_target_container(actions))
+    = sanitize(source_container(actions))
+    %i.fas.fa-long-arrow-alt-right.text-info.mx-2
+    = sanitize(target_container(actions))
   - when 'delete'
     Delete
     = sanitize(delete_target(actions))
@@ -20,13 +22,19 @@
     = sanitize(target_container(actions))
   - when 'maintenance_incident'
     Submit update from
-    = sanitize(source_and_target_container(actions))
+    = sanitize(source_container(actions))
+    %i.fas.fa-long-arrow-alt-right.text-info.mx-2
+    = sanitize(target_container(actions))
   - when 'maintenance_release'
     Maintenance release
-    = sanitize(source_and_target_container(actions))
+    = sanitize(source_container(actions))
+    %i.fas.fa-long-arrow-alt-right.text-info.mx-2
+    = sanitize(target_container(actions))
   - when 'release'
     Release
-    = sanitize(source_and_target_container(actions))
+    = sanitize(source_container(actions))
+    %i.fas.fa-long-arrow-alt-right.text-info.mx-2
+    = sanitize(target_container(actions))
 
   - case index
   - when types.length - 1
