@@ -445,8 +445,6 @@ class XpathEngine
           raise IllegalXpathError, 'attributes must be $NAMESPACE:$NAME' if tvalues.size != 2
 
           @condition_values_needed.times { @condition_values << tvalues }
-        elsif @last_key && @attribs[table][@last_key][:double]
-          @condition_values_needed.times { @condition_values << [value, value] }
         else
           @condition_values_needed.times { @condition_values << value }
         end
