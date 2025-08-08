@@ -780,7 +780,7 @@ class User < ApplicationRecord
   def proxy_realname(env)
     return unless env['HTTP_X_FIRSTNAME'].present? && env['HTTP_X_LASTNAME'].present?
 
-    "#{env['HTTP_X_FIRSTNAME'].force_encoding('UTF-8')} #{env['HTTP_X_LASTNAME'].force_encoding('UTF-8')}"
+    "#{String.new(env['HTTP_X_FIRSTNAME'], encoding: 'UTF-8')} #{String.new(env['HTTP_X_LASTNAME'], encoding: 'UTF-8')}"
   end
 
   def update_login_values(env)
