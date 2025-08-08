@@ -2,9 +2,9 @@
   - case type
   - when 'submit'
     Submit
-    = sanitize(source_container(actions))
+    = source_container(actions)
     %i.fas.fa-long-arrow-alt-right.text-info.mx-2
-    = sanitize(target_container(actions))
+    = target_container(actions)
   - when 'delete'
     Delete
     = sanitize(delete_target(actions))
@@ -12,29 +12,29 @@
     Assign
     = sanitize(role_target(actions))
     for
-    = sanitize(target_container(actions))
+    = target_container(actions)
   - when 'change_devel'
     Set
-    = sanitize(source_container(actions))
+    = source_container(actions)
     to be
     %b devel
     project/package of
-    = sanitize(target_container(actions))
+    = target_container(actions)
   - when 'maintenance_incident'
     Submit update from
-    = sanitize(source_container(actions))
+    = source_container(actions)
     %i.fas.fa-long-arrow-alt-right.text-info.mx-2
-    = sanitize(target_container(actions))
+    = target_container(actions)
   - when 'maintenance_release'
     Maintenance release
-    = sanitize(source_container(actions))
+    = source_container(actions)
     %i.fas.fa-long-arrow-alt-right.text-info.mx-2
-    = sanitize(target_container(actions))
+    = target_container(actions)
   - when 'release'
     Release
-    = sanitize(source_container(actions))
+    = source_container(actions)
     %i.fas.fa-long-arrow-alt-right.text-info.mx-2
-    = sanitize(target_container(actions))
+    = target_container(actions)
 
   - case index
   - when types.length - 1
