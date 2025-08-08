@@ -1,0 +1,50 @@
+= turbo_frame_tag "#{project.name}_#{package_name}_rpmlint" do
+  - if lints_list.empty?
+    No lints found.
+  - else
+    %div
+      .row.mb-3
+        .col-5.col-md-4.fw-bold
+          Linter
+        .col-4.col-md-1.fw-bold
+          Severity
+        .col-3.col-md-1.fw-bold
+          Badness
+        .col-6.d-none.d-md-block.fw-bold
+          Affected
+      - lints_list.flatten.sort_by { |l| -l[:badness] }.group_by { |l| l[:linter] }.each do |lint, lint_list|
+        .row.border-bottom.mb-3
+          .col-5.col-md-4.mb-2
+            = lint
+          .col-4.col-md-1.mb-2
+            - case lint_list.first[:level]
+            - when 'E'
+              .text-danger
+                Error
+            - when 'W'
+              .text-warning
+                Warning
+            - when 'I'
+              .text-info
+                Info
+          .col-3.col-md-1.mb-2
+            = lint_list.first[:badness]
+          .col-12.col-md-6.mb-2
+            %ul.list-unstyled
+              - lint_list.sort_by { |l| l[:location] }.group_by { |l| l[:location] }.each do |location, location_list|
+                %li
+                  .dropdown
+                    = link_to('#', role: 'button', data: { 'bs-toggle': 'dropdown', 'aria-expanded': false }) do
+                      = location
+                      %span.badge.text-bg-primary
+                        = location_list.count
+                    %ul.dropdown-menu
+                      - location_list.each do |repository|
+                        %li.dropdown-item
+                          = link_to(project_package_repository_architecture_rpmlint_path(project,
+                                                                                         package_name,
+                                                                                         repository[:repo],
+                                                                                         repository[:arch],
+                                                                                         anchor: "l#{repository[:line]}"),
+                                    target: '_top') do
+                            #{repository[:repo]}.#{repository[:arch]} line #{repository[:line]}
