@@ -1,0 +1,36 @@
+- types.each_with_index do |(type, actions), index|
+  - case type
+  - when 'submit'
+    Submit
+    = sanitize(source_and_target_container(actions))
+  - when 'delete'
+    Delete
+    = sanitize(delete_target(actions))
+  - when 'add_role', 'set_bugowner'
+    Assign
+    = sanitize(role_target(actions))
+    for
+    = sanitize(target_container(actions))
+  - when 'change_devel'
+    Set
+    = sanitize(source_container(actions))
+    to be
+    %b devel
+    project/package of
+    = sanitize(target_container(actions))
+  - when 'maintenance_incident'
+    Submit update from
+    = sanitize(source_and_target_container(actions))
+  - when 'maintenance_release'
+    Maintenance release
+    = sanitize(source_and_target_container(actions))
+  - when 'release'
+    Release
+    = sanitize(source_and_target_container(actions))
+
+  - case index
+  - when types.length - 1
+  - when types.length - 2
+    and
+  - else
+    ,
