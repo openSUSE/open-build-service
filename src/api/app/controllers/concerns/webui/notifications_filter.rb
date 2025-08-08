@@ -14,6 +14,7 @@ module Webui::NotificationsFilter
     relations_kind << notifications.for_outgoing_requests(User.session) if filter_kind.include?('outgoing_requests')
     relations_kind << notifications.for_relationships_created if filter_kind.include?('relationships_created')
     relations_kind << notifications.for_relationships_deleted if filter_kind.include?('relationships_deleted')
+    relations_kind << notifications.for_important_roles_added if filter_kind.include?('important_roles_added')
     relations_kind << notifications.for_build_failures if filter_kind.include?('build_failures')
     relations_kind << notifications.for_reports if filter_kind.include?('reports')
     relations_kind << notifications.for_workflow_runs if filter_kind.include?('workflow_runs')
