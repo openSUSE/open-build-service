@@ -2,7 +2,8 @@ class DiffSubjectComponent < ApplicationComponent
   attr_reader :state, :old_filename, :new_filename
 
   def initialize(state:, file_info:)
-    super
+    super()
+
     @state = state
     @old_filename = file_info.dig('old', 'name')
     @new_filename = file_info.dig('new', 'name')

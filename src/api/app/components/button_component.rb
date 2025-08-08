@@ -2,7 +2,7 @@ class ButtonComponent < ApplicationComponent
   renders_one :text
 
   def initialize(type: nil, text: nil, css_custom: '', icon_type: nil, button_data: {})
-    super
+    super()
 
     @type = type
     @text = text
