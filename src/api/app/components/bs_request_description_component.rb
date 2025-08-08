@@ -49,10 +49,6 @@ class BsRequestDescriptionComponent < ApplicationComponent
   # rubocop:enable Metrics/CyclomaticComplexity
   # rubocop:enable Metrics/PerceivedComplexity
 
-  def source_and_target_container(actions)
-    [source_container(actions), target_container(actions)].join(tag.i(nil, class: 'fas fa-long-arrow-alt-right text-info mx-2'))
-  end
-
   def delete_target(actions)
     actions.map do |a|
       string = ''
