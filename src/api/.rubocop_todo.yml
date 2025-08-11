@@ -719,27 +719,6 @@ Rails/InverseOf:
     - 'app/models/status/report.rb'
     - 'app/models/user.rb'
 
-# Offense count: 22
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Rails/OrderArguments:
-  Exclude:
-    - 'app/controllers/statistics_controller.rb'
-    - 'app/controllers/status_messages_controller.rb'
-    - 'app/controllers/webui/feeds_controller.rb'
-    - 'app/controllers/webui/groups/bs_requests_controller.rb'
-    - 'app/controllers/webui/packages/bs_requests_controller.rb'
-    - 'app/controllers/webui/projects/bs_requests_controller.rb'
-    - 'app/controllers/webui/users/bs_requests_controller.rb'
-    - 'app/models/attrib.rb'
-    - 'app/models/attrib_type.rb'
-    - 'app/models/project.rb'
-    - 'app/models/repository.rb'
-    - 'app/models/status_message.rb'
-    - 'app/models/user.rb'
-    - 'app/queries/projects_for_filter_finder.rb'
-    - 'app/services/user_daily_contribution.rb'
-    - 'lib/statistics_calculations.rb'
-
 # Offense count: 5
 Rails/OutputSafety:
   Exclude:

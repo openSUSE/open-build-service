@@ -5,9 +5,9 @@ class StatusMessage < ApplicationRecord
 
   validates :severity, :message, presence: true
 
-  scope :announcements, -> { order('created_at DESC').where(severity: 'announcement') }
+  scope :announcements, -> { order(created_at: :desc).where(severity: 'announcement') }
   scope :for_current_user, -> { where(communication_scope: communication_scopes_for_current_user) }
-  scope :newest, -> { order('created_at DESC') }
+  scope :newest, -> { order(created_at: :desc) }
   scope :for_severity, ->(severity) { where(severity: severity) if severity.present? }
   scope :for_communication_scope, ->(communication_scope) { where(communication_scope: communication_scope) if communication_scope.present? }
 

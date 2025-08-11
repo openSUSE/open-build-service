@@ -57,7 +57,7 @@ class Project < ApplicationRecord
   has_many :target_repositories, through: :release_targets
   has_many :path_elements, through: :repositories
   has_many :linked_repositories, through: :path_elements, source: :link, foreign_key: :repository_id
-  has_many :repository_architectures, -> { order('position') }, through: :repositories
+  has_many :repository_architectures, -> { order(:position) }, through: :repositories
 
   has_many :watched_items, as: :watchable, dependent: :destroy
 

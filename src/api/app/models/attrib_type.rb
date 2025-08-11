@@ -15,7 +15,7 @@ class AttribType < ApplicationRecord
   belongs_to :attrib_namespace
 
   has_many :attribs, dependent: :destroy
-  has_many :default_values, -> { order('position ASC') }, class_name: 'AttribDefaultValue', dependent: :delete_all
+  has_many :default_values, -> { order(:position) }, class_name: 'AttribDefaultValue', dependent: :delete_all
   has_many :allowed_values, class_name: 'AttribAllowedValue', dependent: :delete_all
   has_many :attrib_type_modifiable_bies, class_name: 'AttribTypeModifiableBy', dependent: :delete_all
 

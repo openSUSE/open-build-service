@@ -13,7 +13,7 @@ class StatisticsCalculations
     packages = packages.where('packages.name REGEXP ?', pkg_filter) if pkg_filter
     packages = packages.where('projects.name REGEXP ?', prj_filter) if prj_filter
     packages.references(:project)
-            .order('updated_at DESC')
+            .order(updated_at: :desc)
             .limit(limit)
             .pluck(:name, 'projects.name as project', :updated_at)
             .map! { |name, project, at| [at, :package, name, project] }
@@ -24,7 +24,7 @@ class StatisticsCalculations
     projects = Project.all
     projects = projects.where(updated_at: timelimit..Time.now) if timelimit
     projects = projects.where('name REGEXP ?', prj_filter) if prj_filter
-    projects.order('updated_at DESC')
+    projects.order(updated_at: :desc)
             .limit(limit)
             .pluck(:name, :updated_at)
             .map! { |name, at| [at, name, :project] }

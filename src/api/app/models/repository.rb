@@ -7,7 +7,7 @@ class Repository < ApplicationRecord
 
   has_many :channel_targets, class_name: 'ChannelTarget', dependent: :delete_all
   has_many :release_targets, class_name: 'ReleaseTarget', dependent: :delete_all
-  has_many :path_elements, -> { order('position') }, foreign_key: 'parent_id', dependent: :delete_all, inverse_of: :repository
+  has_many :path_elements, -> { order(:position) }, foreign_key: 'parent_id', dependent: :delete_all, inverse_of: :repository
   has_many :download_repositories, dependent: :delete_all
   has_many :links, class_name: 'PathElement', inverse_of: :link
   has_many :targetlinks, class_name: 'ReleaseTarget', foreign_key: 'target_repository_id'
@@ -31,7 +31,7 @@ class Repository < ApplicationRecord
   end
   has_many :product_update_repositories, dependent: :delete_all
   has_many :product_medium, dependent: :delete_all
-  has_many :repository_architectures, -> { order('position') }, dependent: :destroy, inverse_of: :repository
+  has_many :repository_architectures, -> { order(:position) }, dependent: :destroy, inverse_of: :repository
   has_many :architectures, through: :repository_architectures
 
   scope :not_remote, -> { where(remote_project_name: '') }

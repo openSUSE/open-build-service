@@ -812,7 +812,7 @@ class User < ApplicationRecord
   end
 
   def watched_requests
-    BsRequest.where(id: watched_items.where(watchable_type: 'BsRequest').pluck(:watchable_id)).order('number DESC')
+    BsRequest.where(id: watched_items.where(watchable_type: 'BsRequest').pluck(:watchable_id)).order(number: :desc)
   end
 
   def watched_packages
