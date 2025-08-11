@@ -60,12 +60,6 @@ Lint/NonLocalExitFromIterator:
     - 'app/controllers/configurations_controller.rb'
     - 'app/models/patchinfo.rb'
 
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-Lint/RedundantCopDisableDirective:
-  Exclude:
-    - 'app/controllers/webui/requests/submissions_controller.rb'
-
 # Offense count: 2
 Lint/RescueException:
   Exclude:
