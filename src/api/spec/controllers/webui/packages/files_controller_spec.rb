@@ -235,7 +235,7 @@ RSpec.describe Webui::Packages::FilesController, :vcr do
 
       # This corresponds to the data in group between lines 8 and 16 in the blame fixture
       expect(blame_group.size).to eq(9)
-      expect(blame_group.map { |g| g['revision'] }.uniq).to eq(['104'])
+      expect(blame_group.pluck('revision').uniq).to eq(['104'])
     end
 
     it 'parses lines correctly' do

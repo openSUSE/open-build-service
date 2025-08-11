@@ -726,12 +726,6 @@ Rails/OutputSafety:
     - 'app/helpers/webui/request_helper.rb'
     - 'app/helpers/webui/user_helper.rb'
 
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Rails/Pluck:
-  Exclude:
-    - 'spec/controllers/webui/packages/files_controller_spec.rb'
-
 # Offense count: 15
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: Include.
