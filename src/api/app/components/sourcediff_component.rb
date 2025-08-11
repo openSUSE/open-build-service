@@ -42,7 +42,7 @@ class SourcediffComponent < ApplicationComponent
     files = sourcediff['files'].sort_by { |k, _v| sourcediff['filenames'].find_index(k) }.to_h
 
     files.each_with_index do |(filename, contents), file_index|
-      files[filename]['disabled'] = contents['state'].in?(%w[deleted added]) && contents['diff']['_content'].nil?
+      files[filename]['disabled'] = contents['diff'].nil? || contents['diff']['_content'].nil?
       next if files[filename]['disabled']
 
       files[filename]['diff_url'] = request_changes_diff_path(number: @bs_request.number, request_action_id: @action.id, filename:, diff_to_superseded:, file_index:, commented_lines: @commented_lines[file_index])
