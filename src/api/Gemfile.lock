@@ -408,7 +408,7 @@ GEM
       erb
       psych (>= 4.0.0)
     redcarpet (3.6.1)
-    regexp_parser (2.11.0)
+    regexp_parser (2.11.1)
     reline (0.6.2)
       io-console (~> 0.5)
     request_store (1.7.0)
@@ -462,7 +462,7 @@ GEM
       lint_roller (~> 1.1)
       rubocop (>= 1.75.0, < 2.0)
       rubocop-ast (>= 1.38.0, < 2.0)
-    rubocop-rails (2.32.0)
+    rubocop-rails (2.33.0)
       activesupport (>= 4.2.0)
       lint_roller (~> 1.1)
       rack (>= 1.1)
