@@ -44,6 +44,8 @@ class Notification < ApplicationRecord
   scope :for_member_on_groups, -> { where(notifiable_type: 'Group') }
 
   scope :for_project_name, ->(project_name) { joins(:projects).where(projects: { name: project_name }) }
+  scope :for_package_name, ->(package_name) { joins("INNER JOIN packages ON notifications.notifiable_type = 'Package' AND notifications.notifiable_id = packages.id").where(packages: { name: package_name }) }
+
   scope :for_group_title, ->(group_title) { joins(:groups).where(groups: { title: group_title }) }
   scope :for_request_state, ->(request_state) { joins(:bs_request).where(bs_request: { state: request_state }) }
   scope :stale, -> { where(created_at: ...(CONFIG['notifications_lifetime'] ||= 365).days.ago) }
