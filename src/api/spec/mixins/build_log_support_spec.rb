@@ -31,7 +31,7 @@ RSpec.describe BuildLogSupport do
       subject { instance_with_build_log_support.get_log_chunk('project_1', 'package_1', 'repository_1', 'architecture_1', 0, 65_536) }
 
       context 'without special characters' do
-        it { is_expected.to eq("<span class=\"ansible_none\">#{build_log}</span>") }
+        it { is_expected.to eq("<span class=\"ansible_none\">#{build_log.tr("\n", "\r")}</span>") }
       end
 
       context 'with special characters' do

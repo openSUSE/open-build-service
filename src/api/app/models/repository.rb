@@ -290,7 +290,7 @@ class Repository < ApplicationRecord
       # and set type in prjconf
       prjconf = project.source_file('_config')
       unless /^Type:/.match?(prjconf)
-        prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
+        prjconf = +"%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
         Backend::Api::Sources::Project.write_configuration(project.name, prjconf)
       end
       return
