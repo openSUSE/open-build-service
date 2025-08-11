@@ -5,7 +5,7 @@ class StatusMessagesController < ApplicationController
   validate_action create: { method: :post, request: :status_message, response: :status_message }
 
   def index
-    @status_messages = StatusMessage.limit(params[:limit]).order('created_at DESC').includes(:user)
+    @status_messages = StatusMessage.limit(params[:limit]).order(created_at: :desc).includes(:user)
     @count = @status_messages.size
   end
 

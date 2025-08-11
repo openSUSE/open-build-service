@@ -20,7 +20,7 @@ class Webui::FeedsController < Webui::WebuiController
 
     commits = @project.project_log_entries.where(event_type: 'commit').where(datetime: @start..)
     commits = commits.where(datetime: ..@finish) if @finish.present?
-    @commits = commits.order('datetime desc')
+    @commits = commits.order(datetime: :desc)
   end
 
   def notifications

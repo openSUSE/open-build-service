@@ -20,7 +20,7 @@ module Webui
           format.html do
             # FIXME: Once we roll out request_index filter_requests should become a before_action
             filter_requests
-            @bs_requests = @bs_requests.order('number DESC').page(params[:page])
+            @bs_requests = @bs_requests.order(number: :desc).page(params[:page])
           end
           # TODO: Remove this old index action when request_index feature is rolled-over
           format.json do

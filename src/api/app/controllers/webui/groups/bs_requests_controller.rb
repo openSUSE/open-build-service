@@ -18,7 +18,7 @@ module Webui
           format.html do
             filter_requests
 
-            @bs_requests = @bs_requests.order('number DESC').page(params[:page])
+            @bs_requests = @bs_requests.order(number: :desc).page(params[:page])
           end
           format.json do
             parsed_params = BsRequest::DataTable::ParamsParser.new(params).parsed_params
