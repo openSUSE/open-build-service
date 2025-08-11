@@ -42,7 +42,7 @@ class RpmlintLogExtractor
   def retrieve_rpmlint_log_from_log
     @parse_internal_log_file = true
 
-    log_content = Backend::Api::BuildResults::Binaries.file(project, repository, architecture, package, '_log')
+    log_content = +Backend::Api::BuildResults::Binaries.file(project, repository, architecture, package, '_log')
     # Remove invalid byte sequences
     log_content.scrub!
 
