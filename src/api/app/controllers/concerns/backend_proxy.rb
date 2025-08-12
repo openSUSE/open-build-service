@@ -129,7 +129,7 @@ module BackendProxy
   def download_request
     file = Tempfile.new('volley', Rails.root.join('tmp').to_s, encoding: 'ascii-8bit')
     b = request.body
-    buffer = ''
+    buffer = +''
     file.write(buffer) while b.read(40_960, buffer)
     file.close
     file.open

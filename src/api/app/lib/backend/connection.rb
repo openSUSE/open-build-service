@@ -130,11 +130,11 @@ module Backend
       when Net::HTTPSuccess, Net::HTTPRedirection, Net::HTTPOK
         response
       when Net::HTTPNotFound
-        raise Backend::NotFoundError, response.read_body.force_encoding('UTF-8')
+        raise Backend::NotFoundError, String.new(response.read_body, encoding: 'UTF-8')
       else
         message = response.read_body
         message = response.to_s if message.blank?
-        raise Backend::Error, message.force_encoding('UTF-8')
+        raise Backend::Error, String.new(message, encoding: 'UTF-8')
       end
     end
 
