@@ -4530,6 +4530,7 @@ sub getresult {
   push @args, map {"code=$_"} @{$cgi->{'code'} || []};
   push @args, 'withbinarylist' if $view{'binarylist'};
   push @args, 'withstats' if $view{'stats'};
+  push @args, 'withinfo' if $view{'info'};
   push @args, 'withversrel' if $view{'versrel'};
   push @args, 'summary' if $view{'summary'} && !$view{'status'};
   eval {
