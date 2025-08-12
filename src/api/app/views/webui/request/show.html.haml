@@ -1,5 +1,5 @@
 :ruby
-  content_for(:meta_title, "Request #{@bs_request.number} (#{@bs_request.state})")
+  content_for(:meta_title, "Request #{@bs_request.number} (#{@bs_request.status})")
   content_for(:meta_description, @bs_request.description)
   content_for(:meta_image, gravatar_url(User.find_by_login(@bs_request.creator).email))
   @pagetitle = "Request #{@bs_request.number}"

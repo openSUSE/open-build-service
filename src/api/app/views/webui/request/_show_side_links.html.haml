@@ -7,7 +7,7 @@
   %li
     %i.fas.fa-info-circle.text-info
     In state
-    = link_to(bs_request.state, { anchor: 'request-history' }, style: "color: #{request_state_color(bs_request.state.to_s)};")
+    = link_to(bs_request.status, { anchor: 'request-history' }, style: "color: #{request_state_color(bs_request.status.to_s)};")
   - unless package_maintainers.empty?
     %li
       %i.fas.fa-info-circle.text-info
@@ -26,7 +26,7 @@
   - if bs_request.accept_at.present?
     %li
       %i.fas.fa-exclamation-circle.text-danger
-      - if BsRequest::FINAL_REQUEST_STATES.include?(bs_request.state)
+      - if BsRequest::FINAL_REQUEST_STATES.include?(bs_request.status.to_sym)
         Auto-accept was set to
         %span{ title: "#{I18n.l bs_request.accept_at}" }
         = succeed '.' do

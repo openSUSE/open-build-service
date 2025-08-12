@@ -644,19 +644,19 @@ class User < ApplicationRecord
           BsRequest.where(reviews: { group: groups })
         )
       )
-    ).joins(:bs_request_actions).left_outer_joins(:reviews).where(state: :review, reviews: { state: :new }).where.not(creator: login).distinct
+    ).joins(:bs_request_actions).left_outer_joins(:reviews).where(status: 'review', reviews: { state: :new }).where.not(creator: login).distinct
     search.present? ? result.do_search(search) : result
   end
 
   # list requests involving this user
   def declined_requests(search = nil)
-    result = requests_created.where(state: :declined)
+    result = requests_created.where(status: 'declined')
     search.present? ? result.do_search(search) : result
   end
 
   # list incoming requests involving this user
-  def incoming_requests(search = nil, states: [:new])
-    result = BsRequest.where(state: states).and(
+  def incoming_requests(search = nil, states: ['new'])
+    result = BsRequest.where(status: states).and(
       BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_projects(involved_projects.pluck(:id))).or(
         BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_packages(involved_packages.pluck(:id)))
       )

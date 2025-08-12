@@ -13,7 +13,7 @@ class BsRequestPolicy < ApplicationPolicy
   end
 
   def handle_request?
-    return false if %i[new review declined].exclude?(record.state)
+    return false if %w[new review declined].exclude?(record.status)
 
     author? || record.target_maintainer?(user) || record.source_maintainer?(user)
   end
@@ -21,11 +21,11 @@ class BsRequestPolicy < ApplicationPolicy
   def add_reviews?
     is_target_maintainer = record.target_maintainer?(user)
     has_open_reviews = record.reviews.where(state: 'new').any? { |review| review.matches_user?(user) }
-    record.state.in?(%i[new review]) && (author? || is_target_maintainer || has_open_reviews.present?)
+    record.status.in?(%w[new review]) && (author? || is_target_maintainer || has_open_reviews.present?)
   end
 
   def revoke_request?
-    return false if %i[new review declined].exclude?(record.state)
+    return false if %w[new review declined].exclude?(record.status)
 
     author? || record.source_maintainer?(user)
   end
@@ -41,11 +41,11 @@ class BsRequestPolicy < ApplicationPolicy
   end
 
   def accept_request?
-    record.state.in?(%i[new review]) && record.target_maintainer?(user)
+    record.status.in?(%w[new review]) && record.target_maintainer?(user)
   end
 
   def reopen_request?
-    record.state == :declined
+    record.status == 'declined'
   end
 
   def forward_request?

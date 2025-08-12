@@ -22,7 +22,7 @@ class RequestDecisionComponent < ApplicationComponent
   end
 
   def confirmation
-    if @bs_request.state == :review
+    if @bs_request.status == :review
       { confirm: "Accept this request, despite the open reviews?\n\n#{@package_maintainers_hint}" }
     else
       { confirm: 'Accept this request? This will commit the changes to the target!' }
