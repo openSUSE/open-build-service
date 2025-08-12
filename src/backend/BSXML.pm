@@ -1942,6 +1942,7 @@ our $buildstatistics = [
 	    'srcmd5',
 	    'verifymd5',
 	    'rev',
+	    'vcs',
 	    'file',
 	    'buildtype',
 	    'readytime',
