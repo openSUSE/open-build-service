@@ -9,10 +9,9 @@
           action: destroy_repository_path(project: project, target: repository.name), repository: repository.name }) do
           %i.fas.fa-times-circle.text-danger
       - elsif User.session
-        .col
-          = link_to('#', title: 'Request Delete Repository', data: { 'bs-toggle': 'modal', 'bs-target': '#request-delete-repository',
-            action: project_remove_target_request_path(project: project, target: repository), repository: repository.name }) do
-            %i.fas.fa-user-times.text-danger
+        = link_to('#', title: 'Request Delete Repository', data: { 'bs-toggle': 'modal', 'bs-target': '#request-delete-repository',
+          action: project_remove_target_request_path(project: project, target: repository), repository: repository.name }) do
+          %i.fas.fa-user-times.text-danger
     - if user_can_modify
       - component.with_action do
         = link_to('#', title: 'Add Download on Demand Source', class: 'nav-link p-1', data: { 'bs-toggle': 'modal',
