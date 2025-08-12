@@ -1144,6 +1144,23 @@ our $schedulerstats = [
 	'lastpublished',
 ];
 
+our $buildresultinfo = [
+    'info' =>
+	'package',	# only in result query
+	[],
+	'workerid',
+	'hostarch',
+	'srcmd5',
+	'verifymd5',
+	'rev',
+	'vcs',
+	'file',
+	'buildtype',
+	'readytime',
+	'starttime',
+	'endtime',
+];
+
 our $result = [
     'result' =>
 	'project',
@@ -1158,6 +1175,7 @@ our $result = [
 	'scminfo',
       [ $buildstatus ],
       [ $binarylist ],
+      [ $buildresultinfo ],
         $summary,
 	$schedulerstats,
 ];
@@ -1935,20 +1953,7 @@ our $buildstatistics = [
 	    'cachehits',
 	    'preinstallimage',
       ],
-      [ 'info' =>
-	    [],
-	    'workerid',
-	    'hostarch',
-	    'srcmd5',
-	    'verifymd5',
-	    'rev',
-	    'vcs',
-	    'file',
-	    'buildtype',
-	    'readytime',
-	    'starttime',
-	    'endtime',
-      ],
+	$buildresultinfo,
 ];
 
 # This array is an outcome of following perl snippet

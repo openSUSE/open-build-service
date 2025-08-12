@@ -3084,6 +3084,14 @@ sub getresult {
 	my $bl = {'package' => $packid, 'binary' => \@b};
 	push @{$sl->{'binarylist'}}, $bl;
       }
+      if ($cgi->{'withinfo'}) {
+	my $statistics  = readxml("$reporoot/$prpa/$packid/_statistics", $BSXML::buildstatistics, 1) || {};
+	my $info = $statistics->{'info'};
+	if ($info) {
+	  $info->{'package'} = $packid;
+	  push @{$sl->{'info'}}, $info;
+	}
+      }
     }
     if ($cgi->{'summary'}) {
       my @order = ('succeeded', 'failed', 'unresolvable', 'broken', 'scheduled');
@@ -4706,7 +4714,7 @@ my $dispatches = [
   'PUT:/configuration' => \&putconfiguration,
   '/configuration' => \&getconfiguration,
 
-  '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? withstats:bool? summary:bool? withversrel:bool?' => \&getresult,
+  '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? withstats:bool? withinfo:bool? summary:bool? withversrel:bool?' => \&getresult,
   '/_jobhistory $prpa+ package* code:* limit:num? endtime_start:num? endtime_end:num?' => \&getjobhistory_project,
   'POST:/_command $cmd: $prpa+ package* code:* lastbuild:bool? sysrq:? allarch:bool?' => \&docommand,
 
@@ -4721,7 +4729,7 @@ my $dispatches_ajax = [
   '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? lastsucceeded:bool? start:intnum? end:num? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? nosource:bool? module* withccache:bool?' => \&getbinarylist,
   '/build/$project/$repository/$arch/$package:package_repository/$filename view:? withfilelist:bool? module*' => \&getbinary,
-  '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? withstats:bool? summary:bool? withversrel:bool?' => \&getresult,
+  '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? withstats:bool? withinfo:bool? summary:bool? withversrel:bool?' => \&getresult,
   '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? now:num? module* withannotation:bool?' => \&getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool? now:num? module* withevr:bool?' => \&getbinaryversions,
 ];
