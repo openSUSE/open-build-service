@@ -67,7 +67,7 @@ module Webui::Staging::WorkflowHelper
   def create_request_links(request, users_hash, groups_hash)
     css = 'ready'
     css = 'review' if request[:missing_reviews].present?
-    css = 'obsolete' if request[:state].in?(BsRequest::OBSOLETE_STATES)
+    css = 'obsolete' if request[:status].to_sym.in?(BsRequest::OBSOLETE_STATES)
     css += ' delete' if request[:request_type] == 'delete'
     link_content = [request[:package].match?(/patchinfo\.\d+\.\d+/) ? 'patchinfo' : request[:package]]
     link_content << reviewers_icon(request, users_hash, groups_hash) if request[:missing_reviews].present?
