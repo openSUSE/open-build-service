@@ -18,6 +18,6 @@
       = project_or_package_link(project: review.by_project, package: review.by_package, short: true)
     - elsif review.for_project?
       = project_or_package_link(project: review.by_project, short: true)
-    - if (review.accepted? || review.declined?) && !review.for_user?
+    - if (review.accepted? || review.declined?) && review.reviewer && !review.for_user?
       by
       = link_to(review.reviewer, user_path(User.find_by(login: review.reviewer)))
