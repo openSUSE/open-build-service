@@ -25,7 +25,7 @@
       .selected-content.small.ms-1
     .px-4.pb-2.accordion-collapse.collapse.show#request-filter-state
       - BsRequest::VALID_REQUEST_STATES.each do |state|
-        = render partial: 'webui/shared/check_box', locals: { label: render(BsRequestStateBadgeComponent.new(state: state.to_s)),
+        = render partial: 'webui/shared/check_box', locals: { label: render(BsRequestStateBadgeComponent.new(state: state)),
                                                               key: "states[#{state}]", name: 'states[]',
                                                               value: state,
                                                               checked: selected_filter[:states]&.include?(state.to_s) }
