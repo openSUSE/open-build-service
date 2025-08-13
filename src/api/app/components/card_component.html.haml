@@ -1,9 +1,13 @@
 .card
-  .card-header.d-flex.justify-content-between
-    = header
+  .card-header
     - if delete_button?
-      .ms-4
-        = delete_button
+      .row
+        .col
+          = header
+        .col.col-auto
+          = delete_button
+    - else
+      = header
   .card-body
     = content
 
