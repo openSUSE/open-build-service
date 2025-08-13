@@ -15,14 +15,14 @@ RSpec.describe 'Request with delete actions', :beta do
 
   before do
     login receiver
-    visit request_show_path(request.number)
+    visit request_changes_path(request.number)
   end
 
   it 'shows delete actions' do
-    expect(page).to have_text('Showing #1 (of 2)').and(have_text("Delete project #{target_project}"))
+    expect(page).to have_text('(#1 of 2)').and(have_text("Delete project #{target_project}"))
 
     click_link('Next')
 
-    expect(page).to have_text('Showing #2 (of 2)').and(have_text("Delete package #{target_project} / #{target_package}"))
+    expect(page).to have_text('(#2 of 2)').and(have_text("Delete package #{target_project} / #{target_package}"))
   end
 end

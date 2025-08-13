@@ -2,18 +2,22 @@
 :ruby
   page_name ||= ''
 
-- if actions.count > 1
-  .d-flex.flex-wrap.align-items-center
-    .input-group.w-auto
-      = link_to('Previous', next_prev_path(number: bs_request.number, request_action_id: prev_action&.id,
+.p-2
+  .container-fluid
+    .d-flex.flex-wrap.align-items-center.justify-content-between.w-100
+      = link_to(next_prev_path(number: bs_request.number, request_action_id: prev_action&.id,
                                            diff_to_superseded: diff_to_superseded_id, page_name: page_name),
-                class: "btn btn-primary btn-sm #{prev_action ? '' : 'disabled'}",
-                id: 'previous-action-button')
-      .dropdown#request-actions
-        %button.btn.btn-outline-primary.btn-sm.dropdown-toggle.rounded-0{ 'aria-expanded' => 'false', 'data-bs-toggle' => 'dropdown',
+                class: "btn btn-outline-secondary #{prev_action ? '' : 'disabled'}",
+                id: 'previous-action-button') do
+        %i.fas.fa-angles-left
+        Previous
+      .dropdown.dropdown-center#request-actions
+        %button.btn.dropdown-toggle{ 'aria-expanded' => 'false', 'data-bs-toggle' => 'dropdown',
                                                                           :type => 'button', 'data-boundary' => 'viewport' }
           = action.short_name
-        %ul.dropdown-menu.dropdown-menu-start.scrollable-dropdown.pt-0
+          - action_index = actions.find_index(action) + 1
+          (##{action_index} of #{actions.count})
+        %ul.dropdown-menu.scrollable-dropdown.pt-0
           %li.card-header.px-1.sticky-top.bg-body-tertiary
             %h6.dropdown-header
               - if User.session
@@ -30,42 +34,20 @@
                                                                        diff_to_superseded: diff_to_superseded_id, page_name: page_name),
                                                         class: "dropdown-item #{action_item.id == action.id ? 'active' : ''}",
                                                         'aria-current': 'true')
-      = link_to('Next', next_prev_path(number: bs_request.number, request_action_id: next_action&.id,
+      = link_to(next_prev_path(number: bs_request.number, request_action_id: next_action&.id,
                                        diff_to_superseded: diff_to_superseded_id, page_name: page_name),
-                class: "btn btn-primary btn-sm #{next_action ? '' : 'disabled'}",
-                id: 'next-action-button')
+                class: "btn btn-outline-secondary #{next_action ? '' : 'disabled'}",
+                id: 'next-action-button') do
+        Next
+        %i.fas.fa-angles-right
+.card-body
+  %h5.mt-4
+    Action details
+    - if User.session
+      %span#action-seen-by-user-wrapper
+        = render ActionSeenByUserComponent.new(action: action, user: User.session)
 
-    - action_index = actions.find_index(action) + 1
-    %span.ms-2 Showing ##{action_index} (of #{actions.count})
-%h5.mt-4
-  Action details
-  - if actions.count > 1 && User.session
-    %span#action-seen-by-user-wrapper
-      = render ActionSeenByUserComponent.new(action: action, user: User.session)
 
-%p.fst-italic
-  = render BsRequestActionDescriptionComponent.new(action: action)
-- if action.target_releaseproject
-  %p.fst-italic Release in #{project_or_package_link(project: action.target_releaseproject)}
 
-- if %w[add_role set_bugowner].include?(action.type)
-  :ruby
-    parameters = { project: action.target_project, request_action_id: action.id, notification_id: current_notification }
-    roles_link = if action.target_package
-                   package_users_path(parameters.merge!(package: action.target_package))
-                 else
-                   project_users_path(parameters)
-                 end
-  %p
-    You might want to
-    = link_to(roles_link) do
-      check the current roles
-    of
-    %span<
-      = project_or_package_text(action.target_project, action.target_package)
-      \.
-
-- if action.type == 'change_devel'
-  - current_devel_package = Package.find_by_project_and_name(action.target_project, action.target_package).develpackage
-  -  if current_devel_package
-    Development is currently happening on #{project_or_package_link(project: current_devel_package.project.name, package: current_devel_package.name)}
+  %p.fst-italic
+    = render BsRequestActionDescriptionComponent.new(action: action)

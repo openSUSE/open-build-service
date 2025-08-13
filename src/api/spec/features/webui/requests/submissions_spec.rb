@@ -170,12 +170,10 @@ RSpec.describe 'Requests_Submissions', :js, :vcr do
 
         it 'shows the beta version of the requests page' do
           login receiver
-          visit request_show_path(bs_request.number)
+          visit request_changes_path(bs_request.number)
 
           action = bs_request.bs_request_actions.first
           expect(page).to have_text("#{action.target_project} / #{action.target_package}")
-          expect(page).to have_text('Next')
-          expect(page).to have_text("(of #{bs_request.bs_request_actions.count})")
           expect(page).to have_css('.bg-staging')
         end
       end

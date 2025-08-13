@@ -1,7 +1,7 @@
 require 'browser_helper'
 
 RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
-  let(:admin_user) { create(:admin_user) }
+  let(:admin_user) { create(:admin_user, login: 'admin') }
   let(:maintenance_project) do
     create(:maintenance_project,
            name: 'MaintenanceProject',
@@ -67,11 +67,13 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
 
   context 'maintenance request with patchinfo' do
     let(:bs_request) do
-      user.run_as { create(:patchinfo, project_name: branched_project.name, package_name: 'patchinfo') }
-      create(:bs_request_with_maintenance_incident_actions, :with_patchinfo, source_project_name: branched_project.name,
-                                                                             source_package_names: ['cacti'],
-                                                                             target_project_name: maintenance_project.name,
-                                                                             target_releaseproject_names: [update_project.name, another_update_project.name])
+      user.run_as do
+        create(:patchinfo, project_name: branched_project.name, package_name: 'patchinfo')
+        create(:bs_request_with_maintenance_incident_actions, :with_patchinfo, source_project_name: branched_project.name,
+                                                                               source_package_names: ['cacti'],
+                                                                               target_project_name: maintenance_project.name,
+                                                                               target_releaseproject_names: [update_project.name, another_update_project.name])
+      end
     end
 
     before do
@@ -84,6 +86,7 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
     end
 
     it 'has patchinfo submission' do
+      visit request_changes_path(bs_request)
       find_by_id('request-actions').click
       expect(page).to have_text('patchinfo')
     end
