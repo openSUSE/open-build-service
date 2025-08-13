@@ -18,7 +18,7 @@ class Staging::Workflow < ApplicationRecord
   has_many :target_of_bs_requests, through: :project, foreign_key: 'staging_workflow_id' do
     def stageable(managers_group_title = nil)
       managers_group_title ||= proxy_association.owner.managers_group.try(:title)
-      includes(:reviews).where(status: :review, staging_project_id: nil, reviews: { state: :new, by_group: managers_group_title })
+      includes(:reviews).where(state: :review, staging_project_id: nil, reviews: { state: :new, by_group: managers_group_title })
     end
   end
 
@@ -41,7 +41,7 @@ class Staging::Workflow < ApplicationRecord
   end
 
   def ready_requests
-    target_of_bs_requests.where(status: :new).where.not(id: excluded_requests)
+    target_of_bs_requests.where(state: :new).where.not(id: excluded_requests)
   end
 
   def write_to_backend

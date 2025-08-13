@@ -93,7 +93,7 @@ RSpec.describe Project, :vcr do
 
       context 'when request got revoked' do
         before do
-          submit_request.update(status: 'revoked')
+          submit_request.update(state: 'revoked')
         end
 
         it { expect(staging_project.overall_state).to eq(:unacceptable) }

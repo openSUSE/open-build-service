@@ -56,7 +56,7 @@ class Webui::RequestController < Webui::WebuiController
     @is_author = @bs_request.creator == User.possibly_nobody.login
 
     @is_target_maintainer = @bs_request.target_maintainer?(User.session)
-    @can_handle_request = @bs_request.status.in?(%w[new review declined]) && (@is_target_maintainer || @is_author)
+    @can_handle_request = @bs_request.state.in?(%i[new review declined]) && (@is_target_maintainer || @is_author)
 
     @history = @bs_request.history_elements.includes(:user)
 
@@ -82,7 +82,7 @@ class Webui::RequestController < Webui::WebuiController
     reviews = @bs_request.reviews.where(state: 'new')
     user = User.session # might be nil
     @my_open_reviews = reviews.select { |review| review.matches_user?(user) }.reject(&:staging_project?)
-    @can_add_reviews = @bs_request.status.in?(%w[new review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
+    @can_add_reviews = @bs_request.state.in?(%i[new review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
 
     respond_to do |format|
       format.html

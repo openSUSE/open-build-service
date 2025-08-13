@@ -273,7 +273,7 @@ RSpec.describe User do
       end
 
       it 'does not include requests in any other state expect new' do
-        maintained_request.status = 'review'
+        maintained_request.state = :review
         maintained_request.save
         expect(subject).not_to include(maintained_request)
       end

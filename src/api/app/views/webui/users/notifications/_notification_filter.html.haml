@@ -103,7 +103,7 @@
                                                                 checked: selected_filter[:kind]&.include?('outgoing_requests') }
         - BsRequest::VALID_REQUEST_STATES.each do |request_state|
           .dropdown-item-text
-            = render partial: 'webui/shared/check_box', locals: { label: render(BsRequestStateBadgeComponent.new(state: request_state.to_s)),
+            = render partial: 'webui/shared/check_box', locals: { label: render(BsRequestStateBadgeComponent.new(state: request_state)),
                                                                   key: "request_state[#{request_state}]", name: 'request_state[]',
                                                                   value: request_state,
                                                                   checked: selected_filter[:request_state]&.include?(request_state.to_s) }

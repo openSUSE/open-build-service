@@ -18,7 +18,7 @@ class BsRequestPermissionCheck
   end
 
   def cmd_addreview_permissions(permissions_granted)
-    raise ReviewChangeStateNoPermission, 'The request is not in state new or review' unless req.status.in?(%w[review new])
+    raise ReviewChangeStateNoPermission, 'The request is not in state new or review' unless req.state.in?(%i[review new])
 
     req.bs_request_actions.each do |action|
       set_permissions_for_action(action)
@@ -27,7 +27,7 @@ class BsRequestPermissionCheck
   end
 
   def cmd_setpriority_permissions
-    raise SetPriorityNoPermission, 'The request is not in state new or review' unless req.status.in?(%w[review new])
+    raise SetPriorityNoPermission, 'The request is not in state new or review' unless req.state.in?(%i[review new])
 
     return if req.creator == User.session!.login
 
@@ -40,7 +40,7 @@ class BsRequestPermissionCheck
   end
 
   def cmd_setincident_permissions
-    raise ReviewChangeStateNoPermission, 'The request is not in state new or review' unless req.status.in?(%w[review new])
+    raise ReviewChangeStateNoPermission, 'The request is not in state new or review' unless req.state.in?(%i[review new])
 
     req.bs_request_actions.each do |action|
       set_permissions_for_action(action)
@@ -68,7 +68,7 @@ class BsRequestPermissionCheck
     # Admin always ...
     return true if User.admin_session?
 
-    raise ReviewChangeStateNoPermission, 'The request is neither in state review nor new' unless req.status.in?(%w[review new])
+    raise ReviewChangeStateNoPermission, 'The request is neither in state review nor new' unless req.state.in?(%i[review new])
     raise ReviewNotSpecified, 'The review must specified via by_user, by_group or by_project(by_package) argument.' unless by_user || by_group || by_package || by_project
     raise ReviewChangeStateNoPermission, "review state change is not permitted for #{User.session!.login}" if by_user && User.session! != by_user
     raise ReviewChangeStateNoPermission, "review state change for group #{by_group.title} is not permitted for #{User.session!.login}" if by_group && !User.session!.in_group?(by_group)
@@ -85,7 +85,7 @@ class BsRequestPermissionCheck
 
   def cmd_changestate_permissions
     # We do not support to revert changes from accepted requests (yet)
-    raise PostRequestNoPermission, 'change state from an accepted state is not allowed.' if req.status.to_sym == :accepted
+    raise PostRequestNoPermission, 'change state from an accepted state is not allowed.' if req.state == :accepted
 
     # need to check for accept permissions
     accept_check = opts[:newstate] == 'accepted'
@@ -98,15 +98,15 @@ class BsRequestPermissionCheck
     end
     # Do not accept to skip the review, except force argument is given
     if accept_check
-      if req.status.to_sym == :review
+      if req.state == :review
         raise PostRequestNoPermission, 'Request is in review state. You may use the force parameter to ignore this.' unless opts[:force]
-      elsif req.status.to_sym != :new
+      elsif req.state != :new
         raise PostRequestNoPermission, 'Request is not in new state. You may reopen it by setting it to new.'
       end
     end
     # do not allow direct switches from a final state to another one to avoid races and double actions.
     # request needs to get reopened first.
-    raise PostRequestNoPermission, "set state to #{opts[:newstate]} from a final state is not allowed." if req.status.in?(%w[accepted superseded revoked]) && opts[:newstate].in?(%w[accepted declined superseded revoked])
+    raise PostRequestNoPermission, "set state to #{opts[:newstate]} from a final state is not allowed." if req.state.in?(%i[accepted superseded revoked]) && opts[:newstate].in?(%w[accepted declined superseded revoked])
 
     raise PostRequestMissingParameter, "Supersed a request requires a 'superseded_by' parameter with the request id." if opts[:newstate] == 'superseded' && !opts[:superseded_by]
 
@@ -133,7 +133,7 @@ class BsRequestPermissionCheck
       # NOTE: Staging managers should be able to repoen a request to unstage a declined request.
       # The reason behind `user_is_staging_manager`, is that we need to manage reviews to send
       # the request to the staging backlog.
-      (req.status.to_sym == :declined && opts[:newstate].in?(%w[new review]) && (req.commenter == User.session!.login || user_is_staging_manager))
+      (req.state == :declined && opts[:newstate].in?(%w[new review]) && (req.commenter == User.session!.login || user_is_staging_manager))
 
     # permission and validation check for each action inside
     req.bs_request_actions.each do |action|
