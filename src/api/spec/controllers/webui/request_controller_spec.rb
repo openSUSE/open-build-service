@@ -242,12 +242,12 @@ RSpec.describe Webui::RequestController, :vcr do
       end
 
       it 'with invalid transition' do
-        request_with_review.update(status: 'declined')
+        request_with_review.update(state: 'declined')
         post :modify_review, params: { comment: 'yeah',
                                        review_id: request_with_review.reviews.first,
                                        new_state: 'Approve' }
         expect(flash[:error]).to eq('Not permitted to change review state: The request is neither in state review nor new')
-        expect(request_with_review.reload.status).to eq('declined')
+        expect(request_with_review.reload.state).to eq(:declined)
       end
     end
   end

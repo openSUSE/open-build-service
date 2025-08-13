@@ -108,7 +108,7 @@ module Webui::MaintenanceIncidentHelper
       safe_join(
         [
           link_to(request_show_path(request['number'])) do
-            tag.i(nil, class: "fas fa-flag pe-1 request-flag-#{request['status']}", title: "Release request in state '#{request['status']}'")
+            tag.i(nil, class: "fas fa-flag pe-1 request-flag-#{request['state']}", title: "Release request in state '#{request['state']}'")
           end,
           # rubocop:disable Rails/OutputSafety
           TimeComponent.new(time: request.created_at).human_time.html_safe

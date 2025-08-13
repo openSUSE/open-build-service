@@ -75,7 +75,7 @@ RSpec.describe 'Requests', :js, :vcr do
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants the group #{roleaddition_group} to get the role bugowner for project #{target_project}")
         expect(page).to have_css('#description-text', text: 'I can fix bugs too.')
         expect(page).to have_text('In state new')
-        expect(BsRequest.where(description: 'I can fix bugs too.', status: 'new').count).to be(1)
+        expect(BsRequest.where(description: 'I can fix bugs too.', state: 'new').count).to be(1)
       end
 
       it 'can be accepted' do
@@ -116,7 +116,7 @@ RSpec.describe 'Requests', :js, :vcr do
                                   "for package #{target_project} / #{target_package}")
         expect(page).to have_css('#description-text', text: 'I can produce bugs too.')
         expect(page).to have_text('In state new')
-        expect(BsRequest.where(description: 'I can produce bugs too.', status: 'new').count).to be(1)
+        expect(BsRequest.where(description: 'I can produce bugs too.', state: 'new').count).to be(1)
       end
 
       it 'can be accepted' do
@@ -145,7 +145,7 @@ RSpec.describe 'Requests', :js, :vcr do
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants to get the role bugowner for project #{target_project}")
         expect(page).to have_css('#description-text', text: 'I can fix bugs too.')
         expect(page).to have_text('In state new')
-        expect(BsRequest.where(description: 'I can fix bugs too.', status: 'new').count).to be(1)
+        expect(BsRequest.where(description: 'I can fix bugs too.', state: 'new').count).to be(1)
       end
 
       it 'can be accepted' do
@@ -184,7 +184,7 @@ RSpec.describe 'Requests', :js, :vcr do
                                   "for package #{target_project} / #{target_package}")
         expect(page).to have_css('#description-text', text: 'I can produce bugs too.')
         expect(page).to have_text('In state new')
-        expect(BsRequest.where(description: 'I can produce bugs too.', status: 'new').count).to be(1)
+        expect(BsRequest.where(description: 'I can produce bugs too.', state: 'new').count).to be(1)
       end
 
       it 'can be accepted' do
@@ -227,7 +227,7 @@ RSpec.describe 'Requests', :js, :vcr do
         end
         expect(page).to have_text('Ok for the project')
         expect(Review.first.state).to eq(:accepted)
-        expect(BsRequest.first.status).to eq('new')
+        expect(BsRequest.first.state).to eq(:new)
       end
     end
 
@@ -329,7 +329,7 @@ RSpec.describe 'Requests', :js, :vcr do
     end
 
     it 'when request is in a final state' do
-      bs_request.update(status: 'accepted')
+      bs_request.update(status: :accepted)
       visit request_show_path(bs_request)
       expect(page).to have_text("Auto-accept was set to #{I18n.l(bs_request.accept_at, format: :only_date)}.")
     end
@@ -369,7 +369,7 @@ RSpec.describe 'Requests', :js, :vcr do
 
   describe 'for a request with a deleted target project' do
     let!(:delete_bs_request) do
-      create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter, state: 'accepted')
+      create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter, status: :accepted)
     end
 
     before do

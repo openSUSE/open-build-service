@@ -15,7 +15,7 @@
             = bs_request.bs_request_actions.first.type.humanize.titleize
           Request ##{bs_request.number}
         = render BsRequestPriorityBadgeComponent.new(priority: bs_request.priority, css_class: 'mb-auto mx-2')
-        = render BsRequestStateBadgeComponent.new(state: bs_request.status, css_class: 'mb-auto')
+        = render BsRequestStateBadgeComponent.new(state: bs_request.state, css_class: 'mb-auto')
       - if Flipper.enabled?(:labels, User.session) && bs_request.labels
         .mb-1
           = render partial: 'webui/shared/label', collection: bs_request.labels, as: :label

@@ -82,7 +82,7 @@ module StagingProject
     requests = (requests_to_review | staged_requests.includes(:not_accepted_reviews, :bs_request_actions)).map do |request|
       {
         number: request.number,
-        status: request.status,
+        state: request.state,
         package: request.first_target_package,
         request_type: request.bs_request_actions.first.type,
         missing_reviews: missing_reviews_for_classified_requests(request, request.not_accepted_reviews)
@@ -99,7 +99,7 @@ module StagingProject
   # The requests to review are requests which are not related to the staging project (unless they are also staged).
   # They simply need a review from the maintainers of the staging project.
   def requests_to_review
-    @requests_to_review ||= BsRequest.joins(:bs_request_actions).left_outer_joins(:reviews).where(status: :review, reviews: { by_project: name, state: :new })
+    @requests_to_review ||= BsRequest.joins(:bs_request_actions).left_outer_joins(:reviews).where(state: :review, reviews: { by_project: name, state: :new })
   end
 
   def building_repositories
@@ -271,7 +271,7 @@ module StagingProject
   end
 
   def request_weight(request)
-    weight = if request[:status].in?(BsRequest::OBSOLETE_STATES) # obsolete
+    weight = if request[:state].in?(BsRequest::OBSOLETE_STATES) # obsolete
                '0'
              elsif request[:missing_reviews].present? # in review
                '1'

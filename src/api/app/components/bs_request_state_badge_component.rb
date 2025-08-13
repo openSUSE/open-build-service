@@ -18,15 +18,15 @@ class BsRequestStateBadgeComponent < ApplicationComponent
 
   def decode_state_color
     case state
-    when 'review', 'new'
+    when :review, :new
       'secondary'
-    when 'declined'
+    when :declined
       'danger'
-    when 'superseded'
+    when :superseded
       'warning'
-    when 'accepted'
+    when :accepted
       'success'
-    when 'revoked'
+    when :revoked
       'dismissed'
     else
       'dark'
@@ -37,13 +37,13 @@ class BsRequestStateBadgeComponent < ApplicationComponent
 
   def decode_state_icon
     case state
-    when 'new'
+    when :new
       'code-branch'
-    when 'review', 'declined', 'revoked'
+    when :review, :declined, :revoked
       'code-pull-request'
-    when 'superseded'
+    when :superseded
       'code-compare'
-    when 'accepted'
+    when :accepted
       'code-merge'
     else
       'code-fork'

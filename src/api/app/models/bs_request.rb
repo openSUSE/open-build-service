@@ -29,7 +29,7 @@ class BsRequest < ApplicationRecord
 
   enum :status, VALID_REQUEST_STATES, instance_methods: false, scopes: false, validate: true
 
-  scope :to_accept_by_time, -> { where(status: %w[new review]).where(accept_at: ...Time.now) }
+  scope :to_accept_by_time, -> { where(state: %w[new review]).where(accept_at: ...Time.now) }
 
   scope :with_action_types, lambda { |types|
     includes(:bs_request_actions).where(bs_request_actions: { type: types }).distinct
@@ -51,7 +51,7 @@ class BsRequest < ApplicationRecord
       )
   }
 
-  scope :obsolete, -> { where(status: OBSOLETE_STATES) }
+  scope :obsolete, -> { where(state: OBSOLETE_STATES) }
 
   has_many :bs_request_actions, dependent: :destroy
   has_many :reviews, dependent: :delete_all
@@ -63,7 +63,7 @@ class BsRequest < ApplicationRecord
   has_many :target_project_objects, through: :bs_request_actions
   belongs_to :staging_project, class_name: 'Project', optional: true
   has_one :request_exclusion, class_name: 'Staging::RequestExclusion', dependent: :destroy
-  has_many :not_accepted_reviews, -> { where.not(status: :accepted) }, class_name: 'Review'
+  has_many :not_accepted_reviews, -> { where.not(state: :accepted) }, class_name: 'Review'
   has_many :notifications, as: :notifiable, dependent: :delete_all
   has_many :watched_items, as: :watchable, dependent: :destroy
   has_many :reports, as: :reportable, dependent: :nullify
@@ -245,7 +245,7 @@ class BsRequest < ApplicationRecord
   def as_json(*)
     super(except: %i[state comment commenter]).tap do |request_hash|
       request_hash['superseded_by_id'] = superseded_by if has_attribute?(:superseded_by)
-      request_hash['state'] = status if has_attribute?(:status)
+      request_hash['state'] = state.to_s if has_attribute?(:state)
       request_hash['request_type'] = bs_request_actions.first.type
       request_hash['package'] = bs_request_actions.first.target_package
       request_hash['project'] = bs_request_actions.first.target_project
@@ -370,7 +370,7 @@ class BsRequest < ApplicationRecord
       r.priority(priority) unless priority == 'moderate'
 
       # state element
-      attributes = { name: status, who: commenter, when: updated_when.strftime('%Y-%m-%dT%H:%M:%S'), created: created_at.strftime('%Y-%m-%dT%H:%M:%S') }
+      attributes = { name: state, who: commenter, when: updated_when.strftime('%Y-%m-%dT%H:%M:%S'), created: created_at.strftime('%Y-%m-%dT%H:%M:%S') }
       attributes[:superseded_by] = superseded_by if superseded_by
       attributes[:approver] = approver if approver
       r.state(attributes) do |s|
@@ -776,20 +776,20 @@ class BsRequest < ApplicationRecord
   end
 
   def send_state_change
-    return unless status_changed?
+    return unless state_changed?
     # new->review && review->new are not worth an event - it's just spam
     return unless conclusive?
 
     options = event_parameters
 
     # measure duration unless superseding a final state, like revoked -> superseded
-    options[:duration] = (updated_at - created_at).to_i if FINAL_REQUEST_STATES.exclude?(status_was.to_sym) && FINAL_REQUEST_STATES.include?(status.to_sym)
+    options[:duration] = (updated_at - created_at).to_i if FINAL_REQUEST_STATES.exclude?(state_was.to_sym) && FINAL_REQUEST_STATES.include?(state)
 
     Event::RequestStatechange.create(options)
   end
 
   def accept_staged_request
-    return if staging_project_id.nil? || status.to_sym != :accepted
+    return if staging_project_id.nil? || state.to_sym != :accepted
 
     accepted_package = bs_request_actions.map(&:target_package)
     staging_project.packages.where(name: accepted_package).destroy_all
@@ -800,13 +800,13 @@ class BsRequest < ApplicationRecord
     params = { id: id,
                number: number,
                description: description,
-               state: status,
+               state: state,
                when: updated_when.strftime('%Y-%m-%dT%H:%M:%S'),
                comment: comment,
                author: creator,
                namespace: namespace }
 
-    params[:oldstate] = status_was if status_changed?
+    params[:oldstate] = state_was if state_changed?
     params[:who] = commenter if commenter.present?
 
     # Use a nested data structure to support multiple actions in one request
@@ -845,10 +845,10 @@ class BsRequest < ApplicationRecord
   def auto_accept
     # do not run for processed requests. Ignoring review on purpose since this
     # must also work when people do not react anymore
-    return unless %i[new review].include?(status.to_sym)
+    return unless %i[new review].include?(state)
 
     # use approve mechanic in case you want to wait for reviews
-    return if approver && status.to_sym == :review
+    return if approver && state == :review
 
     return unless accept_at || approver
 
@@ -989,7 +989,7 @@ class BsRequest < ApplicationRecord
   def can_be_reopened?
     (reviews.accepted.size + reviews.opened.size + reviews.declined.size).positive? &&
       # Declined is not really a final state, since the request can always be reopened...
-      (BsRequest::FINAL_REQUEST_STATES.exclude?(status.to_sym) || status.to_sym == :declined)
+      (BsRequest::FINAL_REQUEST_STATES.exclude?(state) || state == :declined)
   end
 
   # Collects the embargo_date from all actions and returns...
@@ -1023,7 +1023,7 @@ class BsRequest < ApplicationRecord
 
   # returns true if we have reached a state that we can't get out anymore
   def conclusive?
-    FINAL_REQUEST_STATES.include?(status.to_sym)
+    FINAL_REQUEST_STATES.include?(state)
   end
 
   # [DEPRECATED] TODO: drop this after request_workflow_redesign beta is rolled_out

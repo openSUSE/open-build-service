@@ -831,50 +831,6 @@
     {
       "warning_type": "Cross-Site Scripting",
       "warning_code": 2,
-      "fingerprint": "c91b196a3c702b30eea3f7814ba9b43d86b1571dab639e3463db2168d6837fee",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/webui/request/_request_header.html.haml",
-      "line": 32,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "::Haml::AttributeBuilder.build_class(true, \"text-nowrap\", \"text-bg-#{BsRequestStateBadgeComponent.new(:state => BsRequest.find_by!(:number => params[:number]).status, :css_class => \"ms-2\").decode_state_color}\")",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "Webui::RequestController",
-          "method": "beta_show",
-          "line": 50,
-          "file": "app/controllers/webui/request_controller.rb",
-          "rendered": {
-            "name": "webui/request/beta_show",
-            "file": "app/views/webui/request/beta_show.html.haml"
-          }
-        },
-        {
-          "type": "template",
-          "name": "webui/request/beta_show",
-          "line": 11,
-          "file": "app/views/webui/request/beta_show.html.haml",
-          "rendered": {
-            "name": "webui/request/_request_header",
-            "file": "app/views/webui/request/_request_header.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "webui/request/_request_header"
-      },
-      "user_input": "BsRequest.find_by!(:number => params[:number]).status",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
       "fingerprint": "cc22f4e269dc27cb215adb737fb4a3d6e0e05f20294c13f5c4ed2028c7187e08",
       "check_name": "CrossSiteScripting",
       "message": "Unescaped model attribute",
@@ -969,6 +925,50 @@
       "cwe_id": [
         565,
         502
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "e3619f234f977eb7c864ec9a7528d0a8571e50a570ece0db9e189e66c3816176",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/webui/request/_request_header.html.haml",
+      "line": 32,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "::Haml::AttributeBuilder.build_class(true, \"text-nowrap\", \"text-bg-#{BsRequestStateBadgeComponent.new(:state => BsRequest.find_by!(:number => params[:number]).state, :css_class => \"ms-2\").decode_state_color}\")",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Webui::RequestController",
+          "method": "beta_show",
+          "line": 50,
+          "file": "app/controllers/webui/request_controller.rb",
+          "rendered": {
+            "name": "webui/request/beta_show",
+            "file": "app/views/webui/request/beta_show.html.haml"
+          }
+        },
+        {
+          "type": "template",
+          "name": "webui/request/beta_show",
+          "line": 11,
+          "file": "app/views/webui/request/beta_show.html.haml",
+          "rendered": {
+            "name": "webui/request/_request_header",
+            "file": "app/views/webui/request/_request_header.html.haml"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "webui/request/_request_header"
+      },
+      "user_input": "BsRequest.find_by!(:number => params[:number]).state",
+      "confidence": "Weak",
+      "cwe_id": [
+        79
       ],
       "note": ""
     },

@@ -2,7 +2,7 @@
   Request #{bs_request.number}
   %small
     = render BsRequestPriorityBadgeComponent.new(priority: bs_request.priority, css_class: 'ms-1', overview: true)
-    = render BsRequestStateBadgeComponent.new(state: bs_request.status, css_class: 'ms-1')
+    = render BsRequestStateBadgeComponent.new(state: bs_request.state, css_class: 'ms-1')
   - if User.session
     .d-inline.ms-2#watchlist-icon-wrapper
       = render WatchlistIconComponent.new(user: User.session,
