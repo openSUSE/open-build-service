@@ -72,10 +72,8 @@ RSpec.describe Webui::Groups::BsRequestsController do
       before do
         login user
         bs_request.state = :review
-        bs_request.status = :review
         bs_request.save
         another_bs_request.state = :review
-        another_bs_request.status = :review
         another_bs_request.save
         get :index, params: params
       end
