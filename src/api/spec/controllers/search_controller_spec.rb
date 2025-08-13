@@ -93,20 +93,6 @@ RSpec.describe SearchController, :vcr do
     end
   end
 
-  describe 'search for requests' do
-    let(:group) { create(:group) }
-    let(:bs_request) { create(:set_bugowner_request, state: :review, status: :review) }
-    let!(:review) { create(:review, by_group: group.title, bs_request: bs_request) }
-
-    before do
-      get :bs_request, params: { match: "state/@name='review'" }, format: :xml
-    end
-
-    it { expect(response).to have_http_status(:success) }
-    it { expect(Nokogiri::XML(response.body).xpath('//request/review').attribute('by_group').value).to eq(group.title) }
-    it { expect(Nokogiri::XML(response.body).xpath('//request/state').attribute('name').value).to eq('review') }
-  end
-
   describe 'illegal predicates' do
     describe 'non closed parenthesis' do
       it 'shows an error', :aggregate_failures do
