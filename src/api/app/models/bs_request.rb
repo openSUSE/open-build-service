@@ -63,7 +63,7 @@ class BsRequest < ApplicationRecord
   has_many :target_project_objects, through: :bs_request_actions
   belongs_to :staging_project, class_name: 'Project', optional: true
   has_one :request_exclusion, class_name: 'Staging::RequestExclusion', dependent: :destroy
-  has_many :not_accepted_reviews, -> { where.not(status: :accepted) }, class_name: 'Review'
+  has_many :not_accepted_reviews, -> { where.not(state: :accepted) }, class_name: 'Review'
   has_many :notifications, as: :notifiable, dependent: :delete_all
   has_many :watched_items, as: :watchable, dependent: :destroy
   has_many :reports, as: :reportable, dependent: :nullify
