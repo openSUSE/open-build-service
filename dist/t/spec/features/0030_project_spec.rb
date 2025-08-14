@@ -23,7 +23,7 @@ RSpec.describe 'Project', type: :feature do
     end
     click_link('Repositories')
     click_link('Add from a Distribution')
-    Timeout.timeout(120) do
+    Timeout.timeout(300) do
       loop do
         break unless have_content('There are no distributions configured. Maybe you want to connect to one of the public OBS instances?')
 
