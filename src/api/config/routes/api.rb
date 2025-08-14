@@ -268,6 +268,7 @@ controller :source_package_command do
   constraints(cons) do
     post 'source/:project/:package' => :updatepatchinfo, constraints: ->(req) { req.params[:cmd] == 'updatepatchinfo' }
     post 'source/:project/:package' => :importchannel, constraints: ->(req) { req.params[:cmd] == 'importchannel' }
+    post 'source/:project/:package' => :lock, constraints: ->(req) { req.params[:cmd] == 'lock' }
     post 'source/:project/:package' => :unlock, constraints: ->(req) { req.params[:cmd] == 'unlock' }
     post 'source/:project/:package' => :addchannels, constraints: ->(req) { req.params[:cmd] == 'addchannels' }
     post 'source/:project/:package' => :addcontainers, constraints: ->(req) { req.params[:cmd] == 'addcontainers' }

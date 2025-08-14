@@ -453,7 +453,7 @@ class Webui::PackageController < Webui::WebuiController
     linkinfo = @package.linkinfo
 
     return unless linkinfo && linkinfo['package'] && linkinfo['project']
-    return unless Package.exists_on_backend?(linkinfo['package'], linkinfo['project'])
+    return unless Package.exists_on_backend?(linkinfo['project'], linkinfo['package'])
 
     @linkinfo = { remote_project: linkinfo['project'], package: linkinfo['package'] }
   end

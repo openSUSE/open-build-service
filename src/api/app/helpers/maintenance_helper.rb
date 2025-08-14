@@ -6,8 +6,8 @@ module MaintenanceHelper
   class MultipleUpdateInfoTemplate < APIError; end
 
   def release_package(source_package, target, target_package_name, opts = {})
-    filter_source_repository = opts[:filter_source_repository]
-    filter_architecture      = opts[:filter_architecture]
+    filter_source_repository = opts[:repository]
+    filter_architecture      = opts[:arch]
     multibuild_container     = opts[:multibuild_container]
     action                   = opts[:action]
     setrelease               = opts[:setrelease]

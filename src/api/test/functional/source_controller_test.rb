@@ -910,18 +910,34 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     put '/source/home:Iggy/TestLinkPack/_meta', params: doc.to_s
     assert_response :forbidden
 
-    # try to unlock without comment
-    post '/source/home:Iggy/TestLinkPack', params: { cmd: 'unlock' }
-    assert_response :bad_request
-    assert_xml_tag tag: 'status', attributes: { code: 'missing_parameter' }
     # without permissions
     login_adrian
     post '/source/home:Iggy/TestLinkPack', params: { cmd: 'unlock', comment: 'BlahFasel' }
     assert_response :forbidden
-    # do for real and cleanup
+    # use a valid user
     login_Iggy
+    # try to unlock without comment
+    post '/source/home:Iggy/TestLinkPack', params: { cmd: 'unlock' }
+    assert_response :bad_request
+    assert_xml_tag tag: 'status', attributes: { code: 'missing_parameter' }
+    # do for real and cleanup
     post '/source/home:Iggy/TestLinkPack', params: { cmd: 'unlock', comment: 'BlahFasel' }
     assert_response :success
+
+    # do if via the api command
+    login_Iggy
+    post '/source/home:Iggy/TestLinkPack', params: { cmd: 'lock' }
+    assert_response :success
+    get '/source/home:Iggy/TestLinkPack/_meta'
+    assert_response :success
+    assert_xml_tag tag: 'enable', parent: { tag: 'lock' }
+    post '/source/home:Iggy/TestLinkPack', params: { cmd: 'unlock', comment: 'BlahFasel' }
+    assert_response :success
+    get '/source/home:Iggy/TestLinkPack/_meta'
+    assert_response :success
+    assert_no_xml_tag tag: 'lock'
+
+    # cleanup
     delete '/source/home:Iggy/TestLinkPack'
     assert_response :success
   end
@@ -2394,6 +2410,57 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     delete '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject'
     assert_response :success
     delete '/source/BaseDistro2.0:LinkedUpdateProject/pack2'
+    assert_response :success
+  end
+
+  def test_linked_project_operations_with_foreign_sources
+    # we have no write permissions in the packages of the linked project,
+    # but in our own one. So it depends on the kind of operation, if
+    # it is permitted or not.
+    login_tom
+    # listings
+    put '/source/home:tom:LINK/_meta', params: "<project name='home:tom:LINK'> <title/> <description/> <link project='BaseDistro2.0'/> <repository name='dummy'> <arch>x86_64</arch> </repository> </project>"
+    assert_response :success
+    get '/source/home:tom:LINK/pack2/_meta'
+    assert_response :success
+    assert_xml_tag(tag: 'package', attributes: { project: 'BaseDistro2.0' })
+
+    # source operations must not be allowed
+    post '/source/home:tom:LINK/pack2', params: { cmd: 'lock' }
+    assert_response :not_found
+    post '/source/home:tom:LINK/pack2', params: { cmd: 'commit' }
+    assert_response :not_found
+    post '/source/home:tom:LINK/pack2', params: { cmd: 'commitfilelist' }
+    assert_response :not_found
+
+    # binary operations need to be allowed
+    post '/source/home:tom:LINK/pack2', params: { cmd: 'rebuild', repo: 'dummy' }
+    assert_response :success
+    post '/build/home:tom:LINK', params: { cmd: 'rebuild', package: 'pack2' }
+    assert_response :success
+
+    # do it via remote project, so we don't have a database object in controller code
+    # we catch crashes here not expecting this...
+    put '/source/home:tom:LINK/_meta',
+        params: "<project name='home:tom:LINK'> <title/> <description/> <link project='RemoteInstance:BaseDistro2.0'/> <repository name='dummy'> <arch>x86_64</arch> </repository> </project>"
+    assert_response :success
+
+    # source operations must not be allowed
+    post '/source/home:tom:LINK/pack2', params: { cmd: 'lock' }
+    assert_response :not_found
+    post '/source/home:tom:LINK/pack2', params: { cmd: 'commit' }
+    assert_response :not_found
+    post '/source/home:tom:LINK/pack2', params: { cmd: 'commitfilelist' }
+    assert_response :not_found
+
+    # binary operations need to be allowed
+    post '/source/home:tom:LINK/pack2', params: { cmd: 'rebuild', repo: 'dummy' }
+    assert_response :success
+    post '/build/home:tom:LINK', params: { cmd: 'rebuild', package: 'pack2' }
+    assert_response :success
+
+    # cleanup
+    delete '/source/home:tom:LINK'
     assert_response :success
   end
 
