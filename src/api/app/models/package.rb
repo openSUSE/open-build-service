@@ -1009,6 +1009,8 @@ class Package < ApplicationRecord
   end
 
   def developed_packages
+    return [] unless persisted?
+
     packages = []
     candidates = Package.where(develpackage_id: self).load
     candidates.each do |candidate|
@@ -1058,6 +1060,8 @@ class Package < ApplicationRecord
   end
 
   def linking_packages
+    return [] unless persisted?
+
     ::Package.joins(:backend_package).where(backend_packages: { links_to_id: id })
   end
 
