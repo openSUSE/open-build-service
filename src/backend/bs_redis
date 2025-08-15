@@ -252,9 +252,9 @@ BSUtil::openping(\*PING, "$myeventdir/.ping");
 my $retry;
 
 die("No redis server configured\n") unless $BSConfig::redisserver;
-die("Redis server must be of scheme redis[s]://<server>[:port]\n") unless $BSConfig::redisserver =~ /^(rediss?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?$/;
+die("Redis server must be of scheme redis[s]://<server>[:port]\n") unless $BSConfig::redisserver =~ /^(rediss?):\/\/(?:(?:([^\/\@:]+):)?([^\/\@]*)\@)?([^\/:]+)(?::(\d+))?$/;
 
-$red = BSRedis->new('server' => $3, 'port' => $4, 'password' => $2, 'tls' => ($1 eq 'rediss' ? 1 : 0));
+$red = BSRedis->new('server' => $4, 'port' => $5, 'user' => $2, 'password' => $3, 'tls' => ($1 eq 'rediss' ? 1 : 0)); 
 
 if (-e "$myeventdir/queue.send") {
   print "resuming transmission of old data\n";
