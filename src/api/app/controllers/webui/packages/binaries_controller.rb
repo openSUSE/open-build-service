@@ -121,7 +121,7 @@ module Webui
       end
 
       def set_multibuild_flavor
-        @multibuild_flavor = @package_name.gsub(/.*:/, '') if @package_name.present? && @package_name.include?(':')
+        @multibuild_flavor = Package.multibuild_flavor(@package_name) if @package_name.present?
       end
 
       # Get an URL to a binary produced by the build.
