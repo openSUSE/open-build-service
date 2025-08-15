@@ -98,11 +98,16 @@ class Webui::WebuiController < ActionController::Base
     return if @package_name.blank?
 
     begin
-      @package = Package.get_by_project_and_name(@project.name, @package_name, follow_multibuild: true)
+      @package = Package.get_by_project_and_name(@project.name, @package_name, follow_multibuild: true, follow_project_scmsync_links: true)
     # why it's not found is of no concern
     rescue APIError
       raise Package::UnknownObjectError, "Package not found: #{@project.name}/#{@package_name}"
     end
+
+    return unless @package.readonly? && !Flipper.enabled?(:scmsync, User.session)
+
+    redirect_back_or_to(project_show_path(@project),
+                        error: "The project #{@project.name} is configured through scmsync. This is not supported by the OBS frontend")
   end
 
   def set_repository
