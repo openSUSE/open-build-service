@@ -536,7 +536,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def build_results_data
-    ActionBuildResultsService::ChartDataExtractor.new(actions: @actions).call
+    ActionBuildResultsService::ChartDataExtractor.new(actions: @actions, opts: { view: 'info' }).call
   end
 
   def set_action

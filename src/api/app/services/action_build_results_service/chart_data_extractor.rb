@@ -1,9 +1,10 @@
 module ActionBuildResultsService
   class ChartDataExtractor
-    attr_accessor :actions
+    attr_accessor :actions, :opts
 
-    def initialize(actions:)
+    def initialize(actions:, opts: {})
       @actions = actions
+      @opts = opts
     end
 
     def call
@@ -38,7 +39,7 @@ module ActionBuildResultsService
     end
 
     def package_build_results(package, project)
-      results = package.buildresult(project, show_all: true).results
+      results = package.buildresult(project, show_all: true, view: opts[:view]).results
       results.flat_map do |pkg, build_results|
         build_results.map do |result|
           {
@@ -49,7 +50,8 @@ module ActionBuildResultsService
             project_name: project.name,
             repository_status: result.state,
             is_repository_in_db: result.is_repository_in_db,
-            details: result.details
+            details: result.details,
+            buildtype: result.buildtype
           }
         end
       end
