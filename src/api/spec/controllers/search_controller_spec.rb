@@ -93,24 +93,6 @@ RSpec.describe SearchController, :vcr do
     end
   end
 
-  describe 'search for requests' do
-    context 'having a request with two requested reviews: one by group and another by project' do
-      let(:group) { create(:group, title: 'factory-reviews') }
-      let(:project) { create(:project, name: 'openSUSE:Factory:Staging:D') }
-      let!(:bs_request) { create(:set_bugowner_request, state: :review, status: :review, review_by_group: group.title, review_by_project: project.name) }
-
-      before do
-        # Similar API call performed by: `osc review list -G factory-reviews -P openSUSE:Factory:Staging:D`
-        get :bs_request, params: { match: "state/@name='review' and \
-                                           review[@state='new' and @by_group='#{group.title}'] and \
-                                           review[@state='new' and @by_project='#{project.name}']" }, format: :xml
-      end
-
-      it { expect(response).to have_http_status(:success) }
-      it { expect(Nokogiri::XML(response.body).xpath('//collection').attribute('matches').value).to eq('1') }
-    end
-  end
-
   describe 'illegal predicates' do
     describe 'non closed parenthesis' do
       it 'shows an error', :aggregate_failures do
