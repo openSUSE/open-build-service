@@ -55,6 +55,7 @@ module RakeSupport
 
     create(:event_subscription_added_user_to_group, channel: :web, user: user)
     create(:event_subscription_removed_user_from_group, channel: :web, user: user)
+    create(:event_subscription_added_global_role, channel: :web, user: user)
 
     create(:event_subscription_workflow_run_fail, channel: :web, user: user, receiver_role: 'token_executor')
 
