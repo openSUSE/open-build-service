@@ -46,6 +46,30 @@ RSpec.describe TriggerController do
       it { expect(subject).to have_http_status(:forbidden) }
       it { expect(subject.body).to include('This token is not enabled.') }
     end
+
+    context 'with package multibuild flavor' do
+      subject { post :rebuild, params: { project: project.name, package: multibuild_flavor, format: :xml } }
+
+      let(:multibuild_flavor) { "#{package.name}:test" }
+
+      before do
+        allow(Backend::Api::Sources::Package).to receive(:rebuild).with(project.name, multibuild_flavor, {}).and_return("<status code=\"ok\" />\n")
+      end
+
+      it { expect(subject).to have_http_status(:success) }
+    end
+
+    context 'with project that links to remote and multibuild flavor' do
+      subject { post :rebuild, params: { project: project.name, package: 'hans:franz', format: :xml } }
+
+      let(:project) { create(:project, name: 'project', maintainer: user, scmsync: 'https://github.com/hennevogel/scmsync-project.git') }
+
+      before do
+        allow(Backend::Api::Sources::Package).to receive(:rebuild).with(project.name, 'hans:franz', {}).and_return("<status code=\"ok\" />\n")
+      end
+
+      it { expect(subject).to have_http_status(:success) }
+    end
   end
 
   describe '#release', :vcr do
