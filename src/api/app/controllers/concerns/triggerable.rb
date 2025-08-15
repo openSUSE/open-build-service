@@ -40,7 +40,7 @@ module Triggerable
 
   def set_multibuild_flavor
     # Do NOT use @package.multibuild_flavor? here because the flavor need to be checked for the right source revision
-    @multibuild_container = @package_name.gsub(/.*:/, '') if @package_name.present? && @package_name.include?(':')
+    @multibuild_flavor = @package_name.gsub(/.*:/, '') if @package_name.present? && @package_name.include?(':')
   end
 
   private

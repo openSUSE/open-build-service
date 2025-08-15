@@ -221,7 +221,7 @@ RSpec.describe Triggerable do
         fake_controller_instance.set_package
         fake_controller_instance.set_object_to_authorize
         fake_controller_instance.set_multibuild_flavor
-        expect(fake_controller_instance.instance_variable_get(:@multibuild_container)).to eq(multibuild_flavor)
+        expect(fake_controller_instance.instance_variable_get(:@multibuild_flavor)).to eq(multibuild_flavor)
       end
 
       it 'authorizes package object' do

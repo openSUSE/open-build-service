@@ -30,7 +30,7 @@ class TriggerController < ApplicationController
     opts = { project: @project, package: @package, repository: params[:repository], arch: params[:arch],
              targetproject: params[:targetproject], targetrepository: params[:targetrepository],
              filter_source_repository: params[:filter_source_repository] }
-    opts[:multibuild_flavor] = @multibuild_container if @multibuild_container.present?
+    opts[:multibuild_flavor] = @multibuild_flavor if @multibuild_flavor.present?
     @token.executor.run_as { @token.call(opts) }
 
     render_ok
