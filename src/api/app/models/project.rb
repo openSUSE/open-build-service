@@ -410,6 +410,12 @@ class Project < ApplicationRecord
     # class_methods
   end
 
+  def backend_packages
+    Nokogiri::XML(Backend::Api::Search.packages_for_project(name)).xpath('//package').map do |package|
+      Package.get_by_project_and_name(name, package['name'], follow_multibuild: true, follow_project_scmsync_links: true)
+    end
+  end
+
   def config
     @config ||= ProjectConfigFile.new(project_name: name)
   end
