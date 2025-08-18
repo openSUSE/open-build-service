@@ -214,8 +214,6 @@ group :development, :test do
 end
 
 group :development do
-  # add a comment summarizing the current schema
-  gem 'annotate'
   # toolkit to upgrade your Rails application
   gem 'next_rails'
   gem 'database_consistency', require: false
