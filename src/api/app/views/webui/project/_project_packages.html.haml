@@ -14,7 +14,7 @@
             %th Name
             %th SCM
         %tbody
-          - project.backend_packages.each do |package|
+          - project.backend_only_packages.each do |package|
             %tr
               %td
                 = link_to(package.name, package_show_path(project, package.name))

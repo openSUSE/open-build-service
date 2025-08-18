@@ -46,7 +46,7 @@
             Packages
             %span.badge.text-bg-primary
               - if @project.scmsync.present? && Flipper.enabled?(:scmsync, User.session)
-                = @project.backend_packages.count
+                = @project.backend_only_packages.count
               - else
                 = @packages.length
         - if @inherited_packages.present?

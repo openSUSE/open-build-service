@@ -16,8 +16,8 @@ class Webui::PackageController < Webui::WebuiController
                                        save_person save_group remove_role view_file
                                        buildresult rpmlint_result rpmlint_log rpmlint_summary files]
 
-  before_action :check_scmsync, only: %i[statistics requests]
-  before_action :check_scmsync, only: %i[users revisions], unless: -> { Flipper.enabled?(:scmsync, User.session) }
+  before_action :check_scmsync, only: %i[statistics users requests revisions],
+                                unless: -> { action_name.in?(%w[users revisions]) && Flipper.enabled?(:scmsync, User.session) }
 
   before_action :set_package, only: %i[edit update show requests statistics revisions
                                        branch_diff_info rdiff remove
