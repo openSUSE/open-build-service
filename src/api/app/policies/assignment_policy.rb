@@ -3,7 +3,6 @@
 # checked as Assignment model validation.
 class AssignmentPolicy < ApplicationPolicy
   def create?
-    return false if record.package.readonly?
     return false unless Flipper.enabled?(:foster_collaboration, user)
 
     return true if user.admin?
