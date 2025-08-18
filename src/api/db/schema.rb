@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_08_04_125817) do
+ActiveRecord::Schema[7.2].define(version: 2025_08_23_084408) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -1215,7 +1215,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_04_125817) do
     t.text "login", collation: "utf8mb4_bin"
     t.string "email", limit: 200, default: "", null: false
     t.string "realname", limit: 200, default: "", null: false
-    t.string "password_digest", collation: "utf8mb4_bin"
+    t.string "old_password_digest", collation: "utf8mb4_bin"
     t.string "deprecated_password", collation: "utf8mb4_bin"
     t.string "deprecated_password_hash_type", collation: "utf8mb4_bin"
     t.string "deprecated_password_salt", collation: "utf8mb4_bin"
