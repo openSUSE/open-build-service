@@ -74,6 +74,10 @@
   &.sticky-top { top: $top-navigation-height; }
 }
 
+#request-accept-buttons-dropdown-menu {
+  width: 35rem;
+}
+
 @include media-breakpoint-up(sm) {
   .order-sm-1 {
     order: 1;
