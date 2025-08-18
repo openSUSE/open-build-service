@@ -2,10 +2,8 @@ require 'kconv'
 require 'api_error'
 
 class User < ApplicationRecord
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
-  devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable
+  devise :database_authenticatable
+
   include CanRenderModel
   include Flipper::Identifier
 
@@ -111,6 +109,7 @@ class User < ApplicationRecord
                       too_long: 'must have less than 100 characters',
                       too_short: 'must have more than two characters' }
 
+  validates :encrypted_password, length: { maximum: 255 }
   validates :old_password_digest, length: { maximum: 255 }
   validates :state, inclusion: { in: STATES }
 
@@ -251,7 +250,7 @@ class User < ApplicationRecord
   end
 
   def authenticate_via_password(password)
-    if authenticate(password)
+    if valid_password?(password)
       mark_login!
       self
     else
@@ -283,9 +282,7 @@ class User < ApplicationRecord
       return false
     end
 
-    # it seems that the user is not using a deprecated password so we use bcrypt's
-    # #authenticate method
-    super
+    authenticate_via_password(unencrypted_password).nil? ? false : self
   end
 
   # Returns true if the the state transition from "from" state to "to" state
@@ -907,6 +904,7 @@ end
 #  deprecated_password_hash_type :string(255)
 #  deprecated_password_salt      :string(255)
 #  email                         :string(200)      default(""), not null
+#  encrypted_password            :string(255)      default(""), not null
 #  ignore_auth_services          :boolean          default(FALSE)
 #  in_beta                       :boolean          default(FALSE), indexed
 #  in_rollout                    :boolean          default(TRUE), indexed
