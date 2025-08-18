@@ -302,9 +302,10 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     if Flipper.enabled?(:request_show_redesign, User.session)
+      filters = params.keys.select { |k| k.start_with?('repo', 'arch') }
       render 'webui/package/beta/rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
                                                             repository: repository, architecture: architecture,
-                                                            repository_list: repo_list, repo_arch_hash: repo_arch_hash }
+                                                            repository_list: repo_list.map(&:first), arch_list: repo_arch_hash.values.flatten.uniq, filters: filters }
     else
       render partial: 'rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
                                                   repository_list: repo_list, repo_arch_hash: repo_arch_hash }
@@ -363,7 +364,9 @@ class Webui::PackageController < Webui::WebuiController
           logger.debug("Skipping parsing rpmlint.log for #{@project.to_param}/#{@package.to_param} for repository #{result['repository']}.#{result['arch']}")
         else
           if rpmlint_log_file.present?
-            parsed = RpmlintLogParser.new(rpmlint_log_file, repo: result['repository'], arch: result['arch']).call
+            parsed = filter_rpmlint(rpmlint_log_file: rpmlint_log_file, repo: result['repository'], arch: result['arch'])
+            next if parsed.nil?
+
             @results << parsed.results
             max_badness = parsed.badness.values.max
             if parsed.badness.present? && (max_badness > @badness)
@@ -378,6 +381,18 @@ class Webui::PackageController < Webui::WebuiController
         end
       end
     end
+  end
+
+  def filter_rpmlint(rpmlint_log_file:, repo:, arch:)
+    filters = params[:filters]
+    if filters.present?
+      repositories   = filters.select { |f| f.start_with?('repo_') }
+      architectures  = filters.select { |f| f.start_with?('arch_') }
+
+      return nil if repositories.present? && repositories.exclude?("repo_#{repo}")
+      return nil if architectures.present? && architectures.exclude?("arch_#{arch}")
+    end
+    RpmlintLogParser.new(rpmlint_log_file, repo: repo, arch: arch).call
   end
 
   def package_params
