@@ -2,6 +2,10 @@ require 'kconv'
 require 'api_error'
 
 class User < ApplicationRecord
+  # Include default devise modules. Others available are:
+  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
+  devise :database_authenticatable, :registerable,
+         :recoverable, :rememberable, :validatable
   include CanRenderModel
   include Flipper::Identifier
 
