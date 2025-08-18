@@ -199,16 +199,18 @@ class Relationship < ApplicationRecord
   end
 end
 
+# rubocop:disable Layout/LineLength, Lint/MissingCopEnableDirective
+
 # == Schema Information
 #
 # Table name: relationships
 #
 #  id         :integer          not null, primary key
-#  group_id   :integer          indexed, indexed => [package_id, role_id], indexed => [project_id, role_id]
-#  package_id :integer          indexed => [role_id, group_id], indexed => [role_id, user_id]
-#  project_id :integer          indexed => [role_id, group_id], indexed => [role_id, user_id]
-#  role_id    :integer          not null, indexed => [package_id, group_id], indexed => [package_id, user_id], indexed => [project_id, group_id], indexed => [project_id, user_id], indexed
-#  user_id    :integer          indexed => [package_id, role_id], indexed => [project_id, role_id], indexed
+#  group_id   :integer          indexed, uniquely indexed => [package_id, role_id], uniquely indexed => [project_id, role_id]
+#  package_id :integer          uniquely indexed => [role_id, group_id], uniquely indexed => [role_id, user_id]
+#  project_id :integer          uniquely indexed => [role_id, group_id], uniquely indexed => [role_id, user_id]
+#  role_id    :integer          not null, uniquely indexed => [package_id, group_id], uniquely indexed => [package_id, user_id], uniquely indexed => [project_id, group_id], uniquely indexed => [project_id, user_id], indexed
+#  user_id    :integer          uniquely indexed => [package_id, role_id], uniquely indexed => [project_id, role_id], indexed
 #
 # Indexes
 #

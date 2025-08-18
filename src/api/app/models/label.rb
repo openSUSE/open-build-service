@@ -59,11 +59,11 @@ end
 # Table name: labels
 #
 #  id                :bigint           not null, primary key
-#  labelable_type    :string(255)      not null, indexed => [labelable_id, label_template_id]
+#  labelable_type    :string(255)      not null, uniquely indexed => [labelable_id, label_template_id]
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
-#  label_template_id :bigint           not null, indexed, indexed => [labelable_type, labelable_id]
-#  labelable_id      :integer          not null, indexed => [labelable_type, label_template_id]
+#  label_template_id :bigint           not null, indexed, uniquely indexed => [labelable_type, labelable_id]
+#  labelable_id      :integer          not null, uniquely indexed => [labelable_type, label_template_id]
 #
 # Indexes
 #

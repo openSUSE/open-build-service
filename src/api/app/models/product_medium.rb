@@ -9,10 +9,10 @@ end
 # Table name: product_media
 #
 #  id             :integer          not null, primary key
-#  name           :string(255)      indexed, indexed => [product_id, repository_id, arch_filter_id]
-#  arch_filter_id :integer          indexed, indexed => [product_id, repository_id, name]
-#  product_id     :integer          indexed, indexed => [repository_id, name, arch_filter_id]
-#  repository_id  :integer          indexed => [product_id, name, arch_filter_id], indexed
+#  name           :string(255)      indexed, uniquely indexed => [product_id, repository_id, arch_filter_id]
+#  arch_filter_id :integer          indexed, uniquely indexed => [product_id, repository_id, name]
+#  product_id     :integer          indexed, uniquely indexed => [repository_id, name, arch_filter_id]
+#  repository_id  :integer          uniquely indexed => [product_id, name, arch_filter_id], indexed
 #
 # Indexes
 #

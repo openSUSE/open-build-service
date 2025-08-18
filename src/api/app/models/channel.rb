@@ -188,7 +188,7 @@ end
 #
 #  id         :integer          not null, primary key
 #  disabled   :boolean
-#  package_id :integer          not null, indexed
+#  package_id :integer          not null, uniquely indexed
 #
 # Indexes
 #

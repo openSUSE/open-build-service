@@ -94,7 +94,7 @@ end
 #  description                 :string(64)       default("")
 #  enabled                     :boolean          default(TRUE), not null, indexed
 #  scm_token                   :string(255)      indexed
-#  string                      :string(255)      indexed
+#  string                      :string(255)      uniquely indexed
 #  triggered_at                :datetime
 #  type                        :string(255)
 #  workflow_configuration_path :string(255)      default(".obs/workflows.yml")

@@ -19,7 +19,7 @@ end
 #  id         :integer          not null, primary key
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
-#  job_id     :integer          indexed
+#  job_id     :integer          uniquely indexed
 #  user_id    :integer          indexed
 #
 # Indexes

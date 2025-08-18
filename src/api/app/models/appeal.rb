@@ -29,8 +29,8 @@ end
 #  reason       :text(65535)      not null
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
-#  appellant_id :integer          not null, indexed, indexed => [decision_id]
-#  decision_id  :bigint           not null, indexed => [appellant_id]
+#  appellant_id :integer          not null, indexed, uniquely indexed => [decision_id]
+#  decision_id  :bigint           not null, uniquely indexed => [appellant_id]
 #
 # Indexes
 #

@@ -60,7 +60,7 @@ end
 #  updated_at  :datetime         not null
 #  assignee_id :integer          not null, indexed
 #  assigner_id :integer          not null, indexed
-#  package_id  :integer          not null, indexed
+#  package_id  :integer          not null, uniquely indexed
 #
 # Indexes
 #

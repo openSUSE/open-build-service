@@ -45,11 +45,11 @@ end
 #
 #  id          :integer          not null, primary key
 #  description :string(191)      not null
-#  name        :string(191)      not null, indexed => [image_id]
+#  name        :string(191)      not null, uniquely indexed => [image_id]
 #  selected    :boolean          not null
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
-#  image_id    :integer          not null, indexed, indexed => [name]
+#  image_id    :integer          not null, indexed, uniquely indexed => [name]
 #
 # Indexes
 #

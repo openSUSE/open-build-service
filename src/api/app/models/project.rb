@@ -1527,7 +1527,7 @@ end
 #  delta               :boolean          default(TRUE), not null
 #  description         :text(65535)
 #  kind                :string           default("standard")
-#  name                :string(200)      not null, indexed
+#  name                :string(200)      not null, uniquely indexed
 #  remoteproject       :string(255)
 #  remoteurl           :string(255)
 #  report_bug_url      :string(8192)

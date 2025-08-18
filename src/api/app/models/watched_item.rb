@@ -10,11 +10,11 @@ end
 # Table name: watched_items
 #
 #  id             :integer          not null, primary key
-#  watchable_type :string(255)      not null, indexed => [watchable_id, user_id], indexed => [watchable_id]
+#  watchable_type :string(255)      not null, uniquely indexed => [watchable_id, user_id], indexed => [watchable_id]
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
-#  user_id        :integer          indexed => [watchable_type, watchable_id], indexed
-#  watchable_id   :integer          not null, indexed => [watchable_type, user_id], indexed => [watchable_type]
+#  user_id        :integer          uniquely indexed => [watchable_type, watchable_id], indexed
+#  watchable_id   :integer          not null, uniquely indexed => [watchable_type, user_id], indexed => [watchable_type]
 #
 # Indexes
 #

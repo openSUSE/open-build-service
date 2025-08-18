@@ -127,7 +127,7 @@ end
 #  id             :integer          not null, primary key
 #  alias          :string(255)
 #  imageinclude   :boolean
-#  order          :integer          indexed => [image_id]
+#  order          :integer          uniquely indexed => [image_id]
 #  password       :string(255)
 #  prefer_license :boolean
 #  priority       :integer
@@ -137,7 +137,7 @@ end
 #  username       :string(255)
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
-#  image_id       :integer          indexed, indexed => [order]
+#  image_id       :integer          indexed, uniquely indexed => [order]
 #
 # Indexes
 #

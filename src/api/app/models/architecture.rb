@@ -72,7 +72,7 @@ end
 #
 #  id        :integer          not null, primary key
 #  available :boolean          default(FALSE), not null
-#  name      :string(255)      not null, indexed
+#  name      :string(255)      not null, uniquely indexed
 #
 # Indexes
 #

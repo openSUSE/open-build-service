@@ -21,8 +21,8 @@ end
 #  id              :integer          not null, primary key
 #  position        :integer          default(0), not null
 #  required_checks :string(255)
-#  architecture_id :integer          not null, indexed => [repository_id], indexed
-#  repository_id   :integer          not null, indexed => [architecture_id]
+#  architecture_id :integer          not null, uniquely indexed => [repository_id], indexed
+#  repository_id   :integer          not null, uniquely indexed => [architecture_id]
 #
 # Indexes
 #

@@ -151,10 +151,10 @@ end
 #  id                  :integer          not null, primary key
 #  description         :string(255)
 #  issue_list          :boolean          default(FALSE)
-#  name                :string(255)      not null, indexed => [attrib_namespace_id], indexed
+#  name                :string(255)      not null, uniquely indexed => [attrib_namespace_id], indexed
 #  type                :string(255)
 #  value_count         :integer
-#  attrib_namespace_id :integer          not null, indexed => [name]
+#  attrib_namespace_id :integer          not null, uniquely indexed => [name]
 #
 # Indexes
 #

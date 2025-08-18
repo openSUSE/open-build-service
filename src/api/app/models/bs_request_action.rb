@@ -1051,7 +1051,7 @@ end
 #  target_project        :string(255)      indexed
 #  target_releaseproject :string(255)
 #  target_repository     :string(255)
-#  type                  :string(255)
+#  type                  :string(255)      indexed
 #  updatelink            :boolean          default(FALSE)
 #  created_at            :datetime
 #  bs_request_id         :integer          indexed, indexed => [target_package_id], indexed => [target_project_id]
@@ -1073,6 +1073,7 @@ end
 #  index_bs_request_actions_on_target_package_id                    (target_package_id)
 #  index_bs_request_actions_on_target_project                       (target_project)
 #  index_bs_request_actions_on_target_project_id                    (target_project_id)
+#  index_bs_request_actions_on_type                                 (type)
 #
 # Foreign Keys
 #

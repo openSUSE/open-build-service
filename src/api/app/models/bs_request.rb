@@ -1259,7 +1259,7 @@ end
 #  commenter          :string(255)
 #  creator            :string(255)      indexed
 #  description        :text(65535)
-#  number             :integer          indexed
+#  number             :integer          uniquely indexed
 #  priority           :string           default("moderate")
 #  state              :string(255)      indexed
 #  status             :integer          indexed
