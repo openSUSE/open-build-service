@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Gitleaks
       run: |
         docker run --user $(id -u):1000 -v .:/path ghcr.io/gitleaks/gitleaks:latest detect --source="/path" -v --no-git -c /path/gitleaks.toml
