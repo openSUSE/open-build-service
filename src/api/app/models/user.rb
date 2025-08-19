@@ -15,10 +15,6 @@ class User < ApplicationRecord
   attribute :color_theme, :integer
   enum :color_theme, { 'system' => 0, 'light' => 1, 'dark' => 2 }
 
-  # disable validations because there can be users which don't have a bcrypt
-  # password yet. this is for backwards compatibility
-  has_secure_password validations: false
-
   has_many :watched_items, dependent: :destroy
   has_many :groups_users, inverse_of: :user
   has_many :roles_users, inverse_of: :user
@@ -125,8 +121,6 @@ class User < ApplicationRecord
                       message: 'must be a valid email address',
                       allow_blank: true }
 
-  # we disabled has_secure_password's validations. therefore we need to do manual validations
-  validate :password_validation
   validates :password, length: { minimum: 6, maximum: ActiveModel::SecurePassword::MAX_PASSWORD_LENGTH_ALLOWED }, allow_nil: true
   validates :password, confirmation: true, allow_blank: true
   validates :biography, length: { maximum: MAX_BIOGRAPHY_LENGTH_ALLOWED }
@@ -855,12 +849,6 @@ class User < ApplicationRecord
     Thread.current[:nobody] ||= find_nobody!
   end
   private_class_method :nobody
-
-  def password_validation
-    return if password_digest || deprecated_password
-
-    errors.add(:password, 'can\'t be blank')
-  end
 
   # FIXME: This should be a policy
   def can_modify_project_internal(project, ignore_lock)
