@@ -22,6 +22,7 @@ RSpec.describe 'Project', type: :feature do
       click_link('Your Home Project')
     end
     click_link('Repositories')
+    sleep(5)
     click_link('Add from a Distribution')
     Timeout.timeout(300) do
       loop do
