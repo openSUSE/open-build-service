@@ -18,18 +18,11 @@ class BinaryRelease < ApplicationRecord
 
   belongs_to :repository
   belongs_to :release_package, class_name: 'Package', optional: true
+  # A medium is a BinaryRelease that contains other BinaryRelease.
+  # Think: A container image is a BinaryRelease that contains lots of RPM Package BinaryRelease.
   belongs_to :on_medium, class_name: 'BinaryRelease', optional: true
-
-  before_create :set_release_time
-
-  def set_release_time!
-    self.binary_releasetime = Time.now
-  end
-
-  # esp. for docker/appliance/python-venv-rpms and friends
-  def medium_container
-    on_medium.try(:release_package)
-  end
+  validates :binary_name, :binary_releasetime, presence: true
+  validates :binary_epoch, :binary_version, :binary_release, :binary_arch, length: { maximum: 64 }
 
   def render_xml
     builder = Nokogiri::XML::Builder.new
@@ -102,11 +95,6 @@ class BinaryRelease < ApplicationRecord
       attributes[ekey] = value
     end
     attributes
-  end
-
-  def set_release_time
-    # created_at, but readable in database
-    self.binary_releasetime ||= Time.now
   end
 
   def update_for_product
