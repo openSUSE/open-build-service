@@ -7,8 +7,8 @@ end
 #
 # Table name: roles_static_permissions
 #
-#  role_id              :integer          default(0), not null, indexed, indexed => [static_permission_id]
-#  static_permission_id :integer          default(0), not null, indexed => [role_id]
+#  role_id              :integer          default(0), not null, indexed, uniquely indexed => [static_permission_id]
+#  static_permission_id :integer          default(0), not null, uniquely indexed => [role_id]
 #
 # Indexes
 #

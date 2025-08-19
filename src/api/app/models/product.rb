@@ -179,11 +179,11 @@ end
 #  id          :integer          not null, primary key
 #  baseversion :string(255)
 #  cpe         :string(255)
-#  name        :string(255)      not null, indexed => [package_id]
+#  name        :string(255)      not null, uniquely indexed => [package_id]
 #  patchlevel  :string(255)
 #  release     :string(255)
 #  version     :string(255)
-#  package_id  :integer          not null, indexed => [name], indexed
+#  package_id  :integer          not null, uniquely indexed => [name], indexed
 #
 # Indexes
 #

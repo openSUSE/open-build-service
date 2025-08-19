@@ -1442,7 +1442,7 @@ end
 #  bcntsynctag     :string(255)
 #  delta           :boolean          default(TRUE), not null
 #  description     :text(65535)
-#  name            :string(200)      not null, indexed => [project_id]
+#  name            :string(200)      not null, uniquely indexed => [project_id]
 #  releasename     :string(255)
 #  report_bug_url  :string(8192)
 #  scmsync         :string(255)
@@ -1452,7 +1452,7 @@ end
 #  updated_at      :datetime
 #  develpackage_id :integer          indexed
 #  kiwi_image_id   :integer          indexed
-#  project_id      :integer          not null, indexed => [name]
+#  project_id      :integer          not null, uniquely indexed => [name]
 #
 # Indexes
 #

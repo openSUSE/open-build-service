@@ -17,10 +17,10 @@ end
 # Table name: comment_locks
 #
 #  id               :bigint           not null, primary key
-#  commentable_type :string(255)      not null, indexed => [commentable_id]
+#  commentable_type :string(255)      not null, uniquely indexed => [commentable_id]
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
-#  commentable_id   :integer          not null, indexed => [commentable_type]
+#  commentable_id   :integer          not null, uniquely indexed => [commentable_type]
 #  moderator_id     :integer          not null, indexed
 #
 # Indexes

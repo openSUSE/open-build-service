@@ -39,8 +39,8 @@ end
 #  id                       :bigint           not null, primary key
 #  created_at               :datetime         not null
 #  updated_at               :datetime         not null
-#  label_template_global_id :bigint           not null, indexed, indexed => [project_id]
-#  project_id               :integer          not null, indexed => [label_template_global_id], indexed
+#  label_template_global_id :bigint           not null, indexed, uniquely indexed => [project_id]
+#  project_id               :integer          not null, uniquely indexed => [label_template_global_id], indexed
 #
 # Indexes
 #

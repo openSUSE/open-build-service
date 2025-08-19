@@ -91,9 +91,9 @@ GEM
       rails (>= 6.0)
       zeitwerk
     amq-protocol (2.3.4)
-    annotate (3.2.0)
-      activerecord (>= 3.2, < 8.0)
-      rake (>= 10.4, < 14.0)
+    annotaterb (4.18.0)
+      activerecord (>= 6.0.0)
+      activesupport (>= 6.0.0)
     ansi (1.5.0)
     ansible (0.2.2)
     ast (2.4.3)
@@ -592,7 +592,7 @@ DEPENDENCIES
   airbrake
   airbrake-ruby
   ajax-datatables-rails
-  annotate
+  annotaterb
   ansible
   awesome_print
   base64 (= 0.2.0)

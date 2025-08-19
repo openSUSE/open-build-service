@@ -9,9 +9,9 @@ end
 # Table name: attrib_namespace_modifiable_bies
 #
 #  id                  :integer          not null, primary key
-#  attrib_namespace_id :integer          not null, indexed => [user_id, group_id]
-#  group_id            :integer          indexed => [attrib_namespace_id, user_id], indexed
-#  user_id             :integer          indexed => [attrib_namespace_id, group_id], indexed
+#  attrib_namespace_id :integer          not null, uniquely indexed => [user_id, group_id]
+#  group_id            :integer          uniquely indexed => [attrib_namespace_id, user_id], indexed
+#  user_id             :integer          uniquely indexed => [attrib_namespace_id, group_id], indexed
 #
 # Indexes
 #

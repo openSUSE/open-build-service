@@ -27,8 +27,8 @@ end
 #  id_template    :string(255)
 #  prefix         :string(255)
 #  requires_issue :boolean
-#  channel_id     :integer          not null, indexed => [repository_id]
-#  repository_id  :integer          not null, indexed => [channel_id], indexed
+#  channel_id     :integer          not null, uniquely indexed => [repository_id]
+#  repository_id  :integer          not null, uniquely indexed => [channel_id], indexed
 #
 # Indexes
 #

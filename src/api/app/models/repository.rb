@@ -338,11 +338,11 @@ end
 #  id                  :integer          not null, primary key
 #  block               :string
 #  linkedbuild         :string
-#  name                :string(255)      not null, indexed => [db_project_id, remote_project_name]
+#  name                :string(255)      not null, uniquely indexed => [db_project_id, remote_project_name]
 #  rebuild             :string
-#  remote_project_name :string(255)      default(""), not null, indexed => [db_project_id, name], indexed
+#  remote_project_name :string(255)      default(""), not null, uniquely indexed => [db_project_id, name], indexed
 #  required_checks     :string(255)
-#  db_project_id       :integer          not null, indexed => [name, remote_project_name]
+#  db_project_id       :integer          not null, uniquely indexed => [name, remote_project_name]
 #
 # Indexes
 #

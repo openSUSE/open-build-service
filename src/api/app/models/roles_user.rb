@@ -11,8 +11,8 @@ end
 #
 #  id         :integer          not null, primary key
 #  created_at :datetime
-#  role_id    :integer          default(0), not null, indexed, indexed => [user_id]
-#  user_id    :integer          default(0), not null, indexed => [role_id]
+#  role_id    :integer          default(0), not null, indexed, uniquely indexed => [user_id]
+#  user_id    :integer          default(0), not null, uniquely indexed => [role_id]
 #
 # Indexes
 #
