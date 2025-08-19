@@ -283,6 +283,19 @@ our $servicedispatch = 1;
 # print all messages with a lower level than $debuglevel in addition to the normal log messages
 #our $debuglevel = 1;
 
+
+# Download On Demand fingerprint alias
+#
+# Allows to define global SSL finger prints to avoid updating each repository
+# Using SSL finger prints ensures that no third party (any CA instance) can run
+# man-in-the-middle attacks
+#
+#our $sslfingerprints = {
+#   'fedoraproject' => 'sha256:c84fb27f41205d74d49cb1f43c02308a0ee6a6c8c63693165f2f75f1bd60ce49'
+#};
+#
+
+
 our $container_registries = {
    'local' => {
      server => $hostname,
