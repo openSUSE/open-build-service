@@ -370,6 +370,9 @@ sub doservicerpc {
   my $odir = "$uploaddir/runservice$$";
   BSUtil::cleandir($odir) if -d $odir;
   mkdir_p($odir);
+  my @args;
+  push @args, "timeout=$BSConfig::service_timeout";
+  push @args, "noprefix=1" if $noprefix;
   my $receive;
   eval {
     $receive = BSRPC::rpc({
@@ -383,7 +386,7 @@ sub doservicerpc {
       'timeout'   => $BSConfig::service_timeout,
       'withmd5'   => 1,
       'receiver' => \&BSHTTP::cpio_receiver,
-    }, undef, "timeout=$BSConfig::service_timeout");
+    }, undef, @args);
   };
 
   if ($@ || !$receive) {
