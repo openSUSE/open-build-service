@@ -12,4 +12,4 @@ jobs:
     - uses: actions/checkout@v5
     - name: Gitleaks
       run: |
-        docker run --user $(id -u):1000 -v .:/path ghcr.io/gitleaks/gitleaks:latest detect --source="/path" -v --no-git -c /path/gitleaks.toml
+        docker run --user $(id -u):1000 -v .:/path ghcr.io/gitleaks/gitleaks:latest dir /path -v -c /path/gitleaks.toml
