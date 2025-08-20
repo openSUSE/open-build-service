@@ -16,7 +16,7 @@ class Webui::PackageController < Webui::WebuiController
                                        save_person save_group remove_role view_file
                                        buildresult rpmlint_result rpmlint_log rpmlint_summary files]
 
-  before_action :check_scmsync, only: %i[buildresult requests revisions statistics users]
+  before_action :check_scmsync, only: %i[requests revisions statistics users]
 
   before_action :set_package, only: %i[edit update show requests statistics revisions
                                        branch_diff_info rdiff remove
