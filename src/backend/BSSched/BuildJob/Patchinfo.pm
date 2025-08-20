@@ -24,6 +24,7 @@ use BSOBS;
 use BSUtil;
 use BSSched::BuildJob;
 use BSSched::ProjPacks;		# for orderpackids
+use BSSched::Bininfo;		# for helminfo2bininfo
 use BSXML;
 use Build;			# for query
 use BSVerify;			# for verify_nevraquery
@@ -100,20 +101,6 @@ sub get_bins {
   return @d;
 }
 
-sub queryhelminfo {
-  my ($file) = @_;
-  return undef unless $file =~ s/\.helminfo$//;
-  $file =~ s/.*\///;
-  $file = "helm:$file";
-  my $d = {
-    'name' => $file,
-    'version' => 0,
-    'release' => 0,
-    'arch' => 'noarch',
-  };
-  ($d->{'name'}, $d->{'version'}) = ($1, $2) if $file =~ /^(.*)-([^\-]+)$/;
-  return $d;
-}
 
 =head2 check - check if a patchinfo needs to be rebuilt
 
@@ -571,13 +558,13 @@ sub build {
       my $d;
       if ($bin =~ /\.(:?rpm|deb)$/) {
 	eval {
-	  $d = Build::query("$jobdatadir/$bin", 'evra' => 1, 'unstrippedsource' => 1);
+	  $d = Build::query("$jobdatadir/$bin", 'evra' => 1);
 	  BSVerify::verify_nevraquery($d);
 	  my $leadsigmd5 = '';
 	  die("$jobdatadir/$bin: no hdrmd5\n") unless Build::queryhdrmd5("$jobdatadir/$bin", \$leadsigmd5);
 	  $d->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
 	};
-	return ('broken', "$bin: bad rpm") if $@ || !$d;
+	return ('broken', "$bin: bad binary") if $@ || !$d;
       } elsif ($bin =~ /\.obsbinlnk$/) {
         if (%binaryfilter) {	# not supported for containers yet
           unlink("$jobdatadir/$bin");
@@ -589,12 +576,13 @@ sub build {
 	$d->{'path'} =~ s/.*\///;
 	$d->{'path'} = "../$packid/$d->{'path'}";
 	BSUtil::store("$jobdatadir/.$bin", "$jobdatadir/$bin", $d);
+	delete $d->{'path'};
       } elsif ($bin =~ /\.helminfo$/) {
         if (%binaryfilter) {
           unlink("$jobdatadir/$bin");
           next;
 	}
-	$d = queryhelminfo("$jobdatadir/$bin");
+	$d = BSSched::Bininfo::helminfo2bininfo($jobdatadir, $bin);
 	next unless $d;
       } else {
         if (%binaryfilter) {
@@ -634,15 +622,11 @@ sub build {
 	if ($provenance) {
 	  unlink("$jobdatadir/$tprovenance");
 	  link($provenance, "$jobdatadir/$tprovenance") || die("link $provenance $jobdatadir/$tprovenance: $!\n");
-	  $bininfo->{$tprovenance} =  genbininfo($jobdatadir, $tprovenance);
+	  $bininfo->{$tprovenance} = genbininfo($jobdatadir, $tprovenance);
 	}
       }
       $donebins{$bin} = $tocopy;
-      if ($bin !~ /\.helminfo$/) {
-        $bininfo->{$bin} = {'name' => $d->{'name'}, 'arch' => $d->{'arch'}, 'hdrmd5' => $d->{'hdrmd5'}, 'filename' => $bin, 'id' => "$s[9]/$s[7]/$s[1]"};
-        $bininfo->{$bin}->{'leadsigmd5'} = $d->{'leadsigmd5'} if $d->{'leadsigmd5'};
-        $bininfo->{$bin}->{'md5sum'} = $d->{'md5sum'} if $d->{'md5sum'};
-      }
+      $bininfo->{$bin} = { %$d, 'filename' => $bin, 'id' => "$s[9]/$s[7]/$s[1]" };
       my $upd = {
         'name' => $d->{'name'},
         'version' => $d->{'version'},
