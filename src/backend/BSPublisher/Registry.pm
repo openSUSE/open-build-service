@@ -475,19 +475,21 @@ sub create_cosign_attestation_ent {
 }
 
 sub update_cosign {
-  my ($prp, $repo, $gun, $digests_to_cosign, $pubkey, $signargs, $rekorserver, $knownmanifests, $knownblobs) = @_;
+  my ($prp, $repo, $cosign, $digests_to_cosign, $knownmanifests, $knownblobs) = @_;
 
-  my $creator = 'OBS';
   my ($projid, $repoid) = split('/', $prp, 2);
+  my $gun = $cosign->{'gun'};
+  my $creator = $cosign->{'creator'};
+  my $rekorserver = $cosign->{'rekorserver'};
   my @signcmd;
   push @signcmd, $BSConfig::sign;
   push @signcmd, '--project', $projid if $BSConfig::sign_project;
-  push @signcmd, @{$signargs || []};
+  push @signcmd, @{$cosign->{'signargs'} || []};
   my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-O', '-h', 'sha256') };
   my $repodir = "$registrydir/$repo";
   my $oldsigs = BSUtil::retrieve("$repodir/:cosign", 1) || {};
   return if !%$oldsigs && !%$digests_to_cosign;
-  my $gpgpubkey = BSPGP::unarmor($pubkey);
+  my $gpgpubkey = BSPGP::unarmor($cosign->{'pubkey'});
   my $pubkey_fp = BSPGP::pk2fingerprint($gpgpubkey);
   if (($oldsigs->{'pubkey'} || '') ne $pubkey_fp || ($oldsigs->{'gun'} || '') ne $gun || ($oldsigs->{'creator'} || '') ne ($creator || '')) {
     $oldsigs = {};	# fingerprint/gun/creator mismatch, do not use old signatures
@@ -585,7 +587,6 @@ sub push_containers {
 
   my ($pubkey, $signargs) = ($data->{'pubkey'}, $data->{'signargs'});
 
-  my $rekorserver = $registry->{'rekorserver'};
   my $gun = $registry->{'notary_gunprefix'} || $registry->{'server'};
   undef $gun if $gun && $gun eq 'local:';
   if ($gun) {
@@ -784,7 +785,8 @@ sub push_containers {
 
   # write signatures file (need to do this early as it adds manifests/blobs)
   if ($gun && defined($pubkey) && %digests_to_cosign) {
-    update_cosign($prp, $repo, $gun, \%digests_to_cosign, $pubkey, $signargs, $rekorserver, \%knownmanifests, \%knownblobs);
+    my $cosign = { 'creator' => 'OBS', 'gun' => $gun, 'pubkey' => $pubkey, 'signargs' => $signargs, 'rekorserver' => $registry->{'rekorserver'} };
+    update_cosign($prp, $repo, $cosign, \%digests_to_cosign, \%knownmanifests, \%knownblobs);
   } elsif (-e "$repodir/:cosign") {
     unlink("$repodir/:cosign");
   }
