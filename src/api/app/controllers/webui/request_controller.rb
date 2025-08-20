@@ -337,7 +337,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def changes_diff
     filename = params[:filename]
-    sourcediff = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded, file: filename }).first
+    sourcediff = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded, file: filename, tarlimit: params[:tarlimit] }.compact).first
     source_rev = sourcediff.dig('new', 'srcmd5')
     if @action.source_package_object&.file_exists?(filename, { rev: source_rev, expand: 1 }.compact)
       source_file = project_package_file_path(@action.source_project_object, @action.source_package_object, filename, rev: source_rev, expand: 1)
@@ -346,11 +346,12 @@ class Webui::RequestController < Webui::WebuiController
     if @action.target_package_object&.file_exists?(filename, { rev: target_rev, expand: 1 }.compact)
       target_file = project_package_file_path(@action.target_project_object, @action.target_package_object, filename, rev: target_rev, expand: 1)
     end
-    render partial: 'webui/request/changes_diff',
+    render partial: 'webui/request/changes_diff', formats: [:html],
            locals: { commentable: @action,
                      diff: sourcediff.dig('files', filename, 'diff', '_content'),
                      file_index: params[:file_index], source_file: source_file,
                      target_file: target_file, source_rev: source_rev, target_rev: target_rev,
+                     tarlimit: params[:tarlimit],
                      commented_lines: (params[:commented_lines] || []).map(&:to_i) }
   end
 
@@ -565,11 +566,12 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def cache_diff_data
-    @diff_not_cached = @action.diff_not_cached({ diff_to_superseded: @diff_to_superseded })
+    @tarlimit = params[:tarlimit]
+    @diff_not_cached = @action.diff_not_cached({ diff_to_superseded: @diff_to_superseded, tarlimit: @tarlimit }.compact)
     return unless @diff_not_cached
 
     job = Delayed::Job.where('handler LIKE ?', "%job_class: BsRequestActionWebuiInfosJob%#{@action.to_global_id.uri}%").count
-    BsRequestActionWebuiInfosJob.perform_later(@action) if job.zero?
+    BsRequestActionWebuiInfosJob.perform_later(@action, tarlimit: @tarlimit) if job.zero?
   end
 
   # Shared data used in multiple views (request conversation, request build results, etc)

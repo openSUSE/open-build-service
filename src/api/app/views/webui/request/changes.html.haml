@@ -31,7 +31,7 @@
           = render partial: "webui/request/changes_#{@action.type}",
                    locals: { bs_request: @bs_request, action: @action,
                              diff_to_superseded: @diff_to_superseded, diff_not_cached: @diff_not_cached,
-                             current_notification: @current_notification }
+                             current_notification: @current_notification, tarlimit: @tarlimit }
 
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',
                                                  method: :delete,

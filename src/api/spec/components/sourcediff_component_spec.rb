@@ -9,7 +9,12 @@ RSpec.describe SourcediffComponent, :vcr, type: :component do
            target_package: target_package,
            source_package: source_package)
   end
-  let(:first_file_url) { Rails.application.routes.url_helpers.request_changes_diff_path(number: bs_request.number, request_action_id: bs_request.bs_request_actions.first.id, filename: file_name, file_index: 0) }
+  let(:first_file_url) do
+    Rails.application.routes.url_helpers.request_changes_diff_path(number: bs_request.number,
+                                                                   request_action_id: bs_request.bs_request_actions.first.id,
+                                                                   filename: file_name, file_index: 0,
+                                                                   filelimit: BsRequestAction::Differ::ForSource::DEFAULT_FILE_LIMIT)
+  end
 
   context 'with a request with a submit action' do
     before do
