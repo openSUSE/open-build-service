@@ -25,16 +25,16 @@ RSpec.describe RequestDecisionComponent, :vcr, type: :component do
 
     it { expect(submit_request.target_package_maintainers).to be_empty }
 
-    it 'shows the Accept button as a regular button only' do
+    it 'shows the Accept button as a regular button' do
       expect(rendered_content).to have_button('Accept request')
     end
 
     it 'does not show an option to make maintainer because the author is already a maintainer' do
-      expect(rendered_content).to have_no_css("input[value='Accept and make maintainer']")
+      expect(rendered_content).to have_no_xpath(".//button/b[text()='Accept and make maintainer']")
     end
 
     it 'does not show an option to forward the request because there is no developed project' do
-      expect(rendered_content).to have_no_css("input[value='Accept and forward']")
+      expect(rendered_content).to have_no_xpath(".//button/b[text()='Accept and forward']")
     end
   end
 
@@ -52,20 +52,20 @@ RSpec.describe RequestDecisionComponent, :vcr, type: :component do
                                         show_project_maintainer_hint: true))
     end
 
-    it 'shows the Accept button as a dropdown' do
-      expect(rendered_content).to have_button(id: 'decision-buttons-group')
+    it 'shows the Accept button alternative options dropdown' do
+      expect(rendered_content).to have_css('#request-accept-buttons-dropdown-menu')
     end
 
-    it 'shows an option to accept the request only' do
-      expect(rendered_content).to have_css('input[value="Accept request"]')
+    it 'shows the Accept button as a regular button' do
+      expect(rendered_content).to have_button('Accept request')
     end
 
     it 'shows an option to accept and make the creator a maintainer' do
-      expect(rendered_content).to have_css("input[value='Accept and make maintainer']")
+      expect(rendered_content).to have_xpath(".//button/b[text()='Accept and make maintainer']")
     end
 
     it 'does not show an option to forward the request because there is no developed project' do
-      expect(rendered_content).to have_no_css("input[value='Accept and forward']")
+      expect(rendered_content).to have_no_xpath(".//button/b[text()='Accept and forward']")
     end
   end
 
@@ -91,20 +91,20 @@ RSpec.describe RequestDecisionComponent, :vcr, type: :component do
                                         show_project_maintainer_hint: true))
     end
 
-    it 'shows the Accept button as a dropdown' do
-      expect(rendered_content).to have_button(id: 'decision-buttons-group')
+    it 'shows the Accept button alternative options dropdown' do
+      expect(rendered_content).to have_css('#request-accept-buttons-dropdown-menu')
     end
 
-    it 'shows an option to accept the request only' do
-      expect(rendered_content).to have_css('input[value="Accept request"]')
+    it 'shows the Accept button as a regular button' do
+      expect(rendered_content).to have_button('Accept request')
     end
 
     it 'shows an option to accept and forward the request' do
-      expect(rendered_content).to have_css("input[value='Accept and forward']")
+      expect(rendered_content).to have_xpath(".//button/b[text()='Accept and forward']")
     end
 
     it 'does not show an option to make maintainer because the author is already a maintainer' do
-      expect(rendered_content).to have_no_css("input[value='Accept and make maintainer']")
+      expect(rendered_content).to have_no_xpath(".//button/b[text()='Accept and make maintainer']")
     end
   end
 
@@ -129,20 +129,24 @@ RSpec.describe RequestDecisionComponent, :vcr, type: :component do
                                         show_project_maintainer_hint: true))
     end
 
-    it 'shows the Accept button as a dropdown' do
-      expect(rendered_content).to have_button(id: 'decision-buttons-group')
+    it 'shows the Accept button alternative options dropdown' do
+      expect(rendered_content).to have_css('#request-accept-buttons-dropdown-menu')
     end
 
-    it 'shows an option to accept the request only' do
-      expect(rendered_content).to have_css('input[value="Accept request"]')
+    it 'shows the Accept button as a regular button' do
+      expect(rendered_content).to have_button('Accept request')
+    end
+
+    it 'shows an option to accept and make the creator a maintainer' do
+      expect(rendered_content).to have_xpath(".//button/b[text()='Accept and make maintainer']")
     end
 
     it 'shows an option to accept and forward the request' do
-      expect(rendered_content).to have_css("input[value='Accept and forward']")
+      expect(rendered_content).to have_xpath(".//button/b[text()='Accept and forward']")
     end
 
     it 'shows an option to accept, make the creator a maintainer and forward the request' do
-      expect(rendered_content).to have_css("input[value='Accept, make maintainer and forward']")
+      expect(rendered_content).to have_xpath(".//button/b[text()='Accept, make maintainer and forward']")
     end
   end
 end
