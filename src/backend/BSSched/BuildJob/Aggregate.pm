@@ -678,7 +678,7 @@ sub build {
 	  my $origfilename = $filename;
 	  $filename =~ s/^::import::.*?:://;
 	  my $r = $bininfo->{$filename};
-          $r = undef if $r && ($r->{'id'} || '') ne "$s[9]/$s[7]/$s[1]";
+	  $r = undef if $r && !(defined($r->{'version'}) && ($r->{'id'} || '') eq "$s[9]/$s[7]/$s[1]");
 	  eval {
 	    $r ||= Build::query($d, 'evra' => 1);
 	    BSVerify::verify_nevraquery($r) if $r;
