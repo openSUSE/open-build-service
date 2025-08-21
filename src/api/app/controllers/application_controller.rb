@@ -27,23 +27,13 @@ class ApplicationController < ActionController::Base
   before_action :add_api_version
 
   # skip the filter for the user stuff
-  before_action :extract_user
   before_action :set_influxdb_data
   before_action :shutup_rails
   before_action :validate_params
-  before_action :require_login
+  before_action :authenticate_user! # Devise
 
   before_action :validate_xml_request
   after_action :validate_xml_response if CONFIG['response_schema_validation'] == true
-
-  delegate :extract_user,
-           :require_login,
-           :require_admin,
-           to: :authenticator
-
-  def authenticator
-    @authenticator ||= Authenticator.new(request, session, response)
-  end
 
   def pundit_user
     User.session
