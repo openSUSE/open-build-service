@@ -925,8 +925,8 @@ class Package < ApplicationRecord
     Service.new(package: self)
   end
 
-  def buildresult(prj = project, show_all: false, lastbuild: false)
-    LocalBuildResult::ForPackage.new(package: self, project: prj, show_all: show_all, lastbuild: lastbuild)
+  def buildresult(prj = project, show_all: false, lastbuild: false, view: 'status')
+    LocalBuildResult::ForPackage.new(package: self, project: prj, show_all: show_all, lastbuild: lastbuild, view: view)
   end
 
   # FIXME: That you can overwrite package_name is rather confusing, but needed because of multibuild :-/
