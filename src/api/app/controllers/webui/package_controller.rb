@@ -279,6 +279,12 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def rpmlint_result
+    unless Flipper.enabled?(:request_show_redesign, User.session)
+      flash[:error] = "You can't access the RPM Lint page unless you enable the 'Request show redesign' beta feature"
+      redirect_to package_show_path(@package.project, @package)
+      return
+    end
+
     repository = valid_xml_id(elide(params[:repository], 30)) if params[:repository].present?
     architecture = params[:architecture] if params[:architecture].present?
 
