@@ -1152,24 +1152,24 @@ class Project < ApplicationRecord
       BsRequest.where(id: BsRequestAction.bs_request_ids_by_source_projects(name)).or(
         BsRequest.where(id: Review.bs_request_ids_of_involved_projects(id))
       )
-    ).where(state: :review).distinct.pluck(:number)
+    ).where(status: 'review').distinct.pluck(:number)
 
     targets = BsRequest.joins(:bs_request_actions)
                        .to_project(name)
                        .or(BsRequest.from_project(name))
-                       .where(state: :new)
+                       .where(status: 'new')
                        .pluck(:number)
 
     incidents = BsRequest.to_project(name)
                          .or(BsRequest.from_project(name))
-                         .where(state: :new)
+                         .where(status: 'new')
                          .with_action_types(:maintenance_incident)
                          .pluck(:number)
 
     maintenance_release = if maintenance?
                             BsRequest.to_project("#{name}:%")
                                      .or(BsRequest.from_project("#{name}:%"))
-                                     .where(state: :new)
+                                     .where(status: 'new')
                                      .with_action_types(:maintenance_release)
                                      .pluck(:number)
                           else

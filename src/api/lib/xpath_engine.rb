@@ -198,7 +198,7 @@ class XpathEngine
       'requests' => {
         '@id' => { cpart: 'bs_requests.number' },
         '@creator' => { cpart: 'bs_requests.creator' },
-        'state/@name' => { cpart: 'bs_requests.state' },
+        'state/@name' => { cpart: 'bs_requests.status' },
         'state/@who' => { cpart: 'bs_requests.commenter' },
         'state/@when' => { cpart: 'bs_requests.updated_at' },
         'action/@type' => { cpart: 'a.type',

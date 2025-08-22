@@ -471,7 +471,7 @@ RSpec.describe BsRequest, :vcr do
         subject { request.auto_accept }
 
         before do
-          request.update(state: :declined)
+          request.update(status: 'declined')
           subject
         end
 
@@ -667,7 +667,7 @@ RSpec.describe BsRequest, :vcr do
         'description' => submit_request.description,
         'project' => 'target_project',
         'package' => 'target_package',
-        'state' => 'new',
+        'status' => 'new',
         'request_type' => 'submit',
         'priority' => 'moderate',
         'created_at' => submit_request.created_at.as_json,
