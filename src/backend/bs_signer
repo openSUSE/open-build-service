@@ -1057,6 +1057,10 @@ sub signjob {
 	    rename("$jobdir/$signfile.zsync.new", "$jobdir/$signfile.zsync");
 	  }
 	}
+	if ($signfile =~ /\.AppImage$/ && -e "$jobdir/$signfile.digest") {
+	    my $newdigest = sha256file("$jobdir/$signfile");
+	    writestr("$jobdir/$signfile.digest", undef, "$newdigest\n");
+	}
       }
     };
     if ($@) {
