@@ -96,6 +96,11 @@
   .order-md-2 {
     order: 2;
   }
+
+  #decision-buttons-row {
+    display: flex;
+    justify-content: space-between;
+  }
 }
 
 @include media-breakpoint-between(xs, md) {

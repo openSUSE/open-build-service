@@ -12,52 +12,54 @@
                                             message_body_param: 'comment[body]',
                                             text_area_attributes: { object_name: 'reason', id_suffix: 'new_comment',
                                             placeholder: decision_placeholder})
-      .mt-2
-        - if policy(Comment.new(commentable:@bs_request)).create?
-          = submit_tag 'Add comment', class: 'btn btn-primary me-2', data: { disable_with: 'Creating comment...' }, name: 'commented'
-        - if policy(@bs_request).revoke_request?
-          = submit_tag('Revoke request', name: 'revoked', class: 'btn btn-danger me-2',
-                        title: 'Cancel the request', data: { confirm: "Revoke this request?" })
-        - if policy(@bs_request).decline_request?
-          = submit_tag('Decline request', name: 'declined', class: 'btn btn-danger me-2',
-                        title: 'Reject the changes.', data: { confirm: "Decline this request?\n\n#{@package_maintainers_hint}" })
-        - if policy(@bs_request).accept_request?
-          .btn-group.me-2
-            = submit_tag('Accept request', name: 'accepted', class: 'btn btn-outline-primary',
-                        data: confirmation, title: "Commit changes to #{target_names}.")
-            - if show_forward? || show_add_creator_as_maintainer?
-              = button_tag('', type: 'button', class: 'btn btn-outline-primary dropdown-toggle dropdown-toggle-split',
-                            data: { 'bs-toggle': 'dropdown'}, aria: { 'haspopup': 'true', 'expanded': 'false' }, title: 'Accept options')
-              .dropdown-menu#request-accept-buttons-dropdown-menu
-                .list-group.list-group-flush
-                  - if show_add_creator_as_maintainer?
-                    = button_tag(type: 'submit', value: 'Accept and make maintainer',
-                                name: 'accepted', id: 'accept-and-make-maintainer',
-                                class: 'btn btn-outline-primary text-start rounded-0 list-group-item',
-                                data: { confirm: "Accept and make the request creator a maintainer?" }) do
-                      %b Accept and make maintainer
-                      %br
-                      %i Commit the changes and make #{@bs_request.creator} a maintainer of #{target_names}
-                  - if show_forward?
-                    = button_tag(type: 'submit', value: 'Accept and forward',
-                                name: 'accepted', id: 'accept-and-forward-requests',
-                                class: 'btn btn-outline-primary text-start rounded-0 list-group-item',
-                                data: { confirm: 'Accept and forward this request?' }) do
-                      %b Accept and forward
-                      %br
-                      %i Commit the changes and create a request to forward the changes to #{forwards_names}
-                  - if show_add_creator_as_maintainer? && show_forward?
-                    -# haml-lint:disable LineLength
-                    = button_tag(type: 'submit', value: 'Accept, make maintainer and forward',
-                                name: 'accepted', id: 'accept-make-maintainer-and-forward-requests',
-                                class: 'btn btn-outline-primary rounded-0 text-start list-group-item',
-                                data: { confirm: "Do you really want to accept, forward this request and make the request creator maintainer of the target?" }) do
-                      %b Accept, make maintainer and forward
-                      %br
-                      %i Commit the changes, make #{@bs_request.creator} a maintainer of #{target_names}, and create a request to forward the changes to #{forwards_names}
-                    -# haml-lint:enable LineLength
-        - if policy(@bs_request).reopen_request?
-          = submit_tag 'Reopen request', name: 'new', class: 'btn btn-warning me-2', data: { confirm: "Reopen this request?" }
+      .mt-2#decision-buttons-row
+        %div
+          - if policy(Comment.new(commentable:@bs_request)).create?
+            = submit_tag 'Add comment', class: 'btn btn-primary me-2', data: { disable_with: 'Creating comment...' }, name: 'commented'
+        %div
+          - if policy(@bs_request).revoke_request?
+            = submit_tag('Revoke request', name: 'revoked', class: 'btn btn-danger me-2',
+                          title: 'Cancel the request', data: { confirm: "Revoke this request?" })
+          - if policy(@bs_request).decline_request?
+            = submit_tag('Decline request', name: 'declined', class: 'btn btn-danger me-2',
+                          title: 'Reject the changes.', data: { confirm: "Decline this request?\n\n#{@package_maintainers_hint}" })
+          - if policy(@bs_request).accept_request?
+            .btn-group.me-2
+              = submit_tag('Accept request', name: 'accepted', class: 'btn btn-outline-primary',
+                          data: confirmation, title: "Commit changes to #{target_names}.")
+              - if show_forward? || show_add_creator_as_maintainer?
+                = button_tag('', type: 'button', class: 'btn btn-outline-primary dropdown-toggle dropdown-toggle-split',
+                              data: { 'bs-toggle': 'dropdown'}, aria: { 'haspopup': 'true', 'expanded': 'false' }, title: 'Accept options')
+                .dropdown-menu#request-accept-buttons-dropdown-menu
+                  .list-group.list-group-flush
+                    - if show_add_creator_as_maintainer?
+                      = button_tag(type: 'submit', value: 'Accept and make maintainer',
+                                  name: 'accepted', id: 'accept-and-make-maintainer',
+                                  class: 'btn btn-outline-primary text-start rounded-0 list-group-item',
+                                  data: { confirm: "Accept and make the request creator a maintainer?" }) do
+                        %b Accept and make maintainer
+                        %br
+                        %i Commit the changes and make #{@bs_request.creator} a maintainer of #{target_names}
+                    - if show_forward?
+                      = button_tag(type: 'submit', value: 'Accept and forward',
+                                  name: 'accepted', id: 'accept-and-forward-requests',
+                                  class: 'btn btn-outline-primary text-start rounded-0 list-group-item',
+                                  data: { confirm: 'Accept and forward this request?' }) do
+                        %b Accept and forward
+                        %br
+                        %i Commit the changes and create a request to forward the changes to #{forwards_names}
+                    - if show_add_creator_as_maintainer? && show_forward?
+                      -# haml-lint:disable LineLength
+                      = button_tag(type: 'submit', value: 'Accept, make maintainer and forward',
+                                  name: 'accepted', id: 'accept-make-maintainer-and-forward-requests',
+                                  class: 'btn btn-outline-primary rounded-0 text-start list-group-item',
+                                  data: { confirm: "Do you really want to accept, forward this request and make the request creator maintainer of the target?" }) do
+                        %b Accept, make maintainer and forward
+                        %br
+                        %i Commit the changes, make #{@bs_request.creator} a maintainer of #{target_names}, and create a request to forward the changes to #{forwards_names}
+                      -# haml-lint:enable LineLength
+          - if policy(@bs_request).reopen_request?
+            = submit_tag 'Reopen request', name: 'new', class: 'btn btn-warning me-2', data: { confirm: "Reopen this request?" }
 
 :javascript
   attachPreviewMessageOnCommentBoxes();
