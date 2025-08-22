@@ -4,5 +4,20 @@
   = render(partial: 'webui/package/tabs', locals: { project: project, package: package })
   .card-body
     %h3= @pagetitle
+    .row.mb-4.mt-2
+      = form_tag(rpmlint_result_path, method: :get) do
+        = render partial: 'webui/shared/build_result_filter', locals: { id: 'project-monitor-repositories-dropdown',
+                                                                        text: 'Repository',
+                                                                        values: repository_list,
+                                                                        value_prefix: 'repo_',
+                                                                        checked_values: filters }
+        = render partial: 'webui/shared/build_result_filter', locals: { id: 'project-monitor-architectures-dropdown',
+                                                                        text: 'Architecture',
+                                                                        values: arch_list,
+                                                                        value_prefix: 'arch_',
+                                                                        checked_values: filters }
+        %button.btn.btn-primary#filter-button{ type: :submit }
+          Apply Filter
+
     = turbo_frame_tag "#{project.name}_#{package}_rpmlint", loading: 'lazy',
-                      src: rpmlint_summary_path(project_name: project.name, package_name: package.name)
+                      src: rpmlint_summary_path(project_name: project.name, package_name: package.name, filters: filters)

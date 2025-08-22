@@ -447,11 +447,40 @@ RSpec.describe Webui::PackageController, :vcr do
       allow(Backend::Api::BuildResults::Binaries).to receive(:rpmlint_log)
         .with(source_project.name, source_package.name, 'openSUSE_Tumbleweed', 'i586')
         .and_return("test_package.i586: W: description-shorter-than-summary\ntest_package.src: W: description-shorter-than-summary")
-      get :rpmlint_summary, params: { package: source_package, project: source_project }
     end
 
-    it { expect(response).to have_http_status(:success) }
-    it { expect(response).to render_template(partial: '_rpmlint_summary') }
+    context 'without filters' do
+      before do
+        get :rpmlint_summary, params: { package: source_package, project: source_project }
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(response).to render_template(partial: '_rpmlint_summary') }
+    end
+
+    context 'with filters applied' do
+      render_views
+
+      context 'when there is data' do
+        subject do
+          get :rpmlint_summary, params: { package: source_package, project: source_project, filters: filters }
+        end
+
+        let(:filters) { %w[repo_openSUSE_Tumbleweed arch_i586] }
+
+        it { expect(subject.body).to include('description-shorter-than-summary') }
+      end
+
+      context 'when there is no data for the applied filters' do
+        subject do
+          get :rpmlint_summary, params: { package: source_package, project: source_project, filters: filters }
+        end
+
+        let(:filters) { %w[repo_openSUSE_Tumbleweed arch_x86_64] }
+
+        it { expect(subject.body).to include('No lints found') }
+      end
+    end
   end
 
   describe 'GET #rpmlint_log' do
