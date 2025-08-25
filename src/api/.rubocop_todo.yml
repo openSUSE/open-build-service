@@ -920,12 +920,6 @@ Style/OpenStructUse:
     - 'spec/services/trigger_controller_service/token_extractor_spec.rb'
     - 'spec/services/webui_controller_service/user_checker_spec.rb'
 
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-Style/RedundantRegexpEscape:
-  Exclude:
-    - 'lib/obsapi/markdown_renderer.rb'
-
 # Offense count: 86
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: Mode.
