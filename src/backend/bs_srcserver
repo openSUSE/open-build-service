@@ -1171,7 +1171,7 @@ sub getprojpack {
     my $limit = $BSConfig::limit_projects->{$arch};
     if ($BSConfig::limit_projects_use_regex || $BSConfig::limit_projects_use_regex) {
       $limit_projids = {};
-      for my $projid (splice @$projids) {
+      for my $projid (@$projids) {
 	$limit_projids->{$projid} = 1 if grep {$projid =~ /^$_$/} @$limit;
       }
     } else {
