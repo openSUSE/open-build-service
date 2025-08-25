@@ -75,7 +75,9 @@ class IssueTracker < ApplicationRecord
 
     return update_issues_bugzilla if kind == 'bugzilla'
     return update_issues_github if kind == 'github'
-    return update_issues_cve if kind == 'cve'
+
+    # FIXME: the list of CVEs changed its format. See issue https://github.com/openSUSE/open-build-service/issues/18105
+    # return update_issues_cve if kind == 'cve'
 
     false
   end
