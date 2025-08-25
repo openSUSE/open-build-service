@@ -45,7 +45,10 @@
           aria: { controls: 'packages', selected: 'false' } }
             Packages
             %span.badge.text-bg-primary
-              = @packages.length
+              - if @project.scmsync.present? && Flipper.enabled?(:scmsync, User.session)
+                = @project.backend_only_packages.count
+              - else
+                = @packages.length
         - if @inherited_packages.present?
           %li.nav-item
             %a.nav-link#inherited-packages-tab{ href: '#inherited-packages', role: 'tab', data: { 'bs-toggle': 'tab' },
