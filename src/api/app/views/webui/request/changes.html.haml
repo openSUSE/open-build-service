@@ -52,7 +52,8 @@
             #{project_or_package_link(project: current_devel_package.project.name, package: current_devel_package.name)}
         .result
           = render(partial: 'webui/request/changes_content',
-                   locals: { bs_request: @bs_request, action: @action, diff_to_superseded: @diff_to_superseded, diff_not_cached: @diff_not_cached })
+                   locals: { bs_request: @bs_request, action: @action, diff_to_superseded: @diff_to_superseded,
+                             diff_not_cached: @diff_not_cached, tarlimit: @tarlimit })
 
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',
                                                  method: :delete,
