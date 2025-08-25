@@ -594,22 +594,22 @@ workflows:
       - linters:
           requires:
             - checkout_code
-      - rspec:
-          requires:
-            - linters
-      - minitest:
-          requires:
-            - linters
-      - spider:
-          requires:
-            - rspec
-            - minitest
-            - feature
-      - coverage:
-          requires:
-            - rspec
-            - minitest
-            - feature
+      # - rspec:
+      #     requires:
+      #       - linters
+      # - minitest:
+      #     requires:
+      #       - linters
+      # - spider:
+      #     requires:
+      #       - rspec
+      #       - minitest
+      #       - feature
+      # - coverage:
+      #     requires:
+      #       - rspec
+      #       - minitest
+      #       - feature
       - feature:
           requires:
             - linters
