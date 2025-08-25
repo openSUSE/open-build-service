@@ -352,6 +352,8 @@ class Webui::RequestController < Webui::WebuiController
                      file_index: params[:file_index], source_file: source_file,
                      target_file: target_file, source_rev: source_rev, target_rev: target_rev,
                      tarlimit: params[:tarlimit],
+                     shown_lines: sourcediff.dig('files', filename, 'diff', 'shown'),
+                     total_lines: sourcediff.dig('files', filename, 'diff', 'lines'),
                      commented_lines: (params[:commented_lines] || []).map(&:to_i) }
   end
 
