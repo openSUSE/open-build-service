@@ -32,9 +32,11 @@ class LocalBuildResult
     end
 
     def local_build_result(result, status)
+      result['info'] ||= {}
+      buildtype = [result['info']].flatten.first['buildtype']
       LocalBuildResult.new(repository: result['repository'], is_repository_in_db: repository_in_db?(result['repository'], result['arch']),
                            architecture: result['arch'], code: status['code'], state: result['state'], details: status['details'],
-                           buildtype: result.dig('info', 'buildtype'))
+                           buildtype: buildtype)
     end
 
     def repository_in_db?(repository, architecture)
