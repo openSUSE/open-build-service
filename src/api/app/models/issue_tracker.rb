@@ -75,7 +75,6 @@ class IssueTracker < ApplicationRecord
 
     return update_issues_bugzilla if kind == 'bugzilla'
     return update_issues_github if kind == 'github'
-    return update_issues_cve if kind == 'cve'
 
     false
   end
@@ -297,28 +296,6 @@ class IssueTracker < ApplicationRecord
 
     # rubocop:disable Rails/SkipsModelValidations
     update_columns(issues_updated: @update_time_stamp)
-    # rubocop:enable Rails/SkipsModelValidations
-  end
-
-  def update_issues_cve
-    # fixed URL of all entries
-    # cveurl = "https://cve.mitre.org/data/downloads/allitems.xml.gz"
-    http = Net::HTTP.start('cve.mitre.org', use_ssl: true)
-    header = http.head('/data/downloads/allitems.xml.gz')
-    mtime = Time.parse(header['Last-Modified'])
-
-    return unless mtime.nil? || self.issues_updated.nil? || (self.issues_updated < mtime)
-
-    # new file exists
-    h = http.get('/data/downloads/allitems.xml.gz')
-    unzipedio = StringIO.new(h.body) # Net::HTTP is decompressing already
-    listener = IssueTracker::CVEParser.new
-    listener.tracker = self
-    parser = Nokogiri::XML::SAX::Parser.new(listener)
-    parser.parse_io(unzipedio)
-    # we skip callbacks to avoid scheduling expensive jobs
-    # rubocop:disable Rails/SkipsModelValidations
-    update_columns(issues_updated: mtime - 1.second)
     # rubocop:enable Rails/SkipsModelValidations
   end
 
