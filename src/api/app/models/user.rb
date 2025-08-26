@@ -2,6 +2,8 @@ require 'kconv'
 require 'api_error'
 
 class User < ApplicationRecord
+  devise :database_authenticatable
+
   include CanRenderModel
   include Flipper::Identifier
 
@@ -12,10 +14,6 @@ class User < ApplicationRecord
 
   attribute :color_theme, :integer
   enum :color_theme, { 'system' => 0, 'light' => 1, 'dark' => 2 }
-
-  # disable validations because there can be users which don't have a bcrypt
-  # password yet. this is for backwards compatibility
-  has_secure_password validations: false
 
   has_many :watched_items, dependent: :destroy
   has_many :groups_users, inverse_of: :user
@@ -107,6 +105,8 @@ class User < ApplicationRecord
                       too_long: 'must have less than 100 characters',
                       too_short: 'must have more than two characters' }
 
+  validates :encrypted_password, length: { maximum: 255 }
+  validates :old_password_digest, length: { maximum: 255 }
   validates :state, inclusion: { in: STATES }
 
   validate :validate_state
@@ -121,8 +121,6 @@ class User < ApplicationRecord
                       message: 'must be a valid email address',
                       allow_blank: true }
 
-  # we disabled has_secure_password's validations. therefore we need to do manual validations
-  validate :password_validation
   validates :password, length: { minimum: 6, maximum: ActiveModel::SecurePassword::MAX_PASSWORD_LENGTH_ALLOWED }, allow_nil: true
   validates :password, confirmation: true, allow_blank: true
   validates :biography, length: { maximum: MAX_BIOGRAPHY_LENGTH_ALLOWED }
@@ -246,7 +244,7 @@ class User < ApplicationRecord
   end
 
   def authenticate_via_password(password)
-    if authenticate(password)
+    if valid_password?(password)
       mark_login!
       self
     else
@@ -278,9 +276,7 @@ class User < ApplicationRecord
       return false
     end
 
-    # it seems that the user is not using a deprecated password so we use bcrypt's
-    # #authenticate method
-    super
+    authenticate_via_password(unencrypted_password).nil? ? false : self
   end
 
   # Returns true if the the state transition from "from" state to "to" state
@@ -854,12 +850,6 @@ class User < ApplicationRecord
   end
   private_class_method :nobody
 
-  def password_validation
-    return if password_digest || deprecated_password
-
-    errors.add(:password, 'can\'t be blank')
-  end
-
   # FIXME: This should be a policy
   def can_modify_project_internal(project, ignore_lock)
     # The ordering is important because of the lock status check
@@ -902,13 +892,14 @@ end
 #  deprecated_password_hash_type :string(255)
 #  deprecated_password_salt      :string(255)
 #  email                         :string(200)      default(""), not null
+#  encrypted_password            :string(255)      default(""), not null
 #  ignore_auth_services          :boolean          default(FALSE)
 #  in_beta                       :boolean          default(FALSE), indexed
 #  in_rollout                    :boolean          default(TRUE), indexed
 #  last_logged_in_at             :datetime
 #  login                         :text(65535)      uniquely indexed
 #  login_failure_count           :integer          default(0), not null
-#  password_digest               :string(255)
+#  old_password_digest           :string(255)
 #  realname                      :string(200)      default(""), not null
 #  rss_secret                    :string(200)      uniquely indexed
 #  state                         :string           default("unconfirmed"), indexed

@@ -1,5 +1,6 @@
 /path/src/api/config/environments/development.rb:generic-api-key:84
 /path/src/api/config/environments/test.rb:generic-api-key:62
+/path/src/api/config/initializers/devise.rb:generic-api-key:17
 /path/src/api/config/secrets.yml:generic-api-key:14
 /path/src/api/config/secrets.yml:generic-api-key:17
 /path/src/backend/t/0023-BSX509.t:generic-api-key:45
