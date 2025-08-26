@@ -62,8 +62,8 @@ class SourcediffComponent < ApplicationComponent
       next if files[filename]['disabled']
 
       files[filename]['diff_url'] = request_changes_diff_path(number: @bs_request.number, request_action_id: @action.id,
-                                                              filename:, diff_to_superseded:, file_index:, tarlimit: @tarlimit,
-                                                              commented_lines: @commented_lines[file_index], filelimit: 0)
+                                                              filename:, diff_to_superseded:, file_index:,
+                                                              commented_lines: @commented_lines[file_index])
     end
 
     files

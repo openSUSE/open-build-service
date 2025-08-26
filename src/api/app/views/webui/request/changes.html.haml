@@ -21,7 +21,7 @@
                                                         page_name: 'request_changes', notification_id: @current_notification,
                                                         current_notification: @current_notification }
     .container.p-4
-      .tab-content.sourcediff{ data: { url: request_action_changes_path(@bs_request.number, @action.id),
+      .tab-content.sourcediff{ data: { url: request_action_changes_path(@bs_request.number, @action.id, tarlimit: @tarlimit),
                                        diff_to_superseded_id: @diff_to_superseded_id },
                                id: 'sourcediff-container' }
         - if @action.target_releaseproject

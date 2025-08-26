@@ -337,7 +337,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def changes_diff
     filename = params[:filename]
-    sourcediff = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded, file: filename, tarlimit: params[:tarlimit] }.compact).first
+    sourcediff = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded, file: filename, filelimit: 0, tarlimit: 0 }.compact).first
     source_rev = sourcediff.dig('new', 'srcmd5')
     if @action.source_package_object&.file_exists?(filename, { rev: source_rev, expand: 1 }.compact)
       source_file = project_package_file_path(@action.source_project_object, @action.source_package_object, filename, rev: source_rev, expand: 1)
@@ -351,7 +351,6 @@ class Webui::RequestController < Webui::WebuiController
                      diff: sourcediff.dig('files', filename, 'diff', '_content'),
                      file_index: params[:file_index], source_file: source_file,
                      target_file: target_file, source_rev: source_rev, target_rev: target_rev,
-                     tarlimit: params[:tarlimit],
                      shown_lines: sourcediff.dig('files', filename, 'diff', 'shown'),
                      total_lines: sourcediff.dig('files', filename, 'diff', 'lines'),
                      commented_lines: (params[:commented_lines] || []).map(&:to_i) }
