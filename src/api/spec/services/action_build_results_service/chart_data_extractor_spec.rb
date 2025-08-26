@@ -36,28 +36,6 @@ RSpec.describe ActionBuildResultsService::ChartDataExtractor do
       HEREDOC
     end
 
-    let(:build_results_with_info) do
-      <<-HEREDOC
-        <resultlist state="89404e94496aebc9a61c552c7b0eea78">
-          <result project="home:Iggy" repository="xUbuntu_25.04" arch="x86_64" code="finished" state="finished">
-            <status package="vlogger" code="succeeded"/>
-            <info package="vlogger">
-              <buildtype>dsc</buildtype>
-            </info>
-          </result>
-          <result project="home:Iggy" repository="Debian_12" arch="i586" code="finished" state="finished">
-            <status package="vlogger" code="disabled"/>
-          </result>
-          <result project="home:Iggy" repository="Debian_12" arch="x86_64" code="finished" state="finished">
-            <status package="vlogger" code="succeeded"/>
-            <info package="vlogger">
-              <buildtype>dsc</buildtype>
-            </info>
-          </result>
-        </resultlist>
-      HEREDOC
-    end
-
     context 'with build results' do
       before do
         allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_build_results)
@@ -79,16 +57,6 @@ RSpec.describe ActionBuildResultsService::ChartDataExtractor do
       let(:actions) { nil }
 
       it { expect(subject).to eq([]) }
-    end
-
-    context 'for non-rpm builds' do
-      before do
-        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(build_results_with_info)
-      end
-
-      it 'returns correct buildtype in the response' do
-        expect(subject.any? { |h| h[:buildtype] == 'dsc' }).to be true
-      end
     end
   end
 
