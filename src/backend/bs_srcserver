@@ -5212,27 +5212,6 @@ sub add_serviceserverstatus {
   return add_daemondata($ws, $daemondata);
 }
 
-sub add_clouduploadserverstatus {
-  my ($cgi, $ws) = @_;
-  return $ws unless $BSConfig::clouduploadserver;
-  return $ws if $cgi->{'type'} && !grep {$_ eq 'clouduploadserver' || $_ eq 'clouduploadworker'} @{$cgi->{'type'}};
-  return $ws if $cgi->{'arch'} && !grep {$_ eq 'clouduploadserver' || $_ eq 'clouduploadworker'} @{$cgi->{'arch'}};
-  my $daemondatas = [ {'state' => 'dead', 'type' => 'clouduploadserver'} ];
-  my $param = {
-    'uri' => "$BSConfig::clouduploadserver/workerstatus",
-    'timeout' => 60,
-  };
-  eval {
-    my $sws = BSWatcher::rpc($param, $BSXML::workerstatus);
-    $daemondatas = $sws->{'partition'}->[0]->{'daemon'}
-  };
-  warn($@) if $@;
-  for my $daemondata (reverse(@$daemondatas)) {
-    $ws = add_daemondata($ws, $daemondata);
-  }
-  return $ws;
-}
-
 sub getworkerstatus {
   my ($cgi) = @_;
   # compat
@@ -5254,7 +5233,6 @@ sub getworkerstatus {
     warn($@) if $@;
     delete $_->{'uri'} for @{$ws->{'idle'} || []};
     delete $_->{'uri'} for @{$ws->{'building'} || []};
-    add_clouduploadserverstatus($cgi, $ws);
     add_serviceserverstatus($cgi, $ws);
     add_localworkerstatus($cgi, $ws, 'deltastore', "$rundir/bs_deltastore.lock");
     add_localworkerstatus($cgi, $ws, 'servicedispatch', "$rundir/bs_servicedispatch.lock");
@@ -5341,7 +5319,6 @@ sub getworkerstatus {
     $cws->{'buildavg'} = [ sort {$a->{'arch'} cmp $b->{'arch'} || $a cmp $b}  @{$cws->{'buildavg'}} ];
   }
   
-  add_clouduploadserverstatus($cgi, $cws);
   add_serviceserverstatus($cgi, $cws);
   add_localworkerstatus($cgi, $cws, 'deltastore', "$rundir/bs_deltastore.lock");
   add_localworkerstatus($cgi, $cws, 'servicedispatch', "$rundir/bs_servicedispatch.lock");
@@ -7717,140 +7694,6 @@ sub getavailablebinaries {
 
 ####################################################################
 
-
-sub cloudupload_create_receiver {
-  my ($req, $param) = @_;
-  my $hdr = $req->{'headers'};
-  die("cannot do chunked uploads\n") if $hdr->{'transfer-encoding'} && lc($hdr->{'transfer-encoding'}) eq 'chunked';
-  my $cl = $hdr->{'content-length'};
-  die("need a content length\n") unless defined $cl;
-  die("upload image is empty\n") unless $cl;
-
-  # create a job
-  $param->{'uploadjob'}->{'size'} = $cl;	# we now know the size
-  my $createparam = {
-    'uri' => "$BSConfig::clouduploadserver/cloudupload",
-    'request' => 'POST',
-    'timeout' => 60,
-    'data' => BSUtil::toxml($param->{'uploadjob'}, $BSXML::clouduploadjob),
-  };
-  my $job = BSWatcher::rpc($createparam, $BSXML::clouduploadjob);
-
-  # reply the job right away
-  BSStdServer::stdreply($job, $BSXML::clouduploadjob);
-  BSServer::done(1);
-
-  # do the upload in the background
-  my $uploadparam = {
-    'uri' => "$BSConfig::clouduploadserver/cloudupload/$job->{'name'}",
-    'request' => 'PUT',
-    'timeout' => 600,
-    'headers' => [ "Content-Length: $cl" ],
-    'data' => \&BSHTTP::reply_sender,
-    'reply_req' => $req,
-  };
-  BSWatcher::rpc($uploadparam);
-
-  # nothing else to reply
-  return undef;
-}
-
-sub cloudupload_create {
-  my ($cgi, $projid, $repoid, $arch, $packid, $filename) = @_;
-  die("no cloud upload server configured\n") unless $BSConfig::clouduploadserver;
-  my $targetdata;
-  $targetdata = BSServer::read_data(10000000) if BSServer::have_content();
-  $targetdata = '' unless defined $targetdata;
-  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
-  my $uploadjob = {
-    'project' => $projid,
-    'repository' => $repoid,
-    'arch' => $arch,
-    'package' => $packid,
-    'filename' => $filename,
-    'user' => $cgi->{'user'},
-    'target' => $cgi->{'target'},
-    'details' => unpack('H*', $targetdata),
-  };
-  my $param = {
-    'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid/$filename",
-    'receiver' => \&cloudupload_create_receiver,
-    'timeout' => 600,
-    'uploadjob' => $uploadjob,
-  };
-  return BSWatcher::rpc($param, undef);
-}
-
-sub cloudupload_status {
-  my ($cgi, $jobid) = @_;
-  die("no cloud upload server configured\n") unless $BSConfig::clouduploadserver;
-  my $param = {
-    'uri' => "$BSConfig::clouduploadserver/cloudupload/$jobid",
-    'ignorestatus' => 1,
-    'receiver' => \&BSServer::reply_receiver,
-  };
-  BSWatcher::rpc($param, undef);
-  return undef;
-}
-
-sub cloudupload_pubkey {
-  my ($cgi) = @_;
-  die("no cloud upload server configured\n") unless $BSConfig::clouduploadserver;
-  return cloudupload_status($cgi, '_pubkey') unless $cgi->{'view'};
-  die("unsupported view '$cgi->{'view'}'\n") if $cgi->{'view'} ne 'info';
-  my $pk = BSWatcher::rpc("$BSConfig::clouduploadserver/cloudupload/_pubkey");
-  die("no pubkey configured\n") unless $pk;
-  my $pubkeyinfo;
-  if ($pk =~ /^-----BEGIN PUBLIC KEY/s) {
-    $pubkeyinfo = BSSrcServer::Signkey::subjectpublickeyinfo($pk);
-  } else {
-    $pubkeyinfo = BSSrcServer::Signkey::pubkeyinfo($pk);
-  }
-  $pubkeyinfo->{'_content'} = $pk;
-  return ($pubkeyinfo, $BSXML::pubkeyinfo);
-}
-
-sub cloudupload_kill {
-  my ($cgi, $jobid) = @_;
-  die("no cloud upload server configured\n") unless $BSConfig::clouduploadserver;
-  my $param = {
-    'uri' => "$BSConfig::clouduploadserver/cloudupload/$jobid",
-    'request' => 'POST',
-    'ignorestatus' => 1,
-    'receiver' => \&BSServer::reply_receiver,
-  };
-  BSWatcher::rpc($param, undef, 'cmd=kill');
-  return undef;
-}
-
-sub cloudupload_joblist {
-  my ($cgi) = @_;
-  die("no cloud upload server configured\n") unless $BSConfig::clouduploadserver;
-  my $param = {
-    'uri' => "$BSConfig::clouduploadserver/cloudupload",
-  };
-  return BSRPC::rpc($param, undef, BSRPC::args($cgi, 'name'));
-}
-
-sub cloudupload_log {
-  my ($cgi, $jobid) = @_;
-  die("no cloud upload server configured\n") unless $BSConfig::clouduploadserver;
-  my @args = BSRPC::args($cgi, 'nostream', 'start', 'end', 'view');
-  if (!$BSStdServer::isajax && !$cgi->{'nostream'} && !$cgi->{'view'}) {
-    BSHandoff::handoff("/cloudupload/$jobid/_log", undef, @args);
-  }
-  my $param = {
-    'uri' => "$BSConfig::clouduploadserver/cloudupload/$jobid/_log",
-    'ignorestatus' => 1,
-    'receiver' => \&BSServer::reply_receiver,
-    'joinable' => 1,
-  };
-  BSWatcher::rpc($param, undef, @args);
-  return undef; # always streams result
-}
-
-####################################################################
-
 sub registry_ownrepo {
   my ($cgi, $projid, $repoid, $regrepo) = @_;
   my $prp = "$projid/$repoid";
@@ -8237,14 +8080,6 @@ my $dispatches = [
   # called from the API to notify hermes/rabbitmq
   'POST:/notify_plugins/$_type:' => \&notify_plugins,
 
-  # cloud upload calls
-  'POST:/cloudupload $project $repository $arch $package $filename user: target:' => \&cloudupload_create,
-  'POST:/cloudupload/$job cmd=kill' => \&cloudupload_kill,
-  '/cloudupload/_pubkey view:?' => \&cloudupload_pubkey,
-  '/cloudupload/$job' => \&cloudupload_status,
-  '/cloudupload/$job/_log nostream:bool? start:intnum? end:num? view:?' => \&cloudupload_log,
-  '/cloudupload name:num*' => \&cloudupload_joblist,
-
   # publisher registry own/disown
   'POST:/ownregistryrepo $project $repository $regrepo' => \&registry_ownrepo,
   'POST:/disownregistryrepo $project $repository $regrepo' => \&registry_disownrepo,
@@ -8292,7 +8127,6 @@ my $dispatches_ajax = [
   '/source/$project/$package:package/$filename rev?' => \&getfile,
   '/request/$id:num withkey:bool? oldkey:md5?' => \&getrequest,
   '/sourcediffcache/$cacheid:md5 view:? file:*' => \&getsourcediffcache,
-  '/cloudupload/$job/_log nostream:bool? start:intnum? end:num? view:?' => \&cloudupload_log,
 ];
 
 ####################################################################
