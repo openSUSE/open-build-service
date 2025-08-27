@@ -1,4 +1,4 @@
-RSpec.describe Worker::StatusController, :vcr do
+RSpec.describe Worker::StatusController do
   render_views
 
   let(:user) { create(:confirmed_user) }
