@@ -49,6 +49,9 @@ Bugfixes:
 Intentional changes:
 ====================
 
+Generic:
+ * Remove Amazon EC2/ Microsoft Azure cloud upload support
+
 Backend:
  * .sha256 files get gpg signed in detached mode now
  * Switched from OR to AND when checking CPU flags in _constraints file
@@ -58,8 +61,6 @@ Webui:
   Features enabled by default:
     * Image Template
     * Kiwi Image Editor
-    * Cloud upload for EC2
-    * Cloud upload for Azure
 
  * Removed the following routes:
 
