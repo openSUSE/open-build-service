@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="user_1" role="maintainer"/>
         </project>
-  recorded_at: Mon, 24 Mar 2025 04:24:30 GMT
+  recorded_at: Wed, 27 Aug 2025 15:46:42 GMT
 - request:
     method: get
     uri: http://backend:5352/build/_workerstatus
@@ -48,7 +48,7 @@ http_interactions:
       string: ''
     headers:
       X-Request-Id:
-      - a3c0d0a8-dc05-446f-b26f-cd311c0fc017
+      - 273b47c5-2314-4a54-9570-f9e2fd3048fd
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -67,13 +67,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '1344'
+      - '1188'
     body:
       encoding: UTF-8
       string: |
         <workerstatus clients="2">
-          <idle workerid="6adb887f3065:1" hostarch="x86_64"/>
-          <idle workerid="6adb887f3065:2" hostarch="x86_64"/>
+          <idle workerid="afe1a12db768:1" hostarch="x86_64"/>
+          <idle workerid="afe1a12db768:2" hostarch="x86_64"/>
           <waiting arch="i586" jobs="0"/>
           <waiting arch="x86_64" jobs="0"/>
           <blocked arch="i586" jobs="0"/>
@@ -81,22 +81,20 @@ http_interactions:
           <buildavg arch="i586" buildavg="1200"/>
           <buildavg arch="x86_64" buildavg="1200"/>
           <partition>
-            <daemon type="srcserver" state="running" starttime="1742790242"/>
-            <daemon type="servicedispatch" state="running" starttime="1742790248"/>
-            <daemon type="service" state="running" starttime="1742790248"/>
-            <daemon type="clouduploadserver" state="running" starttime="1742790248"/>
-            <daemon type="clouduploadworker" state="running" starttime="1742790248"/>
-            <daemon type="scheduler" arch="i586" state="running" starttime="1742790249">
+            <daemon type="srcserver" state="running" starttime="1756308036"/>
+            <daemon type="servicedispatch" state="running" starttime="1756308042"/>
+            <daemon type="service" state="running" starttime="1756308042"/>
+            <daemon type="scheduler" arch="i586" state="running" starttime="1756308042">
               <queue high="0" med="0" low="0" next="0"/>
             </daemon>
-            <daemon type="scheduler" arch="x86_64" state="running" starttime="1742790248">
+            <daemon type="scheduler" arch="x86_64" state="running" starttime="1756308042">
               <queue high="0" med="0" low="0" next="0"/>
             </daemon>
-            <daemon type="repserver" state="running" starttime="1742790246"/>
-            <daemon type="dispatcher" state="running" starttime="1742790248"/>
-            <daemon type="publisher" state="running" starttime="1742790248"/>
-            <daemon type="signer" state="running" starttime="1742790249"/>
+            <daemon type="repserver" state="running" starttime="1756308040"/>
+            <daemon type="dispatcher" state="running" starttime="1756308042"/>
+            <daemon type="publisher" state="running" starttime="1756308042"/>
+            <daemon type="signer" state="running" starttime="1756308042"/>
           </partition>
         </workerstatus>
-  recorded_at: Mon, 24 Mar 2025 04:24:37 GMT
+  recorded_at: Wed, 27 Aug 2025 15:46:45 GMT
 recorded_with: VCR 6.3.1
