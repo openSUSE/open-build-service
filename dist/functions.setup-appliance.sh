@@ -161,10 +161,6 @@ function get_hostname {
     fi
   fi
 
-  if type -p ec2-public-hostname; then
-    FQHOSTNAME=`ec2-public-hostname`
-  fi
-
   if [ "$FQHOSTNAME" = "" ]; then
     ask "Please enter the full qualified hostname!"
     FQHOSTNAME=$rv
