@@ -1,7 +1,6 @@
 module Webui
   module Packages
     class BinariesController < Webui::WebuiController
-      include Webui::Packages::BinariesHelper
       include ScmsyncChecker
 
       # TODO: Keep in sync with Build::query in backend/build/Build.pm.
@@ -41,8 +40,7 @@ module Webui
               build_results_set[:binaries] << { filename: binary['filename'],
                                                 size: binary['size'],
                                                 links: { details?: QUERYABLE_BUILD_RESULTS.any? { |regex| regex.match?(binary['filename']) },
-                                                         download_url: download_url_for_binary(architecture_name: result['arch'], file_name: binary['filename']),
-                                                         cloud_upload?: uploadable?(binary['filename'], result['arch']) } }
+                                                         download_url: download_url_for_binary(architecture_name: result['arch'], file_name: binary['filename']) } }
             end
           end
           @buildresults << build_results_set
