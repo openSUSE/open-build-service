@@ -369,43 +369,6 @@ ChannelTarget:
   requires_issue:
     ThreeStateBooleanChecker:
       enabled: false
-Cloud::Azure::Configuration:
-  id:
-    PrimaryKeyTypeChecker:
-      enabled: false
-  user:
-    ForeignKeyChecker:
-      enabled: false
-Cloud::Ec2::Configuration:
-  arn:
-    LengthConstraintChecker:
-      enabled: false
-    MissingUniqueIndexChecker:
-      enabled: false
-  external_id:
-    LengthConstraintChecker:
-      enabled: false
-    MissingUniqueIndexChecker:
-      enabled: false
-  id:
-    PrimaryKeyTypeChecker:
-      enabled: false
-  index_cloud_ec2_configurations_on_external_id_and_arn:
-    UniqueIndexChecker:
-      enabled: false
-  user:
-    ForeignKeyChecker:
-      enabled: false
-Cloud::User::UploadJob:
-  id:
-    PrimaryKeyTypeChecker:
-      enabled: false
-  job_id:
-    ColumnPresenceChecker:
-      enabled: false
-  user:
-    ForeignKeyChecker:
-      enabled: false
 Comment:
   body:
     ColumnPresenceChecker:
@@ -1694,10 +1657,6 @@ ReleaseTarget:
   id:
     PrimaryKeyTypeChecker:
       enabled: false
-Report:
-  user:
-    ColumnPresenceChecker:
-      enabled: false
 Repository:
   channel_targets:
     ForeignKeyCascadeChecker:
@@ -1961,9 +1920,6 @@ User:
   adminnote:
     LengthConstraintChecker:
       enabled: false
-  azure_configuration:
-    MissingIndexChecker:
-      enabled: false
   bs_request_actions_seen_by_users:
     MissingIndexChecker:
       enabled: false
@@ -1975,9 +1931,6 @@ User:
       enabled: false
   deprecated_password_salt:
     LengthConstraintChecker:
-      enabled: false
-  ec2_configuration:
-    MissingIndexChecker:
       enabled: false
   email:
     LengthConstraintChecker:
