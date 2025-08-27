@@ -68,8 +68,6 @@ if [ -n "$REDIR_LOG" ]; then
   APPEND_ARR[7]=">$REDIR_LOG/bs_signer.log 2>&1"
   APPEND_ARR[8]=">$REDIR_LOG/signd.log 2>&1"
   APPEND_ARR[9]=">$REDIR_LOG/bs_servicedispatch.log 2>&1"
-  APPEND_ARR[10]=">$REDIR_LOG/bs_clouduploadserver.log 2>&1"
-  APPEND_ARR[11]=">$REDIR_LOG/bs_clouduploadworker.log 2>&1"
 fi
 
 #check if GIT_HOME exists. If not it does not make any sense to continue.
@@ -123,12 +121,6 @@ eval $COMMAND_STRING
 echo "Starting bs_servicedispatch"
 COMMAND_STRING="$GIT_HOME/src/backend/bs_servicedispatch ${APPEND_ARR[9]} &"
 eval $COMMAND_STRING
-echo "Starting bs_clouduploadserver"
-COMMAND_STRING="$GIT_HOME/src/backend/bs_clouduploadserver ${APPEND_ARR[10]} &"
-eval $COMMAND_STRING
-echo "Starting bs_clouduploadworker"
-COMMAND_STRING="$GIT_HOME/src/backend/bs_clouduploadworker ${APPEND_ARR[11]} &"
-eval $COMMAND_STRING
 
 #Cleanup function to terminate all backend services
 function clean_up {
@@ -154,10 +146,6 @@ function clean_up {
   echo -e "Terminated Signd"
   "$GIT_HOME"/src/backend/bs_servicedispatch --stop
   echo -e "Terminated service dispatch"
-  "$GIT_HOME"/src/backend/bs_clouduploadserver --stop
-  echo -e "Terminated cloud upload server"
-  "$GIT_HOME"/src/backend/bs_clouduploadworker --stop
-  echo -e "Terminated cloud upload worker"
   exit;
 }
 

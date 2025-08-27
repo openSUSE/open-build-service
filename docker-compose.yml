@@ -13,9 +13,6 @@ services:
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend
     volumes:
       - .:/obs:z
-      - ./dist/aws_credentials:/etc/obs/cloudupload/.aws/config:Z
-      - ./dist/ec2utils.conf:/etc/obs/cloudupload/.ec2utils.conf:Z
-      - ./dist/clouduploader.rb:/usr/bin/clouduploader:Z
     command: /obs/contrib/start_development_backend -d /obs
   worker:
     image: registry.opensuse.org/obs/server/unstable/containers/containers/openbuildservice/backend
