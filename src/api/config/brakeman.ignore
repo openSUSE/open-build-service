@@ -514,7 +514,7 @@
           "type": "controller",
           "class": "Webui::PackageController",
           "method": "users",
-          "line": 156,
+          "line": 157,
           "file": "app/controllers/webui/package_controller.rb",
           "rendered": {
             "name": "webui/package/users",
@@ -717,7 +717,7 @@
           "type": "controller",
           "class": "Webui::PackageController",
           "method": "rpmlint_result",
-          "line": 308,
+          "line": 310,
           "file": "app/controllers/webui/package_controller.rb",
           "rendered": {
             "name": "webui/package/_rpmlint_result",
@@ -751,7 +751,7 @@
           "type": "controller",
           "class": "Webui::PackageController",
           "method": "rdiff",
-          "line": 215,
+          "line": 216,
           "file": "app/controllers/webui/package_controller.rb",
           "rendered": {
             "name": "webui/package/rdiff",
@@ -785,7 +785,7 @@
           "type": "controller",
           "class": "Webui::PackageController",
           "method": "rdiff",
-          "line": 215,
+          "line": 216,
           "file": "app/controllers/webui/package_controller.rb",
           "rendered": {
             "name": "webui/package/rdiff",
@@ -1054,7 +1054,7 @@
           "type": "controller",
           "class": "Webui::PackageController",
           "method": "rdiff",
-          "line": 215,
+          "line": 216,
           "file": "app/controllers/webui/package_controller.rb",
           "rendered": {
             "name": "webui/package/rdiff",
@@ -1077,40 +1077,6 @@
         "template": "webui/package/_revision_diff_detail"
       },
       "user_input": "Package.get_by_project_and_name(::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, (params[:package] or params[:package_name]), :follow_multibuild => true)",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "fad32282655f10502fcab3037fa91e1f12bb8ba03bded9cf9abf2b20b63e5d6d",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/webui/package/beta/rpmlint_result.html.haml",
-      "line": 14,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "::Haml::AttributeBuilder.build_data(true, \"'\", :project => ::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, :package => Package.get_by_project_and_name(::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name, (params[:package] or params[:package_name]), :follow_multibuild => true).name)",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "Webui::PackageController",
-          "method": "rpmlint_result",
-          "line": 304,
-          "file": "app/controllers/webui/package_controller.rb",
-          "rendered": {
-            "name": "webui/package/beta/rpmlint_result",
-            "file": "app/views/webui/package/beta/rpmlint_result.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "webui/package/beta/rpmlint_result"
-      },
-      "user_input": "::Project.find_by(:name => (params[:project_name] or params[:project]).to_s).name",
       "confidence": "Weak",
       "cwe_id": [
         79
