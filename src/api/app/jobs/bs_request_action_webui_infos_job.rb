@@ -8,13 +8,14 @@
 class BsRequestActionWebuiInfosJob < ApplicationJob
   queue_as :quick
 
-  def perform(bs_request_action)
+  def perform(bs_request_action, tarlimit: nil)
     # We don't need to do an access check as this is only for warming the cache in the backend
     source_package_names = BsRequestAction::Differ::SourcePackageFinder.new(
       bs_request_action: bs_request_action,
       options: { skip_access_check: true }
     ).all
     for_superseded_requests(bs_request_action, source_package_names)
+    for_tar_file_limit(bs_request_action, source_package_names, tarlimit) if tarlimit
     for_target_package(bs_request_action, source_package_names)
   end
 
@@ -50,6 +51,16 @@ class BsRequestActionWebuiInfosJob < ApplicationJob
         bs_request_action: bs_request_action,
         source_package_names: source_package_names,
         options: { superseded_bs_request_action: superseded_bs_request_action, view: 'xml', withissues: 1 }
+      ).perform
+    end
+  end
+
+  def for_tar_file_limit(bs_request_action, source_package_names, tarlimit)
+    silent do
+      BsRequestAction::Differ::ForSource.new(
+        bs_request_action: bs_request_action,
+        source_package_names: source_package_names,
+        options: { view: 'xml', withissues: 1, tarlimit: tarlimit }.compact
       ).perform
     end
   end

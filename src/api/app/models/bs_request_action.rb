@@ -271,7 +271,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def diff_not_cached(opts = {})
-    sourcediff_results = webui_sourcediff({ cacheonly: 1, diff_to_superseded: opts[:diff_to_superseded] })
+    sourcediff_results = webui_sourcediff({ cacheonly: 1, diff_to_superseded: opts[:diff_to_superseded], tarlimit: opts[:tarlimit] }.compact)
     errors = sourcediff_results.pluck(:error).compact
 
     return false if sourcediff_results.present? && errors.empty?
