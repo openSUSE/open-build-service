@@ -1257,7 +1257,7 @@ class Package < ApplicationRecord
 
     params = opt.slice(:comment, :rev) || {}
     params[:user] = User.session!.login
-    Backend::Api::Sources::Package.write_file(project.name, name, opt[:filename], content, params)
+    Backend::Api::Sources::File.write(project.name, name, opt[:filename], content, params)
 
     # KIWI file
     if /\.kiwi\.txz$/.match?(opt[:filename])

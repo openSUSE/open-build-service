@@ -219,7 +219,7 @@ RSpec.describe Webui::Packages::FilesController, :vcr do
   describe 'GET #blame' do
     before do
       allow_any_instance_of(Package).to receive(:file_exists?).with('aaa_base.spec', {}).and_return(true)
-      allow(Backend::Api::Sources::Package).to receive(:blame).with(source_project.name, source_package.name, 'aaa_base.spec', {}).and_return(file_fixture('aaa_base.spec.blame').read)
+      allow(Backend::Api::Sources::File).to receive(:blame).with(source_project.name, source_package.name, 'aaa_base.spec', {}).and_return(file_fixture('aaa_base.spec.blame').read)
       get :blame, params: { project_name: source_project, package_name: source_package, file_filename: 'aaa_base.spec' }
     end
 
