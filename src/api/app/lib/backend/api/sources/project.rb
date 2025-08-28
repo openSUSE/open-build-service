@@ -41,6 +41,12 @@ module Backend
           http_put(['/source/:project/_meta', project_name], data: meta, params: options, accepted: %i[user comment requestid lowprio])
         end
 
+        # Returns the configuration of a project
+        # @return [String]
+        def self.configuration(project_name)
+          http_get(['/source/:project/_config', project_name])
+        end
+
         # Writes a Project configuration
         # @return [String]
         def self.write_configuration(project_name, configuration)
