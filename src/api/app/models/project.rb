@@ -302,14 +302,6 @@ class Project < ApplicationRecord
       projects
     end
 
-    def source_path(project, file = nil, opts = {})
-      path = "/source/#{project}"
-      path = Addressable::URI.escape(path)
-      path += "/#{ERB::Util.url_encode(file)}" if file.present?
-      path += "?#{opts.to_query}" if opts.present?
-      path
-    end
-
     def validate_remote_permissions(request_data)
       return {} if User.admin_session?
 
@@ -950,7 +942,7 @@ class Project < ApplicationRecord
       if repository == 'images'
         path_elements = remote_project_meta.xpath("//repository[@name='images']/path")
 
-        new_configuration = source_file('_config')
+        new_configuration = Backend::Api::Sources::Project.configuration(name)
         unless /^Type:/.match?(new_configuration)
           new_configuration = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << new_configuration
           Backend::Api::Sources::Project.write_configuration(name, new_configuration)
@@ -1274,17 +1266,9 @@ class Project < ApplicationRecord
     packages.joins(:flags).where(flags: { flag: :build, status: 'enable', repo: release_targets.select(:name) })
   end
 
-  def source_path(file = nil, opts = {})
-    Project.source_path(name, file, opts)
-  end
-
-  def source_file(file, opts = {})
-    Backend::Connection.get(source_path(file, opts)).body
-  end
-
   # FIXME: will be cleaned up after implementing FATE #308899
   def prepend_kiwi_config
-    new_configuration = source_file('_config')
+    new_configuration = Backend::Api::Sources::Project.configuration(name)
     return if /^Type:/.match?(new_configuration)
 
     new_configuration = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << new_configuration
