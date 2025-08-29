@@ -65,6 +65,13 @@ module Backend
           http_get(['/source/:project/_patchinfo', project_name])
         end
 
+        # Copy an entire project
+        def self.copy(project_name, options = {})
+          http_post(['/source/:project', project_name],
+                    defaults: { cmd: :copy }, params: options,
+                    accepted: %i[user comment oproject withbinaries withhistory makeolder makeoriginolder noservice resign])
+        end
+
         # Moves the source project to the target
         # @return [String]
         def self.move(source_project_name, target_project_name)
