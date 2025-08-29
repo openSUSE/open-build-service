@@ -34,5 +34,39 @@ module Webui::RescueHandler
     rescue_from AjaxDatatablesRails::Error::InvalidSearchColumn, AjaxDatatablesRails::Error::InvalidSearchCondition do
       render json: { data: [] }
     end
+
+    rescue_from AuthenticationFailed, AuthenticationRequiredError do |exception|
+      case CONFIG['proxy_auth_mode']
+      when :mellon
+        redirect_to add_return_to_parameter_to_query(url: CONFIG['proxy_auth_login_page'], parameter_name: 'ReturnTo')
+      when :ichain
+        redirect_to add_return_to_parameter_to_query(url: CONFIG['proxy_auth_login_page'], parameter_name: 'url')
+      when :on
+        redirect_to CONFIG['proxy_auth_login_page']
+      else # no proxy auth
+        reset_session
+        redirect_to(new_session_path, error: exception.default_message)
+      end
+    end
+
+    rescue_from UnconfirmedUserError, InactiveUserError, ErrRegisterSave do |exception|
+      if ::Configuration.proxy_auth_mode_enabled?
+        redirect_to('/402')
+      else
+        reset_session
+        redirect_to(new_session_path, error: exception.default_message)
+      end
+    end
+
+    def add_return_to_parameter_to_query(url:, parameter_name:)
+      uri = URI(url)
+      return_to = {}
+      return_to[parameter_name] = request.fullpath
+      query_array = uri.query.to_s.split('&')
+      query_array << return_to.to_query # for URL encoding
+      uri.query = query_array.join('&')
+
+      uri.to_s
+    end
   end
 end

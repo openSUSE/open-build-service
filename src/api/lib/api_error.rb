@@ -38,7 +38,28 @@ class APIError < RuntimeError
   end
 end
 
-# 403 errors (how about a subclass?)
+# 401 errors
+class AuthenticationFailed < APIError
+  setup 401, 'Authentication Failed'
+end
+
+class AuthenticationRequiredError < APIError
+  setup 401, 'Authentication Required'
+end
+
+# 403 errors
+class InactiveUserError < APIError
+  setup 403, 'Your account is in a not active state. Talk to your OBS Admin.'
+end
+
+class UnconfirmedUserError < APIError
+  setup 403, 'Your account is not yet approved. Talk to your OBS Admin.'
+end
+
+class AdminUserRequiredError < APIError
+  setup('put_request_no_permission', 403)
+end
+
 class NoPermission < APIError
   setup 403
 end
