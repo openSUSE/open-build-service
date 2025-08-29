@@ -18,10 +18,6 @@ namespace :dev do
     RakeSupport.copy_example_file('config/options.yml')
     puts 'Copying thinking sphinx example...'
     RakeSupport.copy_example_file('config/thinking_sphinx.yml')
-
-    puts 'Setting up the cloud uploader'
-    RakeSupport.copy_example_file('../../dist/aws_credentials')
-    RakeSupport.copy_example_file('../../dist/ec2utils.conf')
   end
 
   task development_environment: :environment do
