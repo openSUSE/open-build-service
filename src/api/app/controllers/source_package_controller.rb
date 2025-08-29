@@ -134,8 +134,7 @@ class SourcePackageController < SourceController
 
     raise DeleteFileNoPermission, 'Insufficient permissions to delete file' unless @allowed
 
-    @path += build_query_from_hash(params, %i[user comment meta rev keeplink])
-    Backend::Connection.delete @path
+    Backend::Api::Sources::File.delete(@project_name, @package_name, @file, params.slice(:user, :comment, :meta, :rev, :keeplink).permit!.to_h)
 
     unless @package_name == '_pattern' || @package_name == '_project'
       # _pattern was not a real package in old times
