@@ -152,8 +152,8 @@ module Backend
         end
 
         # Deletes the package and all the source files inside
-        def self.delete(project_name, package_name)
-          http_delete(['/source/:project/:package', project_name, package_name])
+        def self.delete(project_name, package_name, options = {})
+          http_delete(['/source/:project/:package', project_name, package_name], params: options, accepted: %i[user comment requestid])
         end
 
         # Undeletes the package
