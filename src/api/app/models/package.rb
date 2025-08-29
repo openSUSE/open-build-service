@@ -811,7 +811,7 @@ class Package < ApplicationRecord
       query[:comment] = @commit_opts[:comment] if @commit_opts[:comment].present?
       # the request number is the requestid parameter in the backend api
       query[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
-      Backend::Connection.put(source_path('_meta', query), to_axml)
+      Backend::Api::Sources::Package.write_meta(project.name, name, to_axml, query)
       logger.tagged('backend_sync') { logger.debug "Saved Package #{project.name}/#{name}" }
     elsif @commit_opts[:no_backend_write]
       logger.tagged('backend_sync') { logger.warn "Not saving Package #{project.name}/#{name}, backend_write is off " }
@@ -833,14 +833,11 @@ class Package < ApplicationRecord
     raise ArgumentError, 'no commit_user set' unless commit_user
 
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
-      path = source_path
-
       h = { user: commit_user.login }
       h[:comment] = commit_opts[:comment] if commit_opts[:comment]
       h[:requestid] = commit_opts[:request].number if commit_opts[:request]
-      path << Backend::Connection.build_query_from_hash(h, %i[user comment requestid])
       begin
-        Backend::Connection.delete path
+        Backend::Api::Sources::Package.delete(project.name, name, h)
       rescue Backend::NotFoundError
         # ignore this error, backend was out of sync
         logger.tagged('backend_sync') { logger.warn("Package #{project.name}/#{name} was already missing on backend on removal") }
@@ -1186,7 +1183,7 @@ class Package < ApplicationRecord
     nil
   end
 
-  def delete_file(name, opt = {})
+  def delete_file(filename, opt = {})
     raise ScmsyncReadOnly if scmsync.present?
 
     delete_opt = {}
@@ -1196,7 +1193,7 @@ class Package < ApplicationRecord
 
     raise DeleteFileNoPermission, 'Insufficient permissions to delete file' unless User.session!.can_modify?(self)
 
-    Backend::Connection.delete source_path(name, delete_opt)
+    Backend::Api::Sources::File.delete(project.name, name, filename, delete_opt)
     sources_changed
   end
 
