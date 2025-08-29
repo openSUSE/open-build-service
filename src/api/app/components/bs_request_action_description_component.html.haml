@@ -1,1 +1,33 @@
-= description
+- case action.type
+- when 'submit'
+  Submit
+  = source_and_target_container
+- when 'delete'
+  Delete
+  = target_repository
+  = target_container
+- when 'add_role', 'set_bugowner'
+  - if text_only
+    = creator
+  - else
+    = user_with_realname_and_icon(creator)
+  wants
+  = requester_str(creator, action.person_name, action.group_name)
+  to
+  = creator_intentions(action.role)
+  for
+  = target_container
+- when 'change_devel'
+  Set
+  = source_container
+  to be devel project/package of
+  = target_container
+- when 'maintenance_incident'
+  Submit update from
+  = source_and_target_container
+- when 'maintenance_release'
+  Maintenance release
+  = source_and_target_container
+- when 'release'
+  Release
+  = source_and_target_container
