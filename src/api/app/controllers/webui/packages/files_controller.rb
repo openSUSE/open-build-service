@@ -112,7 +112,7 @@ module Webui
       end
 
       def blame
-        blame_file = Backend::Api::Sources::Package.blame(@project.name, @package_name, @filename, params.slice(:rev, :expand).permit!.to_h)
+        blame_file = Backend::Api::Sources::File.blame(@project.name, @package_name, @filename, params.slice(:rev, :expand).permit!.to_h)
         # Regex to break apart the line into individual components
         blame_parsed = blame_file.each_line.to_a.filter_map do |l|
           match_line = /^\s*

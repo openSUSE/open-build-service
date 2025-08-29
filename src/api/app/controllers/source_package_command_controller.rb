@@ -167,13 +167,13 @@ class SourcePackageCommandController < SourceController
 
     begin
       # TODO: No need to read the whole file for knowing if it exists already
-      Backend::Api::Sources::Package.file(params[:project], params[:package], "#{params[:package]}.spec")
+      Backend::Api::Sources::File.content(params[:project], params[:package], "#{params[:package]}.spec")
       render_error status: 400, errorcode: 'spec_file_exists',
                    message: 'SPEC file already exists.'
       return
     rescue Backend::NotFoundError
       specfile_content = File.read(Rails.root.join('files/specfiletemplate').to_s)
-      Backend::Api::Sources::Package.write_file(params[:project], params[:package], "#{params[:package]}.spec", specfile_content)
+      Backend::Api::Sources::File.write(params[:project], params[:package], "#{params[:package]}.spec", specfile_content)
     end
     render_ok
   end
