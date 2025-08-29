@@ -833,14 +833,11 @@ class Package < ApplicationRecord
     raise ArgumentError, 'no commit_user set' unless commit_user
 
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
-      path = source_path
-
       h = { user: commit_user.login }
       h[:comment] = commit_opts[:comment] if commit_opts[:comment]
       h[:requestid] = commit_opts[:request].number if commit_opts[:request]
-      path << Backend::Connection.build_query_from_hash(h, %i[user comment requestid])
       begin
-        Backend::Connection.delete path
+        Backend::Api::Sources::Package.delete(project.name, name, h)
       rescue Backend::NotFoundError
         # ignore this error, backend was out of sync
         logger.tagged('backend_sync') { logger.warn("Package #{project.name}/#{name} was already missing on backend on removal") }
