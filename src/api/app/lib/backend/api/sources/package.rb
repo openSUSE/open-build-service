@@ -98,6 +98,11 @@ module Backend
                     params: options, accepted: %i[keepcontent comment requestid noservice])
         end
 
+        # Convert a link into a branch
+        def self.linktobranch(project, package, options = {})
+          http_post(['/source/:project/:package', project, package], defaults: { cmd: :linktobranch }, params: options, accepted: %i[user linkrev rev])
+        end
+
         # Returns the link information of a package
         def self.link_info(project, package)
           http_get(['/source/:project/:package/_link', project, package])

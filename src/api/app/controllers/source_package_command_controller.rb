@@ -377,15 +377,8 @@ class SourcePackageCommandController < SourceController
   def linktobranch
     authorize @package, :update?
 
-    pkg_rev = params[:rev]
-    pkg_linkrev = params[:linkrev]
-
-    # convert link to branch
-    rev = ''
-    rev = "&orev=#{pkg_rev}" if pkg_rev.present?
-    linkrev = ''
-    linkrev = "&linkrev=#{pkg_linkrev}" if pkg_linkrev.present?
-    Backend::Connection.post "/source/#{@package.project.name}/#{@package.name}?cmd=linktobranch&user=#{CGI.escape(params[:user])}#{rev}#{linkrev}"
+    options = params.slice(:user, :linkrev, :rev).permit!.to_h
+    Backend::Api::Sources::Package.linktobranch(@package.project.name, @package.name, options)
 
     @package.sources_changed
     render_ok
