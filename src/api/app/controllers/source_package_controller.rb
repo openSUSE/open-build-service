@@ -118,7 +118,7 @@ class SourcePackageController < SourceController
 
     Package.verify_file!(@pack, params[:filename], request.raw_post)
 
-    @path += build_query_from_hash(params, %i[user comment rev linkrev keeplink meta])
+    @path += build_query_from_hash(params, %i[user comment rev keeplink meta])
     pass_to_backend(@path)
 
     # update package timestamp and reindex sources
@@ -134,7 +134,7 @@ class SourcePackageController < SourceController
 
     raise DeleteFileNoPermission, 'Insufficient permissions to delete file' unless @allowed
 
-    @path += build_query_from_hash(params, %i[user comment meta rev linkrev keeplink])
+    @path += build_query_from_hash(params, %i[user comment meta rev keeplink])
     Backend::Connection.delete @path
 
     unless @package_name == '_pattern' || @package_name == '_project'
