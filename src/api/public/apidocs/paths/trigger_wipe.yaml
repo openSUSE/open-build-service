@@ -1,0 +1,9 @@
+post:
+  summary: Trigger a wipe of binary artifacts
+  description: |
+    This endpoint behaves exactly as the [/trigger](#/Trigger/post_trigger) endpoint but
+    only allows API tokens with the operation 'wipe' to be triggered.
+  security:
+    - GitLab_key_authentication: []
+  tags:
+    - Trigger
