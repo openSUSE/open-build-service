@@ -1186,7 +1186,7 @@ class Package < ApplicationRecord
     nil
   end
 
-  def delete_file(name, opt = {})
+  def delete_file(filename, opt = {})
     raise ScmsyncReadOnly if scmsync.present?
 
     delete_opt = {}
@@ -1196,7 +1196,7 @@ class Package < ApplicationRecord
 
     raise DeleteFileNoPermission, 'Insufficient permissions to delete file' unless User.session!.can_modify?(self)
 
-    Backend::Connection.delete source_path(name, delete_opt)
+    Backend::Api::Sources::File.delete(project.name, name, filename, delete_opt)
     sources_changed
   end
 
