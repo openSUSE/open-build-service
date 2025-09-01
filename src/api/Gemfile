@@ -123,6 +123,9 @@ gem 'stringio', '3.1.2'
 # OpenStruct implementation (no longer a default gem from ruby > 3.4.0)
 gem 'ostruct'
 
+# For markdown editor
+gem 'marksmith'
+
 group :development, :production do
   # to have the delayed job daemon
   gem 'daemons'
