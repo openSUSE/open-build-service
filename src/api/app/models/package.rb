@@ -507,7 +507,7 @@ class Package < ApplicationRecord
   end
 
   def source_file(file, opts = {})
-    Backend::Connection.get(source_path(file, opts)).body
+    Backend::Api::Sources::File.content(project.name, name, file, opts)
   end
 
   def dir_hash(opts = {})
