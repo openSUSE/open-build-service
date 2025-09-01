@@ -296,7 +296,7 @@ class Package < ApplicationRecord
   end
 
   def self.exists_on_backend?(package, project)
-    !Backend::Connection.get(Package.source_path(project, package)).nil?
+    !Backend::Api::Sources::Package.files(project, package).nil?
   rescue Backend::Error
     false
   end
