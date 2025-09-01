@@ -626,9 +626,9 @@ class Package < ApplicationRecord
   # rubocop:disable Style/GuardClause
   def update_channel_list
     if channel?
-      xml = Backend::Connection.get(source_path('_channel'))
+      xml = Backend::Api::Sources::File.content(project.name, name, '_channel')
       begin
-        channels.first_or_create.update_from_xml(xml.body.to_s)
+        channels.first_or_create.update_from_xml(xml)
       rescue ActiveRecord::RecordInvalid => e
         if Rails.env.test?
           raise e
