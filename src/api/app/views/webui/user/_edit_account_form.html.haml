@@ -13,7 +13,11 @@
       %span.badge.text-bg-secondary
         = title.upcase
   .mb-3
-    = f.text_area(:biography, rows: 6, placeholder: 'Biography', maxlength: User::MAX_BIOGRAPHY_LENGTH_ALLOWED, class: 'form-control')
+    = render WriteAndPreviewComponent.new(form: f, preview_message_url: nil, message_body_param: nil,
+                                        text_area_attributes: { rows: 6, placeholder: 'Biography',
+                                        required: false, object_name: :biography,
+                                        maxlength: User::MAX_BIOGRAPHY_LENGTH_ALLOWED})
+
     = f.label(:biography, class: 'd-block text-end') do
       %small.form-text#bio-chars-counter
   .mb-3
