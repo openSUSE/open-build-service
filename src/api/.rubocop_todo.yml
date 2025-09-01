@@ -633,6 +633,7 @@ RSpec/VerifiedDoubles:
     - 'spec/jobs/issue_tracker_update_issues_job_spec.rb'
     - 'spec/lib/authenticator_spec.rb'
     - 'spec/lib/backend/connection_helper_spec.rb'
+    - 'spec/lib/routes_helper/role_matcher_spec.rb'
     - 'spec/mixins/build_log_support_spec.rb'
     - 'spec/mixins/parse_package_diff_spec.rb'
     - 'spec/models/issue_tracker_spec.rb'

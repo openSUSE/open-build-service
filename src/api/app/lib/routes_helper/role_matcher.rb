@@ -1,14 +1,17 @@
 module RoutesHelper
   class RoleMatcher
     def self.matches?(request)
-      return false if request.bot?
+      login = if ::Configuration.proxy_auth_mode_enabled?
+                request.env['HTTP_X_USERNAME']
+              else
+                request.session[:login]
+              end
+      return false unless login
 
-      return false unless WebuiControllerService::UserChecker.new(http_request: request).call
+      user = User.find_by(login: login, state: :confirmed)
+      return false unless user
 
-      current_user_login = request.session[:login]
-      current_user = current_user_login.present? ? User.find_by_login(current_user_login) : User.possibly_nobody
-
-      current_user.admin? || current_user.staff?
+      user.admin? || user.staff?
     end
   end
 end
