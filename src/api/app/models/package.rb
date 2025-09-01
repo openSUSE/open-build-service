@@ -482,7 +482,7 @@ class Package < ApplicationRecord
     dir_xml = if dir_xml.is_a?(Net::HTTPSuccess)
                 dir_xml.body
               else
-                source_file(nil)
+                Backend::Api::Sources::Package.files(project.name, name)
               end
     private_set_package_kind(Xmlhash.parse(dir_xml))
     update_project_for_product
