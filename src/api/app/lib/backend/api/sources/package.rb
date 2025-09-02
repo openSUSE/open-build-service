@@ -125,8 +125,16 @@ module Backend
         # @option options [String] :filelimit Sets the maximum lines of the diff which will be returned (0 = all lines)
         # @return [String]
         def self.source_diff(project_name, package_name, options = {})
-          accepted = %i[rev orev opackage oproject linkrev olinkrev expand filelimit tarlimit withissues view cacheonly nodiff file]
+          accepted = %i[rev orev opackage oproject linkrev olinkrev expand filelimit tarlimit onlyissues withissues view cacheonly nodiff file]
           diff = http_post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :diff }, params: options, accepted: accepted)
+          diff.valid_encoding? ? diff : diff.encode('UTF-8', 'binary', invalid: :replace, undef: :replace)
+        end
+
+        # Returns the link diff as UTF-8 encoded string
+        # @return [String]
+        def self.link_diff(project_name, package_name, options = {})
+          accepted = %i[linkrev onlyissues view]
+          diff = http_post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :linkdiff }, params: options, accepted: accepted)
           diff.valid_encoding? ? diff : diff.encode('UTF-8', 'binary', invalid: :replace, undef: :replace)
         end
 
