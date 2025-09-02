@@ -1308,8 +1308,8 @@ class Package < ApplicationRecord
   end
 
   def self.what_depends_on(project, package, repository, architecture)
-    path = "/build/#{project}/#{repository}/#{architecture}/_builddepinfo?package=#{package}&view=revpkgnames"
-    [Xmlhash.parse(Backend::Connection.get(path).body).try(:[], 'package').try(:[], 'pkgdep')].flatten.compact
+    builddepinfo_xml = Backend::Api::BuildResults::Binaries.builddepinfo(project, repository, architecture, package, { view: :revpkgnames })
+    [Xmlhash.parse(builddepinfo_xml).try(:[], 'package').try(:[], 'pkgdep')].flatten.compact
   rescue Backend::NotFoundError
     []
   end
