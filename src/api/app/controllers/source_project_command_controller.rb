@@ -242,9 +242,7 @@ class SourceProjectCommandController < SourceController
       # rubocop:enable Metrics/BlockLength
     end
 
-    job_params = params.slice(
-      :cmd, :user, :comment, :oproject, :withbinaries, :withhistory, :makeolder, :makeoriginolder, :noservice, :resign
-    ).permit!.to_h
+    job_params = params.slice(:user, :comment, :oproject, :withbinaries, :withhistory, :makeolder, :makeoriginolder, :noservice, :resign).permit!.to_h
     job_params[:user] = User.session.login
 
     if params.key?(:nodelay)
