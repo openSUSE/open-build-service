@@ -807,11 +807,8 @@ class Package < ApplicationRecord
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       raise ArgumentError, 'no commit_user set' unless commit_user
 
-      query = { user: commit_user.login }
-      query[:comment] = @commit_opts[:comment] if @commit_opts[:comment].present?
-      # the request number is the requestid parameter in the backend api
-      query[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
-      Backend::Api::Sources::Package.write_meta(project.name, name, to_axml, query)
+      Backend::Api::Sources::Package.write_meta(project.name, name, to_axml,
+                                                { user: commit_user.login, comment: @commit_opts[:comment], requestid: @commit_opts[:request]&.number }.compact)
       logger.tagged('backend_sync') { logger.debug "Saved Package #{project.name}/#{name}" }
     elsif @commit_opts[:no_backend_write]
       logger.tagged('backend_sync') { logger.warn "Not saving Package #{project.name}/#{name}, backend_write is off " }
@@ -833,11 +830,9 @@ class Package < ApplicationRecord
     raise ArgumentError, 'no commit_user set' unless commit_user
 
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
-      h = { user: commit_user.login }
-      h[:comment] = commit_opts[:comment] if commit_opts[:comment]
-      h[:requestid] = commit_opts[:request].number if commit_opts[:request]
       begin
-        Backend::Api::Sources::Package.delete(project.name, name, h)
+        Backend::Api::Sources::Package.delete(project.name, name,
+                                              { user: commit_user.login, comment: commit_opts[:comment], requestid: commit_opts[:request]&.number }.compact)
       rescue Backend::NotFoundError
         # ignore this error, backend was out of sync
         logger.tagged('backend_sync') { logger.warn("Package #{project.name}/#{name} was already missing on backend on removal") }
