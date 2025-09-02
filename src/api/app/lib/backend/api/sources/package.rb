@@ -45,6 +45,12 @@ module Backend
           http_get(['/source/:project/:package/_meta', project_name, package_name], params: options.compact, accepted: :deleted)
         end
 
+        # Writes a Package meta
+        # @return [String]
+        def self.write_meta(project_name, package_name, content, options = {})
+          http_put(['/source/:project/:package/_meta', project_name, package_name], data: content, params: options, accepted: %i[user comment requestid])
+        end
+
         # Returns the content of the _service file (if present)
         # @return [String]
         def self.service(project_name, package_name)
@@ -154,8 +160,8 @@ module Backend
         end
 
         # Deletes the package and all the source files inside
-        def self.delete(project_name, package_name)
-          http_delete(['/source/:project/:package', project_name, package_name])
+        def self.delete(project_name, package_name, options = {})
+          http_delete(['/source/:project/:package', project_name, package_name], params: options, accepted: %i[user comment requestid])
         end
 
         # Undeletes the package
