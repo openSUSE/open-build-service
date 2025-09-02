@@ -558,15 +558,10 @@ class Package < ApplicationRecord
     PackageIssue.sync_relations(self, current_issues)
   end
 
-  def parse_issues_xml(query, force_state = nil)
-    # The issue trackers should have been written to the backend before this point (IssueTrackerWriteToBackendJob)
-    begin
-      answer = Backend::Connection.post(source_path(nil, query))
-    rescue Backend::Error => e
-      Rails.logger.debug { "failed to parse issues: #{e.inspect}" }
-      return {}
-    end
-    xml = Xmlhash.parse(answer.body)
+  def parse_issues_xml(issues_xml, force_state = nil)
+    return {} if issues_xml.blank?
+
+    xml = Xmlhash.parse(issues_xml)
 
     # collect all issues and put them into an hash
     issues = {}
@@ -580,12 +575,22 @@ class Package < ApplicationRecord
 
   def find_changed_issues
     # no expand=1, so only branches are tracked
-    query = { cmd: :diff, orev: 0, onlyissues: 1, linkrev: :base, view: :xml }
-    issue_change = parse_issues_xml(query, 'kept')
+    xml_diff = begin
+      Backend::Api::Sources::Package.source_diff(project.name, name, { orev: 0, onlyissues: 1, linkrev: :base, view: :xml })
+    rescue Backend::Error
+      ''
+    end
+
+    issue_change = parse_issues_xml(xml_diff, 'kept')
     # issues introduced by local changes
     if link?
-      query = { cmd: :linkdiff, onlyissues: 1, linkrev: :base, view: :xml }
-      new_issues = parse_issues_xml(query)
+      xml_linkdiff = begin
+        Backend::Api::Sources::Package.link_diff(project.name, name, { onlyissues: 1, linkrev: :base, view: :xml })
+      rescue Backend::Error
+        ''
+      end
+
+      new_issues = parse_issues_xml(xml_linkdiff)
       (issue_change.keys + new_issues.keys).uniq.each do |key|
         issue_change[key] ||= {}
         issue_change[key].merge!(new_issues[key]) if new_issues[key]
