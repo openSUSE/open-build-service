@@ -24,8 +24,8 @@ module Backend
         end
 
         # Deletes a package source file
-        def self.delete(project_name, package_name, filename)
-          http_delete(['/source/:project/:package/:filename', project_name, package_name, filename])
+        def self.delete(project_name, package_name, filename, options = {})
+          http_delete(['/source/:project/:package/:filename', project_name, package_name, filename], params: options, accepted: %i[user comment meta rev keeplink])
         end
       end
     end
