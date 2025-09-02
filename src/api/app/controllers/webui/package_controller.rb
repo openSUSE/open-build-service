@@ -427,7 +427,7 @@ class Webui::PackageController < Webui::WebuiController
       @current_rev = @package.rev
       @revision = @current_rev if !@revision && !@srcmd5 # on very first page load only
 
-      files_xml = @package.source_file(nil, { rev: @srcmd5 || @revision, expand: @expand }.compact)
+      files_xml = Backend::Api::Sources::Package.files(@package.project.name, @package.name, { rev: @srcmd5 || @revision, expand: @expand }.compact)
       files_hash = Xmlhash.parse(files_xml)
       @files = files_hash.elements('entry')
       @srcmd5 = files_hash['srcmd5'] unless @revision == @current_rev
