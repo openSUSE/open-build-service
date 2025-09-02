@@ -660,7 +660,7 @@ class Package < ApplicationRecord
 
     Product.transaction do
       begin
-        xml = Xmlhash.parse(Backend::Connection.get(source_path(nil, view: :products)).body)
+        xml = Xmlhash.parse(Backend::Api::Sources::Package.products(project.name, name))
       rescue StandardError
         next
       end

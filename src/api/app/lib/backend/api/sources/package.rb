@@ -31,6 +31,12 @@ module Backend
           http_get(['/source/:project/:package', project_name, package_name], params: options, accepted: %i[expand rev view])
         end
 
+        # Returns a file list of the products for a package
+        # @return [String]
+        def self.products(project_name, package_name)
+          http_get(['/source/:project/:package', project_name, package_name], defaults: { view: :products })
+        end
+
         # Returns the revisions (mrev) list for a package
         # @return [String]
         def self.revisions(project_name, package_name, options = {})
