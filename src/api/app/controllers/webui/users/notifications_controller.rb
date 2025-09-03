@@ -72,6 +72,18 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     render json: AutocompleteFinder::Project.new(relation, params[:term]).call.pluck(:name)
   end
 
+  def count_for_notification_types
+    counted_notifications = {}
+    # notifiable_type: 'Report', 'WorkflowRun', 'Decision', 'Comment', 'BsRequest', 'Group'
+    counted_notifiable_types = @notifications.unread.group(:notifiable_type).count
+
+    NOTIFICATION_TYPES_KEY_MAP.each do |notifications_key, notification_types_key|
+      counted_notifications[notifications_key] = counted_notifiable_types[notification_types_key] || 0
+    end
+
+    render partial: 'counter', locals: { id: "count_#{params[:notification_type]}", count: counted_notifications[params[:notification_type].to_s] }
+  end
+
   private
 
   def set_filter_kind
