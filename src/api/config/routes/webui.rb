@@ -381,6 +381,7 @@ constraints(RoutesHelper::WebuiMatcher) do
       collection do
         # We allow updating multiple notifications in a single HTTP request
         put :update
+        get :count_for_notification_types
       end
     end
 
