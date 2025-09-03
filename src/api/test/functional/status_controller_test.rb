@@ -8,9 +8,6 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_calculate_workers_by_constraints
-    post '/worker'
-    assert_response :bad_request
-    assert_xml_tag(tag: 'status', attributes: { code: 'missing_parameter' })
     post '/worker?cmd=checkconstraints&project=HiddenProject&package=TestPack&repository=10.2&arch=i586'
     assert_response :not_found
     assert_xml_tag(tag: 'status', attributes: { code: 'unknown_project' })

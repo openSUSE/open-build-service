@@ -416,21 +416,25 @@ controller 'webui/sitemaps' do
   get 'package/sitemap(/:project_name)' => :packages
 end
 
+### /worker
 scope :worker, as: :worker do
-  resources :status, only: [:index], controller: 'worker/status'
-  resources :capability, only: [:show], param: :worker, controller: 'worker/capability'
-  resources :command, only: [], controller: 'worker/command' do
+  resources :status, only: [:index], controller: 'worker/status'                        # Deprecated: GET  /worker/status
+  resources :capability, only: [:show], param: :worker, controller: 'worker/capability' # Deprecated: GET  /worker/capability/:worker
+  resources :command, only: [], controller: 'worker/command', constraints: cons do      # Deprecated: POST /worker/command/run
     collection do
-      post 'run'
+      post 'run', constraints: ->(req) { req.params[:cmd] == 'checkconstraints' }
     end
   end
 end
 
-### /worker
 get 'worker/_status' => 'worker/status#index', as: :worker_status
 get 'build/_workerstatus' => 'worker/status#index', as: :build_workerstatus # For backward compatibility
 get 'worker/:worker' => 'worker/capability#show'
-post 'worker' => 'worker/command#run'
+controller 'worker/command' do
+  constraints(cons) do
+    post 'worker' => :run, constraints: ->(req) { req.params[:cmd] == 'checkconstraints' }
+  end
+end
 
 ### /build
 get 'build/:project/:repository/:arch/:package/_log' => 'build#logfile', constraints: cons, as: :raw_logfile

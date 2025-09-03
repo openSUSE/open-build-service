@@ -41,15 +41,5 @@ RSpec.describe Worker::CommandController do
 
       it { is_expected.to have_http_status(:success) }
     end
-
-    context 'invalid command' do
-      subject! do
-        post :run, params: { cmd: 'foo', project: 'foo',
-                             package: 'bar', repository: 'my-repo',
-                             arch: 'i586', format: :xml }
-      end
-
-      it { is_expected.to have_http_status(:bad_request) }
-    end
   end
 end
