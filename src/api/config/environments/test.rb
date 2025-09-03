@@ -79,12 +79,8 @@ OBSApi::Application.configure do
   config.action_dispatch.rescue_responses['ActionController::InvalidAuthenticityToken'] = 950
 
   config.active_job.queue_adapter = :inline
-
-  # Raises error for missing translations.
-  # config.i18n.raise_on_missing_translations = true
-
-  # Annotate rendered view with file names.
-  # config.action_view.annotate_rendered_view_with_filenames = true
+  # Access to rack session for feature specs
+  config.middleware.use RackSessionAccess::Middleware
 end
 # rubocop:enable Metrics/BlockLength
 

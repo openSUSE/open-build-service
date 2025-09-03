@@ -152,6 +152,7 @@ group :test do
   gem 'minitest-reporters'
   # for integration testing
   gem 'capybara'
+  gem 'rack_session_access'
   # to fake backend replies
   gem 'webmock'
   # for mocking and stubbing
