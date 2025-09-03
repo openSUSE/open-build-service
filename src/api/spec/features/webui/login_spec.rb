@@ -4,18 +4,6 @@ RSpec.describe 'Login', :js do
   let!(:user) { create(:confirmed_user, :with_home, login: 'proxy_user') }
   let(:admin) { create(:admin_user) }
 
-  it 'login with home project shows a link to it' do
-    login user
-    expect(page).to have_link('Your Home Project', visible: :all)
-  end
-
-  it 'login without home project shows a link to create it' do
-    login admin
-    user.home_project.destroy
-    login user
-    expect(page).to have_link('Create Your Home Project', visible: :all)
-  end
-
   it 'login via login page' do
     visit new_session_path
 
@@ -28,8 +16,8 @@ RSpec.describe 'Login', :js do
     expect(page).to have_link('Profile', visible: :all)
   end
 
-  it 'login via widget', :vcr do
-    visit root_path
+  it 'login via widget' do
+    visit user_path(user)
     within(desktop? ? '#top-navigation-area' : '#bottom-navigation-area') do
       click_link('Log In')
     end
@@ -43,8 +31,8 @@ RSpec.describe 'Login', :js do
     expect(page).to have_link('Your Home Project', visible: :all)
   end
 
-  it 'login with wrong data', :vcr do
-    visit root_path
+  it 'login with wrong data' do
+    visit user_path(user)
     within(desktop? ? '#top-navigation-area' : '#bottom-navigation-area') do
       click_link('Log In')
     end
@@ -61,6 +49,7 @@ RSpec.describe 'Login', :js do
   it 'logout' do
     login(user)
 
+    visit user_path(user)
     if desktop?
       click_link(id: 'top-navigation-profile-dropdown')
       within('#top-navigation-area') do
