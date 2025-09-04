@@ -20,5 +20,4 @@
     = render partial: 'webui/shared/loading', locals: { text: 'Loading...', wrapper_css: ['loading'] }
   .col-md-8.col-lg-9.px-0.px-md-3.content-list#notifications-list
     = render partial: 'notifications_list', locals: { notifications: @notifications,
-                                                      counted_notifications: @counted_notifications,
                                                       selected_filter: @selected_filter }

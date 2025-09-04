@@ -26,7 +26,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
                 :set_filter_project, :set_filter_group, :set_filter_request_state, :set_filter_label
   before_action :set_notifications
   before_action :set_notifications_to_be_updated, only: :update
-  before_action :set_counted_notifications, only: :index
   before_action :filter_notifications, only: :index
   before_action :set_selected_filter
   before_action :set_preloaded_notifications, only: :index
@@ -46,7 +45,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
     # manually update the count and the filtered subset after the update
     set_unread_notifications_count # before_action filter method defined in the Webui controller
-    set_counted_notifications
     filter_notifications
     set_preloaded_notifications
     set_ordered_notifications
@@ -59,7 +57,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
           notifications: @notifications,
           unread_notifications_count: @unread_notifications_count,
           selected_filter: @selected_filter,
-          counted_notifications: @counted_notifications,
+          total_count_notifications: @notifications.count,
           user: User.session
         }
       end
@@ -156,26 +154,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   def set_notifications
     @notifications = User.session.notifications.for_web
-  end
-
-  def set_counted_notifications
-    @counted_notifications = {}
-    @counted_notifications['all'] = @notifications.count
-    @counted_notifications['unread'] = @unread_notifications_count # Variable set in the Webui controller
-    @counted_notifications['incoming_requests'] = @notifications.unread.for_incoming_requests(User.session).count
-    @counted_notifications['outgoing_requests'] = @notifications.unread.for_outgoing_requests(User.session).count
-
-    # event_type: 'Event::RelationshipCreate', 'Event::RelationshipDelete', 'Event::BuildFail',
-    counted_event_types = @notifications.unread.group(:event_type).count
-    EVENT_TYPES_KEY_MAP.each do |notifications_key, event_types_key|
-      @counted_notifications[notifications_key] = counted_event_types[event_types_key] || 0
-    end
-
-    # notifiable_type: 'Report', 'WorkflowRun', 'Decision', 'Comment', 'BsRequest', 'Group'
-    counted_notifiable_types = @notifications.unread.group(:notifiable_type).count
-    NOTIFICATION_TYPES_KEY_MAP.each do |notifications_key, notification_types_key|
-      @counted_notifications[notifications_key] = counted_notifiable_types[notification_types_key] || 0
-    end
   end
 
   def filter_notifications
