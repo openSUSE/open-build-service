@@ -96,6 +96,23 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     render partial: 'counter', locals: { id: "count_#{params[:event_type]}", count: counted_notifications[params[:event_type].to_s] }
   end
 
+  def count_for_notification_kinds
+    count = nil
+
+    case params[:notification_kind]
+    when 'all'
+      count = @notifications.count
+    when 'unread'
+      count = @unread_notifications_count # Variable set in the Webui controller
+    when 'incoming_requests'
+      count = @notifications.unread.for_incoming_requests(User.session).count
+    when 'outgoing_requests'
+      count = @notifications.unread.for_outgoing_requests(User.session).count
+    end
+
+    render partial: 'counter', locals: { id: "count_#{params[:notification_kind]}", count: count }
+  end
+
   private
 
   def set_filter_kind

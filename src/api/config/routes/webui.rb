@@ -383,6 +383,7 @@ constraints(RoutesHelper::WebuiMatcher) do
         put :update
         get :count_for_notification_types
         get :count_for_event_types
+        get :count_for_notification_kinds
       end
     end
 

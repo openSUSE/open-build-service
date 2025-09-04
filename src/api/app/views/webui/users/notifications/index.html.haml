@@ -14,10 +14,8 @@
         %i.float-end.mt-1.fa.fa-chevron-down#notifications-dropdown-trigger
       .collapse#content-selector-filters
         = render partial: 'notification_filter', locals: { selected_filter: @selected_filter,
-                                                           counted_notifications: @counted_notifications,
                                                            projects_for_filter: @projects_for_filter,
                                                            groups_for_filter: @groups_for_filter }
-
   .col-md-8.col-lg-9.px-0.px-md-3.d-none.content-list-loading
     = render partial: 'webui/shared/loading', locals: { text: 'Loading...', wrapper_css: ['loading'] }
   .col-md-8.col-lg-9.px-0.px-md-3.content-list#notifications-list

@@ -1,4 +1,4 @@
-$('#content-selector-filters').html("<%= j(render partial: 'notification_filter', locals: { selected_filter: selected_filter, counted_notifications: @counted_notifications, projects_for_filter: @projects_for_filter, groups_for_filter: @groups_for_filter }) %>");
+$('#content-selector-filters').html("<%= j(render partial: 'notification_filter', locals: { selected_filter: selected_filter, projects_for_filter: @projects_for_filter, groups_for_filter: @groups_for_filter }) %>");
 $('#notifications-list').html("<%= j(render partial: 'notifications_list', locals: { notifications: notifications, selected_filter: selected_filter, counted_notifications: @counted_notifications }) %>");
 $('#flash').html("<%= escape_javascript(render(layout: false, partial: 'layouts/webui/flash', object: flash)) %>");
 $('#top-notifications-counter, #bottom-notifications-counter').html("<%= escape_javascript(render partial: 'layouts/webui/unread_notifications_counter', locals: { unread_notifications_count: unread_notifications_count }) %>");

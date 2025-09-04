@@ -8,15 +8,18 @@
                                               aria: { expanded: 'true', controls: 'notification-filter-state' } }
         %b State
       .px-4.pb-2.accordion-collapse.collapse.show#notification-filter-state
-        = render partial: 'webui/shared/radio_button', locals: { label: 'All',
-                                                                key: 'state[all]', name: 'state', value: 'all',
-                                                                checked: selected_filter[:state] == 'all' }
-        = render partial: 'webui/shared/radio_button', locals: { label: 'Unread', amount: counted_notifications['unread'],
-                                                                key: 'state[unread]', name: 'state', value: 'unread',
-                                                                checked: selected_filter[:state] == 'unread' }
-        = render partial: 'webui/shared/radio_button', locals: { label: 'Read',
-                                                                key: 'state[read]', name: 'state', value: 'read',
-                                                                checked: selected_filter[:state] == 'read' }
+        = render partial: 'radio_button', locals: { label: 'All',
+                                                    turbo_frame_path: count_for_notification_kinds_my_notifications_path(notification_kind: 'all'),
+                                                    key: 'state[all]', name: 'state', value: 'all',
+                                                    checked: selected_filter[:state] == 'all' }
+        = render partial: 'radio_button', locals: { label: 'Unread',
+                                                    turbo_frame_path: count_for_notification_kinds_my_notifications_path(notification_kind: 'unread'),
+                                                    key: 'state[unread]', name: 'state', value: 'unread',
+                                                    checked: selected_filter[:state] == 'unread' }
+        = render partial: 'radio_button', locals: { label: 'Read',
+                                                    turbo_frame_path: count_for_notification_kinds_my_notifications_path(notification_kind: 'read'),
+                                                    key: 'state[read]', name: 'state', value: 'read',
+                                                    checked: selected_filter[:state] == 'read' }
     .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
       .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-type' },
                                               aria: { expanded: 'true', controls: 'notification-filter-type' } }
@@ -106,14 +109,18 @@
         .selected-content.small.ms-1
       .px-4.pb-2.accordion-collapse.collapse.show#notification-filter-requests
         .dropdown-item-text
-          = render partial: 'webui/shared/check_box', locals: { label: 'Incoming', amount: counted_notifications['incoming_requests'],
-                                                                key: 'kind[incoming_requests]', name: 'kind[]',
-                                                                value: 'incoming_requests',
-                                                                checked: selected_filter[:kind]&.include?('incoming_requests') }
+          = render partial: 'check_box',
+                            locals: { label: 'Incoming',
+                                      turbo_frame_path: count_for_notification_kinds_my_notifications_path(notification_kind: 'incoming_requests'),
+                                      key: 'kind[incoming_requests]', name: 'kind[]',
+                                      value: 'incoming_requests',
+                                      checked: selected_filter[:kind]&.include?('incoming_requests') }
         .dropdown-item-text
-          = render partial: 'webui/shared/check_box', locals: { label: 'Outgoing', amount: counted_notifications['outgoing_requests'],
-                                                                key: 'kind[outgoing_requests]', name: 'kind[]', value: 'outgoing_requests',
-                                                                checked: selected_filter[:kind]&.include?('outgoing_requests') }
+          = render partial: 'check_box',
+                            locals: { label: 'Outgoing',
+                                      turbo_frame_path: count_for_notification_kinds_my_notifications_path(notification_kind: 'outgoing_requests'),
+                                      key: 'kind[outgoing_requests]', name: 'kind[]', value: 'outgoing_requests',
+                                      checked: selected_filter[:kind]&.include?('outgoing_requests') }
         - BsRequest::VALID_REQUEST_STATES.each do |request_state|
           .dropdown-item-text
             = render partial: 'webui/shared/check_box', locals: { label: render(BsRequestStateBadgeComponent.new(state: request_state)),
