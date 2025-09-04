@@ -507,7 +507,7 @@ class Package < ApplicationRecord
   end
 
   def source_file(file, opts = {})
-    Backend::Connection.get(source_path(file, opts)).body
+    Backend::Api::Sources::File.content(project.name, name, file, opts)
   end
 
   def dir_hash(opts = {})
@@ -660,7 +660,7 @@ class Package < ApplicationRecord
 
     Product.transaction do
       begin
-        xml = Xmlhash.parse(Backend::Connection.get(source_path(nil, view: :products)).body)
+        xml = Xmlhash.parse(Backend::Api::Sources::Package.products(project.name, name))
       rescue StandardError
         next
       end
@@ -1308,8 +1308,8 @@ class Package < ApplicationRecord
   end
 
   def self.what_depends_on(project, package, repository, architecture)
-    path = "/build/#{project}/#{repository}/#{architecture}/_builddepinfo?package=#{package}&view=revpkgnames"
-    [Xmlhash.parse(Backend::Connection.get(path).body).try(:[], 'package').try(:[], 'pkgdep')].flatten.compact
+    builddepinfo_xml = Backend::Api::BuildResults::Binaries.builddepinfo(project, repository, architecture, package, { view: :revpkgnames })
+    [Xmlhash.parse(builddepinfo_xml).try(:[], 'package').try(:[], 'pkgdep')].flatten.compact
   rescue Backend::NotFoundError
     []
   end

@@ -7,8 +7,8 @@ module Backend
 
         # Returns the content of the source file
         # @return [String]
-        def self.content(project_name, package_name, file_name)
-          http_get(['/source/:project/:package/:filename', project_name, package_name, file_name])
+        def self.content(project_name, package_name, file_name, options = {})
+          http_get(['/source/:project/:package/:filename', project_name, package_name, file_name], params: options, accepted: %i[deleted expand meta rev view])
         end
 
         # Returns the content of the source file

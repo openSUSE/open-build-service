@@ -58,10 +58,9 @@ module Backend
           Xmlhash.parse(fileinfo) if fileinfo
         end
 
-        def self.builddepinfo(project_name, repository, arch, package_name = nil)
-          params = {}
-          params[:package] = package_name if package_name
-          http_get(['/build/:project/:repository/:arch/_builddepinfo', project_name, repository, arch], params: params)
+        def self.builddepinfo(project_name, repository, arch, package_name = nil, options = {})
+          options[:package] = package_name if package_name
+          http_get(['/build/:project/:repository/:arch/_builddepinfo', project_name, repository, arch], params: options, accepted: %i[package view])
         end
 
         # Returns the build dependency information
