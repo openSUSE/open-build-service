@@ -84,6 +84,18 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     render partial: 'counter', locals: { id: "count_#{params[:notification_type]}", count: counted_notifications[params[:notification_type].to_s] }
   end
 
+  def count_for_event_types
+    counted_notifications = {}
+
+    # event_type: 'Event::RelationshipCreate', 'Event::RelationshipDelete', 'Event::BuildFail',
+    counted_event_types = @notifications.unread.group(:event_type).count
+    EVENT_TYPES_KEY_MAP.each do |notifications_key, event_types_key|
+      counted_notifications[notifications_key] = counted_event_types[event_types_key] || 0
+    end
+
+    render partial: 'counter', locals: { id: "count_#{params[:event_type]}", count: counted_notifications[params[:event_type].to_s] }
+  end
+
   private
 
   def set_filter_kind
