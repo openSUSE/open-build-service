@@ -3,7 +3,7 @@ class WorkerStatus
 
   class << self
     def hidden
-      mydata = Rails.cache.fetch('workerstatus') { Backend::Api::BuildResults::Worker.status }
+      mydata = Rails.cache.fetch('workerstatus') { Backend::Api::Worker.status }
       ws = Nokogiri::XML(mydata).root
       # remove information about projects which are not visible to the current user
       hidden_projects(ws)

@@ -23,7 +23,7 @@ module Clockwork
   end
 
   every(30.seconds, 'refresh workerstatus') do
-    Rails.cache.write('workerstatus', Backend::Api::BuildResults::Worker.status)
+    Rails.cache.write('workerstatus', Backend::Api::Worker.status)
     # this should be fast, so don't delay
     WorkerStatus.new.save
   end
