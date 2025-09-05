@@ -1,10 +1,10 @@
 class SourcediffComponent < ApplicationComponent
-  attr_accessor :bs_request, :action, :refresh, :diff_to_superseded, :diff_not_cached
+  attr_accessor :bs_request, :action, :refresh, :diff_to_superseded, :diff_not_cached, :tarlimit
 
   delegate :diff_label, to: :helpers
   delegate :diff_data, to: :helpers
 
-  def initialize(bs_request:, action:, diff_not_cached:, diff_to_superseded: nil)
+  def initialize(bs_request:, action:, diff_not_cached:, diff_to_superseded: nil, tarlimit: nil)
     super
 
     @bs_request = bs_request
@@ -12,6 +12,19 @@ class SourcediffComponent < ApplicationComponent
     @diff_to_superseded = diff_to_superseded
     @commented_lines = commented_lines
     @diff_not_cached = diff_not_cached
+    @tarlimit = tarlimit
+  end
+
+  def expandable?(sourcediff)
+    return false unless sourcediff.key?('files')
+
+    sourcediff['files'].filter_map do |f, d|
+      next if d.dig('diff', 'lines') == d.dig('diff', 'shown')
+      next unless d.dig('diff', 'shown') == '0'
+      next unless d['state'] == 'changed'
+
+      f
+    end.any?
   end
 
   def commentable
@@ -47,7 +60,9 @@ class SourcediffComponent < ApplicationComponent
       files[filename]['disabled'] = contents['diff'].nil? || contents['diff']['_content'].nil?
       next if files[filename]['disabled']
 
-      files[filename]['diff_url'] = request_changes_diff_path(number: @bs_request.number, request_action_id: @action.id, filename:, diff_to_superseded:, file_index:, commented_lines: @commented_lines[file_index])
+      files[filename]['diff_url'] = request_changes_diff_path(number: @bs_request.number, request_action_id: @action.id,
+                                                              filename:, diff_to_superseded:, file_index:,
+                                                              commented_lines: @commented_lines[file_index])
     end
 
     files
