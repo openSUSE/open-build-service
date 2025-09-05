@@ -34,5 +34,9 @@ module Webui::RescueHandler
     rescue_from AjaxDatatablesRails::Error::InvalidSearchColumn, AjaxDatatablesRails::Error::InvalidSearchCondition do
       render json: { data: [] }
     end
+
+    rescue_from RegistrationDisabledError do
+      redirect_to root_path, error: RegistrationDisabledError.new.default_message
+    end
   end
 end

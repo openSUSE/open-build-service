@@ -38,7 +38,11 @@ class APIError < RuntimeError
   end
 end
 
-# 403 errors (how about a subclass?)
+# 403 errors
+class RegistrationDisabledError < APIError
+  setup 403, 'Sign up is disabled'
+end
+
 class NoPermission < APIError
   setup 403
 end

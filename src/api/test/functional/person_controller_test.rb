@@ -71,7 +71,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
   def test_userinfo_with_broken_auth_header
     prepare_request_invalid_user
     get '/person/tom'
-    assert_select 'status[code] > summary', /^Unknown user '[^']+' or invalid password$/
+    assert_select 'status[code] > summary', /^Authentication Required$/
 
     assert_response :unauthorized
   end

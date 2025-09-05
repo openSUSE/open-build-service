@@ -6,6 +6,7 @@ class PersonController < ApplicationController
   validate_action register: { method: :post, response: :status }
 
   skip_before_action :extract_user, only: %i[command register]
+  skip_before_action :check_anonymous_access, only: %i[command register]
   skip_before_action :require_login, only: %i[command register]
 
   before_action :set_user, only: %i[post_userinfo change_my_password watchlist put_watchlist]
