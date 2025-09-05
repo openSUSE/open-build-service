@@ -2,10 +2,7 @@ class TriggerController < ApplicationController
   include Triggerable
   include Trigger::Errors
 
-  # Authentication happens with tokens, so extracting the user is not required
-  skip_before_action :extract_user
-  # Authentication happens with tokens, so no login is required
-  skip_before_action :require_login
+  # TODO: Devise: Explicitly don't require authenticated user
   # SCMs like GitLab/GitHub send data as parameters which are not strings (e.g.: GitHub - PR number is a integer, GitLab - project is a hash)
   # Other SCMs might also do this, so we're not validating parameters.
   skip_before_action :validate_params

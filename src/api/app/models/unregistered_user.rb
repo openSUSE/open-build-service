@@ -71,13 +71,14 @@ end
 #  deprecated_password_hash_type :string(255)
 #  deprecated_password_salt      :string(255)
 #  email                         :string(200)      default(""), not null
+#  encrypted_password            :string(255)      default(""), not null
 #  ignore_auth_services          :boolean          default(FALSE)
 #  in_beta                       :boolean          default(FALSE), indexed
 #  in_rollout                    :boolean          default(TRUE), indexed
 #  last_logged_in_at             :datetime
 #  login                         :text(65535)      uniquely indexed
 #  login_failure_count           :integer          default(0), not null
-#  password_digest               :string(255)
+#  old_password_digest           :string(255)
 #  realname                      :string(200)      default(""), not null
 #  rss_secret                    :string(200)      uniquely indexed
 #  state                         :string           default("unconfirmed"), indexed

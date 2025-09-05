@@ -74,7 +74,7 @@ FactoryBot.define do
 
     factory :user_deprecated_password do
       after(:create) do |user|
-        user.password_digest = nil
+        user.password = nil
         user.deprecated_password = 'b6ead59da72f491dd29f84a6579d6dc4' # password: buildservice
         user.deprecated_password_hash_type = 'md5'
         user.deprecated_password_salt = 'm/YVlu5w0M'

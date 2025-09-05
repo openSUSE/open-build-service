@@ -1,7 +1,6 @@
 class AboutController < ApplicationController
   validate_action index: { method: :get, response: :about }
-  skip_before_action :extract_user
-  skip_before_action :require_login
+  # TODO: Devise: Explicitly don't require authenticated user
   before_action :set_response_format_to_xml
 
   def index

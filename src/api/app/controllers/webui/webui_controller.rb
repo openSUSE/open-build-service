@@ -55,7 +55,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def require_login
-    raise Pundit::NotAuthorizedError, reason: ApplicationPolicy::ANONYMOUS_USER unless User.session
+    raise Pundit::NotAuthorizedError, reason: ApplicationPolicy::ANONYMOUS_USER unless user_session
   end
 
   def lockout_spiders

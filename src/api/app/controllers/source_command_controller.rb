@@ -1,6 +1,7 @@
 class SourceCommandController < SourceController
-  skip_before_action :extract_user, only: %i[global_command_orderkiwirepos global_command_triggerscmsync]
-  skip_before_action :require_login, only: %i[global_command_orderkiwirepos global_command_triggerscmsync]
+  # TODO: Devise: Explicitly don't require authenticated user
+  # skip_before_action :extract_user, only: %i[global_command_orderkiwirepos global_command_triggerscmsync]
+  # skip_before_action :require_login, only: %i[global_command_orderkiwirepos global_command_triggerscmsync]
 
   before_action :require_scmsync_host_check, only: :global_command_triggerscmsync
 

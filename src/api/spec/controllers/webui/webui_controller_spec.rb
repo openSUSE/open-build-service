@@ -34,7 +34,7 @@ RSpec.describe Webui::WebuiController do
 
   describe 'require_admin before filter' do
     it 'redirects to main page for non privileged user' do
-      login(create(:confirmed_user, login: 'confirmed_user'))
+      sign_in(create(:confirmed_user, login: 'confirmed_user'))
       get :new
       expect(response).to redirect_to(root_path)
       expect(flash[:error]).to eq('Requires admin privileges')

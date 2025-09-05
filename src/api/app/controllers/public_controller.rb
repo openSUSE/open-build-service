@@ -2,9 +2,7 @@ class PublicController < ApplicationController
   include ReadAccessOfDeleted
   include PublicHelper
 
-  # we need to fall back to _nobody_ (_public_)
-  skip_before_action :extract_user
-  skip_before_action :require_login
+  # TODO: Devise: Explicitly don't require authenticated user
   before_action :set_response_format_to_xml
   before_action :set_influxdb_data_interconnect
   before_action :check_anonymous_access
