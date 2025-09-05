@@ -10,7 +10,7 @@
           .col-12
             %h3= @pagetitle
           .col-12.col-md-9.col-lg-6
-            = form_for(:package, url: packages_url(@project)) do |f|
+            = form_for(@project.packages.new, url: packages_url(@project)) do |f|
               .mb-3
                 = f.label(:name)
                 = render partial: 'webui/shared/required_label_mark'

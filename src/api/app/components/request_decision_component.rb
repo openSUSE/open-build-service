@@ -1,4 +1,7 @@
 class RequestDecisionComponent < ApplicationComponent
+  # This is required to help marksmith render the markdown editor
+  delegate :main_app, to: :helpers
+
   def initialize(bs_request:, package_maintainers:, show_project_maintainer_hint:)
     super
 

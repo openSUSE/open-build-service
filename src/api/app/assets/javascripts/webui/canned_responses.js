@@ -12,5 +12,6 @@ function setupCannedResponses() { // jshint ignore:line
     }
     // we have to enable the submit button for the comments form
     $(e.target).closest('[class*="-comment-form"]').find('input[type="submit"]').prop('disabled', false);
+    $('.decision-add-comment').prop('disabled', false);
   });
 }

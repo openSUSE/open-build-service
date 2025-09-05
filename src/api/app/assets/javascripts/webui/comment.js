@@ -32,6 +32,7 @@ function handlingCommentEvents() {
   // Disable submit button if textarea is empty and enable otherwise
   $(document).on('input', '.write-and-preview textarea', function(e) {
     validateForm(e);
+    $('.decision-add-comment').prop('disabled', false);
     resizeTextarea(this);
   });
 
