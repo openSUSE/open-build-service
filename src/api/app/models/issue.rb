@@ -83,6 +83,8 @@ class Issue < ApplicationRecord
 
   def url
     return issue_tracker.show_url_for(label) if issue_tracker.kind == 'github'
+    # TODO: unify the treatment of CVE issues all over the code
+    return issue_tracker.show_url.gsub('@@@', "CVE-#{name}") if (issue_tracker.kind == 'cve') && !name.match?(/^(CVE|cve)/)
 
     issue_tracker.show_url.gsub('@@@', name)
   end
