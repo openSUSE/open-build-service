@@ -1032,19 +1032,11 @@ class Package < ApplicationRecord
   end
 
   def branch_from(origin_project, origin_package, opts)
-    myparam = { cmd: 'branch',
-                noservice: '1',
-                oproject: origin_project,
-                opackage: origin_package,
-                user: User.session!.login }
+    myparam = { noservice: '1' }
     # merge additional key/values, avoid overwrite. _ is needed for rubocop
     myparam.merge!(opts) { |_key, v1, _v2| v1 }
-    path = source_path
-    path += Backend::Connection.build_query_from_hash(myparam,
-                                                      %i[cmd oproject opackage user comment
-                                                         orev missingok noservice olinkrev extendvrev])
-    # branch sources in backend
-    Backend::Connection.post path
+
+    Backend::Api::Sources::Package.branch(origin_project, origin_package, project.name, name, User.session!.login, myparam)
   end
 
   # just make sure the backend_package is there
