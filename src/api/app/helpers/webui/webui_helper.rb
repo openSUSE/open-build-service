@@ -95,7 +95,7 @@ module Webui::WebuiHelper
   end
 
   def force_utf8_and_transform_nonprintables(text)
-    return '' if text.blank?
+    return '' if text.empty?
 
     text.force_encoding('UTF-8')
     text = 'The file you look at is not valid UTF-8 text. Please convert the file.' unless text.valid_encoding?
