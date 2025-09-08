@@ -126,6 +126,6 @@ module Authenticator
   def proxy_realname
     return if request.env['HTTP_X_FIRSTNAME'].blank? && request.env['HTTP_X_LASTNAME'].blank?
 
-    "#{request.env['HTTP_X_FIRSTNAME'].force_encoding('UTF-8')} #{request.env['HTTP_X_LASTNAME'].force_encoding('UTF-8')}"
+    "#{request.env['HTTP_X_FIRSTNAME']} #{request.env['HTTP_X_LASTNAME']}".strip.force_encoding('UTF-8')
   end
 end
