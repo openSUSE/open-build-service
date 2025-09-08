@@ -159,7 +159,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     spkg = 'pack'           # source package
     tprj = 'home:tom'       # target project
     resp = 401              # response
-    match = /Authentication required/
+    match = /Authentication Required/
     testflag = nil          # test for flag in target meta
     delresp = 401           # delete again
     debug = false
@@ -195,7 +195,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     spkg = 'kdelibs_DEVEL_package' # source package
     tprj = 'HiddenProject'         # target project
     resp = 401                     # response
-    match = /Authentication required/
+    match = /Authentication Required/
     testflag = nil          # test for flag in target meta
     delresp = 401           # delete again
     debug = false
@@ -228,7 +228,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     spkg = 'pack'                   # source package
     tprj = 'home:tom'               # target project
     resp = 401                      # response
-    match = /Authentication required/
+    match = /Authentication Required/
     testflag = nil          # test for flag in target meta
     delresp = 401           # delete again
     debug = false

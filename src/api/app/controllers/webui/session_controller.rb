@@ -1,64 +1,24 @@
 class Webui::SessionController < Webui::WebuiController
-  before_action :authenticate_user, only: [:create]
-  before_action :check_user_active, only: [:create]
-
-  skip_before_action :check_anonymous, only: [:create]
-
-  def new; end
+  skip_before_action :extract_user
+  skip_before_action :check_anonymous_access
 
   def create
-    session[:login] = @user.login
-    User.session = @user
+    user = User.find_with_credentials(params.fetch(:username, ''), params.fetch(:password, ''))
 
-    RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui value=1')
+    if user
+      session[:login] = user.login
+      # Redirect to user_path instead of back to new_session_path...
+      request.env['HTTP_REFERER'] = nil if request.referer.to_s.end_with?(new_session_path)
 
-    redirect_on_login
+      redirect_back_or_to(user_path(user), allow_other_host: false)
+    else
+      redirect_back_or_to(root_path, error: 'Authentication Failed', allow_other_host: false)
+    end
   end
 
   def reset
     reset_session
-    User.session = nil
 
-    RabbitmqBus.send_to_bus('metrics', 'logout,access_point=webui value=1')
-
-    redirect_on_logout
-  end
-
-  private
-
-  def check_user_active
-    return if @user.active?
-
-    RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=disabled value=1')
-    redirect_to(root_path, error: 'Your account is disabled. Please contact the administrator for details.')
-  end
-
-  def authenticate_user
-    @user = User.find_with_credentials(params.fetch(:username, ''), params.fetch(:password, ''))
-
-    return if @user
-
-    RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=unauthenticated value=1')
-    redirect_to(new_session_path, error: 'Authentication failed')
-  end
-
-  def redirect_on_login
-    if referer_was_login?
-      redirect_to user_path(User.session)
-    else
-      redirect_back_or_to root_path
-    end
-  end
-
-  def redirect_on_logout
-    if ::Configuration.anonymous
-      redirect_back_or_to root_path
-    else
-      redirect_to root_path
-    end
-  end
-
-  def referer_was_login?
-    request.referer && request.referer.end_with?(new_session_path)
+    redirect_to root_path
   end
 end
