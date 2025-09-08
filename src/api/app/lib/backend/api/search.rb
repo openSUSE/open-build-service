@@ -25,8 +25,7 @@ module Backend
       def self.linking_packages(package_name, project_name, project_local = nil)
         match_conditions = "linkinfo/@package=\"#{CGI.escape(package_name)}\" and linkinfo/@project=\"#{CGI.escape(project_name)}\""
         match_conditions += " and @project=\"#{CGI.escape(project_name)}\"" if project_local
-        # TODO: use GET instead of POST. Requires to record lots of cassettes
-        http_post("/search/package/id?match=(#{match_conditions})")
+        http_get("/search/package/id?match=(#{match_conditions})")
       end
 
       # Performs a search of incident packages for a maintenance project
