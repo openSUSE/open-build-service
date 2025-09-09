@@ -107,7 +107,7 @@ module Backend
         def self.branch(target_project, target_package, source_project, source_package, user, options = {})
           http_post(['/source/:project/:package', source_project, source_package],
                     defaults: { cmd: :branch, oproject: target_project, opackage: target_package, user: user }.compact,
-                    params: options, accepted: %i[keepcontent comment requestid noservice])
+                    params: options, accepted: %i[comment extendvrev keepcontent missingok noservice olinkrev orev requestid])
         end
 
         # Convert a link into a branch
