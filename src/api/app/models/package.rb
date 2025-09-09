@@ -420,11 +420,7 @@ class Package < ApplicationRecord
   end
 
   def find_linking_packages(project_local = nil)
-    path = "/search/package/id?match=(linkinfo/@package=\"#{CGI.escape(name)}\"+and+linkinfo/@project=\"#{CGI.escape(project.name)}\""
-    path += "+and+@project=\"#{CGI.escape(project.name)}\"" if project_local
-    path += ')'
-    answer = Backend::Connection.post path
-    data = REXML::Document.new(answer.body)
+    data = REXML::Document.new(Backend::Api::Search.linking_packages(name, project.name, project_local))
     result = []
     data.elements.each('collection/package') do |e|
       p = Package.find_by_project_and_name(e.attributes['project'], e.attributes['name'])
