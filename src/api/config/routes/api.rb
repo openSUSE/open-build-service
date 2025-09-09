@@ -144,7 +144,11 @@ constraints(RoutesHelper::APIMatcher) do
 
   ### /request
 
-  resources :request, only: %i[index show create update destroy]
+  resources :request, only: %i[index show update destroy] do
+    collection do
+      post :create, constraints: ->(req) { req.params[:cmd] == 'create' }
+    end
+  end
 
   post 'request/:id' => 'request#request_command', constraints: cons
 

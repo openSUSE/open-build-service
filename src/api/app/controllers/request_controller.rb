@@ -61,8 +61,6 @@ class RequestController < ApplicationController
 
   # POST /request?cmd=create
   def create
-    raise UnknownCommandError, "Unknown command '#{params[:cmd]}' for path #{request.path}" unless params[:cmd] == 'create'
-
     BsRequest.transaction do
       @req = BsRequest.new_from_xml(request.raw_post.to_s)
       authorize @req, :create?
