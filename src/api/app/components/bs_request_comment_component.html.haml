@@ -54,7 +54,7 @@
               = link_to(action.uniq_key, request_show_path(number: action.bs_request, request_action_id: action))
               >
               = link_to request_changes_path(number: action.bs_request, request_action_id: action, anchor:) do
-                = render(DiffSubjectComponent.new(state: diff['state'], old_filename: diff.dig('old', 'name'), new_filename: diff.dig('new', 'name')))
+                = render(DiffSubjectComponent.new(state: diff['state'], file_info: diff))
               - if comment.outdated?
                 %span.badge.text-bg-warning Outdated
             = render(DiffComponent.new(diff: diff.dig('diff', '_content'), range:))
