@@ -22,7 +22,11 @@ class Webui::PackageController < Webui::WebuiController
   before_action :set_package, only: %i[edit update show requests statistics revisions
                                        branch_diff_info rdiff remove
                                        save_person save_group remove_role view_file
-                                       buildresult rpmlint_result rpmlint_log rpmlint_summary files users]
+                                       buildresult rpmlint_result rpmlint_log rpmlint_summary files users],
+                              unless: -> { Flipper.enabled?(:scmsync, User.session) }
+  before_action :set_package_with_scmsync, only: %i[show revisions branch_diff_info rdiff view_file buildresult
+                                                    rpmlint_result rpmlint_log rpmlint_summary files users],
+                                           if: -> { Flipper.enabled?(:scmsync, User.session) }
   # rubocop:enable Rails/LexicallyScopedActionFilter
   before_action :lints_list, only: %i[rpmlint_summary]
 
