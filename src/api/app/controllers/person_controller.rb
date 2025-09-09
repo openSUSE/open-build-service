@@ -24,11 +24,7 @@ class PersonController < ApplicationController
   end
 
   def command
-    if params[:cmd] == 'register'
-      internal_register
-      return
-    end
-    raise UnknownCommandError, "Allowed command is 'register'"
+    internal_register
   end
 
   def userinfo
