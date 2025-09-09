@@ -74,74 +74,7 @@ class RequestController < ApplicationController
     render xml: @req.render_xml
   end
 
-  # POST /request/:id?cmd=$CMD
-  def request_command
-    return request_command_diff if params[:cmd] == 'diff'
-
-    params[:user] = User.session.login
-    @req = BsRequest.find_by_number!(params[:id])
-
-    # transform request body into query parameter 'comment'
-    # the query parameter is preferred if both are set
-    params[:comment] = request.raw_post if params[:comment].blank?
-
-    # might raise an exception (which then renders an error)
-    # FIXME: this should be moved into the model functions, doing
-    #        these actions
-    case params[:cmd]
-    when 'changestate', 'addreview', 'setpriority', 'setincident', 'setacceptat', 'approve', 'cancelapproval'
-      # create -> noop
-      # permissions are checked by the model
-      nil
-    when 'changereviewstate', 'assignreview'
-      @req.permission_check_change_review!(params)
-    else
-      raise UnknownCommandError, "Unknown command '#{params[:cmd]}' for path #{request.path}"
-    end
-
-    # permission granted for the request at this point
-
-    # special command defining an incident to be merged
-    params[:check_for_patchinfo] = false
-
-    dispatch_command(:request_command, params[:cmd])
-  end
-
-  # PUT /request/:id
-  def update
-    body = request.raw_post
-
-    Suse::Validator.validate(:request, body)
-
-    BsRequest.transaction do
-      oldrequest = BsRequest.find_by_number!(params[:id])
-      notify = oldrequest.event_parameters
-      oldrequest.destroy
-
-      req = BsRequest.new_from_xml(body)
-      req.number = params[:id]
-      req.skip_sanitize
-      req.save!
-
-      notify[:who] = User.session.login
-      Event::RequestChange.create(notify)
-
-      render xml: req.render_xml
-    end
-  end
-
-  # DELETE /request/:id
-  def destroy
-    request = BsRequest.find_by_number!(params[:id])
-    notify = request.event_parameters
-    request.destroy # throws us out of here if failing
-    notify[:who] = User.session.login
-    Event::RequestDelete.create(notify)
-    render_ok
-  end
-
-  private
-
+  # POST /request/:id?cmd=diff
   def request_command_diff
     req = BsRequest.find_by_number!(params[:id])
     superseded_request = req.superseding.find_by_number(params[:diff_to_superseded])
@@ -194,6 +127,70 @@ class RequestController < ApplicationController
       render plain: diff_text
     end
   end
+
+  # POST /request/:id?cmd=$CMD
+  def request_command
+    params[:user] = User.session.login
+    @req = BsRequest.find_by_number!(params[:id])
+
+    # transform request body into query parameter 'comment'
+    # the query parameter is preferred if both are set
+    params[:comment] = request.raw_post if params[:comment].blank?
+
+    # might raise an exception (which then renders an error)
+    # FIXME: this should be moved into the model functions, doing
+    #        these actions
+    case params[:cmd]
+    when 'changestate', 'addreview', 'setpriority', 'setincident', 'setacceptat', 'approve', 'cancelapproval'
+      # create -> noop
+      # permissions are checked by the model
+      nil
+    when 'changereviewstate', 'assignreview'
+      @req.permission_check_change_review!(params)
+    end
+
+    # permission granted for the request at this point
+
+    # special command defining an incident to be merged
+    params[:check_for_patchinfo] = false
+
+    dispatch_command(:request_command, params[:cmd])
+  end
+
+  # PUT /request/:id
+  def update
+    body = request.raw_post
+
+    Suse::Validator.validate(:request, body)
+
+    BsRequest.transaction do
+      oldrequest = BsRequest.find_by_number!(params[:id])
+      notify = oldrequest.event_parameters
+      oldrequest.destroy
+
+      req = BsRequest.new_from_xml(body)
+      req.number = params[:id]
+      req.skip_sanitize
+      req.save!
+
+      notify[:who] = User.session.login
+      Event::RequestChange.create(notify)
+
+      render xml: req.render_xml
+    end
+  end
+
+  # DELETE /request/:id
+  def destroy
+    request = BsRequest.find_by_number!(params[:id])
+    notify = request.event_parameters
+    request.destroy # throws us out of here if failing
+    notify[:who] = User.session.login
+    Event::RequestDelete.create(notify)
+    render_ok
+  end
+
+  private
 
   def request_command_setincident
     @req.setincident(params[:incident])
