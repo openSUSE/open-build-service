@@ -10,7 +10,7 @@ constraints(RoutesHelper::APIMatcher) do
   resources :announcements, except: %i[edit new]
 
   ### /person
-  post 'person' => 'person#command'
+  post 'person' => 'person#command', constraints: ->(req) { req.params[:cmd] == 'register' }
   get 'person' => 'person#show'
   get 'person/:login/token' => 'person/token#index', constraints: cons
   post 'person/:login/token' => 'person/token#create', constraints: cons
