@@ -39,16 +39,16 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 31 Jul 2020 14:58:46 GMT
+  recorded_at: Wed, 10 Sep 2025 14:29:04 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/package_with_revisions/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/package_with_revisions/_meta?user=user_13
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_revisions" project="home:tom">
-          <title>An Evil Cradling</title>
-          <description>Voluptatem sint debitis provident.</description>
+          <title>The Lathe of Heaven</title>
+          <description>Vel aliquam qui corporis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_revisions" project="home:tom">
-          <title>An Evil Cradling</title>
-          <description>Voluptatem sint debitis provident.</description>
+          <title>The Lathe of Heaven</title>
+          <description>Vel aliquam qui corporis.</description>
         </package>
-  recorded_at: Fri, 31 Jul 2020 14:58:46 GMT
+  recorded_at: Wed, 10 Sep 2025 14:29:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_revisions/somefile.txt
@@ -103,19 +103,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="13" vrev="13">
+        <revision rev="5" vrev="5">
           <srcmd5>cabf9a1f9a0b7c19d4f7ff46166f4ee0</srcmd5>
           <version>unknown</version>
-          <time>1596207526</time>
+          <time>1757514544</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 31 Jul 2020 14:58:46 GMT
+  recorded_at: Wed, 10 Sep 2025 14:29:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_revisions/somefile.txt
@@ -141,19 +141,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="14" vrev="14">
+        <revision rev="6" vrev="6">
           <srcmd5>efbe5f0a5dd48df5129b4319df43aa45</srcmd5>
           <version>unknown</version>
-          <time>1596207526</time>
+          <time>1757514544</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 31 Jul 2020 14:58:46 GMT
+  recorded_at: Wed, 10 Sep 2025 14:29:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_revisions/somefile.txt
@@ -179,19 +179,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="15" vrev="15">
+        <revision rev="7" vrev="7">
           <srcmd5>6ba292a7c75f8b46e4d39ac7cb20ebcd</srcmd5>
           <version>unknown</version>
-          <time>1596207526</time>
+          <time>1757514544</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 31 Jul 2020 14:58:46 GMT
+  recorded_at: Wed, 10 Sep 2025 14:29:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_revisions/somefile.txt
@@ -217,19 +217,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="16" vrev="16">
+        <revision rev="8" vrev="8">
           <srcmd5>60d83e04e1adc0a7e399a5b10312faf1</srcmd5>
           <version>unknown</version>
-          <time>1596207526</time>
+          <time>1757514544</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 31 Jul 2020 14:58:46 GMT
+  recorded_at: Wed, 10 Sep 2025 14:29:04 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_revisions?rev=2
@@ -260,9 +260,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <directory name="package_with_revisions" rev="2" vrev="2" srcmd5="efbe5f0a5dd48df5129b4319df43aa45">
-          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1596207469"/>
+          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1757514543"/>
         </directory>
-  recorded_at: Fri, 31 Jul 2020 14:58:46 GMT
+  recorded_at: Wed, 10 Sep 2025 14:29:04 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22package_with_revisions%22%20and%20linkinfo/@project=%22home:tom%22%20and%20@project=%22home:tom%22)
@@ -296,7 +296,7 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Fri, 31 Jul 2020 14:58:46 GMT
+  recorded_at: Wed, 10 Sep 2025 14:29:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:home:tom/_meta?user=tom
@@ -336,7 +336,7 @@ http_interactions:
           <description>This project was created for package package_with_revisions via attribute OBS:Maintained</description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 31 Jul 2020 14:58:46 GMT
+  recorded_at: Wed, 10 Sep 2025 14:29:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_revisions/_meta?user=tom
@@ -344,8 +344,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_revisions" project="home:tom:branches:home:tom">
-          <title>An Evil Cradling</title>
-          <description>Voluptatem sint debitis provident.</description>
+          <title>The Lathe of Heaven</title>
+          <description>Vel aliquam qui corporis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -366,15 +366,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '186'
+      - '180'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_revisions" project="home:tom:branches:home:tom">
-          <title>An Evil Cradling</title>
-          <description>Voluptatem sint debitis provident.</description>
+          <title>The Lathe of Heaven</title>
+          <description>Vel aliquam qui corporis.</description>
         </package>
-  recorded_at: Fri, 31 Jul 2020 14:58:46 GMT
+  recorded_at: Wed, 10 Sep 2025 14:29:04 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_revisions?cmd=branch&noservice=1&opackage=package_with_revisions&oproject=home:tom&orev=efbe5f0a5dd48df5129b4319df43aa45&user=tom
@@ -406,15 +406,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
+        <revision rev="2" vrev="2">
           <srcmd5>b40e9cce84f2c67bd45ff4667726a62f</srcmd5>
           <version>unknown</version>
-          <time>1596207526</time>
+          <time>1757514544</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 31 Jul 2020 14:58:46 GMT
+  recorded_at: Wed, 10 Sep 2025 14:29:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_revisions/_meta?user=tom
@@ -422,8 +422,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_revisions" project="home:tom:branches:home:tom">
-          <title>An Evil Cradling</title>
-          <description>Voluptatem sint debitis provident.</description>
+          <title>The Lathe of Heaven</title>
+          <description>Vel aliquam qui corporis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -444,15 +444,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '186'
+      - '180'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_revisions" project="home:tom:branches:home:tom">
-          <title>An Evil Cradling</title>
-          <description>Voluptatem sint debitis provident.</description>
+          <title>The Lathe of Heaven</title>
+          <description>Vel aliquam qui corporis.</description>
         </package>
-  recorded_at: Fri, 31 Jul 2020 14:58:46 GMT
+  recorded_at: Wed, 10 Sep 2025 14:29:04 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_revisions
@@ -482,12 +482,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_revisions" rev="4" vrev="4" srcmd5="b40e9cce84f2c67bd45ff4667726a62f">
+        <directory name="package_with_revisions" rev="2" vrev="2" srcmd5="b40e9cce84f2c67bd45ff4667726a62f">
           <linkinfo project="home:tom" package="package_with_revisions" rev="efbe5f0a5dd48df5129b4319df43aa45" srcmd5="efbe5f0a5dd48df5129b4319df43aa45" baserev="efbe5f0a5dd48df5129b4319df43aa45" xsrcmd5="d83b1df8a7dcda9ddd21113b898a835f" lsrcmd5="b40e9cce84f2c67bd45ff4667726a62f"/>
-          <entry name="_link" md5="7190e2d17317df95c397ad7f48dac06a" size="155" mtime="1596207469"/>
-          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1596207469"/>
+          <entry name="_link" md5="7190e2d17317df95c397ad7f48dac06a" size="155" mtime="1757514544"/>
+          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1757514543"/>
         </directory>
-  recorded_at: Fri, 31 Jul 2020 14:58:46 GMT
+  recorded_at: Wed, 10 Sep 2025 14:29:04 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_revisions?view=info
@@ -517,11 +517,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="package_with_revisions" rev="4" vrev="4" srcmd5="d83b1df8a7dcda9ddd21113b898a835f" lsrcmd5="b40e9cce84f2c67bd45ff4667726a62f" verifymd5="efbe5f0a5dd48df5129b4319df43aa45">
+        <sourceinfo package="package_with_revisions" rev="2" vrev="2" srcmd5="d83b1df8a7dcda9ddd21113b898a835f" lsrcmd5="b40e9cce84f2c67bd45ff4667726a62f" verifymd5="efbe5f0a5dd48df5129b4319df43aa45">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="home:tom" package="package_with_revisions"/>
         </sourceinfo>
-  recorded_at: Fri, 31 Jul 2020 14:58:46 GMT
+  recorded_at: Wed, 10 Sep 2025 14:29:04 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_revisions
@@ -551,12 +551,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_revisions" rev="4" vrev="4" srcmd5="b40e9cce84f2c67bd45ff4667726a62f">
+        <directory name="package_with_revisions" rev="2" vrev="2" srcmd5="b40e9cce84f2c67bd45ff4667726a62f">
           <linkinfo project="home:tom" package="package_with_revisions" rev="efbe5f0a5dd48df5129b4319df43aa45" srcmd5="efbe5f0a5dd48df5129b4319df43aa45" baserev="efbe5f0a5dd48df5129b4319df43aa45" xsrcmd5="d83b1df8a7dcda9ddd21113b898a835f" lsrcmd5="b40e9cce84f2c67bd45ff4667726a62f"/>
-          <entry name="_link" md5="7190e2d17317df95c397ad7f48dac06a" size="155" mtime="1596207469"/>
-          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1596207469"/>
+          <entry name="_link" md5="7190e2d17317df95c397ad7f48dac06a" size="155" mtime="1757514544"/>
+          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1757514543"/>
         </directory>
-  recorded_at: Fri, 31 Jul 2020 14:58:46 GMT
+  recorded_at: Wed, 10 Sep 2025 14:29:04 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_revisions?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -588,14 +588,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="254c366be7e3c6e8fdcdd9189e4acf5b">
+        <sourcediff key="cf62f23409d806138f8999fd5540ea22">
           <old project="home:tom:branches:home:tom" package="package_with_revisions" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:tom:branches:home:tom" package="package_with_revisions" rev="4" srcmd5="b40e9cce84f2c67bd45ff4667726a62f"/>
+          <new project="home:tom:branches:home:tom" package="package_with_revisions" rev="2" srcmd5="b40e9cce84f2c67bd45ff4667726a62f"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Fri, 31 Jul 2020 14:58:46 GMT
+  recorded_at: Wed, 10 Sep 2025 14:29:04 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:home:tom/package_with_revisions?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -632,7 +632,7 @@ http_interactions:
           <new project="home:tom:branches:home:tom" package="package_with_revisions" rev="d83b1df8a7dcda9ddd21113b898a835f" srcmd5="d83b1df8a7dcda9ddd21113b898a835f"/>
           <files/>
         </sourcediff>
-  recorded_at: Fri, 31 Jul 2020 14:58:46 GMT
+  recorded_at: Wed, 10 Sep 2025 14:29:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:home:tom/_meta?user=tom
@@ -678,5 +678,5 @@ http_interactions:
             <disable/>
           </publish>
         </project>
-  recorded_at: Fri, 31 Jul 2020 14:58:46 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Wed, 10 Sep 2025 14:29:04 GMT
+recorded_with: VCR 6.3.1
