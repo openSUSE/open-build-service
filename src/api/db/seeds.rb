@@ -177,6 +177,9 @@ at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_creat
 at = ans.attrib_types.where(name: 'LimitReleaseSourceProject').first_or_create
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 
+at = ans.attrib_types.where(name: 'AnityaDistribution').first_or_create
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
+
 update_all_attrib_type_descriptions
 
 puts 'Seeding issue trackers ...'
