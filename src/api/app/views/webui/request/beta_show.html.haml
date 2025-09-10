@@ -4,8 +4,6 @@
   @pagetitle += ": #{@action.name}"
   render partial: 'webui/request/show_actions', locals: { bs_request: @bs_request }
 
-= render partial: 'beta_alert', locals: { bs_request: @bs_request, action: @action }
-
 .card
   .card-body.p-0
     = render partial: 'request_header',
