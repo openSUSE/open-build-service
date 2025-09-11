@@ -14,9 +14,6 @@
       - if package.kiwi_image? && policy(package).update?
         = render partial: 'webui/package/show_actions/view_kiwi', locals: { package_id: package.id }
 
-      - if package.kiwi_image?
-        = render partial: 'webui/package/show_actions/cloud_upload', locals: { cloud_upload_index_path: cloud_upload_index_path }
-
       - if services.present?
         = render partial: 'webui/package/show_actions/trigger_services', locals: { package: package, project: project }
     - else
