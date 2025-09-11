@@ -18,6 +18,5 @@
                                                                         checked_values: filters }
         %button.btn.btn-primary#filter-button{ type: :submit }
           Apply Filter
-
-    = turbo_frame_tag "#{project.name}_#{package}_rpmlint", loading: 'lazy',
+    = turbo_frame_tag "#{project.name}_#{package_name}_rpmlint", loading: 'lazy',
                       src: rpmlint_summary_path(project_name: project.name, package_name: package.name, filters: filters)
