@@ -416,7 +416,7 @@ GEM
       io-console (~> 0.5)
     request_store (1.7.0)
       rack (>= 1.4)
-    rexml (3.4.3)
+    rexml (3.4.4)
     riddle (2.4.3)
     rspec (3.13.1)
       rspec-core (~> 3.13.0)
