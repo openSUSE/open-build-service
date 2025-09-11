@@ -37,10 +37,12 @@ constraints(RoutesHelper::APIMatcher) do
   ### /group
   controller :group do
     get 'group' => :index
-    get 'group/:title' => :show, constraints: cons
-    delete 'group/:title' => :delete, constraints: cons
-    put 'group/:title' => :update, constraints: cons
-    post 'group/:title' => :command, constraints: cons
+    constraints(cons) do
+      get 'group/:title' => :show
+      delete 'group/:title' => :delete
+      put 'group/:title' => :update
+      post 'group/:title' => :command, constraints: ->(req) { %w[add_user remove_user set_email].include?(req.params[:cmd]) }
+    end
   end
 
   ### /service
