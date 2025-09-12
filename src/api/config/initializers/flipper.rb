@@ -7,7 +7,8 @@ ENABLED_FEATURE_TOGGLES = [
   { name: :foster_collaboration, description: 'Features improving the collaboration opportunities between users of the build service.' },
   { name: :labels, description: 'Allow to apply labels to packages, submit requests and projects to improve collaboration between build service users.' },
   { name: :request_index, description: 'Redesign of listing requests' },
-  { name: :canned_responses, description: 'Create messages using templates' }
+  { name: :canned_responses, description: 'Create messages using templates' },
+  { name: :package_version_tracking, description: 'Track the local and upstream versions of your packages' }
 ].freeze
 
 Flipper.configure do
