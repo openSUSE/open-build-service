@@ -9,7 +9,7 @@ module HistoryElement
     end
 
     def user_action
-      'approved review'
+      'accepted last open review'
     end
   end
 end
