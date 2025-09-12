@@ -78,8 +78,6 @@ class GroupController < ApplicationController
       group.remove_user(user, user_session_login: User.session.login)
     when 'set_email'
       group.update!(email: params[:email])
-    else
-      raise UnknownCommandError, 'cmd must be set to add_user or remove_user'
     end
 
     render_ok

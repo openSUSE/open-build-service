@@ -59,15 +59,6 @@ post:
   responses:
     '200':
       $ref: '../components/responses/succeeded.yaml'
-    '400':
-      description: Bad Request.
-      content:
-        application/xml; charset=utf-8:
-          schema:
-            $ref: '../components/schemas/api_response.yaml'
-          example:
-            code: bad_request
-            summary: cmd must be set to add_user or remove_user
     '401':
       $ref: '../components/responses/unauthorized.yaml'
     '404':
