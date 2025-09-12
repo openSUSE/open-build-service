@@ -214,7 +214,7 @@ class Webui::RequestController < Webui::WebuiController
 
     if changestate == 'commented'
 
-      build_new_comment(@bs_request, body: params[:reason])
+      build_new_comment(@bs_request, body: params.dig(:review, :reason))
 
     elsif change_state(changestate, params)
       # TODO: Make this work for each submit action individually
@@ -440,7 +440,7 @@ class Webui::RequestController < Webui::WebuiController
         newstate: newstate,
         force: true,
         user: User.session.login,
-        comment: params[:reason]
+        comment: params.dig(:review, :reason)
       }
       begin
         request.change_state(opts)

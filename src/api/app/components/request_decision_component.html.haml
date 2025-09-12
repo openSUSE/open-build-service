@@ -1,5 +1,5 @@
 .request-decision.mt-n1
-  = form_with(url: request_changerequest_path, html: { id: 'request_handle_form' }, local: true) do |form|
+  = form_with(model: @bs_request.reviews.new, url: request_changerequest_path, html: { id: 'request_handle_form' }, local: true) do |form|
     = hidden_field_tag(:number, @bs_request.number)
     .pb-2{ 'data-canned-controller': '' }
       - if policy(Comment.new(commentable: @bs_request)).locked?
@@ -10,12 +10,13 @@
       - decision_placeholder = "Write your comment or decision...(markdown is only supported for comments, not for decisions)"
       = render WriteAndPreviewComponent.new(form: form, preview_message_url: preview_comments_path, canned_responses_enabled: true,
                                             message_body_param: 'comment[body]',
-                                            text_area_attributes: { object_name: 'reason', id_suffix: 'new_comment',
+                                            text_area_attributes: { object_name: 'reason', id_suffix: 'new_comment', required: true,
                                             placeholder: decision_placeholder})
       .mt-2#decision-buttons-row
         %div
           - if policy(Comment.new(commentable:@bs_request)).create?
-            = submit_tag 'Add comment', class: 'btn btn-outline-primary me-2', data: { disable_with: 'Creating comment...' }, name: 'commented'
+            = submit_tag 'Add comment', class: 'btn btn-outline-primary me-2 decision-add-comment', data: { disable_with: 'Creating comment...' },
+                                        name: 'commented', disabled: true
         %div
           - if policy(@bs_request).revoke_request?
             = submit_tag('Revoke request', name: 'revoked', class: 'btn btn-danger me-2',

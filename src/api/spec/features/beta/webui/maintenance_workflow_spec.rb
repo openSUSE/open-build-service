@@ -51,7 +51,7 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
         login(maintenance_coord_user)
 
         visit request_show_path(bs_request)
-        fill_in('reason', with: 'really? ok')
+        fill_in('review[reason]', with: 'really? ok')
 
         accept_alert do
           click_button('Accept')
@@ -96,7 +96,7 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
         login(maintenance_coord_user)
 
         visit request_show_path(bs_request)
-        fill_in('reason', with: 'really? ok')
+        fill_in('review[reason]', with: 'really? ok')
 
         accept_alert do
           click_button('Accept')

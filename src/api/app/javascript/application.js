@@ -2,5 +2,12 @@
 import "@hotwired/turbo-rails"
 import "src/turbo_error"
 
-// We can't use session drive, since our existing js doesn't expect it
+import { Application } from "@hotwired/stimulus"
+import { MarksmithController, ListContinuationController } from "@avo-hq/marksmith"
+
+// Start Stimulus application
+const application = Application.start()
+application.register("marksmith", MarksmithController)
+application.register("list-continuation", ListContinuationController)
+
 Turbo.session.drive = false
