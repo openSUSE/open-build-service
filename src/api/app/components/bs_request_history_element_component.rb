@@ -29,10 +29,10 @@ class BsRequestHistoryElementComponent < ApplicationComponent
 
   def expand?
     case @element.type.demodulize
-    when 'RequestDeclined'
-      true
-    else
+    when 'RequestReviewAdded', 'RequestPriorityChange', 'RequestDeleted', 'RequestSetIncident', 'RequestSuperseded', 'RequestAllReviewsApproved'
       false
+    else
+      true
     end
   end
 
