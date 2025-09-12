@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_08_04_125817) do
+ActiveRecord::Schema[7.2].define(version: 2025_09_10_121317) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -863,6 +863,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_04_125817) do
     t.index ["package_id"], name: "index_package_kinds_on_package_id"
   end
 
+  create_table "package_versions", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.integer "package_id", null: false
+    t.string "version", null: false
+    t.string "type", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["package_id"], name: "index_package_versions_on_package_id"
+  end
+
   create_table "packages", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "project_id", null: false
     t.string "name", limit: 200, null: false, collation: "utf8mb4_bin"
@@ -1375,6 +1384,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_08_04_125817) do
   add_foreign_key "package_issues", "issues", name: "package_issues_ibfk_2"
   add_foreign_key "package_issues", "packages", name: "package_issues_ibfk_1"
   add_foreign_key "package_kinds", "packages", name: "package_kinds_ibfk_1"
+  add_foreign_key "package_versions", "packages"
   add_foreign_key "packages", "kiwi_images"
   add_foreign_key "packages", "packages", column: "develpackage_id", name: "packages_ibfk_3"
   add_foreign_key "packages", "projects", name: "packages_ibfk_4"

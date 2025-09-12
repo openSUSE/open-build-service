@@ -63,6 +63,7 @@ class Package < ApplicationRecord
   has_many :watched_items, as: :watchable, dependent: :destroy
   has_many :reports, as: :reportable, dependent: :nullify
   has_many :labels, as: :labelable
+  has_many :package_versions, dependent: :destroy
 
   has_one :assignment, dependent: :destroy
   has_one :assignee, through: :assignment
