@@ -153,6 +153,14 @@ constraints(RoutesHelper::APIMatcher) do
   end
 
   post 'request/:id' => 'request#request_command', constraints: cons
+  controller :request do
+    constraints(cons) do
+      post 'request/:id' => :request_command_diff, constraints: ->(req) { req.params[:cmd] == 'diff' }
+      post 'request/:id' => :request_command, constraints: lambda { |req|
+        %w[addreview approve assignreview cancelapproval changereviewstate changestate setacceptat setincident setpriority].include?(req.params[:cmd])
+      }
+    end
+  end
 
   ### /lastevents
 
