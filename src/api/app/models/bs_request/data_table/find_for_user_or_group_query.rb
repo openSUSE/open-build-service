@@ -12,6 +12,7 @@ class BsRequest
       def requests
         @requests ||=
           requests_query(@params[:search])
+          .joins(:bs_request_actions)
           .offset(@params[:offset])
           .limit(@params[:limit])
           .reorder(@params[:sort])
