@@ -320,7 +320,7 @@ GEM
       rainbow (>= 3)
     nio4r (2.7.4)
     nkf (0.2.0)
-    nokogiri (1.18.9)
+    nokogiri (1.18.10)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     octokit (10.0.0)
