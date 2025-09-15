@@ -17,6 +17,7 @@ class BsRequest
           .limit(@params[:limit])
           .reorder(@params[:sort])
           .preload(:bs_request_actions)
+          .distinct
       end
 
       def records_total
