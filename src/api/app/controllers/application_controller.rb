@@ -248,7 +248,7 @@ class ApplicationController < ActionController::Base
   def set_influxdb_data
     InfluxDB::Rails.current.tags = {
       beta: User.possibly_nobody.in_beta?,
-      anonymous: !User.session,
+      anonymous: User.possibly_nobody.nobody?,
       spider: check_spider,
       interconnect: false,
       interface: :api
