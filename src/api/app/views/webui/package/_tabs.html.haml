@@ -7,7 +7,7 @@
     - unless @spider_bot
       -# haml-lint:enable InstanceVariables
       = tab_link('Repositories', repositories_path(project, package), 'scrollable-tab-link')
-      - if Flipper.enabled?(:request_show_redesign, User.session)
+      - if Flipper.enabled?(:request_show_redesign, User.possibly_nobody)
         = tab_link('RPM Lint', rpmlint_result_path(project, package), 'scrollable-tab-link')
       = tab_link('Revisions', package_view_revisions_path(project, package), 'scrollable-tab-link')
       - if Flipper.enabled?(:request_index, User.session)
