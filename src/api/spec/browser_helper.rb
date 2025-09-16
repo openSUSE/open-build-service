@@ -10,6 +10,7 @@ require 'support/features/features_attribute'
 require 'support/features/features_custom_checkbox'
 require 'support/features/features_responsive'
 require 'support/wait_helpers'
+require 'support/features/selenium_error_patch'
 require 'rack_session_access/capybara'
 
 # Shared examples. Per recommendation of RSpec,
