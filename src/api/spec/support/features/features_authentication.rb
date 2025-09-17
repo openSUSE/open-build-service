@@ -4,7 +4,7 @@ module FeaturesAuthentication
   end
 
   def logout
-    page.set_rack_session(login: nil)
+    visit reset_session_path
   end
 end
 
