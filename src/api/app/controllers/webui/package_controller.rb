@@ -301,7 +301,7 @@ class Webui::PackageController < Webui::WebuiController
       [repo_name, valid_xml_id(elide(repo_name, 30))]
     end
 
-    if Flipper.enabled?(:request_show_redesign, User.session)
+    if Flipper.enabled?(:request_show_redesign, User.possibly_nobody)
       filters = params.keys.select { |k| k.start_with?('repo', 'arch') }
       render 'webui/package/beta/rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
                                                             package_name: @package_name,

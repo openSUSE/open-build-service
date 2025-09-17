@@ -7,27 +7,27 @@ class Webui::RequestController < Webui::WebuiController
 
   before_action :require_login,
                 except: %i[show beta_show sourcediff diff request_action request_action_changes request_action_details inline_comment build_results
-                           changes changes_diff mentioned_issues]
+                           changes changes_diff mentioned_issues chart_build_results complete_build_results]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
   before_action :require_request,
                 only: %i[changerequest show beta_show request_action request_action_changes request_action_details inline_comment build_results
                          changes changes_diff mentioned_issues chart_build_results complete_build_results]
   before_action :set_actions, only: %i[inline_comment beta_show build_results changes changes_diff mentioned_issues chart_build_results complete_build_results request_action_changes request_action_details],
-                              if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+                              if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
   before_action :set_actions_deprecated, only: [:show]
   before_action :set_action, only: %i[inline_comment beta_show build_results changes changes_diff mentioned_issues request_action_details request_action_changes],
-                             if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+                             if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
   before_action :set_influxdb_data_request_actions, only: %i[beta_show build_results changes changes_diff mentioned_issues],
-                                                    if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+                                                    if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
   before_action :set_superseded_request, only: %i[show beta_show request_action request_action_changes build_results changes changes_diff mentioned_issues]
   before_action :check_ajax, only: :sourcediff
   before_action :prepare_request_data, only: %i[beta_show build_results changes mentioned_issues],
-                                       if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+                                       if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
   before_action :prepare_request_header_data, only: %i[beta_show build_results changes mentioned_issues],
-                                              if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+                                              if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
   before_action :cache_diff_data, only: %i[changes request_action_changes],
-                                  if: -> { Flipper.enabled?(:request_show_redesign, User.session) }
+                                  if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
   before_action :check_beta_user_redirect, only: %i[beta_show build_results changes mentioned_issues changes_diff]
 
   after_action :verify_authorized, only: [:create]
@@ -51,7 +51,7 @@ class Webui::RequestController < Webui::WebuiController
 
   # TODO: Remove this once request_show_redesign is rolled out
   def show
-    redirect_to request_beta_show_path(params[:number], params[:request_action_id], { notification_id: params[:notification_id] }) if Flipper.enabled?(:request_show_redesign, User.session)
+    redirect_to request_beta_show_path(params[:number], params[:request_action_id], { notification_id: params[:notification_id] }) if Flipper.enabled?(:request_show_redesign, User.possibly_nobody)
     @diff_limit = params[:full_diff] ? 0 : nil
     @is_author = @bs_request.creator == User.possibly_nobody.login
 
@@ -379,7 +379,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def check_beta_user_redirect
-    redirect_to request_show_path(params[:number], params[:request_action_id], { notification_id: params[:notification_id] }) unless Flipper.enabled?(:request_show_redesign, User.session)
+    redirect_to request_show_path(params[:number], params[:request_action_id], { notification_id: params[:notification_id] }) unless Flipper.enabled?(:request_show_redesign, User.possibly_nobody)
   end
 
   def addreview_opts

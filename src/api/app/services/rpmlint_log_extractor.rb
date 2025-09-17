@@ -25,7 +25,7 @@ class RpmlintLogExtractor
 
       # Condition: Flipper.enabled?(...   : TODO: Remove this `unless` condition once request_show_redesign is rolled out
       # Condition: e.summary.include?(... : Case of removed project, package, repository or architecture
-      retrieve_rpmlint_log_from_log if Flipper.enabled?(:request_show_redesign, User.session) && e.summary.include?('rpmlint.log: No such file or directory')
+      retrieve_rpmlint_log_from_log if Flipper.enabled?(:request_show_redesign, User.possibly_nobody) && e.summary.include?('rpmlint.log: No such file or directory')
     end
 
     time_delta = (Time.now.to_f - time_start).round(3)

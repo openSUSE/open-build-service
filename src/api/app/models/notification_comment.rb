@@ -43,7 +43,7 @@ class NotificationComment < Notification
   def link_path
     case event_type
     when 'Event::CommentForRequest'
-      anchor = if Flipper.enabled?(:request_show_redesign, User.session!)
+      anchor = if Flipper.enabled?(:request_show_redesign, User.possibly_nobody)
                  "comment-#{notifiable.id}-bubble"
                else
                  'comments-list'
