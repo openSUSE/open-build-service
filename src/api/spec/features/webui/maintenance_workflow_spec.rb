@@ -95,6 +95,7 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
     uncheck('patchinfo_block')
     expect(page).to have_css('input[id=patchinfo_block_reason][disabled]')
     click_button 'Save'
+    expect(page).to have_css('#flash', text: 'Successfully edited patchinfo')
 
     logout
 
@@ -107,6 +108,7 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
     expect(page).to have_title('Submit as Update')
     fill_in('description', with: 'I have a additional fix')
     click_button('Submit')
+    expect(page).to have_css('#flash', text: 'Created maintenance incident request')
 
     logout
 
