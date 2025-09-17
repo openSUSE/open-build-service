@@ -33,9 +33,11 @@
             = render partial: 'webui/shared/label_list', locals: { labelable: @package, project: @project }
             - if Flipper.enabled?(:foster_collaboration, User.session)
               = render partial: 'webui/package/side_links/assignments', locals: { project: @project, package: @package }
-        - if Flipper.enabled?(:package_version_tracking, User.session) && @package.latest_local_version
+        - if Flipper.enabled?(:package_version_tracking, User.session) && (@package.latest_local_version || @package.latest_upstream_version)
           Version:
           %b= @package.latest_local_version.version
+          - if @package.latest_upstream_version && @package.latest_local_version.version != @package.latest_upstream_version.version
+            (upstream #{@package.latest_upstream_version.version})
         .in-place-editing
           = render partial: 'basic_info', locals: { package: @package, project: @project }
       .col-md-4
