@@ -10,13 +10,15 @@
       - if Flipper.enabled?(:request_show_redesign, User.possibly_nobody)
         = tab_link('RPM Lint', rpmlint_result_path(project, package), 'scrollable-tab-link')
       = tab_link('Revisions', package_view_revisions_path(project, package), 'scrollable-tab-link')
-      - if Flipper.enabled?(:request_index, User.session)
-        = tab_link('Requests', packages_requests_path(project,
-                                                      package,
-                                                      state: %w[new review]),
-                               'scrollable-tab-link', active: controller_name == 'bs_requests')
-      - else
-        = tab_link('Requests', package_requests_path(project, package), 'scrollable-tab-link')
+      - unless package.readonly?
+        - if Flipper.enabled?(:request_index, User.session)
+          = tab_link('Requests', packages_requests_path(project,
+                                                        package,
+                                                        state: %w[new review]),
+                                 'scrollable-tab-link', active: controller_name == 'bs_requests')
+        - else
+          = tab_link('Requests', package_requests_path(project, package), 'scrollable-tab-link')
       = tab_link('Users', package_users_path(project, package), 'scrollable-tab-link')
-      = tab_link('Attributes', index_attribs_path(project, package), 'scrollable-tab-link')
+      - unless package.readonly?
+        = tab_link('Attributes', index_attribs_path(project, package), 'scrollable-tab-link')
       = tab_link('Meta', project_package_meta_path(project, package), 'scrollable-tab-link')
