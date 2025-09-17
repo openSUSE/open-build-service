@@ -203,7 +203,7 @@ class Attrib < ApplicationRecord
   end
 
   def fetch_local_package_version
-    FetchLocalPackageVersionForProjectJob.perform_later(project.name, package_name: package&.name)
+    FetchLocalPackageVersionJob.perform_later(project.name, package_name: package&.name)
   end
 end
 
