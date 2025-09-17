@@ -11,7 +11,7 @@ module Webui
             pulse = @project.project_log_entries.where(datetime: @date_range).order(datetime: :asc)
 
             requests = @project.target_of_bs_requests.where(updated_at: @date_range).order(updated_at: :desc)
-            requests_by_state = requests.group(:state).count.sort_by { |_, v| -v }.to_h
+            requests_by_state = requests.group(:status).count.sort_by { |_, v| -v }.to_h
             requests_by_percentage = requests_by_state.each_with_object({}) do |(k, v), hash|
               hash[k] = (v * 100.0 / requests_by_state.values.sum).round.to_s
             end

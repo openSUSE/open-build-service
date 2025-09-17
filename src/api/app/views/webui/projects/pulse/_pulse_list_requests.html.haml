@@ -1,7 +1,7 @@
 .row
   - requests.take(30).each do |request|
     %dt.col-12.col-md-2.col-lg-1
-      = render BsRequestStateBadgeComponent.new(state: request.state, css_class: 'mb-auto')
+      = render BsRequestStateBadgeComponent.new(state: request.status, css_class: 'mb-auto')
     %dd.col-12.col-md-10.col-lg-11
       = link_to(request_show_path(request.number), title: request.description) do
         = request.number

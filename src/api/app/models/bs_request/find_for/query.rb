@@ -6,7 +6,7 @@ class BsRequest
         @relation = @relation.where(creator: creator) if creator.present?
         @relation = @relation.from_project_names(@parameters['project_name']).or(@relation.to_project_names(@parameters['project_name'])) if @parameters['project_name'].present?
         @relation = @relation.with_action_types(types) if types.present?
-        @relation = @relation.where(state: states) if states.present?
+        @relation = @relation.where(status: states) if states.present?
         @relation = @relation.where(priority: priorities) if priorities.present?
         @relation = @relation.from_project(source_project_name) if source_project_name.present?
         @relation = @relation.joins(:reviews).where('reviews.by_user IN (?) OR reviews.by_group IN (?)', reviewers, reviewers) if reviewers.present?
