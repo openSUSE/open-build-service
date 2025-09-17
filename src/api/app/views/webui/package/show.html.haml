@@ -36,6 +36,8 @@
         - if Flipper.enabled?(:package_version_tracking, User.session) && @package.latest_local_version
           Version:
           %b= @package.latest_local_version.version
+          - if @package.latest_upstream_version && @package.latest_local_version.version != @package.latest_upstream_version.version
+            (upstream #{@package.latest_upstream_version.version})
         .in-place-editing
           = render partial: 'basic_info', locals: { package: @package, project: @project }
       .col-md-4
