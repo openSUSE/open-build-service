@@ -134,7 +134,7 @@ aliases:
 jobs:
   pipeline_settings:
     docker:
-      - image: opensuse/leap:15.6
+      - image: opensuse/leap:16.0
     steps:
       - run: echo "run-apidocs-linter is << pipeline.parameters.run-apidocs-linter >>"
       - run: echo "run-backend-tests is << pipeline.parameters.run-backend-tests >>"
