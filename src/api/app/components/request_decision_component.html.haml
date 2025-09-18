@@ -18,13 +18,13 @@
             = submit_tag 'Add comment', class: 'btn btn-outline-primary me-2', data: { disable_with: 'Creating comment...' }, name: 'commented'
         %div
           - if policy(@bs_request).revoke_request?
-            = submit_tag('Revoke request', name: 'revoked', class: 'btn btn-danger me-2',
+            = submit_tag('Revoke request', name: 'revoked', class: 'btn btn-danger ms-2',
                           title: 'Cancel the request', data: { confirm: "Revoke this request?" })
           - if policy(@bs_request).decline_request?
-            = submit_tag('Decline request', name: 'declined', class: 'btn btn-danger me-2',
+            = submit_tag('Decline request', name: 'declined', class: 'btn btn-danger ms-2',
                           title: 'Reject the changes.', data: { confirm: "Decline this request?\n\n#{@package_maintainers_hint}" })
           - if policy(@bs_request).accept_request?
-            .btn-group.me-2
+            .btn-group.ms-2
               = submit_tag('Accept request', name: 'accepted', class: 'btn btn-primary',
                           data: confirmation, title: "Commit changes to #{target_names}.")
               - if show_forward? || show_add_creator_as_maintainer?
@@ -59,7 +59,7 @@
                         %i Commit the changes, make #{@bs_request.creator} a maintainer of #{target_names}, and create a request to forward the changes to #{forwards_names}
                       -# haml-lint:enable LineLength
           - if policy(@bs_request).reopen_request?
-            = submit_tag 'Reopen request', name: 'new', class: 'btn btn-warning me-2', data: { confirm: "Reopen this request?" }
+            = submit_tag 'Reopen request', name: 'new', class: 'btn btn-warning ms-2', data: { confirm: "Reopen this request?" }
 
 :javascript
   attachPreviewMessageOnCommentBoxes();
