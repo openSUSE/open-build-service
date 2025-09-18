@@ -1,8 +1,3 @@
-- if binary[:links][:cloud_upload?] && User.session
-  = link_to(new_cloud_upload_path(project: project, package: package, repository: repository, arch: architecture,
-    filename: binary[:filename]), title: 'Cloud Upload', class: 'ms-2') do
-    %i.fas.fa-cloud-upload-alt
-    Cloud Upload
 - if binary[:links][:download_url]
   = link_to(binary[:links][:download_url], title: 'Download', class: 'ms-2') do
     %i.fas.fa-download.text-secondary

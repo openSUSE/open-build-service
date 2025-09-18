@@ -362,17 +362,6 @@ This package contains test cases for testing a installed appliances.
  * checks if database setup worked correctly
  * checks if required service came up properly
 
-%package -n obs-cloud-uploader
-Summary:        The Open Build Service -- Image Cloud Uploader
-Group:          Productivity/Networking/Web/Utilities
-Requires:       aws-cli
-Requires:       azure-cli
-Requires:       obs-server
-Requires:       /usr/bin/ec2uploadimg
-
-%description -n obs-cloud-uploader
-This package contains all the necessary tools for upload images to the cloud.
-
 %package -n perl-OBS-XML
 Summary:        XML dtd for OBS
 
@@ -548,12 +537,6 @@ if ! test -L %{buildroot}%{obs_backend_dir}/build; then
   exit 1
 fi
 
-install -m 755 $RPM_BUILD_DIR/open-build-service-%version/dist/clouduploader.rb $RPM_BUILD_ROOT/%{_bindir}/clouduploader
-mkdir -p $RPM_BUILD_ROOT/etc/obs/cloudupload
-install -m 644 $RPM_BUILD_DIR/open-build-service-%version/dist/ec2utils.conf.example $RPM_BUILD_ROOT/etc/obs/cloudupload/.ec2utils.conf
-mkdir -p $RPM_BUILD_ROOT/etc/obs/cloudupload/.aws
-install -m 644 $RPM_BUILD_DIR/open-build-service-%version/dist/aws_credentials.example $RPM_BUILD_ROOT/etc/obs/cloudupload/.aws/credentials
-
 # Link the assets without hash to make them accessible for third party tools like the pattern library
 pushd $RPM_BUILD_ROOT%{__obs_api_prefix}/public/assets/webui/
 ln -sf application-*.js application.js
@@ -668,10 +651,6 @@ exit 0
 %pre -n obs-worker
 %service_add_pre obsworker.service
 
-%pre -n obs-cloud-uploader
-%service_add_pre obsclouduploadworker.service
-%service_add_pre obsclouduploadserver.service
-
 %preun
 %service_del_preun obsscheduler.service
 %service_del_preun obssrcserver.service
@@ -695,10 +674,6 @@ exit 0
 %preun -n obs-worker
 %service_del_preun obsworker.service
 
-%preun -n obs-cloud-uploader
-%service_del_preun obsclouduploadworker.service
-%service_del_preun obsclouduploadserver.service
-
 %preun -n obs-api
 %service_del_preun %{obs_api_support_scripts}
 
@@ -721,10 +696,6 @@ exit 0
 
 %post -n obs-worker
 %service_add_post obsworker.service
-
-%post -n obs-cloud-uploader
-%service_add_post obsclouduploadworker.service
-%service_add_post obsclouduploadserver.service
 
 %posttrans
 [ -d %{obs_backend_data_dir} ] || install -d -o obsrun -g obsrun %{obs_backend_data_dir}
@@ -765,10 +736,6 @@ rmdir %{obs_backend_data_dir} 2> /dev/null || :
 # This can cause problems when building chroot
 # and bs_worker is anyway updating itself at runtime based on server code
 %service_del_postun -n obsworker.service
-
-%postun -n obs-cloud-uploader
-%service_del_postun -r obsclouduploadworker.service
-%service_del_postun -r obsclouduploadserver.service
 
 %pre -n obs-api
 %service_add_pre %{obs_api_support_scripts}
@@ -1129,23 +1096,6 @@ usermod -a -G docker obsservicerun
 %dir /usr/lib/obs/tests/
 %dir /usr/lib/obs/tests/appliance
 /usr/lib/obs/tests/appliance/*
-
-%files -n obs-cloud-uploader
-%defattr(-,root,root)
-%{_unitdir}/obsclouduploadworker.service
-%{_unitdir}/obsclouduploadserver.service
-%if 0%{?suse_version}
-/usr/sbin/rcobsclouduploadworker
-/usr/sbin/rcobsclouduploadserver
-%endif
-%{obs_backend_dir}/bs_clouduploadserver
-%{obs_backend_dir}/bs_clouduploadworker
-%{_bindir}/clouduploader
-%dir /etc/obs
-%dir /etc/obs/cloudupload
-%dir /etc/obs/cloudupload/.aws
-%config(noreplace) /etc/obs/cloudupload/.aws/credentials
-%config /etc/obs/cloudupload/.ec2utils.conf
 
 %files -n perl-OBS-XML
 %dir %perl_vendorlib/OBS

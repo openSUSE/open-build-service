@@ -49,10 +49,6 @@ class User < ApplicationRecord
   has_many :bs_request_actions_seen_by_users, dependent: :nullify
   has_many :bs_request_actions_seen, through: :bs_request_actions_seen_by_users, source: :bs_request_action
 
-  has_one :ec2_configuration, class_name: 'Cloud::Ec2::Configuration', dependent: :destroy
-  has_one :azure_configuration, class_name: 'Cloud::Azure::Configuration', dependent: :destroy
-  has_many :upload_jobs, class_name: 'Cloud::User::UploadJob', dependent: :destroy
-
   has_many :notifications, as: :subscriber, dependent: :destroy
 
   has_many :commit_activities
@@ -309,10 +305,6 @@ class User < ApplicationRecord
     else
       false
     end
-  end
-
-  def cloud_configurations?
-    ec2_configuration.present? || azure_configuration.present?
   end
 
   def to_axml(_opts = {})

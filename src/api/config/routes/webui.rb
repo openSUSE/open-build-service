@@ -169,34 +169,6 @@ constraints(RoutesHelper::WebuiMatcher) do
     end
   end
 
-  scope :cloud, as: :cloud do
-    resources :configuration, only: [:index], controller: 'webui/cloud/configurations'
-
-    resources :upload, only: %i[index create destroy], controller: 'webui/cloud/upload_jobs' do
-      new do
-        get ':project/:package/:repository/:arch/:filename', to: 'webui/cloud/upload_jobs#new', as: '', constraints: cons
-      end
-
-      resource :log, only: :show, controller: 'webui/cloud/upload_job/logs'
-    end
-    scope :azure, as: :azure do
-      resource :configuration, only: %i[show update destroy], controller: 'webui/cloud/azure/configurations'
-      resource :upload, only: [:create], controller: 'webui/cloud/azure/upload_jobs' do
-        new do
-          get ':project/:package/:repository/:arch/:filename', to: 'webui/cloud/azure/upload_jobs#new', as: '', constraints: cons
-        end
-      end
-    end
-    scope :ec2, as: :ec2 do
-      resource :configuration, only: %i[show update], controller: 'webui/cloud/ec2/configurations'
-      resource :upload, only: [:create], controller: 'webui/cloud/ec2/upload_jobs' do
-        new do
-          get ':project/:package/:repository/:arch/:filename', to: 'webui/cloud/ec2/upload_jobs#new', as: '', constraints: cons
-        end
-      end
-    end
-  end
-
   controller 'webui/project' do
     get 'project/' => :index, as: 'projects'
     get 'project/list_public' => :index, as: 'project_list_public'

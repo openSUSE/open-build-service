@@ -544,29 +544,6 @@
       "note": ""
     },
     {
-      "warning_type": "Weak Cryptography",
-      "warning_code": 126,
-      "fingerprint": "755ce94e0c9b9218dcd5ca3c2d9dca58acdcb61c7484cd76abe3b283749ab48d",
-      "check_name": "WeakRSAKey",
-      "message": "Use of padding mode PKCS1 (default if not specified), which is known to be insecure. Use OAEP instead",
-      "file": "app/models/cloud/azure/configuration.rb",
-      "line": 32,
-      "link": "https://brakemanscanner.org/docs/warning_types/weak_cryptography/",
-      "code": "OpenSSL::PKey::RSA.new(::Backend::Api::Cloud.public_key).public_encrypt(application_key)",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "Cloud::Azure::Configuration",
-        "method": "encrypt_credentials"
-      },
-      "user_input": null,
-      "confidence": "High",
-      "cwe_id": [
-        780
-      ],
-      "note": "We track this with a comment in the code"
-    },
-    {
       "warning_type": "SQL Injection",
       "warning_code": 0,
       "fingerprint": "876768ac9e5e85c297017c9e37d731a1b8e2c917524dc456b9b7db035d56964c",
@@ -1015,29 +992,6 @@
         79
       ],
       "note": ""
-    },
-    {
-      "warning_type": "Weak Cryptography",
-      "warning_code": 126,
-      "fingerprint": "ec674f4041072ac82eea957a8afc26031d83bf38b56e128c898130ebf903b2f8",
-      "check_name": "WeakRSAKey",
-      "message": "Use of padding mode PKCS1 (default if not specified), which is known to be insecure. Use OAEP instead",
-      "file": "app/models/cloud/azure/configuration.rb",
-      "line": 31,
-      "link": "https://brakemanscanner.org/docs/warning_types/weak_cryptography/",
-      "code": "OpenSSL::PKey::RSA.new(::Backend::Api::Cloud.public_key).public_encrypt(application_id)",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "Cloud::Azure::Configuration",
-        "method": "encrypt_credentials"
-      },
-      "user_input": null,
-      "confidence": "High",
-      "cwe_id": [
-        780
-      ],
-      "note": "We track this with a comment in the code"
     },
     {
       "warning_type": "Cross-Site Scripting",

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_09_10_121317) do
+ActiveRecord::Schema[7.2].define(version: 2025_09_15_120837) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -340,34 +340,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_10_121317) do
     t.integer "package_id", null: false
     t.boolean "disabled"
     t.index ["package_id"], name: "index_unique", unique: true
-  end
-
-  create_table "cloud_azure_configurations", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.integer "user_id"
-    t.text "application_id"
-    t.text "application_key"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.index ["user_id"], name: "index_cloud_azure_configurations_on_user_id"
-  end
-
-  create_table "cloud_ec2_configurations", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.integer "user_id"
-    t.string "external_id"
-    t.string "arn"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.index ["external_id", "arn"], name: "index_cloud_ec2_configurations_on_external_id_and_arn", unique: true
-    t.index ["user_id"], name: "index_cloud_ec2_configurations_on_user_id"
-  end
-
-  create_table "cloud_user_upload_jobs", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.integer "user_id"
-    t.integer "job_id"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.index ["job_id"], name: "index_cloud_user_upload_jobs_on_job_id", unique: true
-    t.index ["user_id"], name: "index_cloud_user_upload_jobs_on_user_id"
   end
 
   create_table "comment_locks", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|

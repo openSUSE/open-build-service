@@ -183,12 +183,6 @@ constraints(RoutesHelper::APIMatcher) do
     end
   end
 
-  ### /cloud/upload
-
-  scope :cloud, as: :cloud do
-    resources :upload, only: %i[index show create destroy], controller: 'cloud/upload_jobs'
-  end
-
   ### /public
   controller :public do
     get 'public', to: redirect('/public/about')

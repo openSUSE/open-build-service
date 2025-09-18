@@ -52,7 +52,6 @@ if ($frontend) {
 our $srcserver = "http://$hostname:5352";
 our $reposerver = "http://$hostname:5252";
 our $serviceserver = "http://$hostname:5152";
-our $clouduploadserver = "http://$hostname:5452"; 
 
 # you can use different ports for worker connections
 #our $workersrcserver = "http://$hostname:5353";
@@ -362,9 +361,6 @@ our $local_registry_signatures_extension = 1;
 ## Container which should be 'linked' when running "bundle_gems" service
 # our $geminabox_container = '';
 #
-
-# public cloud uploader configuration
-# our $cloudupload_pubkey = "/etc/obs/cloudupload/_pubkey"; # default setting
 
 # user/password to be used by services which needs to authenticate at
 # OBS (e.g. kiwi_import)
