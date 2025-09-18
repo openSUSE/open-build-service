@@ -284,7 +284,7 @@ GEM
       net-imap
       net-pop
       net-smtp
-    marcel (1.0.4)
+    marcel (1.1.0)
     matrix (0.4.3)
     method_source (1.1.0)
     middleware (0.1.0)
