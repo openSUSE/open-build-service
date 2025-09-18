@@ -74,5 +74,10 @@ FactoryBot.define do
     factory :attrib_with_default_value do
       attrib_type { association :attrib_type_with_default_value }
     end
+
+    factory :anitya_distribution_attrib do
+      attrib_type { AttribType.find_by_namespace_and_name!('OBS', 'AnityaDistribution') }
+      values { [build(:attrib_value, value: 'openSUSE')] }
+    end
   end
 end
