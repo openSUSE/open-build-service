@@ -32,7 +32,7 @@ RSpec.describe 'Comments with diff', :js, :vcr do
 
         click_on "reply_button_of_#{comment.id}"
         within("#reply_for_#{comment.id}_form") do
-          fill_in "reply_for_#{comment.id}_body", with: 'This is a new reply'
+          fill_in "reply_for_#{comment.id}_body-textarea", with: 'This is a new reply'
           click_on 'Add comment'
         end
       end
@@ -61,7 +61,7 @@ RSpec.describe 'Comments with diff', :js, :vcr do
         find('a', class: 'line-new-comment').click
         # Wait for comment box to appear
         find_by_id('new_comment_diff_0_n2_form').visible?
-        fill_in 'new_comment_diff_0_n2_body', with: 'My test diff comment'
+        fill_in 'new_comment_diff_0_n2_body-textarea', with: 'My test diff comment'
         find('input[type="submit"]').click
       end
       # Wait for the comment to be created and appear back

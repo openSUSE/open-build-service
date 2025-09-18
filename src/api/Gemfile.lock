@@ -285,6 +285,8 @@ GEM
       net-pop
       net-smtp
     marcel (1.0.4)
+    marksmith (0.4.7)
+      activesupport
     matrix (0.4.3)
     method_source (1.1.0)
     middleware (0.1.0)
@@ -645,6 +647,7 @@ DEPENDENCIES
   kaminari
   launchy
   lograge
+  marksmith
   minitest
   minitest-ci
   minitest-fail-fast
