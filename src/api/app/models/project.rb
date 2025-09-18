@@ -332,10 +332,7 @@ class Project < ApplicationRecord
           target_project_name = element.value('project')
           if target_project_name != project_name
             begin
-              target_project = Project.get_by_name(target_project_name)
-              # user can access tprj, but backend would refuse to take binaries from there
-              return { error: "The current backend implementation is not using binaries from read access protected projects #{target_project_name}" } if target_project.instance_of?(Project) &&
-                                                                                                                                                         target_project.disabled_for?('access', nil, nil)
+              Project.get_by_name(target_project_name)
             rescue Project::Errors::UnknownObjectError
               return { error: "A project with the name #{target_project_name} does not exist. Please update the repository path elements." }
             end

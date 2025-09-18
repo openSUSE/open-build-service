@@ -696,43 +696,6 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal({}, actual)
   end
 
-  test 'returns an error if repository access is disabled' do
-    User.session = users(:Iggy)
-    project = projects(:home_Iggy)
-    flag = project.add_flag('access', 'disable')
-    flag.save
-
-    xml = <<~XML
-      <project name='other_project'>
-        <title>Up-to-date project</title>
-        <description>the description</description>
-        <repository><path project='home:Iggy'></path></repository>
-      </project>
-    XML
-
-    expected = { error: 'The current backend implementation is not using binaries from read access protected projects home:Iggy' }
-    actual = Project.validate_repository_xml_attribute(Xmlhash.parse(xml), 'other_project')
-    assert_equal expected, actual
-  end
-
-  test 'returns no error if target project equals project' do
-    User.session = users(:Iggy)
-    project = projects(:home_Iggy)
-    flag = project.add_flag('access', 'disable')
-    flag.save
-
-    xml = <<~XML
-      <project name='home:Iggy'>
-        <title>Up-to-date project</title>
-        <description>the description</description>
-        <repository><path project='home:Iggy'></path></repository>
-      </project>
-    XML
-
-    actual = Project.validate_repository_xml_attribute(Xmlhash.parse(xml), 'home:Iggy')
-    assert_equal({}, actual)
-  end
-
   test 'get_removed_repositories returns all repositories if new_repositories does not contain the old repositories' do
     User.session = users(:Iggy)
     project = projects(:home_Iggy)
