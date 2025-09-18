@@ -1,0 +1,605 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/factory/_meta?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="factory">
+          <title>I Know Why the Caged Bird Sings</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '115'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="factory">
+          <title>I Know Why the Caged Bird Sings</title>
+          <description></description>
+        </project>
+  recorded_at: Thu, 18 Sep 2025 13:36:59 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/factory/hello/_meta?user=user_5
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello" project="factory">
+          <title>I Know Why the Caged Bird Sings</title>
+          <description>Dolorem nihil unde non.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '154'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello" project="factory">
+          <title>I Know Why the Caged Bird Sings</title>
+          <description>Dolorem nihil unde non.</description>
+        </package>
+  recorded_at: Thu, 18 Sep 2025 13:36:59 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/factory/hello/_meta?user=user_5
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello" project="factory">
+          <title>I Know Why the Caged Bird Sings</title>
+          <description>Dolorem nihil unde non.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '154'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello" project="factory">
+          <title>I Know Why the Caged Bird Sings</title>
+          <description>Dolorem nihil unde non.</description>
+        </package>
+  recorded_at: Thu, 18 Sep 2025 13:36:59 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/factory?parse=1&view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '162'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfolist>
+          <sourceinfo package="hello" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+            <error>no source uploaded</error>
+          </sourceinfo>
+        </sourceinfolist>
+  recorded_at: Thu, 18 Sep 2025 13:36:59 GMT
+- request:
+    method: get
+    uri: https://release-monitoring.org/api/v2/packages/?distribution=openSUSE&name=hello
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - release-monitoring.org
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 18 Sep 2025 13:36:59 GMT
+      Server:
+      - Apache/2.4.64 (Fedora Linux) mod_wsgi/5.0.2 Python/3.13
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Referrer-Policy:
+      - same-origin
+      Content-Length:
+      - '213'
+      Vary:
+      - Cookie
+      Content-Type:
+      - application/json
+      Set-Cookie:
+      - c7f2af7958ac7bdd3fe2e687de986bfb=5a4aec613afb900faa188f3e7b71c7fb; path=/;
+        HttpOnly; Secure; SameSite=None
+      Apptime:
+      - D=53474
+      X-Fedora-Proxyserver:
+      - proxy10.rdu3.fedoraproject.org
+      X-Fedora-Requestid:
+      - aMwK-21WmLuE8NdhR5-aiwAADMU
+    body:
+      encoding: UTF-8
+      string: '{"items":[{"distribution":"openSUSE","ecosystem":"https://www.gnu.org/software/hello/","name":"hello","project":"hello","stable_version":"2.12.2","version":"2.12.2"}],"items_per_page":25,"page":1,"total_items":1}
+
+'
+  recorded_at: Thu, 18 Sep 2025 13:36:59 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/factory/_project/_attribute?meta=1
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="AnityaDistribution" namespace="OBS">
+            <value>openSUSE</value>
+          </attribute>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '170'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="10">
+          <srcmd5>0285fe3935ecfd045f458061b532823d</srcmd5>
+          <time>1758202619</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 Sep 2025 13:36:59 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/games/_meta?user=user_7
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="games">
+          <title>No Longer at Ease</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '99'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="games">
+          <title>No Longer at Ease</title>
+          <description></description>
+        </project>
+  recorded_at: Thu, 18 Sep 2025 13:36:59 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/games/0ad/_meta?user=user_8
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="0ad" project="games">
+          <title>Antic Hay</title>
+          <description>Non ab velit ea.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '121'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="0ad" project="games">
+          <title>Antic Hay</title>
+          <description>Non ab velit ea.</description>
+        </package>
+  recorded_at: Thu, 18 Sep 2025 13:36:59 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/games/0ad/_meta?user=user_8
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="0ad" project="games">
+          <title>Antic Hay</title>
+          <description>Non ab velit ea.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '121'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="0ad" project="games">
+          <title>Antic Hay</title>
+          <description>Non ab velit ea.</description>
+        </package>
+  recorded_at: Thu, 18 Sep 2025 13:36:59 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/games?parse=1&view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfolist>
+          <sourceinfo package="0ad" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+            <error>no source uploaded</error>
+          </sourceinfo>
+        </sourceinfolist>
+  recorded_at: Thu, 18 Sep 2025 13:36:59 GMT
+- request:
+    method: get
+    uri: https://release-monitoring.org/api/v2/packages/?distribution=openSUSE&name=0ad
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - release-monitoring.org
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 18 Sep 2025 13:37:00 GMT
+      Server:
+      - Apache/2.4.64 (Fedora Linux) mod_wsgi/5.0.2 Python/3.13
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Referrer-Policy:
+      - same-origin
+      Content-Length:
+      - '194'
+      Vary:
+      - Cookie
+      Content-Type:
+      - application/json
+      Set-Cookie:
+      - c7f2af7958ac7bdd3fe2e687de986bfb=5a4aec613afb900faa188f3e7b71c7fb; path=/;
+        HttpOnly; Secure; SameSite=None
+      Apptime:
+      - D=33800
+      X-Fedora-Proxyserver:
+      - proxy01.rdu3.fedoraproject.org
+      X-Fedora-Requestid:
+      - aMwK_HeXpLJnUFftEYgaFgAACkI
+    body:
+      encoding: UTF-8
+      string: '{"items":[{"distribution":"openSUSE","ecosystem":"https://play0ad.com/","name":"0ad","project":"0ad","stable_version":"0.27.1","version":"0.27.1"}],"items_per_page":25,"page":1,"total_items":1}
+
+'
+  recorded_at: Thu, 18 Sep 2025 13:37:00 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/games/_project/_attribute?meta=1
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="AnityaDistribution" namespace="OBS">
+            <value>openSUSE</value>
+          </attribute>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '169'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="6">
+          <srcmd5>51358cee48b1f75379ced3459b66fb3c</srcmd5>
+          <time>1758202620</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 Sep 2025 13:37:00 GMT
+- request:
+    method: get
+    uri: https://release-monitoring.org/api/v2/packages/?distribution=openSUSE&name=hello
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - release-monitoring.org
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 18 Sep 2025 13:37:00 GMT
+      Server:
+      - Apache/2.4.64 (Fedora Linux) mod_wsgi/5.0.2 Python/3.13
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Referrer-Policy:
+      - same-origin
+      Content-Length:
+      - '213'
+      Vary:
+      - Cookie
+      Content-Type:
+      - application/json
+      Set-Cookie:
+      - c7f2af7958ac7bdd3fe2e687de986bfb=5a4aec613afb900faa188f3e7b71c7fb; path=/;
+        HttpOnly; Secure; SameSite=None
+      Apptime:
+      - D=36293
+      X-Fedora-Proxyserver:
+      - proxy10.rdu3.fedoraproject.org
+      X-Fedora-Requestid:
+      - aMwK_M-EJ_VeLqXDo8FvnwAACFI
+    body:
+      encoding: UTF-8
+      string: '{"items":[{"distribution":"openSUSE","ecosystem":"https://www.gnu.org/software/hello/","name":"hello","project":"hello","stable_version":"2.12.2","version":"2.12.2"}],"items_per_page":25,"page":1,"total_items":1}
+
+'
+  recorded_at: Thu, 18 Sep 2025 13:37:00 GMT
+- request:
+    method: get
+    uri: https://release-monitoring.org/api/v2/packages/?distribution=openSUSE&name=0ad
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - release-monitoring.org
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 18 Sep 2025 13:37:01 GMT
+      Server:
+      - Apache/2.4.64 (Fedora Linux) mod_wsgi/5.0.2 Python/3.13
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Referrer-Policy:
+      - same-origin
+      Content-Length:
+      - '194'
+      Vary:
+      - Cookie
+      Content-Type:
+      - application/json
+      Set-Cookie:
+      - c7f2af7958ac7bdd3fe2e687de986bfb=5a4aec613afb900faa188f3e7b71c7fb; path=/;
+        HttpOnly; Secure; SameSite=None
+      Apptime:
+      - D=50808
+      X-Fedora-Proxyserver:
+      - proxy01.rdu3.fedoraproject.org
+      X-Fedora-Requestid:
+      - aMwK_dCBa67rSA9wFAvlRAAACZQ
+    body:
+      encoding: UTF-8
+      string: '{"items":[{"distribution":"openSUSE","ecosystem":"https://play0ad.com/","name":"0ad","project":"0ad","stable_version":"0.27.1","version":"0.27.1"}],"items_per_page":25,"page":1,"total_items":1}
+
+'
+  recorded_at: Thu, 18 Sep 2025 13:37:01 GMT
+recorded_with: VCR 6.3.1

@@ -1,0 +1,304 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/factory/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="factory">
+          <title>Time of our Darkness</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '104'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="factory">
+          <title>Time of our Darkness</title>
+          <description></description>
+        </project>
+  recorded_at: Thu, 18 Sep 2025 13:36:57 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/factory/hello/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello" project="factory">
+          <title>The Wings of the Dove</title>
+          <description>Et consequatur ipsam molestias.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello" project="factory">
+          <title>The Wings of the Dove</title>
+          <description>Et consequatur ipsam molestias.</description>
+        </package>
+  recorded_at: Thu, 18 Sep 2025 13:36:57 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/factory/hello/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello" project="factory">
+          <title>The Wings of the Dove</title>
+          <description>Et consequatur ipsam molestias.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello" project="factory">
+          <title>The Wings of the Dove</title>
+          <description>Et consequatur ipsam molestias.</description>
+        </package>
+  recorded_at: Thu, 18 Sep 2025 13:36:57 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/factory?parse=1&view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '162'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfolist>
+          <sourceinfo package="hello" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+            <error>no source uploaded</error>
+          </sourceinfo>
+        </sourceinfolist>
+  recorded_at: Thu, 18 Sep 2025 13:36:58 GMT
+- request:
+    method: get
+    uri: https://release-monitoring.org/api/v2/packages/?distribution=openSUSE&name=hello
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - release-monitoring.org
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 18 Sep 2025 13:36:58 GMT
+      Server:
+      - Apache/2.4.64 (Fedora Linux) mod_wsgi/5.0.2 Python/3.13
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Referrer-Policy:
+      - same-origin
+      Content-Length:
+      - '213'
+      Vary:
+      - Cookie
+      Content-Type:
+      - application/json
+      Set-Cookie:
+      - c7f2af7958ac7bdd3fe2e687de986bfb=5a4aec613afb900faa188f3e7b71c7fb; path=/;
+        HttpOnly; Secure; SameSite=None
+      Apptime:
+      - D=37222
+      X-Fedora-Proxyserver:
+      - proxy10.rdu3.fedoraproject.org
+      X-Fedora-Requestid:
+      - aMwK-kesGKgIq1Fy8itibAAAD80
+    body:
+      encoding: UTF-8
+      string: '{"items":[{"distribution":"openSUSE","ecosystem":"https://www.gnu.org/software/hello/","name":"hello","project":"hello","stable_version":"2.12.2","version":"2.12.2"}],"items_per_page":25,"page":1,"total_items":1}
+
+'
+  recorded_at: Thu, 18 Sep 2025 13:36:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/factory/_project/_attribute?meta=1
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="AnityaDistribution" namespace="OBS">
+            <value>openSUSE</value>
+          </attribute>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '169'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="8">
+          <srcmd5>b01a5cc278ea8e418a8b9d0c75c05ed0</srcmd5>
+          <time>1758202618</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Thu, 18 Sep 2025 13:36:58 GMT
+- request:
+    method: get
+    uri: https://release-monitoring.org/api/v2/packages/?distribution=openSUSE&name=hello
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - release-monitoring.org
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 18 Sep 2025 13:36:58 GMT
+      Server:
+      - Apache/2.4.64 (Fedora Linux) mod_wsgi/5.0.2 Python/3.13
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Referrer-Policy:
+      - same-origin
+      Content-Length:
+      - '213'
+      Vary:
+      - Cookie
+      Content-Type:
+      - application/json
+      Set-Cookie:
+      - c7f2af7958ac7bdd3fe2e687de986bfb=5a4aec613afb900faa188f3e7b71c7fb; path=/;
+        HttpOnly; Secure; SameSite=None
+      Apptime:
+      - D=34116
+      X-Fedora-Proxyserver:
+      - proxy10.rdu3.fedoraproject.org
+      X-Fedora-Requestid:
+      - aMwK-mNv7Qb7j_0Tdl-WgwAACgc
+    body:
+      encoding: UTF-8
+      string: '{"items":[{"distribution":"openSUSE","ecosystem":"https://www.gnu.org/software/hello/","name":"hello","project":"hello","stable_version":"2.12.2","version":"2.12.2"}],"items_per_page":25,"page":1,"total_items":1}
+
+'
+  recorded_at: Thu, 18 Sep 2025 13:36:58 GMT
+recorded_with: VCR 6.3.1
