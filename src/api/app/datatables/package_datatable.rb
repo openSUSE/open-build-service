@@ -16,6 +16,7 @@ class PackageDatatable < Datatable
     # or in aliased_join_table.column_name format
     @view_columns ||= {
       name: { source: 'Package.name' },
+      version: { source: 'PackageVersion.version' },
       labels: { source: 'LabelTemplate.name' },
       changed: { source: 'Package.updated_at', searchable: false }
     }
@@ -23,7 +24,7 @@ class PackageDatatable < Datatable
 
   # rubocop:disable Naming/AccessorMethodName
   def get_raw_records
-    @project.packages.includes(:package_kinds).left_joins(labels: [:label_template]).references(:labels, :label_template)
+    @project.packages.includes(:package_kinds, :latest_local_version).left_joins(labels: [:label_template]).references(:labels, :label_template)
   end
   # rubocop:enable Naming/AccessorMethodName
 
@@ -31,6 +32,7 @@ class PackageDatatable < Datatable
     records.map do |record|
       {
         name: name_with_link(record),
+        version: record.latest_local_version&.version,
         labels: labels_list(record.labels),
         changed: format('%{duration} ago',
                         duration: time_ago_in_words(Time.at(record.updated_at.to_i)))

@@ -15,7 +15,9 @@
       %table.table.table-sm.table-bordered.table-hover.w-100#packages-table{ data: { source: package_index_path(project: project) } }
         %thead
           %tr
-            %th.w-50 Name
+            %th.w-30 Name
+            - if Flipper.enabled?(:package_version_tracking, User.session)
+              %th.w-30 Version
             - if Flipper.enabled?(:labels, User.session)
               %th.w-30 Labels
             %th.w-20 Changed
@@ -36,20 +38,19 @@
             Branch Package
 
 - content_for :ready_function do
+  :plain
+    var package_datatable_columns = [{"data": "name"}]
+
+  - if Flipper.enabled?(:package_version_tracking, User.session)
+    :plain
+      package_datatable_columns.push({"data": "version", "orderable": false})
+
   - if Flipper.enabled?(:labels, User.session)
     :plain
-      initializeRemoteDatatable('#packages-table', {
-          "columns": [
-            {"data": "name"},
-            {"data": "labels", "orderable": false},
-            {"data": "changed"}
-          ]
-        });
-  - else
-    :plain
-      initializeRemoteDatatable('#packages-table', {
-          "columns": [
-            {"data": "name"},
-            {"data": "changed"}
-          ]
-        });
+      package_datatable_columns.push({"data": "labels", "orderable": false})
+
+  :plain
+    package_datatable_columns.push({"data": "changed"})
+    initializeRemoteDatatable('#packages-table', {
+        "columns": package_datatable_columns
+      });
