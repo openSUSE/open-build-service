@@ -28,6 +28,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     post '/source/home:tom:BaseDistro:SP1/pack1', params: { cmd: 'branch', target_project: 'home:tom:Branch', newinstance: 1, extend_package_names: 1 }
     assert_response :success
+    assert_xml_tag tag: 'data', attributes: { name: 'project' }, content: 'home:tom:BaseDistro:SP1'
+
+    # Deprecated return parameter `sourceproject` stays for compatibility. To be removed in 3.0
     assert_xml_tag tag: 'data', attributes: { name: 'sourceproject' }, content: 'home:tom:BaseDistro:SP1'
 
     get '/source/home:tom:Branch/pack1.home_tom_BaseDistro_SP1/_link'
@@ -360,6 +363,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     login_tom
     post '/source', params: { cmd: 'branch', package: 'kdelibs' }
     assert_response :success
+    assert_xml_tag tag: 'data', attributes: { name: 'target_project' }, content: 'home:tom:branches:OBS_Maintained:kdelibs'
+    assert_xml_tag tag: 'data', attributes: { name: 'target_package' }, content: 'kdelibs.kde4'
+    assert_xml_tag tag: 'data', attributes: { name: 'project' }, content: 'ServicePack'
+    assert_xml_tag tag: 'data', attributes: { name: 'package' }, content: 'kdelibs'
+
+    # Deprecated return parameters stay for compatibility. To be removed in 3.0
     assert_xml_tag tag: 'data', attributes: { name: 'targetproject' }, content: 'home:tom:branches:OBS_Maintained:kdelibs'
     assert_xml_tag tag: 'data', attributes: { name: 'targetpackage' }, content: 'kdelibs.kde4'
     assert_xml_tag tag: 'data', attributes: { name: 'sourceproject' }, content: 'ServicePack'
@@ -871,10 +880,17 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     login_tom
     post '/source/BaseDistro2.0/pack2', params: { cmd: 'branch', target_package: 'DUMMY_package', extend_package_names: '1' }
     assert_response :success
+    assert_xml_tag(tag: 'data', attributes: { name: 'project' }, content: 'BaseDistro2.0:LinkedUpdateProject')
+    assert_xml_tag(tag: 'data', attributes: { name: 'package' }, content: 'pack2')
+    assert_xml_tag(tag: 'data', attributes: { name: 'target_project' }, content: 'home:tom:branches:BaseDistro2.0:LinkedUpdateProject')
+    assert_xml_tag(tag: 'data', attributes: { name: 'target_package' }, content: 'DUMMY_package.BaseDistro2.0_LinkedUpdateProject')
+
+    # Deprecated return parameters stay for compatibility. To be removed in 3.0
     assert_xml_tag(tag: 'data', attributes: { name: 'sourceproject' }, content: 'BaseDistro2.0:LinkedUpdateProject')
     assert_xml_tag(tag: 'data', attributes: { name: 'sourcepackage' }, content: 'pack2')
     assert_xml_tag(tag: 'data', attributes: { name: 'targetproject' }, content: 'home:tom:branches:BaseDistro2.0:LinkedUpdateProject')
     assert_xml_tag(tag: 'data', attributes: { name: 'targetpackage' }, content: 'DUMMY_package.BaseDistro2.0_LinkedUpdateProject')
+
     get '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject'
     assert_response :success
     assert_xml_tag(tag: 'entry', attributes: { name: 'DUMMY_package.BaseDistro2.0_LinkedUpdateProject' })
