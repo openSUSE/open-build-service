@@ -659,12 +659,6 @@ Rails/FilePath:
     - 'test/functional/zzz_post_consistency_test.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Rails/FindByOrAssignmentMemoization:
-  Exclude:
-    - 'app/models/user.rb'
-
 # Offense count: 29
 Rails/HasManyOrHasOneDependent:
   Exclude:

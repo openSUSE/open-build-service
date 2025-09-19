@@ -321,7 +321,9 @@ class User < ApplicationRecord
   end
 
   def home_project
-    @home_project ||= Project.find_by(name: home_project_name)
+    return @home_project if defined?(@home_project)
+
+    @home_project = Project.find_by(name: home_project_name)
   end
 
   def branch_project_name(branch)
