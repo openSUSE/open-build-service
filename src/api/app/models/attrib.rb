@@ -34,6 +34,7 @@ class Attrib < ApplicationRecord
 
   after_save :populate_to_sphinx
   after_save :fetch_local_package_version, if: -> { attrib_type == AttribType.find_by_name('OBS:AnityaDistribution') }
+  after_save :fetch_upstream_package_version, if: -> { attrib_type == AttribType.find_by_name('OBS:AnityaDistribution') }
   after_commit :write_container_attributes, on: %i[create destroy update]
 
   #### Class methods using self. (public and then private)
@@ -204,6 +205,10 @@ class Attrib < ApplicationRecord
 
   def fetch_local_package_version
     FetchLocalPackageVersionJob.perform_later(project.name, package_name: package&.name)
+  end
+
+  def fetch_upstream_package_version
+    FetchUpstreamPackageVersionJob.perform_later(project_name: project.name)
   end
 end
 

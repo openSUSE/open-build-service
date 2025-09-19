@@ -95,4 +95,8 @@ module Clockwork
   every(1.day, 'expire assignments') do
     ExpireAssignmentsJob.perform_later
   end
+
+  every(12.hours, 'update package upstream version') do
+    FetchUpstreamPackageVersionJob.perform_later
+  end
 end
