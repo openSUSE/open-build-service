@@ -30,7 +30,8 @@ class Attrib < ApplicationRecord
   validate :validate_value_count,
            :validate_embargo_date_value,
            :validate_issues,
-           :validate_allowed_values_for_attrib_type
+           :validate_allowed_values_for_attrib_type,
+           :validate_attrib_type_for_project_attribute
 
   after_save :populate_to_sphinx
   after_save :fetch_local_package_version, if: -> { attrib_type == AttribType.find_by_name('OBS:AnityaDistribution') }
@@ -187,6 +188,14 @@ class Attrib < ApplicationRecord
     return if value.blank?
 
     parse_value(value) && check_timezone_identifier(value)
+  end
+
+  def validate_attrib_type_for_project_attribute
+    return unless attrib_type && namespace == 'OBS' && name == 'AnityaDistribution'
+
+    return unless package_id
+
+    errors.add(:attrib_type, "#{namespace}:#{name} can't be set on packages")
   end
 
   def write_container_attributes
