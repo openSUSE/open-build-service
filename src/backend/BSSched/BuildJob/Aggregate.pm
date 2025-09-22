@@ -196,6 +196,8 @@ sub check {
     my @apackids = @{$aggregate->{'package'} || []};
     my $abinfilter;
     $abinfilter = { map {$_ => 1} @{$aggregate->{'binary'}} } if $aggregate->{'binary'};
+    my $aarchfilter;
+    $aarchfilter = { map {$_ => 1} @{$aggregate->{'binaryarch'}} } if $aggregate->{'binaryarch'};
     for my $arepoid (@arepoids) {
       my $aprp = "$aprojid/$arepoid";
       my $arepo = (grep {$_->{'name'} eq $arepoid} @{$proj->{'repository'} || []})[0];
@@ -235,8 +237,11 @@ sub check {
 	for my $apackid (keys %$gbininfo) {
 	  next if $apackid eq '_volatile';
 	  my $bininfo = $gbininfo->{$apackid};
-	  if ($abinfilter) {
-	    next unless grep {defined($_->{'name'}) && $abinfilter->{$_->{'name'}}} values %$bininfo;
+	  if ($abinfilter || $aarchfilter) {
+	    my @hits = values %$bininfo;
+	    @hits = grep {defined($_->{'name'}) && $abinfilter->{$_->{'name'}}} @hits if $abinfilter;
+	    @hits = grep {defined($_->{'arch'}) && $aarchfilter->{$_->{'arch'}}} @hits if $aarchfilter;
+	    next unless @hits;
 	  }
 	  push @apackids, $apackid;
 	}
@@ -445,6 +450,8 @@ sub build {
     my @apackids = @{$aggregate->{'package'} || []};
     my $abinfilter;
     $abinfilter = { map {$_ => 1} @{$aggregate->{'binary'}} } if $aggregate->{'binary'};
+    my $aarchfilter;
+    $aarchfilter = { map {$_ => 1} @{$aggregate->{'binaryarch'}} } if $aggregate->{'binaryarch'};
     for my $arepoid (reverse @arepoids) {
       for my $apackid (@apackids) {
         next if $aprojid eq $projid && $arepoid eq $repoid && $apackid eq $packid;
@@ -691,6 +698,7 @@ sub build {
 	  }
 
 	  next if $abinfilter && !$abinfilter->{$r->{'name'}};
+	  next if $aarchfilter && !$aarchfilter->{$r->{'arch'}};
 	  # FIXME: How is debian handling debug packages ?
 	  if ($r->{'name'} =~ /-debug(:?info|source)?$/) {
 	    # this is a debug package. For now, ignore if we do not want sources
