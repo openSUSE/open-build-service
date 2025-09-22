@@ -93,8 +93,8 @@ module Old
         return ''
       end
 
-      backend_hash = Xmlhash.parse(backend_meta)
-      api_hash = Xmlhash.parse(api_meta)
+      backend_hash = Xmlhash.parse(backend_meta) || {}
+      api_hash = Xmlhash.parse(api_meta) || {}
       # ignore description and title
       backend_hash['title'] = api_hash['title'] = nil
       backend_hash['description'] = api_hash['description'] = nil
