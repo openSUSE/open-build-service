@@ -65,6 +65,7 @@ class Package < ApplicationRecord
   has_many :labels, as: :labelable
   has_many :package_versions, dependent: :destroy
   has_one :latest_local_version, -> { order(created_at: :desc) }, class_name: 'PackageVersionLocal'
+  has_one :latest_upstream_version, -> { order(created_at: :desc) }, class_name: 'PackageVersionUpstream'
 
   has_one :assignment, dependent: :destroy
   has_one :assignee, through: :assignment
