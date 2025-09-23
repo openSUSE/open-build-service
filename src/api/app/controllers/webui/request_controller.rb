@@ -213,9 +213,12 @@ class Webui::RequestController < Webui::WebuiController
     changestate = (%w[accepted commented declined revoked new] & params.keys).last
 
     if changestate == 'commented'
-
       build_new_comment(@bs_request, body: params[:reason])
-
+      if @comment.save
+        flash[:success] = 'Comment created successfully.'
+      else
+        flash[:error] = "Failed to create comment: #{@comment.errors.full_messages.to_sentence}."
+      end
     elsif change_state(changestate, params)
       # TODO: Make this work for each submit action individually
 
