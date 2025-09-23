@@ -2,6 +2,8 @@ module Event
   class Commit < Base
     include EventObjectPackage
 
+    after_create :fetch_local_package_version
+
     self.message_bus_routing_key = 'package.commit'
     self.description = 'New revision of a package committed'
     payload_keys :project, :package, :sender, :comment, :user, :files, :rev, :requestid
@@ -23,6 +25,14 @@ module Event
 
     def increase_commits
       CommitActivity.create_from_event_payload(payload)
+    end
+
+    def fetch_local_package_version
+      return unless (package = Package.find_by_project_and_name(payload['project'], payload['package']))
+      return unless (attribute_anitya_distribution = AttribType.find_by_namespace_and_name('OBS', 'AnityaDistribution'))
+      return if package.project.attribs.find_by_attrib_type_id(attribute_anitya_distribution.id).blank?
+
+      FetchLocalPackageVersionJob.perform_later(payload['project'], package_name: payload['package'])
     end
   end
 end
