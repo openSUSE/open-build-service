@@ -39,6 +39,11 @@
                 <text/>
               </element>
             </zeroOrMore>
+            <zeroOrMore>
+              <element ns="" name="binaryarch">
+                <text/>
+              </element>
+            </zeroOrMore>
             <optional>
               <element ns="" name="nosources">
                 <text/>
