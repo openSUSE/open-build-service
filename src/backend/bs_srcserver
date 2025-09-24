@@ -4945,6 +4945,27 @@ sub delbinary {
   return BSWatcher::rpc($param, undef);
 }
 
+# 1: flavor was already present, 2: flavor has been added, 0: flavor could not be added
+sub ensure_known_flavor {
+  my ($projid, $packid, $flavor) = @_;
+  my $mb = BSSrcServer::Multibuild::getmultibuild($projid, $packid) || {};
+  return 1 if grep {$_ eq $flavor} @{$mb->{'flavor'} || $mb->{'package'} || []};
+  # nope, try to expand, add flavor if it works and it is known
+  eval {
+    my $rev = getrev($projid, $packid, 'latest');
+    my $files = lsrev_expanded($rev);
+    my $newmb = BSSrcServer::Multibuild::getmultibuild_fromfiles($projid, $packid, $files);
+    if (grep {$_ eq $flavor} @{$newmb->{'flavor'} || $newmb->{'package'} || []}) {
+      BSSrcServer::Multibuild::updatemultibuild($projid, $packid, $files, 1);
+      notify_repservers('package', $projid, $packid);
+    }
+  };
+  warn($@) if $@;
+  $mb = BSSrcServer::Multibuild::getmultibuild($projid, $packid) || {};
+  return 2 if grep {$_ eq $flavor} @{$mb->{'flavor'} || $mb->{'package'} || []};
+  return 0;
+}
+
 sub copybuild {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   die("illegal package '$packid'\n") if $packid =~ /^_/ && !($packid =~ /^_product:/);
@@ -4963,6 +4984,11 @@ sub copybuild {
   if ($cgi->{'multibuild'}) {
     my $mb = BSSrcServer::Multibuild::getmultibuild($oprojid, $opackid) || {};
     $tocopy{"$opackid:$_"} = "$packid:$_" for @{$mb->{'flavor'} || $mb->{'package'} || []};
+  }
+  for $opackid (sort keys %tocopy) {
+    next unless $tocopy{$opackid} =~ /(?<!^_product)(?<!^_patchinfo):./ && $tocopy{$opackid} =~ /^(.*):([^:]*)$/s;
+    my ($mbpackid, $flavor) = ($1, $2);
+    ensure_known_flavor($projid, $mbpackid, $flavor);
   }
   for $opackid (sort keys %tocopy) {
     my @args;
@@ -4988,24 +5014,9 @@ sub uploadbuild {
   die("illegal package '$packid'\n") if $packid =~ /^_/ && !($packid =~ /^_product:/);
   checkprojrepoarch($projid, $repoid, $arch);
   if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./ && $packid =~ /^(.*):([^:]*)$/s) {
+    # make sure the flavor is known
     my ($mbpackid, $flavor) = ($1, $2);
-    # check if the flavor is known
-    my $mb = BSSrcServer::Multibuild::getmultibuild($projid, $mbpackid) || {};
-    if (!grep {$_ eq $flavor} @{$mb->{'flavor'} || $mb->{'package'} || []}) {
-      # nope, try to expand, add flavor if it works and it is known
-      eval {
-        my $rev = getrev($projid, $packid, 'latest');
-        my $files = lsrev_expanded($rev);
-        my $newmb = BSSrcServer::Multibuild::getmultibuild_fromfiles($projid, $mbpackid, $files);
-        if (grep {$_ eq $flavor} @{$newmb->{'flavor'} || $newmb->{'package'} || []}) {
-	  BSSrcServer::Multibuild::updatemultibuild($projid, $mbpackid, $files, 1);
-	  notify_repservers('package', $projid, $mbpackid);
-	}
-      };
-      warn($@) if $@;
-      $mb = BSSrcServer::Multibuild::getmultibuild($projid, $mbpackid) || {};
-      die("404 unknown multibuild flavor '$flavor'\n") unless grep {$_ eq $flavor} @{$mb->{'flavor'} || $mb->{'package'} || []};
-    }
+    die("404 unknown multibuild flavor '$flavor'\n") unless ensure_known_flavor($projid, $mbpackid, $flavor);
   }
   my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my $param = {
