@@ -23,7 +23,7 @@ class RpmlintLogParser
 
   private
 
-  def parse_line(line, index)
+  def parse_line(line, index) # rubocop:disable Metrics/CyclomaticComplexity
     # Examples of line pattern matching:
     #
     # blueman.x86_64: E: env-script-interpreter (Badness: 9) /usr/bin/blueman-adapters /usr/bin/env python3
@@ -33,15 +33,22 @@ class RpmlintLogParser
     # ruby2.5-rubygem-bigdecimal.x86_64: W: hidden-file-or-dir /usr/lib64/ruby/gems/2.5.0/gems/bigdecimal-3.1.4/ext/bigdecimal/.sitearchdir.time
     return unless (line_m = line.match(/^(?<packagearch>\S+): (?<level>E|I|W): (?<linter>\S+)(?<rest>.*)/))
 
-    result = { location: line_m[:packagearch], level: line_m[:level], linter: line_m[:linter], badness: 0, line: index + 1, repo: @repo, arch: @arch }
-
     # Examples of packagearch pattern matching:
     #
     # blueman.x86_64
     # virtualbox.src:564
     # ruby2.5-rubygem-bigdecimal.x86_64
+    #
+    # Example of packagearch pattern matching which must be excluded:
+    #
+    # (none): W: unknown check BackportsPolicyChecks, skipping
     package_arch_m = line_m[:packagearch].match(/(?<package>.+)(?:\.(?<architecture>[^:]+))(?::(?<linenumber>\d+))?/)
+
+    return if package_arch_m.nil?
+
     package = package_arch_m[:package]
+
+    result = { location: line_m[:packagearch], level: line_m[:level], linter: line_m[:linter], badness: 0, line: index + 1, repo: @repo, arch: @arch }
 
     case line_m[:level]
     when 'E'
