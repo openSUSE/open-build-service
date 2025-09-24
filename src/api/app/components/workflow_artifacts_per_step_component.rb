@@ -5,7 +5,7 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
   attr_reader :artifacts_per_step, :step, :artifacts
 
   def initialize(artifacts_per_step:)
-    super
+    super()
     @artifacts_per_step = artifacts_per_step
     @step = @artifacts_per_step.step
     @artifacts = @artifacts_per_step.artifacts
@@ -38,7 +38,7 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
   private
 
   def artifacts_for_set_flag(parsed_artifacts)
-    capture do
+    tag.span do
       list_of_flags(parsed_artifacts[:flags])
     end
   end
@@ -65,7 +65,7 @@ class WorkflowArtifactsPerStepComponent < ApplicationComponent
   end
 
   def artifacts_for_submit_request(parsed_artifacts)
-    capture do
+    tag.span do
       parsed_artifacts[:request_numbers_and_state].each do |key, request_number|
         request_path = helpers.request_show_path(number: request_number)
         concat(tag.li(link_to("Request #{request_number} -> #{key}", request_path)))

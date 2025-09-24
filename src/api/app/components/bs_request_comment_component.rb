@@ -6,7 +6,7 @@ class BsRequestCommentComponent < ApplicationComponent
   attr_reader :comment, :commentable, :level, :diff, :show_username
 
   def initialize(comment:, commentable:, level:, diff: nil, show_username: true)
-    super
+    super()
 
     @comment = comment
     @commentable = commentable

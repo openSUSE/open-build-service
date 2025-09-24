@@ -9,7 +9,7 @@ class BsRequestDescriptionComponent < ApplicationComponent
   delegate :creator_intentions, to: :helpers
 
   def initialize(bs_request:, links: false)
-    super
+    super()
     @bs_request = bs_request
     @links = links
     @types = bs_request.bs_request_actions.group_by(&:type)
