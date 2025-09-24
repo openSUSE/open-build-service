@@ -9,4 +9,6 @@
         = link_to('bug tracker', url)
   - if policy(Comment.new(commentable:)).create?
     = render(partial: 'webui/comment/comment_field',
-      locals: { form_method: :post, comment: Comment.new, commentable: commentable, element_suffix: 'new_comment', has_cancel: false })
+      locals: { form_method: :post, comment: Comment.new, commentable: commentable,
+                element_suffix: "new_comment_on_#{commentable.class.name.underscore}_#{commentable.id}",
+                has_cancel: false })
