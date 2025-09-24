@@ -508,7 +508,10 @@ sub registry_fetch_manifest {
   my ($url, $arch, $repo, $tag, $olddigest, $oldfatdigest, $fatdigest) = @_;
 
   my $authenticator = $registry_authenticators{"$url/$repo"};
-  $authenticator = $registry_authenticators{"$url/$repo"} = BSBearer::generate_authenticator(undef, 'verbose' => 1, 'proxy' => $proxy) unless $authenticator;
+  if (!$authenticator) {
+    my $creds = $BSConfig::dodcreds ? $BSConfig::dodcreds->{$url} : undef;
+    $authenticator = $registry_authenticators{"$url/$repo"} = BSBearer::generate_authenticator($creds, 'verbose' => 1, 'proxy' => $proxy);
+  }
 
   my $accept_hdr = "Accept: $BSContar::mt_docker_manifest, $BSContar::mt_docker_manifestlist, $BSContar::mt_oci_manifest, $BSContar::mt_oci_index";
   my $replyheaders;
