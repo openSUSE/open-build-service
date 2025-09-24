@@ -1,3 +1,6 @@
+(none): W: unknown check BackportsPolicyChecks, skipping
+(none): W: unknown check BackportsPolicyChecks, skipping
+(none): W: unknown check BackportsPolicyChecks, skipping
 ruby2.5-rubygem-bigdecimal.x86_64: I: polkit-cant-acquire-privilege org.blueman.bluez.config (??:no:auth_admin_keep)
 Usability can be improved by allowing users to acquire privileges via
 authentication. Use e.g. 'auth_admin' instead of 'no' and make sure to define
