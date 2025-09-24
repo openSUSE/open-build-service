@@ -72,7 +72,8 @@ module Webui::PackageHelper
   end
 
   def expand_diff?(filename, state)
-    state != 'deleted' && filename.exclude?('/') && (filename == '_patchinfo' || filename.ends_with?('.spec', '.changes'))
+    state != 'deleted' && filename.exclude?('/') &&
+      (filename == '_patchinfo' || filename.match?(/\ADockerfile(\..+)?\z/) || filename.ends_with?('.spec', '.changes'))
   end
 
   def viewable_file?(filename, size = nil)
