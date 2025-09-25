@@ -64,6 +64,6 @@ class FetchUpstreamPackageVersionJob < ApplicationJob
   def extract_version(response)
     return if response.nil?
 
-    response.dig('items', 0, 'version')
+    response.dig('items', 0, 'stable_version')
   end
 end
