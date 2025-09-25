@@ -127,6 +127,8 @@ paths:
     $ref: 'paths/build_project_name.yaml'
   /build/{project_name}/_result:
     $ref: 'paths/build_project_name_result.yaml'
+  /build/{project_name}/_result?lastsuccess=1:
+    $ref: 'paths/build_project_name_result_lastsuccess.yaml'
   /build/{project_name}/{repository_name}:
     $ref: 'paths/build_project_name_repository_name.yaml'
   /build/{project_name}/{repository_name}/_buildconfig:
