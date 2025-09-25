@@ -24,7 +24,7 @@ class CommentComponent < ApplicationComponent
   def body
     return inline_comment_body if comment.commentable.is_a?(BsRequestAction) && comment.diff_file_index
 
-    comment.body.delete("\u0000")
+    comment.body.delete("\u0000\u000E-\u001F")
   end
 
   private

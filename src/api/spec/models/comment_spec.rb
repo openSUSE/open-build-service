@@ -44,8 +44,8 @@ RSpec.describe Comment do
   describe 'validations' do
     it { is_expected.to validate_presence_of(:body) }
 
-    it 'null character' do
-      comment_package.body = "\u0000"
+    it 'null or invalid characters' do
+      comment_package.body = "\u0000\u000F\u001B"
       expect(comment_package).not_to be_valid
     end
 
