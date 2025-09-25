@@ -292,9 +292,6 @@ class SourceProjectCommandController < SourceController
   ##
 
   def private_plain_backend_command
-    # is there any value in this call?
-    Project.find_by_name(params[:project])
-
     path = request.path_info
     path += build_query_from_hash(params, %i[cmd user comment days])
     pass_to_backend(path)
