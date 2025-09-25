@@ -221,6 +221,7 @@ namespace :dev do
       User.session = iggy
       req.addreview(by_user: admin.login, comment: 'is this really fine?')
 
+      User.session = admin
       create(:project, name: 'openSUSE:Factory:Rings:0-Bootstrap')
       create(:project, name: 'openSUSE:Factory:Rings:1-MinimalX')
 
