@@ -9,8 +9,8 @@ class Comment < ApplicationRecord
   validates :body, presence: true
   # FIXME: this probably should be MEDIUMTEXT(16MB) instead of text (64KB)
   validates :body, length: { maximum: 65_535 }
-  validates :body, format: { with: /\A[^\u0000]*\Z/,
-                             message: 'must not contain null characters' }
+  validates :body, format: { with: /\A[^\u0000\u000E-\u001F]*\Z/,
+                             message: 'must not contain null or invalid characters' }
   validates :source_rev, length: { maximum: 32 }
   validates :target_rev, length: { maximum: 32 }
 
