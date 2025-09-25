@@ -221,11 +221,11 @@ namespace :dev do
       User.session = iggy
       req.addreview(by_user: admin.login, comment: 'is this really fine?')
 
+      User.session = admin
       create(:project, name: 'openSUSE:Factory:Rings:0-Bootstrap')
       create(:project, name: 'openSUSE:Factory:Rings:1-MinimalX')
 
-      Configuration.download_url = 'https://download.opensuse.org'
-      Configuration.save
+      Configuration.update(download_url: 'https://download.opensuse.org', enforce_project_keys: true)
 
       # Other special projects and packages
       create(:project, name: 'linked_project', link_to: home_admin)
