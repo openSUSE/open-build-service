@@ -224,8 +224,7 @@ namespace :dev do
       create(:project, name: 'openSUSE:Factory:Rings:0-Bootstrap')
       create(:project, name: 'openSUSE:Factory:Rings:1-MinimalX')
 
-      Configuration.download_url = 'https://download.opensuse.org'
-      Configuration.save
+      Configuration.update(download_url: 'https://download.opensuse.org')
 
       # Other special projects and packages
       create(:project, name: 'linked_project', link_to: home_admin)
