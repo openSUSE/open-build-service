@@ -24,7 +24,7 @@ class PackageDatatable < Datatable
 
   # rubocop:disable Naming/AccessorMethodName
   def get_raw_records
-    @project.packages.includes(:package_kinds, :latest_local_version, :latest_upstream_version).left_joins(labels: [:label_template]).references(:labels, :label_template)
+    @project.packages.includes(:package_kinds).left_joins(:latest_local_version, :latest_upstream_version, labels: [:label_template]).references(:labels, :label_template)
   end
   # rubocop:enable Naming/AccessorMethodName
 
