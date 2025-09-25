@@ -15,6 +15,7 @@ class PackageVersionLocal < PackageVersion
   #### Scopes (first the default_scope macro if is used)
 
   #### Validations macros
+  validates :version, comparison: { other_than: 'MACRO' }
 
   #### Class methods using self. (public and then private)
 
