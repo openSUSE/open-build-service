@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>Specimen Days</title>
+          <title>To a God Unknown</title>
           <description/>
           <person userid="maintainer" role="maintainer"/>
         </project>
@@ -30,16 +30,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>Specimen Days</title>
+          <title>To a God Unknown</title>
           <description></description>
           <person userid="maintainer" role="maintainer"/>
         </project>
-  recorded_at: Mon, 14 Jul 2025 12:25:49 GMT
+  recorded_at: Fri, 26 Sep 2025 09:44:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/target_package/_meta?user=maintainer
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Behold the Man</title>
-          <description>Accusantium error voluptas corrupti.</description>
+          <title>Let Us Now Praise Famous Men</title>
+          <description>Ea in ullam molestias.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -74,10 +74,10 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Behold the Man</title>
-          <description>Accusantium error voluptas corrupti.</description>
+          <title>Let Us Now Praise Famous Men</title>
+          <description>Ea in ullam molestias.</description>
         </package>
-  recorded_at: Mon, 14 Jul 2025 12:25:49 GMT
+  recorded_at: Fri, 26 Sep 2025 09:44:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=maintainer
@@ -85,7 +85,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Nectar in a Sieve</title>
+          <title>A Darkling Plain</title>
           <description/>
         </project>
     headers:
@@ -107,15 +107,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '108'
+      - '107'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Nectar in a Sieve</title>
+          <title>A Darkling Plain</title>
           <description></description>
         </project>
-  recorded_at: Mon, 14 Jul 2025 12:25:49 GMT
+  recorded_at: Fri, 26 Sep 2025 09:44:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=maintainer
@@ -148,14 +148,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="32">
-          <srcmd5>0d7f51f8ae9069b8be1bb260a20cd289</srcmd5>
-          <time>1752495949</time>
+        <revision rev="56">
+          <srcmd5>35621eebae3443140baaf59b87e115ec</srcmd5>
+          <time>1758879860</time>
           <user>maintainer</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 14 Jul 2025 12:25:49 GMT
+  recorded_at: Fri, 26 Sep 2025 09:44:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=maintainer
@@ -163,8 +163,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>The Doors of Perception</title>
-          <description>Provident maiores possimus voluptatem.</description>
+          <title>The Way of All Flesh</title>
+          <description>Nulla nam consequatur est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -185,15 +185,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '177'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>The Doors of Perception</title>
-          <description>Provident maiores possimus voluptatem.</description>
+          <title>The Way of All Flesh</title>
+          <description>Nulla nam consequatur est.</description>
         </package>
-  recorded_at: Mon, 14 Jul 2025 12:25:49 GMT
+  recorded_at: Fri, 26 Sep 2025 09:44:21 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package
@@ -225,7 +225,7 @@ http_interactions:
       string: |
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 14 Jul 2025 12:25:49 GMT
+  recorded_at: Fri, 26 Sep 2025 09:44:21 GMT
 - request:
     method: post
     uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000&view=xml&withissues=1
@@ -265,7 +265,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Mon, 14 Jul 2025 12:25:49 GMT
+  recorded_at: Fri, 26 Sep 2025 09:44:21 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -297,5 +297,37 @@ http_interactions:
       string: |
         <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 14 Jul 2025 12:25:49 GMT
+  recorded_at: Fri, 26 Sep 2025 09:44:21 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/target_project/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '89'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Fri, 26 Sep 2025 09:44:21 GMT
 recorded_with: VCR 6.3.1
