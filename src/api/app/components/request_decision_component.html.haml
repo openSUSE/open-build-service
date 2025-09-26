@@ -25,13 +25,28 @@
                           title: 'Reject the changes.', data: { confirm: "Decline this request?\n\n#{@package_maintainers_hint}" })
           - if policy(@bs_request).accept_request?
             .btn-group.ms-2
-              = submit_tag('Accept request', name: 'accepted', class: 'btn btn-primary',
-                          data: confirmation, title: "Commit changes to #{target_names}.")
+              - if show_forward? # Accept and Forward goes by default when possible
+                = submit_tag('Accept and forward', name: 'accepted',
+                            class: 'btn btn-primary',
+                            id: 'accept-and-forward-requests',
+                            title: "Commit the changes and create a request to forward the changes to #{forwards_names}",
+                            data: { confirm: 'Accept and forward this request?' })
+              - else
+                = submit_tag('Accept request', name: 'accepted', class: 'btn btn-primary',
+                            data: confirmation, title: "Commit changes to #{target_names}.")
               - if show_forward? || show_add_creator_as_maintainer?
                 = button_tag('', type: 'button', class: 'btn btn-primary dropdown-toggle dropdown-toggle-split border-start',
                               data: { 'bs-toggle': 'dropdown'}, aria: { 'haspopup': 'true', 'expanded': 'false' }, title: 'Accept options')
                 .dropdown-menu#request-accept-buttons-dropdown-menu
                   .list-group.list-group-flush
+                    - if show_forward? # Accept and Forward was displayed by defualt, so Accept request should be displayed in the dropdown
+                      = button_tag(type: 'submit', value: 'Accept request',
+                        name: 'accepted', id: 'accept-requests',
+                        class: 'btn btn-primary text-start rounded-0 list-group-item',
+                        data: { confirm: 'Accept and this request?' }) do
+                        %b Accept request
+                        %br
+                        %i Only commit the changes
                     - if show_add_creator_as_maintainer?
                       = button_tag(type: 'submit', value: 'Accept and make maintainer',
                                   name: 'accepted', id: 'accept-and-make-maintainer',
@@ -40,14 +55,6 @@
                         %b Accept and make maintainer
                         %br
                         %i Commit the changes and make #{@bs_request.creator} a maintainer of #{target_names}
-                    - if show_forward?
-                      = button_tag(type: 'submit', value: 'Accept and forward',
-                                  name: 'accepted', id: 'accept-and-forward-requests',
-                                  class: 'btn btn-primary text-start rounded-0 list-group-item',
-                                  data: { confirm: 'Accept and forward this request?' }) do
-                        %b Accept and forward
-                        %br
-                        %i Commit the changes and create a request to forward the changes to #{forwards_names}
                     - if show_add_creator_as_maintainer? && show_forward?
                       -# haml-lint:disable LineLength
                       = button_tag(type: 'submit', value: 'Accept, make maintainer and forward',
