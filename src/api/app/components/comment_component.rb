@@ -24,7 +24,7 @@ class CommentComponent < ApplicationComponent
   def body
     return inline_comment_body if comment.commentable.is_a?(BsRequestAction) && comment.diff_file_index
 
-    comment.body.delete("\u0000\u000E-\u001F")
+    comment.sanitized_body
   end
 
   private
@@ -34,11 +34,11 @@ class CommentComponent < ApplicationComponent
   def inline_comment_body
     sourcediff = comment.commentable.bs_request.webui_actions(action_id: comment.commentable, diffs: true, cacheonly: 1).first[:sourcediff].first
 
-    return comment.body if sourcediff[:error]
+    return comment.sanitized_body if sourcediff[:error]
 
     target = "#{comment.commentable.target_project}/#{comment.commentable.target_package}"
     filename = sourcediff['filenames'][comment.diff_file_index]
 
-    "Inline comment for target: '#{target}', file: '#{filename}', and line: #{comment.diff_line_number}:\n\n#{comment.body}"
+    "Inline comment for target: '#{target}', file: '#{filename}', and line: #{comment.diff_line_number}:\n\n#{comment.sanitized_body}"
   end
 end

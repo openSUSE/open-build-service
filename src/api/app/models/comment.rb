@@ -95,6 +95,10 @@ class Comment < ApplicationRecord
     false
   end
 
+  def sanitized_body
+    body.delete("\u0000\u000E-\u001F")
+  end
+
   private
 
   def create_event
