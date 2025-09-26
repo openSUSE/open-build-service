@@ -2,7 +2,7 @@ RSpec.describe IssueTrackerUpdateIssuesJob, :vcr do
   include ActiveJob::TestHelper
 
   describe '#perform' do
-    let(:issue_tracker) { double(IssueTracker, id: 1) }
+    let(:issue_tracker) { instance_double(IssueTracker, id: 1) }
 
     before do
       allow(IssueTracker).to receive(:find_by).and_return(issue_tracker)

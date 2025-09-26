@@ -626,14 +626,10 @@ RSpec/MultipleMemoizedHelpers:
 # Configuration parameters: IgnoreNameless, IgnoreSymbolicNames.
 RSpec/VerifiedDoubles:
   Exclude:
-    - 'spec/jobs/issue_tracker_fetch_issues_job_spec.rb'
-    - 'spec/jobs/issue_tracker_update_issues_job_spec.rb'
-    - 'spec/lib/backend/connection_helper_spec.rb'
     - 'spec/lib/routes_helper/role_matcher_spec.rb'
     - 'spec/mixins/build_log_support_spec.rb'
     - 'spec/mixins/parse_package_diff_spec.rb'
     - 'spec/models/issue_tracker_spec.rb'
-    - 'spec/models/project_spec.rb'
 
 # Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).
