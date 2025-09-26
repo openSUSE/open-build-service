@@ -648,6 +648,7 @@ sub build {
 	    next unless $report;
 	    for my $rbin (@{$report->{'binary'} || []}) {
 	      next if $nosource && $rbin->{'name'} =~ /-debug(:?info|source)?$/;
+	      next if $aarchfilter && !$aarchfilter->{$rbin->{'binaryarch'}};
 	      # construct canonical path
 	      my $subpath = "$rbin->{'binaryarch'}/$rbin->{'name'}-$rbin->{'version'}-$rbin->{'release'}.$rbin->{'binaryarch'}.rpm";
 	      next if $subpath =~ /^\// || "/$subpath" =~ /\/\./;	# hey!
