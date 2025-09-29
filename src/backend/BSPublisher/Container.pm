@@ -450,10 +450,11 @@ sub query_repostate {
   my @opts = ('-l');
   push @opts, '--cosign' if $tags;
   push @opts, '--no-cosign-info' if $registry->{'cosign_nocheck'};
-  push @opts, '--listidx-no-info' if $subdigests;
+  push @opts, '--listidx-no-info' if $subdigests || ($registrystate && $tagsfile);
   push @opts, '--missingok' if $missingok;
   push @opts, '-F', $tagsfile if $tagsfile;
   push @opts, '--old-listfile', "$registrystate/$repository/:oldlist" if $registrystate && -s "$registrystate/$repository/:oldlist";
+  push @opts, '--use-head-for-list' if $registry->{'use_head_for_list'};
   my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @opts, $registryserver, $repository);
   my $now = time();
   my $result = BSPublisher::Util::qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', $tempfile, @cmd);
