@@ -106,9 +106,7 @@ class Webui::UsersController < Webui::WebuiController
     authorize @displayed_user, :update?
     @displayed_user.color_theme = params[:color_theme]
 
-    unless @displayed_user.save
-      flash[:error] = "Couldn't update user: #{@displayed_user.errors.full_messages.to_sentence}."
-    end
+    flash[:error] = "Couldn't update user: #{@displayed_user.errors.full_messages.to_sentence}." unless @displayed_user.save
     redirect_back_or_to root_path
   end
 

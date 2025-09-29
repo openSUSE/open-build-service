@@ -8,16 +8,12 @@ class BackfillSourcesOnBsRequestActions < ActiveRecord::Migration[7.0]
       batch.find_each do |action|
         if action.source_package.present?
           source_package = Package.find_by_project_and_name(action.source_project, action.source_package)
-          if source_package
-            action.update_columns(source_project_id: source_package.project.id, source_package_id: source_package.id)
-          end
+          action.update_columns(source_project_id: source_package.project.id, source_package_id: source_package.id) if source_package
           next
         end
 
         source_project = Project.find_by(name: action.source_project)
-        if source_project
-          action.update_columns(source_project_id: source_project.id)
-        end
+        action.update_columns(source_project_id: source_project.id) if source_project
       end
     end
   end

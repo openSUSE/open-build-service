@@ -370,9 +370,7 @@ class Webui::PackageController < Webui::WebuiController
 
             @results << parsed.results
             max_badness = parsed.badness.values.max
-            if parsed.badness.present? && (max_badness > @badness)
-              @badness = max_badness
-            end
+            @badness = max_badness if parsed.badness.present? && (max_badness > @badness)
             # rubocop:disable Rails/DeprecatedActiveModelErrorsMethods
             @errors += parsed.errors.values.sum
             # rubocop:enable Rails/DeprecatedActiveModelErrorsMethods

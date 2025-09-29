@@ -105,9 +105,7 @@ class ApplicationController < ActionController::Base
                 400
               end
 
-    if @status == 401 && !response.headers['WWW-Authenticate']
-      response.headers['WWW-Authenticate'] = 'basic realm="API login"'
-    end
+    response.headers['WWW-Authenticate'] = 'basic realm="API login"' if @status == 401 && !response.headers['WWW-Authenticate']
     if @status == 404
       @summary ||= 'Not found'
       @errorcode ||= 'not_found'

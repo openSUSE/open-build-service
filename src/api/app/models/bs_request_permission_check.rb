@@ -113,9 +113,7 @@ class BsRequestPermissionCheck
     target_project = req.bs_request_actions.first.target_project_object
     user_is_staging_manager = User.session!.groups_users.exists?(group: target_project.staging.managers_group) if target_project && target_project.staging
 
-    if opts[:newstate] == 'deleted' && !User.admin_session?
-      raise PostRequestNoPermission, 'Deletion of a request is only permitted for administrators. Please revoke the request instead.'
-    end
+    raise PostRequestNoPermission, 'Deletion of a request is only permitted for administrators. Please revoke the request instead.' if opts[:newstate] == 'deleted' && !User.admin_session?
 
     permission_granted =
       User.admin_session? ||
