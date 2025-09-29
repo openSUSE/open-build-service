@@ -38,6 +38,7 @@ our $logtimeout;
 our $autoheaders;
 our $dnscachettl = 3600;
 our $authenticator;
+our $logrequests;
 
 our $ssl_keyfile;
 our $ssl_certfile;
@@ -165,6 +166,7 @@ sub createreq {
   }
   push @xhdrs, map {"Cookie: $_"} getcookies($cookiestore, $uri) if $cookiestore && %$cookiestore;
   my $req = "$act $path HTTP/1.1\r\n".join("\r\n", @xhdrs)."\r\n\r\n";
+  print "$act $path\n" if $logrequests;
   return ($proto, $host, $port, $req, $proxytunnel);
 }
 
