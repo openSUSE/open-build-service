@@ -63,6 +63,7 @@ my $oci;
 my $old_listfile;
 my $with_platforms;
 my $missingok;
+my $use_head_for_list;
 
 my $cosign;
 my $cosigncookie;
@@ -500,6 +501,14 @@ sub get_manifest_for_tag {
     'keepalive' => $keepalive,
   };
   push @{$param->{'headers'}}, "If-None-Match: $ifnonematch" if $ifnonematch;
+  if ($ifnonematch && $use_head_for_list) {
+    $param->{'request'} = 'HEAD';
+    my $mani_json = eval { BSRPC::rpc($param) };
+    die($@) if $@ && $@ =~ /^304/;
+    die("304 Not Modified\n") if $replyheaders->{'docker-content-digest'} && "\"$replyheaders->{'docker-content-digest'}\"" eq $ifnonematch;
+    delete $param->{'request'};
+    $replyheaders = undef;
+  }
   my $mani_json = eval { BSRPC::rpc($param) };
   if ($@) {
     return () if $@ =~ /^404/;	# tag does not exist
@@ -662,7 +671,7 @@ sub list_tag {
   # check if we can use the If-None-Match header
   my $ifnonematch;
   $ifnonematch = "\"$old_data->[0]\"" if $old_data;
-  $ifnonematch = undef if $maniids;
+  $ifnonematch = undef if $maniids && ($old_data_mtype eq 'list' || $old_data_mtype eq 'ocilist') && !$old_datas->{"$old_data->[0]/"};
   $ifnonematch = undef if $list_manifestinfo;
   if ($with_platforms && $tag !~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/) {
     $ifnonematch = undef if ($old_data_mtype eq 'list' || $old_data_mtype eq 'ocilist') && $old_data_extra !~ /^platforms=/;
@@ -680,6 +689,12 @@ sub list_tag {
       my ($mtype, $extra) = ($old_data_mtype, $old_data_extra);
       if ($tag !~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/) {
 	$extra = '' unless $with_platforms;
+      }
+      if ($maniids && $tag !~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/) {
+	$maniids->{$maniid} = 1;
+	if ($mtype eq 'list' || $mtype eq 'ocilist') {
+	  $maniids->{$_->[1]} = 1 for @{$old_datas->{"$maniid/"}};
+	}
       }
       $disptag = $tag unless defined $disptag;
       printf "%-20s %s %s%s\n", $disptag, $maniid, $mtype, $extra ? " $extra" : '';
@@ -946,6 +961,12 @@ while (@ARGV) {
   } elsif ($ARGV[0] eq '--listidx-no-info') {
     $listidx = 1;
     $listidx_no_info = 1;
+    shift @ARGV;
+  } elsif ($ARGV[0] eq '--debug') {
+    $BSRPC::logrequests = 1;
+    shift @ARGV;
+  } elsif ($ARGV[0] eq '--use-head-for-list') {
+    $use_head_for_list = 1;
     shift @ARGV;
   } else {
     last;
