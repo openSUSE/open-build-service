@@ -115,11 +115,12 @@ RSpec.describe Project, :vcr do
 
   describe '#branch_remote_repositories' do
     let(:branch_remote_repositories) { project.branch_remote_repositories("#{remote_project}:#{project}") }
+    let(:meta_project_file) { instance_double(ProjectMetaFile) }
 
     before do
       logout
-      meta_project_file_mock = double('meta', content: remote_meta_xml)
-      allow(ProjectMetaFile).to receive(:new).and_return(meta_project_file_mock)
+      allow(ProjectMetaFile).to receive(:new).and_return(meta_project_file)
+      allow(meta_project_file).to receive(:content).and_return(remote_meta_xml)
     end
 
     context 'normal project' do
