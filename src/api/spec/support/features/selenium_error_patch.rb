@@ -22,9 +22,7 @@ module Selenium
       class UnknownError
         alias old_initialize initialize
         def initialize(msg = nil)
-          if msg&.include?('Node with given id does not belong to the document')
-            raise StaleElementReferenceError, msg
-          end
+          raise StaleElementReferenceError, msg if msg&.include?('Node with given id does not belong to the document')
 
           old_initialize(msg)
         end

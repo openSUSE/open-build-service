@@ -9,9 +9,7 @@ class Webui::DecisionsController < Webui::WebuiController
 
     if decision.save
       flash[:success] = 'Decision created successfully '
-      if decision.is_a?(DecisionFavoredWithDeleteRequest) && decision.bs_request
-        flash[:success] += view_context.link_to("(request ##{decision.bs_request.number})", request_show_path(decision.bs_request))
-      end
+      flash[:success] += view_context.link_to("(request ##{decision.bs_request.number})", request_show_path(decision.bs_request)) if decision.is_a?(DecisionFavoredWithDeleteRequest) && decision.bs_request
     else
       flash[:error] = decision.errors.full_messages.to_sentence
     end

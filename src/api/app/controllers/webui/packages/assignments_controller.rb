@@ -8,17 +8,13 @@ module Webui
       def create
         assignment = authorize Assignment.new(assigner: User.session, assignee: @assignee, package: @package)
 
-        unless assignment.save
-          flash[:error] = "Could not assign the user: #{assignment.errors.full_messages.to_sentence}"
-        end
+        flash[:error] = "Could not assign the user: #{assignment.errors.full_messages.to_sentence}" unless assignment.save
         redirect_to package_show_path(@package.project, @package)
       end
 
       def destroy
         assignment = authorize Assignment.find(params['id'])
-        if assignment
-          assignment.destroy
-        end
+        assignment.destroy if assignment
         redirect_to package_show_path(@package.project, @package)
       end
 
