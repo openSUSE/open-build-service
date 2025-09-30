@@ -5,6 +5,13 @@ RSpec.describe 'Requests', :vcr do
   let(:receiver) { create(:confirmed_user, :with_home, login: 'titan') }
   let(:target_project) { receiver.home_project }
 
+  # a partial view for each request action type must exist
+  let(:required_files) do
+    BsRequestAction::TYPES.map do |type|
+      "app/views/webui/request/_changes_#{type}.html.haml"
+    end
+  end
+
   context 'a user requests a role addition on a project' do
     before do
       login submitter
@@ -24,5 +31,14 @@ RSpec.describe 'Requests', :vcr do
       expect(page).to have_css('.badge', text: 'new')
       expect(BsRequest.where(creator: submitter.login, description: 'I can fix bugs too.')).to exist
     end
+  end
+
+  it 'has all the action types partial view files' do
+    missing_files = required_files.reject { |file| File.exist?(file) }
+
+    expect(missing_files).to be_empty, <<~MSG
+      The following required files are missing:
+      #{missing_files.join("\n")}
+    MSG
   end
 end
