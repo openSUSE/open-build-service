@@ -107,6 +107,9 @@ gem 'dimapa'
 # Network Kanji Filter, for Kanji conversions (former kconv)
 gem 'nkf'
 
+# Authentication
+gem 'devise', '~> 4.2'
+
 # For Hotwire javascript libraries
 gem 'importmap-rails'
 gem 'turbo-rails'
