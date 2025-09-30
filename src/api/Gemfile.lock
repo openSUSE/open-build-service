@@ -209,7 +209,7 @@ GEM
       temple (>= 0.8.2)
       thor
       tilt
-    haml-rails (2.1.0)
+    haml-rails (3.0.0)
       actionpack (>= 5.1)
       activesupport (>= 5.1)
       haml (>= 4.0.6)
