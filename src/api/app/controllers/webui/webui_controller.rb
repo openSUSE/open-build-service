@@ -59,9 +59,9 @@ class Webui::WebuiController < ActionController::Base
     if ::Configuration.proxy_auth_mode_enabled?
       case CONFIG['proxy_auth_mode']
       when :mellon
-        redirect_to("#{CONFIG['proxy_auth_login_page']}?ReturnTo=#{CGI.escape(request.path)}")
+        redirect_to("#{CONFIG['proxy_auth_login_page']}?ReturnTo=#{CGI.escape(request.path)}", allow_other_host: true)
       else
-        redirect_to("#{CONFIG['proxy_auth_login_page']}?url=#{CGI.escape(request.path)}")
+        redirect_to("#{CONFIG['proxy_auth_login_page']}?url=#{CGI.escape(request.path)}", allow_other_host: true)
       end
     else
       redirect_back_or_to(new_session_path, error: 'Authentication Required', allow_other_host: false)
