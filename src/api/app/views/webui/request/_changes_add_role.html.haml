@@ -1,13 +1,8 @@
-:ruby
-  parameters = { project: action.target_project, request_action_id: action.id, notification_id: current_notification }
-  roles_link = if action.target_package
-                  package_users_path(parameters.merge!(package: action.target_package))
-                else
-                  project_users_path(parameters)
-                end
+- parameters = { project: action.target_project, request_action_id: action.id, notification_id: current_notification }
+
 %p
   You might want to
-  = link_to(roles_link) do
+  = link_to(roles_link(action, parameters)) do
     check the current roles
   of
   %span<
