@@ -19,11 +19,11 @@ module MonitorControllerService
     end
 
     def initialize_workers
-      @workers = worker_status.elements('idle').collect { |b| [worker_id(b), {}] }.to_h
+      @workers = worker_status.elements('idle').to_h { |b| [worker_id(b), {}] }
     end
 
     def update_workers
-      @workers.merge!(@worker_status.elements('building').collect { |b| [worker_id(b), workers_hash(b, calculate_delta(b['starttime'].to_i))] }.to_h)
+      @workers.merge!(@worker_status.elements('building').to_h { |b| [worker_id(b), workers_hash(b, calculate_delta(b['starttime'].to_i))] })
     end
 
     def workers_hash(b, delta)

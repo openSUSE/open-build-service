@@ -29,7 +29,7 @@ class WorkerStatus
     end
 
     def initialize_projects(ws)
-      ws.css('building').collect { |b| [b['project'], 1] }.to_h
+      ws.css('building').to_h { |b| [b['project'], 1] }
     end
 
     def project_names(prjs)

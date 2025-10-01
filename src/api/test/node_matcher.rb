@@ -35,15 +35,15 @@ class NodeMatcher # :nodoc:
     private
 
     def keys_to_strings(hash)
-      hash.keys.map { |k| [k.to_s, hash[k]] }.to_h
+      hash.keys.to_h { |k| [k.to_s, hash[k]] }
     end
 
     def keys_to_symbols(hash)
-      hash.keys.map do |k|
+      hash.keys.to_h do |k|
         raise "illegal key #{k.inspect}" unless k.respond_to?(:to_sym)
 
         [k.to_sym, hash[k]]
-      end.to_h
+      end
     end
   end
 

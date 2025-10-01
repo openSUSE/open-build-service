@@ -875,14 +875,6 @@ Style/InverseMethods:
     - 'app/models/project.rb'
     - 'app/models/repository.rb'
 
-# Offense count: 5
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/MapToHash:
-  Exclude:
-    - 'app/models/worker_status.rb'
-    - 'app/services/monitor_controller_service/building_information_updater.rb'
-    - 'test/node_matcher.rb'
-
 # Offense count: 2
 Style/MissingRespondToMissing:
   Exclude:
