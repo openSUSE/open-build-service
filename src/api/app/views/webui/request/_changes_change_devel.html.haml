@@ -1,4 +1,4 @@
-- current_devel_package = Package.find_by_project_and_name(action.target_project, action.target_package).develpackage
+- current_devel_package = Package.find_by_project_and_name(action.target_project, action.target_package)&.develpackage
 -  if current_devel_package
   Development is currently happening on
   #{project_or_package_link(project: current_devel_package.project.name, package: current_devel_package.name)}
