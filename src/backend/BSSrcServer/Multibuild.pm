@@ -147,7 +147,7 @@ sub prunemultibuild {
   BSUtil::lockopen(\*F, '>>', "$projectsdir/$projid.pkg/:multibuild");
   $mc = getcache($projid, 1);
   for my $packid (keys %$mc) {
-    delete $mc->{$packid} unless $p{$packid};
+    delete $mc->{$packid} unless $p{$packid} || -e "$projectsdir/$projid.pkg/$packid.xml";
   }
   putcache($projid, $mc);
   close(F);	# release lock
