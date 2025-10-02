@@ -12,6 +12,7 @@ class SourcediffComponent < ApplicationComponent
     @diff_to_superseded = diff_to_superseded
     @commented_lines = commented_lines
     @diff_not_cached = diff_not_cached
+    @webui_sourcediff = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded, cacheonly: 1 })
   end
 
   def commentable

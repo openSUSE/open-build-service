@@ -578,7 +578,10 @@ class Webui::RequestController < Webui::WebuiController
     @target_project = Project.find_by_name(@bs_request.target_project_name)
 
     # Collecting all issues in a hash. Each key is the issue name and the value is a hash containing all the issue details.
-    @issues = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded, cacheonly: 1, nodiff: 1 }).reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
+    @issues = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded,
+                                         cacheonly: 1,
+                                         nodiff: 1 })
+                     .reduce({}) { |accumulator, sourcediff| accumulator.merge(sourcediff.fetch('issues', {})) }
     # Handling build results
     @staging_project = @bs_request.staging_project.name unless @bs_request.staging_project_id.nil?
   end

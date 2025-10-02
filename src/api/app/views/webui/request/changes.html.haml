@@ -26,31 +26,12 @@
                                id: 'sourcediff-container' }
         - if @action.target_releaseproject
           %p.fst-italic Release in #{project_or_package_link(project: @action.target_releaseproject)}
-        - if %w[add_role set_bugowner].include?(@action.type)
-          :ruby
-            parameters = { project: @action.target_project, request_action_id: @action.id, notification_id: @current_notification }
-            roles_link = if @action.target_package
-                           package_users_path(parameters.merge!(package: @action.target_package))
-                         else
-                           project_users_path(parameters)
-                         end
-          %p
-            You might want to
-            = link_to(roles_link) do
-              check the current roles
-            of
-            %span<
-              = project_or_package_text(@action.target_project, @action.target_package)
-              \.
 
-        - if @action.type == 'change_devel'
-          - current_devel_package = Package.find_by_project_and_name(@action.target_project, @action.target_package).develpackage
-          -  if current_devel_package
-            Development is currently happening on
-            #{project_or_package_link(project: current_devel_package.project.name, package: current_devel_package.name)}
         .result
-          = render(partial: 'webui/request/changes_content',
-                   locals: { bs_request: @bs_request, action: @action, diff_to_superseded: @diff_to_superseded, diff_not_cached: @diff_not_cached })
+          = render partial: "webui/request/changes_#{@action.type}",
+                   locals: { bs_request: @bs_request, action: @action,
+                             diff_to_superseded: @diff_to_superseded, diff_not_cached: @diff_not_cached,
+                             current_notification: @current_notification }
 
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',
                                                  method: :delete,

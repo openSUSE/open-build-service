@@ -7,23 +7,23 @@
           %i.fas.fa-sync-alt{ id: "cache#0-reload" }
         = render partial: 'webui/shared/loading', locals: { text: 'Loading changes...', wrapper_css: ['loading', 'invisible'] }
     - else
-      - webui_sourcediff = @action.webui_sourcediff({ diff_to_superseded: @diff_to_superseded, cacheonly: 1 })
-      - webui_sourcediff.each do |sourcediff|
+      - @webui_sourcediff.each do |sourcediff|
         - source_rev = sourcediff.dig('new', 'srcmd5') || @action.source_rev
         - target_rev = sourcediff.dig('old', 'srcmd5')
         .clearfix.mb-2
-          .btn-group.float-end
-            %button.btn.btn-outline-secondary.expand-diffs{ data: { object: @action.source_package } }
-              Expand all
-            %button.btn.btn-outline-secondary.collapse-diffs{ data: { object: @action.source_package } }
-              Collapse all
+          - if sourcediff['filenames'].present?
+            .btn-group.float-end
+              %button.btn.btn-outline-secondary.expand-diffs{ data: { object: @action.source_package } }
+                Expand all
+              %button.btn.btn-outline-secondary.collapse-diffs{ data: { object: @action.source_package } }
+                Collapse all
 
         - if sourcediff[:error]
           %p
             %i.error
               = sourcediff[:error]
         - else
-          - if webui_sourcediff.length > 1
+          - if @webui_sourcediff.length > 1
             %h4
               #{diff_label(sourcediff['new'])} – #{diff_label(sourcediff['old'])}
           - if sourcediff['filenames'].present?
@@ -31,7 +31,3 @@
                                            commentable: commentable, commented_lines: @commented_lines,
                                            source_package: source_package, target_package: target_package,
                                            source_rev: source_rev, target_rev: target_rev))
-          - else
-            .mb-2
-              %p.lead
-                No source changes.
