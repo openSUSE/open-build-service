@@ -158,3 +158,55 @@ function persistDraftCommentText(formId) { // jshint ignore:line
     commentTextArea.value = sessionStorage.getItem(formId);
   }
 }
+
+function persistInlineDiffCommentDraft(formId) {
+  let commentForm = document.getElementById(formId);
+  if (!commentForm) return;
+
+  var commentTextArea = commentForm.getElementsByTagName("textarea")[0];
+  var commentableType = commentForm.querySelector('[name="commentable_type"]').value;
+  var commentableId = commentForm.querySelector('[name="commentable_id"]').value;
+  var diffFileIndex = null;
+  var diffLineNumber = null;
+
+  if (commentForm.querySelector('[name="comment[diff_file_index]"]')) {
+    diffFileIndex = commentForm.querySelector('[name="comment[diff_file_index]"]').value;
+  }
+
+  if (commentForm.querySelector('[name="comment[diff_line_number]"]')) {
+    diffLineNumber = commentForm.querySelector('[name="comment[diff_line_number]"]').value
+  }
+
+  commentTextArea.addEventListener('change', (event) => {
+    if (diffLineNumber && diffFileIndex) {
+      let commentDraft = JSON.stringify({ diff_line_number: diffLineNumber, diff_file_index: diffFileIndex, comment_draft_text: event.target.value});
+      sessionStorage.setItem(`${commentableType}_${commentableId}_${diffFileIndex}_${diffLineNumber}`, commentDraft);
+    } else {
+      sessionStorage.setItem(formId, event.target.value);
+    }
+  });
+
+  // insert draft comment into comment form on page load
+  if(commentableType.startsWith("BsRequestAction")) {
+    if (sessionStorage.getItem(`${commentableType}_${commentableId}_${diffFileIndex}_${diffLineNumber}`)) {
+      let draftCommentData = JSON.parse(sessionStorage.getItem(`${commentableType}_${commentableId}_${diffFileIndex}_${diffLineNumber}`));
+      commentTextArea.value = draftCommentData.comment_draft_text;
+    }
+  } else {
+    if (sessionStorage.getItem(formId)) {
+      commentTextArea.value = sessionStorage.getItem(formId);
+    }
+  }
+}
+
+function openInlineCommentFormWithDraftAvailable(commentableType, commentableId) {
+  var regex = new RegExp(`${commentableType}_${commentableId}`);
+
+  Object.keys(sessionStorage).filter(function(k) { return regex.test(k); }).forEach(function(k) {
+    let draftCommentData = JSON.parse(sessionStorage.getItem(k));
+    let draftCommentBoxLink = document.querySelectorAll(`[data-diff-line="${draftCommentData.diff_line_number}"][data-diff-file-index="${draftCommentData.diff_file_index}"]`)[0];
+    if (draftCommentBoxLink) {
+      draftCommentBoxLink.click();
+    }
+  });
+}
