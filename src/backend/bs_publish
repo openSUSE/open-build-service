@@ -194,9 +194,10 @@ sub db_pickup {
 }
 
 sub db_open {
-  my ($name) = @_;
+  my ($name, $prp) = @_;
 
   return undef unless $extrepodb;
+  return undef if $prp && $BSConfig::publish_nodb && $BSConfig::publish_nodb->{$prp};
   if (!$db_oldsync_read && !$db_sync_append) {
     db_pickup();
     $db_oldsync_read = 1;
@@ -1685,7 +1686,7 @@ sub createpatterns_ymp {
 
   my $prp_ext = "$projid/$repoid";
   $prp_ext =~ s/:/:\//g;
-  my $patterndb = db_open('pattern');
+  my $patterndb = db_open('pattern', "$projid/$repoid");
 
   # get title/description data for all involved projects
   my $repoinfo = $data->{'repoinfo'};
@@ -1780,7 +1781,7 @@ sub deletepatterns_ymp {
 
   my $prp_ext = "$projid/$repoid";
   $prp_ext =~ s/:/:\//g;
-  my $patterndb = db_open('pattern');
+  my $patterndb = db_open('pattern', "$projid/$repoid");
   for my $ympname (ls($extrep)) {
     next unless $ympname =~ /\.ymp$/;
     db_store($patterndb, "$prp_ext/$ympname", undef) if $patterndb;
@@ -1975,10 +1976,10 @@ sub deleterepo {
   }
 
   # update published database
-  my $binarydb = db_open('binary');
+  my $binarydb = db_open('binary', $prp);
   updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @db_deleted ], []) if $binarydb;
 
-  my $repoinfodb = db_open('repoinfo');
+  my $repoinfodb = db_open('repoinfo', $prp);
   db_store($repoinfodb, $dbgsplit ? "$prp$dbgsplit" : $prp, undef) if $repoinfodb;
 
   if ($BSConfig::markfileorigins) {
@@ -3361,11 +3362,11 @@ sub publish {
   }
 
   # store repoinfo in published database
-  my $repoinfodb = db_open('repoinfo');
+  my $repoinfodb = db_open('repoinfo', $prp);
   db_store($repoinfodb, $dbgsplit ? "$prp$dbgsplit" : $prp, $state ne '' ? $repoinfo : undef) if $repoinfodb;
 
   # put in published database
-  my $binarydb = db_open('binary');
+  my $binarydb = db_open('binary', $prp);
   updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @db_deleted ], [ map {"$prp_ext/$_"} @db_changed ]) if $binarydb;
 
   # mark file origins so we can gather per package statistics
@@ -3542,7 +3543,7 @@ sub publish {
     createrepo_virtbuilder($extrep, $projid, $xrepoid, $data);
   }
 
-  my $patterninfodb = db_open('patterninfo');
+  my $patterninfodb = db_open('patterninfo', $prp);
   db_store($patterninfodb, $dbgsplit ? "$prp$dbgsplit" : $prp, %{$data->{'patterninfo'}} ? $data->{'patterninfo'} : undef) if $patterninfodb;
 
 publishprog_done:
