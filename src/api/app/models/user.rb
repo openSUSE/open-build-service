@@ -103,6 +103,7 @@ class User < ApplicationRecord
                       too_long: 'must have less than 100 characters',
                       too_short: 'must have more than two characters' }
 
+  validates :encrypted_password, length: { maximum: 255 }
   validates :state, inclusion: { in: STATES }
 
   validate :validate_state
@@ -823,7 +824,7 @@ class User < ApplicationRecord
   private_class_method :nobody
 
   def password_validation
-    return if password_digest || deprecated_password
+    return if encrypted_password || deprecated_password
 
     errors.add(:password, 'can\'t be blank')
   end
@@ -870,13 +871,13 @@ end
 #  deprecated_password_hash_type :string(255)
 #  deprecated_password_salt      :string(255)
 #  email                         :string(200)      default(""), not null
+#  encrypted_password            :string(255)
 #  ignore_auth_services          :boolean          default(FALSE)
 #  in_beta                       :boolean          default(FALSE), indexed
 #  in_rollout                    :boolean          default(TRUE), indexed
 #  last_logged_in_at             :datetime
 #  login                         :text(65535)      uniquely indexed
 #  login_failure_count           :integer          default(0), not null
-#  password_digest               :string(255)
 #  realname                      :string(200)      default(""), not null
 #  rss_secret                    :string(200)      uniquely indexed
 #  state                         :string           default("unconfirmed"), indexed
