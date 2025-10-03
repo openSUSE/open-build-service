@@ -13,11 +13,14 @@ class User < ApplicationRecord
   devise :database_authenticatable
 
   attribute :color_theme, :integer
+  attr_writer :password_digest
+
   enum :color_theme, { 'system' => 0, 'light' => 1, 'dark' => 2 }
 
   # disable validations because there can be users which don't have a bcrypt
   # password yet. this is for backwards compatibility
-  has_secure_password validations: false
+  # FIXME: This is disabled because it conflicts with Devise's DatabaseAuthenticatable's password attribute writter
+  # has_secure_password validations: false
 
   has_many :watched_items, dependent: :destroy
   has_many :groups_users, inverse_of: :user
@@ -281,7 +284,11 @@ class User < ApplicationRecord
 
     # it seems that the user is not using a deprecated password so we use bcrypt's
     # #authenticate method
-    super
+    if valid_password?(unencrypted_password)
+      self
+    else
+      false
+    end
   end
 
   # Returns true if the the state transition from "from" state to "to" state
