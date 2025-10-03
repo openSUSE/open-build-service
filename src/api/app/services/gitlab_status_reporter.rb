@@ -13,7 +13,7 @@ class GitlabStatusReporter < SCMExceptionHandler
     gitlab_client = Gitlab.client(endpoint: "#{@workflow_run.api_endpoint}/api/v4",
                                   private_token: @scm_token)
     # https://docs.gitlab.com/ce/api/commits.html#post-the-build-status-to-a-commit
-    gitlab_client.update_commit_status(@workflow_run.project_id,
+    gitlab_client.update_commit_status(@workflow_run.gitlab_project_id,
                                        @workflow_run.commit_sha,
                                        @state,
                                        status_options)
@@ -54,7 +54,7 @@ class GitlabStatusReporter < SCMExceptionHandler
     {
       api_endpoint: @workflow_run.api_endpoint,
       project_id: @workflow_run.project_id,
-      path_with_namespace: @workflow_run.path_with_namespace,
+      path_with_namespace: @workflow_run.gitlab_path_with_namespace,
       commit_sha: @workflow_run.commit_sha,
       state: @state,
       status_options: status_options
