@@ -408,9 +408,10 @@ GEM
     rantly (3.0.0)
     rbtree (0.4.6)
     rbtree3 (0.7.1)
-    rdoc (6.14.2)
+    rdoc (6.15.0)
       erb
       psych (>= 4.0.0)
+      tsort
     redcarpet (3.6.1)
     regexp_parser (2.11.3)
     reline (0.6.2)
@@ -549,6 +550,7 @@ GEM
     thor (1.4.0)
     tilt (2.6.1)
     timeout (0.4.3)
+    tsort (0.2.0)
     turbo-rails (2.0.17)
       actionpack (>= 7.1.0)
       railties (>= 7.1.0)
