@@ -8,6 +8,11 @@
         = render partial: 'webui/shared/loading', locals: { text: 'Loading changes...', wrapper_css: ['loading', 'invisible'] }
     - else
       - @webui_sourcediff.each do |sourcediff|
+        - if expandable?(sourcediff)
+          .alert.alert-warning
+            Some of the changes are collapsed due to size.
+            = link_to(request_changes_path(@bs_request, @action, tarlimit: 0)) do
+              Expand changes
         - source_rev = sourcediff.dig('new', 'srcmd5') || @action.source_rev
         - target_rev = sourcediff.dig('old', 'srcmd5')
         .clearfix.mb-2

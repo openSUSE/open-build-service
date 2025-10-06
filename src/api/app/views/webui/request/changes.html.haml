@@ -21,7 +21,7 @@
                                                         page_name: 'request_changes', notification_id: @current_notification,
                                                         current_notification: @current_notification }
     .container.p-4
-      .tab-content.sourcediff{ data: { url: request_action_changes_path(@bs_request.number, @action.id),
+      .tab-content.sourcediff{ data: { url: request_action_changes_path(@bs_request.number, @action.id, tarlimit: @tarlimit),
                                        diff_to_superseded_id: @diff_to_superseded_id },
                                id: 'sourcediff-container' }
         - if @action.target_releaseproject
@@ -31,7 +31,7 @@
           = render partial: "webui/request/changes_#{@action.type}",
                    locals: { bs_request: @bs_request, action: @action,
                              diff_to_superseded: @diff_to_superseded, diff_not_cached: @diff_not_cached,
-                             current_notification: @current_notification }
+                             current_notification: @current_notification, tarlimit: @tarlimit }
 
   = render DeleteConfirmationDialogComponent.new(modal_id: 'delete-comment-modal',
                                                  method: :delete,
