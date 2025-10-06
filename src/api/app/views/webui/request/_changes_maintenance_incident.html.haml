@@ -10,4 +10,4 @@
     = link_to "superseded request ##{supersed.number}", request_changes_path(bs_request, diff_to_superseded: supersed)
 
 = render SourcediffComponent.new(bs_request: bs_request, action: action, diff_to_superseded: diff_to_superseded,
-                                 diff_not_cached: diff_not_cached, tarlimit: tarlimit, tarlimit: tarlimit)
+                                 diff_not_cached: diff_not_cached, tarlimit: tarlimit)
