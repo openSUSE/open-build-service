@@ -15,18 +15,19 @@
                                                      'data-bs-toggle': 'dropdown',
                                                      type: 'button' }
             Change Time Range
-          = form_with(class: 'dropdown-menu dropdown-menu-end p-4') do
+          .dropdown-menu.dropdown-menu-end.p-4
             = link_to("Yesterday", project_pulse_path(@project, from: 1.day.ago.strftime('%Y-%m-%d')), class: 'dropdown-item')
             = link_to("1 Week", project_pulse_path(@project, from: 1.week.ago.strftime('%Y-%m-%d')), class: 'dropdown-item')
             = link_to("1 Month", project_pulse_path(@project, from: 1.month.ago.strftime('%Y-%m-%d')), class: 'dropdown-item')
             .dropdown-divider
-            .mb-3
-              %label.form-label{ for: 'from' } From
-              %input.form-control#from{ type: 'date', name: 'from', value: "#{@date_range_from.strftime('%Y-%m-%d')}" }
-            .mb-3
-              %label.form-label{ for: 'to' } To
-              %input.form-control#to{ type: 'date', name: 'to', value: "#{@date_range_to.strftime('%Y-%m-%d')}" }
-            %button.btn.btn-primary{ type: 'submit' } Apply Time Range
+            = form_with(url: project_pulse_path(@project), method: :get, local: true) do
+              .mb-3
+                %label.form-label{ for: 'from' } From
+                %input.form-control#from{ type: 'date', name: 'from', value: "#{@date_range_from.strftime('%Y-%m-%d')}" }
+              .mb-3
+                %label.form-label{ for: 'to' } To
+                %input.form-control#to{ type: 'date', name: 'to', value: "#{@date_range_to.strftime('%Y-%m-%d')}" }
+              %button.btn.btn-primary{ type: 'submit' } Apply Time Range
     .row
       #pulse
         // The content of this div is set by JavaScript after the ajax call
