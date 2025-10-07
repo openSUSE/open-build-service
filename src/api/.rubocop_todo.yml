@@ -59,12 +59,6 @@ Lint/NonLocalExitFromIterator:
     - 'app/controllers/configurations_controller.rb'
     - 'app/models/patchinfo.rb'
 
-# Offense count: 2
-Lint/RescueException:
-  Exclude:
-    - 'config/environment.rb'
-    - 'lib/tasks/extract.rake'
-
 # Offense count: 1
 Lint/StructNewOverride:
   Exclude:
