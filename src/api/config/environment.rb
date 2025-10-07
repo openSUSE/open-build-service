@@ -14,7 +14,7 @@ begin
     puts "DEPRECATED: Please update your options.yml by running 'rake migrate_options_yml'"
     CONFIG = config
   end
-rescue Exception
+rescue StandardError
   puts "Error while parsing config file #{path}"
   # rubocop:disable Style/MutableConstant
   CONFIG = {}

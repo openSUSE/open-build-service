@@ -12,11 +12,6 @@ Lint/Debugger:
   Exclude:
     - 'dist/t/spec/spec_helper.rb'
 
-# Offense count: 2
-Lint/RescueException:
-  Exclude:
-    - 'dist/openQA_mail_notification.rb'
-
 # Offense count: 1
 # Configuration parameters: AllowedMethods, AllowedPatterns, CountRepeatedAttributes, Max.
 Metrics/AbcSize:
