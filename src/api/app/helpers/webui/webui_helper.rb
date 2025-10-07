@@ -147,11 +147,11 @@ module Webui::WebuiHelper
           end
 
     opts[:short] = true # for project
-    out += link_to_project(prj, opts) + ' / ' +
-           link_to_if(pkg, opts[:package_text],
-                      { controller: '/webui/package', action: 'show',
-                        project: opts[:project],
-                        package: opts[:package] }, class: 'package', title: opts[:package])
+    out += safe_join([link_to_project(prj, opts),
+                      ' / ',
+                      link_to_if(pkg, opts[:package_text],
+                                 { controller: '/webui/package', action: 'show', project: opts[:project], package: opts[:package] },
+                                 class: 'package', title: opts[:package])])
     if opts[:rev] && pkg
       out += ' ('.html_safe +
              link_to("revision #{elide(opts[:rev], 10)}",
