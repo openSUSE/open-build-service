@@ -17,11 +17,11 @@ class BsRequestHistoryElementComponent < ApplicationComponent
   def icon
     case @element.type.demodulize
     when 'ReviewAccepted', 'RequestAccepted'
-      tag.i(nil, class: 'fas fa-lg fa-check')
+      tag.i(nil, class: 'fas fa-lg fa-check text-success')
     when 'ReviewDeclined', 'RequestDeclined'
-      tag.i(nil, class: 'fas fa-lg fa-times')
+      tag.i(nil, class: 'fas fa-lg fa-times text-danger')
     when 'RequestReviewAdded'
-      tag.i(nil, class: 'fas fa-sm fa-circle')
+      tag.i(nil, class: 'fas fa-sm fa-eye')
     else
       tag.i(nil, class: 'fas fa-lg fa-code-commit')
     end

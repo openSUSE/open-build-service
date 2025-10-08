@@ -55,7 +55,7 @@ RSpec.describe BsRequestHistoryElementComponent, type: :component do
       let(:element) { create(:history_element_request_review_added_with_review, user: user) }
 
       it 'displays the right icon' do
-        expect(rendered_content).to have_css('i.fa-circle')
+        expect(rendered_content).to have_css('i.fa-eye')
       end
 
       it 'describes the element action' do
@@ -106,7 +106,7 @@ RSpec.describe BsRequestHistoryElementComponent, type: :component do
       let(:element) { create(:history_element_request_review_added_without_review, user: user, description_extension: nil) }
 
       it 'displays the right icon' do
-        expect(rendered_content).to have_css('i.fa-circle')
+        expect(rendered_content).to have_css('i.fa-eye')
       end
 
       it 'describes the element action' do
