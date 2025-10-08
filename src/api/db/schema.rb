@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_09_15_120837) do
+ActiveRecord::Schema[7.2].define(version: 2025_10_08_124737) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -948,6 +948,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_09_15_120837) do
     t.integer "staging_workflow_id"
     t.text "scmsync"
     t.string "report_bug_url", limit: 8192
+    t.string "anitya_distribution_name"
     t.index ["develproject_id"], name: "devel_project_id_index"
     t.index ["name"], name: "projects_name_index", unique: true
     t.index ["staging_workflow_id"], name: "index_projects_on_staging_workflow_id"

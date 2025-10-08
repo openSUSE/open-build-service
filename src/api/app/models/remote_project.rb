@@ -14,22 +14,23 @@ end
 #
 # Table name: projects
 #
-#  id                  :integer          not null, primary key
-#  delta               :boolean          default(TRUE), not null
-#  description         :text(65535)
-#  kind                :string           default("standard")
-#  name                :string(200)      not null, uniquely indexed
-#  remoteproject       :string(255)
-#  remoteurl           :string(255)
-#  report_bug_url      :string(8192)
-#  required_checks     :string(255)
-#  scmsync             :text(65535)
-#  title               :string(255)
-#  url                 :string(255)
-#  created_at          :datetime
-#  updated_at          :datetime
-#  develproject_id     :integer          indexed
-#  staging_workflow_id :integer          indexed
+#  id                       :integer          not null, primary key
+#  anitya_distribution_name :string(255)
+#  delta                    :boolean          default(TRUE), not null
+#  description              :text(65535)
+#  kind                     :string           default("standard")
+#  name                     :string(200)      not null, uniquely indexed
+#  remoteproject            :string(255)
+#  remoteurl                :string(255)
+#  report_bug_url           :string(8192)
+#  required_checks          :string(255)
+#  scmsync                  :text(65535)
+#  title                    :string(255)
+#  url                      :string(255)
+#  created_at               :datetime
+#  updated_at               :datetime
+#  develproject_id          :integer          indexed
+#  staging_workflow_id      :integer          indexed
 #
 # Indexes
 #
