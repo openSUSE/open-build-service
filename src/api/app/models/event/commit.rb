@@ -29,8 +29,7 @@ module Event
 
     def fetch_local_package_version
       return unless (package = Package.find_by_project_and_name(payload['project'], payload['package']))
-      return unless (attribute_anitya_distribution = AttribType.find_by_namespace_and_name('OBS', 'AnityaDistribution'))
-      return if package.project.attribs.find_by_attrib_type_id(attribute_anitya_distribution.id).blank?
+      return if package.project.anitya_distribution_name.blank?
 
       FetchLocalPackageVersionJob.perform_later(payload['project'], package_name: payload['package'])
     end
