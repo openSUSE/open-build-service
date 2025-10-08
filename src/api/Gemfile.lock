@@ -560,7 +560,7 @@ GEM
       unicode-emoji (~> 4.1)
     unicode-emoji (4.1.0)
     uniform_notifier (1.18.0)
-    uri (1.0.3)
+    uri (1.0.4)
     useragent (0.16.11)
     vcr (6.3.1)
       base64
