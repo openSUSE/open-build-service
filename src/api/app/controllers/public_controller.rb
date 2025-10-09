@@ -9,6 +9,11 @@ class PublicController < ApplicationController
   before_action :set_influxdb_data_interconnect
   before_action :set_anonymous_user
 
+  # POST, GET /public/lastevents
+  def lastevents
+    pass_to_backend
+  end
+
   # GET /public/build/:project/:repository/:arch/:package
   def build
     if params[:project] == '_result'

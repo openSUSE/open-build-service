@@ -163,10 +163,10 @@ constraints(RoutesHelper::APIMatcher) do
   end
 
   ### /lastevents
-
-  get '/lastevents' => 'source#lastevents_public'
-  match 'public/lastevents' => 'source#lastevents_public', via: %i[get post]
-  post '/lastevents' => 'source#lastevents'
+  controller :lastevents do
+    # FIXME: We have only one client (dr-to-ibs) that is using this
+    post 'lastevents' => :index
+  end
 
   ### /distributions
 
@@ -189,6 +189,11 @@ constraints(RoutesHelper::APIMatcher) do
     get 'public/about' => 'about#index'
     get 'public/configuration' => :configuration_show
     get 'public/configuration.xml' => :configuration_show
+    # FIXME: We have no clients anymore that use this
+    get 'lastevents' => :lastevents
+    # FIXME: We only have one client (hilbertsync) that is using GET
+    # Everyone is using the POST route
+    match 'public/lastevents' => :lastevents, via: %i[get post]
     get 'public/request/:number' => :show_request, constraints: cons
     get 'public/source/:project' => :project_index, constraints: cons
     get 'public/source/:project/_meta' => :project_meta, constraints: cons
