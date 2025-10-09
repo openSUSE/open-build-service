@@ -422,7 +422,8 @@ class Webui::ProjectController < Webui::WebuiController
       :source_protection,
       :disable_publishing,
       :url,
-      :report_bug_url
+      :report_bug_url,
+      :anitya_distribution_name
     )
   end
 

@@ -12,6 +12,9 @@
       = form.label(:report_bug_url, 'Report Bug URL:')
       = form.url_field(:report_bug_url, class: 'form-control')
   .mb-3
+    = form.label(:anitya_distribution_name, 'Anitya Distribution Name:')
+    = form.text_field(:anitya_distribution_name, class: 'form-control')
+  .mb-3
     = form.label(:description, 'Description:')
     = render WriteAndPreviewComponent.new(form: form, preview_message_url: project_preview_description_path,
                                         message_body_param: 'project[description]',
