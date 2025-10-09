@@ -293,6 +293,8 @@ module Event
     end
 
     def send_to_bus
+      return if involves_hidden_project?
+
       RabbitmqBus.send_to_bus(message_bus_routing_key, self[:payload]) if message_bus_routing_key
       RabbitmqBus.send_to_bus('metrics', to_metric) if metric_fields.present?
     end
