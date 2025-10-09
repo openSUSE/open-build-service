@@ -11,7 +11,7 @@ class PackageVersionUpstream < PackageVersion
   #### Associations macros (Belongs to, Has one, Has many)
 
   #### Callbacks macros: before_save, after_save, etc.
-
+  after_save :check_for_outdated_local_package_version
   #### Scopes (first the default_scope macro if is used)
 
   #### Validations macros
@@ -24,6 +24,24 @@ class PackageVersionUpstream < PackageVersion
   #### Instance methods (public and then protected/private)
 
   #### Alias of methods
+  private
+
+  def check_for_outdated_local_package_version
+    local_version_string = package.latest_local_version&.version
+    return if local_version_string.blank?
+
+    begin
+      local_version_object = Gem::Version.create(local_version_string.gsub(/[^0-9A-Za-z.]/, '.'))
+      upstream_version_object = Gem::Version.create(version.gsub(/[^0-9A-Za-z.]/, '.'))
+
+      if (local_version_object <=> upstream_version_object) == -1
+        Event::PackageOutOfDate.create(local_version: local_version_string, upstream_version: version,
+                                       package: package.name, project: package.project.name)
+      end
+    rescue ArgumentError
+      nil
+    end
+  end
 end
 
 # == Schema Information
