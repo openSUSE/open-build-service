@@ -33,8 +33,7 @@ def update_all_attrib_type_descriptions
     'CreatorCannotAcceptOwnRequests' => 'The creator and the accepter of a request cannot be the same person',
     'SkipChannelBranch' => 'Opt-Out creating channels in maintenance incidents',
     'RejectBranch' => 'Reject branching of sources',
-    'LimitReleaseSourceProject' => 'Limit to listed project names as source for any release operation',
-    'AnityaDistribution' => 'The name of the distribution used for fetching package information from https://release-monitoring.org'
+    'LimitReleaseSourceProject' => 'Limit to listed project names as source for any release operation'
   }
   d.keys.each do |k|
     at = ans.attrib_types.where(name: k).first
