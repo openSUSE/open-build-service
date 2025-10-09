@@ -60,7 +60,7 @@ module Webui::UserHelper
       if opts[:no_icon]
         link_to(printed_name, user_path(user))
       else
-        image_tag_for(user, size: 20) + ' ' + link_to(printed_name, user_path(user))
+        safe_join([image_tag_for(user, size: 20), ' ', link_to(printed_name, user_path(user))])
       end
     end
   end

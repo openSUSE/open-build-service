@@ -23,7 +23,7 @@ module Webui::ProjectHelper
     return '' if package.blank?
 
     btime = @timings[package][0]
-    link_to(h(package), controller: '/webui/package', action: :show, project: @project, package: package) + ' ' + format_seconds(btime)
+    safe_join([link_to(h(package), controller: '/webui/package', action: :show, project: @project, package: package), ' ', format_seconds(btime)])
   end
 
   def show_package_actions?

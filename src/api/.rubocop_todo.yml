@@ -887,12 +887,6 @@ Style/OpenStructUse:
 # Configuration parameters: Mode.
 Style/StringConcatenation:
   Exclude:
-    - 'app/helpers/webui/group_helper.rb'
-    - 'app/helpers/webui/monitor_helper.rb'
-    - 'app/helpers/webui/project_helper.rb'
-    - 'app/helpers/webui/user_helper.rb'
-    - 'app/helpers/webui/webui_helper.rb'
-    - 'app/validators/workflow_steps_validator.rb'
     - 'config/initializers/nokogiri_builder.rb'
     - 'test/functional/aaa_pre_consistency_test.rb'
     - 'test/functional/about_controller_test.rb'
