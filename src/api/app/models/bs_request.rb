@@ -1019,6 +1019,10 @@ class BsRequest < ApplicationRecord
     reviews.collect(&:reason).join(' ')
   end
 
+  def involves_hidden_project?
+    bs_request_actions.any?(&:involves_hidden_project?)
+  end
+
   private
 
   # returns true if we have reached a state that we can't get out anymore

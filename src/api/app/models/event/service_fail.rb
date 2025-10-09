@@ -51,10 +51,6 @@ module Event
     def metric_fields
       { value: 1 }
     end
-
-    def involves_hidden_project?
-      Project.unscoped.find_by(name: payload['project'])&.disabled_for?('access', nil, nil)
-    end
   end
 end
 

@@ -110,7 +110,7 @@ module Event
       bs_request = BsRequest.find_by(number: payload['number'])
       return false unless bs_request
 
-      bs_request.bs_request_actions.any?(&:involves_hidden_project?)
+      bs_request.involves_hidden_project?
     end
 
     private

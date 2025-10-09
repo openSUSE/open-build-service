@@ -13,10 +13,6 @@ module Event
     def subject
       "New comment in package #{payload['project']}/#{payload['package']} by #{payload['commenter']}"
     end
-
-    def involves_hidden_project?
-      Project.unscoped.find_by(name: payload['project'])&.disabled_for?('access', nil, nil)
-    end
   end
 end
 
