@@ -48,10 +48,6 @@ module Event
                   type: 'NotificationPackage')
     end
 
-    def involves_hidden_project?
-      Project.unscoped.find_by(name: payload['project'])&.disabled_for?('access', nil, nil)
-    end
-
     private
 
     # The seconds spent building
