@@ -2,7 +2,7 @@
 
 class RemoveAnityaAttribute < ActiveRecord::Migration[7.2]
   def up
-    AttribType.find_by_namespace_and_name('OBS', 'AnityaDistribution').delete
+    AttribType.find_by_namespace_and_name('OBS', 'AnityaDistribution').destroy
   end
 
   def down
