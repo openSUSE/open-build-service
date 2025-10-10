@@ -2,7 +2,7 @@ class ReportsModalComponent < ApplicationComponent
   attr_reader :reportable, :reportable_name, :user, :reports
 
   def initialize(reportable:, reportable_name:, user:, reports:)
-    super
+    super()
 
     @reportable = reportable
     @reportable_name = reportable_name

@@ -2,7 +2,7 @@ class BsRequestPriorityBadgeComponent < ApplicationComponent
   attr_reader :css_class, :overview
 
   def initialize(priority:, css_class: nil, overview: false)
-    super
+    super()
 
     @priority = priority
     @css_class = css_class
