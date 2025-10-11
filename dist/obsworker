@@ -378,6 +378,8 @@ case "$1" in
         elif [ "--emulator" == "$vmopt" ]; then echo "System emulated virtual machine"
         elif [ "--vm-type qemu" == "$vmopt" ]; then echo "System emulated virtual machine via QEMU"
         elif [ "--lxc" == "$vmopt" ]; then echo "LXC container"
+        elif [ "--podman" == "$vmopt" ]; then echo "Podman container"
+        elif [ "--docker" == "$vmopt" ]; then echo "Docker container"
         elif [ "openstack" == "$OBS_VM_TYPE" ]; then echo "OpenStack virtual machine"
         else  echo "chroot"
         fi
