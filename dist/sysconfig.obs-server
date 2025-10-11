@@ -298,6 +298,16 @@ OBS_VM_DISK_AUTOSETUP_MOUNT_OPTIONS=""
 OBS_WORKER_USE_MKFS_COPYIN=""
 
 ## Path:        Applications/OBS
+## Description: Enable using preinstallimage as container base image during build
+## Type:        ("yes" | "")
+## Default:     ""
+## Config:      OBS
+#
+# This is only possible for docker and podman containers
+#
+OBS_WORKER_USE_CONTAINER_PREINSTALLIMAGE=""
+
+## Path:        Applications/OBS
 ## Description: Enable build in memory
 ## Type:        ("yes" | "")
 ## Default:     ""
