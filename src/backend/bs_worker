@@ -2459,7 +2459,8 @@ sub getpreinstallimage {
   $imagesource =~ s/\/[^\/]*$//;	# strip arch
   $imagesource .= "/$imageinfo->{'package'}" if $imageinfo->{'package'};
   $imagesource .= " [$imageinfo->{'hdrmd5'}]";
-  return $imagefile, \%imagebins, $imagesource, \%metas, \%imageorigins;
+  my $imageinfofile = -e "$dir/preinstallimage.info" ? 'preinstallimage.info' : undef;
+  return $imagefile, \%imagebins, $imagesource, \%metas, \%imageorigins, $imageinfofile;
 }
 
 sub getbinaries_buildenv {
@@ -2879,12 +2880,13 @@ sub getbinaries {
   # get a preinstall image if available
   my ($imagefile, $imagebins);
   if (@todo && $preinstallimagedata && $Build::Features::preinstallimage) {
-    my ($imagesource, $imagemetas, $imageorigins);
-    ($imagefile, $imagebins, $imagesource, $imagemetas, $imageorigins) = getpreinstallimage($buildinfo, $dir, \@todo, \%bvls);
+    my ($imagesource, $imagemetas, $imageorigins, $imageinfofile);
+    ($imagefile, $imagebins, $imagesource, $imagemetas, $imageorigins, $imageinfofile) = getpreinstallimage($buildinfo, $dir, \@todo, \%bvls);
     if ($imagefile && $imagebins && $imagemetas) {
       $preinstallimagedata->{'imagename'} = $imagefile;
       $preinstallimagedata->{'imagebins'} = $imagebins;
       $preinstallimagedata->{'imagesource'} = $imagesource;
+      $preinstallimagedata->{'imageinfofile'} = $imageinfofile if $imageinfofile;
       $meta{$_} = 1 for keys %$imagemetas;
       if ($outbdep) {
 	# record preinstallimage data
@@ -4052,6 +4054,7 @@ sub dobuild {
   }
   push @rpmlist, "preinstallimage: $pkgdir/$preinstallimagedata->{'imagename'}" if $preinstallimagedata->{'imagename'};
   push @rpmlist, "preinstallimagesource: $preinstallimagedata->{'imagesource'}" if $preinstallimagedata->{'imagesource'};
+  push @rpmlist, "preinstallimageinfo: $pkgdir/$preinstallimagedata->{'imageinfofile'}" if $preinstallimagedata->{'imageinfofile'};
   push @rpmlist, "localkiwi $localkiwi/localkiwi.rpm" if $localkiwi && -e "$localkiwi/localkiwi.rpm";
   push @rpmlist, "preinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'preinstall'}} @bdep);
   push @rpmlist, "vminstall: ".join(' ', map {$_->{'name'}} grep {$_->{'vminstall'}} @bdep);
