@@ -206,7 +206,7 @@ sub cleanup_job {
   }
 
   # if this is a chroot like case, get rid of it after the build
-  if ((!$vm || $vm eq 'lxc' || $vm eq 'docker' || $vm eq 'nspwan') && $cleanup_chroot && -d $buildroot) {
+  if ((!$vm || $vm eq 'lxc' || $vm eq 'docker' || $vm eq 'nspwan' || $vm eq 'podman') && $cleanup_chroot && -d $buildroot) {
       print "Removing buildroot $buildroot...";
       eval {
         rm_rf($buildroot);
@@ -229,7 +229,7 @@ sub kill_job {
     push @args, '--vm-worker-nr', $vm_worker_instance if $vm_worker_instance;
   } else {
     push @args, '--root', $buildroot;
-    push @args, '--vm-type', $vm if $vm eq 'lxc' || $vm eq 'docker';
+    push @args, '--vm-type', $vm if $vm eq 'lxc' || $vm eq 'docker' || $vm eq 'podman';
   }
   if (system("$statedir/build/build", @args, "--kill")) {
     return 0;
@@ -307,7 +307,7 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
        --hostlabel : define a host label for build constraints, can be used multiple times
 
        --vm-type   : set virtualisation mode to use (kvm, xen, qemu:\$HOSTARCH, zvm, emulator:\$HOSTARCH)
-                     Also possible are lxc or docker, but these are less secure and are not using
+                     Also possible are lxc or docker or podman, but these are less secure and are not using
                      the specified kernel for the build target.
 
        --vm-kernel : set kernel to use (xen/kvm)
@@ -482,7 +482,7 @@ while (@ARGV) {
     $testmode = 1;
     next;
   }
-  if ($ARGV[0] =~ /^--(kvm|xen|lxc|emulator|zvm|docker|pvm|openstack)$/) {
+  if ($ARGV[0] =~ /^--(kvm|xen|lxc|emulator|zvm|docker|pvm|openstack|docker|podman)$/) {
     $vm = $1;
     shift @ARGV;
     next;
@@ -4113,7 +4113,7 @@ sub dobuild {
     push @args, "--vm-worker", $vm_worker_name;
     push @args, "--vm-kernel", $vm_kernel;
     push @args, "--openstack-flavor", "$openstack_flavor";
-  } elsif ($vm eq 'lxc' || $vm eq 'docker') {
+  } elsif ($vm eq 'lxc' || $vm eq 'docker' || $vm eq 'podman') {
     push @args, '--root', $buildroot;
     push @args, '--vm-type', $vm;
     push @args, '--memory', $vm_memory if $vm_memory;
