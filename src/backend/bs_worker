@@ -80,6 +80,7 @@ my $vm_initrd;
 my $vm_memory;
 my $vm_custom_option;
 my $vm_use_mkfs_copyin;
+my $use_container_preinstallimage;
 my $vm_enable_console;
 my $vm_worker_name;
 my $vm_worker_instance;
@@ -336,6 +337,8 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --vm-network: enable network (kvm)
 
+       --vm-use-container-preinstallimage: use preinstallimage as container base image (docker|podman)
+
        --emulator-script <script>
                    : Define the emulator script 
 
@@ -545,6 +548,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--vm-use-mkfs-copyin') {
     shift @ARGV;
     $vm_use_mkfs_copyin = 1;
+    next;
+  }
+  if ($ARGV[0] eq '--vm-use-container-preinstallimage') {
+    shift @ARGV;
+    $use_container_preinstallimage = 1;
     next;
   }
   if ($ARGV[0] eq '--vmdisk-rootsize') {
@@ -4117,6 +4125,7 @@ sub dobuild {
     push @args, '--root', $buildroot;
     push @args, '--vm-type', $vm;
     push @args, '--memory', $vm_memory if $vm_memory;
+    push @args, '--vm-use-container-preinstallimage' if ($vm eq 'docker' || $vm eq 'podman') && $use_container_preinstallimage;
   } else {
     print "VM-TYPE $vm not detected" if $vm;
     push @args, '--root', $buildroot;
