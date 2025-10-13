@@ -26,7 +26,7 @@ module Webui::RequestsFilter
 
   def filter_states
     @selected_filter['states'] = params[:states] if params[:states]&.compact_blank.present?
-    @bs_requests = @bs_requests.where(state: @selected_filter['states'])
+    @bs_requests = @bs_requests.where(status: @selected_filter['states'])
   end
 
   def filter_action_types
