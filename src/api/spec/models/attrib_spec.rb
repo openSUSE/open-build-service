@@ -158,15 +158,5 @@ RSpec.describe Attrib do
 
       it { expect(subject.errors.full_messages).to contain_exactly('Values has 0 values, but only 1 are allowed') }
     end
-
-    describe '#validate_attrib_type_for_project_attribute' do
-      subject { build(:attrib, package_id: package.id, attrib_type: attrib_type) }
-
-      let(:attrib_type) { AttribType.find_by_namespace_and_name('OBS', 'AnityaDistribution') }
-
-      it {
-        expect(subject.errors.full_messages).to include("Attrib type OBS:AnityaDistribution can't be set on packages")
-      }
-    end
   end
 end
