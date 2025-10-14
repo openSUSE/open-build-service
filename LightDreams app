@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1e3c72">
+    <meta name="description" content="Dreams Never Die - Rise again, no matter how broken you feel">
+    <title>Dreams Never Die - Motivational App</title>
+    <link rel="manifest" href="data:application/json,{\"name\":\"Dreams Never Die\",\"short_name\":\"DND\",\"start_url\":\"/\",\"display\":\"standalone\",\"background_color\":\"#ffffff\",\"theme_color\":\"#1e3c72\",\"icons\":[{\"src\":\"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 192 192%27%3E%3Crect fill=%27%231e3c72%27 width=%27192%27 height=%27192%27/%3E%3Ctext x=%2796%27 y=%27130%27 font-size=%27100%27 text-anchor=%27middle%27 fill=%27%23d4af37%27%3E🕯️%3C/text%3E%3C/svg%3E\",\"sizes\":\"192x192\",\"type\":\"image/svg+xml\"}]}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 430px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+            box-shadow: 0 0 50px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .flame {
+            font-size: 32px;
+            animation: flicker 2s infinite;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .tagline {
+            font-size: 13px;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .nav-item {
+            flex: 1;
+            padding: 12px 10px;
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-size: 12px;
+            color: #666;
+            min-width: 70px;
+            white-space: nowrap;
+        }
+
+        .nav-item.active {
+            color: #d4af37;
+            border-bottom-color: #d4af37;
+            background: #f9f9f9;
+            font-weight: bold;
+        }
+
+        .nav-item:hover {
+            background: #f5f5f5;
+        }
+
+        /* Main Content */
+        .content-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
+        .content {
+            display: none;
+            padding: 20px;
+            animation: fadeIn 0.5s;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Quote Card */
+        .quote-card {
+            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quote-card::before {
+            content: '"';
+            position: absolute;
+            font-size: 120px;
+            color: rgba(255,255,255,0.2);
+            top: -20px;
+            left: 10px;
+            font-family: Georgia, serif;
+        }
+
+        .quote-text {
+            font-size: 18px;
+            font-style: italic;
+            color: #1e3c72;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            line-height: 1.6;
+        }
+
+        .quote-author {
+            text-align: right;
+            color: #1e3c72;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+
+        .card-icon {
+            font-size: 40px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+
+        .card-desc {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Books */
+        .book-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .book-card:hover {
+            transform: scale(1.02);
+        }
+
+        .book-cover {
+            width: 80px;
+            height: 110px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+
+        .book-info {
+            flex: 1;
+        }
+
+        .book-title {
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .book-desc {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        /* Media Cards */
+        .media-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .media-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .media-thumb {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            color: white;
+        }
+
+        .media-info {
+            padding: 15px;
+        }
+
+        .media-title {
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 8px;
+        }
+
+        .media-duration {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* Posts */
+        .post {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+
+            margin-bottom: 15px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #d4af37;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .post-author {
+            font-weight: bold;
+            color: #1e3c72;
+        }
+
+        .post-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .post-content {
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .post-action {
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .post-action:hover {
+            color: #d4af37;
+        }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+            color: #1e3c72;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
+            transition: transform 0.3s;
+            font-size: 16px;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 8px;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #d4af37;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Profile */
+        .profile-header {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #d4af37;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            border: 4px solid white;
+        }
+
+        .profile-name {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .profile-dream {
+            font-size: 14px;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        /* Settings */
+        .settings-list {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        }
+
+        .settings-item {
+            padding: 18px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+        }
+
+        .settings-item:hover {
+            background: #f9f9f9;
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-close {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-close:hover {
+            color: #d4af37;
+        }
+
+        .modal-title {
+            clear: both;
+            font-size: 22px;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #1e3c72;
+            font-size: 22px;
+        }
+
+        .chapter-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .chapter-btn {
+            flex: 1;
+            padding: 12px;
+            background: #1e3c72;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .chapter-btn:hover {
+            background: #d4af37;
+            color: #1e3c72;
+        }
+
+        .chapter-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .chapter-content {
+            line-height: 1.8;
+            color: #333;
+            margin: 15px 0;
+            font-size: 16px;
+        }
+
+        .success-message {
+            background: #d4af37;
+            color: #1e3c72;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <span class="flame">🕯️</span>
+                <span>Dreams Never Die</span>
+            </div>
+            <div class="tagline">Rise again, no matter how broken you feel</div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav">
+            <div class="nav-item active" onclick="showSection('home')">🏠 Home</div>
+            <div class="nav-item" onclick="showSection('books')">📚 Books</div>
+            <div class="nav-item" onclick="showSection('audio')">🎧 Audio</div>
+            <div class="nav-item" onclick="showSection('videos')">🎥 Videos</div>
+            <div class="nav-item" onclick="showSection('community')">💬 Community</div>
+            <div class="nav-item" onclick="showSection('profile')">👤 Profile</div>
+        </div>
+
+        <!-- Content Wrapper -->
+        <div class="content-wrapper">
+            
+            <!-- HOME SECTION -->
+            <div id="home" class="content active">
+                <div class="quote-card">
+                    <div class="quote-text" id="dailyQuote">Your dreams are not dead; they're just waiting for you to breathe life into them again.</div>
+                    <div class="quote-author">- Heri Nasson Kinyina</div>
+                </div>
+
+                <div class="card" onclick="showSection('books')">
+                    <div class="card-header">
+                        <div class="card-icon">📖</div>
+                        <div>
+                            <div class="card-title">Featured Book</div>
+                            <div class="card-desc">Dreams Never Die: How to Move Forward When You Are Broken</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" onclick="showSection('audio')">
+                    <div class="card-header">
+                        <div class="card-icon">🎙️</div>
+                        <div>
+                            <div class="card-title">Latest Podcast</div>
+                            <div class="card-desc">Overcoming Fear & Self-Doubt - Episode 12</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" onclick="showSection('videos')">
+                    <div class="card-header">
+                        <div class="card-icon">▶️</div>
+                        <div>
+                            <div class="card-title">New Video</div>
+                            <div class="card-desc">3 Steps to Revive Your Dream Today</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" onclick="showSection('community')">
+                    <div class="card-header">
+                        <div class="card-icon">💬</div>
+                        <div>
+                            <div class="card-title">Community</div>
+                            <div class="card-desc">Share your story and inspire others</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="openDonateModal()">💰 Support This Movement</button>
+            </div>
+
+            <!-- BOOKS SECTION -->
+            <div id="books" class="content">
+                <h2>📚 Inspiring Books</h2>
+                
+                <div class="book-card" onclick="openBookModal(0)">
+                    <div class="book-cover">📖</div>
+                    <div class="book-info">
+                        <div class="book-title">Dreams Never Die</div>
+                        <div class="book-desc">How to move forward when you are broken. A complete guide to rising again.</div>
+                    </div>
+                </div>
+
+                <div class="book-card" onclick="openBookModal(1)">
+                    <div class="book-cover">💪</div>
+                    <div class="book-info">
+                        <div class="book-title">Overcoming Fear & Self-Doubt</div>
+                        <div class="book-desc">Break free from the chains that hold you back from greatness.</div>
+                    </div>
+                </div>
+
+                <div class="book-card" onclick="openBookModal(2)">
+                    <div class="book-cover">👥</div>
+                    <div class="book-info">
+                        <div class="book-title">Surround Yourself</div>
+                        <div class="book-desc">The power of choosing the right people for your journey.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AUDIO SECTION -->
+            <div id="audio" class="content">
+                <h2>🎧 Podcasts & Audio</h2>
+                
+                <div class="media-card" onclick="playAudio('ep1')">
+                    <div class="media-thumb">🎙️</div>
+                    <div class="media-info">
+                        <div class="media-title">Episode 1: Overcoming Fear</div>
+                        <div class="media-duration">⏱️ 15 minutes</div>
+                    </div>
+                </div>
+
+                <div class="media-card" onclick="playAudio('ep2')">
+                    <div class="media-thumb">🎵</div>
+                    <div class="media-info">
+                        <div class="media-title">Episode 2: Daily Motivation</div>
+                        <div class="media-duration">⏱️ 5 minutes</div>
+                    </div>
+                </div>
+
+                <div class="media-card" onclick="playAudio('ep3')">
