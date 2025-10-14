@@ -1346,7 +1346,7 @@ sub createrepo_staticlinks {
       } elsif (/^(.*\.(?:$binarchs)?)-?(-.*?)?-([^-]+)(\.(raw\.install\.raw\.xz|raw\.xz|raw|tar\.xz|box|json|install\.iso|install\.tar|tbz|tgz|vmx|vmdk|vmdk\.xz|appx|wsl|vhdx|vhdx\.xz|vdi|vdi\.xz|vhdfixed\.xz|iso|phar|qcow2|qcow2\.xz|ova|ova\.xz|cpio\.tar\.bz2))$/s) {
         # kiwi appliance new style with name.arch-profile-BuildX.Y.suffix
         my $profile = $2 || "";
-        my $link = "$1$profile$4";
+        $link = "$1$profile$4";
         $link = "$1-$2$profile$4" if $versioned;
       } elsif (/^(.*?)(?:_(.*?))?(?:_(.*))?\.(manifest|metainfo.xml|efi|vmlinuz|initrd|tar|cpio|img|raw|verity|roothash|roothash\.p7s|usrhash|usrhash\.p7s)(\.(?:gz|bz2|xz|zst|zstd))?$/s) {
         # mkosi appliance, format is 'name_version_architecture.extension' as defined in https://www.freedesktop.org/software/systemd/man/257/systemd.v.html
