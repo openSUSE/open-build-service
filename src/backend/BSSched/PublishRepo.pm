@@ -230,12 +230,36 @@ sub prpfinished {
     $seen_binary = {};
   }
 
+  # check for publish blacklist
+  my %excludepublish;
+  if (exists $bconf->{'publishflags:excludepublish'}) {
+    for (@{$bconf->{'publishflags'} || []}) {
+      $excludepublish{$1} = 1 if /^excludepublish:(.*)$/s;
+    }
+  }
+
+  # check for package whitelist
+  my %onlypublish;
+  if (exists $bconf->{'publishflags:onlypublish'}) {
+    for (@{$bconf->{'publishflags'} || []}) {
+      $onlypublish{$1} = 1 if /^onlypublish:(.*)$/s;
+    }
+  }
+
   # let the publisher decide about empty repositories
   $changed = 1 if $bconf && ($bconf->{'publishflags:createempty'} || $bconf->{'publishflags:create_empty'}) && ! -e "$reporoot/$prp/:repoinfo";
 
   my %newchecksums;
   # sort like in the full tree
   for my $packid (BSSched::ProjPacks::orderpackids($projpacks->{$projid}, @$packs)) {
+    if (%onlypublish && !$onlypublish{$packid}) {
+      print "        $packid: not on publish whitelist\n";
+      next;
+    }
+    if (%excludepublish && !$excludepublish{$packid}) {
+      print "        $packid: on publish blacklist\n";
+      next;
+    }
     if (!$pubenabled->{$packid}) {
       # publishing of this package is disabled, copy binary list from old info
       die unless $rinfo_packid2bins;
