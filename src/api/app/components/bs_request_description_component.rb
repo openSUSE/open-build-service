@@ -8,11 +8,11 @@ class BsRequestDescriptionComponent < ApplicationComponent
   delegate :requester_str, to: :helpers
   delegate :creator_intentions, to: :helpers
 
-  def initialize(bs_request:, links: false)
+  def initialize(bs_request:, action: nil, links: false)
     super
     @bs_request = bs_request
     @links = links
-    @types = bs_request.bs_request_actions.group_by(&:type)
+    @types = action.present? ? { action.type => [action] } : bs_request.bs_request_actions.group_by(&:type)
   end
 
   private
