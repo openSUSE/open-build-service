@@ -256,7 +256,7 @@ sub prpfinished {
       print "        $packid: not on publish whitelist\n";
       next;
     }
-    if (%excludepublish && !$excludepublish{$packid}) {
+    if (%excludepublish && $excludepublish{$packid}) {
       print "        $packid: on publish blacklist\n";
       next;
     }
