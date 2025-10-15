@@ -3,7 +3,7 @@ class AvatarComponent < ApplicationComponent
   attr_reader :name, :email, :size, :shape, :custom_css
 
   def initialize(name:, email:, size: 23, shape: nil, custom_css: '')
-    super
+    super()
 
     @name = name
     @email = email

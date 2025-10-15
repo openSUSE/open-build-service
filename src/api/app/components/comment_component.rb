@@ -1,6 +1,6 @@
 class CommentComponent < ApplicationComponent
   def initialize(comment:, obj_is_user:, builder:)
-    super
+    super()
 
     @comment = comment
     @obj_is_user = obj_is_user

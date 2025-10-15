@@ -6,7 +6,7 @@ class ChartComponent < ApplicationComponent
   MINIMUM_BUILD_RESULTS = 12
 
   def initialize(raw_data:)
-    super
+    super()
 
     @raw_data = raw_data.reject { |result| Buildresult.new(result[:status]).refused_status? }
   end

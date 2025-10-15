@@ -12,7 +12,7 @@ class DeleteConfirmationDialogComponent < ApplicationComponent
   renders_one :text_area
 
   def initialize(modal_id:, method:, options: {})
-    super
+    super()
 
     @modal_id = modal_id
     @method = method

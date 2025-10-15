@@ -4,7 +4,7 @@ class RpmLintComponent < ApplicationComponent
   end
 
   def initialize(rpmlint_log_parser:)
-    super
+    super()
 
     threshold_filter = ->(key, _value) { rpmlint_log_parser.errors[key].positive? }
     badness_sorter = ->(a, b) { rpmlint_log_parser.badness[a[0]] <=> rpmlint_log_parser.badness[b[0]] }

@@ -2,7 +2,7 @@ class BsRequestOverviewAvatarsComponent < ApplicationComponent
   MAXIMUM_DISPLAYED_AVATARS = 2
 
   def initialize(review)
-    super
+    super()
 
     @review = review
   end
