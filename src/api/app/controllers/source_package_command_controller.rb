@@ -453,7 +453,7 @@ class SourcePackageCommandController < SourceController
                 commitfilelist: { follow_project_links: false, follow_project_scmsync_links: true, follow_special_names: true },
                 linkdiff: { follow_project_scmsync_links: true, follow_project_remote_links: true, follow_special_names: true },
                 servicediff: { follow_project_scmsync_links: true, follow_project_remote_links: true, follow_special_names: true },
-                release: { follow_project_links: false, follow_project_scmsync_links: true, follow_project_remote_links: true, follow_multibuild: true, follow_special_names: true },
+                release: { follow_project_links: true, follow_project_scmsync_links: true, follow_project_remote_links: true, follow_multibuild: true, follow_special_names: true },
                 waitservice: { follow_project_scmsync_links: true, follow_project_remote_links: true, follow_special_names: true },
                 mergeservice: { follow_project_links: false },
                 runservice: { follow_project_links: false, follow_project_scmsync_links: true, follow_project_remote_links: true },
