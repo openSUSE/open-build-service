@@ -98,9 +98,13 @@ module Webui::PackageHelper
     [result, 0].max
   end
 
-  def release_monitoring_package_link(package)
-    text = "upstream #{package.latest_upstream_version.version}"
+  def release_monitoring_package_link(package, text)
     release_monitoring_url = "https://release-monitoring.org/distro/#{package.project.anitya_distribution_name}/search/#{package.name}"
+    link_to(text, release_monitoring_url, target: '_blank', rel: 'noopener')
+  end
+
+  def release_monitoring_search_link(package, text)
+    release_monitoring_url = "https://release-monitoring.org/projects/search/?pattern=#{package.name}"
     link_to(text, release_monitoring_url, target: '_blank', rel: 'noopener')
   end
 end

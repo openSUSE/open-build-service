@@ -38,7 +38,11 @@
           - if @package.latest_local_version
             %b= @package.latest_local_version.version
           - if @package.latest_upstream_version && (@package.latest_local_version&.version != @package.latest_upstream_version.version)
-            (#{release_monitoring_package_link(@package)})
+            (#{release_monitoring_package_link(@package, "#{@package.latest_upstream_version.version} available")})
+          - elsif @package.latest_upstream_version && (@package.latest_local_version&.version == @package.latest_upstream_version.version)
+            (#{release_monitoring_package_link(@package, 'up to date')})
+          - else
+            (#{release_monitoring_search_link(@package, 'no upstream')})
         .in-place-editing
           = render partial: 'basic_info', locals: { package: @package, project: @project }
       .col-md-4
