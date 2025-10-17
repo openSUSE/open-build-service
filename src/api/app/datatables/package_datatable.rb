@@ -71,12 +71,14 @@ class PackageDatatable < Datatable
     tag.span do
       local = record.latest_local_version&.version
       upstream = record.latest_upstream_version&.version
-      version_string = ''
-      version_string += local if local
-      version_string += " (#{release_monitoring_package_link(record)})" if upstream && local != upstream
-      # rubocop:disable Rails/OutputSafety
-      version_string.html_safe
-      # rubocop:enable Rails/OutputSafety
+      tag.span(local) +
+        if upstream && local != upstream
+          " (#{release_monitoring_package_link(record, "#{upstream} available")})"
+        elsif upstream && local == upstream
+          " (#{release_monitoring_package_link(record, 'up to date')})"
+        else
+          " (#{release_monitoring_search_link(record, 'no upstream')})"
+        end
     end
   end
 end
