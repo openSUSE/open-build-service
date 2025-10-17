@@ -73,11 +73,11 @@ class PackageDatatable < Datatable
       upstream = record.latest_upstream_version&.version
       tag.span(local) +
         if upstream && local != upstream
-          " (#{release_monitoring_package_link(record, "#{upstream} available")})"
+          ActionController::Base.helpers.sanitize(" (#{release_monitoring_package_link(record, "#{upstream} available")})")
         elsif upstream && local == upstream
-          " (#{release_monitoring_package_link(record, 'up to date')})"
+          ActionController::Base.helpers.sanitize(" (#{release_monitoring_package_link(record, 'up to date')})")
         else
-          " (#{release_monitoring_search_link(record, 'no upstream')})"
+          ActionController::Base.helpers.sanitize(" (#{release_monitoring_search_link(record, 'no upstream')})")
         end
     end
   end
