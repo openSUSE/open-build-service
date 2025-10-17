@@ -6,4 +6,4 @@
   = render(partial: 'webui/comment/comment_field',
   locals: { form_method: :post, comment: Comment.new, commentable: commentable,
             file_index:, line_number:, source_rev:, target_rev:,
-            element_suffix: "new_comment_#{diff_ref}", has_cancel: true })
+            element_suffix: "new_comment_#{diff_ref}_on_#{commentable.class.name.underscore}_#{commentable.id}", has_cancel: true })

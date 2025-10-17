@@ -132,3 +132,29 @@ function handlingCommentEvents() {
 $(document).ready(function(){
   handlingCommentEvents();
 });
+
+// store the input of comments in the session store to avoid the
+// loss of a draft when switching between views or reloading pages
+function persistDraftCommentText(formId) { // jshint ignore:line
+  let form = document.getElementById(formId);
+  let commentTextArea = form.getElementsByTagName("textarea")[0];
+
+  commentTextArea.addEventListener('change', (event) => {
+    sessionStorage.setItem(formId, event.target.value);
+
+    // do not store an empty comment/string in the session store
+    if ((sessionStorage.getItem(formId) !== null) && (event.target.value.trim().length === 0)) {
+      sessionStorage.removeItem(formId);
+    }
+  });
+
+  // remove draft comment from session store after form submission
+  form.addEventListener('submit', () => {
+    sessionStorage.removeItem(formId);
+  });
+
+  // insert draft comment into comment form on page load
+  if (sessionStorage.getItem(formId)) {
+    commentTextArea.value = sessionStorage.getItem(formId);
+  }
+}
