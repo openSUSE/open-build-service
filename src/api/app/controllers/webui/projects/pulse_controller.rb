@@ -5,6 +5,8 @@ module Webui
       before_action :set_project
       before_action :set_range
 
+      skip_forgery_protection only: :show
+
       def show
         respond_to do |format|
           format.js do
