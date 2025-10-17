@@ -97,4 +97,10 @@ module Webui::PackageHelper
     result -= 1 if state == 'deleted'
     [result, 0].max
   end
+
+  def release_monitoring_package_link(package)
+    text = "upstream #{package.latest_upstream_version.version}"
+    release_monitoring_url = "https://release-monitoring.org/distro/#{package.project.anitya_distribution_name}/search/#{package.name}"
+    link_to(text, release_monitoring_url, target: '_blank', rel: 'noopener')
+  end
 end

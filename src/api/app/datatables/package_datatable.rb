@@ -1,5 +1,7 @@
 # NOTE: Folowing: https://github.com/jbox-web/ajax-datatables-rails#using-view-helpers
 class PackageDatatable < Datatable
+  include Webui::PackageHelper
+
   def_delegator :@view, :link_to
   def_delegator :@view, :package_show_path
   def_delegator :@view, :time_ago_in_words
@@ -71,8 +73,10 @@ class PackageDatatable < Datatable
       upstream = record.latest_upstream_version&.version
       version_string = ''
       version_string += local if local
-      version_string += " (upstream #{upstream})" if upstream && local != upstream
-      version_string
+      version_string += " (#{release_monitoring_package_link(record)})" if upstream && local != upstream
+      # rubocop:disable Rails/OutputSafety
+      version_string.html_safe
+      # rubocop:enable Rails/OutputSafety
     end
   end
 end
