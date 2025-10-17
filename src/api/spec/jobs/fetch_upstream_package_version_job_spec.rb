@@ -1,7 +1,12 @@
 RSpec.describe FetchUpstreamPackageVersionJob, :vcr do
   describe '#perform' do
-    let!(:project) { create(:project_with_package, name: 'factory', package_name: 'hello', anitya_distribution_name: 'openSUSE') }
+    let!(:project) { create(:project_with_package, name: 'factory', package_name: 'hello') }
     let(:package) { project.packages.first }
+
+    before do
+      # The project should exist in the Backend before we set anitya_distribution_name (what triggers the fetching jobs)
+      project.update(anitya_distribution_name: 'openSUSE')
+    end
 
     context 'providing a project name' do
       before do
@@ -15,10 +20,12 @@ RSpec.describe FetchUpstreamPackageVersionJob, :vcr do
     end
 
     context 'not providing a project name' do
-      let!(:another_project) { create(:project_with_package, name: 'games', package_name: '0ad', anitya_distribution_name: 'openSUSE') }
+      let!(:another_project) { create(:project_with_package, name: 'games', package_name: '0ad') }
       let(:another_package) { another_project.packages.first }
 
       before do
+        # The project should exist in the Backend before we set anitya_distribution_name (what triggers the fetching jobs)
+        another_project.update(anitya_distribution_name: 'openSUSE')
         described_class.perform_now
       end
 
