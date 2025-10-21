@@ -39,6 +39,10 @@ class FetchUpstreamPackageVersionJob < ApplicationJob
 
   def create_upstream_package_versions(package_name:, distribution_name:, package_ids:)
     response = fetch_upstream_package_info(package_name: package_name, distribution_name: distribution_name)
+
+    # When we get empty result, we can’t rely on the past information we stored in the database anymore
+    PackageVersionUpstream.where(package_id: package_ids).delete_all && return if response&.dig('total_items')&.zero?
+
     upstream_version = extract_version(response)
     return if upstream_version.blank?
 
