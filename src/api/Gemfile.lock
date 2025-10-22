@@ -420,7 +420,7 @@ GEM
       rack (>= 1.4)
     rexml (3.4.4)
     riddle (2.4.3)
-    rspec (3.13.1)
+    rspec (3.13.2)
       rspec-core (~> 3.13.0)
       rspec-expectations (~> 3.13.0)
       rspec-mocks (~> 3.13.0)
