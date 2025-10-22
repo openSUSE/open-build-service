@@ -22,6 +22,16 @@ module Backend
       end
     end
 
+    @backend_runtime = 0
+
+    def self.reset_runtime
+      @backend_runtime = 0
+    end
+
+    def self.runtime
+      @backend_runtime
+    end
+
     def self.get(path, in_headers = {})
       start_time = Time.now
       timeout = in_headers.delete('Timeout') || 1000
