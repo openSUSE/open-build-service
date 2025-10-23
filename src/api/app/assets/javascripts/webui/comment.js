@@ -169,6 +169,11 @@ function persistInlineDiffCommentDraft(formId) {
   var commentableId = commentForm.querySelector('[name="commentable_id"]').value;
   var diffFileIndex = null;
   var diffLineNumber = null;
+  var intId = formId.match(/\d+/);
+  if (intId) {
+    intId = parseInt(intId[0], 10);
+  }
+  var parentElement = document.getElementById(`reply_form_of_${intId}`);
 
   if (commentForm.querySelector('[name="comment[diff_file_index]"]')) {
     diffFileIndex = commentForm.querySelector('[name="comment[diff_file_index]"]').value;
@@ -196,12 +201,22 @@ function persistInlineDiffCommentDraft(formId) {
   } else {
     if (sessionStorage.getItem(formId)) {
       commentTextArea.value = sessionStorage.getItem(formId);
+      // Enable `Add comment` button
       if(submitButton){
         submitButton.disabled = false
+      }
+      // Keep the hidden field open
+      if (parentElement) {
+        parentElement.classList.add('show');
       }
     }
   }
 }
+
+$(document).on('click', '.cancel-comment', function(e) {
+  var formId = $(this).closest('form').attr('id');
+  sessionStorage.removeItem(formId); // clear session
+});
 
 function openInlineCommentFormWithDraftAvailable(commentableType, commentableId) {
   var regex = new RegExp(`${commentableType}_${commentableId}`);
