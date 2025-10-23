@@ -121,3 +121,6 @@ CONFIG['sponsors'] = [
     url: '#'
   )
 ]
+
+# Making sure that Backend::Logger.info is fully executed to catch potential errors
+CONFIG['extended_backend_log'] = true
