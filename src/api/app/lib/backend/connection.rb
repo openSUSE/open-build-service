@@ -22,16 +22,6 @@ module Backend
       end
     end
 
-    @backend_runtime = 0
-
-    def self.reset_runtime
-      @backend_runtime = 0
-    end
-
-    def self.runtime
-      @backend_runtime
-    end
-
     def self.get(path, in_headers = {})
       start_time = Time.now
       Rails.logger.debug { "[backend] GET: #{path}" }
