@@ -163,6 +163,7 @@ function persistInlineDiffCommentDraft(formId) {
   let commentForm = document.getElementById(formId);
   if (!commentForm) return;
 
+  var submitButton = commentForm.querySelector('input[type="submit"]');
   var commentTextArea = commentForm.getElementsByTagName("textarea")[0];
   var commentableType = commentForm.querySelector('[name="commentable_type"]').value;
   var commentableId = commentForm.querySelector('[name="commentable_id"]').value;
@@ -177,7 +178,7 @@ function persistInlineDiffCommentDraft(formId) {
     diffLineNumber = commentForm.querySelector('[name="comment[diff_line_number]"]').value
   }
 
-  commentTextArea.addEventListener('change', (event) => {
+  commentTextArea.addEventListener('keyup', (event) => {
     if (diffLineNumber && diffFileIndex) {
       let commentDraft = JSON.stringify({ diff_line_number: diffLineNumber, diff_file_index: diffFileIndex, comment_draft_text: event.target.value});
       sessionStorage.setItem(`${commentableType}_${commentableId}_${diffFileIndex}_${diffLineNumber}`, commentDraft);
@@ -195,6 +196,9 @@ function persistInlineDiffCommentDraft(formId) {
   } else {
     if (sessionStorage.getItem(formId)) {
       commentTextArea.value = sessionStorage.getItem(formId);
+      if(submitButton){
+        submitButton.disabled = false
+      }
     }
   }
 }

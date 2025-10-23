@@ -21,7 +21,9 @@
 
 :javascript
   attachPreviewMessageOnCommentBoxes();
-  persistInlineDiffCommentDraft('#{form.id}');
+  document.addEventListener('DOMContentLoaded', () => {
+    persistInlineDiffCommentDraft('#{form.id}');
+  });
 
   function bla(formId, commentableType, commentableId, diffLineNumber, diffFileIndex) { // jshint ignore:line
     let form = document.getElementById(formId);
