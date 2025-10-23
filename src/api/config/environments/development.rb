@@ -104,6 +104,7 @@ OBSApi::Application.configure do
   # config.action_cable.disable_request_forgery_protection = true
 end
 
+CONFIG['extended_backend_log'] = true
 CONFIG['response_schema_validation'] = true
 
 CONFIG['frontend_host'] = 'localhost'
