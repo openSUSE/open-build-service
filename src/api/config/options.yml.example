@@ -27,8 +27,6 @@ default: &default
   frontend_port: 443
   frontend_protocol: https
 
-  extended_backend_log: false
-
   ### Public Access Configuration
   # Configure if this OBS is allowing people to browse it's content anonymously or not.
   # Disabling this also disables the interconnect feature.

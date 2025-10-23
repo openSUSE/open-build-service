@@ -22,9 +22,18 @@ module Backend
       end
     end
 
+    @backend_runtime = 0
+
+    def self.reset_runtime
+      @backend_runtime = 0
+    end
+
+    def self.runtime
+      @backend_runtime
+    end
+
     def self.get(path, in_headers = {})
       start_time = Time.now
-      Rails.logger.debug { "[backend] GET: #{path}" }
       timeout = in_headers.delete('Timeout') || 1000
       backend_request = Net::HTTP::Get.new(path, in_headers)
 
@@ -39,7 +48,11 @@ module Backend
         end
       end
 
-      Backend::Logger.info('GET', host, port, path, response, start_time)
+      method = 'GET'
+      @backend_runtime = ((Time.now - start_time) * 1000).ceil
+      Backend::Instrumentation.new(method, host, response.code, @backend_runtime).instrument
+      Rails.logger.info("[Backend::Connection] method=#{method} path=#{path} status=#{response.code} duration=#{@backend_runtime} user=#{User.possibly_nobody.login}")
+
       handle_response(response)
     end
 
@@ -56,14 +69,16 @@ module Backend
 
     def self.delete(path, in_headers = {})
       start_time = Time.now
-      Rails.logger.debug { "[backend] DELETE: #{path}" }
       timeout = in_headers.delete('Timeout') || 1000
       backend_request = Net::HTTP::Delete.new(path, in_headers)
       response = Net::HTTP.start(host, port, { use_ssl: use_ssl, verify_mode: verify_mode }) do |http|
         http.read_timeout = timeout
         http.request(backend_request)
       end
-      Backend::Logger.info('DELETE', host, port, path, response, start_time)
+      method = 'DELETE'
+      @backend_runtime = ((Time.now - start_time) * 1000).ceil
+      Backend::Instrumentation.new(method, host, response.code, @backend_runtime).instrument
+      Rails.logger.info("[Backend::Connection] method=#{method} path=#{path} status=#{response.code} duration=#{@backend_runtime} user=#{User.possibly_nobody.login}")
       handle_response(response)
     end
 
@@ -92,7 +107,6 @@ module Backend
 
     def self.put_or_post(method, path, data, in_headers)
       start_time = Time.now
-      Rails.logger.debug { "[backend] #{method}: #{path}" }
       timeout = in_headers.delete('Timeout')
       backend_request = if method == 'PUT'
                           Net::HTTP::Put.new(path, in_headers)
@@ -119,7 +133,10 @@ module Backend
           raise Timeout::Error
         end
       end
-      Backend::Logger.info(method, host, port, path, response, start_time)
+
+      @backend_runtime = ((Time.now - start_time) * 1000).ceil
+      Backend::Instrumentation.new(method, host, response.code, @backend_runtime).instrument
+      Rails.logger.info("[Backend::Connection] method=#{method} path=#{path} status=#{response.code} duration=#{@backend_runtime} user=#{User.possibly_nobody.login}")
       handle_response(response)
     end
 
