@@ -17,9 +17,10 @@ class DiffSubjectComponent < ApplicationComponent
   end
 
   def changed_filename
-    return @old_filename if @state == 'deleted'
-    return "#{@old_filename} -> #{@new_filename}" if @state == 'renamed'
+    return @new_filename unless @old_filename
+    return @old_filename unless @new_filename
+    return @new_filename if @old_filename == @new_filename
 
-    @new_filename
+    "#{@old_filename} -> #{@new_filename}"
   end
 end
