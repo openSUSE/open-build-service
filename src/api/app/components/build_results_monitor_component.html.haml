@@ -56,7 +56,7 @@
   - elsif filtered_package_names.count == 1
     - package_name = filtered_package_names.first
     .accordion-item
-      .p-3.w-100.d-flex.flex-wrap.justify-content-between
+      .p-3.w-100.d-flex.flex-wrap.justify-content-between.sticky-top.build-result-header
         %span.text-break.me-2
           = package_name
         %span.text-end
@@ -65,9 +65,9 @@
       .accordion-collapse.my-3{ id: "collapse-#{package_name.gsub(':', '_')}", class: show }
         .build-result-table
           .build-result-legend
-            .build-result-name
+            .build-result-name.sticky-top.border-bottom
             - filtered_architecture_names.each do |architecture_name|
-              .build-result-architecture.mb-1
+              .build-result-architecture.sticky-top.border-bottom
                 %b= architecture_name
           - filtered_repository_names.each do |repository_name|
             .build-result-row

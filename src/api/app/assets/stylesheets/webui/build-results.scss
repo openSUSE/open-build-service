@@ -196,6 +196,11 @@
   }
 }
 
+.build-result-header {
+  top: 50px;
+  background-color: var(--bs-body-bg);
+}
+
 .build-result-table {
   .build-result-legend {
     display: none;
@@ -226,7 +231,6 @@
   @include media-breakpoint-up(xl) {
     display: grid;
     grid-template-columns: 1fr repeat(20, auto);
-    overflow-x: scroll;
 
     .build-result-architectures, .build-result-row, .build-result-legend {
       display: contents;
@@ -235,6 +239,8 @@
     .build-result-name {
       grid-column-start: 1;
       padding: 0.25rem 1rem;
+      top: 100px;
+      background-color: var(--bs-body-bg);
     }
 
     .build-result-architecture {
@@ -242,11 +248,19 @@
       text-align: end;
       .architecture { display: none }
       &:last-of-type { padding-right: 1rem }
+      top: 100px;
+      background-color: var(--bs-body-bg);
     }
 
-    .build-result-row {
-      .build-result-name, .build-result-architecture {
-        border-top: var(--bs-border-width) solid var(--bs-border-color);
+    .build-result-row:not(:last-of-type) {
+      .build-result-name {
+        border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+        top: 100px;
+      }
+
+      .build-result-architecture {
+        border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+        top: 100px;
       }
     }
   }
