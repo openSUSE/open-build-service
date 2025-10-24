@@ -8,7 +8,7 @@
                                                                        filters: filters }
 
 .accordion#build-results-monitor
-  - if multibuild?
+  - if filtered_package_names.count > 1
     - filtered_package_names.each do |package_name|
       .accordion-item
         .accordion-header

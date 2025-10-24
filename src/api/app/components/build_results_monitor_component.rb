@@ -26,10 +26,6 @@ class BuildResultsMonitorComponent < ApplicationComponent
     @filtered_data.pluck(:package_name).uniq
   end
 
-  def multibuild?
-    filtered_package_names.count > 1
-  end
-
   def project_name
     raw_data.pluck(:project_name).uniq
   end
