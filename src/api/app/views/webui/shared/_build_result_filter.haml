@@ -1,5 +1,6 @@
+- btn_class = (values.map { "#{value_prefix}#{_1}" } & checked_values).any? ? 'btn-secondary' : 'btn-outline-secondary'
 %span.dropdown{ id: id }
-  %button.btn.btn-outline-secondary.dropdown-toggle{ data: { 'bs-toggle': :dropdown }, type: :button }
+  %button.btn.dropdown-toggle{ class: btn_class, data: { 'bs-toggle': :dropdown }, type: :button }
     %span.caret
     = text
   .dropdown-menu.keep-open.limit-height
