@@ -48,3 +48,5 @@
                                                                                          anchor: "l#{repository[:line]}"),
                                     target: '_top') do
                             #{repository[:repo]}.#{repository[:arch]} line #{repository[:line]}
+                          %span :
+                          %span.font-monospace.text-muted= elide(repository[:error_message], 100, :right)
