@@ -27,7 +27,7 @@ module Backend
 
     def values
       {
-        value: (runtime * 1000).ceil
+        value: runtime
       }
     end
 
