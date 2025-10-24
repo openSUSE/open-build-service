@@ -14,7 +14,7 @@ class RequestController < ApplicationController
 
     # directory list of all requests. not very useful but for backward compatibility...
     # OBS3: make this more useful
-    @request_list = BsRequest.order(:number).pluck(:number)
+    @request_list = BsRequest.page(params[:page]).order(:number).pluck(:number)
   end
 
   class RequireFilter < APIError
