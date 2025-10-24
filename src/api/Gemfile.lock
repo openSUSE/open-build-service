@@ -105,7 +105,7 @@ GEM
     bootstrap (5.3.5)
       popper_js (>= 2.11.8, < 3)
     builder (3.3.0)
-    bullet (8.0.8)
+    bullet (8.1.0)
       activesupport (>= 3.0.0)
       uniform_notifier (~> 1.11)
     bunny (2.24.0)
