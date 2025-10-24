@@ -56,33 +56,41 @@
                                                                                                      "arch_#{result[:architecture]}": 1 ) }
   - else
     - package_name = filtered_package_names.first
-    .build-result-table
-      .build-result-legend
-        .build-result-name
-        - filtered_architecture_names.each do |architecture_name|
-          .build-result-architecture.mb-1
-            %b= architecture_name
-      - filtered_repository_names.each do |repository_name|
-        .build-result-row
-          = link_to(helpers.word_break(repository_name, 22),
-                    project_package_repository_binaries_path(project_name: project_name,
-                                                             package_name: package_name,
-                                                             repository_name: repository_name),
-                    title: "Binaries for #{repository_name}", class: 'build-result-name')
-          .build-result-architectures
+    .accordion-item
+      .p-3.w-100.d-flex.flex-wrap.justify-content-between
+        %span.text-break.me-2
+          = package_name
+        %span.text-end
+          - results_count_per_package_and_category(package_name).each do |key, value|
+            = render partial: 'webui/shared/build_status_count_badge', locals: { category: key, count: value.to_s }
+      .accordion-collapse.collapse.my-3{ id: "collapse-#{package_name.gsub(':', '_')}", class: show }
+        .build-result-table
+          .build-result-legend
+            .build-result-name
             - filtered_architecture_names.each do |architecture_name|
-              .build-result-architecture
-                - results_per_package_repository_and_architecture(package_name, repository_name, architecture_name).each do |result|
-                  = render partial: 'webui/shared/build_status_badge', locals: { status: result[:status],
-                                                                                 text: result[:status].humanize,
-                                                                                 details: result[:details],
-                                                                                 architecture: result[:architecture],
-                                                                                 url: helpers.live_build_log_url(result[:status],
-                                                                                                         project_name,
-                                                                                                         package_name,
-                                                                                                         repository_name,
-                                                                                                         result[:architecture]),
-                                                                                                         buildtype: result[:buildtype],
-                                                                                 rpm_lint_url: rpmlint_result_path(project_name, package_name,
-                                                                                               "repo_#{repository_name}": 1,
-                                                                                               "arch_#{result[:architecture]}": 1 ) }
+              .build-result-architecture.mb-1
+                %b= architecture_name
+          - filtered_repository_names.each do |repository_name|
+            .build-result-row
+              = link_to(helpers.word_break(repository_name, 22),
+                        project_package_repository_binaries_path(project_name: project_name,
+                                                                 package_name: package_name,
+                                                                 repository_name: repository_name),
+                        title: "Binaries for #{repository_name}", class: 'build-result-name')
+              .build-result-architectures
+                - filtered_architecture_names.each do |architecture_name|
+                  .build-result-architecture
+                    - results_per_package_repository_and_architecture(package_name, repository_name, architecture_name).each do |result|
+                      = render partial: 'webui/shared/build_status_badge', locals: { status: result[:status],
+                                                                                     text: result[:status].humanize,
+                                                                                     details: result[:details],
+                                                                                     architecture: result[:architecture],
+                                                                                     url: helpers.live_build_log_url(result[:status],
+                                                                                                             project_name,
+                                                                                                             package_name,
+                                                                                                             repository_name,
+                                                                                                             result[:architecture]),
+                                                                                                             buildtype: result[:buildtype],
+                                                                                     rpm_lint_url: rpmlint_result_path(project_name, package_name,
+                                                                                                   "repo_#{repository_name}": 1,
+                                                                                                   "arch_#{result[:architecture]}": 1 ) }
