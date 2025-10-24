@@ -1,9 +1,10 @@
 = form_tag(filter_url, method: :get) do
-  = render partial: 'webui/shared/build_result_filter', locals: { id: 'project-monitor-package-dropdown',
-                                                                  text: 'Package Name',
-                                                                  values: package_names,
-                                                                  value_prefix: 'package_',
-                                                                  checked_values: filters }
+  - if package_names.size > 1
+    = render partial: 'webui/shared/build_result_filter', locals: { id: 'project-monitor-package-dropdown',
+                                                                    text: 'Package Name',
+                                                                    values: package_names,
+                                                                    value_prefix: 'package_',
+                                                                    checked_values: filters }
   = render partial: 'webui/shared/build_result_filter', locals: { id: 'project-monitor-repositories-dropdown',
                                                                   text: 'Repository',
                                                                   values: repository_names,
