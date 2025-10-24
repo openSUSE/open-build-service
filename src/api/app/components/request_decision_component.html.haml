@@ -1,6 +1,8 @@
 .request-decision.mt-n1
-  = form_with(url: request_changerequest_path, html: { id: 'request_handle_form' }, local: true) do |form|
+  = form_with(url: request_changerequest_path, html: { id: "request_handle_form_#{bs_request.id}" }, local: true) do |form|
     = hidden_field_tag(:number, @bs_request.number)
+    = hidden_field_tag(:commentable_type, @bs_request.class.name)
+    = hidden_field_tag(:commentable_id, @bs_request.id)
     .pb-2{ 'data-canned-controller': '' }
       - if policy(Comment.new(commentable: @bs_request)).locked?
         .alert.alert-warning.mt-2{ role: 'alert' }

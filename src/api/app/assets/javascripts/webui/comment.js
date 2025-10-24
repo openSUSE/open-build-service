@@ -132,3 +132,100 @@ function handlingCommentEvents() {
 $(document).ready(function(){
   handlingCommentEvents();
 });
+
+// store the input of comments in the session store to avoid the
+// loss of a draft when switching between views or reloading pages
+function persistDraftCommentText(formId) { // jshint ignore:line
+  let form = document.getElementById(formId);
+  let commentTextArea = form.getElementsByTagName("textarea")[0];
+
+  commentTextArea.addEventListener('change', (event) => {
+    sessionStorage.setItem(formId, event.target.value);
+
+    // do not store an empty comment/string in the session store
+    if ((sessionStorage.getItem(formId) !== null) && (event.target.value.trim().length === 0)) {
+      sessionStorage.removeItem(formId);
+    }
+  });
+
+  // remove draft comment from session store after form submission
+  form.addEventListener('submit', () => {
+    sessionStorage.removeItem(formId);
+  });
+
+  // insert draft comment into comment form on page load
+  if (sessionStorage.getItem(formId)) {
+    commentTextArea.value = sessionStorage.getItem(formId);
+  }
+}
+
+function persistInlineDiffCommentDraft(formId) {
+  let commentForm = document.getElementById(formId);
+  if (!commentForm) return;
+
+  var submitButton = commentForm.querySelector('input[type="submit"]');
+  var commentTextArea = commentForm.getElementsByTagName("textarea")[0];
+  var commentableType = commentForm.querySelector('[name="commentable_type"]').value;
+  var commentableId = commentForm.querySelector('[name="commentable_id"]').value;
+  var diffFileIndex = null;
+  var diffLineNumber = null;
+  var intId = formId.match(/\d+/);
+  if (intId) {
+    intId = parseInt(intId[0], 10);
+  }
+  var parentElement = document.getElementById(`reply_form_of_${intId}`);
+
+  if (commentForm.querySelector('[name="comment[diff_file_index]"]')) {
+    diffFileIndex = commentForm.querySelector('[name="comment[diff_file_index]"]').value;
+  }
+
+  if (commentForm.querySelector('[name="comment[diff_line_number]"]')) {
+    diffLineNumber = commentForm.querySelector('[name="comment[diff_line_number]"]').value
+  }
+
+  commentTextArea.addEventListener('keyup', (event) => {
+    if (diffLineNumber && diffFileIndex) {
+      let commentDraft = JSON.stringify({ diff_line_number: diffLineNumber, diff_file_index: diffFileIndex, comment_draft_text: event.target.value});
+      sessionStorage.setItem(`${commentableType}_${commentableId}_${diffFileIndex}_${diffLineNumber}`, commentDraft);
+    } else {
+      sessionStorage.setItem(formId, event.target.value);
+    }
+  });
+
+  // insert draft comment into comment form on page load
+  if(commentableType.startsWith("BsRequestAction")) {
+    if (sessionStorage.getItem(`${commentableType}_${commentableId}_${diffFileIndex}_${diffLineNumber}`)) {
+      let draftCommentData = JSON.parse(sessionStorage.getItem(`${commentableType}_${commentableId}_${diffFileIndex}_${diffLineNumber}`));
+      commentTextArea.value = draftCommentData.comment_draft_text;
+    }
+  } else {
+    if (sessionStorage.getItem(formId)) {
+      commentTextArea.value = sessionStorage.getItem(formId);
+      // Enable `Add comment` button
+      if(submitButton){
+        submitButton.disabled = false
+      }
+      // Keep the hidden field open
+      if (parentElement) {
+        parentElement.classList.add('show');
+      }
+    }
+  }
+}
+
+$(document).on('click', '.cancel-comment', function(e) {
+  var formId = $(this).closest('form').attr('id');
+  sessionStorage.removeItem(formId); // clear session
+});
+
+function openInlineCommentFormWithDraftAvailable(commentableType, commentableId) {
+  var regex = new RegExp(`${commentableType}_${commentableId}`);
+
+  Object.keys(sessionStorage).filter(function(k) { return regex.test(k); }).forEach(function(k) {
+    let draftCommentData = JSON.parse(sessionStorage.getItem(k));
+    let draftCommentBoxLink = document.querySelectorAll(`[data-diff-line="${draftCommentData.diff_line_number}"][data-diff-file-index="${draftCommentData.diff_file_index}"]`)[0];
+    if (draftCommentBoxLink) {
+      draftCommentBoxLink.click();
+    }
+  });
+}
