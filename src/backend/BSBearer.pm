@@ -89,13 +89,4 @@ sub generate_authenticator {
   return sub { authenticator_function($state, @_) };
 }
 
-sub get_credentials {
-  my ($creds) = @_;
-  if ($creds && $creds eq '-') {
-    $creds = <STDIN>;
-    chomp $creds;
-  }
-  return $creds;
-}
-
 1;

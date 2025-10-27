@@ -853,6 +853,15 @@ sub open_container_tar {
   return ($tar, $mtime);
 }
 
+sub get_credentials {
+  my ($creds) = @_;
+  if ($creds && $creds eq '-') {
+    $creds = <STDIN>;
+    chomp $creds;
+  }
+  return $creds;
+}
+
 sub die_with_usage {
   die <<'END';
 usage: bs_regpush [options] <registryserver> repository tar [tar...]
@@ -880,7 +889,7 @@ $| = 1;
 
 while (@ARGV) {
   if ($ARGV[0] eq '--dest-creds') {
-    $dest_creds = BSBearer::get_credentials($ARGV[1]);
+    $dest_creds = get_credentials($ARGV[1]);
     splice(@ARGV, 0, 2);
   } elsif ($ARGV[0] eq '-T') {
     $use_image_tags = 1;
