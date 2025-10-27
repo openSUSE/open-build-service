@@ -343,7 +343,7 @@ $roles->{'timestamp'} = { 'keyids' => [ $timestamp_key_id ], 'threshold' => 1 };
 my $root = {
   '_type' => 'Root',
   'consistent_snapshot' => $JSON::XS::false,
-  'expires' => BSTUF::rfc3339time($root_expire),
+  'expires' => BSUtil::rfc3339time($root_expire),
   'keys' => $keys,
   'roles' => $roles,
 };
@@ -386,7 +386,7 @@ if ($tuf->{'root'} eq $oldroot_json && BSUtil::identical($manifests, $oldtargets
 my $targets = {
   '_type' => 'Targets',
   'delegations' => { 'keys' => {}, 'roles' => []},
-  'expires' => BSTUF::rfc3339time($now + $targets_expire),
+  'expires' => BSUtil::rfc3339time($now + $targets_expire),
   'targets' => $manifests,
 };
 $tuf->{'targets'} = BSTUF::updatedata($targets, $cmpres ? $oldtargets : {}, $signfunc, $root_key_id);
@@ -398,7 +398,7 @@ my $oldsnapshot = {};
 $oldsnapshot = getolddata('snapshot') if $cmpres;
 my $snapshot = {
   '_type' => 'Snapshot',
-  'expires' => BSTUF::rfc3339time($now + $targets_expire),
+  'expires' => BSUtil::rfc3339time($now + $targets_expire),
 };
 BSTUF::addmetaentry($snapshot, 'root', $tuf->{'root'});
 BSTUF::addmetaentry($snapshot, 'targets', $tuf->{'targets'});
