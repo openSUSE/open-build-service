@@ -34,6 +34,7 @@ module Backend
 
     def self.get(path, in_headers = {})
       start_time = Time.now
+      in_headers['X-Frontend-Start'] = start_time.to_i.to_s
       timeout = in_headers.delete('Timeout') || 1000
       backend_request = Net::HTTP::Get.new(path, in_headers)
 
@@ -69,6 +70,7 @@ module Backend
 
     def self.delete(path, in_headers = {})
       start_time = Time.now
+      in_headers['X-Frontend-Start'] = start_time.to_i.to_s
       timeout = in_headers.delete('Timeout') || 1000
       backend_request = Net::HTTP::Delete.new(path, in_headers)
       response = Net::HTTP.start(host, port, { use_ssl: use_ssl, verify_mode: verify_mode }) do |http|
@@ -107,6 +109,7 @@ module Backend
 
     def self.put_or_post(method, path, data, in_headers)
       start_time = Time.now
+      in_headers['X-Frontend-Start'] = start_time.to_i.to_s
       timeout = in_headers.delete('Timeout')
       backend_request = if method == 'PUT'
                           Net::HTTP::Put.new(path, in_headers)
