@@ -25,6 +25,7 @@ package BSBearer;
 use BSRPC ':https';
 use BSHTTP;
 use MIME::Base64;
+use JSON::XS ();
 
 use strict;
 
@@ -34,6 +35,14 @@ sub decode_reply {
   my $token = $reply->{'token'} || $reply->{'access_token'};
   die("bearer auth rpc did not return a token\n") unless $token;
   return $state->{'auth'} = "Bearer $token";
+}
+
+sub creds_to_json {
+  my ($creds) = @_;
+  my $cr = {};
+  ($cr->{'username'}, $cr->{'password'}) = split(':', $creds, 2) if defined $creds;
+  delete $cr->{'password'} unless defined $cr->{'password'};
+  return JSON::XS->new->utf8->canonical->encode($cr);
 }
 
 sub authenticator_function {
@@ -55,12 +64,18 @@ sub authenticator_function {
     print "requesting bearer auth from $realm [@args]\n" if $state->{'verbose'};
     my $bparam = { 'uri' => $realm };
     $bparam->{'proxy'} = $state->{'proxy'} if $state->{'proxy'};
-    push @{$bparam->{'headers'}}, 'Authorization: Basic '.MIME::Base64::encode_base64($creds, '') if defined($creds);
+    $bparam->{'ssl_verify'} = $state->{'ssl_verify'} if $state->{'ssl_verify'};
+    if ($bearer->{'post_creads'}) {
+      $bparam->{'data'} = creds_to_json($creds);
+      $bparam->{'request'} = 'POST';
+    } else {
+      push @{$bparam->{'headers'}}, 'Authorization: Basic '.MIME::Base64::encode_base64($creds, '') if defined($creds);
+    }
     my $rpc = $state->{'rpccall'} || \&BSRPC::rpc;
     my $decoder = sub {decode_reply($state, $_[0])};
     eval { $auth = $rpc->($bparam, $decoder, @args) };
-    return undef unless defined $auth;		# in progress
     warn($@) if $@; 
+    return undef unless defined $auth;		# in progress
   }
   return $auth || '';
 }
