@@ -68,6 +68,7 @@ sub authenticator_function {
     if ($bearer->{'post_creads'}) {
       $bparam->{'data'} = creds_to_json($creds);
       $bparam->{'request'} = 'POST';
+      push @{$bparam->{'headers'}}, 'Content-Type: application/json';
     } else {
       push @{$bparam->{'headers'}}, 'Authorization: Basic '.MIME::Base64::encode_base64($creds, '') if defined($creds);
     }
