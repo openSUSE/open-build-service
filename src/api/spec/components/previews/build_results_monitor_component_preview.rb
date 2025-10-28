@@ -11,7 +11,7 @@ class BuildResultsMonitorComponentPreview < ViewComponent::Preview
   ].freeze
 
   def monitor_page
-    render(BuildResultsMonitorComponent.new(raw_data: FAKE_RAW_DATA, filter_url: '', filters: {}))
+    render(BuildResultsMonitorComponent.new(raw_data: FAKE_RAW_DATA, filter_url: '', filters: []))
   end
 
   def monitor_page_with_filters
