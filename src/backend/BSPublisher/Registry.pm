@@ -280,7 +280,7 @@ sub update_tuf {
   my $root = {
     '_type' => 'Root',
     'consistent_snapshot' => $JSON::XS::false,
-    'expires' => BSTUF::rfc3339time($root_expire),
+    'expires' => BSUtil::rfc3339time($root_expire),
     'keys' => $keys,
     'roles' => $roles,
   };
@@ -325,14 +325,14 @@ sub update_tuf {
   my $targets = {
     '_type' => 'Targets',
     'delegations' => { 'keys' => {}, 'roles' => []},
-    'expires' => BSTUF::rfc3339time($now + $targets_expire),
+    'expires' => BSUtil::rfc3339time($now + $targets_expire),
     'targets' => $manifests,
   };
   $tuf->{'targets'} = BSTUF::updatedata($targets, $oldtargets, $signfunc, $root_key_id);
 
   my $snapshot = {
     '_type' => 'Snapshot',
-    'expires' => BSTUF::rfc3339time($now + $targets_expire),
+    'expires' => BSUtil::rfc3339time($now + $targets_expire),
   };
   BSTUF::addmetaentry($snapshot, 'root', $tuf->{'root'});
   BSTUF::addmetaentry($snapshot, 'targets', $tuf->{'targets'});
@@ -350,7 +350,7 @@ sub update_tuf {
 
   my $timestamp = {
     '_type' => 'Timestamp',
-    'expires' => BSTUF::rfc3339time($now + $timestamp_expire),
+    'expires' => BSUtil::rfc3339time($now + $timestamp_expire),
   };
   BSTUF::addmetaentry($timestamp, 'snapshot', $tuf->{'snapshot'});
   my $oldtimestamp = $oldtuf->{'timestamp'} ? JSON::XS::decode_json($oldtuf->{'timestamp'}) : {};

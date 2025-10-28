@@ -1780,6 +1780,7 @@ sub getbinaries_product {
 	if ($server ne $buildinfo->{'srcserver'}) {
 	  $pbvl = BSRPC::rpc({
 	    'uri' => "$server/getpackagebinaryversionlist",
+	    'request' => 'POST',
 	    'timeout' => $gettimeout,
 	  }, $BSXML::packagebinaryversionlist, "project=$projid", "repository=$repoid", "arch=$arch", map {"package=$_"} @prpapackages);
 	} else {
@@ -1890,6 +1891,7 @@ sub getbinaries_product {
 	if (%tofetch) {
 	  my $param = {
 	    'uri' => "$getbinariesproxy_kiwiproduct/getbinaries_kiwiproduct",
+	    'request' => 'POST',
 	    'directory' => $ddir,
 	    'timeout' => $gettimeout,
 	    'map' => sub {
@@ -1939,24 +1941,27 @@ sub getbinaries_product {
       if (@todo) {
 	my %tofetch = map {$_->{'name'} => $_} @todo;
 	eval {
-	  my @args;
-	  push @args, $rpmhdrs_only ? "view=cpioheaderchksums" : "view=cpio";
-	  push @args, "noajax=1" if $server ne $buildinfo->{'srcserver'};
-	  push @args, map {"binary=$_->{'name'}"} @todo;
-	  my $param = {
-	    'uri' => "$server/build/$prpa/$packid",
-	    'directory' => $ddir,
-	    'timeout' => $gettimeout,
-	    'map' => sub {
-	      my ($param, $name) = @_;
-	      my $rarch = ($tofetch{$name} || {})->{'rarch'};
-	      return undef unless $rarch;
-	      mkdir_p("$ddir/$rarch");
-	      return "$rarch/$name.new.rpm";
-	    },
-	    'receiver' => \&BSHTTP::cpio_receiver,
-	  };
-	  BSRPC::rpc($param, undef, @args);
+	  my @todo_chunked = @todo;
+	  while (@todo_chunked) {
+	    my @args;
+	    push @args, $rpmhdrs_only ? "view=cpioheaderchksums" : "view=cpio";
+	    push @args, "noajax=1" if $server ne $buildinfo->{'srcserver'};
+	    push @args, map {"binary=$_->{'name'}"} splice(@todo_chunked, 0, 50);
+	    my $param = {
+	      'uri' => "$server/build/$prpa/$packid",
+	      'directory' => $ddir,
+	      'timeout' => $gettimeout,
+	      'map' => sub {
+		my ($param, $name) = @_;
+		my $rarch = ($tofetch{$name} || {})->{'rarch'};
+		return undef unless $rarch;
+		mkdir_p("$ddir/$rarch");
+		return "$rarch/$name.new.rpm";
+	      },
+	      'receiver' => \&BSHTTP::cpio_receiver,
+	    };
+	    BSRPC::rpc($param, undef, @args);
+	  }
 	};
 	if ($@) {
 	  # delete everything as a file might be truncated

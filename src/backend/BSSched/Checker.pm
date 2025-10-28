@@ -1478,6 +1478,7 @@ sub publish {
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $unfinished = $ctx->{'unfinished'};
+  my $bconf = $ctx->{'conf'};
 
   if ($ctx->{'alllocked'}) {
     print "    publishing is locked\n";
@@ -1521,6 +1522,9 @@ sub publish {
     $repodonestate .= "\0$packid" if $pubenabled{$packid};
   }
   $repodonestate .= "\0$_" for sort keys %$unfinished;
+  if (defined($bconf->{'publishflags:excludepublish'}) || defined($bconf->{'publishflags:onlypublish'})) {
+    $repodonestate .= "\0\0".join("\0", sort(grep {/^publishflags:(?:exclude|only)publish:/} @{$bconf->{'publishflags'} || []}));
+  }
   $repodonestate = Digest::MD5::md5_hex($repodonestate);
   if (@$packs && !grep {$_} values %pubenabled) {
     # all packages have publish disabled hint
@@ -1550,7 +1554,7 @@ sub publish {
   }
 
   # obey nofailedpackages publish flag
-  if ($ctx->{'conf'}->{'publishflags:nofailedpackages'}) {
+  if ($bconf->{'publishflags:nofailedpackages'}) {
     my @bad;
     my $packstatus = $ctx->{'packstatus'};
     for my $packid (grep {$pubenabled{$_}} @$packs) {
@@ -1562,7 +1566,7 @@ sub publish {
 
   # obey keepobsolete publish flag
   my $keepobsolete;
-  if ($ctx->{'conf'}->{'publishflags:keepobsolete'} && !$pubenabled) {
+  if ($bconf->{'publishflags:keepobsolete'} && !$pubenabled) {
     $keepobsolete = 1;
   }
 
