@@ -20,9 +20,11 @@
       </optional>
       <zeroOrMore>
         <element ns="" name="aggregate">
-          <attribute name="project">
-            <text/>
-          </attribute>
+          <optional>
+            <attribute name="project">
+              <text/>
+            </attribute>
+          </optional>
           <optional>
             <attribute name="arch">
               <text/>
