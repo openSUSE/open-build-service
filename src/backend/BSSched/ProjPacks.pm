@@ -1138,7 +1138,7 @@ sub setup_projects {
       if (@aggs) {
 	# push source repositories used in this aggregate onto xsp, obey target mapping
 	for my $agg (map {@{$_->{'aggregatelist'}->{'aggregate'} || []}} @aggs) {
-	  my $aprojid = $agg->{'project'};
+	  my $aprojid = $agg->{'project'} || $projid;
 	  my @arepoids = grep {!exists($_->{'target'}) || $_->{'target'} eq $repoid} @{$agg->{'repository'} || []};
 	  if (@arepoids) {
 	    # got some mappings for our target, use source as repoid

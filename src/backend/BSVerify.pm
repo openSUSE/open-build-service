@@ -361,7 +361,7 @@ sub verify_aggregatelist {
     die("'resign' attribute must be boolean\n") unless $resign eq 'true' || $resign eq 'false' || $resign eq '0' || $resign eq '1';
   }
   for my $a (@{$al->{'aggregate'} || []}) {
-    verify_projid($a->{'project'});
+    verify_projid($a->{'project'}) if exists $a->{'project'};
     verify_arch($a->{'arch'}) if exists $a->{'arch'};
     verify_arch($a->{'sourcearch'}) if exists $a->{'sourcearch'};
     if (defined($a->{'nosources'})) {
