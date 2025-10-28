@@ -187,6 +187,7 @@ RSpec.describe 'Repositories', :js do
 
       visit(project_repositories_path(project: admin_user.home_project))
 
+      expect(page).to have_text(admin_user.home_project)
       expect(page).to have_no_css('#repositories > .card')
     end
 

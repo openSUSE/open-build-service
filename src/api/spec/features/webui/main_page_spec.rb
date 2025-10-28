@@ -13,11 +13,11 @@ RSpec.describe 'OBS main page', :js, :vcr do
 
       visit root_path
 
-      expect(page).to have_no_content('message 1')
       expect(page).to have_content('message 2')
       expect(page).to have_content('message 3')
       expect(page).to have_content('message 4')
       expect(page).to have_content('message 5')
+      expect(page).to have_no_content('message 1')
     end
   end
 end

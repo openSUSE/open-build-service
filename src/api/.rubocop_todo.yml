@@ -6,17 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 9
-Capybara/NegationMatcherAfterVisit:
-  Exclude:
-    - 'spec/features/webui/attributes_spec.rb'
-    - 'spec/features/webui/comments_spec.rb'
-    - 'spec/features/webui/main_page_spec.rb'
-    - 'spec/features/webui/projects_spec.rb'
-    - 'spec/features/webui/repositories_spec.rb'
-    - 'spec/features/webui/requests_spec.rb'
-    - 'spec/features/webui/users/user_contributions_spec.rb'
-
 # Offense count: 3382
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: AllowHeredoc, AllowURI, AllowQualifiedName, URISchemes, IgnoreCopDirectives, AllowedPatterns, SplitStrings.
