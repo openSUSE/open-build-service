@@ -5,7 +5,8 @@
                                                                        architecture_names: architecture_names,
                                                                        status_names: status_names,
                                                                        filter_url: filter_url,
-                                                                       filters: filters }
+                                                                       filters: filters,
+                                                                       selected_filters_text: selected_filters_text }
 .accordion#build-results-monitor
   - if filtered_package_names.count > 1
     - filtered_package_names.each do |package_name|

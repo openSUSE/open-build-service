@@ -1,4 +1,6 @@
 class BuildResultsMonitorComponent < ApplicationComponent
+  FILTERS = { package: 'Package', repo: 'Repository', arch: 'Architecture', status: 'Status' }.freeze
+
   attr_reader :raw_data, :filter_url, :filters
 
   def initialize(raw_data:, filter_url:, filters:)
@@ -93,5 +95,20 @@ class BuildResultsMonitorComponent < ApplicationComponent
     return data if filters.blank?
 
     data.select { |result| filters.include?("#{prefix}#{result[key_name]}") }
+  end
+
+  def selected_filters_text
+    FILTERS.filter_map do |key, label|
+      selected_options = filters_by_type("#{key}_")
+      next if selected_options.empty?
+
+      normalized_label = label.downcase
+      if selected_options.size == 1
+        selected_option = selected_options.first.sub("#{key}_", '')
+        "#{normalized_label}: #{selected_option}"
+      else
+        pluralize(selected_options.size, normalized_label)
+      end
+    end.join(', ')
   end
 end

@@ -24,3 +24,6 @@
     Apply Filter
 
   = render partial: 'webui/shared/build_status_legend_modal', locals: { legend: Buildresult::STATUS_DESCRIPTION }
+
+- if selected_filters_text.present?
+  .mt-3 Selected filters: #{selected_filters_text}
