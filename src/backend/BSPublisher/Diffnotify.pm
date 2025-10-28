@@ -24,11 +24,11 @@ package BSPublisher::Diffnotify;
 
 use strict;
 
-use MIME::Base64 ();
 use JSON::XS ();
 
 use BSOBS;
 use BSUtil;
+use BSBearer;
 
 my @binsufs = @BSOBS::binsufs;
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
@@ -96,6 +96,7 @@ sub create_notification {
 
   my $n = {};
   $n->{'dag_run_id'} = "$data->{'publishid'}";
+  $n->{'logical_date'} = BSUtil::rfc3339time() if ($notify->{'protocol'} || '') eq 'v2';
   $n->{'conf'}->{'project'} = $data->{'projid'};
   $n->{'conf'}->{'repository'} = $data->{'repoid'};
   $n->{'conf'}->{'binaries'} = [];
@@ -230,20 +231,31 @@ sub notification {
   # create and send notification
   my $n = create_notification($notify, $data, $oldstate, $newstate);
   my $n_json = JSON::XS->new->utf8->canonical->encode($n);
+  my $creds = $notify->{'user'};
+  $creds .= ":$notify->{'password'}" if defined($creds) && defined($notify->{'password'});
+  my $authenticator = BSBearer::generate_authenticator($creds, 'verbose' => 1, 'ssl_verify' => $notify->{'ssl_verify'});
   my $param = {
     'uri' => $notify->{'uri'}, 
     'request' => 'POST',
     'headers' => [ 'Accept: application/json', 'Content-type: application/json' ],
     'data' => $n_json,
+    'authenticator' => $authenticator,
   };
-  if ($notify->{'user'}) {
-    my $auth = $notify->{'user'};
-    $auth .= ":$notify->{'password'}" if defined $notify->{'password'};
-    $auth = "Authorization: Basic ".MIME::Base64::encode_base64($auth, '');
-    push @{$param->{'headers'}}, $auth;
-  }
+  $authenticator->($param, $notify->{'www-authenticate'}) if $notify->{'www-authenticate'};
   $param->{'ssl_verify'} = $notify->{'ssl_verify'} if defined $notify->{'ssl_verify'};
   BSRPC::rpc($param) unless $notify->{'uri'} eq 'null:';
+
+  if ($notify->{'test-uri'}) {
+    $n->{'logical_date'} = BSUtil::rfc3339time();
+    $param->{'uri'} = $notify->{'test-uri'};
+    $authenticator = BSBearer::generate_authenticator($notify->{'test-creds'}, 'verbose' => 1, 'ssl_verify' => $notify->{'ssl_verify'});
+    $param->{'authenticator'} = $authenticator;
+    $authenticator->($param, $notify->{'test-www-authenticate'}) if $notify->{'test-www-authenticate'};
+    $param->{'data'} = JSON::XS->new->utf8->canonical->encode($n);
+    eval { BSRPC::rpc($param) };
+    warn($@) if $@;
+    print "test notify succeeded\n" unless $@;
+  }
 
   # save new state
   mkdir_p("$notify->{'statedir'}/$prp");
