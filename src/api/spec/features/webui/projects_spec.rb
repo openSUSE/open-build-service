@@ -98,6 +98,7 @@ RSpec.describe 'Projects', :js, :vcr do
       expect(page).to have_content('Successfully unlocked project')
 
       visit project_show_path(project: locked_project.name)
+      expect(page).to have_text(locked_project.name)
       expect(page).to have_no_text('is locked')
     end
 

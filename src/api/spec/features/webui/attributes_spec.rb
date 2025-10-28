@@ -62,6 +62,7 @@ RSpec.describe 'Attributes', :js do
           login other_user
 
           visit index_attribs_path(project: user.home_project_name)
+          expect(page).to have_content('Attributes of Project')
           expect(page).to have_no_content('Add Attribute')
         end
       end

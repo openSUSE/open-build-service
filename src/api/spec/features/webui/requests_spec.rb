@@ -303,6 +303,7 @@ RSpec.describe 'Requests', :js, :vcr do
         it 'does not show any request reason' do
           login reviewer
           visit request_show_path(bs_request)
+          expect(page).to have_text("Request #{bs_request.number}")
           expect(find_by_id('review-0')).to have_no_text('requested:')
         end
       end
@@ -363,6 +364,7 @@ RSpec.describe 'Requests', :js, :vcr do
 
     it 'a delete request does not show the Issues Tab' do
       visit request_show_path(delete_bs_request)
+      expect(page).to have_text("Request #{delete_bs_request.number}")
       expect(page).to have_no_text('Issues')
     end
   end
@@ -380,6 +382,7 @@ RSpec.describe 'Requests', :js, :vcr do
 
     it 'does not show the project maintainers' do
       visit request_show_path(delete_bs_request)
+      expect(page).to have_text("Request #{delete_bs_request.number}")
       expect(page).to have_no_text('Project Maintainers')
     end
   end
