@@ -1,4 +1,6 @@
 class RequestDecisionComponent < ApplicationComponent
+  attr_reader :bs_request
+
   def initialize(bs_request:, package_maintainers:, show_project_maintainer_hint:)
     super()
 
