@@ -154,10 +154,10 @@ post:
           example: |
             <status code="ok">
               <summary>Ok</summary>
-              <data name="targetproject">home:Admin:subproject</data>
-              <data name="targetpackage">test</data>
-              <data name="sourceproject">home:Admin</data>
-              <data name="sourcepackage">ctris</data>
+              <data name="target_project">home:Admin:subproject</data>
+              <data name="target_package">test</data>
+              <data name="project">home:Admin</data>
+              <data name="package">ctris</data>
             </status>
     '400':
       description: |
