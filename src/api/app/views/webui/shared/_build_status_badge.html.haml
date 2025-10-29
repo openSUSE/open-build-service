@@ -1,5 +1,5 @@
 - if url
-  .btn-group-vertical
+  .btn-group-vertical.d-flex
     = link_to(url, class: "btn btn-sm #{build_status_category_color(status)}") do
       %i.fa.me-2{ class: build_status_icon(status), title: status.humanize }
       %span.architecture #{architecture} :
