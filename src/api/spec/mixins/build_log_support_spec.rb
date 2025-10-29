@@ -2,7 +2,7 @@ require 'webmock/rspec'
 
 RSpec.describe BuildLogSupport do
   let(:instance_with_build_log_support) do
-    fake_instance = double('Fake Instance with BuildLogSupport')
+    fake_instance = Object.new
     fake_instance.extend(BuildLogSupport)
     allow(fake_instance).to receive(:logger).and_return(Rails.logger)
     fake_instance

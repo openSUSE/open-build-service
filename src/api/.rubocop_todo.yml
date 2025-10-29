@@ -605,15 +605,6 @@ RSpec/IndexedLet:
 RSpec/MultipleMemoizedHelpers:
   Max: 28
 
-# Offense count: 9
-# Configuration parameters: IgnoreNameless, IgnoreSymbolicNames.
-RSpec/VerifiedDoubles:
-  Exclude:
-    - 'spec/lib/routes_helper/role_matcher_spec.rb'
-    - 'spec/mixins/build_log_support_spec.rb'
-    - 'spec/mixins/parse_package_diff_spec.rb'
-    - 'spec/models/issue_tracker_spec.rb'
-
 # Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Rails/ApplicationController:

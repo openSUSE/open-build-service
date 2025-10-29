@@ -2,10 +2,10 @@ RSpec.describe RoutesHelper::RoleMatcher do
   describe '.matches?' do
     subject { described_class.matches?(request) }
 
-    let(:request) { double(session: { login: user.login }) }
+    let(:request) { instance_double(ActionDispatch::Request, session: { login: user.login }) }
 
     context 'when the request is from an anonymous user' do
-      let(:request) { double(session: { login: nil }) }
+      let(:request) { instance_double(ActionDispatch::Request, session: { login: nil }) }
 
       it { is_expected.to be(false) }
     end
