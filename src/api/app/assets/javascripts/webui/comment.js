@@ -132,3 +132,89 @@ function handlingCommentEvents() {
 $(document).ready(function(){
   handlingCommentEvents();
 });
+
+function draftComments(formId) { // jshint ignore:line
+  let commentForm = document.getElementById(formId);
+  if (!commentForm) return;
+
+  var submitButton = commentForm.querySelector('input[type="submit"]');
+  var commentTextArea = commentForm.getElementsByTagName("textarea")[0];
+  var commentableType = commentForm.querySelector('[name="commentable_type"]').value;
+  var commentableId = commentForm.querySelector('[name="commentable_id"]').value;
+  var diffFileIndex = null;
+  var diffLineNumber = null;
+  var parentElementId = '';
+  var parentElement = null;
+  var intId = formId.match(/\d+/);
+  if (intId) {
+    intId = parseInt(intId[0], 10);
+  }
+  if (formId.includes("edit")) {
+    parentElementId = `edit_form_of_${intId}`;
+  } else {
+    parentElementId = `reply_form_of_${intId}`;
+  }
+  parentElement = document.getElementById(parentElementId);
+
+  if (commentForm.querySelector('[name="comment[diff_file_index]"]')) {
+    diffFileIndex = commentForm.querySelector('[name="comment[diff_file_index]"]').value;
+  }
+
+  if (commentForm.querySelector('[name="comment[diff_line_number]"]')) {
+    diffLineNumber = commentForm.querySelector('[name="comment[diff_line_number]"]').value;
+  }
+
+  commentTextArea.addEventListener('keyup', (event) => {
+    if (diffLineNumber && diffFileIndex) {
+      let commentDraft = JSON.stringify({ diffLineNumber: diffLineNumber, diffFileIndex: diffFileIndex, commentDraftText: event.target.value});
+      sessionStorage.setItem(`${commentableType}_${commentableId}_${diffFileIndex}_${diffLineNumber}`, commentDraft);
+    } else {
+      sessionStorage.setItem(formId, event.target.value);
+    }
+  });
+
+  // insert draft comment into comment form on page load
+  if(commentableType.startsWith("BsRequestAction")) {
+    if (sessionStorage.getItem(`${commentableType}_${commentableId}_${diffFileIndex}_${diffLineNumber}`)) {
+      let draftCommentData = JSON.parse(sessionStorage.getItem(`${commentableType}_${commentableId}_${diffFileIndex}_${diffLineNumber}`));
+      commentTextArea.value = draftCommentData.commentDraftText;
+    }
+  }
+  if (sessionStorage.getItem(formId)) {
+    if (formId.includes("edit")) {
+      document.getElementById(`comment-${intId}-body`).style.display = "none";
+    }
+    commentTextArea.value = sessionStorage.getItem(formId);
+    // Keep the hidden field open
+    if (parentElement) {
+      parentElement.classList.add('show');
+    }
+  }
+  // Enable `Add comment` button
+  if(submitButton){
+    submitButton.disabled = false;
+  }
+}
+
+$(document).on('click', '.cancel-comment', function() {
+  var formId = $(this).closest('form').attr('id');
+  sessionStorage.removeItem(formId); // clear session
+});
+
+function clearDraftCommentFromSession(event) { // jshint ignore:line
+  var form = event.target;
+  var formId = form.id;
+  sessionStorage.removeItem(formId);
+}
+
+function openInlineCommentFormWithDraftAvailable(commentableType, commentableId) { // jshint ignore:line
+  var regex = new RegExp(`${commentableType}_${commentableId}`);
+
+  Object.keys(sessionStorage).filter(function(k) { return regex.test(k); }).forEach(function(k) {
+    let draftCommentData = JSON.parse(sessionStorage.getItem(k));
+    let draftCommentBoxLink = document.querySelectorAll(`[data-diff-line="${draftCommentData.diffLineNumber}"][data-diff-file-index="${draftCommentData.diffFileIndex}"]`)[0];
+    if (draftCommentBoxLink) {
+      draftCommentBoxLink.click();
+    }
+  });
+}
