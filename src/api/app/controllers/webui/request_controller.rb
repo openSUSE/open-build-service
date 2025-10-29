@@ -363,7 +363,21 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def chart_build_results
-    render partial: 'webui/request/chart_build_results', locals: { chart_build_results_data: build_results_data }
+    important_repoarch = RepositoryArchitecture.joins(:repository, :architecture).where(repository: Repository.where(project: @actions.pluck(:source_project_id)),
+                                                                                        important: true).pluck([
+                                                                                                                 'repositories.name', 'architectures.name'
+                                                                                                               ])
+    count = 0
+    chart_build_results_data = build_results_data.filter_map do |build_result|
+      if important_repoarch.present? && important_repoarch.exclude?([build_result[:repository], build_result[:architecture]])
+        count += 1
+        next
+      end
+
+      build_result
+    end
+
+    render partial: 'webui/request/chart_build_results', locals: { chart_build_results_data: chart_build_results_data, omitted: count }
   end
 
   def complete_build_results
