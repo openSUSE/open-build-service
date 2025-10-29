@@ -19,6 +19,7 @@ end
 # Table name: repository_architectures
 #
 #  id              :integer          not null, primary key
+#  important       :boolean          default(FALSE), not null
 #  position        :integer          default(0), not null
 #  required_checks :string(255)
 #  architecture_id :integer          not null, uniquely indexed => [repository_id], indexed
