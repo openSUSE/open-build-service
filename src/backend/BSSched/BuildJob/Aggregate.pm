@@ -177,7 +177,7 @@ sub check {
       return ('broken', "can only use 'local' as an aggregate sourcearch") if $arch ne 'local';		# for now
       return ('broken', "need sourcearch '$arch' in repository") unless grep {$_ eq $arch} @{$ctx->{'repo'}->{'arch'} || []};
     }
-    my $aprojid = $aggregate->{'project'};
+    my $aprojid = $aggregate->{'project'} || $projid;
     my $proj = $remoteprojs->{$aprojid} || $projpacks->{$aprojid};
     if (!$proj || $proj->{'error'}) {
       push @broken, $aprojid;
@@ -298,7 +298,7 @@ sub check {
   for my $aggregate (@$aggregates) {
     next if $aggregate->{'arch'} && $aggregate->{'arch'} ne $myarch;
     my $arch = $aggregate->{'sourcearch'} || $myarch;
-    my $aprojid = $aggregate->{'project'};
+    my $aprojid = $aggregate->{'project'} || $projid;
     my @apackids = @{$aggregate->{'package'} || []};
     my @arepoids = grep {!exists($_->{'target'}) || $_->{'target'} eq $repoid} @{$aggregate->{'repository'} || []};
     if (@arepoids) {
@@ -440,7 +440,7 @@ sub build {
   for my $aggregate (@$aggregates) {
     next if $aggregate->{'arch'} && $aggregate->{'arch'} ne $myarch;
     my $arch = $aggregate->{'sourcearch'} || $myarch;
-    my $aprojid = $aggregate->{'project'};
+    my $aprojid = $aggregate->{'project'} || $projid;
     my @arepoids = grep {!exists($_->{'target'}) || $_->{'target'} eq $repoid} @{$aggregate->{'repository'} || []};
     if (@arepoids) {
       @arepoids = map {$_->{'source'}} grep {exists($_->{'source'})} @arepoids;
