@@ -32,6 +32,10 @@
           %i.fas.fa-user-times.text-danger
     - if user_can_modify
       - component.with_action do
+        = link_to('#', title: 'Mark architectures as important', class: 'nav-link p-1',
+                      data: { 'bs-toggle': 'modal', 'bs-target': "#mark-important-#{repository.id}" }) do
+          %i.fas.fa-star.text-secondary
+      - component.with_action do
         = link_to('#', title: 'Edit Repository', class: 'nav-link p-1',
                       data: { 'bs-toggle': 'modal', 'bs-target': "#edit-repository-#{repository.id}" }) do
           %i.fas.fa-edit.text-secondary
@@ -49,5 +53,8 @@
     - if repository.architectures.empty?
       %i No architecture selected
     - else
-      - repository.architectures.pluck(:name).each do |architecture|
-        %span.badge.text-bg-primary= architecture
+      - repository.repository_architectures.joins(:architecture).pluck(['architectures.name', :important]).each do |architecture, important|
+        %span.badge.text-bg-primary
+          - if important
+            %i.fas.fa-star
+          = architecture

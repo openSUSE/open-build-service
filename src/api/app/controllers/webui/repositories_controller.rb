@@ -3,7 +3,7 @@ class Webui::RepositoriesController < Webui::WebuiController
 
   before_action :set_project
   before_action :check_scmsync, if: -> { params[:package] }
-  before_action :set_repository, only: [:state]
+  before_action :set_repository, only: %i[state mark_important]
   before_action :set_architectures, only: %i[index change_flag]
   before_action :set_package, only: %i[index change_flag], if: -> { params[:package] }
   before_action :set_main_object, only: %i[index change_flag]
@@ -168,6 +168,18 @@ class Webui::RepositoriesController < Webui::WebuiController
     locals[:table_id] = "flag_table_#{flag_type}"
 
     render partial: 'webui/shared/repositories_flag_table', locals: locals
+  end
+
+  # POST project/mark_important/:project
+  def mark_important
+    authorize @project, :update?
+    repository_architectures = RepositoryArchitecture.joins(:architecture).where(repository: @repository)
+
+    if repository_architectures.update(important: false) && repository_architectures.where(architecture: { name: params[:important].keys }).update(important: true)
+      redirect_to({ action: :index }, success: 'Successfully updated repository')
+    else
+      redirect_to({ action: :index }, error: "Failed updating repository: #{repository_architectures.errors.to_sentence}")
+    end
   end
 
   private
