@@ -53,8 +53,14 @@
                   = link_to(request_inline_comment_path(commentable.bs_request, request_action_id: commentable, line: id,
                                                         diff_file_index: file_index, diff_line_number: line.index,
                                                         source_rev:, target_rev:),
-                            class: 'btn btn-sm btn-primary line-new-comment', remote: true, title: 'Add comment') do
+                            class: 'btn btn-sm btn-primary line-new-comment', remote: true, title: 'Add comment',
+                            data: { diff_file_index: file_index, diff_line: line.index,
+                            commentable_type: commentable.class.name, commentable_id: commentable.id }) do
                     %i.fas.fa-comment-medical
                     .visually-hidden
                       Add comment
                 -# rubocop:enable ViewComponent/AvoidGlobalState
+
+- if commentable.present?
+  :javascript
+    openInlineCommentFormWithDraftAvailable('#{commentable.class.name}', '#{commentable.id}')
