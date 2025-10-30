@@ -33,18 +33,6 @@
             %ul.list-unstyled
               - lint_list.sort_by { |l| l[:location] }.group_by { |l| l[:location] }.each do |location, location_list|
                 %li
-                  .dropdown
-                    = link_to('#', role: 'button', data: { 'bs-toggle': 'dropdown', 'aria-expanded': false }) do
-                      = location
-                      %span.badge.text-bg-primary
-                        = location_list.count
-                    %ul.dropdown-menu
-                      - location_list.each do |repository|
-                        %li.dropdown-item
-                          = link_to(project_package_repository_architecture_rpmlint_path(project,
-                                                                                         package_name,
-                                                                                         repository[:repo],
-                                                                                         repository[:arch],
-                                                                                         anchor: "l#{repository[:line]}"),
-                                    target: '_top') do
-                            #{repository[:repo]}.#{repository[:arch]} line #{repository[:line]}
+                  = location
+                  %span.badge.text-bg-primary
+                    = location_list.count
