@@ -208,7 +208,7 @@ GEM
       terminal-table (>= 1.5.1)
     globalid (1.3.0)
       activesupport (>= 6.1)
-    haml (6.3.0)
+    haml (7.0.0)
       temple (>= 0.8.2)
       thor
       tilt
