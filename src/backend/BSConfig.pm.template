@@ -354,6 +354,9 @@ our $local_registry_signatures_extension = 1;
 #
 # option where to store container images
 #our $containers_root="$bsdir/service/containers";
+#
+# option which network should be used when running WITH_NET
+#our $container_network_opt = "--net slirp4netns";
 
 ## Server where mirrored gems could be found - used in services like obs-service-bundle_gems
 # our $gems_mirror = '';

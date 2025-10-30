@@ -176,9 +176,10 @@ echo "echo Running ${COMMAND[@]} --outdir $INNEROUTDIR" >> "$MOUNTDIR/${INNERSCR
 
 if [ "$WITH_NET" != "1" ] ; then
   printlog "Using docker without network"
-  CONTAINER_OPTS_NET="--net=none"
+  CONTAINER_NETWORK_OPT="--net=none"
 else
   printlog "Using docker with network"
+  CONTAINER_NETWORK_OPT=`obs_admin --query-config container_network_opt`
 fi
 
 CONTAINER_VOLUMES="-v $OUTEROUTDIR:$INNEROUTDIR -v $OUTERSRCDIR:$INNERSRCDIR -v $OUTERHOMEDIR:$INNERHOMEDIR -v $MOUNTDIR$INNERSCRIPTDIR:$INNERSCRIPTDIR:ro"
@@ -218,7 +219,7 @@ fi
 trap "cleanup_container timeout" 15
 
 # run jailed process
-CONTAINER_RUN_CMD="podman run $CONTAINER_ROOT_OPT --userns keep-id $CONTAINER_OPTS_NET $LINK --rm --name $CONTAINER_ID $CONTAINER_CUSTOM_OPT $CONTAINER_VOLUMES $DEBUG_OPTIONS $CONTAINER_IMAGE $INNERSCRIPT"
+CONTAINER_RUN_CMD="podman run $CONTAINER_ROOT_OPT --userns keep-id $CONTAINER_NETWORK_OPT $LINK --rm --name $CONTAINER_ID $CONTAINER_CUSTOM_OPT $CONTAINER_VOLUMES $DEBUG_OPTIONS $CONTAINER_IMAGE $INNERSCRIPT"
 printlog "CONTAINER_RUN_CMD: '$CONTAINER_RUN_CMD'"
 CMD_OUT=$(${CONTAINER_RUN_CMD} 2>&1)
 RET_ERR=$?
