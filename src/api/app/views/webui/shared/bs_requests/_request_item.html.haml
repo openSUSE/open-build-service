@@ -1,6 +1,6 @@
 - bs_request_actions_count = bs_request.bs_request_actions.count
 - bs_request_actions_types = bs_request.bs_request_actions.pluck(:type).uniq
-= link_to(request_show_path(bs_request.number), class: 'list-group-item list-group-item-action', id: "request-heading#{bs_request.number}") do
+.list-group-item.list-group-item-action
   .row.flex-nowrap
     .col-auto
       - bs_request_actions_types.each do |action_type|
@@ -9,11 +9,12 @@
     .col.col-with-icon
       .d-flex.mb-1
         %strong.me-auto
-          - if bs_request_actions_count != 1
-            Multiple Action
-          - if bs_request_actions_types.count == 1
-            = bs_request.bs_request_actions.first.type.humanize.titleize
-          Request ##{bs_request.number}
+          = link_to(request_show_path(bs_request.number), id: "request-heading#{bs_request.number}") do
+            - if bs_request_actions_count != 1
+              Multiple Action
+            - if bs_request_actions_types.count == 1
+              = bs_request.bs_request_actions.first.type.humanize.titleize
+            Request ##{bs_request.number}
         = render BsRequestPriorityBadgeComponent.new(priority: bs_request.priority, css_class: 'mb-auto mx-2')
         = render BsRequestStateBadgeComponent.new(state: bs_request.state, css_class: 'mb-auto')
       - if Flipper.enabled?(:labels, User.session) && bs_request.labels
