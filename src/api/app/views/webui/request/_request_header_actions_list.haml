@@ -1,0 +1,8 @@
+.list-group.list-group-flush.col-md-10.col-xl-10.rounded#request-header-actions-list
+  - bs_request.bs_request_actions.group_by(&:type).each_with_index do |(type, actions), index|
+    %strong
+      = actions.count
+      = type.humanize.titleize
+    - actions.each do |action|
+      .list-group-item.list-group-item-action
+        = render BsRequestActionDescriptionComponent.new(action: action)
