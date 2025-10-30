@@ -1,6 +1,6 @@
 RSpec.describe ParsePackageDiff do
   let(:instance_with_parse_package_diff_support) do
-    fake_instance = double('Fake Instance with ParsePackageDiff')
+    fake_instance = Object.new
     fake_instance.extend(ParsePackageDiff)
     fake_instance
   end
