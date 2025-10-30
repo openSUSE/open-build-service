@@ -103,11 +103,13 @@
                     will be
                     %strong auto-accepted
                     = render TimeComponent.new(time: @bs_request.accept_at)
-
-              .chart_build_results_wrapper{ data: { url: request_chart_build_results_path } }
-              :javascript
-                updateChartBuildResults();
-                setInterval(updateChartBuildResults, 60000);
+              // rendering the chart for a bs_request with a lot of bs_request_actions can cause performance issues on the backend,
+              // we need to skip those
+              - unless @actions.count > 300
+                .chart_build_results_wrapper{ data: { url: request_chart_build_results_path } }
+                :javascript
+                  updateChartBuildResults();
+                  setInterval(updateChartBuildResults, 60000);
 
               - if policy(@bs_request).handle_request? && @bs_request.can_be_reopened?
                 = render partial: 'accordion_reviews', locals: { accepted_reviews: @request_reviews.accepted,
