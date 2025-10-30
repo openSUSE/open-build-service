@@ -19,4 +19,5 @@
         = yield :repository_path_item
 
 = render partial: 'edit_repository_modal', locals: { repository: repository, project: project, available_architectures: available_architectures }
+= render partial: 'mark_important_modal', locals: { repository: repository, project: project, available_architectures: available_architectures }
 = render partial: 'add_repository_path_modal', locals: { repository: repository, project: project, user_can_modify: user_can_modify }

@@ -15,9 +15,15 @@ class BuildResultsMonitorComponent < ApplicationComponent
   private
 
   def default_filters(filters)
-    return filters if filters.any? { it.starts_with?('status_') }
+    filters.concat(Buildresult.default_status_filter_values.map { it.prepend('status_') }) unless filters.any? { it.starts_with?('status_') }
+    filters.concat(important_build_targets.map(&:second).uniq.map { it.prepend('arch_') }) unless filters.any? { it.starts_with?('arch_') }
+    filters.concat(important_build_targets.map(&:first).uniq.map { it.prepend('repo_') }) unless filters.any? { it.starts_with?('repo_') }
 
-    filters.concat(Buildresult.default_status_filter_values.map { it.prepend('status_') })
+    filters
+  end
+
+  def important_build_targets
+    RepositoryArchitecture.joins(:repository, :architecture).where(repository: { project: Project.where(name: project_name) }, important: true).pluck(['repository.name', 'architectures.name']).uniq
   end
 
   def package_names

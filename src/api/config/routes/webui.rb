@@ -149,6 +149,7 @@ constraints(RoutesHelper::WebuiMatcher) do
     get 'project/add_repository_from_default_list/:project', to: redirect('/projects/%{project}/distributions/new'), constraints: cons
     post 'project/save_repository' => :create
     post 'project/update_target/:project' => :update, constraints: cons
+    post 'project/mark_important/:project' => :mark_important, constraints: cons
     get 'project/repository_state/:project/:repository' => :state, constraints: cons, as: 'project_repository_state'
     post 'project/remove_target' => :destroy, as: 'destroy_repository'
     post 'project/create_dod_repository' => :create_dod_repository, as: 'create_dod_repository'

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_10_08_124737) do
+ActiveRecord::Schema[7.2].define(version: 2025_10_29_093527) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -1010,6 +1010,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_08_124737) do
     t.integer "architecture_id", null: false
     t.integer "position", default: 0, null: false
     t.string "required_checks"
+    t.boolean "important", default: false, null: false
     t.index ["architecture_id"], name: "architecture_id"
     t.index ["repository_id", "architecture_id"], name: "arch_repo_index", unique: true
   end
