@@ -32,6 +32,7 @@ use BSSched::BuildJob::KiwiImage;
 use BSSched::BuildJob::KiwiProduct;
 use BSSched::BuildJob::ProductCompose;
 use BSSched::BuildJob::Docker;
+use BSSched::BuildJob::Image;
 use BSSched::BuildJob::Unknown;
 use BSSched::BuildJob::BuildEnv;
 
@@ -41,6 +42,7 @@ my %handlers = (
   'kiwi-image'      => BSSched::BuildJob::KiwiImage->new(),
   'docker'          => BSSched::BuildJob::Docker->new(),
   'fissile'         => BSSched::BuildJob::Docker->new(),
+  'mkosi'           => BSSched::BuildJob::Image->new(),
   'buildenv'        => BSSched::BuildJob::BuildEnv->new(),
   'unknown'         => BSSched::BuildJob::Unknown->new(),
   'default'         => BSSched::BuildJob::Package->new(),
