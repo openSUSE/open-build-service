@@ -21,7 +21,7 @@
         .mb-1
           = render partial: 'webui/shared/label', collection: bs_request.labels, as: :label
       .mb-1
-        = render BsRequestDescriptionComponent.new(bs_request:, links: true)
+        = render BsRequestDescriptionComponent.new(bs_request:)
         .mb-2.request-index-description.text-truncate
           = bs_request.description
       .text-end

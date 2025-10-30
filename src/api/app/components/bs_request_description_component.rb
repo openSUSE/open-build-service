@@ -8,10 +8,9 @@ class BsRequestDescriptionComponent < ApplicationComponent
   delegate :requester_str, to: :helpers
   delegate :creator_intentions, to: :helpers
 
-  def initialize(bs_request:, links: false)
+  def initialize(bs_request:)
     super()
     @bs_request = bs_request
-    @links = links
     @types = bs_request.bs_request_actions.group_by(&:type)
   end
 
@@ -75,28 +74,24 @@ class BsRequestDescriptionComponent < ApplicationComponent
 
   def highlight_project(project)
     return unless project
-    return tag.b(project) unless @links
 
     link_to(project, project_show_path(project))
   end
 
   def highlight_package(project, package)
     return unless project && package
-    return tag.b(package) unless @links
 
     link_to(package, package_show_path(project, package))
   end
 
   def highlight_user(user)
     return unless user
-    return tag.b(user) unless @links
 
     link_to(user, user_path(user))
   end
 
   def highlight_group(group)
     return unless group
-    return tag.b(group) unless @links
 
     link_to(group, group_path(group))
   end
