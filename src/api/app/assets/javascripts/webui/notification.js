@@ -1,3 +1,5 @@
+/* exported handleNotificationCheckboxSelection */
+
 function setSelectAllCheckbox() {
   $(document).on('change', '#select-all-notifications', function() {
     var checkboxes = $(this).closest('form').find('input[type=checkbox]');
@@ -24,7 +26,7 @@ function setCheckboxCounterAndSubmitButton() {
   }
 }
 
-function handleNotificationCheckboxSelection() { // jshint ignore:line
+function handleNotificationCheckboxSelection() {
   setCheckboxCounterAndSubmitButton();
   setSelectAllCheckbox();
   $(document).on('change', 'input[type="checkbox"]', function() {

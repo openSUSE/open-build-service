@@ -1,4 +1,6 @@
-function setCollapsible() { // jshint ignore:line
+/* exported setCollapsible */
+
+function setCollapsible() {
   $('.obs-collapsible-textbox').each(function() {
     var container = $(this);
     var textBox = container.find('.obs-collapsible-text');

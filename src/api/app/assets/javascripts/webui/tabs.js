@@ -1,3 +1,5 @@
+/* exported toggleTabs */
+
 function resizeTabs(trigger, tabListContainer, selector, target) {
   var item;
   while(tabListContainer.hasOverflow() === trigger && (item = tabListContainer.find(selector)).length) {
@@ -27,7 +29,7 @@ function refreshTabs(tabList) {
 
 /* bootstrap's tabs javascript doesn't remove the active class
    when tabs are implemented without the usage of ul and li */
-function toggleTabs(tabLinkContainerId) { // jshint ignore:line
+function toggleTabs(tabLinkContainerId) {
   $('#'+tabLinkContainerId+' a').on('click', function(e) {
     e.preventDefault();
     $(this).tab('show');

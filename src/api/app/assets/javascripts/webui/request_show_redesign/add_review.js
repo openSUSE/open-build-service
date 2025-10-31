@@ -1,4 +1,6 @@
-function handleReviewerCollapsibleForm() { // jshint ignore:line
+/* exported handleReviewerCollapsibleForm */
+
+function handleReviewerCollapsibleForm() {
   $('#add-review-dropdown-component .dropdown-item').on('click', function() {
     var review = $(this);
 
