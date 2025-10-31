@@ -39,6 +39,11 @@
                                                               key: 'kind[relationships_deleted]', name: 'kind[]', value: 'relationships_deleted',
                                                               label_icon: 'fas fa-user-tag',
                                                               checked: selected_filter[:kind]&.include?('relationships_deleted') }
+        - if User.session.roles.exists?(Role.global)
+          = render partial: 'webui/shared/check_box', locals: { label: 'Important Role Added', amount: counted_notifications['important_roles_added'],
+                                                                key: 'kind[important_roles_added]', name: 'kind[]', value: 'important_roles_added',
+                                                                label_icon: 'fas fa-flag',
+                                                                checked: selected_filter[:kind]&.include?('important_roles_added') }
         = render partial: 'webui/shared/check_box', locals: { label: 'Build Failures', amount: counted_notifications['build_failures'],
                                                               key: 'kind[build_failures]', name: 'kind[]', value: 'build_failures',
                                                               label_icon: 'fas fa-xmark text-danger',

@@ -23,7 +23,7 @@ module Event
          Event::RelationshipCreate, Event::RelationshipDelete,
          Event::Report, Event::Decision, Event::AppealCreated,
          Event::WorkflowRunFail,
-         Event::AddedUserToGroup, Event::RemovedUserFromGroup,
+         Event::AddedUserToGroup, Event::RemovedUserFromGroup, Event::AddedGlobalRole,
          Event::Assignment]
       end
 
