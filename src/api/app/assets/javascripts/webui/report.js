@@ -1,4 +1,6 @@
-function collectReportModalsAndSetValues() { // jshint ignore:line
+/* exported collectReportModalsAndSetValues */
+
+function collectReportModalsAndSetValues() {
   $.each(modalIdsForReport(), function( _index, modalId ) {
     setValuesOnReportDialog(modalId);
   });

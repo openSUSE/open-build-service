@@ -1,4 +1,6 @@
-function setupAutocomplete(selector) { // jshint ignore:line
+/* exported setupAutocomplete */
+
+function setupAutocomplete(selector) {
   $(selector).autocomplete({
     // Note: 'append' is optional and only needed when there is no element with class ui-front
     appendTo:  $(selector).data('append'),

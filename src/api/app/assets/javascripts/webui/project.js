@@ -1,3 +1,6 @@
+/* global initializeRemoteDatatable */
+/* exported initializeProjectDatatable, initializeProjectDatatableLabelBeta */
+
 function toggleProjectsDatatable() {
   var all = $("#projects-datatable").data("all");
   var $toggleText = $("#toggle-text");
@@ -14,8 +17,8 @@ function toggleProjectsDatatable() {
   $("#projects-datatable").DataTable().draw();
 }
 
-function initializeProjectDatatable() { // jshint ignore:line
-  initializeRemoteDatatable( // jshint ignore:line
+function initializeProjectDatatable() {
+  initializeRemoteDatatable(
     "#projects-datatable",
     {
       "ajax": {
@@ -33,8 +36,8 @@ function initializeProjectDatatable() { // jshint ignore:line
   $(".toggle-projects").click(function() { toggleProjectsDatatable(); });
 }
 
-function initializeProjectDatatableLabelBeta() { // jshint ignore:line
-  initializeRemoteDatatable( // jshint ignore:line
+function initializeProjectDatatableLabelBeta() {
+  initializeRemoteDatatable(
     "#projects-datatable",
     {
       "ajax": {

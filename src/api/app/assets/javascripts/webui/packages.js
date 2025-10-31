@@ -1,3 +1,5 @@
+/* global setupDropdownFilters */
+
 // Remove this after PackageController#rdiff moves to DiffListComponent
 $(function ($) {
   $('body').on('click', '.expand-diffs', function () {
@@ -14,7 +16,7 @@ $(function ($) {
 });
 
 $(document).ready(function() {
-  setupDropdownFilters(); // jshint ignore:line
+  setupDropdownFilters();
   $('.btn-more').click(function() {
     var moreInfo = $('.more_info');
     moreInfo.toggleClass('d-none');

@@ -1,10 +1,12 @@
+/* exported initializeTabs, initializeKiwi */
+
 var canSave = false;
 
 function hideOverlay() {
   $('.modal.show').modal('hide');
 }
 
-function saveImage(isOutdatedUrl) { // jshint ignore:line
+function saveImage(isOutdatedUrl) {
   if (canSave) {
     $.ajax({ url: isOutdatedUrl,
       dataType: 'json',
@@ -23,7 +25,7 @@ function enableSave() {
   $('#kiwi-image-update-form-save, #kiwi-image-update-form-revert').removeClass('disabled');
 }
 
-function editRepositoryDialog() { // jshint ignore:line
+function editRepositoryDialog() {
   var fields = $(this).parents('.nested-fields');
   var dialog = fields.find('.modal');
   var sourcePath = fields.find("[id$='source_path']");
@@ -58,7 +60,7 @@ function addRepositoryErrorMessage(sourcePath, field) {
   field.removeClass('d-none');
 }
 
-function closeKiwiDescriptionDialog() { // jshint ignore:line
+function closeKiwiDescriptionDialog() {
   var fields = $(this).parents('.nested-fields');
   var dialog = fields.find('.modal.show');
   var name = dialog.find("[id$='name']");
@@ -90,7 +92,7 @@ function closeKiwiDescriptionDialog() { // jshint ignore:line
   hideOverlay();
 }
 
-function closeKiwiPreferencesDialog() { // jshint ignore:line
+function closeKiwiPreferencesDialog() {
   var fields = $(this).parents('.nested-fields');
   var dialog = fields.find('.modal.show');
 
@@ -120,7 +122,7 @@ function showRemoveAction(fields) {
   fields.find('.kiwi_actions').removeClass('d-none');
 }
 
-function closeKiwiDialog() { // jshint ignore:line
+function closeKiwiDialog() {
   var fields = $(this).parents('.nested-fields'),
       isRepository = fields.parents('#kiwi-repositories-list').length === 1,
       name = fields.find('.kiwi_element_name'),
@@ -180,7 +182,7 @@ function closeKiwiDialog() { // jshint ignore:line
   hideOverlay();
 }
 
-function revertDialog() { // jshint ignore:line
+function revertDialog() {
   var fields = $(this).parents('.nested-fields');
   var dialog = fields.find('.modal');
   dialog.find(".ui-state-error").addClass('d-none');
@@ -215,7 +217,7 @@ function addDefault(dialog) {
   });
 }
 
-function showOnAddition(list, show) { // jshint ignore:line
+function showOnAddition(list, show) {
   list.on('cocoon:after-remove', function() {
     if ($(this).find('.nested-fields:visible').length === 0) {
       show.removeClass('d-none');
@@ -321,7 +323,7 @@ function kiwiRepositoriesSetupAutocomplete(fields) {
   });
 }
 
-function initializeTabs() { // jshint ignore:line
+function initializeTabs() {
   $("#kiwi-details-trigger").click(function() {
     $("#kiwi-preferences").removeClass('d-none');
     $(".detailed-info").removeClass('d-none');
@@ -352,7 +354,7 @@ function cocoonAfterInsert(addedFields) {
   $(addedFields).find('.modal').modal('show');
 }
 
-function initializeKiwi(isOutdatedUrl) { // jshint ignore:line
+function initializeKiwi(isOutdatedUrl) {
   // Save image
   $('#kiwi-image-update-form-save').click(function() { saveImage(isOutdatedUrl); });
   $('#kiwi_image_use_project_repositories').click(function(){

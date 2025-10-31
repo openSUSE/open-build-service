@@ -1,4 +1,7 @@
-function moveInvolvementToContainer() { // jshint ignore:line
+/* exported moveInvolvementToContainer */
+/* exported updateCharactersCount */
+
+function moveInvolvementToContainer() {
   var container = $('#involvement-and-activity');
   if ($('#involvement-and-activity > .tab-content:visible').length > 0)
     container = $('.tab-pane#involved-projects-and-packages');
@@ -7,7 +10,7 @@ function moveInvolvementToContainer() { // jshint ignore:line
   $('#involvement').removeClass('d-none');
 }
 
-function updateCharactersCount(e) { // jshint ignore:line
+function updateCharactersCount(e) {
   var maxLength = $(e.target).attr('maxlength');
   var currentLength = $(e.target).val().length;
   var remainingCount = maxLength - currentLength;

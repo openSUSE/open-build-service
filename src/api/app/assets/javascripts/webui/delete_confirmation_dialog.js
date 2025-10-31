@@ -1,4 +1,6 @@
-function collectDeleteConfirmationModalsAndSetValues() { // jshint ignore:line
+/* exported collectDeleteConfirmationModalsAndSetValues */
+
+function collectDeleteConfirmationModalsAndSetValues() {
   $.each(modalIds(), function( _index, modalId ) {
     setValuesOnDeleteConfirmationDialog(modalId);
   });
