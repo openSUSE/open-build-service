@@ -7,7 +7,7 @@ class Webui::RequestController < Webui::WebuiController
 
   before_action :require_login,
                 except: %i[show beta_show sourcediff diff request_action request_action_changes request_action_details inline_comment build_results
-                           changes changes_diff mentioned_issues chart_build_results complete_build_results]
+                           changes changes_diff mentioned_issues complete_build_results]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
   before_action :require_request,
