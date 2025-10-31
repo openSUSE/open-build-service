@@ -31,7 +31,7 @@ class RpmlintLogParser
     # virtualbox.src:564: W: macro-in-comment %_target_cpu
     # blueman.x86_64: I: polkit-untracked-privilege org.blueman.bluez.config (??:no:auth_admin_keep)
     # ruby2.5-rubygem-bigdecimal.x86_64: W: hidden-file-or-dir /usr/lib64/ruby/gems/2.5.0/gems/bigdecimal-3.1.4/ext/bigdecimal/.sitearchdir.time
-    return unless (line_m = line.match(/^(?<packagearch>\S+): (?<level>E|I|W): (?<linter>\S+)(?<rest>.*)/))
+    return unless (line_m = line.match(/^(?<packagearch>\S+): (?<level>E|I|W): (?<linter>\S+)(?<error_message>.*)/))
 
     # Examples of packagearch pattern matching:
     #
@@ -48,14 +48,15 @@ class RpmlintLogParser
 
     package = package_arch_m[:package]
 
-    result = { location: line_m[:packagearch], level: line_m[:level], linter: line_m[:linter], badness: 0, line: index + 1, repo: @repo, arch: @arch }
+    result = { location: line_m[:packagearch], level: line_m[:level], linter: line_m[:linter], error_message: line_m[:error_message],
+               badness: 0, line: index + 1, repo: @repo, arch: @arch }
 
     case line_m[:level]
     when 'E'
       errors[package] += 1
 
       # We only parse Badness when we find an error
-      badness_value = (::Regexp.last_match[:badness].to_i if line_m[:rest] =~ /\(Badness: (?<badness>\d+)\)/) || 1
+      badness_value = (::Regexp.last_match[:badness].to_i if line_m[:error_message] =~ /\(Badness: (?<badness>\d+)\)/) || 1
       badness[package] += badness_value
       result[:badness] = badness_value
     when 'W'
