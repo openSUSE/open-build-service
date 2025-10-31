@@ -1,39 +1,22 @@
-- action_descriptions = types.map do |type, actions|
-  - capture do
-    - case type
-    - when 'submit'
-      Submit
-      = source_container(actions)
-      %i.fas.fa-long-arrow-alt-right.text-info.mx-2
-      = target_container(actions)
-    - when 'delete'
-      Delete
-      = sanitize(delete_target(actions))
-    - when 'add_role', 'set_bugowner'
-      Assign
-      = sanitize(role_target(actions))
-      for
-      = target_container(actions)
-    - when 'change_devel'
-      Set
-      = source_container(actions)
-      to be
-      %b devel
-      project/package of
-      = target_container(actions)
-    - when 'maintenance_incident'
-      Submit update from
-      = source_container(actions)
-      %i.fas.fa-long-arrow-alt-right.text-info.mx-2
-      = target_container(actions)
-    - when 'maintenance_release'
-      Maintenance release
-      = source_container(actions)
-      %i.fas.fa-long-arrow-alt-right.text-info.mx-2
-      = target_container(actions)
-    - when 'release'
-      Release
-      = source_container(actions)
-      %i.fas.fa-long-arrow-alt-right.text-info.mx-2
-      = target_container(actions)
-= to_sentence(action_descriptions)
+- if multiple_types? || any_types_has_many_multiple_actions?
+  .accordion#request-actions-accordion
+    - types.each_with_index do |(type, actions), index|
+      .accordion-item
+        .accordion-button{ class: index == 0 ? '' : 'collapsed',
+                           data: { 'bs-toggle': 'collapse', 'bs-target': "#collapse-#{type}" },
+                           aria: { 'expanded': index == 0, 'controls': "#collapse-#{type}" } }
+          %strong
+            = actions.count
+            = type.humanize.titleize
+        .accordion-collapse.collapse.ms-0{ class: index == 0 ? 'show' : '',
+                                           id: "collapse-#{type}",
+                                           'data-bs-parent': '#request-actions-accordion' }
+          .accordion-body.request-actions-accordion-body
+            - actions.each do |action|
+              .p-1
+                = render BsRequestActionDescriptionComponent.new(action: action)
+- else
+  - types.map do |type, actions|
+    - actions.each do |action|
+      .pt-1
+        = render BsRequestActionDescriptionComponent.new(action: action)
