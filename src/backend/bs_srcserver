@@ -8153,6 +8153,7 @@ my $conf = {
   'errorreply' => \&BSRegistryServer::errreply,
   'run' => \&run,
   'periodic' => \&periodic,
+  'client_time_header' => 'X-Frontend-Start',
 };
 
 my $aconf = {

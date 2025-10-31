@@ -673,13 +673,25 @@ sub request_infostr {
   my ($req) = @_;
   my $id = $req->{'reqid'} || $req->{'keepalive_count'};
   $id = $id ? "$$.$id" : $$;
-  return sprintf("%s: %3ds %-7s %-22s %s%s\n", BSUtil::isotime($req->{'starttime'}), time() - $req->{'starttime'}, "[$id]",
+  my $extrastr = '';
+  if ($req->{'starttime'} && $req->{'client_time'}) {
+    my $client_wait_time = $req->{'starttime'} - $req->{'client_time'};
+    $extrastr = sprintf("+%d", $client_wait_time) if $client_wait_time > 0 && $client_wait_time < 3600 * 24;
+  }
+  return sprintf("%s: %3ds$extrastr %-7s %-22s %s%s\n", BSUtil::isotime($req->{'starttime'}), time() - $req->{'starttime'}, "[$id]",
       "$req->{'action'} ($req->{'peer'})", $req->{'path'}, ($req->{'query'}) ? "?$req->{'query'}" : '');
 }
 
 sub log_slow_requests {
   my ($conf, $req) = @_;
-  return unless $req && $conf->{'slowrequestthr'} && $req->{'starttime'} && time() - $req->{'starttime'} >= $conf->{'slowrequestthr'};
+  return unless $req && $conf->{'slowrequestthr'} && $req->{'starttime'};
+  my $now = time();
+  my $extratime = 0;
+  if ($req->{'client_time'}) {
+    my $client_wait_time = $req->{'starttime'} - $req->{'client_time'};
+    $extratime = $client_wait_time if $client_wait_time > 0 && $client_wait_time < 3600 * 24;
+  }
+  return unless $req && $conf->{'slowrequestthr'} && $req->{'starttime'} && $now - $req->{'starttime'} + $extratime >= $conf->{'slowrequestthr'};
   my $log = $req->{'slowrequestlog'} || $conf->{'slowrequestlog'};
   return unless $log;
   my $msg = request_infostr($req);
