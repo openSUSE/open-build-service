@@ -21,3 +21,6 @@
 
 :javascript
   attachPreviewMessageOnCommentBoxes();
+  document.addEventListener('turbo:load', () => {
+    draftComments('#{form.id}');
+  });
