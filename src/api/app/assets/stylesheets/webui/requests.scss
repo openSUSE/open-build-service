@@ -78,6 +78,17 @@
   width: 35rem;
 }
 
+#request-actions-accordion {
+  .accordion-button {
+    background-color: var(--bs-tertiary-bg);
+  }
+
+  .request-actions-accordion-body {
+    max-height: 20rem;
+    overflow-y: scroll;
+  }
+}
+
 @include media-breakpoint-up(sm) {
   .order-sm-1 {
     order: 1;
