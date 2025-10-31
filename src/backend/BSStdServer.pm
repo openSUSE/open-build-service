@@ -114,6 +114,10 @@ sub dispatch {
     my $peerip = ($req->{'headers'} || {})->{lc($conf->{'trusted_peerip_header'})};
     $req->{'peerip'} = $req->{'peer'} = $peer = $peerip if $peerip && $peerip =~ /^[0-9a-fA-F\.\:]+$/s;
   }
+  if (!$isajax && $conf->{'client_time_header'}) {
+    my $client_time = ($req->{'headers'} || {})->{lc($conf->{'client_time_header'})};
+    $req->{'client_time'} = 0 + $client_time if $client_time && $client_time =~ /^\d+$/;
+  }
   my $msg = sprintf("%-22s %s%s",
     "$req->{'action'} ($peer)", $req->{'path'},
     defined($req->{'query'}) ? "?$req->{'query'}" : '',
