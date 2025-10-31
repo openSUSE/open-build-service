@@ -41,17 +41,19 @@
                   = lint_list.count
           .accordion-collapse.collapse{ id: collapse_id }
             .accordion-body
-              - lint_list.sort_by { |l| l[:location] }.group_by { |l| l[:location] }.each do |location, location_list|
-                %h5
-                  = location
-                - location_list.sort_by { |r| "#{r[:repo]}#{r[:arch]}#{r[:line]}" }.each do |repository|
-                  %p
-                    = link_to(project_package_repository_architecture_rpmlint_path(project,
-                                                                                   package_name,
-                                                                                   repository[:repo],
-                                                                                   repository[:arch],
-                                                                                   anchor: "l#{repository[:line]}"),
-                              target: '_top') do
-                      #{repository[:repo]}.#{repository[:arch]}, line #{repository[:line]}
-                    %span :
-                    %span.font-monospace.text-muted= elide(repository[:error_message], 100, :right)
+              - lint_list.group_by { |l| l[:error_message] }.sort.each do |error_message, error_messages_list|
+                .mt-3.mb-2
+                  %small.font-monospace.text-muted
+                    = error_message
+                - error_messages_list.group_by { |l| l[:location] }.sort.each do |location, location_list|
+                  %h6.ms-3
+                    = location
+                  - location_list.sort_by { |r| "#{r[:repo]}#{r[:arch]}#{r[:line]}" }.each do |repository|
+                    .ms-5
+                      = link_to(project_package_repository_architecture_rpmlint_path(project,
+                                                                                     package_name,
+                                                                                     repository[:repo],
+                                                                                     repository[:arch],
+                                                                                     anchor: "l#{repository[:line]}"),
+                                target: '_top') do
+                        #{repository[:repo]}.#{repository[:arch]}, line #{repository[:line]}
