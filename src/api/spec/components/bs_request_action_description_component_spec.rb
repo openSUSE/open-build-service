@@ -17,7 +17,7 @@ RSpec.describe BsRequestActionDescriptionComponent, type: :component do
     end
 
     it 'renders the "change_devel" previews' do
-      %i[change_devel change_devel_text_only].each do |preview_name|
+      %i[change_devel].each do |preview_name|
         render_preview(preview_name)
 
         expect(rendered_content).to have_text('be devel project/package of')
@@ -31,7 +31,7 @@ RSpec.describe BsRequestActionDescriptionComponent, type: :component do
     end
 
     it 'renders the "delete" previews' do
-      %i[delete delete_text_only].each do |preview_name|
+      %i[delete].each do |preview_name|
         render_preview(preview_name)
 
         expect(rendered_content).to have_text('Delete')
@@ -45,7 +45,7 @@ RSpec.describe BsRequestActionDescriptionComponent, type: :component do
     end
 
     it 'renders the "maintenance_incident" preview' do
-      render_preview('maintenance_incident_text_only')
+      render_preview('maintenance_incident')
 
       expect(rendered_content).to have_text('Submit update from')
     end
@@ -57,7 +57,7 @@ RSpec.describe BsRequestActionDescriptionComponent, type: :component do
     end
 
     it 'renders the "maintenance_release" preview' do
-      render_preview('maintenance_release_text_only')
+      render_preview('maintenance_release')
 
       expect(rendered_content).to have_text('Maintenance release')
     end
@@ -69,7 +69,7 @@ RSpec.describe BsRequestActionDescriptionComponent, type: :component do
     end
 
     it 'renders the "release" preview' do
-      render_preview('release_text_only')
+      render_preview('release')
 
       expect(rendered_content).to have_text('Release')
     end
@@ -81,7 +81,7 @@ RSpec.describe BsRequestActionDescriptionComponent, type: :component do
     end
 
     it 'renders the "set_bugowner" preview' do
-      render_preview('set_bugowner_text_only')
+      render_preview('set_bugowner')
 
       expect(rendered_content).to have_text('become bugowner')
     end
@@ -93,7 +93,7 @@ RSpec.describe BsRequestActionDescriptionComponent, type: :component do
     end
 
     it 'renders the "submit" previews' do
-      %i[submit submit_text_only].each do |preview_name|
+      %i[submit].each do |preview_name|
         render_preview(preview_name)
 
         expect(rendered_content).to have_text('Submit')
