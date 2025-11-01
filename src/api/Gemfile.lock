@@ -322,7 +322,7 @@ GEM
       net-protocol
     next_rails (1.4.6)
       rainbow (>= 3)
-    nio4r (2.7.4)
+    nio4r (2.7.5)
     nkf (0.2.0)
     nokogiri (1.18.10)
       mini_portile2 (~> 2.8.2)
