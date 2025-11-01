@@ -1,5 +1,8 @@
+/* global setupDropdownFilters */
+/* exported updateBuildResultBeta */
+
 // TODO: rename without "Beta" after the rollout of 'request_show_redesign'.
-function updateBuildResultBeta() { // jshint ignore:line
+function updateBuildResultBeta() {
   var buildResultsUrl = $('.build-results-content .result').data('build-results-url');
 
   $('#build-reload').addClass('fa-spin');
@@ -14,7 +17,7 @@ function updateBuildResultBeta() { // jshint ignore:line
     },
     complete: function() {
       $('#build-reload').removeClass('fa-spin');
-      setupDropdownFilters(); // jshint ignore:line
+      setupDropdownFilters();
     }
   });
 }

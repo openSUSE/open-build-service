@@ -1,4 +1,7 @@
-function setSpinnersForFlags() { // jshint ignore:line
+/* global initializePopovers, bootstrap */
+/* exported setSpinnersForFlags, setupFlagPopup */
+
+function setSpinnersForFlags() {
   $(document).on('click', '.popover_flag_action', function() {
     var flag = $(this).data('flag-id');
     var icon = $('div[id="' + flag + '"] a');
@@ -37,7 +40,7 @@ function prepareFlagPopover(element) {
 }
 
 function initializeFlagPopovers(cssSelector) {
-  initializePopovers(cssSelector, { trigger: 'click', html: true, content: prepareFlagPopover }); // jshint ignore:line
+  initializePopovers(cssSelector, { trigger: 'click', html: true, content: prepareFlagPopover });
 }
 
 function replaceFlagTable(data, flagType) {
@@ -45,7 +48,7 @@ function replaceFlagTable(data, flagType) {
   initializeFlagPopovers('#flag_table_' + flagType + ' .flag-popup');
 }
 
-function setupFlagPopup() { // jshint ignore:line
+function setupFlagPopup() {
   ['build', 'useforbuild', 'debuginfo', 'publish'].forEach(function(flagType) {
     initializeFlagPopovers('#flag_table_' + flagType + ' .flag-popup');
   });

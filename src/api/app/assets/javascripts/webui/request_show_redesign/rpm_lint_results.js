@@ -1,4 +1,6 @@
-function updateRpmLintArchitectures() { // jshint ignore:line
+/* exported updateRpmLintArchitectures */
+
+function updateRpmLintArchitectures() {
   $('.rpmlint_arch_select').hide();
   $('#rpmlint_arch_select_' + $('#rpmlint_repo_select option:selected').attr('value')).show();
   updateRpmLintLog();
