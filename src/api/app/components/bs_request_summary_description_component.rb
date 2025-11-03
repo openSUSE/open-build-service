@@ -1,6 +1,6 @@
 # This component renders the request description based on the type of the actions
 
-class BsRequestDescriptionComponent < ApplicationComponent
+class BsRequestSummaryDescriptionComponent < ApplicationComponent
   attr_reader :bs_request, :types
 
   delegate :project_or_package_link, to: :helpers

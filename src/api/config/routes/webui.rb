@@ -326,6 +326,7 @@ constraints(RoutesHelper::WebuiMatcher) do
     # We can't apply the filename constraint, it prevents the use of `/` in file names.
     get 'requests/:number/actions/:request_action_id/changes/*filename' => :changes_diff, as: 'request_changes_diff', format: false, constraints: cons.except(:filename)
     get 'requests/:number/(actions/:request_action_id)/mentioned_issues' => :mentioned_issues, as: 'request_mentioned_issues', constraints: cons
+    get 'requests/:number/(actions/:request_action_id)/actions' => :request_actions, as: 'request_actions', constraints: cons
     post 'request/sourcediff' => :sourcediff
     post 'request/changerequest' => :changerequest
     get 'request/diff/:number' => :diff

@@ -8,6 +8,9 @@
         = link_to('Build Results', request_build_results_path(bs_request.number),
                   class: "nav-link text-nowrap #{active_tab == 'build_results' ? 'active' : ''}")
     %li.nav-item.scrollable-tab-link
+      = link_to('Actions', request_actions_path(bs_request.number),
+                class: "nav-link text-nowrap #{active_tab == 'actions' ? 'active' : ''}")
+    %li.nav-item.scrollable-tab-link
       = link_to(request_changes_path(bs_request.number, actions_count > 1 ? action : nil),
                 class: "nav-link text-nowrap #{active_tab == 'changes' ? 'active' : ''}") do
         Changes
