@@ -309,7 +309,7 @@ GEM
       bigdecimal (~> 3.1)
     mysql2 (0.5.7)
       bigdecimal
-    net-http (0.6.0)
+    net-http (0.7.0)
       uri
     net-imap (0.5.12)
       date
@@ -565,7 +565,7 @@ GEM
       unicode-emoji (~> 4.1)
     unicode-emoji (4.1.0)
     uniform_notifier (1.18.0)
-    uri (1.0.4)
+    uri (1.1.0)
     useragent (0.16.11)
     vcr (6.3.1)
       base64
