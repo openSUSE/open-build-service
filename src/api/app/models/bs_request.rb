@@ -459,9 +459,9 @@ class BsRequest < ApplicationRecord
     checker.cmd_changereviewstate_permissions
   end
 
-  def permission_check_setincident!(incident)
+  def permission_check_setincident?(incident)
     checker = BsRequestPermissionCheck.new(self, incident: incident)
-    checker.cmd_setincident_permissions
+    checker.cmd_setincident_permissions?
   end
 
   def permission_check_setpriority!
@@ -485,7 +485,7 @@ class BsRequest < ApplicationRecord
     check_bs_request_actions!(skip_source: true)
   end
 
-  def permission_check_change_state(opts)
+  def permission_check_change_state?(opts)
     begin
       permission_check_change_state!(opts)
     rescue PostRequestNoPermission
@@ -753,7 +753,7 @@ class BsRequest < ApplicationRecord
   end
 
   def setincident(incident)
-    permission_check_setincident!(incident)
+    permission_check_setincident?(incident)
 
     touched = false
     # all maintenance_incident actions go into the same incident project

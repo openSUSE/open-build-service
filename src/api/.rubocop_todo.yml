@@ -421,22 +421,11 @@ Naming/PredicateMethod:
     - 'app/controllers/webui/package_controller.rb'
     - 'app/controllers/webui/request_controller.rb'
     - 'app/lib/suse/permission.rb'
-    - 'app/models/assignment.rb'
-    - 'app/models/attrib.rb'
-    - 'app/models/bs_request.rb'
-    - 'app/models/bs_request_action.rb'
-    - 'app/models/bs_request_action/differ/query_builder.rb'
-    - 'app/models/bs_request_action_submit.rb'
-    - 'app/models/bs_request_permission_check.rb'
-    - 'app/models/comment_locking_validator.rb'
     - 'app/models/concerns/staging_project.rb'
-    - 'app/models/issue_tracker.rb'
-    - 'app/models/owner_search/assignee.rb'
     - 'app/models/project.rb'
     - 'app/models/service.rb'
     - 'app/models/status_message.rb'
     - 'app/models/user.rb'
-    - 'app/models/user_basic_strategy.rb'
 
 # Offense count: 20
 # Configuration parameters: EnforcedStyle, CheckMethodNames, CheckSymbols, AllowedIdentifiers, AllowedPatterns.

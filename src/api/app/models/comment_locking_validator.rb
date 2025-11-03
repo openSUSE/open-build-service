@@ -2,7 +2,7 @@ class CommentLockingValidator < ActiveModel::Validator
   def validate(record)
     commentable = record.commentable
     return unless commentable
-    return if maintainer_or_unlocked(record)
+    return if maintainer_or_unlocked?(record)
 
     commentable_name = case commentable
                        when Package, Project
@@ -17,7 +17,7 @@ class CommentLockingValidator < ActiveModel::Validator
 
   private
 
-  def maintainer_or_unlocked(record)
+  def maintainer_or_unlocked?(record)
     user = User.session
     policy = CommentPolicy.new(user, record)
     # Allow maintainers and admins, moderators and staff to create comments despite the lock

@@ -62,7 +62,7 @@ class BsRequestPolicy < ApplicationPolicy
     # of the associated bs_request_actions
     return false unless accept_request?
 
-    record.bs_request_actions.where(type: :submit).any? { |submit_action| !submit_action.creator_is_target_maintainer }
+    record.bs_request_actions.where(type: :submit).any? { |submit_action| !submit_action.creator_is_target_maintainer? }
   end
 
   private

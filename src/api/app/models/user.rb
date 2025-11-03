@@ -416,7 +416,7 @@ class User < ApplicationRecord
       raise NotFoundError, 'Project is not stored yet'
     end
 
-    can_modify_project_internal(project, ignore_lock)
+    can_modify_project_internal?(project, ignore_lock)
   end
 
   # FIXME: This should be a policy
@@ -519,7 +519,7 @@ class User < ApplicationRecord
       rels = object.relationships.joins(:groups_users).where(groups_users: { user_id: id }).where(role_id: role.id)
       return true if rels.exists?
 
-      return true if lookup_strategy.local_role_check(role, object)
+      return true if lookup_strategy.local_role_check?(role, object)
     end
 
     return local_role?(role, object.project) if object.is_a?(Package)
@@ -566,7 +566,7 @@ class User < ApplicationRecord
     rel = object.relationships.joins(:groups_users).where(groups_users: { user_id: id }).where(role_id: roles)
     return true if rel.exists?
 
-    return true if lookup_strategy.local_permission_check(roles, object)
+    return true if lookup_strategy.local_permission_check?(roles, object)
 
     if parent
       # check permission of parent project
@@ -833,7 +833,7 @@ class User < ApplicationRecord
   end
 
   # FIXME: This should be a policy
-  def can_modify_project_internal(project, ignore_lock)
+  def can_modify_project_internal?(project, ignore_lock)
     # The ordering is important because of the lock status check
     return false if !ignore_lock && project.locked?
     return true if admin?

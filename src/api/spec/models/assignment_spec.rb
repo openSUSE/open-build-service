@@ -1,7 +1,7 @@
 RSpec.describe Assignment do
-  describe '#assignee_is_a_collaborator' do
+  describe '#assignee_is_a_collaborator?' do
     subject do
-      assignment.assignee_is_a_collaborator
+      assignment.assignee_is_a_collaborator?
     end
 
     context 'when the assignee is a package collaborator' do

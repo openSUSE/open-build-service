@@ -23,7 +23,7 @@ class BsRequestPermissionCheck
     req.bs_request_actions.each do |action|
       set_permissions_for_action(action)
     end
-    require_permissions_in_target_or_source unless permissions_granted
+    require_permissions_in_target_or_source? unless permissions_granted
   end
 
   def cmd_setpriority_permissions
@@ -39,7 +39,7 @@ class BsRequestPermissionCheck
     raise SetPriorityNoPermission, "You have not created the request and don't have write permission in target of request actions"
   end
 
-  def cmd_setincident_permissions
+  def cmd_setincident_permissions?
     raise ReviewChangeStateNoPermission, 'The request is not in state new or review' unless req.state.in?(%i[review new])
 
     req.bs_request_actions.each do |action|
@@ -52,7 +52,7 @@ class BsRequestPermissionCheck
       raise ProjectLocked if tip && tip.locked?
     end
 
-    require_permissions_in_target_or_source
+    require_permissions_in_target_or_source?
   end
 
   def cmd_changereviewstate_permissions
@@ -315,7 +315,7 @@ class BsRequestPermissionCheck
   end
 
   # Is the user involved in any project or package ?
-  def require_permissions_in_target_or_source
+  def require_permissions_in_target_or_source?
     raise AddReviewNotPermitted, "You have no role in request #{req.number}" unless @write_permission_in_target || @write_permission_in_source
 
     true

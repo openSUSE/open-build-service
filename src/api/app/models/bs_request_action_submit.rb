@@ -140,7 +140,7 @@ class BsRequestActionSubmit < BsRequestAction
     "Submit #{source_package}"
   end
 
-  def creator_is_target_maintainer
+  def creator_is_target_maintainer?
     request_creator = User.find_by_login(bs_request.creator)
     request_creator.local_role?(Role.hashed['maintainer'], target_package_object)
   end
