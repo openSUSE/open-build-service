@@ -73,7 +73,7 @@
   .mt-4
     %h5.mt-4
       Actions
-    = render BsRequestDescriptionComponent.new(bs_request:)
+    = render partial: 'webui/request/request_header_actions_list', locals: { bs_request: bs_request }
   - if Flipper.enabled?(:labels, User.session)
     .mt-4
       = render partial: 'webui/shared/label', collection: bs_request.labels, as: :label

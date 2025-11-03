@@ -78,6 +78,11 @@
   width: 35rem;
 }
 
+#request-header-actions-list {
+  max-height: 12rem;
+  overflow-y: scroll;
+}
+
 @include media-breakpoint-up(sm) {
   .order-sm-1 {
     order: 1;
