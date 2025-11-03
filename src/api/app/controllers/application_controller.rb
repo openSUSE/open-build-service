@@ -237,7 +237,7 @@ class ApplicationController < ActionController::Base
     Rails.cache.silence! unless Rails.env.development?
   end
 
-  def check_spider
+  def spider_request?
     return request.bot? if Rails.env.production?
 
     false
@@ -247,7 +247,7 @@ class ApplicationController < ActionController::Base
     InfluxDB::Rails.current.tags = {
       beta: User.possibly_nobody.in_beta?,
       anonymous: !User.session,
-      spider: check_spider,
+      spider: spider_request?,
       interconnect: false,
       interface: :api
     }

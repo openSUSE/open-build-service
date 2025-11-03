@@ -418,12 +418,8 @@ Naming/MethodParameterName:
 # WaywardPredicates: nonzero?
 Naming/PredicateMethod:
   Exclude:
-    - 'app/controllers/application_controller.rb'
-    - 'app/controllers/concerns/backend_proxy.rb'
     - 'app/controllers/webui/package_controller.rb'
-    - 'app/controllers/webui/packages/binaries_controller.rb'
     - 'app/controllers/webui/request_controller.rb'
-    - 'app/helpers/webui/comments_helper.rb'
     - 'app/lib/suse/permission.rb'
     - 'app/models/assignment.rb'
     - 'app/models/attrib.rb'
@@ -441,10 +437,6 @@ Naming/PredicateMethod:
     - 'app/models/status_message.rb'
     - 'app/models/user.rb'
     - 'app/models/user_basic_strategy.rb'
-    - 'app/queries/relationships_finder.rb'
-    - 'app/services/diff_parser.rb'
-    - 'db/data/20200702145811_adapt_review_and_duplicated_notifications.rb'
-    - 'test/node_matcher.rb'
 
 # Offense count: 20
 # Configuration parameters: EnforcedStyle, CheckMethodNames, CheckSymbols, AllowedIdentifiers, AllowedPatterns.

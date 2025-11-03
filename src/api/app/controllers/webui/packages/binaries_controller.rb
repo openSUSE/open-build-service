@@ -125,7 +125,7 @@ module Webui
       # Get an URL to a binary produced by the build.
       # In the published repo for everyone, in the backend directly only for logged in users.
       def download_url_for_binary(architecture_name:, file_name:)
-        if publishing_enabled(architecture_name: architecture_name)
+        if publishing_enabled?(architecture_name: architecture_name)
           published_url = Backend::Api::BuildResults::Binaries.download_url_for_file(@project.name, @repository.name, @package_name, architecture_name, file_name)
           return published_url if published_url
         end
@@ -133,7 +133,7 @@ module Webui
         "/build/#{@project.name}/#{@repository.name}/#{architecture_name}/#{@package_name}/#{file_name}" if User.session
       end
 
-      def publishing_enabled(architecture_name:)
+      def publishing_enabled?(architecture_name:)
         if @project == @package.project
           @package.enabled_for?('publish', @repository.name, architecture_name)
         else
