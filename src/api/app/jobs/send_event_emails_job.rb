@@ -15,7 +15,6 @@ class SendEventEmailsJob < ApplicationJob
       # Email channel again...
       send_email(subscribers, event)
     end
-    true
   end
 
   private

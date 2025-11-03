@@ -424,7 +424,6 @@ Naming/PredicateMethod:
     - 'app/controllers/webui/packages/binaries_controller.rb'
     - 'app/controllers/webui/request_controller.rb'
     - 'app/helpers/webui/comments_helper.rb'
-    - 'app/jobs/send_event_emails_job.rb'
     - 'app/lib/suse/permission.rb'
     - 'app/models/assignment.rb'
     - 'app/models/attrib.rb'
