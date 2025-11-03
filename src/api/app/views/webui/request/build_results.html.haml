@@ -13,7 +13,7 @@
         locals: { bs_request: @bs_request, action: @action, issues: @issues,
                   actions_count: @actions.count, active_tab: @active_tab }
     .container.p-4
-      - if @buildable && @actions.count <= 300
+      - if @buildable && @actions.count <= BsRequest::MAX_ACTIONS_TO_RENDER_BUILD_RESULTS
         .build-results-content
           -# For a request staged in a staging project, we display the Build Results / RPM Lint from the staging project instead
           - if @staging_project.present?
@@ -30,7 +30,7 @@
         .build-results-content
           .result
             %i
-              - if @actions.count > 300
+              - if @actions.count > BsRequest::MAX_ACTIONS_TO_RENDER_BUILD_RESULTS
                 Too many actions to render build results
               - else
                 No build results available

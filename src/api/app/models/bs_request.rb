@@ -7,6 +7,8 @@ class BsRequest < ApplicationRecord
 
   MAX_DESCRIPTION_LENGTH_ALLOWED = 64_000
 
+  MAX_ACTIONS_TO_RENDER_BUILD_RESULTS = 300
+
   SEARCHABLE_FIELDS = [
     'bs_requests.creator',
     'bs_requests.priority',
