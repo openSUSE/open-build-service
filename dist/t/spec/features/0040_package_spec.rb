@@ -1,11 +1,12 @@
 require 'spec_helper'
 
 RSpec.describe 'Package', type: :feature do
-  before(:context) do
+  # We consciously want the state of a finished spec to be preserved for the next one
+  before(:context) do # rubocop:disable RSpec/BeforeAfterAll
     login
   end
 
-  after(:context) do
+  after(:context) do # rubocop:disable RSpec/BeforeAfterAll
     logout
   end
 
