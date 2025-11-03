@@ -422,7 +422,6 @@ Naming/PredicateMethod:
     - 'app/controllers/concerns/backend_proxy.rb'
     - 'app/controllers/webui/package_controller.rb'
     - 'app/controllers/webui/packages/binaries_controller.rb'
-    - 'app/controllers/webui/project_controller.rb'
     - 'app/controllers/webui/request_controller.rb'
     - 'app/helpers/webui/comments_helper.rb'
     - 'app/jobs/send_event_emails_job.rb'
