@@ -7,28 +7,29 @@ class Webui::RequestController < Webui::WebuiController
 
   before_action :require_login,
                 except: %i[show beta_show sourcediff diff request_action request_action_changes request_action_details inline_comment build_results
-                           changes changes_diff mentioned_issues chart_build_results complete_build_results]
+                           changes changes_diff mentioned_issues chart_build_results complete_build_results request_actions]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
   before_action :require_request,
                 only: %i[changerequest show beta_show request_action request_action_changes request_action_details inline_comment build_results
-                         changes changes_diff mentioned_issues chart_build_results complete_build_results]
-  before_action :set_actions, only: %i[inline_comment beta_show build_results changes changes_diff mentioned_issues chart_build_results complete_build_results request_action_changes request_action_details],
+                         changes changes_diff mentioned_issues chart_build_results complete_build_results request_actions]
+  before_action :set_actions, only: %i[inline_comment beta_show build_results changes changes_diff mentioned_issues chart_build_results
+                                       complete_build_results request_action_changes request_action_details request_actions],
                               if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
   before_action :set_actions_deprecated, only: [:show]
   before_action :set_action, only: %i[inline_comment beta_show build_results changes changes_diff mentioned_issues request_action_details request_action_changes],
                              if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
-  before_action :set_influxdb_data_request_actions, only: %i[beta_show build_results changes changes_diff mentioned_issues],
+  before_action :set_influxdb_data_request_actions, only: %i[beta_show build_results changes changes_diff mentioned_issues request_actions],
                                                     if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
-  before_action :set_superseded_request, only: %i[show beta_show request_action request_action_changes build_results changes changes_diff mentioned_issues]
+  before_action :set_superseded_request, only: %i[show beta_show request_action request_action_changes build_results changes changes_diff mentioned_issues request_actions]
   before_action :check_ajax, only: :sourcediff
-  before_action :prepare_request_data, only: %i[beta_show build_results changes mentioned_issues],
+  before_action :prepare_request_data, only: %i[beta_show build_results changes mentioned_issues request_actions],
                                        if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
-  before_action :prepare_request_header_data, only: %i[beta_show build_results changes mentioned_issues],
+  before_action :prepare_request_header_data, only: %i[beta_show build_results changes mentioned_issues request_actions],
                                               if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
   before_action :cache_diff_data, only: %i[changes request_action_changes],
                                   if: -> { Flipper.enabled?(:request_show_redesign, User.possibly_nobody) }
-  before_action :check_beta_user_redirect, only: %i[beta_show build_results changes mentioned_issues changes_diff]
+  before_action :check_beta_user_redirect, only: %i[beta_show build_results changes mentioned_issues changes_diff request_actions]
 
   after_action :verify_authorized, only: [:create]
 
@@ -329,6 +330,10 @@ class Webui::RequestController < Webui::WebuiController
     @active_tab = 'build_results'
     @project = @staging_project || @action.source_project
     @buildable = @action.source_package || @project
+  end
+
+  def request_actions
+    @active_tab = 'actions'
   end
 
   def changes

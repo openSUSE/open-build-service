@@ -1,6 +1,6 @@
 # This component renders the request description based on the type of the actions
 
-class BsRequestDescriptionComponent < ApplicationComponent
+class BsRequestActionsComponent < ApplicationComponent
   attr_reader :bs_request, :types
 
   def initialize(bs_request:)
