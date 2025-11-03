@@ -203,7 +203,7 @@ class NodeMatcher # :nodoc:
     end
 
     # count children
-    return false unless matches_child_opts(node, conditions[:children])
+    return false unless matches_child_opts?(node, conditions[:children])
 
     # test siblings
     if conditions[:sibling] || conditions[:before] || conditions[:after]
@@ -237,7 +237,7 @@ class NodeMatcher # :nodoc:
     true
   end
 
-  def matches_child_opts(node, opts)
+  def matches_child_opts?(node, opts)
     return true unless opts
 
     matches = []

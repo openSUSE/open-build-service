@@ -449,14 +449,6 @@ class Webui::ProjectController < Webui::WebuiController
     @nr_of_problem_packages = @project.number_of_build_problems
   end
 
-  def require_maintenance_project
-    unless @is_maintenance_project
-      redirect_back_or_to({ action: 'show', project: @project })
-      return false
-    end
-    true
-  end
-
   ################################### Helper methods ###################################
 
   def find_maintenance_infos

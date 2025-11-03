@@ -32,23 +32,23 @@ module Webui::CommentsHelper
   def roles_for_request(comment)
     roles = []
     roles << 'author' if comment.commentable.creator == comment.user.login
-    roles << 'reviewer' if review_assigned_to_user(comment)
-    roles << 'source maintainer' if comment.commentable.bs_request_actions.any? { |action| source_maintainer(action, comment.user) }
-    roles << 'target maintainer' if comment.commentable.bs_request_actions.any? { |action| target_maintainer(action, comment.user) }
+    roles << 'reviewer' if review_assigned_to_user?(comment)
+    roles << 'source maintainer' if comment.commentable.bs_request_actions.any? { |action| source_maintainer?(action, comment.user) }
+    roles << 'target maintainer' if comment.commentable.bs_request_actions.any? { |action| target_maintainer?(action, comment.user) }
     roles
   end
 
-  def review_assigned_to_user(comment)
+  def review_assigned_to_user?(comment)
     comment.commentable.reviews.map(&:user).include?(comment.user) || comment.commentable.reviews.pluck(:group_id).intersect?(comment.user.groups.ids)
   end
 
-  def source_maintainer(action, user)
-    RelationshipsFinder.new.user_has_role_for_project(action.source_project, user, 'maintainer') ||
-      RelationshipsFinder.new.user_has_role_for_package(action.source_package, action.source_project, user, 'maintainer')
+  def source_maintainer?(action, user)
+    RelationshipsFinder.new.user_has_role_for_project?(action.source_project, user, 'maintainer') ||
+      RelationshipsFinder.new.user_has_role_for_package?(action.source_package, action.source_project, user, 'maintainer')
   end
 
-  def target_maintainer(action, user)
-    RelationshipsFinder.new.user_has_role_for_project(action.target_project, user, 'maintainer') ||
-      RelationshipsFinder.new.user_has_role_for_package(action.target_package, action.target_project, user, 'maintainer')
+  def target_maintainer?(action, user)
+    RelationshipsFinder.new.user_has_role_for_project?(action.target_project, user, 'maintainer') ||
+      RelationshipsFinder.new.user_has_role_for_package?(action.target_package, action.target_project, user, 'maintainer')
   end
 end

@@ -18,7 +18,7 @@ class SourceController < ApplicationController
     path = http_request_path
 
     # map to a GET, so we can X-forward it
-    volley_backend_path(path) unless forward_from_backend(path)
+    volley_backend_path(path) unless forward_from_backend?(path)
   end
 
   private

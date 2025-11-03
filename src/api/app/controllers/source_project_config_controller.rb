@@ -8,7 +8,7 @@ class SourceProjectConfigController < SourceController
 
     sliced_params = slice_and_permit(params, [:rev])
 
-    return if forward_from_backend(config.full_path(sliced_params))
+    return if forward_from_backend?(config.full_path(sliced_params))
 
     content = config.content(sliced_params)
 

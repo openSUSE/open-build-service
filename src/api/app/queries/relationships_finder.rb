@@ -16,14 +16,14 @@ class RelationshipsFinder
     END_SQL
   end
 
-  def user_has_role_for_project(project_name, user, role)
+  def user_has_role_for_project?(project_name, user, role)
     Relationship.joins(:role).joins(:project)
                 .where(projects: { name: project_name })
                 .where(user: user)
                 .exists?('roles.title': role)
   end
 
-  def user_has_role_for_package(package_name, project_name, user, role)
+  def user_has_role_for_package?(package_name, project_name, user, role)
     Relationship.joins(:role).joins(:package).joins('LEFT JOIN projects ON projects.id = packages.project_id')
                 .where(packages: { name: package_name })
                 .where(projects: { name: project_name })

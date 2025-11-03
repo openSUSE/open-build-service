@@ -126,7 +126,7 @@ class PublicController < ApplicationController
 
     path = Package.source_path(params[:project], params[:package], params[:filename])
     path += build_query_from_hash(params, %i[rev limit expand deleted])
-    volley_backend_path(path) unless forward_from_backend(path)
+    volley_backend_path(path) unless forward_from_backend?(path)
   end
 
   # GET /public/distributions
