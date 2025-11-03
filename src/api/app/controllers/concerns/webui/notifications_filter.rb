@@ -45,6 +45,15 @@ module Webui::NotificationsFilter
     notifications
   end
 
+  def filter_notifications_by_package(notifications, filter_package)
+    relations_package = filter_package.map do |package_name|
+      notifications.for_package_name(package_name)
+    end
+
+    notifications = notifications.merge(relations_package.inject(:or)) unless relations_package.empty?
+    notifications
+  end
+
   def filter_notifications_by_group(notifications, filter_group)
     relations_group = filter_group.map do |group_title|
       notifications.for_group_title(group_title)
