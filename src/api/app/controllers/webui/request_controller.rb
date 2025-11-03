@@ -364,7 +364,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def chart_build_results
     # a bs_request with a lot of bs_request_actions can cause performance issues on the backend, we need to skip those
-    return if @actions.count > 300
+    return if @actions.count > BsRequest::MAX_ACTIONS_TO_RENDER_BUILD_RESULTS
 
     important_repoarch = RepositoryArchitecture.joins(:repository, :architecture).where(repository: Repository.where(project: @actions.pluck(:source_project_id)),
                                                                                         important: true).pluck([
