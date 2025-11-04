@@ -3,40 +3,6 @@
     {
       "warning_type": "Cross-Site Scripting",
       "warning_code": 2,
-      "fingerprint": "0312447709eefec1409b0898da3070ca11010a6d727ed23dc095a931e21b199f",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped parameter value",
-      "file": "app/views/webui/shared/_repositories_flag_table.html.haml",
-      "line": 2,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "::Haml::AttributeBuilder.build_id(true, \"flag_table_#{params[:flag]}\")",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "Webui::RepositoriesController",
-          "method": "change_flag",
-          "line": 170,
-          "file": "app/controllers/webui/repositories_controller.rb",
-          "rendered": {
-            "name": "webui/shared/_repositories_flag_table",
-            "file": "app/views/webui/shared/_repositories_flag_table.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "webui/shared/_repositories_flag_table"
-      },
-      "user_input": "params[:flag]",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
       "fingerprint": "041277f7166762df2905deb13e2ca9649222a41687e6596e0404d2abf05a92dd",
       "check_name": "CrossSiteScripting",
       "message": "Unescaped model attribute",
@@ -156,83 +122,6 @@
       "note": ""
     },
     {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "199176ab9a921faaf7e38e7058422cc1a9239d46af36760740d5aa539933dfb0",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/webui/request/_request_comments.html.haml",
-      "line": 6,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "::Haml::AttributeBuilder.build_id(true, \"comment-counter-request-#{BsRequest.find_by!(:number => params[:number]).number}\")",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "Webui::RequestController",
-          "method": "show",
-          "line": 88,
-          "file": "app/controllers/webui/request_controller.rb",
-          "rendered": {
-            "name": "webui/request/show",
-            "file": "app/views/webui/request/show.html.haml"
-          }
-        },
-        {
-          "type": "template",
-          "name": "webui/request/show",
-          "line": 47,
-          "file": "app/views/webui/request/show.html.haml",
-          "rendered": {
-            "name": "webui/request/_request_comments",
-            "file": "app/views/webui/request/_request_comments.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "webui/request/_request_comments"
-      },
-      "user_input": "BsRequest.find_by!(:number => params[:number]).number",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "211ab7c81234969a23766e00b8620edc296b1723add369107279768c2d6d29e0",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/webui/package/_file.html.haml",
-      "line": 2,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "::Haml::AttributeBuilder.build_id(true, \"file-#{valid_xml_id((Unresolved Model).new[\"name\"])}\")",
-      "render_path": [
-        {
-          "type": "template",
-          "name": "webui/package/_files_view",
-          "line": 17,
-          "file": "app/views/webui/package/_files_view.html.haml",
-          "rendered": {
-            "name": "webui/package/_file",
-            "file": "app/views/webui/package/_file.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "webui/package/_file"
-      },
-      "user_input": "(Unresolved Model).new[\"name\"]",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
-      ],
-      "note": ""
-    },
-    {
       "warning_type": "SQL Injection",
       "warning_code": 0,
       "fingerprint": "23288c7e9dea90dd0d6a14268bf929de5b7651f16e9c2233776751400dda5d11",
@@ -270,7 +159,7 @@
           "type": "controller",
           "class": "Webui::UsersController",
           "method": "show",
-          "line": 36,
+          "line": 37,
           "file": "app/controllers/webui/users_controller.rb",
           "rendered": {
             "name": "webui/users/show",
@@ -613,50 +502,6 @@
       "note": ""
     },
     {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "b0f68d714656cf0ceb81f4b1837dc446b47de5f75ae0f1a64f78590dfcdc1665",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/webui/request/_request_comments.html.haml",
-      "line": 14,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "::Haml::AttributeBuilder.build_id(true, \"comment-counter-request-#{(Unresolved Model).new.number}\")",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "Webui::RequestController",
-          "method": "show",
-          "line": 88,
-          "file": "app/controllers/webui/request_controller.rb",
-          "rendered": {
-            "name": "webui/request/show",
-            "file": "app/views/webui/request/show.html.haml"
-          }
-        },
-        {
-          "type": "template",
-          "name": "webui/request/show",
-          "line": 47,
-          "file": "app/views/webui/request/show.html.haml",
-          "rendered": {
-            "name": "webui/request/_request_comments",
-            "file": "app/views/webui/request/_request_comments.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "webui/request/_request_comments"
-      },
-      "user_input": "(Unresolved Model).new.number",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
-      ],
-      "note": ""
-    },
-    {
       "warning_type": "SQL Injection",
       "warning_code": 0,
       "fingerprint": "b1d6007ada268c2f7129e8f9cd72bfcb3b3f69614a2671320c6f3411b86cd284",
@@ -694,7 +539,7 @@
           "type": "controller",
           "class": "Webui::PackageController",
           "method": "rpmlint_result",
-          "line": 310,
+          "line": 311,
           "file": "app/controllers/webui/package_controller.rb",
           "rendered": {
             "name": "webui/package/_rpmlint_result",
@@ -930,7 +775,7 @@
         {
           "type": "template",
           "name": "webui/request/beta_show",
-          "line": 11,
+          "line": 9,
           "file": "app/views/webui/request/beta_show.html.haml",
           "rendered": {
             "name": "webui/request/_request_header",
@@ -943,50 +788,6 @@
         "template": "webui/request/_request_header"
       },
       "user_input": "BsRequest.find_by!(:number => params[:number]).state",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "eb21e3f6d6b08379831501d6b53d66f13dd80f7b74cb0aae46e4dabbe20ce569",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/webui/request/_request_comments.html.haml",
-      "line": 23,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "::Haml::AttributeBuilder.build_id(true, \"superseded-#{(Unresolved Model).new.number}\")",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "Webui::RequestController",
-          "method": "show",
-          "line": 88,
-          "file": "app/controllers/webui/request_controller.rb",
-          "rendered": {
-            "name": "webui/request/show",
-            "file": "app/views/webui/request/show.html.haml"
-          }
-        },
-        {
-          "type": "template",
-          "name": "webui/request/show",
-          "line": 47,
-          "file": "app/views/webui/request/show.html.haml",
-          "rendered": {
-            "name": "webui/request/_request_comments",
-            "file": "app/views/webui/request/_request_comments.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "webui/request/_request_comments"
-      },
-      "user_input": "(Unresolved Model).new.number",
       "confidence": "Weak",
       "cwe_id": [
         79
@@ -1038,5 +839,5 @@
       "note": ""
     }
   ],
-  "brakeman_version": "7.1.0"
+  "brakeman_version": "7.1.1"
 }
