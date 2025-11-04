@@ -34,7 +34,7 @@ class RequestDecisionComponent < ApplicationComponent
   def show_add_creator_as_maintainer?
     return false unless submit_actions.any?
 
-    submit_actions.none?(&:creator_is_target_maintainer)
+    submit_actions.none?(&:creator_is_target_maintainer?)
   end
 
   def show_forward?

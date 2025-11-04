@@ -477,7 +477,7 @@ class BsRequestAction < ApplicationRecord
         results = pkg.project.build_results
         raise BuildNotFinished, "The project'#{pkg.project.name}' has no building repositories" unless results
 
-        found_patchinfo = check_patchinfo(pkg)
+        found_patchinfo = patchinfo_present?(pkg)
 
         versrel = {}
         results.each do |result|
@@ -893,7 +893,7 @@ class BsRequestAction < ApplicationRecord
     submit_action
   end
 
-  def check_patchinfo(pkg)
+  def patchinfo_present?(pkg)
     pkg.project.repositories.collect do |repo|
       firstarch = repo.architectures.first
       next unless firstarch

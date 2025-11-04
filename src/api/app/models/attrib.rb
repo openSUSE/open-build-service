@@ -129,7 +129,7 @@ class Attrib < ApplicationRecord
 
   private
 
-  def check_timezone_identifier(value)
+  def valid_timezone_identifier?(value)
     # Check for a valid timezone identifier
     if value =~ /\A\d{4}-\d\d?-\d\d?(\s|T)\d\d?:\d\d?(:\d\d?)?\s(.+)\Z/ &&  # whole string matches 'YYYY-MM-DD HH:MM:SS TZ' and
        (timezone = Regexp.last_match(3)) !~ /(\+|-)\d\d?(:\d\d?)?/          # timezone part doesn't match '+-HH:MM'
@@ -144,7 +144,7 @@ class Attrib < ApplicationRecord
     true
   end
 
-  def parse_value(value)
+  def valid_time?(value)
     begin
       parsed_value = Time.zone.parse(value)
     rescue ArgumentError => e
@@ -184,7 +184,7 @@ class Attrib < ApplicationRecord
     value = values[0]&.value
     return if value.blank?
 
-    parse_value(value) && check_timezone_identifier(value)
+    valid_time?(value) && valid_timezone_identifier?(value)
   end
 
   def write_container_attributes

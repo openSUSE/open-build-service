@@ -22,12 +22,12 @@ class Assignment < ApplicationRecord
   #### Validations macros
   validate :assignee do
     errors.add(:assignee, 'must be in confirmed state') unless assignee && assignee.state == 'confirmed'
-    errors.add(:assignee, 'must be a project or package collaborator') unless assignee_is_a_collaborator
+    errors.add(:assignee, 'must be a project or package collaborator') unless assignee_is_a_collaborator?
   end
   validates :package, uniqueness: true
 
   #### Instance methods (public and then protected/private)
-  def assignee_is_a_collaborator
+  def assignee_is_a_collaborator?
     return false if assignee.nil?
 
     collaborators = (package.relationships + package.project.relationships).map(&:user)

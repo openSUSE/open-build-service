@@ -80,7 +80,7 @@ class IssueTracker < ApplicationRecord
   end
 
   # this function is for debugging and disaster recovery
-  def enforced_update_all_issues
+  def enforced_update_all_issues?
     @update_time_stamp = Time.at(Time.now.to_f - 5)
 
     ids = issues.map { |x| x.name.to_s }
@@ -121,7 +121,7 @@ class IssueTracker < ApplicationRecord
     IssueTrackerWriteToBackendJob.perform_later
   end
 
-  def fetch_bugzilla_issues(ids)
+  def fetch_bugzilla_issues?(ids)
     # limit to 64 ids to avoid too much load and timeouts on bugzilla side
     limit_per_slice = 64
     while ids.present?
@@ -215,17 +215,17 @@ class IssueTracker < ApplicationRecord
       return false
     end
 
-    return fetch_bugzilla_issues(ids) if kind == 'bugzilla'
+    return fetch_bugzilla_issues?(ids) if kind == 'bugzilla'
     return fetch_github_issues(ids) if kind == 'github'
 
     # Try with 'IssueTracker.find_by_name('fate').details('123')' on script/console
-    return fetch_fate_issues if kind == 'fate'
+    return fetch_fate_issues? if kind == 'fate'
 
     # everything succeeded
     true
   end
 
-  def fetch_fate_issues
+  def fetch_fate_issues?
     follow_redirects(URI.parse("#{url}/#{name}?contenttype=text%2Fxml"))
 
     # TODO: Parse returned XML and return proper JSON
@@ -283,7 +283,7 @@ class IssueTracker < ApplicationRecord
       if (self.issues_updated + 2.days).past?
         # failures since two days?
         # => enforce a full update in small steps to avoid over load at bugzilla side
-        enforced_update_all_issues
+        enforced_update_all_issues?
         return true
       end
       return false

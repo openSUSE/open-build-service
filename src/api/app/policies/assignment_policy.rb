@@ -7,7 +7,7 @@ class AssignmentPolicy < ApplicationPolicy
 
     return true if user.admin?
 
-    record.assignee_is_a_collaborator
+    record.assignee_is_a_collaborator?
   end
 
   def destroy?

@@ -53,7 +53,7 @@ class ProjectPolicy < ApplicationPolicy
       record.staged_requests.each do |request|
         # we pretend the user asked for force, we only want to check permissions
         # not if it would makes sense to accept the request
-        raise Pundit::NotAuthorizedError, query: :accept?, record: request, reason: :request_state_change unless request.permission_check_change_state(newstate: 'accepted', force: true)
+        raise Pundit::NotAuthorizedError, query: :accept?, record: request, reason: :request_state_change unless request.permission_check_change_state?(newstate: 'accepted', force: true)
       end
     end
   end
