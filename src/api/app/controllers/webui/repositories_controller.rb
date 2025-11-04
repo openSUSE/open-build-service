@@ -2,7 +2,7 @@ class Webui::RepositoriesController < Webui::WebuiController
   include ScmsyncChecker
 
   before_action :set_project
-  before_action :check_scmsync, if: -> { params[:package] && !Flipper.enabled?(:scmsync, User.session) }
+  before_action :check_scmsync, if: -> { params[:package] }
   before_action :set_repository, only: %i[state mark_important]
   before_action :set_architectures, only: %i[index change_flag]
   before_action :set_package, only: %i[index change_flag], if: -> { params[:package] && !Flipper.enabled?(:scmsync, User.session) }
