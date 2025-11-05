@@ -12,7 +12,7 @@ class AssignmentsController < ApplicationController
 
   # POST /assignments/projects/:project_name/packages/:package_name
   def create
-    @assignment = Assignment.new(assigner: User.session, assignee: @assignee, package: @package)
+    @assignment = authorize Assignment.new(assigner: User.session, assignee: @assignee, package: @package)
 
     if @assignment.save
       render_ok
@@ -24,7 +24,7 @@ class AssignmentsController < ApplicationController
 
   # DELETE /assignments/projects/:project_name/packages/:package_name
   def destroy
-    @assignment = @package.assignment
+    @assignment = authorize @package.assignment
     if @assignment.blank?
       render_error status: 404, message: "The package isn't assigned."
       return
