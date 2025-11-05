@@ -1,4 +1,6 @@
-function setupCannedResponses() { // jshint ignore:line
+/* exported setupCannedResponses */
+
+function setupCannedResponses() {
   $('[data-canned-controller]').on('click', '[data-canned-response]', function(e) {
     $(e.target).closest('[data-canned-controller]').find('textarea').val(e.target.dataset.cannedResponse);
     // let's make sure this exists first, to avoid errors

@@ -1,4 +1,6 @@
-function setupPatchinfo() { // jshint ignore:line
+/* exported setupPatchinfo */
+
+function setupPatchinfo() {
   addIssuesAjaxBefore();
   addIssuesAjaxSuccess();
   addIssuesAjaxComplete();

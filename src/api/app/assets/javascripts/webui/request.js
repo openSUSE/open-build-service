@@ -1,3 +1,5 @@
+/* exported setupSubmitPackagePage, requestAddAutocompleteResponsiveUx, requestAddAutocomplete, reloadRequestAction, loadChanges */
+
 function updateSupersedeAndDevelPackageDisplay() {
   if ($('[id$="target_project"]').length > 0 && $('[id$="target_project"]')[0].value.length > 2) {
     if ($('[id$="target_project"]')[0].value === $('[id$="source_project"]')[0].value) {
@@ -44,7 +46,7 @@ function updateSupersedeAndDevelPackageDisplay() {
   }
 }
 
-function setupSubmitPackagePage(url) { // jshint ignore:line
+function setupSubmitPackagePage(url) {
   $('#devel-project-name').click(function () {
     $('[id$="target_project"]').attr('value', $('#devel-project-name').html());
   });
@@ -76,7 +78,7 @@ function prefillSubmitRequestForm(url) {
   });
 }
 
-function toggleAutocomplete(autocompleteElement) { // jshint ignore:line
+function toggleAutocomplete(autocompleteElement) {
   $('.hideable').addClass('d-none');
   $('.hideable input:not(:visible)').attr('disabled', true);
 
@@ -86,14 +88,14 @@ function toggleAutocomplete(autocompleteElement) { // jshint ignore:line
 }
 
 // TODO: Rename once modals depending on the non-responsive-ux version are all removed
-function requestAddAutocompleteResponsiveUx(autocompleteElement) { // jshint ignore:line
+function requestAddAutocompleteResponsiveUx(autocompleteElement) {
   toggleAutocomplete(autocompleteElement);
 
   $(autocompleteElement).change(function () { toggleAutocomplete(autocompleteElement); });
 }
 
 // TODO: Remove once modals depending on this are all removed
-function requestAddAutocomplete(autocompleteElement) { // jshint ignore:line
+function requestAddAutocomplete(autocompleteElement) {
   $('.modal').on('shown.bs.modal', function() {
     $('.hideable input:not(:visible)').attr('disabled', true);
   });
@@ -151,7 +153,7 @@ $(document).ready(function(){
 });
 
 // TODO: Remove the following method when the request_show_redesign feature is finished
-function reloadRequestAction(index){ // jshint ignore:line
+function reloadRequestAction(index){
   var element = $('.request-tab[data-index=' + index + ']');
   $('.tab-pane.sourcediff.active').html('');
   if(element) {
@@ -185,7 +187,7 @@ function loadDiffs(element){
   });
 }
 
-function loadChanges() { // jshint ignore:line
+function loadChanges() {
   $('.tab-content.sourcediff .loading').removeClass('invisible');
 
   // Take the parameters from the container data

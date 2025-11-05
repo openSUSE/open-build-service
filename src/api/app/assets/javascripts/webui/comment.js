@@ -1,4 +1,4 @@
-function resizeTextarea(textarea) { // jshint ignore:line
+function resizeTextarea(textarea) {
   var heightPerRow = Math.ceil(textarea.clientHeight / textarea.rows);
   var linesOfText = Math.ceil(textarea.scrollHeight / heightPerRow);
   var rowsToIncrease = linesOfText - textarea.rows;

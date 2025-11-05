@@ -1,3 +1,6 @@
+/* exported setupDropdownFilters */
+/* global initializePopovers */
+
 $(document).ready(function(){
   // Dismiss dropdowns using a button with `data-bs-dismiss` value
   const dropdownDismissList = document.querySelectorAll('[data-bs-dismiss="dropdown"]');
@@ -11,8 +14,8 @@ $(document).ready(function(){
   });
 });
 
-function setupDropdownFilters() { // jshint ignore:line
-  initializePopovers('[data-bs-toggle="popover"]'); // jshint ignore:line
+function setupDropdownFilters() {
+  initializePopovers('[data-bs-toggle="popover"]');
 
   function setAllRelatedLinks(event) {
     $(this).closest('.dropdown-menu').find('input').prop('checked', event.data.checked);

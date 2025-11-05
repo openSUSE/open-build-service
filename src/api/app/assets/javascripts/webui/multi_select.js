@@ -1,4 +1,6 @@
-function collectMultiSelects() { // jshint ignore:line
+/* exported collectMultiSelects */
+
+function collectMultiSelects() {
   document.querySelectorAll('.form-multi-select').forEach(( multiSelect ) => {
     multiSelect.addEventListener("change", function(e) {
       var multiSelect = e.target.closest(".form-multi-select");

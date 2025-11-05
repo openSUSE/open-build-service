@@ -1,8 +1,11 @@
+/* exported updateRpmlintResult, updateBuildResult, updateArchDisplay, toggleBuildInfo */
+/* global initializePopovers */
+
 // TODO: replace with the content of
 // app/assets/javascripts/webui/request_show_redesign/build_results.js
 // after the rollout of 'request_show_redesign'.
 
-function updateRpmlintResult(index) { // jshint ignore:line
+function updateRpmlintResult(index) {
   $('#rpm'+index+'-reload').addClass('fa-spin');
   $.ajax({
     url: '/package/rpmlint_result',
@@ -19,7 +22,7 @@ function updateRpmlintResult(index) { // jshint ignore:line
   });
 }
 
-function updateBuildResult(index) { // jshint ignore:line
+function updateBuildResult(index) {
   var collapsedPackages = [];
   var collapsedRepositories = {};
   $('.result div.collapse:not(.show)').map(function(_index, domElement) {
@@ -49,12 +52,12 @@ function updateBuildResult(index) { // jshint ignore:line
     },
     complete: function() {
       $('#build' + index + '-reload').removeClass('fa-spin');
-      initializePopovers('[data-toggle="popover"]'); // jshint ignore:line
+      initializePopovers('[data-toggle="popover"]');
     }
   });
 }
 
-function updateArchDisplay(index) { // jshint ignore:line
+function updateArchDisplay(index) {
   $('.rpmlint_arch_select_' + index).hide();
   $('select[name="rpmlint_arch_select_' + index + '_' + $('#rpmlint_repo_select_' + index + ' option:selected').attr('value') + '"]').show();
   updateRpmlintDisplay(index);
@@ -75,7 +78,7 @@ function updateRpmlintDisplay(index) {
 }
 
 // TODO: Stop using toggleBuildInfo in favor of the generic toggleCollapsibleTooltip
-function toggleBuildInfo() { // jshint ignore:line
+function toggleBuildInfo() {
   $('.toggle-build-info').on('click', function(){
     var replaceTitle = $(this).attr('title') === 'Click to keep it open' ? 'Click to close it' : 'Click to keep it open';
     var infoContainer = $(this).parents('.toggle-build-info-parent').next();

@@ -1,5 +1,11 @@
-function initializeUserConfigurationDatatable() { // jshint ignore:line
-  initializeRemoteDatatable( // jshint ignore:line
+/* exported initializeUserConfigurationDatatable */
+/* exported changeUserRole */
+/* exported setDataTableForUsersAndGroups */
+/* exported initializeGroupTokenfield */
+
+/* globals initializeRemoteDatatable */
+function initializeUserConfigurationDatatable() {
+  initializeRemoteDatatable(
     '#user-table',
     {
       pageLength: 50,
@@ -14,7 +20,7 @@ function initializeUserConfigurationDatatable() { // jshint ignore:line
   );
 }
 
-function changeUserRole(obj) { // jshint ignore:line
+function changeUserRole(obj) {
   var type = obj.data("type");
   var role = obj.data("role");
   var spinner = obj.siblings('.fa-spinner');
@@ -50,7 +56,7 @@ function changeUserRole(obj) { // jshint ignore:line
   });
 }
 
-function setDataTableForUsersAndGroups() { // jshint ignore:line
+function setDataTableForUsersAndGroups() {
   $('#user-table').dataTable({
     responsive: true,
     info: false,
@@ -65,7 +71,7 @@ function setDataTableForUsersAndGroups() { // jshint ignore:line
   });
 }
 
-function initializeGroupTokenfield() { // jshint ignore:line
+function initializeGroupTokenfield() {
   var $tokenfield = $('#group-members.tag-input');
 
   $tokenfield.tagsInput({

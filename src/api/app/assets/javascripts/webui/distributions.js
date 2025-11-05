@@ -1,4 +1,6 @@
-function toggleDistribution() { // jshint ignore:line
+/* exported toggleDistribution */
+
+function toggleDistribution() {
   $('.distribution-input').on('change', function (){
     var distributionId = $( this ).attr('data-distribution');
     $('#distribution-' + distributionId + '-checkbox').prop( 'disabled', true );

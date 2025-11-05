@@ -1,3 +1,5 @@
+/* global setCollapsible */
+
 var HASH_PREFIX = 'tab-pane-';
 
 $(document).ready(function () {
@@ -23,7 +25,7 @@ $(document).ready(function () {
      * jshint false positive fires an error saying the `setCollapsible` function is not defined
      * actually it is, just in another file (`collapsible_text.js`)
      */
-    setCollapsible(); // jshint ignore:line
+    setCollapsible();
   });
 
   function replaceURLActionHash() {

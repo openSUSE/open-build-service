@@ -1,4 +1,6 @@
-function dismissBanner(bannerId, cookieId) { // jshint ignore:line
+/* exported dismissBanner */
+
+function dismissBanner(bannerId, cookieId) {
   const btn = document.getElementById(bannerId);
   if (btn) {
     btn.addEventListener("click", function () {
