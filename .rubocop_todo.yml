@@ -32,16 +32,6 @@ Metrics/MethodLength:
     - 'dist/obs_mirror_project'
     - 'dist/openQA_mail_notification.rb'
 
-# Offense count: 6
-RSpec/BeforeAfterAll:
-  Exclude:
-    - '**/spec/spec_helper.rb'
-    - '**/spec/rails_helper.rb'
-    - '**/spec/support/**/*.rb'
-    - 'dist/t/spec/features/0020_interconnect_spec.rb'
-    - 'dist/t/spec/features/0030_project_spec.rb'
-    - 'dist/t/spec/features/0040_package_spec.rb'
-
 # Offense count: 8
 # Configuration parameters: Max, CountAsOne.
 RSpec/ExampleLength:
