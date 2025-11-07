@@ -14,6 +14,10 @@ class Webui::LabelsController < Webui::WebuiController
     redirect_back_or_to root_path
   end
 
+  def autocomplete
+    render json: LabelTemplate.where(['LOWER(name) LIKE LOWER(?)', "%#{params[:term]}%"]).order(Arel.sql('LENGTH(name)'), :name).distinct.pluck(:name)
+  end
+
   private
 
   def labels_params

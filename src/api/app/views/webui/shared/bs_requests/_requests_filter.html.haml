@@ -91,6 +91,30 @@
   .mt-2.mb-2.accordion-item.border-0
     .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-project-name' },
                                                        aria: { expanded: 'true', controls: 'request-filter-project-name' } }
+      %b Labels
+      %span.ms-1
+        = render partial: 'webui/shared/info_popover',
+                 locals: { position: 'bottom',
+                           text: "<p>Filter the requests by involvement of this label.</p>" }
+      .selected-content.small.ms-1
+    .px-4.pb-2.accordion-collapse.collapse.show#request-filter-labels
+      #request-labels-dropdown
+        = render partial: 'webui/shared/search_box', locals: { html_id: 'labels_search',
+                                                                 html_name: 'labels[]', required: false,
+                                                                 data: { source: autocomplete_labels_path },
+                                                                 button: { type: 'submit' } }
+        .scroll-list-wrapper.auto-submit-on-change
+          - selected_filter[:labels].each do |label|
+            .dropdown-item-text
+              = render partial: 'webui/shared/check_box', locals: { label: label,
+                                                                    key: "labels[#{label}]", name: 'labels[]',
+                                                                    value: label,
+                                                                    checked: selected_filter[:labels]&.include?(label) }
+
+
+  .mt-2.mb-2.accordion-item.border-0
+    .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#request-filter-project-name' },
+                                                       aria: { expanded: 'true', controls: 'request-filter-project-name' } }
       %b Projects
       %span.ms-1
         = render partial: 'webui/shared/info_popover',
