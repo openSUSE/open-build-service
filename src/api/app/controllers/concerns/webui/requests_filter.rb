@@ -7,7 +7,8 @@ module Webui::RequestsFilter
     @selected_filter = { states: %w[new review], action_types: [], creators: [],
                          priorities: [], staging_projects: [], reviewers: [],
                          project_names: [], created_at_from: nil, created_at_to: nil,
-                         involvement: %w[incoming outgoing review], search: nil, package_names: [] }.with_indifferent_access
+                         involvement: %w[incoming outgoing review], search: nil, package_names: [],
+                         labels: [] }.with_indifferent_access
 
     filter_states
     filter_action_types
@@ -20,6 +21,7 @@ module Webui::RequestsFilter
     filter_created_at
     filter_involvement
     filter_search_text
+    filter_labels
   end
 
   private
@@ -91,5 +93,12 @@ module Webui::RequestsFilter
 
     @selected_filter['search'] = params[:search]
     @bs_requests = @bs_requests.where(id: BsRequest.search_for_ids(@selected_filter['search']))
+  end
+
+  def filter_labels
+    return if params[:labels]&.compact_blank.blank?
+
+    @selected_filter['labels'] = params[:labels].compact_blank
+    @bs_requests = @bs_requests.joins(labels: :label_template).where(label_templates: { name: @selected_filter['labels'] })
   end
 end
