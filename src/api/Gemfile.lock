@@ -340,7 +340,7 @@ GEM
       racc
     pkg-config (1.6.4)
     popper_js (2.11.8)
-    power_assert (3.0.0)
+    power_assert (3.0.1)
     prism (1.6.0)
     pry (0.15.2)
       coderay (~> 1.1)
