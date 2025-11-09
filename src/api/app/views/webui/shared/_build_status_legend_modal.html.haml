@@ -11,8 +11,9 @@
       .modal-body
         - legend.each do |status, description|
           %p
-            %strong
-              #{status}:
+            %span.badge{ class: build_status_category_color(status) }
+              %strong
+                #{status}:
             = description
       .modal-footer
         %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { 'bs-dismiss': 'modal' } }
