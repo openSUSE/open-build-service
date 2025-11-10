@@ -175,7 +175,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     authorize @project, :update?
     repository_architectures = RepositoryArchitecture.joins(:architecture).where(repository: @repository)
 
-    if repository_architectures.update(important: false) && repository_architectures.where(architecture: { name: params[:important].keys }).update(important: true)
+    if repository_architectures.update(important: false) && repository_architectures.where(architecture: { name: params[:important]&.keys }).update(important: true)
       redirect_to({ action: :index }, success: 'Successfully updated repository')
     else
       redirect_to({ action: :index }, error: "Failed updating repository: #{repository_architectures.errors.to_sentence}")
