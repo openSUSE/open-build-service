@@ -37,4 +37,25 @@ RSpec.describe Webui::LabelsController do
       end
     end
   end
+
+  describe 'GET autocomplete' do
+    let!(:coolest_label) { create(:label_template, name: 'Coolest') }
+    let!(:test_label) { create(:label_template, name: 'Test') }
+    let!(:great_label) { create(:label_template, name: 'Great') }
+
+    it 'returns list with one matching result' do
+      get :autocomplete, params: { term: 'cool' }
+      expect(response.parsed_body).to eq(['Coolest'])
+    end
+
+    it 'returns list with more than one matching result' do
+      get :autocomplete, params: { term: 'est' }
+      expect(response.parsed_body).to eq(%w[Test Coolest])
+    end
+
+    it 'returns empty list if no match' do
+      get :autocomplete, params: { term: 'no_label' }
+      expect(response.parsed_body).to eq([])
+    end
+  end
 end

@@ -483,6 +483,10 @@ end
 
 resources :code_of_conduct, only: [:index], controller: 'webui/code_of_conduct'
 
-resource :labels, controller: 'webui/labels', only: %i[update], constraints: cons
+resource :labels, controller: 'webui/labels', only: %i[update], constraints: cons do
+  collection do
+    get 'autocomplete'
+  end
+end
 
 resources :global_feature_toggles, only: [:index], controller: 'webui/global_feature_toggles'

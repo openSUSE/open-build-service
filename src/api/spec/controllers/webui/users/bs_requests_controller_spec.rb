@@ -69,6 +69,12 @@ RSpec.describe Webui::Users::BsRequestsController do
                description: 'review_request')
       end
 
+      let(:label_template) do
+        create(:label_template, project: target_project)
+      end
+      let(:label) do
+        label_template.labels.create(labelable: incoming_request)
+      end
       let(:context_params) { {} }
       let(:params) { { format: :json }.merge(context_params) }
 
@@ -176,6 +182,12 @@ RSpec.describe Webui::Users::BsRequestsController do
 
       context 'and the package_name parameter is used' do
         let(:context_params) { { package_names: [incoming_request.bs_request_actions.first.source_package] } }
+
+        it { expect(assigns[:bs_requests]).to contain_exactly(incoming_request) }
+      end
+
+      context 'and the labels parameter is used' do
+        let(:context_params) { { labels: [label.label_template.name] } }
 
         it { expect(assigns[:bs_requests]).to contain_exactly(incoming_request) }
       end
