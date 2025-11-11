@@ -972,10 +972,10 @@ EOL
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, @{$data->{'signargs'} || []};
-    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/Release") && die("    sign failed: $?\n");
+    qsystem($BSConfig::sign, @signargs, '-d', '-4', "$extrep/Release") && die("    sign failed: $?\n");
     rename("$extrep/Release.asc","$extrep/Release.gpg");
     BSUtil::cp("$extrep/Release", "$extrep/InRelease.tmp");
-    qsystem($BSConfig::sign, @signargs, '-c', "$extrep/InRelease.tmp") && die("    sign failed: $?\n");
+    qsystem($BSConfig::sign, @signargs, '-c', '-4', "$extrep/InRelease.tmp") && die("    sign failed: $?\n");
     rename("$extrep/InRelease.tmp","$extrep/InRelease");
   }
   if ($BSConfig::sign) {
