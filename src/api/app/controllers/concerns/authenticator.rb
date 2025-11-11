@@ -55,16 +55,8 @@ module Authenticator
 
   def check_anonymous_access
     return if ::Configuration.anonymous
-    return if User.session
 
-    respond_to do |format|
-      format.html do
-        redirect_to root_path, error: 'Authentication Required'
-      end
-      format.xml do
-        render_error status: 401, errorcode: 'authentication_required', message: 'Authentication Required'
-      end
-    end
+    require_login
   end
 
   def track_user_login
