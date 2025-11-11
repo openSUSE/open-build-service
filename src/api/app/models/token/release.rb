@@ -22,7 +22,7 @@ class Token::Release < Token
   end
 
   def package_find_options
-    { follow_project_links: true, follow_multibuild: true }
+    { follow_project_links: false, follow_multibuild: true }
   end
 
   private
