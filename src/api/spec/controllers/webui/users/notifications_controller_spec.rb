@@ -229,6 +229,30 @@ RSpec.describe Webui::Users::NotificationsController do
         expect(assigns[:notifications]).to include(report_notification.reload)
       end
     end
+
+    context 'when filtering by `labels` param' do
+      let(:source_package) { create(:package) }
+      let(:target_package) { create(:package) }
+      let(:bs_request) { create(:bs_request_with_submit_action, source_project: source_package.project, source_package: source_package, target_project: target_package.project, target_package: target_package) }
+      let!(:notification_for_request) { create(:notification_for_request, :web_notification, subscriber: user, event_type: 'Event::RequestCreate', notifiable: bs_request) }
+      let!(:notification_build_failure) { create(:notification_for_package, :web_notification, event_type: 'Event::BuildFail', subscriber: user, notifiable: target_package) }
+
+      let(:label_template) { create(:label_template, project: target_package.project) }
+
+      let!(:label_for_request) { create(:label, label_template: label_template, labelable: bs_request) }
+      let!(:label_for_package) { create(:label, label_template: label_template, labelable: target_package) }
+      let(:params) { default_params.merge(labels: [label_template.name]) }
+
+      before do
+        subject
+      end
+
+      it_behaves_like 'returning success'
+
+      it 'sets @notifications to all undelivered notifications with the label set' do
+        expect(assigns[:notifications]).to contain_exactly(notification_build_failure, notification_for_request)
+      end
+    end
   end
 
   describe 'PUT #update' do

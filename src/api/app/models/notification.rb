@@ -84,6 +84,10 @@ class Notification < ApplicationRecord
     User.find_by(login: event_payload['accused']) || User.find_by(login: event_payload['user_login'])
   end
 
+  def labelable?
+    notifiable_type.in?(%w[BsRequest Package])
+  end
+
   private
 
   def track_notification_creation
