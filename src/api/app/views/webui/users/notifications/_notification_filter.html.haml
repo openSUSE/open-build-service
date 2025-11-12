@@ -127,6 +127,24 @@
                                                                         key: "project[#{project_name}]", name: 'project[]',
                                                                         value: project_name,
                                                                         checked: selected_filter[:project]&.include?(project_name) }
+      .mt-2.mb-2.accordion-item.border-0
+        .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-labels' },
+                                                aria: { expanded: 'true', controls: 'notification-filter-labels' } }
+          %b Labels
+          .selected-content.small.ms-1
+        .px-4.pb-2.accordion-collapse.collapse.show#notification-filter-labels
+          #notification-labels-dropdown
+            = render partial: 'webui/shared/search_box', locals: { html_id: 'labels_search',
+                                                                     html_name: 'labels[]', required: false,
+                                                                     data: { source: autocomplete_labels_path },
+                                                                     button: { type: 'submit' } }
+            .scroll-list-wrapper.auto-submit-on-change
+              - selected_filter[:labels].each do |label|
+                .dropdown-item-text
+                  = render partial: 'webui/shared/check_box', locals: { label: label,
+                                                                        key: "labels[#{label}]", name: 'labels[]',
+                                                                        value: label,
+                                                                        checked: selected_filter[:labels]&.include?(label) }
     - unless groups_for_filter.empty?
       .mt-2.mb-2.accordion-item.border-0.auto-submit-on-change
         .px-3.py-2.accordion-button.no-style{ data: { 'bs-toggle': 'collapse', 'bs-target': '#notification-filter-groups' },
