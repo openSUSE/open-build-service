@@ -55,3 +55,7 @@
       .row.d-none.d-md-block.ps-4
         .col
           %p.mt-3.mb-0= render_without_markdown(truncate_to_first_new_line(notification.excerpt))
+      - if Flipper.enabled?(:labels, User.session) && notification.labelable? && notification.notifiable.labels
+        .row.d-none.d-md-block.mt-3.ps-4
+          .col
+            = render partial: 'webui/shared/label', collection: notification.notifiable.labels, as: :label
