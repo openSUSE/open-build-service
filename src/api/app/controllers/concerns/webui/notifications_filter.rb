@@ -86,4 +86,14 @@ module Webui::NotificationsFilter
     notifications = notifications.for_reports
     notifications.merge(relations_reportable_type.inject(:or))
   end
+
+  def filter_notifications_by_labels(notifications, filter_label)
+    return notifications if filter_label.blank?
+
+    labelled_bs_requests = BsRequest.joins(labels: :label_template).where(label_templates: { name: filter_label })
+    labelled_packages = Package.joins(labels: :label_template).where(label_templates: { name: filter_label })
+    request_notifications = notifications.where(notifiable_type: 'BsRequest', notifiable_id: labelled_bs_requests)
+    package_notifications = notifications.where(notifiable_type: 'Package', notifiable_id: labelled_packages)
+    request_notifications.or(package_notifications)
+  end
 end
