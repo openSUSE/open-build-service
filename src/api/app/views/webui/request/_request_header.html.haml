@@ -76,6 +76,6 @@
     = render partial: 'webui/request/request_header_actions_list', locals: { bs_request: bs_request }
   - if Flipper.enabled?(:labels, User.session)
     .mt-4
-      = render partial: 'webui/shared/label', collection: bs_request.labels, as: :label
+      = render partial: 'webui/shared/label', collection: bs_request.labels.map(&:label_template), as: :label
       - if can_apply_labels?(bs_request: bs_request, user: User.session)
         = render partial: 'webui/shared/label_form', locals: { labelable: bs_request, project: project_for_labels(bs_request)}
