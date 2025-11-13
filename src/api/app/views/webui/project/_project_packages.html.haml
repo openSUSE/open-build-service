@@ -11,8 +11,11 @@
     = link_to project.scmsync do
       This project is managed in SCM
   - elsif packages.present?
-    %span.mb-1{ data: { label: '' } }
-      = link_to('', '#', id: 'label-clear', class: 'label-filter')
+    .mb-2{ data: { label: '' } }
+      Filters:
+      %span.d-none#label-filter
+        %span.badge
+      = link_to('Clear filters', '#', id: 'label-clear', class: 'label-filter btn btn-sm btn-primary')
     .obs-dataTable
       %table.table.table-sm.table-bordered.table-hover.w-100#packages-table{ data: { source: package_index_path(project: project) } }
         %thead

@@ -48,21 +48,26 @@ function initializeRemoteDatatable(cssSelector, params) {
 function labelFiltering() {
   var table = $('#packages-table').DataTable();
   var labelColumn = table.column('labels:name');
-  var clear = $('#label-clear');
+  var labelFilter = $('#label-filter');
+  var labelFilterBadge = $('#label-filter .badge');
   $('.obs-dataTable').parent().on('click', '.label-filter', function(e) {
     e.preventDefault();
     e.stopPropagation();
     var label = e.target.parentElement.dataset.label;
-    clear.html('');
-    clear.data('label', label);
+    var labelId = e.target.parentElement.dataset.labelId;
+    labelFilter.addClass('d-none');
 
     if (label === labelColumn.search())
       labelColumn.search('').draw();
     else
       labelColumn.search(label).draw();
 
-    if (labelColumn.search() !== '')
-      clear.html('Clear label filter');
+    if (labelColumn.search() !== '') {
+      labelFilter.removeClass('d-none');
+      labelFilterBadge.removeClass();
+      labelFilterBadge.addClass(['badge', `label-${labelId}`]);
+      labelFilterBadge.html(label);
+    }
   });
   if (labelColumn.search() !== '')
     labelColumn.search('').draw();

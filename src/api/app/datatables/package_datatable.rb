@@ -53,7 +53,7 @@ class PackageDatatable < Datatable
     return nil unless labels.any?
 
     list = labels.map do |label|
-      tag.a(href: '#', class: 'label-filter mb-1', data: { label: label.name }) do
+      tag.a(href: '#', class: 'label-filter mb-1', data: { label: label.name, label_id: label.id }) do
         tag.span(label.name, class: "badge label-#{label.id}")
       end
     end
