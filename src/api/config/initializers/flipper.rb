@@ -5,7 +5,7 @@ ENABLED_FEATURE_TOGGLES = [
   { name: :request_show_redesign, description: 'Redesign of the request pages to improve the collaboration workflow' },
   { name: :content_moderation, description: 'Reporting inappropriate content' },
   { name: :foster_collaboration, description: 'Features improving the collaboration opportunities between users of the build service.' },
-  { name: :labels, description: 'Allow to apply labels to packages, submit requests and projects to improve collaboration between build service users.' },
+  { name: :labels, description: 'Allow to apply labels to packages, requests and projects to improve collaboration between build service users.' },
   { name: :request_index, description: 'Redesign of listing requests' },
   { name: :canned_responses, description: 'Create messages using templates' },
   { name: :package_version_tracking, description: 'Track the local and upstream versions of your packages' }
