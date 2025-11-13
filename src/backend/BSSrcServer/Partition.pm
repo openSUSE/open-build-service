@@ -95,6 +95,7 @@ sub checkpartition {
   }
   $remotemap->{$projid}->{'repository'} = $proj->{'repository'} if $proj->{'repository'};
   $remotemap->{$projid}->{'kind'} = $proj->{'kind'} if $proj->{'kind'};
+  $remotemap->{$projid}->{'link'} = $proj->{'link'} if $proj->{'link'};
   if ($proj->{'access'}) {
     for ('access', 'publish', 'person', 'group') {
       $remotemap->{$projid}->{$_} = $proj->{$_} if exists $proj->{$_};

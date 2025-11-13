@@ -1309,12 +1309,17 @@ sub getprojpack {
     }
 
     if ($remotemap && !$is_limited) {
-      for my $lprojid (map {$_->{'project'}} @{$proj->{'link'} || []}) {
+      my @lprojids = map {$_->{'project'}} @{$proj->{'link'} || []};
+      my %lprojids_checked;
+      while (@lprojids) {
+	my $lprojid = shift @lprojids;
+	next if $lprojids_checked{$lprojid}++;
         my $lproj = BSSrcServer::Remote::remoteprojid($lprojid);
 	eval {
 	  BSSrcServer::Remote::fetchremoteproj($lproj, $lprojid, $remotemap) if $lproj;
 	};
         BSSrcServer::Partition::checkpartition($remotemap, $lprojid) if $remotemap->{':partitions'} && !$remotemap->{':partitions'}->{$lprojid};
+	push @lprojids, map {$_->{'project'}} @{$remotemap->{$lprojid}->{'link'} || []} if $remotemap->{$lprojid};
       }
     }
 
@@ -2050,7 +2055,7 @@ sub getprojpack {
       next unless $remotemap->{$p};
       my $r = {'project' => $p};
       # keep in sync with BSXML! (we only use access/publish from the flags)
-      for (qw{kind root remoteurl remoteproject remoteroot partition proto config publish access person group repository error}) {
+      for (qw{kind root remoteurl remoteproject remoteroot partition proto config publish access person group repository error link}) {
         $r->{$_} = $remotemap->{$p}->{$_} if defined($remotemap->{$p}->{$_});
       }
       $r->{'error'} =~ s/\n$// if $r->{'error'};
