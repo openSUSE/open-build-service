@@ -1,4 +1,5 @@
-# TODO: Please overwrite this comment with something explaining the model target
+# An Assignment is a way to help in managing work around OBS by telling that some User is working on a Package.
+#
 class Assignment < ApplicationRecord
   #### Includes and extends
 
