@@ -331,6 +331,12 @@ our $modulemd = [
      ]],
 ];
 
+our $projectlink = [
+    'link' =>
+	'project',
+	'vrevmode',
+];
+
 our $projpack = [
     'projpack' =>
     'repoid',
@@ -343,10 +349,7 @@ our $projpack = [
 	    'description',
 	    'config',
 	    'patternmd5',
-	 [[ 'link' =>
-		'project',
-		'vrevmode',
-	 ]],
+	  [ $projectlink ],
 	    'remoteurl',
 	    'remoteproject',
 	    'scmsync',
@@ -389,6 +392,7 @@ our $projpack = [
 	    'partition',
 	    'proto',	# project data not included
 	     [],
+	  [ $projectlink ],
 	    'config',
 	    @flags,
 	    @roles,
