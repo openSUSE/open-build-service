@@ -90,6 +90,8 @@ class BsRequestActionSubmit < BsRequestAction
     target_package.commit_opts = { no_backend_write: 1 }
     target_package.sources_changed
 
+    source_package_object&.assignment&.destroy
+
     # cleanup source project
     if relink_source && sourceupdate != 'noupdate'
       if Package.find_by_project_and_name(source_project, source_package).scmsync.blank?

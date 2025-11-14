@@ -300,6 +300,18 @@ RSpec.describe BsRequest, :vcr do
           end
         end
       end
+
+      context 'and the source package has an assignment' do
+        let!(:assignment) { create(:assignment, assignee: creator, package: request.bs_request_actions.first.source_package_object) }
+
+        before { login creator }
+
+        it 'expires the assignment' do
+          request.change_state(newstate: 'accepted')
+
+          expect(request.bs_request_actions.first.source_package_object.assignment).to be_nil
+        end
+      end
     end
 
     context 'final state accepted cannot be changed' do
