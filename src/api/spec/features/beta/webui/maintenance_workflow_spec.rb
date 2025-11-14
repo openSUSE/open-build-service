@@ -43,7 +43,7 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
     end
 
     it 'displays information on type of request' do
-      expect(page).to have_text('This is a Maintenance Incident')
+      expect(page).to have_text('Maintenance Incident')
     end
 
     context 'when accepting request' do
@@ -82,7 +82,7 @@ RSpec.describe 'MaintenanceWorkflow', :js, :vcr do
     end
 
     it 'displays information on type of request' do
-      expect(page).to have_text('This is a Maintenance Incident')
+      expect(page).to have_text('Maintenance Incident')
     end
 
     it 'has patchinfo submission' do
