@@ -32,6 +32,7 @@ use File::Temp ();
 use Build::Repo;
 use Build::Rpmmd;
 use Build::Deb;
+use Build::Debrepo;
 use Build::Rpm;
 use Build::Modules;
 
@@ -181,7 +182,8 @@ sub uncompress {
     close F;
     $reffile = $probe && $probe eq "\xFD7zXZ" ? '.xz' : '.gz';
   }
-  if ($reffile =~ /\.(gz|xz|zst|zstd)$/) {
+  if ($reffile =~ /\.(gz|xz|zst|zstd|bz2)$/) {
+    die("bzip2 is unimplemented\n") if $1 eq 'bz2';
     local *F;
     my $decmp = 'xzdec';
     $decmp = 'gunzip' if $1 eq 'gz';
@@ -198,8 +200,9 @@ sub uncompress {
     if (!$appendfile) {
       rename($nfile, $file) || die("rename $nfile, $file\n");
     }
+  } else {
+    die("unknown compression suffix for $reffile\n");
   }
-  die("bzip2 is unimplemented\n") if $reffile =~ /\.bz2$/;
 }
 
 sub mastercheck {
@@ -293,54 +296,17 @@ sub dod_rpmmd {
   return ($newcookie, $url, $moduleinfo);
 }
 
-# same parser as in build package:
+# url layout:
 #   distribution:   <baseurl>/<dist>/[components]
 #     or:           <baseurl>?dist=<dist>[&component=comp1&component=comp2...]
 #   flat repo:      <baseurl>/.[/subdir]
 #     components:   comp1,comp2... (main if empty)
 sub dod_deb {
   my ($doddata, $cookie, $file) = @_;
-  my $url = $doddata->{'url'};
+  my ($baseurl, $url, $components) = Build::Debrepo::parserepourl($doddata->{'url'});
   my $sslfingerprint = getsslfingerprint($doddata);
-  my @components;
-  my $baseurl = $url;
-  if ($url =~ /\?/) {
-    my ($base, $query) = split(/\?/, $url, 2);
-    if ("&$query" =~ /\&dist=/) {
-      my $dist;
-      my @query = BSHTTP::querydecodekv($query);
-      while (@query) {
-	my ($k, $v) = splice(@query, 0, 2);
-	$dist = $v if $k eq 'dist';
-	push @components, split(/[,+]/, $v) if $k eq 'component';
-      }
-      $baseurl = $base;
-      $baseurl .= '/' unless $baseurl =~ /\/$/;
-      $url = "${baseurl}dists/${dist}/";
-      push @components, 'main' unless @components;
-    }
-  }
-  if (@components) {
-    ;	# all done above
-  } elsif ($url =~ /^(.*\/)\.(\/.*)?$/) {
-    # flat repo
-    $baseurl = $1;
-    @components = ('.');
-    $url = defined($2) ? "$1$2" : $1;
-    $url .= '/' unless $url =~ /\/$/;
-  } else {
-    if ($url =~ /([^\/]+)$/) {
-      @components = split(/[,+]/, $1);
-      $url =~ s/([^\/]+)$//;
-    }
-    push @components, 'main' unless @components;
-    $url .= '/' unless $url =~ /\/$/;
-    $baseurl = $url;
-    $url =~ s/([^\/]+\/)$/dists\/$1/;
-    $baseurl =~ s/([^\/]+\/)$//;
-  }
   my $release = fetch("${url}Release", $sslfingerprint, $timeout_small);
-  my $newcookie = Digest::MD5::md5_hex("$baseurl\n".join(',',@components)."\n$release");
+  my $newcookie = Digest::MD5::md5_hex("$baseurl\n".join(',',@$components)."\n$release");
   return undef if ($cookie || '') eq $newcookie;
   mastercheck($doddata, 'Release', $release);
   signaturecheck($doddata, "${url}Release.gpg", $sslfingerprint, $release, 1);
@@ -356,7 +322,7 @@ sub dod_deb {
   }
   writestr($file, undef, '');
   my $basearch = Build::Deb::basearch($doddata->{'arch'});
-  for my $component (@components) {
+  for my $component (@$components) {
     my $pfile;
     for ('Packages.xz', 'Packages.gz') {
       $pfile = $component eq '.' ? $_ : "$component/binary-$basearch/$_";
