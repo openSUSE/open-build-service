@@ -1,4 +1,4 @@
-/* exported initializeDataTable, initializeRemoteDatatable */
+/* exported initializeDataTable, initializeRemoteDatatable, labelFiltering */
 
 //= require datatables/jquery.dataTables
 //= require datatables/dataTables.bootstrap5
@@ -43,4 +43,32 @@ function initializeRemoteDatatable(cssSelector, params) {
   var newParams = $.extend(defaultRemoteParams, DEFAULT_DT_PARAMS, params);
 
   $(cssSelector).dataTable(newParams);
+}
+
+function labelFiltering() {
+  var table = $('#packages-table').DataTable();
+  var labelColumn = table.column('labels:name');
+  var labelFilter = $('#label-filter');
+  var labelFilterBadge = $('#label-filter .badge');
+  $('.obs-dataTable').parent().on('click', '.label-filter', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    var label = e.target.parentElement.dataset.label;
+    var labelId = e.target.parentElement.dataset.labelId;
+    labelFilter.addClass('d-none');
+
+    if (label === labelColumn.search())
+      labelColumn.search('').draw();
+    else
+      labelColumn.search(label).draw();
+
+    if (labelColumn.search() !== '') {
+      labelFilter.removeClass('d-none');
+      labelFilterBadge.removeClass();
+      labelFilterBadge.addClass(['badge', `label-${labelId}`]);
+      labelFilterBadge.html(label);
+    }
+  });
+  if (labelColumn.search() !== '')
+    labelColumn.search('').draw();
 }
