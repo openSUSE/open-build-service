@@ -27,14 +27,15 @@ class Assignment < ApplicationRecord
   validates :package, uniqueness: true
 
   #### Instance methods (public and then protected/private)
+
+  private
+
   def assignee_has_required_role_to_be_assigned?
     return false if assignee.nil?
 
     roles = Role.where(title: %w[maintainer bugowner reviewer])
     (package.relationships.where(role_id: roles.ids, user_id: assignee) + package.project.relationships.where(role_id: roles.ids, user_id: assignee)).any?
   end
-
-  private
 
   def trigger_event_on_creation
     Event::AssignmentCreate.create(event_parameters)
