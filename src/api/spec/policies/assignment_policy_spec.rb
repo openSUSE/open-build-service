@@ -6,21 +6,21 @@ RSpec.describe AssignmentPolicy do
       Flipper.enable(:foster_collaboration)
     end
 
-    context 'a package collaborator' do
-      let(:package_collaborator) { package.maintainers.first }
+    context 'a package maintainer' do
+      let(:package_maintainer) { package.maintainers.first }
       let(:package) { create(:package_with_maintainer) }
-      let(:assignment) { create(:assignment, assigner: package_collaborator, assignee: package_collaborator, package: package) }
+      let(:assignment) { create(:assignment, assigner: package_maintainer, assignee: package_maintainer, package: package) }
 
-      it { is_expected.to permit(package_collaborator, assignment) }
+      it { is_expected.to permit(package_maintainer, assignment) }
     end
 
-    context 'a project collaborator' do
-      let(:project_collaborator) { create(:confirmed_user) }
-      let(:project) { create(:project_with_package, maintainer: project_collaborator) }
+    context 'a project maintainer' do
+      let(:project_maintainer) { create(:confirmed_user) }
+      let(:project) { create(:project_with_package, maintainer: project_maintainer) }
       let(:package) { project.packages.first }
-      let(:assignment) { build(:assignment, assigner: project_collaborator, assignee: project_collaborator, package: package) }
+      let(:assignment) { build(:assignment, assigner: project_maintainer, assignee: project_maintainer, package: package) }
 
-      it { is_expected.to permit(project_collaborator, assignment) }
+      it { is_expected.to permit(project_maintainer, assignment) }
     end
 
     context 'an admin' do

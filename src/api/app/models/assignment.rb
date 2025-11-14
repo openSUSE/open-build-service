@@ -22,12 +22,12 @@ class Assignment < ApplicationRecord
   #### Validations macros
   validate :assignee do
     errors.add(:assignee, 'must be in confirmed state') unless assignee && assignee.state == 'confirmed'
-    errors.add(:assignee, 'must have the role maintainer, bugowner, reviewer on the project or package') unless assignee_is_a_collaborator?
+    errors.add(:assignee, 'must have the role maintainer, bugowner, reviewer on the project or package') unless assignee_has_required_role_to_be_assigned?
   end
   validates :package, uniqueness: true
 
   #### Instance methods (public and then protected/private)
-  def assignee_is_a_collaborator?
+  def assignee_has_required_role_to_be_assigned?
     return false if assignee.nil?
 
     roles = Role.where(title: %w[maintainer bugowner reviewer])
