@@ -4,6 +4,7 @@ module ScmsyncChecker
   extend ActiveSupport::Concern
 
   def check_scmsync
+    return if Flipper.enabled?(:scmsync, User.session)
     return if @project&.scmsync.blank?
 
     flash[:error] = "The project #{@project.name} is configured through scmsync. This is not supported by the OBS frontend"

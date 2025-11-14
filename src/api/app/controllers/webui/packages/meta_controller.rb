@@ -4,7 +4,8 @@ module Webui
       include ScmsyncChecker
 
       before_action :set_project
-      before_action :set_package
+      before_action :set_package, unless: -> { Flipper.enabled?(:scmsync, User.session) }
+      before_action :set_package_with_scmsync, if: -> { Flipper.enabled?(:scmsync, User.session) }
 
       before_action :check_scmsync
       before_action :validate_xml, only: :update

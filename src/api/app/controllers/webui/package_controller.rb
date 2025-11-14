@@ -16,12 +16,16 @@ class Webui::PackageController < Webui::WebuiController
                                        save_person save_group remove_role view_file
                                        buildresult rpmlint_result rpmlint_log rpmlint_summary files]
 
-  before_action :check_scmsync, only: %i[requests revisions statistics users]
+  before_action :check_scmsync, only: %i[statistics users requests revisions]
 
   before_action :set_package, only: %i[edit update show requests statistics revisions
                                        branch_diff_info rdiff remove
                                        save_person save_group remove_role view_file
-                                       buildresult rpmlint_result rpmlint_log rpmlint_summary files users]
+                                       buildresult rpmlint_result rpmlint_log rpmlint_summary files users],
+                              unless: -> { Flipper.enabled?(:scmsync, User.session) }
+  before_action :set_package_with_scmsync, only: %i[show revisions branch_diff_info rdiff view_file buildresult
+                                                    rpmlint_result rpmlint_log rpmlint_summary files users],
+                                           if: -> { Flipper.enabled?(:scmsync, User.session) }
   # rubocop:enable Rails/LexicallyScopedActionFilter
   before_action :lints_list, only: %i[rpmlint_summary]
 
@@ -37,7 +41,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def show
     # FIXME: Remove this statement when scmsync is fully supported
-    if @project.scmsync.present?
+    if @project.scmsync.present? && !Flipper.enabled?(:scmsync, User.session)
       flash[:error] = "Package sources for project #{@project.name} are received through scmsync.
                        This is not supported by the OBS frontend"
       redirect_back_or_to project_show_path(@project)

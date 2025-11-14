@@ -2,7 +2,7 @@
 - nobody = !User.session
 
 .card-body
-  - if files.present?
+  - if files.present? && (!Flipper.enabled?(:scmsync, User.session) || !package.scmsync.present? || revision_parameter.present?)
     %table.table.table-bordered.table-hover.table-sm.dt-responsive.w-100#files-table
       %thead
         %tr
@@ -16,6 +16,13 @@
         can_modify: user_can_modify_package, nobody: nobody, srcmd5: srcmd5 }
         = render partial: 'file', collection: files,
         cached: proc { |file| [file['name'], file['mtime'], file['md5'], file_locals].hash }, locals: file_locals
+  - elsif Flipper.enabled?(:scmsync, User.session) && package.scmsync.present?
+    %i
+      This package is managed with
+      #{link_to('SCM', package.scmsync)}.
+      You can also
+      = link_to('browse source', package_show_path(project, package, rev: revision))
+      here
   - else
     %i This package has no files yet
   - if user_can_modify_package

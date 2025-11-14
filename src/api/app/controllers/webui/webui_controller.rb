@@ -105,6 +105,21 @@ class Webui::WebuiController < ActionController::Base
     end
   end
 
+  def set_package_with_scmsync
+    @package_name = params[:package] || params[:package_name]
+
+    return if @package_name.blank?
+
+    begin
+      @package = Package.get_by_project_and_name(@project.name, @package_name,
+                                                 follow_multibuild: true,
+                                                 follow_project_scmsync_links: Flipper.enabled?(:scmsync, User.session))
+    # why it's not found is of no concern
+    rescue APIError
+      raise Package::UnknownObjectError, "Package not found: #{@project.name}/#{@package_name}"
+    end
+  end
+
   def set_repository
     repository_name = params[:repository] || params[:repository_name]
     @repository = @project.repositories.find_by(name: repository_name)

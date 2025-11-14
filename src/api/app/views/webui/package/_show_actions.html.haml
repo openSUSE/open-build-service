@@ -2,27 +2,28 @@
   %li.nav-item.action-report-bug
     = render partial: 'webui/package/show_actions/bugzilla_owner', locals: { url: package.report_bug_or_bugzilla_url }
   - if User.session
-    - if current_rev && is_working && is_branchable
+    - if current_rev && is_working && is_branchable && !package.readonly?
       = render partial: 'webui/package/show_actions/branch_package', locals: { package: package, project: project,
                                                                                              revision: revision }
     - if current_rev && is_working
       = render partial: 'webui/package/show_actions/submit_package', locals: { package: package, project: project,
                                                                                              revision: revision }
-    - if User.possibly_nobody.can_modify?(package)
-      = render partial: 'webui/package/show_actions/delete_package'
+    - unless package.readonly?
+      - if User.possibly_nobody.can_modify?(package)
+        = render partial: 'webui/package/show_actions/delete_package'
 
-      - if package.kiwi_image? && policy(package).update?
-        = render partial: 'webui/package/show_actions/view_kiwi', locals: { package_id: package.id }
+        - if package.kiwi_image? && policy(package).update?
+          = render partial: 'webui/package/show_actions/view_kiwi', locals: { package_id: package.id }
 
-      - if services.present?
-        = render partial: 'webui/package/show_actions/trigger_services', locals: { package: package, project: project }
-    - else
-      = render partial: 'webui/package/show_actions/request_role_addition', locals: { package: package, project: project }
-      = render partial: 'webui/package/show_actions/request_deletion', locals: { package: package, project: project }
+        - if services.present?
+          = render partial: 'webui/package/show_actions/trigger_services', locals: { package: package, project: project }
+      - else
+        = render partial: 'webui/package/show_actions/request_role_addition', locals: { package: package, project: project }
+        = render partial: 'webui/package/show_actions/request_deletion', locals: { package: package, project: project }
 
-      //TODO: only users w/o rights should see this, maintainers should get a different dialog:
-    - if package.develpackage
-      = render partial: 'webui/package/show_actions/request_devel_project_change', locals: { package: package, project: project }
+        //TODO: only users w/o rights should see this, maintainers should get a different dialog:
+      - if package.develpackage
+        = render partial: 'webui/package/show_actions/request_devel_project_change', locals: { package: package, project: project }
 
-  = render partial: 'webui/shared/lock_unlock_comment', locals: { commentable: package }
-  = render partial: 'webui/package/show_actions/report_package', locals: { package: package }
+      = render partial: 'webui/shared/lock_unlock_comment', locals: { commentable: package }
+      = render partial: 'webui/package/show_actions/report_package', locals: { package: package }

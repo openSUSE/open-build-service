@@ -86,17 +86,19 @@
                                                   is_current_rev: @is_current_rev,
                                                   current_rev: @current_rev,
                                                   revision: @revision,
+                                                  revision_parameter: @revision_parameter,
                                                   srcmd5: @srcmd5,
                                                   spider_bot: @spider_bot }
-  .comments
-    .card#comments-list
-      %h5.card-header.text-word-break-all
-        Comments
-        %span.badge.text-bg-primary{ id: "comment-counter-package-#{@package.id}" }
-          = @comments.length
-      .card-body#comments
-        = render partial: 'webui/comment/show', locals: { commentable: @package,
-          comment_counter_id: "#comment-counter-package-#{@package.id}" }
+  - unless @package.readonly?
+    .comments
+      .card#comments-list
+        %h5.card-header.text-word-break-all
+          Comments
+          %span.badge.text-bg-primary{ id: "comment-counter-package-#{@package.id}" }
+            = @comments.length
+        .card-body#comments
+          = render partial: 'webui/comment/show', locals: { commentable: @package,
+            comment_counter_id: "#comment-counter-package-#{@package.id}" }
 - if User.session && User.possibly_nobody.can_modify?(@package)
   = render partial: 'delete_dialog', locals: { project: @project, package: @package, cleanup_source: @cleanup_source }
 

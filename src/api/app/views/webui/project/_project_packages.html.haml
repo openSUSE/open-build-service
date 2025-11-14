@@ -7,9 +7,25 @@
 
 .card-body
   - if project.scmsync.present?
-    %p
-    = link_to project.scmsync do
-      This project is managed in SCM
+    - if Flipper.enabled?(:scmsync, User.session)
+      %table.table.table-sm.table-bordered.table-hover.w-100#packages-table-scm
+        %thead
+          %tr
+            %th Name
+            %th SCM
+        %tbody
+          - project.backend_only_packages.each do |package|
+            %tr
+              %td
+                = link_to(package.name, package_show_path(project, package.name))
+              %td
+                = link_to(package.scmsync) do
+                  %i.fas.fa-up-right-from-square
+                  = URI.parse(package.scmsync).path[1..-1]
+    - else
+      %p
+        = link_to project.scmsync do
+          This project is managed in SCM
   - elsif packages.present?
     .obs-dataTable
       %table.table.table-sm.table-bordered.table-hover.w-100#packages-table{ data: { source: package_index_path(project: project) } }
@@ -28,29 +44,35 @@
   - if User.possibly_nobody.can_modify?(project) && show_package_actions?
     .pt-4
       %ul.nav
-        %li.nav-item
-          = link_to(new_package_path(project), class: 'nav-link') do
-            %i.fas.fa-plus-circle.text-primary
-            Create Package
-        %li.nav-item
-          = link_to(project_new_packages_branch_path(project), class: 'nav-link') do
-            %i.fas.fa-code-branch.text-primary
-            Branch Package
+        - if policy(Package.new(project: project)).create?
+          %li.nav-item
+            = link_to(new_package_path(project), class: 'nav-link') do
+              %i.fas.fa-plus-circle.text-primary
+              Create Package
+        - if policy(Package.new(project: project)).create_branch?
+          %li.nav-item
+            = link_to(project_new_packages_branch_path(project), class: 'nav-link') do
+              %i.fas.fa-code-branch.text-primary
+              Branch Package
 
 - content_for :ready_function do
-  :plain
-    var package_datatable_columns = [{"data": "name"}]
-
-  - if Flipper.enabled?(:package_version_tracking, User.session)
+  - if project.scmsync.present? && Flipper.enabled?(:scmsync, User.session)
     :plain
-      package_datatable_columns.push({"data": "version", "orderable": false})
-
-  - if Flipper.enabled?(:labels, User.session)
+      initializeDataTable('#packages-table-scm');
+  - else
     :plain
-      package_datatable_columns.push({"data": "labels", "orderable": false})
+      var package_datatable_columns = [{"data": "name"}]
 
-  :plain
-    package_datatable_columns.push({"data": "changed"})
-    initializeRemoteDatatable('#packages-table', {
-        "columns": package_datatable_columns
-      });
+    - if Flipper.enabled?(:package_version_tracking, User.session)
+      :plain
+        package_datatable_columns.push({"data": "version", "orderable": false})
+
+    - if Flipper.enabled?(:labels, User.session)
+      :plain
+        package_datatable_columns.push({"data": "labels", "orderable": false})
+
+    :plain
+      package_datatable_columns.push({"data": "changed"})
+      initializeRemoteDatatable('#packages-table', {
+          "columns": package_datatable_columns
+        });
