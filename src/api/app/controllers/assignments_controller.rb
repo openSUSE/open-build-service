@@ -1,4 +1,5 @@
 class AssignmentsController < ApplicationController
+  before_action :require_admin, only: %i[create destroy]
   before_action :set_project, only: :index
   before_action :set_package, only: %i[create destroy]
   before_action :set_assignee, only: :create
