@@ -32,6 +32,7 @@ use File::Temp ();
 use Build::Repo;
 use Build::Rpmmd;
 use Build::Deb;
+use Build::Debrepo;
 use Build::Rpm;
 use Build::Modules;
 
@@ -168,6 +169,27 @@ sub gpgverify {
   system('gpgv', '-q', '--homedir', $tempdir, '--keyring', $pubring, "$tempdir/data.asc", "$tempdir/data") && die("signature verification failed: $?\n");
 }
 
+sub rsa_verify {
+  my ($keydata, $hash, $digest, $signature) = @_;
+  return 0 unless $keydata->{'algo'} eq 'rsa';
+  my $prefix;
+  $prefix = "3021300906052b0e03021a05000414" if $hash eq 'sha1';
+  $prefix = "3031300d060960864801650304020105000420" if $hash eq 'sha256';
+  $prefix = "3051300d060960864801650304020305000440" if $hash eq 'sha512';
+  return 0 unless $prefix;
+  require Math::BigInt;
+  die("weird number of mpis in rsa pubkey\n") unless @{$keydata->{'mpis'} || []} == 2;
+  my $n = Math::BigInt->from_bytes($keydata->{'mpis'}->[0]->{'data'});
+  my $e = Math::BigInt->from_bytes($keydata->{'mpis'}->[1]->{'data'});
+  my $s = Math::BigInt->from_bytes($signature);
+  return 0 if $s >= $n;
+  my $c = $s->bmodpow($e, $n)->as_bytes();
+  $c = unpack('H*', $c);
+  return 0 unless substr($c, 0, 8) eq '01ffffff';
+  $c =~ s/^01(?:ff)+//;
+  return $c eq "00$prefix$digest" ? 1 : 0
+}
+
 # uncompress file in-place
 sub uncompress {
   my ($file, $reffile, $appendfile) = @_;
@@ -181,7 +203,8 @@ sub uncompress {
     close F;
     $reffile = $probe && $probe eq "\xFD7zXZ" ? '.xz' : '.gz';
   }
-  if ($reffile =~ /\.(gz|xz|zst|zstd)$/) {
+  if ($reffile =~ /\.(gz|xz|zst|zstd|bz2)$/) {
+    die("bzip2 is unimplemented\n") if $1 eq 'bz2';
     local *F;
     my $decmp = 'xzdec';
     $decmp = 'gunzip' if $1 eq 'gz';
@@ -198,8 +221,9 @@ sub uncompress {
     if (!$appendfile) {
       rename($nfile, $file) || die("rename $nfile, $file\n");
     }
+  } else {
+    die("unknown compression suffix for $reffile\n");
   }
-  die("bzip2 is unimplemented\n") if $reffile =~ /\.bz2$/;
 }
 
 sub mastercheck {
@@ -293,54 +317,17 @@ sub dod_rpmmd {
   return ($newcookie, $url, $moduleinfo);
 }
 
-# same parser as in build package:
+# url layout:
 #   distribution:   <baseurl>/<dist>/[components]
 #     or:           <baseurl>?dist=<dist>[&component=comp1&component=comp2...]
 #   flat repo:      <baseurl>/.[/subdir]
 #     components:   comp1,comp2... (main if empty)
 sub dod_deb {
   my ($doddata, $cookie, $file) = @_;
-  my $url = $doddata->{'url'};
+  my ($baseurl, $url, $components) = Build::Debrepo::parserepourl($doddata->{'url'});
   my $sslfingerprint = getsslfingerprint($doddata);
-  my @components;
-  my $baseurl = $url;
-  if ($url =~ /\?/) {
-    my ($base, $query) = split(/\?/, $url, 2);
-    if ("&$query" =~ /\&dist=/) {
-      my $dist;
-      my @query = BSHTTP::querydecodekv($query);
-      while (@query) {
-	my ($k, $v) = splice(@query, 0, 2);
-	$dist = $v if $k eq 'dist';
-	push @components, split(/[,+]/, $v) if $k eq 'component';
-      }
-      $baseurl = $base;
-      $baseurl .= '/' unless $baseurl =~ /\/$/;
-      $url = "${baseurl}dists/${dist}/";
-      push @components, 'main' unless @components;
-    }
-  }
-  if (@components) {
-    ;	# all done above
-  } elsif ($url =~ /^(.*\/)\.(\/.*)?$/) {
-    # flat repo
-    $baseurl = $1;
-    @components = ('.');
-    $url = defined($2) ? "$1$2" : $1;
-    $url .= '/' unless $url =~ /\/$/;
-  } else {
-    if ($url =~ /([^\/]+)$/) {
-      @components = split(/[,+]/, $1);
-      $url =~ s/([^\/]+)$//;
-    }
-    push @components, 'main' unless @components;
-    $url .= '/' unless $url =~ /\/$/;
-    $baseurl = $url;
-    $url =~ s/([^\/]+\/)$/dists\/$1/;
-    $baseurl =~ s/([^\/]+\/)$//;
-  }
   my $release = fetch("${url}Release", $sslfingerprint, $timeout_small);
-  my $newcookie = Digest::MD5::md5_hex("$baseurl\n".join(',',@components)."\n$release");
+  my $newcookie = Digest::MD5::md5_hex("$baseurl\n".join(',',@$components)."\n$release");
   return undef if ($cookie || '') eq $newcookie;
   mastercheck($doddata, 'Release', $release);
   signaturecheck($doddata, "${url}Release.gpg", $sslfingerprint, $release, 1);
@@ -356,7 +343,7 @@ sub dod_deb {
   }
   writestr($file, undef, '');
   my $basearch = Build::Deb::basearch($doddata->{'arch'});
-  for my $component (@components) {
+  for my $component (@$components) {
     my $pfile;
     for ('Packages.xz', 'Packages.gz') {
       $pfile = $component eq '.' ? $_ : "$component/binary-$basearch/$_";
@@ -384,26 +371,6 @@ sub dod_arch {
   my $newcookie = Digest::MD5::md5_hex("$url\n$r->{'md5'}");
   return undef if ($cookie || '') eq $newcookie;
   return ($newcookie, $url);
-}
-
-sub rsa_verify {
-  my ($keydata, $hash, $digest, $signature) = @_;
-  my $prefix;
-  $prefix = "3021300906052b0e03021a05000414" if $hash eq 'sha1';
-  $prefix = "3031300d060960864801650304020105000420" if $hash eq 'sha256';
-  $prefix = "3051300d060960864801650304020305000440" if $hash eq 'sha512';
-  return 0 unless $prefix;
-  require Math::BigInt;
-  die("weird number of mpis in rsa pubkey\n") unless @{$keydata->{'mpis'} || []} == 2;
-  my $n = Math::BigInt->from_bytes($keydata->{'mpis'}->[0]->{'data'});
-  my $e = Math::BigInt->from_bytes($keydata->{'mpis'}->[1]->{'data'});
-  my $s = Math::BigInt->from_bytes($signature);
-  return 0 if $s >= $n;
-  my $c = $s->bmodpow($e, $n)->as_bytes();
-  $c = unpack('H*', $c);
-  return 0 unless substr($c, 0, 8) eq '01ffffff';
-  $c =~ s/^01(?:ff)+//;
-  return $c eq "00$prefix$digest" ? 1 : 0
 }
 
 sub dod_apk_sigverify {
@@ -945,25 +912,34 @@ sub daemon {
       $startup = 0;
     }
     # find next dods to check
+    my %prp2prpas;
     my %nextcheck;
-    for my $prpa (keys %doddatas) {
+    for my $prpa (sort keys %doddatas) {
       my $doddata = $doddatas{$prpa};
+      my $nc;
       if ($doddata->{'haderror'}) {
-	$nextcheck{$prpa} = $doddata->{'lastcheck'} + $checkinterval_error;
-	next;
-      }
-      my $repodir = "$reporoot/$prpa/:full";
-      my @s = stat("$repodir/doddata.needed");
-      if (@s && $s[9] > $doddata->{'lastcheck'}) {
-        $nextcheck{$prpa} = $doddata->{'lastcheck'};
+	$nc = $doddata->{'lastcheck'} + $checkinterval_error;
       } else {
-        $nextcheck{$prpa} = $doddata->{'lastcheck'} + $checkinterval_ok;
+        my $repodir = "$reporoot/$prpa/:full";
+        my @s = stat("$repodir/doddata.needed");
+        if (@s && $s[9] > $doddata->{'lastcheck'}) {
+          $nc = $doddata->{'lastcheck'};
+        } else {
+          $nc = $doddata->{'lastcheck'} + $checkinterval_ok;
+        }
       }
+      my ($projid, $repoid) = split('/', $prpa, 3);
+      my $prp = "$projid/$repoid";
+      $nextcheck{$prp} = $nc if !defined($nextcheck{$prp}) || $nextcheck{$prp} > $nc;
+      push @{$prp2prpas{$prp}}, $prpa;
     }
     # check em
-    for my $prpa (sort {$nextcheck{$a} <=> $nextcheck{$b} || $a cmp $b} keys %doddatas) {
-      last if $nextcheck{$prpa} > time();
-      check_dod($doddatas{$prpa});
+    for my $prp (sort {$nextcheck{$a} <=> $nextcheck{$b} || $a cmp $b} keys %nextcheck) {
+      last if $nextcheck{$prp} > time();
+      # check the architectures in one go
+      for my $prpa (@{$prp2prpas{$prp}}) {
+        check_dod($doddatas{$prpa});
+      }
       check_exitrestart();
     }
     # good work! now rest a bit
