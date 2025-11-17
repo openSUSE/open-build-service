@@ -169,6 +169,27 @@ sub gpgverify {
   system('gpgv', '-q', '--homedir', $tempdir, '--keyring', $pubring, "$tempdir/data.asc", "$tempdir/data") && die("signature verification failed: $?\n");
 }
 
+sub rsa_verify {
+  my ($keydata, $hash, $digest, $signature) = @_;
+  return 0 unless $keydata->{'algo'} eq 'rsa';
+  my $prefix;
+  $prefix = "3021300906052b0e03021a05000414" if $hash eq 'sha1';
+  $prefix = "3031300d060960864801650304020105000420" if $hash eq 'sha256';
+  $prefix = "3051300d060960864801650304020305000440" if $hash eq 'sha512';
+  return 0 unless $prefix;
+  require Math::BigInt;
+  die("weird number of mpis in rsa pubkey\n") unless @{$keydata->{'mpis'} || []} == 2;
+  my $n = Math::BigInt->from_bytes($keydata->{'mpis'}->[0]->{'data'});
+  my $e = Math::BigInt->from_bytes($keydata->{'mpis'}->[1]->{'data'});
+  my $s = Math::BigInt->from_bytes($signature);
+  return 0 if $s >= $n;
+  my $c = $s->bmodpow($e, $n)->as_bytes();
+  $c = unpack('H*', $c);
+  return 0 unless substr($c, 0, 8) eq '01ffffff';
+  $c =~ s/^01(?:ff)+//;
+  return $c eq "00$prefix$digest" ? 1 : 0
+}
+
 # uncompress file in-place
 sub uncompress {
   my ($file, $reffile, $appendfile) = @_;
@@ -350,26 +371,6 @@ sub dod_arch {
   my $newcookie = Digest::MD5::md5_hex("$url\n$r->{'md5'}");
   return undef if ($cookie || '') eq $newcookie;
   return ($newcookie, $url);
-}
-
-sub rsa_verify {
-  my ($keydata, $hash, $digest, $signature) = @_;
-  my $prefix;
-  $prefix = "3021300906052b0e03021a05000414" if $hash eq 'sha1';
-  $prefix = "3031300d060960864801650304020105000420" if $hash eq 'sha256';
-  $prefix = "3051300d060960864801650304020305000440" if $hash eq 'sha512';
-  return 0 unless $prefix;
-  require Math::BigInt;
-  die("weird number of mpis in rsa pubkey\n") unless @{$keydata->{'mpis'} || []} == 2;
-  my $n = Math::BigInt->from_bytes($keydata->{'mpis'}->[0]->{'data'});
-  my $e = Math::BigInt->from_bytes($keydata->{'mpis'}->[1]->{'data'});
-  my $s = Math::BigInt->from_bytes($signature);
-  return 0 if $s >= $n;
-  my $c = $s->bmodpow($e, $n)->as_bytes();
-  $c = unpack('H*', $c);
-  return 0 unless substr($c, 0, 8) eq '01ffffff';
-  $c =~ s/^01(?:ff)+//;
-  return $c eq "00$prefix$digest" ? 1 : 0
 }
 
 sub dod_apk_sigverify {
@@ -911,25 +912,34 @@ sub daemon {
       $startup = 0;
     }
     # find next dods to check
+    my %prp2prpas;
     my %nextcheck;
-    for my $prpa (keys %doddatas) {
+    for my $prpa (sort keys %doddatas) {
       my $doddata = $doddatas{$prpa};
+      my $nc;
       if ($doddata->{'haderror'}) {
-	$nextcheck{$prpa} = $doddata->{'lastcheck'} + $checkinterval_error;
-	next;
-      }
-      my $repodir = "$reporoot/$prpa/:full";
-      my @s = stat("$repodir/doddata.needed");
-      if (@s && $s[9] > $doddata->{'lastcheck'}) {
-        $nextcheck{$prpa} = $doddata->{'lastcheck'};
+	$nc = $doddata->{'lastcheck'} + $checkinterval_error;
       } else {
-        $nextcheck{$prpa} = $doddata->{'lastcheck'} + $checkinterval_ok;
+        my $repodir = "$reporoot/$prpa/:full";
+        my @s = stat("$repodir/doddata.needed");
+        if (@s && $s[9] > $doddata->{'lastcheck'}) {
+          $nc = $doddata->{'lastcheck'};
+        } else {
+          $nc = $doddata->{'lastcheck'} + $checkinterval_ok;
+        }
       }
+      my ($projid, $repoid) = split('/', $prpa, 3);
+      my $prp = "$projid/$repoid";
+      $nextcheck{$prp} = $nc if !defined($nextcheck{$prp}) || $nextcheck{$prp} > $nc;
+      push @{$prp2prpas{$prp}}, $prpa;
     }
     # check em
-    for my $prpa (sort {$nextcheck{$a} <=> $nextcheck{$b} || $a cmp $b} keys %doddatas) {
-      last if $nextcheck{$prpa} > time();
-      check_dod($doddatas{$prpa});
+    for my $prp (sort {$nextcheck{$a} <=> $nextcheck{$b} || $a cmp $b} keys %nextcheck) {
+      last if $nextcheck{$prp} > time();
+      # check the architectures in one go
+      for my $prpa (@{$prp2prpas{$prp}}) {
+        check_dod($doddatas{$prpa});
+      }
       check_exitrestart();
     }
     # good work! now rest a bit
