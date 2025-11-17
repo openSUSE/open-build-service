@@ -4,10 +4,10 @@
 class AssignmentPolicy < ApplicationPolicy
   def create?
     return false unless Flipper.enabled?(:foster_collaboration, user)
-
     return true if user.admin?
+    return true if record.package.relationships.joins(:role).where(roles: { title: %w[maintainer bugowner reviewer] }).where(user_id: user).any?
 
-    record.assignee_is_a_collaborator?
+    record.package.project.relationships.joins(:role).where(roles: { title: %w[maintainer bugowner reviewer] }).where(user_id: user).any?
   end
 
   def destroy?

@@ -19,6 +19,10 @@ FactoryBot.define do
       factory :relationship_package_user_as_bugowner do
         role { Role.find_by_title('bugowner') }
       end
+
+      factory :relationship_package_user_as_reviewer do
+        role { Role.find_by_title('reviewer') }
+      end
     end
 
     factory :relationship_package_group do

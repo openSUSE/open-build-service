@@ -23,21 +23,21 @@ class Assignment < ApplicationRecord
   #### Validations macros
   validate :assignee do
     errors.add(:assignee, 'must be in confirmed state') unless assignee && assignee.state == 'confirmed'
-    errors.add(:assignee, 'must be a project or package collaborator') unless assignee_is_a_collaborator?
+    errors.add(:assignee, 'must have the role maintainer, bugowner, reviewer on the project or package') unless assignee_has_required_role_to_be_assigned?
   end
   validates :package, uniqueness: true
 
   #### Instance methods (public and then protected/private)
-  def assignee_is_a_collaborator?
-    return false if assignee.nil?
-
-    collaborators = (package.relationships + package.project.relationships).map(&:user)
-    return false if collaborators.empty?
-
-    collaborators.include?(assignee)
-  end
 
   private
+
+  def assignee_has_required_role_to_be_assigned?
+    return false if assignee.nil?
+
+    (package.relationships.joins(:role).where(roles: { title: %w[maintainer bugowner
+                                                                 reviewer] }).where(user_id: assignee) + package.project.relationships.joins(:role).where(roles: { title: %w[maintainer bugowner
+                                                                                                                                                                             reviewer] }).where(user_id: assignee)).any?
+  end
 
   def trigger_event_on_creation
     Event::AssignmentCreate.create(event_parameters)
