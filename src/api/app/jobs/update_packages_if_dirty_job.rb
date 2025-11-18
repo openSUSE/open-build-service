@@ -5,6 +5,6 @@ class UpdatePackagesIfDirtyJob < ApplicationJob
 
   def perform(project_id)
     project = Project.find_by(id: project_id)
-    project.update_packages_if_dirty if project.present?
+    project.presence&.update_packages_if_dirty
   end
 end
