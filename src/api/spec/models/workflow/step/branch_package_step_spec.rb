@@ -205,7 +205,8 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       it { expect(subject.call.scmsync).to eq("#{scmsync_url}##{long_commit_sha}") }
 
       context 'with a subdir query' do
-        subdir = '?subdir=hello_world01'
+        let(:subdir) { '?subdir=hello_world01' }
+
         before do
           package.update(scmsync: scmsync_url + subdir)
         end
@@ -214,7 +215,8 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       end
 
       context 'with a branch fragment' do
-        fragment = '#krauselukas-patch-2'
+        let(:fragment) { '#krauselukas-patch-2' }
+
         before do
           package.update(scmsync: scmsync_url + fragment)
         end
@@ -223,8 +225,9 @@ RSpec.describe Workflow::Step::BranchPackageStep, :vcr do
       end
 
       context 'with a subdir query and a branch fragment' do
-        subdir = '?subdir=hello_world01'
-        fragment = '#krauselukas-patch-2'
+        let(:subdir) { '?subdir=hello_world01' }
+        let(:fragment) { '#krauselukas-patch-2' }
+
         before do
           package.update(scmsync: scmsync_url + subdir + fragment)
         end
