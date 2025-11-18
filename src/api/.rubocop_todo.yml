@@ -659,16 +659,6 @@ Rails/OutputSafety:
     - 'app/helpers/webui/request_helper.rb'
     - 'app/helpers/webui/user_helper.rb'
 
-# Offense count: 6
-# This cop supports safe autocorrection (--autocorrect).
-Rails/Presence:
-  Exclude:
-    - 'app/controllers/build/file_controller.rb'
-    - 'app/jobs/package_update_if_dirty_job.rb'
-    - 'app/jobs/update_packages_if_dirty_job.rb'
-    - 'app/models/channel.rb'
-    - 'app/services/github_status_reporter.rb'
-
 # Offense count: 15
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Rails/RakeEnvironment:

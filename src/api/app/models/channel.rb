@@ -132,7 +132,7 @@ class Channel < ApplicationRecord
       arch = Architecture.find_by_name!(b['arch']) if b['arch']
       hash = { name: b['name'], binaryarch: b['binaryarch'], supportstatus: b['supportstatus'],
                superseded_by: b['superseded_by'], project: nil, architecture: arch, repository: nil }
-      hash[:package] = b['package'].blank? ? nil : b['package'].gsub(/:.*$/, '')
+      hash[:package] = b['package'].presence&.gsub(/:.*$/, '')
       if b['project']
         hash[:project] = Project.get_by_name(b['project'])
         hash[:repository] = hash[:project].repositories.find_by_name(b['repository']) if b['repository']

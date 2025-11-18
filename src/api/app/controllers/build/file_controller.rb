@@ -51,7 +51,7 @@ module Build
           package = Package.get_by_project_and_name(
             params[:project], params[:package], use_source: false, follow_multibuild: true
           )
-          package.project if package.present?
+          package.presence&.project
         end
     end
 
