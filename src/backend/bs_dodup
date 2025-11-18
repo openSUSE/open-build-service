@@ -760,12 +760,20 @@ sub sendscanrepo {
   BSUtil::ping("$eventdir/$arch/.ping");
 }
 
+sub do_delayed_scanrepo {
+  my ($doddata) = @_;
+  my $delayed_scanrepo = delete $doddata->{'delayed_scanrepo'};
+  return unless $delayed_scanrepo && $delayed_scanrepo->{'newcookie'};
+  my ($projid, $repoid, $arch) = ($doddata->{'project'}, $doddata->{'repository'}, $doddata->{'arch'});
+  my $repodir = "$reporoot/$projid/$repoid/$arch/:full";
+  writestr("$repodir/.doddata.cookie", "$repodir/doddata.cookie", $delayed_scanrepo->{'newcookie'});
+  sendscanrepo($projid, $repoid, $arch);
+}
+
 sub update_dod {
   my ($doddata, $unparsed) = @_;
 
-  my $projid = $doddata->{'project'};
-  my $repoid = $doddata->{'repository'};
-  my $arch = $doddata->{'arch'};
+  my ($projid, $repoid, $arch) = ($doddata->{'project'}, $doddata->{'repository'}, $doddata->{'arch'});
   die("bad doddata\n") unless $projid && $repoid && $arch;
   my $repotype = $doddata->{'repotype'} || '';
   die("unknown repotype '$repotype'\n") unless $handler{$repotype};
@@ -791,13 +799,20 @@ sub update_dod {
       }
     }
     rename($newfile, "$repodir/doddata") || die("rename $newfile $repodir/doddata: $!\n");
-    writestr("$repodir/.doddata.cookie", "$repodir/doddata.cookie", "$now $newcookie\n");
+    $newcookie = "$now $newcookie\n";	# add lastcheck time
+    if ($doddata->{'delayed_scanrepo'}) {
+      $doddata->{'delayed_scanrepo'}->{'newcookie'} = $newcookie;
+      return;
+    }
+    writestr("$repodir/.doddata.cookie", "$repodir/doddata.cookie", $newcookie);
     sendscanrepo($projid, $repoid, $arch);
   } else {
     print "repository is unchanged\n";
-    $cookie = '' unless defined $cookie;
-    writestr("$repodir/.doddata.cookie", "$repodir/doddata.cookie", "$now $cookie\n");
     unlink($newfile);
+    # update the lastcheck time in the cookie
+    $cookie = '' unless defined $cookie;
+    $newcookie = "$now $cookie\n";
+    writestr("$repodir/.doddata.cookie", "$repodir/doddata.cookie", $newcookie);
   }
 }
 
@@ -936,10 +951,14 @@ sub daemon {
     # check em
     for my $prp (sort {$nextcheck{$a} <=> $nextcheck{$b} || $a cmp $b} keys %nextcheck) {
       last if $nextcheck{$prp} > time();
-      # check the architectures in one go
+      # check the architectures in one go, but delay the scanrepo call
       for my $prpa (@{$prp2prpas{$prp}}) {
-        check_dod($doddatas{$prpa});
+	my $doddata = $doddatas{$prpa};
+	$doddata->{'delayed_scanrepo'} = {} if @{$prp2prpas{$prp}} > 1;
+	check_dod($doddata);
       }
+      # now do the scanrepo calls
+      do_delayed_scanrepo($doddatas{$_}) for @{$prp2prpas{$prp}};
       check_exitrestart();
     }
     # good work! now rest a bit
