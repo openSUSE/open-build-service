@@ -1148,7 +1148,7 @@ for my $tarfile (@tarfiles) {
     $tar_base =~ s/\.[^\.]*$//;
     my $tar_dir = $tarfile;
     $tar_dir = '' unless $tar_dir =~ s/\/[^\/]*$/\//;
-    push @intoto_json, map {readstr("$tar_dir$_")} grep {/^\Q$tar_base\E\..+\.intoto.json$/} sort(ls($tar_dir eq '' ? '.' : $tar_dir));
+    push @intoto_json, map {readstr("$tar_dir$_")} grep {/^\Q$tar_base\E\.[^\.]+\.intoto.json$/} sort(ls($tar_dir eq '' ? '.' : $tar_dir));
   }
 
   my ($manifest_ent, $manifest) = BSContar::get_manifest(\%tar);
