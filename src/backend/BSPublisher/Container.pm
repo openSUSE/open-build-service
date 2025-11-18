@@ -601,6 +601,13 @@ sub compare_to_repostate {
   return undef;
 }
 
+sub copy_associated_file {
+  my ($from, $to, $tempfiles) = @_;
+  return if $from eq $to;
+  BSUtil::cp($from, $to);
+  push @$tempfiles, $to if $tempfiles;
+}
+
 =head2 upload_to_registry - upload container(s) to a set of tags
 
  Parameters:
@@ -670,6 +677,7 @@ sub upload_to_registry {
       push @uploadfiles, "$blobdir/container.".scalar(@uploadfiles).".containerinfo";
       BSRepServer::Containerinfo::writecontainerinfo($uploadfiles[-1], undef, $containerinfo);
       $wrote_containerinfo = $uploadfiles[-1];
+      push @tempfiles, $wrote_containerinfo;
     } elsif ($file =~ /(.*)\.tgz$/ && ($containerinfo->{'type'} || '') eq 'helm') {
       my $helminfofile = "$1.helminfo";
       $blobdir = $containerinfo->{'blobdir'};
@@ -678,6 +686,7 @@ sub upload_to_registry {
       push @uploadfiles, $helminfofile;
       BSRepServer::Containerinfo::writecontainerinfo($uploadfiles[-1], undef, $containerinfo);
       $wrote_containerinfo = $uploadfiles[-1];
+      push @tempfiles, $wrote_containerinfo;
     } elsif ($file =~ /\.tar$/) {
       push @uploadfiles, $file;
     } else {
@@ -687,30 +696,24 @@ sub upload_to_registry {
     }
     # copy provenance file into blobdir
     if ($wrote_containerinfo && $cosign && $cosign->{'attestation'}) {
+      my $file_base = $wrote_containerinfo;
+      die unless $file_base =~ s/\.[^\.]+$//;	# strip .containerinfo/.helminfo
       if ($containerinfo->{'slsa_provenance_file'}) {
-	my $provenance_file = $wrote_containerinfo;
-	die unless $provenance_file =~ s/\.[^\.]+$/.slsa_provenance.json/;
-	BSUtil::cp($containerinfo->{'slsa_provenance_file'}, $provenance_file) if $containerinfo->{'slsa_provenance_file'} ne $provenance_file;
+	copy_associated_file($containerinfo->{'slsa_provenance_file'}, "$file_base.slsa_provenance.json", \@tempfiles);
 	$do_slsaprovenance = 1;
       }
       if ($containerinfo->{'spdx_file'}) {
-	my $spdx_file = $wrote_containerinfo;
-	die unless $spdx_file =~ s/\.[^\.]+$/.spdx.json/;
-	BSUtil::cp($containerinfo->{'spdx_file'}, $spdx_file) if $containerinfo->{'spdx_file'} ne $spdx_file;
+	copy_associated_file($containerinfo->{'spdx_file'}, "$file_base.spdx.json", \@tempfiles);
 	$do_sbom = 1;
       }
       if ($containerinfo->{'cyclonedx_file'}) {
-	my $cyclonedx_file = $wrote_containerinfo;
-	die unless $cyclonedx_file =~ s/\.[^\.]+$/.cdx.json/;
-	BSUtil::cp($containerinfo->{'cyclonedx_file'}, $cyclonedx_file) if $containerinfo->{'cyclonedx_file'} ne $cyclonedx_file;
+	copy_associated_file($containerinfo->{'cyclonedx_file'}, "$file_base.cdx.json", \@tempfiles);
 	$do_sbom = 1;
       }
       my $nintoto = 0;
       for my $intoto (@{$containerinfo->{'intoto_files'} || []}) {
-	my $intoto_file = $wrote_containerinfo;
-	die unless $intoto_file =~ s/\.[^\.]+$/.$nintoto.intoto.json/;
+	copy_associated_file($intoto, "$file_base.$nintoto.intoto.json", \@tempfiles);
 	$nintoto++;
-	BSUtil::cp($intoto, $intoto_file) if $intoto ne $intoto_file;
 	$do_sbom = 1;
       }
     }
