@@ -731,6 +731,7 @@ sub createrepo_rpmmd {
 
   # add updateinfos
   unlink("$extrep/repodata/$_") for grep {/updateinfo\.xml/} @oldrepodata;
+  my $embargo_date;
   if (@{$data->{'updateinfos'} || []}) {
     print "    adding updateinfo.xml to repodata\n";
     # strip supportstatus and patchinforef from updateinfos
@@ -739,7 +740,12 @@ sub createrepo_rpmmd {
       delete $up->{'patchinforef'};
       delete $up->{'blocked_in_product'};
       for my $cl (@{($up->{'pkglist'} || {})->{'collection'} || []}) {
-	for my $pkg (@{$cl->{'package'} || []}) {
+        for my $pkg (@{$cl->{'package'} || []}) {
+          if ($pkg->{'embargo_date'} =~ /^(\d+)-(\d+)-(\d+)(?: (\d+):(\d+))?/) {
+            # normalize in case of missing 0 prefixes
+            my $t = sprintf("%04d-%02d-%02d %02d:%02d", $1, $2, $3, $4 || 0, $5 || 0);
+            $embargo_date = $t if !$embargo_date || $embargo_date lt $t;
+          }
           delete $pkg->{'embargo_date'};
           delete $pkg->{'supportstatus'};
           delete $pkg->{'superseded_by'};
@@ -749,6 +755,11 @@ sub createrepo_rpmmd {
     writexml("$extrep/repodata/updateinfo.xml", undef, {'update' => $updateinfos}, $BSXML::updateinfo);
     qsystem($modifyrepo_bin, "$extrep/repodata/updateinfo.xml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
     unlink("$extrep/repodata/updateinfo.xml");
+  }
+  if ($embargo_date) {
+    writestr("$extrep/repodata/embargo_date", undef, $embargo_date);
+  } else {
+    unlink("$extrep/repodata/embargo_date");
   }
 
   # add appdata
