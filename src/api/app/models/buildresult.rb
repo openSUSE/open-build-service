@@ -46,6 +46,7 @@ class Buildresult
   STATUS_CATEGORIES_MAP = {
     succeeded: STATUS_CATEGORIES[0],
     failed: STATUS_CATEGORIES[1],
+    processing: STATUS_CATEGORIES[2],
     unresolvable: STATUS_CATEGORIES[3],
     broken: STATUS_CATEGORIES[1],
     blocked: STATUS_CATEGORIES[3],
