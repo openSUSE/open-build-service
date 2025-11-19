@@ -720,6 +720,41 @@ RSpec.describe EventMailer, :vcr do
       end
     end
 
+    context 'for an event of type Event::AddedGlobalRole' do
+      let(:admin) { create(:admin_user) }
+      let(:user) { create(:confirmed_user) }
+      let(:staff_user) { create(:staff_user) }
+      let(:other_staff_user) { create(:staff_user) }
+      let!(:subscription_other_staff_user) { create(:event_subscription_added_global_role, user: other_staff_user) }
+      let!(:subscription_admin_user) { create(:event_subscription_added_global_role, user: admin) }
+
+      let(:mail) { EventMailer.with(subscribers: Event::AddedGlobalRole.last.subscribers, event: Event::AddedGlobalRole.last).notification_email.deliver_now }
+
+      before do
+        Event::AddedGlobalRole.create!(who: staff_user.login, user: user.login, role: 'Staff')
+      end
+
+      it 'gets delivered' do
+        expect(ActionMailer::Base.deliveries).to include(mail)
+      end
+
+      it 'sends an email to other staff users' do
+        expect(mail.to).to include(other_staff_user.email)
+      end
+
+      it 'sends an email to admins' do
+        expect(mail.to).to include(admin.email)
+      end
+
+      it 'contains the correct subject' do
+        expect(mail.subject).to include("'#{staff_user}' gave the 'Staff' role to the user '#{user}'")
+      end
+
+      it 'contains the correct text' do
+        expect(mail.body.encoded).to include("'#{staff_user}' gave the 'Staff' role to the user '#{user}'")
+      end
+    end
+
     context 'for an event of type Event::AssignmentDelete' do
       let(:who) { create(:confirmed_user) }
       let(:user) { create(:confirmed_user) }

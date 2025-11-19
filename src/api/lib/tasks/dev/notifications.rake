@@ -29,6 +29,12 @@ namespace :dev do
         home_project_iggy.store
       end
 
+      # Give a user the role Staff to generate an Event::AddedGlobalRole.
+      user_smith = User.find_by(login: 'Smith') || create(:confirmed_user, :with_home, login: 'Smith')
+      iggy.run_as do
+        user_smith.update_globalroles(Role.where(title: 'Staff'))
+      end
+
       repetitions.times do |repetition|
         package_name = "package_#{Time.now.to_i}_#{repetition}"
         admin_package = create(:package_with_file, name: package_name, project: admin_home_project)
