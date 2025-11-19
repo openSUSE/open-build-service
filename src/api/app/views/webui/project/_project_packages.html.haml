@@ -11,11 +11,12 @@
     = link_to project.scmsync do
       This project is managed in SCM
   - elsif packages.present?
-    .mb-2{ data: { label: '' } }
-      Filters:
-      %span.d-none#label-filter
-        %span.badge
-      = link_to('Clear filters', '#', id: 'label-clear', class: 'label-filter btn btn-sm btn-primary')
+    - if Flipper.enabled?(:labels, User.session)
+      .mb-2{ data: { label: '' } }
+        Filters:
+        %span.d-none#label-filter
+          %span.badge
+        = link_to('Clear filters', '#', id: 'label-clear', class: 'label-filter btn btn-sm btn-primary')
     .obs-dataTable
       %table.table.table-sm.table-bordered.table-hover.w-100#packages-table{ data: { source: package_index_path(project: project) } }
         %thead
@@ -59,6 +60,6 @@
     initializeRemoteDatatable('#packages-table', {
         "columns": package_datatable_columns
       });
-  - if Flipper.enabled?(:package_version_tracking, User.session)
+  - if Flipper.enabled?(:labels, User.session)
     :plain
       labelFiltering();
