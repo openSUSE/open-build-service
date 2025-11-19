@@ -117,6 +117,11 @@
   @extend .px-1;
 }
 
+.build-state-dispatching {
+  @extend .text-bg-info;
+  @extend .px-1;
+}
+
 .build-state-signing, .build-state-finished {
   @extend .text-bg-warning;
   @extend .px-1;
@@ -130,10 +135,21 @@
   color: $gray-600;
 }
 
+.build-state-excluded {
+  @extend .text-bg-light;
+  @extend .border;
+  @extend .px-1;
+}
+
 .build-state-blocked {
   @extend .text-white;
   @extend .px-1;
   background-color: $gray-600;
+}
+
+.build-state-locked {
+  @extend .text-bg-warning;
+  @extend .px-1;
 }
 
 .build-state-scheduled-warning {
