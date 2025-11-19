@@ -60,6 +60,6 @@
     initializeRemoteDatatable('#packages-table', {
         "columns": package_datatable_columns
       });
-  - if Flipper.enabled?(:package_version_tracking, User.session)
+  - if Flipper.enabled?(:labels, User.session)
     :plain
       labelFiltering();
