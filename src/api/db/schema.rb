@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_10_29_093527) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_19_144352) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -101,7 +101,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_29_093527) do
   end
 
   create_table "attrib_namespaces", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
-    t.string "name"
+    t.string "name", null: false
     t.index ["name"], name: "index_attrib_namespaces_on_name"
   end
 

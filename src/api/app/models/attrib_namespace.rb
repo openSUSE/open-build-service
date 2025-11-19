@@ -50,7 +50,7 @@ end
 # Table name: attrib_namespaces
 #
 #  id   :integer          not null, primary key
-#  name :string(255)      indexed
+#  name :string(255)      not null, indexed
 #
 # Indexes
 #
