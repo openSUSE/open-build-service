@@ -741,10 +741,6 @@ class User < ApplicationRecord
     end
   end
 
-  def unread_notifications_count
-    notifications.for_web.unread.size
-  end
-
   def update_globalroles(global_roles)
     roles.replace(global_roles + roles.where(global: false))
   end

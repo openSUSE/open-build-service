@@ -384,6 +384,7 @@ constraints(RoutesHelper::WebuiMatcher) do
         get :count_for_notification_types
         get :count_for_event_types
         get :count_for_notification_kinds
+        get :count_for_unread
       end
     end
 

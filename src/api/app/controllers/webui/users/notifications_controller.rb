@@ -32,8 +32,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   before_action :set_ordered_notifications, only: :index
   before_action :paginate_notifications, only: :index
 
-  skip_before_action :set_unread_notifications_count, only: :update
-
   def index; end
 
   def update
@@ -44,7 +42,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     # rubocop:enable Rails/SkipsModelValidations
 
     # manually update the count and the filtered subset after the update
-    set_unread_notifications_count # before_action filter method defined in the Webui controller
     filter_notifications
     set_preloaded_notifications
     set_ordered_notifications
@@ -55,7 +52,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
       format.js do
         render partial: 'update', locals: {
           notifications: @notifications,
-          unread_notifications_count: @unread_notifications_count,
+          unread_notifications_count: unread_notifications.count,
           selected_filter: @selected_filter,
           total_count_notifications: @notifications.count,
           user: User.session
@@ -73,7 +70,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   def count_for_notification_types
     counted_notifications = {}
     # notifiable_type: 'Report', 'WorkflowRun', 'Decision', 'Comment', 'BsRequest', 'Group'
-    counted_notifiable_types = @notifications.unread.group(:notifiable_type).count
+    counted_notifiable_types = unread_notifications.group(:notifiable_type).count
 
     NOTIFICATION_TYPES_KEY_MAP.each do |notifications_key, notification_types_key|
       counted_notifications[notifications_key] = counted_notifiable_types[notification_types_key] || 0
@@ -86,7 +83,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     counted_notifications = {}
 
     # event_type: 'Event::RelationshipCreate', 'Event::RelationshipDelete', 'Event::BuildFail',
-    counted_event_types = @notifications.unread.group(:event_type).count
+    counted_event_types = unread_notifications.group(:event_type).count
+
     EVENT_TYPES_KEY_MAP.each do |notifications_key, event_types_key|
       counted_notifications[notifications_key] = counted_event_types[event_types_key] || 0
     end
@@ -101,17 +99,25 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     when 'all'
       count = @notifications.count
     when 'unread'
-      count = @unread_notifications_count # Variable set in the Webui controller
+      count = unread_notifications.count
     when 'incoming_requests'
-      count = @notifications.unread.for_incoming_requests(User.session).count
+      count = unread_notifications.for_incoming_requests(User.session).count
     when 'outgoing_requests'
-      count = @notifications.unread.for_outgoing_requests(User.session).count
+      count = unread_notifications.for_outgoing_requests(User.session).count
     end
 
     render partial: 'counter', locals: { id: "count_#{params[:notification_kind]}", count: count }
   end
 
+  def count_for_unread
+    render partial: 'unread_counter', locals: { count: unread_notifications.count }
+  end
+
   private
+
+  def unread_notifications
+    @notifications.unread
+  end
 
   def set_filter_kind
     @filter_kind = Array(params[:kind].presence || 'all')

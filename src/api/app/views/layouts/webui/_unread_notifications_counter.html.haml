@@ -1,5 +1,5 @@
 .notifications-counter
   %i.fas.fa-bell
-  - if defined?(unread_notifications_count) && unread_notifications_count&.positive?
-    %span.badge.text-bg-primary.align-text-top= unread_notifications_count
+  = turbo_frame_tag 'unread_notification_count', loading: 'lazy', src: count_for_unread_my_notifications_path do
+    %i.fas.fa-spinner.fa-spin
   %span.d-block Notifications
