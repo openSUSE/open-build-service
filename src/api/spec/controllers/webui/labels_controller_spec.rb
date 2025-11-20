@@ -4,9 +4,9 @@ RSpec.describe Webui::LabelsController do
   let(:tom) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:home_tom) { tom.home_project }
   let(:toms_package) { create(:package, name: 'my_package', project: home_tom) }
-  let!(:label_one) { create(:label_template, project: home_tom) }
-  let!(:label_two) { create(:label_template, project: home_tom) }
-  let!(:label_three) { create(:label_template, project: home_tom) }
+  let!(:label_one) { create(:label_template, project: home_tom, name: 'Label One') }
+  let!(:label_two) { create(:label_template, project: home_tom, name: 'Label Two') }
+  let!(:label_three) { create(:label_template, project: home_tom, name: 'Label Three') }
 
   before do
     Flipper.enable(:labels)
