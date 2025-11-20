@@ -35,9 +35,6 @@ AttribNamespace:
   id:
     PrimaryKeyTypeChecker:
       enabled: false
-  name:
-    LengthConstraintChecker:
-      enabled: false
 AttribNamespaceModifiableBy:
   attrib_namespace_user_role_all_index:
     UniqueIndexChecker:
