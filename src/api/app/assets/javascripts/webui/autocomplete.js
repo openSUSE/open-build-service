@@ -11,6 +11,15 @@ function setupAutocomplete(selector) {
     },
     response: function() {
       $(selector).next().find('i').toggleClass('fa-search fa-spinner fa-spin');
+    },
+    select: function() {
+      // Clear the autocomplete field after selection to prevent
+      // submitting leftover text when the form is submitted via button.
+      // This fixes the issue where clicking the search/magnifier button
+      // after selecting an autocomplete item would add empty checkboxes.
+      setTimeout(function() {
+        $(selector).val('');
+      }, 1);
     }
  });
 }
