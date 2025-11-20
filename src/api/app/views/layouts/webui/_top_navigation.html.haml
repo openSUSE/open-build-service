@@ -11,7 +11,7 @@
             %span.d-block Watchlist
         .toggler.text-center.justify-content-center.nav-item
           = link_to(my_notifications_path, id: 'top-notifications-counter', class: 'nav-link p-0 w-100', alt: 'Notifications') do
-            = render partial: 'layouts/webui/unread_notifications_counter', locals: { unread_notifications_count: unread_notifications_count }
+            = render partial: 'layouts/webui/unread_notifications_counter'
         .toggler.text-center.justify-content-center.nav-item.dropdown
           = link_to('#', class: 'nav-link dropdown-toggle', id: 'top-navigation-profile-dropdown', role: 'button',
                     'data-bs-toggle': 'dropdown', aria: { haspopup: true, expanded: false }) do
