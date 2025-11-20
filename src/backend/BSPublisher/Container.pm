@@ -472,7 +472,7 @@ sub query_repostate {
 	next;
       }
       $lastdigest = undef;
-      if (@s >= 4 && $s[0] =~ /\.(?:sig|att)$/ && $s[-1] =~ /^cosigncookie=/) {
+      if (@s >= 4 && $s[0] =~ /\.(?:sig|att)$/ && $s[-1] =~ /cosigncookie=/) {
         $repostate->{$s[0]} = $s[-1];
       } elsif (@s >= 2) {
         $repostate->{$s[0]} = $s[1];
@@ -536,7 +536,7 @@ sub compare_to_repostate {
   my $info;
   my $cosigncookie = ($cosign || {})->{'cookie'};
   my $cosign_attestation = ($cosign || {})->{'attestation'};
-  my $cosign_expect = $cosigncookie && !$registry->{'cosign_nocheck'} ? "cosigncookie=$cosigncookie" : '-';
+  my $cosign_nocheck = $registry->{'cosign_nocheck'};
   my $manifestinfodir;
   if ($registry->{'manifestinfos'} && "/$repository/" !~ /\/[\.\/]/) {
     $manifestinfodir = "$registry->{'manifestinfos'}/$repository";
@@ -554,14 +554,14 @@ sub compare_to_repostate {
       if ($cosigncookie && $cosign_attestation && $attestation_layers) {
 	my $atttag = $info->{'digest'};
 	$atttag =~ s/:(.*)/-$1.att/;
-	$expected{$atttag} = $cosign_expect;
+	$expected{$atttag} = $cosign_nocheck ? '-' : "layers=$attestation_layers,cosigncookie=$cosigncookie";
       }
       push @infos, { %$info };	# copy so that size is not stringified
       $containerdigests .= "$info->{'digest'} $info->{'size'}\n";
       if ($cosigncookie) {
 	my $sigtag = $info->{'digest'};
 	$sigtag =~ s/:(.*)/-$1.sig/;
-	$expected{$sigtag} = $cosign_expect;
+	$expected{$sigtag} = $cosign_nocheck ? '-' : "layers=1,cosigncookie=$cosigncookie";
       }
       push @{$taginfo->{'images'}}, $imginfo if $taginfo;
     }
@@ -580,7 +580,7 @@ sub compare_to_repostate {
     if ($cosigncookie && $cosign_attestation && $attestation_layers) {
       my $atttag = $info->{'digest'};
       $atttag =~ s/:(.*)/-$1.att/;
-      $expected{$atttag} = $cosign_expect;
+      $expected{$atttag} = $cosign_nocheck ? '-' : "layers=$attestation_layers,cosigncookie=$cosigncookie";
     }
     push @{$taginfo->{'images'}}, $imginfo if $taginfo;
   }
@@ -593,7 +593,7 @@ sub compare_to_repostate {
   if ($cosigncookie) {
     my $sigtag = $info->{'digest'};
     $sigtag =~ s/:(.*)/-$1.sig/;
-    $expected{$sigtag} = $cosign_expect;
+    $expected{$sigtag} = $cosign_nocheck ? '-' : "layers=1,cosigncookie=$cosigncookie";
   }
   if (!$missing_manifestinfo && !grep {($repostate->{$_} || '') ne $expected{$_}} sort keys %expected) {
     return $containerdigests;
