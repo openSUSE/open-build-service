@@ -992,7 +992,7 @@ if (@ARGV && $ARGV[0] =~ /^config:(.+)/) {
   $registry = $BSConfig::container_registries->{$regname} if $BSConfig::container_registries;
   die("unknown registry $regname\n") unless $registry;
   $ARGV[0] = $registry->{'pushserver'} || $registry->{'server'};
-  $dest_creds = BSBearer::get_credentials("$registry->{'user'}:$registry->{'password'}") if !$dest_creds && $registry->{'user'};
+  $dest_creds = get_credentials("$registry->{'user'}:$registry->{'password'}") if !$dest_creds && $registry->{'user'};
 }
 
 $registry_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => (-c STDOUT ? 1 : 0));
