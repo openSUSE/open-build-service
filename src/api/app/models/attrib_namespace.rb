@@ -11,7 +11,7 @@ class AttribNamespace < ApplicationRecord
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
   #### Validations macros
-  validates :name, presence: true
+  validates :name, presence: true, length: { maximum: 255 }
   validates_associated :attrib_types
 
   #### Class methods using self. (public and then private)
