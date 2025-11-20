@@ -1,4 +1,5 @@
 /* exported setupAutocomplete */
+/* global setTimeout */
 
 function setupAutocomplete(selector) {
   $(selector).autocomplete({
