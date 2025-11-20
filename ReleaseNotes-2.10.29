@@ -1,0 +1,31 @@
+#
+# Open Build Service 2.10.29
+#
+
+Please read the README.md file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+The dist/README.UPDATERS file has information for people updating
+from a previous OBS release.
+
+
+Features
+========
+
+Backend:
+ * Support added for zstd compressed repomd meta data of download on demand repositories
+
+
+Bugfixes
+========
+
+Frontend:
+ * Update rack RubyGem to version 2.2.20
+   - Unbounded parameter parsing in Rack::QueryParser can lead to memory exhaustion via semicolon-separated parameters (CVE-2025-59830)
+   - Unbounded multipart preamble buffering enables DoS (memory exhaustion) (CVE-2025-61770)
+   - Multipart parser buffers large non‑file fields entirely in memory, enabling DoS (memory exhaustion) (CVE-2025-61771)
+   - Multipart parser buffers unbounded per-part headers, enabling DoS (memory exhaustion) (CVE-2025-61772)
+   - Improper handling of headers in Rack::Sendfile may allow proxy bypass (CVE-2025-61780)
+   - Unbounded read in Rack::Request form parsing can lead to memory exhaustion (CVE-2025-61919)

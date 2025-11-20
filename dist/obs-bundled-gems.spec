@@ -15,7 +15,7 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
 
-%define rack_version 2.2.14
+%define rack_version 2.2.20
 %define rake_version 13.0.1
 
 Name:           obs-bundled-gems
