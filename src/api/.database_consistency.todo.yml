@@ -36,8 +36,6 @@ AttribNamespace:
     PrimaryKeyTypeChecker:
       enabled: false
   name:
-    ColumnPresenceChecker:
-      enabled: false
     LengthConstraintChecker:
       enabled: false
 AttribNamespaceModifiableBy:
