@@ -52,14 +52,14 @@ RSpec.describe LabelPolicy do
   end
 
   permissions :destroy? do
-    it { is_expected.not_to permit(anonymous_user, package_label) }
-    it { is_expected.not_to permit(another_user, package_label) }
-    it { is_expected.to permit(user, package_label) }
-    it { is_expected.to permit(admin, package_label) }
+    it { is_expected.not_to permit(anonymous_user, package) }
+    it { is_expected.not_to permit(another_user, package) }
+    it { is_expected.to permit(user, package) }
+    it { is_expected.to permit(admin, package) }
 
-    it { is_expected.not_to permit(anonymous_user, request_label) }
-    it { is_expected.not_to permit(another_user, request_label) }
-    it { is_expected.to permit(user, request_label) }
-    it { is_expected.to permit(admin, request_label) }
+    it { is_expected.not_to permit(anonymous_user, request) }
+    it { is_expected.not_to permit(another_user, request) }
+    it { is_expected.to permit(user, request) }
+    it { is_expected.to permit(admin, request) }
   end
 end
