@@ -23,7 +23,7 @@ If you see a glaring flaw within the Open Build Service, resist the urge to
 jump into the code and make sweeping changes right away. We know it can be
 tempting, but especially for large, structural changes(bug fixes or features)
 it's a wiser choice to first discuss them on the
-developer [mailing list](https://lists.opensuse.org/obs-devel).
+buildservice [mailing list](https://lists.opensuse.org/archives/list/buildservice@lists.opensuse.org/).
 It may turn out that someone is already working on this or that someone already
 has tried to solve this and hit a roadblock, maybe there even is a good reason
 why that flaw exists. If nothing else, a discussion of the change will usually
@@ -128,7 +128,7 @@ The Open Build Service developer community is here for you. If you are stuck
 with some problem or decision, have no time to drive a pull-request over the
 finishing line or if you just want to ask a simple question just get in contact
 with us in the pull-request, over the
-developer [mailing list](https://lists.opensuse.org/obs-devel) or our
+buildservice [mailing list](https://lists.opensuse.org/archives/list/buildservice@lists.opensuse.org/) or our
 IRC channel (irc://irc.libera.chat/openSUSE-buildservice).
 
 # How to Review Code Submissions
