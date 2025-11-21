@@ -606,14 +606,16 @@ sub manifest2extrainfo {
     if (@{$mani->{'layers'} || []} == 1 && $mani->{'layers'}->[0]->{'mediaType'} eq 'application/vnd.dev.cosign.simplesigning.v1+json') {
       my $annotations = $mani->{'layers'}->[0]->{'annotations'} || {};
       my $cookie = $annotations->{$cosign_cookie_name};
-      $extra = "cosigncookie=$cookie" if $cookie;
+      $extra = "layers=".@{$mani->{'layers'} || []};
+      $extra .= ",cosigncookie=$cookie" if $cookie;
     }
   }
   if ($tag =~ /^[a-z0-9]+-[a-f0-9]+\.att$/ && $mani && $mani->{'mediaType'} && $mani->{'mediaType'} eq $BSContar::mt_oci_manifest) {
     if (@{$mani->{'layers'} || []} >= 1 && $mani->{'layers'}->[0]->{'mediaType'} eq 'application/vnd.dsse.envelope.v1+json') {
       my $annotations = $mani->{'layers'}->[0]->{'annotations'} || {};
       my $cookie = $annotations->{$cosign_cookie_name};
-      $extra = "cosigncookie=$cookie" if $cookie;
+      $extra = "layers=".@{$mani->{'layers'} || []};
+      $extra .= ",cosigncookie=$cookie" if $cookie;
     }
   }
   return $extra;
@@ -676,6 +678,7 @@ sub list_tag {
   if ($with_platforms && $tag !~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/) {
     $ifnonematch = undef if ($old_data_mtype eq 'list' || $old_data_mtype eq 'ocilist') && $old_data_extra !~ /^platforms=/;
   }
+  $ifnonematch = undef if $tag =~ /^[a-z0-9]+-[a-f0-9]+\.(?:sig|att)$/ && $old_data_extra !~ /^layers=/;
   if ($listidx && ($old_data_mtype eq 'list' || $old_data_mtype eq 'ocilist')) {
     # we will need to list submanifests
     $ifnonematch = undef unless $old_datas->{"$old_data->[0]/"} && $listidx_no_info;
@@ -989,7 +992,7 @@ if (@ARGV && $ARGV[0] =~ /^config:(.+)/) {
   $registry = $BSConfig::container_registries->{$regname} if $BSConfig::container_registries;
   die("unknown registry $regname\n") unless $registry;
   $ARGV[0] = $registry->{'pushserver'} || $registry->{'server'};
-  $dest_creds = BSBearer::get_credentials("$registry->{'user'}:$registry->{'password'}") if !$dest_creds && $registry->{'user'};
+  $dest_creds = get_credentials("$registry->{'user'}:$registry->{'password'}") if !$dest_creds && $registry->{'user'};
 }
 
 $registry_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => (-c STDOUT ? 1 : 0));

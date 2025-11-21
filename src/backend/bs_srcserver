@@ -6412,14 +6412,14 @@ sub getrequest {
 
 ####################################################################
 
-sub findremote {
+sub worker_findremote {
   my ($projid) = @_;
 
   my $proj = BSRevision::readproj_local($projid, 1);
   $proj = BSSrcServer::Remote::remoteprojid($projid) if !$proj || $proj->{'remoteurl'};
   die("404 project '$projid' does not exist\n") unless $proj;
   if (!$proj->{'remoteurl'}) {
-    $proj->{'remoteurl'} = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
+    $proj->{'remoteurl'} = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid, 1) : ($BSConfig::workerreposerver || $BSConfig::reposerver);
     $proj->{'remoteproject'} = $projid;
     $proj->{'remoteproxy'} = undef;
   }
@@ -6440,7 +6440,7 @@ sub worker_getbinaries {
     BSHandoff::handoff_part('interconnect_out', '/getbinaries', undef, @args);
   }
   my @binaries = split(',', $cgi->{'binaries'});
-  my $proj = findremote($projid);
+  my $proj = worker_findremote($projid);
   my $binarylist = BSSrcServer::Remote::getremotebinarylist($proj, $projid, $repoid, $arch, \@binaries, $cgi->{'module'});
   return undef unless $binarylist;
   my $reply = BSSrcServer::Remote::getremotebinaries($proj, $projid, $repoid, $arch, \@binaries, $binarylist, $cgi->{'module'});
@@ -6470,7 +6470,7 @@ sub worker_getbinaryversions {
     BSHandoff::handoff_part('interconnect_out', '/getbinaryversions', undef, @args);
   }
   my @binaries = split(',', $cgi->{'binaries'});
-  my $proj = findremote($projid);
+  my $proj = worker_findremote($projid);
   my $binaryversions = BSSrcServer::Remote::getremotebinaryversions($proj, $projid, $repoid, $arch, \@binaries, $cgi->{'module'}, $cgi->{'withevr'});
   return undef unless $binaryversions;
   my $bvl = {};
@@ -6481,7 +6481,7 @@ sub worker_getbinaryversions {
 sub getobsgendiffdata {
   my ($cgi, $projid, $repoid, $arch) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
-  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid, 1) : ($BSConfig::workerreposerver || $BSConfig::reposerver);
   my $param = {
     'uri' => "$reposerver/getobsgendiffdata",
     'ignorestatus' => 1,
