@@ -5,14 +5,19 @@
     .col.col-with-icon
       .d-flex.justify-content-between
         .px-1
-          = link_to "#{hook_event.humanize} event", token_workflow_run_path(token_id, workflow_run)
+          = link_to "#{hook_event.humanize} event:", token_workflow_run_path(token_id, workflow_run)
           - if hook_action
             %strong= hook_action.humanize
-          - if event_source_name
-            - field_to_filter_by = hook_event.in?(['pull_request', 'Merge Request Hook']) ? 'pr_mr' : 'commit_sha'
-            = link_to event_source_url, { class: 'link-secondary', title: "Go to Event Source #{formatted_event_source_name}", target: '_blank' } do
-              %i.fa.fa-xs.fa-link.text-secondary
-            = link_to "?#{field_to_filter_by}=#{event_source_name}", { class: 'link-secondary ms-1', title: "Filter by this Event Source" } do
-              %i.fa.fa-xs.fa-filter.text-secondary
+          %span= formatted_event_source_name || "Unknown source"
         .px-1
           = workflow_run.created_at
+          %span.ms-2
+            - if event_source_name
+              - field_to_filter_by = hook_event.in?(['pull_request', 'Merge Request Hook']) ? 'pr_mr' : 'commit_sha'
+              = link_to event_source_url, { class: 'link-secondary ms-2',
+                                            title: "Go to Event Source #{formatted_event_source_name}",
+                                            target: '_blank' } do
+                %i.fa.fa-xs.fa-link.text-secondary
+              \|
+              = link_to "?#{field_to_filter_by}=#{event_source_name}", { class: 'link-secondary ms-1', title: "Filter by this Event Source" } do
+                %i.fa.fa-xs.fa-filter.text-secondary
