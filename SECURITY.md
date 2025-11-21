@@ -37,4 +37,4 @@ involving the following steps:
 ## Comments on this Policy
 
 If you have suggestions on how this process could be improved, please contact the `Open Build Service` team at
-the [obs-devel mailinglist](https://lists.opensuse.org/obs-devel/)
+the [buildservice mailinglist](https://lists.opensuse.org/archives/list/buildservice@lists.opensuse.org/)
