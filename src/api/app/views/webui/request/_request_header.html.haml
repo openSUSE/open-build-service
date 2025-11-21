@@ -8,6 +8,9 @@
     %small
       = render BsRequestPriorityBadgeComponent.new(priority: bs_request.priority, css_class: 'ms-2', overview: true)
       = render badge_state
+      -# Maintenance Incident Request
+      - if bs_request.maintenance_incident_request?
+        %span.badge.bg-maintenance.text-light.ms-2 Maintenance Incident
       %span.ms-2
         = render ReportsNoticeComponent.new(reportable: bs_request, user: User.session)
 
@@ -59,11 +62,6 @@
         %mark.text-dark.alert-warning.ps-2.pe-2.text-nowrap{ title: bs_request.accept_at }
           auto accepted
           = render TimeComponent.new(time: bs_request.accept_at)
-    -# Maintenance Incident Request
-    - if bs_request.maintenance_incident_request?
-      %li
-        This is a
-        %mark.text-light.bg-maintenance.text-nowrap.text Maintenance Incident
     -# Maintenance Release Request
     - if bs_request.maintenance_release_request?
       %li
