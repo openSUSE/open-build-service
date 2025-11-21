@@ -6,13 +6,11 @@
     %span.ms-2.badge.text-bg-primary= hook_action.humanize
 .col.text-start
   - if event_source_name
-    - popover_content = render partial: 'webui/workflow_runs/event_links', locals: { hook_event: hook_event,
-                                                                                     formatted_event_source_name: formatted_event_source_name,
-                                                                                     event_source_name: event_source_name,
-                                                                                     event_source_url: event_source_url }
-    = link_to formatted_event_source_name, 'javascript:;', { class: 'link-secondary', tabindex: '0',
-                                                             data: { 'bs-toggle': 'popover', 'bs-html': 'true', 'bs-trigger': 'focus',
-                                                                     'bs-content': popover_content } }
+    - field_to_filter_by = hook_event.in?(['pull_request', 'Merge Request Hook']) ? 'pr_mr' : 'commit_sha'
+    = link_to event_source_url, { class: 'link-secondary', title: "Go to Event Source #{formatted_event_source_name}", target: '_blank' } do
+      %i.fa.fa-xs.fa-link.text-secondary
+    = link_to "?#{field_to_filter_by}=#{event_source_name}", { class: 'link-secondary ms-1', title: "Filter by this Event Source" } do
+      %i.fa.fa-xs.fa-filter.text-secondary
   - else
     Unknown source
 .col.text-end
