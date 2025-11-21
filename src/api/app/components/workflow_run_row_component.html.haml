@@ -7,7 +7,7 @@
         .px-1
           = link_to "#{hook_event.humanize} event", token_workflow_run_path(token_id, workflow_run)
           - if hook_action
-            %span.ms-2.badge.text-bg-primary= hook_action.humanize
+            %strong= hook_action.humanize
           - if event_source_name
             - field_to_filter_by = hook_event.in?(['pull_request', 'Merge Request Hook']) ? 'pr_mr' : 'commit_sha'
             = link_to event_source_url, { class: 'link-secondary', title: "Go to Event Source #{formatted_event_source_name}", target: '_blank' } do
