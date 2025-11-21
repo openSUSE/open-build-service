@@ -41,7 +41,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     # The button value specifies whether we selected read or unread
     deliver = params[:button] == 'read'
     # rubocop:disable Rails/SkipsModelValidations
-    @count = @notifications.where(id: @notification_ids, delivered: !deliver).update_all(delivered: deliver)
+    count = @notifications.where(id: @notification_ids, delivered: !deliver).update_all(delivered: deliver)
     # rubocop:enable Rails/SkipsModelValidations
 
     # manually update the count and the filtered subset after the update
@@ -63,7 +63,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
           user: User.session
         }
       end
-      send_notifications_information_rabbitmq(deliver, @count)
+      send_notifications_information_rabbitmq(deliver, count)
     end
   end
 
