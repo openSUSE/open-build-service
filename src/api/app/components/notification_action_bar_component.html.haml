@@ -11,7 +11,7 @@
         - if state != 'unread'
           = button_tag("Mark selected as 'Unread'", type: 'submit', class: 'btn btn-sm btn-outline-success px-3', id: 'unread-button',
                        disabled: 'disabled', 'data-disable-with': disable_with_content, value: 'unread')
-      - if counted_notifications['all'] > Notification.max_per_page
+      - if total_count_notifications > Notification.max_per_page
         .ms-4
           = link_to(button_text(all: true), @update_path, method: :put, remote: true,
                     class: 'btn btn-sm btn-outline-secondary px-3', 'data-disable-with': disable_with_content(all: true))

@@ -24,7 +24,6 @@ class Webui::WebuiController < ActionController::Base
   before_action :current_announcement, unless: -> { request.xhr? }
   before_action :fetch_watchlist_items
   before_action :set_paper_trail_whodunnit
-  before_action :set_unread_notifications_count, unless: -> { request.xhr? }
 
   # :notice and :alert are default, we add :success and :error
   add_flash_types :success, :error
@@ -182,10 +181,6 @@ class Webui::WebuiController < ActionController::Base
       @watched_packages = User.possibly_nobody.watched_packages
       @watched_projects = User.possibly_nobody.watched_projects
     end
-  end
-
-  def set_unread_notifications_count
-    @unread_notifications_count = User.session ? User.session.unread_notifications_count : 0
   end
 
   def add_arrays(arr1, arr2)

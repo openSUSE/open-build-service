@@ -13,8 +13,8 @@
     .card
       .card-body.pt-1
         = render(NotificationActionBarComponent.new(state: selected_filter[:state],
-                                                update_path: update_path,
-                                                counted_notifications: counted_notifications))
+                                                    update_path: update_path,
+                                                    total_count_notifications: notifications.count))
         .text-center
           %span.ms-3= page_entries_info notifications, entry_name: ''
           - if notifications.total_count > Notification::THRESHOLD_TO_RECOMMEND_NOTIFICATION_MANAGEMENT
