@@ -8,8 +8,10 @@
     = form_for(@attribute) do |form|
       .row
         = form.hidden_field(:project_id)
+        = hidden_field_tag(:project_name, @project.name)
         - if @attribute.package_id
           = form.hidden_field(:package_id)
+          = hidden_field_tag(:package_name, @package.name)
         .col-12.col-md-auto
           = form.collection_select(:attrib_type_id, @attribute_types, :id, :fullname, {}, class: 'form-control form-select')
         .col-form-label.col-12.col-md
