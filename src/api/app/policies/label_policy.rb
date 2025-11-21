@@ -12,7 +12,7 @@ class LabelPolicy < ApplicationPolicy
   end
 
   def destroy?
-    create?
+    update?
   end
 
   def update?

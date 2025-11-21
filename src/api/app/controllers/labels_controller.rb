@@ -24,7 +24,8 @@ class LabelsController < ApplicationController
   # DELETE /labels/projects/:project_name/packages/:package_name/:id
   # DELETE /labels/requests/:request_number/:id
   def destroy
-    label = authorize @labelable.labels.find_by(id: params[:id])
+    authorize @labelable, policy_class: LabelPolicy
+    label = @labelable.labels.find_by(id: params[:id])
 
     unless label
       render_error(status: 404, message: "Unable to find label `#{params[:id]}`")
