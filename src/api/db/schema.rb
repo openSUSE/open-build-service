@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_19_144352) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_20_113549) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -1299,7 +1299,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_19_144352) do
   add_foreign_key "attrib_default_values", "attrib_types", name: "attrib_default_values_ibfk_1"
   add_foreign_key "attrib_issues", "attribs", name: "attrib_issues_ibfk_1"
   add_foreign_key "attrib_issues", "issues", name: "attrib_issues_ibfk_2"
-  add_foreign_key "attrib_namespace_modifiable_bies", "attrib_namespaces", name: "attrib_namespace_modifiable_bies_ibfk_1"
+  add_foreign_key "attrib_namespace_modifiable_bies", "attrib_namespaces", name: "attrib_namespace_modifiable_bies_ibfk_1", on_delete: :cascade
   add_foreign_key "attrib_namespace_modifiable_bies", "groups", name: "attrib_namespace_modifiable_bies_ibfk_5"
   add_foreign_key "attrib_namespace_modifiable_bies", "users", name: "attrib_namespace_modifiable_bies_ibfk_4"
   add_foreign_key "attrib_type_modifiable_bies", "groups", name: "attrib_type_modifiable_bies_ibfk_2"
