@@ -41,7 +41,9 @@ module Webui::RequestsFilter
   def filter_creators
     return if params[:creators]&.compact_blank.blank?
 
-    @selected_filter['creators'] = params[:creators]
+    @selected_filter['creators'] = params[:creators].compact_blank.reject { |name| name.to_s.strip.empty? }
+    return if @selected_filter['creators'].blank?
+
     @bs_requests = @bs_requests.where(creator: @selected_filter['creators'])
   end
 
@@ -55,28 +57,36 @@ module Webui::RequestsFilter
   def filter_staging_projects
     return if params[:staging_projects]&.compact_blank.blank?
 
-    @selected_filter['staging_projects'] = params[:staging_projects]
+    @selected_filter['staging_projects'] = params[:staging_projects].compact_blank.reject { |name| name.to_s.strip.empty? }
+    return if @selected_filter['staging_projects'].blank?
+
     @bs_requests = @bs_requests.where(staging_project: Project.find_by(name: @selected_filter['staging_projects']))
   end
 
   def filter_reviewers
     return if params[:reviewers]&.compact_blank.blank?
 
-    @selected_filter['reviewers'] = params[:reviewers]
+    @selected_filter['reviewers'] = params[:reviewers].compact_blank.reject { |name| name.to_s.strip.empty? }
+    return if @selected_filter['reviewers'].blank?
+
     @bs_requests = @bs_requests.where(reviews: { by_user: @selected_filter['reviewers'] }).or(@bs_requests.where(reviews: { by_group: @selected_filter['reviewers'] }))
   end
 
   def filter_project_names
     return if params[:project_names]&.compact_blank.blank?
 
-    @selected_filter['project_names'] = params[:project_names]
+    @selected_filter['project_names'] = params[:project_names].compact_blank.reject { |name| name.to_s.strip.empty? }
+    return if @selected_filter['project_names'].blank?
+
     @bs_requests = @bs_requests.where(bs_request_actions: { source_project: @selected_filter['project_names'] }).or(@bs_requests.where(bs_request_actions: { target_project: @selected_filter['project_names'] }))
   end
 
   def filter_package_names
     return if params[:package_names]&.compact_blank.blank?
 
-    @selected_filter['package_names'] = params[:package_names]
+    @selected_filter['package_names'] = params[:package_names].compact_blank.reject { |name| name.to_s.strip.empty? }
+    return if @selected_filter['package_names'].blank?
+
     @bs_requests = @bs_requests.where(bs_request_actions: { source_package: @selected_filter['package_names'] }).or(@bs_requests.where(bs_request_actions: { target_package: @selected_filter['package_names'] }))
   end
 
@@ -98,7 +108,9 @@ module Webui::RequestsFilter
   def filter_labels
     return if params[:labels]&.compact_blank.blank?
 
-    @selected_filter['labels'] = params[:labels].compact_blank
+    @selected_filter['labels'] = params[:labels].compact_blank.reject { |name| name.to_s.strip.empty? }
+    return if @selected_filter['labels'].blank?
+
     @bs_requests = @bs_requests.joins(labels: :label_template).where(label_templates: { name: @selected_filter['labels'] })
   end
 end

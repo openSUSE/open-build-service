@@ -1,4 +1,5 @@
 /* exported setupAutocomplete */
+/* global setTimeout */
 
 function setupAutocomplete(selector) {
   $(selector).autocomplete({
@@ -11,6 +12,19 @@ function setupAutocomplete(selector) {
     },
     response: function() {
       $(selector).next().find('i').toggleClass('fa-search fa-spinner fa-spin');
+    },
+    select: function() {
+      // Clear the autocomplete field after selection only if it has a submit button.
+      // This prevents submitting leftover text when the form is submitted via button
+      // (e.g., in request filters with magnifier/search buttons).
+      // This fixes the issue where clicking the search/magnifier button after selecting
+      // an autocomplete item would add empty checkboxes.
+      var hasSubmitButton = $(selector).next().find('button[type="submit"]').length > 0;
+      if (hasSubmitButton) {
+        setTimeout(function() {
+          $(selector).val('');
+        }, 1);
+      }
     }
  });
 }
