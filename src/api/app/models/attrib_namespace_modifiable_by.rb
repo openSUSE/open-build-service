@@ -2,6 +2,8 @@ class AttribNamespaceModifiableBy < ApplicationRecord
   belongs_to :attrib_namespace
   belongs_to :user, optional: true
   belongs_to :group, optional: true
+
+  validates :attrib_namespace, uniqueness: { scope: %i[user group] }
 end
 
 # == Schema Information
