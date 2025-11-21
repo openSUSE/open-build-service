@@ -33,9 +33,6 @@ AttribNamespace:
     PrimaryKeyTypeChecker:
       enabled: false
 AttribNamespaceModifiableBy:
-  attrib_namespace_user_role_all_index:
-    UniqueIndexChecker:
-      enabled: false
   id:
     PrimaryKeyTypeChecker:
       enabled: false
