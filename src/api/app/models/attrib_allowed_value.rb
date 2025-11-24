@@ -18,5 +18,5 @@ end
 #
 # Foreign Keys
 #
-#  attrib_allowed_values_ibfk_1  (attrib_type_id => attrib_types.id)
+#  attrib_allowed_values_ibfk_1  (attrib_type_id => attrib_types.id) ON DELETE => cascade
 #
