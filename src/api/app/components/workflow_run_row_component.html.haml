@@ -9,15 +9,14 @@
           - if hook_action
             %strong= hook_action.humanize
           %span= formatted_event_source_name || "Unknown source"
-        .px-1
-          = workflow_run.created_at
-          %span.ms-2
+          %span
             - if event_source_name
               - field_to_filter_by = hook_event.in?(['pull_request', 'Merge Request Hook']) ? 'pr_mr' : 'commit_sha'
-              = link_to event_source_url, { class: 'link-secondary ms-2',
+              = link_to event_source_url, { class: 'link-secondary mx-1',
                                             title: "Go to Event Source #{formatted_event_source_name}",
                                             target: '_blank' } do
                 %i.fa.fa-xs.fa-link.text-secondary
-              \|
-              = link_to "?#{field_to_filter_by}=#{event_source_name}", { class: 'link-secondary ms-1', title: "Filter by this Event Source" } do
+              = link_to "?#{field_to_filter_by}=#{event_source_name}", { class: 'link-secondary mx-1', title: "Filter by this Event Source" } do
                 %i.fa.fa-xs.fa-filter.text-secondary
+        .px-1
+          %span= workflow_run.created_at
