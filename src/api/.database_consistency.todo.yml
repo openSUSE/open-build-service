@@ -29,6 +29,9 @@ AttribIssue:
     UniqueIndexChecker:
       enabled: false
 AttribNamespace:
+  attrib_namespace_modifiable_bies:
+    ForeignKeyCascadeChecker:
+      enabled: false
   id:
     PrimaryKeyTypeChecker:
       enabled: false

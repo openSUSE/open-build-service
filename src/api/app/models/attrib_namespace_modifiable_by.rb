@@ -21,7 +21,7 @@ end
 #
 # Foreign Keys
 #
-#  attrib_namespace_modifiable_bies_ibfk_1  (attrib_namespace_id => attrib_namespaces.id) ON DELETE => cascade
+#  attrib_namespace_modifiable_bies_ibfk_1  (attrib_namespace_id => attrib_namespaces.id)
 #  attrib_namespace_modifiable_bies_ibfk_4  (user_id => users.id)
 #  attrib_namespace_modifiable_bies_ibfk_5  (group_id => groups.id)
 #
