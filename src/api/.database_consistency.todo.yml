@@ -46,9 +46,6 @@ AttribType:
   default_values:
     ForeignKeyCascadeChecker:
       enabled: false
-  description:
-    LengthConstraintChecker:
-      enabled: false
   id:
     PrimaryKeyTypeChecker:
       enabled: false

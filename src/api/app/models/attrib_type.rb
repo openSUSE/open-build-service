@@ -23,6 +23,7 @@ class AttribType < ApplicationRecord
   #### Scopes (first the default_scope macro if is used)
   #### Validations macros
   validates :name, presence: true
+  validates :description, length: { maximum: 255 }
 
   #### Class methods using self. (public and then private)
   def self.find_by_name!(name)
