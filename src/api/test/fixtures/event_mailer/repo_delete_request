@@ -3,7 +3,7 @@ Sender: OBS Notification <obs-email@opensuse.org>
 To: Thor <tschmidt@example.com>
 Message-ID: <obs-request-REQUESTID@localhost>
 Subject: Request REQUESTID created by Iggy (delete home:coolo/standard)
-Mime-Version: 1.0
+MIME-Version: 1.0
 Content-Type: text/plain;
  charset=UTF-8
 Content-Transfer-Encoding: 7bit
