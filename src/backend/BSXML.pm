@@ -2165,6 +2165,7 @@ our $binannotation = [
 	'buildhost',
 	'disturl',
 	'binaryid',
+      [ 'installed' ],		# installed packages in containers
 	'registry_refname',	# in DoD containers
 	'registry_digest',	# in DoD containers
 	'registry_fatdigest',	# in DoD containers
