@@ -1,9 +1,11 @@
 - if binary[:links][:download_url]
-  = link_to(binary[:links][:download_url], title: 'Download', class: 'ms-2') do
-    %i.fas.fa-download.text-secondary
-    Download
+  %span.d-block.d-xs-block.d-sm-inline.dropdown-item
+    = link_to(binary[:links][:download_url], title: 'Download', class: 'ms-2') do
+      %i.fas.fa-download.text-secondary
+      Download
 - if binary[:links][:details?]
-  = link_to(project_package_repository_binary_path(project_name: project, package_name: package_name, repository_name: repository,
-    arch: architecture, filename: binary[:filename]), title: 'Information', class: 'ms-2') do
-    %i.fas.fa-info-circle
-    Details
+  %span.d-block.d-xs-block.d-sm-inline.dropdown-item
+    = link_to(project_package_repository_binary_path(project_name: project, package_name: package_name, repository_name: repository,
+      arch: architecture, filename: binary[:filename]), title: 'Information', class: 'ms-2') do
+      %i.fas.fa-info-circle
+      Details
