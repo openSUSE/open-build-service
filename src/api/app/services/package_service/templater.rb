@@ -20,6 +20,8 @@ module PackageService
 
     def files
       @template.dir_hash.elements('entry').map do |file|
+        next if file['name'] == '_template'
+
         template_contents = @template.source_file(file['name'])
         return uploaded_file(file['name'], template_contents) unless file['name'].end_with?('.liquid')
 

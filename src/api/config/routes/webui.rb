@@ -115,6 +115,7 @@ constraints(RoutesHelper::WebuiMatcher) do
     post 'package/save_group/:project/:package' => :save_group, constraints: cons, as: 'package_save_group'
     post 'package/remove_role/:project/:package' => :remove_role, constraints: cons, as: 'package_remove_role'
     post 'package/preview_description' => :preview_description, constraints: cons
+    get 'projects/:project/packages/:package/template_data' => :template_data, constraints: cons, as: 'package_template_data'
   end
 
   resources :packages, only: [], param: :name do

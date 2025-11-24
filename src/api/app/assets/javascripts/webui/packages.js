@@ -1,3 +1,5 @@
+/* exported setTemplateData */
+
 /* global setupDropdownFilters */
 
 // Remove this after PackageController#rdiff moves to DiffListComponent
@@ -23,3 +25,24 @@ $(document).ready(function() {
     $(this).text(moreInfo.hasClass('d-none') ? 'more info' : 'less info');
   });
 });
+
+async function setTemplateData(url) {
+  try {
+    var templateDescriptions = document.getElementsByClassName("template-description");
+    Array.from(templateDescriptions).forEach((desc) => {
+      desc.innerHTML = '';
+    });
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Response failed with status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    result.forEach((object) => {
+      var field = document.getElementById(`description-${object.name}`);
+      field.innerText = object.description;
+    });
+  } catch (error) {
+    console.error(error.message);
+  }
+}

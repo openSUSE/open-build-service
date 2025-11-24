@@ -8,20 +8,22 @@ class Webui::PackageController < Webui::WebuiController
   # rubocop:disable Rails/LexicallyScopedActionFilter
   before_action :require_login, except: %i[show index branch_diff_info
                                            users requests statistics revisions view_file
-                                           devel_project buildresult rpmlint_result rpmlint_log rpmlint_summary files]
+                                           devel_project buildresult rpmlint_result rpmlint_log
+                                           rpmlint_summary files template_data]
 
   # The methods save_person, save_group and remove_role are defined in Webui::ManageRelationships
   before_action :set_project, only: %i[show edit update index users requests statistics revisions
                                        new branch_diff_info rdiff create remove
                                        save_person save_group remove_role view_file
-                                       buildresult rpmlint_result rpmlint_log rpmlint_summary files]
+                                       buildresult rpmlint_result rpmlint_log rpmlint_summary files template_data]
 
   before_action :check_scmsync, only: %i[requests revisions statistics users]
 
   before_action :set_package, only: %i[edit update show requests statistics revisions
                                        branch_diff_info rdiff remove
                                        save_person save_group remove_role view_file
-                                       buildresult rpmlint_result rpmlint_log rpmlint_summary files users]
+                                       buildresult rpmlint_result rpmlint_log rpmlint_summary files
+                                       users template_data]
   # rubocop:enable Rails/LexicallyScopedActionFilter
   before_action :lints_list, only: %i[rpmlint_summary]
 
@@ -348,6 +350,21 @@ class Webui::PackageController < Webui::WebuiController
 
   def files; end
   def view_file; end
+
+  def template_data
+    data = []
+    begin
+      xml = Nokogiri::XML(@package.source_file('_template'))
+      xml.css('template').children.each do |child|
+        next if child.name == 'text'
+
+        data << { name: child.name, description: child.content }
+      end
+    rescue StandardError
+      logger.debug("No template information provided for #{@project.name}/#{@package.name}")
+    end
+    render json: data.to_json, layout: false
+  end
 
   private
 

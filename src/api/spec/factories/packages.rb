@@ -241,6 +241,8 @@ FactoryBot.define do
         spec_file_content { Pathname.new(File.join('spec', 'fixtures', 'files', 'template.spec')).read }
         changes_file_name { '{{ package.name }}.changes.liquid' }
         changes_file_content { Pathname.new(File.join('spec', 'fixtures', 'files', 'template.changes')).read }
+        template_file_name { '_template' }
+        template_file_content { Pathname.new(File.join('spec', 'fixtures', 'files', '_template')).read }
       end
 
       after(:create) do |package, evaluator|
@@ -248,6 +250,7 @@ FactoryBot.define do
           package.save_file(filename: evaluator.file_name, file: evaluator.file_content)
           package.save_file(filename: evaluator.spec_file_name, file: evaluator.spec_file_content)
           package.save_file(filename: evaluator.changes_file_name, file: evaluator.changes_file_content)
+          package.save_file(filename: evaluator.template_file_name, file: evaluator.template_file_content)
         end
       end
     end
