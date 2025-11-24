@@ -109,11 +109,37 @@ RSpec.describe LabelsController do
       end
     end
 
+    context 'when the user is authorized and the label does not exist' do
+      before do
+        login admin_user
+
+        delete :destroy, params: { project_name: admin_user.home_project, package_name: package.name, id: label.id + 1, format: :xml }
+      end
+
+      it 'does not delete the label and returns not found' do
+        expect(response).to have_http_status(:not_found)
+        expect(label_template.reload.labels.count).to eq(1)
+      end
+    end
+
     context 'when the user is not authorized' do
       before do
         login user
 
         delete :destroy, params: { project_name: admin_user.home_project, package_name: package.name, id: label.id, format: :xml }
+      end
+
+      it 'does not delete the label and returns an error' do
+        expect(response).to have_http_status(:forbidden)
+        expect(label_template.reload.labels.count).to eq(1)
+      end
+    end
+
+    context 'when the user is not authorized and the label does not exist' do
+      before do
+        login user
+
+        delete :destroy, params: { project_name: admin_user.home_project, package_name: package.name, id: label.id + 1, format: :xml }
       end
 
       it 'does not delete the label and returns an error' do
