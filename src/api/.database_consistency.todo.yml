@@ -40,9 +40,6 @@ AttribNamespaceModifiableBy:
     PrimaryKeyTypeChecker:
       enabled: false
 AttribType:
-  allowed_values:
-    ForeignKeyCascadeChecker:
-      enabled: false
   default_values:
     ForeignKeyCascadeChecker:
       enabled: false

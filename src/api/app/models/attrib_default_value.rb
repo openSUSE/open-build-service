@@ -22,5 +22,5 @@ end
 #
 # Foreign Keys
 #
-#  attrib_default_values_ibfk_1  (attrib_type_id => attrib_types.id)
+#  attrib_default_values_ibfk_1  (attrib_type_id => attrib_types.id) ON DELETE => cascade
 #
