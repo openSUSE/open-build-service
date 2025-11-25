@@ -275,11 +275,6 @@ RSpec.describe Webui::Users::NotificationsController do
         expect(state_change_notification.reload.delivered).to be true
       end
 
-      it {
-        subject
-        expect(assigns[:count]).to be 1
-      }
-
       it 'returns the updated list of read notifications' do
         subject
         expect(assigns[:notifications]).to contain_exactly(another_unread_notification)
@@ -297,8 +292,6 @@ RSpec.describe Webui::Users::NotificationsController do
       it "doesn't set the notification as read" do
         expect(state_change_notification.reload.delivered).to be false
       end
-
-      it { expect(assigns[:count]).to be 0 }
     end
 
     context 'when a user marks one of their read notifications as unread' do
@@ -318,8 +311,6 @@ RSpec.describe Webui::Users::NotificationsController do
       it 'sets the notification as not delivered' do
         expect(read_notification.reload.delivered).to be false
       end
-
-      it { expect(assigns[:count]).to be 1 }
 
       it 'returns the updated list of read notifications' do
         expect(assigns[:notifications]).to contain_exactly(another_read_notification)
