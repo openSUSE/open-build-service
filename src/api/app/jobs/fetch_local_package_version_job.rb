@@ -12,7 +12,8 @@ class FetchLocalPackageVersionJob < ApplicationJob
       next unless (package = Package.find_by_project_and_name(project_name, sourceinfo['package']))
       next unless (version = sourceinfo.at('version')&.content)
 
-      PackageVersionLocal.find_or_create_by(version: version, package: package).touch # rubocop:disable Rails/SkipsModelValidations
+      package_version_local = PackageVersionLocal.find_or_create_by(version: version, package: package)
+      package_version_local.touch if package_version_local.persisted? # rubocop:disable Rails/SkipsModelValidations
     end
   end
 end
