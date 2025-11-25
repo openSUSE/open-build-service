@@ -55,9 +55,6 @@ AttribType:
   name:
     LengthConstraintChecker:
       enabled: false
-  type:
-    LengthConstraintChecker:
-      enabled: false
 AttribTypeModifiableBy:
   attrib_type:
     ForeignKeyChecker:

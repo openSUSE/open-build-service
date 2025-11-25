@@ -24,6 +24,7 @@ class AttribType < ApplicationRecord
   #### Validations macros
   validates :name, presence: true, uniqueness: { scope: :attrib_namespace_id }
   validates :description, length: { maximum: 255 }
+  validates :type, length: { maximum: 255 }
 
   #### Class methods using self. (public and then private)
   def self.find_by_name!(name)
