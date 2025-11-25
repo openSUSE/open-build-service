@@ -49,7 +49,10 @@
                   .d-none.d-sm-block
                     = render_partial
                   .d-sm-none
-                    %i.fas.fa-ellipsis-h.text-secondary{ data: { 'bs-toggle': 'popover', 'bs-html': 'true', 'bs-content': "#{render_partial}" } }
+                    .dropdown
+                      %i.fas.fa-ellipsis-h.text-secondary{ type: 'button', 'data-bs-toggle': 'dropdown' }
+                      .dropdown-menu
+                        = render_partial
       %ul.nav
         - if User.possibly_nobody.can_modify?(@package)
           = render partial: 'trigger_rebuild_wipe_binaries', locals: { result: result, project: @project,
