@@ -46,8 +46,13 @@ class FetchUpstreamPackageVersionJob < ApplicationJob
     upstream_version = extract_version(response)
     return if upstream_version.blank?
 
+    upsert_package_versions(package_ids, upstream_version)
+  end
+
+  def upsert_package_versions(package_ids, upstream_version)
     package_ids.each do |package_id|
-      PackageVersionUpstream.find_or_create_by(version: upstream_version, package_id: package_id).touch # rubocop:disable Rails/SkipsModelValidations
+      package_version_upstream = PackageVersionUpstream.find_or_create_by(version: upstream_version, package_id: package_id)
+      package_version_upstream.touch if package_version_upstream.persisted? # rubocop:disable Rails/SkipsModelValidations
     end
   end
 
