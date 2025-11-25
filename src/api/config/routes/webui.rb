@@ -431,6 +431,11 @@ constraints(RoutesHelper::WebuiMatcher) do
     end
   end
 
+  # OmniAuth callback routes for LDAP authentication
+  get '/auth/:provider/callback', to: 'omniauth_callbacks#ldap', as: :omniauth_callback
+  post '/auth/:provider/callback', to: 'omniauth_callbacks#ldap'
+  get '/auth/failure', to: 'omniauth_callbacks#failure', as: :omniauth_failure
+
   resources :groups, only: %i[index show new create edit update], param: :title, constraints: cons, controller: 'webui/groups' do
     resources :user, only: %i[create destroy update], param: :user_login, constraints: cons, controller: 'webui/groups/users'
     resources :requests, only: [:index], controller: 'webui/groups/bs_requests'

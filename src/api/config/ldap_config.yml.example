@@ -1,0 +1,231 @@
+# LDAP Authentication Configuration for OBS
+#
+# This file provides example configuration for LDAP authentication via OmniAuth.
+# Copy the relevant sections to your config/options.yml file.
+#
+# For more information, see:
+# - docs/LDAP_AUTHENTICATION.md (if created)
+# - OBS_AUTHENTICATION_ANALYSIS.md in the obs-api project directory
+
+# ============================================================================
+# Proxy Auth Mode Configuration
+# ============================================================================
+# Enable proxy_auth_mode to allow OmniAuth to set authentication headers
+proxy_auth_mode: :on
+proxy_auth_login_page: '/auth/ldap'
+proxy_auth_logout_page: '/signout'
+# Optional: Allow users to manage their account details
+proxy_auth_account_page: '/users/edit'
+
+# ============================================================================
+# LDAP Configuration
+# ============================================================================
+ldap:
+  # Enable or disable LDAP authentication
+  enabled: true
+
+  # LDAP server connection settings
+  host: 'ldap.example.com'
+  port: 389
+
+  # Encryption method: :plain, :ssl, or :tls
+  # :plain - No encryption (not recommended for production)
+  # :ssl - LDAPS (port 636)
+  # :tls - Start TLS (port 389)
+  encryption: :plain
+
+  # Base DN for LDAP searches
+  base: 'dc=example,dc=com'
+
+  # Bind credentials for searching LDAP
+  # These credentials are used to search for users before authentication
+  bind_dn: 'cn=svc-obs,ou=services,dc=example,dc=com'
+  bind_password: 'your_bind_password_here'
+
+  # IMPORTANT: In production, use environment variables or Rails encrypted credentials
+  # bind_dn: <%= ENV['LDAP_BIND_DN'] %>
+  # bind_password: <%= ENV['LDAP_BIND_PASSWORD'] %>
+
+  # User identification attribute (usually 'uid' or 'sAMAccountName' for AD)
+  uid_attribute: 'uid'
+
+  # LDAP filter for finding users
+  # This filter is applied when searching for users
+  user_filter: '(objectClass=person)'
+
+  # For Active Directory, you might use:
+  # user_filter: '(&(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))'
+
+  # Connection timeout in seconds
+  timeout: 15
+
+  # Display title for login page
+  title: 'LDAP Authentication'
+
+  # ============================================================================
+  # Group Synchronization Configuration
+  # ============================================================================
+  group_sync:
+    # Enable or disable automatic group synchronization
+    enabled: true
+
+    # Map LDAP groups (CN) to OBS groups
+    # Format:
+    #   ldap_group_cn: obs_group_title
+    #
+    # LDAP groups are extracted from the 'memberof' attribute
+    # Example memberof: "cn=obsadmins,ou=services,ou=groups,dc=example,dc=com"
+    # The CN (obsadmins) is extracted and matched against this mapping
+    mappings:
+      # LDAP Group -> OBS Group
+      obsadmins: 'Admin'
+      obsdevelopers: 'Maintainer'
+      obsreviewers: 'Reviewer'
+      obsusers: 'User'
+
+    # Optional: Require users to be in at least one of these LDAP groups
+    # If a user is not in any of these groups, authentication will fail
+    # required_groups:
+    #   - obsusers
+    #   - obsadmins
+
+# ============================================================================
+# Example Configurations for Different Environments
+# ============================================================================
+
+# -----------------------------------------------------------------------------
+# Development Environment (Example LDAP)
+# -----------------------------------------------------------------------------
+# ldap:
+#   enabled: true
+#   host: 'ldap.example.com'
+#   port: 389
+#   encryption: :plain
+#   base: 'dc=example,dc=com'
+#   bind_dn: 'cn=admin,dc=example,dc=com'
+#   bind_password: 'admin_password'
+#   uid_attribute: 'uid'
+#   user_filter: '(objectClass=person)'
+#   title: 'LDAP Authentication'
+#   group_sync:
+#     enabled: true
+#     mappings:
+#       obsadmins: 'Admin'
+#       obsdevelopers: 'Maintainer'
+
+# -----------------------------------------------------------------------------
+# Production Environment (OpenLDAP with SSL)
+# -----------------------------------------------------------------------------
+# ldap:
+#   enabled: true
+#   host: 'ldap.company.com'
+#   port: 636
+#   encryption: :ssl
+#   base: 'dc=company,dc=com'
+#   bind_dn: <%= ENV['LDAP_BIND_DN'] %>
+#   bind_password: <%= ENV['LDAP_BIND_PASSWORD'] %>
+#   uid_attribute: 'uid'
+#   user_filter: '(objectClass=inetOrgPerson)'
+#   title: 'Company LDAP'
+#   timeout: 30
+#   group_sync:
+#     enabled: true
+#     mappings:
+#       'OBS-Admins': 'Admin'
+#       'OBS-Developers': 'Maintainer'
+#       'OBS-Users': 'User'
+#     required_groups:
+#       - 'OBS-Users'
+
+# -----------------------------------------------------------------------------
+# Active Directory Example
+# -----------------------------------------------------------------------------
+# ldap:
+#   enabled: true
+#   host: 'ad.company.com'
+#   port: 389
+#   encryption: :tls
+#   base: 'dc=company,dc=com'
+#   bind_dn: 'CN=svc-obs,OU=ServiceAccounts,DC=company,DC=com'
+#   bind_password: <%= ENV['LDAP_BIND_PASSWORD'] %>
+#   uid_attribute: 'sAMAccountName'
+#   user_filter: '(&(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))'
+#   title: 'Active Directory'
+#   timeout: 30
+#   group_sync:
+#     enabled: true
+#     mappings:
+#       # Note: AD group DNs might be longer
+#       'CN=OBS-Admins,OU=Groups,DC=company,DC=com': 'Admin'
+#       'CN=OBS-Developers,OU=Groups,DC=company,DC=com': 'Maintainer'
+
+# ============================================================================
+# Security Notes
+# ============================================================================
+#
+# 1. NEVER commit passwords to version control
+#    - Use environment variables: <%= ENV['LDAP_BIND_PASSWORD'] %>
+#    - Or Rails encrypted credentials: rails credentials:edit
+#
+# 2. Always use SSL/TLS in production
+#    - Set encryption: :ssl or :tls
+#    - Ensure certificates are properly configured
+#
+# 3. Use a dedicated service account for LDAP binding
+#    - Create a read-only account (e.g., svc-obs)
+#    - Grant minimum required permissions
+#
+# 4. Test group mappings thoroughly
+#    - Verify LDAP groups are correctly extracted
+#    - Ensure OBS groups exist before mapping
+#
+# 5. Monitor authentication logs
+#    - Check logs/production.log for OmniAuth-LDAP entries
+#    - Watch for authentication failures or group sync issues
+
+# ============================================================================
+# Troubleshooting
+# ============================================================================
+#
+# Issue: "Authentication failed: No authentication data received"
+# - Check that proxy_auth_mode is enabled
+# - Verify OmniAuth initializer is loading
+# - Check logs for OmniAuth errors
+#
+# Issue: "User not created after successful LDAP authentication"
+# - Verify registration setting allows user creation
+# - Check User model for validation errors in logs
+#
+# Issue: "Groups not syncing"
+# - Verify group_sync.enabled is true
+# - Check that LDAP groups are in memberof attribute
+# - Ensure OBS groups exist with exact titles from mappings
+# - Check logs for "OmniAuth-LDAP: Group sync" messages
+#
+# Issue: "Cannot connect to LDAP server"
+# - Verify host and port are correct
+# - Check firewall rules
+# - Try ldapsearch from the OBS server:
+#   ldapsearch -x -H ldap://ldap.example.com -b dc=example,dc=com
+#
+# Issue: "LDAP bind failed"
+# - Verify bind_dn and bind_password are correct
+# - Check LDAP server logs for authentication errors
+# - Try manual bind:
+#   ldapsearch -x -H ldap://ldap.example.com -D "cn=svc-obs,ou=services,dc=example,dc=com" -W -b dc=example,dc=com
+
+# ============================================================================
+# Testing LDAP Authentication
+# ============================================================================
+#
+# To test LDAP authentication with your LDAP server:
+#
+# Test configuration:
+# 1. Copy this file to config/options.yml
+# 2. Enable proxy_auth_mode
+# 3. Set ldap.enabled: true
+# 4. Configure your LDAP settings (see Development Environment example above)
+# 5. Restart OBS: bundle exec rails s
+# 6. Visit: http://localhost:3000/auth/ldap
+# 7. Enter credentials for a test user
+# 8. Check logs for successful authentication and group sync

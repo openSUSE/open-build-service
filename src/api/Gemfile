@@ -45,6 +45,10 @@ gem 'xmlhash'
 gem 'pundit'
 # for password hashing
 gem 'bcrypt'
+# for LDAP authentication via OmniAuth
+gem 'omniauth-ldap'
+gem 'omniauth', '~> 2.1'
+gem 'omniauth-rails_csrf_protection', '~> 1.0'
 # for threaded comments
 gem 'acts_as_tree'
 # js plotting (OBS monitor)
