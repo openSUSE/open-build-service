@@ -21,10 +21,8 @@
         - else
           .text-center
             %span.ms-3= page_entries_info(@workflow_runs)
-          .pt-3#workflow-runs
+          .p-3#workflow-runs
             - @workflow_runs.each do |workflow_run|
               .border-bottom.py-2{ id: "workflow-run-heading#{workflow_run.id}" }
-                .mb-0
-                  .row
-                    = render(WorkflowRunRowComponent.new(workflow_run: workflow_run, token_id: @token.id))
+                = render(WorkflowRunRowComponent.new(workflow_run: workflow_run, token_id: @token.id))
             = paginate @workflow_runs, views_prefix: 'webui'
