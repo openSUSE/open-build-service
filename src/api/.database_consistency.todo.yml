@@ -49,9 +49,6 @@ AttribType:
   id:
     PrimaryKeyTypeChecker:
       enabled: false
-  index_attrib_types_on_attrib_namespace_id_and_name:
-    UniqueIndexChecker:
-      enabled: false
   issue_list:
     ThreeStateBooleanChecker:
       enabled: false

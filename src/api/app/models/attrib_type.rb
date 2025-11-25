@@ -22,7 +22,7 @@ class AttribType < ApplicationRecord
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
   #### Validations macros
-  validates :name, presence: true
+  validates :name, presence: true, uniqueness: { scope: :attrib_namespace_id }
   validates :description, length: { maximum: 255 }
 
   #### Class methods using self. (public and then private)
