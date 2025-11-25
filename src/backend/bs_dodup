@@ -547,6 +547,85 @@ sub registry_fetch_manifest {
   return (\@blobs, $digest, $fatdigest);
 }
 
+sub registry_fetch_att {
+  my ($url, $arch, $repo, $digest, $repodir) = @_;
+
+  my $authenticator = $registry_authenticators{"$url/$repo"};
+  if (!$authenticator) {
+    my $creds = $BSConfig::dodcreds ? $BSConfig::dodcreds->{$url} : undef;
+    $authenticator = $registry_authenticators{"$url/$repo"} = BSBearer::generate_authenticator($creds, 'verbose' => 1, 'proxy' => $proxy);
+  }
+  my $tag = "$digest.att";
+  $tag =~ s/:/-/g;
+  my $replyheaders;
+  my $param = {
+    'uri' => "$url/v2/$repo/manifests/$tag",
+    'headers' => [ "Accept: $BSContar::mt_oci_manifest" ],
+    'authenticator' => $authenticator,
+    'replyheaders' => \$replyheaders,
+    'timeout' => $registry_timeout,
+    'maxredirects' => 5,
+    'proxy' => $proxy,
+  };
+  my $mani_json;
+  eval { $mani_json = BSRPC::rpc($param) };
+  return undef if $@ && $@ =~ /^404/;
+  die($@) if $@;
+  die("$repo/$tag: no docker-content-digest\n") unless $replyheaders->{'docker-content-digest'};
+  my $ct = $replyheaders->{'content-type'};
+  die("$repo/$tag: unknown content-type '$ct'\n") unless $ct eq $BSContar::mt_docker_manifest || $ct eq $BSContar::mt_oci_manifest;
+  my $mani = JSON::XS::decode_json($mani_json);
+  my $att_digest;
+  for my $l (@{$mani->{'layers'} || []}) {
+    next if ($l->{'mediaType'} || '') ne "application/vnd.dsse.envelope.v1+json";
+    next if ($l->{'size'} || 0) > 200 * 1024 * 1024;
+    my $annotations = $l->{'annotations'} || {};
+    my $is_att;
+    $is_att = 1 if ($annotations->{'org.open-build-service.intoto.predicatetype'} || '') eq 'https://cyclonedx.org/bom';
+    next unless $is_att;
+    $att_digest = $l->{'digest'};
+  }
+  return undef unless $att_digest;
+  registry_valid_digest("$repo/$tag layer", $att_digest);
+  my $newfile = "$repodir/$digest.att";
+  $param = {
+    'uri' => "$url/v2/$repo/blobs/$att_digest",
+    'authenticator' => $authenticator,
+    'timeout' => 300,
+    'maxredirects' => 5,
+    'receiver' => \&BSHTTP::file_receiver,
+    'filename' => $newfile,
+    'proxy' => $proxy,
+  };
+  BSRPC::rpc($param);
+  chkverify($newfile, $att_digest);
+  my $envelope_json = readstr($newfile);
+  unlink($newfile);
+  my $envelope = JSON::XS::decode_json($envelope_json);
+  undef $envelope_json;	# free mem
+  die("bad payload type\n") unless ($envelope->{'payloadType'} || '') eq 'application/vnd.in-toto+json';
+  die("no payload\n") unless exists $envelope->{'payload'};
+  my $att_json = MIME::Base64::decode_base64($envelope->{'payload'});
+  undef $envelope;	# free mem
+  my $att = JSON::XS::decode_json($att_json);
+  die("missing predicate\n") unless $att->{'predicate'};
+  return $att->{'predicate'};
+}
+
+sub att2installed {
+  my ($att) = @_;
+  my @inst;
+  for my $comp (@{$att->{'components'} || []}) {
+    next unless $comp->{'type'} eq 'library' && $comp->{'name'} && $comp->{'version'} && $comp->{'purl'};
+    next unless $comp->{'purl'} =~ /^pkg:(?:rpm|deb|apk|alpm)\//;	# filter out golang et al
+    next if $comp->{'name'} eq 'gpg-pubkey';
+    my $epoch = '';
+    $epoch = "$1:" if $comp->{'purl'} =~ /[\?\&]epoch=(\d+)/ && $1;
+    push @inst, "$comp->{'name'} = $epoch$comp->{'version'}";
+  }
+  return @inst ? \@inst : undef;
+}
+
 sub mangle_container_name {
   my ($name) = @_;
   $name =~ s/^container://;
@@ -623,12 +702,21 @@ sub dod_registry {
       $newfatmissing{$resource} = $fatdigest if $fatdigest;
       next;
     }
+    my $installed;
     if (!$blobs) {
       # resource is unchanged, use blobs from old entry
       die unless $oldentry && $oldentry->{'path'} =~ /\?([^\?\/]+)$/s;
       $blobs = [ split(',', $1) ];
+      my $oldannotation = BSUtil::fromxml($oldentry->{'annotation'}, $BSXML::binannotation, 1);
+      $installed = $oldannotation->{'installed'} if $oldannotation;
       $unchanged++;
     } else {
+      # convert the sbom to a list of installed packages
+      eval {
+	my $att = registry_fetch_att($url, $arch, $repo, $digest, $repodir);
+	$installed = att2installed($att) if $att;
+      };
+      warn($@) if $@;
       $changed++;
     }
     my $version = $digest;
@@ -654,6 +742,7 @@ sub dod_registry {
     };
     $annotation->{'binaryid'} =~ s/^sha256://;	# like with Containertar.pm
     $annotation->{'registry_fatdigest'} = $fatdigest if $fatdigest;
+    $annotation->{'installed'} = $installed if @{$installed || []};
     $pkg->{'annotation'} = BSUtil::toxml($annotation, $BSXML::binannotation);
     $cache->{$resource} = $pkg;
   }
