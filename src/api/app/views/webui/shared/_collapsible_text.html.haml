@@ -1,6 +1,6 @@
 -# NOTE: look into app/assets/stylesheets/webui/collapsible-text.scss
 - if text.present?
-  .obs-collapsible-textbox.vanilla-textbox-to-collapse{ class: "#{extra_css_classes if defined?(extra_css_classes)}" }
+  .obs-collapsible-textbox.full-width.vanilla-textbox-to-collapse{ class: "#{extra_css_classes if defined?(extra_css_classes)}" }
     .obs-collapsible-text
       - if local_assigns[:render_markdown]
         = render_as_markdown(text)
