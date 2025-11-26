@@ -3,6 +3,8 @@ class AttribTypeModifiableBy < ApplicationRecord
   belongs_to :user, optional: true
   belongs_to :group, optional: true
   belongs_to :role, optional: true
+
+  validates :attrib_type, uniqueness: { scope: %i[user group role] }
 end
 
 # == Schema Information

@@ -59,9 +59,6 @@ AttribTypeModifiableBy:
   attrib_type:
     ForeignKeyChecker:
       enabled: false
-  attrib_type_user_role_all_index:
-    UniqueIndexChecker:
-      enabled: false
   id:
     PrimaryKeyTypeChecker:
       enabled: false
