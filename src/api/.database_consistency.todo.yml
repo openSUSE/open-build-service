@@ -60,9 +60,6 @@ AttribTypeModifiableBy:
     PrimaryKeyTypeChecker:
       enabled: false
 AttribValue:
-  attrib_id:
-    NullConstraintChecker:
-      enabled: false
   id:
     PrimaryKeyTypeChecker:
       enabled: false
