@@ -124,27 +124,16 @@ module MaintenanceHelper
     # call. We should replace it by a "service_pack" project kind or attribute.
     if opts[:makeoriginolder]
       # versioned copy
-      copyopts[:cmd] = 'copy'
       copyopts[:instantiate] = '1'
       copyopts[:withvrev]    = '1'
       copyopts[:vrevbump]    = '2'
-      copyopts[:oproject]    = opkg.project.name
-      copyopts[:opackage]    = opkg.name
-      copyopts[:user]        = User.session!.login
       copyopts[:comment]     = 'initialize package'
+      Backend::Api::Sources::Package.copy(pkg.project.name, pkg.name, opkg.project.name, opkg.name, User.session!.login, copyopts)
     else
       # simple branch
-      copyopts[:cmd] = 'branch'
-      copyopts[:oproject] = opkg.project.name
-      copyopts[:opackage] = opkg.name
-      copyopts[:user]     = User.session!.login
-      copyopts[:comment]  = 'initialize package as branch'
+      copyopts[:comment] = 'initialize package as branch'
+      Backend::Api::Sources::Package.branch(opkg.project.name, opkg.name, pkg.project.name, pkg.name, User.session!.login, copyopts)
     end
-    path = pkg.source_path
-    path << Backend::Connection.build_query_from_hash(copyopts, %i[user comment cmd noservice requestid
-                                                                   makeoriginolder withvrev vrevbump
-                                                                   instantiate oproject opackage])
-    Backend::Connection.post(path)
     pkg.sources_changed
 
     # and create the needed local links
