@@ -143,13 +143,7 @@ module MaintenanceHelper
       lpkg.store
 
       # copy project local linked packages
-      path = lpkg.source_path
-      copyopts[:cmd] = 'copy'
-      copyopts[:oproject] = p.project.name
-      copyopts[:opackage] = p.name
-      path << Backend::Connection.build_query_from_hash(copyopts, %i[user cmd noservice requestid
-                                                                     oproject opackage])
-      Backend::Connection.post path
+      Backend::Api::Sources::Package.copy(lpkg.project.name, lpkg.name, p.project.name, p.name, User.session!.login, copyopts)
       # and fix the link
       link_xml = Nokogiri::XML(lpkg.source_file('_link'), &:strict).root
       link_xml.remove_attribute('project') # its a local link, project name not needed
@@ -319,10 +313,6 @@ module MaintenanceHelper
     # backend copy of current sources as full copy
     # that means the xsrcmd5 is different, but we keep the incident project anyway.
     cp_params = {
-      cmd: 'copy',
-      user: User.session!.login,
-      oproject: source_package.project.name,
-      opackage: source_package.name,
       comment: "Release from #{source_package.project.name} / #{source_package.name}",
       expand: '1',
       withvrev: '1',
@@ -336,13 +326,8 @@ module MaintenanceHelper
       # link target is equal to release target. So we freeze our link.
       cp_params[:freezelink] = 1
     end
-    cp_path = Addressable::URI.escape("/source/#{target_project.name}/#{target_package_name}")
-    cp_path << Backend::Connection.build_query_from_hash(cp_params, %i[cmd user oproject
-                                                                       opackage comment requestid
-                                                                       expand withvrev noservice
-                                                                       freezelink withacceptinfo])
-    result = Backend::Connection.post(cp_path)
-    result = Xmlhash.parse(result.body)
+    result = Backend::Api::Sources::Package.copy(target_project.name, target_package_name, source_package.project.name, source_package.name, User.session!.login, cp_params)
+    result = Xmlhash.parse(result)
     action.fill_acceptinfo(result['acceptinfo']) if action
   end
 
