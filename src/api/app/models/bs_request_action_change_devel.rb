@@ -38,6 +38,10 @@ class BsRequestActionChangeDevel < BsRequestAction
     'Change Devel'
   end
 
+  def allow_action_to_scmsync?
+    false
+  end
+
   #### Alias of methods
 end
 

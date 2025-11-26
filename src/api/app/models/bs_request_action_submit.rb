@@ -175,6 +175,12 @@ class BsRequestActionSubmit < BsRequestAction
     backend_package&.[]('linkinfo')&.[]('xsrcmd5') || backend_package&.[]('srcmd5')
   end
 
+  private
+
+  def allow_action_to_scmsync?
+    false
+  end
+
   #### Alias of methods
 end
 

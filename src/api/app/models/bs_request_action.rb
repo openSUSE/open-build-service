@@ -946,6 +946,13 @@ class BsRequestAction < ApplicationRecord
     sprj
   end
 
+  def allow_action_to_scmsync?
+    return true unless target_project_object # no object, no scmsync
+    return true if target_project_object.scmsync.present? # no scmsync, no problems
+
+    false if target_package # we allow to change the target project, but not the target package
+  end
+
   def check_action_permission_target!
     return unless target_project
 
@@ -957,7 +964,7 @@ class BsRequestAction < ApplicationRecord
                                      'a submit self is not possible, please use the maintenance workflow instead.'
       end
 
-      if tprj.scmsync.present?
+      unless allow_action_to_scmsync?
         raise RequestRejected,
               "The target project #{target_project} is managed in an external SCM: #{tprj.scmsync}"
       end
