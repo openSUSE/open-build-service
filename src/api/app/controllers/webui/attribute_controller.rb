@@ -1,8 +1,8 @@
 class Webui::AttributeController < Webui::WebuiController
   helper :all
-  before_action :set_project, only: %i[index new edit]
-  before_action :set_package, only: %i[index new edit]
-  before_action :set_container, only: %i[index new edit]
+  before_action :set_project, only: %i[index new edit create]
+  before_action :set_package, only: %i[index new edit create]
+  before_action :set_container, only: %i[index new edit create]
   before_action :set_attribute, only: %i[update destroy]
 
   # raise an exception if authorize has not yet been called.
@@ -23,7 +23,7 @@ class Webui::AttributeController < Webui::WebuiController
 
     authorize @attribute, :create?
 
-    @attribute_types = AttribType.includes(:attrib_namespace).all.sort_by(&:fullname)
+    @attribute_types = AttribType.includes(:attrib_namespace).where.not(id: @container.attribs.map(&:attrib_type_id)).sort_by(&:fullname)
   end
 
   def edit
@@ -42,8 +42,7 @@ class Webui::AttributeController < Webui::WebuiController
   end
 
   def create
-    @attribute = Attrib.new(attrib_params)
-
+    @attribute = @container.attribs.find_or_initialize_by(attrib_type_id: attrib_params[:attrib_type_id])
     authorize @attribute
 
     # build the default values
