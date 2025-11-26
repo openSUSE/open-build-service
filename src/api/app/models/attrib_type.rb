@@ -152,7 +152,7 @@ end
 #
 #  id                  :integer          not null, primary key
 #  description         :string(255)
-#  issue_list          :boolean          default(FALSE)
+#  issue_list          :boolean          default(FALSE), not null
 #  name                :string(255)      not null, uniquely indexed => [attrib_namespace_id], indexed
 #  type                :string(255)
 #  value_count         :integer

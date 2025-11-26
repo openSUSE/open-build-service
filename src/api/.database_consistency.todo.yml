@@ -49,9 +49,6 @@ AttribType:
   id:
     PrimaryKeyTypeChecker:
       enabled: false
-  issue_list:
-    ThreeStateBooleanChecker:
-      enabled: false
   name:
     LengthConstraintChecker:
       enabled: false

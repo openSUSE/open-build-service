@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_19_144352) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_25_121822) do
   create_table "active_storage_attachments", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -122,7 +122,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_19_144352) do
     t.string "type"
     t.integer "value_count"
     t.integer "attrib_namespace_id", null: false
-    t.boolean "issue_list", default: false
+    t.boolean "issue_list", default: false, null: false
     t.index ["attrib_namespace_id", "name"], name: "index_attrib_types_on_attrib_namespace_id_and_name", unique: true
     t.index ["name"], name: "index_attrib_types_on_name"
   end
