@@ -1,10 +1,10 @@
 - unless project.patchinfos.exists?
-  %li
+  .me-3
     %i.fa.fa-exclamation-circle.text-danger
     = link_to_if(User.possibly_nobody.can_modify?(project), 'Patchinfo missing',
                   patchinfo_path(project: project, package: 'patchinfo'), method: :post)
 - if open_release_requests.present?
-  %li
+  .me-3
     :ruby
       path = if open_release_requests.length == 1
                request_show_path(open_release_requests.first)
