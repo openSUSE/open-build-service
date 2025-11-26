@@ -326,9 +326,11 @@ module MaintenanceHelper
       # link target is equal to release target. So we freeze our link.
       cp_params[:freezelink] = 1
     end
-    result = Backend::Api::Sources::Package.copy(target_project.name, target_package_name, source_package.project.name, source_package.name, User.session!.login, cp_params)
-    result = Xmlhash.parse(result)
-    action.fill_acceptinfo(result['acceptinfo']) if action
+    result_body = Backend::Api::Sources::Package.copy(target_project.name, target_package_name, source_package.project.name, source_package.name, User.session!.login, cp_params)
+    return unless action
+
+    result = Xmlhash.parse(result_body)
+    action.fill_acceptinfo(result['acceptinfo'])
   end
 
   def release_package_create_main_package(request, source_package, target_package_name, target_project)
