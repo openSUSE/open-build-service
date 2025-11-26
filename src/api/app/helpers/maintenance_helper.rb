@@ -120,7 +120,6 @@ module MaintenanceHelper
 
     copyopts = { noservice: '1' }
     copyopts[:requestid] = opts[:request].number.to_s if opts[:request]
-    copyopts[:comment] << CGI.escape(opts[:comment]) if opts[:comment]
     # makeoriginolder is a poorly choosen name meanwhile, because it is no longer used in backend
     # call. We should replace it by a "service_pack" project kind or attribute.
     if opts[:makeoriginolder]
