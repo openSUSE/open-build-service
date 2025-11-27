@@ -120,32 +120,20 @@ module MaintenanceHelper
 
     copyopts = { noservice: '1' }
     copyopts[:requestid] = opts[:request].number.to_s if opts[:request]
-    copyopts[:comment] << CGI.escape(opts[:comment]) if opts[:comment]
     # makeoriginolder is a poorly choosen name meanwhile, because it is no longer used in backend
     # call. We should replace it by a "service_pack" project kind or attribute.
     if opts[:makeoriginolder]
       # versioned copy
-      copyopts[:cmd] = 'copy'
       copyopts[:instantiate] = '1'
       copyopts[:withvrev]    = '1'
       copyopts[:vrevbump]    = '2'
-      copyopts[:oproject]    = opkg.project.name
-      copyopts[:opackage]    = opkg.name
-      copyopts[:user]        = User.session!.login
       copyopts[:comment]     = 'initialize package'
+      Backend::Api::Sources::Package.copy(pkg.project.name, pkg.name, opkg.project.name, opkg.name, User.session!.login, copyopts)
     else
       # simple branch
-      copyopts[:cmd] = 'branch'
-      copyopts[:oproject] = opkg.project.name
-      copyopts[:opackage] = opkg.name
-      copyopts[:user]     = User.session!.login
-      copyopts[:comment]  = 'initialize package as branch'
+      copyopts[:comment] = 'initialize package as branch'
+      Backend::Api::Sources::Package.branch(opkg.project.name, opkg.name, pkg.project.name, pkg.name, User.session!.login, copyopts)
     end
-    path = pkg.source_path
-    path << Backend::Connection.build_query_from_hash(copyopts, %i[user comment cmd noservice requestid
-                                                                   makeoriginolder withvrev vrevbump
-                                                                   instantiate oproject opackage])
-    Backend::Connection.post(path)
     pkg.sources_changed
 
     # and create the needed local links
@@ -155,13 +143,7 @@ module MaintenanceHelper
       lpkg.store
 
       # copy project local linked packages
-      path = lpkg.source_path
-      copyopts[:cmd] = 'copy'
-      copyopts[:oproject] = p.project.name
-      copyopts[:opackage] = p.name
-      path << Backend::Connection.build_query_from_hash(copyopts, %i[user cmd noservice requestid
-                                                                     oproject opackage])
-      Backend::Connection.post path
+      Backend::Api::Sources::Package.copy(lpkg.project.name, lpkg.name, p.project.name, p.name, User.session!.login, copyopts)
       # and fix the link
       link_xml = Nokogiri::XML(lpkg.source_file('_link'), &:strict).root
       link_xml.remove_attribute('project') # its a local link, project name not needed
@@ -331,10 +313,6 @@ module MaintenanceHelper
     # backend copy of current sources as full copy
     # that means the xsrcmd5 is different, but we keep the incident project anyway.
     cp_params = {
-      cmd: 'copy',
-      user: User.session!.login,
-      oproject: source_package.project.name,
-      opackage: source_package.name,
       comment: "Release from #{source_package.project.name} / #{source_package.name}",
       expand: '1',
       withvrev: '1',
@@ -348,14 +326,11 @@ module MaintenanceHelper
       # link target is equal to release target. So we freeze our link.
       cp_params[:freezelink] = 1
     end
-    cp_path = Addressable::URI.escape("/source/#{target_project.name}/#{target_package_name}")
-    cp_path << Backend::Connection.build_query_from_hash(cp_params, %i[cmd user oproject
-                                                                       opackage comment requestid
-                                                                       expand withvrev noservice
-                                                                       freezelink withacceptinfo])
-    result = Backend::Connection.post(cp_path)
-    result = Xmlhash.parse(result.body)
-    action.fill_acceptinfo(result['acceptinfo']) if action
+    result_body = Backend::Api::Sources::Package.copy(target_project.name, target_package_name, source_package.project.name, source_package.name, User.session!.login, cp_params)
+    return unless action
+
+    result = Xmlhash.parse(result_body)
+    action.fill_acceptinfo(result['acceptinfo'])
   end
 
   def release_package_create_main_package(request, source_package, target_package_name, target_project)
