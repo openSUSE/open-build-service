@@ -239,22 +239,15 @@ module MaintenanceHelper
   def copy_single_binary(arch, target_repository, source_project_name, source_package_name, source_repo,
                          target_package_name, update_info_id, setrelease)
     cp_params = {
-      cmd: 'copy',
       oproject: source_project_name,
       opackage: source_package_name,
       orepository: source_repo.name,
-      user: User.session!.login,
       resign: '1'
     }
     cp_params[:setupdateinfoid] = update_info_id if update_info_id
     cp_params[:setrelease] = setrelease if setrelease
     cp_params[:multibuild] = '1' unless source_package_name.include?(':')
-    cp_path = Addressable::URI.escape("/build/#{target_repository.project.name}/#{target_repository.name}/#{arch.name}/#{target_package_name}")
-
-    cp_path << Backend::Connection.build_query_from_hash(cp_params, %i[cmd oproject opackage
-                                                                       orepository setupdateinfoid
-                                                                       resign setrelease multibuild])
-    Backend::Connection.post cp_path
+    Backend::Api::BuildResults::Binaries.copy(target_repository.project.name, target_repository.name, arch.name, target_package_name, cp_params)
   end
 
   def create_package_container_if_missing(source_package, target_package_name, target_project)

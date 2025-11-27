@@ -16,6 +16,13 @@ module Backend
           http_get(['/build/:project/:repository/:architecture/:package/_history', project, repository, architecture, package])
         end
 
+        # @return [String]
+        def self.copy(project_name, repository_name, architecture_name, package_name, options = {})
+          accepted = %i[oproject opackage orepository resign setupdateinfoid setrelease multibuild]
+          http_post(['/build/:project/:repository/:architecture/:package', project_name, repository_name, architecture_name, package_name],
+                    defaults: { cmd: :copy }, params: options, accepted: accepted)
+        end
+
         # Returns the jobs history for a project
         # @return [String]
         def self.job_history(project_name, repository_name, architecture_name)

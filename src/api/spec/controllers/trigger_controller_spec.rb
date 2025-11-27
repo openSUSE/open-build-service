@@ -89,16 +89,13 @@ RSpec.describe TriggerController do
       project
     end
     let(:source_package) { source_project.packages.first }
-    let(:backend_url) do
-      '/build/target_project/target_repository/x86_64/source_package' \
-        '?cmd=copy&oproject=source_project&opackage=source_package&orepository=source_repository' \
-        '&resign=1&multibuild=1'
-    end
 
     # Mock the cmd=copy HTTP request. Mocking Token::Release/MaintenanceHelper is just too hard...
     before do
-      allow(Backend::Connection).to receive(:post).and_call_original
-      allow(Backend::Connection).to receive(:post).with(backend_url).and_return("<status code=\"ok\" />\n")
+      allow(Backend::Api::BuildResults::Binaries).to receive(:copy)
+        .with('target_project', 'target_repository', 'x86_64', 'source_package',
+              { multibuild: '1', opackage: 'source_package', oproject: 'source_project', orepository: 'source_repository', resign: '1' })
+        .and_return("<status code=\"ok\" />\n")
     end
 
     context 'with token.package' do
@@ -119,12 +116,6 @@ RSpec.describe TriggerController do
 
     context 'with project parameter' do
       subject { post :release, params: { project: source_project.name, format: :xml } }
-
-      let(:backend_url) do
-        '/build/target_project/target_repository/x86_64/source_package' \
-          '?cmd=copy&oproject=source_project&orepository=source_repository' \
-          '&resign=1&multibuild=1'
-      end
 
       it { expect(subject).to have_http_status(:success) }
     end
