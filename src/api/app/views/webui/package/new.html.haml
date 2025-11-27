@@ -11,13 +11,28 @@
             %h3= @pagetitle
           .col-12.col-md-9.col-lg-6
             = form_for(:package, url: packages_url(@project)) do |f|
+              - if (templates = PackageService::Templater.templates).values.flatten.present?
+                .mb-3
+                  = f.label(:template)
+                  = f.select(:template, templates, { include_blank: 'None' }, class: 'form-select',
+                             id: 'package-template-select', name: 'template') do
+                    - templates.each do |category, options|
+                      = tag.optgroup(label: category) do
+                        - options.each do |name, value|
+                          - template_project, template_package = value.split('/')
+                          = tag.option(name, value: value,
+                                       data: { url: package_template_data_path(template_project,
+                                                                               template_package,
+                                                                               format: 'json') })
               .mb-3
                 = f.label(:name)
                 = render partial: 'webui/shared/required_label_mark'
                 = f.text_field(:name, size: 80, required: true, class: 'form-control', placeholder: 'Enter Name', autofocus: true)
+                %label.form-text.template-description#description-name
               .mb-3
                 = f.label(:title)
                 = f.text_field(:title, size: 80, class: 'form-control', placeholder: 'Enter Title')
+                %label.form-text.template-description#description-title
               .mb-3
                 = f.label(:description)
                 = render WriteAndPreviewComponent.new(form: f, preview_message_url: package_preview_description_path,
@@ -25,6 +40,7 @@
                                                       text_area_attributes: { rows: 10,
                                                       placeholder: 'Write your description here... (Markdown markup is supported)',
                                                       required: false, object_name: :description})
+                %label.form-text.template-description#description-description
               - unless @configuration['hide_private_options']
                 .mb-3.form-check
                   = check_box_tag :source_protection, 1, false, class: 'form-check-input', type: 'checkbox'
@@ -33,3 +49,11 @@
                 = check_box_tag :disable_publishing, 1, false, class: 'form-check-input', type: 'checkbox'
                 %label.form-check-label{ for: 'disable_publishing' } Disable build results publishing
               = f.submit('Create', class: 'btn btn-primary px-4')
+
+- content_for :ready_function do
+  :plain
+    var templateSelector = document.getElementById("package-template-select");
+    templateSelector.addEventListener("input", function(e) {
+      var url = e.target.selectedOptions[0].dataset.url;
+      setTemplateData(url);
+    });
