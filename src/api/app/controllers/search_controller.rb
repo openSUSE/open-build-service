@@ -284,9 +284,11 @@ class SearchController < ApplicationController
 
   def find_items(what, predicate)
     XpathEngine.new.find("/#{what}[#{predicate}]")
-  rescue XpathEngine::IllegalXpathError => e
-    raise IllegalXpathError, "Error found searching elements '#{what}' with xpath predicate: '#{predicate}'.\n\n" \
-                             "Detailed error message from parser: #{e.message}"
+  rescue ArgumentError, XpathEngine::IllegalXpathError => e
+    message = "Error found searching elements '#{what}' with xpath predicate: '#{predicate}'."
+    message += "\n\nDetailed error message from parser: #{e.message}" unless e.is_a?(ArgumentError)
+
+    raise IllegalXpathError, message
   end
 
   def search_results_exceed_configured_limit?(matches)
