@@ -1,6 +1,6 @@
 class AttribValue < ApplicationRecord
   acts_as_list scope: :attrib
-  belongs_to :attrib, optional: true
+  belongs_to :attrib, optional: false
 
   after_initialize :set_default_value
   before_validation :universal_newlines
