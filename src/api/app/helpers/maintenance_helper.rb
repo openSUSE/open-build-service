@@ -148,7 +148,7 @@ module MaintenanceHelper
       link_xml = Nokogiri::XML(lpkg.source_file('_link'), &:strict).root
       link_xml.remove_attribute('project') # its a local link, project name not needed
       link_xml['package'] = pkg.name
-      Backend::Connection.put lpkg.source_path('_link', user: User.session!.login), link_xml.to_xml
+      Backend::Api::Sources::Package.write_link(lpkg.project.name, lpkg.name, User.session!.login, link_xml.to_xml)
       lpkg.sources_changed
     end
   end
@@ -346,16 +346,14 @@ module MaintenanceHelper
       lpkg.store
     end
     upload_params = {
-      user: User.session!.login,
       rev: 'repository',
       comment: "Set link to #{target_package_name} via maintenance_release request"
     }
-    upload_path = Addressable::URI.escape("/source/#{target_project.name}/#{base_package_name}/_link")
-    upload_path << Backend::Connection.build_query_from_hash(upload_params, %i[user rev])
     link = "<link package='#{target_package_name}' cicount='copy' />\n"
     md5 = Digest::MD5.hexdigest(link)
-    Backend::Connection.put upload_path, link
+    Backend::Api::Sources::Package.write_link(target_project.name, base_package_name, User.session!.login, link, upload_params)
     # commit
+    upload_params[:user] = User.session!.login
     upload_params[:cmd] = 'commitfilelist'
     upload_params[:noservice] = '1'
     upload_params[:requestid] = request.number if request
@@ -369,7 +367,7 @@ module MaintenanceHelper
     link.remove_attribute('project') # its a local link, project name not needed
     link['package'] = link['package'].gsub(/\..*/, '') + target_package_name.gsub(/.*\./, '.') # adapt link target with suffix
     link_xml = link.to_xml
-    Backend::Connection.put Addressable::URI.escape("/source/#{target_project.name}/#{target_package_name}/_link?rev=repository&user=#{User.session!.login}"), link_xml
+    Backend::Api::Sources::Package.write_link(target_project.name, target_package_name, User.session!.login, link_xml, { rev: 'repository' })
 
     md5 = Digest::MD5.hexdigest(link_xml)
     # commit with noservice parameter
