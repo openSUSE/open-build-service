@@ -30,15 +30,12 @@ RSpec.describe Token::Release, :vcr do
 
     context 'when a manual release target is set' do
       let!(:release_target) { create(:release_target, target_repository: target_repository, repository: repository, trigger: 'manual') }
-      let(:backend_url) do
-        "/build/#{target_project.name}/#{target_repository.name}/x86_64/#{package.name}" \
-          "?cmd=copy&oproject=#{CGI.escape(project_staging.name)}&opackage=#{package.name}&orepository=#{repository.name}" \
-          '&resign=1&multibuild=1'
-      end
 
       before do
-        allow(Backend::Connection).to receive(:post).and_call_original
-        allow(Backend::Connection).to receive(:post).with(backend_url).and_return("<status code=\"ok\" />\n")
+        allow(Backend::Api::BuildResults::Binaries).to receive(:copy)
+          .with('Bar', 'target_repository', 'x86_64', 'bar_package',
+                { multibuild: '1', opackage: 'bar_package', oproject: 'Bar:Staging', orepository: 'package_test_repository', resign: '1' })
+          .and_return("<status code=\"ok\" />\n")
       end
 
       it 'triggers the release process in the backend' do
@@ -58,16 +55,13 @@ RSpec.describe Token::Release, :vcr do
       let(:other_target_project) { create(:project, name: 'Baz', maintainer: user) }
       let(:other_source_repository) { create(:repository, name: 'other_source_repository', architectures: ['x86_64'], project: project_staging) }
       let(:other_target_repository) { create(:repository, name: 'other_target_repository', architectures: ['x86_64'], project: other_target_project) }
-      let(:backend_url) do
-        "/build/#{other_target_project.name}/#{other_target_repository.name}/x86_64/#{package.name}" \
-          "?cmd=copy&oproject=#{CGI.escape(project_staging.name)}&opackage=#{package.name}&orepository=#{other_source_repository.name}" \
-          '&resign=1&multibuild=1'
-      end
       let!(:release_target) { create(:release_target, target_repository: other_target_repository, repository: other_source_repository, trigger: 'manual') }
 
       before do
-        allow(Backend::Connection).to receive(:post).and_call_original
-        allow(Backend::Connection).to receive(:post).with(backend_url).and_return("<status code=\"ok\" />\n")
+        allow(Backend::Api::BuildResults::Binaries).to receive(:copy)
+          .with('Baz', 'other_target_repository', 'x86_64', 'bar_package',
+                { multibuild: '1', opackage: 'bar_package', oproject: 'Bar:Staging', orepository: 'other_source_repository', resign: '1' })
+          .and_return("<status code=\"ok\" />\n")
       end
 
       context 'when the target_project, targetrepository, filter_source_repository and arch parameters are provided' do
@@ -80,7 +74,7 @@ RSpec.describe Token::Release, :vcr do
             subject
           end
 
-          expect(Backend::Connection).to have_received(:post).with(backend_url)
+          expect(Backend::Api::BuildResults::Binaries).to have_received(:copy)
         end
       end
 
@@ -95,7 +89,7 @@ RSpec.describe Token::Release, :vcr do
         it 'does not trigger the release process in the backend' do
           user.run_as do
             expect { subject }.to raise_error(Token::Errors::InsufficientPermissionOnTargetRepository, 'no permission to write in project Foo')
-            expect(Backend::Connection).not_to have_received(:post).with(backend_url)
+            expect(Backend::Api::BuildResults::Binaries).not_to have_received(:copy)
           end
         end
       end
@@ -108,7 +102,7 @@ RSpec.describe Token::Release, :vcr do
 
         it 'does not trigger the release process in the backend' do
           user.run_as do
-            expect(Backend::Connection).not_to have_received(:post).with(backend_url)
+            expect(Backend::Api::BuildResults::Binaries).not_to have_received(:copy)
           end
         end
       end
@@ -123,7 +117,7 @@ RSpec.describe Token::Release, :vcr do
           user.run_as do
             subject
           end
-          expect(Backend::Connection).to have_received(:post).with(backend_url)
+          expect(Backend::Api::BuildResults::Binaries).to have_received(:copy)
         end
       end
     end

@@ -164,7 +164,8 @@ module Backend
         # Writes source filelist to the package
         # @return [String]
         def self.write_filelist(project_name, package_name, filelist, params = {})
-          http_post(['/source/:project/:package', project_name, package_name], defaults: { cmd: :commitfilelist }, data: filelist, params: params)
+          http_post(['/source/:project/:package', project_name, package_name],
+                    defaults: { cmd: :commitfilelist }, data: filelist, params: params, accepted: %i[user comment rev noservice requestid])
         end
 
         # Deletes the package and all the source files inside

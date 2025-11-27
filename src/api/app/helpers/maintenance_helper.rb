@@ -81,7 +81,7 @@ module MaintenanceHelper
 
     query = { user: User.session!.login }
     query[:comment] = 'channel import function'
-    Backend::Connection.put(pkg.source_path('_channel', query), channel.to_s)
+    Backend::Api::Sources::File.write(pkg.project.name, pkg.name, '_channel', channel.to_s, query)
 
     pkg.sources_changed
     # enforce updated channel list in database:
@@ -239,22 +239,15 @@ module MaintenanceHelper
   def copy_single_binary(arch, target_repository, source_project_name, source_package_name, source_repo,
                          target_package_name, update_info_id, setrelease)
     cp_params = {
-      cmd: 'copy',
       oproject: source_project_name,
       opackage: source_package_name,
       orepository: source_repo.name,
-      user: User.session!.login,
       resign: '1'
     }
     cp_params[:setupdateinfoid] = update_info_id if update_info_id
     cp_params[:setrelease] = setrelease if setrelease
     cp_params[:multibuild] = '1' unless source_package_name.include?(':')
-    cp_path = Addressable::URI.escape("/build/#{target_repository.project.name}/#{target_repository.name}/#{arch.name}/#{target_package_name}")
-
-    cp_path << Backend::Connection.build_query_from_hash(cp_params, %i[cmd oproject opackage
-                                                                       orepository setupdateinfoid
-                                                                       resign setrelease multibuild])
-    Backend::Connection.post cp_path
+    Backend::Api::BuildResults::Binaries.copy(target_repository.project.name, target_repository.name, arch.name, target_package_name, cp_params)
   end
 
   def create_package_container_if_missing(source_package, target_package_name, target_project)
@@ -354,12 +347,10 @@ module MaintenanceHelper
     Backend::Api::Sources::Package.write_link(target_project.name, base_package_name, User.session!.login, link, upload_params)
     # commit
     upload_params[:user] = User.session!.login
-    upload_params[:cmd] = 'commitfilelist'
     upload_params[:noservice] = '1'
     upload_params[:requestid] = request.number if request
-    upload_path = Addressable::URI.escape("/source/#{target_project.name}/#{base_package_name}")
-    upload_path << Backend::Connection.build_query_from_hash(upload_params, %i[user comment cmd noservice requestid])
-    answer = Backend::Connection.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
+    answer = Backend::Api::Sources::Package.write_filelist(target_project.name, base_package_name,
+                                                           "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>", upload_params)
     lpkg.sources_changed(dir_xml: answer)
   end
 
@@ -373,14 +364,13 @@ module MaintenanceHelper
     # commit with noservice parameter
     upload_params = {
       user: User.session!.login,
-      cmd: 'commitfilelist',
       noservice: '1',
       comment: "Set local link to #{target_package_name} via maintenance_release request"
     }
     upload_params[:requestid] = action.bs_request.number if action
-    upload_path = Addressable::URI.escape("/source/#{target_project.name}/#{target_package_name}")
-    upload_path << Backend::Connection.build_query_from_hash(upload_params, %i[user comment cmd noservice requestid])
-    answer = Backend::Connection.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
+    answer = Backend::Api::Sources::Package.write_filelist(target_project.name, target_package_name,
+                                                           "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>", upload_params)
+
     tpkg.sources_changed(dir_xml: answer)
   end
 end
