@@ -1,4 +1,4 @@
-.d-flex.side_links.justify-content-start
+.d-flex.side_links.justify-content-start.flex-wrap
   - if project.maintenance?
     = render partial: 'webui/project/side_links/maintenance_project', locals: { open_maintenance_incidents: open_maintenance_incidents,
                                                                                 project: project,
@@ -27,29 +27,29 @@
                                                                      outgoing_requests_size: outgoing_requests_size }
 
   - if project.defines_remote_instance?
-    .me-3
+    .me-3.text-nowrap
       %i.fas.fa-link
       Links against the remote OBS instance at:
       = link_to_if(project.remoteurl, project.remoteurl, project.remoteurl)
 
   - if linking_projects.present?
-    .me-3
+    .me-3.text-nowrap
       = link_to('#', data: { 'bs-toggle': 'modal', 'bs-target': '#linking-projects-modal' }) do
         %i.fa.fa-info-circle.text-info
         = pluralize(linking_projects.size, 'linking project')
 
   - if project_maintenance_project
-    .me-3
+    .me-3.text-nowrap
       %i.fa.fa-check-circle.text-success
       Maintained by
       = link_to(project_show_path(project_maintenance_project)) do
         = project_maintenance_project
 
   - if project.locked?
-    .me-3
+    .me-3.text-nowrap
       %i.fa.fa-lock
       is locked
   - reports_component = ReportsNoticeComponent.new(reportable: project, user: User.session)
   - if reports_component.render?
-    .me-3
+    .me-3.text-nowrap
       = render reports_component
