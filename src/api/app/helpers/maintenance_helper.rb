@@ -81,7 +81,7 @@ module MaintenanceHelper
 
     query = { user: User.session!.login }
     query[:comment] = 'channel import function'
-    Backend::Connection.put(pkg.source_path('_channel', query), channel.to_s)
+    Backend::Api::Sources::File.write(pkg.project.name, pkg.name, '_channel', channel.to_s, query)
 
     pkg.sources_changed
     # enforce updated channel list in database:
