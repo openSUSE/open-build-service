@@ -199,29 +199,6 @@
       "note": ""
     },
     {
-      "warning_type": "HTTP Verb Confusion",
-      "warning_code": 118,
-      "fingerprint": "2c16c8157cc5cf3ad60108affab7855b813e308bffa7de8b2f67f7b1dfc63fe7",
-      "check_name": "VerbConfusion",
-      "message": "Potential HTTP verb confusion. `HEAD` is routed like `GET` but `request.get?` will return `false`",
-      "file": "app/controllers/build_controller.rb",
-      "line": 15,
-      "link": "https://brakemanscanner.org/docs/warning_types/http_verb_confusion/",
-      "code": "if request.get? then\n  pass_to_backend\n  return\nend",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "BuildController",
-        "method": "index"
-      },
-      "user_input": "request.get?",
-      "confidence": "Weak",
-      "cwe_id": [
-        352
-      ],
-      "note": ""
-    },
-    {
       "warning_type": "Cross-Site Scripting",
       "warning_code": 2,
       "fingerprint": "2c6126d37baaef6ed0e6f9f17bf054de4dd75cb9324aed24701af25d896abc69",
@@ -403,7 +380,7 @@
           "type": "controller",
           "class": "Webui::PackageController",
           "method": "users",
-          "line": 157,
+          "line": 162,
           "file": "app/controllers/webui/package_controller.rb",
           "rendered": {
             "name": "webui/package/users",
@@ -539,7 +516,7 @@
           "type": "controller",
           "class": "Webui::PackageController",
           "method": "rpmlint_result",
-          "line": 311,
+          "line": 316,
           "file": "app/controllers/webui/package_controller.rb",
           "rendered": {
             "name": "webui/package/_rpmlint_result",
@@ -573,7 +550,7 @@
           "type": "controller",
           "class": "Webui::PackageController",
           "method": "rdiff",
-          "line": 216,
+          "line": 221,
           "file": "app/controllers/webui/package_controller.rb",
           "rendered": {
             "name": "webui/package/rdiff",
@@ -607,7 +584,7 @@
           "type": "controller",
           "class": "Webui::PackageController",
           "method": "rdiff",
-          "line": 216,
+          "line": 221,
           "file": "app/controllers/webui/package_controller.rb",
           "rendered": {
             "name": "webui/package/rdiff",
@@ -757,7 +734,7 @@
       "check_name": "CrossSiteScripting",
       "message": "Unescaped model attribute",
       "file": "app/views/webui/request/_request_header.html.haml",
-      "line": 32,
+      "line": 35,
       "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
       "code": "::Haml::AttributeBuilder.build_class(true, \"text-nowrap\", \"text-bg-#{BsRequestStateBadgeComponent.new(:state => BsRequest.find_by!(:number => params[:number]).state, :css_class => \"ms-2\").decode_state_color}\")",
       "render_path": [
@@ -809,7 +786,7 @@
           "type": "controller",
           "class": "Webui::PackageController",
           "method": "rdiff",
-          "line": 216,
+          "line": 221,
           "file": "app/controllers/webui/package_controller.rb",
           "rendered": {
             "name": "webui/package/rdiff",
