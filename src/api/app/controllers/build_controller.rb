@@ -89,9 +89,6 @@ class BuildController < ApplicationController
         render_error status: 403, errorcode: 'execute_cmd_no_permission',
                      message: "No permission to execute command on project #{params[:project]}"
       end
-    else
-      render_error status: 400, errorcode: 'illegal_request',
-                   message: "Illegal request: #{request.method.to_s.upcase} #{request.path}"
     end
     nil
   end
