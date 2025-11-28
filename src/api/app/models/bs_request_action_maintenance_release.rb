@@ -155,6 +155,10 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
   private
 
+  def allow_action_to_scmsync?
+    false
+  end
+
   def sanity_check!
     # get sure that the releasetarget definition exists or we release without binaries
     prj = Project.get_by_name(source_project)
