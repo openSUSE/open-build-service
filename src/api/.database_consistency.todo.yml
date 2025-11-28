@@ -63,9 +63,6 @@ AttribValue:
   id:
     PrimaryKeyTypeChecker:
       enabled: false
-  position:
-    NullConstraintChecker:
-      enabled: false
   value:
     LengthConstraintChecker:
       enabled: false
