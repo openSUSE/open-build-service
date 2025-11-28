@@ -48,7 +48,7 @@ module Backend
         # Returns the meta file from a package
         # @return [String]
         def self.meta(project_name, package_name, options = {})
-          http_get(['/source/:project/:package/_meta', project_name, package_name], params: options.compact, accepted: :deleted)
+          http_get(['/source/:project/:package/_meta', project_name, package_name], params: options.compact, accepted: %i[deleted meta rev view])
         end
 
         # Writes a Package meta
