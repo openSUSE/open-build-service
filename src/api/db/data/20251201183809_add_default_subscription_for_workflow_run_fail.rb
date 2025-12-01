@@ -4,7 +4,7 @@ class AddDefaultSubscriptionForWorkflowRunFail < ActiveRecord::Migration[7.0]
   def up
     # Create default subscriptions for Event::WorkflowRunFail
     # These subscriptions will be used when a workflow run fails and the user doesn't have a specific subscription
-    
+
     # token_executor role - instant_email channel
     EventSubscription.find_or_create_by!(
       eventtype: 'Event::WorkflowRunFail',
