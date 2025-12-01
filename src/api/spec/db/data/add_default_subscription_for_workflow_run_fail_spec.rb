@@ -14,49 +14,29 @@ RSpec.describe AddDefaultSubscriptionForWorkflowRunFail, type: :migration do
       before { subject }
 
       it 'creates token_executor subscription with instant_email channel' do
-        subscription = EventSubscription.find_by(
-          eventtype: 'Event::WorkflowRunFail',
-          receiver_role: 'token_executor',
-          user_id: nil,
-          group_id: nil,
-          channel: :instant_email
-        )
+        subscription = EventSubscription.find_by(eventtype: 'Event::WorkflowRunFail', receiver_role: 'token_executor',
+                                                 user_id: nil, group_id: nil, channel: :instant_email)
         expect(subscription).to be_present
         expect(subscription).to be_enabled
       end
 
       it 'creates token_executor subscription with web channel' do
-        subscription = EventSubscription.find_by(
-          eventtype: 'Event::WorkflowRunFail',
-          receiver_role: 'token_executor',
-          user_id: nil,
-          group_id: nil,
-          channel: :web
-        )
+        subscription = EventSubscription.find_by(eventtype: 'Event::WorkflowRunFail', receiver_role: 'token_executor',
+                                                 user_id: nil, group_id: nil, channel: :web)
         expect(subscription).to be_present
         expect(subscription).to be_enabled
       end
 
       it 'creates token_member subscription with instant_email channel' do
-        subscription = EventSubscription.find_by(
-          eventtype: 'Event::WorkflowRunFail',
-          receiver_role: 'token_member',
-          user_id: nil,
-          group_id: nil,
-          channel: :instant_email
-        )
+        subscription = EventSubscription.find_by(eventtype: 'Event::WorkflowRunFail', receiver_role: 'token_member',
+                                                 user_id: nil, group_id: nil, channel: :instant_email)
         expect(subscription).to be_present
         expect(subscription).to be_enabled
       end
 
       it 'creates token_member subscription with web channel' do
-        subscription = EventSubscription.find_by(
-          eventtype: 'Event::WorkflowRunFail',
-          receiver_role: 'token_member',
-          user_id: nil,
-          group_id: nil,
-          channel: :web
-        )
+        subscription = EventSubscription.find_by(eventtype: 'Event::WorkflowRunFail', receiver_role: 'token_member',
+                                                 user_id: nil, group_id: nil, channel: :web)
         expect(subscription).to be_present
         expect(subscription).to be_enabled
       end
@@ -80,11 +60,8 @@ RSpec.describe AddDefaultSubscriptionForWorkflowRunFail, type: :migration do
 
       it 'does not modify existing subscriptions' do
         subject
-        subscription = EventSubscription.find_by(
-          eventtype: 'Event::WorkflowRunFail',
-          receiver_role: 'token_executor',
-          channel: :instant_email
-        )
+        subscription = EventSubscription.find_by(eventtype: 'Event::WorkflowRunFail', receiver_role: 'token_executor',
+                                                 channel: :instant_email)
         expect(subscription.enabled).to be false
       end
     end
@@ -103,13 +80,8 @@ RSpec.describe AddDefaultSubscriptionForWorkflowRunFail, type: :migration do
 
     it 'only removes default subscriptions, not user-specific ones' do
       user = create(:confirmed_user)
-      user_subscription = EventSubscription.create!(
-        eventtype: 'Event::WorkflowRunFail',
-        receiver_role: 'token_executor',
-        user: user,
-        channel: :web,
-        enabled: true
-      )
+      user_subscription = EventSubscription.create!(eventtype: 'Event::WorkflowRunFail', receiver_role: 'token_executor',
+                                                    user: user, channel: :web, enabled: true)
 
       subject
 
