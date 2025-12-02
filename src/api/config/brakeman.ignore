@@ -435,29 +435,6 @@
     {
       "warning_type": "SQL Injection",
       "warning_code": 0,
-      "fingerprint": "afd4dc0b2b4083a14e5ba67ae832b6197e30102105b020ff976e0cd54ecd25d8",
-      "check_name": "SQL",
-      "message": "Possible SQL injection",
-      "file": "app/controllers/source_project_command_controller.rb",
-      "line": 46,
-      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "Project.get_by_name(params[:project]).lock(params[:comment])",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "SourceProjectCommandController",
-        "method": "project_command_lock"
-      },
-      "user_input": "params[:comment]",
-      "confidence": "High",
-      "cwe_id": [
-        89
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "SQL Injection",
-      "warning_code": 0,
       "fingerprint": "b1d6007ada268c2f7129e8f9cd72bfcb3b3f69614a2671320c6f3411b86cd284",
       "check_name": "SQL",
       "message": "Possible SQL injection",

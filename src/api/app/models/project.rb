@@ -1149,7 +1149,7 @@ class Project < ApplicationRecord
     packages.dirty_backend_packages.each(&:update_if_dirty)
   end
 
-  def lock(comment = nil)
+  def command_lock(comment = nil)
     transaction do
       f = flags.find_by_flag_and_status('lock', 'disable')
       flags.delete(f) if f
