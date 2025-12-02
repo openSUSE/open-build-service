@@ -1,0 +1,2 @@
+---
+BUNDLE_BUILD__XMLHASH: "--with-cflags='-Wno-error=shorten-64-to-32'"
