@@ -11,7 +11,7 @@ class PackageVersionUpstream < PackageVersion
   #### Associations macros (Belongs to, Has one, Has many)
 
   #### Callbacks macros: before_save, after_save, etc.
-
+  after_create :create_package_upstream_version_source_changed_event
   #### Scopes (first the default_scope macro if is used)
 
   #### Validations macros
@@ -24,6 +24,14 @@ class PackageVersionUpstream < PackageVersion
   #### Instance methods (public and then protected/private)
 
   #### Alias of methods
+  private
+
+  def create_package_upstream_version_source_changed_event
+    local_version = package.latest_local_version&.version
+
+    Event::PackageUpstreamVersionSourceChanged.create(local_version: local_version, upstream_version: version,
+                                                      package: package.name, project: package.project.name)
+  end
 end
 
 # == Schema Information
