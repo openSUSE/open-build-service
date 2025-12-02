@@ -278,29 +278,6 @@
     {
       "warning_type": "SQL Injection",
       "warning_code": 0,
-      "fingerprint": "45840f44547aeced1506343b80e3fe0ad1b6262ae3799e5086907ff71bddb03c",
-      "check_name": "SQL",
-      "message": "Possible SQL injection",
-      "file": "app/controllers/statistics_controller.rb",
-      "line": 38,
-      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "Package.select(\"packages.*, #{Package.activity_algorithm}\")",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "StatisticsController",
-        "method": "most_active_packages"
-      },
-      "user_input": "Package.activity_algorithm",
-      "confidence": "High",
-      "cwe_id": [
-        89
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "SQL Injection",
-      "warning_code": 0,
       "fingerprint": "588a1c2be9d31a5892690b9ee7cc487e6588f3885196e97c409756ff66ee3397",
       "check_name": "SQL",
       "message": "Possible SQL injection",
