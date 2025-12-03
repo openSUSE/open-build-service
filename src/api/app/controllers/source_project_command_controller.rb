@@ -43,7 +43,7 @@ class SourceProjectCommandController < SourceController
   def project_command_lock
     # comment is optional
 
-    @project.lock(params[:comment])
+    @project.command_lock(params[:comment])
 
     render_ok
   end

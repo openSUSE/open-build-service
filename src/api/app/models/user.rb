@@ -586,7 +586,7 @@ class User < ApplicationRecord
     Project.where('name like ?', "#{home_project_name}%").find_each do |prj|
       next if prj.locked?
 
-      prj.lock('User account got locked')
+      prj.command_lock('User account got locked')
     end
   end
 
