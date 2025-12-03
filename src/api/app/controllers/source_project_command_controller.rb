@@ -61,7 +61,9 @@ class SourceProjectCommandController < SourceController
   # freeze project link, either creating the freeze or updating it
   # POST /source/<project>?cmd=freezelink
   def project_command_freezelink
-    pass_to_backend(request.path_info + build_query_from_hash(params, %i[cmd user comment]))
+    backend_params = { user: User.session.login, comment: params[:comment] }.compact
+
+    render xml: Backend::Api::Sources::Project.freezelink(params[:project], backend_params)
   end
 
   # add channel packages and extend repository list

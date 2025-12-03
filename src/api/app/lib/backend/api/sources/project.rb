@@ -94,6 +94,11 @@ module Backend
           http_post(['/source/:project', project_name], defaults: { cmd: :extendkey }, params: options, accepted: %i[user comment days])
         end
 
+        # Freeze a project link
+        def self.freezelink(project_name, options = {})
+          http_post(['/source/:project', project_name], defaults: { cmd: :freezelink }, params: options, accepted: %i[user comment requestid])
+        end
+
         # Moves the source project to the target
         # @return [String]
         def self.move(source_project_name, target_project_name)
