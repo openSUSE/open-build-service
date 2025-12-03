@@ -65,6 +65,12 @@ module Backend
           http_get(['/source/:project/_pubkey', project_name], params: options, accepted: %i[rev])
         end
 
+        # Deletes the pubkey file for the project
+        # @return [String]
+        def self.delete_pubkey(project_name, options = {})
+          http_delete(['/source/:project/_pubkey', project_name], params: options, accepted: %i[user comment meta])
+        end
+
         # Returns the patchinfo for the project
         # @return [String]
         def self.patchinfo(project_name)
