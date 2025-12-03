@@ -59,6 +59,12 @@ module Backend
           http_get(['/source/:project/_keyinfo', project_name], params: { withsslcert: 1, donotcreatecert: 1 })
         end
 
+        # Returns the pubkey file for the project
+        # @return [String]
+        def self.pubkey(project_name, options = {})
+          http_get(['/source/:project/_pubkey', project_name], params: options, accepted: %i[rev])
+        end
+
         # Returns the patchinfo for the project
         # @return [String]
         def self.patchinfo(project_name)

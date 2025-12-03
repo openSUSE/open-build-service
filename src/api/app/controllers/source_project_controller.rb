@@ -110,13 +110,9 @@ class SourceProjectController < SourceController
     render_ok
   end
 
-  # GET /source/:project/_pubkey and /_sslcert
+  # GET /source/:project/_pubkey
   def show_pubkey
-    # assemble path for backend
-    path = pubkey_path
-
-    # GET /source/:project/_pubkey
-    pass_to_backend(path)
+    render plain: Backend::Api::Sources::Project.pubkey(params[:project], { rev: params[:rev] }.compact)
   end
 
   # DELETE /source/:project/_pubkey
