@@ -84,6 +84,16 @@ module Backend
                     accepted: %i[user comment oproject withbinaries withhistory makeolder makeoriginolder noservice resign])
         end
 
+        # Create a key for a project
+        def self.createkey(project_name, options = {})
+          http_post(['/source/:project', project_name], defaults: { cmd: :createkey }, params: options, accepted: %i[user comment])
+        end
+
+        # Extend a key for a project
+        def self.extendkey(project_name, options = {})
+          http_post(['/source/:project', project_name], defaults: { cmd: :extendkey }, params: options, accepted: %i[user comment days])
+        end
+
         # Moves the source project to the target
         # @return [String]
         def self.move(source_project_name, target_project_name)
