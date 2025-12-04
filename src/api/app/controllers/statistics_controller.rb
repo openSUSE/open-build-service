@@ -35,7 +35,7 @@ class StatisticsController < ApplicationController
 
   def most_active_packages
     # get all packages including activity values
-    @packages = Package.select(Arel.sql("packages.*, #{Package.activity_algorithm}"))
+    @packages = Package.select("packages.*, #{Package.activity_algorithm}")
                        .limit(@limit).order(activity_value: :desc)
     @packages
   end
