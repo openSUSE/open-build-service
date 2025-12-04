@@ -8,7 +8,7 @@ module Backend
         # Returns the content of the source file
         # @return [String]
         def self.content(project_name, package_name, file_name, options = {})
-          http_get(['/source/:project/:package/:filename', project_name, package_name, file_name], params: options, accepted: %i[deleted expand meta rev view])
+          http_get(['/source/:project/:package/:filename', project_name, package_name, file_name], params: options, accepted: %i[deleted expand meta rev view limit])
         end
 
         # Returns the content of the source file
@@ -20,7 +20,7 @@ module Backend
         # Writes the content of the source file
         # @return [String]
         def self.write(project_name, package_name, file_name, content = '', params = {})
-          http_put(['/source/:project/:package/:filename', project_name, package_name, file_name], data: content, params: params)
+          http_put(['/source/:project/:package/:filename', project_name, package_name, file_name], data: content, params: params, accepted: %i[user comment keeplink meta rev])
         end
 
         # Deletes a package source file
