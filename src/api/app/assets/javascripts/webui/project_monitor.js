@@ -95,11 +95,14 @@ function setupProjectMonitor() {
     $('#table-spinner').removeClass('d-none');
   });
 
+  var popoverSelector = '#project-monitor-table [data-bs-toggle="popover"]';
+  var popoverOptions = { trigger: 'click' };
+
   $('#project-monitor-table').on('draw.dt', function () {
-    initializePopovers('[data-bs-toggle="popover"]');
+    initializePopovers(popoverSelector, popoverOptions);
   });
 
-  initializePopovers('[data-bs-toggle="popover"]');
+  initializePopovers(popoverSelector, popoverOptions);
 
   $('.monitor-no-filter-link').on('click', { checked: false }, setAllLinks);
 
