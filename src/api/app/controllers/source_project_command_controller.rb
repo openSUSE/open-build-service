@@ -61,7 +61,9 @@ class SourceProjectCommandController < SourceController
   # freeze project link, either creating the freeze or updating it
   # POST /source/<project>?cmd=freezelink
   def project_command_freezelink
-    pass_to_backend(request.path_info + build_query_from_hash(params, %i[cmd user comment]))
+    backend_params = { user: User.session.login, comment: params[:comment] }.compact
+
+    render xml: Backend::Api::Sources::Project.freezelink(params[:project], backend_params)
   end
 
   # add channel packages and extend repository list
@@ -100,12 +102,16 @@ class SourceProjectCommandController < SourceController
 
   # POST /source/<project>?cmd=extendkey
   def project_command_extendkey
-    private_plain_backend_command
+    backend_params = { user: User.session.login, comment: params[:comment], days: params[:days] }.compact
+
+    render xml: Backend::Api::Sources::Project.extendkey(params[:project], backend_params)
   end
 
   # POST /source/<project>?cmd=createkey
   def project_command_createkey
-    private_plain_backend_command
+    backend_params = { user: User.session.login, comment: params[:comment] }.compact
+
+    render xml: Backend::Api::Sources::Project.createkey(params[:project], backend_params)
   end
 
   # POST /source/<project>?cmd=createmaintenanceincident
@@ -285,15 +291,5 @@ class SourceProjectCommandController < SourceController
     params.require(:flag)
 
     obj_remove_flag(@project)
-  end
-
-  ##
-  ## Helper Method
-  ##
-
-  def private_plain_backend_command
-    path = request.path_info
-    path += build_query_from_hash(params, %i[cmd user comment days])
-    pass_to_backend(path)
   end
 end
