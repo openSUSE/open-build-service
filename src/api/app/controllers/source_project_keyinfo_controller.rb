@@ -4,7 +4,7 @@ class SourceProjectKeyinfoController < SourceController
 
   # GET /source/:project/_keyinfo
   def show
-    pass_to_backend("/source/#{@project.to_param}/_keyinfo?withsslcert=1&donotcreatecert=1")
+    render xml: Backend::Api::Sources::Project.key_info(@project.name)
   end
 
   def ensure_project_exist
