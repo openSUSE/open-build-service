@@ -56,8 +56,8 @@ class TriggerWorkflowController < ApplicationController
   end
 
   def request_headers
-    request.headers.to_h.keys.filter_map do |k|
-      "#{k}: #{request.headers[k]}" if k.match?(/^HTTP_/)
+    request.headers.to_h.filter_map do |k, v|
+      "#{k}: #{v}" if k.match?(/^HTTP_/)
     end.join("\n")
   end
 
