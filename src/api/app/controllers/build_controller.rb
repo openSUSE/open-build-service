@@ -164,7 +164,6 @@ class BuildController < ApplicationController
     pass_to_backend
   end
 
-
   def scmresult
     # permission handling is done in the scm bridge
     pass_to_backend
