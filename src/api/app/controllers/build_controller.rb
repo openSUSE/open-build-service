@@ -141,24 +141,22 @@ class BuildController < ApplicationController
     pass_to_backend
   end
 
-  def result
-    # this route is mainly for checking submissions to a target project
-    # allowed values are true/false or 1/0
-if params.key?(:lastsuccess)
-  allowed_values = ['1', '0', 'true', 'false', 1, 0, true, false]
+def result
+  # this route is mainly for checking submissions to a target project
+  # allowed values are true/false or 1/0
+  if params.key?(:lastsuccess)
+    allowed_values = ['1', '0', 'true', 'false', 1, 0, true, false]
 
-  unless allowed_values.include?(params[:lastsuccess])
-    return render_error(
-      status: 400,
-      errorcode: 'invalid_lastsuccess_value',
-      message: "Invalid value for lastsuccess. Expected true/false or 1/0."
-    )
+    unless allowed_values.include?(params[:lastsuccess])
+      return render_error(
+        status: 400,
+        errorcode: 'invalid_lastsuccess_value',
+        message: 'Invalid value for lastsuccess. Expected true/false or 1/0.'
+      )
+    end
+
+    return result_lastsuccess
   end
-
-  result_lastsuccess = params[:lastsuccess].to_s == 'true' || params[:lastsuccess].to_s == '1'
-  return result_lastsuccess
-end
-
 
     # for permission check
     Project.get_by_name(params[:project])
