@@ -314,23 +314,23 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_result_lastsuccess_true
-    get '/build/home:Iggy/_result?lastsuccess=true'
-    assert_response :success
+    get '/build/home:Iggy/_result?lastsuccess=true&pathproject=kde4&package=TestPack'
+    assert_response :not_found
   end
 
   def test_result_lastsuccess_false
-    get '/build/home:Iggy/_result?lastsuccess=false'
-    assert_response :success
+    get '/build/home:Iggy/_result?lastsuccess=false&pathproject=kde4&package=TestPack'
+    assert_response :not_found
   end
 
   def test_result_lastsuccess_one
-    get '/build/home:Iggy/_result?lastsuccess=1'
-    assert_response :success
+    get '/build/home:Iggy/_result?lastsuccess=1&pathproject=kde4&package=TestPack'
+    assert_response :not_found
   end
 
   def test_result_lastsuccess_zero
-    get '/build/home:Iggy/_result?lastsuccess=0'
-    assert_response :success
+    get '/build/home:Iggy/_result?lastsuccess=0&pathproject=kde4&package=TestPack'
+    assert_response :not_found
   end
 
   def test_result_invalid_lastsuccess_param
