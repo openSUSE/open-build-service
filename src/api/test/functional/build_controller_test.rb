@@ -313,6 +313,26 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'status', attributes: { code: 'invalid_lastsuccess_value' })
   end
 
+  def test_result_lastsuccess_true
+    get '/build/home:Iggy/_result?lastsuccess=true'
+    assert_response :success
+  end
+
+  def test_result_lastsuccess_false
+    get '/build/home:Iggy/_result?lastsuccess=false'
+    assert_response :success
+  end
+
+  def test_result_lastsuccess_one
+    get '/build/home:Iggy/_result?lastsuccess=1'
+    assert_response :success
+  end
+
+  def test_result_lastsuccess_zero
+    get '/build/home:Iggy/_result?lastsuccess=0'
+    assert_response :success
+  end
+
   def test_result_invalid_lastsuccess_param
     get '/build/home:Iggy/_result?lastsuccess=abc'
     assert_response :bad_request
