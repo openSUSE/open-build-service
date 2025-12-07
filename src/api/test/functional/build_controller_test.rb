@@ -310,7 +310,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
 
     get '/build/home:Iggy/_result?lastsuccess&pathproject=kde4&package=TestPack'
     assert_response :bad_request
-    assert_xml_tag(tag: 'status', attributes: { code: 'no_repositories_found' })
+    assert_xml_tag(tag: 'status', attributes: { code: 'invalid_lastsuccess_value' })
   end
 
   def test_result_of_failed_publish
