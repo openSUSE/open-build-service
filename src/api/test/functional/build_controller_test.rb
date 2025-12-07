@@ -312,7 +312,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
     assert_xml_tag(tag: 'status', attributes: { code: 'no_repositories_found' })
   end
-  
+
   def test_result_invalid_lastsuccess_param
     get '/build/home:Iggy/_result?lastsuccess=abc'
     assert_response :bad_request
