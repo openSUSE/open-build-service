@@ -27,7 +27,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   before_action :set_notifications
   before_action :set_notifications_to_be_updated, only: :update
   before_action :filter_notifications, only: :index
-  before_action :set_selected_filter
+  before_action :set_selected_filter, only: %i[index update]
   before_action :set_preloaded_notifications, only: :index
   before_action :set_ordered_notifications, only: :index
   before_action :paginate_notifications, only: :index
