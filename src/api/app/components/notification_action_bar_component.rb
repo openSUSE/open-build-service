@@ -1,14 +1,13 @@
 # frozen_string_literal: true
 
 class NotificationActionBarComponent < ApplicationComponent
-  attr_accessor :state, :update_path, :counted_notifications
+  attr_accessor :state, :update_path, :total_count_notifications
 
-  def initialize(state:, update_path:, counted_notifications:)
+  def initialize(state:, update_path:, total_count_notifications:)
     super()
-
     @state = state
     @update_path = toggle_update_path_states(update_path)
-    @counted_notifications = counted_notifications
+    @total_count_notifications = total_count_notifications
   end
 
   def button_text(all: false)
