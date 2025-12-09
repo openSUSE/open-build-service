@@ -58,6 +58,10 @@ constraints(RoutesHelper::WebuiMatcher) do
     get 'monitor/events' => :events, as: :monitor_events
   end
 
+  controller 'webui/workers' do
+    get 'monitor/workers/:arch/:worker_id' => :show, as: :monitor_worker
+  end
+
   resources :package, only: [:index], controller: 'webui/package', constraints: cons
 
   controller 'webui/packages/build_log' do
