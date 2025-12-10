@@ -17,13 +17,13 @@ class Webui::DistributionsController < Webui::WebuiController
     end
   end
 
-  # PATCH /projects/:project_name/distributions/:id/toggle
+  # POST /projects/:project_name/distributions/toggle
   def toggle
     authorize @project, :update?
     @distribution = Distribution.find(params[:distribution])
 
     @repository = @project.repositories.find_by(name: @distribution.reponame)
-    if @project.distribution?(@distribution.project, @distribution.repository)
+    if @repository && @project.distribution?(@distribution.project, @distribution.repository)
       destroy_repository
     else
       create_repository_from_distribution
