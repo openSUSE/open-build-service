@@ -476,7 +476,8 @@ OBS_RUBY_ABI_VERSION=%{__obs_ruby_abi_version}
 EOF
 
 pushd src/api
-bundle config set path %_libdir/obs-api/
+mkdir -p %{buildroot}%_libdir/obs-api/
+bundle config set path %{buildroot}%_libdir/obs-api/
 
 bundle install --local
 rm -rf vendor/cache/* vendor/cache.next/*

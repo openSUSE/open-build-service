@@ -13,7 +13,7 @@ class Webui::WorkersController < Webui::WebuiController
     cpu_info = hardware.fetch('cpu', {}) || {}
     @cpu_flags = Array(cpu_info['flag']).compact
     @hardware_info = hardware.except('cpu')
-  rescue Backend::NotFoundError => e
+  rescue Backend::NotFoundError
     flash[:error] = _('Worker not found')
     redirect_to monitor_path
   rescue Backend::Error => e
