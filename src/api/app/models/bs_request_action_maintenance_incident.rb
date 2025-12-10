@@ -117,6 +117,10 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
 
   private
 
+  def allow_action_to_scmsync?
+    false
+  end
+
   def _merge_pkg_into_maintenance_incident(incident_project)
     # recreate package based on link target and throw everything away, except source changes
     # silently as maintenance teams requests ...
