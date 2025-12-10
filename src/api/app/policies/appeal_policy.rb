@@ -17,6 +17,8 @@ class AppealPolicy < ApplicationPolicy
   # 2. They did something was reported (a spam comment, etc...) and a moderator took a decision which favored the report
   def create?
     return false unless Flipper.enabled?(:content_moderation, user)
+    # a user can only create one appeal per decision
+    return false if record.decision.appeals.pluck(:appellant_id).any?(user.id)
 
     # Prevent appealing a decision for reports with a deleted reportable, since this wouldn't have any effect anyway.
     @report = record.decision.reports.first
