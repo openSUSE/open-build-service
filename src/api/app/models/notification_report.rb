@@ -58,21 +58,12 @@ class NotificationReport < Notification
   # https://trello.com/c/xrjOZGa7/45-ensure-all-reports-of-a-decision-point-to-the-same-reportable
   # This reportable won't be nil once we fix this: https://trello.com/c/vPDiLjIQ/66-prevent-the-creation-of-reports-without-reportable
   def link_path
-    case event_type
-    when 'Event::ReportForComment'
-      # Do not have a link for deleted comments
-      Comment.exists?(event_payload['reportable_id']) && path_to_commentables_on_reports(event_payload: event_payload, notification_id: id)
-    when 'Event::ReportForProject', 'Event::ReportForPackage'
-      event_type.constantize.notification_link_path(self)
-    when 'Event::ReportForUser'
-      Rails.application.routes.url_helpers.user_path(accused, notification_id: id) if !accused.deleted? || User.session!.admin?
-    when 'Event::ReportForRequest'
-      bs_request = notifiable.reportable
-      Rails.application.routes.url_helpers.request_show_path(bs_request.number, notification_id: id)
-    when 'Event::ClearedDecision', 'Event::FavoredDecision'
+    if event_type.starts_with?('Event::ReportFor')
+      Rails.application.routes.url_helpers.report_path(event_payload['id'])
+    elsif event_type == 'Event::ClearedDecision' || 'Event::FavoredDecision'
       reportable = notifiable.reports.first.reportable
       link_for_reportables(reportable)
-    when 'Event::AppealCreated'
+    elsif event_type == 'Event::AppealCreated'
       Rails.application.routes.url_helpers.appeal_path(notifiable, notification_id: id)
     end
   end
@@ -112,26 +103,6 @@ class NotificationReport < Notification
                                                              anchor: 'comments-list')
     when Project
       Rails.application.routes.url_helpers.project_show_path(commentable, notification_id: id, anchor: 'comments-list')
-    end
-  end
-
-  def path_to_commentables_on_reports(event_payload:, notification_id:)
-    case event_payload['commentable_type']
-    when 'BsRequest'
-      Rails.application.routes.url_helpers.request_show_path(event_payload['bs_request_number'],
-                                                             notification_id: notification_id, anchor: 'comments-list')
-    when 'BsRequestAction'
-      Rails.application.routes.url_helpers.request_show_path(number: event_payload['bs_request_number'],
-                                                             request_action_id: event_payload['bs_request_action_id'],
-                                                             notification_id: notification_id, anchor: 'tab-pane-changes')
-    when 'Package'
-      Rails.application.routes.url_helpers.package_show_path(package: event_payload['package_name'],
-                                                             project: event_payload['project_name'],
-                                                             notification_id: notification_id,
-                                                             anchor: 'comments-list')
-    when 'Project'
-      Rails.application.routes.url_helpers.project_show_path(event_payload['project_name'], notification_id: notification_id,
-                                                                                            anchor: 'comments-list')
     end
   end
 end
