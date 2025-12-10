@@ -4,31 +4,36 @@
   .card-body#canned-responses
     %h4 Your canned responses
     - if @canned_responses.present?
-      .d-flex.flex-wrap.gap-4.align-self-stretch.pt-4
-        - @canned_responses.each do |canned_response|
-          = render(CardComponent.new) do |component|
-            - if canned_response.decision_type
-              %p.card-text
-                %b Decision's reason:
-                %span.mb-2= canned_response.decision_type.humanize
-            %p.card-text
-              %b Content:
-              .canned-response-card-text.mb-2
-                = render partial: 'webui/shared/collapsible_text', locals: { text: canned_response.content, render_markdown: true }
+      %ul.list-group.list-group-flush
+        - canned_responses_decision_types = @canned_responses.pluck(:decision_type).uniq
+        - canned_responses_decision_types.each do |decision_type|
+          %li.list-group-item.py-4
+            %h5= decision_type ? decision_type.humanize : "Decision type: Undefined"
+            .d-flex.flex-wrap.gap-4.align-self-stretch
+              - @canned_responses.filter { |cr| cr.decision_type == decision_type }.each do |canned_response|
+                = render(CardComponent.new) do |component|
+                  - if canned_response.decision_type
+                    %p.card-text
+                      %b Decision's reason:
+                      %span.mb-2= canned_response.decision_type.humanize
+                  %p.card-text
+                    %b Content:
+                    .canned-response-card-text.mb-2
+                      = render partial: 'webui/shared/collapsible_text', locals: { text: canned_response.content, render_markdown: true }
 
-            - component.with_header do
-              = canned_response.title
+                  - component.with_header do
+                    = canned_response.title
 
-            - component.with_delete_button do
-              = link_to '#', title: 'Delete Canned Response',
-                data: { 'bs-toggle': 'modal', 'bs-target': '#delete-canned-response-modal',
-                        canned_response_title: canned_response.title, action: canned_response_path(canned_response) } do
-                %i.fas.fa-times-circle.text-danger
+                  - component.with_delete_button do
+                    = link_to '#', title: 'Delete Canned Response',
+                      data: { 'bs-toggle': 'modal', 'bs-target': '#delete-canned-response-modal',
+                              canned_response_title: canned_response.title, action: canned_response_path(canned_response) } do
+                      %i.fas.fa-times-circle.text-danger
 
-            - component.with_action do
-              = link_to(edit_canned_response_path(canned_response), title: 'Edit Canned Response', class: 'nav-link p-1') do
-                %i.fas.fa-edit
-                Edit
+                  - component.with_action do
+                    = link_to(edit_canned_response_path(canned_response), title: 'Edit Canned Response', class: 'nav-link p-1') do
+                      %i.fas.fa-edit
+                      Edit
 
       .modal.fade#delete-canned-response-modal{ tabindex: -1, role: 'dialog',
                                                 aria: { labelledby: 'delete-canned-response-modal-label', hidden: true } }
