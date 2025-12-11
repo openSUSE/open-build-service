@@ -98,6 +98,35 @@ RSpec.describe WorkflowRun, :vcr do
       it 'disables the token of the token workflow' do
         expect { subject }.to change { workflow_run.token.reload.enabled }.from(true).to(false)
       end
+
+      it 'creates a TokenDisabled event' do
+        expect { subject }.to change(Event::TokenDisabled, :count).by(1)
+      end
+
+      it 'stores token_id in the TokenDisabled event payload' do
+        subject
+        event = Event::TokenDisabled.last
+        expect(event.payload['token_id']).to eq(workflow_run.token.id)
+      end
+
+      it 'stores scm_vendor and summary in the TokenDisabled event payload' do
+        subject
+        event = Event::TokenDisabled.last
+        expect(event.payload['scm_vendor']).to eq(workflow_run.scm_vendor)
+        expect(event.payload['summary']).to include('Request is forbidden')
+      end
+    end
+
+    context 'when the SCM responds with an unauthorized message' do
+      subject { workflow_run.save_scm_report_failure('Failed to report back to GitLab: Unauthorized request. Please check your credentials again.', { api_endpoint: 'https://gitlab.com/api/v4' }) }
+
+      it 'disables the token of the token workflow' do
+        expect { subject }.to change { workflow_run.token.reload.enabled }.from(true).to(false)
+      end
+
+      it 'creates a TokenDisabled event' do
+        expect { subject }.to change(Event::TokenDisabled, :count).by(1)
+      end
     end
   end
 

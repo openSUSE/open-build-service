@@ -22,7 +22,7 @@ module Event
          Event::CommentForRequest, Event::CommentForReport,
          Event::RelationshipCreate, Event::RelationshipDelete,
          Event::Report, Event::Decision, Event::AppealCreated,
-         Event::WorkflowRunFail,
+         Event::WorkflowRunFail, Event::TokenDisabled,
          Event::AddedUserToGroup, Event::RemovedUserFromGroup,
          Event::Assignment]
       end
