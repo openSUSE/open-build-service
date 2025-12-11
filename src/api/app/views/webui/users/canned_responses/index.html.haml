@@ -8,7 +8,12 @@
         - canned_responses_decision_types = @canned_responses.pluck(:decision_type).uniq
         - canned_responses_decision_types.each do |decision_type|
           %li.list-group-item.py-4
-            %h5= decision_type ? decision_type.humanize : "Decision type: Undefined"
+            - if decision_type
+              %h5= decision_type.humanize
+            - else
+              .pb-2
+                Decision's reason:
+                %em Undefined
             .d-flex.flex-wrap.gap-4.align-self-stretch
               - @canned_responses.filter { |cr| cr.decision_type == decision_type }.each do |canned_response|
                 = render(CardComponent.new) do |component|
