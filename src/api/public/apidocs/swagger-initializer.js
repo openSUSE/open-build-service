@@ -3,7 +3,9 @@ window.onload = function() {
 
   // the following lines will be replaced by docker/configurator, when it runs in a docker-container
   window.ui = SwaggerUIBundle({
-    url: "OBS-v2.10.50.yaml",
+    urls: [
+      { url: "OBS-v2.10.50.yaml", name: 'OBS v2.10.50'},
+    ],
     validatorUrl: "none",
     dom_id: '#swagger-ui',
     deepLinking: true,
