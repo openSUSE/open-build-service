@@ -12,10 +12,6 @@
             .d-flex.flex-wrap.gap-4.align-self-stretch
               - @canned_responses.filter { |cr| cr.decision_type == decision_type }.each do |canned_response|
                 = render(CardComponent.new) do |component|
-                  - if canned_response.decision_type
-                    %p.card-text
-                      %b Decision's reason:
-                      %span.mb-2= canned_response.decision_type.humanize
                   %p.card-text
                     %b Content:
                     .canned-response-card-text.mb-2
