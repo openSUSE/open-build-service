@@ -152,7 +152,7 @@ GEM
     database_cleaner-core (2.0.1)
     database_consistency (2.0.8)
       activerecord (>= 3.2)
-    date (3.5.0)
+    date (3.5.1)
     deep_cloneable (3.2.1)
       activerecord (>= 3.1.0, < 9)
     delayed_job (4.1.13)
