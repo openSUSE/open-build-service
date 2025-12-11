@@ -12,10 +12,8 @@
             .d-flex.flex-wrap.gap-4.align-self-stretch
               - @canned_responses.filter { |cr| cr.decision_type == decision_type }.each do |canned_response|
                 = render(CardComponent.new) do |component|
-                  %p.card-text
-                    %b Content:
-                    .canned-response-card-text.mb-2
-                      = render partial: 'webui/shared/collapsible_text', locals: { text: canned_response.content, render_markdown: true }
+                  .canned-response-card-text.mb-2
+                    = render partial: 'webui/shared/collapsible_text', locals: { text: canned_response.content, render_markdown: true }
 
                   - component.with_header do
                     = canned_response.title
