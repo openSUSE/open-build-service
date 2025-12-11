@@ -75,7 +75,7 @@ RSpec.describe Workflow::Step::SubmitRequest, :vcr do
           expect do
             subject.call
             bs_request.reload
-          end.to(change(bs_request, :state).from(:new).to(:revoked))
+          end.to(change(bs_request, :status).from('new').to('revoked'))
           expect { subject.call }.not_to change(BsRequest, :count)
         end
       end
